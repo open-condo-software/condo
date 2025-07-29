@@ -283,6 +283,14 @@ describe('function "validateUserCredentials"', () => {
                     )
                     expect(result.success).toBeFalsy()
                 })
+
+                test('if email and password valid but email not verified', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+
+                    const result = await validateUserCredentials({ email: userAttrs.email, userType: registeredUser.type }, { password: userAttrs.password })
+                    expect(result.success).toBeFalsy()
+                })
             })
 
             describe('should return "success: true" if user found and user match', () => {
@@ -345,6 +353,15 @@ describe('function "validateUserCredentials"', () => {
                     expect(result.success).toBeTruthy()
                     expect(result.user.id).toBe(registeredUser.id)
                 })
+
+                test('if email valid and verified and password valid', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, { isEmailVerified: true })
+
+                    const result = await validateUserCredentials({ email: userAttrs.email, userType: registeredUser.type }, { password: userAttrs.password })
+                    expect(result.success).toBeTruthy()
+                })
             })
         })
 
@@ -352,18 +369,19 @@ describe('function "validateUserCredentials"', () => {
 
         test('correctly separates users with the same phone and email but different types', async () => {
             const [registeredResidentUser, residentUserAttrs] = await registerNewUser(await makeClient())
-            await updateTestUser(adminClient, registeredResidentUser.id, { type: RESIDENT })
+            await updateTestUser(adminClient, registeredResidentUser.id, { type: RESIDENT, isEmailVerified: true })
             const resultWithResident = await validateUserCredentials({ phone: residentUserAttrs.phone, email: residentUserAttrs.email, userType: RESIDENT }, { password: residentUserAttrs.password })
             expect(resultWithResident.success).toBeTruthy()
             expect(resultWithResident.user.id).toBe(registeredResidentUser.id)
 
             const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), { phone: residentUserAttrs.phone, email: residentUserAttrs.email })
-            await updateTestUser(adminClient, registeredServiceUser.id, { type: SERVICE })
+            await updateTestUser(adminClient, registeredServiceUser.id, { type: SERVICE, isEmailVerified: true })
             const resultWithService = await validateUserCredentials({ phone: serviceUserAttrs.phone, email: serviceUserAttrs.email, userType: SERVICE }, { password: serviceUserAttrs.password })
             expect(resultWithService.success).toBeTruthy()
             expect(resultWithService.user.id).toBe(registeredServiceUser.id)
 
             const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), { phone: residentUserAttrs.phone, email: residentUserAttrs.email })
+            await updateTestUser(adminClient, registeredStaffUser.id, { isEmailVerified: true })
             const resultWithStaff = await validateUserCredentials({ phone: staffUserAttrs.phone, email: staffUserAttrs.email, userType: STAFF }, { password: staffUserAttrs.password })
             expect(resultWithStaff.success).toBeTruthy()
             expect(resultWithStaff.user.id).toBe(registeredStaffUser.id)
@@ -387,7 +405,6 @@ describe('function "validateUserCredentials"', () => {
             const confirmPhoneAction = await ConfirmPhoneAction.getOne(adminClient, { token })
             expect(confirmPhoneAction.completedAt).toBeNull()
         })
-
 
         test('should return user data, confirmPhoneAction data and validation results after successful validation', async () => {
             const anonymous = await makeClient()
