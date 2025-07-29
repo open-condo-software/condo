@@ -21,8 +21,6 @@ type AIInputNotificationPropsType = {
     updateLoading?: boolean
 }
 
-const AUTO_CLOSE_DELAY = 15 * 1000
-
 type StatusPropsType = {
     result?: string
     updateLoading?: boolean
@@ -76,39 +74,26 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
     }, [updateLoading, result])
 
     const targetRef = useRef(null)
-    const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout>>()
 
     const [tooltipWidth, setTooltipWidth] = useState(0)
 
     useEffect(() => {
         if (!targetRef.current) return
-        const { width } = targetRef.current.getBoundingClientRect()
-        setTooltipWidth(width)
-    }, [])
 
-    const startAutoCloseTimer = () => {
-        clearAutoCloseTimer()
-        autoCloseTimerRef.current = setTimeout(() => {
-            onClose()
-        }, AUTO_CLOSE_DELAY)
-    }
+        const onWindowResize = ()=> {
+            if (!targetRef.current) return
 
-    const clearAutoCloseTimer = () => {
-        if (autoCloseTimerRef.current) {
-            clearTimeout(autoCloseTimerRef.current)
-            autoCloseTimerRef.current = undefined
+            const boundingClientRect = targetRef?.current?.getBoundingClientRect()
+            const width = boundingClientRect?.width ?? tooltipWidth
+
+            setTooltipWidth(width)
         }
-    }
 
-    const handleMouseEnter = () => {
-        clearAutoCloseTimer()
-    }
+        onWindowResize()
+        window.addEventListener('resize', onWindowResize)
 
-    const handleMouseLeave = () => {
-        if (open) {
-            startAutoCloseTimer()
-        }
-    }
+        return () => window.removeEventListener('resize', onWindowResize)
+    }, [tooltipWidth])
 
     return (
         <Tooltip
@@ -119,69 +104,65 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
                 width: tooltipWidth,
                 right: (tooltipWidth - 250) / 2,
                 position: 'relative',
+                top: '16px',
             }}
             open={open && (!!result || !!errorMessage || updateLoading)}
             title={
-                <div
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
+                <Space
+                    size={12}
+                    align='start'
+                    direction='vertical'
+                    className={styles.notification}
                 >
-                    <Space
-                        size={12}
-                        align='start'
-                        direction='vertical'
-                        className={styles.notification}
-                    >
-                        <div className={styles.header}>
-                            <Status
-                                result={result}
-                                updateLoading={updateLoading}
-                            />
+                    <div className={styles.header}>
+                        <Status
+                            result={result}
+                            updateLoading={updateLoading}
+                        />
+
+                        <Button
+                            type='secondary'
+                            minimal
+                            compact
+                            size='medium'
+                            onClick={onClose}
+                            icon={<Close size='small'/>}
+                        />
+                    </div>
+
+                    <Typography.Paragraph size='medium'>
+                        <span className={updateLoading ? styles.smoothBlinkingText : ''}>
+                            {result || errorMessage || tempMessage}
+                        </span>
+                    </Typography.Paragraph>
+
+                    {(updateLoading || result) && (
+                        <div className={styles.actions}>
+                            <Button
+                                onClick={onApply}
+                                type='primary'
+                                minimal
+                                compact
+                                disabled={updateLoading}
+                                size='medium'
+                            >
+                                {ApplyLabel}
+                            </Button>
 
                             <Button
+                                disabled={updateLoading}
+                                onClick={onUpdate}
                                 type='secondary'
                                 minimal
                                 compact
                                 size='medium'
-                                onClick={onClose}
-                                icon={<Close size='small'/>}
-                            />
+                                icon={<RefreshCw size='small'/>}
+                            >
+                                {AnotherVariantLabel}
+                            </Button>
                         </div>
-
-                        <Typography.Paragraph size='medium'>
-                            <span className={updateLoading ? styles.smoothBlinkingText : ''}>
-                                {result || errorMessage || tempMessage}
-                            </span>
-                        </Typography.Paragraph>
-
-                        {(updateLoading || result) && (
-                            <div className={styles.actions}>
-                                <Button
-                                    onClick={onApply}
-                                    type='primary'
-                                    minimal
-                                    compact
-                                    disabled={updateLoading}
-                                    size='medium'
-                                >
-                                    {ApplyLabel}
-                                </Button>
-
-                                <Button
-                                    disabled={updateLoading}
-                                    onClick={onUpdate}
-                                    type='secondary'
-                                    minimal
-                                    compact
-                                    size='medium'
-                                    icon={<RefreshCw size='small'/>}
-                                >
-                                    {AnotherVariantLabel}
-                                </Button>
-                            </div>
-                        )}
-                    </Space>
-                </div>
+                    )}
+                </Space>
             }
         >
             <span ref={targetRef}>

@@ -32,7 +32,7 @@ import { ActionBar, Alert, Button } from '@open-condo/ui'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
-import { CommentsWrapper } from '@condo/domains/common/components/Comments'
+import { Comments, CommentsWrapper } from '@condo/domains/common/components/Comments'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -225,7 +225,7 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                 breakpoints.TABLET_LARGE ? (
                                     <Row justify='end' gutter={SMALL_VERTICAL_GUTTER}>
                                         <Col span={24}>
-                                            <Row justify='end' align='middle' gutter={BIG_HORIZONTAL_GUTTER}>
+                                            <Row justify='end' align='middle' gutter={[20, 0]}>
                                                 <Col>
                                                     <FavoriteTicketIndicator
                                                         ticketId={ticket.id}
@@ -692,7 +692,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
 
     const render = (
         <Row gutter={BIG_VERTICAL_GUTTER}>
-            <Col lg={16} xs={24}>
+            <Col lg={15} xs={24}>
                 <Row gutter={TICKET_CONTENT_VERTICAL_GUTTER}>
                     <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                         <TicketHeader
@@ -766,7 +766,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                     </Col>
                 </Row>
             </Col>
-            <Col lg={7} xs={24} offset={breakpoints.DESKTOP_SMALL ? 1 : 0}>
+            <Col lg={8} xs={24} offset={breakpoints.DESKTOP_SMALL ? 1 : 0}>
                 <Affix offsetTop={40}>
                     <CommentsWrapper
                         ticketId={id}
