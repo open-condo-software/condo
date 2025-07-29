@@ -2,7 +2,7 @@ const get = require('lodash/get')
 
 const { createInstance } = require('@open-condo/clients/pullenti-client')
 
-const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
+const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/DadataSuggestionProvider')
 const { getXmlParser } = require('@address-service/domains/common/utils/services/utils/pullenti/normalizer')
 
 const ORGANIZATION_KLADR_FIELDS = ['settlement_kladr_id', 'city_kladr_id', 'region_kladr_id']
