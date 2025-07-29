@@ -32,7 +32,7 @@ import { ActionBar, Alert, Button } from '@open-condo/ui'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
-import { Comments, CommentsWrapper } from '@condo/domains/common/components/Comments'
+import { CommentsWrapper } from '@condo/domains/common/components/Comments'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -99,7 +99,7 @@ const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 20]
-const BIG_HORIZONTAL_GUTTER: RowProps['gutter'] = [40, 0]
+const BIG_HORIZONTAL_GUTTER: RowProps['gutter'] = [20, 0]
 
 const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employee }) => {
     const intl = useIntl()
@@ -225,7 +225,7 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                 breakpoints.TABLET_LARGE ? (
                                     <Row justify='end' gutter={SMALL_VERTICAL_GUTTER}>
                                         <Col span={24}>
-                                            <Row justify='end' align='middle' gutter={[20, 0]}>
+                                            <Row justify='end' align='middle' gutter={BIG_HORIZONTAL_GUTTER}>
                                                 <Col>
                                                     <FavoriteTicketIndicator
                                                         ticketId={ticket.id}
