@@ -1,5 +1,5 @@
 import { TextAreaRef } from 'antd/lib/input/TextArea'
-import { FC, useEffect, useRef, useState } from 'react'
+import { FC, useCallback, useEffect, useRef, useState } from 'react'
 
 import { CheckCircle, Close, RefreshCw, XCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -80,20 +80,14 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
     useEffect(() => {
         if (!targetRef.current) return
 
-        const onWindowResize = ()=> {
-            if (!targetRef.current) return
-
-            const boundingClientRect = targetRef?.current?.getBoundingClientRect()
-            const width = boundingClientRect?.width ?? tooltipWidth
-
+        const observer = new ResizeObserver((entries) => {
+            const { width } = entries[0].contentRect
             setTooltipWidth(width)
-        }
+        })
 
-        onWindowResize()
-        window.addEventListener('resize', onWindowResize)
-
-        return () => window.removeEventListener('resize', onWindowResize)
-    }, [tooltipWidth])
+        observer.observe(targetRef.current)
+        return () => observer.disconnect()
+    }, [])
 
     return (
         <Tooltip

@@ -290,11 +290,9 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
     const closeAINotification = () => {
         setAiNotificationShow(false)
-        setTimeout(()=> {
-            setGenerateCommentAnswer('')
-            setRewriteTextAnswer('')
-            setErrorMessage('')
-        }, 100)
+        setGenerateCommentAnswer('')
+        setRewriteTextAnswer('')
+        setErrorMessage('')
     }
 
     const handleCloseAINotification = () => {
