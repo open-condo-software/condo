@@ -1,4 +1,3 @@
-import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
@@ -17,7 +16,7 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
     const router = useRouter()
 
     const { tab } = parseQuery(router.query)
-    const activeTab = useMemo(() => availableTabs.includes(tab) ? tab : get(availableTabs, [0], ''),  [tab, availableTabs])
+    const activeTab = useMemo(() => availableTabs.includes(tab) ? tab : availableTabs?.[0] || '',  [tab, availableTabs])
 
     const changeRouteToActiveTab = useCallback(async (activeTab: string, routerAction: 'replace' | 'push' = 'push') => {
         await updateQuery(router, {

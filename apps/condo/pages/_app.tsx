@@ -36,7 +36,6 @@ import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBa
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import { CondoAppEventsHandler } from '@condo/domains/common/components/CondoAppEventsHandler'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleTagManager from '@condo/domains/common/components/containers/GoogleTagManager'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
@@ -521,7 +520,6 @@ const MyApp = ({ Component, pageProps }) => {
             </Head>
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={emotionCache}>
-                    <GlobalStyle/>
                     <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
                         {shouldDisplayCookieAgreement && <CookieAgreement/>}
                         <TasksProvider>
