@@ -183,6 +183,8 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0) {
         }
 
         try {
+            // This is used only in testing scenario
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
             __expressTestServers[name].server = http.createServer(app)
 
             __expressTestServers[name].server.on('error', (err) => {
