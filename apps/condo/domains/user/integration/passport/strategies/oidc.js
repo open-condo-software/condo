@@ -28,7 +28,7 @@ class OIDCAuthStrategy {
     }
 
 
-    build (keystone) {
+    build () {
         const providerInfo = {
             ...this.#trustInfo,
             name: this.#identityType,
@@ -45,7 +45,7 @@ class OIDCAuthStrategy {
             // NOTE: Important to have all args. Otherwise _json is not available
             async function oidcAuthCallback (req, issuer, uiProfile, idProfile, context, idToken, accessToken, refreshToken, params, done) {
                 try {
-                    const user = await syncUser(keystone, uiProfile._json, req.session.userType, providerInfo, fieldMapping)
+                    const user = await syncUser(req, uiProfile._json, req.session.userType, providerInfo, fieldMapping)
                     done(null, user)
                 } catch (err) {
                     done(err)
