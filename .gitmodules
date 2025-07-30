@@ -69,4 +69,4 @@
 	url = git@github.com:open-condo-software/condo-ticket-importer.git
 [submodule "apps/pos-integration"]
 	path = apps/pos-integration
-	url = https://github.com/open-condo-software/pos-integration.git
+	url = git@github.com:open-condo-software/pos-integration.git
