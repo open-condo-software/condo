@@ -128,7 +128,7 @@ function _isSuperUser (user) {
     return user.isSupport || user.isAdmin || user.rightsSet
 }
 
-async function _findOrCreateUser (req, userData, userType, providerInfo) {
+async function _findOrCreateUser (req, userData, userType, providerInfo, userMeta) {
     const errorContext = { req }
     const { keystone } = getSchemaCtx('User')
     const context = await keystone.createContext({ skipAccessControl: true })
@@ -201,7 +201,7 @@ async function _findOrCreateUser (req, userData, userType, providerInfo) {
             isExternalEmailVerified: Boolean(userData.email && userData.isEmailVerified),
             externalSystemName: providerInfo.name,
             meta: {
-                [providerInfo.name]: userData,
+                [providerInfo.name]: userMeta,
             },
         }
 
@@ -268,7 +268,7 @@ async function _findOrCreateUser (req, userData, userType, providerInfo) {
         ...DV_AND_SENDER,
         meta: {
             ...targetUser.meta,
-            [providerInfo.name]: userData,
+            [providerInfo.name]: userMeta,
         },
     }
 
@@ -400,7 +400,7 @@ async function syncUser (
     }
 
     // Step 5. If no external identity, we need to create find or create user and create identity
-    const user = await _findOrCreateUser(req, userData, userType, providerInfoData)
+    const user = await _findOrCreateUser(req, userData, userType, providerInfoData, userProfile)
 
     await UserExternalIdentity.create(context, {
         identityId: userData.id,

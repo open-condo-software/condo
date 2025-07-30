@@ -618,5 +618,309 @@ describe('User utils', () => {
                 expect(id).toEqual(phoneUser.id)
             })
         })
+        describe('Must fill fields on user creation', () => {
+            test('external fields and meta must be filled', async () => {
+                const rawProfile = {
+                    ...createTestOIDCProfile(),
+                    extraField: 'extraValue',
+                }
+                const providerInfo = generateProviderInfo()
+                const userType = getRandomUserType()
+
+                const { id } = await syncUser(
+                    createMockRequest(),
+                    rawProfile,
+                    userType,
+                    providerInfo,
+                )
+                expect(id).toBeDefined()
+
+                const user = await getById('User', id)
+                expect(user).toEqual(expect.objectContaining({
+                    type: userType,
+                    name: rawProfile.name,
+                    externalPhone: rawProfile.phone_number,
+                    isExternalPhoneVerified: rawProfile.phone_number_verified,
+                    externalEmail: rawProfile.email,
+                    isExternalEmailVerified: rawProfile.email_verified,
+                    externalSystemName: providerInfo.name,
+                    meta: {
+                        [providerInfo.name]: rawProfile,
+                    },
+                }))
+            })
+            describe('isExternalPhoneVerified / isExternalEmailVerified', () => {
+                test('must not depends on trustEmail / trustPhone, since its status of verification of provider', async () => {
+                    const providerInfo = generateProviderInfo({
+                        trustEmail: false,
+                        trustPhone: false,
+                    })
+                    expect(providerInfo).toHaveProperty('trustEmail', false)
+                    expect(providerInfo).toHaveProperty('trustPhone', false)
+
+                    const profile = createTestOIDCProfile({
+                        email_verified: true,
+                        phone_number_verified: true,
+                    })
+                    expect(profile).toHaveProperty('phone_number_verified', true)
+                    expect(profile).toHaveProperty('email_verified', true)
+
+                    const { id } = await syncUser(
+                        createMockRequest(),
+                        profile,
+                        getRandomUserType(),
+                        providerInfo,
+                    )
+                    expect(id).toBeDefined()
+
+                    const user = await getById('User', id)
+                    expect(user).toHaveProperty('externalPhone', profile.phone_number)
+                    expect(user).toHaveProperty('isExternalPhoneVerified', true)
+                    expect(user).toHaveProperty('externalEmail', profile.email)
+                    expect(user).toHaveProperty('isExternalEmailVerified', true)
+                })
+                test('must be set to "false" if phone / email is null', async () => {
+                    const profile = {
+                        sub: faker.datatype.uuid(),
+                        phone_number_verified: true,
+                        email_verified: true,
+                    }
+
+                    const { id } = await syncUser(
+                        createMockRequest(),
+                        profile,
+                        getRandomUserType(),
+                        generateProviderInfo()
+                    )
+                    expect(id).toBeDefined()
+
+                    const user = await getById('User', id)
+                    expect(user).toHaveProperty('externalPhone', null)
+                    expect(user).toHaveProperty('isExternalPhoneVerified', false)
+                    expect(user).toHaveProperty('externalEmail', null)
+                    expect(user).toHaveProperty('isExternalEmailVerified', false)
+                })
+            })
+            describe('phone / email related fields', () => {
+                test('Must be filled if no conflicts and provider is trusted', async () => {
+                    const profile = createTestOIDCProfile({
+                        email_verified: true,
+                        phone_number_verified: true,
+                    })
+                    expect(profile).toHaveProperty('phone_number_verified', true)
+                    expect(profile).toHaveProperty('email_verified', true)
+
+                    const provider = generateProviderInfo({ trustPhone: true, trustEmail: true })
+
+                    const { id } = await syncUser(
+                        createMockRequest(),
+                        profile,
+                        getRandomUserType(),
+                        provider,
+                    )
+                    expect(id).toBeDefined()
+
+                    const user = await getById('User', id)
+                    expect(user).toHaveProperty('phone', profile.phone_number)
+                    expect(user).toHaveProperty('isPhoneVerified', true)
+                    expect(user).toHaveProperty('email', profile.email)
+                    expect(user).toHaveProperty('isEmailVerified', true)
+                })
+                describe('Must be also filled on conflict with non-verified email / phone. Conflicting user must also lose their unverified phone / email (while saving in meta) to avoid constraints',  () => {
+                    test.each(_generateCombinations({
+                        phone_number_verified: [true, false],
+                        email_verified: [true, false],
+                    }).map(combination => [combination.phone_number_verified, combination.email_verified]))('phone_number_verified: %p, email_verified: %p', async (phone_number_verified, email_verified) => {
+                        const phone = createTestPhone()
+                        const email = createTestEmail()
+                        const userType = getRandomUserType()
+
+                        const duplicatedByPhoneUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            phone,
+                            isPhoneVerified: false,
+                            type: userType,
+                        }, 'id phone isPhoneVerified')
+                        expect(duplicatedByPhoneUser).toHaveProperty('id')
+
+                        const duplicatedByEmailUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            email,
+                            isEmailVerified: false,
+                            type: userType,
+                        }, 'id email isEmailVerified')
+                        expect(duplicatedByEmailUser).toHaveProperty('id')
+
+                        const provider = generateProviderInfo({ trustPhone: true, trustEmail: true })
+
+                        const profile = createTestOIDCProfile({
+                            phone_number: phone,
+                            phone_number_verified,
+                            email,
+                            email_verified,
+                        })
+
+                        const { id } = await syncUser(
+                            createMockRequest(),
+                            profile,
+                            userType,
+                            provider,
+                        )
+                        expect(id).toBeDefined()
+                        expect(id).not.toEqual(duplicatedByPhoneUser.id)
+                        expect(id).not.toEqual(duplicatedByEmailUser.id)
+
+                        const user = await getById('User', id)
+                        expect(user).toEqual(expect.objectContaining({
+                            phone: profile.phone_number,
+                            isPhoneVerified: phone_number_verified,
+                            email: profile.email,
+                            isEmailVerified: email_verified,
+                        }))
+
+                        const updatedDuplicateByPhone = await getById('User', duplicatedByPhoneUser.id)
+                        expect(updatedDuplicateByPhone).toHaveProperty('phone', null)
+                        expect(updatedDuplicateByPhone).toHaveProperty('isPhoneVerified', false)
+                        expect(updatedDuplicateByPhone.meta).toEqual(expect.objectContaining({
+                            phone: duplicatedByPhoneUser.phone,
+                        }))
+
+                        const updatedDuplicateByEmail = await getById('User', duplicatedByEmailUser.id)
+                        expect(updatedDuplicateByEmail).toHaveProperty('email', null)
+                        expect(updatedDuplicateByEmail).toHaveProperty('isEmailVerified', false)
+                        expect(updatedDuplicateByEmail.meta).toEqual(expect.objectContaining({
+                            email: duplicatedByEmailUser.email,
+                        }))
+                    })
+                })
+                describe('isPhoneVerified / isEmailVerified must depends on trustPhone / trustEmail since it can be used for condo auth methods',  () => {
+                    test('isPhoneVerified', async () => {
+                        const providerInfo = generateProviderInfo({
+                            trustPhone: false,
+                        })
+                        expect(providerInfo).toHaveProperty('trustPhone', false)
+
+                        const profile = createTestOIDCProfile({
+                            phone_number_verified: true,
+                        })
+                        expect(profile).toHaveProperty('phone_number_verified', true)
+
+                        const { id } = await syncUser(
+                            createMockRequest(),
+                            profile,
+                            getRandomUserType(),
+                            providerInfo,
+                        )
+                        expect(id).toBeDefined()
+
+                        const user = await getById('User', id)
+                        expect(user).toHaveProperty('phone', profile.phone_number)
+                        expect(user).toHaveProperty('isPhoneVerified', false)
+                    })
+                    test('isEmailVerified', async () => {
+                        const providerInfo = generateProviderInfo({
+                            trustEmail: false,
+                        })
+                        expect(providerInfo).toHaveProperty('trustEmail', false)
+
+                        const profile = createTestOIDCProfile({
+                            email_verified: true,
+                        })
+                        expect(profile).toHaveProperty('email_verified', true)
+
+                        const { id } = await syncUser(
+                            createMockRequest(),
+                            profile,
+                            getRandomUserType(),
+                            providerInfo,
+                        )
+                        expect(id).toBeDefined()
+
+                        const user = await getById('User', id)
+                        expect(user).toHaveProperty('email', profile.email)
+                        expect(user).toHaveProperty('isEmailVerified', false)
+                    })
+
+                })
+                describe('email / phone must not be set on conflict with untrusted provider',  () => {
+                    test('phone', async () => {
+                        const phone = createTestPhone()
+                        const userType = getRandomUserType()
+
+                        const duplicatedByPhoneUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            phone,
+                            isPhoneVerified: false,
+                            type: userType,
+                        }, 'id phone isPhoneVerified')
+                        expect(duplicatedByPhoneUser).toHaveProperty('id')
+
+                        const provider = generateProviderInfo({ trustPhone: false })
+
+                        const profile = createTestOIDCProfile({
+                            phone_number: phone,
+                            phone_number_verified: true,
+                        })
+
+                        const { id } = await syncUser(
+                            createMockRequest(),
+                            profile,
+                            userType,
+                            provider,
+                        )
+                        expect(id).toBeDefined()
+                        expect(id).not.toEqual(duplicatedByPhoneUser.id)
+
+                        const user = await getById('User', id)
+                        expect(user).toEqual(expect.objectContaining({
+                            phone: null,
+                            isPhoneVerified: false,
+                        }))
+
+                        const updatedDuplicateByPhone = await getById('User', duplicatedByPhoneUser.id)
+                        expect(updatedDuplicateByPhone).toHaveProperty('phone', duplicatedByPhoneUser.phone)
+                        expect(updatedDuplicateByPhone).toHaveProperty('isPhoneVerified', duplicatedByPhoneUser.isPhoneVerified)
+                    })
+                    test('email', async () => {
+                        const email = createTestEmail()
+                        const userType = getRandomUserType()
+
+                        const duplicatedByEmailUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            email,
+                            isEmailVerified: false,
+                            type: userType,
+                        }, 'id email isEmailVerified')
+                        expect(duplicatedByEmailUser).toHaveProperty('id')
+
+                        const provider = generateProviderInfo({ trustEmail: false })
+
+                        const profile = createTestOIDCProfile({
+                            email,
+                            email_verified: true,
+                        })
+
+                        const { id } = await syncUser(
+                            createMockRequest(),
+                            profile,
+                            userType,
+                            provider,
+                        )
+                        expect(id).toBeDefined()
+                        expect(id).not.toEqual(duplicatedByEmailUser.id)
+
+                        const user = await getById('User', id)
+                        expect(user).toEqual(expect.objectContaining({
+                            email: null,
+                            isEmailVerified: false,
+                        }))
+
+                        const updatedDuplicateByEmail = await getById('User', duplicatedByEmailUser.id)
+                        expect(updatedDuplicateByEmail).toHaveProperty('email', duplicatedByEmailUser.email)
+                        expect(updatedDuplicateByEmail).toHaveProperty('isEmailVerified', duplicatedByEmailUser.isEmailVerified)
+                    })
+                })
+            })
+        })
     })
 })
