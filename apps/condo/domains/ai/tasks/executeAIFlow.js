@@ -38,7 +38,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
 
     const { keystone: context } = getSchemaCtx('ExecutionAIFlowTask')
 
-    const task = await ExecutionAIFlowTask.getOne(context, { id: executionAIFlowTaskId }, 'id flowType context locale status')
+    const task = await ExecutionAIFlowTask.getOne(context, { id: executionAIFlowTaskId }, 'id flowType context cleanContext locale status')
 
     try {
         if (!task || task.deletedAt) {
