@@ -57,7 +57,7 @@ class PassportAuthRouter {
         })
 
         for (const [name, strategy] of Object.entries(this.#strategiesByNames)) {
-            passport.use(name, strategy.build(keystone))
+            passport.use(name, strategy.build())
         }
 
         const strategies = this.#strategiesByNames

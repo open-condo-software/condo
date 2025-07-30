@@ -4,10 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
-const { gql } = require('graphql-tag')
-const { v4: uuid } = require('uuid')
 const { countryPhoneData } = require('phone')
-const { max, repeat, get, isEmpty } = require('lodash')
+const { repeat, get, isEmpty } = require('lodash')
 const dayjs = require('dayjs')
 
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -63,7 +61,7 @@ const { ConfirmEmailAction: ConfirmEmailActionGQL } = require('@condo/domains/us
 const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
 
 function createTestEmail () {
-    return ('test.' + getRandomString() + '@example.com').toLowerCase()
+    return ('test.' + getRandomString(32) + '@example.com').toLowerCase()
 }
 
 const captcha = () => {
@@ -72,10 +70,16 @@ const captcha = () => {
 
 function createTestPhone () {
     const { country_code, mobile_begin_with, phone_number_lengths } = faker.helpers.arrayElement(countryPhoneData.filter(x => get(x, 'mobile_begin_with.length', 0) > 0))
-    const length = max(phone_number_lengths)
-    const code = String(faker.helpers.arrayElement(mobile_begin_with))
 
-    return faker.phone.number('+' + country_code + code + repeat('#', length - code.length))
+    const mobilePrefix = String(faker.helpers.arrayElement(mobile_begin_with))
+    const allowedLengths = phone_number_lengths
+        .filter((l) => country_code.length + l <= 15)
+    const len = faker.helpers.arrayElement(
+        allowedLengths.length ? allowedLengths : [Math.min(...phone_number_lengths)]
+    )
+
+    const pattern = `+${country_code}${mobilePrefix}${repeat('#', len - mobilePrefix.length)}`
+    return faker.phone.number(pattern)
 }
 
 function createTestLandlineNumber () {

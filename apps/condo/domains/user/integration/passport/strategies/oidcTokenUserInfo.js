@@ -27,7 +27,7 @@ class OidcTokenUserInfoAuthStrategy {
     }
 
 
-    build (keystone) {
+    build () {
         const callbackPath = new URL(this.#callbackURL).pathname
         const clients = this.#clients
         const strategyTrustInfo = this.#strategyTrustInfo
@@ -74,7 +74,7 @@ class OidcTokenUserInfoAuthStrategy {
                     return done(new Error('userInfo request was not successful'))
                 }
                 const userProfile = await response.json()
-                const user = await syncUser(keystone, userProfile, req.session.userType, providerInfo, fieldMapping)
+                const user = await syncUser(req, userProfile, req.session.userType, providerInfo, fieldMapping)
 
                 return done(null, user)
             } catch (err) {
