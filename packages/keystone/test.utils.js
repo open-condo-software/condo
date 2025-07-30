@@ -150,7 +150,21 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     __isAwaiting = true
 }
 
+/**
+ * @typedef {Object} TestExpressServer
+ * @property {string} status
+ * @property {http.Server} server
+ * @property {string} address
+ * @property {number} port
+ * @property {string} baseUrl
+ */
+
+/**
+ * @type {Object<string, TestExpressServer>}
+ */
 let __expressTestServers = {}
+const EXPRESS_TEST_SERVER_INIT_STATUS = 'init'
+const EXPRESS_TEST_SERVER_LISTENING_STATUS = 'listening'
 
 /**
  * Initializes provided express server on a free port. Returns an address of the server. Removes server after finishing tests
@@ -168,13 +182,14 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0) {
         throw new Error('initTestExpressApp(name, app) no app!')
     }
 
-    if (getTestExpressApp(name)) {
+    if (!!__expressTestServers[name]) {
         throw new Error('initTestExpressApp(name, app) express app with this name is already initialized')
     }
 
     beforeAll(async () => {
 
         __expressTestServers[name] = {
+            status: EXPRESS_TEST_SERVER_INIT_STATUS,
             server: null,
             address: null,
             port: null,
@@ -182,12 +197,13 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0) {
         }
         // This express runs only in tests
         // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
-        __expressTestServers[name].server = await http.createServer(app).listen(port)
-
-        const addressInfo = __expressTestServers[name].server.address()
-        __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
-        __expressTestServers[name].port = addressInfo.port
-        __expressTestServers[name].baseUrl = `${protocol}://${__expressTestServers[name].address}:${__expressTestServers[name].port}`
+        __expressTestServers[name].server = await http.createServer(app).on('listening', () => {
+            const addressInfo = __expressTestServers[name].server.address()
+            __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
+            __expressTestServers[name].port = addressInfo.port
+            __expressTestServers[name].baseUrl = `${protocol}://${__expressTestServers[name].address}:${__expressTestServers[name].port}`
+            __expressTestServers[name].status = EXPRESS_TEST_SERVER_LISTENING_STATUS
+        }).listen(port)
     })
 
     afterAll(async () => {
@@ -198,13 +214,28 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0) {
     })
 }
 
+async function sleep (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 /**
  * Returns test express app. Use when you need to get address of the app
  * @param name
- * @returns {*}
+ * @returns {Promise<TestExpressServer>}
  */
-function getTestExpressApp (name) {
-    return __expressTestServers[name]
+async function getTestExpressApp (name) {
+    return new Promise(async (resolve, reject) => {
+        // Wait for status to be set to EXPRESS_TEST_SERVER_LISTENING_STATUS
+        for (let i = 0; i < 10; i++) {  // try 10 times
+            if (__expressTestServers[name] && __expressTestServers[name].status === EXPRESS_TEST_SERVER_LISTENING_STATUS) {
+                resolve(__expressTestServers[name])
+                break
+            }
+            await sleep(500)
+        }
+
+        reject(new Error(`getTestExpressApp(${name}) timeout`))
+    })
 }
 
 /**

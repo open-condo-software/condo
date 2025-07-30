@@ -42,7 +42,7 @@ describe('GetNewsSharingRecipientsService', () => {
     initTestExpressApp('NewsSharing', new NewsSharingTestingApp().prepareMiddleware())
 
     beforeAll(async () => {
-        const testExpressApp = getTestExpressApp('NewsSharing')
+        const testExpressApp = await getTestExpressApp('NewsSharing')
         testExpressAppBaseUrl = testExpressApp.baseUrl
 
         adminClient = await makeLoggedInAdminClient()

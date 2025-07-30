@@ -15,8 +15,8 @@ describe('Fetch with retries', () => {
 
     let URL
 
-    beforeAll(() => {
-        URL = getTestExpressApp(appName).baseUrl
+    beforeAll(async () => {
+        URL = (await getTestExpressApp(appName)).baseUrl
     })
 
     const getOptions = (override = {}) => ({

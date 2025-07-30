@@ -70,7 +70,7 @@ describe('NewsItemSharing', () => {
         const [emptyRole] = await createTestOrganizationEmployeeRole(admin, o10n)
         await createTestOrganizationEmployee(admin, o10n, staffWOPermissions.user, emptyRole)
 
-        const testExpressApp = getTestExpressApp('NewsSharing')
+        const testExpressApp = await getTestExpressApp('NewsSharing')
         testExpressAppBaseUrl = testExpressApp.baseUrl
 
         // Success config

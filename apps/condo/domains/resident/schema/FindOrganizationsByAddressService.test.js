@@ -403,7 +403,7 @@ describe('FindOrganizationsByAddress', () => {
 
                 beforeAll(async () => {
                     await utils.init()
-                    const baseUrl = getTestExpressApp('OnlineInteraction').baseUrl + CHECK_URL_PATH
+                    const baseUrl = (await getTestExpressApp('OnlineInteraction')).baseUrl + CHECK_URL_PATH
                     await utils.updateBillingIntegration({ checkAccountNumberUrl: baseUrl })
                 })
 
