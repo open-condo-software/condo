@@ -61,7 +61,7 @@ const { ConfirmEmailAction: ConfirmEmailActionGQL } = require('@condo/domains/us
 const { AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
+const OIDC_REDIRECT_URI = 'https://httpbingo.org/dump/request'
 
 function createTestEmail () {
     return ('test.' + getRandomString() + '@example.com').toLowerCase()
