@@ -67,7 +67,7 @@ export const ClientAddressCard: React.FC<IClientAddressCardProps> = ({ onClick, 
     return (
         <div data-active={active} className={styles.addressTabWrapper} onClick={onClick}>
             <div className={styles.addressTabContent}>
-                <Space size={8} direction='vertical'>
+                <Space size={4} direction='vertical'>
                     {
                         showOrganizationMessage && (
                             <Typography.Paragraph
@@ -79,44 +79,45 @@ export const ClientAddressCard: React.FC<IClientAddressCardProps> = ({ onClick, 
                             </Typography.Paragraph>
                         )
                     }
-                    
-                    <Typography.Text
-                        ref={addressStreetRef}
-                        ellipsis={addressStreetEllipsis}
-                        title={streetMessage}
-                        strong
-                    >
-                        {streetMessage}
-                    </Typography.Text>
-
-                    {floorName || sectionName || unitName ? (
-                        <Row className={styles.unitRows}>
+                    <Space size={4} direction='vertical'>
+                        <Space size={0} direction='vertical'>
                             <Typography.Text
                                 ref={addressStreetRef}
                                 ellipsis={addressStreetEllipsis}
                                 title={streetMessage}
                                 strong
                             >
-                                {unitNamePrefix} {unitName}
+                                {streetMessage}
                             </Typography.Text>
+                            {floorName || sectionName || unitName ? (
+                                <Row className={styles.unitRows}>
+                                    <Typography.Text
+                                        ref={addressStreetRef}
+                                        ellipsis={addressStreetEllipsis}
+                                        title={streetMessage}
+                                        strong
+                                    >
+                                        {unitNamePrefix} {unitName}
+                                    </Typography.Text>
 
-                            {sectionName && floorName && (
-                                <Typography.Text type='secondary'>
+                                    {sectionName && floorName && (
+                                        <Typography.Text type='secondary'>
                                     ({SectionMessage} {sectionName}, {FloorMessage} {floorName})
-                                </Typography.Text>
-                            )}
-                        </Row>
-                    ) : null}
-
-                    <Typography.Paragraph
-                        size='medium'
-                        ref={addressPostfixRef}
-                        ellipsis={addressPostfixEllipsis}
-                        title={postfix}
-                        type='secondary'
-                    >
-                        {postfix}
-                    </Typography.Paragraph>
+                                        </Typography.Text>
+                                    )}
+                                </Row>
+                            ) : null}
+                        </Space>
+                        <Typography.Paragraph
+                            size='medium'
+                            ref={addressPostfixRef}
+                            ellipsis={addressPostfixEllipsis}
+                            title={postfix}
+                            type='secondary'
+                        >
+                            {postfix}
+                        </Typography.Paragraph>
+                    </Space>
                 </Space>
             </div>
         </div>

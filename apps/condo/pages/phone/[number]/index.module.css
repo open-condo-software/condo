@@ -6,7 +6,8 @@
 
 .custom-carousel-wrapper :global(.condo-carousel .slick-list) {
   width: calc(100% + 24px);
-  margin: 0;
+  margin: -20px 0;
+  padding: 20px 0;
 }
 
 .custom-carousel-wrapper :global(.condo-carousel .slick-list .slick-track .slick-slide) {

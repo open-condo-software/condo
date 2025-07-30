@@ -12,7 +12,7 @@
 }
 
 .address-tab-wrapper {
-  height: 165px;
+  height: 160px;
   padding: 1px;
   border: 1px solid var(--condo-global-color-gray-5);
   border-radius: var(--condo-global-spacing-12);
@@ -26,7 +26,7 @@
 }
 
 .address-tab-wrapper:hover {
-  box-shadow: inherit;
+  box-shadow: var(--condo-global-box-shadow-default);
   cursor: pointer;
 }
 
