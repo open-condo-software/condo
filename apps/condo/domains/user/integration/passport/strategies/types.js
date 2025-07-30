@@ -4,7 +4,7 @@
 class AuthStrategy {
 
     /** @returns {import('passport').Strategy} */
-    build (keystone) {
+    build () {
         throw new Error('implement me')
     }
 

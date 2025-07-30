@@ -5,23 +5,23 @@ const GITHUB_STRATEGY_CONFIG_SCHEMA = z.object({
     clientSecret: z.string(),
 }).strict()
 
-const USER_INFO_FIELDS = [
-    'sub',
+const CONDO_USER_FIELDS = [
+    'id',
     'name',
-    'phone_number',
-    'phone_number_verified',
+    'phone',
+    'isPhoneVerified',
     'email',
-    'email_verified',
+    'isEmailVerified',
 ]
 
-const OIDC_MAPPING_SCHEMA = z.object(
-    Object.fromEntries(USER_INFO_FIELDS.map(field => [field, z.string().optional()]))
+const fieldMappingSchema = z.object(
+    Object.fromEntries(CONDO_USER_FIELDS.map(field => [field, z.string().optional()]))
 ).strict()
 
 const OIDC_TOKEN_VERIFICATION_CONFIG_SCHEMA = z.object({
     clients: z.record(z.string(), z.object({
         // Condo-related part
-        fieldMapping: OIDC_MAPPING_SCHEMA.optional(),
+        fieldMapping: fieldMappingSchema.optional(),
         identityType: z.string(),
         trustEmail: z.boolean().optional().default(false),
         trustPhone: z.boolean().optional().default(false),
@@ -33,7 +33,7 @@ const OIDC_TOKEN_VERIFICATION_CONFIG_SCHEMA = z.object({
 const OIDC_STRATEGY_CONFIG_SCHEMA = z.object({
     // Condo-related part
     identityType: z.string().optional(),
-    fieldMapping: OIDC_MAPPING_SCHEMA.optional(),
+    fieldMapping: fieldMappingSchema.optional(),
     // Strategy-related part
     issuer: z.string(),
     scope: z.string().optional().default('openid'),
@@ -72,5 +72,6 @@ const passportConfigSchema = z.array(UNITED_PROVIDER_SCHEMA)
 
 
 module.exports = {
+    fieldMappingSchema,
     passportConfigSchema,
 }

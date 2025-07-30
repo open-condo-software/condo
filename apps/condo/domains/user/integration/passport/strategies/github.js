@@ -49,7 +49,7 @@ class GithubAuthStrategy {
         return foundEmail
     }
 
-    build (keystone) {
+    build () {
         const providerInfo = {
             name: GithubAuthStrategy.identityType,
             ...this.#trustInfo,
@@ -71,7 +71,7 @@ class GithubAuthStrategy {
                 profile.email = GithubAuthStrategy.findValidEmail(profile.emails)
 
                 try {
-                    const user = await syncUser(keystone, profile, req.session.userType, providerInfo, GithubAuthStrategy.fieldMapping)
+                    const user = await syncUser(req, profile, req.session.userType, providerInfo, GithubAuthStrategy.fieldMapping)
                     done(null, user)
                 } catch (err) {
                     done(err)
