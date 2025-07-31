@@ -172,6 +172,7 @@ const EXPRESS_TEST_SERVER_LISTENING_STATUS = 'listening'
  * @param {string} name
  * @param {Express} app
  * @param {string} protocol like http, ssh, rdp, https. Used only in address
+ * @param {number} port
  */
 function initTestExpressApp (name, app, protocol = 'http', port = 0) {
     if (!name) {
@@ -182,7 +183,7 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0) {
         throw new Error('initTestExpressApp(name, app) no app!')
     }
 
-    if (!!__expressTestServers[name]) {
+    if (__expressTestServers[name]) {
         throw new Error('initTestExpressApp(name, app) express app with this name is already initialized')
     }
 
@@ -197,17 +198,20 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0) {
         }
         // This express runs only in tests
         // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+        console.log(`NAS**Create server ${name}`)
         __expressTestServers[name].server = await http.createServer(app).on('listening', () => {
             const addressInfo = __expressTestServers[name].server.address()
             __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
             __expressTestServers[name].port = addressInfo.port
             __expressTestServers[name].baseUrl = `${protocol}://${__expressTestServers[name].address}:${__expressTestServers[name].port}`
             __expressTestServers[name].status = EXPRESS_TEST_SERVER_LISTENING_STATUS
+            console.log(`NAS**Start server ${name}`)
         }).listen(port)
     })
 
     afterAll(async () => {
         if (__expressTestServers[name]) {
+            console.log(`NAS**Close server ${name}`)
             __expressTestServers[name].server.close()
             delete __expressTestServers[name]
         }
