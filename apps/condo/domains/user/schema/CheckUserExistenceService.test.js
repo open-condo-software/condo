@@ -14,11 +14,13 @@ const {
 const { RESIDENT, USER_TYPES } = require('@condo/domains/user/constants/common')
 const {
     createTestConfirmPhoneAction,
+    createTestConfirmEmailAction,
     createTestUser,
     createTestPhone,
     resetUserByTestClient,
     updateTestUser,
     ConfirmPhoneAction,
+    ConfirmEmailAction,
     checkUserExistenceByTestClient,
 } = require('@condo/domains/user/utils/testSchema')
 const { TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
@@ -270,6 +272,238 @@ describe('CheckUserExistenceService', () => {
                     await expectToThrowGQLErrorToResult(async () => {
                         await checkUserExistenceByTestClient(anonymousClient, {
                             token: confirmPhoneAction.token,
+                            userType: RESIDENT,
+                        })
+                    }, {
+                        query: 'checkUserExistence',
+                        variable: ['data', 'token'],
+                        code: 'NOT_FOUND',
+                        type: 'TOKEN_NOT_FOUND',
+                        message: 'Token not found',
+                    })
+                })
+
+                describe('should throw error if invalid token', () => {
+                    const cases = [
+                        [TOKEN_TYPES.CONFIRM_PHONE, faker.datatype.uuid()].join('_'),
+                        ['unsupportedType', faker.datatype.uuid()].join(':'),
+                    ]
+
+                    test.each(cases)('%p', async (invalidToken) => {
+                        await expectToThrowGQLErrorToResult(async () => {
+                            await checkUserExistenceByTestClient(anonymousClient, {
+                                token: invalidToken,
+                                userType: RESIDENT,
+                            })
+                        }, {
+                            query: 'checkUserExistence',
+                            code: 'BAD_USER_INPUT',
+                            type: 'INVALID_TOKEN',
+                            message: 'Invalid token',
+                        })
+                    })
+                })
+            })
+
+            describe('confirmEmailAction', () => {
+                describe.each(USER_TYPES)('should return valid value for userType: %p', (userType) => {
+                    const cases = [
+                        {
+                            userData: {
+                                name: faker.name.fullName(),
+                                email: faker.internet.email(),
+                                phone: createTestPhone(),
+                                password: faker.internet.password(),
+                            },
+                            expectedResult: {
+                                isUserExists: true,
+                                isNameSet: true,
+                                isEmailSet: true,
+                                isPhoneSet: true,
+                                isPasswordSet: true,
+                            },
+                        },
+                        {
+                            userData: {
+                                name: null,
+                                email: faker.internet.email(),
+                                phone: createTestPhone(),
+                                password: faker.internet.password(),
+                            },
+                            expectedResult: {
+                                isUserExists: true,
+                                isNameSet: false,
+                                isEmailSet: true,
+                                isPhoneSet: true,
+                                isPasswordSet: true,
+                            },
+                        },
+                        {
+                            userData: {
+                                name: faker.name.fullName(),
+                                email: faker.internet.email(),
+                                phone: undefined,
+                                password: faker.internet.password(),
+                            },
+                            expectedResult: {
+                                isUserExists: true,
+                                isNameSet: true,
+                                isEmailSet: true,
+                                isPhoneSet: false,
+                                isPasswordSet: true,
+                            },
+                        },
+                        {
+                            userData: {
+                                name: faker.name.fullName(),
+                                email: faker.internet.email(),
+                                phone: createTestPhone(),
+                                password: null,
+                            },
+                            expectedResult: {
+                                isUserExists: true,
+                                isNameSet: true,
+                                isEmailSet: true,
+                                isPhoneSet: true,
+                                isPasswordSet: false,
+                            },
+                        },
+                    ]
+
+                    test.each(cases)('if user is exist (case: %#)', async ({ userData, expectedResult }) => {
+                        const [, userAttrs] = await createTestUser(adminClient, {
+                            type: userType,
+                            isEmailVerified: true,
+                            ...userData,
+                        })
+                        const [confirmPhoneAction] = await createTestConfirmEmailAction(adminClient, {
+                            isEmailVerified: true,
+                            email: userAttrs.email,
+                        })
+                        const [result] = await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmPhoneAction.token,
+                            userType: userType,
+                        })
+                        expect(result).toEqual(expectedResult)
+                    })
+
+                    test('if user is not exist', async () => {
+                        const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, { isEmailVerified: true })
+                        const [result] = await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmEmailAction.token,
+                            userType: userType,
+                        })
+                        expect(result).toEqual({
+                            isUserExists: false,
+                            isNameSet: false,
+                            isEmailSet: false,
+                            isPhoneSet: false,
+                            isPasswordSet: false,
+                        })
+                    })
+
+                    test('if user was reset', async () => {
+                        const [resetUser, resetUserAttrs] = await createTestUser(adminClient, {
+                            type: userType,
+                            isEmailVerified: true,
+                        })
+                        await resetUserByTestClient(adminClient, { user: { id: resetUser.id } })
+                        const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                            isEmailVerified: true,
+                            email: resetUserAttrs.email,
+                        })
+                        const [result] = await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmEmailAction.token,
+                            userType: resetUserAttrs.type,
+                        })
+                        expect(result).toEqual({
+                            isUserExists: false,
+                            isNameSet: false,
+                            isEmailSet: false,
+                            isPhoneSet: false,
+                            isPasswordSet: false,
+                        })
+                    })
+
+                    test('if user was soft deleted', async () => {
+                        const [deletedUser, deletedUserAttrs] = await createTestUser(adminClient, {
+                            isEmailVerified: true,
+                            type: userType,
+                        })
+                        await updateTestUser(adminClient, deletedUser.id, {
+                            deletedAt: new Date().toDateString(),
+                        })
+                        const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                            isEmailVerified: true,
+                            email: deletedUserAttrs.email,
+                        })
+                        const [result] = await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmEmailAction.token,
+                            userType: deletedUserAttrs.type,
+                        })
+                        expect(result).toEqual({
+                            isUserExists: false,
+                            isNameSet: false,
+                            isEmailSet: false,
+                            isPhoneSet: false,
+                            isPasswordSet: false,
+                        })
+                    })
+                })
+
+                test('confirmEmailAction should not be marked as used after checkUserExistence has been executed', async () => {
+                    const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, { isEmailVerified: true })
+                    const [result] = await checkUserExistenceByTestClient(anonymousClient, {
+                        token: confirmEmailAction.token,
+                        userType: RESIDENT,
+                    })
+                    expect(result).toBeDefined()
+                    const confirmEmailAction2 = await ConfirmEmailAction.getOne(adminClient, { token: confirmEmailAction.token })
+                    expect(confirmEmailAction2).toEqual(confirmEmailAction)
+                    expect(confirmEmailAction2.completedAt).toBeNull()
+                })
+
+                test('should throw error if email token is expired', async () => {
+                    const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                        isEmailVerified: true, expiresAt: new Date().toISOString(),
+                    })
+                    await expectToThrowGQLErrorToResult(async () => {
+                        await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmEmailAction.token,
+                            userType: RESIDENT,
+                        })
+                    }, {
+                        query: 'checkUserExistence',
+                        variable: ['data', 'token'],
+                        code: 'NOT_FOUND',
+                        type: 'TOKEN_NOT_FOUND',
+                        message: 'Token not found',
+                    })
+                })
+
+                test('should throw error if email token is used', async () => {
+                    const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                        isEmailVerified: true, completedAt: new Date().toISOString(),
+                    })
+                    await expectToThrowGQLErrorToResult(async () => {
+                        await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmEmailAction.token,
+                            userType: RESIDENT,
+                        })
+                    }, {
+                        query: 'checkUserExistence',
+                        variable: ['data', 'token'],
+                        code: 'NOT_FOUND',
+                        type: 'TOKEN_NOT_FOUND',
+                        message: 'Token not found',
+                    })
+                })
+
+                test('should throw error if email token is not confirmed', async () => {
+                    const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, { isEmailVerified: false })
+                    await expectToThrowGQLErrorToResult(async () => {
+                        await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmEmailAction.token,
                             userType: RESIDENT,
                         })
                     }, {

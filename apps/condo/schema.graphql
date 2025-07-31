@@ -83674,6 +83674,7 @@ input GenerateSudoTokenUserIdentifierInput {
 input GenerateSudoTokenAuthFactorsInput {
   confirmPhoneToken: String
   password: String
+  confirmEmailToken: String
 }
 
 input GenerateSudoTokenInput {
@@ -89383,7 +89384,7 @@ type Query {
   As a result, information about the completion of some important fields (name, email, phone, password) is also returned.
   
   Token can be: 
-   - confirmPhoneToken
+   - confirmPhoneToken - confirmEmailToken
   
   **Errors**
   
