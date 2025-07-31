@@ -114,15 +114,15 @@ const FLOW_META_SCHEMAS = {
         input: {
             type: 'object',
             properties: {
-                inputInitiator: { enum: ['header', 'body'] },
-                currentHeaderNews: { type: 'string' },
-                currentBodyNews: { type: 'string' },
+                promptType: { enum: ['header', 'body'] },
+                newsTitle: { type: 'string' },
+                newsBody: { type: 'string' },
 
                 newsType: { type: 'string' },
-                newsActualUntil: { type: 'string' },
-                newsAddress: { type: 'string' },
-                incidentsRelatedWithNewsAddress: { type: 'string' },
-                lastNews: { type: 'string' },
+                validBefore: { type: 'string' },
+                incidents: { type: 'string' },
+                lastNewsTitle: { type: 'string' },
+                lastNewsBody: { type: 'string' },
             },
         },
         output: {
