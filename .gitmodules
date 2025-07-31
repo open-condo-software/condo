@@ -67,3 +67,6 @@
 [submodule "apps/ticket-importer"]
 	path = apps/ticket-importer
 	url = git@github.com:open-condo-software/condo-ticket-importer.git
+[submodule "apps/pos-integration"]
+	path = apps/pos-integration
+	url = git@github.com:open-condo-software/pos-integration.git
