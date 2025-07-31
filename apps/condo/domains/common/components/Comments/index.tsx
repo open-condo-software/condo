@@ -450,7 +450,7 @@ const Comments: React.FC<CommentsPropsType> = ({
                         rewriteTextLoading={rewriteTextLoading}
                         rewriteTextAnswer={rewriteTextAnswer}
                         setRewriteTextAnswer={setRewriteTextAnswer}
-                        generateCommentClickHandler={async () => setErrorMessage(await handleGenerateCommentClick(commentTabContentProps.comments, commentForm))}
+                        generateCommentClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments, commentForm)}
                         rewriteTextOnClickHandler={handleRewriteTextClick}
                         setAiNotificationShow={setAiNotificationShow}
                         aiNotificationShow={aiNotificationShow}

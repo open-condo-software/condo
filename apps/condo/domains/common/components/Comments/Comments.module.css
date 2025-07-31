@@ -3,6 +3,7 @@
   flex-flow: column nowrap;
   align-content: space-between;
   min-width: 350px;
+  max-width: 480px;
   max-height: 756px;
   overflow: hidden;
   border: 1px solid var(--condo-global-color-gray-3);
