@@ -10,13 +10,12 @@ import {
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ColumnsType } from 'antd/lib/table'
-import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 import uniqWith from 'lodash/uniqWith'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Meters } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -46,6 +45,7 @@ import {
 } from '@condo/domains/meter/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
+import { ClientCardTab, getClientCardTabKey } from '@condo/domains/ticket/utils/clientSchema/clientCard'
 
 
 export const LAYOUT = {
@@ -256,6 +256,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
     const contactFromQuery = router.query?.contact ?? null
     const clientNameFromQuery = router.query?.clientName ?? null
     const clientPhoneFromQuery = router.query?.clientPhone ?? null
+    const redirectToClientCard = router.query?.redirectToClientCard ?? null
 
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
@@ -307,7 +308,15 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
     const createMeterReadingAction = MeterReading.useCreate({
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
     }, async () => {
-        await router.push(`/meter?tab=${METER_TAB_TYPES.meterReading}&type=${METER_TYPES.unit}`)
+        if (!redirectToClientCard) {
+            await router.push({
+                pathname: '/meter',
+                query: {
+                    tab: METER_TAB_TYPES.meterReading,
+                    type: METER_TYPES.unit,
+                },
+            })
+        }
     })
 
     const handleSubmit = useCallback(async (values) => {
@@ -319,7 +328,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
             const date = get(newMeterReading, 'date')
             const { property, unitName, unitType, sectionName, floorName, ...clientInfo } = values
 
-            createMeterReadingAction({
+            await createMeterReadingAction({
                 ...clientInfo,
                 meter: { connect: { id: meterId } },
                 contact: values.contact ? { connect: { id: values.contact } } : undefined,
@@ -329,8 +338,19 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                 value4,
                 date,
             })
+
+            if (redirectToClientCard) {
+                const { clientPhone } = clientInfo
+
+                await router.push({
+                    pathname: `/phone/${clientPhone}`,
+                    query: {
+                        tab: getClientCardTabKey(property, ClientCardTab.Resident, unitName, unitType, sectionName),
+                    },
+                })
+            }
         }
-    }, [createMeterReadingAction, newMeterReadings])
+    }, [createMeterReadingAction, newMeterReadings, redirectToClientCard, router])
 
     const getHandleSelectPropertyAddress = useCallback((form) => (_, option) => {
         form.setFieldsValue({
@@ -582,7 +602,6 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
         setNewMeterReadings,
         tableColumns,
     } = useMeterTableColumns(METER_TAB_TYPES.propertyMeter)
-
 
     const createMeterReadingAction = PropertyMeterReading.useCreate({
         source: { connect: { id: CRM_METER_READING_SOURCE_ID } },

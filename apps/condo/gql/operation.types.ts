@@ -589,7 +589,7 @@ export type GetPropertyByIdQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetPropertyByIdQuery = { __typename?: 'Query', properties?: Array<{ __typename?: 'Property', id: string, address?: string | null, organization?: { __typename?: 'Organization', id: string } | null, map?: { __typename?: 'BuildingMap', sections?: Array<{ __typename?: 'BuildingSection', id: string, type: Types.BuildingSectionType, index: number, name: string, preview?: boolean | null, floors: Array<{ __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> } | null> } | null> | null, parking?: Array<{ __typename?: 'BuildingSection', id: string, type: Types.BuildingSectionType, index: number, name: string, preview?: boolean | null, floors: Array<{ __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> } | null> } | null> | null } | null } | null> | null };
+export type GetPropertyByIdQuery = { __typename?: 'Query', properties?: Array<{ __typename?: 'Property', id: string, address?: string | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null, map?: { __typename?: 'BuildingMap', sections?: Array<{ __typename?: 'BuildingSection', id: string, type: Types.BuildingSectionType, index: number, name: string, preview?: boolean | null, floors: Array<{ __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> } | null> } | null> | null, parking?: Array<{ __typename?: 'BuildingSection', id: string, type: Types.BuildingSectionType, index: number, name: string, preview?: boolean | null, floors: Array<{ __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> } | null> } | null> | null } | null } | null> | null };
 
 export type GetLastCreatedPropertyByOrganizationIdQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
@@ -670,6 +670,14 @@ export type GetTicketCallRecordsFragmentsQueryVariables = Types.Exact<{
 
 
 export type GetTicketCallRecordsFragmentsQuery = { __typename?: 'Query', callRecordFragments?: Array<{ __typename?: 'CallRecordFragment', id: string, callRecord?: { __typename?: 'CallRecord', id: string, isIncomingCall?: boolean | null, callerPhone?: string | null, destCallerPhone?: string | null, startedAt?: string | null, file?: { __typename?: 'File', publicUrl?: string | null, id?: string | null } | null } | null } | null> | null };
+
+export type GetClientCallRecordsExistenceQueryVariables = Types.Exact<{
+  phone: Types.Scalars['String']['input'];
+  propertyId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetClientCallRecordsExistenceQuery = { __typename?: 'Query', callRecordFragments?: Array<{ __typename?: 'CallRecordFragment', id: string } | null> | null };
 
 export type GetIncidentsQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.IncidentWhereInput>;

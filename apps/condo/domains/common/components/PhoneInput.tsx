@@ -28,6 +28,7 @@ import { RU_LOCALE, ES_LOCALE } from '../constants/locale'
 interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
     block?: boolean
     autoFormat?: boolean
+    autoFocus?: boolean
     /*
         Make this component compatible with `AutoComplete` component, when used as a custom input.
      */
@@ -83,7 +84,7 @@ const getPhoneLocalization = (locale: string) => {
  * @deprecated use Input.Phone from Condo UI Kit
  */
 export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) => {
-    const { value, placeholder, style, disabled, block, showCountryPrefix = true, country, ...otherProps } = props
+    const { value, placeholder, style, disabled, block, showCountryPrefix = true, country, autoFocus, ...otherProps } = props
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
     const { organization } = useOrganization()
     const userOrganizationCountry = showCountryPrefix && get(organization, 'country', defaultLocale)
@@ -131,6 +132,12 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
     const phoneLocalization = useMemo(() => {
         return getPhoneLocalization(locale)
     }, [locale])
+
+    useEffect(() => {
+        if (autoFocus && inputRef.current) {
+            inputRef.current?.numberInputRef?.focus()
+        }
+    }, [autoFocus])
 
     return (
         <ReactPhoneInput
