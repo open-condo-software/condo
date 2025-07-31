@@ -144,7 +144,7 @@ async function authGuards (userIdentity, context) {
  *
  * @param {{ phone?: string, email?: string, userType: 'staff' | 'resident' | 'service' }} userIdentity
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
- * @return {Promise<{success: boolean}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean, user: *}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}>}
+ * @return {Promise<{success: boolean}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, confirmEmailAction: *, success: boolean, user: *}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}>}
  * @private
  */
 async function validateUserCredentials (userIdentity, authFactors) {
@@ -175,6 +175,7 @@ async function validateUserCredentials (userIdentity, authFactors) {
         success: true,
         user,
         confirmPhoneAction: match.confirmPhoneAction,
+        confirmEmailAction: match.confirmEmailAction,
     }
 }
 
@@ -269,7 +270,7 @@ const AUTH_CHECK_STATUSES = {
  *
  * @param {Object} user
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
- * @return {Promise<{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}|{success: boolean}>}
+ * @return {Promise<{success: boolean}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, confirmEmailAction, success: boolean}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}>}
  * @private
  */
 async function _matchUser (user, authFactors) {
