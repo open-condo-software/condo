@@ -1,8 +1,10 @@
 // @ts-check
 const { Strategy: CustomStrategy } = require('passport-custom')
 
+const  { GQLError } = require('@open-condo/keystone/errors')
 const { fetch } = require('@open-condo/keystone/fetch')
 
+const { ERRORS } = require('@condo/domains/user/integration/passport/errors')
 const { syncUser } = require('@condo/domains/user/integration/passport/utils/user')
 
 const { AuthStrategy } = require('./types')
@@ -41,17 +43,30 @@ class OidcTokenUserInfoAuthStrategy {
 
             // Parameters verification
             const { access_token, client_id } = req.query
+            const errorContext = { req }
             if (!access_token) {
-                return done(new Error('access_token was not provided'))
+                return done(new GQLError({
+                    ...ERRORS.MISSING_QUERY_PARAMETER,
+                    messageInterpolation: { parameter: 'access_token' },
+                }, errorContext))
             }
             if (typeof access_token !== 'string') {
-                return done(new Error('invalid access_token'))
+                return done(new GQLError({
+                    ...ERRORS.INVALID_PARAMETER,
+                    messageInterpolation: { parameter: 'access_token' },
+                }, errorContext))
             }
             if (!client_id) {
-                return done(new Error('client_id was not provided'))
+                return done(new GQLError({
+                    ...ERRORS.MISSING_QUERY_PARAMETER,
+                    messageInterpolation: { parameter: 'client_id' },
+                }, errorContext))
             }
             if (typeof client_id !== 'string' || !Object.hasOwn(clients, client_id)) {
-                return done(new Error('invalid access_token'))
+                return done(new GQLError({
+                    ...ERRORS.INVALID_PARAMETER,
+                    messageInterpolation: { parameter: 'client_id' },
+                }, errorContext))
             }
 
             const { trustEmail, trustPhone, identityType, fieldMapping, userInfoURL } = clients[client_id]
@@ -71,7 +86,7 @@ class OidcTokenUserInfoAuthStrategy {
                     },
                 })
                 if (response.status !== 200) {
-                    return done(new Error('userInfo request was not successful'))
+                    return done(new GQLError(ERRORS.AUTHORIZATION_FAILED, errorContext, [new Error('userInfo request was not successful')]))
                 }
                 const userProfile = await response.json()
                 const user = await syncUser(req, userProfile, req.session.userType, providerInfo, fieldMapping)
