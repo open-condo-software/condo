@@ -214,27 +214,27 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0) {
     })
 }
 
-async function sleep (ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 /**
  * Returns test express app. Use when you need to get address of the app
  * @param name
  * @returns {Promise<TestExpressServer>}
  */
 async function getTestExpressApp (name) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         // Wait for status to be set to EXPRESS_TEST_SERVER_LISTENING_STATUS
-        for (let i = 0; i < 10; i++) {  // try 10 times
+        const maxAttempts = 10
+        let attempts = 0
+        const intervalId = setInterval(() => {
             if (__expressTestServers[name] && __expressTestServers[name].status === EXPRESS_TEST_SERVER_LISTENING_STATUS) {
+                clearInterval(intervalId)
                 resolve(__expressTestServers[name])
-                break
             }
-            await sleep(500)
-        }
-
-        reject(new Error(`getTestExpressApp(${name}) timeout`))
+            attempts++
+            if (attempts >= maxAttempts) {
+                clearInterval(intervalId)
+                reject(new Error(`getTestExpressApp(${name}) timeout`))
+            }
+        }, 500)
     })
 }
 
