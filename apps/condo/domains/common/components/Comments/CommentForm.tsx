@@ -58,6 +58,7 @@ const RewriteTextButton: React.FC<IRewriteTextButtonProps> = ({
             title={TourUpdateTextTitle}
             message={TourUpdateTextMessage}
             onClose={closeTourStep}
+            getPopupContainer={()=> document.body}
         >
             <Button
                 compact
