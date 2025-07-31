@@ -13,6 +13,8 @@ const {
     INVALID_USER_DATA,
     EXTERNAL_IDENTITY_BLOCKED,
     INVALID_USER_SHAPE,
+    USER_TYPE_NOT_SPECIFIED,
+    NO_USER_TYPE_IN_SESSION,
 } = require('@condo/domains/user/constants/errors')
 const {
     User,
@@ -25,6 +27,16 @@ const DV_AND_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'passport' } }
 const ALLOWED_USER_TYPES = [RESIDENT, STAFF]
 
 const ERRORS = {
+    USER_TYPE_NOT_SPECIFIED: {
+        code: BAD_USER_INPUT,
+        type: USER_TYPE_NOT_SPECIFIED,
+        message: 'userType query parameter is required',
+    },
+    NO_USER_TYPE_IN_SESSION: {
+        code: BAD_USER_INPUT,
+        type: NO_USER_TYPE_IN_SESSION,
+        message: 'userType parameter was not found saved between requests, pass it via query parameters explicitly or visit /api/auth/{provider} first',
+    },
     INVALID_USER_TYPE: {
         code: BAD_USER_INPUT,
         type: INVALID_USER_TYPE,
@@ -300,7 +312,7 @@ async function _findOrCreateUser (req, userData, userType, providerInfo, userMet
         }
     }
 
-    // By adding phone if found by phone and no conflict
+    // By adding phone if found by email and no conflict
     if (userData.phone && (userFoundByEmail && targetUser.id === userFoundByEmail.id)) {
         // if user has verified phone inside providers app
         // chance of owning it is more than just typing it in condo without verification
@@ -415,13 +427,14 @@ async function syncUser (
 }
 
 function captureUserType (req, res, next) {
+    const errorContext = { req }
     const { userType } = req.query
     if (!userType) {
-        return res.status(400).json({ error: 'userType query parameter is required' })
+        return next(new GQLError(ERRORS.USER_TYPE_NOT_SPECIFIED, errorContext))
     }
 
     if (!ALLOWED_USER_TYPES.includes(userType)) {
-        return res.status(400).json({ error: 'invalid user type provided' })
+        return next(new GQLError(ERRORS.INVALID_USER_TYPE, errorContext))
     }
 
     req.session.userType = userType
@@ -429,18 +442,23 @@ function captureUserType (req, res, next) {
 }
 
 function ensureUserType (req, res, next) {
+    const errorContext = { req }
     const { userType } = req.query
     if (userType) {
         if (!ALLOWED_USER_TYPES.includes(userType)) {
-            return res.status(400).json({ error: 'invalid user type provided' })
+            return next(new GQLError(ERRORS.INVALID_USER_TYPE, errorContext))
         }
         req.session.userType = userType
     }
 
     if (!req.session.userType) {
-        return res.status(400).json({ error: 'userType was not found' })
+        const { provider } = req.params
+        const messageInterpolation = {
+            provider,
+        }
+        return next(new GQLError({ ...ERRORS.NO_USER_TYPE_IN_SESSION, messageInterpolation }, errorContext))
     } else if (!ALLOWED_USER_TYPES.includes(req.session.userType)) {
-        return res.status(400).json({ error: 'invalid user type' })
+        return next(new GQLError(ERRORS.INVALID_USER_TYPE, errorContext))
     }
 
     next()
