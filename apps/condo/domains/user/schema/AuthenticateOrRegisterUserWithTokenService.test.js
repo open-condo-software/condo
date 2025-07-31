@@ -18,11 +18,14 @@ const {
     authenticateOrRegisterUserWithTokenByTestClient,
     makeLoggedInClient,
     createTestConfirmPhoneAction,
+    createTestConfirmEmailAction,
     createTestUser,
     createTestPhone,
     resetUserByTestClient,
     ConfirmPhoneAction,
+    ConfirmEmailAction,
     User,
+    createTestEmail,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -370,38 +373,86 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 })
             })
 
+            test('should register and sign in service with confirmed email token if a service with such a phone is not registered yet', async () => {
+                const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, { isEmailVerified: true })
+                const [result, attrs] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                    token: confirmEmailAction.token,
+                    userType: SERVICE,
+                    userData: {
+                        name: faker.name.fullName(),
+                        password: faker.internet.password(16),
+                    },
+                })
+                expect(result.token).not.toHaveLength(0)
+                expect(result.user.id).toBeDefined()
+                const user = await UserAdminUtils.getOne(adminClient, { id: result.user.id })
+                expect(user.type).toBe(SERVICE)
+                expect(user.isAdmin).toBeFalsy()
+                expect(user.isSupport).toBeFalsy()
+                expect(user.name).toBe(attrs.userData.name)
+                expect(user.email).toBe(confirmEmailAction.email)
+                expect(user.isEmailVerified).toBeTruthy()
+                expect(user.phone).toBeNull()
+                expect(user.isPhoneVerified).toBeFalsy()
+                expect(user.meta).toBeNull()
+                expect(user.password_is_set).toBeTruthy()
+            })
+
             test('should sign in service with confirmed phone token if a service with such a phone is already registered', async () => {
                 const [createdUser, userAttrs] = await createTestUser(adminClient, {
                     isPhoneVerified: true, type: SERVICE,
                 })
                 const user1 = await UserAdminUtils.getOne(adminClient, { id: createdUser.id })
 
-                const anonymousClient2 = await makeClient()
-                const [confirmPhoneAction2] = await createTestConfirmPhoneAction(adminClient, {
+                const anonymousClient = await makeClient()
+                const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
                     isPhoneVerified: true, phone: userAttrs.phone,
                 })
-                const [result2] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient2, {
-                    token: confirmPhoneAction2.token,
+                const [result] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                    token: confirmPhoneAction.token,
                     userType: SERVICE,
                 })
-                expect(result2.token).not.toHaveLength(0)
-                expect(result2.user.id).toBeDefined()
-                const user2 = await UserAdminUtils.getOne(adminClient, { id: result2.user.id })
+                expect(result.token).not.toHaveLength(0)
+                expect(result.user.id).toBeDefined()
+                const user2 = await UserAdminUtils.getOne(adminClient, { id: result.user.id })
+                expect(user1).toEqual(user2)
+            })
+
+            test('should sign in service with confirmed email token if a service with such a email is already registered', async () => {
+                const [createdUser, userAttrs] = await createTestUser(adminClient, {
+                    isEmailVerified: true, type: SERVICE,
+                })
+                const user1 = await UserAdminUtils.getOne(adminClient, { id: createdUser.id })
+
+                const anonymousClient = await makeClient()
+                const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                    isEmailVerified: true, email: userAttrs.email,
+                })
+                const [result] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                    token: confirmEmailAction.token,
+                    userType: SERVICE,
+                })
+                expect(result.token).not.toHaveLength(0)
+                expect(result.user.id).toBeDefined()
+                const user2 = await UserAdminUtils.getOne(adminClient, { id: result.user.id })
                 expect(user1).toEqual(user2)
             })
 
             describe('if an staff or resident user with such a phone is already registered', () => {
-                let staffUser, resident, phone
+                let staffUser, residentUser, phone, email
 
                 beforeEach(async () => {
-                    phone = createTestPhone();
+                    phone = createTestPhone()
+                    email = createTestEmail();
                     [staffUser] = await createTestUser(adminClient, {
                         type: STAFF,
-                        phone: phone,
+                        phone,
+                        email,
                     });
-                    [resident] = await createTestUser(adminClient, {
+                    [residentUser] = await createTestUser(adminClient, {
                         type: RESIDENT,
-                        phone: phone,
+                        phone,
+                        email,
                     })
                 })
 
@@ -423,6 +474,28 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                     })
                 })
 
+                test('should register and sign in a service with a verified email token', async () => {
+                    const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                        isEmailVerified: true, email,
+                    })
+                    const [result] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                        token: confirmEmailAction.token,
+                        userType: SERVICE,
+                        userData: {
+                            name: faker.name.fullName(),
+                            phone,
+                            password: faker.internet.password(16),
+                        },
+                    })
+                    expect(result.token).not.toHaveLength(0)
+                    expect(result.user.id).toBeDefined()
+                    const user = await UserAdminUtils.getOne(adminClient, { id: result.user.id })
+                    expect(user.id).not.toBe(residentUser.id)
+                    expect(user.type).toBe(SERVICE)
+                    expect(user.phone).toBe(phone)
+                    expect(user.email).toBe(email)
+                })
+
                 test('should sign in a service with a verified phone token if a service with such a phone is already registered', async () => {
                     const [createdUser] = await createTestUser(adminClient, {
                         isPhoneVerified: true, type: SERVICE, phone,
@@ -441,6 +514,74 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                     expect(result2.user.id).toBeDefined()
                     const user2 = await UserAdminUtils.getOne(adminClient, { id: result2.user.id })
                     expect(user).toEqual(user2)
+                })
+
+                test('should sign in a service with a verified email token if a service with such a email is already registered', async () => {
+                    const [createdUser] = await createTestUser(adminClient, {
+                        isEmailVerified: true, type: SERVICE, email,
+                    })
+                    const user = await UserAdminUtils.getOne(adminClient, { id: createdUser.id })
+
+                    const anonymousClient2 = await makeClient()
+                    const [confirmEmailAction2] = await createTestConfirmEmailAction(adminClient, {
+                        isEmailVerified: true, email,
+                    })
+                    const [result2] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient2, {
+                        token: confirmEmailAction2.token,
+                        userType: SERVICE,
+                    })
+                    expect(result2.token).not.toHaveLength(0)
+                    expect(result2.user.id).toBeDefined()
+                    const user2 = await UserAdminUtils.getOne(adminClient, { id: result2.user.id })
+                    expect(user).toEqual(user2)
+                })
+            })
+
+            test('should throw an error if the user is not registered and the required user data (phone, email, password) is missing', async () => {
+                const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, { isEmailVerified: true })
+                await expectToThrowGQLErrorToResult(async () => {
+                    await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                        token: confirmEmailAction.token,
+                        userType: SERVICE,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'REQUIRED_USER_DATA_IS_MISSING',
+                    message: 'Some required user data was missing: name, password',
+                    variable: ['data', 'userData', 'name'],
+                    messageForUser: 'api.user.authenticateOrRegisterUserWithToken.REQUIRED_USER_DATA_IS_MISSING',
+                })
+
+                await expectToThrowGQLErrorToResult(async () => {
+                    await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                        token: confirmEmailAction.token,
+                        userType: SERVICE,
+                        userData: {
+                            password: faker.internet.password(16),
+                        },
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'REQUIRED_USER_DATA_IS_MISSING',
+                    message: 'Some required user data was missing: name',
+                    variable: ['data', 'userData', 'name'],
+                    messageForUser: 'api.user.authenticateOrRegisterUserWithToken.REQUIRED_USER_DATA_IS_MISSING',
+                })
+
+                await expectToThrowGQLErrorToResult(async () => {
+                    await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                        token: confirmEmailAction.token,
+                        userType: SERVICE,
+                        userData: {
+                            name: faker.name.fullName(),
+                        },
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'REQUIRED_USER_DATA_IS_MISSING',
+                    message: 'Some required user data was missing: password',
+                    variable: ['data', 'userData', 'password'],
+                    messageForUser: 'api.user.authenticateOrRegisterUserWithToken.REQUIRED_USER_DATA_IS_MISSING',
                 })
             })
         })
@@ -540,6 +681,24 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
         expect(user.isPhoneVerified).toBeTruthy()
     })
 
+    test('should set the flag "isEmailVerified" to TRUE if an existing user with an unverified email sign in with a verified email token', async () => {
+        const [serviceUser, userAttrs] = await createTestUser(adminClient, { type: SERVICE })
+        expect(serviceUser.isEmailVerified).toBeFalsy()
+
+        const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+            isEmailVerified: true, email: userAttrs.email,
+        })
+        const [result] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+            token: confirmEmailAction.token,
+            userType: SERVICE,
+        })
+        expect(result.user.id).toBe(serviceUser.id)
+        const user = await UserAdminUtils.getOne(adminClient, { id: result.user.id })
+        expect(user.type).toBe(SERVICE)
+        expect(user.email).toBe(userAttrs.email)
+        expect(user.isEmailVerified).toBeTruthy()
+    })
+
     test('should save current non-empty user data if the user is already registered and new user data is passed in the payload', async () => {
         const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
         const [result, attrs] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
@@ -608,6 +767,29 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
         expect(user.phone).toBe(resetUserAttrs.phone)
     })
 
+    test('should register a new user if the user with the same email number was reset', async () => {
+        const [resetUser, resetUserAttrs] = await createTestUser(adminClient, { type: SERVICE })
+        await resetUserByTestClient(adminClient, { user: { id: resetUser.id } })
+
+        const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+            isEmailVerified: true, email: resetUserAttrs.email,
+        })
+        const [result] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+            token: confirmEmailAction.token,
+            userType: resetUserAttrs.type,
+            userData: {
+                name: faker.name.fullName(),
+                password: faker.internet.password(16),
+            },
+        })
+        expect(result.token).not.toHaveLength(0)
+        expect(result.user.id).toBeDefined()
+        const user = await UserAdminUtils.getOne(adminClient, { id: result.user.id })
+        expect(user.id).not.toBe(resetUser.id)
+        expect(user.type).toBe(resetUserAttrs.type)
+        expect(user.email).toBe(resetUserAttrs.email)
+    })
+
     test('should be marked as used a phone token after user sing in', async () => {
         const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
         const [result] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
@@ -618,6 +800,22 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
         expect(result.user.id).toBeDefined()
         const usedConfirmPhoneAction = await ConfirmPhoneAction.getOne(adminClient, { token: confirmPhoneAction.token })
         expect(usedConfirmPhoneAction.completedAt).not.toBeNull()
+    })
+
+    test('should be marked as used a email token after user sing in', async () => {
+        const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, { isEmailVerified: true })
+        const [result] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+            token: confirmEmailAction.token,
+            userType: SERVICE,
+            userData: {
+                name: faker.name.fullName(),
+                password: faker.internet.password(16),
+            },
+        })
+        expect(result.token).not.toHaveLength(0)
+        expect(result.user.id).toBeDefined()
+        const usedConfirmEmailAction = await ConfirmEmailAction.getOne(adminClient, { token: confirmEmailAction.token })
+        expect(usedConfirmEmailAction.completedAt).not.toBeNull()
     })
 
     test('should throw error if phone from phone token is not equal phone from user data', async () => {
@@ -640,6 +838,26 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
         })
     })
 
+    test('should throw error if phone from email token is not equal email from user data', async () => {
+        const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, { isEmailVerified: true })
+        await expectToThrowGQLErrorToResult(async () => {
+            await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                token: confirmEmailAction.token,
+                userType: SERVICE,
+                userData: {
+                    email: createTestEmail(),
+                },
+            })
+        }, {
+            mutation: 'authenticateOrRegisterUserWithToken',
+            variable: ['data', 'userData', 'email'],
+            code: 'BAD_USER_INPUT',
+            type: 'DIFFERENT_EMAILS',
+            message: 'The verified email and the email from the payload cannot be different',
+            messageForUser: 'api.user.authenticateOrRegisterUserWithToken.DIFFERENT_EMAILS',
+        })
+    })
+
     test('should throw an error if the user with the same phone number was soft deleted', async () => {
         const [softDeletedUser, softDeletedUserAttrs] = await createTestUser(adminClient)
         await User.softDelete(adminClient, softDeletedUser.id)
@@ -652,6 +870,31 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 userType: STAFF,
                 userData: {
                     phone: softDeletedUserAttrs.phone,
+                },
+            })
+        }, {
+            mutation: 'authenticateOrRegisterUserWithToken',
+            code: 'BAD_USER_INPUT',
+            type: 'OPERATION_FAILED',
+            message: 'The operation failed',
+            messageForUser: 'api.user.authenticateOrRegisterUserWithToken.OPERATION_FAILED',
+        })
+    })
+
+    test('should throw an error if the user with the same email number was soft deleted', async () => {
+        const [softDeletedUser, softDeletedUserAttrs] = await createTestUser(adminClient, { type: SERVICE })
+        await User.softDelete(adminClient, softDeletedUser.id)
+        const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+            isEmailVerified: true, email: softDeletedUserAttrs.email,
+        })
+        await expectToThrowGQLErrorToResult(async () => {
+            await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                token: confirmEmailAction.token,
+                userType: SERVICE,
+                userData: {
+                    email: softDeletedUserAttrs.email,
+                    name: faker.name.fullName(),
+                    password: faker.internet.password(16),
                 },
             })
         }, {
@@ -693,74 +936,149 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
         })
     })
 
-    test('should throw error if phone token is expired', async () => {
-        const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
-            isPhoneVerified: true, expiresAt: new Date().toISOString(),
-        })
-        await expectToThrowGQLErrorToResult(async () => {
-            await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
-                token: confirmPhoneAction.token,
-                userType: RESIDENT,
+    describe('Errors with phone token', () => {
+        test('should throw error if phone token is expired', async () => {
+            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+                isPhoneVerified: true, expiresAt: new Date().toISOString(),
             })
-        }, {
-            query: 'authenticateOrRegisterUserWithToken',
-            code: 'BAD_USER_INPUT',
-            type: 'INVALID_TOKEN',
-            message: 'Invalid token',
-            messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            await expectToThrowGQLErrorToResult(async () => {
+                await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                    token: confirmPhoneAction.token,
+                    userType: RESIDENT,
+                })
+            }, {
+                query: 'authenticateOrRegisterUserWithToken',
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_TOKEN',
+                message: 'Invalid token',
+                messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            })
+        })
+
+        test('should throw error if phone token is used', async () => {
+            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+                isPhoneVerified: true, completedAt: new Date().toISOString(),
+            })
+            await expectToThrowGQLErrorToResult(async () => {
+                await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                    token: confirmPhoneAction.token,
+                    userType: RESIDENT,
+                })
+            }, {
+                query: 'authenticateOrRegisterUserWithToken',
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_TOKEN',
+                message: 'Invalid token',
+                messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            })
+        })
+
+        test('should throw error if phone token is deleted', async () => {
+            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+                isPhoneVerified: true, completedAt: new Date().toISOString(),
+            })
+            await ConfirmPhoneAction.softDelete(adminClient, confirmPhoneAction.id)
+            await expectToThrowGQLErrorToResult(async () => {
+                await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                    token: confirmPhoneAction.token,
+                    userType: RESIDENT,
+                })
+            }, {
+                query: 'authenticateOrRegisterUserWithToken',
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_TOKEN',
+                message: 'Invalid token',
+                messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            })
+        })
+
+        test('should throw error if phone token is not confirmed', async () => {
+            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: false })
+            await expectToThrowGQLErrorToResult(async () => {
+                await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                    token: confirmPhoneAction.token,
+                    userType: RESIDENT,
+                })
+            }, {
+                query: 'authenticateOrRegisterUserWithToken',
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_TOKEN',
+                message: 'Invalid token',
+                messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            })
         })
     })
 
-    test('should throw error if phone token is used', async () => {
-        const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
-            isPhoneVerified: true, completedAt: new Date().toISOString(),
-        })
-        await expectToThrowGQLErrorToResult(async () => {
-            await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
-                token: confirmPhoneAction.token,
-                userType: RESIDENT,
+    describe('Errors with email token', () => {
+        test('should throw error if email token is expired', async () => {
+            const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                isEmailVerified: true, expiresAt: new Date().toISOString(),
             })
-        }, {
-            query: 'authenticateOrRegisterUserWithToken',
-            code: 'BAD_USER_INPUT',
-            type: 'INVALID_TOKEN',
-            message: 'Invalid token',
-            messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            await expectToThrowGQLErrorToResult(async () => {
+                await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                    token: confirmEmailAction.token,
+                    userType: SERVICE,
+                })
+            }, {
+                query: 'authenticateOrRegisterUserWithToken',
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_TOKEN',
+                message: 'Invalid token',
+                messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            })
         })
-    })
 
-    test('should throw error if phone token is deleted', async () => {
-        const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
-            isPhoneVerified: true, completedAt: new Date().toISOString(),
-        })
-        await ConfirmPhoneAction.softDelete(adminClient, confirmPhoneAction.id)
-        await expectToThrowGQLErrorToResult(async () => {
-            await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
-                token: confirmPhoneAction.token,
-                userType: RESIDENT,
+        test('should throw error if email token is used', async () => {
+            const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                isEmailVerified: true, completedAt: new Date().toISOString(),
             })
-        }, {
-            query: 'authenticateOrRegisterUserWithToken',
-            code: 'BAD_USER_INPUT',
-            type: 'INVALID_TOKEN',
-            message: 'Invalid token',
-            messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            await expectToThrowGQLErrorToResult(async () => {
+                await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                    token: confirmEmailAction.token,
+                    userType: SERVICE,
+                })
+            }, {
+                query: 'authenticateOrRegisterUserWithToken',
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_TOKEN',
+                message: 'Invalid token',
+                messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            })
         })
-    })
 
-    test('should throw error if phone token is not confirmed', async () => {
-        const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: false })
-        await expectToThrowGQLErrorToResult(async () => {
-            await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
-                token: confirmPhoneAction.token,
-                userType: RESIDENT,
+        test('should throw error if email token is deleted', async () => {
+            const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                isEmailVerified: true, completedAt: new Date().toISOString(),
             })
-        }, {
-            query: 'authenticateOrRegisterUserWithToken',
-            code: 'BAD_USER_INPUT',
-            type: 'INVALID_TOKEN',
-            message: 'Invalid token',
-            messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            await ConfirmEmailAction.softDelete(adminClient, confirmEmailAction.id)
+            await expectToThrowGQLErrorToResult(async () => {
+                await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                    token: confirmEmailAction.token,
+                    userType: SERVICE,
+                })
+            }, {
+                query: 'authenticateOrRegisterUserWithToken',
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_TOKEN',
+                message: 'Invalid token',
+                messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            })
+        })
+
+        test('should throw error if email token is not confirmed', async () => {
+            const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, { isEmailVerified: false })
+            await expectToThrowGQLErrorToResult(async () => {
+                await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                    token: confirmEmailAction.token,
+                    userType: SERVICE,
+                })
+            }, {
+                query: 'authenticateOrRegisterUserWithToken',
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_TOKEN',
+                message: 'Invalid token',
+                messageForUser: 'api.user.authenticateOrRegisterUserWithToken.INVALID_TOKEN',
+            })
         })
     })
 
@@ -899,6 +1217,26 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
             type: 'SHOULD_AUTHORIZE_WITH_EMAIL',
             message: 'You should log in to your account using a verified email to be able to log in by phone',
             messageForUser: 'api.user.authenticateOrRegisterUserWithToken.SHOULD_AUTHORIZE_WITH_EMAIL',
+        })
+    })
+
+    test('should throw error if try log in by confirm email token if user email is not verified, but phone is verified', async () => {
+        const [, userAttrs] = await createTestUser(adminClient, { isEmailVerified: false, isPhoneVerified: true, type: SERVICE })
+        const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+            isEmailVerified: true, email: userAttrs.email,
+        })
+
+        await expectToThrowGQLErrorToResult(async () => {
+            await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                token: confirmEmailAction.token,
+                userType: userAttrs.type,
+            })
+        }, {
+            mutation: 'authenticateOrRegisterUserWithToken',
+            code: 'BAD_USER_INPUT',
+            type: 'SHOULD_AUTHORIZE_WITH_PHONE',
+            message: 'You should log in to your account using a verified phone to be able to log in by email',
+            messageForUser: 'api.user.authenticateOrRegisterUserWithToken.SHOULD_AUTHORIZE_WITH_PHONE',
         })
     })
 })

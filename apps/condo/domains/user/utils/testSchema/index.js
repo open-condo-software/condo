@@ -43,7 +43,7 @@ const {
     GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY,
     START_CONFIRM_EMAIL_ACTION_MUTATION,
 } = require('@condo/domains/user/gql')
-const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
+const { generateSmsCode, generateSecureCode } = require('@condo/domains/user/utils/serverSchema')
 
 const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
@@ -640,8 +640,8 @@ async function createTestConfirmEmailAction (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const email = createTestEmail()
-    const token = faker.random.alphaNumeric(16)
-    const secretCode = faker.random.numeric(4)
+    const token = generateToken(TOKEN_TYPES.CONFIRM_EMAIL)
+    const secretCode = generateSecureCode(4)
     const now = dayjs()
     const secretCodeRequestedAt = now.toISOString()
     const secretCodeExpiresAt = now.add(1, 'minute').toISOString()
