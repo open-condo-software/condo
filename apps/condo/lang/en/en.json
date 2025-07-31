@@ -1053,6 +1053,7 @@
   "field.Category": "Category",
   "field.Classifier.requiredError": "Select problem classifier",
   "field.ClientName.minLengthError": "Enter your full name",
+  "field.ClientName.maxLengthError": "Name is too long",
   "field.Description.lengthError": "Please describe the problem in more detail",
   "field.EMail": "E-mail",
   "field.Executor": "Executor",
