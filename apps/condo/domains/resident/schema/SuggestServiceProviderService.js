@@ -14,19 +14,8 @@ const {
     RESIDENT_SUGGEST_SERVICE_PROVIDER_WINDOW_IN_SEC,
     MAX_SUGGEST_SERVICE_PROVIDER_ITEMS_COUNT,
 } = require('@condo/domains/resident/constants')
+const { checkResidentRequestLimits } = require('@condo/domains/resident/utils/helpers')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-
-const redisGuard = new RedisGuard()
-
-const checkLimits = async (userId, context) => {
-    await redisGuard.checkCustomLimitCounters(
-        `suggest_service_provider:user:${userId}`,
-        RESIDENT_SUGGEST_SERVICE_PROVIDER_WINDOW_IN_SEC,
-        MAX_RESIDENT_SUGGEST_SERVICE_PROVIDER_CALLS_BY_WINDOW_SEC,
-        context,
-    )
-}
 
 const filterOrganizationsByAcquiringContextOrMeterResourceOwnership = async (context, organizations) => {
     const organizationIds = [...new Set(organizations.map(organization => organization.id))]
@@ -69,9 +58,13 @@ const SuggestServiceProviderService = new GQLCustomSchema('SuggestServiceProvide
             schema: 'suggestServiceProvider (data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput!]',
             resolver: async (parent, args, context = {}) => {
                 if (context.authedItem.type === RESIDENT) {
-                    await checkLimits(context.authedItem.id, context)
+                    await checkResidentRequestLimits(
+                        'suggest_service_provider',
+                        context,
+                        RESIDENT_SUGGEST_SERVICE_PROVIDER_WINDOW_IN_SEC,
+                        MAX_RESIDENT_SUGGEST_SERVICE_PROVIDER_CALLS_BY_WINDOW_SEC
+                    )
                 }
-
                 const { data: { search } } = args
                 if (!search || search.length < 3) {
                     return []

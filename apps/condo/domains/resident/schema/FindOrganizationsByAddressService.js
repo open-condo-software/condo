@@ -9,6 +9,7 @@ const {
     MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
     RESIDENT_FIND_ORGANIZATIONS_WINDOW_SEC,
 } = require('@condo/domains/resident/constants/constants')
+const { checkResidentRequestLimits } = require('@condo/domains/resident/utils/helpers')
 const {
     getOrganizationIdsWithAcquiring,
     getOrganizationIdsWithMeters,
@@ -58,7 +59,12 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                 const { addressKey, unitName, unitType, tin, accountNumber } = data
 
                 if (context.authedItem.type === RESIDENT) {
-                    await checkLimits(context.authedItem.id, context)
+                    await checkResidentRequestLimits(
+                        'find_organizations_by_address',
+                        context,
+                        RESIDENT_FIND_ORGANIZATIONS_WINDOW_SEC,
+                        MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
+                    )
                 }
 
                 const properties = await find('Property', {
@@ -106,9 +112,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
 
                 const fetchOrganizationData = async (organization) => {
                     if (tin && accountNumber) {
-                        const org = await findOrganizationByAddressKeyTinAccountNumber(organization, data, properties)
-
-                        return org.meters.length || org.receipts.length ? org : null
+                        return findOrganizationByAddressKeyTinAccountNumber(organization, data, properties)
                     } else if (unitName && unitType) {
                         return findOrganizationByAddressKeyUnitNameUnitType(organization, data, context, properties)
                     } else {
@@ -117,8 +121,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                 }
 
                 const result = await Promise.all(organizations.map(fetchOrganizationData))
-
-                return result.filter(Boolean)
+                return result.filter(({ meters, receipts }) => meters.length || receipts.length)
             },
         },
     ],

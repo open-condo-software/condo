@@ -1,6 +1,14 @@
 const { get, isEmpty, isNull } = require('lodash')
 
+const conf = require('@open-condo/config')
+
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
+const {
+    RESIDENT_FIND_ORGANIZATIONS_WINDOW_SEC,
+    MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
+} = require('../constants/constants')
 
 /**
  * Connects or disconnects residents to/from organization & property.
@@ -41,7 +49,25 @@ const connectResidents = async (context, residents, property, dv, sender) => {
  */
 const disconnectResidents = async (context, residents, dv, sender) => await connectResidents(context, residents, null, dv, sender)
 
+
+async function checkResidentRequestLimits (key, context, windowInSeconds, requestsLimitCount ) {
+    const redisGuard = new RedisGuard()
+
+    const userId = get(context, ['authedItem', 'id'])
+    const envLimits = conf['RESIDENT_REQUESTS_LIMITS'] ? JSON.parse(conf['RESIDENT_REQUESTS_LIMITS']) : {}
+    if (envLimits.hasOwnProperty(key)) {
+        requestsLimitCount = envLimits[key]
+    }
+    await redisGuard.checkCustomLimitCounters(
+        `${key}:${userId}`,
+        windowInSeconds,
+        requestsLimitCount,
+        context,
+    )
+}
+
 module.exports = {
     connectResidents,
     disconnectResidents,
+    checkResidentRequestLimits,
 }
