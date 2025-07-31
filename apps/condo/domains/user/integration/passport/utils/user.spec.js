@@ -24,6 +24,7 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const { GQLError } = require('@open-condo/keystone/errors')
 const { getById, getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
 const {
     setFakeClientMode,
@@ -34,7 +35,7 @@ const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/comm
 const { User, UserRightsSet } = require('@condo/domains/user/utils/serverSchema')
 const { createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
-const { syncUser } = require('./user')
+const { syncUser, captureUserType, ensureUserType } = require('./user')
 
 const DV_SENDER = {
     dv: 1,
@@ -45,14 +46,20 @@ function createMockRequest ({
     method = 'GET',
     headers = {},
     query = {},
-    params = {},
+    params = { provider: generateProviderInfo().name },
+    session = {},
 } = {}) {
     return {
         method,
         headers,
         query,
         params,
+        session,
     }
+}
+
+function createMockResponse () {
+    return {}
 }
 
 function createTestOIDCProfile ({
@@ -127,6 +134,22 @@ function _generateCombinations (options) {
     return combinations
 }
 
+function expectExpressNextCallWithGQLError (next, errorFields) {
+    expect(next).toBeCalledTimes(1)
+    const callArgs = next.mock.calls[0]
+    expect(callArgs).toHaveLength(1)
+    const firstArg = callArgs[0]
+    expect(firstArg).toBeInstanceOf(GQLError)
+    expect(firstArg).toEqual(expect.objectContaining({
+        name: 'GQLError',
+        extensions: expect.objectContaining(errorFields),
+    }))
+}
+
+function expectExpressNextHandlerCall (next) {
+    expect(next).toBeCalledTimes(1)
+    expect(next.mock.calls[0]).toHaveLength(0)
+}
 
 describe('User utils', () => {
     setFakeClientMode(index, { excludeApps: ['NextApp'] })
@@ -920,6 +943,527 @@ describe('User utils', () => {
                         expect(updatedDuplicateByEmail).toHaveProperty('isEmailVerified', duplicatedByEmailUser.isEmailVerified)
                     })
                 })
+            })
+        })
+        describe('Must update user info on first linking', () => {
+            let email
+            let phone
+            let userType
+            let condoUser
+            beforeEach(async () => {
+                email = createTestEmail()
+                phone = createTestPhone()
+                userType = getRandomUserType()
+                condoUser = await User.create(serverContext, {
+                    ...DV_SENDER,
+                    email,
+                    isEmailVerified: true,
+                    phone,
+                    isPhoneVerified: true,
+                    type: userType,
+                }, 'id name meta')
+            })
+            test('Must update metadata with providers userProfile', async () => {
+                const profile = {
+                    ...createTestOIDCProfile({
+                        phone_number: phone,
+                        phone_number_verified: true,
+                    }),
+                    extraProperty: 'extraValue',
+                }
+                const providerInfo = generateProviderInfo()
+
+                const { id } = await syncUser(
+                    createMockRequest(),
+                    profile,
+                    userType,
+                    providerInfo,
+                )
+                expect(id).toBeDefined()
+                expect(id).toEqual(condoUser.id)
+
+                const user = await getById('User', id)
+                expect(user.meta).toEqual(expect.objectContaining({
+                    [providerInfo.name]: profile,
+                }))
+            })
+            test('Must set name from provider if not already defined', async () => {
+                expect(condoUser).toHaveProperty('name', null)
+                const profile = createTestOIDCProfile({
+                    phone_number: phone,
+                    phone_number_verified: true,
+                })
+                expect(profile.name).toBeDefined()
+
+                const { id } = await syncUser(
+                    createMockRequest(),
+                    profile,
+                    userType,
+                    generateProviderInfo()
+                )
+                expect(id).toBeDefined()
+                expect(id).toEqual(condoUser.id)
+
+                const user = await getById('User', id)
+                expect(user).toHaveProperty('name', profile.name)
+            })
+            test('Must not override existing condo user name', async () => {
+                const originalName = faker.internet.userName()
+                const updatedCondoUser = await User.update(serverContext, condoUser.id, {
+                    ...DV_SENDER,
+                    name: originalName,
+                }, 'id name')
+                expect(updatedCondoUser).toHaveProperty('name', originalName)
+
+                const profile = createTestOIDCProfile({
+                    phone_number: phone,
+                    phone_number_verified: true,
+                })
+                expect(profile.name).toBeDefined()
+                expect(profile.name).not.toEqual(originalName)
+
+                const { id } = await syncUser(
+                    createMockRequest(),
+                    profile,
+                    userType,
+                    generateProviderInfo()
+                )
+                expect(id).toBeDefined()
+                expect(id).toEqual(condoUser.id)
+
+                const user = await getById('User', id)
+                expect(user).toHaveProperty('name', originalName)
+            })
+            test('Must not set external fields for already created users', async () => {
+                const profile = createTestOIDCProfile({
+                    phone_number: phone,
+                    phone_number_verified: true,
+                })
+
+                const { id } = await syncUser(
+                    createMockRequest(),
+                    profile,
+                    userType,
+                    generateProviderInfo()
+                )
+                expect(id).toBeDefined()
+                expect(id).toEqual(condoUser.id)
+
+                const user = await getById('User', id)
+                expect(user).toHaveProperty('externalPhone', null)
+                expect(user).toHaveProperty('isExternalPhoneVerified', false)
+                expect(user).toHaveProperty('externalEmail', null)
+                expect(user).toHaveProperty('isExternalEmailVerified', false)
+                expect(user).toHaveProperty('externalSystemName', null)
+            })
+            describe('Must fill email field if matched by phone', () => {
+                describe('If there is no conflicts', () => {
+                    test.each(_generateCombinations({
+                        trustEmail: [true, false],
+                        emailVerified: [true, false],
+                    }).map(c => [JSON.stringify(c), c]))('%p', async (_, { trustEmail, emailVerified }) => {
+                        const phone = createTestPhone()
+                        const userType = getRandomUserType()
+                        const condoUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            type: userType,
+                            phone,
+                            isPhoneVerified: true,
+                        }, 'id phone email isEmailVerified')
+                        expect(condoUser).toHaveProperty('phone', phone)
+                        expect(condoUser).toHaveProperty('email', null)
+                        expect(condoUser).toHaveProperty('isEmailVerified', false)
+
+                        const profile = createTestOIDCProfile({
+                            phone_number: phone,
+                            phone_number_verified: true,
+                            email: createTestEmail(),
+                            email_verified: emailVerified,
+                        })
+                        const providerInfo = generateProviderInfo({ trustEmail })
+
+                        const { id } = await syncUser(
+                            createMockRequest(),
+                            profile,
+                            userType,
+                            providerInfo,
+                        )
+                        expect(id).toBeDefined()
+                        expect(id).toEqual(condoUser.id)
+
+                        const user = await getById('User', id)
+                        expect(user).toHaveProperty('email', profile.email)
+                        expect(user).toHaveProperty('isEmailVerified', trustEmail && emailVerified)
+                    })
+                })
+                describe('If there is conflict with unverified email', () => {
+                    test.each(_generateCombinations({
+                        trustEmail: [true, false],
+                        emailVerified: [true, false],
+                    }).map(c => [JSON.stringify(c), c]))('%p', async (_, { trustEmail, emailVerified }) => {
+                        const phone = createTestPhone()
+                        const email = createTestEmail()
+                        const userType = getRandomUserType()
+                        const condoUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            type: userType,
+                            phone,
+                            isPhoneVerified: true,
+                        }, 'id phone email isEmailVerified')
+                        expect(condoUser).toHaveProperty('phone', phone)
+                        expect(condoUser).toHaveProperty('email', null)
+                        expect(condoUser).toHaveProperty('isEmailVerified', false)
+
+                        const conflictingUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            type: userType,
+                            email,
+                            isEmailVerified: false,
+                        }, 'id email')
+                        expect(conflictingUser).toHaveProperty('email', email)
+
+                        const profile = createTestOIDCProfile({
+                            phone_number: phone,
+                            phone_number_verified: true,
+                            email,
+                            email_verified: emailVerified,
+                        })
+                        const providerInfo = generateProviderInfo({ trustEmail })
+
+                        const { id } = await syncUser(
+                            createMockRequest(),
+                            profile,
+                            userType,
+                            providerInfo,
+                        )
+                        expect(id).toBeDefined()
+                        expect(id).toEqual(condoUser.id)
+
+                        const user = await getById('User', id)
+                        expect(user).toHaveProperty('email', profile.email)
+                        expect(user).toHaveProperty('isEmailVerified', trustEmail && emailVerified)
+
+                        const updatedConflictingUser = await getById('User', conflictingUser.id)
+                        expect(updatedConflictingUser).toEqual(expect.objectContaining({
+                            email: null,
+                            isEmailVerified: false,
+                            meta: expect.objectContaining({
+                                email,
+                            }),
+                        }))
+                    })
+                })
+                describe('Must not set email if there is conflict with verified condo user',  () => {
+                    test.each(_generateCombinations({
+                        trustEmail: [true, false],
+                        emailVerified: [true, false],
+                    }).map(c => [JSON.stringify(c), c]))('%p', async (_, { trustEmail, emailVerified }) => {
+                        const phone = createTestPhone()
+                        const email = createTestEmail()
+                        const userType = getRandomUserType()
+                        const condoUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            type: userType,
+                            phone,
+                            isPhoneVerified: true,
+                        }, 'id phone email isEmailVerified')
+                        expect(condoUser).toHaveProperty('phone', phone)
+                        expect(condoUser).toHaveProperty('email', null)
+                        expect(condoUser).toHaveProperty('isEmailVerified', false)
+
+                        const conflictingUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            type: userType,
+                            email,
+                            isEmailVerified: true,
+                        }, 'id email isEmailVerified')
+                        expect(conflictingUser).toHaveProperty('email', email)
+                        expect(conflictingUser).toHaveProperty('isEmailVerified', true)
+
+                        const profile = createTestOIDCProfile({
+                            phone_number: phone,
+                            phone_number_verified: true,
+                            email,
+                            email_verified: emailVerified,
+                        })
+                        const providerInfo = generateProviderInfo({ trustEmail })
+
+                        const { id } = await syncUser(
+                            createMockRequest(),
+                            profile,
+                            userType,
+                            providerInfo,
+                        )
+                        expect(id).toBeDefined()
+                        expect(id).toEqual(condoUser.id)
+
+                        const user = await getById('User', id)
+                        expect(user).toHaveProperty('email', null)
+                        expect(user).toHaveProperty('isEmailVerified', false)
+
+                        const updatedConflictingUser = await getById('User', conflictingUser.id)
+                        expect(updatedConflictingUser).toEqual(expect.objectContaining({
+                            email,
+                            isEmailVerified: true,
+                        }))
+                    })
+                })
+            })
+            describe('Must fill phone field if matched by email', () => {
+                describe('If there is no conflicts', () => {
+                    test.each(_generateCombinations({
+                        trustPhone: [true, false],
+                        phoneVerified: [true, false],
+                    }).map(c => [JSON.stringify(c), c]))('%p', async (_, { trustPhone, phoneVerified }) => {
+                        const email = createTestEmail()
+                        const userType = getRandomUserType()
+                        const condoUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            type: userType,
+                            email,
+                            isEmailVerified: true,
+                        }, 'id email phone isPhoneVerified')
+                        expect(condoUser).toHaveProperty('email', email)
+                        expect(condoUser).toHaveProperty('phone', null)
+                        expect(condoUser).toHaveProperty('isPhoneVerified', false)
+
+                        const profile = createTestOIDCProfile({
+                            phone_number_verified: phoneVerified,
+                            email: email,
+                            email_verified: true,
+                        })
+                        const providerInfo = generateProviderInfo({ trustPhone })
+
+                        const { id } = await syncUser(
+                            createMockRequest(),
+                            profile,
+                            userType,
+                            providerInfo,
+                        )
+                        expect(id).toBeDefined()
+                        expect(id).toEqual(condoUser.id)
+
+                        const user = await getById('User', id)
+                        expect(user).toHaveProperty('phone', profile.phone_number)
+                        expect(user).toHaveProperty('isPhoneVerified', trustPhone && phoneVerified)
+                    })
+                })
+                describe('If there is conflict with unverified phone', () => {
+                    test.each(_generateCombinations({
+                        trustPhone: [true, false],
+                        phoneVerified: [true, false],
+                    }).map(c => [JSON.stringify(c), c]))('%p', async (_, { trustPhone, phoneVerified }) => {
+                        const email = createTestEmail()
+                        const phone = createTestPhone()
+                        const userType = getRandomUserType()
+                        const condoUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            type: userType,
+                            email,
+                            isEmailVerified: true,
+                        }, 'id email phone isPhoneVerified')
+                        expect(condoUser).toHaveProperty('email', email)
+                        expect(condoUser).toHaveProperty('phone', null)
+                        expect(condoUser).toHaveProperty('isPhoneVerified', false)
+
+                        const conflictingUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            type: userType,
+                            phone,
+                            isPhoneVerified: false,
+                        }, 'id phone')
+                        expect(conflictingUser).toHaveProperty('phone', phone)
+
+                        const profile = createTestOIDCProfile({
+                            phone_number: phone,
+                            phone_number_verified: phoneVerified,
+                            email,
+                            email_verified: true,
+                        })
+                        const providerInfo = generateProviderInfo({ trustPhone })
+
+                        const { id } = await syncUser(
+                            createMockRequest(),
+                            profile,
+                            userType,
+                            providerInfo,
+                        )
+                        expect(id).toBeDefined()
+                        expect(id).toEqual(condoUser.id)
+
+                        const user = await getById('User', id)
+                        expect(user).toHaveProperty('phone', profile.phone_number)
+                        expect(user).toHaveProperty('isPhoneVerified', trustPhone && phoneVerified)
+
+                        const updatedConflictingUser = await getById('User', conflictingUser.id)
+                        expect(updatedConflictingUser).toEqual(expect.objectContaining({
+                            phone: null,
+                            isPhoneVerified: false,
+                            meta: expect.objectContaining({
+                                phone,
+                            }),
+                        }))
+                    })
+                })
+                describe('Must not set phone if there is conflict with verified condo user',  () => {
+                    test.each(_generateCombinations({
+                        trustPhone: [true, false],
+                        phoneVerified: [true, false],
+                    }).map(c => [JSON.stringify(c), c]))('%p', async (_, { trustPhone, phoneVerified }) => {
+                        const email = createTestEmail()
+                        const phone = createTestPhone()
+                        const userType = getRandomUserType()
+                        const condoUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            type: userType,
+                            email,
+                            isEmailVerified: true,
+                        }, 'id email phone isPhoneVerified')
+                        expect(condoUser).toHaveProperty('email', email)
+                        expect(condoUser).toHaveProperty('phone', null)
+                        expect(condoUser).toHaveProperty('isPhoneVerified', false)
+
+                        const conflictingUser = await User.create(serverContext, {
+                            ...DV_SENDER,
+                            type: userType,
+                            phone,
+                            isPhoneVerified: true,
+                        }, 'id phone isPhoneVerified')
+                        expect(conflictingUser).toHaveProperty('phone', phone)
+                        expect(conflictingUser).toHaveProperty('isPhoneVerified', true)
+
+                        const profile = createTestOIDCProfile({
+                            phone_number: phone,
+                            // NOTE: false here, otherwise there'll be a match by phone
+                            phone_number_verified: false,
+                            email,
+                            email_verified: true,
+                        })
+                        const providerInfo = generateProviderInfo({ trustPhone })
+
+                        const { id } = await syncUser(
+                            createMockRequest(),
+                            profile,
+                            userType,
+                            providerInfo,
+                        )
+                        expect(id).toBeDefined()
+                        expect(id).toEqual(condoUser.id)
+
+                        const user = await getById('User', id)
+                        expect(user).toHaveProperty('phone', null)
+                        expect(user).toHaveProperty('isPhoneVerified', false)
+
+                        const updatedConflictingUser = await getById('User', conflictingUser.id)
+                        expect(updatedConflictingUser).toEqual(expect.objectContaining({
+                            phone,
+                            isPhoneVerified: true,
+                        }))
+                    })
+                })
+            })
+        })
+    })
+    describe('captureUserType', () => {
+        let next
+        let res
+        beforeEach(() => {
+            next = jest.fn()
+            res = createMockResponse()
+        })
+        test('Must throw error if userType not specified in query parameters', () => {
+            const req = createMockRequest()
+            captureUserType(req, res, next)
+            expectExpressNextCallWithGQLError(next, {
+                code: 'BAD_USER_INPUT',
+                type: 'USER_TYPE_NOT_SPECIFIED',
+            })
+        })
+        describe('Must throw error if userType is invalid value', () => {
+            test.each([SERVICE, faker.random.alphaNumeric(12)])('%p', (userType) => {
+                const req = createMockRequest({
+                    query: { userType },
+                })
+                captureUserType(req, res, next)
+                expectExpressNextCallWithGQLError(next, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_USER_TYPE',
+                })
+            })
+        })
+        describe('Must save userType to session and call next handler on valid userType', () => {
+            test.each([STAFF, RESIDENT])('%p', (userType) => {
+                const req = createMockRequest({
+                    query: { userType },
+                })
+                captureUserType(req, res, next)
+                expectExpressNextHandlerCall(next)
+                expect(req.session).toHaveProperty('userType', userType)
+            })
+        })
+    })
+    describe('ensureUserType', () => {
+        let next
+        let res
+        beforeEach(() => {
+            next = jest.fn()
+            res = createMockResponse()
+        })
+        describe('Must ensure valid userType exists in query parameter or in session', () => {
+            describe('Query parameter', () => {
+                describe('Must pass valid values and save it in session for persistence', () => {
+                    test.each([RESIDENT, STAFF])('%p', (userType) => {
+                        const req = createMockRequest({
+                            query: { userType },
+                        })
+                        ensureUserType(req, res, next)
+                        expectExpressNextHandlerCall(next)
+                        expect(req.session).toHaveProperty('userType', userType)
+                    })
+                })
+                describe('Must throw error if userType is invalid value', () => {
+                    test.each([SERVICE, faker.random.alphaNumeric(12)])('%p', (userType) => {
+                        const req = createMockRequest({
+                            query: { userType },
+                        })
+                        ensureUserType(req, res, next)
+                        expectExpressNextCallWithGQLError(next, {
+                            code: 'BAD_USER_INPUT',
+                            type: 'INVALID_USER_TYPE',
+                        })
+                    })
+                })
+            })
+            describe('Session', () => {
+                describe('must validate previously saved userType', () => {
+                    test.each([RESIDENT, STAFF])('%p', (userType) => {
+                        const req = createMockRequest({
+                            session: { userType },
+                        })
+                        ensureUserType(req, res, next)
+                        expectExpressNextHandlerCall(next)
+                        expect(req.session).toHaveProperty('userType', userType)
+                    })
+                    test.each([SERVICE, faker.random.alphaNumeric(12)])('%p', (userType) => {
+                        const req = createMockRequest({
+                            session: { userType },
+                        })
+                        ensureUserType(req, res, next)
+                        expectExpressNextCallWithGQLError(next, {
+                            code: 'BAD_USER_INPUT',
+                            type: 'INVALID_USER_TYPE',
+                        })
+                    })
+                })
+            })
+            test('Must prioritize query parameters over session, since its more explicit',  () => {
+                const req = createMockRequest({
+                    query: { userType: STAFF },
+                    session: { userType: RESIDENT },
+                })
+                ensureUserType(req, res, next)
+                expectExpressNextHandlerCall(next)
+                expect(req.session).toHaveProperty('userType', STAFF)
             })
         })
     })
