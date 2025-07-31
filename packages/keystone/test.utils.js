@@ -158,8 +158,15 @@ let __expressTestServers = {}
  * @param {string} name
  * @param {Express} app
  * @param {string} protocol like http, ssh, rdp, https. Used only in address
+ * @param {number} port – defaults to 0 (random open port) – this is *preferred* way of using this utility
+ * @param {boolean} useDanglingMode - if true then:
+ *   - If server is already launched (port in use), do nothing
+ *   - Server won't be closed after tests (will close when jest process dies)
+ *   If false (default):
+ *   - If server is already launched, throws error
+ *   - Server will be closed after tests
  */
-function initTestExpressApp (name, app, protocol = 'http', port = 0) {
+function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDanglingMode = false } = {}) {
     if (!name) {
         throw new Error('initTestExpressApp(name, app) no name!')
     }
@@ -168,31 +175,66 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0) {
         throw new Error('initTestExpressApp(name, app) no app!')
     }
 
-    if (getTestExpressApp(name)) {
-        throw new Error('initTestExpressApp(name, app) express app with this name is already initialized')
+    if (useDanglingMode && (!port || port === 0)) {
+        throw new Error('Dangling mode should only be used when port is specified')
     }
 
     beforeAll(async () => {
-
         __expressTestServers[name] = {
             server: null,
             address: null,
             port: null,
             baseUrl: null,
         }
-        // This express runs only in tests
-        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
-        __expressTestServers[name].server = await http.createServer(app).listen(port)
 
-        const addressInfo = __expressTestServers[name].server.address()
-        __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
-        __expressTestServers[name].port = addressInfo.port
-        __expressTestServers[name].baseUrl = `${protocol}://${__expressTestServers[name].address}:${__expressTestServers[name].port}`
+        // Used only inside of jest files
+        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+        const server = http.createServer(app)
+
+        try {
+            await new Promise((resolve, reject) => {
+                const listenInstance = server.listen(port)
+
+                listenInstance.on('listening', () => {
+                    const addressInfo = listenInstance.address()
+                    __expressTestServers[name] = {
+                        server: listenInstance,
+                        address: addressInfo.address === '::' ? 'localhost' : addressInfo.address,
+                        port: addressInfo.port,
+                        baseUrl: `${protocol}://${addressInfo.address === '::' ? 'localhost' : addressInfo.address}:${addressInfo.port}`,
+                        isDangling: false,
+                    }
+                    resolve()
+                })
+
+                listenInstance.on('error', (err) => {
+                    if (useDanglingMode && err.code === 'EADDRINUSE') {
+                        __expressTestServers[name] = {
+                            server: null,
+                            address: 'localhost',
+                            port: port,
+                            baseUrl: `${protocol}://'localhost':${port}`,
+                            isDangling: true,
+                        }
+                        resolve()
+                    } else {
+                        reject(err)
+                    }
+                })
+            })
+        } catch (err) {
+            if (err.code === 'EADDRINUSE' && !useDanglingMode) {
+                throw new Error(`Specified port: ${port} is already in use`)
+            }
+            throw err
+        }
     })
 
     afterAll(async () => {
-        if (__expressTestServers[name]) {
-            __expressTestServers[name].server.close()
+        if (__expressTestServers[name] && __expressTestServers[name].server && !useDanglingMode) {
+            await new Promise((resolve) => {
+                __expressTestServers[name].server.close(resolve)
+            })
             delete __expressTestServers[name]
         }
     })
@@ -308,7 +350,7 @@ const makeApolloClient = (serverUrl, opts = {}) => {
     const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
 
     const apolloLinks = []
-    // Terminating link must be in the end of links chain
+    // Terminating link must be in the end of links chains
     apolloLinks.push(createUploadLink({
         uri: `${serverUrl}${API_PATH}`,
         credentials: 'include',
@@ -528,7 +570,7 @@ const isMongo = () => {
 
 /**
  * Implements correct expecting of GraphQLError, thrown by Keystone.
- * Expectation checks inside of `catch` are not covering a case,
+ * Expectation checks inside `catch` are not covering a case,
  * when no exception is thrown, — test will pass, but should fail.
  * https://stackoverflow.com/questions/48707111/asserting-against-thrown-error-objects-in-jest
  *
