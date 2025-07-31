@@ -187,6 +187,8 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
             baseUrl: null,
         }
 
+        // Used only inside of jest files
+        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
         const server = http.createServer(app)
 
         try {
