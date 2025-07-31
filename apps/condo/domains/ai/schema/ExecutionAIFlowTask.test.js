@@ -40,7 +40,7 @@ describe('ExecutionAIFlowTask', () => {
     let adminClient, supportClient, userClient, userClient2, anonymousClient
 
     // In envs the full url is specified, so we must specify the port
-    initTestExpressApp('Flowise', new FlowiseTestingApp().prepareMiddleware(), 'http', 57657)
+    initTestExpressApp('Flowise', new FlowiseTestingApp().prepareMiddleware(), 'http', 57657, { useDanglingMode: true })
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
