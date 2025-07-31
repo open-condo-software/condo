@@ -1,5 +1,5 @@
 import { TextAreaRef } from 'antd/lib/input/TextArea'
-import { FC, useCallback, useEffect, useRef, useState } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 
 import { CheckCircle, Close, RefreshCw, XCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
