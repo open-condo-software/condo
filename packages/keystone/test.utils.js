@@ -196,9 +196,9 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0) {
             port: null,
             baseUrl: null,
         }
+        console.log(`NAS**Create server ${name}`)
         // This express runs only in tests
         // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
-        console.log(`NAS**Create server ${name}`)
         __expressTestServers[name].server = await http.createServer(app).on('listening', () => {
             const addressInfo = __expressTestServers[name].server.address()
             __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
