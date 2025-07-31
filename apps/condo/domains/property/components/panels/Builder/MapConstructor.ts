@@ -603,11 +603,15 @@ class MapEdit extends MapView {
         }
 
         this.selectedSections = newSelectedSections
-        this.editMode = this.viewMode === MapViewMode.section ? 'editSection' : 'editParking'
+        if (this.selectedSections.length > 0) {
+            this.editMode = this.viewMode === MapViewMode.section ? 'editSection' : 'editParking'
+        } else {
+            this.editMode = null
+        }
     }
 
     public getSelectedSections (): Array<BuildingSection> {
-        return this.selectedSections
+        return [...this.selectedSections]
     }
 
     public isSectionSelected (id: string): boolean {
@@ -845,6 +849,7 @@ class MapEdit extends MapView {
         // Update section name if provided
         if (sectionUpdate.name) {
             this.sections[sectionIndex].name = sectionUpdate.name
+            if (renameNextUnits) this.updateSectionNumbers(sectionIndex, renameNextUnits)
         }
 
         // Handle units per floor changes
@@ -1167,7 +1172,7 @@ class MapEdit extends MapView {
             name: String(floor.index),
             type: BuildingFloorType.Floor,
             units: Array.from({ length: floor.unitCount }, (_, unitIndex) => {
-                const label = String(unitIndex + floor.startUnitIndex + 1)
+                const label = String(unitIndex + (floor.startUnitIndex ?? 0) + 1)
 
                 return {
                     id: String(++this.autoincrement),

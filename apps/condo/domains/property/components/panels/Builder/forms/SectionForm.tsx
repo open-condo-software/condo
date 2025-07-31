@@ -281,10 +281,10 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         }
     }, [section, builder, refresh])
 
-    const firstNotEmptyFloorIndex = section?.floors?.map(floor => floor.units.length)?.findIndex(unitsCount => !!unitsCount)
-    const sectionMinFloor = section ? builder.getSectionMinFloor(section?.index) : 0
-    const sectionMaxFloor = section ? builder.getSectionMaxFloor(section?.index) - firstNotEmptyFloorIndex : 0
-    const sectionUnitOnFloor = section ? section?.floors[0].units.length : 0
+    const firstNotEmptyFloorIndex = section?.floors?.map(floor => floor.units.length)?.findIndex(unitsCount => !!unitsCount) ?? 0
+    const sectionMinFloor = section ? builder.getSectionMinFloor(section.index) : 1
+    const sectionMaxFloor = section ? builder.getSectionMaxFloor(section.index) - firstNotEmptyFloorIndex : 1
+    const sectionUnitOnFloor = section?.floors?.[0]?.units?.length ?? 0
 
     const [name, setName] = useState<string>('')
     const renameNextSections = useRef(false)
@@ -326,7 +326,9 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         setMinFloor(1)
         setFloorCount(null)
         setUnitsOnFloor(null)
-    }, [])
+        setMinFloorHidden(true)
+        setName(section?.name || '')
+    }, [section?.name])
 
     const updateSection = useCallback(() => {
         sections.forEach(section => {
@@ -347,7 +349,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [sections, refresh, resetForm, builder, canChangeName, name, minFloor, maxFloorValue, unitsOnFloor])
 
     useEffect(() => {
-        if (minFloor && floorCount && unitsOnFloor && name && maxFloorValue) {
+        if (minFloor && floorCount && unitsOnFloor && (canChangeName ? name : true) && maxFloorValue) {
             sections.forEach(section => {
                 builder.updatePreviewSection({
                     ...section,
