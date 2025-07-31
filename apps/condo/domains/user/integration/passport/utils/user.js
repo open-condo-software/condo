@@ -1,21 +1,12 @@
 const get = require('lodash/get')
 const { z } = require('zod')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLError } = require('@open-condo/keystone/errors')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-const {
-    INVALID_USER_TYPE,
-    INVALID_IDENTITY_PROVIDER_INFO,
-    INVALID_FIELD_MAPPING,
-    INVALID_USER_DATA,
-    EXTERNAL_IDENTITY_BLOCKED,
-    INVALID_USER_SHAPE,
-    USER_TYPE_NOT_SPECIFIED,
-    NO_USER_TYPE_IN_SESSION,
-} = require('@condo/domains/user/constants/errors')
+const { ERRORS } = require('@condo/domains/user/integration/passport/errors')
 const {
     User,
     UserExternalIdentity,
@@ -25,52 +16,6 @@ const { fieldMappingSchema } = require('./config')
 
 const DV_AND_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'passport' } }
 const ALLOWED_USER_TYPES = [RESIDENT, STAFF]
-
-const ERRORS = {
-    USER_TYPE_NOT_SPECIFIED: {
-        code: BAD_USER_INPUT,
-        type: USER_TYPE_NOT_SPECIFIED,
-        message: 'userType query parameter is required',
-    },
-    NO_USER_TYPE_IN_SESSION: {
-        code: BAD_USER_INPUT,
-        type: NO_USER_TYPE_IN_SESSION,
-        message: 'userType parameter was not found saved between requests, pass it via query parameters explicitly or visit /api/auth/{provider} first',
-    },
-    INVALID_USER_TYPE: {
-        code: BAD_USER_INPUT,
-        type: INVALID_USER_TYPE,
-        message: 'Invalid user type provided. Expected to be one of the following: {allowedTypes}',
-        messageInterpolation: {
-            allowedTypes: ALLOWED_USER_TYPES.join(', '),
-        },
-    },
-    INVALID_IDENTITY_PROVIDER_INFO: {
-        code: INTERNAL_ERROR,
-        type: INVALID_IDENTITY_PROVIDER_INFO,
-        message: 'Invalid identity provider info',
-    },
-    INVALID_FIELD_MAPPING: {
-        code: INTERNAL_ERROR,
-        type: INVALID_FIELD_MAPPING,
-        message: 'Invalid field mapping provided to syncUser',
-    },
-    INVALID_USER_DATA: {
-        code: INTERNAL_ERROR,
-        type: INVALID_USER_DATA,
-        message: 'Invalid user data received from auth provider',
-    },
-    EXTERNAL_IDENTITY_BLOCKED: {
-        code: BAD_USER_INPUT,
-        type: EXTERNAL_IDENTITY_BLOCKED,
-        message: 'Its not possible to sign in using this account',
-    },
-    INVALID_USER_SHAPE: {
-        code: INTERNAL_ERROR,
-        type: INVALID_USER_SHAPE,
-        message: 'User shape was invalid',
-    },
-}
 
 /**
  * That's the most common naming practices in OAuth 2.0 / OIDC world:
@@ -364,7 +309,10 @@ async function syncUser (
 
     // Step 0. Sanity checks
     if (!ALLOWED_USER_TYPES.includes(userType)) {
-        throw new GQLError(ERRORS.INVALID_USER_TYPE, errorContext)
+        throw new GQLError({
+            ...ERRORS.INVALID_USER_TYPE,
+            messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES },
+        }, errorContext)
     }
     const { success: isValidProviderInfo, error: providerInfoError, data: providerInfoData } = providerInfoSchema.safeParse(providerInfo)
     if (!isValidProviderInfo) {
@@ -430,11 +378,21 @@ function captureUserType (req, res, next) {
     const errorContext = { req }
     const { userType } = req.query
     if (!userType) {
-        return next(new GQLError(ERRORS.USER_TYPE_NOT_SPECIFIED, errorContext))
+        return next(
+            new GQLError({
+                ...ERRORS.MISSING_QUERY_PARAMETER,
+                messageInterpolation: { parameter: 'userType' },
+            }, errorContext)
+        )
     }
 
     if (!ALLOWED_USER_TYPES.includes(userType)) {
-        return next(new GQLError(ERRORS.INVALID_USER_TYPE, errorContext))
+        return next(
+            new GQLError({
+                ...ERRORS.INVALID_USER_TYPE,
+                messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES },
+            }, errorContext)
+        )
     }
 
     req.session.userType = userType
@@ -446,7 +404,12 @@ function ensureUserType (req, res, next) {
     const { userType } = req.query
     if (userType) {
         if (!ALLOWED_USER_TYPES.includes(userType)) {
-            return next(new GQLError(ERRORS.INVALID_USER_TYPE, errorContext))
+            return next(
+                new GQLError({
+                    ...ERRORS.INVALID_USER_TYPE,
+                    messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES },
+                }, errorContext)
+            )
         }
         req.session.userType = userType
     }
@@ -456,7 +419,7 @@ function ensureUserType (req, res, next) {
         const messageInterpolation = {
             provider,
         }
-        return next(new GQLError({ ...ERRORS.NO_USER_TYPE_IN_SESSION, messageInterpolation }, errorContext))
+        return next(new GQLError({ ...ERRORS.NO_USER_TYPE_IN_CALLBACK, messageInterpolation }, errorContext))
     } else if (!ALLOWED_USER_TYPES.includes(req.session.userType)) {
         return next(new GQLError(ERRORS.INVALID_USER_TYPE, errorContext))
     }

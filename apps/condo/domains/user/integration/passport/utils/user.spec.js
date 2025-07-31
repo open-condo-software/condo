@@ -156,6 +156,7 @@ describe('User utils', () => {
 
     let serverContext
     beforeAll(async () => {
+        jest.resetModules()
         const { keystone } = getSchemaCtx('User')
         serverContext = await keystone.createContext({ skipAccessControl: true })
     })
@@ -1362,6 +1363,28 @@ describe('User utils', () => {
                     })
                 })
             })
+        })
+        test('Must be able to sync single provider account to multiple user types', async () => {
+            const profile = createTestOIDCProfile()
+            const providerInfo = generateProviderInfo()
+            const { id: staffId } = await syncUser(
+                createMockRequest(),
+                profile,
+                STAFF,
+                providerInfo
+            )
+
+            const { id: residentId } = await syncUser(
+                createMockRequest(),
+                profile,
+                RESIDENT,
+                providerInfo
+            )
+            expect(staffId).not.toEqual(residentId)
+            const staff = await getById('User', staffId)
+            expect(staff).toHaveProperty('type', STAFF)
+            const resident = await getById('User', residentId)
+            expect(resident).toHaveProperty('type', RESIDENT)
         })
     })
     describe('captureUserType', () => {
