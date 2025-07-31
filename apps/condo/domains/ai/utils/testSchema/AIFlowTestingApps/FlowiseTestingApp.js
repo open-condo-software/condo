@@ -4,17 +4,17 @@ const { faker } = require('@faker-js/faker')
 
 const SUCCESS_FLOWISE_PREDICTION_RESULT = {
     json: {
-        comment: faker.lorem.sentence(),
+        comment: 'hello, can you please fix my hot water?',
     },
-    chatId: faker.datatype.uuid(),
-    chatMessageId: faker.datatype.uuid(),
+    chatId: '25156883-4a40-4166-bb52-224c55e8067f',
+    chatMessageId: '4136bc17-4a37-4a4b-9bec-f24b7071745c',
     isStreamValid: false,
-    sessionId: faker.datatype.uuid(),
+    sessionId: '9887a40b-4495-4ce0-b16c-7aa1ce4d0e40',
 }
 
 const FAULTY_FLOWISE_PREDICTION_RESULT = {
     stack: {},
-    message: `Error: predictionsServices.buildChatflow - ${faker.lorem.sentence()}`,
+    message: `Error: predictionsServices.buildChatflow - can not run AI at this time`,
     success: false,
     statusCode: 500,
 }
