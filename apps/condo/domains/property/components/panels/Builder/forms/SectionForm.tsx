@@ -282,8 +282,9 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [section, builder, refresh])
 
     const firstNotEmptyFloorIndex = section?.floors?.map(floor => floor.units.length)?.findIndex(unitsCount => !!unitsCount) ?? 0
-    const sectionMinFloor = section ? builder.getSectionMinFloor(section.index) : 1
-    const sectionMaxFloor = section ? builder.getSectionMaxFloor(section.index) - firstNotEmptyFloorIndex : 1
+    const sectionIndex = sections.findIndex(el => el.index === section.index)
+    const sectionMinFloor = section && sectionIndex !== -1 ? builder.getSectionMinFloor(sectionIndex) : 1
+    const sectionMaxFloor = section && sectionIndex !== -1 ? builder.getSectionMaxFloor(sectionIndex) - firstNotEmptyFloorIndex : 1
     const sectionUnitOnFloor = section?.floors?.[0]?.units?.length ?? 0
 
     const [name, setName] = useState<string>('')
@@ -301,9 +302,11 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const setNameValue = useCallback((value) => setName(value ? value.toString() : ''), [])
 
     const deleteSection = useCallback(() => {
-        builder.removeSection(section.id, renameNextSections.current)
+        sections.forEach(section => {
+            builder.removeSection(section.id, renameNextSections.current)
+        })
         refresh()
-    }, [builder, refresh, section])
+    }, [builder, refresh, sections])
 
     const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
     const setFloorCountValue = useCallback((value) => { setFloorCount(value) }, [])

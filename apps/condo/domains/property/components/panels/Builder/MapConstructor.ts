@@ -615,7 +615,7 @@ class MapEdit extends MapView {
     }
 
     public isSectionSelected (id: string): boolean {
-        return this.selectedSections && this.selectedSections.map(s => s.id).some(s => s === id)
+        return Array.isArray(this.selectedSections) && this.selectedSections && this.selectedSections.map(s => s.id).some(s => s === id)
     }
 
     public setSelectedUnit (unit: BuildingUnit): void {
