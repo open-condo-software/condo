@@ -56,6 +56,7 @@ export const SectionNameInput = (props) => {
             optionFilterProp='title'
             loading={loading}
             disabled={loading}
+            autoClearSearchValue
             {...restInputProps}
         >
             {getOptionGroupBySectionType(sections, SECTION_SECTION_TYPE, SectionGroupLabel)}

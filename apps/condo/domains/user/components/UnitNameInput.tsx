@@ -204,6 +204,7 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             disabled={disabled}
             notFoundContent={notFoundContent}
             options={unitOptions}
+            autoClearSearchValue
             {...restInputProps}
         />
     )
