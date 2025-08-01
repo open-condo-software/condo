@@ -1,6 +1,6 @@
 const express = require('express')
 
-const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
+const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
 
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const { AppleIdRoutes } = require('@condo/domains/user/integration/appleid/routes')

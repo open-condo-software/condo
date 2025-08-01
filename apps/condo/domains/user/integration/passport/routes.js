@@ -2,10 +2,11 @@ const passport = require('passport')
 const { z } = require('zod')
 
 const conf = require('@open-condo/config')
+const { wrapWithGQLError } = require('@open-condo/keystone/utils/errors/wrapWithGQLError')
 
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
-
+const { ERRORS } = require('./errors')
 const { KNOWN_STRATEGIES } = require('./strategies')
 const { passportConfigSchema } = require('./utils/config')
 const { captureUserType, ensureUserType } = require('./utils/user')
@@ -35,6 +36,11 @@ class PassportAuthRouter {
             const routes = this.generateRoutesByName(name)
             this.#strategiesByNames[name] = new Strategy(strategyConfig, routes)
         }
+    }
+
+    static onAuthFail (err, req, res, next) {
+        const gqlErr = wrapWithGQLError(err, { req }, ERRORS.AUTHORIZATION_FAILED)
+        next(gqlErr)
     }
 
     generateRoutesByName (name) {
@@ -91,12 +97,14 @@ class PassportAuthRouter {
             `${this.apiPrefix}/:provider`,
             captureUserType,
             authenticate,
+            PassportAuthRouter.onAuthFail,
         )
         app.get(
             `${this.apiPrefix}/:provider/callback`,
             ensureUserType,
             authenticate,
             onAuthSuccess,
+            PassportAuthRouter.onAuthFail,
         )
     }
 
