@@ -58,6 +58,7 @@ const RewriteTextButton: React.FC<IRewriteTextButtonProps> = ({
             title={TourUpdateTextTitle}
             message={TourUpdateTextMessage}
             onClose={closeTourStep}
+            getPopupContainer={()=> document.body}
         >
             <Button
                 compact
@@ -218,7 +219,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
     const isInputDisable = sending || generateCommentLoading || rewriteTextLoading
 
-    const MemoizedUploadComponent = useCallback(() => {
+    const MemoizedUploadComponent = useCallback((props) => {
         return (
             <UploadComponent
                 initialFileList={editableCommentFiles}
@@ -229,15 +230,14 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                             size='medium'
                             minimal
                             compact
-                            disabled={isInputDisable}
+                            disabled={props.isInputDisable}
                             icon={<Paperclip size='small' />}
                         />
-                    </Tooltip>
-                }
+                    </Tooltip>}
                 uploadProps={ <Paperclip size='large' /> }
             />
         )
-    }, [UploadComponent, UploadTooltipText, editableCommentFiles, isInputDisable])
+    }, [UploadComponent, UploadTooltipText, editableCommentFiles])
 
     const initialCommentFormValues = useMemo(() => ({
         [fieldName]: initialValue,
@@ -290,9 +290,11 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
     const closeAINotification = () => {
         setAiNotificationShow(false)
-        setGenerateCommentAnswer('')
-        setRewriteTextAnswer('')
-        setErrorMessage('')
+        setTimeout(()=> {
+            setErrorMessage('')
+            setGenerateCommentAnswer('')
+            setRewriteTextAnswer('')
+        }, 200)
     }
 
     const handleCloseAINotification = () => {
@@ -375,6 +377,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                             bottomPanelUtils={[
                                 <MemoizedUploadComponent
                                     key='uploadButton'
+                                    isInputDisable={isInputDisable}
                                 />,
                                 <Tooltip
                                     title={copied ? CopiedTooltipText : CopyTooltipText }

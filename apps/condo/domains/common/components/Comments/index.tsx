@@ -160,10 +160,8 @@ const Comments: React.FC<CommentsPropsType> = ({
 
         if (result.error) {
             notification.error({ message: result.localizedErrorText || GenericErrorMessage })
-            return result.localizedErrorText || GenericErrorMessage
+            setErrorMessage(result.localizedErrorText || GenericErrorMessage)
         }
-
-        return ''
     }
 
 
@@ -424,7 +422,7 @@ const Comments: React.FC<CommentsPropsType> = ({
                     bodyRef={bodyRef}
                     sending={sending}
                     generateCommentEnabled={generateCommentEnabled}
-                    generateCommentOnClickHandler={async () => setErrorMessage(await handleGenerateCommentClick(commentTabContentProps.comments, commentForm))}
+                    generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments, commentForm)}
                     generateCommentLoading={generateCommentLoading}
                     showGenerateCommentWithoutComments={showGenerateCommentWithoutComments}
                 />
@@ -452,7 +450,7 @@ const Comments: React.FC<CommentsPropsType> = ({
                         rewriteTextLoading={rewriteTextLoading}
                         rewriteTextAnswer={rewriteTextAnswer}
                         setRewriteTextAnswer={setRewriteTextAnswer}
-                        generateCommentClickHandler={async () => setErrorMessage(await handleGenerateCommentClick(commentTabContentProps.comments, commentForm))}
+                        generateCommentClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments, commentForm)}
                         rewriteTextOnClickHandler={handleRewriteTextClick}
                         setAiNotificationShow={setAiNotificationShow}
                         aiNotificationShow={aiNotificationShow}
