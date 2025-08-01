@@ -821,6 +821,40 @@ describe('RegisterPropertyMetersReadingsService', () => {
         expect(propertyMeterReadings).toHaveLength(1)
     })
 
+    test('prevent to create readings duplicates if date is within same day', async () => {
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
+        const readingData = createTestReadingData(property, {}, true)
+        const duplicateReadings = [readingData, { ...readingData, date: dayjs(readingData.date).add('1', 's').toISOString() }]
+
+        const [data] = await registerPropertyMetersReadingsByTestClient(adminClient, organization, duplicateReadings)
+
+        expect(data).toHaveLength(2)
+        expect(data[0].id).toEqual(data[1].id)
+        expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
+            id: expect.stringMatching(UUID_REGEXP),
+            meter: expect.objectContaining({
+                id: expect.stringMatching(UUID_REGEXP),
+                property: expect.objectContaining({
+                    id: property.id,
+                    address: property.address,
+                    addressKey: property.addressKey,
+                }),
+                number: duplicateReadings[0].meterNumber,
+            }),
+        })]))
+
+        const propertyMeters = await PropertyMeter.getAll(adminClient, {
+            organization: { id: organization.id },
+            property: { id: property.id },
+        })
+        expect(propertyMeters).toHaveLength(1)
+        expect(propertyMeters[0].number).toBe(duplicateReadings[0].meterNumber)
+
+        const propertyMeterReadings = await PropertyMeterReading.getAll(adminClient, { meter: { id_in: map(propertyMeters, 'id') } })
+        expect(propertyMeterReadings).toHaveLength(1)
+    })
+
     test('update meter with data from last reading with same meter', async () => {
         const [organization] = await createTestOrganization(adminClient)
         const [property] = await createTestPropertyWithMap(adminClient, organization)

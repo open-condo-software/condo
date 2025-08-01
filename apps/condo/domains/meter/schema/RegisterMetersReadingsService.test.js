@@ -975,6 +975,43 @@ describe('RegisterMetersReadingsService', () => {
         expect(metersReadings).toHaveLength(1)
     })
 
+    test('prevent to create readings duplicates if date is within same day', async () => {
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
+        const readingData = createTestReadingData(property)
+        const duplicateReadings = [readingData, { ...readingData, date: dayjs(readingData.date).add('1', 's').toISOString() }]
+
+        const [data] = await registerMetersReadingsByTestClient(adminClient, organization, duplicateReadings)
+
+        expect(data).toHaveLength(2)
+        expect(data[0].id).toEqual(data[1].id)
+        expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
+            id: expect.stringMatching(UUID_REGEXP),
+            meter: expect.objectContaining({
+                id: expect.stringMatching(UUID_REGEXP),
+                property: expect.objectContaining({
+                    id: property.id,
+                    address: property.address,
+                    addressKey: property.addressKey,
+                }),
+                unitType: duplicateReadings[0].addressInfo.unitType,
+                unitName: duplicateReadings[0].addressInfo.unitName,
+                accountNumber: duplicateReadings[0].accountNumber,
+                number: duplicateReadings[0].meterNumber,
+            }),
+        })]))
+
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: organization.id },
+            property: { id: property.id },
+        })
+        expect(meters).toHaveLength(1)
+        expect(meters[0].number).toBe(duplicateReadings[0].meterNumber)
+
+        const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
+        expect(metersReadings).toHaveLength(1)
+    })
+
     test('update meter with data from last reading with same meter', async () => {
         const [organization] = await createTestOrganization(adminClient)
         const [property] = await createTestPropertyWithMap(adminClient, organization)
