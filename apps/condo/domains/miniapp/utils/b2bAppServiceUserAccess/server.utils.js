@@ -233,7 +233,7 @@ const canManageObjectsAsB2BAppServiceUser = async (args) => {
     const canBeManaged = get(schemaConfig, 'canBeManaged', true)
     if (!canBeManaged) return false
     const refSchemaName = getRefSchemaName(schemaConfig, listKey)
-    return await canManageByServiceUser(args, schemaConfig, refSchemaName)
+    return await canManageByServiceUser(args, schemaConfig, refSchemaName) // todo: @toplenboren create a test with offline token for only one organization
 }
 
 const canExecuteServiceAsB2BAppServiceUser = async (args, organizationId) => {
