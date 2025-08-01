@@ -48,7 +48,7 @@
     "@open-keystone/fields-markdown": "^6.0.10",
     "@open-keystone/fields-wysiwyg-tinymce": "^6.0.10",
     "@open-keystone/file-adapters": "^7.1.4",
-    "@open-keystone/keystone": "^19.4.10",
+    "@open-keystone/keystone": "^19.4.12",
     "@open-keystone/server-side-graphql-client": "^2.1.3",
     "@open-keystone/utils": "^6.1.3",
     "@opentelemetry/api": "^1.4.1",

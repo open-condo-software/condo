@@ -69,7 +69,7 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { getTranslations } = require('@open-condo/locales/loader')
 
 const { getLogger } = require('./logging')
-const { GQLErrorCode, GQLInternalErrorTypes } = require('./utils/errors/constants')
+const { GQLErrorCode, GQLInternalErrorTypes, HTTPStatusByGQLErrorCode } = require('./utils/errors/constants')
 
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g
@@ -189,4 +189,5 @@ module.exports = {
     GQLError,
     GQLErrorCode,
     GQLInternalErrorTypes,
+    HTTPStatusByGQLErrorCode,
 }

@@ -160,12 +160,16 @@ function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches
     // [1] base error fields: name, message, stack
     Object.assign(result, pick(error, (hideInternals) ? ['message', 'name'] : ['message', 'name', 'stack']))
 
-    // [2] base graphql fields: locations, path
+    // [2] base request / error identifiers
+    const ids = { reqId: error?.reqId, errId: error?.uid || error?.errId }
+    Object.assign(result, ids)
+
+    // [3] base graphql fields: locations, path
     //  - `locations` - array of { line, column } locations
     //  - `path` - array describing the JSON-path
     Object.assign(result, pick(error, ['locations', 'path']))
 
-    // [3] graphql extensions field
+    // [4] graphql extensions field
     const hasErrorExtensions = error.extensions && !isEmpty(error.extensions)
     const hasOriginalErrorExtensions = originalError && !isEmpty(originalError.extensions)
     if (hasErrorExtensions || hasOriginalErrorExtensions) {
@@ -177,10 +181,10 @@ function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches
         }
     }
 
-    // [4] apollo/keystone error fields: time_thrown, data, internalData (it's old ApolloServer keys)
+    // [5] apollo/keystone error fields: time_thrown, data, internalData (it's old ApolloServer keys)
     Object.assign(result, pick(error, (hideInternals) ? ['data'] : ['data', 'time_thrown', 'internalData']))
 
-    // [5] add messageForDeveloper field: if has (nodes) or has (source and location) => can use printError
+    // [6] add messageForDeveloper field: if has (nodes) or has (source and location) => can use printError
     if (!_isRecursionCall && (error?.nodes || (error?.source && error?.location))) {
         const messageForDeveloper = printError(error)
         if (messageForDeveloper !== error.message) {
@@ -235,8 +239,6 @@ function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches
             result.data = originalError.data
         }
     }
-
-    // TODO(pahaz): DOMA-10354 think about errId / uid and add it here
 
     // fullstack error
     if (!_isRecursionCall && !hideInternals) {

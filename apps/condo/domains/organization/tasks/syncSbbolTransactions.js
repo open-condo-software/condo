@@ -11,7 +11,7 @@ const { BankSyncTask } = require('@condo/domains/banking/utils/serverSchema')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { requestTransactions } = require('@condo/domains/organization/integrations/sbbol/sync/requestTransactions')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const { UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'syncSbbolTransactions' } }

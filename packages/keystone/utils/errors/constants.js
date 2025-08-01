@@ -31,6 +31,15 @@ const GQLErrorCode = {
     PAYLOAD_TOO_LARGE,
 }
 
+const HTTPStatusByGQLErrorCode = {
+    [INTERNAL_ERROR]: 500,
+    [UNAUTHENTICATED]: 401,
+    [FORBIDDEN]: 403,
+    [BAD_USER_INPUT]: 400,
+    [TOO_MANY_REQUESTS]: 429,
+    [PAYLOAD_TOO_LARGE]: 413,
+}
+
 // This error type is specifically used to indicate that during the execution of a GraphQL query,
 // a nested GraphQL query was executed, and an error occurred within that nested query.
 // It helps to differentiate between errors that occur at the top level and those that arise from
@@ -49,4 +58,5 @@ const GQLInternalErrorTypes = {
 module.exports = {
     GQLErrorCode,
     GQLInternalErrorTypes,
+    HTTPStatusByGQLErrorCode,
 }
