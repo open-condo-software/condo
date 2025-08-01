@@ -22,7 +22,7 @@ const {
 } = require('@condo/domains/user/constants/errors')
 const { MAX_NUMBER_OF_TOKEN_USES, TOKEN_LIFETIME_IN_MIN } = require('@condo/domains/user/constants/sudoToken')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
-const { UserSudoToken, ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
+const { UserSudoToken, ConfirmPhoneAction, ConfirmEmailAction } = require('@condo/domains/user/utils/serverSchema')
 const { authGuards, validateUserCredentials } = require('@condo/domains/user/utils/serverSchema/auth')
 const { generateTokenSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
@@ -77,7 +77,7 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
         },
         {
             access: true,
-            type: 'input GenerateSudoTokenAuthFactorsInput { confirmPhoneToken: String, password: String }',
+            type: 'input GenerateSudoTokenAuthFactorsInput { confirmPhoneToken: String, password: String, confirmEmailToken: String }',
         },
         {
             access: true,
@@ -120,7 +120,7 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
 
                 const validation = await validateUserCredentials(
                     { email: normalizedEmail, phone: normalizedPhone, userType: user.userType },
-                    { password: authFactors.password, confirmPhoneToken: authFactors.confirmPhoneToken },
+                    { password: authFactors.password, confirmPhoneToken: authFactors.confirmPhoneToken, confirmEmailToken: authFactors.confirmEmailToken },
                 )
 
                 if (!validation.success) {
@@ -146,6 +146,13 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
 
                 if (validation.confirmPhoneAction) {
                     await ConfirmPhoneAction.update(context, validation.confirmPhoneAction.id, {
+                        dv, sender,
+                        completedAt: new Date().toISOString(),
+                    })
+                }
+
+                if (validation.confirmEmailAction) {
+                    await ConfirmEmailAction.update(context, validation.confirmEmailAction.id, {
                         dv, sender,
                         completedAt: new Date().toISOString(),
                     })
