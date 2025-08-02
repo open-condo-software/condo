@@ -79,85 +79,6 @@ const redisGuard = new RedisGuard()
 const DAILY_TICKET_LIMIT = parseInt(conf.DAILY_TICKET_LIMIT) || 10
 const DAILY_SAME_TICKET_LIMIT = parseInt(conf.DAILY_SAME_TICKET_LIMIT) || 2
 
-// NOTE: The mobile app may send a deleted classifier due to out of sync with the server.
-// If this happens, then the mobile application will attack the server with endless requests to create/update ticket with the old classifier.
-// And the server will return an error due to the fact that the specified classifier does not exist.
-// In order to prevent this from happening, we override the old classifiers on the server with new ones and send correct ticket in response
-// This only works if you pass "delete=true" in url! (ex. "https://path/to/api?delete=true")
-const OVERRIDED_CLASSIFIERS = {
-    '46294639-9247-49cc-9431-e86376c3bd34': '26c16d55-ea34-4e30-aa14-322a49cb40a5',
-    '9ff5652a-ba9d-42fe-856b-f8764cff299d': '0343901e-bb55-411d-8bf2-62f5849d900d',
-    'eb76f50b-3f7d-462c-86c2-fd3cece53f9b': '042fb4a6-22eb-4694-8d96-4bfb84f7316c',
-    'e74a843e-2049-4f28-9733-aaf0febf46ae': 'fc23f952-6a56-4919-a996-4051e560a71d',
-    '4d765237-f5a5-426d-8aed-af137739e710': '21b71c2a-bcab-4046-af75-1992d76089fc',
-    'a648960f-d48b-451d-81d3-a52046e2a960': '21b71c2a-bcab-4046-af75-1992d76089fc',
-    'aa5d4a39-1cdd-477a-b718-04bd5c39fc14': 'a4adef0a-c4c6-406b-b558-d29c72f49511',
-    '8bb4453a-4a12-49d3-94cc-f40d1569a2c8': '49df645c-6168-4f8b-98b0-29de8d9b5473',
-    '3d2d9e2f-56d1-4520-8186-22faaecc728b': '3f4959b1-95be-46c1-8bde-80935c852ac7',
-    '61739781-2202-4c42-b2af-80cf2539bc43': '2ef8d34c-69cb-4da7-b836-92b8cae2afef',
-    'd119c4f6-511f-46b6-bd79-d0233f1179ce': 'a6dd42f0-3107-4109-88c8-cab07c6eadb4',
-    '39d1a542-66e1-491d-a7e4-129bb0f478f7': '547caf5e-fa95-459f-a1ba-2213693017d0',
-    'b3141d81-f5f3-43c2-ba89-8e38d6a2d510': '535cf2ea-2527-4b07-8a3c-0b5c7eb30853',
-    'f69b2093-adc0-452d-a8d1-74505107b644': '1ac446d9-ea6e-4dbc-b82c-f36f118430fa',
-    'Ccaba951-790f-48a2-af90-9f74a6403dec': '38310aae-d736-41a5-808c-413c6b7a117b',
-    '43ba62b3-9173-49d5-9f50-cd45d81d154c': '38310aae-d736-41a5-808c-413c6b7a117b',
-    '8ffcac7a-93bc-433d-9076-cacf481ea4f9': '41df7175-c3cc-4715-962b-49d07fb0e03c',
-    '3922d1a5-b9db-429e-ad9a-c7594cb4f03c': '24f5e6d9-1b6d-4d4d-b782-0442edf3deb4',
-    '345e14c9-d23d-4421-bba7-5fd8f7685e06': '4c9c9e4a-b349-4a39-94b7-1b26aa7b2153',
-    'cd33d788-205a-4909-b107-b56dfa8a9e75': 'f75b8051-ecd6-47bc-8067-9cc4000b04d9',
-    'dbecbe32-5f72-4f5f-a9aa-f40bc689dfda': '62be8ac8-6f85-4096-b5d2-997ba8792828',
-    'a0f0ccac-d8f1-492e-9a40-3e0fb875aeb8': '0d322303-9eb9-4d43-ab20-a566c1e502e5',
-    'E52937b0-c380-4b1a-abeb-d7adc18d788c': '410d2443-e088-4912-9a29-059732bd7e2d',
-    'bf4693ca-cd50-4f6d-8aaf-0f36f86f137b': 'be85fbbb-465f-4f42-9dc0-750d58d7cd58',
-    '3ae41e91-702b-4e09-8fdd-eb3ef29acfb7': '1ccbf170-521b-4ab0-9d24-9e7f996556fd',
-    'Eb6fc32e-15b2-4719-8f53-001cc8a23d4c': 'f567e509-bf2a-4c92-9256-2f6797b6cf23',
-    '63cada2b-c370-4c48-ac0a-30ac2ba7b39f': '9a34f595-057a-456e-b4bb-811b3dbbd669',
-    'e955fbf9-20ab-4884-9af6-4ecec9819ef0': 'ca9343c4-f52c-43e2-9751-0d65323a69da',
-    '54093d20-e9b0-4a5b-b9c8-2c47dfd7c3dd': '95700163-7859-408e-a106-75e50e738d39',
-    '01901147-8fe0-4a7e-8237-9a3d18fc94fc': 'a2c7014b-a3b1-4571-8e0a-3a2d0900798f',
-    'dac5c4a0-452f-409a-8260-a845ce1aaad4': '99a42209-7679-4272-9d7c-4f31c815e31f',
-    '0ac04c15-9ec0-4403-b62c-03760726bf67': 'b13078e9-fdbc-45b6-8703-5d1596db0491',
-    '47f85878-2550-4b5e-8a6b-c792cd1eec0f': '40194647-2394-4352-89b7-d2286a9b601a',
-    '6fc897d4-e912-4ffa-ade8-651483cc5ec1': '32c4e147-7a35-458a-85a2-b28689b5addc',
-    '45f8f996-ddd5-463e-bd0f-df0265568120': 'bc9bbe71-54e9-4767-b8f4-e8a379b770f6',
-    'a944bd82-890d-4d75-856e-f9f4848b2d3f': '94cbacec-e214-4b94-88ce-5f8948cc1b82',
-    '66568026-3169-4ba0-bd2c-baa5adcf10ce': 'c39a294b-583e-42d8-bab1-902533bced73',
-    'b8ee3c90-1d33-4abf-8f59-f7b2959684d6': 'b937de0d-4495-401c-90a4-03f4416b5a1d',
-    'bbe28de9-7251-4026-863b-d844aaaba9a0': '0ebcbe4c-e324-4e67-940b-7860e0a8744b',
-    'dd1aa20b-15c1-44d2-973e-e6c88d5f94c8': '5e17c1fa-7306-4b64-a6e6-704f95cc8c65',
-    'e599ee70-c299-4a5f-a236-1bc923f6af56': 'ce3d0899-686e-4191-90b2-ee2cdee4632f',
-    '237e855d-bf0d-4284-b125-a186e0734016': '378fa2fa-7184-41e3-a317-e3a700dfc2de',
-    'df14c9e9-3b2f-4379-839c-4289009e6dbf': '638ee590-9981-4f9a-abaf-9d79049ea19e',
-    '6e675c2a-6e27-4163-b175-f8ab4ed84cfb': '002a382d-1a14-48d7-bf48-3cc3c78c1ddc',
-    'f239ac75-00f7-4301-9e5d-fc040844d0bf': '9133e2e3-b236-4b10-994c-f29700a25045',
-    'f9347fb5-14ae-4a89-97ca-0380af06bc11': 'e457a983-a024-4bdc-9256-f756131555b0',
-    '186c243a-05e4-429c-b60d-d4f4fdc2ba2e': 'a03f41ae-fdd0-4df9-949b-3996d5ab05da',
-    '6e250076-dafa-4575-96bc-464b8301978f': 'fe0f543d-8e93-4f7d-8076-e077ee6150bc',
-    '5aa6ae1a-ac38-40d6-8e60-bafeba3ce880': '924bff38-123e-48f7-a8dc-ba874be02df0',
-    'fc9b4288-a71d-4fa4-accf-a289e388d124': 'd83ccb81-72f0-4d8a-beef-7a751eccd518',
-    '8fb33454-c271-46d5-8332-57977ea45e5e': '47469c77-4e26-4d71-bb5e-c0447f7d0406',
-    'cfd61c63-244b-400b-ae5b-e1bc64173cdb': 'e24d136e-2fcc-4852-b6f5-e21e60a5ad44',
-    '81d8cfda-aeda-4654-a700-b96705c7ff25': '0343901e-bb55-411d-8bf2-62f5849d900d',
-    'd4b76717-70c1-41e4-9ec5-2da5821d6850': 'fc23f952-6a56-4919-a996-4051e560a71d',
-    '78307064-c6d1-47ff-ab87-fa97442fb4c5': '21b71c2a-bcab-4046-af75-1992d76089fc',
-    '62aceb01-4bdd-4743-bec0-91bc25319718': 'a4adef0a-c4c6-406b-b558-d29c72f49511',
-    '93377e53-c4ec-4ba1-bb80-59d9725c782a': '49df645c-6168-4f8b-98b0-29de8d9b5473',
-    '2bfb784a-48c1-4f2f-bb91-17eba775656e': '3f4959b1-95be-46c1-8bde-80935c852ac7',
-    'd1352467-cd59-4488-a711-b9c920ee5324': '2ef8d34c-69cb-4da7-b836-92b8cae2afef',
-    '0cebea6d-deab-4fcd-b0c2-09294fdb9f43': 'a6dd42f0-3107-4109-88c8-cab07c6eadb4',
-    '9d46dc5a-ffb6-4864-bb93-c204d88af53b': '547caf5e-fa95-459f-a1ba-2213693017d0',
-    '9e43a3a8-ce83-4ec9-bb0f-51f53bb6adb6': 'f75b8051-ecd6-47bc-8067-9cc4000b04d9',
-    '942fe980-5153-4fa0-9e52-6731467428bf': '1ac446d9-ea6e-4dbc-b82c-f36f118430fa',
-    '5afe6c4b-6c45-4452-b0f2-1883f696c2c7': '5e5c3858-c7a8-49d4-9a53-8bde7f37e315',
-    '2db263bc-b5a2-4517-959a-3d51ee512a71': '5e5c3858-c7a8-49d4-9a53-8bde7f37e315',
-}
-const overrideOldClassifier = (resolvedData) => {
-    const classifierId = get(resolvedData, 'classifier')
-    if (classifierId && classifierId in OVERRIDED_CLASSIFIERS) {
-        resolvedData.classifier = OVERRIDED_CLASSIFIERS[classifierId]
-    }
-}
-
 const ERRORS = {
     FEEDBACK_VALUE_MUST_BE_SPECIFIED: {
         code: BAD_USER_INPUT,
@@ -811,7 +732,6 @@ const Ticket = new GQLListSchema('Ticket', {
                     resolvedData.isAutoClassified = true
                 }
             }
-            overrideOldClassifier(resolvedData)
 
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
