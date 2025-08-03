@@ -2,6 +2,7 @@ const passport = require('passport')
 const { z } = require('zod')
 
 const conf = require('@open-condo/config')
+const { GQLError } = require('@open-condo/keystone/errors')
 const { wrapWithGQLError } = require('@open-condo/keystone/utils/errors/wrapWithGQLError')
 
 const { User } = require('@condo/domains/user/utils/serverSchema')
@@ -69,7 +70,9 @@ class PassportAuthRouter {
         const strategies = this.#strategiesByNames
         function authenticate (req, res, next) {
             const { provider } = req.params
-            if (!provider || !strategies.hasOwnProperty(provider)) return res.status(404).json({ error: 'unknown provider' })
+            if (!provider || !strategies.hasOwnProperty(provider)) {
+                return next(new GQLError({ ...ERRORS.UNKNOWN_PROVIDER, messageInterpolation: { provider } }, { req }))
+            }
 
             passport.authenticate(provider)(req, res, next)
         }
@@ -78,7 +81,7 @@ class PassportAuthRouter {
             const user = req.user
 
             if (!user) {
-                return res.status(401).json({ error: 'authentication failed' })
+                return next(new GQLError(ERRORS.AUTHORIZATION_FAILED, { req }))
             }
 
             try {

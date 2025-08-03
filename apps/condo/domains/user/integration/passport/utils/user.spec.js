@@ -1394,18 +1394,18 @@ describe('User utils', () => {
             next = jest.fn()
             res = createMockResponse()
         })
-        test('Must throw error if userType not specified in query parameters', () => {
+        test('Must throw error if user_type not specified in query parameters', () => {
             const req = createMockRequest()
             captureUserType(req, res, next)
             expectExpressNextCallWithGQLError(next, {
                 code: 'BAD_USER_INPUT',
-                type: 'USER_TYPE_NOT_SPECIFIED',
+                type: 'MISSING_QUERY_PARAMETER',
             })
         })
-        describe('Must throw error if userType is invalid value', () => {
+        describe('Must throw error if user_type is invalid value', () => {
             test.each([SERVICE, faker.random.alphaNumeric(12)])('%p', (userType) => {
                 const req = createMockRequest({
-                    query: { userType },
+                    query: { user_type: userType },
                 })
                 captureUserType(req, res, next)
                 expectExpressNextCallWithGQLError(next, {
@@ -1417,7 +1417,7 @@ describe('User utils', () => {
         describe('Must save userType to session and call next handler on valid userType', () => {
             test.each([STAFF, RESIDENT])('%p', (userType) => {
                 const req = createMockRequest({
-                    query: { userType },
+                    query: { user_type: userType },
                 })
                 captureUserType(req, res, next)
                 expectExpressNextHandlerCall(next)
@@ -1437,7 +1437,7 @@ describe('User utils', () => {
                 describe('Must pass valid values and save it in session for persistence', () => {
                     test.each([RESIDENT, STAFF])('%p', (userType) => {
                         const req = createMockRequest({
-                            query: { userType },
+                            query: { user_type: userType },
                         })
                         ensureUserType(req, res, next)
                         expectExpressNextHandlerCall(next)
@@ -1447,7 +1447,7 @@ describe('User utils', () => {
                 describe('Must throw error if userType is invalid value', () => {
                     test.each([SERVICE, faker.random.alphaNumeric(12)])('%p', (userType) => {
                         const req = createMockRequest({
-                            query: { userType },
+                            query: { user_type: userType },
                         })
                         ensureUserType(req, res, next)
                         expectExpressNextCallWithGQLError(next, {
@@ -1481,7 +1481,7 @@ describe('User utils', () => {
             })
             test('Must prioritize query parameters over session, since its more explicit',  () => {
                 const req = createMockRequest({
-                    query: { userType: STAFF },
+                    query: { user_type: STAFF },
                     session: { userType: RESIDENT },
                 })
                 ensureUserType(req, res, next)

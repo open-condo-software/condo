@@ -12,6 +12,8 @@ const BAD_USER_INPUT = 'BAD_USER_INPUT'
 const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
 // Too Large Requests
 const PAYLOAD_TOO_LARGE = 'PAYLOAD_TOO_LARGE'
+// Not found
+const NOT_FOUND = 'NOT_FOUND'
 
 /**
  * First level of error classification, used in custom GraphQL queries or mutations
@@ -29,6 +31,7 @@ const GQLErrorCode = {
     BAD_USER_INPUT,     // Need to process by user form!
     TOO_MANY_REQUESTS,  // Need to process by user client to wait some time!
     PAYLOAD_TOO_LARGE,
+    NOT_FOUND,
 }
 
 const HTTPStatusByGQLErrorCode = {
@@ -38,6 +41,7 @@ const HTTPStatusByGQLErrorCode = {
     [BAD_USER_INPUT]: 400,
     [TOO_MANY_REQUESTS]: 429,
     [PAYLOAD_TOO_LARGE]: 413,
+    [NOT_FOUND]: 404,
 }
 
 // This error type is specifically used to indicate that during the execution of a GraphQL query,

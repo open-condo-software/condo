@@ -78,11 +78,11 @@ function _omitUndefined (obj) {
 function generateValidOIDCTokenOptions () {
     const result = []
     for (const combination of _generateCombinations({
-        sub: ['id', undefined],
-        phone_number: ['phone', undefined],
-        phone_number_verified: ['isPhoneVerified', undefined],
-        email: ['user_email', undefined],
-        email_verified: ['isEmailVerified', undefined],
+        id: ['sub', undefined],
+        phone: ['phone_number', undefined],
+        isPhoneVerified: ['phone_number_verified', undefined],
+        email: ['email', 'user_email', undefined],
+        isEmailVerified: ['email_verified', undefined],
         trustPhone: [true, false, undefined],
         trustEmail: [true, false, undefined],
     })) {

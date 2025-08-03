@@ -1,4 +1,4 @@
-const { GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR, NOT_FOUND } } = require('@open-condo/keystone/errors')
 
 const MISSING_QUERY_PARAMETER = 'MISSING_QUERY_PARAMETER'
 const INVALID_USER_TYPE = 'INVALID_USER_TYPE'
@@ -10,6 +10,7 @@ const INVALID_IDENTITY_PROVIDER_INFO = 'INVALID_IDENTITY_PROVIDER_INFO'
 const INVALID_USER_DATA = 'INVALID_USER_DATA'
 const INVALID_PARAMETER = 'INVALID_PARAMETER'
 const AUTHORIZATION_FAILED = 'AUTHORIZATION_FAILED'
+const UNKNOWN_PROVIDER = 'UNKNOWN_PROVIDER'
 
 const ERRORS = {
     MISSING_QUERY_PARAMETER: {
@@ -61,6 +62,11 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: AUTHORIZATION_FAILED,
         message: 'Failed to authorize user',
+    },
+    UNKNOWN_PROVIDER: {
+        code: NOT_FOUND,
+        type: UNKNOWN_PROVIDER,
+        message: 'Unknown auth provider: {provider}',
     },
 }
 

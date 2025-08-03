@@ -32,7 +32,8 @@ function expressErrorHandler (err, req, res, next) {
     const errId = gqlError.uid
     logger.error({ msg: 'express-error-handler', err, req, res, reqId, errId })
 
-    const status = HTTPStatusByGQLErrorCode[gqlError.code] || HTTPStatusByGQLErrorCode[INTERNAL_ERROR]
+    const errCode = gqlError?.extensions?.code || INTERNAL_ERROR
+    const status = HTTPStatusByGQLErrorCode[errCode] || HTTPStatusByGQLErrorCode[INTERNAL_ERROR]
 
     // NOTE: wrap with errors to make response look similar to GQL ones, so handlers can be reused
     res.status(status).json({

@@ -238,11 +238,15 @@ describe('Passport authentication E2E test', () => {
     setFakeClientMode(index)
 
     let agent
+    let serverUrl
 
     beforeAll(async () => {
         const client = await makeClient()
         // NOTE: Not equal to conf['SERVER_URL'], since it runs separate KS in spec via setFakeClientMode
-        agent = request.agent(client.serverUrl)
+        serverUrl = client.serverUrl
+    })
+    beforeEach( () => {
+        agent = request.agent(serverUrl)
     })
     afterEach(() => {
         nock.cleanAll()
@@ -259,7 +263,7 @@ describe('Passport authentication E2E test', () => {
                 const [userResponse, emailsResponse] = mockGithubEndpoints()
                 const profile = mockGithubProfileGeneration(userResponse, emailsResponse)
 
-                const authResponse = await agent.get(`/api/auth/github?userType=${userType}`)
+                const authResponse = await agent.get(`/api/auth/github?user_type=${userType}`)
                 expect(authResponse.status).toEqual(302)
                 expect(authResponse.headers).toHaveProperty('location')
                 const redirectUrl = new URL(authResponse.headers.location)
@@ -333,7 +337,7 @@ describe('Passport authentication E2E test', () => {
                 })
 
 
-                const authResponse = await agent.get(`/api/auth/some-provider-name?userType=${userType}`)
+                const authResponse = await agent.get(`/api/auth/some-provider-name?user_type=${userType}`)
                 expect(authResponse.status).toEqual(302)
                 expect(authResponse.headers).toHaveProperty('location')
                 const redirectUrl = new URL(authResponse.headers.location)
@@ -413,7 +417,7 @@ describe('Passport authentication E2E test', () => {
                 })
 
                 const params = new URLSearchParams({
-                    userType,
+                    user_type: userType,
                     access_token: token,
                     client_id: 'some-client-id',
                 })
@@ -422,7 +426,7 @@ describe('Passport authentication E2E test', () => {
                 expect(authResponse.headers).toHaveProperty('location')
                 const redirectUrl = new URL(authResponse.headers.location, conf['SERVER_URL'])
                 expect(redirectUrl.pathname).toEqual('/api/auth/test-sdk/callback')
-                expect(redirectUrl.searchParams.get('userType')).toEqual(userType)
+                expect(redirectUrl.searchParams.get('user_type')).toEqual(userType)
                 expect(redirectUrl.searchParams.get('access_token')).toEqual(token)
                 expect(redirectUrl.searchParams.get('client_id')).toEqual('some-client-id')
 
@@ -479,6 +483,27 @@ describe('Passport authentication E2E test', () => {
                     userType,
                 })
                 expect(identity).toHaveProperty('user', userId)
+            })
+        })
+    })
+    describe('Must return 404 for unregistered providers',  () => {
+        test.each([
+            ['auth endpoint', `/api/auth/${faker.random.alphaNumeric(12)}?user_type=${STAFF}`],
+            ['callback endpoint', `/api/auth/${faker.random.alphaNumeric(12)}/callback?user_type=${STAFF}`],
+        ])('%p', async (_, endpoint) => {
+            const response = await agent.get(endpoint)
+            expect(response.status).toEqual(404)
+            const body = JSON.parse(response.error.text)
+            expect(body).toEqual({
+                errors: [
+                    expect.objectContaining({
+                        name: 'GQLError',
+                        extensions: expect.objectContaining({
+                            code: 'NOT_FOUND',
+                            type: 'UNKNOWN_PROVIDER',
+                        }),
+                    }),
+                ],
             })
         })
     })

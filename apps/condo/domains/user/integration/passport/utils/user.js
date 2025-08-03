@@ -311,7 +311,7 @@ async function syncUser (
     if (!ALLOWED_USER_TYPES.includes(userType)) {
         throw new GQLError({
             ...ERRORS.INVALID_USER_TYPE,
-            messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES },
+            messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES.join(', ') },
         }, errorContext)
     }
     const { success: isValidProviderInfo, error: providerInfoError, data: providerInfoData } = providerInfoSchema.safeParse(providerInfo)
@@ -376,42 +376,42 @@ async function syncUser (
 
 function captureUserType (req, res, next) {
     const errorContext = { req }
-    const { userType } = req.query
-    if (!userType) {
+    const { user_type } = req.query
+    if (!user_type) {
         return next(
             new GQLError({
                 ...ERRORS.MISSING_QUERY_PARAMETER,
-                messageInterpolation: { parameter: 'userType' },
+                messageInterpolation: { parameter: 'user_type' },
             }, errorContext)
         )
     }
 
-    if (!ALLOWED_USER_TYPES.includes(userType)) {
+    if (!ALLOWED_USER_TYPES.includes(user_type)) {
         return next(
             new GQLError({
                 ...ERRORS.INVALID_USER_TYPE,
-                messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES },
+                messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES.join(', ') },
             }, errorContext)
         )
     }
 
-    req.session.userType = userType
+    req.session.userType = user_type
     next()
 }
 
 function ensureUserType (req, res, next) {
     const errorContext = { req }
-    const { userType } = req.query
-    if (userType) {
-        if (!ALLOWED_USER_TYPES.includes(userType)) {
+    const { user_type } = req.query
+    if (user_type) {
+        if (!ALLOWED_USER_TYPES.includes(user_type)) {
             return next(
                 new GQLError({
                     ...ERRORS.INVALID_USER_TYPE,
-                    messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES },
+                    messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES.join(', ') },
                 }, errorContext)
             )
         }
-        req.session.userType = userType
+        req.session.userType = user_type
     }
 
     if (!req.session.userType) {
@@ -421,7 +421,7 @@ function ensureUserType (req, res, next) {
         }
         return next(new GQLError({ ...ERRORS.NO_USER_TYPE_IN_CALLBACK, messageInterpolation }, errorContext))
     } else if (!ALLOWED_USER_TYPES.includes(req.session.userType)) {
-        return next(new GQLError(ERRORS.INVALID_USER_TYPE, errorContext))
+        return next(new GQLError({ ...ERRORS.INVALID_USER_TYPE, messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES.join(', ') } }, errorContext))
     }
 
     next()
