@@ -26,7 +26,7 @@ const INTERNAL_SERVER_ERROR_GQL = {
 }
 
 function expressErrorHandler (err, req, res, next) {
-    if (!err) next()
+    if (!err) return next()
     const gqlError = wrapWithGQLError(err, { req }, INTERNAL_SERVER_ERROR_GQL)
     const reqId = get(req, ['id'], get(req, ['headers', 'X-Request-Id']))
     const errId = gqlError.uid

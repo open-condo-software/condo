@@ -194,7 +194,7 @@ async function _findOrCreateUser (req, userData, userType, providerInfo, userMet
             // We can also set user.email if there's no conflict, or other user's email is not verified
             if (!userFoundByEmail || !userFoundByEmail.isEmailVerified) {
                 if (userFoundByEmail) {
-                    // Move phone to newly created user to avoid constraints errors
+                    // Move email to newly created user to avoid constraints errors
                     await User.update(context, userFoundByEmail.id, {
                         ...DV_AND_SENDER,
                         email: null,

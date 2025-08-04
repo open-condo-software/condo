@@ -31,7 +31,6 @@ const {
 } = require('@condo/domains/user/constants/errors')
 const { RUNTIME_IDP_TYPES } = require('@condo/domains/user/constants/identityProviders')
 const { USER_CUSTOM_ACCESS_GRAPHQL_TYPES, USER_CUSTOM_ACCESS_FIELDS } = require('@condo/domains/user/gql')
-const { PassportAuthRouter } = require('@condo/domains/user/integration/passport')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
 

@@ -63,7 +63,7 @@ class GithubAuthStrategy {
                 scope: ['user:email'],
                 // NOTE: This enables ability to pass request arguments from user input. We need to receive userType
                 passReqToCallback: true,
-                // NOTE: Without that flag application will assume
+                // NOTE: Without that flag application will only set primary email and omit verification status
                 allRawEmails: true,
             },
             async function githubAuthCallback (req, accessToken, refreshToken, profile, done) {

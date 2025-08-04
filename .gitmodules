@@ -46,6 +46,9 @@
 [submodule "apps/pass"]
 	path = apps/pass
 	url = git@github.com:open-condo-software/condo-pass.git
+[submodule "apps/pos-integration"]
+	path = apps/pos-integration
+	url = git@github.com:open-condo-software/pos-integration.git
 [submodule "apps/property-importer"]
 	path = apps/property-importer
 	url = git@github.com:open-condo-software/condo-property-importer.git
@@ -67,6 +70,3 @@
 [submodule "apps/ticket-importer"]
 	path = apps/ticket-importer
 	url = git@github.com:open-condo-software/condo-ticket-importer.git
-[submodule "apps/pos-integration"]
-	path = apps/pos-integration
-	url = git@github.com:open-condo-software/pos-integration.git
