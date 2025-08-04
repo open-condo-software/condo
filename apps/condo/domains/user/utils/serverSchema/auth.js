@@ -1,9 +1,10 @@
 const conf = require('@open-condo/config')
 const { itemsQuery, getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
-const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
+const { ConfirmPhoneAction, ConfirmEmailAction } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const { generateSimulatedToken } = require('@condo/domains/user/utils/tokens')
 
@@ -143,15 +144,12 @@ async function authGuards (userIdentity, context) {
  *
  * @param {{ phone?: string, email?: string, userType: 'staff' | 'resident' | 'service' }} userIdentity
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
- * @return {Promise<{success: boolean}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean, user: *}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}>}
+ * @return {Promise<{success: boolean}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, confirmEmailAction: *, success: boolean, user: *}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}>}
  * @private
  */
 async function validateUserCredentials (userIdentity, authFactors) {
     if (!userIdentity || typeof userIdentity !== 'object') throw new Error('You must provide userIdentity')
     if (!authFactors || typeof authFactors !== 'object') throw new Error('You must provide authFactors')
-
-    // TODO(DOMA-9890): remove this error when added ConfirmEmailToken
-    if (authFactors.confirmEmailToken !== undefined) throw new Error('confirmEmailToken is not supported yet')
 
     const userType = userIdentity.userType
 
@@ -177,6 +175,7 @@ async function validateUserCredentials (userIdentity, authFactors) {
         success: true,
         user,
         confirmPhoneAction: match.confirmPhoneAction,
+        confirmEmailAction: match.confirmEmailAction,
     }
 }
 
@@ -217,10 +216,18 @@ async function _getUser (userIdentity, authFactors) {
             }
         }
 
-        // TODO(DOMA-9890): implement when added ConfirmEmailToken
-        // if (email === undefined && authFactors?.confirmEmailToken) {
-        //
-        // }
+        if (email === undefined && authFactors?.confirmEmailToken) {
+            const action = await ConfirmEmailAction.getOne(keystone,
+                {
+                    token: authFactors.confirmEmailToken,
+                },
+                'id email'
+            )
+
+            if (action) {
+                email = action.email
+            }
+        }
     }
 
     const where = { type: userType, deletedAt: null }
@@ -263,7 +270,7 @@ const AUTH_CHECK_STATUSES = {
  *
  * @param {Object} user
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
- * @return {Promise<{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}|{success: boolean}>}
+ * @return {Promise<{success: boolean}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, confirmEmailAction, success: boolean}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}>}
  * @private
  */
 async function _matchUser (user, authFactors) {
@@ -275,8 +282,7 @@ async function _matchUser (user, authFactors) {
     const authChecks = {
         password: authFactors.password === undefined ? AUTH_CHECK_STATUSES.SKIP : AUTH_CHECK_STATUSES.FAIL,
         confirmPhoneToken: authFactors.confirmPhoneToken === undefined ? AUTH_CHECK_STATUSES.SKIP : AUTH_CHECK_STATUSES.FAIL,
-        // TODO(DOMA-9890): uncomment when added ConfirmEmailToken
-        // confirmEmailToken: authFactors.confirmEmailToken === undefined ? AUTH_CHECK_STATUSES.SKIP : AUTH_CHECK_STATUSES.FAIL,
+        confirmEmailToken: authFactors.confirmEmailToken === undefined ? AUTH_CHECK_STATUSES.SKIP : AUTH_CHECK_STATUSES.FAIL,
     }
 
     const is2FAEnabled = false // TODO(DOMA-10969): add logic for 2FA
@@ -295,13 +301,12 @@ async function _matchUser (user, authFactors) {
         confirmPhoneAction = action
     }
 
-    // TODO(DOMA-9890): uncomment when added ConfirmEmailToken
-    // let confirmEmailAction
-    // if (authChecks.confirmEmailToken !== AUTH_CHECK_STATUSES.SKIP') {
-    //     const { success, confirmEmailAction: action } = await matchUserConfirmEmailToken(user, authFactors.confirmEmailToken)
-    //     authChecks.confirmEmailToken = success === true ? 'success' : 'fail'
-    //     confirmEmailAction = action
-    // }
+    let confirmEmailAction
+    if (authChecks.confirmEmailToken !== AUTH_CHECK_STATUSES.SKIP) {
+        const { success, confirmEmailAction: action } = await _matchUserConfirmEmailToken(user, authFactors.confirmEmailToken)
+        authChecks.confirmEmailToken = success === true ? AUTH_CHECK_STATUSES.SUCCESS : AUTH_CHECK_STATUSES.FAIL
+        confirmEmailAction = action
+    }
 
     /** @type {string[]} */
     const failedChecks = Object.entries(authChecks).filter(([key, value]) => value === AUTH_CHECK_STATUSES.FAIL).map(([key]) => key)
@@ -323,9 +328,7 @@ async function _matchUser (user, authFactors) {
         return {
             success: true,
             confirmPhoneAction,
-
-            // TODO(DOMA-9890): uncomment when added ConfirmEmailToken
-            // confirmEmailAction,
+            confirmEmailAction,
         }
     }
 
@@ -386,11 +389,32 @@ async function _matchUserConfirmPhoneToken (user, confirmPhoneToken) {
     return { success: false }
 }
 
-// TODO(DOMA-9890): uncomment and implement when added ConfirmEmailToken
-// async function _matchUserConfirmEmailToken (user, confirmEmailToken) {
-//     return { success: false }
-// }
+async function _matchUserConfirmEmailToken (user, confirmEmailToken) {
+    if (!confirmEmailToken) {
+        await _preventTimeBasedAttack({ confirmEmailToken })
+        return { success: false }
+    }
 
+    const { keystone } = getSchemaCtx('User')
+    const action = await ConfirmEmailAction.getOne(keystone,
+        {
+            token: confirmEmailToken,
+            expiresAt_gte: new Date().toISOString(),
+            completedAt: null,
+            isEmailVerified: true,
+        },
+        'id email isEmailVerified'
+    )
+    if (!action) return { success: false }
+
+    const userEmail = normalizeEmail(user.email)
+    const actionEmail = normalizeEmail(action.email)
+    if (userEmail && actionEmail && userEmail === actionEmail) {
+        return { success: true, confirmEmailAction: action }
+    }
+
+    return { success: false }
+}
 
 /**
  *
@@ -430,10 +454,18 @@ async function _preventTimeBasedAttack (authFactors) {
         )
     }
 
-    // TODO(DOMA-9890): uncomment and implement when added ConfirmEmailToken
-    // if (authFactors.confirmEmailToken !== undefined) {
-    //
-    // }
+    if (authFactors.confirmEmailToken !== undefined) {
+        const token = authFactors.confirmEmailToken || generateSimulatedToken()
+        await ConfirmEmailAction.getOne(keystone,
+            {
+                token,
+                expiresAt_gte: new Date().toISOString(),
+                completedAt: null,
+                isEmailVerified: true,
+            },
+            'id email isEmailVerified'
+        )
+    }
 }
 
 module.exports = {

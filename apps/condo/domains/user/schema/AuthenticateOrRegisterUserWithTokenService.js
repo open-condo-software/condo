@@ -20,7 +20,7 @@ const {
     PHONE_ALREADY_REGISTERED_ERROR,
 } = require('@condo/domains/user/constants/errors')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
-const { User, ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
+const { User, ConfirmPhoneAction, ConfirmEmailAction } = require('@condo/domains/user/utils/serverSchema')
 const { validateUserCredentials, authGuards } = require('@condo/domains/user/utils/serverSchema/auth')
 const { detectTokenTypeSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
@@ -67,15 +67,14 @@ const ERRORS = {
         message: 'The verified phone and the phone from the payload cannot be different',
         messageForUser: 'api.user.authenticateOrRegisterUserWithToken.DIFFERENT_PHONES',
     },
-    // TODO(DOMA-9890): use when added ConfirmEmailToken
-    // DIFFERENT_EMAILS: {
-    //     mutation: 'authenticateOrRegisterUserWithToken',
-    //     variable: ['data', 'userData', 'phone'],
-    //     code: BAD_USER_INPUT,
-    //     type: 'DIFFERENT_EMAILS',
-    //     message: 'The verified email and the email from the payload cannot be different',
-    //     messageForUser: 'api.user.authenticateOrRegisterUserWithToken.DIFFERENT_PHONES',
-    // },
+    DIFFERENT_EMAILS: {
+        mutation: 'authenticateOrRegisterUserWithToken',
+        variable: ['data', 'userData', 'email'],
+        code: BAD_USER_INPUT,
+        type: 'DIFFERENT_EMAILS',
+        message: 'The verified email and the email from the payload cannot be different',
+        messageForUser: 'api.user.authenticateOrRegisterUserWithToken.DIFFERENT_EMAILS',
+    },
     OPERATION_FAILED: {
         mutation: 'authenticateOrRegisterUserWithToken',
         code: BAD_USER_INPUT,
@@ -98,14 +97,13 @@ const ERRORS = {
         message: 'You should log in to your account using a verified email to be able to log in by phone',
         messageForUser: 'api.user.authenticateOrRegisterUserWithToken.SHOULD_AUTHORIZE_WITH_EMAIL',
     },
-    // TODO(DOMA-9890): use when added ConfirmEmailToken
-    // SHOULD_AUTHORIZE_WITH_PHONE: {
-    //     mutation: 'authenticateOrRegisterUserWithToken',
-    //     code: BAD_USER_INPUT,
-    //     type: 'SHOULD_AUTHORIZE_WITH_PHONE',
-    //     message: 'You should log in to your account using a verified phone to be able to log in by email',
-    //     messageForUser: 'api.user.authenticateOrRegisterUserWithToken.SHOULD_AUTHORIZE_WITH_PHONE',
-    // },
+    SHOULD_AUTHORIZE_WITH_PHONE: {
+        mutation: 'authenticateOrRegisterUserWithToken',
+        code: BAD_USER_INPUT,
+        type: 'SHOULD_AUTHORIZE_WITH_PHONE',
+        message: 'You should log in to your account using a verified phone to be able to log in by email',
+        messageForUser: 'api.user.authenticateOrRegisterUserWithToken.SHOULD_AUTHORIZE_WITH_PHONE',
+    },
     CREDENTIAL_VALIDATION_FAILED: {
         mutation: 'authenticateOrRegisterUserWithToken',
         code: BAD_USER_INPUT,
@@ -169,9 +167,7 @@ const USER_ERROR_MAPPING = {
 
 const SUPPORTED_TOKENS = [
     TOKEN_TYPES.CONFIRM_PHONE,
-
-    // TODO(DOMA-9890): use when added ConfirmEmailToken
-    // TOKEN_TYPES.CONFIRM_EMAIL,
+    TOKEN_TYPES.CONFIRM_EMAIL,
 ]
 
 const REQUIRED_USER_REGISTRATION_FIELDS = {
@@ -188,12 +184,12 @@ const REQUIRED_USER_REGISTRATION_FIELDS = {
     ],
 }
 
+// TODO(DOMA-11998): use config for setup tokens
 const USER_REGISTRATION_TOKEN_TYPES = {
     [RESIDENT]: [TOKEN_TYPES.CONFIRM_PHONE],
     [STAFF]: [TOKEN_TYPES.CONFIRM_PHONE],
     [SERVICE]: [
-        // TODO(DOMA-9890): use when added ConfirmEmailToken
-        // TOKEN_TYPES.CONFIRM_EMAIL,
+        TOKEN_TYPES.CONFIRM_EMAIL,
     ],
 }
 
@@ -293,31 +289,33 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                         isPhoneVerified: true,
                         deletedAt: null,
                     })
+                } else if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL) {
+                    confirmAction = await getByCondition('ConfirmEmailAction', {
+                        token: token,
+                        expiresAt_gte: new Date().toISOString(),
+                        completedAt: null,
+                        isEmailVerified: true,
+                        deletedAt: null,
+                    })
                 }
-                // TODO(DOMA-9890): implement when added ConfirmEmailToken
-                // else if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL) {
-                //
-                // }
 
                 if (!confirmAction) throw new GQLError(ERRORS.INVALID_TOKEN, context)
 
                 const confirmedPhone = tokenType === TOKEN_TYPES.CONFIRM_PHONE ? confirmAction?.phone : null
-                // TODO(DOMA-9890): implement when added ConfirmEmailToken
-                // const confirmedEmail = tokenType === TOKEN_TYPES.CONFIRM_EMAIL ? confirmAction?.email : null
+                const confirmedEmail = tokenType === TOKEN_TYPES.CONFIRM_EMAIL ? confirmAction?.email : null
                 const notConfirmedPhone = normalizePhone(userData?.phone || null)
                 const notConfirmedEmail = normalizeEmail(userData?.email || null) || null
 
                 if (tokenType === TOKEN_TYPES.CONFIRM_PHONE && notConfirmedPhone && confirmedPhone !== notConfirmedPhone) {
                     throw new GQLError(ERRORS.DIFFERENT_PHONES, context)
                 }
-                // TODO(DOMA-9890): implement when added ConfirmEmailToken
-                // if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL && notConfirmedEmail && confirmedEmail !== notConfirmedEmail) {
-                //     throw new GQLError(ERRORS.DIFFERENT_EMAILS, context)
-                // }
+                if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL && notConfirmedEmail && confirmedEmail !== notConfirmedEmail) {
+                    throw new GQLError(ERRORS.DIFFERENT_EMAILS, context)
+                }
 
                 const existingUser = await getByCondition('User', {
                     type: userType,
-                    phone: confirmedPhone,
+                    ...(tokenType === TOKEN_TYPES.CONFIRM_PHONE ? { phone: confirmedPhone } : { email: confirmedEmail }),
                 })
                 if (existingUser?.deletedAt) throw new GQLError(ERRORS.OPERATION_FAILED, context)
 
@@ -325,10 +323,8 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                     ...userData,
                     type: userType,
                     name: String(userData?.name || '').trim() || null,
-                    // TODO(DOMA-9890): use when added ConfirmEmailToken
-                    // email: confirmedEmail || notConfirmedEmail,
-                    // isEmailVerified: !!confirmedEmail,
-                    email: notConfirmedEmail,
+                    email: confirmedEmail || notConfirmedEmail,
+                    isEmailVerified: !!confirmedEmail,
                     phone: confirmedPhone || notConfirmedPhone,
                     isPhoneVerified: !!confirmedPhone,
                 }
@@ -367,20 +363,20 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                     if (tokenType === TOKEN_TYPES.CONFIRM_PHONE && !existingUser.isPhoneVerified && existingUser.isEmailVerified) {
                         throw new GQLError(ERRORS.SHOULD_AUTHORIZE_WITH_EMAIL, context)
                     }
-                    // TODO(DOMA-9890): use when added ConfirmEmailToken
-                    // if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL && !existingUser.isEmailVerified && existingUser.isPhoneVerified) {
-                    //     throw new GQLError(ERRORS.SHOULD_AUTHORIZE_WITH_PHONE, context)
-                    // }
+
+                    if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL && !existingUser.isEmailVerified && existingUser.isPhoneVerified) {
+                        throw new GQLError(ERRORS.SHOULD_AUTHORIZE_WITH_PHONE, context)
+                    }
 
                     if (existingUser.isEmailVerified || existingUser.isPhoneVerified) {
                         const authFactors = {}
                         if (tokenType === TOKEN_TYPES.CONFIRM_PHONE) {
                             authFactors.confirmPhoneToken = token
                         }
-                        // TODO(DOMA-9890): use when added ConfirmEmailToken
-                        // if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL) {
-                        //     authFactors.confirmEmailToken = token
-                        // }
+
+                        if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL) {
+                            authFactors.confirmEmailToken = token
+                        }
 
                         const validation = await validateUserCredentials(
                             { userType: existingUser.type },
@@ -408,10 +404,13 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                         completedAt: new Date().toISOString(),
                     })
                 }
-                // TODO(DOMA-9890): implement when added ConfirmEmailToken
-                // if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL) {
-                //
-                // }
+                if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL) {
+                    await ConfirmEmailAction.update(context, confirmAction.id, {
+                        dv: 1,
+                        sender,
+                        completedAt: new Date().toISOString(),
+                    })
+                }
 
                 const { keystone } = getSchemaCtx('User')
                 const sessionToken = await context.startAuthedSession({
