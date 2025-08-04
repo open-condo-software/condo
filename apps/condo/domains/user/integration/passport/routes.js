@@ -80,7 +80,7 @@ class PassportAuthRouter {
         async function onAuthSuccess (req, res, next) {
             const user = req.user
 
-            if (!user) {
+            if (!user || !user.id) {
                 return next(new GQLError(ERRORS.AUTHORIZATION_FAILED, { req }))
             }
 
