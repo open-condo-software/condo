@@ -3,7 +3,9 @@
  */
 
 const Big = require('big.js')
-const { pick, get, isNil } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
+const omit = require('lodash/omit')
 
 const { generateQuerySortBy } = require('@open-condo/codegen/generate.gql')
 const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
@@ -14,7 +16,7 @@ const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@con
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { BILLING_RECEIPT_COMMON_FIELDS } = require('@condo/domains/billing/gql')
-const { BillingReceipt, getPaymentsSum, getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceipt, getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
@@ -32,8 +34,8 @@ const BILLING_RECEIPT_FIELDS = BILLING_RECEIPT_COMMON_FIELDS + ' file { id ' +
 
 const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
     id: 'ID',
-    period: 'String',
-    toPay: 'String',
+    period: 'CalendarDay',
+    toPay: 'Decimal',
     printableNumber: 'String',
     serviceConsumer: 'ServiceConsumer',
 }
@@ -68,6 +70,27 @@ const getFile = (receipt, contacts) => {
     }
 }
 
+function removeKeysFromObjectDeep (obj, keysToRemove = []) {
+    if (!Array.isArray(keysToRemove)) {
+        keysToRemove = [keysToRemove].filter(Boolean)
+    }
+    if (keysToRemove.length === 0) {
+        return
+    }
+    for (const key of Object.keys(obj)) {
+        if (key === 'AND' || key === 'OR') {
+            removeKeysFromObjectDeep(obj[key], keysToRemove)
+        }
+        if (Array.isArray(obj[key])) {
+            obj[key].forEach(objItem => removeKeysFromObjectDeep(objItem, keysToRemove))
+        }
+        if (keysToRemove.includes(key)) {
+            delete obj[key]
+        }
+    }
+    return obj
+}
+
 const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillingReceiptsService', {
     types: [
         {
@@ -96,7 +119,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 const { where, first, skip, sortBy } = args
 
                 const serviceConsumerWhere = { ...get(where, 'serviceConsumer', {}), deletedAt: null }
-                const receiptsWhere = pick(where, ['id', 'period', 'toPay', 'printableNumber'])
+                const receiptsWhere = removeKeysFromObjectDeep(omit(where, ['serviceConsumer']) || {}, ['serviceConsumer'])
 
                 const userId = get(context, ['authedItem', 'id'])
 
