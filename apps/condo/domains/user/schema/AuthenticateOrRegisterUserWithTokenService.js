@@ -22,7 +22,9 @@ const {
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const { User, ConfirmPhoneAction, ConfirmEmailAction } = require('@condo/domains/user/utils/serverSchema')
 const { validateUserCredentials, authGuards } = require('@condo/domains/user/utils/serverSchema/auth')
+const { getIdentificationUserRequiredFields } = require('@condo/domains/user/utils/serverSchema/userHelpers')
 const { detectTokenTypeSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
+
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -170,11 +172,15 @@ const SUPPORTED_TOKENS = [
     TOKEN_TYPES.CONFIRM_EMAIL,
 ]
 
+
+const IDENTIFICATION_USER_REQUIRED_FIELDS = getIdentificationUserRequiredFields()
+
 const REQUIRED_USER_REGISTRATION_FIELDS = {
-    [RESIDENT]: ['phone'],
-    [STAFF]: ['phone', 'name', 'password'],
+    [RESIDENT]: [...IDENTIFICATION_USER_REQUIRED_FIELDS.resident],
+    [STAFF]: [...IDENTIFICATION_USER_REQUIRED_FIELDS.staff, 'name', 'password'],
     [SERVICE]: [
-        'email', 'name',
+        'email', // NOTE: Service user registers only by email
+        'name',
 
         // TODO(DOMA-9890): when added ConfirmEmailToken,
         //  It is necessary to check the complexity of the password
@@ -184,10 +190,26 @@ const REQUIRED_USER_REGISTRATION_FIELDS = {
     ],
 }
 
-// TODO(DOMA-11998): use config for setup tokens
+function getTokenTypesByIdentificationUserFields (fields) {
+    if (!Array.isArray(fields)) {
+        throw new Error('Input fields should be an array!')
+    }
+
+    const result = []
+
+    if (fields.includes('phone')) {
+        result.push(TOKEN_TYPES.CONFIRM_PHONE)
+    }
+    if (fields.includes('email')) {
+        result.push(TOKEN_TYPES.CONFIRM_EMAIL)
+    }
+
+    return result
+}
+
 const USER_REGISTRATION_TOKEN_TYPES = {
-    [RESIDENT]: [TOKEN_TYPES.CONFIRM_PHONE],
-    [STAFF]: [TOKEN_TYPES.CONFIRM_PHONE],
+    [RESIDENT]: [...getTokenTypesByIdentificationUserFields(IDENTIFICATION_USER_REQUIRED_FIELDS.resident)],
+    [STAFF]: [...getTokenTypesByIdentificationUserFields(IDENTIFICATION_USER_REQUIRED_FIELDS.staff)],
     [SERVICE]: [
         TOKEN_TYPES.CONFIRM_EMAIL,
     ],
