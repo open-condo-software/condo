@@ -16,6 +16,7 @@ const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@con
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { BILLING_RECEIPT_COMMON_FIELDS } = require('@condo/domains/billing/gql')
+const { removeKeysFromObjectDeep } = require('@condo/domains/billing/utils/gqlWhereInput.utils')
 const { BillingReceipt, getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
@@ -68,27 +69,6 @@ const getFile = (receipt, contacts) => {
         file: { ...file, publicUrl },
         controlSum: receipt.file.controlSum,
     }
-}
-
-function removeKeysFromObjectDeep (obj, keysToRemove = []) {
-    if (!Array.isArray(keysToRemove)) {
-        keysToRemove = [keysToRemove].filter(Boolean)
-    }
-    if (keysToRemove.length === 0) {
-        return
-    }
-    for (const key of Object.keys(obj)) {
-        if (key === 'AND' || key === 'OR') {
-            removeKeysFromObjectDeep(obj[key], keysToRemove)
-        }
-        if (Array.isArray(obj[key])) {
-            obj[key].forEach(objItem => removeKeysFromObjectDeep(objItem, keysToRemove))
-        }
-        if (keysToRemove.includes(key)) {
-            delete obj[key]
-        }
-    }
-    return obj
 }
 
 const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillingReceiptsService', {
