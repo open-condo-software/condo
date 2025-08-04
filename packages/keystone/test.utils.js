@@ -26,7 +26,7 @@ const urlParse = urlLib.parse
 const axios = axiosLib.default
 const axiosCookieJarSupport = axiosCookieJarSupportLib.default
 
-const getRandomString = (length = 6) => crypto.randomBytes(Math.ceil(length / 2)).toString('hex')
+const getRandomString = (length = 16) => crypto.randomBytes(Math.ceil(length / 2)).toString('hex')
 
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
 const NUMBER_RE = /^[1-9][0-9]*$/i
