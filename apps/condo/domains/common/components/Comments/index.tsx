@@ -113,6 +113,7 @@ const Comments: React.FC<CommentsPropsType> = ({
     const [editableComment, setEditableComment] = useState<CommentWithFiles | null>(null)
 
     const commentTextAreaRef = useRef(null)
+    const commentsContainerRef = useRef(null)
 
     const [runGenerateCommentAIFlow, {
         loading: generateCommentLoading,
@@ -367,10 +368,13 @@ const Comments: React.FC<CommentsPropsType> = ({
     }
 
     return (
-        <div className={classNames(
-            styles.commentContainer,
-            breakpoints.TABLET_LARGE ? '' : styles.isSmall,
-        )}>
+        <div
+            className={classNames(
+                styles.commentContainer,
+                breakpoints.TABLET_LARGE ? '' : styles.isSmall,
+            )}
+            ref={commentsContainerRef}
+        >
             {!isTitleHidden &&
                 <div className={styles.commentHead}>
                     <Typography.Title level={3}>
@@ -430,6 +434,7 @@ const Comments: React.FC<CommentsPropsType> = ({
             <div className={classNames(styles.commentFooter, breakpoints.TABLET_LARGE ? '' : styles.isSmall)}>
                 {canCreateComments ? (
                     <CommentForm
+                        commentsContainerRef={commentsContainerRef}
                         commentTextAreaRef={commentTextAreaRef}
                         rewriteCommentEnabled={rewriteCommentEnabled}
                         fieldName='content'

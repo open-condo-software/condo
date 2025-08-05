@@ -27,6 +27,7 @@ interface IRewriteTextButtonProps {
     isInputDisable: boolean
     rewriteTextLoading: boolean
     onClick: () => void
+    commentsContainerRef: null | React.MutableRefObject<HTMLDivElement>
 }
 
 const RewriteTextButton: React.FC<IRewriteTextButtonProps> = ({
@@ -34,6 +35,7 @@ const RewriteTextButton: React.FC<IRewriteTextButtonProps> = ({
     isInputDisable,
     rewriteTextLoading,
     onClick,
+    commentsContainerRef,
 }) => {
     const intl = useIntl()
     const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
@@ -58,7 +60,7 @@ const RewriteTextButton: React.FC<IRewriteTextButtonProps> = ({
             title={TourUpdateTextTitle}
             message={TourUpdateTextMessage}
             onClose={closeTourStep}
-            getPopupContainer={()=> document.body}
+            getPopupContainer={()=> commentsContainerRef?.current}
         >
             <Button
                 compact
@@ -114,6 +116,7 @@ interface ICommentFormProps {
     generateCommentClickHandler: () => Promise<void>
     rewriteTextOnClickHandler: () => Promise<void>
     commentTextAreaRef: null | React.MutableRefObject<InputRef>
+    commentsContainerRef: null | React.MutableRefObject<HTMLDivElement>
     rewriteCommentEnabled: boolean
     aiNotificationShow: boolean
     setAiNotificationShow: (value: boolean) => void
@@ -121,6 +124,7 @@ interface ICommentFormProps {
 
 const CommentForm: React.FC<ICommentFormProps> = ({
     commentForm,
+    commentsContainerRef,
     rewriteCommentEnabled,
     commentTextAreaRef,
     ticketId,
@@ -396,6 +400,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                 </Tooltip>,
                                 ...(rewriteCommentEnabled ? [
                                     <RewriteTextButton
+                                        commentsContainerRef={commentsContainerRef}
                                         key='rewriteButton'
                                         hasText={hasText}
                                         isInputDisable={isInputDisable}
