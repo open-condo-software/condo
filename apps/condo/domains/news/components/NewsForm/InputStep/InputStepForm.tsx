@@ -57,6 +57,196 @@ interface InputStepFormProps {
 
 const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 
+interface DefaultAiTextAriaProps {
+    inputType: 'header' | 'body'
+    selectedText: string
+    textForContext: string
+    handleFormTextChange: (value: string) => void
+    autoFocus?: boolean
+}
+
+const DefaultAiTextAria: React.FC<DefaultAiTextAriaProps> = ({
+    inputType,
+    selectedText,
+    textForContext,
+    handleFormTextChange,
+    autoFocus,
+}) => {
+    const intl = useIntl()
+
+    const TitlePlaceholderMessage = intl.formatMessage({ id: 'news.fields.title.placeholder' })
+    const BodyPlaceholderMessage = intl.formatMessage({ id: 'news.fields.body.placeholder' })
+    const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
+    const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
+    const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
+    const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+
+    const { enabled: aiFeaturesEnabled, features: {
+        rewriteNewsText: rewriteNewsEnabled,
+    } } = useAIConfig()
+
+    const rewriteNewsTextEnabled = useMemo(() => aiFeaturesEnabled && rewriteNewsEnabled,
+        [aiFeaturesEnabled, rewriteNewsEnabled])
+
+    const newsTextAreaRef = useRef(null)
+
+    const [rewriteNewsTextAnswer, setRewriteNewsTextAnswer] = useState('')
+    const [newsTextAiNotificationShow, setNewsTextAiNotificationShow] = useState(false)
+    const [isUpdateLoading, setIsUpdateLoading] = useState(false)
+    const [copied, setCopied] = useState<boolean>()
+
+    const [runRewriteTitleAIFlow, {
+        loading: rewriteNewsTextLoading,
+        data: rewriteNewsTextData,
+        error: rewriteNewsTextError,
+    }] = useAIFlow<{ answer: string }>({
+        flowType: FLOW_TYPES.NEWS_REWRITE_TEXT_FLOW_TYPE,
+    })
+
+    const hasNewsText = useMemo(() => selectedText.length > 0, [selectedText])
+
+    const handleRewriteNewsTextClick = useCallback(async () => {
+        const context = {
+            promptType: inputType,
+            newsTitle: inputType === 'header' ? selectedText : textForContext,
+            newsBody: inputType === 'body' ? selectedText : textForContext,
+        }
+
+        // analytics.track('click', {
+        //     value: ticketId,
+        //     location: window.location.href,
+        //     component: 'Button',
+        //     type: 'rewrite_text',
+        // })
+
+        const result = await runRewriteTitleAIFlow({ context })
+
+        if (result.error) {
+            notification.error({ message: result.localizedErrorText || GenericErrorMessage })
+        }
+    }, [GenericErrorMessage, inputType, runRewriteTitleAIFlow, selectedText, textForContext])
+
+    const handleCopyTextClick = useCallback(async () => {
+        if (copied) return
+
+        try {
+            await navigator.clipboard.writeText(selectedText)
+            setCopied(true)
+
+            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
+        } catch (e) {
+            console.error('Unable to copy to clipboard', e)
+        }
+    }, [copied, selectedText])
+
+    const handleCloseAINotificationText = useCallback(() => {
+        // analytics.track('click', {
+        //     value: `ticketId: ${ticketId}`,
+        //     type: 'close_ai_notification',
+        //     location: window.location.href,
+        //     component: 'Button',
+        // })
+
+        setRewriteNewsTextAnswer('')
+        setNewsTextAiNotificationShow(false)
+    }, [])
+
+    const handleApplyGeneratedMessage = useCallback(() => {
+        // analytics.track('click', {
+        //     value: `ticketId: ${ticketId}`,
+        //     type: 'apply-generated_message',
+        //     location: window.location.href,
+        //     component: 'Button',
+        // })
+
+        newsTextAreaRef.current.focus()
+
+        handleCloseAINotificationText()
+        if (!rewriteNewsTextError) handleFormTextChange(rewriteNewsTextAnswer)
+    }, [rewriteNewsTextError, handleCloseAINotificationText, handleFormTextChange, rewriteNewsTextAnswer])
+
+    const handleRegenerateMessage = useCallback(() => {
+        // analytics.track('click', {
+        //     value: `ticketId: ${ticketId}`,
+        //     type: 'regenerate_comment',
+        //     location: window.location.href,
+        //     component: 'Button',
+        // })
+        setIsUpdateLoading(true)
+
+        if (rewriteNewsTextAnswer) handleRewriteNewsTextClick().then(() => setIsUpdateLoading(false))
+    }, [handleRewriteNewsTextClick, rewriteNewsTextAnswer])
+
+    useEffect(() => {
+        if (rewriteNewsTextError || rewriteNewsTextAnswer) {
+            setNewsTextAiNotificationShow(true)
+        }
+    }, [rewriteNewsTextError, rewriteNewsTextAnswer, setNewsTextAiNotificationShow])
+
+    useEffect(() => {
+        setRewriteNewsTextAnswer(rewriteNewsTextData?.answer)
+    }, [rewriteNewsTextData?.answer])
+    
+    return (
+        <AIInputNotification
+            targetRef={newsTextAreaRef}
+            updateLoading={isUpdateLoading}
+            result={rewriteNewsTextAnswer}
+            onApply={handleApplyGeneratedMessage}
+            // errorMessage={String(rewriteNewsTextError) || GenericErrorMessage}
+            onClose={handleCloseAINotificationText}
+            onUpdate={handleRegenerateMessage}
+            open={newsTextAiNotificationShow}
+        >
+            <Input.TextArea
+                autoFocus={autoFocus}
+                rows={7}
+                className='text-area-no-resize'
+                placeholder={inputType === 'header' ? TitlePlaceholderMessage : BodyPlaceholderMessage}
+                onChange={e => handleFormTextChange(e.target.value)}
+                // name={fieldName}
+                ref={newsTextAreaRef}
+                value={selectedText}
+                autoSize={{ minRows: 1, maxRows: 5 }}
+                disabled={rewriteNewsTextLoading}
+                bottomPanelUtils={[
+                    <Tooltip
+                        title={copied ? CopiedTooltipText : CopyTooltipText }
+                        placement='top'
+                        key='copyButton'
+                    >
+                        <Button
+                            minimal
+                            compact
+                            type='secondary'
+                            size='medium'
+                            disabled={!hasNewsText || rewriteNewsTextLoading}
+                            onClick={handleCopyTextClick}
+                            icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
+                        />
+                    </Tooltip>,
+                    ...(rewriteNewsTextEnabled ? [
+                        <Button
+                            key='improveButton'
+                            compact
+                            minimal
+                            type='secondary'
+                            size='medium'
+                            disabled={!hasNewsText || rewriteNewsTextLoading}
+                            loading={rewriteNewsTextLoading && !isUpdateLoading}
+                            icon={<Sparkles size='small' />}
+                            onClick={handleRewriteNewsTextClick}
+                            className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
+                        >
+                            {UpdateTextMessage}
+                        </Button>,
+                    ] : []),
+                ]}
+            />
+        </AIInputNotification>
+    )
+}
+
 export const InputStepForm: React.FC<InputStepFormProps> = ({
     sharingAppId,
     newsSharingConfig,
@@ -73,32 +263,19 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
     template,
     handleFormBodyChange,
 }) => {
-    const { type: selectedType, validBefore } = newsItemData
+    const { type: selectedType } = newsItemData
 
     const intl = useIntl()
 
     const MakeTextLabel = intl.formatMessage({ id: 'news.fields.makeText.label' })
     const SelectTextLabel = intl.formatMessage({ id: 'news.fields.text.label' })
     const TitleLabel = intl.formatMessage({ id: 'news.fields.title.label' })
-    const TitlePlaceholderMessage = intl.formatMessage({ id: 'news.fields.title.placeholder' })
     const BodyLabel = intl.formatMessage({ id: 'news.fields.body.label' })
-    const BodyPlaceholderMessage = intl.formatMessage({ id: 'news.fields.body.placeholder' })
     const TitleErrorMessage = intl.formatMessage({ id: 'news.fields.title.error.length' })
     const BodyErrorMessage = intl.formatMessage({ id: 'news.fields.body.error.length' })
     const TemplateBlanksNotFilledErrorMessage = intl.formatMessage({ id: 'news.fields.template.blanksNotFilledError' })
-    const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
-    const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
-    const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
-    const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
 
     const isCustomForm = !!newsSharingConfig?.customFormUrl && isSharingStep
-
-    const { enabled: aiFeaturesEnabled, features: {
-        rewriteNewsText: rewriteNewsEnabled,
-    } } = useAIConfig()
-
-    const rewriteNewsTextEnabled = useMemo(() => aiFeaturesEnabled && rewriteNewsEnabled,
-        [aiFeaturesEnabled, rewriteNewsEnabled])
 
     const { breakpoints } = useLayoutContext()
 
@@ -152,226 +329,6 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
         label: commonTemplates[id].label || commonTemplates[id].title,
         category: commonTemplates[id].category,
     })), [commonTemplates])
-
-    const [errorMessage, setErrorMessage] = useState('')
-    const [errorMessageBody, setErrorMessageBody] = useState('')
-    const [rewriteNewsTitleTextAnswer, setRewriteNewsTitleTextAnswer] = useState('')
-    const [rewriteNewsBodyTextAnswer, setRewriteNewsBodyTextAnswer] = useState('')
-    const [newsTitleAiNotificationShow, setNewsTitleAiNotificationShow] = useState(false)
-    const [newsBodyAiNotificationShow, setNewsBodyAiNotificationShow] = useState(false)
-    const [isUpdateLoading, setIsUpdateLoading] = useState(false)
-    const [isUpdateBodyLoading, setIsUpdateBodyLoading] = useState(false)
-    const [newsTitleValue, setNewsTitleValue] = useState('')
-    const [newsBodyValue, setNewsBodyValue] = useState('')
-    const [copied, setCopied] = useState<boolean>()
-
-    const [runRewriteTextAIFlow, {
-        loading: rewriteTextLoading,
-        data: rewriteNewsTextData,
-    }] = useAIFlow<{ answer: string }>({
-        flowType: FLOW_TYPES.NEWS_REWRITE_TEXT_FLOW_TYPE,
-    })
-
-    const [runRewriteNewsBodyAIFlow, {
-        loading: rewriteNewsBodyLoading,
-        data: rewriteNewsBodyTextData,
-    }] = useAIFlow<{ answer: string }>({
-        flowType: FLOW_TYPES.NEWS_REWRITE_TEXT_FLOW_TYPE,
-    })
-
-    useEffect(() => {
-        setRewriteNewsTitleTextAnswer(rewriteNewsTextData?.answer)
-    }, [rewriteNewsTextData?.answer])
-
-    useEffect(() => {
-        setRewriteNewsBodyTextAnswer(rewriteNewsBodyTextData?.answer)
-    }, [rewriteNewsBodyTextData?.answer])
-
-    const commentTextAreaRef = useRef(null)
-    const newsBodyTextAreaRef = useRef(null)
-
-    const handleRewriteNewsTitleTextClick = async () => {
-        const context = {
-            promptType: 'header',
-            newsTitle: newsTitleValue,
-            newsBody: newsBodyValue,
-
-            newsType: selectedType,
-            validBefore: validBefore || '',
-            // incidents: { type: 'string' },
-            // lastNewsTitle: { type: 'string' },
-            // lastNewsBody: { type: 'string' },
-        }
-
-        // analytics.track('click', {
-        //     value: ticketId,
-        //     location: window.location.href,
-        //     component: 'Button',
-        //     type: 'rewrite_text',
-        // })
-
-        const result = await runRewriteTextAIFlow({ context })
-
-        if (result.error) {
-            setErrorMessage(result.localizedErrorText || GenericErrorMessage)
-            notification.error({ message: result.localizedErrorText || GenericErrorMessage })
-        }
-    }
-
-    const handleRewriteNewsBodyTextClick = async () => {
-        const context = {
-            promptType: 'body',
-            newsTitle: newsTitleValue,
-            newsBody: newsBodyValue,
-
-            newsType: selectedType,
-            validBefore: validBefore || '',
-            // incidents: { type: 'string' },
-            // lastNewsTitle: { type: 'string' },
-            // lastNewsBody: { type: 'string' },
-        }
-
-        // analytics.track('click', {
-        //     value: ticketId,
-        //     location: window.location.href,
-        //     component: 'Button',
-        //     type: 'rewrite_text',
-        // })
-
-        const result = await runRewriteNewsBodyAIFlow({ context })
-
-        if (result.error) {
-            setErrorMessageBody(result.localizedErrorText || GenericErrorMessage)
-            notification.error({ message: result.localizedErrorText || GenericErrorMessage })
-        }
-    }
-
-    const handleCopyTitleClick = useCallback(async () => {
-        if (copied) return
-
-        try {
-            await navigator.clipboard.writeText(newsTitleValue)
-            setCopied(true)
-
-            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
-        } catch (e) {
-            console.error('Unable to copy to clipboard', e)
-        }
-    }, [copied, newsTitleValue])
-
-    const handleCopyBodyClick = useCallback(async () => {
-        if (copied) return
-
-        try {
-            await navigator.clipboard.writeText(newsBodyValue)
-            setCopied(true)
-
-            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
-        } catch (e) {
-            console.error('Unable to copy to clipboard', e)
-        }
-    }, [copied, newsBodyValue])
-
-    const hasTitleText = useMemo(() => newsTitleValue.length > 0, [newsTitleValue])
-    const hasBodyText = useMemo(() => newsBodyValue.length > 0, [newsBodyValue])
-    const isInputDisable = rewriteTextLoading || rewriteNewsBodyLoading
-
-    const closeAINotification = useCallback((type) => {
-        if (type === 'title') {
-            setNewsTitleAiNotificationShow(false)
-            setRewriteNewsTitleTextAnswer('')
-            setErrorMessage('')
-        } else {
-            setNewsBodyAiNotificationShow(false)
-            setRewriteNewsBodyTextAnswer('')
-            setErrorMessageBody('')
-        }
-
-    }, [])
-
-    const handleCloseAINotificationTitle = () => {
-        // analytics.track('click', {
-        //     value: `ticketId: ${ticketId}`,
-        //     type: 'close_ai_notification',
-        //     location: window.location.href,
-        //     component: 'Button',
-        // })
-
-        closeAINotification('title')
-    }
-
-    const handleCloseAINotificationBody = () => {
-        // analytics.track('click', {
-        //     value: `ticketId: ${ticketId}`,
-        //     type: 'close_ai_notification',
-        //     location: window.location.href,
-        //     component: 'Button',
-        // })
-
-        closeAINotification('body')
-    }
-
-    const handleApplyGeneratedMessage = () => {
-        // analytics.track('click', {
-        //     value: `ticketId: ${ticketId}`,
-        //     type: 'apply-generated_message',
-        //     location: window.location.href,
-        //     component: 'Button',
-        // })
-
-        commentTextAreaRef.current.focus()
-
-        closeAINotification('title')
-        if (!errorMessage) setNewsTitleValue(rewriteNewsTitleTextAnswer)
-    }
-
-    const handleApplyBodyGeneratedMessage = () => {
-        // analytics.track('click', {
-        //     value: `ticketId: ${ticketId}`,
-        //     type: 'apply-generated_message',
-        //     location: window.location.href,
-        //     component: 'Button',
-        // })
-
-        newsBodyTextAreaRef.current.focus()
-
-        closeAINotification('body')
-        if (!errorMessage) setNewsBodyValue(rewriteNewsBodyTextAnswer)
-    }
-
-    const handleRegenerateMessage = () => {
-        // analytics.track('click', {
-        //     value: `ticketId: ${ticketId}`,
-        //     type: 'regenerate_comment',
-        //     location: window.location.href,
-        //     component: 'Button',
-        // })
-        setIsUpdateLoading(true)
-
-        if (rewriteNewsTitleTextAnswer) handleRewriteNewsTitleTextClick().then(() => setIsUpdateLoading(false))
-    }
-
-    const handleRegenerateBodyMessage = () => {
-        // analytics.track('click', {
-        //     value: `ticketId: ${ticketId}`,
-        //     type: 'regenerate_comment',
-        //     location: window.location.href,
-        //     component: 'Button',
-        // })
-        setIsUpdateBodyLoading(true)
-
-        if (rewriteNewsTitleTextAnswer) handleRewriteNewsBodyTextClick().then(() => setIsUpdateBodyLoading(false))
-    }
-
-    useEffect(() => {
-        if (( errorMessage || rewriteNewsTitleTextAnswer)) {
-            setNewsTitleAiNotificationShow(true)
-        }
-
-        if (( errorMessageBody || rewriteNewsBodyTextAnswer)) {
-            setNewsBodyAiNotificationShow(true)
-        }
-    }, [errorMessage, errorMessageBody, rewriteNewsTitleTextAnswer, rewriteNewsBodyTextAnswer, setNewsTitleAiNotificationShow, setNewsBodyAiNotificationShow])
 
     return (
         <>
@@ -445,61 +402,12 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                             validateFirst={true}
                                             data-cy='news__create-title-input'
                                         >
-                                            <AIInputNotification
-                                                targetRef={commentTextAreaRef}
-                                                updateLoading={isUpdateLoading}
-                                                result={rewriteNewsTitleTextAnswer}
-                                                onApply={handleApplyGeneratedMessage}
-                                                errorMessage={errorMessage}
-                                                onClose={handleCloseAINotificationTitle}
-                                                onUpdate={handleRegenerateMessage}
-                                                open={newsTitleAiNotificationShow}
-                                            >
-                                                <Input.TextArea
-                                                    className='text-area-no-resize'
-                                                    rows={4}
-                                                    placeholder={TitlePlaceholderMessage}
-                                                    onChange={e => setNewsTitleValue(e.target.value)}
-                                                    // name={fieldName}
-                                                    ref={commentTextAreaRef}
-                                                    value={newsTitleValue}
-                                                    autoSize={{ minRows: 1, maxRows: 5 }}
-                                                    disabled={isInputDisable}
-                                                    bottomPanelUtils={[
-                                                        <Tooltip
-                                                            title={copied ? CopiedTooltipText : CopyTooltipText }
-                                                            placement='top'
-                                                            key='copyButton'
-                                                        >
-                                                            <Button
-                                                                minimal
-                                                                compact
-                                                                type='secondary'
-                                                                size='medium'
-                                                                disabled={!hasTitleText || isInputDisable}
-                                                                onClick={handleCopyTitleClick}
-                                                                icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
-                                                            />
-                                                        </Tooltip>,
-                                                        ...(rewriteNewsTextEnabled ? [
-                                                            <Button
-                                                                key='improveButton'
-                                                                compact
-                                                                minimal
-                                                                type='secondary'
-                                                                size='medium'
-                                                                disabled={!hasTitleText || isInputDisable}
-                                                                loading={rewriteTextLoading}
-                                                                icon={<Sparkles size='small' />}
-                                                                onClick={handleRewriteNewsTitleTextClick}
-                                                                className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
-                                                            >
-                                                                {UpdateTextMessage}
-                                                            </Button>,
-                                                        ] : []),
-                                                    ]}
-                                                />
-                                            </AIInputNotification>
+                                            <DefaultAiTextAria
+                                                inputType='header'
+                                                selectedText={selectedTitle}
+                                                textForContext={selectedBody}
+                                                handleFormTextChange={handleFormTitleChange}
+                                            />
                                         </FormItem>
                                     </Col>
                                 </Row>
@@ -512,62 +420,13 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                         validateFirst={true}
                                         data-cy='news__create-body-input'
                                     >
-                                        <AIInputNotification
-                                            targetRef={newsBodyTextAreaRef}
-                                            updateLoading={isUpdateBodyLoading}
-                                            result={rewriteNewsBodyTextAnswer}
-                                            onApply={handleApplyBodyGeneratedMessage}
-                                            errorMessage={errorMessageBody}
-                                            onClose={handleCloseAINotificationBody}
-                                            onUpdate={handleRegenerateBodyMessage}
-                                            open={newsBodyAiNotificationShow}
-                                        >
-                                            <Input.TextArea
-                                                autoFocus={autoFocusBody}
-                                                rows={7}
-                                                className='text-area-no-resize'
-                                                placeholder={BodyPlaceholderMessage}
-                                                onChange={e => setNewsBodyValue(e.target.value)}
-                                                // name={fieldName}
-                                                ref={newsBodyTextAreaRef}
-                                                value={newsBodyValue}
-                                                autoSize={{ minRows: 1, maxRows: 5 }}
-                                                disabled={isInputDisable}
-                                                bottomPanelUtils={[
-                                                    <Tooltip
-                                                        title={copied ? CopiedTooltipText : CopyTooltipText }
-                                                        placement='top'
-                                                        key='copyButton'
-                                                    >
-                                                        <Button
-                                                            minimal
-                                                            compact
-                                                            type='secondary'
-                                                            size='medium'
-                                                            disabled={!hasBodyText || isInputDisable}
-                                                            onClick={handleCopyBodyClick}
-                                                            icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
-                                                        />
-                                                    </Tooltip>,
-                                                    ...(rewriteNewsTextEnabled ? [
-                                                        <Button
-                                                            key='improveButton'
-                                                            compact
-                                                            minimal
-                                                            type='secondary'
-                                                            size='medium'
-                                                            disabled={!hasBodyText || isInputDisable}
-                                                            loading={rewriteNewsBodyLoading}
-                                                            icon={<Sparkles size='small' />}
-                                                            onClick={handleRewriteNewsBodyTextClick}
-                                                            className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
-                                                        >
-                                                            {UpdateTextMessage}
-                                                        </Button>,
-                                                    ] : []),
-                                                ]}
-                                            />
-                                        </AIInputNotification>
+                                        <DefaultAiTextAria
+                                            inputType='body'
+                                            selectedText={selectedBody}
+                                            textForContext={selectedTitle}
+                                            handleFormTextChange={handleFormBodyChange}
+                                            autoFocus={autoFocusBody}
+                                        />
                                     </FormItem>
                                 </Col>
                             </Col>
