@@ -8,7 +8,8 @@ const { faker } = require('@faker-js/faker')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { SBER_ID_IDP_TYPE, RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const {
     User,
     UserExternalIdentity: UserExternalIdentityApi,

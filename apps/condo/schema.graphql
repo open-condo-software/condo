@@ -23,6 +23,11 @@ type UserHistoryRecord {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
+  externalPhone: String
+  isExternalPhoneVerified: Boolean
+  externalEmail: String
+  isExternalEmailVerified: Boolean
+  externalSystemName: String
   avatar: JSON
   meta: JSON
   locale: String
@@ -145,6 +150,64 @@ input UserHistoryRecordWhereInput {
   phone_not_in: [String]
   isPhoneVerified: Boolean
   isPhoneVerified_not: Boolean
+  externalPhone: String
+  externalPhone_not: String
+  externalPhone_contains: String
+  externalPhone_not_contains: String
+  externalPhone_starts_with: String
+  externalPhone_not_starts_with: String
+  externalPhone_ends_with: String
+  externalPhone_not_ends_with: String
+  externalPhone_i: String
+  externalPhone_not_i: String
+  externalPhone_contains_i: String
+  externalPhone_not_contains_i: String
+  externalPhone_starts_with_i: String
+  externalPhone_not_starts_with_i: String
+  externalPhone_ends_with_i: String
+  externalPhone_not_ends_with_i: String
+  externalPhone_in: [String]
+  externalPhone_not_in: [String]
+  isExternalPhoneVerified: Boolean
+  isExternalPhoneVerified_not: Boolean
+  externalEmail: String
+  externalEmail_not: String
+  externalEmail_contains: String
+  externalEmail_not_contains: String
+  externalEmail_starts_with: String
+  externalEmail_not_starts_with: String
+  externalEmail_ends_with: String
+  externalEmail_not_ends_with: String
+  externalEmail_i: String
+  externalEmail_not_i: String
+  externalEmail_contains_i: String
+  externalEmail_not_contains_i: String
+  externalEmail_starts_with_i: String
+  externalEmail_not_starts_with_i: String
+  externalEmail_ends_with_i: String
+  externalEmail_not_ends_with_i: String
+  externalEmail_in: [String]
+  externalEmail_not_in: [String]
+  isExternalEmailVerified: Boolean
+  isExternalEmailVerified_not: Boolean
+  externalSystemName: String
+  externalSystemName_not: String
+  externalSystemName_contains: String
+  externalSystemName_not_contains: String
+  externalSystemName_starts_with: String
+  externalSystemName_not_starts_with: String
+  externalSystemName_ends_with: String
+  externalSystemName_not_ends_with: String
+  externalSystemName_i: String
+  externalSystemName_not_i: String
+  externalSystemName_contains_i: String
+  externalSystemName_not_contains_i: String
+  externalSystemName_starts_with_i: String
+  externalSystemName_not_starts_with_i: String
+  externalSystemName_ends_with_i: String
+  externalSystemName_not_ends_with_i: String
+  externalSystemName_in: [String]
+  externalSystemName_not_in: [String]
   avatar: JSON
   avatar_not: JSON
   avatar_in: [JSON]
@@ -282,6 +345,16 @@ enum SortUserHistoryRecordsBy {
   phone_DESC
   isPhoneVerified_ASC
   isPhoneVerified_DESC
+  externalPhone_ASC
+  externalPhone_DESC
+  isExternalPhoneVerified_ASC
+  isExternalPhoneVerified_DESC
+  externalEmail_ASC
+  externalEmail_DESC
+  isExternalEmailVerified_ASC
+  isExternalEmailVerified_DESC
+  externalSystemName_ASC
+  externalSystemName_DESC
   locale_ASC
   locale_DESC
   showGlobalHints_ASC
@@ -314,6 +387,11 @@ input UserHistoryRecordUpdateInput {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
+  externalPhone: String
+  isExternalPhoneVerified: Boolean
+  externalEmail: String
+  isExternalEmailVerified: Boolean
+  externalSystemName: String
   avatar: JSON
   meta: JSON
   locale: String
@@ -349,6 +427,11 @@ input UserHistoryRecordCreateInput {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
+  externalPhone: String
+  isExternalPhoneVerified: Boolean
+  externalEmail: String
+  isExternalEmailVerified: Boolean
+  externalSystemName: String
   avatar: JSON
   meta: JSON
   locale: String
@@ -498,6 +581,25 @@ type User {
   """
   isPhoneVerified: Boolean
 
+  """ The user's phone number obtained from a third-party integration. It can be used as contact information but cannot be used for authorization. It may be the same for several users. 
+  """
+  externalPhone: String
+
+  """ Verification status of the user's phone number obtained from an external system 
+  """
+  isExternalPhoneVerified: Boolean
+
+  """ The user's email address obtained from a third-party integration. It can be used as contact information but cannot be used for authorization. It may be the same for several users. 
+  """
+  externalEmail: String
+
+  """ Verification status of the user's email address obtained from an external system 
+  """
+  isExternalEmailVerified: Boolean
+
+  """ Name of the provider that created this user """
+  externalSystemName: String
+
   """ User loaded avatar image """
   avatar: File
 
@@ -610,6 +712,64 @@ input UserWhereInput {
   phone_not_in: [String]
   isPhoneVerified: Boolean
   isPhoneVerified_not: Boolean
+  externalPhone: String
+  externalPhone_not: String
+  externalPhone_contains: String
+  externalPhone_not_contains: String
+  externalPhone_starts_with: String
+  externalPhone_not_starts_with: String
+  externalPhone_ends_with: String
+  externalPhone_not_ends_with: String
+  externalPhone_i: String
+  externalPhone_not_i: String
+  externalPhone_contains_i: String
+  externalPhone_not_contains_i: String
+  externalPhone_starts_with_i: String
+  externalPhone_not_starts_with_i: String
+  externalPhone_ends_with_i: String
+  externalPhone_not_ends_with_i: String
+  externalPhone_in: [String]
+  externalPhone_not_in: [String]
+  isExternalPhoneVerified: Boolean
+  isExternalPhoneVerified_not: Boolean
+  externalEmail: String
+  externalEmail_not: String
+  externalEmail_contains: String
+  externalEmail_not_contains: String
+  externalEmail_starts_with: String
+  externalEmail_not_starts_with: String
+  externalEmail_ends_with: String
+  externalEmail_not_ends_with: String
+  externalEmail_i: String
+  externalEmail_not_i: String
+  externalEmail_contains_i: String
+  externalEmail_not_contains_i: String
+  externalEmail_starts_with_i: String
+  externalEmail_not_starts_with_i: String
+  externalEmail_ends_with_i: String
+  externalEmail_not_ends_with_i: String
+  externalEmail_in: [String]
+  externalEmail_not_in: [String]
+  isExternalEmailVerified: Boolean
+  isExternalEmailVerified_not: Boolean
+  externalSystemName: String
+  externalSystemName_not: String
+  externalSystemName_contains: String
+  externalSystemName_not_contains: String
+  externalSystemName_starts_with: String
+  externalSystemName_not_starts_with: String
+  externalSystemName_ends_with: String
+  externalSystemName_not_ends_with: String
+  externalSystemName_i: String
+  externalSystemName_not_i: String
+  externalSystemName_contains_i: String
+  externalSystemName_not_contains_i: String
+  externalSystemName_starts_with_i: String
+  externalSystemName_not_starts_with_i: String
+  externalSystemName_ends_with_i: String
+  externalSystemName_not_ends_with_i: String
+  externalSystemName_in: [String]
+  externalSystemName_not_in: [String]
   avatar: String
   avatar_not: String
   avatar_in: [String]
@@ -709,6 +869,16 @@ enum SortUsersBy {
   phone_DESC
   isPhoneVerified_ASC
   isPhoneVerified_DESC
+  externalPhone_ASC
+  externalPhone_DESC
+  isExternalPhoneVerified_ASC
+  isExternalPhoneVerified_DESC
+  externalEmail_ASC
+  externalEmail_DESC
+  isExternalEmailVerified_ASC
+  isExternalEmailVerified_DESC
+  externalSystemName_ASC
+  externalSystemName_DESC
   locale_ASC
   locale_DESC
   showGlobalHints_ASC
@@ -743,6 +913,11 @@ input UserUpdateInput {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
+  externalPhone: String
+  isExternalPhoneVerified: Boolean
+  externalEmail: String
+  isExternalEmailVerified: Boolean
+  externalSystemName: String
   avatar: Upload
   meta: JSON
   locale: UserLocaleType
@@ -775,6 +950,11 @@ input UserCreateInput {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
+  externalPhone: String
+  isExternalPhoneVerified: Boolean
+  externalEmail: String
+  isExternalEmailVerified: Boolean
+  externalSystemName: String
   avatar: Upload
   meta: JSON
   locale: UserLocaleType
@@ -2138,13 +2318,6 @@ input UserExternalIdentityHistoryRecordsCreateInput {
   data: UserExternalIdentityHistoryRecordCreateInput
 }
 
-enum UserExternalIdentityIdentityTypeType {
-  apple_id
-  sber_id
-  sbbol
-  telegram
-}
-
 enum UserExternalIdentityUserTypeType {
   staff
   resident
@@ -2171,7 +2344,7 @@ type UserExternalIdentity {
   identityId: String
 
   """ The type of external identity that was a source for this link """
-  identityType: UserExternalIdentityIdentityTypeType
+  identityType: String
 
   """ Type of connected user """
   userType: UserExternalIdentityUserTypeType
@@ -2224,10 +2397,24 @@ input UserExternalIdentityWhereInput {
   identityId_not_ends_with_i: String
   identityId_in: [String]
   identityId_not_in: [String]
-  identityType: UserExternalIdentityIdentityTypeType
-  identityType_not: UserExternalIdentityIdentityTypeType
-  identityType_in: [UserExternalIdentityIdentityTypeType]
-  identityType_not_in: [UserExternalIdentityIdentityTypeType]
+  identityType: String
+  identityType_not: String
+  identityType_contains: String
+  identityType_not_contains: String
+  identityType_starts_with: String
+  identityType_not_starts_with: String
+  identityType_ends_with: String
+  identityType_not_ends_with: String
+  identityType_i: String
+  identityType_not_i: String
+  identityType_contains_i: String
+  identityType_not_contains_i: String
+  identityType_starts_with_i: String
+  identityType_not_starts_with_i: String
+  identityType_ends_with_i: String
+  identityType_not_ends_with_i: String
+  identityType_in: [String]
+  identityType_not_in: [String]
   userType: UserExternalIdentityUserTypeType
   userType_not: UserExternalIdentityUserTypeType
   userType_in: [UserExternalIdentityUserTypeType]
@@ -2328,7 +2515,7 @@ enum SortUserExternalIdentitiesBy {
 input UserExternalIdentityUpdateInput {
   user: UserRelateToOneInput
   identityId: String
-  identityType: UserExternalIdentityIdentityTypeType
+  identityType: String
   userType: UserExternalIdentityUserTypeType
   meta: JSON
   v: Int
@@ -2350,7 +2537,7 @@ input UserExternalIdentitiesUpdateInput {
 input UserExternalIdentityCreateInput {
   user: UserRelateToOneInput
   identityId: String
-  identityType: UserExternalIdentityIdentityTypeType
+  identityType: String
   userType: UserExternalIdentityUserTypeType
   meta: JSON
   v: Int
@@ -94849,6 +95036,12 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE",
     "message": "UserType must be same as user.type"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_EXTERNAL_IDENTITY_WRONG_IDENTITY_TYPE",
+    "message": "IdentityType has unsupported value"
   }`
   """
   registerNewUser(data: RegisterNewUserInput!): User

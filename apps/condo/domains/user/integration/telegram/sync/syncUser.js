@@ -1,4 +1,4 @@
-const { TELEGRAM_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { TELEGRAM_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const { ERRORS, HttpError } = require('@condo/domains/user/integration/telegram/utils/errors')
 const {
     UserExternalIdentity,

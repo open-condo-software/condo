@@ -3,8 +3,10 @@
  */
 
 const { get, isEmpty, isUndefined, isNull } = require('lodash')
+const { z } = require('zod')
 
 const userAccess = require('@open-condo/keystone/access')
+const { GQLError } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -25,13 +27,28 @@ const {
     EMAIL_WRONG_FORMAT_ERROR,
     PHONE_WRONG_FORMAT_ERROR,
     PHONE_IS_REQUIRED_ERROR,
+    GQL_ERRORS,
 } = require('@condo/domains/user/constants/errors')
+const { RUNTIME_IDP_TYPES } = require('@condo/domains/user/constants/identityProviders')
 const { USER_CUSTOM_ACCESS_GRAPHQL_TYPES, USER_CUSTOM_ACCESS_FIELDS } = require('@condo/domains/user/gql')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
 
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
+
+const _emailSchema = z.email()
+
+function _isValidEmail (input) {
+    return _emailSchema.safeParse(input).success
+}
+
+const SERVER_CREATE_ONLY_ACCESS = {
+    read: false,
+    create: () => false, // function to populate it to CreateInput schema
+    update: false,
+    delete: false,
+}
 
 const User = new GQLListSchema('User', {
     labelResolver: (item, _, { authedItem: user }) => {
@@ -208,6 +225,77 @@ const User = new GQLListSchema('User', {
             type: 'Checkbox',
             defaultValue: false,
             access: access.canAccessToIsPhoneVerifiedField,
+        },
+
+        externalPhone: {
+            schemaDoc:
+                'The user\'s phone number obtained from a third-party integration. ' +
+                'It can be used as contact information but cannot be used for authorization. ' +
+                'It may be the same for several users.',
+            type: 'Text',
+            // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
+            // so there's no need to read it directly
+            access: SERVER_CREATE_ONLY_ACCESS,
+            isRequired: false,
+            hooks: {
+                validateInput ({ context, resolvedData, fieldPath }) {
+                    if (resolvedData[fieldPath] && normalizePhone(resolvedData[fieldPath]) !== resolvedData[fieldPath]) {
+                        throw new GQLError(GQL_ERRORS.INVALID_EXTERNAL_PHONE, context)
+                    }
+                },
+            },
+        },
+
+        isExternalPhoneVerified: {
+            schemaDoc: 'Verification status of the user\'s phone number obtained from an external system',
+            type: 'Checkbox',
+            isRequired: true,
+            defaultValue: false,
+            // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
+            // so there's no need to read it directly
+            access: SERVER_CREATE_ONLY_ACCESS,
+        },
+
+        externalEmail: {
+            schemaDoc:
+                'The user\'s email address obtained from a third-party integration. ' +
+                'It can be used as contact information but cannot be used for authorization. ' +
+                'It may be the same for several users.',
+            type: 'Text',
+            // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
+            // so there's no need to read it directly
+            access: SERVER_CREATE_ONLY_ACCESS,
+            isRequired: false,
+            hooks: {
+                validateInput ({ context, resolvedData, fieldPath }) {
+                    if (resolvedData[fieldPath] && !_isValidEmail(resolvedData[fieldPath])) {
+                        throw new GQLError(GQL_ERRORS.INVALID_EXTERNAL_EMAIL, context)
+                    }
+                },
+            },
+        },
+
+        isExternalEmailVerified: {
+            schemaDoc: 'Verification status of the user\'s email address obtained from an external system',
+            type: 'Checkbox',
+            isRequired: true,
+            defaultValue: false,
+            // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
+            // so there's no need to read it directly
+            access: SERVER_CREATE_ONLY_ACCESS,
+        },
+
+        externalSystemName: {
+            schemaDoc: 'Name of the provider that created this user',
+            type: 'Text',
+            isRequired: false,
+            hooks: {
+                validateInput ({ context, resolvedData, fieldPath }) {
+                    if (resolvedData[fieldPath] && !RUNTIME_IDP_TYPES.includes(resolvedData[fieldPath])) {
+                        throw new GQLError(GQL_ERRORS.INVALID_EXTERNAL_SYSTEM_NAME, context)
+                    }
+                },
+            },
         },
 
         avatar: {

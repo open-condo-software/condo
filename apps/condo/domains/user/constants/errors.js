@@ -83,6 +83,9 @@ const PASSWORD_CONTAINS_EMAIL = 'PASSWORD_CONTAINS_EMAIL'
 const PASSWORD_CONTAINS_PHONE = 'PASSWORD_CONTAINS_PHONE'
 const PASSWORD_IS_FREQUENTLY_USED = 'PASSWORD_IS_FREQUENTLY_USED'
 const PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS = 'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS'
+const INVALID_EXTERNAL_PHONE = 'INVALID_EXTERNAL_PHONE'
+const INVALID_EXTERNAL_EMAIL = 'INVALID_EXTERNAL_EMAIL'
+const INVALID_EXTERNAL_SYSTEM = 'INVALID_EXTERNAL_SYSTEM'
 
 const GENERATE_TOKEN_FAILED = 'GENERATE_TOKEN_FAILED'
 const INVALID_TOKEN = 'INVALID_TOKEN'
@@ -92,6 +95,7 @@ const CREDENTIAL_VALIDATION_FAILED = 'CREDENTIAL_VALIDATION_FAILED'
 const USER_IDENTITY_INVALID = 'USER_IDENTITY_INVALID'
 
 const USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE = 'USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE'
+const USER_EXTERNAL_IDENTITY_WRONG_IDENTITY_TYPE = 'USER_EXTERNAL_IDENTITY_WRONG_IDENTITY_TYPE'
 
 const GQL_ERRORS = {
     TOO_MANY_REQUESTS: {
@@ -162,6 +166,24 @@ const GQL_ERRORS = {
         type: WRONG_PASSWORD_FORMAT,
         message: 'Password must be in string format',
         messageForUser: 'api.user.WRONG_PASSWORD_FORMAT',
+    },
+    INVALID_EXTERNAL_PHONE: {
+        variable: ['data', 'externalPhone'],
+        code: 'BAD_USER_INPUT',
+        type: INVALID_EXTERNAL_PHONE,
+        message: 'Invalid external phone provided',
+    },
+    INVALID_EXTERNAL_EMAIL: {
+        variable: ['data', 'externalEmail'],
+        code: 'BAD_USER_INPUT',
+        type: INVALID_EXTERNAL_EMAIL,
+        message: 'Invalid external email provided',
+    },
+    INVALID_EXTERNAL_SYSTEM_NAME: {
+        variable: ['data', 'externalSystemName'],
+        code: 'BAD_USER_INPUT',
+        type: INVALID_EXTERNAL_SYSTEM,
+        message: 'Invalid external system name provided',
     },
     INVALID_PASSWORD_LENGTH: {
         variable: ['data', 'password'],
@@ -273,6 +295,12 @@ const ERRORS = {
         code: 'BAD_USER_INPUT',
         type: USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE,
         message: 'UserType must be same as user.type',
+    },
+    WRONG_USER_EXTERNAL_IDENTITY_TYPE: {
+        variable: ['data', 'identityType'],
+        code: 'BAD_USER_INPUT',
+        type: USER_EXTERNAL_IDENTITY_WRONG_IDENTITY_TYPE,
+        message: 'IdentityType has unsupported value',
     },
 }
 
