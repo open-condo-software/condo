@@ -652,7 +652,8 @@ describe('User fields', () => {
                             [fieldName]: externalFieldsPayload[fieldName],
                         })
                     }, (error) => {
-                        expect(error.message).toContain(`Field "${fieldName}" is not defined by type "UserUpdateInput"`)
+                        expect(error.errors).toHaveLength(1)
+                        expect(error.errors[0].message).toContain(`Field "${fieldName}" is not defined by type "UserUpdateInput"`)
                     })
                 })
 
