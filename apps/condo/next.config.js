@@ -76,6 +76,8 @@ const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
 const inviteRequiredFields = JSON.parse(conf['INVITE_REQUIRED_FIELDS'] || '["phone"]')
 const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
 
+const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
+
 /** @type {import('next').NextConfig} */
 let nextConfig = {
     // NOTE: SWC has an issue: https://github.com/swc-project/swc/issues/8271
@@ -101,7 +103,7 @@ let nextConfig = {
         addressServiceUrl,
         mapApiKey,
         canEnableSubscriptions,
-        hCaptcha,
+        hCaptcha: hCaptchaSiteKey,
         disableCaptcha,
         behaviorRecorder,
         docsConfig,
