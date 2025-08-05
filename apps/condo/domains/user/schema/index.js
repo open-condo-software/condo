@@ -7,6 +7,7 @@ const { AuthenticateOrRegisterUserWithTokenService } = require('./AuthenticateOr
 const { AuthenticateUserWithEmailAndPasswordService } = require('./AuthenticateUserWithEmailAndPasswordService')
 const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateUserWithPhoneAndPasswordService')
 const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
+const { ChangeUserPasswordService } = require('./ChangeUserPasswordService')
 const { CheckUserExistenceService } = require('./CheckUserExistenceService')
 const { ConfirmEmailAction } = require('./ConfirmEmailAction')
 const { ConfirmEmailActionService } = require('./ConfirmEmailActionService')
@@ -56,5 +57,6 @@ module.exports = {
     ConfirmEmailAction,
     ConfirmEmailActionService,
     AuthenticateUserWithEmailAndPasswordService,
+    ChangeUserPasswordService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

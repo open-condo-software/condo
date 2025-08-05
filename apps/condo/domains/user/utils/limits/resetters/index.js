@@ -1,4 +1,5 @@
 const { AuthGuardResetter } = require('./AuthGuardResetter')
+const { ChangeUserPassword } = require('./ChangeUserPassword')
 const { CheckUserExistenceResetter } = require('./CheckUserExistenceResetter')
 const { EmailGuardResetter } = require('./EmailGuardResetter')
 const { FindOrganizationByTinGuardResetter } = require('./FindOrganizationByTinGuardResetter')
@@ -14,4 +15,5 @@ module.exports = {
     FindOrganizationByTinGuardResetter,
     AuthGuardResetter,
     CheckUserExistenceResetter,
+    ChangeUserPassword,
 }
