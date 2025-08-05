@@ -124,9 +124,7 @@ const apps = () => {
         new PaymentLinkMiddleware(),
         new UnsubscribeMiddleware(),
         FileAdapter.makeFileAdapterMiddleware(),
-        new FileMiddleware({
-            apiUrl: '/api/files/upload',
-        }),
+        new FileMiddleware({}),
         new UserExternalIdentityMiddleware(),
     ]
 }

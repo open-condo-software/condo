@@ -82,7 +82,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
             })
             test('Only POST request is allowed', async () => {
                 const result = await fetch(serverUrl, { method: 'GET' })
-                expect(result.status).toEqual(404)
+                expect(result.status).toEqual(403)
             })
             test('Strict match url pattern', async () => {
                 const result = await fetch(serverUrl + '/something/else', {
