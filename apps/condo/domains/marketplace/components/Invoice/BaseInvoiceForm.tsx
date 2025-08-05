@@ -274,6 +274,8 @@ const ContactFormField = ({ organizationId, form, disabled }) => {
         initialQuery: { organization: { id: organizationId } },
     })
 
+    console.log('ContactFormField in invoice')
+
     return (
         <>
             <Form.Item
@@ -1078,7 +1080,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                             {SaveChangesModalMessage}
                         </Typography.Paragraph>
                     </Prompt>
-
+                    
                     <Row gutter={OUTER_VERTICAL_GUTTER}>
                         <Col span={24} md={colSpan} hidden={isModalForm}>
                             <Form.Item
@@ -1089,6 +1091,10 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                         const status = getFieldValue('status')
                                         const disabled = isContactsFieldsDisabled || isAllFieldsDisabled || onlyStatusTransitionsActive ||
                                             status !== INVOICE_STATUS_DRAFT || isCreatedByResident
+
+                                        if (isModalForm) {
+                                            return null
+                                        }
 
                                         return (
                                             <PayerDataFields
