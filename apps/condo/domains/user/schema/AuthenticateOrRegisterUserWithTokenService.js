@@ -176,8 +176,8 @@ const SUPPORTED_TOKENS = [
 let IDENTIFICATION_USER_REQUIRED_FIELDS = getIdentificationUserRequiredFields()
 
 const REQUIRED_USER_REGISTRATION_FIELDS = {
-    [RESIDENT]: [...IDENTIFICATION_USER_REQUIRED_FIELDS],
-    [STAFF]: [...IDENTIFICATION_USER_REQUIRED_FIELDS, 'name', 'password'],
+    [RESIDENT]: [...IDENTIFICATION_USER_REQUIRED_FIELDS.resident],
+    [STAFF]: [...IDENTIFICATION_USER_REQUIRED_FIELDS.staff, 'name', 'password'],
     [SERVICE]: [
         'email', // NOTE: Service user registers only by email
         'name',
@@ -208,8 +208,8 @@ function getTokenTypesByIdentificationUserFields (fields) {
 }
 
 const USER_REGISTRATION_TOKEN_TYPES = {
-    [RESIDENT]: [...getTokenTypesByIdentificationUserFields(IDENTIFICATION_USER_REQUIRED_FIELDS)],
-    [STAFF]: [...getTokenTypesByIdentificationUserFields(IDENTIFICATION_USER_REQUIRED_FIELDS)],
+    [RESIDENT]: [...getTokenTypesByIdentificationUserFields(IDENTIFICATION_USER_REQUIRED_FIELDS.resident)],
+    [STAFF]: [...getTokenTypesByIdentificationUserFields(IDENTIFICATION_USER_REQUIRED_FIELDS.staff)],
     [SERVICE]: [
         TOKEN_TYPES.CONFIRM_EMAIL,
     ],
