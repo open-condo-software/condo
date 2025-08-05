@@ -1090,6 +1090,10 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                         const disabled = isContactsFieldsDisabled || isAllFieldsDisabled || onlyStatusTransitionsActive ||
                                             status !== INVOICE_STATUS_DRAFT || isCreatedByResident
 
+                                        if (isModalForm) {
+                                            return null
+                                        }
+
                                         return (
                                             <PayerDataFields
                                                 organizationId={organizationId}
