@@ -8,7 +8,7 @@
   },
   "license": "MIT",
   "exports": {
-    "./": "./"
+    "./*": "./*.js"
   },
   "dependencies": {
     "@open-condo/config": "workspace:^",
