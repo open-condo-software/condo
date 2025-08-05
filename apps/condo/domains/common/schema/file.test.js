@@ -1,7 +1,7 @@
 const path = require('path')
 
 const conf = require('@open-condo/config')
-const { FileMiddlewareTests } = require('@open-condo/files/schema/models')
+const { FileMiddlewareTests } = require('@open-condo/files/schema/models/index')
 
 const { makeClientWithNewRegisteredAndLoggedInUser, User } = require('@condo/domains/user/utils/testSchema')
 
