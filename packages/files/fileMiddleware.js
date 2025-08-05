@@ -388,7 +388,7 @@ const downloadHandler = ({ keystone }) => {
 
 class FileMiddleware {
     constructor ({
-        apiUrl = '/api/file',
+        apiUrl = '/api/files',
         maxFieldSize = 200 * 1024 * 1024,
         maxFileSize = 200 * 1024 * 1024,
         maxFiles = 2,
