@@ -25,7 +25,7 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 const addressFilter = getFilter(['meter', 'property', 'id'], 'array', 'string', 'in')
 const addressStringContainsFilter = getStringContainsFilter(['meter', 'property', 'address'])
 const accountNumberFilter = getStringContainsFilter(['accountNumber'])
-const placeStringFilter = getStringContainsFilter(['meter', 'place'])
+const placeStringFilter = getFilter(['meter', 'place'], 'array', 'string', 'in')
 const numberFilter = getStringContainsFilter(['meter', 'number'])
 const unitNameFilter = getFilter(['meter', 'unitName'], 'array', 'string', 'in')
 const unitNameStringContainsFilter = getStringContainsFilter(['meter', 'unitName'])
@@ -151,7 +151,7 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
                 keyword: 'place',
                 filters: [placeStringFilter],
                 component: {
-                    type: ComponentType.Input,
+                    type: ComponentType.TagsSelect,
                     props: {
                         placeholder: EnterPlaceMessage,
                     },
