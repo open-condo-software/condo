@@ -1,5 +1,19 @@
-.default-ai-text-area-wrapper {
-  padding-bottom: 0;
-  container-type: inline-size;
-  transition: all var(--condo-global-transition-duration-default) ease-in-out;
+.custom-form {
+  min-height: 500px;
+  margin-left: -10px;
+}
+
+.rewrite-text-button :global(.condo-btn-loading-icon) {
+  width: 16px;
+  padding: 0;
+}
+
+.rewrite-button-with-text {
+  display: flex;
+}
+
+@media (max-width: 320px) {
+  .rewrite-button-with-text {
+    display: none;
+  }
 }
