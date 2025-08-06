@@ -65,7 +65,6 @@ export type SelectProps<ValueType = SelectValueTypeBase> = Pick<DefaultSelectPro
 | 'showSearch'
 | 'defaultValue'
 | 'onSearch'
-| 'showArrow'
 | 'searchValue'
 > & {
     placeholder?: string
@@ -75,6 +74,7 @@ export type SelectProps<ValueType = SelectValueTypeBase> = Pick<DefaultSelectPro
     onChange?: OnChangeType
     notFoundContentLabel?: string
     ellipsis?: 'end' | 'start'
+    showArrow?: boolean
 } & CustomSelectProps<ValueType>
 
 // TODO(DOMA-8757): default props autoClearSearchValue = false. Multi select search should not reset after selection
