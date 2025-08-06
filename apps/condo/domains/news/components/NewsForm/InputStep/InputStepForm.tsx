@@ -7,11 +7,13 @@ import { CheckCircle, Copy, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Input, Tooltip, Typography } from '@open-condo/ui'
 
+
 import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
 import { FLOW_TYPES } from '@condo/domains/ai/constants'
 import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { getBodyTemplateChangedRule, getTitleTemplateChangedRule, type TemplatesType } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
@@ -90,7 +92,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAriaProps> = ({
 
     const newsTextAreaRef = useRef(null)
 
-    const [rewriteNewsTextAnswer, setRewriteNewsTextAnswer] = useState('')
+    const [prevRewriteNewsText, setPrevRewriteNewsText] = useState('')
     const [newsTextAiNotificationShow, setNewsTextAiNotificationShow] = useState(false)
     const [isUpdateLoading, setIsUpdateLoading] = useState(false)
     const [copied, setCopied] = useState<boolean>()
@@ -112,16 +114,17 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAriaProps> = ({
             newsBody: inputType === 'body' ? selectedText : textForContext,
         }
 
-        // analytics.track('click', {
-        //     value: ticketId,
-        //     location: window.location.href,
-        //     component: 'Button',
-        //     type: 'rewrite_text',
-        // })
+        analytics.track('click', {
+            value: inputType,
+            location: window.location.href,
+            component: 'Button',
+            type: 'news_rewrite_text_flow',
+        })
 
         const result = await runRewriteTitleAIFlow({ context })
 
         if (result.error) {
+            setNewsTextAiNotificationShow(true)
             notification.error({ message: result.localizedErrorText || GenericErrorMessage })
         }
     }, [GenericErrorMessage, inputType, runRewriteTitleAIFlow, selectedText, textForContext])
@@ -140,62 +143,56 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAriaProps> = ({
     }, [copied, selectedText])
 
     const handleCloseAINotificationText = useCallback(() => {
-        // analytics.track('click', {
-        //     value: `ticketId: ${ticketId}`,
-        //     type: 'close_ai_notification',
-        //     location: window.location.href,
-        //     component: 'Button',
-        // })
+        analytics.track('click', {
+            value: `${inputType}`,
+            type: 'close_ai_notification',
+            location: window.location.href,
+            component: 'Button',
+        })
 
-        setRewriteNewsTextAnswer('')
         setNewsTextAiNotificationShow(false)
-    }, [])
+    }, [inputType])
 
     const handleApplyGeneratedMessage = useCallback(() => {
-        // analytics.track('click', {
-        //     value: `ticketId: ${ticketId}`,
-        //     type: 'apply-generated_message',
-        //     location: window.location.href,
-        //     component: 'Button',
-        // })
+        analytics.track('click', {
+            value: `${inputType}`,
+            type: 'apply_generated_message',
+            location: window.location.href,
+            component: 'Button',
+        })
 
         newsTextAreaRef.current.focus()
 
         handleCloseAINotificationText()
-        if (!rewriteNewsTextError) handleFormTextChange(rewriteNewsTextAnswer)
-    }, [rewriteNewsTextError, handleCloseAINotificationText, handleFormTextChange, rewriteNewsTextAnswer])
+        if (!rewriteNewsTextError?.cause) handleFormTextChange(rewriteNewsTextData?.answer)
+    }, [inputType, handleCloseAINotificationText, rewriteNewsTextError?.cause, handleFormTextChange, rewriteNewsTextData?.answer])
 
     const handleRegenerateMessage = useCallback(() => {
-        // analytics.track('click', {
-        //     value: `ticketId: ${ticketId}`,
-        //     type: 'regenerate_comment',
-        //     location: window.location.href,
-        //     component: 'Button',
-        // })
+        analytics.track('click', {
+            value: `${inputType}`,
+            type: 'regenerate_comment',
+            location: window.location.href,
+            component: 'Button',
+        })
         setIsUpdateLoading(true)
+        setPrevRewriteNewsText(rewriteNewsTextData?.answer)
 
-        if (rewriteNewsTextAnswer) handleRewriteNewsTextClick().then(() => setIsUpdateLoading(false))
-    }, [handleRewriteNewsTextClick, rewriteNewsTextAnswer])
+        handleRewriteNewsTextClick().then(() => setIsUpdateLoading(false))
+    }, [handleRewriteNewsTextClick, inputType, rewriteNewsTextData?.answer])
 
     useEffect(() => {
-        if (rewriteNewsTextError || rewriteNewsTextAnswer) {
-            console.log('А это активно?')
+        if (rewriteNewsTextData?.answer) {
             setNewsTextAiNotificationShow(true)
         }
-    }, [rewriteNewsTextError, rewriteNewsTextAnswer, setNewsTextAiNotificationShow])
-
-    useEffect(() => {
-        console.log('Может быть это активно?')
-        setRewriteNewsTextAnswer(rewriteNewsTextData?.answer)
-    }, [rewriteNewsTextData?.answer])
+    }, [rewriteNewsTextError, rewriteNewsTextData?.answer, setNewsTextAiNotificationShow])
     
     return (
         <AIInputNotification
             targetRef={newsTextAreaRef}
             updateLoading={isUpdateLoading}
-            result={rewriteNewsTextAnswer}
+            result={rewriteNewsTextData?.answer || prevRewriteNewsText}
             onApply={handleApplyGeneratedMessage}
-            // errorMessage={String(rewriteNewsTextError) || GenericErrorMessage}
+            errorMessage={GenericErrorMessage}
             onClose={handleCloseAINotificationText}
             onUpdate={handleRegenerateMessage}
             open={newsTextAiNotificationShow}
@@ -206,7 +203,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAriaProps> = ({
                 className='text-area-no-resize'
                 placeholder={inputType === 'header' ? TitlePlaceholderMessage : BodyPlaceholderMessage}
                 onChange={e => handleFormTextChange(e.target.value)}
-                // name={fieldName}
+                name={inputType}
                 ref={newsTextAreaRef}
                 value={selectedText}
                 autoSize={{ minRows: 1, maxRows: 5 }}
