@@ -117,12 +117,6 @@ const FLOW_META_SCHEMAS = {
                 promptType: { enum: ['header', 'body'] },
                 newsTitle: { type: 'string' },
                 newsBody: { type: 'string' },
-
-                newsType: { type: 'string' },
-                validBefore: { type: 'string' },
-                incidents: { type: 'string' },
-                lastNewsTitle: { type: 'string' },
-                lastNewsBody: { type: 'string' },
             },
         },
         output: {
