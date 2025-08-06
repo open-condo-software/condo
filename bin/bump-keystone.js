@@ -2,7 +2,7 @@ const fs = require('fs')
 
 const { glob } = require('glob')
 
-const _targetScope = '@open-keystone'
+const _targetScopes = ['@open-keystone', '@open-arch-ui']
 const _cachedVersions = new Map()
 
 async function getLatestVersion (packageName) {
@@ -18,7 +18,7 @@ async function getLatestVersion (packageName) {
 async function updateDeps (deps) {
     let changed = false
     for (const [pkgName, oldRequirement] of Object.entries(deps)) {
-        if (pkgName.startsWith(_targetScope)) {
+        if (_targetScopes.some(scope => pkgName.startsWith(scope))) {
             const latestVersion = await getLatestVersion(pkgName)
             const newRequirement = `^${latestVersion}`
             deps[pkgName] = newRequirement
