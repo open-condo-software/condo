@@ -65,7 +65,7 @@ interface DefaultAiTextAriaProps {
     autoFocus?: boolean
 }
 
-const DefaultAiTextAria: React.FC<DefaultAiTextAriaProps> = ({
+const DefaultAiTextArea: React.FC<DefaultAiTextAriaProps> = ({
     inputType,
     selectedText,
     textForContext,
@@ -179,11 +179,13 @@ const DefaultAiTextAria: React.FC<DefaultAiTextAriaProps> = ({
 
     useEffect(() => {
         if (rewriteNewsTextError || rewriteNewsTextAnswer) {
+            console.log('А это активно?')
             setNewsTextAiNotificationShow(true)
         }
     }, [rewriteNewsTextError, rewriteNewsTextAnswer, setNewsTextAiNotificationShow])
 
     useEffect(() => {
+        console.log('Может быть это активно?')
         setRewriteNewsTextAnswer(rewriteNewsTextData?.answer)
     }, [rewriteNewsTextData?.answer])
     
@@ -402,7 +404,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                             validateFirst={true}
                                             data-cy='news__create-title-input'
                                         >
-                                            <DefaultAiTextAria
+                                            <DefaultAiTextArea
                                                 inputType='header'
                                                 selectedText={selectedTitle}
                                                 textForContext={selectedBody}
@@ -420,7 +422,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                         validateFirst={true}
                                         data-cy='news__create-body-input'
                                     >
-                                        <DefaultAiTextAria
+                                        <DefaultAiTextArea
                                             inputType='body'
                                             selectedText={selectedBody}
                                             textForContext={selectedTitle}
