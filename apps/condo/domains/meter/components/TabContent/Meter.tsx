@@ -46,11 +46,10 @@ import { getInitialArchivedOrActiveMeter } from '@condo/domains/meter/utils/help
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
-const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const FULL_WIDTH_DATE_RANGE_STYLE: CSSProperties = { width: '100%' }
 
-const SORTABLE_PROPERTIES = ['verificationDate', 'source']
+const SORTABLE_PROPERTIES = ['nextVerificationDate', 'source']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs(), dayjs().add(2, 'month')]
 
 
@@ -249,7 +248,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     }), [baseSearchQuery, dateFilter, filters, filtersToWhere, isShowActiveMeters, isShowArchivedMeters])
 
     const {
-        loading: meterReadingsLoading,
+        loading: metersLoading,
         count: total,
         objs: meters,
         refetch,
@@ -372,7 +371,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                 <Col span={24}>
                     <Table
                         totalRows={total}
-                        loading={meterReadingsLoading || loading}
+                        loading={metersLoading || loading}
                         dataSource={meters}
                         columns={tableColumns}
                         onRow={handleRowAction}

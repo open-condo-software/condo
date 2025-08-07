@@ -265,7 +265,7 @@ export function useTableColumns <T> (
             ...meterAndMeterReadingColumns,
             isPropertyMeter ? undefined : {
                 title: MeterNextVerificationDateMessage,
-                sortOrder: get(sorterMap, 'verificationDate'),
+                sortOrder: get(sorterMap, 'nextVerificationDate'),
                 filteredValue: getFilteredValue(filters, 'nextVerificationDate'),
                 dataIndex: isMeter ? 'nextVerificationDate' : ['meter', 'nextVerificationDate'],
                 key: 'nextVerificationDate',
@@ -284,5 +284,5 @@ export function useTableColumns <T> (
             },
             
         ])
-    }, [isReadingsForSingleMeter, readingsForSingleMeterColumns, meterTabType, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterAndMeterReadingColumns, SourceMessage, isPropertyMeter, MeterReadingDateMessage, MeterReadingMessage, MeterNextVerificationDateMessage, isMeter, StatusMessage])
+    }, [isReadingsForSingleMeter, readingsForSingleMeterColumns, isReportingPeriod, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterTabType, meterAndMeterReadingColumns, SourceMessage, isPropertyMeter, MeterReadingDateMessage, MeterReadingMessage, MeterNextVerificationDateMessage, isMeter, StatusMessage])
 }
