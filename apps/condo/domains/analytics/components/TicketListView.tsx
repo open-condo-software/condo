@@ -1,5 +1,4 @@
-import { Skeleton, Table, TableColumnsType } from 'antd'
-import { TableProps as RcTableProps } from 'rc-table/lib/Table'
+import { Skeleton, Table, TableColumnsType, TableProps } from 'antd'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -14,7 +13,7 @@ interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetPr
 }
 
 export const getScrollConfig = (isSmall: boolean) => {
-    const config: RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean } = {
+    const config: TableProps<unknown>['scroll'] & { scrollToFirstRowOnChange?: boolean } = {
         scrollToFirstRowOnChange: true,
     }
 
