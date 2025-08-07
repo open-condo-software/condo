@@ -69,10 +69,7 @@ let nextConfig = {
         '@open-condo/codegen',
         '@open-condo/next',
         '@open-condo/featureflags',
-        '@open-condo/keystone',
-        'rc-table',
         '@condo/domains',
-        '@emotion/styled',
     ],
     compiler: {
         emotion: true,

@@ -7,7 +7,7 @@ import {
     B2BAppPermission as B2BAppPermissionType,
     B2BAppRole as B2BAppRoleType, OrganizationEmployeeRoleUpdateInput, B2BAppContextStatusType,
 } from '@app/condo/schema'
-import { Col, notification, Row, RowProps } from 'antd'
+import { Col, notification, Row, RowProps, TableProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -16,7 +16,6 @@ import pick from 'lodash/pick'
 import set from 'lodash/set'
 import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
-import { TableComponents } from 'rc-table/lib/interface'
 import React, {
     Dispatch,
     SetStateAction,
@@ -615,7 +614,7 @@ export const EmployeeRoleTicketVisibilityInfo = () => {
 
     const tableColumns = useEmployeeRoleTicketVisibilityInfoTableColumns([])
 
-    const tableComponents: TableComponents<TableRecord> = useMemo(() => ({
+    const tableComponents: TableProps<TableRecord>['components'] = useMemo(() => ({
         body: {
             row: (props) => (
                 <Tooltip title={EditProhibitedMessage}>
