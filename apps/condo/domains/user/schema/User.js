@@ -298,6 +298,14 @@ const User = new GQLListSchema('User', {
             },
         },
 
+        marketingConsent: {
+            schemaDoc: 'Глобальное согласие на получение маркетинговых материалов',
+            type: 'Checkbox',
+            isRequired: false,
+            defaultValue: false,
+            access: access.canAccessToMarketingConsent,
+        },
+
         avatar: {
             schemaDoc: 'User loaded avatar image',
             type: 'File',
