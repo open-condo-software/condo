@@ -10,7 +10,7 @@ import { Link } from '@/domains/docs/components/Link'
 import { Tabs } from '@/domains/docs/components/Tabs'
 import { AmountDistributionCalculator } from '@/domains/docs/components/widgets/AmountDistributionCalculator'
 
-import type{ MDXComponents } from 'mdx/types'
+import type { MDXComponents } from 'mdx/types'
 
 export const MDXMapping: MDXComponents = {
     h1: (props) => <Typography.Title {...omit(props, 'ref')} level={1}/>,
