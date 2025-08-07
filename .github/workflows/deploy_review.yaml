@@ -19,12 +19,12 @@ jobs:
         run: echo "$(kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns | grep "review-" -c)"
       - name: Check review limits
         run: |
+          echo "Try to check review limits"
           review_namespaces=$(kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns | grep "review-" -c)
           echo "active review namespaces = ${review_namespaces}"
-          
           if [[ $review_namespaces == 7 ]]; then
             echo "The maximum number of simultaneous reviews has been reached.";
-            exit 1;
+            exit 77;
           fi
 
       - name: Login to Container Registry
