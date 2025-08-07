@@ -70,6 +70,7 @@
   },
   "packageManager": "yarn@3.2.2",
   "resolutions": {
+    "@babel/runtime": "^7.28.2",
     "graphql-upload": "^15.0.2",
     "react-intl/@types/react": "^18.3.1",
     "@types/react-transition-group@npm:2.9.2/@types/react": "^18.3.1",

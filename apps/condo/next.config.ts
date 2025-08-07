@@ -1,13 +1,14 @@
-// @ts-check
-const withLess = require('next-with-less')
+import withLess from 'next-with-less'
 
-const conf = require('@open-condo/config')
-const { nextCamelCaseCSSModulesTransform } = require('@open-condo/miniapp-utils/helpers/webpack')
+import conf from '@open-condo/config'
+import { nextCamelCaseCSSModulesTransform } from '@open-condo/miniapp-utils/helpers/webpack'
 
-const { antGlobalVariables } = require('@condo/domains/common/constants/style')
-const { getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
+import { antGlobalVariables } from '@condo/domains/common/constants/style'
+import { getCurrentVersion } from '@condo/domains/common/utils/VersioningMiddleware'
 
-const { name } = require('./package.json')
+import { name } from './package.json'
+
+import type { NextConfig } from 'next'
 
 const appName = name
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
@@ -63,8 +64,7 @@ const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
 
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
 
-/** @type {import('next').NextConfig} */
-let nextConfig = {
+const nextConfig: NextConfig = {
     transpilePackages: [
         '@open-condo/codegen',
         '@open-condo/next',
@@ -80,7 +80,7 @@ let nextConfig = {
             modifyVars: antGlobalVariables,
         },
     },
-    // skipTrailingSlashRedirect: true,
+    trailingSlash: true,
     publicRuntimeConfig: {
         // Will be available on both server and client
         appName,
@@ -162,4 +162,4 @@ let nextConfig = {
     },
 }
 
-module.exports = withLess(nextConfig)
+export default withLess(nextConfig)
