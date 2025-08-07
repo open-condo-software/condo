@@ -60,7 +60,7 @@ interface InputStepFormProps {
 const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 
 interface DefaultAiTextAreaProps {
-    inputType: 'header' | 'body'
+    inputType: 'title' | 'body'
     selectedText: string
     textForContext: string
     handleFormTextChange: (value: string) => void
@@ -110,8 +110,8 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     const handleRewriteNewsTextClick = useCallback(async () => {
         const context = {
             promptType: inputType,
-            newsTitle: inputType === 'header' ? selectedText : textForContext,
-            newsBody: inputType === 'body' ? selectedText : textForContext,
+            title: inputType === 'title' ? selectedText : textForContext,
+            body: inputType === 'body' ? selectedText : textForContext,
         }
 
         analytics.track('click', {
@@ -161,7 +161,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
             component: 'Button',
         })
 
-        newsTextAreaRef.current.focus()
+        newsTextAreaRef.current?.focus()
 
         handleCloseAINotificationText()
         if (!rewriteNewsTextError?.cause) handleFormTextChange(rewriteNewsTextData?.answer)
@@ -177,7 +177,9 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
         setIsUpdateLoading(true)
         setPrevRewriteNewsText(rewriteNewsTextData?.answer)
 
-        handleRewriteNewsTextClick().then(() => setIsUpdateLoading(false))
+        handleRewriteNewsTextClick()
+            .then(() => setIsUpdateLoading(false))
+            .catch(() => setIsUpdateLoading(false))
     }, [handleRewriteNewsTextClick, inputType, rewriteNewsTextData?.answer])
     
     return (
@@ -193,7 +195,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
             <Input.TextArea
                 autoFocus={autoFocus}
                 className='text-area-no-resize'
-                placeholder={inputType === 'header' ? TitlePlaceholderMessage : BodyPlaceholderMessage}
+                placeholder={inputType === 'title' ? TitlePlaceholderMessage : BodyPlaceholderMessage}
                 onChange={e => handleFormTextChange(e.target.value)}
                 name={inputType}
                 ref={newsTextAreaRef}
@@ -394,7 +396,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                             data-cy='news__create-title-input'
                                         >
                                             <DefaultAiTextArea
-                                                inputType='header'
+                                                inputType='title'
                                                 selectedText={selectedTitle}
                                                 textForContext={selectedBody}
                                                 handleFormTextChange={handleFormTitleChange}

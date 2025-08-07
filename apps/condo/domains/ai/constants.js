@@ -114,9 +114,9 @@ const FLOW_META_SCHEMAS = {
         input: {
             type: 'object',
             properties: {
-                promptType: { enum: ['header', 'body'] },
-                newsTitle: { type: 'string' },
-                newsBody: { type: 'string' },
+                promptType: { enum: ['title', 'body'] },
+                title: { type: 'string' },
+                body: { type: 'string' },
             },
         },
         output: {
