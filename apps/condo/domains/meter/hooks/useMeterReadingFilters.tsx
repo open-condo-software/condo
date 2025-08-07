@@ -24,7 +24,7 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 
 const addressFilter = getFilter(['meter', 'property', 'id'], 'array', 'string', 'in')
 const addressStringContainsFilter = getStringContainsFilter(['meter', 'property', 'address'])
-const accountNumberFilter = getStringContainsFilter(['meter', 'accountNumber'])
+const accountNumberFilter = getStringContainsFilter(['accountNumber'])
 const placeStringFilter = getStringContainsFilter(['meter', 'place'])
 const numberFilter = getStringContainsFilter(['meter', 'number'])
 const unitNameFilter = getFilter(['meter', 'unitName'], 'array', 'string', 'in')

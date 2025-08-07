@@ -117,7 +117,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     }), [baseSearchQuery, dateFilter, filters, filtersToWhere, meter])
 
     const {
-        loading: metersLoading,
+        loading: meterReadingsLoading,
         count: total,
         objs: meterReadings,
         refetch,
@@ -161,8 +161,8 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
         return readingsToFilter.filter(reading => selectedReadingKeys.includes(reading.id)).map(reading => reading.id)
     }, [readingsToFilter, selectedReadingKeys])
 
-    const isSelectedAllRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === readingsToFilter.length
-    const isSelectedSomeRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < readingsToFilter.length
+    const isSelectedAllRowsByPage = !meterReadingsLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === readingsToFilter.length
+    const isSelectedSomeRowsByPage = !meterReadingsLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < readingsToFilter.length
     const CountSelectedReadingsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedReadingKeys.length }), [intl, selectedReadingKeys])
 
     const handleResetSelectedReadings = useCallback(() => {
@@ -282,7 +282,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                         )}
                         <Table
                             totalRows={total}
-                            loading={metersLoading || loading}
+                            loading={meterReadingsLoading || loading}
                             dataSource={meter ? meterReadings : processedMeterReadings}
                             columns={meter ? tableColumnsForSingleMeter : tableColumnsForMeterReadings}
                             rowSelection={rowSelection}
