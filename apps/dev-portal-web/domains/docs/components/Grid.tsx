@@ -21,7 +21,7 @@ function getColsAmount (width: number): number {
     return Math.min(MAX_COLS, Math.max(MIN_COLS, fitCols))
 }
 
-export const Grid: React.FC<GridProps> = ({ children }) => {
+export const Grid = ({ children }: GridProps): React.ReactElement => {
     const [{ width }, setRef] = useContainerSize()
     const cols = getColsAmount(width)
     const colSpan = 24 / cols

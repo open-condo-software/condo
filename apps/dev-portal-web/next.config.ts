@@ -1,18 +1,9 @@
-// NOTE: Used to load TS files (locales) into CJS
-// TODO: Node@24 supports importing ts-modules and omitting types, Next@15.1 support next.config.ts, so choose 1 option and migrate safely
-const tsNode = require('ts-node')
-const service = tsNode.register({
-    transpileOnly: true,
-    compilerOptions: { module: 'CommonJS' },
-})
+import conf from '@open-condo/config'
+import { nextCamelCaseCSSModulesTransform } from '@open-condo/miniapp-utils/helpers/webpack'
 
-// eslint-disable-next-line import/order
-const { LOCALES, DEFAULT_LOCALE } = require('./domains/common/constants/locales.ts')
-// NOTE: Don't move this line of code, disable ts-node behaviour as soon as ts-file loaded
-service.enabled(false)
+import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 
-const conf = require('@open-condo/config')
-const { nextCamelCaseCSSModulesTransform } = require('@open-condo/miniapp-utils/helpers/webpack')
+import type { NextConfig } from 'next'
 
 const DOCS_ENTRY_ENDPOINT = conf['DOCS_ENTRY_ENDPOINT'] || '/docs/index'
 // NOTE: Url of API server
@@ -27,13 +18,8 @@ const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
     reactStrictMode: true,
-    // NOTE: SWC has an issue: https://github.com/swc-project/swc/issues/8271
-    // It means some code may not work as expected, for example zod@4
-    // It was fixed in more modern next versions, we'll update it later
-    swcMinify: false,
     i18n: {
         locales: LOCALES,
         defaultLocale: DEFAULT_LOCALE,

@@ -15,7 +15,7 @@ type TabsProps = {
  * @param children
  * @constructor
  */
-export const Tabs: React.FC<TabsProps> = ({ labels = [], children }) => {
+export const Tabs = ({ labels = [], children }: TabsProps): React.ReactElement => {
     const items: Array<TabItem> = useMemo(() => {
         const mappedItems =  React.Children.map(children, (child, index) => {
             const stringIdx = String(index)

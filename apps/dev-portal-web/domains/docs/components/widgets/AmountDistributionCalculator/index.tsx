@@ -34,7 +34,7 @@ function generateRandomDistributionItem (): DistributionItem {
     }
 }
 
-export const AmountDistributionCalculator: React.FC = () => {
+export const AmountDistributionCalculator = (): React.ReactElement => {
     const intl = useIntl()
     const [paymentAmount, setPaymentAmount] = useState<string>('1000')
     const [distributions, setDistributions] = useState<DistributionItem[]>([])
