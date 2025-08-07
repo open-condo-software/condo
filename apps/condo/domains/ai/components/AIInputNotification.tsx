@@ -10,7 +10,7 @@ import { ProgressLoader } from '@condo/domains/common/components/ProgressLoader'
 import styles from './AIInputNotification.module.css'
 
 type AIInputNotificationPropsType = {
-    targetRef: React.MutableRefObject<TextAreaRef>
+    targetRef?: React.MutableRefObject<TextAreaRef>
     result: string
     onApply: () => void
     onUpdate: () => void
