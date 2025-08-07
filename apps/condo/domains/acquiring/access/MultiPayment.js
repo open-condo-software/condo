@@ -6,7 +6,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { checkAcquiringIntegrationAccessRights } = require(
     '@condo/domains/acquiring/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 async function canReadMultiPayments ({ authentication: { item: user } }) {
@@ -21,8 +21,12 @@ async function canReadMultiPayments ({ authentication: { item: user } }) {
         }
     }
 
-    // Acquiring integration account can get only MultiPayments linked to this integration
-    return { integration: { accessRights_some: { user: { id: user.id } }, deletedAt: null } }
+    if (user.type === SERVICE) {
+        // Acquiring integration account can get only MultiPayments linked to this integration
+        return { integration: { accessRights_some: { user: { id: user.id } }, deletedAt: null } }
+    }
+
+    return false
 }
 
 async function canManageMultiPayments ({ authentication: { item: user }, operation, itemId }) {
