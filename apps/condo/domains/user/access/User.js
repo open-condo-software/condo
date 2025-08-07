@@ -140,9 +140,25 @@ async function canReadUserNameField (args) {
 }
 
 const canAccessToMarketingConsent = {
-    read: async (args) => {},
-    create: async (args) => {},
-    update: async (args) => {},
+    read: canReadUsers,
+    create: canManageUsers,
+    update: async (args) => {
+        const nonDirectAccess = access.userIsAdminOrIsThisItem(args)
+
+        if (nonDirectAccess) {
+            return nonDirectAccess
+        }
+
+        const { authentication: { item: user }, listKey, fieldKey } = args
+
+        // Service users with right set () can update marketingConsent field
+        if (user.type === SERVICE) {
+            return await canDirectlyReadSchemaField(user, listKey, fieldKey)
+        }
+
+        // Otherwise no access
+        return false
+    },
 }
 
 /*

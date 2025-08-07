@@ -33,6 +33,8 @@ const { RUNTIME_IDP_TYPES } = require('@condo/domains/user/constants/identityPro
 const { USER_CUSTOM_ACCESS_GRAPHQL_TYPES, USER_CUSTOM_ACCESS_FIELDS } = require('@condo/domains/user/gql')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
+const { pushEmailDataToMarketingAdapter } = require('@condo/domains/user/utils/serverSchema/User');
+const { sendUserDataWebhook } = require('@condo/domains/user/utils/serverSchema/sendUserDataWebhook');
 
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
@@ -381,6 +383,26 @@ const User = new GQLListSchema('User', {
                 updatedItem.name !== existingItem.name)
             ) {
                 await updateEmployeesRelatedToUser(context, updatedItem)
+            }
+
+            if (operation === 'update' && existingItem) {
+                const isEmailChanged = updatedItem.email !== existingItem.email
+                const isEmailVerifiedChanged = updatedItem.isEmailVerified !== existingItem.isEmailVerified
+                const isMarketingConsentChanged = updatedItem.marketingConsent !== existingItem.marketingConsent
+
+                if (isEmailChanged || isEmailVerifiedChanged || isMarketingConsentChanged) {
+                    await sendUserDataWebhook({
+                        oldEmail: existingItem.email,
+                        newEmail: updatedItem.email,
+                        isEmailVerified: updatedItem.isEmailVerified,
+                        marketingConsent: updatedItem.marketingConsent,
+                    })
+                }
+            }
+
+            if (updatedItem && (updatedItem.email || updatedItem.isEmailVerified || updatedItem.marketingConsent)) {
+                // Отправь все эти данные в n8n (не забудь про существующую почту)
+                await pushEmailDataToMarketingAdapter(updatedItem)
             }
         },
     },
