@@ -84079,36 +84079,20 @@ input ResidentBillingReceiptWhereInput {
   id_not_in: [ID]
   period: String
   period_not: String
-  period_contains: String
-  period_not_contains: String
-  period_starts_with: String
-  period_not_starts_with: String
-  period_ends_with: String
-  period_not_ends_with: String
-  period_i: String
-  period_not_i: String
-  period_contains_i: String
-  period_not_contains_i: String
-  period_starts_with_i: String
-  period_not_starts_with_i: String
-  period_ends_with_i: String
-  period_not_ends_with_i: String
+  period_lt: String
+  period_gt: String
+  period_lte: String
+  period_gte: String
+  period_in: [String]
+  period_not_in: [String]
   toPay: String
   toPay_not: String
-  toPay_contains: String
-  toPay_not_contains: String
-  toPay_starts_with: String
-  toPay_not_starts_with: String
-  toPay_ends_with: String
-  toPay_not_ends_with: String
-  toPay_i: String
-  toPay_not_i: String
-  toPay_contains_i: String
-  toPay_not_contains_i: String
-  toPay_starts_with_i: String
-  toPay_not_starts_with_i: String
-  toPay_ends_with_i: String
-  toPay_not_ends_with_i: String
+  toPay_lt: String
+  toPay_gt: String
+  toPay_lte: String
+  toPay_gte: String
+  toPay_in: [String]
+  toPay_not_in: [String]
   printableNumber: String
   printableNumber_not: String
   printableNumber_contains: String

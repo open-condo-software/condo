@@ -303,22 +303,107 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(receiptForConsumer1).toBeDefined()
             expect(receiptForConsumer2).not.toBeDefined()
         })
-        test('can filter by period', async () => {
-            const accountNumber = faker.random.alphaNumeric(12)
-            const [[{ id: janReceiptId }, { id: febReceiptId }]] = await utils.createReceipts([
-                utils.createJSONReceipt({ accountNumber, month: 1, year: 2024 }),
-                utils.createJSONReceipt({ accountNumber, month: 2, year: 2024 }),
-            ])
-            const resident = await utils.createResident()
-            await utils.createServiceConsumer(resident, accountNumber)
-            const receipts = await ResidentBillingReceipt.getAll(utils.clients.resident, {
-                period: '2024-01-01',
+
+        describe('by period', () => {
+            let clients
+
+            beforeAll(async () => {
+                const utils = new TestUtils([ResidentTestMixin, ContactTestMixin])
+                await utils.init()
+                const accountNumber = faker.random.alphaNumeric(12)
+                await utils.createReceipts([
+                    utils.createJSONReceipt({ accountNumber, month: 1, year: 2024 }),
+                    utils.createJSONReceipt({ accountNumber, month: 2, year: 2024 }),
+                    utils.createJSONReceipt({ accountNumber, month: 3, year: 2024 }),
+                ])
+                const resident = await utils.createResident()
+                await utils.createServiceConsumer(resident, accountNumber)
+                clients = utils.clients
             })
-            const janReceipt = receipts.find(({ id, period }) => period === '2024-01-01' && janReceiptId === id)
-            const febReceipt = receipts.find(({ id, period }) => period === '2024-02-01' && febReceiptId === id)
-            expect(janReceipt).toBeDefined()
-            expect(febReceipt).not.toBeDefined()
+
+            const testCases = [
+                { filter: ':', variables: { period: '2024-01-01' }, expectedPeriods: ['2024-01-01'] },
+                { filter: '_not:', variables: { period_not: '2024-01-01' }, expectedPeriods: ['2024-02-01', '2024-03-01'] },
+                { filter: '_lt:', variables: { period_lt: '2024-02-01' }, expectedPeriods: ['2024-01-01'] },
+                { filter: '_lte:', variables: { period_lte: '2024-02-01' }, expectedPeriods: ['2024-01-01', '2024-02-01'] },
+                { filter: '_gt:', variables: { period_gt: '2024-02-01' }, expectedPeriods: ['2024-03-01'] },
+                { filter: '_gte:', variables: { period_gte: '2024-02-01' }, expectedPeriods: ['2024-02-01', '2024-03-01'] },
+                { filter: '_in:', variables: { period_in: ['2024-01-01', '2024-03-01'] }, expectedPeriods: ['2024-01-01', '2024-03-01'] },
+                { filter: '_not_in:', variables: { period_not_in: ['2024-02-01'] }, expectedPeriods: ['2024-01-01', '2024-03-01'] },
+                { filter: '_in: empty array', variables: { period_in: [] }, expectedPeriods: [] },
+                { filter: '_not_in: empty array', variables: { period_not_in: [] }, expectedPeriods: ['2024-01-01', '2024-02-01', '2024-03-01'] },
+                { filter: '_gt: period before all', variables: { period_gt: '2023-12-31' }, expectedPeriods: ['2024-01-01', '2024-02-01', '2024-03-01'] },
+                { filter: '_lt: period after all', variables: { period_lt: '2024-04-01' }, expectedPeriods: ['2024-01-01', '2024-02-01', '2024-03-01'] },
+            ]
+
+            test.each(testCases)('period$filter', async ({ variables, expectedPeriods }) => {
+                const receipts = await ResidentBillingReceipt.getAll(clients.resident, variables)
+                const foundPeriods = receipts.map(receipt => receipt.period)
+                expect(foundPeriods).toHaveLength(expectedPeriods.length)
+                expect(foundPeriods).toEqual(expect.arrayContaining(expectedPeriods))
+            })
         })
+
+        describe('AND / OR', () => {
+            let utils
+
+            beforeEach(async () => {
+                utils = new TestUtils([ResidentTestMixin, ContactTestMixin])
+                await utils.init()
+            })
+
+            test('can filter receipts using filters in AND/OR statements', async () => {
+                const accountNumber = faker.random.alphaNumeric(12)
+                await utils.createReceipts([
+                    utils.createJSONReceipt({ accountNumber, month: 1, year: 2024 }),
+                    utils.createJSONReceipt({ accountNumber, month: 2, year: 2024 }),
+                    utils.createJSONReceipt({ accountNumber, month: 3, year: 2024 }),
+                ])
+                const resident = await utils.createResident()
+                await utils.createServiceConsumer(resident, accountNumber)
+
+                const receipts1 = await ResidentBillingReceipt.getAll(utils.clients.resident, {
+                    AND: [
+                        { period_lt: '2024-03-01' },
+                        { period_gt: '2024-01-01' },
+                    ],
+                })
+                expect(receipts1).toHaveLength(1)
+                expect(receipts1[0].period).toBe('2024-02-01')
+
+                const receipts2 = await ResidentBillingReceipt.getAll(utils.clients.resident, {
+                    OR: [
+                        { period: '2024-03-01' },
+                        { period: '2024-01-01' },
+                    ],
+                })
+                expect(receipts2).toHaveLength(2)
+                expect(receipts2.map(receipt => receipt.period)).toEqual(expect.arrayContaining(['2024-03-01', '2024-01-01']))
+            })
+
+            test('serviceConsumer in AND / OR is omitted', async () => {
+                const accountNumberForConsumer1 = faker.random.alphaNumeric(12)
+                const accountNumberForConsumer2 = faker.random.alphaNumeric(12)
+                await utils.createReceipts([
+                    utils.createJSONReceipt({ accountNumber: accountNumberForConsumer1 }),
+                    utils.createJSONReceipt({ accountNumber: accountNumberForConsumer2 }),
+                ])
+                const resident1 = await utils.createResident()
+                const [consumer1] = await utils.createServiceConsumer(resident1, accountNumberForConsumer1)
+                const resident2 = await utils.createResident()
+                const [consumer2] = await utils.createServiceConsumer(resident2, accountNumberForConsumer2)
+                const receipts = await ResidentBillingReceipt.getAll(utils.clients.resident, {
+                    AND: [{ serviceConsumer: { id: consumer1.id } }, { serviceConsumer: { id_not: consumer2.id } }],
+                })
+                const receiptForConsumer1 = receipts.find(({ serviceConsumer: { id } }) => id === consumer1.id)
+                const receiptForConsumer2 = receipts.find(({ serviceConsumer: { id } }) => id === consumer2.id)
+                expect(receiptForConsumer1).toBeDefined()
+                // got receipts for consumer2 despite serviceConsumer: { id_not: consumer2.id }
+                expect(receiptForConsumer2).toBeDefined()
+            })
+
+        })
+
     })
 
     describe('Sort receipts', () => {
