@@ -14,6 +14,9 @@ jobs:
       PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
       KUBE_CONFIG_BASE64_DATA: ${{ secrets.TEST_CLUSTER_KUBE_CONFIG_BASE64_DATA }}
     steps:
+
+      - name: Echo review namespaces
+        run: echo "$(kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns | grep "review-" -c)"
       - name: Check review limits
         run: |
           review_namespaces=$(kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns | grep "review-" -c)
