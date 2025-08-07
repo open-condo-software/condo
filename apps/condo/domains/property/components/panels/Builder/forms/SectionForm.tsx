@@ -312,6 +312,11 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [builder, refresh, sections])
 
     const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
+
+    useEffect(() => {
+        if (minFloor === 0) setMinFloor(-1)
+    }, [minFloor])
+
     const setFloorCountValue = useCallback((value) => { setFloorCount(value) }, [])
     const maxFloorValue = useMemo(() => {
         if (floorCount === 1) return minFloor
