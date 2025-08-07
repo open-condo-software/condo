@@ -840,8 +840,7 @@ class MapEdit extends MapView {
 
         this.notifyUpdater()
     }
-
-    public updateSection (sectionUpdate: Partial<BuildingSectionArg>, renameNextUnits = true): void {
+    public updateSection (sectionUpdate: Partial<BuildingSectionArg>, renameNextUnits = true, renameNextSections = true): void {
         // Find the section to update
         const sectionIndex = this.sections.findIndex(s => sectionUpdate.id === s.id)
         if (sectionIndex === -1) return
@@ -849,7 +848,7 @@ class MapEdit extends MapView {
         // Update section name if provided
         if (sectionUpdate.name) {
             this.sections[sectionIndex].name = sectionUpdate.name
-            if (renameNextUnits) this.updateSectionNumbers(sectionIndex, renameNextUnits)
+            if (renameNextSections) this.updateSectionNumbers(sectionIndex, renameNextSections)
         }
 
         // Handle units per floor changes

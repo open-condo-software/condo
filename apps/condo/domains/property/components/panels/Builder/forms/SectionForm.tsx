@@ -264,6 +264,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const RenameNextSectionsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextSections' })
     const RenameNextParkingsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParking' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
     const FloorCountLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.floorCount' })
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
@@ -289,7 +290,9 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const [name, setName] = useState<string>('')
     const renameNextSections = useRef(false)
+    const renameNextUnits = useRef(false)
     const toggleRenameNextSections = useCallback((event) => { renameNextSections.current = event.target.checked }, [])
+    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
     const [minFloor, setMinFloor] = useState(sectionMinFloor)
     const [floorCount, setFloorCount] = useState(sectionMaxFloor)
     const [unitsOnFloor, setUnitsOnFloor] = useState<number>(sectionUnitOnFloor)
@@ -344,7 +347,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 minFloor,
                 maxFloor: maxFloorValue,
                 unitsOnFloor,
-            }, renameNextSections.current)
+            }, renameNextUnits.current, renameNextSections.current)
         })
 
         refresh()
@@ -360,7 +363,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     minFloor,
                     maxFloor: maxFloorValue,
                     unitsOnFloor,
-                }, renameNextSections.current)
+                }, renameNextUnits.current)
             })
         }
 
@@ -451,6 +454,12 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     <Col span={24}>
                         <Checkbox onChange={toggleRenameNextSections}>
                             {builder.viewMode === MapViewMode.parking ? RenameNextParkingsLabel : RenameNextSectionsLabel}
+                        </Checkbox>
+                    </Col>
+
+                    <Col span={24}>
+                        <Checkbox onChange={toggleRenameNextUnits}>
+                            {RenameNextUnitsLabel}
                         </Checkbox>
                     </Col>
                 </Row>
