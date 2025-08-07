@@ -4,7 +4,7 @@
 
 const { pick } = require('lodash')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
@@ -45,6 +45,7 @@ const ERRORS = {
     },
     INVALID_TOKEN: {
         mutation: 'changeUserPassword',
+        variable: ['data', 'token'],
         code: BAD_USER_INPUT,
         type: INVALID_TOKEN,
         message: 'Invalid token',
@@ -52,6 +53,7 @@ const ERRORS = {
     },
     UNSUPPORTED_TOKEN: {
         mutation: 'changeUserPassword',
+        variable: ['data', 'token'],
         code: BAD_USER_INPUT,
         type: UNSUPPORTED_TOKEN,
         message: 'Unsupported token',
@@ -62,16 +64,22 @@ const ERRORS = {
         variable: ['data', 'token'],
         code: BAD_USER_INPUT,
         type: TOKEN_NOT_FOUND,
-        message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
+        message: 'Unable to find non-expired SudoUserToken by specified token',
         messageForUser: 'api.user.changeUserPassword.TOKEN_NOT_FOUND',
     },
     USER_NOT_FOUND: {
         mutation: 'changeUserPassword',
-        variable: ['data', 'phone'],
         code: BAD_USER_INPUT,
         type: USER_NOT_FOUND,
-        message: 'Unable to find user with specified phone',
+        message: 'User not found',
         messageForUser: 'api.user.changeUserPassword.USER_NOT_FOUND',
+    },
+    OPERATION_FAILED: {
+        mutation: 'changeUserPassword',
+        code: BAD_USER_INPUT,
+        type: 'OPERATION_FAILED',
+        message: 'Failed to complete the operation',
+        messageForUser: 'api.user.changeUserPassword.OPERATION_FAILED',
     },
 }
 
@@ -155,6 +163,11 @@ const ChangeUserPasswordService = new GQLCustomSchema('ChangeUserPasswordService
 
                 if (!sudoToken) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
 
+                const authedItemId = context?.authedItem?.id || null
+                if (authedItemId && authedItemId !== sudoToken.user) {
+                    throw new GQLError(ERRORS.OPERATION_FAILED, context)
+                }
+
                 const user = await getByCondition('User', {
                     id: sudoToken.user,
                     deletedAt: null,
@@ -171,6 +184,7 @@ const ChangeUserPasswordService = new GQLCustomSchema('ChangeUserPasswordService
                 )
 
                 await UserSudoToken.update(context, sudoToken.id, {
+                    dv: 1, sender,
                     remainingUses: sudoToken.remainingUses - 1,
                 })
 

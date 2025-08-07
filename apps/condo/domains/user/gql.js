@@ -243,11 +243,9 @@ const AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION = gql`
     }
 `
 
-// TODO(codegen): write return type result!
-
 const CHANGE_USER_PASSWORD_MUTATION = gql`
     mutation changeUserPassword ($data: ChangeUserPasswordInput!) {
-        result: changeUserPassword(data: $data) { id }
+        result: changeUserPassword(data: $data) { status }
     }
 `
 
@@ -292,6 +290,6 @@ module.exports = {
     RESEND_CONFIRM_EMAIL_ACTION_MUTATION,
     COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION,
     AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION,
-CHANGE_USER_PASSWORD_MUTATION,
+    CHANGE_USER_PASSWORD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
