@@ -1,7 +1,7 @@
 import { B2BAppNewsSharingConfig } from '@app/condo/schema'
 import { Col, FormInstance, notification, Row } from 'antd'
 import classNames from 'classnames'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { CheckCircle, Copy, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -59,7 +59,7 @@ interface InputStepFormProps {
 
 const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 
-interface DefaultAiTextAriaProps {
+interface DefaultAiTextAreaProps {
     inputType: 'header' | 'body'
     selectedText: string
     textForContext: string
@@ -67,7 +67,7 @@ interface DefaultAiTextAriaProps {
     autoFocus?: boolean
 }
 
-const DefaultAiTextArea: React.FC<DefaultAiTextAriaProps> = ({
+const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     inputType,
     selectedText,
     textForContext,
@@ -122,9 +122,9 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAriaProps> = ({
         })
 
         const result = await runRewriteTitleAIFlow({ context })
+        setNewsTextAiNotificationShow(true)
 
         if (result.error) {
-            setNewsTextAiNotificationShow(true)
             notification.error({ message: result.localizedErrorText || GenericErrorMessage })
         }
     }, [GenericErrorMessage, inputType, runRewriteTitleAIFlow, selectedText, textForContext])
@@ -179,16 +179,9 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAriaProps> = ({
 
         handleRewriteNewsTextClick().then(() => setIsUpdateLoading(false))
     }, [handleRewriteNewsTextClick, inputType, rewriteNewsTextData?.answer])
-
-    useEffect(() => {
-        if (rewriteNewsTextData?.answer) {
-            setNewsTextAiNotificationShow(true)
-        }
-    }, [rewriteNewsTextError, rewriteNewsTextData?.answer, setNewsTextAiNotificationShow])
     
     return (
         <AIInputNotification
-            targetRef={newsTextAreaRef}
             updateLoading={isUpdateLoading}
             result={rewriteNewsTextData?.answer || prevRewriteNewsText}
             onApply={handleApplyGeneratedMessage}
@@ -199,7 +192,6 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAriaProps> = ({
         >
             <Input.TextArea
                 autoFocus={autoFocus}
-                rows={7}
                 className='text-area-no-resize'
                 placeholder={inputType === 'header' ? TitlePlaceholderMessage : BodyPlaceholderMessage}
                 onChange={e => handleFormTextChange(e.target.value)}
