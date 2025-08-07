@@ -437,7 +437,7 @@ class MapView extends Map {
                 section => section.floors.map(
                     floor => floor.units
                         .map(unit => unit.unitType)
-                        .filter(unitType => unitType !== this.defaultUnitType)
+                        .filter(unitType => unitType && unitType !== this.defaultUnitType)
                 )
             ).flat(2)
             ),
