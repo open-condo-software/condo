@@ -18,7 +18,7 @@
     "lint:styles": "yarn run stylelint \"**/*.{less,css}\"",
     "lint:code:fix": "yarn run eslint --fix .",
     "lint:translations": "turbo run lint-translations",
-    "lint:deps": "turbo boundaries --filter=!'@app/condo' --filter=!'@open-condo/codegen' && knip",
+    "lint:deps": "turbo boundaries --filter=!'@app/condo' --filter=!'@open-condo/codegen' && cross-env NODE_OPTIONS=\"--max_old_space_size=6144\" knip",
     "lint": "yarn lint:code && yarn lint:styles && yarn lint:translations && yarn lint:deps",
     "createapp": "node ./bin/createapp",
     "prepare": "husky install"
@@ -36,6 +36,7 @@
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "commander": "^11.0.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jest": "^27.9.0",
