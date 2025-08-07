@@ -4376,6 +4376,7 @@ enum ResetUserLimitActionTypeType {
   findOrganizationsByTin
   auth
   checkUserExistence
+  changeUserPassword
 }
 
 """ A model for resetting user counters limit. To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset. 
@@ -4390,7 +4391,7 @@ type ResetUserLimitAction {
   """
   _label_: String
 
-  """ Type of limit to reset. Possible values: ["email", "sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence"] 
+  """ Type of limit to reset. Possible values: ["email", "sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence", "changeUserPassword"] 
   """
   type: ResetUserLimitActionTypeType
 
@@ -4401,7 +4402,8 @@ type ResetUserLimitAction {
   rateLimit: ["uuid", "ip"], 
   findOrganizationsByTin: ["email", "phone", "uuid"], 
   auth: ["ip", "uuid", "phone", "email"], 
-  checkUserExistence: ["ip", "phone"] 
+  checkUserExistence: ["ip", "phone"], 
+  changeUserPassword: ["ip"] 
   """
   identifier: String
 
@@ -95927,13 +95929,19 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOKEN_NOT_FOUND",
-    "message": "Unable to find non-expired ConfirmPhoneAction by specified token"
+    "message": "Unable to find non-expired SudoUserToken by specified token"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "USER_NOT_FOUND",
-    "message": "Unable to find user with specified phone"
+    "message": "User not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "OPERATION_FAILED",
+    "message": "Failed to complete the operation"
   }`
   """
   changeUserPassword(data: ChangeUserPasswordInput!): ChangeUserPasswordOutput
