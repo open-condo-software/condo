@@ -47,7 +47,7 @@
     "less": "^4.3.0",
     "less-loader": "^12.3.0",
     "lodash": "^4.17.21",
-    "next": "^12.3.7",
+    "next": "^14.2.30",
     "next-transpile-modules": "^10.0.1",
     "next-with-less": "^2.0.5",
     "openid-client": "4.7.4",
