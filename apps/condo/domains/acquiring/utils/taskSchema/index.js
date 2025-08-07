@@ -224,6 +224,31 @@ async function getReceiptsForServiceConsumer (context, date, serviceConsumer, bi
     return Object.values(receiptsByAccountAndRecipient)
 }
 
+function _getPaidAmountsByBillingReceiptsIds (payments) {
+    const byReceipt = payments.reduce((acc, payment) => {
+        if (!acc[payment.receipt.id]) {
+            acc[payment.receipt.id] = []
+        }
+        // If balance was updated after payment was sent to organization, receipt.toPay must be lower than before on payment.amount, so we don't need to count that
+        if (payment.receipt.balanceUpdatedAt) {
+            if (!payment.transferDate || dayjs(payment.transferDate).isSameOrAfter(payment.receipt.balanceUpdatedAt)) {
+                acc[payment.receipt.id].push(payment)
+            }
+        } else {
+            acc[payment.receipt.id].push(payment)
+        }
+        return acc
+    }, {})
+
+    Object.keys(byReceipt)
+        .forEach(receiptId => {
+            let payments = byReceipt[receiptId]
+            byReceipt[receiptId] = payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
+        })
+
+    return byReceipt
+}
+
 async function filterPaidBillingReceipts (context, billingReceipts) {
     if (isNil(billingReceipts)) throw new Error('invalid billingReceipts argument')
 
@@ -237,22 +262,23 @@ async function filterPaidBillingReceipts (context, billingReceipts) {
             id_in: billingReceipts.map(receipt => receipt.id),
         },
         status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
-    }, 'id receipt { id }')
+        deletedAt: null,
+    }, 'id receipt { id toPay balanceUpdatedAt } transferDate amount')
 
-    // map to receipt ids
-    const payedBillIds = payments.map(payment => payment.receipt.id)
-
-    const notPaidBillsIds = billingReceipts.filter(receipt => {
-        const { id } = receipt
-
-        return !payedBillIds.includes(id)
-    }).map(receipt => receipt.id)
-
-    return await BillingReceipt.getAll(context, {
-        id_in: notPaidBillsIds,
+    const receipts = await BillingReceipt.getAll(context, {
+        id_in: billingReceipts.map(receipt => receipt.id),
         toPay_gt: '0',
         deletedAt: null,
-    }, 'id toPay category { id }')
+    }, 'id toPay category { id } toPay')
+
+    const paidAmountsByReceiptsIds = _getPaidAmountsByBillingReceiptsIds(payments)
+    return receipts.filter(receipt => {
+        const { id } = receipt
+        if (!paidAmountsByReceiptsIds[id]) {
+            return true
+        }
+        return Big(receipt.toPay).minus(paidAmountsByReceiptsIds[id]).gt(0)
+    })
 }
 
 async function isLimitExceedForBillingReceipts (context, recurrentPaymentContext, billingReceipts) {
