@@ -237,33 +237,37 @@ export const InputStep: React.FC<InputStepProps> = ({
         }
     }, [sharingAppId])
 
-    const handleTitleChange = useCallback((value) => {
+    const handleTitleChange = useCallback((value, form) => {
+        form.setFieldValue('title', value)
         setSelectedTitle(value)
     }, [])
 
-    const handleBodyChange = useCallback((value) => {
+    const handleBodyChange = useCallback((value, form) => {
+        form.setFieldValue('body', value)
         setSelectedBody(value)
     }, [])
 
-    const handleFormTitleChange = useCallback((value) => {
+    const handleFormTitleChange = useCallback((form) => (value: string) => {
         if (isSharingStep){
             setSharingAppFormValues(prev=>({ ...prev,
                 formValues: { body: prev.formValues.body, title: value },
                 preview: { renderedBody: prev.preview.renderedBody, renderedTitle: value },
             }))
+        } else {
+            handleTitleChange(value, form)
         }
-        else handleTitleChange(value)
-    }, [isSharingStep, sharingAppFormValues])
+    }, [handleTitleChange, isSharingStep])
 
-    const handleFormBodyChange = useCallback((value) => {
+    const handleFormBodyChange = useCallback((form) => (value: string) => {
         if (isSharingStep){
             setSharingAppFormValues(prev=>({ ...prev,
                 formValues: { title: prev.formValues.title, body: value },
                 preview: { renderedTitle: prev.preview.renderedTitle, renderedBody: value },
             }))
+        } else {
+            handleBodyChange(value, form)
         }
-        else handleBodyChange(value)
-    }, [isSharingStep, sharingAppFormValues])
+    }, [handleBodyChange, isSharingStep])
 
     useEffect(() => {
         if (!iFramePreviewRef.current) return 
@@ -288,7 +292,7 @@ export const InputStep: React.FC<InputStepProps> = ({
 
         handleFormTitleChange(finalTitle)
         form.setFieldsValue({ title: finalTitle })
-    }, [title, form, isSharingStep, isCustomForm])
+    }, [title, form, isSharingStep, isCustomForm, sharingAppFormValues?.preview.renderedTitle, handleFormTitleChange])
 
     useEffect(() => {
         if (!body.length) return
@@ -298,7 +302,7 @@ export const InputStep: React.FC<InputStepProps> = ({
 
         handleFormBodyChange(finalBody)
         form.setFieldsValue({ body: finalBody })
-    }, [body, form, isSharingStep, isCustomForm])
+    }, [body, form, isSharingStep, isCustomForm, sharingAppFormValues?.preview.renderedBody, handleFormBodyChange])
 
     useEffect(() => {
         if (!isCustomForm && !isCustomPreview) return

@@ -44,8 +44,8 @@ interface InputStepFormProps {
     }
 
     handleTemplateChange: (form: FormInstance) => (value: string) => void
-    handleFormTitleChange: (value: string) => void
-    handleFormBodyChange: (value: string) => void
+    handleFormTitleChange: (form: FormInstance) => (value: string) => void
+    handleFormBodyChange: (form: FormInstance) => (value: string) => void
 
     template: {
         title: string
@@ -399,7 +399,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                                 inputType='title'
                                                 selectedText={selectedTitle}
                                                 textForContext={selectedBody}
-                                                handleFormTextChange={handleFormTitleChange}
+                                                handleFormTextChange={handleFormTitleChange(form)}
                                             />
                                         </FormItem>
                                     </Col>
@@ -417,7 +417,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                             inputType='body'
                                             selectedText={selectedBody}
                                             textForContext={selectedTitle}
-                                            handleFormTextChange={handleFormBodyChange}
+                                            handleFormTextChange={handleFormBodyChange(form)}
                                             autoFocus={autoFocusBody}
                                         />
                                     </FormItem>
