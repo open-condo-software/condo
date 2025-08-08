@@ -3,7 +3,7 @@ import React from 'react'
 import { Copy, Search, Edit, Eye, FileUp, Trash, Lock } from '@open-condo/icons'
 import { Button, Input as Component } from '@open-condo/ui/src'
 
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
 const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.ReactNode, disabled?: boolean }) => (
     <Button
