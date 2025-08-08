@@ -295,13 +295,10 @@ class MapView extends Map {
     }
 
     public getSectionMaxFloor (sectionIdx: number): number {
-        console.log('getSectionMaxFloor', this.sections[sectionIdx].floors)
         return Math.max(...this.sections[sectionIdx].floors.map(floor => floor.index))
     }
 
     public getSectionMinFloor (sectionIdx: number): number {
-        console.log('getSectionMinFloor', this.sections[sectionIdx].floors)
-
         return Math.min(...this.sections[sectionIdx].floors.map(floor => floor.index))
     }
 
