@@ -526,7 +526,7 @@ class MapEdit extends MapView {
         switch (mode) {
             case 'addSection':
             case 'addParking':
-                this.cancelSectionsEditing()
+                this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnits = []
@@ -534,7 +534,7 @@ class MapEdit extends MapView {
                 break
             case 'editSection':
             case 'editParking':
-                this.cancelSectionsEditing()
+                this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnits = []
@@ -542,7 +542,7 @@ class MapEdit extends MapView {
             case 'addUnit':
             case 'addParkingUnit':
             case 'addParkingFacilityUnit':
-                this.cancelSectionsEditing()
+                this.restoreSections()
                 this.removePreviewSection()
                 this.selectedSections = []
                 this.selectedUnits = []
@@ -552,7 +552,7 @@ class MapEdit extends MapView {
             case 'editParkingUnit':
             case 'editParkingUnits':
             case 'editParkingFacilityUnit':
-                this.cancelSectionsEditing()
+                this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedSections = []
@@ -564,7 +564,7 @@ class MapEdit extends MapView {
             default:
                 this.selectedSections = []
                 this.selectedUnits = []
-                this.cancelSectionsEditing()
+                this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.removePreviewSectionFloor()
@@ -615,7 +615,7 @@ class MapEdit extends MapView {
         if (existingIndex === -1) {
             newSelectedSections.push(section)
         } else {
-            this.cancelSectionEditing(existingSection.id)
+            this.restoreSection(existingSection.id)
             newSelectedSections.splice(existingIndex, 1)
         }
 
@@ -807,7 +807,7 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public startEditingSection (sectionId: string): void {
+    public backupSection (sectionId: string): void {
         if (this.sectionBackups[sectionId]) return
 
         const section = this.sections.find(s => s.id === sectionId)
@@ -821,7 +821,7 @@ class MapEdit extends MapView {
         if (!sectionId) return
 
         if (!this.sectionBackups[sectionId]) {
-            this.startEditingSection(sectionId)
+            this.backupSection(sectionId)
         }
 
         const sectionIndex = this.sections.findIndex(s => s.id === sectionId)
@@ -851,7 +851,7 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public cancelSectionEditing (sectionId: string): void {
+    public restoreSection (sectionId: string): void {
         if (!this.sectionBackups[sectionId]) return
 
         const sectionIndex = this.sections.findIndex(s => s.id === sectionId)
@@ -864,7 +864,7 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public cancelSectionsEditing (): void {
+    public restoreSections (): void {
         Object.keys(this.sectionBackups).forEach(sectionId => {
             const backup = this.sectionBackups[sectionId]
             const sectionIndex = this.sections.findIndex(s => s.id === sectionId)
@@ -905,7 +905,7 @@ class MapEdit extends MapView {
             )
         }
 
-        this.cancelSectionsEditing()
+        this.restoreSections()
         this.editMode = null
         this.notifyUpdater()
     }
@@ -970,15 +970,19 @@ class MapEdit extends MapView {
             section.floors.forEach(floor => floor.index += floorShift)
         }
         // Handle max floor adjustment
-        const currentMaxFloor = this.getSectionMaxFloor(sectionIndex)
-        const currentFloorCount = this.sections[sectionIndex].floors.length
+        const currentSectionMaxFloor = this.getSectionMaxFloor(sectionIndex)
+        const currentSectionFloorCount = this.sections[sectionIndex].floors.length
 
-        const floorDifference = newMaxFloor - currentFloorCount + (newMinFloor < 0 ? -newMinFloor : 0)
+        const hasNegativeMinFloor = newMinFloor < 0
+        const absoluteMinFloor = hasNegativeMinFloor ? -newMinFloor : 0
+        const floorsToAddOrRemove = newMaxFloor - currentSectionFloorCount + absoluteMinFloor
 
-        if (floorDifference > 0) {
-            this.addFloorsToSection(sectionIndex, currentMaxFloor, (newMinFloor < 0 ? newMaxFloor - 1  : newMaxFloor), unitsPerFloor, renameNextUnits, preview)
-        } else if (floorDifference < 0) {
-            this.removeFloorsFromSection(sectionIndex, Math.abs(floorDifference), renameNextUnits)
+        if (floorsToAddOrRemove > 0) {
+            const maxFloorForNewFloors = hasNegativeMinFloor ? newMaxFloor - 1 : newMaxFloor
+            this.addFloorsToSection(sectionIndex, currentSectionMaxFloor, maxFloorForNewFloors, unitsPerFloor, renameNextUnits, preview)
+        } else if (floorsToAddOrRemove < 0) {
+            const floorsToRemove = Math.abs(floorsToAddOrRemove)
+            this.removeFloorsFromSection(sectionIndex, floorsToRemove, renameNextUnits)
         }
     }
 

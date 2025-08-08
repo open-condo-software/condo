@@ -318,11 +318,27 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         refresh()
     }, [builder, refresh, sections])
 
-    const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
+
+    const [isUpdated, setIsUpdated] = useState(false)
 
     useEffect(() => {
-        if (minFloor === 0) setMinFloor(-1)
-    }, [minFloor])
+        if (sections.length > 1) {
+            setIsUpdated(true)
+        }
+    }, [sections, minFloor, floorCount, unitsOnFloor])
+
+    useEffect(() => {
+        const a  = builder.getSelectedSections().length
+
+
+        if (a > 1) {
+            console.log('qqqqqqq')
+            setMinFloor(null)
+            setFloorCount(null)
+            setUnitsOnFloor(null)
+        }
+    }, [builder])
+    const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
 
     const setFloorCountValue = useCallback((value) => { setFloorCount(value) }, [])
     const maxFloorValue = useMemo(() => {
@@ -368,7 +384,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [sections, refresh, resetForm, builder, canChangeName, name, minFloor, maxFloorValue, unitsOnFloor])
 
     useEffect(() => {
-        if (minFloor && floorCount && unitsOnFloor && (canChangeName ? name : true) && maxFloorValue !== undefined) {
+        if (minFloor !== undefined && floorCount && unitsOnFloor && (canChangeName ? name : true) && maxFloorValue !== undefined) {
             sections.forEach(section => {
                 builder.updatePreviewSection({
                     ...section,
