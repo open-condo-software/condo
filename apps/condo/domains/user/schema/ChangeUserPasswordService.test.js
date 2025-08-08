@@ -25,7 +25,7 @@ const {
     makeClientWithResidentUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { TOKEN_TYPES, generateToken } = require('@condo/domains/user/utils/testSchema/tokens')
+const { TOKEN_TYPES, generateToken } = require('@condo/domains/user/utils/tokens')
 
 
 function getCaptcha () {

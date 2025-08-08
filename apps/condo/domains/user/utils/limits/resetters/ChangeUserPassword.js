@@ -20,9 +20,6 @@ class ChangeUserPassword extends RedisGuardResetter {
 
     async checkExistence (identifier) {
         const { isValid, identifierType } = this.isValidIdentifier(identifier)
-        console.log('checkExistence:::', {
-            isValid, identifierType,
-        })
 
         if (!isValid) {
             return false
