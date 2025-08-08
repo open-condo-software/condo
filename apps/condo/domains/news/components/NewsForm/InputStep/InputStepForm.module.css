@@ -2,3 +2,18 @@
   min-height: 500px;
   margin-left: -10px;
 }
+
+.rewrite-text-button :global(.condo-btn-loading-icon) {
+  width: 16px;
+  padding: 0;
+}
+
+.rewrite-button-with-text {
+  display: flex;
+}
+
+@media (max-width: 320px) {
+  .rewrite-button-with-text {
+    display: none;
+  }
+}

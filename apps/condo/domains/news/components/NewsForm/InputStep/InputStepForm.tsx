@@ -1,13 +1,19 @@
 import { B2BAppNewsSharingConfig } from '@app/condo/schema'
-import { Col, FormInstance, Row } from 'antd'
-import React, { useMemo } from 'react'
+import { Col, FormInstance, notification, Row } from 'antd'
+import classNames from 'classnames'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 
+import { CheckCircle, Copy, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
+import { Button, Input, Tooltip, Typography } from '@open-condo/ui'
 
+
+import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
+import { FLOW_TYPES } from '@condo/domains/ai/constants'
+import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { TextArea } from '@condo/domains/common/components/TextArea'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { getBodyTemplateChangedRule, getTitleTemplateChangedRule, type TemplatesType } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
@@ -38,8 +44,8 @@ interface InputStepFormProps {
     }
 
     handleTemplateChange: (form: FormInstance) => (value: string) => void
-    handleFormTitleChange: (value: string) => void
-    handleFormBodyChange: (value: string) => void
+    handleFormTitleChange: (form: FormInstance) => (value: string) => void
+    handleFormBodyChange: (form: FormInstance) => (value: string) => void
 
     template: {
         title: string
@@ -51,6 +57,188 @@ interface InputStepFormProps {
     }
 }
 
+const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
+
+interface DefaultAiTextAreaProps {
+    inputType: 'title' | 'body'
+    selectedText: string
+    textForContext: string
+    handleFormTextChange: (value: string) => void
+    autoFocus?: boolean
+}
+
+const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
+    inputType,
+    selectedText,
+    textForContext,
+    handleFormTextChange,
+    autoFocus,
+}) => {
+    const intl = useIntl()
+
+    const TitlePlaceholderMessage = intl.formatMessage({ id: 'news.fields.title.placeholder' })
+    const BodyPlaceholderMessage = intl.formatMessage({ id: 'news.fields.body.placeholder' })
+    const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
+    const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
+    const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
+    const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+
+    const { enabled: aiFeaturesEnabled, features: {
+        rewriteNewsText: rewriteNewsEnabled,
+    } } = useAIConfig()
+
+    const rewriteNewsTextEnabled = useMemo(() => aiFeaturesEnabled && rewriteNewsEnabled,
+        [aiFeaturesEnabled, rewriteNewsEnabled])
+
+    const newsTextAreaRef = useRef(null)
+
+    const [prevRewriteNewsText, setPrevRewriteNewsText] = useState('')
+    const [newsTextAiNotificationShow, setNewsTextAiNotificationShow] = useState(false)
+    const [isUpdateLoading, setIsUpdateLoading] = useState(false)
+    const [copied, setCopied] = useState<boolean>()
+
+    const [runRewriteTitleAIFlow, {
+        loading: rewriteNewsTextLoading,
+        data: rewriteNewsTextData,
+        error: rewriteNewsTextError,
+    }] = useAIFlow<{ answer: string }>({
+        flowType: FLOW_TYPES.NEWS_REWRITE_TEXT_FLOW_TYPE,
+    })
+
+    const hasNewsText = useMemo(() => selectedText.length > 0, [selectedText])
+
+    const handleRewriteNewsTextClick = useCallback(async () => {
+        const context = {
+            promptType: inputType,
+            title: inputType === 'title' ? selectedText : textForContext,
+            body: inputType === 'body' ? selectedText : textForContext,
+        }
+
+        analytics.track('click', {
+            value: inputType,
+            location: window.location.href,
+            component: 'Button',
+            type: 'news_rewrite_text_flow',
+        })
+
+        const result = await runRewriteTitleAIFlow({ context })
+        setNewsTextAiNotificationShow(true)
+
+        if (result.error) {
+            notification.error({ message: result.localizedErrorText || GenericErrorMessage })
+        }
+    }, [GenericErrorMessage, inputType, runRewriteTitleAIFlow, selectedText, textForContext])
+
+    const handleCopyTextClick = useCallback(async () => {
+        if (copied) return
+
+        try {
+            await navigator.clipboard.writeText(selectedText)
+            setCopied(true)
+
+            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
+        } catch (e) {
+            console.error('Unable to copy to clipboard', e)
+        }
+    }, [copied, selectedText])
+
+    const handleCloseAINotificationText = useCallback(() => {
+        analytics.track('click', {
+            value: `${inputType}`,
+            type: 'close_ai_notification',
+            location: window.location.href,
+            component: 'Button',
+        })
+
+        setNewsTextAiNotificationShow(false)
+    }, [inputType])
+
+    const handleApplyGeneratedMessage = useCallback(() => {
+        analytics.track('click', {
+            value: `${inputType}`,
+            type: 'apply_generated_message',
+            location: window.location.href,
+            component: 'Button',
+        })
+
+        newsTextAreaRef.current?.focus()
+
+        handleCloseAINotificationText()
+        if (!rewriteNewsTextError?.cause) handleFormTextChange(rewriteNewsTextData?.answer)
+    }, [inputType, handleCloseAINotificationText, rewriteNewsTextError?.cause, handleFormTextChange, rewriteNewsTextData?.answer])
+
+    const handleRegenerateMessage = useCallback(() => {
+        analytics.track('click', {
+            value: `${inputType}`,
+            type: 'regenerate_comment',
+            location: window.location.href,
+            component: 'Button',
+        })
+        setIsUpdateLoading(true)
+        setPrevRewriteNewsText(rewriteNewsTextData?.answer)
+
+        handleRewriteNewsTextClick()
+            .then(() => setIsUpdateLoading(false))
+            .catch(() => setIsUpdateLoading(false))
+    }, [handleRewriteNewsTextClick, inputType, rewriteNewsTextData?.answer])
+    
+    return (
+        <AIInputNotification
+            updateLoading={isUpdateLoading}
+            result={rewriteNewsTextData?.answer || prevRewriteNewsText}
+            onApply={handleApplyGeneratedMessage}
+            errorMessage={GenericErrorMessage}
+            onClose={handleCloseAINotificationText}
+            onUpdate={handleRegenerateMessage}
+            open={newsTextAiNotificationShow}
+        >
+            <Input.TextArea
+                autoFocus={autoFocus}
+                className='text-area-no-resize'
+                placeholder={inputType === 'title' ? TitlePlaceholderMessage : BodyPlaceholderMessage}
+                onChange={e => handleFormTextChange(e.target.value)}
+                name={inputType}
+                ref={newsTextAreaRef}
+                value={selectedText}
+                autoSize={{ minRows: 1, maxRows: 5 }}
+                disabled={rewriteNewsTextLoading}
+                bottomPanelUtils={[
+                    <Tooltip
+                        title={copied ? CopiedTooltipText : CopyTooltipText }
+                        placement='top'
+                        key='copyButton'
+                    >
+                        <Button
+                            minimal
+                            compact
+                            type='secondary'
+                            size='medium'
+                            disabled={!hasNewsText || rewriteNewsTextLoading}
+                            onClick={handleCopyTextClick}
+                            icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
+                        />
+                    </Tooltip>,
+                    ...(rewriteNewsTextEnabled ? [
+                        <Button
+                            key='improveButton'
+                            compact
+                            minimal
+                            type='secondary'
+                            size='medium'
+                            disabled={!hasNewsText || rewriteNewsTextLoading}
+                            loading={rewriteNewsTextLoading && !isUpdateLoading}
+                            icon={<Sparkles size='small' />}
+                            onClick={handleRewriteNewsTextClick}
+                            className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
+                        >
+                            {UpdateTextMessage}
+                        </Button>,
+                    ] : []),
+                ]}
+            />
+        </AIInputNotification>
+    )
+}
 
 export const InputStepForm: React.FC<InputStepFormProps> = ({
     sharingAppId,
@@ -75,9 +263,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
     const MakeTextLabel = intl.formatMessage({ id: 'news.fields.makeText.label' })
     const SelectTextLabel = intl.formatMessage({ id: 'news.fields.text.label' })
     const TitleLabel = intl.formatMessage({ id: 'news.fields.title.label' })
-    const TitlePlaceholderMessage = intl.formatMessage({ id: 'news.fields.title.placeholder' })
     const BodyLabel = intl.formatMessage({ id: 'news.fields.body.label' })
-    const BodyPlaceholderMessage = intl.formatMessage({ id: 'news.fields.body.placeholder' })
     const TitleErrorMessage = intl.formatMessage({ id: 'news.fields.title.error.length' })
     const BodyErrorMessage = intl.formatMessage({ id: 'news.fields.body.error.length' })
     const TemplateBlanksNotFilledErrorMessage = intl.formatMessage({ id: 'news.fields.template.blanksNotFilledError' })
@@ -209,11 +395,11 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                             validateFirst={true}
                                             data-cy='news__create-title-input'
                                         >
-                                            <TextArea
-                                                className='text-area-no-resize'
-                                                rows={4}
-                                                placeholder={TitlePlaceholderMessage}
-                                                onChange={e=>handleFormTitleChange(e.target.value)}
+                                            <DefaultAiTextArea
+                                                inputType='title'
+                                                selectedText={selectedTitle}
+                                                textForContext={selectedBody}
+                                                handleFormTextChange={handleFormTitleChange(form)}
                                             />
                                         </FormItem>
                                     </Col>
@@ -227,11 +413,12 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                         validateFirst={true}
                                         data-cy='news__create-body-input'
                                     >
-                                        <TextArea
+                                        <DefaultAiTextArea
+                                            inputType='body'
+                                            selectedText={selectedBody}
+                                            textForContext={selectedTitle}
+                                            handleFormTextChange={handleFormBodyChange(form)}
                                             autoFocus={autoFocusBody}
-                                            rows={7}
-                                            placeholder={BodyPlaceholderMessage}
-                                            onChange={e=>handleFormBodyChange(e.target.value)}
                                         />
                                     </FormItem>
                                 </Col>
