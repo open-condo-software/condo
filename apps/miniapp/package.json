@@ -47,7 +47,7 @@
     "less": "^4.3.0",
     "less-loader": "^12.3.0",
     "lodash": "^4.17.21",
-    "next": "^15.4.5",
+    "next": "^15.4.6",
     "next-with-less": "^3.0.1",
     "openid-client": "4.7.4",
     "react": "^18.3.1",
