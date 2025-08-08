@@ -74499,6 +74499,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -74618,6 +74620,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadCustomValues: Boolean
+  canReadCustomValues_not: Boolean
+  canManageCustomValues: Boolean
+  canManageCustomValues_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
@@ -74779,6 +74785,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadCustomValues_ASC
+  canReadCustomValues_DESC
+  canManageCustomValues_ASC
+  canManageCustomValues_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
@@ -74851,6 +74861,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -74911,6 +74923,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -75012,6 +75026,8 @@ type B2BAppAccessRightSet {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -75123,6 +75139,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadCustomValues: Boolean
+  canReadCustomValues_not: Boolean
+  canManageCustomValues: Boolean
+  canManageCustomValues_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
@@ -75266,6 +75286,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadCustomValues_ASC
+  canReadCustomValues_DESC
+  canManageCustomValues_ASC
+  canManageCustomValues_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
@@ -75338,6 +75362,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -75395,6 +75421,8 @@ input B2BAppAccessRightSetCreateInput {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -77045,6 +77073,1370 @@ input B2BAccessTokenCreateInput {
 
 input B2BAccessTokensCreateInput {
   data: B2BAccessTokenCreateInput
+}
+
+enum CustomFieldHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type CustomFieldHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the CustomFieldHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the CustomFieldHistoryRecord List config, or
+   3. As an alias to a 'name' field on the CustomFieldHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the CustomFieldHistoryRecord List.
+  """
+  _label_: String
+  locale: String
+  isVisible: Boolean
+  name: String
+  priority: Int
+  schemaName: String
+  type: String
+  isUniquePerObject: Boolean
+  validationRules: JSON
+  staffCanRead: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomFieldHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomFieldHistoryRecordWhereInput {
+  AND: [CustomFieldHistoryRecordWhereInput]
+  OR: [CustomFieldHistoryRecordWhereInput]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  isVisible: Boolean
+  isVisible_not: Boolean
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  schemaName: String
+  schemaName_not: String
+  schemaName_contains: String
+  schemaName_not_contains: String
+  schemaName_starts_with: String
+  schemaName_not_starts_with: String
+  schemaName_ends_with: String
+  schemaName_not_ends_with: String
+  schemaName_i: String
+  schemaName_not_i: String
+  schemaName_contains_i: String
+  schemaName_not_contains_i: String
+  schemaName_starts_with_i: String
+  schemaName_not_starts_with_i: String
+  schemaName_ends_with_i: String
+  schemaName_not_ends_with_i: String
+  schemaName_in: [String]
+  schemaName_not_in: [String]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
+  isUniquePerObject: Boolean
+  isUniquePerObject_not: Boolean
+  validationRules: JSON
+  validationRules_not: JSON
+  validationRules_in: [JSON]
+  validationRules_not_in: [JSON]
+  staffCanRead: Boolean
+  staffCanRead_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: CustomFieldHistoryRecordHistoryActionType
+  history_action_not: CustomFieldHistoryRecordHistoryActionType
+  history_action_in: [CustomFieldHistoryRecordHistoryActionType]
+  history_action_not_in: [CustomFieldHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input CustomFieldHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortCustomFieldHistoryRecordsBy {
+  locale_ASC
+  locale_DESC
+  isVisible_ASC
+  isVisible_DESC
+  name_ASC
+  name_DESC
+  priority_ASC
+  priority_DESC
+  schemaName_ASC
+  schemaName_DESC
+  type_ASC
+  type_DESC
+  isUniquePerObject_ASC
+  isUniquePerObject_DESC
+  staffCanRead_ASC
+  staffCanRead_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input CustomFieldHistoryRecordUpdateInput {
+  locale: String
+  isVisible: Boolean
+  name: String
+  priority: Int
+  schemaName: String
+  type: String
+  isUniquePerObject: Boolean
+  validationRules: JSON
+  staffCanRead: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomFieldHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomFieldHistoryRecordsUpdateInput {
+  id: ID!
+  data: CustomFieldHistoryRecordUpdateInput
+}
+
+input CustomFieldHistoryRecordCreateInput {
+  locale: String
+  isVisible: Boolean
+  name: String
+  priority: Int
+  schemaName: String
+  type: String
+  isUniquePerObject: Boolean
+  validationRules: JSON
+  staffCanRead: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomFieldHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomFieldHistoryRecordsCreateInput {
+  data: CustomFieldHistoryRecordCreateInput
+}
+
+enum CustomFieldSchemaNameType {
+  Contact
+  Resident
+  Property
+  Organization
+}
+
+enum CustomFieldTypeType {
+  String
+  Json
+}
+
+""" Custom field allows you to extend functionality of the platform without coding. Use it to store domain-specific stuff or to develop miniapps 
+"""
+type CustomField {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the CustomField List config, or
+   2. As an alias to the field set on 'labelField' in the CustomField List config, or
+   3. As an alias to a 'name' field on the CustomField List (if one exists), or
+   4. As an alias to the 'id' field on the CustomField List.
+  """
+  _label_: String
+
+  """ Locale of this field, For example, if you create SSN field (social security number) you should use en-US locale. If not set, then it is considered that this CustomField is global and not region specific 
+  """
+  locale: String
+
+  """ If field is visible, then it will be displayed in UI """
+  isVisible: Boolean
+
+  """ User friendly name of the field. Will be displayed in UI """
+  name: String
+
+  """ Higher the priority, higher (visually) the custom value is displayed in UI 
+  """
+  priority: Int
+
+  """ Condo schema that this field relates to. """
+  schemaName: CustomFieldSchemaNameType
+
+  """ Type of that field """
+  type: CustomFieldTypeType
+
+  """ If true, then only single CustomValues can exist on condo object (CustomValue.objectId) 
+  """
+  isUniquePerObject: Boolean
+
+  """ Custom user defined validation rules for this field. Should be json-schema 
+  """
+  validationRules: JSON
+
+  """ If true, staff type account can read values of this custom field """
+  staffCanRead: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input CustomFieldWhereInput {
+  AND: [CustomFieldWhereInput]
+  OR: [CustomFieldWhereInput]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  isVisible: Boolean
+  isVisible_not: Boolean
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  schemaName: CustomFieldSchemaNameType
+  schemaName_not: CustomFieldSchemaNameType
+  schemaName_in: [CustomFieldSchemaNameType]
+  schemaName_not_in: [CustomFieldSchemaNameType]
+  type: CustomFieldTypeType
+  type_not: CustomFieldTypeType
+  type_in: [CustomFieldTypeType]
+  type_not_in: [CustomFieldTypeType]
+  isUniquePerObject: Boolean
+  isUniquePerObject_not: Boolean
+  validationRules: JSON
+  validationRules_not: JSON
+  validationRules_in: [JSON]
+  validationRules_not_in: [JSON]
+  staffCanRead: Boolean
+  staffCanRead_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input CustomFieldWhereUniqueInput {
+  id: ID!
+}
+
+enum SortCustomFieldsBy {
+  locale_ASC
+  locale_DESC
+  isVisible_ASC
+  isVisible_DESC
+  name_ASC
+  name_DESC
+  priority_ASC
+  priority_DESC
+  schemaName_ASC
+  schemaName_DESC
+  type_ASC
+  type_DESC
+  isUniquePerObject_ASC
+  isUniquePerObject_DESC
+  staffCanRead_ASC
+  staffCanRead_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input CustomFieldUpdateInput {
+  locale: String
+  isVisible: Boolean
+  name: String
+  priority: Int
+  schemaName: CustomFieldSchemaNameType
+  type: CustomFieldTypeType
+  isUniquePerObject: Boolean
+  validationRules: JSON
+  staffCanRead: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input CustomFieldsUpdateInput {
+  id: ID!
+  data: CustomFieldUpdateInput
+}
+
+input CustomFieldCreateInput {
+  locale: String
+  isVisible: Boolean
+  name: String
+  priority: Int
+  schemaName: CustomFieldSchemaNameType
+  type: CustomFieldTypeType
+  isUniquePerObject: Boolean
+  validationRules: JSON
+  staffCanRead: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input CustomFieldsCreateInput {
+  data: CustomFieldCreateInput
+}
+
+enum CustomValueHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type CustomValueHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the CustomValueHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the CustomValueHistoryRecord List config, or
+   3. As an alias to a 'name' field on the CustomValueHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the CustomValueHistoryRecord List.
+  """
+  _label_: String
+  customField: String
+  data: JSON
+  objectId: String
+  filterDataString: String
+  sourceType: String
+  sourceId: String
+  organization: String
+  unitName: String
+  unitType: String
+  addressKey: String
+  isUniquePerObject: Boolean
+  uniqKey: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomValueHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomValueHistoryRecordWhereInput {
+  AND: [CustomValueHistoryRecordWhereInput]
+  OR: [CustomValueHistoryRecordWhereInput]
+  customField: String
+  customField_not: String
+  customField_in: [String]
+  customField_not_in: [String]
+  data: JSON
+  data_not: JSON
+  data_in: [JSON]
+  data_not_in: [JSON]
+  objectId: String
+  objectId_not: String
+  objectId_contains: String
+  objectId_not_contains: String
+  objectId_starts_with: String
+  objectId_not_starts_with: String
+  objectId_ends_with: String
+  objectId_not_ends_with: String
+  objectId_i: String
+  objectId_not_i: String
+  objectId_contains_i: String
+  objectId_not_contains_i: String
+  objectId_starts_with_i: String
+  objectId_not_starts_with_i: String
+  objectId_ends_with_i: String
+  objectId_not_ends_with_i: String
+  objectId_in: [String]
+  objectId_not_in: [String]
+  filterDataString: String
+  filterDataString_not: String
+  filterDataString_contains: String
+  filterDataString_not_contains: String
+  filterDataString_starts_with: String
+  filterDataString_not_starts_with: String
+  filterDataString_ends_with: String
+  filterDataString_not_ends_with: String
+  filterDataString_i: String
+  filterDataString_not_i: String
+  filterDataString_contains_i: String
+  filterDataString_not_contains_i: String
+  filterDataString_starts_with_i: String
+  filterDataString_not_starts_with_i: String
+  filterDataString_ends_with_i: String
+  filterDataString_not_ends_with_i: String
+  filterDataString_in: [String]
+  filterDataString_not_in: [String]
+  sourceType: String
+  sourceType_not: String
+  sourceType_contains: String
+  sourceType_not_contains: String
+  sourceType_starts_with: String
+  sourceType_not_starts_with: String
+  sourceType_ends_with: String
+  sourceType_not_ends_with: String
+  sourceType_i: String
+  sourceType_not_i: String
+  sourceType_contains_i: String
+  sourceType_not_contains_i: String
+  sourceType_starts_with_i: String
+  sourceType_not_starts_with_i: String
+  sourceType_ends_with_i: String
+  sourceType_not_ends_with_i: String
+  sourceType_in: [String]
+  sourceType_not_in: [String]
+  sourceId: String
+  sourceId_not: String
+  sourceId_contains: String
+  sourceId_not_contains: String
+  sourceId_starts_with: String
+  sourceId_not_starts_with: String
+  sourceId_ends_with: String
+  sourceId_not_ends_with: String
+  sourceId_i: String
+  sourceId_not_i: String
+  sourceId_contains_i: String
+  sourceId_not_contains_i: String
+  sourceId_starts_with_i: String
+  sourceId_not_starts_with_i: String
+  sourceId_ends_with_i: String
+  sourceId_not_ends_with_i: String
+  sourceId_in: [String]
+  sourceId_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  unitName: String
+  unitName_not: String
+  unitName_contains: String
+  unitName_not_contains: String
+  unitName_starts_with: String
+  unitName_not_starts_with: String
+  unitName_ends_with: String
+  unitName_not_ends_with: String
+  unitName_i: String
+  unitName_not_i: String
+  unitName_contains_i: String
+  unitName_not_contains_i: String
+  unitName_starts_with_i: String
+  unitName_not_starts_with_i: String
+  unitName_ends_with_i: String
+  unitName_not_ends_with_i: String
+  unitName_in: [String]
+  unitName_not_in: [String]
+  unitType: String
+  unitType_not: String
+  unitType_contains: String
+  unitType_not_contains: String
+  unitType_starts_with: String
+  unitType_not_starts_with: String
+  unitType_ends_with: String
+  unitType_not_ends_with: String
+  unitType_i: String
+  unitType_not_i: String
+  unitType_contains_i: String
+  unitType_not_contains_i: String
+  unitType_starts_with_i: String
+  unitType_not_starts_with_i: String
+  unitType_ends_with_i: String
+  unitType_not_ends_with_i: String
+  unitType_in: [String]
+  unitType_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  isUniquePerObject: Boolean
+  isUniquePerObject_not: Boolean
+  uniqKey: String
+  uniqKey_not: String
+  uniqKey_contains: String
+  uniqKey_not_contains: String
+  uniqKey_starts_with: String
+  uniqKey_not_starts_with: String
+  uniqKey_ends_with: String
+  uniqKey_not_ends_with: String
+  uniqKey_i: String
+  uniqKey_not_i: String
+  uniqKey_contains_i: String
+  uniqKey_not_contains_i: String
+  uniqKey_starts_with_i: String
+  uniqKey_not_starts_with_i: String
+  uniqKey_ends_with_i: String
+  uniqKey_not_ends_with_i: String
+  uniqKey_in: [String]
+  uniqKey_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: CustomValueHistoryRecordHistoryActionType
+  history_action_not: CustomValueHistoryRecordHistoryActionType
+  history_action_in: [CustomValueHistoryRecordHistoryActionType]
+  history_action_not_in: [CustomValueHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input CustomValueHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortCustomValueHistoryRecordsBy {
+  objectId_ASC
+  objectId_DESC
+  filterDataString_ASC
+  filterDataString_DESC
+  sourceType_ASC
+  sourceType_DESC
+  sourceId_ASC
+  sourceId_DESC
+  unitName_ASC
+  unitName_DESC
+  unitType_ASC
+  unitType_DESC
+  addressKey_ASC
+  addressKey_DESC
+  isUniquePerObject_ASC
+  isUniquePerObject_DESC
+  uniqKey_ASC
+  uniqKey_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input CustomValueHistoryRecordUpdateInput {
+  customField: String
+  data: JSON
+  objectId: String
+  filterDataString: String
+  sourceType: String
+  sourceId: String
+  organization: String
+  unitName: String
+  unitType: String
+  addressKey: String
+  isUniquePerObject: Boolean
+  uniqKey: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomValueHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomValueHistoryRecordsUpdateInput {
+  id: ID!
+  data: CustomValueHistoryRecordUpdateInput
+}
+
+input CustomValueHistoryRecordCreateInput {
+  customField: String
+  data: JSON
+  objectId: String
+  filterDataString: String
+  sourceType: String
+  sourceId: String
+  organization: String
+  unitName: String
+  unitType: String
+  addressKey: String
+  isUniquePerObject: Boolean
+  uniqKey: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomValueHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomValueHistoryRecordsCreateInput {
+  data: CustomValueHistoryRecordCreateInput
+}
+
+input CustomFieldRelateToOneInput {
+  create: CustomFieldCreateInput
+  connect: CustomFieldWhereUniqueInput
+  disconnect: CustomFieldWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+enum CustomValueSourceTypeType {
+  B2BApp
+}
+
+enum CustomValueUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
+""" Custom value for CustomField """
+type CustomValue {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the CustomValue List config, or
+   2. As an alias to the field set on 'labelField' in the CustomValue List config, or
+   3. As an alias to a 'name' field on the CustomValue List (if one exists), or
+   4. As an alias to the 'id' field on the CustomValue List.
+  """
+  _label_: String
+
+  """ CustomField object that this data refers to  """
+  customField: CustomField
+
+  """ Data of this customValue """
+  data: JSON
+
+  """ What instance of CustomField.schemaName this customValue relates to? """
+  objectId: String
+
+  """ String representation of data. Actual logic is controlled by type field in customValue. Use it for filtering 
+  """
+  filterDataString: String
+
+  """ Type of entity, responsible for the last update of this customField """
+  sourceType: CustomValueSourceTypeType
+
+  """ ID of entity, responsible for the last update of this customField """
+  sourceId: String
+
+  """ Organization that owns data inside this CustomValue. Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ Flat number / door number of an apartment building (property) """
+  unitName: String
+
+  """ Type of unit, such as parking lot or flat """
+  unitType: CustomValueUnitTypeType
+
+  """ The unique key of the address """
+  addressKey: String
+
+  """ System field, equals to CustomField.isUniquePerObject, used in constraints logic 
+  """
+  isUniquePerObject: Boolean
+
+  """ User defined custom ID. If set, customValue is guaranteed to be unique among single source (sourceType + sourceId) 
+  """
+  uniqKey: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input CustomValueWhereInput {
+  AND: [CustomValueWhereInput]
+  OR: [CustomValueWhereInput]
+  customField: CustomFieldWhereInput
+  customField_is_null: Boolean
+  data: JSON
+  data_not: JSON
+  data_in: [JSON]
+  data_not_in: [JSON]
+  objectId: String
+  objectId_not: String
+  objectId_contains: String
+  objectId_not_contains: String
+  objectId_starts_with: String
+  objectId_not_starts_with: String
+  objectId_ends_with: String
+  objectId_not_ends_with: String
+  objectId_i: String
+  objectId_not_i: String
+  objectId_contains_i: String
+  objectId_not_contains_i: String
+  objectId_starts_with_i: String
+  objectId_not_starts_with_i: String
+  objectId_ends_with_i: String
+  objectId_not_ends_with_i: String
+  objectId_in: [String]
+  objectId_not_in: [String]
+  filterDataString: String
+  filterDataString_not: String
+  filterDataString_contains: String
+  filterDataString_not_contains: String
+  filterDataString_starts_with: String
+  filterDataString_not_starts_with: String
+  filterDataString_ends_with: String
+  filterDataString_not_ends_with: String
+  filterDataString_i: String
+  filterDataString_not_i: String
+  filterDataString_contains_i: String
+  filterDataString_not_contains_i: String
+  filterDataString_starts_with_i: String
+  filterDataString_not_starts_with_i: String
+  filterDataString_ends_with_i: String
+  filterDataString_not_ends_with_i: String
+  filterDataString_in: [String]
+  filterDataString_not_in: [String]
+  sourceType: CustomValueSourceTypeType
+  sourceType_not: CustomValueSourceTypeType
+  sourceType_in: [CustomValueSourceTypeType]
+  sourceType_not_in: [CustomValueSourceTypeType]
+  sourceId: String
+  sourceId_not: String
+  sourceId_contains: String
+  sourceId_not_contains: String
+  sourceId_starts_with: String
+  sourceId_not_starts_with: String
+  sourceId_ends_with: String
+  sourceId_not_ends_with: String
+  sourceId_i: String
+  sourceId_not_i: String
+  sourceId_contains_i: String
+  sourceId_not_contains_i: String
+  sourceId_starts_with_i: String
+  sourceId_not_starts_with_i: String
+  sourceId_ends_with_i: String
+  sourceId_not_ends_with_i: String
+  sourceId_in: [String]
+  sourceId_not_in: [String]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  unitName: String
+  unitName_not: String
+  unitName_contains: String
+  unitName_not_contains: String
+  unitName_starts_with: String
+  unitName_not_starts_with: String
+  unitName_ends_with: String
+  unitName_not_ends_with: String
+  unitName_i: String
+  unitName_not_i: String
+  unitName_contains_i: String
+  unitName_not_contains_i: String
+  unitName_starts_with_i: String
+  unitName_not_starts_with_i: String
+  unitName_ends_with_i: String
+  unitName_not_ends_with_i: String
+  unitName_in: [String]
+  unitName_not_in: [String]
+  unitType: CustomValueUnitTypeType
+  unitType_not: CustomValueUnitTypeType
+  unitType_in: [CustomValueUnitTypeType]
+  unitType_not_in: [CustomValueUnitTypeType]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  isUniquePerObject: Boolean
+  isUniquePerObject_not: Boolean
+  uniqKey: String
+  uniqKey_not: String
+  uniqKey_contains: String
+  uniqKey_not_contains: String
+  uniqKey_starts_with: String
+  uniqKey_not_starts_with: String
+  uniqKey_ends_with: String
+  uniqKey_not_ends_with: String
+  uniqKey_i: String
+  uniqKey_not_i: String
+  uniqKey_contains_i: String
+  uniqKey_not_contains_i: String
+  uniqKey_starts_with_i: String
+  uniqKey_not_starts_with_i: String
+  uniqKey_ends_with_i: String
+  uniqKey_not_ends_with_i: String
+  uniqKey_in: [String]
+  uniqKey_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input CustomValueWhereUniqueInput {
+  id: ID!
+}
+
+enum SortCustomValuesBy {
+  customField_ASC
+  customField_DESC
+  objectId_ASC
+  objectId_DESC
+  filterDataString_ASC
+  filterDataString_DESC
+  sourceType_ASC
+  sourceType_DESC
+  sourceId_ASC
+  sourceId_DESC
+  organization_ASC
+  organization_DESC
+  unitName_ASC
+  unitName_DESC
+  unitType_ASC
+  unitType_DESC
+  addressKey_ASC
+  addressKey_DESC
+  isUniquePerObject_ASC
+  isUniquePerObject_DESC
+  uniqKey_ASC
+  uniqKey_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input CustomValueUpdateInput {
+  customField: CustomFieldRelateToOneInput
+  data: JSON
+  objectId: String
+  filterDataString: String
+  sourceType: CustomValueSourceTypeType
+  sourceId: String
+  organization: OrganizationRelateToOneInput
+  unitName: String
+  unitType: CustomValueUnitTypeType
+  addressKey: String
+  isUniquePerObject: Boolean
+  uniqKey: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input CustomValuesUpdateInput {
+  id: ID!
+  data: CustomValueUpdateInput
+}
+
+input CustomValueCreateInput {
+  customField: CustomFieldRelateToOneInput
+  data: JSON
+  objectId: String
+  filterDataString: String
+  sourceType: CustomValueSourceTypeType
+  sourceId: String
+  organization: OrganizationRelateToOneInput
+  unitName: String
+  unitType: CustomValueUnitTypeType
+  addressKey: String
+  isUniquePerObject: Boolean
+  uniqKey: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input CustomValuesCreateInput {
+  data: CustomValueCreateInput
 }
 
 enum MobileFeatureConfigHistoryRecordHistoryActionType {
@@ -89136,6 +90528,60 @@ type Query {
   """ Retrieve the meta-data for the B2BAccessToken list. """
   _B2BAccessTokensMeta: _ListMeta
 
+  """ Search for all CustomFieldHistoryRecord items which match the where clause. 
+  """
+  allCustomFieldHistoryRecords(where: CustomFieldHistoryRecordWhereInput, search: String, sortBy: [SortCustomFieldHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [CustomFieldHistoryRecord]
+
+  """ Search for the CustomFieldHistoryRecord item with the matching ID. """
+  CustomFieldHistoryRecord(where: CustomFieldHistoryRecordWhereUniqueInput!): CustomFieldHistoryRecord
+
+  """ Perform a meta-query on all CustomFieldHistoryRecord items which match the where clause. 
+  """
+  _allCustomFieldHistoryRecordsMeta(where: CustomFieldHistoryRecordWhereInput, search: String, sortBy: [SortCustomFieldHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the CustomFieldHistoryRecord list. """
+  _CustomFieldHistoryRecordsMeta: _ListMeta
+
+  """ Search for all CustomField items which match the where clause. """
+  allCustomFields(where: CustomFieldWhereInput, search: String, sortBy: [SortCustomFieldsBy!], orderBy: String, first: Int, skip: Int): [CustomField]
+
+  """ Search for the CustomField item with the matching ID. """
+  CustomField(where: CustomFieldWhereUniqueInput!): CustomField
+
+  """ Perform a meta-query on all CustomField items which match the where clause. 
+  """
+  _allCustomFieldsMeta(where: CustomFieldWhereInput, search: String, sortBy: [SortCustomFieldsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the CustomField list. """
+  _CustomFieldsMeta: _ListMeta
+
+  """ Search for all CustomValueHistoryRecord items which match the where clause. 
+  """
+  allCustomValueHistoryRecords(where: CustomValueHistoryRecordWhereInput, search: String, sortBy: [SortCustomValueHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [CustomValueHistoryRecord]
+
+  """ Search for the CustomValueHistoryRecord item with the matching ID. """
+  CustomValueHistoryRecord(where: CustomValueHistoryRecordWhereUniqueInput!): CustomValueHistoryRecord
+
+  """ Perform a meta-query on all CustomValueHistoryRecord items which match the where clause. 
+  """
+  _allCustomValueHistoryRecordsMeta(where: CustomValueHistoryRecordWhereInput, search: String, sortBy: [SortCustomValueHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the CustomValueHistoryRecord list. """
+  _CustomValueHistoryRecordsMeta: _ListMeta
+
+  """ Search for all CustomValue items which match the where clause. """
+  allCustomValues(where: CustomValueWhereInput, search: String, sortBy: [SortCustomValuesBy!], orderBy: String, first: Int, skip: Int): [CustomValue]
+
+  """ Search for the CustomValue item with the matching ID. """
+  CustomValue(where: CustomValueWhereUniqueInput!): CustomValue
+
+  """ Perform a meta-query on all CustomValue items which match the where clause. 
+  """
+  _allCustomValuesMeta(where: CustomValueWhereInput, search: String, sortBy: [SortCustomValuesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the CustomValue list. """
+  _CustomValuesMeta: _ListMeta
+
   """ Search for all MobileFeatureConfigHistoryRecord items which match the where clause. 
   """
   allMobileFeatureConfigHistoryRecords(where: MobileFeatureConfigHistoryRecordWhereInput, search: String, sortBy: [SortMobileFeatureConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MobileFeatureConfigHistoryRecord]
@@ -94459,6 +95905,78 @@ type Mutation {
 
   """ Delete multiple B2BAccessToken items by ID. """
   deleteB2BAccessTokens(ids: [ID!]): [B2BAccessToken]
+
+  """ Create a single CustomFieldHistoryRecord item. """
+  createCustomFieldHistoryRecord(data: CustomFieldHistoryRecordCreateInput): CustomFieldHistoryRecord
+
+  """ Create multiple CustomFieldHistoryRecord items. """
+  createCustomFieldHistoryRecords(data: [CustomFieldHistoryRecordsCreateInput]): [CustomFieldHistoryRecord]
+
+  """ Update a single CustomFieldHistoryRecord item by ID. """
+  updateCustomFieldHistoryRecord(id: ID!, data: CustomFieldHistoryRecordUpdateInput): CustomFieldHistoryRecord
+
+  """ Update multiple CustomFieldHistoryRecord items by ID. """
+  updateCustomFieldHistoryRecords(data: [CustomFieldHistoryRecordsUpdateInput]): [CustomFieldHistoryRecord]
+
+  """ Delete a single CustomFieldHistoryRecord item by ID. """
+  deleteCustomFieldHistoryRecord(id: ID!): CustomFieldHistoryRecord
+
+  """ Delete multiple CustomFieldHistoryRecord items by ID. """
+  deleteCustomFieldHistoryRecords(ids: [ID!]): [CustomFieldHistoryRecord]
+
+  """ Create a single CustomField item. """
+  createCustomField(data: CustomFieldCreateInput): CustomField
+
+  """ Create multiple CustomField items. """
+  createCustomFields(data: [CustomFieldsCreateInput]): [CustomField]
+
+  """ Update a single CustomField item by ID. """
+  updateCustomField(id: ID!, data: CustomFieldUpdateInput): CustomField
+
+  """ Update multiple CustomField items by ID. """
+  updateCustomFields(data: [CustomFieldsUpdateInput]): [CustomField]
+
+  """ Delete a single CustomField item by ID. """
+  deleteCustomField(id: ID!): CustomField
+
+  """ Delete multiple CustomField items by ID. """
+  deleteCustomFields(ids: [ID!]): [CustomField]
+
+  """ Create a single CustomValueHistoryRecord item. """
+  createCustomValueHistoryRecord(data: CustomValueHistoryRecordCreateInput): CustomValueHistoryRecord
+
+  """ Create multiple CustomValueHistoryRecord items. """
+  createCustomValueHistoryRecords(data: [CustomValueHistoryRecordsCreateInput]): [CustomValueHistoryRecord]
+
+  """ Update a single CustomValueHistoryRecord item by ID. """
+  updateCustomValueHistoryRecord(id: ID!, data: CustomValueHistoryRecordUpdateInput): CustomValueHistoryRecord
+
+  """ Update multiple CustomValueHistoryRecord items by ID. """
+  updateCustomValueHistoryRecords(data: [CustomValueHistoryRecordsUpdateInput]): [CustomValueHistoryRecord]
+
+  """ Delete a single CustomValueHistoryRecord item by ID. """
+  deleteCustomValueHistoryRecord(id: ID!): CustomValueHistoryRecord
+
+  """ Delete multiple CustomValueHistoryRecord items by ID. """
+  deleteCustomValueHistoryRecords(ids: [ID!]): [CustomValueHistoryRecord]
+
+  """ Create a single CustomValue item. """
+  createCustomValue(data: CustomValueCreateInput): CustomValue
+
+  """ Create multiple CustomValue items. """
+  createCustomValues(data: [CustomValuesCreateInput]): [CustomValue]
+
+  """ Update a single CustomValue item by ID. """
+  updateCustomValue(id: ID!, data: CustomValueUpdateInput): CustomValue
+
+  """ Update multiple CustomValue items by ID. """
+  updateCustomValues(data: [CustomValuesUpdateInput]): [CustomValue]
+
+  """ Delete a single CustomValue item by ID. """
+  deleteCustomValue(id: ID!): CustomValue
+
+  """ Delete multiple CustomValue items by ID. """
+  deleteCustomValues(ids: [ID!]): [CustomValue]
 
   """ Create a single MobileFeatureConfigHistoryRecord item. """
   createMobileFeatureConfigHistoryRecord(data: MobileFeatureConfigHistoryRecordCreateInput): MobileFeatureConfigHistoryRecord
