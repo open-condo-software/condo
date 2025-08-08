@@ -152,7 +152,7 @@ class GQLError extends Error {
             if (extensions.messageForUser === extensions.messageForUserTemplateKey) {
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
                 logger.warn({
-                    msg: 'GQLError: it loos like you already hardcode localised message inside messageForUser. ' +
+                    msg: 'GQLError: it looks like you already hardcode localised message inside messageForUser. ' +
                         'Could you please use translation key here!',
                     data: { messageForUser: extensions.messageForUser },
                 })
