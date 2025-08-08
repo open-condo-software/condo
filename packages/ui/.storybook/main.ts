@@ -60,6 +60,8 @@ const config: StorybookConfig = {
 
 export default config
 
-function getAbsolutePath(value: string): any {
+function getAbsolutePath(value: string): string {
+    // Controlled traversal
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     return dirname(require.resolve(join(value, "package.json")));
 }
