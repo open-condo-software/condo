@@ -363,8 +363,6 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     useEffect(() => {
         if (minFloor && floorCount && unitsOnFloor && (canChangeName ? name : true) && maxFloorValue !== undefined) {
-            console.log(maxFloorValue)
-
             sections.forEach(section => {
                 builder.updatePreviewSection({
                     ...section,
