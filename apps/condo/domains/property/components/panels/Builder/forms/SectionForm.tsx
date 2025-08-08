@@ -346,7 +346,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const updateSection = useCallback(() => {
         sections.forEach(section => {
-            builder.removeSection(section.id)
+            builder.restoreSection(section.id)
         })
 
         sections.forEach(section => {
