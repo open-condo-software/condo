@@ -284,12 +284,9 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         }
     }, [section, builder, refresh])
 
-    const firstNotEmptyFloorIndex = section?.floors?.map(floor => floor.units.length)?.findIndex(unitsCount => !!unitsCount) ?? 0
     const sectionIndex = initialSections.findIndex(el => el.index === section.index)
-    console.log(builder.getSectionMaxFloor(sectionIndex))
 
     const sectionMinFloor = section && sectionIndex !== -1 ? builder.getSectionMinFloor(sectionIndex) : 1
-    const sectionMaxFloor = section && sectionIndex !== -1 ? builder.getSectionMaxFloor(sectionIndex) - firstNotEmptyFloorIndex : 1
     const sectionUnitOnFloor = builder.getMaxUnitsPerFloor(section.id) ?? 0
 
     const [name, setName] = useState<string>('')
@@ -298,7 +295,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const toggleRenameNextSections = useCallback((event) => { renameNextSections.current = event.target.checked }, [])
     const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
     const [minFloor, setMinFloor] = useState(sectionMinFloor)
-    const [floorCount, setFloorCount] = useState(sectionMaxFloor)
+    const [floorCount, setFloorCount] = useState(section.floors.length)
     const [unitsOnFloor, setUnitsOnFloor] = useState<number>(sectionUnitOnFloor)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
 
