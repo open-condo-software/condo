@@ -39,7 +39,7 @@ const DefaultDatePicker = generatePicker<Dayjs>(dayjsGenerateConfig)
 const generateDatePickerWithLocale = (Picker: PickerType) => (props) => {
     const { locale } = useContext(ConfigProvider.ConfigContext)
 
-    return <Picker css={PickerStyle} locale={locale.DatePicker} {...props} />
+    return <Picker css={PickerStyle} locale={locale?.DatePicker} {...props} />
 }
 
 const DatePicker = generateDatePickerWithLocale(DefaultDatePicker) as DatePickerType
