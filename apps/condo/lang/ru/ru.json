@@ -3148,7 +3148,7 @@
   "ticket.problem.classifier.AIR_CONDITIONER_INSTALLATION_REPAIR.name": "Установка/ремонт кондиционера",
   "ticket.problem.classifier.APARTMENT_FLOOD_REPORT.name": "Акт о залитии квартиры",
   "ticket.problem.classifier.APARTMENT_INSURANCE.name": "Страхование квартиры",
-  "ticket.problem.classifier.APARTMENT_TEMPERATURE_CHECK_REPORT.name": "Акт проверки температурного режима квартиры",
+  "ticket.problem.classifier.APARTMENT_TEMPERATURE_CHECK_REPORT.name": "Акт проверки температурного режима",
   "ticket.problem.classifier.APPLIANCE_REPAIR.name": "Ремонт бытовой техники",
   "ticket.problem.classifier.APPOINTMENT.name": "Запись на прием",
   "ticket.problem.classifier.CALL_AN_ELECTRICIAN.name": "Вызов электрика",
