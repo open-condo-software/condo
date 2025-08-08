@@ -15,7 +15,6 @@ const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const addressServiceUrl = conf['ADDRESS_SERVICE_URL']
 const mapApiKey = conf['MAP_API_KEY']
-const behaviorRecorder = { 'plerdy': conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
 const canEnableSubscriptions = conf['CAN_ENABLE_SUBSCRIPTIONS'] === 'true'
 const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 // TODO(DOMA-8696): Update next.config in cc, eps, miniapp
@@ -92,7 +91,6 @@ const nextConfig: NextConfig = {
         canEnableSubscriptions,
         hCaptcha: hCaptchaSiteKey,
         disableCaptcha,
-        behaviorRecorder,
         docsConfig,
         yandexMetrikaID,
         googleTagManagerId,
