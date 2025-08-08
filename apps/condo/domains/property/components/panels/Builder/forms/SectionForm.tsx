@@ -318,26 +318,6 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         refresh()
     }, [builder, refresh, sections])
 
-
-    const [isUpdated, setIsUpdated] = useState(false)
-
-    useEffect(() => {
-        if (sections.length > 1) {
-            setIsUpdated(true)
-        }
-    }, [sections, minFloor, floorCount, unitsOnFloor])
-
-    useEffect(() => {
-        const a  = builder.getSelectedSections().length
-
-
-        if (a > 1) {
-            console.log('qqqqqqq')
-            setMinFloor(null)
-            setFloorCount(null)
-            setUnitsOnFloor(null)
-        }
-    }, [builder])
     const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
 
     const setFloorCountValue = useCallback((value) => { setFloorCount(value) }, [])
@@ -366,7 +346,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const updateSection = useCallback(() => {
         sections.forEach(section => {
-            builder.cancelSectionEditing(section.id)
+            builder.removeSection(section.id)
         })
 
         sections.forEach(section => {
