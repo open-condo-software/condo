@@ -940,7 +940,11 @@ class MapEdit extends MapView {
         }
 
         if (lastAddedUnit) {
-            this.updateUnitNumbers(lastAddedUnit, renameNextUnits && !preview ? null : this.sections[sectionIndex].index + 1)
+            const shouldRenameUnits = renameNextUnits && !preview
+            const updatedSectionIndex = this.sections[sectionIndex].index + 1
+            const unitNumberToStartRenaming = shouldRenameUnits ? null : updatedSectionIndex
+
+            this.updateUnitNumbers(lastAddedUnit, unitNumberToStartRenaming)
         }
     }
 
@@ -1109,7 +1113,10 @@ class MapEdit extends MapView {
 
             if (nextUnit && NUMERIC_REGEXP.test(removedUnit.label) && (renameNextUnits || sectionIndex)) {
                 nextUnit.label = removedUnit.label
-                this.updateUnitNumbers(nextUnit, renameNextUnits ? null : this.sections[sectionIndex].index + 1)
+                const updatedSectionIndex = this.sections[sectionIndex].index + 1
+                const unitNumberToStartRenaming = renameNextUnits ? null : updatedSectionIndex
+
+                this.updateUnitNumbers(nextUnit, unitNumberToStartRenaming)
             }
         }
 
