@@ -52,7 +52,7 @@ const FeaturesEmitter = {
     removeFeatureHandler: (handler: IRequestFeatureHandler) => eventEmitter.off(eventName, handler),
 }
 
-export const GlobalAppsFeaturesProvider: React.FC = ({ children }) => {
+export const GlobalAppsFeaturesProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const [features, setFeatures] = useState<IFeaturesType>({})
 
     const registerFeatures: IRegisterFeaturesType = useCallback((newFeatures) => {

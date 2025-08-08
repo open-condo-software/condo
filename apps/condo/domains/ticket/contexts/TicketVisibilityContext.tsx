@@ -7,6 +7,7 @@ import {
 } from '@app/condo/gql'
 import { TicketWhereInput } from '@app/condo/schema'
 import { createContext, useCallback, useContext, useMemo } from 'react'
+import React from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useAuth } from '@open-condo/next/auth'
@@ -197,7 +198,7 @@ const isEmployeeCanReadTicket = ({
     }
 }
 
-const TicketVisibilityContextProvider: React.FC = ({ children }) => {
+const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const { user, isLoading } = useAuth()
     const userId = user?.id || null
 

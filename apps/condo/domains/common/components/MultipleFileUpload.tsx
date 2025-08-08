@@ -247,7 +247,7 @@ interface IMultipleFileUploadProps {
     initialCreateValues: Record<string, unknown>
     Model: Module
     updateFileList: React.Dispatch<{ type: string, payload: DBFile }>
-    UploadButton?: React.FC
+    UploadButton?: React.ReactNode
     uploadProps?: UploadProps
     onFileListChange?: (fileList) => void
 }

@@ -17,7 +17,11 @@ import { Alert, Card, Button, Modal, Radio, RadioGroup, Space, Tooltip, Typograp
 import { colors } from '@open-condo/ui/colors'
 
 import { Button as OldButton } from '@condo/domains/common/components/Button'
-import { BaseModalForm, FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import {
+    BaseModalForm,
+    FormWithAction,
+    IFormWithActionChildren,
+} from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
@@ -992,6 +996,7 @@ type BaseInvoiceFormProps = {
     isAllFieldsDisabled?: boolean
     isContactsFieldsDisabled?: boolean
     formInstance?: FormInstance
+    children: React.ReactNode | IFormWithActionChildren
 }
 
 export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {

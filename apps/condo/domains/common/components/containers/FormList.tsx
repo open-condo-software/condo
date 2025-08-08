@@ -216,7 +216,7 @@ type IFormValuesType = Record<string, string | number | { id: string } | { disco
 
 type IFormWithActionChildrenArgs = {
     handleSave: () => void
-    isLoading: boolean
+    isLoading?: boolean
     form: FormInstance
     handleSubmit?: (values: any) => void
 }

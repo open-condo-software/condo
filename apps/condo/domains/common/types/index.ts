@@ -1,7 +1,7 @@
 import type { AuthenticatedUserQueryResult, GetActiveOrganizationEmployeeQueryResult } from '@app/condo/gql'
 import type { GetPrefetchedData } from '@condo/domains/common/utils/next/types'
 import type { NextPageContext } from 'next'
-import type { FC } from 'react'
+import type { FC, PropsWithChildren } from 'react'
 
 
 /**
@@ -23,7 +23,7 @@ type UserType = AuthenticatedUserQueryResult['data']['authenticatedUser'] | null
 type ActiveEmployeeType = GetActiveOrganizationEmployeeQueryResult['data']['employees'][number] | null
 export type PageComponentType <Props = Record<string, never>> = FC<Props> & {
     isError?: boolean
-    container?: React.FC
+    container?: FC<PropsWithChildren>
     headerAction?: JSX.Element
     requiredAccess?: FC
     skipUserPrefetch?: boolean

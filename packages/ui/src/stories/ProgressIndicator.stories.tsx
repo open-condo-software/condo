@@ -1,8 +1,12 @@
 import React from 'react'
 
-import { ProgressIndicator, ProgressIndicatorProps, ProgressIndicatorStep } from '@open-condo/ui/src'
+import {
+    ProgressIndicator,
+    ProgressIndicatorProps,
+    ProgressIndicatorStep,
+} from '@open-condo/ui/src'
 
-import type { StoryFn, Meta, StoryObj } from '@storybook/react'
+import type { StoryFn, Meta, StoryObj } from '@storybook/react-webpack5'
 
 type MetaProps = {
     firstStep: ProgressIndicatorStep
@@ -40,11 +44,18 @@ export default {
 
 const Template: StoryFn<ProgressIndicatorProps & MetaProps> = (props) => {
     const { firstStep, secondStep, thirdStep, fourthStep, ...rest } = props
-    const steps: ProgressIndicatorProps['steps'] = [firstStep, secondStep, thirdStep, fourthStep]
+    const steps: ProgressIndicatorProps['steps'] = [
+        firstStep,
+        secondStep,
+        thirdStep,
+        fourthStep,
+    ]
 
     return <ProgressIndicator {...rest} steps={steps} />
 }
 
-export const SimpleProgressIndicator: StoryObj<ProgressIndicatorProps & MetaProps> = {
+export const SimpleProgressIndicator: StoryObj<
+ProgressIndicatorProps & MetaProps
+> = {
     render: Template,
 }

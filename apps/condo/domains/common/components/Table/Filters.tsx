@@ -56,7 +56,7 @@ const FILTER_CONTAINER_STYLES: CSSProperties = { padding: 16 }
 
 const handleStopPropagation = (e) => e.stopPropagation()
 
-const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
+const FilterContainer: React.FC<React.PropsWithChildren<IFilterContainerProps>> = (props) => {
     const { showClearButton, clearFilters, children } = props
     const intl = useIntl()
     const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
@@ -89,7 +89,7 @@ const StyledSelectFilterContainer = styled.div`
   width: 300px;
 `
 
-const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) => {
+const SelectFilterContainer: React.FC<React.PropsWithChildren<IFilterContainerProps>> = (props) => {
     const { showClearButton, clearFilters, style, children } = props
     const intl = useIntl()
     const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
@@ -200,7 +200,7 @@ export const getOptionFilterDropdown: GetOptionFilterDropdownType = ({ container
                 <Checkbox.Group
                     {...checkboxGroupProps}
                     style={FILTER_DROPDOWN_CHECKBOX_STYLES}
-                    value={selectedKeys}
+                    value={selectedKeys.map(key => String(key))}
                     onChange={handleChange}
                 />
             </FilterContainer>
@@ -336,7 +336,7 @@ export const getDateRangeFilterDropdown: GetDateRangeFilterDropdownType = ({ Com
         }), [confirm, setSelectedKeys])
 
         if (selectedKeys && selectedKeys.length > 0) {
-            innerPickerProps.value = [dayjs(selectedKeys[0]), dayjs(selectedKeys[1])]
+            innerPickerProps.value = [dayjs(String(selectedKeys[0])), dayjs(String(selectedKeys[1]))]
         }
 
         return (

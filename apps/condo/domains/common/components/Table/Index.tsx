@@ -5,8 +5,6 @@ import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
 import { useRouter } from 'next/router'
-import { GetRowKey } from 'rc-table/lib/interface'
-import { TableProps as RcTableProps } from 'rc-table/lib/Table'
 import React, { useCallback, useMemo } from 'react'
 
 import { ChevronDown, ChevronUp } from '@open-condo/icons'
@@ -36,11 +34,13 @@ interface ITableProps extends TableProps<TableRecord> {
     shouldHidePaginationOnSinglePage?: boolean
 }
 
-type TableScrollConfig = RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean }
+type TableScrollConfig = TableProps<unknown>['scroll'] & { scrollToFirstRowOnChange?: boolean }
 
 export const DEFAULT_PAGE_SIZE = 30
 const TABLE_STYLE = { width: 'auto' }
 export const TABLE_SCROlL_CONFIG: TableScrollConfig = { x: true }
+
+type GetRowKey<RecordType> = (record: RecordType, index?: number) => React.Key
 
 export const Table: React.FC<ITableProps> = ({
     keyPath,

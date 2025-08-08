@@ -33,14 +33,14 @@
     "graphql-tag": "^2.12.6",
     "lodash": "^4.17.21",
     "openid-client": "4.7.4",
-    "react": "^17.0.2",
+    "react": "^18.3.1",
     "react-router-dom": "5.2.0",
     "uuid": "^8.3.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^22",
-    "@types/react": "^17.0.2",
+    "@types/react": "^18.3.1",
     "jest": "^29.7.0",
     "jest-jasmine2": "^29.7.0",
     "typescript": "^5.8.3"

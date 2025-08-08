@@ -14,7 +14,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/components/containers/FormList'
 import {
     GraphQlSearchInputWithCheckAll,
     InputWithCheckAllProps,
@@ -840,6 +840,7 @@ const MarketPricesList = ({ initialPrices }) => {
 type BaseMarketItemFormProps = {
     action: (values: MarketItemFormValuesType) => Promise<MarketItemType>
     initialValues?: MarketItemFormValuesType
+    children: React.ReactNode | IFormWithActionChildren
 }
 
 export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => {
@@ -951,7 +952,9 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
                                     </Row>
                                 </Col>
                                 <Col span={24}>
-                                    {typeof children === 'function' ? children({ handleSave, form }) : children}
+                                    {
+                                        typeof children === 'function' ? children({ handleSave, form }) : children
+                                    }
                                 </Col>
                             </Row>
                         </>

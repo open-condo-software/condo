@@ -2,7 +2,7 @@ import React from 'react'
 
 import { Alert, Button, Space } from '@open-condo/ui/src'
 
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
 export default {
     title: 'Components/Alert',
@@ -14,7 +14,7 @@ export default {
         description: 'Description',
     },
 } as Meta<typeof Alert>
- 
+
 export const SuccessAlert: StoryObj<typeof Alert> = {
     args: {
         type: 'success',
@@ -45,12 +45,8 @@ export const Banner: StoryObj<typeof Alert> = {
         banner: true,
         action: (
             <Space size={16} wrap width='100%'>
-                <Button type='secondary'>
-                    Cancel
-                </Button>
-                <Button type='primary'>
-                    Save
-                </Button>
+                <Button type='secondary'>Cancel</Button>
+                <Button type='primary'>Save</Button>
             </Space>
         ),
     },

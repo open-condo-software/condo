@@ -317,6 +317,7 @@ async function _isNextJSApp (appName) {
     return (await Promise.all([
         exists(`${PROJECT_ROOT}/apps/${appName}/next.config.js`),
         exists(`${PROJECT_ROOT}/apps/${appName}/next.config.mjs`),
+        exists(`${PROJECT_ROOT}/apps/${appName}/next.config.ts`),
     ])).some(Boolean)
 }
 

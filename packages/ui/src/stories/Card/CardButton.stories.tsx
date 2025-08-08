@@ -4,7 +4,7 @@ import { PlusCircle } from '@open-condo/icons'
 import { Card as Component, CardButtonProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
-import type { Meta, StoryFn, StoryObj } from '@storybook/react'
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5'
 
 const CardButton = Component.CardButton
 
@@ -75,23 +75,77 @@ const Template: StoryFn<StoryProps> = (props) => {
     } = props
 
     const headerProps: CardButtonProps['header'] = {
-        tag: headerTag ? { children: 'Tag text', bgColor: colors.teal[1], textColor: colors.teal[5] } : undefined,
-        progressIndicator: headerProgressIndicator ? { steps: ['completed'] } : undefined,
+        tag: headerTag
+            ? {
+                children: 'Tag text',
+                bgColor: colors.teal[1],
+                textColor: colors.teal[5],
+            }
+            : undefined,
+        progressIndicator: headerProgressIndicator
+            ? { steps: ['completed'] }
+            : undefined,
         emoji: headerEmoji ? [{ symbol: '✍️' }, { symbol: '🏠' }] : undefined,
         headingTitle: headerTitle ? 'Resident App' : undefined,
-        mainLink: headerMainLink ? { label: 'Main link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle } : undefined,
-        secondLink: headerSecondLink ? { label: 'Second link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle } : undefined,
-        image: headerImage ? { src: 'https://i.imgur.com/ambPuQF.png', size: 'big' } : undefined,
+        mainLink: headerMainLink
+            ? {
+                label: 'Main link',
+                href: '#',
+                AfterIcon: PlusCircle,
+                PreIcon: PlusCircle,
+            }
+            : undefined,
+        secondLink: headerSecondLink
+            ? {
+                label: 'Second link',
+                href: '#',
+                AfterIcon: PlusCircle,
+                PreIcon: PlusCircle,
+            }
+            : undefined,
+        image: headerImage
+            ? { src: 'https://i.imgur.com/ambPuQF.png', size: 'big' }
+            : undefined,
     }
 
     const bodyProps: CardButtonProps['body'] = {
         bodyTitle: bodyTitle ? 'Resident App' : undefined,
-        description: bodyDescription ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' : undefined,
-        image: bodyImage ? { src: 'https://i.imgur.com/ambPuQF.png', style: { width: '120px', height: '150px', borderRadius: '10px', marginTop: '10px' } } : undefined,
-        caption: bodyCaption ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' : undefined,
-        mainLink: bodyMainLink ? { label: 'Main link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle } : undefined,
-        secondLink: bodySecondLink ? { label: 'Second link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle } : undefined,
-        button: bodyButton ? { children: 'Body button', type: 'secondary' } : undefined,
+        description: bodyDescription
+            ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+            : undefined,
+        image: bodyImage
+            ? {
+                src: 'https://i.imgur.com/ambPuQF.png',
+                style: {
+                    width: '120px',
+                    height: '150px',
+                    borderRadius: '10px',
+                    marginTop: '10px',
+                },
+            }
+            : undefined,
+        caption: bodyCaption
+            ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+            : undefined,
+        mainLink: bodyMainLink
+            ? {
+                label: 'Main link',
+                href: '#',
+                AfterIcon: PlusCircle,
+                PreIcon: PlusCircle,
+            }
+            : undefined,
+        secondLink: bodySecondLink
+            ? {
+                label: 'Second link',
+                href: '#',
+                AfterIcon: PlusCircle,
+                PreIcon: PlusCircle,
+            }
+            : undefined,
+        button: bodyButton
+            ? { children: 'Body button', type: 'secondary' }
+            : undefined,
     }
 
     return (

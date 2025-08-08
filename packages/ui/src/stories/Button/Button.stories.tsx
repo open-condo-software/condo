@@ -3,13 +3,16 @@ import React from 'react'
 import * as condoIcons from '@open-condo/icons'
 import { Button } from '@open-condo/ui/src'
 
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
-const icons = Object.assign({}, ...Object.entries(condoIcons).map(([key, Icon]) => ({
-    [`${key}-small`]: <Icon size='small'/>,
-    [`${key}-medium`]: <Icon size='medium'/>,
-    [`${key}-large`]: <Icon size='large'/>,
-})))
+const icons = Object.assign(
+    {},
+    ...Object.entries(condoIcons).map(([key, Icon]) => ({
+        [`${key}-small`]: <Icon size='small' />,
+        [`${key}-medium`]: <Icon size='medium' />,
+        [`${key}-large`]: <Icon size='large' />,
+    })),
+)
 
 export default {
     title: 'Components/Button',
@@ -61,7 +64,6 @@ export const Secondary: StoryObj<typeof Button> = {
         type: 'secondary',
     },
 }
-
 
 export const Accent: StoryObj<typeof Button> = {
     args: {

@@ -1,6 +1,6 @@
 import { Input } from '@open-condo/ui/src'
 
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
 const Component = Input.Phone
 

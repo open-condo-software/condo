@@ -28,7 +28,7 @@ export const RegisterContext = createContext<IRegisterContext>({
 
 export const useRegisterContext = (): IRegisterContext => useContext(RegisterContext)
 
-export const RegisterContextProvider: React.FC = ({ children }) => {
+export const RegisterContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const { executeCaptcha } = useHCaptcha()
 
     const { query: { token: tokenFromQuery } } = useRouter()

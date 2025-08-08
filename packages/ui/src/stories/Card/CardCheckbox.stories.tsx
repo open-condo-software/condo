@@ -3,7 +3,7 @@ import React, { ComponentProps } from 'react'
 import { PlusCircle } from '@open-condo/icons'
 import { Card as Component, CardCheckboxProps } from '@open-condo/ui/src'
 
-import type { Meta, StoryFn, StoryObj } from '@storybook/react'
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5'
 
 const CardCheckbox = Component.CardCheckbox
 
@@ -63,20 +63,54 @@ const Template: StoryFn<StoryProps> = (props) => {
     } = props
 
     const headerProps: CardCheckboxProps['header'] = {
-        progressIndicator: headerProgressIndicator ? { steps: ['completed'] } : undefined,
+        progressIndicator: headerProgressIndicator
+            ? { steps: ['completed'] }
+            : undefined,
         emoji: headerEmoji ? [{ symbol: '✍️' }, { symbol: '🏠' }] : undefined,
         headingTitle: headerTitle ? 'Resident App' : undefined,
-        image: headerImage ? { src: 'https://i.imgur.com/ambPuQF.png', size: 'big' } : undefined,
+        image: headerImage
+            ? { src: 'https://i.imgur.com/ambPuQF.png', size: 'big' }
+            : undefined,
     }
 
     const bodyProps: CardCheckboxProps['body'] = {
         bodyTitle: bodyTitle ? 'Resident App' : undefined,
-        description: bodyDescription ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' : undefined,
-        image: bodyImage ? { src: 'https://i.imgur.com/ambPuQF.png', style: { width: '120px', height: '150px', borderRadius: '10px', marginTop: '10px' } } : undefined,
-        caption: bodyCaption ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' : undefined,
-        mainLink: bodyMainLink ? { label: 'Main link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle } : undefined,
-        secondLink: bodySecondLink ? { label: 'Second link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle } : undefined,
-        button: bodyButton ? { children: 'Body button', type: 'secondary' } : undefined,
+        description: bodyDescription
+            ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+            : undefined,
+        image: bodyImage
+            ? {
+                src: 'https://i.imgur.com/ambPuQF.png',
+                style: {
+                    width: '120px',
+                    height: '150px',
+                    borderRadius: '10px',
+                    marginTop: '10px',
+                },
+            }
+            : undefined,
+        caption: bodyCaption
+            ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+            : undefined,
+        mainLink: bodyMainLink
+            ? {
+                label: 'Main link',
+                href: '#',
+                AfterIcon: PlusCircle,
+                PreIcon: PlusCircle,
+            }
+            : undefined,
+        secondLink: bodySecondLink
+            ? {
+                label: 'Second link',
+                href: '#',
+                AfterIcon: PlusCircle,
+                PreIcon: PlusCircle,
+            }
+            : undefined,
+        button: bodyButton
+            ? { children: 'Body button', type: 'secondary' }
+            : undefined,
     }
 
     return (

@@ -21,7 +21,7 @@ const getColSpan = (breakpoints: ScreenMap) => {
 const CONTAINER_GUTTER: Gutter | [Gutter, Gutter] = [40, 40]
 
 // todo Use it in miniapps too
-export const CardsContainer: React.FC<CardsContainerProps> = ({ cardsPerRow = 3, autosize = false, children }) => {
+export const CardsContainer: React.FC<React.PropsWithChildren<CardsContainerProps>> = ({ cardsPerRow = 3, autosize = false, children }) => {
     const [colSpan, setColSpan] = useState<number>(24 / cardsPerRow)
     const { breakpoints } = useLayoutContext()
 

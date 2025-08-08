@@ -178,7 +178,7 @@ export const CreateTicketForm: React.FC = () => {
     })
     const [getPublishTicketInvoices] = useGetPublishTicketInvoicesLazyQuery()
 
-    const getCompletedNotification = useCallback(({ ticketId, ticketNumber, paymentUrl }) => ({
+    const getCompletedNotification = useCallback(({ ticketId, ticketNumber, paymentUrl }: { ticketId?: string, ticketNumber?: number, paymentUrl?: string }) => ({
         message: (
             <Typography.Text strong>
                 {intl.formatMessage({ id: 'pages.condo.ticket.notification.success.message' }, { number: ticketNumber })}

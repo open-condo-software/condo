@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react'
+import React, { createContext, useContext } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 
@@ -18,7 +18,7 @@ const AutoRefetchTicketsContext = createContext<IAutoRefetchTicketsContext>({
 
 const useAutoRefetchTickets = (): IAutoRefetchTicketsContext => useContext(AutoRefetchTicketsContext)
 
-const AutoRefetchTicketsContextProvider = ({ children = {} }) => {
+const AutoRefetchTicketsContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const { useFlag } = useFeatureFlags()
 
     const isRefetchTicketsFeatureEnabled = useFlag(RE_FETCH_TICKETS_IN_CONTROL_ROOM)

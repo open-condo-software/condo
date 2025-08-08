@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 import { Steps as Component, Button, Space } from '@open-condo/ui/src'
 
-import type { StoryFn, Meta, StoryObj } from '@storybook/react'
+import type { StoryFn, Meta, StoryObj } from '@storybook/react-webpack5'
 
 export default {
     title: 'Components/Steps',
@@ -19,10 +19,20 @@ const Template: StoryFn<typeof Component> = (args) => {
 
     return (
         <>
-            <Component items={items} current={current} {...restProps} onChange={setCurrent} />
+            <Component
+                items={items}
+                current={current}
+                {...restProps}
+                onChange={setCurrent}
+            />
             <div style={{ marginTop: 40 }} className='content'>
                 <Space size={12} direction='horizontal'>
-                    <Button type='secondary' danger children='Reset' onClick={() => setCurrent(0)} />
+                    <Button
+                        type='secondary'
+                        danger
+                        children='Reset'
+                        onClick={() => setCurrent(0)}
+                    />
                     <Button
                         type='primary'
                         children='Next step!'
@@ -67,7 +77,10 @@ export const Many: StoryObj<typeof Component> = {
             { title: 'Second step' },
             { title: 'BREAKPOINT NO RETURN', breakPoint: true },
             { title: 'Fourth step' },
-            { title: 'Fifth step with extra text so it can take up to 3 lines of text. Damn, that\'s a lot' },
+            {
+                title:
+          'Fifth step with extra text so it can take up to 3 lines of text. Damn, that\'s a lot',
+            },
             { title: 'Another breakpoint', breakPoint: true },
             { title: 'Seven is lucky one' },
             { title: 'Final step' },

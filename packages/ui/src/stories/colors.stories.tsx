@@ -1,23 +1,28 @@
-import { styled } from '@storybook/theming'
 import { identity } from 'lodash'
 import get from 'lodash/get'
 import React from 'react'
+import { styled } from 'storybook/theming'
 
 import { Space, Typography, Card } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 import tokens from '@open-condo/ui/src/tokens/tokens.json'
 
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
 type SwatchColors = { [key: string]: string }
-type SwatchColorsWithDescription = { [key: string]: { value: string, description?: string } }
+type SwatchColorsWithDescription = {
+    [key: string]: { value: string, description?: string }
+}
 type Swatch = {
     title: string
     colors: SwatchColors
 }
 type SwatchWithDescription = Swatch & { colors: SwatchColorsWithDescription }
 
-const extractSwatches = (colorSet: unknown, prefix: Array<string> = []): Array<Swatch> => {
+const extractSwatches = (
+    colorSet: unknown,
+    prefix: Array<string> = [],
+): Array<Swatch> => {
     const result: Array<Swatch> = []
     const colors: SwatchColors = {}
     const queue: Array<{ key: string, set: unknown }> = []
@@ -27,9 +32,7 @@ const extractSwatches = (colorSet: unknown, prefix: Array<string> = []): Array<S
             const subSet = get(colorSet, key)
             if (typeof subSet === 'object' && subSet !== null) {
                 queue.push({ key, set: subSet })
-            } else if (typeof subSet === 'string' && subSet) (
-                colors[key] = subSet
-            )
+            } else if (typeof subSet === 'string' && subSet) colors[key] = subSet
         }
     }
 
@@ -47,15 +50,26 @@ const extractSwatches = (colorSet: unknown, prefix: Array<string> = []): Array<S
 const expandSwatch = (swatch: Swatch): SwatchWithDescription => {
     return {
         title: ['colors', swatch.title].filter(identity).join('.'),
-        colors: Object.assign({}, ...Object.keys(swatch.colors).map(key => {
-            const description = get(tokens, ['global', 'color', swatch.title, key, 'description'])
-            const colorValue: SwatchColorsWithDescription = { [key]: { value: swatch.colors[key] } }
-            if (description) {
-                colorValue[key].description = description
-            }
+        colors: Object.assign(
+            {},
+            ...Object.keys(swatch.colors).map((key) => {
+                const description = get(tokens, [
+                    'global',
+                    'color',
+                    swatch.title,
+                    key,
+                    'description',
+                ])
+                const colorValue: SwatchColorsWithDescription = {
+                    [key]: { value: swatch.colors[key] },
+                }
+                if (description) {
+                    colorValue[key].description = description
+                }
 
-            return colorValue
-        })),
+                return colorValue
+            }),
+        ),
     }
 }
 
@@ -73,7 +87,7 @@ const ColorBox = styled.div`
 const ColorItem: React.FC<ColorItemProps> = ({ name, value, description }) => {
     return (
         <Card
-            title={<ColorBox style={{ background: value }}/>}
+            title={<ColorBox style={{ background: value }} />}
             titlePadding={0}
             bodyPadding={12}
         >
@@ -106,10 +120,10 @@ const StyledSwatch = styled.div`
     grid-template-columns: repeat(4, 1fr);
     column-gap: 24px;
     row-gap: 40px;
-    @media(max-width: 700px) {
+    @media (max-width: 700px) {
       grid-template-columns: repeat(3, 1fr);
     }
-    @media(max-width: 480px) {
+    @media (max-width: 480px) {
       grid-template-columns: repeat(2, 1fr);
     }
   }
@@ -137,7 +151,7 @@ const ColorPalette: React.FC = () => {
 
     return (
         <>
-            {swatches.map(swatch => (
+            {swatches.map((swatch) => (
                 <ColorSwatch
                     title={swatch.title}
                     colors={swatch.colors}
