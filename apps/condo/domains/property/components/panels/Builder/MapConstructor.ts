@@ -285,11 +285,23 @@ class MapView extends Map {
     // view or hide sections
     public visibleSections: string | null = null
 
+    public getMaxUnitsPerFloor (sectionId: string): number {
+        const section = this.sections.find(s => s.id === sectionId)
+        if (!section) return 0
+
+        return section.floors.reduce((max, floor) => {
+            return Math.max(max, floor.units.length)
+        }, 0)
+    }
+
     public getSectionMaxFloor (sectionIdx: number): number {
+        console.log('getSectionMaxFloor', this.sections[sectionIdx].floors)
         return Math.max(...this.sections[sectionIdx].floors.map(floor => floor.index))
     }
 
     public getSectionMinFloor (sectionIdx: number): number {
+        console.log('getSectionMinFloor', this.sections[sectionIdx].floors)
+
         return Math.min(...this.sections[sectionIdx].floors.map(floor => floor.index))
     }
 
@@ -479,6 +491,7 @@ class MapEdit extends MapView {
     private selectedFloorSectionIndex: number | null = null
     private sectionFloorMap: Record<number, number> = {}
     private selectedUnits: BuildingUnit[] = []
+    private sectionBackups: Record<string, BuildingSection> = {}
     private mode = null
 
     constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
@@ -550,6 +563,7 @@ class MapEdit extends MapView {
             default:
                 this.selectedSections = []
                 this.selectedUnits = []
+                this.cancelSectionsEditing()
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.removePreviewSectionFloor()
@@ -594,11 +608,13 @@ class MapEdit extends MapView {
     public setSelectedSection (section: BuildingSection): void {
         const newSelectedSections = [...this.selectedSections]
 
+        const existingSection = newSelectedSections.find(s => s.id === section.id)
         const existingIndex = newSelectedSections.findIndex(s => s.id === section.id)
 
         if (existingIndex === -1) {
             newSelectedSections.push(section)
         } else {
+            this.cancelSectionEditing(existingSection.id)
             newSelectedSections.splice(existingIndex, 1)
         }
 
@@ -790,56 +806,77 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public removeUpdatePreviewSection (sectionId: string, renameNextUnits = true): void {
-        const sectionIndex = this.sections.findIndex(s => sectionId === s.id)
+    public startEditingSection (sectionId: string): void {
+        if (this.sectionBackups[sectionId]) return
+
+        const section = this.sections.find(s => s.id === sectionId)
+        if (!section) return
+
+        this.sectionBackups[sectionId] = cloneDeep(section)
+    }
+
+    public updatePreviewSection (sectionUpdate: Partial<BuildingSectionArg>  ): void {
+        const sectionId = sectionUpdate.id
+        if (!sectionId) return
+
+        if (!this.sectionBackups[sectionId]) {
+            this.startEditingSection(sectionId)
+        }
+
+        const sectionIndex = this.sections.findIndex(s => s.id === sectionId)
         if (sectionIndex === -1) return
 
         const section = this.sections[sectionIndex]
 
-        section.floors.forEach(floor =>
-            floor.units.forEach(unit=> {
-                if (unit.preview) unit.preview = false
-            })
-        )
-
-        section.floors = section.floors.filter(floor => floor.units.length > 0)
-
-        if (section.floors.length === 0) {
-            this.sections.splice(sectionIndex, 1)
-        }
-
-        this.notifyUpdater()
-    }
-
-    public updatePreviewSection (sectionUpdate: Partial<BuildingSectionArg>, renameNextUnits = true): void {
-        // Find the section to update
-        const sectionIndex = this.sections.findIndex(s => sectionUpdate.id === s.id)
-        if (sectionIndex === -1) return
-
-        // Update section name if provided
         if (sectionUpdate.name) {
-            this.sections[sectionIndex].name = sectionUpdate.name
+            section.name = sectionUpdate.name
         }
 
-        // Handle units per floor changes
         if (sectionUpdate.unitsOnFloor !== undefined) {
-            this.updateUnitsPerFloor(sectionIndex, sectionUpdate.unitsOnFloor, renameNextUnits, true)
+            this.updateUnitsPerFloor(sectionIndex, sectionUpdate.unitsOnFloor, false, true)
         }
 
-        // Handle floor range changes (min/max floors)
         if (sectionUpdate.minFloor !== undefined || sectionUpdate.maxFloor !== undefined) {
             this.updateFloorRange(
                 sectionIndex,
                 sectionUpdate.minFloor,
                 sectionUpdate.maxFloor,
                 sectionUpdate.unitsOnFloor,
-                renameNextUnits,
-                true,
+                false,
+                true
             )
         }
 
         this.notifyUpdater()
     }
+
+    public cancelSectionEditing (sectionId: string): void {
+        if (!this.sectionBackups[sectionId]) return
+
+        const sectionIndex = this.sections.findIndex(s => s.id === sectionId)
+        if (sectionIndex === -1) return
+
+        this.sections[sectionIndex] = cloneDeep(this.sectionBackups[sectionId])
+
+        delete this.sectionBackups[sectionId]
+
+        this.notifyUpdater()
+    }
+
+    public cancelSectionsEditing (): void {
+        Object.keys(this.sectionBackups).forEach(sectionId => {
+            const backup = this.sectionBackups[sectionId]
+            const sectionIndex = this.sections.findIndex(s => s.id === sectionId)
+
+            if (sectionIndex >= 0) {
+                this.sections[sectionIndex] = cloneDeep(backup)
+            }
+        })
+
+        this.sectionBackups = {}
+        this.notifyUpdater()
+    }
+
     public updateSection (sectionUpdate: Partial<BuildingSectionArg>, renameNextUnits = true, renameNextSections = true): void {
         // Find the section to update
         const sectionIndex = this.sections.findIndex(s => sectionUpdate.id === s.id)
@@ -879,7 +916,7 @@ class MapEdit extends MapView {
             if (unitDifference > 0) {
                 this.addUnitsToFloor(floor, unitDifference, sectionIndex, renameNextUnits, preview)
             } else if (unitDifference < 0) {
-                this.removeUnitsFromFloor(floor, Math.abs(unitDifference), sectionIndex + 1, renameNextUnits)
+                this.removeUnitsFromFloor(floor, Math.abs(unitDifference), sectionIndex, renameNextUnits)
             }
         })
     }
@@ -901,7 +938,7 @@ class MapEdit extends MapView {
         }
 
         if (lastAddedUnit) {
-            this.updateUnitNumbers(lastAddedUnit, renameNextUnits ? null : sectionIndex + 1)
+            this.updateUnitNumbers(lastAddedUnit, renameNextUnits && !preview ? null : this.sections[sectionIndex].index + 1)
         }
     }
 
@@ -923,7 +960,6 @@ class MapEdit extends MapView {
         preview?: boolean
     ): void {
         const section = this.sections[sectionIndex]
-
         // Handle min floor adjustment
         const currentMinFloor = this.getSectionMinFloor(sectionIndex)
         const floorShift = newMinFloor - currentMinFloor
@@ -931,13 +967,14 @@ class MapEdit extends MapView {
         if (floorShift !== 0) {
             section.floors.forEach(floor => floor.index += floorShift)
         }
-
         // Handle max floor adjustment
         const currentMaxFloor = this.getSectionMaxFloor(sectionIndex)
-        const floorDifference = newMaxFloor - currentMaxFloor
+        const currentFloorCount = this.sections[sectionIndex].floors.length
+
+        const floorDifference = newMaxFloor - currentFloorCount + (newMinFloor < 0 ? -newMinFloor : 0)
 
         if (floorDifference > 0) {
-            this.addFloorsToSection(sectionIndex, currentMaxFloor, newMaxFloor, unitsPerFloor, renameNextUnits, preview)
+            this.addFloorsToSection(sectionIndex, currentMaxFloor, (newMinFloor < 0 ? newMaxFloor - 1  : newMaxFloor), unitsPerFloor, renameNextUnits, preview)
         } else if (floorDifference < 0) {
             this.removeFloorsFromSection(sectionIndex, Math.abs(floorDifference), renameNextUnits)
         }
@@ -952,7 +989,6 @@ class MapEdit extends MapView {
         preview?: boolean
     ): void {
         for (let floorIndex = currentMaxFloor; floorIndex < newMaxFloor; floorIndex++) {
-            if (floorIndex === 0) continue
 
             const maxFloor = this.sections[sectionIndex].floors.find(f => floorIndex === f.index)
             const maxUnit = maxFloor ? Math.max(...maxFloor.units.map(unit => Number(unit.label))) : 0
@@ -1067,7 +1103,7 @@ class MapEdit extends MapView {
 
             if (nextUnit && NUMERIC_REGEXP.test(removedUnit.label) && (renameNextUnits || sectionIndex)) {
                 nextUnit.label = removedUnit.label
-                this.updateUnitNumbers(nextUnit, renameNextUnits ? null : sectionIndex + 1)
+                this.updateUnitNumbers(nextUnit, renameNextUnits ? null : this.sections[sectionIndex].index + 1)
             }
         }
 
