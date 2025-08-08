@@ -247,7 +247,7 @@ class AbstractMetersImporter {
                             const internalMessage = get(mutationError, ['extensions', 'message'])
                             const messageForUser = get(mutationError, ['extensions', 'messageForUser'])
 
-                            const originalError = get(mutationError, ['originalError', 'errors', 0, 'originalError', 'errors', 0])
+                            const originalError = get(mutationError, ['originalError', 'errors', 0])
                             const originalMessage = get(originalError, ['message'])
                             const originalInternalMessage = get(originalError, ['extensions', 'message'])
                             const originalMessageForUser = get(originalError, ['extensions', 'messageForUser'])
