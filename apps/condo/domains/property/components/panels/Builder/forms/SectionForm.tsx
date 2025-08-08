@@ -19,6 +19,7 @@ import {
     MODAL_FORM_EDIT_GUTTER,
     MODAL_FORM_ROW_GUTTER,
 } from './BaseUnitForm'
+import { RenameNextUnitsCheckbox } from './RenameNextUnitsCheckbox'
 
 import { MapViewMode } from '../MapConstructor'
 
@@ -264,7 +265,6 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const RenameNextSectionsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextSections' })
     const RenameNextParkingsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParking' })
-    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
     const FloorCountLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.floorCount' })
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
@@ -276,6 +276,13 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const section = sections?.[0]
     const canChangeName = sections.length < 2
 
+    const SelectUnitsMessage = builder.viewMode === MapViewMode.parking ?
+        intl.formatMessage({ id: 'pages.condo.property.modal.SelectParkingUnitsLabel' }, {
+            count: sections.length,
+        }) :
+        intl.formatMessage({ id: 'pages.condo.property.modal.SelectUnitsLabel' }, {
+            count: sections.length,
+        })
 
     useEffect(() => {
         if (!section) {
@@ -284,19 +291,18 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         }
     }, [section, builder, refresh])
 
-    const sectionIndex = section ? initialSections.findIndex(el => el.index === section.index) : -1
+    const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
 
     const sectionMinFloor = section && sectionIndex !== -1 ? builder.getSectionMinFloor(sectionIndex) : 1
-    const sectionUnitOnFloor = section ? builder.getMaxUnitsPerFloor(section.id) : 0
+    const sectionMaxUnitsPerFloor = section ? builder.getMaxUnitsPerFloor(section.id) : 0
 
     const [name, setName] = useState<string>('')
     const renameNextSections = useRef(false)
     const renameNextUnits = useRef(false)
     const toggleRenameNextSections = useCallback((event) => { renameNextSections.current = event.target.checked }, [])
-    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
     const [minFloor, setMinFloor] = useState(sectionMinFloor)
     const [floorCount, setFloorCount] = useState(section ? section.floors.length : 0)
-    const [unitsOnFloor, setUnitsOnFloor] = useState<number>(sectionUnitOnFloor)
+    const [unitsOnFloor, setUnitsOnFloor] = useState<number>(sectionMaxUnitsPerFloor)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
 
     useEffect(() => {
@@ -394,6 +400,10 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </Col>}
 
                     <Col span={24}>
+                        <Typography.Text>{SelectUnitsMessage}</Typography.Text>
+                    </Col>
+
+                    <Col span={24}>
                         <Space direction='vertical' size={8} width='100%'>
                             <Typography.Text type='secondary' size='medium'>{FloorCountLabel}</Typography.Text>
                             <InputNumber
@@ -459,9 +469,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </Col>
 
                     <Col span={24}>
-                        <Checkbox onChange={toggleRenameNextUnits}>
-                            {RenameNextUnitsLabel}
-                        </Checkbox>
+                        <RenameNextUnitsCheckbox renameNextUnitsRef={renameNextUnits} mapViewMode={builder.viewMode}/>
                     </Col>
 
                     <Col span={24}>
