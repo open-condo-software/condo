@@ -515,7 +515,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         const newParameters = getFiltersQueryData(filtersValue)
         await updateQuery(router, { newParameters: { ...newParameters, ...extraQueryParameters } }, { routerAction: 'replace', shallow: true })
         setIsMultipleFiltersModalVisible(false)
-    }, [searchFilter, onSubmit, router, setIsMultipleFiltersModalVisible])
+    }, [searchFilter, onSubmit, router, extraQueryParameters, setIsMultipleFiltersModalVisible])
 
     const ExistingFiltersTemplateNameInputRules = useMemo(
         () => [{ required: true, message: FieldRequiredMessage, whitespace: true }], [FieldRequiredMessage])
