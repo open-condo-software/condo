@@ -905,6 +905,7 @@ class MapEdit extends MapView {
             )
         }
 
+        this.cancelSectionsEditing()
         this.editMode = null
         this.notifyUpdater()
     }
