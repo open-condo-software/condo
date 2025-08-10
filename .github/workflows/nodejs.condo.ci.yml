@@ -284,7 +284,9 @@ jobs:
     if: ${{ needs.detect-changes.outputs.open-condo == 'true' }}
     strategy:
       matrix:
-        os: [ ubuntu-22.04, windows-latest ]
+#        TODO: Fix windows "too many files open" runner issue
+#        os: [ ubuntu-22.04, windows-latest ]
+        os: [ ubuntu-22.04 ]
         node-version: [ 22.x ]
         python-version: [ 3.13 ]
     runs-on: ${{ matrix.os }}

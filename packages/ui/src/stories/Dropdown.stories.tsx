@@ -3,11 +3,12 @@ import React from 'react'
 import { Play } from '@open-condo/icons'
 import { Dropdown, Space, Typography } from '@open-condo/ui/src'
 
-import type { Meta, StoryObj, StoryFn } from '@storybook/react'
+import type { Meta, StoryObj, StoryFn } from '@storybook/react-webpack5'
 
-const LOREM_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus aliquid amet dolores eligendi' +
-    ' est ex, facilis, iure magnam molestias neque, possimus praesentium quidem repellat saepe similique vero vitae' +
-    ' voluptatem voluptates?'
+const LOREM_TEXT =
+  'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus aliquid amet dolores eligendi' +
+  ' est ex, facilis, iure magnam molestias neque, possimus praesentium quidem repellat saepe similique vero vitae' +
+  ' voluptatem voluptates?'
 
 export default {
     title: 'Components/Dropdown',
@@ -212,7 +213,9 @@ export const Controlled: StoryObj<typeof Dropdown> = {
                 { label: 'second', key: '2' },
             ],
         },
-        children: <div style={{ height: 50, width: 200, backgroundColor: 'red' }} />,
+        children: (
+            <div style={{ height: 50, width: 200, backgroundColor: 'red' }} />
+        ),
         open: true,
     },
 }

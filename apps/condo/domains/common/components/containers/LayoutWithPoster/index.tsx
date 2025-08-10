@@ -30,7 +30,7 @@ export type PosterProps = {
     Footer: JSX.Element
 }
 
-export const LayoutWithPoster: React.FC<LayoutWithPosterProps> = ({ children, headerAction, Poster }) => {
+export const LayoutWithPoster: React.FC<React.PropsWithChildren<LayoutWithPosterProps>> = ({ children, headerAction, Poster }) => {
     const router = useRouter()
     const { isAuthenticated } = useAuth()
     const breakpoints = useBreakpoints()

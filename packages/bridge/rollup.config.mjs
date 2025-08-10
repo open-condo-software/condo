@@ -1,12 +1,12 @@
 import { createRequire } from 'node:module'
 
+import terser from '@rollup/plugin-terser'
 import typescript from '@rollup/plugin-typescript'
 import babel from 'rollup-plugin-babel'
 import bundleSize from 'rollup-plugin-bundle-size'
 import commonjs from 'rollup-plugin-commonjs'
 import json from 'rollup-plugin-json'
 import nodeResolve from 'rollup-plugin-node-resolve'
-import { uglify } from 'rollup-plugin-uglify'
 
 const require = createRequire(import.meta.url)
 
@@ -40,7 +40,7 @@ const getPluginsPipeLine = (tsDeclarations = false) => [
 ]
 
 const cjs = {
-    plugins: IS_PRODUCTION ? [...getPluginsPipeLine(true), uglify()] : getPluginsPipeLine(true),
+    plugins: IS_PRODUCTION ? [...getPluginsPipeLine(true), terser()] : getPluginsPipeLine(true),
     input: ENTRY_MODULE_PATH,
     output: {
         sourcemap: true,
@@ -61,7 +61,7 @@ const esm = {
 }
 
 const umd = {
-    plugins: IS_PRODUCTION ? [...getPluginsPipeLine(), uglify()] : getPluginsPipeLine(true),
+    plugins: IS_PRODUCTION ? [...getPluginsPipeLine(), terser()] : getPluginsPipeLine(true),
     input: ENTRY_MODULE_PATH,
     output: {
         sourcemap: true,
@@ -73,7 +73,7 @@ const umd = {
 }
 
 const browser = {
-    plugins: [...getPluginsPipeLine(), uglify()],
+    plugins: [...getPluginsPipeLine(), terser()],
     input: ENTRY_BROWSER_PATH,
     output: {
         sourcemap: true,

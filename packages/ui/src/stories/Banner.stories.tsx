@@ -1,7 +1,7 @@
 import { Banner as Component } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
 export default {
     title: 'Components/Banner',
@@ -35,7 +35,8 @@ export const Gradient: StoryObj<typeof Component> = {
     args: {
         backgroundColor: colors.brandGradient['1'],
         title: 'Some long description that takes 2 rows of texts',
-        subtitle: 'Text can also takes up to 2 rows, containing 40 symbols each, so use it wisely',
+        subtitle:
+      'Text can also takes up to 2 rows, containing 40 symbols each, so use it wisely',
         imgUrl: 'https://i.imgur.com/1iOC5BE.png',
         invertText: false,
         actionText: 'Click me button',
@@ -46,7 +47,8 @@ export const NoAction: StoryObj<typeof Component> = {
     args: {
         backgroundColor: '#d3e3ff',
         title: 'Banner can exist without an action button',
-        subtitle: 'Text can also takes up to 2 rows, containing 40 symbols each, so use it wisely',
+        subtitle:
+      'Text can also takes up to 2 rows, containing 40 symbols each, so use it wisely',
         imgUrl: 'https://i.imgur.com/ambPuQF.png',
         invertText: false,
     },
@@ -56,7 +58,8 @@ export const Compact: StoryObj<typeof Component> = {
     args: {
         backgroundColor: '#d3e3ff',
         title: 'Banner can exist without an action button',
-        subtitle: 'Text can also takes up to 2 rows, containing 40 symbols each, so use it wisely',
+        subtitle:
+      'Text can also takes up to 2 rows, containing 40 symbols each, so use it wisely',
         imgUrl: 'https://i.imgur.com/ambPuQF.png',
         invertText: false,
         actionText: 'Click me link',

@@ -3,7 +3,7 @@ import React from 'react'
 import { ArrowLeft } from '@open-condo/icons'
 import { Space, Typography } from '@open-condo/ui/src'
 
-import type { StoryFn, Meta, StoryObj } from '@storybook/react'
+import type { StoryFn, Meta, StoryObj } from '@storybook/react-webpack5'
 
 export default {
     title: 'Components/Typography',

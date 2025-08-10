@@ -1,12 +1,12 @@
-import { styled } from '@storybook/theming'
 import get from 'lodash/get'
 import React from 'react'
+import { styled } from 'storybook/theming'
 
 import { Typography } from '@open-condo/ui/src'
 import type { TypographyParagraphProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
-import type { StoryFn, Meta, StoryObj } from '@storybook/react'
+import type { StoryFn, Meta, StoryObj } from '@storybook/react-webpack5'
 
 const AVAILABLE_TYPES: Array<TypographyParagraphProps['type']> = [
     'primary',
@@ -57,7 +57,8 @@ export default {
 
 const Template: StoryFn<typeof Typography.Paragraph> = (args) => {
     const amount = get(args, 'amount')
-    const Wrapper = args.type === 'inverted' ? InvertedBackground : React.Fragment
+    const Wrapper =
+    args.type === 'inverted' ? InvertedBackground : React.Fragment
 
     return (
         <>

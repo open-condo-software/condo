@@ -52,7 +52,7 @@ type FeatureFlagsProviderWrapperProps = {
     initFeatures?: FeatureDefinitions
 }
 
-const FeatureFlagsProviderWrapper: React.FC<FeatureFlagsProviderWrapperProps> = ({ children, initFeatures = null }) => {
+const FeatureFlagsProviderWrapper: React.FC<React.PropsWithChildren<FeatureFlagsProviderWrapperProps>> = ({ children, initFeatures = null }) => {
     const growthbook = useGrowthBook()
     const { user, isLoading: userIsLoading  } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
@@ -126,7 +126,7 @@ const FeatureFlagsProviderWrapper: React.FC<FeatureFlagsProviderWrapperProps> = 
 
 type FeatureFlagsProviderProps = FeatureFlagsProviderWrapperProps
 
-const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({ children, initFeatures = null }) => {
+const FeatureFlagsProvider: React.FC<React.PropsWithChildren<FeatureFlagsProviderProps>> = ({ children, initFeatures = null }) => {
     const { user, isLoading: userIsLoading  } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
 

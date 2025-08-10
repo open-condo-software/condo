@@ -96,7 +96,7 @@ type IntlProps = {
     onError?: IntlConfig['onError']
 }
 
-const Intl: React.FC<IntlProps> = ({ children, initialLocale, initialMessages, onError }) => {
+const Intl: React.FC<React.PropsWithChildren<IntlProps>> = ({ children, initialLocale, initialMessages, onError }) => {
     const { user, isLoading: isUserLoading } = useAuth()
     const [locale, setLocale] = useState(initialLocale)
     const [messages, setMessages] = useState(initialMessages)

@@ -23,7 +23,7 @@ const LoadingOrErrorPage: React.FC<ILoadingOrErrorPageProps> = ({ title = '', lo
             <PageHeader title={title}/>
             <PageContent>
                 {(loading) ? <Loader fill size='large'/> : null}
-                {(error) ? <Typography.Title>{error}</Typography.Title> : null}
+                {(error) ? <Typography.Title>{typeof error === 'string' ? error : error.message}</Typography.Title> : null}
             </PageContent>
         </PageWrapper>
     </>

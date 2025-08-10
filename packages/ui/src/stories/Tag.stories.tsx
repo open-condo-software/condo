@@ -4,11 +4,14 @@ import * as condoIcons from '@open-condo/icons'
 import { Tag as Component } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
-const icons = Object.assign({}, ...Object.entries(condoIcons).map(([key, Icon]) => ({
-    [`${key}-small`]: <Icon size='small'/>,
-})))
+const icons = Object.assign(
+    {},
+    ...Object.entries(condoIcons).map(([key, Icon]) => ({
+        [`${key}-small`]: <Icon size='small' />,
+    })),
+)
 
 export default {
     title: 'Components/Tag',

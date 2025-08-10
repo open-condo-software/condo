@@ -9,7 +9,7 @@ const BODY_RESIZE_STYLES = css`
   }
 `
 
-export const AppFrameWrapper: React.FC = ({ children }) => {
+export const AppFrameWrapper: React.FC<React.PropsWithChildren> = ({ children }) => {
     useEffect(() => {
         const observer = new ResizeObserver((entries) => {
             if (entries && entries.length) {

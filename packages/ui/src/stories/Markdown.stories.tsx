@@ -1,6 +1,6 @@
 import { Markdown as Component } from '@open-condo/ui/src'
 
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
 const TS_CODE_EXAMPLE = `
 \`\`\`typescript

@@ -45,7 +45,7 @@ const PaymentByPropertyDataMapper = (paidTitle: string): PaymentChart => new Pay
         table: (_, data, restTableOptions) => {
             const dataSource = []
 
-            const tableColumns = Object.entries(restTableOptions.translations).map(([key, title]) => ({
+            const tableColumns = Object.entries(restTableOptions.translations as Record<string, string>).map(([key, title]) => ({
                 key,
                 title,
                 dataIndex: key,

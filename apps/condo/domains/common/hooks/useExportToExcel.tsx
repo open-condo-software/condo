@@ -48,7 +48,7 @@ export const useExportToExcel = (props: UseExportToExcelInputType): UseExportToE
         exportToExcelQuery,
         {
             onError: error => {
-                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser']) || error.message
+                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser']) as string || error.message
                 notification.error({ message })
             },
             onCompleted: data => {

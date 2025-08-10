@@ -2,14 +2,16 @@ import React from 'react'
 
 import { Space as Component } from '@open-condo/ui/src'
 
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
 export default {
     title: 'Components/Space',
     component: Component,
     args: {
         direction: 'vertical',
-        children: Array.from({ length: 5 }, (_, index) => <span key={index}>Child {index}</span>),
+        children: Array.from({ length: 5 }, (_, index) => (
+            <span key={index}>Child {index}</span>
+        )),
         size: 8,
         wrap: false,
     },

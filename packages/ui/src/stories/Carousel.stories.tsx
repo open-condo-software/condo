@@ -1,11 +1,11 @@
-import { styled } from '@storybook/theming'
 import { get } from 'lodash'
 import React from 'react'
+import { styled } from 'storybook/theming'
 
 import { Carousel as Component } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
-import type { StoryFn, Meta, StoryObj } from '@storybook/react'
+import type { StoryFn, Meta, StoryObj } from '@storybook/react-webpack5'
 
 const AVAILABLE_COLORS = [
     colors.green['3'],
@@ -16,7 +16,8 @@ const AVAILABLE_COLORS = [
 ]
 
 const Slide = styled.h1<{ index: number }>`
-  background: ${(props) => AVAILABLE_COLORS[props.index % AVAILABLE_COLORS.length]};
+  background: ${(props) =>
+        AVAILABLE_COLORS[props.index % AVAILABLE_COLORS.length]};
   border-radius: 8px;
   height: 320px;
   line-height: 320px;

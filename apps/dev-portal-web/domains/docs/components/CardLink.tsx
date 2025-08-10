@@ -13,7 +13,7 @@ type CardLinkProps = {
     href: string
 }
 
-export const CardLink: React.FC<CardLinkProps> = ({ title, description, href }) => {
+export const CardLink = ({ title, description, href }: CardLinkProps): React.ReactElement => {
     const router = useRouter()
     const handleClick = useCallback(() => {
         router.push(href, href, { locale: router.locale })

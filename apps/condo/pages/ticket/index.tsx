@@ -8,6 +8,7 @@ import {
 import { SortTicketsBy, Ticket as ITicket, TicketStatusTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
+import { TableProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import debounce from 'lodash/debounce'
@@ -20,7 +21,6 @@ import pick from 'lodash/pick'
 import Head from 'next/head'
 import Link from 'next/link'
 import { NextRouter, useRouter } from 'next/router'
-import { TableComponents } from 'rc-table/lib/interface'
 import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -268,7 +268,7 @@ const TicketTable = ({
         ),
     }), [handleSelectAllRowsByPage, handleSelectRow, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
-    const tableComponents: TableComponents<TableRecord> = useMemo(() => ({
+    const tableComponents: TableProps<TableRecord>['components'] = useMemo(() => ({
         body: {
             row: (props) => (
                 <FiltersTooltip

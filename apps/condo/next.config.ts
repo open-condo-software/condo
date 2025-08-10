@@ -1,35 +1,20 @@
-// @ts-check
-const withTMModule = require('next-transpile-modules')
-const withLess = require('next-with-less')
+import withLess from 'next-with-less'
 
-const conf = require('@open-condo/config')
-const { nextCamelCaseCSSModulesTransform } = require('@open-condo/miniapp-utils/helpers/webpack')
+import conf from '@open-condo/config'
+import { nextCamelCaseCSSModulesTransform } from '@open-condo/miniapp-utils/helpers/webpack'
 
-const { antGlobalVariables } = require('@condo/domains/common/constants/style')
-const { getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
+import { antGlobalVariables } from '@condo/domains/common/constants/style'
+import { getCurrentVersion } from '@condo/domains/common/utils/VersioningMiddleware'
 
-const { name } = require('./package.json')
+import { name } from './package.json'
 
-// TODO: migrate to native transpiling once next is 13.x
-// Tell webpack to compile the "@open-condo/next" package, necessary
-// https://www.npmjs.com/package/next-transpile-modules
-// NOTE: FormTable require rc-table module
-const withTM = withTMModule([
-    '@open-condo/codegen',
-    '@open-condo/next',
-    '@open-condo/featureflags',
-    '@open-condo/keystone',
-    'rc-table',
-    '@condo/domains',
-    '@emotion/styled',
-])
+import type { NextConfig } from 'next'
 
 const appName = name
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const addressServiceUrl = conf['ADDRESS_SERVICE_URL']
 const mapApiKey = conf['MAP_API_KEY']
-const behaviorRecorder = { 'plerdy': conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
 const canEnableSubscriptions = conf['CAN_ENABLE_SUBSCRIPTIONS'] === 'true'
 const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 // TODO(DOMA-8696): Update next.config in cc, eps, miniapp
@@ -78,12 +63,13 @@ const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
 
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
 
-/** @type {import('next').NextConfig} */
-let nextConfig = {
-    // NOTE: SWC has an issue: https://github.com/swc-project/swc/issues/8271
-    // It means some code may not work as expected, for example zod@4
-    // It was fixed in more modern next versions, we'll update it later
-    swcMinify: false,
+const nextConfig: NextConfig = {
+    transpilePackages: [
+        '@open-condo/codegen',
+        '@open-condo/next',
+        '@open-condo/featureflags',
+        '@condo/domains',
+    ],
     compiler: {
         emotion: true,
     },
@@ -93,7 +79,7 @@ let nextConfig = {
             modifyVars: antGlobalVariables,
         },
     },
-    // skipTrailingSlashRedirect: true,
+    trailingSlash: true,
     publicRuntimeConfig: {
         // Will be available on both server and client
         appName,
@@ -105,7 +91,6 @@ let nextConfig = {
         canEnableSubscriptions,
         hCaptcha: hCaptchaSiteKey,
         disableCaptcha,
-        behaviorRecorder,
         docsConfig,
         yandexMetrikaID,
         googleTagManagerId,
@@ -175,4 +160,4 @@ let nextConfig = {
     },
 }
 
-module.exports = withTM(withLess(nextConfig))
+export default withLess(nextConfig)

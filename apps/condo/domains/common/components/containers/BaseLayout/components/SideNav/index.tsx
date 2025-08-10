@@ -6,7 +6,7 @@ import { DesktopSideNav } from './DesktopSideNav'
 import { MobileSideNav } from './MobileSideNav'
 
 interface ISideNav {
-    menuData?: React.ElementType
+    menuData?: React.ReactNode
     onLogoClick?: () => void
 }
 

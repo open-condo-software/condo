@@ -1,13 +1,19 @@
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
-import { Button, Modal as Component, Typography, Tabs } from '@open-condo/ui/src'
+import {
+    Button,
+    Modal as Component,
+    Typography,
+    Tabs,
+} from '@open-condo/ui/src'
 
-import type { StoryFn, Meta, StoryObj } from '@storybook/react'
+import type { StoryFn, Meta, StoryObj } from '@storybook/react-webpack5'
 
-const LOREM_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus aliquid amet dolores eligendi' +
-    ' est ex, facilis, iure magnam molestias neque, possimus praesentium quidem repellat saepe similique vero vitae' +
-    ' voluptatem voluptates?'
+const LOREM_TEXT =
+  'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus aliquid amet dolores eligendi' +
+  ' est ex, facilis, iure magnam molestias neque, possimus praesentium quidem repellat saepe similique vero vitae' +
+  ' voluptatem voluptates?'
 
 export default {
     title: 'Components/Modal',
@@ -63,7 +69,9 @@ const Template: StoryFn<typeof Component> = (props) => {
 
     return (
         <div>
-            <Typography.Paragraph>Some content in the background</Typography.Paragraph>
+            <Typography.Paragraph>
+        Some content in the background
+            </Typography.Paragraph>
             {/* NOTE: won't close without this hack */}
             {open && (
                 <Component
@@ -84,10 +92,13 @@ export const Modal: StoryObj<typeof Component> = {
 export const ModalWithBigContent: StoryObj<typeof Component> = {
     render: Template,
     args: {
-        title: 'Modal with big content. Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+        title:
+      'Modal with big content. Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
         children: new Array(15)
             .fill(1)
-            .map((_, ind) => <Typography.Paragraph key={ind}>{LOREM_TEXT}</Typography.Paragraph>),
+            .map((_, ind) => (
+                <Typography.Paragraph key={ind}>{LOREM_TEXT}</Typography.Paragraph>
+            )),
     },
     argTypes: {
         children: { control: false },
@@ -100,7 +111,7 @@ export const ModalWithWideContent: StoryObj<typeof Component> = {
         title: 'Modal with wide content',
         children: (
             <div style={{ width: '3000px', backgroundColor: 'lightgreen' }}>
-                This is an imitation of very wide content.
+        This is an imitation of very wide content.
             </div>
         ),
     },
@@ -136,7 +147,7 @@ export const Alert: StoryObj<typeof Component> = {
         title: 'Alert',
         children: (
             <Typography.Paragraph type='secondary'>
-                Alert text with &quot;secondary&quot; type
+        Alert text with &quot;secondary&quot; type
             </Typography.Paragraph>
         ),
     },
