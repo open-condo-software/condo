@@ -819,7 +819,6 @@ __metadata:
     react-phone-input-2: ^2.15.1
     react-progressive-image: ^0.6.0
     react-router-dom: 5.2.0
-    react-test-renderer: ^16.13.1
     react-yandex-metrika: ^2.6.0
     recheck: ^4.4.5
     redlock: ^5.0.0-beta.2
@@ -38911,7 +38910,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.12.0, react-is@npm:^16.13.1, react-is@npm:^16.6.0, react-is@npm:^16.7.0, react-is@npm:^16.8.6":
+"react-is@npm:^16.12.0, react-is@npm:^16.13.1, react-is@npm:^16.6.0, react-is@npm:^16.7.0":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: f7a19ac3496de32ca9ae12aa030f00f14a3d45374f1ceca0af707c831b2a6098ef0d6bdae51bd437b0a306d7f01d4677fcc8de7c0d331eb47ad0f46130e53c5f
@@ -39198,20 +39197,6 @@ __metadata:
     react: ^0.14.0 || ^15.0.0 || ^16.0.0
     react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0
   checksum: fc0987b046ad84018392ae83ef12065bb9046b6e040f5ad930d516a2dc62201f0ec3e3eeac746f667f26d4ef1d75d6a4c818c0a8a8acf55fe848eb4ade2cd175
-  languageName: node
-  linkType: hard
-
-"react-test-renderer@npm:^16.13.1":
-  version: 16.14.0
-  resolution: "react-test-renderer@npm:16.14.0"
-  dependencies:
-    object-assign: ^4.1.1
-    prop-types: ^15.6.2
-    react-is: ^16.8.6
-    scheduler: ^0.19.1
-  peerDependencies:
-    react: ^16.14.0
-  checksum: 96eb8a2566e67ebd246ef6e1b36d8c8498c68ebfdb94ca8399c19b4e3b73368caf0ffbe44767593e3499f2f58b4b5e57ba0565a47628048d2ab01b23a422724e
   languageName: node
   linkType: hard
 
