@@ -361,15 +361,17 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             builder.restoreSection(section.id)
         })
 
-        sections.forEach(async section =>  {
-            await new Promise(()=>builder.updateSection({
-                ...section,
-                name: canChangeName ? name : undefined,
-                minFloor,
-                maxFloor: maxFloorValue,
-                unitsOnFloor,
-            }, renameNextUnits.current, renameNextSections.current))
-        })
+        Promise.allSettled(
+            sections.map(section =>
+                builder.updateSection({
+                    ...section,
+                    name: canChangeName ? name : undefined,
+                    minFloor,
+                    maxFloor: maxFloorValue,
+                    unitsOnFloor,
+                }, renameNextUnits.current, renameNextSections.current)
+            )
+        )
 
         refresh()
         resetForm()
@@ -377,19 +379,19 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     useEffect(() => {
         if (minFloor !== undefined && floorCount && unitsOnFloor && (canChangeName ? name : true) && maxFloorValue !== undefined) {
-
-            sections.forEach(async section =>  {
-                await new Promise(()=>builder.updatePreviewSection({
-                    ...section,
-                    name: canChangeName ? name : undefined,
-                    minFloor,
-                    maxFloor: maxFloorValue,
-                    unitsOnFloor,
-                }))
-            })
+            Promise.allSettled(
+                sections.map(section =>
+                    builder.updatePreviewSection({
+                        ...section,
+                        name: canChangeName ? name : undefined,
+                        minFloor,
+                        maxFloor: maxFloorValue,
+                        unitsOnFloor,
+                    })
+                )
+            )
         }
-
-    }, [builder, section, name, minFloor, maxFloorValue, unitsOnFloor, refresh, resetForm, floorCount, canChangeName, sections])
+    }, [builder, name, minFloor, maxFloorValue, unitsOnFloor, floorCount, canChangeName, sections])
 
     useEffect(() => {
         return () => {

@@ -1230,7 +1230,7 @@ class MapEdit extends MapView {
                 return {
                     id: String(++this.autoincrement),
                     label,
-                    unitType: this.defaultUnitType,
+                    unitType: floor.unitType ?? this.defaultUnitType,
                     preview,
                     type: BuildingUnitType.Unit,
                 }
