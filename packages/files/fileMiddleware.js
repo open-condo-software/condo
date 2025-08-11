@@ -324,7 +324,7 @@ const fileStorageHandler = ({ keystone, fileAdapter, appClients }) => {
                 meta,
             }
 
-            const signature = jwt.sign(fileData, appClient.secret)
+            const signature = jwt.sign(fileData, appClient.secret, { expiresIn: '5m' })
 
             return {
                 data: {
@@ -335,7 +335,7 @@ const fileStorageHandler = ({ keystone, fileAdapter, appClients }) => {
                     user: { connect: { id: request.user.id } },
                 },
             }
-        }), 'id signature')
+        }), 'signature file { id }')
 
         response.json(condoFiles)
     }
@@ -370,19 +370,20 @@ const authHandler = () => {
     }
 }
 
-const downloadHandler = ({ keystone }) => {
-    // somehow i need to figure out what adapter I should use here
-    // sbercloud / aws / local
-
+const attachHandler = ({ keystone }) => {
     return async function (request, response, next) {
-        // request should be /api/file/<condo_file_id:uuid>?sign=<sign:string>
-        if (!request.user) {
-            response.status(403)
-            return response.end()
+        const data = request.body
+        if (!data.signature) {
+            return response.status(403).json({ error: 'Missing id or signature in request body' })
         }
         const context = await keystone.createContext({ skipAccessControl: true })
-        // get file from CondoFile model by provided request id
-        // FIXME: validate meta by provided signature from query params
+        const file = await CondoFile.getOne(context, { signature: data.signature }, 'id file { id filename originalFilename mimetype encoding meta }')
+        if (!file) {
+            return response.status(403).json({ error: 'Invalid id or signature' })
+        }
+
+        await CondoFile.update(context, data.id, { attach: true, dv: 1, sender: { dv: 1, fingerprint: 'file-attach-handler' } })
+        return response.status(200)
     }
 }
 
@@ -448,6 +449,12 @@ class FileMiddleware {
             fileStorageHandler({ keystone, fileAdapter, appClients }),
         )
 
+        app.post(
+            this.apiUrl + '/attach',
+            authHandler(),
+            attachHandler({ keystone })
+        )
+
         // FIXME: maybe it's unnecessary and all of the adapters may work with same url
         let fileDownloadUrl
         switch (this.adapter.type) {
@@ -463,10 +470,6 @@ class FileMiddleware {
             default:
                 fileDownloadUrl = this.apiUrl + '/:id'
         }
-
-        // FIXME: maybe it could be done at fileAdapter.js side
-        // download
-        app.get(fileDownloadUrl, downloadHandler({ keystone, fileAdapter }))
 
         return app
     }

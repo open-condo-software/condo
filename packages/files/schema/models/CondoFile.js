@@ -22,6 +22,13 @@ const CondoFile = new GQLListSchema('CondoFile', {
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
+        attach: {
+            type: 'Checkbox',
+            schemaDoc: 'Indicates that this file has been connected to one or more entity',
+            isRequired: false,
+            defaultValue: false,
+            knexOptions: { isNotNullable: false },
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
