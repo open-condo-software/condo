@@ -5,7 +5,7 @@ const  { GQLError } = require('@open-condo/keystone/errors')
 const { fetch } = require('@open-condo/keystone/fetch')
 
 const { ERRORS } = require('@condo/domains/user/integration/passport/errors')
-const { syncUser } = require('@condo/domains/user/integration/passport/utils/user')
+const { syncUser, getExistingUserIdentity } = require('@condo/domains/user/integration/passport/utils/user')
 
 const { AuthStrategy } = require('./types')
 
@@ -41,7 +41,7 @@ class OidcTokenUserInfoAuthStrategy {
                 return req.res.redirect([callbackPath, searchParams].filter(Boolean).join('?'))
             }
 
-            // Parameters verification
+            // Step 0. Required parameters verification
             const { access_token, client_id } = req.query
             const errorContext = { req }
             if (!access_token) {
@@ -69,7 +69,16 @@ class OidcTokenUserInfoAuthStrategy {
                 }, errorContext))
             }
 
-            const { trustEmail, trustPhone, identityType, fieldMapping, userInfoURL } = clients[client_id]
+            const {
+                trustEmail,
+                trustPhone,
+                identityType,
+                fieldMapping,
+                userInfoURL,
+                requireConfirmPhoneAction,
+                requireConfirmEmailAction,
+            } = clients[client_id]
+
             const providerInfo = {
                 name: identityType,
                 trustEmail: strategyTrustInfo.trustEmail && trustEmail,
@@ -77,6 +86,7 @@ class OidcTokenUserInfoAuthStrategy {
             }
 
             try {
+                // Step 1. Getting user info
                 const response = await fetch(userInfoURL, {
                     maxRetries: 1,
                     abortRequestTimeout: 5000,
@@ -89,6 +99,14 @@ class OidcTokenUserInfoAuthStrategy {
                     return done(new GQLError(ERRORS.AUTHORIZATION_FAILED, errorContext, [new Error('userInfo request was not successful')]))
                 }
                 const userProfile = await response.json()
+
+                // Step 2. Check if identity already exists (not the first authorization)
+                const identity = await getExistingUserIdentity(req, userProfile, req.session.userType, providerInfo, fieldMapping)
+                // Step 3. If so, login this linked user
+                if (identity) {
+                    return done(null, identity.user)
+                }
+                // Step 4. Otherwise, it's the first authorization and we might need to require a confirmation token
                 const user = await syncUser(req, userProfile, req.session.userType, providerInfo, fieldMapping)
 
                 return done(null, user)
