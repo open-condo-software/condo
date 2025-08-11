@@ -85218,6 +85218,7 @@ type CondoFileHistoryRecord {
   file: JSON
   signature: String
   user: String
+  attach: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -85262,6 +85263,8 @@ input CondoFileHistoryRecordWhereInput {
   user_not: String
   user_in: [String]
   user_not_in: [String]
+  attach: Boolean
+  attach_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -85347,6 +85350,8 @@ input CondoFileHistoryRecordWhereUniqueInput {
 enum SortCondoFileHistoryRecordsBy {
   signature_ASC
   signature_DESC
+  attach_ASC
+  attach_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -85369,6 +85374,7 @@ input CondoFileHistoryRecordUpdateInput {
   file: JSON
   signature: String
   user: String
+  attach: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -85392,6 +85398,7 @@ input CondoFileHistoryRecordCreateInput {
   file: JSON
   signature: String
   user: String
+  attach: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -85430,6 +85437,9 @@ type CondoFile {
 
   """ User who uploaded the file """
   user: User
+
+  """ Indicates that this file has been connected to one or more entity """
+  attach: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -85480,6 +85490,8 @@ input CondoFileWhereInput {
   signature_not_in: [String]
   user: UserWhereInput
   user_is_null: Boolean
+  attach: Boolean
+  attach_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -85547,6 +85559,8 @@ enum SortCondoFilesBy {
   signature_DESC
   user_ASC
   user_DESC
+  attach_ASC
+  attach_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -85569,6 +85583,7 @@ input CondoFileUpdateInput {
   file: JSON
   signature: String
   user: UserRelateToOneInput
+  attach: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -85589,6 +85604,7 @@ input CondoFileCreateInput {
   file: JSON
   signature: String
   user: UserRelateToOneInput
+  attach: Boolean
   v: Int
   createdAt: String
   updatedAt: String
