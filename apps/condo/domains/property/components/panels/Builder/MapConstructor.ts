@@ -924,8 +924,10 @@ class MapEdit extends MapView {
     }
 
     private addUnitsToFloor (floor: BuildingFloor, count: number, sectionIndex: number, renameNextUnits: boolean, preview?: boolean): void {
-        const maxUnitLabel = Math.max(...floor.units.map(unit => Number(unit.label)))
+        let maxUnitLabel = Math.max(...floor.units.map(unit => Number(unit.label)))
         let lastAddedUnit: BuildingUnit | undefined
+
+        if (Number.isNaN(maxUnitLabel)) maxUnitLabel = 0
 
         for (let i = 0; i < count; i++) {
             const newUnit: BuildingUnit = {
@@ -1001,7 +1003,9 @@ class MapEdit extends MapView {
         for (let floorIndex = currentMaxFloor; floorIndex < newMaxFloor; floorIndex++) {
 
             const maxFloor = this.sections[sectionIndex].floors.find(f => floorIndex === f.index)
-            const maxUnit = maxFloor ? Math.max(...maxFloor.units.map(unit => Number(unit.label))) : 0
+            let maxUnit = maxFloor ? Math.max(...maxFloor.units.map(unit => Number(unit.label))) : 0
+
+            if (Number.isNaN(maxUnit)) maxUnit = 0
 
             this.addSectionFloor({
                 section: sectionIndex,
@@ -1113,10 +1117,11 @@ class MapEdit extends MapView {
 
             if (nextUnit && NUMERIC_REGEXP.test(removedUnit.label) && (renameNextUnits || sectionIndex)) {
                 nextUnit.label = removedUnit.label
-                const updatedSectionIndex = this.sections[sectionIndex].index + 1
+                const updatedSectionIndex = renameNextUnits ? null : this.sections[sectionIndex].index + 1
                 const unitNumberToStartRenaming = renameNextUnits ? null : updatedSectionIndex
 
                 this.updateUnitNumbers(nextUnit, unitNumberToStartRenaming)
+                this.updateUnitNumbers(nextUnit, renameNextUnits ? null : this.sections[sectionIndex].index + 1)
             }
         }
 
@@ -1225,7 +1230,7 @@ class MapEdit extends MapView {
                 return {
                     id: String(++this.autoincrement),
                     label,
-                    unitType: floor.unitType,
+                    unitType: this.defaultUnitType,
                     preview,
                     type: BuildingUnitType.Unit,
                 }
