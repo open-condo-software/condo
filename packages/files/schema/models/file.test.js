@@ -82,7 +82,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
             })
             test('Only POST request is allowed', async () => {
                 const result = await fetch(serverUrl, { method: 'GET' })
-                expect(result.status).toEqual(403)
+                expect(result.status).toEqual(404)
             })
             test('Strict match url pattern', async () => {
                 const result = await fetch(serverUrl + '/something/else', {
@@ -265,11 +265,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
                 expect(result.status).toEqual(200)
                 expect(json).toHaveLength(1)
-                expect(json[0]).toHaveProperty('id')
+                expect(json[0]).toHaveProperty('file')
                 expect(json[0]).toHaveProperty('signature')
                 const secret = JSON.parse(conf['FILE_APP_CLIENTS'])[meta.appId]['secret']
                 const data = jwt.verify(json[0].signature, secret)
-                console.log(data)
                 expect(data).not.toBeNull()
             })
         })
@@ -296,8 +295,8 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
                 expect(result.status).toEqual(200)
                 expect(json).toHaveLength(1)
-                expect(json[0]).toHaveProperty('id')
                 expect(json[0]).toHaveProperty('signature')
+                expect(json[0]).toHaveProperty('file.id')
             })
             test('uploading multiple files should be possible', async () => {
                 const user = await createTestUser()
