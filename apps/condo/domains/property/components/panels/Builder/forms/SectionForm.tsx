@@ -1,5 +1,6 @@
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Col, InputNumber, Row } from 'antd'
+import { debounce } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -257,6 +258,8 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
 }
 
 
+const DEBOUNCE_TIME = 300
+
 const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
@@ -318,9 +321,18 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         refresh()
     }, [builder, refresh, sections])
 
-    const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
+    const debouncedSetMinFloor = useCallback(debounce((value) => {
+        setMinFloor(value)
+    }, DEBOUNCE_TIME), [])
 
-    const setFloorCountValue = useCallback((value) => { setFloorCount(value) }, [])
+    const debouncedSetFloorCount = useCallback(debounce((value) => {
+        setFloorCount(value)
+    }, DEBOUNCE_TIME), [])
+
+    const debouncedSetUnitsOnFloor = useCallback(debounce((value) => {
+        setUnitsOnFloor(value)
+    }, DEBOUNCE_TIME), [])
+
     const maxFloorValue = useMemo(() => {
         if (floorCount === 1) return minFloor
         if (minFloor > 0) return floorCount + minFloor - 1
@@ -349,14 +361,14 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             builder.restoreSection(section.id)
         })
 
-        sections.forEach(section => {
-            builder.updateSection({
+        sections.forEach(async section =>  {
+            await new Promise(()=>builder.updateSection({
                 ...section,
                 name: canChangeName ? name : undefined,
                 minFloor,
                 maxFloor: maxFloorValue,
                 unitsOnFloor,
-            }, renameNextUnits.current, renameNextSections.current)
+            }, renameNextUnits.current, renameNextSections.current))
         })
 
         refresh()
@@ -365,18 +377,27 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     useEffect(() => {
         if (minFloor !== undefined && floorCount && unitsOnFloor && (canChangeName ? name : true) && maxFloorValue !== undefined) {
-            sections.forEach(section => {
-                builder.updatePreviewSection({
+
+            sections.forEach(async section =>  {
+                await new Promise(()=>builder.updatePreviewSection({
                     ...section,
                     name: canChangeName ? name : undefined,
                     minFloor,
                     maxFloor: maxFloorValue,
                     unitsOnFloor,
-                })
+                }))
             })
         }
 
     }, [builder, section, name, minFloor, maxFloorValue, unitsOnFloor, refresh, resetForm, floorCount, canChangeName, sections])
+
+    useEffect(() => {
+        return () => {
+            debouncedSetMinFloor.cancel()
+            debouncedSetFloorCount.cancel()
+            debouncedSetUnitsOnFloor.cancel()
+        }
+    }, [debouncedSetMinFloor, debouncedSetFloorCount, debouncedSetUnitsOnFloor])
 
     return (
         <Row gutter={[0, 40]} data-cy='property-map__edit-section-form'>
@@ -395,16 +416,18 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                         </Space>
                     </Col>}
 
-                    <Col span={24}>
-                        <Typography.Text>{SelectUnitsMessage}</Typography.Text>
-                    </Col>
+                    {sections.length > 1 &&
+                        <Col span={24}>
+                            <Typography.Text>{SelectUnitsMessage}</Typography.Text>
+                        </Col>
+                    }
 
                     <Col span={24}>
                         <Space direction='vertical' size={8} width='100%'>
                             <Typography.Text type='secondary' size='medium'>{FloorCountLabel}</Typography.Text>
                             <InputNumber
                                 value={floorCount}
-                                onChange={setFloorCountValue}
+                                onChange={(value) => debouncedSetFloorCount(value)}
                                 min={1}
                                 max={MAX_PROPERTY_FLOORS_COUNT}
                                 style={INPUT_STYLE}
@@ -421,7 +444,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                         <Typography.Text type='secondary' size='medium'>{MinFloorLabel}</Typography.Text>
                                         <InputNumber
                                             value={minFloor}
-                                            onChange={setMinFloorValue}
+                                            onChange={(value) => debouncedSetMinFloor(value)}
                                             style={INPUT_STYLE}
                                             type='number'
                                         />
@@ -456,7 +479,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                 min={1}
                                 max={MAX_PROPERTY_UNITS_COUNT_PER_FLOOR}
                                 value={unitsOnFloor}
-                                onChange={value=>setUnitsOnFloor(value)}
+                                onChange={(value) => debouncedSetUnitsOnFloor(value)}
                                 style={INPUT_STYLE}
                                 type='number'
                                 data-cy='property-map__add-section-form__units-on-floor'
