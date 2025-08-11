@@ -350,6 +350,7 @@
   "ai.inputNotification.failedToGenerate": "Failed to generate response",
   "ai.inputNotification.ready": "Ready!",
   "ai.updateText": "Improve answer",
+  "ai.improveText": "Improve text",
   "ai.updateText.tour.message": "Helps rephrase your message to be more polite and clear ✌️",
   "ai.updateText.tour.title": "✨ Improve your response with AI",
   "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "No payments to export",

@@ -13,6 +13,10 @@
   height: fit-content;
 }
 
+.overlay-tooltip {
+  z-index: 1000;
+}
+
 .header {
   display: flex;
   align-items: center;
