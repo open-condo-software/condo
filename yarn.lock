@@ -10647,8 +10647,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/files@workspace:packages/files"
   dependencies:
+    "@faker-js/faker": ^7.6.0
+    "@open-condo/config": "workspace:^"
+    ajv: 8.11.0
     busboy: ^1.6.0
+    cuid: ^3.0.0
+    express: ^4.21.2
+    form-data: ^4.0.4
     fs-capacitor: ^6.2.0
+    jsonwebtoken: ^9.0.0
+    uuid: ^8.3.0
   languageName: unknown
   linkType: soft
 
@@ -21059,6 +21067,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cuid@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "cuid@npm:3.0.0"
+  checksum: f9a344bd90e26b62f75a86b616ad717bad88b20b02df25c6e4008dd2c0948b081bd72ad8075b25ae644dce7fc367a43c622954e88aed972b72b1f132416faa4e
+  languageName: node
+  linkType: hard
+
 "currently-unhandled@npm:^0.4.1":
   version: 0.4.1
   resolution: "currently-unhandled@npm:0.4.1"
@@ -23735,7 +23750,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:^4.17.3":
+"express@npm:^4.17.3, express@npm:^4.21.2":
   version: 4.21.2
   resolution: "express@npm:4.21.2"
   dependencies:
