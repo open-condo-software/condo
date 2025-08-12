@@ -185,7 +185,7 @@ const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'
 const loadMeterReadingsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const meterReadingsLoader = new GqlWithKnexLoadList({
         listKey: 'MeterReading',
-        fields: 'id date value1 value2 value3 value4 clientName',
+        fields: 'id date value1 value2 value3 value4 clientName accountNumber',
         singleRelations: [
             ['Meter', 'meter', 'id'],
             ['MeterReadingSource', 'source', 'id'],
