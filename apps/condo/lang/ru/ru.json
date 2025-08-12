@@ -2442,6 +2442,7 @@
   "pages.condo.property.index.TableField.TasksInWorkCount": "Заявок в работе",
   "pages.condo.property.index.TableField.Technicians": "Техники",
   "pages.condo.property.index.TableField.UninhabitedUnitsCount": "Нежилых помещений",
+  "pages.condo.property.index.SelectSectionsLabel": "Выбрано подъездов: {count}",
   "pages.condo.property.index.TableField.UnitsCount": "Квартир",
   "pages.condo.property.index.UpdatePropertyTitle": "Редактирование дома",
   "pages.condo.property.info.alert.ReportingPeriodForOrganization.description": "Ранее период был выбран для всех домов. Его можно изменить в разделе «Период подачи показаний ИПУ» после создания дома.",
