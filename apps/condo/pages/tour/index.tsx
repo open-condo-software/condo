@@ -213,7 +213,7 @@ const TourPageContent = () => {
                 <TourWrapper>
                     <Space size={40} direction='vertical'>
                         {!isEmpty(activeStepInnerSteps) && (
-                            <Link href='/tour'>
+                            <Link href='/tour' legacyBehavior>
                                 <Typography.Link onClick={handleBackClick}>
                                     <div style={BACK_LINK_STYLES}>
                                         <ArrowLeft size='small'/>

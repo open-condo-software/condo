@@ -20,7 +20,7 @@ export const TicketDeadlineSettingsAbout: React.FC = () => {
         { id: 'pages.condo.settings.ticketDeadlines.about.description.message' },
         {
             link: (
-                <Link href='/ticket/create'>
+                <Link href='/ticket/create' legacyBehavior>
                     <Typography.Link style={LINK_STYLE} underline href='/ticket/create' target='_blank'>
                         {LinkMessage}
                     </Typography.Link>

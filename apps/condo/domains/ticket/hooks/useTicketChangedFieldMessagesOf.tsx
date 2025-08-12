@@ -110,7 +110,7 @@ const addLink = (ticketChange, fieldId, value, type: TicketChangeFieldMessageTyp
 
     const href = hrefTemplate.replace('{id}', id)
     return (
-        <Link href={href}>
+        <Link href={href} legacyBehavior>
             <Typography.Link href={href} style={LINK_STYLE} underline>
                 {value}
             </Typography.Link>

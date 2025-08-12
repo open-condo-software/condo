@@ -52,7 +52,7 @@ export function useEmployeeRolesTableColumns (roles: IEmployeeRole[]): ColumnsTy
                 }
 
                 return (
-                    <Link href={`/settings/employeeRole/${role.id}/update`}>
+                    <Link href={`/settings/employeeRole/${role.id}/update`} legacyBehavior>
                         <Typography.Link href={`/settings/employeeRole/${role.id}/update`} size='small'>
                             {role.name}
                         </Typography.Link>

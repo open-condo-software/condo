@@ -118,7 +118,7 @@ export const Header: React.FC = (): JSX.Element => {
             </Col>
             <Col>
                 <Typography.Text>
-                    <Link href='/auth/signin'>
+                    <Link href='/auth/signin' legacyBehavior>
                         <Typography.Link>{BackMessage}</Typography.Link>
                     </Link>
                 </Typography.Text>

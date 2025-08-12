@@ -26,7 +26,7 @@ export const WelcomeHeaderTitle: React.FC<WelcomeHeaderTitleProps> = ({ userType
     }
 
     return (
-        <Link href={userType === 'resident' ? '/auth/signin' : '/auth/resident'}>
+        <Link href={userType === 'resident' ? '/auth/signin' : '/auth/resident'} legacyBehavior>
             <Typography.Link>
                 {userType === 'resident' ? IAmOrganizationRepresentativeMessage : IAmResidentMessage}
             </Typography.Link>

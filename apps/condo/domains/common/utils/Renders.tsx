@@ -20,7 +20,7 @@ export const renderLink: renderLinkType = (content, href, underline = true, targ
     const LinkComponent = underline ? Typography.Link : Link
 
     return (
-        <LinkComponent href={href} target={target}>
+        <LinkComponent href={href} target={target} legacyBehavior>
             <a onClick={handleStopPropagation}>
                 {content}
             </a>

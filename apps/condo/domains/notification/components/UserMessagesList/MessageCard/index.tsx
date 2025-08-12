@@ -54,7 +54,7 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
             className={cardClassName}
         >
             <div className={styles.messageCardTitle}>
-                <Link href={titleLink}>
+                <Link href={titleLink} legacyBehavior>
                     <Typography.Link onClick={handleLinkClick} href={titleLink}>
                         {MessageTitle}
                     </Typography.Link>

@@ -134,7 +134,7 @@ export const useGlobalHints = () => {
                         <Typography.Text type='secondary' size='small'>
                             {CanDisableHintsMessage}
                         </Typography.Text>&nbsp;
-                        <Link href='/user'>
+                        <Link href='/user' legacyBehavior>
                             <Typography.Link size='small'>{InProfileMessage}</Typography.Link>
                         </Link>
                     </Typography.Text>

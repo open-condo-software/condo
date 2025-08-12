@@ -78,7 +78,7 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
             <Typography.Paragraph style={{ margin: 0 }} type='secondary'>
                 {renderPostfix}
             </Typography.Paragraph>
-            <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
+            <Link href={`/property/${get(ticket, ['property', 'id'])}`} legacyBehavior>
                 <Typography.Link style={TICKET_CARD_LINK_STYLE}>
                     {streetPart}
                 </Typography.Link>

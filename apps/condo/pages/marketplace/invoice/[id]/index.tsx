@@ -219,7 +219,7 @@ const AddressField = ({ invoice }) => {
             <Typography.Text type='secondary'>
                 {renderPostfix}
             </Typography.Text>
-            <Link href={`/property/${get(invoice, 'property.id')}`}>
+            <Link href={`/property/${get(invoice, 'property.id')}`} legacyBehavior>
                 <Typography.Link>
                     {streetPart}
                 </Typography.Link>

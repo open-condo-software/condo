@@ -134,7 +134,7 @@ export const UserProfileForm: React.FC = () => {
 
                                     <Col span={24}>
                                         <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>
-                                            <Link href={RESET_PASSWORD_URL}>
+                                            <Link href={RESET_PASSWORD_URL} legacyBehavior>
                                                 <Typography.Link href={RESET_PASSWORD_URL}>
                                                     {ChangePasswordLabel}
                                                 </Typography.Link>
