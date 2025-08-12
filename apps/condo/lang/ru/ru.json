@@ -350,6 +350,7 @@
   "ai.inputNotification.failedToGenerate": "Не удалось сгенерировать ответ",
   "ai.inputNotification.ready": "Готово!",
   "ai.updateText": "Улучшить ответ",
+  "ai.improveText": "Улучшить текст",
   "ai.updateText.tour.message": "Поможет переформулировать сообщение более вежливо и понятно ✌️",
   "ai.updateText.tour.title": "✨Улучшайте ответ с помощью AI",
   "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "Не найдены платежи для экспорта",

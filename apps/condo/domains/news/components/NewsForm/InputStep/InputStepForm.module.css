@@ -17,3 +17,12 @@
     display: none;
   }
 }
+
+.custom-form-item-label {
+  padding-bottom: 8px !important;
+}
+
+.custom-form-item-label label {
+  height: auto !important;
+  white-space: nowrap !important;
+}

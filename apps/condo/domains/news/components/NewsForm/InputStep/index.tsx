@@ -237,14 +237,16 @@ export const InputStep: React.FC<InputStepProps> = ({
         }
     }, [sharingAppId])
 
-    const handleTitleChange = useCallback((value, form) => {
-        form.setFieldValue('title', value)
+    const handleTitleChange = useCallback((value: string, form) => {
         setSelectedTitle(value)
+        form.setFieldValue('title', value)
+        form.validateFields(['title'])
     }, [])
 
-    const handleBodyChange = useCallback((value, form) => {
-        form.setFieldValue('body', value)
+    const handleBodyChange = useCallback((value: string, form) => {
         setSelectedBody(value)
+        form.setFieldValue('body', value)
+        form.validateFields(['body'])
     }, [])
 
     const handleFormTitleChange = useCallback((form) => (value: string) => {
@@ -323,6 +325,8 @@ export const InputStep: React.FC<InputStepProps> = ({
 
         form.setFieldValue('body', body)
         setSelectedBody(body)
+
+        form.validateFields(['title', 'body'])
     }, [templates])
 
     return (

@@ -19,6 +19,7 @@ type AIInputNotificationPropsType = {
     children: React.ReactNode
     errorMessage?: string
     updateLoading?: boolean
+    disableUpdateButton?: boolean
 }
 
 type StatusPropsType = {
@@ -32,16 +33,16 @@ const Status: FC<StatusPropsType> = ({ result, updateLoading }) => {
     const ReadyLabel = intl.formatMessage({ id: 'ai.inputNotification.ready' })
     const FailedToGenerateLabel = intl.formatMessage({ id: 'ai.inputNotification.failedToGenerate' })
 
-    if (result) return (
+    if (updateLoading) return (
+        <ProgressLoader/>
+    )
+    else if (result) return (
         <Typography.Text type='success'>
             <span className={styles.status}>
                 <CheckCircle size='medium'/>
                 {ReadyLabel}
             </span>
         </Typography.Text>
-    )
-    else if (updateLoading) return (
-        <ProgressLoader/>
     )
     else return (
         <Typography.Text type='danger'>
@@ -62,6 +63,7 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
     children,
     errorMessage,
     updateLoading,
+    disableUpdateButton,
 }) => {
     const intl = useIntl()
     const ApplyLabel = intl.formatMessage({ id: 'ai.inputNotification.apply' })
@@ -94,6 +96,9 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
             placement='top'
             mouseEnterDelay={1.5}
             className={styles.wrapper}
+            // NOTE: Tooltip by default has z-index = 1070. In /news/create page, we have dropdown menu with z-index = 1050.
+            // Dropdown menu should be above on tooltip, therefore we set z-index = 1049
+            zIndex={1049}
             overlayInnerStyle={{
                 width: tooltipWidth,
                 right: (tooltipWidth - 250) / 2,
@@ -144,7 +149,7 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
                             </Button>
 
                             <Button
-                                disabled={updateLoading}
+                                disabled={updateLoading || disableUpdateButton}
                                 onClick={onUpdate}
                                 type='secondary'
                                 minimal
