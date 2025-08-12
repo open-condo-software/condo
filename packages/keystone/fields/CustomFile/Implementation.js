@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const { omit } = require('lodash')
+const { omit, get } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
@@ -78,7 +78,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
     async resolveInput ({ resolvedData, existingItem, context, listKey }) {
         const uploadData = resolvedData[this.path]
         // New way to 'upload' - connect file
-        if (typeof uploadData === 'object' && uploadData['signature']) {
+        if (get(uploadData, 'signature')) {
 
             let file
             try {
