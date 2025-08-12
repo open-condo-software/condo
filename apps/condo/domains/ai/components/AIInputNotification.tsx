@@ -96,7 +96,7 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
             placement='top'
             mouseEnterDelay={1.5}
             className={styles.wrapper}
-            overlayClassName={styles.overlayTooltip}
+            zIndex={1000}
             overlayInnerStyle={{
                 width: tooltipWidth,
                 right: (tooltipWidth - 250) / 2,

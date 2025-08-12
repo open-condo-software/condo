@@ -15,7 +15,6 @@ export type TooltipProps = Pick<DefaultTooltipProps,
 | 'destroyTooltipOnHide'
 | 'zIndex'
 | 'defaultOpen'
-| 'overlayClassName'
 | 'overlayInnerStyle'
 | 'mouseEnterDelay'
 | 'title'> & {
