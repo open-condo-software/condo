@@ -99,6 +99,7 @@ export function useAIFlow<T = object> ({
                 await new Promise(resolve => setTimeout(resolve, TASK_POLLING_INTERVAL_MS))
             }
 
+            setError(new Error('Flow timed out'))
             return { data: null, error: new Error('Flow timed out'), localizedErrorText: null }
         } catch (err: any) {
             const wrappedErr = err instanceof Error ? err : new Error(err.toString())

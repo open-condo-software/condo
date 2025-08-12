@@ -1,17 +1,20 @@
 import { B2BAppNewsSharingConfig } from '@app/condo/schema'
-import { Col, FormInstance, notification, Row } from 'antd'
+import { Col, FormInstance, notification, Row, Form } from 'antd'
 import classNames from 'classnames'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { CheckCircle, Copy, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Input, Tooltip, Typography } from '@open-condo/ui'
-
+import {
+    Button,
+    Input,
+    Tooltip,
+    Typography,
+} from '@open-condo/ui'
 
 import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
 import { FLOW_TYPES } from '@condo/domains/ai/constants'
 import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
-import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
@@ -61,7 +64,7 @@ const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 
 interface DefaultAiTextAreaProps {
     inputType: 'title' | 'body'
-    selectedText: string
+    value: string
     textForContext: string
     handleFormTextChange: (value: string) => void
     autoFocus?: boolean
@@ -69,7 +72,7 @@ interface DefaultAiTextAreaProps {
 
 const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     inputType,
-    selectedText,
+    value,
     textForContext,
     handleFormTextChange,
     autoFocus,
@@ -80,8 +83,11 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
     const BodyPlaceholderMessage = intl.formatMessage({ id: 'news.fields.body.placeholder' })
     const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
     const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
-    const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
+    const UpdateTextMessage = intl.formatMessage({ id: 'ai.improveText' })
     const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+
+    const { status: validationStatus } = Form.Item.useStatus()
+    const inputHasError = validationStatus === 'error'
 
     const { enabled: aiFeaturesEnabled, features: {
         rewriteNewsText: rewriteNewsEnabled,
@@ -92,26 +98,25 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
 
     const newsTextAreaRef = useRef(null)
 
-    const [prevRewriteNewsText, setPrevRewriteNewsText] = useState('')
+    const [rewriteNewsText, setRewriteNewsText] = useState('')
     const [newsTextAiNotificationShow, setNewsTextAiNotificationShow] = useState(false)
-    const [isUpdateLoading, setIsUpdateLoading] = useState(false)
     const [copied, setCopied] = useState<boolean>()
 
-    const [runRewriteTitleAIFlow, {
-        loading: rewriteNewsTextLoading,
+    const [runRewriteNewsTextAIFlow, {
+        loading: isRewriteNewsTextLoading,
         data: rewriteNewsTextData,
         error: rewriteNewsTextError,
     }] = useAIFlow<{ answer: string }>({
         flowType: FLOW_TYPES.NEWS_REWRITE_TEXT_FLOW_TYPE,
     })
 
-    const hasNewsText = useMemo(() => selectedText.length > 0, [selectedText])
+    const hasNewsText = useMemo(() => value.length > 0, [value])
 
     const handleRewriteNewsTextClick = useCallback(async () => {
         const context = {
             promptType: inputType,
-            title: inputType === 'title' ? selectedText : textForContext,
-            body: inputType === 'body' ? selectedText : textForContext,
+            title: inputType === 'title' ? value : textForContext,
+            body: inputType === 'body' ? value : textForContext,
         }
 
         analytics.track('click', {
@@ -121,26 +126,14 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
             type: 'news_rewrite_text_flow',
         })
 
-        const result = await runRewriteTitleAIFlow({ context })
+        const result = await runRewriteNewsTextAIFlow({ context })
         setNewsTextAiNotificationShow(true)
 
         if (result.error) {
             notification.error({ message: result.localizedErrorText || GenericErrorMessage })
         }
-    }, [GenericErrorMessage, inputType, runRewriteTitleAIFlow, selectedText, textForContext])
-
-    const handleCopyTextClick = useCallback(async () => {
-        if (copied) return
-
-        try {
-            await navigator.clipboard.writeText(selectedText)
-            setCopied(true)
-
-            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
-        } catch (e) {
-            console.error('Unable to copy to clipboard', e)
-        }
-    }, [copied, selectedText])
+        setRewriteNewsText(result?.data?.answer)
+    }, [GenericErrorMessage, inputType, runRewriteNewsTextAIFlow, value, textForContext])
 
     const handleCloseAINotificationText = useCallback(() => {
         analytics.track('click', {
@@ -164,30 +157,42 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
         newsTextAreaRef.current?.focus()
 
         handleCloseAINotificationText()
-        if (!rewriteNewsTextError?.cause) handleFormTextChange(rewriteNewsTextData?.answer)
+        if (!rewriteNewsTextError?.cause) {
+            handleFormTextChange(rewriteNewsTextData?.answer)
+        }
     }, [inputType, handleCloseAINotificationText, rewriteNewsTextError?.cause, handleFormTextChange, rewriteNewsTextData?.answer])
 
-    const handleRegenerateMessage = useCallback(() => {
+    const handleRegenerateMessage = useCallback(async () => {
         analytics.track('click', {
             value: `${inputType}`,
             type: 'regenerate_comment',
             location: window.location.href,
             component: 'Button',
         })
-        setIsUpdateLoading(true)
-        setPrevRewriteNewsText(rewriteNewsTextData?.answer)
 
-        handleRewriteNewsTextClick()
-            .then(() => setIsUpdateLoading(false))
-            .catch(() => setIsUpdateLoading(false))
-    }, [handleRewriteNewsTextClick, inputType, rewriteNewsTextData?.answer])
+        await handleRewriteNewsTextClick()
+    }, [handleRewriteNewsTextClick, inputType])
+
+    const handleCopyTextClick = useCallback(async () => {
+        if (copied) return
+
+        try {
+            await navigator.clipboard.writeText(value)
+            setCopied(true)
+
+            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
+        } catch (e) {
+            console.error('Unable to copy to clipboard', e)
+        }
+    }, [copied, value])
     
     return (
         <AIInputNotification
-            updateLoading={isUpdateLoading}
-            result={rewriteNewsTextData?.answer || prevRewriteNewsText}
+            updateLoading={isRewriteNewsTextLoading}
+            disableUpdateButton={inputHasError}
+            result={rewriteNewsText}
             onApply={handleApplyGeneratedMessage}
-            errorMessage={GenericErrorMessage}
+            errorMessage={rewriteNewsTextError && GenericErrorMessage}
             onClose={handleCloseAINotificationText}
             onUpdate={handleRegenerateMessage}
             open={newsTextAiNotificationShow}
@@ -199,9 +204,9 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                 onChange={e => handleFormTextChange(e.target.value)}
                 name={inputType}
                 ref={newsTextAreaRef}
-                value={selectedText}
+                value={value}
                 autoSize={{ minRows: 1, maxRows: 5 }}
-                disabled={rewriteNewsTextLoading}
+                disabled={isRewriteNewsTextLoading}
                 bottomPanelUtils={[
                     <Tooltip
                         title={copied ? CopiedTooltipText : CopyTooltipText }
@@ -213,7 +218,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                             compact
                             type='secondary'
                             size='medium'
-                            disabled={!hasNewsText || rewriteNewsTextLoading}
+                            disabled={inputHasError || !hasNewsText || isRewriteNewsTextLoading}
                             onClick={handleCopyTextClick}
                             icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
                         />
@@ -225,8 +230,8 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                             minimal
                             type='secondary'
                             size='medium'
-                            disabled={!hasNewsText || rewriteNewsTextLoading}
-                            loading={rewriteNewsTextLoading && !isUpdateLoading}
+                            disabled={inputHasError || !hasNewsText || isRewriteNewsTextLoading}
+                            loading={isRewriteNewsTextLoading}
                             icon={<Sparkles size='small' />}
                             onClick={handleRewriteNewsTextClick}
                             className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
@@ -347,9 +352,9 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                     </Col>
                 ) : (
                     <Col span={formFieldsColSpan}>
-                        <Row gutter={[0, 60]}>
+                        <Row gutter={[0, 40]}>
                             <Col span={24}>
-                                <Row gutter={[0, 32]}>
+                                <Row gutter={[0, 24]}>
                                     <Col span={24}>
                                         <Typography.Title level={2}>
                                             {MakeTextLabel}
@@ -358,7 +363,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
 
                                     {templates && (
                                         <Col span={24}>
-                                            <FormItem
+                                            <Form.Item
                                                 name='template'
                                             >
                                                 {selectedType === NEWS_TYPE_COMMON && (
@@ -375,20 +380,21 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                                         hasCategories
                                                     />
                                                 )}
-                                            </FormItem>
+                                            </Form.Item>
                                         </Col>
                                     )}
                                 </Row>
                             </Col>
 
                             <Col span={24}>
-                                <Row gutter={[0, 5]}>
+                                <Row gutter={[0, 24]}>
                                     <Col span={24} >
                                         <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
                                     </Col>
                                     <Col span={24}>
-                                        <FormItem
+                                        <Form.Item
                                             label={TitleLabel}
+                                            labelCol={{ className: styles.customFormItemLabel }}
                                             name='title'
                                             required
                                             rules={titleRule}
@@ -397,31 +403,32 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                         >
                                             <DefaultAiTextArea
                                                 inputType='title'
-                                                selectedText={selectedTitle}
+                                                value={selectedTitle}
                                                 textForContext={selectedBody}
                                                 handleFormTextChange={handleFormTitleChange(form)}
                                             />
-                                        </FormItem>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            label={BodyLabel}
+                                            labelCol={{ className: styles.customFormItemLabel }}
+                                            name='body'
+                                            required
+                                            rules={bodyRule}
+                                            validateFirst={true}
+                                            data-cy='news__create-body-input'
+                                        >
+                                            <DefaultAiTextArea
+                                                inputType='body'
+                                                value={selectedBody}
+                                                textForContext={selectedTitle}
+                                                handleFormTextChange={handleFormBodyChange(form)}
+                                                autoFocus={autoFocusBody}
+                                            />
+                                        </Form.Item>
                                     </Col>
                                 </Row>
-                                <Col span={24}>
-                                    <FormItem
-                                        label={BodyLabel}
-                                        name='body'
-                                        required
-                                        rules={bodyRule}
-                                        validateFirst={true}
-                                        data-cy='news__create-body-input'
-                                    >
-                                        <DefaultAiTextArea
-                                            inputType='body'
-                                            selectedText={selectedBody}
-                                            textForContext={selectedTitle}
-                                            handleFormTextChange={handleFormBodyChange(form)}
-                                            autoFocus={autoFocusBody}
-                                        />
-                                    </FormItem>
-                                </Col>
                             </Col>
                         </Row>
                     </Col>
