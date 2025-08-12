@@ -162,7 +162,7 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
 
     return (
         <BasicEmptyListView
-            image={image ? image : 'dino/searching@2x.png'}
+            image={image ? image : '/dino/searching@2x.png'}
             spaceSize={16}
             imageStyle={{ height: 200 }}
             containerStyle={desktopContainerStyle}
