@@ -6,6 +6,7 @@ const dayjs = require('dayjs')
 const { isEmpty, get, isNull, compact, isArray, isString, uniq } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { readOnlyFieldAccess, writeOnlyServerSideFieldAccess } = require('@open-condo/keystone/access')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -20,6 +21,7 @@ const {
     JSON_UNKNOWN_VERSION_ERROR,
     WRONG_VALUE,
 } = require('@condo/domains/common/constants/errors')
+const { SKIP_DAILY_SAME_TICKET_LIMIT, SKIP_DAILY_TICKET_LIMIT } = require('@condo/domains/common/constants/featureflags')
 const {
     CLIENT_PHONE_LANDLINE_FIELD,
     CLIENT_EMAIL_FIELD,
@@ -70,6 +72,7 @@ const {
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
 
 
 const usersWithoutTicketLimits = Object.keys(conf.USERS_WITHOUT_TICKET_LIMITS ? JSON.parse(conf.USERS_WITHOUT_TICKET_LIMITS) : {})
@@ -142,13 +145,15 @@ const checkDailyTicketLimit = async ({ userId, organizationId, details, context,
     const byIdAndOrgKey = `dailyTicketLimit:id:${userId}:organization:${organizationId}`
     const byIdOrgAndDetailsKey = `${byIdAndOrgKey}:details:${md5(details)}`
 
+    const isSkipSameTicketLimitFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SKIP_DAILY_SAME_TICKET_LIMIT)
     const byIdOrgAndDetailsCounter = isInvoiceTicket && isPayable ? 0 : await redisGuard.incrementDayCounter(byIdOrgAndDetailsKey)
-    if (byIdOrgAndDetailsCounter > DAILY_SAME_TICKET_LIMIT) {
+    if (!isSkipSameTicketLimitFeatureEnabled && byIdOrgAndDetailsCounter > DAILY_SAME_TICKET_LIMIT) {
         throw new GQLError(ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 
+    const isSkipTicketLimitFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SKIP_DAILY_TICKET_LIMIT)
     const byIdAndOrgCounter = await redisGuard.incrementDayCounter(byIdAndOrgKey)
-    if (byIdAndOrgCounter > DAILY_TICKET_LIMIT) {
+    if (!isSkipTicketLimitFeatureEnabled && byIdAndOrgCounter > DAILY_TICKET_LIMIT) {
         throw new GQLError(ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 }
