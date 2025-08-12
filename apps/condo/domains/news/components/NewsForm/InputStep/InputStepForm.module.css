@@ -18,11 +18,11 @@
   }
 }
 
-.ant-form-item-label {
+.custom-form-item-label {
   padding-bottom: 8px !important;
 }
 
-.ant-form-item-label label {
+.custom-form-item-label label {
   height: auto !important;
   white-space: nowrap !important;
 }

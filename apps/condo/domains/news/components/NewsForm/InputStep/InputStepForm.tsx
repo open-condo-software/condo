@@ -394,7 +394,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                     <Col span={24}>
                                         <Form.Item
                                             label={TitleLabel}
-                                            labelCol={{ className: styles.antFormItemLabel }}
+                                            labelCol={{ className: styles.customFormItemLabel }}
                                             name='title'
                                             required
                                             rules={titleRule}
@@ -412,7 +412,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                     <Col span={24}>
                                         <Form.Item
                                             label={BodyLabel}
-                                            labelCol={{ className: styles.antFormItemLabel }}
+                                            labelCol={{ className: styles.customFormItemLabel }}
                                             name='body'
                                             required
                                             rules={bodyRule}
