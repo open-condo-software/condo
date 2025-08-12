@@ -260,6 +260,18 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
 
 const DEBOUNCE_TIME = 300
 
+type HasChangeValueType = {
+    floorCount: boolean
+    minFloor: boolean
+    unitsOnFloor: boolean
+}
+
+const initialHasChangeValue: HasChangeValueType = {
+    floorCount: false,
+    minFloor: false,
+    unitsOnFloor: false,
+}
+
 const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
@@ -279,13 +291,9 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const section = sections?.[0]
     const canChangeName = sections.length < 2
 
-    const SelectUnitsMessage = builder.viewMode === MapViewMode.parking ?
-        intl.formatMessage({ id: 'pages.condo.property.modal.SelectParkingUnitsLabel' }, {
-            count: sections.length,
-        }) :
-        intl.formatMessage({ id: 'pages.condo.property.modal.SelectUnitsLabel' }, {
-            count: sections.length,
-        })
+    const SelectSectionsMessage = intl.formatMessage({ id: 'pages.condo.property.index.SelectSectionsLabel' }, {
+        count: sections.length,
+    })
 
     useEffect(() => {
         if (!section) {
@@ -307,6 +315,9 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const [floorCount, setFloorCount] = useState(section ? section.floors.length : 0)
     const [unitsOnFloor, setUnitsOnFloor] = useState<number>(sectionMaxUnitsPerFloor)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
+    const [hasChanges, setHasChanges] = useState<HasChangeValueType>(initialHasChangeValue)
+
+    const oldSectionsIds = useRef(null)
 
     useEffect(() => {
         setName(section ? section.name : '')
@@ -323,15 +334,24 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const debouncedSetMinFloor = useCallback(debounce((value) => {
         setMinFloor(value)
-    }, DEBOUNCE_TIME), [])
+        if (sections.length > 1 ) {
+            setHasChanges(prev => ({ ...prev, minFloor:true }))
+        }
+    }, DEBOUNCE_TIME), [sections.length])
 
     const debouncedSetFloorCount = useCallback(debounce((value) => {
         setFloorCount(value)
-    }, DEBOUNCE_TIME), [])
+        if (sections.length > 1 ) {
+            setHasChanges(prev => ({ ...prev, floorCount:true }))
+        }
+    }, DEBOUNCE_TIME), [sections.length])
 
     const debouncedSetUnitsOnFloor = useCallback(debounce((value) => {
         setUnitsOnFloor(value)
-    }, DEBOUNCE_TIME), [])
+        if (sections.length > 1 ) {
+            setHasChanges(prev => ({ ...prev, unitsOnFloor:true }))
+        }
+    }, DEBOUNCE_TIME), [sections.length])
 
     const maxFloorValue = useMemo(() => {
         if (floorCount === 1) return minFloor
@@ -356,42 +376,69 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         setName(section?.name || '')
     }, [section?.name])
 
+    useEffect(() => {
+        const sectionsIds = sections.map(section => section.id)
+
+        if (oldSectionsIds.current && JSON.stringify(sectionsIds) === JSON.stringify(oldSectionsIds.current)) return
+
+        if (sections.length > 1 ) {
+            setHasChanges(initialHasChangeValue)
+            setFloorCount(null)
+            setUnitsOnFloor(null)
+            setMinFloor(null)
+        } else {
+            setFloorCount(section ? section.floors.length : 0)
+            setUnitsOnFloor(sectionMaxUnitsPerFloor)
+            setMinFloor(sectionMinFloor)
+        }
+
+        oldSectionsIds.current = sectionsIds
+    }, [section, sectionMaxUnitsPerFloor, sectionMinFloor, sections])
+
+    useEffect(() => {
+        Promise.allSettled(
+            sections.map(section => {
+                const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
+                const sectionMinFloor = builder.getSectionMinFloor(sectionIndex)
+                const sectionMaxFloor = builder.getSectionMaxFloor(sectionIndex)
+                const sectionMaxUnitsPerFloor = builder.getMaxUnitsPerFloor(section.id)
+
+                builder.updatePreviewSection({
+                    ...section,
+                    name: canChangeName ? name : undefined,
+                    minFloor: hasChanges.minFloor || sections.length === 1 ? minFloor : sectionMinFloor,
+                    maxFloor: hasChanges.floorCount || sections.length === 1 ? maxFloorValue : sectionMaxFloor,
+                    unitsOnFloor: hasChanges.unitsOnFloor || sections.length === 1 ? unitsOnFloor : sectionMaxUnitsPerFloor,
+                })
+            })
+        )
+    }, [builder, name, minFloor, maxFloorValue, unitsOnFloor, floorCount, canChangeName, sections, initialSections, hasChanges])
+
     const updateSection = useCallback(() => {
         sections.forEach(section => {
             builder.restoreSection(section.id)
         })
 
         Promise.allSettled(
-            sections.map(section =>
+            sections.map(section => {
+                const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
+                const sectionMinFloor = builder.getSectionMinFloor(sectionIndex)
+                const sectionMaxFloor = builder.getSectionMaxFloor(sectionIndex)
+                const sectionMaxUnitsPerFloor = builder.getMaxUnitsPerFloor(section.id)
+
                 builder.updateSection({
                     ...section,
                     name: canChangeName ? name : undefined,
-                    minFloor,
-                    maxFloor: maxFloorValue,
-                    unitsOnFloor,
-                }, renameNextUnits.current, renameNextSections.current)
+                    minFloor: hasChanges.minFloor || sections.length === 1 ? minFloor : sectionMinFloor,
+                    maxFloor: hasChanges.floorCount || sections.length === 1 ? maxFloorValue : sectionMaxFloor,
+                    unitsOnFloor: hasChanges.unitsOnFloor || sections.length === 1 ? unitsOnFloor : sectionMaxUnitsPerFloor,
+                }, renameNextUnits.current, renameNextSections.current)}
             )
         )
 
         refresh()
         resetForm()
-    }, [sections, refresh, resetForm, builder, canChangeName, name, minFloor, maxFloorValue, unitsOnFloor])
-
-    useEffect(() => {
-        if (minFloor !== undefined && floorCount && unitsOnFloor && (canChangeName ? name : true) && maxFloorValue !== undefined) {
-            Promise.allSettled(
-                sections.map(section =>
-                    builder.updatePreviewSection({
-                        ...section,
-                        name: canChangeName ? name : undefined,
-                        minFloor,
-                        maxFloor: maxFloorValue,
-                        unitsOnFloor,
-                    })
-                )
-            )
-        }
-    }, [builder, name, minFloor, maxFloorValue, unitsOnFloor, floorCount, canChangeName, sections])
+    }, [sections, refresh, resetForm, builder, initialSections, canChangeName, name, hasChanges, minFloor, maxFloorValue, unitsOnFloor])
 
     useEffect(() => {
         return () => {
@@ -420,7 +467,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
                     {sections.length > 1 &&
                         <Col span={24}>
-                            <Typography.Text>{SelectUnitsMessage}</Typography.Text>
+                            <Typography.Text>{SelectSectionsMessage}</Typography.Text>
                         </Col>
                     }
 
@@ -493,11 +540,13 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                         <RenameNextUnitsCheckbox renameNextUnitsRef={renameNextUnits} mapViewMode={builder.viewMode}/>
                     </Col>
 
-                    <Col span={24}>
-                        <Checkbox onChange={toggleRenameNextSections}>
-                            {builder.viewMode === MapViewMode.parking ? RenameNextParkingsLabel : RenameNextSectionsLabel}
-                        </Checkbox>
-                    </Col>
+                    {canChangeName &&
+                        <Col span={24}>
+                            <Checkbox onChange={toggleRenameNextSections}>
+                                {builder.viewMode === MapViewMode.parking ? RenameNextParkingsLabel : RenameNextSectionsLabel}
+                            </Checkbox>
+                        </Col>
+                    }
                 </Row>
             </Col>
             <Col span={24}>
