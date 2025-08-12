@@ -96,6 +96,8 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
             placement='top'
             mouseEnterDelay={1.5}
             className={styles.wrapper}
+            // NOTE: Tooltip by default has z-index = 1070. In /news/create page, we have dropdown menu with z-index = 1050.
+            // Dropdown menu should be above on tooltip, therefore we set z-index = 1049
             zIndex={1049}
             overlayInnerStyle={{
                 width: tooltipWidth,
