@@ -32,6 +32,8 @@ const TICKET_NOTIFICATIONS_EXCLUDED_ORGANIZATIONS = 'ticket-notifications-exclud
 const HIDE_ORGANIZATION_REQUESTS = 'hide-organization-requests'
 const SKIP_SEARCH_ORGANIZATION_BY_TIN = 'skip-search-organization-by-tin'
 const ANALYTICS_RESIDENT_IN_CONTACT_PAGE = 'analytics-resident-in-contact-page'
+const SKIP_DAILY_TICKET_LIMIT = 'skip-daily-ticket-limit'
+const SKIP_DAILY_SAME_TICKET_LIMIT = 'skip-daily-same-ticket-limit'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -68,4 +70,6 @@ module.exports = {
     HIDE_ORGANIZATION_REQUESTS,
     SKIP_SEARCH_ORGANIZATION_BY_TIN,
     ANALYTICS_RESIDENT_IN_CONTACT_PAGE,
+    SKIP_DAILY_TICKET_LIMIT,
+    SKIP_DAILY_SAME_TICKET_LIMIT,
 }
