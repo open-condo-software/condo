@@ -1539,7 +1539,7 @@ __metadata:
     analytics: ^0.8.16
     antd: 5.16.4
     big.js: ^6.2.2
-    classnames: ^2.3.2
+    classnames: ^2.5.1
     cookies-next: ^4.2.1
     cross-fetch: 4.0.0
     dayjs: ^1.11.13
