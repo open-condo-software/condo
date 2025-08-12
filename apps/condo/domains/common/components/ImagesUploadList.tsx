@@ -163,14 +163,19 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
 
     useEffect(() => {
         if (!imagesListWrapperRef.current) return
+        
+        const wrapper = imagesListWrapperRef.current // Store ref in a variable
         const resizeObserver = new ResizeObserver(handleScrollX)
-
-        imagesListWrapperRef.current.addEventListener('scroll', handleScrollX)
-        imagesListRef.current = getImagesList()
-        resizeObserver.observe(imagesListRef.current)
-
+        const imagesList = getImagesList()
+    
+        wrapper.addEventListener('scroll', handleScrollX)
+        imagesListRef.current = imagesList
+        resizeObserver.observe(imagesList)
+    
         return () => {
-            imagesListWrapperRef.current.removeEventListener('scroll', handleScrollX)
+            if (!wrapper) return
+
+            wrapper.removeEventListener('scroll', handleScrollX)
             resizeObserver.disconnect()
         }
     }, [handleScrollX])
