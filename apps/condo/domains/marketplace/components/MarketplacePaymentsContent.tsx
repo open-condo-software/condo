@@ -356,13 +356,6 @@ const MarketplacePaymentsTableContent = () => {
                             >
                                 {ClearListSelectedRowMessage}
                             </Button> : undefined,
-                            // <Button
-                            //     key='downloadCheck'
-                            //     type='primary'
-                            //     onClick={handleDownloadCheckButtonClick}
-                            // >
-                            //     {DownloadCheckLabel}
-                            // </Button>,
                         ]}
                     />
                 )
