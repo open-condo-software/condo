@@ -79,7 +79,7 @@
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
     "express-session": "^1.17.2",
-    "form-data": "^4.0.0",
+    "form-data": "^4.0.4",
     "graphql": "^16.10.0",
     "graphql-disable-introspection": "^1.2.0",
     "graphql-tag": "^2.12.6",
