@@ -4,9 +4,9 @@ import { debounce } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { ChevronDown, ChevronUp, Trash } from '@open-condo/icons'
+import { ChevronDown, ChevronUp, QuestionCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Checkbox, Select, Space, Typography } from '@open-condo/ui'
+import { Button, Checkbox, Select, Space, Tooltip, Typography } from '@open-condo/ui'
 
 import {
     MAX_PROPERTY_FLOORS_COUNT,
@@ -285,7 +285,9 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
     const ShowMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.showMinFloor' })
     const HideMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.hideMinFloor' })
-
+    const RenameNextUnitsTooltip = intl.formatMessage({ id: 'pages.condo.property.modal.sections.RenameNextUnits.tooltip' })
+    const RenameNextSectionsTooltip = intl.formatMessage({ id: 'pages.condo.property.modal.sections.RenameNextSections.tooltip' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
     const initialSections = builder.sections
     const sections = builder.getSelectedSections()
     const section = sections?.[0]
@@ -321,6 +323,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const renameNextSections = useRef(false)
     const renameNextUnits = useRef(false)
     const toggleRenameNextSections = useCallback((event) => { renameNextSections.current = event.target.checked }, [])
+    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
     const [minFloor, setMinFloor] = useState(sectionMinFloor)
     const [floorCount, setFloorCount] = useState(section ? section.floors.length : 0)
     const [unitsOnFloor, setUnitsOnFloor] = useState<number>(sectionMaxUnitsPerFloor)
@@ -542,13 +545,29 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </Col>
 
                     <Col span={24}>
-                        <RenameNextUnitsCheckbox renameNextUnitsRef={renameNextUnits} mapViewMode={builder.viewMode}/>
+                        <Checkbox onChange={toggleRenameNextUnits}>
+                            <Space size={8}>
+                                {RenameNextUnitsLabel}
+                                <Tooltip title={RenameNextUnitsTooltip}>
+                                    <Typography.Text type='secondary'>
+                                        <QuestionCircle size='small'/>
+                                    </Typography.Text>
+                                </Tooltip>
+                            </Space>
+                        </Checkbox>
                     </Col>
 
                     {canChangeName &&
                         <Col span={24}>
                             <Checkbox onChange={toggleRenameNextSections}>
-                                {builder.viewMode === MapViewMode.parking ? RenameNextParkingsLabel : RenameNextSectionsLabel}
+                                <Space size={8}>
+                                    {builder.viewMode === MapViewMode.parking ? RenameNextParkingsLabel : RenameNextSectionsLabel}
+                                    <Tooltip title={RenameNextSectionsTooltip}>
+                                        <Typography.Text type='secondary'>
+                                            <QuestionCircle size='small'/>
+                                        </Typography.Text>
+                                    </Tooltip>
+                                </Space>
                             </Checkbox>
                         </Col>
                     }
