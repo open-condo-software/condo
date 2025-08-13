@@ -5,8 +5,9 @@ import compact from 'lodash/compact'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
-import { CSSProperties, useCallback, useMemo, useState } from 'react'
+import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Tooltip, Tour } from '@open-condo/ui'
 
@@ -40,6 +41,8 @@ const FULL_WIDTH_STYLE: CSSProperties = { width: '100%' }
 const inputMeterReadingFormatter = value => value.toString().replace(',', '.')
 const PARSER_METER_READING_REGEX = /[,.]+/g
 const inputMeterReadingParser = input => input.replace(PARSER_METER_READING_REGEX, '.')
+const TOOLTIP_CONTAINER_STYLE: CSSProperties = { display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: 'space-between' }
+const CURSOR_POINTER_STYLE: CSSProperties = { cursor: 'pointer' }
 const METER_READING_INPUT_ADDON_STYLE: CSSProperties = {
     position: 'absolute',
     top: '50%',
@@ -120,6 +123,7 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
     const AddMeterReadingPlaceholderMessage = intl.formatMessage({ id: 'pages.condo.meter.create.AddMeterReadingPlaceholder' })
     const MeterReadingTourStepTitle = intl.formatMessage({ id: 'pages.condo.meter.create.meterReadingTourStepTitle' })
     const MissedVerificationTooltip = intl.formatMessage({ id: 'pages.condo.meter.MissedVerification.tip' })
+    const MeterReadingIsLessThatPreviousTooltip = intl.formatMessage({ id: 'pages.condo.meter.SmallerThanLastReading.tip' })
 
     const meterId = get(record, ['meter', 'id'])
     const tariffNumber = get(record, 'tariffNumber')
@@ -130,6 +134,9 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
 
     const isInputDisabled =  dayjs(nextVerificationDate).isBefore(dayjs(), 'day') && true
 
+    const [isTooltipOpen, setIsTooltipOpen] = useState(false)
+    const debounceTimer = useRef(null)
+
     const updateMeterReadingsValue = useCallback((oldMeterReadings, newTariffValue) => {
         const newReadingsFromOtherTariffs = get(oldMeterReadings, [meterId], {})
         const newMeterMeterReadings = pickBy({ ...newReadingsFromOtherTariffs, [tariffNumber]: newTariffValue })
@@ -138,19 +145,37 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
         return pickBy({ ...oldMeterReadings, [meterId]: newMeterMeterReadings }, pickMeterReadingCondition)
     }, [meterId, tariffNumber])
 
-    const meterReadingValueChangeHandler = useCallback((e) => {
-        const newTariffValue = e ? String(e) : ''
+    const meterReadingValueChangeHandler = useCallback((value) => {
+        const newTariffValue = value ? String(value) : ''
         setNewMeterReadings(oldMeterReadings => updateMeterReadingsValue(oldMeterReadings, newTariffValue))
-    }, [setNewMeterReadings, updateMeterReadingsValue])
+        setIsTooltipOpen(false)
+        if (debounceTimer.current) clearTimeout(debounceTimer.current)
 
+        debounceTimer.current = setTimeout(() => {
+            const numericVal = Number(value)
+            if (value && !isNaN(numericVal) && lastReading && numericVal < lastReading) {
+                setIsTooltipOpen(true)
+            } else {
+                setIsTooltipOpen(false)
+            }
+        }, 1500)
+    }, [lastReading, setNewMeterReadings, updateMeterReadingsValue])
+
+    useEffect(() => {
+        return () => {
+            if (debounceTimer.current) clearTimeout(debounceTimer.current)
+        }
+    }, [])
+    
     const handleInputContainerClick = useCallback(e => e.stopPropagation(), [])
 
     const wrapperProps = useMemo(() => ({
         style: INPUT_CONTAINER_STYLE,
         onClick: handleInputContainerClick,
     }), [handleInputContainerClick])
+
     const inputProps = useMemo(() => ({
-        placeholder: lastReading || AddMeterReadingPlaceholderMessage,
+        placeholder: AddMeterReadingPlaceholderMessage,
         css: inputNumberCSS,
         stringMode: true,
         onChange: meterReadingValueChangeHandler,
@@ -158,7 +183,21 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
         formatter: inputMeterReadingFormatter,
         parser: inputMeterReadingParser,
         min: 0,
-    }), [AddMeterReadingPlaceholderMessage, inputValue, lastReading, meterReadingValueChangeHandler])
+    }), [AddMeterReadingPlaceholderMessage, inputValue, meterReadingValueChangeHandler])
+
+    const ToolTipTitleComponent = useMemo(() => {
+        return <div style={TOOLTIP_CONTAINER_STYLE}>
+            <span>{MeterReadingIsLessThatPreviousTooltip}</span>
+            <div style={CURSOR_POINTER_STYLE}>
+                <Close size='small' 
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        setIsTooltipOpen(false)
+                    }}
+                />
+            </div>
+        </div>
+    }, [MeterReadingIsLessThatPreviousTooltip])
 
     if (index === 0) {
         return (
@@ -175,11 +214,15 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
                             </span>
                         </Tooltip>
                     ) : (
-                        <InputNumber
-                            {...inputProps}
-                            autoFocus
-                            disabled={isInputDisabled}
-                        />
+                        <Tooltip title={ToolTipTitleComponent} open={isTooltipOpen}>
+                            <span>
+                                <InputNumber
+                                    {...inputProps}
+                                    autoFocus
+                                    disabled={isInputDisabled}
+                                />
+                            </span>
+                        </Tooltip>
                     )}
                     <div style={METER_READING_INPUT_ADDON_STYLE}>
                         {meterResourceMeasure}
@@ -201,10 +244,15 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
                     </span>
                 </Tooltip>
             ) : (
-                <InputNumber
-                    {...inputProps}
-                    disabled={isInputDisabled}
-                />
+                <Tooltip title={ToolTipTitleComponent} open={isTooltipOpen}>
+                    <span>
+                        <InputNumber
+                            {...inputProps}
+                            autoFocus
+                            disabled={isInputDisabled}
+                        />
+                    </span>
+                </Tooltip>
             )}
             <div style={METER_READING_INPUT_ADDON_STYLE}>
                 {meterResourceMeasure}
@@ -226,6 +274,7 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
     const SecondTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff2Message' })
     const ThirdTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff3Message' })
     const FourthTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff4Message' })
+    const LastReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.create.LastReading' })
 
     const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
     const [newMeterReadings, setNewMeterReadings] = useState({})
@@ -299,8 +348,13 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
         },
         {
             title: ReadingDateMessage,
-            width: '20%',
+            width: '15%',
             render: meterReadingDateRenderer,
+        },
+        {
+            title: LastReadingMessage,
+            width: '15%',
+            render: (record) => (get(record, 'lastMeterReading')),
         },
         {
             title: MeterReadingsMessage,
@@ -308,7 +362,7 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
             render: meterReadingRenderer,
         },
     ]),
-    [isPropertyMeter, AccountMessage, textRenderer, ResourceMessage, meterResourceRenderer, MeterNumberMessage, PlaceMessage, NextVerificationDateMessage, nextVerificationDateRenderer, ReadingDateMessage, meterReadingDateRenderer, MeterReadingsMessage, meterReadingRenderer])
+    [isPropertyMeter, AccountMessage, textRenderer, ResourceMessage, meterResourceRenderer, MeterNumberMessage, PlaceMessage, NextVerificationDateMessage, nextVerificationDateRenderer, ReadingDateMessage, meterReadingDateRenderer, LastReadingMessage, MeterReadingsMessage, meterReadingRenderer])
 
     return useMemo(() => ({ tableColumns, newMeterReadings, setNewMeterReadings }),
         [newMeterReadings, tableColumns])

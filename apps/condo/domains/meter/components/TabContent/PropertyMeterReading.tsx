@@ -201,7 +201,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                 onChange={handleSelectAllRowsByPage}
             />
         ),
-    }), [handleSelectAllRowsByPage, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
+    }), [handleSelectAllRowsByPage, handleSelectRow, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const handleUpdateMeterReading = useCallback((record) => { 
         if (get(meter, 'archiveDate') || !get(meter, 'property')) {
@@ -213,7 +213,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                 setChosenMeterReadingId(get(record, 'id'))
             },
         }
-    }, [])
+    }, [meter])
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`), [router])
     const handleCloseUpdateReadingModal = useCallback(() => setIsShowUpdateReadingModal(false), [])
