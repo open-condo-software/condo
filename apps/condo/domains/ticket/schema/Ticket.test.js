@@ -21,6 +21,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
+const { SKIP_DAILY_TICKET_LIMIT, SKIP_DAILY_SAME_TICKET_LIMIT } = require('@condo/domains/common/constants/featureflags')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
@@ -98,7 +99,6 @@ const {
     createTestPhone,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { SKIP_DAILY_TICKET_LIMIT, SKIP_DAILY_SAME_TICKET_LIMIT } = require("@condo/domains/common/constants/featureflags");
 
 
 const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !== FEEDBACK_VALUES_BY_KEY.RETURNED)
