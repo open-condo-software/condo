@@ -2460,6 +2460,8 @@
   "pages.condo.property.modal.RenameNextSections": "Cambiar números de portales siguientes",
   "pages.condo.property.modal.RenameNextUnits": "Cambiar números de propiedades siguientes",
   "pages.condo.property.modal.RenameNextUnits.tooltip": "Cuando se agregue una nueva unidad, cambiará la numeración de todas las unidades",
+  "pages.condo.property.modal.sections.RenameNextUnits.tooltip": "Al agregar una nueva unidad, cambiará la numeración de las unidades en todas las secciones siguientes del edificio",
+  "pages.condo.property.modal.sections.RenameNextSections.tooltip": "Al cambiar el número de la sección, se modificará la numeración en todas las secciones siguientes",
   "pages.condo.property.modal.SelectParkingUnitsLabel": "Unidades de estacionamiento seleccionadas: {count}",
   "pages.condo.property.modal.SelectUnitsLabel": "Unidades seleccionadas: {count}",
   "pages.condo.property.modal.UnitType": "Tipo de propiedad",

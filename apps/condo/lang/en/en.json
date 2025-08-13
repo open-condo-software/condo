@@ -2460,6 +2460,8 @@
   "pages.condo.property.modal.RenameNextSections": "Rename the following sections in order",
   "pages.condo.property.modal.RenameNextUnits": "Rename the following unit in order",
   "pages.condo.property.modal.RenameNextUnits.tooltip": "When a new unit is added, the numbering of all units will change",
+  "pages.condo.property.modal.sections.RenameNextUnits.tooltip": "When adding a new unit, the numbering of units in all subsequent building sections will change",
+  "pages.condo.property.modal.sections.RenameNextSections.tooltip": "When changing the section number, the numbering in all subsequent sections will change",
   "pages.condo.property.modal.SelectParkingUnitsLabel": "Selected parking units: {count}",
   "pages.condo.property.modal.SelectUnitsLabel": "Selected units: {count}",
   "pages.condo.property.modal.UnitType": "Unit type",
