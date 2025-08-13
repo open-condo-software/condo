@@ -17,7 +17,7 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowGQLError,
     expectValuesOfCommonFields,
-    setAllFeatureFlags,
+    setAllFeatureFlags, setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
 
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
@@ -98,6 +98,7 @@ const {
     createTestPhone,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
+const { SKIP_DAILY_TICKET_LIMIT, SKIP_DAILY_SAME_TICKET_LIMIT } = require("@condo/domains/common/constants/featureflags");
 
 
 const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !== FEEDBACK_VALUES_BY_KEY.RETURNED)
@@ -2351,6 +2352,8 @@ describe('Ticket', () => {
     describe('Validations', () => {
         describe('guards', () => {
             test('user: resident should not be able to create tickets with identical text over the limit', async () => {
+                setFeatureFlag(SKIP_DAILY_SAME_TICKET_LIMIT, false)
+
                 const details = 'I have some problems with hot water!'
 
                 // User, should be banned from creating tickets to organization if he exceeds the limits.
@@ -2393,6 +2396,8 @@ describe('Ticket', () => {
             })
 
             test('user: resident should not be able to create tickets in single day over the limit', async () => {
+                setFeatureFlag(SKIP_DAILY_TICKET_LIMIT, false)
+
                 // User, should be banned from creating tickets to organization if he exceeds the limits.
                 const organization1 = await makeClientWithProperty()
 
