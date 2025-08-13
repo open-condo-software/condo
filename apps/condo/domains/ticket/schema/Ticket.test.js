@@ -116,8 +116,6 @@ describe('Ticket', () => {
     let clientWithoutCanReadTicket
 
     beforeAll(async () => {
-        setAllFeatureFlags(true)
-
         admin = await makeLoggedInAdminClient()
         clientWithCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
         clientWithoutCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
