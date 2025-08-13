@@ -299,7 +299,6 @@ const User = new GQLListSchema('User', {
         },
 
         hasMarketingConsent: {
-            // TODO: translate in en
             schemaDoc: 'Global consent to receive marketing materials',
             type: 'Checkbox',
             isRequired: false,
