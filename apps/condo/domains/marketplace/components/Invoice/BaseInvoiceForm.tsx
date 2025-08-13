@@ -173,6 +173,7 @@ const PropertyFormField = ({ organizationId, form, disabled, selectedPropertyId,
         <>
             <Form.Item
                 label={AddressLabel}
+                labelAlign='left'
                 labelCol={{ span: 24 }}
                 required
                 rules={[requiredValidator]}
@@ -389,12 +390,14 @@ const PayerDataFields = ({ organizationId, form, disabled, initialValues }) => {
                                     </Col>
                                 </Row>
                             </Col>
+                            <Col span={24}>
+                                <ContactFormField
+                                    organizationId={organizationId}
+                                    form={form}
+                                    disabled={disabled}
+                                />
+                            </Col>
                         </Row>
-                        <ContactFormField
-                            organizationId={organizationId}
-                            form={form}
-                            disabled={disabled}
-                        />
                     </Col>
                 )
             }
