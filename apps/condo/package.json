@@ -66,7 +66,7 @@
     "axios": "^0.26.0",
     "big.js": "^6.2.2",
     "carbone": "3.2.3",
-    "classnames": "^2.3.2",
+    "classnames": "^2.5.1",
     "cookie-signature": "^1.2.2",
     "cookies-next": "^4.2.1",
     "csv-stringify": "^6.2.0",
