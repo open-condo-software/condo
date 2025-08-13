@@ -1667,6 +1667,460 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@arch-ui/alert@npm:^0.0.21":
+  version: 0.0.21
+  resolution: "@arch-ui/alert@npm:0.0.21"
+  dependencies:
+    "@arch-ui/theme": ^0.0.14
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 99d74e80f190765899a7de8f14b54ec05af5f7d762b641f4ce9178c96e191b7c5456dd1afb5ff9f06da52f537706705956523e9b186837ccc003e86b95bc54b3
+  languageName: node
+  linkType: hard
+
+"@arch-ui/badge@npm:^0.0.20":
+  version: 0.0.20
+  resolution: "@arch-ui/badge@npm:0.0.20"
+  dependencies:
+    "@arch-ui/theme": 0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 4ff0582e8158070b8ddd1f687e70e441eb42657b87934edabd74abaaa247f9625c0682b0146830235455b7d143cc53c19b4edb1b302bb61f122b7c95ac8c7011
+  languageName: node
+  linkType: hard
+
+"@arch-ui/button@npm:^0.0.25":
+  version: 0.0.25
+  resolution: "@arch-ui/button@npm:0.0.25"
+  dependencies:
+    "@arch-ui/color-utils": ^0.0.5
+    "@arch-ui/common": ^0.0.15
+    "@arch-ui/loading": ^0.0.21
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    react-pseudo-state: ^2.2.2
+    react-router-dom: 5.2.0
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 46902c3e38b69872f9bab42e86060e89f50077cb0139a59b5bd12792138e11d5249bafca86151caba9dad8c97952dcb3a84235c2f003fa24e484bfa3c48a48ae
+  languageName: node
+  linkType: hard
+
+"@arch-ui/card@npm:^0.0.18":
+  version: 0.0.18
+  resolution: "@arch-ui/card@npm:0.0.18"
+  dependencies:
+    "@arch-ui/theme": 0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 3b2c08d81470b4d19e85a448f11c367e63e771f8f155c7f3ca3b70948d610d2984e5d5d843ee805ec448b75ad856a62c2c3cdb6b47ff9942d22126b8385e0699
+  languageName: node
+  linkType: hard
+
+"@arch-ui/color-utils@npm:0.0.5, @arch-ui/color-utils@npm:^0.0.5":
+  version: 0.0.5
+  resolution: "@arch-ui/color-utils@npm:0.0.5"
+  checksum: cc5922c47ac2f0d6595b78adda17fd946c23bd24bdd01cb631881ea26111ae0bb3d48c0b1bd78d668c5d769f6948be3333476f532fb5a915a0690dfcd2c66753
+  languageName: node
+  linkType: hard
+
+"@arch-ui/common@npm:0.0.15, @arch-ui/common@npm:^0.0.15":
+  version: 0.0.15
+  resolution: "@arch-ui/common@npm:0.0.15"
+  dependencies:
+    "@arch-ui/theme": ^0.0.14
+  checksum: 123c79e28c48ec55ea6e5ff1942cfab32251e54c14e220d8533ea96cbb06c91e0035aab6c3317be6715fd2a5d7116d5389b58ef9fab4d6ab1794be26d55de3f5
+  languageName: node
+  linkType: hard
+
+"@arch-ui/confirm@npm:^0.0.26":
+  version: 0.0.26
+  resolution: "@arch-ui/confirm@npm:0.0.26"
+  dependencies:
+    "@arch-ui/modal-utils": ^1.0.16
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    focus-trap-react: ^8.5.0
+    react-scrolllock: ^5.0.1
+  peerDependencies:
+    react: ^17.0.2
+    react-dom: ^17.0.2
+  checksum: 3815cade16f68e60ac75e4bf4a4e0a2873ab92a6d16385558af859fa97b6c6f3f29a74255d976de179bca9c2d9b47e07a8f6a1e8fd94d86f95593ecf5c3b39fa
+  languageName: node
+  linkType: hard
+
+"@arch-ui/controls@npm:^0.1.12":
+  version: 0.1.12
+  resolution: "@arch-ui/controls@npm:0.1.12"
+  dependencies:
+    "@arch-ui/input": ^0.1.14
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    react-pseudo-state: ^2.2.2
+    react-radios: ^1.1.0
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 1b2f1fe4365425ad6935f12688698ee6b678eab740ea99d7c80847d089be4b3151f717d0b625cfc8aa832f0610bd13e491d92eb52d1ae54a1e849f19dc47bb8d
+  languageName: node
+  linkType: hard
+
+"@arch-ui/day-picker@npm:^1.0.8":
+  version: 1.0.8
+  resolution: "@arch-ui/day-picker@npm:1.0.8"
+  dependencies:
+    "@arch-ui/input": ^0.1.14
+    "@arch-ui/select": ^0.1.12
+    "@arch-ui/theme": ^0.0.14
+    "@arch-ui/typography": ^0.0.21
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@primer/octicons-react": ^11.3.0
+    chrono-node: ^1.4.8
+    date-fns: ^2.21.3
+    intersection-observer: ^0.12.0
+    moment: ^2.29.1
+    react-window: ^1.8.6
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 12526f24898bfda6afcceb43945289f7d995e60ee6df0b12777023d7c8784026bd060ae6989f31b20f0203fffa3f9eb2faf83a6dc7dffb4e07af83dd1100a9c6
+  languageName: node
+  linkType: hard
+
+"@arch-ui/dialog@npm:^0.0.28":
+  version: 0.0.28
+  resolution: "@arch-ui/dialog@npm:0.0.28"
+  dependencies:
+    "@arch-ui/color-utils": ^0.0.5
+    "@arch-ui/modal-utils": ^1.0.16
+    "@arch-ui/theme": ^0.0.14
+    "@arch-ui/typography": ^0.0.21
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    focus-trap-react: ^8.5.0
+    react-scrolllock: ^5.0.1
+  peerDependencies:
+    react: ^17.0.2
+    react-dom: ^17.0.2
+  checksum: 2aedbfbd7d9e8edd5ef34e557597a1e5516207b084eeed4bb20e0f51b8e3beb757e79cda253f72d655ebefe1711655514d0debfd1fe6a4491ff15ab88795a612
+  languageName: node
+  linkType: hard
+
+"@arch-ui/drawer@npm:^0.0.28":
+  version: 0.0.28
+  resolution: "@arch-ui/drawer@npm:0.0.28"
+  dependencies:
+    "@arch-ui/color-utils": ^0.0.5
+    "@arch-ui/modal-utils": ^1.0.16
+    "@arch-ui/theme": ^0.0.14
+    "@arch-ui/typography": ^0.0.21
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    focus-trap-react: ^8.5.0
+    react-scrolllock: ^5.0.1
+  peerDependencies:
+    react: ^17.0.2
+    react-dom: ^17.0.2
+  checksum: 05ddcf4d3c04022eb31d53a89a8e56056e8ab1cc8764847cdf837d25fbab1953c9472f9844b902019d2fde2ddb53d89b4882e6952be152ea898b3ec1344ad938
+  languageName: node
+  linkType: hard
+
+"@arch-ui/dropdown@npm:^0.0.25":
+  version: 0.0.25
+  resolution: "@arch-ui/dropdown@npm:0.0.25"
+  dependencies:
+    "@arch-ui/modal-utils": ^1.0.16
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    focus-trap-react: ^8.5.0
+    react-router-dom: 5.2.0
+  peerDependencies:
+    react: ^17.0.2
+    react-dom: ^17.0.2
+  checksum: 1d7d9fb69cabee65f1c4d040c5cf7386f2e3a90c801b29cfa3286ada597def0d1c31e8d8e131c807b26e6f044b8b4739e609d99ab03b692454e51ded9a885c45
+  languageName: node
+  linkType: hard
+
+"@arch-ui/fields@npm:^3.0.8":
+  version: 3.0.8
+  resolution: "@arch-ui/fields@npm:3.0.8"
+  dependencies:
+    "@arch-ui/lozenge": ^0.0.20
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@primer/octicons-react": ^11.3.0
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 571c528ad961b1fbbb7a43aa85760168245f13c385cea258a0bd9e9624f5dbd77da1449dc48ea053813cf13f3e105f9cd0ff6bef2c90d417912e5f336f6c2133
+  languageName: node
+  linkType: hard
+
+"@arch-ui/filters@npm:^0.0.23":
+  version: 0.0.23
+  resolution: "@arch-ui/filters@npm:0.0.23"
+  dependencies:
+    "@arch-ui/controls": ^0.1.12
+    "@arch-ui/layout": ^0.2.17
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    react-radios: ^1.1.0
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 5b79fe2adec6180f949b2ee54eaf6c68cadb741c8c5f5078ff794b7bf048fed0ae885571a7dbbce0b6062350601e266d581c9713a500cecc560ba40bc50487a9
+  languageName: node
+  linkType: hard
+
+"@arch-ui/hooks@npm:^0.0.14":
+  version: 0.0.14
+  resolution: "@arch-ui/hooks@npm:0.0.14"
+  dependencies:
+    "@babel/runtime": ^7.14.0
+    resize-observer-polyfill: ^1.5.1
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 411984032d0b137253521d52552dee3ad0e394580a5474efd36377a287a515f99726cd9b7da034cd345851154679cbfb1b877cd8e8695f885cbff213236b5112
+  languageName: node
+  linkType: hard
+
+"@arch-ui/input@npm:^0.1.14":
+  version: 0.1.14
+  resolution: "@arch-ui/input@npm:0.1.14"
+  dependencies:
+    "@arch-ui/color-utils": 0.0.5
+    "@arch-ui/common": 0.0.15
+    "@arch-ui/theme": 0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 30bb06fa3c7e83bdbf9d81cafc455d8a09a33c5b555f7feaeb63084480bdbdbfb274dfa0c5579e7505f3fb209b34cb114bd435dde7f35b4b2514b5b635ad8581
+  languageName: node
+  linkType: hard
+
+"@arch-ui/layout@npm:^0.2.17":
+  version: 0.2.17
+  resolution: "@arch-ui/layout@npm:0.2.17"
+  dependencies:
+    "@arch-ui/common": 0.0.15
+    "@arch-ui/theme": 0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+  peerDependencies:
+    react: ^17.0.2
+  checksum: e0a5598ea0c7017a169150b6148669c7819ace966c4a16818c05c9cf9eab7975b30b51aac88b023d75592e73db4429e7dabf1f507846f0b9353ee05704b8c610
+  languageName: node
+  linkType: hard
+
+"@arch-ui/loading@npm:^0.0.21":
+  version: 0.0.21
+  resolution: "@arch-ui/loading@npm:0.0.21"
+  dependencies:
+    "@arch-ui/theme": 0.0.14
+    "@arch-ui/typography": 0.0.21
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 97b80ee7ae3a4aced2be8ad114c53e44aa89d84d4685ab501114b0f4f97e8477886b1917ee7727dd46c36bedff4de6461120b88e2a7277ebf7a5963c1e4eff04
+  languageName: node
+  linkType: hard
+
+"@arch-ui/lozenge@npm:^0.0.20":
+  version: 0.0.20
+  resolution: "@arch-ui/lozenge@npm:0.0.20"
+  dependencies:
+    "@arch-ui/theme": 0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+  peerDependencies:
+    react: ^17.0.2
+  checksum: b6fab8a631b48f3e81e9558689f7111765375da774293cd57aeb713799041fcf0915f4d2ac058f5d20613e8c649594317af96270cf7f3b9425b0336934fddad2
+  languageName: node
+  linkType: hard
+
+"@arch-ui/modal-utils@npm:^1.0.16":
+  version: 1.0.16
+  resolution: "@arch-ui/modal-utils@npm:1.0.16"
+  dependencies:
+    "@arch-ui/color-utils": ^0.0.5
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    react-scrolllock: ^5.0.1
+    react-transition-group: ^4.4.1
+  peerDependencies:
+    react: ^17.0.2
+  checksum: d192598c0d6fffe4624e6a9d180da9a821e1bd0c81e2aa4c955cc73e0f48d50fa8ff603716a9bf9076aa30f7d8f3fc85ac532aec1882811d192673c715657da5
+  languageName: node
+  linkType: hard
+
+"@arch-ui/navbar@npm:^0.1.15":
+  version: 0.1.15
+  resolution: "@arch-ui/navbar@npm:0.1.15"
+  dependencies:
+    "@arch-ui/color-utils": ^0.0.5
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    react-router-dom: 5.2.0
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 93b2dfecfc946f77a0cc71019f2879d6ac95634056ed4c2765bb769e68817e8557d8cdd285e08e9b385285caa00af5834115f3e24e344c836fde8b44da70d4a5
+  languageName: node
+  linkType: hard
+
+"@arch-ui/options@npm:^0.0.27":
+  version: 0.0.27
+  resolution: "@arch-ui/options@npm:0.0.27"
+  dependencies:
+    "@arch-ui/common": ^0.0.15
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@primer/octicons-react": ^11.3.0
+    react-select: ^3.2.0
+  peerDependencies:
+    react: ^17.0.2
+  checksum: fdbb2e75ffc98403ae7669d1d6d04ec68233f1aded3e44f9695c551ec97959af834058fff73be060a6c14bfc38cae540701ca2d04bf2f4a28b688547dfdbdf07
+  languageName: node
+  linkType: hard
+
+"@arch-ui/pagination@npm:^0.0.29":
+  version: 0.0.29
+  resolution: "@arch-ui/pagination@npm:0.0.29"
+  dependencies:
+    "@arch-ui/button": ^0.0.25
+    "@arch-ui/layout": ^0.2.17
+    "@arch-ui/loading": ^0.0.21
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@primer/octicons-react": ^11.3.0
+    react-router-dom: 5.2.0
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 491bbe1b55677d84a79d88224295172cb99c78be6fd4808ab7f8e86366aca3b04f03f6f6bbfc398023b758af485aaec8e9951a2417f42210f106c13d031d576d
+  languageName: node
+  linkType: hard
+
+"@arch-ui/pill@npm:^0.1.21":
+  version: 0.1.21
+  resolution: "@arch-ui/pill@npm:0.1.21"
+  dependencies:
+    "@arch-ui/common": ^0.0.15
+    "@arch-ui/theme": 0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@primer/octicons-react": ^11.3.0
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 8cfd77d8f019b1bf2e4c70e8ade6adf456dd94241c987b0aca4bbf8b241ab4e86f521f192e8462fd60786ca37b3180f27c929b238aa3dd7058d06e939b267cb4
+  languageName: node
+  linkType: hard
+
+"@arch-ui/popout@npm:^0.0.26":
+  version: 0.0.26
+  resolution: "@arch-ui/popout@npm:0.0.26"
+  dependencies:
+    "@arch-ui/color-utils": ^0.0.5
+    "@arch-ui/modal-utils": ^1.0.16
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@popperjs/core": ^2.9.2
+    focus-trap-react: ^8.5.0
+    react-popper: ^2.2.5
+  peerDependencies:
+    react: ^17.0.2
+    react-dom: ^17.0.2
+  checksum: af26419eb5eb059e5970a42bb52ea7a748a8b352c03d1b3122644fd49349b9286aa30181a6782a216c35f40ab4bad647c262a22cb5b7fa4f0b7c7edd04a084fe
+  languageName: node
+  linkType: hard
+
+"@arch-ui/select@npm:^0.1.12":
+  version: 0.1.12
+  resolution: "@arch-ui/select@npm:0.1.12"
+  dependencies:
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    react-select: ^3.2.0
+  peerDependencies:
+    react: ^17.0.2
+  checksum: 8b37839e4197dc3abc4651530b84487ef9c55ef77b2678153f8a5ebd3a11765b349da0d800a729ae693fa67644d01364f4bec06db482c3774eed2f40548c6e14
+  languageName: node
+  linkType: hard
+
+"@arch-ui/theme@npm:0.0.14, @arch-ui/theme@npm:^0.0.14":
+  version: 0.0.14
+  resolution: "@arch-ui/theme@npm:0.0.14"
+  dependencies:
+    "@arch-ui/color-utils": 0.0.5
+    "@babel/runtime": ^7.14.0
+  checksum: a498d9718b88499cbed875159f865f42a320a2a295075de3ae1ee8b9fc7e1263d9c2e853f69cbeab6137a4f7204acc91adefa656feb37ee29046b293ff3f0654
+  languageName: node
+  linkType: hard
+
+"@arch-ui/tooltip@npm:^0.1.17":
+  version: 0.1.17
+  resolution: "@arch-ui/tooltip@npm:0.1.17"
+  dependencies:
+    "@arch-ui/modal-utils": ^1.0.16
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@popperjs/core": ^2.9.2
+    flushable: ^1.0.0
+    react-popper: ^2.2.5
+  peerDependencies:
+    react: ^17.0.2
+    react-dom: ^17.0.2
+  checksum: 125389825288b73b2259cdc2200ee035db57baf5a6706afb2b086a85a060d1b5f8990e751e10b49a901dcfdf2c9886f9f0a3e0ba810251d67e0cde976e63a89f
+  languageName: node
+  linkType: hard
+
+"@arch-ui/typography@npm:0.0.21, @arch-ui/typography@npm:^0.0.21":
+  version: 0.0.21
+  resolution: "@arch-ui/typography@npm:0.0.21"
+  dependencies:
+    "@arch-ui/theme": 0.0.14
+    "@babel/runtime": ^7.14.0
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+  peerDependencies:
+    react: ^17.0.2
+  checksum: f0f87bcbc80e8e133426d48966e773b7ccf48b389786bd38f272b62908f4594589f7a80015aa5a4d379043744b3653577f94056cfc638dd1c269b2f94bbf4f7c
+  languageName: node
+  linkType: hard
+
 "@ardatan/relay-compiler@npm:12.0.0":
   version: 12.0.0
   resolution: "@ardatan/relay-compiler@npm:12.0.0"
@@ -11215,7 +11669,7 @@ __metadata:
     "@open-keystone/fields": ^25.0.3
     "@open-keystone/fields-authed-relationship": ^2.0.14
     "@open-keystone/fields-markdown": ^7.0.3
-    "@open-keystone/fields-wysiwyg-tinymce": ^7.0.3
+    "@open-keystone/fields-wysiwyg-tinymce": ^6.0.10
     "@open-keystone/file-adapters": ^7.1.4
     "@open-keystone/keystone": ^19.4.14
     "@open-keystone/server-side-graphql-client": ^2.1.3
@@ -11509,6 +11963,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/adapter-knex@npm:^14.0.10, @open-keystone/adapter-knex@npm:^14.0.15":
+  version: 14.0.15
+  resolution: "@open-keystone/adapter-knex@npm:14.0.15"
+  dependencies:
+    "@open-keystone/fields-auto-increment": ^9.0.15
+    "@open-keystone/keystone": ^19.4.15
+    "@open-keystone/utils": ^6.1.3
+    knex: ^3.1.0
+    p-settle: ^4.1.1
+    pg: ^8.6.0
+  checksum: 92161d23f06bae05a61a7e2b928a4739e8b93b027322260fb3f494ea2346fb8e3f65e12581b3b0cb35ec5ffdbbb97653758fa0d890ed1920fcc13930cb12af77
+  languageName: node
+  linkType: hard
+
 "@open-keystone/adapter-knex@npm:^14.0.14":
   version: 14.0.14
   resolution: "@open-keystone/adapter-knex@npm:14.0.14"
@@ -11520,6 +11988,20 @@ __metadata:
     p-settle: ^4.1.1
     pg: ^8.6.0
   checksum: 5152b25af41e9968566785ba8e0e1781dd42f8528a3da12b660d5291ac386a0d8aeed300cc111127b8e0f0d93e22620784ff4eb14998f4c63d7e3ea420e394c3
+  languageName: node
+  linkType: hard
+
+"@open-keystone/adapter-mongoose@npm:^13.0.4, @open-keystone/adapter-mongoose@npm:^13.0.9":
+  version: 13.0.9
+  resolution: "@open-keystone/adapter-mongoose@npm:13.0.9"
+  dependencies:
+    "@open-keystone/fields-mongoid": ^12.0.4
+    "@open-keystone/keystone": ^19.4.15
+    "@open-keystone/utils": ^6.1.3
+    cuid: ^2.1.8
+    mongoose: ^8.16.0
+    p-settle: ^4.1.1
+  checksum: c2e32741f3c6f831c3d779fe58a6ebdd252c7f796cfa9a875c421dc4939529d8c1bf39d7bb1f5cf9f3bbe8665e3bcadc9ac81710b594c596b9e513614bf40f1e
   languageName: node
   linkType: hard
 
@@ -11537,6 +12019,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/adapter-prisma@npm:^4.0.10, @open-keystone/adapter-prisma@npm:^4.0.15":
+  version: 4.0.15
+  resolution: "@open-keystone/adapter-prisma@npm:4.0.15"
+  dependencies:
+    "@open-keystone/fields-auto-increment": ^9.0.15
+    "@open-keystone/keystone": ^19.4.15
+    "@open-keystone/utils": ^6.1.3
+    "@prisma/client": 4.16.0
+    "@prisma/internals": 4.16.0
+    cuid: ^2.1.8
+    prisma: 4.16.0
+  checksum: 81a7a7016050e4d0bff3b1427dcbc1337e2012e9193e88dd7bdf8f20e37dc264986ccffde26aa570c2b76cf95e9d881133116e1dd84674f09499f658cf89abe2
+  languageName: node
+  linkType: hard
+
 "@open-keystone/adapter-prisma@npm:^4.0.14":
   version: 4.0.14
   resolution: "@open-keystone/adapter-prisma@npm:4.0.14"
@@ -11549,6 +12046,85 @@ __metadata:
     cuid: ^2.1.8
     prisma: 4.16.0
   checksum: 68c8e5631ac3ac3219ba57e64fc202f61baae72647d41f2064b957171b0aed6f386c9d857d11f0f569f8c14b0c0b2b6dfe431c0e67742ad11af82940d374a901
+  languageName: node
+  linkType: hard
+
+"@open-keystone/app-admin-ui@npm:^8.0.3":
+  version: 8.0.3
+  resolution: "@open-keystone/app-admin-ui@npm:8.0.3"
+  dependencies:
+    "@apollo/client": ^3.11.8
+    "@arch-ui/alert": ^0.0.21
+    "@arch-ui/badge": ^0.0.20
+    "@arch-ui/button": ^0.0.25
+    "@arch-ui/card": ^0.0.18
+    "@arch-ui/color-utils": ^0.0.5
+    "@arch-ui/common": ^0.0.15
+    "@arch-ui/confirm": ^0.0.26
+    "@arch-ui/controls": ^0.1.12
+    "@arch-ui/dialog": ^0.0.28
+    "@arch-ui/drawer": ^0.0.28
+    "@arch-ui/dropdown": ^0.0.25
+    "@arch-ui/fields": ^3.0.8
+    "@arch-ui/hooks": ^0.0.14
+    "@arch-ui/input": ^0.1.14
+    "@arch-ui/layout": ^0.2.17
+    "@arch-ui/loading": ^0.0.21
+    "@arch-ui/lozenge": ^0.0.20
+    "@arch-ui/navbar": ^0.1.15
+    "@arch-ui/options": ^0.0.27
+    "@arch-ui/pagination": ^0.0.29
+    "@arch-ui/pill": ^0.1.21
+    "@arch-ui/popout": ^0.0.26
+    "@arch-ui/select": ^0.1.12
+    "@arch-ui/theme": ^0.0.14
+    "@arch-ui/tooltip": ^0.1.17
+    "@arch-ui/typography": ^0.0.21
+    "@babel/core": ^7.14.6
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@open-keystone/field-views-loader": ^7.0.0
+    "@open-keystone/session": ^8.3.4
+    "@open-keystone/utils": ^6.1.3
+    "@primer/octicons-react": ^11.3.0
+    "@types/react": ^17.0.11
+    apollo-upload-client: ^17.0.0
+    apply-ref: ^1.0.0
+    babel-loader: ^10.0.0
+    babel-plugin-emotion: ^10.2.2
+    babel-preset-react-app: ^10.0.0
+    clipboard-copy: ^4.0.1
+    compression: ^1.7.4
+    cross-fetch: ^3.1.4
+    css-loader: ^7.1.2
+    express: ^4.17.1
+    express-history-api-fallback: ^2.2.1
+    falsey: ^1.0.0
+    file-loader: ^6.2.0
+    graphql: ^16.10.0
+    html-webpack-plugin: ^4.5.2
+    lodash.debounce: ^4.0.8
+    lodash.set: ^4.3.2
+    lodash.throttle: ^4.1.1
+    memoize-one: ^5.2.1
+    prop-types: ^15.7.2
+    raf-schd: ^4.0.3
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    react-prop-toggle: ^1.0.2
+    react-pseudo-state: ^2.2.2
+    react-router-dom: 5.2.0
+    react-select: ^3.2.0
+    react-toast-notifications: ^2.4.4
+    react-transition-group: ^4.4.2
+    react-uid: ^2.3.1
+    resize-observer-polyfill: ^1.5.1
+    style-loader: ^4.0.0
+    use-resize-observer: ^6.1.0
+    webpack: ^5.99.9
+    webpack-dev-middleware: ^7.4.2
+    webpack-hot-middleware: ^2.26.1
+  checksum: b7b42f769995828a6784eeac36a3879a853831dcdbc922799fbd3d6d164826c5717c1b65571196f8dcbda6dd00928e6e0178f0d57ca1a2e5b364bbdddfa9fe5e
   languageName: node
   linkType: hard
 
@@ -11731,6 +12307,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/fields-auto-increment@npm:^9.0.15":
+  version: 9.0.15
+  resolution: "@open-keystone/fields-auto-increment@npm:9.0.15"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@open-keystone/adapter-knex": ^14.0.15
+    "@open-keystone/adapter-prisma": ^4.0.15
+    "@open-keystone/fields": ^25.0.4
+  checksum: 4a23d309bd0cf7bcd6ceccfda1fda86aae23e2ec1a6279713f9ea310e07c1b2784d8fc3e468a63db2380d85b3b0d687a03cc46ad7dc630710f1860295ce6ac94
+  languageName: node
+  linkType: hard
+
 "@open-keystone/fields-markdown@npm:^7.0.3":
   version: 7.0.3
   resolution: "@open-keystone/fields-markdown@npm:7.0.3"
@@ -11767,24 +12355,98 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-wysiwyg-tinymce@npm:^7.0.3":
-  version: 7.0.3
-  resolution: "@open-keystone/fields-wysiwyg-tinymce@npm:7.0.3"
+"@open-keystone/fields-mongoid@npm:^12.0.4":
+  version: 12.0.4
+  resolution: "@open-keystone/fields-mongoid@npm:12.0.4"
   dependencies:
     "@babel/runtime": ^7.14.6
-    "@emotion/core": ^10.1.1
-    "@open-arch-ui/fields": ^4.0.0
     "@open-arch-ui/input": ^1.0.0
-    "@open-arch-ui/theme": ^1.0.0
-    "@open-keystone/fields": ^25.0.3
+    "@open-keystone/adapter-knex": ^14.0.15
+    "@open-keystone/adapter-mongoose": ^13.0.9
+    "@open-keystone/adapter-prisma": ^4.0.15
+    "@open-keystone/fields": ^25.0.4
+    react: ^18.3.1
+  checksum: ace39638a9c26bbec767e4d665542167bb1a4532ed8ce09a3fd6e3378510d9f696fefa7c136e9cab3642986822f880a6ed8e8026c51ec3b547e9a1823429d44a
+  languageName: node
+  linkType: hard
+
+"@open-keystone/fields-wysiwyg-tinymce@npm:^6.0.10":
+  version: 6.0.10
+  resolution: "@open-keystone/fields-wysiwyg-tinymce@npm:6.0.10"
+  dependencies:
+    "@arch-ui/fields": ^3.0.8
+    "@arch-ui/input": ^0.1.14
+    "@arch-ui/theme": ^0.0.14
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@open-keystone/fields": ^24.0.4
     "@primer/octicons-react": ^11.3.0
     "@tinymce/tinymce-react": ^3.12.6
     prop-types: ^15.7.2
-    react: ^18.3.1
+    react: ^17.0.2
     tinymce: ^5.8.1
   peerDependencies:
     express: ^4.17.1
-  checksum: 4c3824773343f0589904dcb6491df98f78f1215723c1225e6bef4c2f18619deadfb39ec9279149189d73f026340f4be0f9d497146d65609c0635fda3b8a9c914
+  checksum: a98731b0ed161572380be55f753f634b5372cb7b98a8ba60dbc2e10c75079699fb44cd77a81995ac55203b29a58146dac8a36c7cb2ceebe65a23df6896b22c85
+  languageName: node
+  linkType: hard
+
+"@open-keystone/fields@npm:^24.0.4":
+  version: 24.0.4
+  resolution: "@open-keystone/fields@npm:24.0.4"
+  dependencies:
+    "@apollo/client": ^3.11.8
+    "@arch-ui/alert": ^0.0.21
+    "@arch-ui/button": ^0.0.25
+    "@arch-ui/controls": ^0.1.12
+    "@arch-ui/day-picker": ^1.0.8
+    "@arch-ui/drawer": ^0.0.28
+    "@arch-ui/fields": ^3.0.8
+    "@arch-ui/filters": ^0.0.23
+    "@arch-ui/input": ^0.1.14
+    "@arch-ui/layout": ^0.2.17
+    "@arch-ui/loading": ^0.0.21
+    "@arch-ui/lozenge": ^0.0.20
+    "@arch-ui/options": ^0.0.27
+    "@arch-ui/popout": ^0.0.26
+    "@arch-ui/select": ^0.1.12
+    "@arch-ui/theme": ^0.0.14
+    "@arch-ui/tooltip": ^0.1.17
+    "@arch-ui/typography": ^0.0.21
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@open-keystone/access-control": ^8.0.0
+    "@open-keystone/adapter-knex": ^14.0.10
+    "@open-keystone/adapter-mongoose": ^13.0.4
+    "@open-keystone/adapter-prisma": ^4.0.10
+    "@open-keystone/app-admin-ui": ^8.0.3
+    "@open-keystone/server-side-graphql-client": ^2.1.3
+    "@open-keystone/utils": ^6.1.3
+    "@primer/octicons-react": ^11.3.0
+    "@sindresorhus/slugify": ^1.1.2
+    apollo-errors: ^1.9.0
+    bcryptjs: ^2.4.3
+    cuid: ^2.1.8
+    date-fns: ^2.22.1
+    decimal.js: ^10.2.1
+    dumb-passwords: ^0.2.1
+    graphql: ^16.10.0
+    image-extensions: ^1.1.0
+    inflection: ^1.13.1
+    intersection-observer: ^0.12.0
+    lodash.groupby: ^4.6.0
+    lodash.isequal: ^4.5.0
+    luxon: ^1.27.0
+    mongoose: ^8.16.0
+    p-settle: ^4.1.1
+    prop-types: ^15.7.2
+    react: ^17.0.2
+    react-day-picker: 8.0.0-beta.3
+    react-dom: ^17.0.2
+    react-image: ^4.0.3
+    react-select: ^3.2.0
+    react-toast-notifications: ^2.4.4
+  checksum: f43864b9cac70212da0e6cfa2d338abb4422dfab6e4874bc68cfeeb30f43d0bde3e35b047ceceb4f5076e35cd0b60a63f216a66fba51707328e7027a403daec7
   languageName: node
   linkType: hard
 
@@ -11847,6 +12509,65 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/fields@npm:^25.0.4":
+  version: 25.0.4
+  resolution: "@open-keystone/fields@npm:25.0.4"
+  dependencies:
+    "@apollo/client": ^3.11.8
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@open-arch-ui/alert": ^1.0.0
+    "@open-arch-ui/button": ^1.0.0
+    "@open-arch-ui/controls": ^1.0.0
+    "@open-arch-ui/day-picker": ^2.0.0
+    "@open-arch-ui/drawer": ^1.0.0
+    "@open-arch-ui/fields": ^4.0.0
+    "@open-arch-ui/filters": ^1.0.0
+    "@open-arch-ui/input": ^1.0.0
+    "@open-arch-ui/layout": ^1.0.0
+    "@open-arch-ui/loading": ^1.0.0
+    "@open-arch-ui/lozenge": ^1.0.0
+    "@open-arch-ui/options": ^1.0.0
+    "@open-arch-ui/popout": ^1.0.0
+    "@open-arch-ui/select": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@open-arch-ui/tooltip": ^1.0.0
+    "@open-arch-ui/typography": ^1.0.0
+    "@open-keystone/access-control": ^8.0.0
+    "@open-keystone/adapter-knex": ^14.0.15
+    "@open-keystone/adapter-mongoose": ^13.0.9
+    "@open-keystone/adapter-prisma": ^4.0.15
+    "@open-keystone/app-admin-ui": ^9.0.2
+    "@open-keystone/server-side-graphql-client": ^2.1.3
+    "@open-keystone/utils": ^6.1.3
+    "@primer/octicons-react": ^11.3.0
+    "@sindresorhus/slugify": ^1.1.2
+    apollo-errors: ^1.9.0
+    bcryptjs: ^2.4.3
+    cuid: ^2.1.8
+    date-fns: ^2.22.1
+    decimal.js: ^10.2.1
+    dumb-passwords: ^0.2.1
+    graphql: ^16.10.0
+    image-extensions: ^1.1.0
+    inflection: ^1.13.1
+    intersection-observer: ^0.12.0
+    lodash.groupby: ^4.6.0
+    lodash.isequal: ^4.5.0
+    luxon: ^1.27.0
+    mongoose: ^8.16.0
+    p-settle: ^4.1.1
+    prop-types: ^15.7.2
+    react: ^18.3.1
+    react-day-picker: 8.0.0-beta.3
+    react-dom: ^18.3.1
+    react-image: ^4.0.3
+    react-select: ^3.2.0
+    react-toast-notifications: ^2.4.4
+  checksum: d15404a5ca8234d42025a39bb60e3be0b51e9e2a18d5e14fe01ecf7cbddf906c89d7838ae09b7f801d2e37afbe7fe63c72619f28de23f08fbae124c0d756f511
+  languageName: node
+  linkType: hard
+
 "@open-keystone/file-adapters@npm:^7.1.4":
   version: 7.1.4
   resolution: "@open-keystone/file-adapters@npm:7.1.4"
@@ -11901,6 +12622,48 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/keystone@npm:^19.4.15":
+  version: 19.4.15
+  resolution: "@open-keystone/keystone@npm:19.4.15"
+  dependencies:
+    "@graphql-tools/schema": ^8.0.0
+    "@open-keystone/access-control": ^8.0.0
+    "@open-keystone/app-version": ^3.0.0
+    "@open-keystone/session": ^8.4.0
+    "@open-keystone/utils": ^6.1.3
+    apollo-errors: ^1.9.0
+    apollo-server-core: 3.13.0
+    apollo-server-express: 3.13.0
+    arg: ^5.0.0
+    chalk: ^4.1.1
+    ci-info: ^3.2.0
+    cors: ^2.8.5
+    cuid: ^2.1.8
+    endent: ^2.1.0
+    ensure-error: ^3.0.1
+    express: ^4.17.1
+    express-pino-logger: ^6.0.0
+    falsey: ^1.0.0
+    fs-extra: ^9.1.0
+    globby: ^11.0.3
+    graphql: ^16.10.0
+    graphql-type-json: ^0.3.2
+    graphql-upload: ^15.0.2
+    lodash.flattendeep: ^4.4.0
+    micro-memoize: ^4.0.9
+    ora: ^5.4.1
+    p-waterfall: ^2.1.1
+    pino: ^6.13.3
+    pluralize: ^8.0.0
+    serialize-error: ^8.1.0
+    stack-utils: ^2.0.3
+    terminal-link: ^2.1.1
+  bin:
+    keystone: bin/cli.js
+  checksum: 4e0e19313b8b6f3ae05d428694648d5f479ef52463ba51b778e7e797e4415c8c54432b787e547940452bb285f67845ab89c5ef2dda77a0c92123c718cd3a2f82
+  languageName: node
+  linkType: hard
+
 "@open-keystone/server-side-graphql-client@npm:^2.1.3":
   version: 2.1.3
   resolution: "@open-keystone/server-side-graphql-client@npm:2.1.3"
@@ -11908,7 +12671,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/session@npm:^8.4.0":
+"@open-keystone/session@npm:^8.3.4, @open-keystone/session@npm:^8.4.0":
   version: 8.4.0
   resolution: "@open-keystone/session@npm:8.4.0"
   dependencies:
@@ -16534,6 +17297,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/html-minifier-terser@npm:^5.0.0":
+  version: 5.1.2
+  resolution: "@types/html-minifier-terser@npm:5.1.2"
+  checksum: 4bca779c44d2aebe4cc4036c5db370abe7466249038e9c5996cb3c192debeff1c75b7a2ab78e5fd2a014ad24ebf0f357f9a174a4298540dc1e1317d43aa69cfa
+  languageName: node
+  linkType: hard
+
 "@types/html-minifier-terser@npm:^6.0.0":
   version: 6.1.0
   resolution: "@types/html-minifier-terser@npm:6.1.0"
@@ -17030,7 +17800,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^17.0.2":
+"@types/react@npm:^17.0.11, @types/react@npm:^17.0.2":
   version: 17.0.87
   resolution: "@types/react@npm:17.0.87"
   dependencies:
@@ -17150,6 +17920,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/source-list-map@npm:*":
+  version: 0.1.6
+  resolution: "@types/source-list-map@npm:0.1.6"
+  checksum: 9cd294c121f1562062de5d241fe4d10780b1131b01c57434845fe50968e9dcf67ede444591c2b1ad6d3f9b6bc646ac02cc8f51a3577c795f9c64cf4573dcc6b1
+  languageName: node
+  linkType: hard
+
 "@types/ssh2-streams@npm:*":
   version: 0.1.12
   resolution: "@types/ssh2-streams@npm:0.1.12"
@@ -17199,6 +17976,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/tapable@npm:^1, @types/tapable@npm:^1.0.5":
+  version: 1.0.12
+  resolution: "@types/tapable@npm:1.0.12"
+  checksum: 5312fbc01e0135bd11b44cfea2bf29943807cd9675c10bbed13873ad0e73f656993fb88bb6ceaf05b12a55c570e6acc0267faf59e9c4d2f032fc833bafcf0597
+  languageName: node
+  linkType: hard
+
 "@types/title@npm:3.4.1":
   version: 3.4.1
   resolution: "@types/title@npm:3.4.1"
@@ -17224,6 +18008,15 @@ __metadata:
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
   checksum: 8e4202766a65877efcf5d5a41b7dd458480b36195e580a3b1085ad21e948bc417d55d6f8af1fd2a7ad008015d4117d5fdfe432731157da3c68678487174e4ba3
+  languageName: node
+  linkType: hard
+
+"@types/uglify-js@npm:*":
+  version: 3.17.5
+  resolution: "@types/uglify-js@npm:3.17.5"
+  dependencies:
+    source-map: ^0.6.1
+  checksum: ffed5d63637c6ea5c155469121ee40d9b652e677e6d9eb07b72ff72bb4029ffad19049a0af6e91a5021bad6c481cff2572fbf6367e319c6885cf1537c20d861d
   languageName: node
   linkType: hard
 
@@ -17282,6 +18075,31 @@ __metadata:
   version: 1.18.0
   resolution: "@types/webpack-env@npm:1.18.0"
   checksum: ecf4daa31cb37d474ac0ce058d83a3cadeb9881ca8107ae93c2299eaa9954943aae09b43e143c62ccbe4288a14db00c918c9debd707afe17c3998f873eaabc59
+  languageName: node
+  linkType: hard
+
+"@types/webpack-sources@npm:*":
+  version: 3.2.3
+  resolution: "@types/webpack-sources@npm:3.2.3"
+  dependencies:
+    "@types/node": "*"
+    "@types/source-list-map": "*"
+    source-map: ^0.7.3
+  checksum: 7b557f242efaa10e4e3e18cc4171a0c98e22898570caefdd4f7b076fe8534b5abfac92c953c6604658dcb7218507f970230352511840fe9fdea31a9af3b9a906
+  languageName: node
+  linkType: hard
+
+"@types/webpack@npm:^4.41.8":
+  version: 4.41.40
+  resolution: "@types/webpack@npm:4.41.40"
+  dependencies:
+    "@types/node": "*"
+    "@types/tapable": ^1
+    "@types/uglify-js": "*"
+    "@types/webpack-sources": "*"
+    anymatch: ^3.0.0
+    source-map: ^0.6.0
+  checksum: 3866c3177e1ca0810d9e3cb88fb35183f093b4bcf6cc29f6161425a2a5ea7b4faf5d429c6cf3ed58b780e36dc471a0f511cedb1dcd43f519e1df7d24185f5d4a
   languageName: node
   linkType: hard
 
@@ -18697,6 +19515,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"anymatch@npm:^3.0.0":
+  version: 3.1.3
+  resolution: "anymatch@npm:3.1.3"
+  dependencies:
+    normalize-path: ^3.0.0
+    picomatch: ^2.0.4
+  checksum: 3e044fd6d1d26545f235a9fe4d7a534e2029d8e59fa7fd9f2a6eb21230f6b5380ea1eaf55136e60cbf8e613544b3b766e7a6fa2102e2a3a117505466e3025dc2
+  languageName: node
+  linkType: hard
+
 "anymatch@npm:^3.0.3, anymatch@npm:~3.1.2":
   version: 3.1.2
   resolution: "anymatch@npm:3.1.2"
@@ -19309,6 +20137,22 @@ __metadata:
     es-abstract: ^1.22.1
     es-shim-unscopables: ^1.0.0
   checksum: ce09fe21dc0bcd4f30271f8144083aa8c13d4639074d6c8dc82054b847c7fc9a0c97f857491f4da19d4003e507172a78f4bcd12903098adac8b9cd374f734be3
+  languageName: node
+  linkType: hard
+
+"array.prototype.reduce@npm:^1.0.6":
+  version: 1.0.8
+  resolution: "array.prototype.reduce@npm:1.0.8"
+  dependencies:
+    call-bind: ^1.0.8
+    call-bound: ^1.0.4
+    define-properties: ^1.2.1
+    es-abstract: ^1.23.9
+    es-array-method-boxes-properly: ^1.0.0
+    es-errors: ^1.3.0
+    es-object-atoms: ^1.1.1
+    is-string: ^1.1.1
+  checksum: a2a25e087a75e4caae09414acdfffb6ed69f7dd696d8c612d86dfaa5590bde4d7bc934db8bdd28625703f574aa93731848bfc24a7ba65c558aeb222b2a4fd4c4
   languageName: node
   linkType: hard
 
@@ -21276,7 +22120,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"camel-case@npm:^4.1.2":
+"camel-case@npm:^4.1.1, camel-case@npm:^4.1.2":
   version: 4.1.2
   resolution: "camel-case@npm:4.1.2"
   dependencies:
@@ -21870,7 +22714,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clean-css@npm:^4.2.1":
+"clean-css@npm:^4.2.1, clean-css@npm:^4.2.3":
   version: 4.2.4
   resolution: "clean-css@npm:4.2.4"
   dependencies:
@@ -23600,7 +24444,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:^2.22.1":
+"date-fns@npm:^2.21.3, date-fns@npm:^2.22.1":
   version: 2.30.0
   resolution: "date-fns@npm:2.30.0"
   dependencies:
@@ -23875,17 +24719,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"define-properties@npm:^1.1.3, define-properties@npm:^1.1.4":
-  version: 1.1.4
-  resolution: "define-properties@npm:1.1.4"
-  dependencies:
-    has-property-descriptors: ^1.0.0
-    object-keys: ^1.1.1
-  checksum: ce0aef3f9eb193562b5cfb79b2d2c86b6a109dfc9fdcb5f45d680631a1a908c06824ddcdb72b7573b54e26ace07f0a23420aaba0d5c627b34d2c1de8ef527e2b
-  languageName: node
-  linkType: hard
-
-"define-properties@npm:^1.2.0, define-properties@npm:^1.2.1":
+"define-properties@npm:^1.1.2, define-properties@npm:^1.2.0, define-properties@npm:^1.2.1":
   version: 1.2.1
   resolution: "define-properties@npm:1.2.1"
   dependencies:
@@ -23893,6 +24727,16 @@ __metadata:
     has-property-descriptors: ^1.0.0
     object-keys: ^1.1.1
   checksum: b4ccd00597dd46cb2d4a379398f5b19fca84a16f3374e2249201992f36b30f6835949a9429669ee6b41b6e837205a163eadd745e472069e70dfc10f03e5fcc12
+  languageName: node
+  linkType: hard
+
+"define-properties@npm:^1.1.3, define-properties@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "define-properties@npm:1.1.4"
+  dependencies:
+    has-property-descriptors: ^1.0.0
+    object-keys: ^1.1.1
+  checksum: ce0aef3f9eb193562b5cfb79b2d2c86b6a109dfc9fdcb5f45d680631a1a908c06824ddcdb72b7573b54e26ace07f0a23420aaba0d5c627b34d2c1de8ef527e2b
   languageName: node
   linkType: hard
 
@@ -25132,6 +25976,13 @@ __metadata:
     unbox-primitive: ^1.1.0
     which-typed-array: ^1.1.19
   checksum: 06b3d605e56e3da9d16d4db2629a42dac1ca31f2961a41d15c860422a266115e865b43e82d6b9da81a0fabbbb65ebc12fb68b0b755bc9dbddacb6bf7450e96df
+  languageName: node
+  linkType: hard
+
+"es-array-method-boxes-properly@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "es-array-method-boxes-properly@npm:1.0.0"
+  checksum: 2537fcd1cecf187083890bc6f5236d3a26bf39237433587e5bf63392e88faae929dbba78ff0120681a3f6f81c23fe3816122982c160d63b38c95c830b633b826
   languageName: node
   linkType: hard
 
@@ -27132,7 +27983,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"focus-trap-react@npm:^8.5.1":
+"focus-trap-react@npm:^8.5.0, focus-trap-react@npm:^8.5.1":
   version: 8.11.3
   resolution: "focus-trap-react@npm:8.11.3"
   dependencies:
@@ -29012,6 +29863,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"html-minifier-terser@npm:^5.0.1":
+  version: 5.1.1
+  resolution: "html-minifier-terser@npm:5.1.1"
+  dependencies:
+    camel-case: ^4.1.1
+    clean-css: ^4.2.3
+    commander: ^4.1.1
+    he: ^1.2.0
+    param-case: ^3.0.3
+    relateurl: ^0.2.7
+    terser: ^4.6.3
+  bin:
+    html-minifier-terser: cli.js
+  checksum: 75ff3ff886631b9ecb3035acb8e7dd98c599bb4d4618ad6f7e487ee9752987dddcf6848dc3c1ab1d7fc1ad4484337c2ce39c19eac17b0342b4b15e4294c8a904
+  languageName: node
+  linkType: hard
+
 "html-minifier-terser@npm:^6.0.2":
   version: 6.1.0
   resolution: "html-minifier-terser@npm:6.1.0"
@@ -29072,6 +29940,25 @@ __metadata:
   bin:
     html-tokenize: bin/cmd.js
   checksum: 4e04078fd22cf274fc1fa430490af3feda1c3bc4dd2fc88880caf6c2e816992d508bc44a7b16721b713a6b98d880f43e10ea4b169529056134cd488403adc8fc
+  languageName: node
+  linkType: hard
+
+"html-webpack-plugin@npm:^4.5.2":
+  version: 4.5.2
+  resolution: "html-webpack-plugin@npm:4.5.2"
+  dependencies:
+    "@types/html-minifier-terser": ^5.0.0
+    "@types/tapable": ^1.0.5
+    "@types/webpack": ^4.41.8
+    html-minifier-terser: ^5.0.1
+    loader-utils: ^1.2.3
+    lodash: ^4.17.20
+    pretty-error: ^2.1.1
+    tapable: ^1.1.3
+    util.promisify: 1.0.0
+  peerDependencies:
+    webpack: ^4.0.0 || ^5.0.0
+  checksum: 25ca0b341234501c64754ba8f9bb84f978e50f3f90affc199d18d04511cdc2c0c8ef8a975901a0fbcfe5bae32f80e8fd5ef52f1ce3672d3ff5307057ccb5a063
   languageName: node
   linkType: hard
 
@@ -32782,6 +33669,17 @@ __metadata:
   version: 4.3.0
   resolution: "loader-runner@npm:4.3.0"
   checksum: a90e00dee9a16be118ea43fec3192d0b491fe03a32ed48a4132eb61d498f5536a03a1315531c19d284392a8726a4ecad71d82044c28d7f22ef62e029bf761569
+  languageName: node
+  linkType: hard
+
+"loader-utils@npm:^1.2.3":
+  version: 1.4.2
+  resolution: "loader-utils@npm:1.4.2"
+  dependencies:
+    big.js: ^5.2.2
+    emojis-list: ^3.0.0
+    json5: ^1.0.1
+  checksum: eb6fb622efc0ffd1abdf68a2022f9eac62bef8ec599cf8adb75e94d1d338381780be6278534170e99edc03380a6d29bc7eb1563c89ce17c5fed3a0b17f1ad804
   languageName: node
   linkType: hard
 
@@ -36963,6 +37861,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"object.getownpropertydescriptors@npm:^2.0.3":
+  version: 2.1.8
+  resolution: "object.getownpropertydescriptors@npm:2.1.8"
+  dependencies:
+    array.prototype.reduce: ^1.0.6
+    call-bind: ^1.0.7
+    define-properties: ^1.2.1
+    es-abstract: ^1.23.2
+    es-object-atoms: ^1.0.0
+    gopd: ^1.0.1
+    safe-array-concat: ^1.1.2
+  checksum: 073e492700a7f61ff6c471a2ed96e72473b030a7a105617f03cab192fb4bbc0e6068ef76534ec56afd34baf26b5dc5408de59cb0140ec8abde781e00faa3e63e
+  languageName: node
+  linkType: hard
+
 "object.groupby@npm:^1.0.1":
   version: 1.0.3
   resolution: "object.groupby@npm:1.0.3"
@@ -37556,7 +38469,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"param-case@npm:^3.0.4":
+"param-case@npm:^3.0.3, param-case@npm:^3.0.4":
   version: 3.0.4
   resolution: "param-case@npm:3.0.4"
   dependencies:
@@ -39624,6 +40537,16 @@ __metadata:
   dependencies:
     number-is-nan: ^1.0.0
   checksum: 0709a19bb30c0a35d84f2afdfbeaef3e68703c28346e85413493edd687f7509d1ec987cda2fe54554b9481426ba775f4cd6108c16633353768cfad4d417baacd
+  languageName: node
+  linkType: hard
+
+"pretty-error@npm:^2.1.1":
+  version: 2.1.2
+  resolution: "pretty-error@npm:2.1.2"
+  dependencies:
+    lodash: ^4.17.20
+    renderkid: ^2.0.4
+  checksum: 16775d06f9a695d17103414d610b1281f9535ee1f2da1ce1e1b9be79584a114aa7eac6dcdcc5ef151756d3c014dfd4ac1c7303ed8016d0cec12437cfdf4021c6
   languageName: node
   linkType: hard
 
@@ -43184,6 +44107,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"renderkid@npm:^2.0.4":
+  version: 2.0.7
+  resolution: "renderkid@npm:2.0.7"
+  dependencies:
+    css-select: ^4.1.3
+    dom-converter: ^0.2.0
+    htmlparser2: ^6.1.0
+    lodash: ^4.17.21
+    strip-ansi: ^3.0.1
+  checksum: d3d7562531fb8104154d4aa6aa977707783616318014088378a6c5bbc36318ada9289543d380ede707e531b7f5b96229e87d1b8944f675e5ec3686e62692c7c7
+  languageName: node
+  linkType: hard
+
 "renderkid@npm:^3.0.0":
   version: 3.0.0
   resolution: "renderkid@npm:3.0.0"
@@ -45202,7 +46138,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map-support@npm:^0.5.12, source-map-support@npm:^0.5.16, source-map-support@npm:^0.5.17, source-map-support@npm:~0.5.20":
+"source-map-support@npm:^0.5.12, source-map-support@npm:^0.5.16, source-map-support@npm:^0.5.17, source-map-support@npm:~0.5.12, source-map-support@npm:~0.5.20":
   version: 0.5.21
   resolution: "source-map-support@npm:0.5.21"
   dependencies:
@@ -45947,7 +46883,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strip-ansi@npm:^3.0.0":
+"strip-ansi@npm:^3.0.0, strip-ansi@npm:^3.0.1":
   version: 3.0.1
   resolution: "strip-ansi@npm:3.0.1"
   dependencies:
@@ -46662,6 +47598,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tapable@npm:^1.1.3":
+  version: 1.1.3
+  resolution: "tapable@npm:1.1.3"
+  checksum: 53ff4e7c3900051c38cc4faab428ebfd7e6ad0841af5a7ac6d5f3045c5b50e88497bfa8295b4b3fbcadd94993c9e358868b78b9fb249a76cb8b018ac8dccafd7
+  languageName: node
+  linkType: hard
+
 "tapable@npm:^2.0.0, tapable@npm:^2.1.1, tapable@npm:^2.2.0, tapable@npm:^2.2.1":
   version: 2.2.1
   resolution: "tapable@npm:2.2.1"
@@ -46945,6 +47888,19 @@ __metadata:
     uglify-js:
       optional: true
   checksum: 13a1e67f1675a473b18d25cb0ce65c3f0a19b5e9a93213a99ea61dc4ca996ea93aa17a221965b526f5788d242836a8249ad00538fbb322e25cb69076eb55feab
+  languageName: node
+  linkType: hard
+
+"terser@npm:^4.6.3":
+  version: 4.8.1
+  resolution: "terser@npm:4.8.1"
+  dependencies:
+    commander: ^2.20.0
+    source-map: ~0.6.1
+    source-map-support: ~0.5.12
+  bin:
+    terser: bin/terser
+  checksum: b342819bf7e82283059aaa3f22bb74deb1862d07573ba5a8947882190ad525fd9b44a15074986be083fd379c58b9a879457a330b66dcdb77b485c44267f9a55a
   languageName: node
   linkType: hard
 
@@ -49221,6 +50177,16 @@ __metadata:
   version: 1.0.2
   resolution: "util-deprecate@npm:1.0.2"
   checksum: 474acf1146cb2701fe3b074892217553dfcf9a031280919ba1b8d651a068c9b15d863b7303cb15bd00a862b498e6cf4ad7b4a08fb134edd5a6f7641681cb54a2
+  languageName: node
+  linkType: hard
+
+"util.promisify@npm:1.0.0":
+  version: 1.0.0
+  resolution: "util.promisify@npm:1.0.0"
+  dependencies:
+    define-properties: ^1.1.2
+    object.getownpropertydescriptors: ^2.0.3
+  checksum: 482e857d676adee506c5c3a10212fd6a06a51d827a9b6d5396a8e593db53b4bb7064f77c5071357d8cd76072542de5cc1c08bc6d7c10cf43fa22dc3bc67556f1
   languageName: node
   linkType: hard
 
