@@ -79,7 +79,7 @@ const nextConfig: NextConfig = {
             modifyVars: antGlobalVariables,
         },
     },
-    trailingSlash: true,
+    skipTrailingSlashRedirect: true,
     publicRuntimeConfig: {
         // Will be available on both server and client
         appName,
