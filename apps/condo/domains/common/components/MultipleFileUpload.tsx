@@ -9,6 +9,7 @@ import { UploadRequestOption } from 'rc-upload/lib/interface'
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 
 import { Paperclip, Trash } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
@@ -16,6 +17,7 @@ import { colors } from '@open-condo/ui/colors'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 import { analytics } from '@condo/domains/common/utils/analytics'
 
+import type { RcFile } from 'antd/es/upload/interface'
 
 type DBFile = {
     id: string
@@ -269,6 +271,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         onFileListChange,
     } = props
 
+    const { user } = useAuth()
     const [listFiles, setListFiles] = useState<UploadListFile[]>([])
 
     useEffect(() => {
@@ -333,15 +336,38 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 )
             },
         },
-        customRequest: (options: UploadRequestOption) => {
+        customRequest: async (options: UploadRequestOption) => {
             const { onSuccess, onError } = options
-            const file = options.file as UploadFile
+            const file = options.file as RcFile
             if (file.size > MAX_UPLOAD_FILE_SIZE) {
                 const error = new Error(FileTooBigErrorMessage)
                 onError(error)
                 return
             }
-            return createAction({ ...initialCreateValues, file }).then(dbFile => {
+
+            const formData = new FormData()
+            formData.append('file', file, file.name)
+            formData.append('meta', JSON.stringify({
+                appId: 'condo',
+                authedItem: user.id,
+                modelNames: ['TicketCommentFile'],
+                dv: 1, sender: { dv: 1, fingerprint: 'just-test-fingerprint' },
+            }))
+
+            const res = await fetch('/api/files/upload', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include',
+            })
+
+            if (!res.ok) {
+                const error = new Error(UploadFailedErrorMessage)
+                onError(error)
+            }
+
+            const result = await res.json()
+
+            return createAction({ ...initialCreateValues, file: { signature: result[0].signature } }).then(dbFile => {
                 const [uploadFile] = convertFilesToUploadFormat([dbFile])
                 onSuccess(uploadFile, null)
                 updateFileList({ type: 'add', payload: dbFile })
