@@ -145,13 +145,13 @@ const checkDailyTicketLimit = async ({ userId, organizationId, details, context,
     const byIdAndOrgKey = `dailyTicketLimit:id:${userId}:organization:${organizationId}`
     const byIdOrgAndDetailsKey = `${byIdAndOrgKey}:details:${md5(details)}`
 
-    const isSkipSameTicketLimitFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SKIP_DAILY_SAME_TICKET_LIMIT)
+    const isSkipSameTicketLimitFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SKIP_DAILY_SAME_TICKET_LIMIT, { organization: organizationId })
     const byIdOrgAndDetailsCounter = isInvoiceTicket && isPayable ? 0 : await redisGuard.incrementDayCounter(byIdOrgAndDetailsKey)
     if (!isSkipSameTicketLimitFeatureEnabled && byIdOrgAndDetailsCounter > DAILY_SAME_TICKET_LIMIT) {
         throw new GQLError(ERRORS.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
 
-    const isSkipTicketLimitFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SKIP_DAILY_TICKET_LIMIT)
+    const isSkipTicketLimitFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SKIP_DAILY_TICKET_LIMIT, { organization: organizationId })
     const byIdAndOrgCounter = await redisGuard.incrementDayCounter(byIdAndOrgKey)
     if (!isSkipTicketLimitFeatureEnabled && byIdAndOrgCounter > DAILY_TICKET_LIMIT) {
         throw new GQLError(ERRORS.TICKET_FOR_PHONE_DAY_LIMIT_REACHED, context)
