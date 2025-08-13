@@ -2,13 +2,13 @@ const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
+const logger = getLogger('sendUserDataWebhook')
+
 const USER_DATA_WEBHOOK_URL = conf.USER_DATA_WEBHOOK_URL ? JSON.parse(conf.USER_DATA_WEBHOOK_URL) : null
 
 if (USER_DATA_WEBHOOK_URL && !USER_DATA_WEBHOOK_URL.emailMarketingFlow) {
-    throw new Error('Wrong SALES_CRM_WEBHOOKS_URL value')
+    throw new Error('Wrong USER_DATA_WEBHOOK_URL value')
 }
-
-const logger = getLogger('sendUserDataWebhook')
 
 async function sendUserDataWebhook (data) {
     if (!USER_DATA_WEBHOOK_URL) {

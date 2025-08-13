@@ -299,11 +299,13 @@ const User = new GQLListSchema('User', {
         },
 
         hasMarketingConsent: {
-            schemaDoc: 'Global consent to receive marketing materials',
+            schemaDoc:
+                'Global consent to receive marketing materials. ' +
+                'If true – this means user has given the consent to get marketing materials',
             type: 'Checkbox',
             isRequired: false,
             defaultValue: false,
-            access: access.canAccessToMarketingConsent,
+            access: access.canAccessMarketingConsent,
         },
 
         avatar: {
@@ -385,18 +387,18 @@ const User = new GQLListSchema('User', {
             }
 
             if (updatedItem.type === STAFF) {
-                const isEmailChanged = updatedItem.email !== get(existingItem, 'email', null)
-                const isEmailVerifiedChanged = updatedItem.isEmailVerified !== get(existingItem, 'isEmailVerified', null)
-                const isMarketingConsentChanged = updatedItem.marketingConsent !== get(existingItem, 'marketingConsent', null)
+                const isEmailChanged = updatedItem.email !== (existingItem ? existingItem.email : null)
+                const isEmailVerifiedChanged = updatedItem.isEmailVerified !== (existingItem ? existingItem.isEmailVerified : null)
+                const isMarketingConsentChanged = updatedItem.hasMarketingConsent !== (existingItem ? existingItem.hasMarketingConsent : null)
 
                 if (isEmailChanged || isEmailVerifiedChanged || isMarketingConsentChanged) {
                     await sendUserDataWebhook({
-                        oldEmail: get(existingItem, 'email', ''),
-                        newEmail: get(updatedItem, 'email', ''),
-                        oldIsEmailVerified: get(existingItem, 'isEmailVerified', false),
-                        newIsEmailVerified: get(updatedItem, 'isEmailVerified', ''),
-                        oldMarketingConsent: get(existingItem, 'marketingConsent', false),
-                        newMarketingConsent: get(updatedItem, 'marketingConsent', ''),
+                        oldEmail: existingItem ? existingItem.email : null,
+                        newEmail: updatedItem.email,
+                        oldIsEmailVerified: existingItem ? existingItem.isEmailVerified : null,
+                        newIsEmailVerified: updatedItem.isEmailVerified,
+                        oldHasMarketingConsent: existingItem ? existingItem.hasMarketingConsent : null,
+                        newHasMarketingConsent: updatedItem.hasMarketingConsent,
                     })
                 }
             }

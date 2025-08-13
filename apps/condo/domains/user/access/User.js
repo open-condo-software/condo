@@ -139,10 +139,10 @@ async function canReadUserNameField (args) {
     return true
 }
 
-const canAccessToMarketingConsent = {
+const canAccessMarketingConsent = {
     read: true,
-    create: access.userIsAdminOrIsSupport,
-    update: access.userIsAdminOrIsThisItem,
+    create: canManageUsers,
+    update: canManageUsers,
 }
 
 /*
@@ -165,5 +165,5 @@ module.exports = {
     canAccessToEmployeesField,
     canAccessCustomAccessField,
     canReadUserNameField,
-    canAccessToMarketingConsent,
+    canAccessMarketingConsent,
 }

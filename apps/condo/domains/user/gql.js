@@ -65,7 +65,7 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
-const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport rightsSet { id } locale showGlobalHints }'
+const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport rightsSet { id } locale showGlobalHints hasMarketingConsent }'
 
 const USER_QUERY = gql`
     query {

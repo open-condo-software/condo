@@ -590,20 +590,21 @@ describe('User fields', () => {
             admin = await makeLoggedInAdminClient()
         })
 
-        test('cannot be updated by support', async () => {
+        // NOTE: Need because user with support right can log in as user and just set the consent for him
+        test('can be updated by support', async () => {
             const support = await makeClientWithSupportUser()
             const [user] = await createTestUser(admin)
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestUser(support, user.id, { hasMarketingConsent: true })
-            })
+            const [updatedUser] = await updateTestUser(support, user.id, { hasMarketingConsent: true })
+
+            expect(updatedUser.hasMarketingConsent).toBe(true)
         })
 
         test('can be updated by user himself', async () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
             const [updatedUser] = await updateTestUser(client, client.user.id, { hasMarketingConsent: true })
-            console.log('updatedUsersdgsd', updatedUser)
+
             expect(updatedUser.hasMarketingConsent).toBe(true)
         })
     })
