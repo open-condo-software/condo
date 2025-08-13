@@ -61,8 +61,7 @@ describe('ExecutionAIFlowTask', () => {
     beforeEach(async () => {
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
-        executeAIFlowMock.mockReset()
-        executeAIFlowMock.mockImplementation((() => Promise.resolve()))
+        executeAIFlowMock.mockReset().mockImplementation((() => Promise.resolve()))
     })
 
     describe('Accesses', () => {
@@ -502,7 +501,6 @@ describe('ExecutionAIFlowTask', () => {
                 const foundTask = await ExecutionAIFlowTask.getOne(adminClient, { id: task.id })
                 expect(foundTask.status).toBe(TASK_STATUSES.ERROR)
                 expect(foundTask.result).toBeNull()
-                console.error('expect error message')
                 expect(foundTask.errorMessage).toBe('Failed to complete request')
                 expect(foundTask.error).toEqual(expect.objectContaining({
                     developerErrorMessage: FAULTY_FLOWISE_PREDICTION_RESULT.message,
