@@ -32,10 +32,8 @@ const {
 const { RUNTIME_IDP_TYPES } = require('@condo/domains/user/constants/identityProviders')
 const { USER_CUSTOM_ACCESS_GRAPHQL_TYPES, USER_CUSTOM_ACCESS_FIELDS } = require('@condo/domains/user/gql')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
+const { sendUserDataWebhook } = require('@condo/domains/user/utils/serverSchema/User')
 const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
-const { pushEmailDataToMarketingAdapter } = require('@condo/domains/user/utils/serverSchema/User');
-const { sendUserDataWebhook } = require('@condo/domains/user/utils/serverSchema/sendUserDataWebhook');
-
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
@@ -300,8 +298,9 @@ const User = new GQLListSchema('User', {
             },
         },
 
-        marketingConsent: {
-            schemaDoc: 'Глобальное согласие на получение маркетинговых материалов',
+        hasMarketingConsent: {
+            // TODO: translate in en
+            schemaDoc: 'Global consent to receive marketing materials',
             type: 'Checkbox',
             isRequired: false,
             defaultValue: false,
@@ -325,6 +324,7 @@ const User = new GQLListSchema('User', {
             type: 'Select',
             options: LOCALES,
         },
+
         customAccess: {
             schemaDoc: 'Override for business access rights for list or field of provided schema',
             type: 'Json',
@@ -385,24 +385,21 @@ const User = new GQLListSchema('User', {
                 await updateEmployeesRelatedToUser(context, updatedItem)
             }
 
-            if (operation === 'update' && existingItem) {
-                const isEmailChanged = updatedItem.email !== existingItem.email
-                const isEmailVerifiedChanged = updatedItem.isEmailVerified !== existingItem.isEmailVerified
-                const isMarketingConsentChanged = updatedItem.marketingConsent !== existingItem.marketingConsent
+            if (updatedItem.type === STAFF) {
+                const isEmailChanged = updatedItem.email !== get(existingItem, 'email', null)
+                const isEmailVerifiedChanged = updatedItem.isEmailVerified !== get(existingItem, 'isEmailVerified', null)
+                const isMarketingConsentChanged = updatedItem.marketingConsent !== get(existingItem, 'marketingConsent', null)
 
                 if (isEmailChanged || isEmailVerifiedChanged || isMarketingConsentChanged) {
                     await sendUserDataWebhook({
-                        oldEmail: existingItem.email,
-                        newEmail: updatedItem.email,
-                        isEmailVerified: updatedItem.isEmailVerified,
-                        marketingConsent: updatedItem.marketingConsent,
+                        oldEmail: get(existingItem, 'email', ''),
+                        newEmail: get(updatedItem, 'email', ''),
+                        oldIsEmailVerified: get(existingItem, 'isEmailVerified', false),
+                        newIsEmailVerified: get(updatedItem, 'isEmailVerified', ''),
+                        oldMarketingConsent: get(existingItem, 'marketingConsent', false),
+                        newMarketingConsent: get(updatedItem, 'marketingConsent', ''),
                     })
                 }
-            }
-
-            if (updatedItem && (updatedItem.email || updatedItem.isEmailVerified || updatedItem.marketingConsent)) {
-                // Отправь все эти данные в n8n (не забудь про существующую почту)
-                await pushEmailDataToMarketingAdapter(updatedItem)
             }
         },
     },

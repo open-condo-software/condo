@@ -1,40 +1,36 @@
-const { get } = require('lodash')
-
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getById } = require('@open-condo/keystone/schema')
 
+const USER_DATA_WEBHOOK_URL = conf.USER_DATA_WEBHOOK_URL ? JSON.parse(conf.USER_DATA_WEBHOOK_URL) : null
 
-const logger = getLogger()
-const MARKETING_WEBHOOKS_URL = (conf.MARKETING_WEBHOOKS_URL) ? JSON.parse(conf.MARKETING_WEBHOOKS_URL) : null
-if (MARKETING_WEBHOOKS_URL && !MARKETING_WEBHOOKS_URL.organizations) {
-    throw new Error('Wrong MARKETING_WEBHOOKS_URL value')
+if (USER_DATA_WEBHOOK_URL && !USER_DATA_WEBHOOK_URL.emailMarketingFlow) {
+    throw new Error('Wrong SALES_CRM_WEBHOOKS_URL value')
 }
 
-async function pushEmailDataToMarketingAdapter () {
-    if (!MARKETING_WEBHOOKS_URL) {
-        logger.error({ msg: 'MARKETING_WEBHOOKS_URL is blank or has incorrect value', data: MARKETING_WEBHOOKS_URL })
+const logger = getLogger('sendUserDataWebhook')
+
+async function sendUserDataWebhook (data) {
+    if (!USER_DATA_WEBHOOK_URL) {
+        logger.error({ msg: 'USER_DATA_WEBHOOK_URL is blank or has incorrect value', data: USER_DATA_WEBHOOK_URL })
         return
     }
-    const { tin, name: orgName, createdBy } = organization
-    const fingerprint = get(organization, ['sender', 'fingerprint'])
-    const { phone: userPhone, name: userName, email } = await getById('User', createdBy.id)
+
     try {
-        const data = {
-            orgName,
-            userName,
-            userPhone,
-            tin,
-            email,
-            fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
-        }
-        await axios.post(MARKETING_WEBHOOKS_URL.organizations, data)
-        logger.info({ msg: 'Posted data to marketing adapter', url: MARKETING_WEBHOOKS_URL.organizations, data })
-    } catch (err) {
-        logger.warn({ msg: 'Request to marketing adapter failed', err })
+        await fetch(USER_DATA_WEBHOOK_URL.emailMarketingFlow, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+
+        logger.info({ msg: 'User data webhook sent successfully', data })
+    } catch (error) {
+        logger.error({ msg: 'Error sending user data webhook', error, data })
     }
 }
 
 module.exports = {
-    pushEmailDataToMarketingAdapter,
+    sendUserDataWebhook,
 }
