@@ -1,5 +1,4 @@
 const { pickBy } = require('lodash')
-const nodeFetch = require('node-fetch')
 
 const conf = require('@open-condo/config')
 
@@ -91,7 +90,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
     try {
         logger.info({ msg: 'request start', ...requestLogCommonData })
 
-        const response = await nodeFetch(url, options)
+        const response = await fetch(url, options)
 
         const headers = (response.headers && typeof response.headers == 'object') ? Object.fromEntries(response.headers) : {}
 
