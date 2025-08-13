@@ -14,8 +14,8 @@ import { useBillingAndAcquiringContexts } from './ContextProvider'
 
 const BLOCK_GAP = 24
 const BLOCK_CONTENT_GAP = 16
-const ERROR_DINO_IMG = 'dino/fail@2x.png'
-const SEARCHING_DINO_IMG = 'dino/searching@2x.png'
+const ERROR_DINO_IMG = '/dino/fail@2x.png'
+const SEARCHING_DINO_IMG = '/dino/searching@2x.png'
 const IMG_STYLES: CSSProperties = { marginBottom: 24 }
 
 type EmptyContentProps = {
