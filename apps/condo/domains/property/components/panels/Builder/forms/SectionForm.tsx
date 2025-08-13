@@ -302,10 +302,20 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         }
     }, [section, builder, refresh])
 
-    const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
+    const sectionIndex = useMemo(
+        () => initialSections.findIndex(el => el.index === section?.index),
+        [initialSections, section?.index]
+    )
 
-    const sectionMinFloor = section && sectionIndex !== -1 ? builder.getSectionMinFloor(sectionIndex) : 1
-    const sectionMaxUnitsPerFloor = section ? builder.getMaxUnitsPerFloor(section.id) : 0
+    const sectionMinFloor = useMemo(
+        () => section && sectionIndex !== -1 ? builder.getSectionMinFloor(sectionIndex) : 1,
+        [section, sectionIndex, builder]
+    )
+
+    const sectionMaxUnitsPerFloor = useMemo(
+        () => section ? builder.getMaxUnitsPerFloor(section.id) : 0,
+        [section, builder]
+    )
 
     const [name, setName] = useState<string>('')
     const renameNextSections = useRef(false)
@@ -354,7 +364,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, DEBOUNCE_TIME), [sections.length])
 
     const maxFloorValue = useMemo(() => {
-        if (floorCount === 1) return minFloor
+        if (floorCount === 1 || !floorCount) return minFloor
         if (minFloor > 0) return floorCount + minFloor - 1
         return floorCount + minFloor
     }, [floorCount, minFloor])
@@ -382,36 +392,33 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         if (oldSectionsIds.current && JSON.stringify(sectionsIds) === JSON.stringify(oldSectionsIds.current)) return
 
         if (sections.length > 1 ) {
-            setHasChanges(initialHasChangeValue)
             setFloorCount(null)
             setUnitsOnFloor(null)
             setMinFloor(null)
         } else {
-            setFloorCount(section ? section.floors.length : 0)
-            setUnitsOnFloor(sectionMaxUnitsPerFloor)
             setMinFloor(sectionMinFloor)
+            setFloorCount(section ? section.floors.length : 1)
+            setUnitsOnFloor(sectionMaxUnitsPerFloor)
         }
 
+        setHasChanges(initialHasChangeValue)
         oldSectionsIds.current = sectionsIds
     }, [section, sectionMaxUnitsPerFloor, sectionMinFloor, sections])
 
     useEffect(() => {
-        Promise.allSettled(
-            sections.map(section => {
-                const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
-                const sectionMinFloor = builder.getSectionMinFloor(sectionIndex)
-                const sectionMaxFloor = builder.getSectionMaxFloor(sectionIndex)
-                const sectionMaxUnitsPerFloor = builder.getMaxUnitsPerFloor(section.id)
+        sections.map(section => {
+            const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
+            const sectionMinFloor = builder.getSectionMinFloor(sectionIndex)
+            const sectionMaxFloor = builder.getSectionMaxFloor(sectionIndex)
+            const sectionMaxUnitsPerFloor = builder.getMaxUnitsPerFloor(section.id)
 
-                builder.updatePreviewSection({
-                    ...section,
-                    name: canChangeName ? name : undefined,
-                    minFloor: hasChanges.minFloor || sections.length === 1 ? minFloor : sectionMinFloor,
-                    maxFloor: hasChanges.floorCount || sections.length === 1 ? maxFloorValue : sectionMaxFloor,
-                    unitsOnFloor: hasChanges.unitsOnFloor || sections.length === 1 ? unitsOnFloor : sectionMaxUnitsPerFloor,
-                })
+            builder.updatePreviewSection({
+                ...section,
+                minFloor: hasChanges.minFloor || sections.length === 1 ? minFloor : sectionMinFloor,
+                maxFloor: hasChanges.floorCount || sections.length === 1 ? maxFloorValue : sectionMaxFloor,
+                unitsOnFloor: hasChanges.unitsOnFloor || sections.length === 1 ? unitsOnFloor : sectionMaxUnitsPerFloor,
             })
-        )
+        })
     }, [builder, name, minFloor, maxFloorValue, unitsOnFloor, floorCount, canChangeName, sections, initialSections, hasChanges])
 
     const updateSection = useCallback(() => {
@@ -419,21 +426,19 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             builder.restoreSection(section.id)
         })
 
-        Promise.allSettled(
-            sections.map(section => {
-                const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
-                const sectionMinFloor = builder.getSectionMinFloor(sectionIndex)
-                const sectionMaxFloor = builder.getSectionMaxFloor(sectionIndex)
-                const sectionMaxUnitsPerFloor = builder.getMaxUnitsPerFloor(section.id)
+        sections.map(section => {
+            const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
+            const sectionMinFloor = builder.getSectionMinFloor(sectionIndex)
+            const sectionMaxFloor = builder.getSectionMaxFloor(sectionIndex)
+            const sectionMaxUnitsPerFloor = builder.getMaxUnitsPerFloor(section.id)
 
-                builder.updateSection({
-                    ...section,
-                    name: canChangeName ? name : undefined,
-                    minFloor: hasChanges.minFloor || sections.length === 1 ? minFloor : sectionMinFloor,
-                    maxFloor: hasChanges.floorCount || sections.length === 1 ? maxFloorValue : sectionMaxFloor,
-                    unitsOnFloor: hasChanges.unitsOnFloor || sections.length === 1 ? unitsOnFloor : sectionMaxUnitsPerFloor,
-                }, renameNextUnits.current, renameNextSections.current)}
-            )
+            builder.updateSection({
+                ...section,
+                name: canChangeName ? name : undefined,
+                minFloor: hasChanges.minFloor || sections.length === 1 ? minFloor ?? sectionMinFloor : sectionMinFloor,
+                maxFloor: hasChanges.floorCount || sections.length === 1 ? maxFloorValue ?? sectionMaxFloor : sectionMaxFloor,
+                unitsOnFloor: hasChanges.unitsOnFloor || sections.length === 1 ? unitsOnFloor ?? sectionMaxUnitsPerFloor : sectionMaxUnitsPerFloor,
+            }, renameNextUnits.current, renameNextSections.current)}
         )
 
         refresh()
