@@ -827,17 +827,12 @@ class MapEdit extends MapView {
         const sectionIndex = this.sections.findIndex(s => s.id === sectionId)
         if (sectionIndex === -1) return
 
-        const section = this.sections[sectionIndex]
-
-        if (sectionUpdate.name) {
-            section.name = sectionUpdate.name
-        }
-
-        if (sectionUpdate.unitsOnFloor !== undefined) {
+        if (sectionUpdate.unitsOnFloor !== undefined && sectionUpdate.unitsOnFloor !== null) {
             this.updateUnitsPerFloor(sectionIndex, sectionUpdate.unitsOnFloor, false, true)
         }
 
-        if (sectionUpdate.minFloor !== undefined || sectionUpdate.maxFloor !== undefined) {
+        if ((sectionUpdate.minFloor !== undefined && sectionUpdate.minFloor !== null) ||
+            (sectionUpdate.maxFloor !== undefined && sectionUpdate.maxFloor !== null)) {
             this.updateFloorRange(
                 sectionIndex,
                 sectionUpdate.minFloor,
@@ -894,7 +889,7 @@ class MapEdit extends MapView {
 
         // Handle units per floor changes
         if (sectionUpdate.unitsOnFloor !== undefined) {
-            this.updateUnitsPerFloor(sectionIndex, sectionUpdate.unitsOnFloor, renameNextUnits)
+            this.updateUnitsPerFloor(sectionIndex, sectionUpdate.unitsOnFloor, false)
         }
 
         // Handle floor range changes (min/max floors)
@@ -904,8 +899,16 @@ class MapEdit extends MapView {
                 sectionUpdate.minFloor,
                 sectionUpdate.maxFloor,
                 sectionUpdate.unitsOnFloor,
-                renameNextUnits,
+                false,
             )
+        }
+
+        if (renameNextUnits) {
+            const floor = section.floors
+            const lastFloor = floor[floor.length - 1]
+            const lastUnit = lastFloor.units[lastFloor.units.length - 1]
+
+            this.updateUnitNumbers(lastUnit)
         }
 
         this.restoreSections()
