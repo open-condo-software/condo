@@ -14,10 +14,10 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { PlusCircle, MinusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Button } from '@open-condo/ui'
-import { PlusCircle, MinusCircle } from '@open-condo/icons'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
@@ -90,16 +90,6 @@ const { TabPane } = Tabs
 
 const TAB_PANE_ROW_GUTTERS: [Gutter, Gutter] = [0, 24]
 const TABS_STYLE: CSSProperties = { width: '100%' }
-const BUTTON_ICON_STYLE: CSSProperties = {
-    color: colors.black,
-    fontSize: 21,
-    position: 'relative',
-    top: '2px',
-}
-const BUTTON_STYLE: CSSProperties = {
-    color: colors.black,
-    paddingLeft: '5px',
-}
 
 export enum CONTACT_TYPE {
     RESIDENT = 'resident',
