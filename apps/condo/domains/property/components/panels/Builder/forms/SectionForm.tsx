@@ -20,7 +20,6 @@ import {
     MODAL_FORM_EDIT_GUTTER,
     MODAL_FORM_ROW_GUTTER,
 } from './BaseUnitForm'
-import { RenameNextUnitsCheckbox } from './RenameNextUnitsCheckbox'
 
 import { MapViewMode } from '../MapConstructor'
 
