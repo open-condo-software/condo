@@ -1004,18 +1004,22 @@ class MapEdit extends MapView {
         renameNextUnits: boolean,
         preview?: boolean
     ): void {
+        let maxUnitInSection = 0
+        this.sections[sectionIndex].floors.forEach(floor => {
+            floor.units.forEach(unit => {
+                const unitNumber = Number(unit.label)
+                if (!Number.isNaN(unitNumber) && unitNumber > maxUnitInSection) {
+                    maxUnitInSection = unitNumber
+                }
+            })
+        })
+
         for (let floorIndex = currentMaxFloor; floorIndex < newMaxFloor; floorIndex++) {
-
-            const maxFloor = this.sections[sectionIndex].floors.find(f => floorIndex === f.index)
-            let maxUnit = maxFloor ? Math.max(...maxFloor.units.map(unit => Number(unit.label))) : 0
-
-            if (Number.isNaN(maxUnit)) maxUnit = 0
-
             this.addSectionFloor({
                 section: sectionIndex,
                 index: floorIndex + 1,
                 unitCount: unitsPerFloor,
-                startUnitIndex: maxUnit,
+                startUnitIndex: maxUnitInSection,
             }, renameNextUnits, preview)
         }
     }

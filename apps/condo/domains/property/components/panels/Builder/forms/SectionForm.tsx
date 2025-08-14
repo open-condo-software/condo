@@ -366,7 +366,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, DEBOUNCE_TIME), [sections.length])
 
     const maxFloorValue = useMemo(() => {
-        if (floorCount === 1 || !floorCount) return minFloor
+        if ((floorCount === 1 || !floorCount) && minFloor) return minFloor
         if (minFloor > 0) return floorCount + minFloor - 1
         return floorCount + minFloor
     }, [floorCount, minFloor])
@@ -417,7 +417,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             builder.updatePreviewSection({
                 ...section,
                 minFloor: hasChanges.minFloor || sections.length === 1 ? minFloor : sectionMinFloor,
-                maxFloor: hasChanges.floorCount || sections.length === 1 ? maxFloorValue : sectionMaxFloor,
+                maxFloor: (hasChanges.floorCount || sections.length === 1) && maxFloorValue ? maxFloorValue : sectionMaxFloor,
                 unitsOnFloor: hasChanges.unitsOnFloor || sections.length === 1 ? unitsOnFloor : sectionMaxUnitsPerFloor,
             })
         })
@@ -438,7 +438,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 ...section,
                 name: canChangeName ? name : undefined,
                 minFloor: hasChanges.minFloor || sections.length === 1 ? minFloor ?? sectionMinFloor : sectionMinFloor,
-                maxFloor: hasChanges.floorCount || sections.length === 1 ? maxFloorValue ?? sectionMaxFloor : sectionMaxFloor,
+                maxFloor: (hasChanges.floorCount || sections.length === 1) && maxFloorValue ? maxFloorValue : sectionMaxFloor,
                 unitsOnFloor: hasChanges.unitsOnFloor || sections.length === 1 ? unitsOnFloor ?? sectionMaxUnitsPerFloor : sectionMaxUnitsPerFloor,
             }, renameNextUnits.current, renameNextSections.current)}
         )
