@@ -2,7 +2,7 @@ const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const logger = getLogger('sendUserDataWebhook')
+const logger = getLogger('')
 
 const USER_DATA_WEBHOOK_URL = conf.USER_DATA_WEBHOOK_URL ? JSON.parse(conf.USER_DATA_WEBHOOK_URL) : null
 

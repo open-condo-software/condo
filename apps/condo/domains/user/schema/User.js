@@ -305,6 +305,7 @@ const User = new GQLListSchema('User', {
             type: 'Checkbox',
             isRequired: false,
             defaultValue: false,
+            kmigratorOptions: { null: false },
             access: access.canAccessMarketingConsent,
         },
 
@@ -386,12 +387,13 @@ const User = new GQLListSchema('User', {
                 await updateEmployeesRelatedToUser(context, updatedItem)
             }
 
+            // TODO(DOMA-12119): Remove this code
             if (updatedItem.type === STAFF) {
                 const isEmailChanged = updatedItem.email !== (existingItem ? existingItem.email : null)
                 const isEmailVerifiedChanged = updatedItem.isEmailVerified !== (existingItem ? existingItem.isEmailVerified : null)
-                const isMarketingConsentChanged = updatedItem.hasMarketingConsent !== (existingItem ? existingItem.hasMarketingConsent : null)
+                const isHasMarketingConsentChanged = updatedItem.hasMarketingConsent !== (existingItem ? existingItem.hasMarketingConsent : null)
 
-                if (isEmailChanged || isEmailVerifiedChanged || isMarketingConsentChanged) {
+                if (isEmailChanged || isEmailVerifiedChanged || isHasMarketingConsentChanged) {
                     await sendUserDataWebhook({
                         oldEmail: existingItem ? existingItem.email : null,
                         newEmail: updatedItem.email,

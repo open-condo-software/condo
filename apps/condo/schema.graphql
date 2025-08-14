@@ -607,7 +607,8 @@ type User {
   """ Name of the provider that created this user """
   externalSystemName: String
 
-  """ Global consent to receive marketing materials """
+  """ Global consent to receive marketing materials. If true – this means user has given the consent to get marketing materials 
+  """
   hasMarketingConsent: Boolean
 
   """ User loaded avatar image """

@@ -595,9 +595,9 @@ describe('User fields', () => {
             const support = await makeClientWithSupportUser()
             const [user] = await createTestUser(admin)
 
-            const [updatedUser] = await updateTestUser(support, user.id, { hasMarketingConsent: true })
-
-            expect(updatedUser.hasMarketingConsent).toBe(true)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestUser(support, user.id, { hasMarketingConsent: true })
+            })
         })
 
         test('can be updated by user himself', async () => {
