@@ -330,7 +330,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                                 <FormItem
                                                     name='phone'
                                                     label={PhoneMessage}
-                                                    rules={validators.phone}
                                                     data-cy='register-phone-item'
                                                     validateFirst
                                                 >
