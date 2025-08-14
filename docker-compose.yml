@@ -41,10 +41,11 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_HOST_AUTH_METHOD: "scram-sha-256\nhost replication all 0.0.0.0/0 scram-sha-256"
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
-      command: |
-        postgres
-           -c wal_level=replica
-           -c synchronous_commit=on
+    command: |
+      postgres
+        -c max_connections=2000
+        -c wal_level=replica
+        -c synchronous_commit=on
     volumes:
       - ./docker-compose-postgresql-init-replication.sql:/docker-entrypoint-initdb.d/docker-compose-postgresql-init-replication.sql
     networks:

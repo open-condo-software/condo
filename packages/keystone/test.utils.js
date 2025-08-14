@@ -131,7 +131,7 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     if (module.hasOwnProperty('keystone') && module.hasOwnProperty('apps')) {
         mode = 'keystone'
         beforeAll(async () => {
-            const res = await prepareKeystoneExpressApp(entryPoint, prepareKeystoneOptions)
+            const res = await prepareKeystoneExpressApp(entryPoint, { excludeApps: ['NextApp', 'AdminUIApp'], ...prepareKeystoneOptions })
             __expressApp = res.app
             __keystone = res.keystone
             // tests express for a fake gql client
