@@ -2,6 +2,7 @@ import { useCheckUserExistenceLazyQuery, useAuthenticateOrRegisterUserWithTokenM
 import { UserTypeType as UserType } from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
 import { ValidateStatus } from 'antd/lib/form/FormItem'
+import getConfig from 'next/config'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
@@ -30,6 +31,8 @@ type RegisterFormProps = {
 }
 
 
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+
 export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish }) => {
     const intl = useIntl()
     const RegisterMessage = intl.formatMessage({ id: 'Register' })
@@ -38,6 +41,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const PasswordMessage = intl.formatMessage({ id: 'pages.auth.register.field.Password' })
     const EmailMessage = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
+    const PhoneMessage = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const RegistrationTitle = intl.formatMessage({ id: 'pages.auth.register.step.register.title' })
     const EnterPasswordTitle = intl.formatMessage({ id: 'pages.auth.register.step.register.title.createPassword' })
     const RegisterFailMessage = intl.formatMessage({ id: 'pages.auth.register.fail' })
@@ -45,7 +49,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const ConsentToReceiveMarketingMaterialsMessage = intl.formatMessage({ id: 'common.consentToReceiveMarketingMaterials' })
 
     const { executeCaptcha } = useHCaptcha()
-    const { phone, token } = useRegisterContext()
+    const { identifier, identifierType, token } = useRegisterContext()
     const { refetch } = useAuth()
 
     const [form] = Form.useForm()
@@ -82,10 +86,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
 
     const visibleFields = useMemo(() => ({
         name: !userExistenceResult?.data?.result?.isNameSet,
-        email: !userExistenceResult?.data?.result?.isUserExists,
+        email: identifierType === 'phone' && !userExistenceResult?.data?.result?.isUserExists,
+        phone: identifierType === 'email' && !userExistenceResult?.data?.result?.isUserExists,
         password: !userExistenceResult?.data?.result?.isPasswordSet,
-    }), [userExistenceResult?.data])
-    const visiblePasswordOnly = !visibleFields.name && !visibleFields.email && visibleFields.password
+    }), [identifierType, userExistenceResult?.data])
+    const visiblePasswordOnly = !visibleFields.name
+        && (identifierType === 'email' ? !visibleFields.phone : !visibleFields.email)
+        && visibleFields.password
 
     const checkUserExistence = useCallback(async () => {
         if (isLoading) return
@@ -133,11 +140,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         try {
             setIsLoading(true)
 
-            const { name, email: inputEmail, password } = form.getFieldsValue(['name', 'email', 'password'])
+            const { name, email: inputEmail, phone: inputPhone, password } = form.getFieldsValue(['name', 'email', 'phone', 'password'])
             const email = inputEmail ? inputEmail.toLowerCase().trim() : ''
+            const phone = inputPhone ? inputPhone.toLowerCase().trim() : ''
 
             const userData = {
                 ...(visibleFields.email ? { email } : null),
+                ...(visibleFields.phone ? { phone } : null),
                 ...(visibleFields.name ? { name } : null),
                 ...(visibleFields.password ? { password } : null),
             }
@@ -190,7 +199,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         const result = userExistenceResult?.data?.result
         const canSkipRegistration = !userExistenceResult?.error
             && result?.isUserExists
-            && result?.isPhoneSet
+            && (identifierType === 'email' ? result?.isEmailSet : result?.isPhoneSet)
             && result?.isPasswordSet
             && result?.isNameSet
         if (!canSkipRegistration) return
@@ -198,7 +207,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         authenticateOrRegister()
     }, [step, userExistenceResult?.data, isLoading])
 
-    const initialValues = useMemo(() => ({ phone }), [phone])
+    const initialValues = useMemo(() => ({
+        [identifierType === 'email' ? 'email' : 'phone']: identifier,
+    }), [identifier, identifierType])
 
     if (step === 'checkUser' || step === 'authenticate') {
         if (userExistenceResult.error || authOrRegisterUserWithTokenResult.error) {
@@ -309,6 +320,32 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                                 />
                                             </Col>
                                         </>
+                                    )
+                                }
+
+                                {
+                                    visibleFields.phone && (
+                                        <Col span={24}>
+                                            <RequiredFlagWrapper>
+                                                <FormItem
+                                                    name='phone'
+                                                    label={PhoneMessage}
+                                                    rules={validators.phone}
+                                                    data-cy='register-phone-item'
+                                                    validateFirst
+                                                >
+                                                    <Input.Phone
+                                                        country={defaultLocale}
+                                                        placeholder={EmailPlaceholder}
+                                                        inputProps={{
+                                                            tabIndex: 2,
+                                                            autoComplete: 'chrome-off',
+                                                            autoFocus: !visibleFields.name && !visibleFields.email,
+                                                        }}
+                                                    />
+                                                </FormItem>
+                                            </RequiredFlagWrapper>
+                                        </Col>
                                     )
                                 }
 

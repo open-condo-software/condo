@@ -1,4 +1,4 @@
-import { useStartConfirmPhoneActionMutation } from '@app/condo/gql'
+import { useStartConfirmPhoneActionMutation, useStartConfirmEmailActionMutation } from '@app/condo/gql'
 import { Col, Form, Row } from 'antd'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
@@ -13,11 +13,11 @@ import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
-import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
+import { normalizeUserIdentifier } from '@condo/domains/user/utils/helpers'
 
 import { AgreementText } from './AgreementText'
 import { useRegisterContext } from './RegisterContextProvider'
@@ -25,36 +25,49 @@ import { useRegisterContext } from './RegisterContextProvider'
 
 const { publicRuntimeConfig: { hasSbbolAuth, defaultLocale } } = getConfig()
 
-type InputPhoneFormProps = {
+type InputIdentifierFormProps = {
     onFinish: () => void
 }
 
-const PHONE_INPUT_PROPS = { tabIndex: 1, autoFocus: true }
+const IDENTIFIER_INPUT_PROPS = { tabIndex: 1, autoFocus: true }
 const TAB_INDEXES = { termsOfUse: 5, consentLink: 7, privacyPolicyLink: 6 }
 
-export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
+export const InputIdentifierForm: React.FC<InputIdentifierFormProps> = ({ onFinish }) => {
     const intl = useIntl()
 
     const PhoneMessage = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
+    const EmailMessage = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
+    const PhoneOrEmailMessage = intl.formatMessage({ id: 'pages.auth.register.field.PhoneOrEmail' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
+    const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
+    const ExamplePhoneOrEmailMessage = intl.formatMessage({ id: 'example.PhoneOrEmail' })
     const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
-    const SMSTooManyRequestsErrorMessage = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    const TooManyRequestsErrorMessage = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const WrongPhoneFormatErrorMessage = intl.formatMessage({ id: 'api.common.WRONG_PHONE_FORMAT' })
-    const SubmitMessage = intl.formatMessage({ id: 'page.auth.register.inputPhone.submit' })
+    const WrongEmailFormatErrorMessage = intl.formatMessage({ id: 'api.common.INVALID_EMAIL_FORMAT' })
+    const WrongPhoneOrEmailFormatErrorMessage = intl.formatMessage({ id: 'common.errors.WRONG_PHONE_OR_EMAIL_FORMAT' })
+    const SubmitMessage = intl.formatMessage({ id: 'page.auth.register.inputIdentifier.submit' })
+
+    const { queryParams, authMethods } = useAuthMethods()
+
+    const WrongIdentifierFormatErrorMessage = authMethods.emailPassword && authMethods.phonePassword
+        ? WrongPhoneOrEmailFormatErrorMessage
+        : authMethods.emailPassword
+            ? WrongEmailFormatErrorMessage
+            : WrongPhoneFormatErrorMessage
 
     const [form] = Form.useForm()
 
     const { executeCaptcha } = useHCaptcha()
-    const { setToken, setPhone } = useRegisterContext()
+    const { setToken, setIdentifier } = useRegisterContext()
 
     const router = useRouter()
     const { query: { next } } = router
     const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
-    const { queryParams } = useAuthMethods()
 
     const [isLoading, setIsLoading] = useState(false)
 
-    const registerPhoneRules = useMemo(
+    const registerIdentifierRules = useMemo(
         () => [{ required: true, message: FieldIsRequiredMessage }],
         [FieldIsRequiredMessage]
     )
@@ -62,40 +75,47 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
     const onError = useMutationErrorHandler({
         form,
         typeToFieldMapping: {
-            [TOO_MANY_REQUESTS]: 'phone',
+            [TOO_MANY_REQUESTS]: 'identifier',
         },
     })
     const [startConfirmPhoneAction] = useStartConfirmPhoneActionMutation({
         onError,
     })
+    const [startConfirmEmailAction] = useStartConfirmEmailActionMutation({
+        onError,
+    })
 
-    const startConfirmPhone = useCallback(async () => {
+    const startConfirmIdentifier = useCallback(async () => {
         if (isLoading) return
 
-        const { phone: inputPhone } = form.getFieldsValue(['phone'])
-        const phone = normalizePhone(inputPhone)
-        if (!phone) {
+        const { identifier: inputIdentifier } = form.getFieldsValue(['identifier'])
+        const identifier = normalizeUserIdentifier(inputIdentifier)
+        if (!identifier.normalizedValue) {
             form.setFields([
                 {
-                    name: 'phone',
-                    errors: [WrongPhoneFormatErrorMessage],
+                    name: 'identifier',
+                    errors: [WrongIdentifierFormatErrorMessage],
                 },
             ])
             return
         }
-        setPhone(phone)
+        setIdentifier(identifier.normalizedValue)
         setIsLoading(true)
 
         try {
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
-            const res = await startConfirmPhoneAction({
+
+            const startConfirmAction = identifier.type === 'email' ? startConfirmEmailAction : startConfirmPhoneAction
+
+            const res = await startConfirmAction({
                 variables: {
+                    // @ts-ignore
                     data: {
                         dv: 1,
                         sender,
                         captcha,
-                        phone,
+                        [identifier.type === 'email' ? 'email' : 'phone']: identifier.normalizedValue,
                     },
                 },
             })
@@ -108,19 +128,19 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                 return
             }
         } catch (error) {
-            console.error('Start confirm phone action failed')
+            console.error('Start confirm identifier action failed')
             console.error(error)
             form.setFields([
                 {
-                    name: 'phone',
+                    name: 'identifier',
                     // NOTE(pahaz): `friendlyDescription` is the last GQLError.messageForUser!
-                    errors: [(error.friendlyDescription) ? error.friendlyDescription : SMSTooManyRequestsErrorMessage],
+                    errors: [(error.friendlyDescription) ? error.friendlyDescription : TooManyRequestsErrorMessage],
                 },
             ])
         } finally {
             setIsLoading(false)
         }
-    }, [queryParams, isLoading, form, setPhone, WrongPhoneFormatErrorMessage, executeCaptcha, startConfirmPhoneAction, setToken, onFinish, SMSTooManyRequestsErrorMessage])
+    }, [TooManyRequestsErrorMessage, WrongIdentifierFormatErrorMessage, executeCaptcha, form, isLoading, onFinish, queryParams, setIdentifier, setToken, startConfirmEmailAction, startConfirmPhoneAction])
 
     return (
         <Row>
@@ -132,8 +152,8 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                 </Row>
                 <Form
                     form={form}
-                    name='register-input-phone'
-                    onFinish={startConfirmPhone}
+                    name='register-input-identifier'
+                    onFinish={startConfirmIdentifier}
                     requiredMark={false}
                     layout='vertical'
                 >
@@ -141,14 +161,42 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                         <ResponsiveCol span={24}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
-                                    <FormItem
-                                        name='phone'
-                                        label={PhoneMessage}
-                                        data-cy='register-phone-item'
-                                        rules={registerPhoneRules}
-                                    >
-                                        <Input.Phone country={defaultLocale} placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
-                                    </FormItem>
+                                    {
+                                        authMethods.phonePassword && !authMethods.emailPassword && (
+                                            <FormItem
+                                                name='identifier'
+                                                label={PhoneMessage}
+                                                rules={registerIdentifierRules}
+                                                data-cy='register-identifier-item'
+                                            >
+                                                <Input.Phone country={defaultLocale} placeholder={ExamplePhoneMessage} inputProps={IDENTIFIER_INPUT_PROPS} />
+                                            </FormItem>
+                                        )
+                                    }
+                                    {
+                                        !authMethods.phonePassword && authMethods.emailPassword && (
+                                            <FormItem
+                                                name='identifier'
+                                                label={EmailMessage}
+                                                rules={registerIdentifierRules}
+                                                data-cy='register-identifier-item'
+                                            >
+                                                <Input placeholder={ExampleEmailMessage} {...IDENTIFIER_INPUT_PROPS} />
+                                            </FormItem>
+                                        )
+                                    }
+                                    {
+                                        authMethods.phonePassword && authMethods.emailPassword && (
+                                            <FormItem
+                                                name='identifier'
+                                                label={PhoneOrEmailMessage}
+                                                rules={registerIdentifierRules}
+                                                data-cy='register-identifier-item'
+                                            >
+                                                <Input placeholder={ExamplePhoneOrEmailMessage} {...IDENTIFIER_INPUT_PROPS} />
+                                            </FormItem>
+                                        )
+                                    }
                                 </Col>
 
                                 <Col span={24}>
@@ -168,7 +216,7 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                                         </Col>
                                         {
                                             hasSbbolAuth && (
-                                                <Col span={24} id='inputPhoneSBBOL'>
+                                                <Col span={24} id='inputIdentifierSBBOL'>
                                                     <LoginWithSBBOLButton
                                                         redirect={redirectUrl}
                                                         block

@@ -1,9 +1,15 @@
-import { useCompleteConfirmPhoneActionMutation, useResendConfirmPhoneActionSmsMutation } from '@app/condo/gql'
+import {
+    useCompleteConfirmPhoneActionMutation,
+    useResendConfirmPhoneActionSmsMutation,
+    useCompleteConfirmEmailActionMutation,
+    useResendConfirmEmailActionMutation,
+} from '@app/condo/gql'
 import { Col, Form, Row } from 'antd'
 import getConfig from 'next/config'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { ArrowLeft } from '@open-condo/icons'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Input, Space, Modal, Button } from '@open-condo/ui'
 
@@ -12,9 +18,8 @@ import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
-import { SMS_CODE_LENGTH, SMS_CODE_TTL } from '@condo/domains/user/constants/common'
+import { SMS_CODE_LENGTH, SMS_CODE_TTL, SECRET_CODE_LENGTH, EMAIL_CODE_TTL } from '@condo/domains/user/constants/common'
 import {
     CONFIRM_PHONE_ACTION_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
@@ -32,7 +37,7 @@ const {
 } = getConfig()
 
 
-type ValidatePhoneFormProps = {
+type ValidateIdentifierFormProps = {
     onFinish: () => void
     onReset: () => void
     title: string
@@ -40,20 +45,26 @@ type ValidatePhoneFormProps = {
 
 const NOT_NUMBER_REGEX = /\D/g
 
-const INITIAL_VALUES = { smsCode: '' }
+const INITIAL_VALUES = { confirmCode: '' }
 
-export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, onReset, title }) => {
+export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ onFinish, onReset, title }) => {
     const intl = useIntl()
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.resendSms' })
-    const codeAvailableLabel = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.codeIsAvailable' })
-    const smsCodeMismatchError = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.smsCodeMismatchError' })
-    const smsNotDeliveredMessage = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.smsNotDelivered' })
-    const problemsModalTitle = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.title' })
-    const checkPhoneLabel = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.checkPhone' })
-    const instructionStepCheckPhone = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.checkPhone' })
-    const chatInTelegramMessage = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.supportTelegramChat.chatInTelegram' })
-    const instructionStepSupportTelegramChat = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.supportTelegramChat' }, {
+    const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.resendSms' })
+    const ResendConfirmCodeLabel = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.resendConfirmCode' })
+    const codeAvailableLabel = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.codeIsAvailable' })
+    const smsCodeMismatchError = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.smsCodeMismatchError' })
+    const confirmCodeMismatchError = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.confirmCodeMismatchError' })
+    const smsNotDeliveredMessage = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.smsNotDelivered' })
+    const mailNotDeliveredMessage = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.mailNotDelivered' })
+    const smsProblemsModalTitle = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.smsProblemsModal.title' })
+    const mailProblemsModalTitle = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.mailProblemsModal.title' })
+    const checkPhoneLabel = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.checkPhone' })
+    const checkEmailLabel = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.checkEmail' })
+    const instructionStepCheckPhone = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.checkPhone' })
+    const instructionStepCheckEmail = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.checkEmail' })
+    const chatInTelegramMessage = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.supportTelegramChat.chatInTelegram' })
+    const instructionStepSupportTelegramChat = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.supportTelegramChat' }, {
         chatBotLink: (
             <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
                 {chatInTelegramMessage}
@@ -61,14 +72,15 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
         ),
     })
 
-    const { token, phone } = useRegisterContext()
-    const SmsCodeSentMessage = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.description.smsCodeSent' }, { phone: formatPhone(phone) })
+    const { token, identifier, identifierType } = useRegisterContext()
+    const SmsCodeSentMessage = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.description.smsCodeSent' }, { phone: formatPhone(identifier) })
+    const EmailCodeSentMessage = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.description.emailCodeSent' }, { email: identifier })
 
     const { executeCaptcha } = useHCaptcha()
 
     const [form] = Form.useForm()
 
-    const [phoneValidateError, setPhoneValidateError] = useState(null)
+    const [confirmCodeError, setConfirmCodeError] = useState(null)
 
     const [isOpenProblemsModal, setIsOpenProblemsModal] = useState<boolean>(false)
 
@@ -77,11 +89,11 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
     const errorHandler = useMutationErrorHandler({
         form,
         typeToFieldMapping: {
-            [CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED]: 'smsCode',
-            [CONFIRM_PHONE_ACTION_EXPIRED]: 'smsCode',
-            [CONFIRM_PHONE_SMS_CODE_EXPIRED]: 'smsCode',
-            [CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED]: 'smsCode',
-            [TOO_MANY_REQUESTS]: 'smsCode',
+            [CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED]: 'confirmCode',
+            [CONFIRM_PHONE_ACTION_EXPIRED]: 'confirmCode',
+            [CONFIRM_PHONE_SMS_CODE_EXPIRED]: 'confirmCode',
+            [CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED]: 'confirmCode',
+            [TOO_MANY_REQUESTS]: 'confirmCode',
         },
     })
     const [completeConfirmPhoneMutation] = useCompleteConfirmPhoneActionMutation({
@@ -90,25 +102,34 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
     const [resendSmsMutation] = useResendConfirmPhoneActionSmsMutation({
         onError: errorHandler,
     })
+    const [completeConfirmEmailMutation] = useCompleteConfirmEmailActionMutation({
+        onError: errorHandler,
+    })
+    const [resendConfirmEmailMutation] = useResendConfirmEmailActionMutation({
+        onError: errorHandler,
+    })
 
-    const smsValidator = useCallback(() => ({
+    const confirmCodeValidator = useCallback(() => ({
         validator () {
-            if (!phoneValidateError) {
+            if (!confirmCodeError) {
                 return Promise.resolve()
             }
-            return Promise.reject(phoneValidateError)
+            return Promise.reject(confirmCodeError)
         },
-    }), [phoneValidateError])
+    }), [confirmCodeError])
 
-    const smsCodeValidatorRules = useMemo(() => [
-        { required: true, message: FieldIsRequiredMsg }, smsValidator,
-    ], [FieldIsRequiredMsg, smsValidator])
+    const confirmCodeValidatorRules = useMemo(() => [
+        { required: true, message: FieldIsRequiredMsg }, confirmCodeValidator,
+    ], [FieldIsRequiredMsg, confirmCodeValidator])
 
-    const resendSms = useCallback(async () => {
+    const resendConfirmCode = useCallback(async () => {
         try {
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
-            await resendSmsMutation({
+
+            const resendConfirmCodeMutation = identifierType === 'email' ? resendConfirmEmailMutation : resendSmsMutation
+
+            await resendConfirmCodeMutation({
                 variables: {
                     data: {
                         dv: 1,
@@ -122,37 +143,58 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
             console.error('Code resending error')
             console.error(error)
         }
-    }, [executeCaptcha, resendSmsMutation, token])
+    }, [executeCaptcha, identifierType, resendConfirmEmailMutation, resendSmsMutation, token])
 
     const handleVerifyCode = useCallback(async () => {
-        setPhoneValidateError(null)
-        const smsCodeFromInput = (form.getFieldValue('smsCode') || '').toString()
-        const smsCode = smsCodeFromInput.replace(NOT_NUMBER_REGEX, '')
-        form.setFieldsValue({ smsCode })
-        if (smsCode.length < SMS_CODE_LENGTH) {
-            return
-        }
-        if (smsCode.length > SMS_CODE_LENGTH) {
-            return setPhoneValidateError(smsCodeMismatchError)
+        setConfirmCodeError(null)
+        const confirmCodeFromInput = (form.getFieldValue('confirmCode') || '').toString()
+
+        if (identifierType !== 'phone' && identifierType !== 'email') return
+
+        let confirmCode = confirmCodeFromInput
+        let confirmCodeAsNumber
+        if (identifierType === 'phone') {
+            confirmCode = confirmCodeFromInput.replace(NOT_NUMBER_REGEX, '')
+            form.setFieldsValue({ confirmCode })
+            if (confirmCode.length < SMS_CODE_LENGTH) {
+                return
+            }
+            if (confirmCode.length > SMS_CODE_LENGTH) {
+                return setConfirmCodeError(smsCodeMismatchError)
+            }
+
+            confirmCodeAsNumber = Number(confirmCode)
+            if (Number.isNaN(confirmCodeAsNumber)) {
+                return setConfirmCodeError(smsCodeMismatchError)
+            }
         }
 
-        const smsCodeAsNumber = Number(smsCode)
-        if (Number.isNaN(smsCodeAsNumber)) {
-            return setPhoneValidateError(smsCodeMismatchError)
+        if (identifierType === 'email') {
+            confirmCode = confirmCodeFromInput
+            form.setFieldsValue({ confirmCode })
+            if (confirmCode.length < SECRET_CODE_LENGTH) {
+                return
+            }
+            if (confirmCode.length > SECRET_CODE_LENGTH) {
+                return setConfirmCodeError(confirmCodeMismatchError)
+            }
         }
 
         try {
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
 
-            const res = await completeConfirmPhoneMutation({
+            const completeConfirmMutation = identifierType === 'email' ? completeConfirmEmailMutation : completeConfirmPhoneMutation
+
+            const res = await completeConfirmMutation({
                 variables: {
+                    // @ts-ignore
                     data: {
                         dv: 1,
                         sender,
                         captcha,
                         token,
-                        smsCode: smsCodeAsNumber,
+                        [identifierType === 'email' ? 'confirmCode' : 'smsCode']: identifierType === 'email' ? confirmCode : confirmCodeAsNumber,
                     },
                 },
             })
@@ -165,7 +207,7 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
             console.error('Phone verification error')
             console.error(error)
         }
-    }, [smsCodeMismatchError, completeConfirmPhoneMutation, form, executeCaptcha, onFinish, token])
+    }, [completeConfirmEmailMutation, completeConfirmPhoneMutation, confirmCodeMismatchError, executeCaptcha, form, identifierType, onFinish, smsCodeMismatchError, token])
 
     const closeModal = useCallback(() => setIsOpenProblemsModal(false), [])
 
@@ -197,20 +239,20 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                                     </Col>
                                     <Col span={24}>
                                         <Typography.Text type='secondary'>
-                                            {SmsCodeSentMessage}
+                                            {identifierType === 'email' ? EmailCodeSentMessage : SmsCodeSentMessage}
                                         </Typography.Text>
                                     </Col>
                                     <Col span={24}>
                                         <FormItem
-                                            name='smsCode'
+                                            name='confirmCode'
                                             label=' '
-                                            data-cy='register-smscode-item'
-                                            rules={smsCodeValidatorRules}
+                                            data-cy='register-confirm-code-item'
+                                            rules={confirmCodeValidatorRules}
                                         >
                                             <Input
                                                 placeholder=''
-                                                inputMode='numeric'
-                                                pattern='[0-9]'
+                                                inputMode={identifierType === 'email' ? 'text' : 'numeric'}
+                                                pattern={identifierType === 'email' ? undefined : '[0-9]'}
                                                 onChange={handleVerifyCode}
                                                 tabIndex={1}
                                                 autoFocus
@@ -222,7 +264,12 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
 
                             <Col span={24}>
                                 <Space size={12} direction='vertical'>
-                                    <CountDownTimer action={resendSms} id='RESEND_SMS' timeout={SMS_CODE_TTL} autostart={true}>
+                                    <CountDownTimer
+                                        action={resendConfirmCode}
+                                        id='RESEND_CONFIRM_CODE'
+                                        timeout={identifierType === 'email' ? EMAIL_CODE_TTL : SMS_CODE_TTL}
+                                        autostart={true}
+                                    >
                                         {({ countdown, runAction }) => {
                                             const isCountDownActive = countdown > 0
                                             return (
@@ -239,7 +286,7 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                                                     )
                                                     : (
                                                         <Typography.Link onClick={runAction} tabIndex={2}>
-                                                            {ResendSmsLabel}
+                                                            {identifierType === 'email' ? ResendConfirmCodeLabel : ResendSmsLabel}
                                                         </Typography.Link>
                                                     )
                                             )
@@ -247,7 +294,7 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                                     </CountDownTimer>
 
                                     <Typography.Link onClick={openModal} tabIndex={3}>
-                                        {smsNotDeliveredMessage}
+                                        {identifierType === 'email' ? mailNotDeliveredMessage : smsNotDeliveredMessage}
                                     </Typography.Link>
                                 </Space>
                             </Col>
@@ -258,12 +305,12 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
 
             <Modal
                 open={isOpenProblemsModal}
-                title={problemsModalTitle}
+                title={identifierType === 'email' ? mailProblemsModalTitle : smsProblemsModalTitle}
                 width='small'
                 onCancel={closeModal}
                 footer={
                     <Button type='primary' onClick={closeModal}>
-                        {checkPhoneLabel}
+                        {identifierType === 'email' ? checkEmailLabel : checkPhoneLabel}
                     </Button>
                 }
             >
@@ -272,7 +319,7 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                     size={0}
                 >
                     <Typography.Text type='secondary'>
-                        {instructionStepCheckPhone}
+                        {identifierType === 'email' ? instructionStepCheckEmail : instructionStepCheckPhone}
                     </Typography.Text>
                     {
                         hasSupportTelegramChat && (
