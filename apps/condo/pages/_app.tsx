@@ -610,7 +610,10 @@ if (!isDisabledSsr || !isSSR()) {
 
                 if (!activeEmployee) {
                     const { asPath } = pageContext
-                    const currentPath = asPath.split('?')[0]
+                    let currentPath = asPath.split('?')[0]
+                    if (currentPath.endsWith('/')) {
+                        currentPath = currentPath.slice(0, -1)
+                    }
                     const redirectPath = '/auth/organization'
 
                     if (currentPath !== redirectPath) {

@@ -194,7 +194,7 @@ export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ 
                         sender,
                         captcha,
                         token,
-                        [identifierType === 'email' ? 'confirmCode' : 'smsCode']: identifierType === 'email' ? confirmCode : confirmCodeAsNumber,
+                        [identifierType === 'email' ? 'secretCode' : 'smsCode']: identifierType === 'email' ? confirmCode : confirmCodeAsNumber,
                     },
                 },
             })
