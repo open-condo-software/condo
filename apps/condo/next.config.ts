@@ -60,6 +60,7 @@ const contactPageResidentAnalytics = JSON.parse(conf['CONTACT_PAGE_RESIDENT_ANAL
 const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
 const inviteRequiredFields = JSON.parse(conf['INVITE_REQUIRED_FIELDS'] || '["phone"]')
 const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
+const defaultCRMAuthMethods = conf['DEFAULT_CRM_AUTH_METHODS'] ? JSON.parse(conf['DEFAULT_CRM_AUTH_METHODS']) : []
 
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
 
@@ -131,6 +132,7 @@ const nextConfig: NextConfig = {
         displayTicketInfoOnShare,
         inviteRequiredFields,
         footerConfig,
+        defaultCRMAuthMethods,
     },
     serverRuntimeConfig: {
         proxyName,

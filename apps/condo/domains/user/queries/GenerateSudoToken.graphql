@@ -1,0 +1,3 @@
+mutation generateSudoToken($data: GenerateSudoTokenInput!) {
+    result: generateSudoToken(data: $data) { token }
+}
