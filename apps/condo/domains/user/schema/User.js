@@ -389,17 +389,21 @@ const User = new GQLListSchema('User', {
 
             // TODO(DOMA-12119): Remove this code
             if (updatedItem.type === STAFF) {
-                const isEmailChanged = updatedItem.email !== (existingItem ? existingItem.email : null)
-                const isEmailVerifiedChanged = updatedItem.isEmailVerified !== (existingItem ? existingItem.isEmailVerified : null)
-                const isHasMarketingConsentChanged = updatedItem.hasMarketingConsent !== (existingItem ? existingItem.hasMarketingConsent : null)
+                const existingItemEmailField = (existingItem ? existingItem.email : null)
+                const existingItemIsEmailVerifiedField = (existingItem ? existingItem.isEmailVerified : null)
+                const existingItemHasMarketingConsentField = (existingItem ? existingItem.hasMarketingConsent : null)
+
+                const isEmailChanged = updatedItem.email !== existingItemEmailField
+                const isEmailVerifiedChanged = updatedItem.isEmailVerified !== existingItemIsEmailVerifiedField
+                const isHasMarketingConsentChanged = updatedItem.hasMarketingConsent !== existingItemHasMarketingConsentField
 
                 if (isEmailChanged || isEmailVerifiedChanged || isHasMarketingConsentChanged) {
                     await sendUserDataWebhook({
-                        oldEmail: existingItem ? existingItem.email : null,
+                        oldEmail: existingItemEmailField,
                         newEmail: updatedItem.email,
-                        oldIsEmailVerified: existingItem ? existingItem.isEmailVerified : null,
+                        oldIsEmailVerified: existingItemIsEmailVerifiedField,
                         newIsEmailVerified: updatedItem.isEmailVerified,
-                        oldHasMarketingConsent: existingItem ? existingItem.hasMarketingConsent : null,
+                        oldHasMarketingConsent: existingItemHasMarketingConsentField,
                         newHasMarketingConsent: updatedItem.hasMarketingConsent,
                     })
                 }
