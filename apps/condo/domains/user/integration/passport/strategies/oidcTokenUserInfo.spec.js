@@ -15,6 +15,8 @@ jest.mock('@open-condo/config', () => {
                                 userInfoURL: 'https://oidc.auth.example.com/userInfo',
                                 trustPhone: true,
                                 trustEmail: false,
+                                requireConfirmPhoneAction: false,
+                                requireConfirmEmailAction: false,
                             },
                         },
                     },
