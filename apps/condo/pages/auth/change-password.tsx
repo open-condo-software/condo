@@ -170,6 +170,10 @@ const ChangePasswordPage: PageComponentType = () => {
                         authFactors: {
                             [tokenTypeInfo.tokenType === TOKEN_TYPES.CONFIRM_EMAIL ? 'confirmEmailToken' : 'confirmPhoneToken']: confirmToken,
                         },
+                        user: {
+                            userType: UserType.Staff,
+                            [tokenTypeInfo.tokenType === TOKEN_TYPES.CONFIRM_EMAIL ? 'email' : 'phone']: identifier,
+                        },
                     },
                 },
             })
