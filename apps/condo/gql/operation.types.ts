@@ -352,6 +352,14 @@ export type GetEmployeeB2BAppRolesQueryVariables = Types.Exact<{
 
 export type GetEmployeeB2BAppRolesQuery = { __typename?: 'Query', b2bRoles?: Array<{ __typename?: 'B2BAppRole', id: string, app?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
 
+export type GetCustomValuesForObjectQueryVariables = Types.Exact<{
+  schemaName: Types.CustomFieldSchemaNameType;
+  objectId: Types.Scalars['String']['input'];
+}>;
+
+
+export type GetCustomValuesForObjectQuery = { __typename?: 'Query', customValues?: Array<{ __typename?: 'CustomValue', id: string, data?: any | null, sourceType?: Types.CustomValueSourceTypeType | null, sourceId?: string | null, customField?: { __typename?: 'CustomField', priority?: number | null, name?: string | null } | null } | null> | null };
+
 export type GetNewsItemsRecipientsCountersQueryVariables = Types.Exact<{
   data: Types.GetNewsItemsRecipientsCountersInput;
 }>;
