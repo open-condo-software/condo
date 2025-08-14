@@ -127,7 +127,7 @@ export const SignInForm = (): React.ReactElement => {
                 <ResponsiveCol span={24}>
                     <Row gutter={[0, 40]}>
                         {
-                            authMethods.phonePassword || authMethods.emailPassword && (
+                            (authMethods.phonePassword || authMethods.emailPassword) && (
                                 <Col span={24}>
                                     <Row gutter={[0, 24]}>
                                         <Col span={24}>
@@ -199,7 +199,7 @@ export const SignInForm = (): React.ReactElement => {
                             <Row gutter={[0, 24]}>
 
                                 {
-                                    authMethods.phonePassword || authMethods.emailPassword && (
+                                    (authMethods.phonePassword || authMethods.emailPassword) && (
                                         <Col span={24}>
                                             <Button
                                                 key='submit'
