@@ -399,12 +399,13 @@ const User = new GQLListSchema('User', {
 
                 if (isEmailChanged || isEmailVerifiedChanged || isHasMarketingConsentChanged) {
                     await sendUserDataWebhook({
+                        id: updatedItem.id,
                         oldEmail: existingItemEmailField,
-                        newEmail: updatedItem.email,
+                        email: updatedItem.email,
                         oldIsEmailVerified: existingItemIsEmailVerifiedField,
-                        newIsEmailVerified: updatedItem.isEmailVerified,
+                        isEmailVerified: updatedItem.isEmailVerified,
                         oldHasMarketingConsent: existingItemHasMarketingConsentField,
-                        newHasMarketingConsent: updatedItem.hasMarketingConsent,
+                        hasMarketingConsent: updatedItem.hasMarketingConsent,
                     })
                 }
             }
