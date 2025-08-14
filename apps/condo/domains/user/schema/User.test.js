@@ -590,8 +590,7 @@ describe('User fields', () => {
             admin = await makeLoggedInAdminClient()
         })
 
-        // NOTE: Need because user with support right can log in as user and just set the consent for him
-        test('can be updated by support', async () => {
+        test('cannot be updated by support', async () => {
             const support = await makeClientWithSupportUser()
             const [user] = await createTestUser(admin)
 
