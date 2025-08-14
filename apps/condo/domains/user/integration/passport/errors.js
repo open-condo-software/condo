@@ -11,6 +11,7 @@ const INVALID_USER_DATA = 'INVALID_USER_DATA'
 const INVALID_PARAMETER = 'INVALID_PARAMETER'
 const AUTHORIZATION_FAILED = 'AUTHORIZATION_FAILED'
 const UNKNOWN_PROVIDER = 'UNKNOWN_PROVIDER'
+const UNKNOWN_CONFIRM_TOKEN_TYPE = 'UNKNOWN_CONFIRM_TOKEN_TYPE'
 
 const ERRORS = {
     MISSING_QUERY_PARAMETER: {
@@ -67,6 +68,11 @@ const ERRORS = {
         code: NOT_FOUND,
         type: UNKNOWN_PROVIDER,
         message: 'Unknown auth provider: {provider}',
+    },
+    UNKNOWN_CONFIRM_TOKEN_TYPE: {
+        code: INTERNAL_ERROR,
+        type: UNKNOWN_CONFIRM_TOKEN_TYPE,
+        message: 'Unknown confirm action token type',
     },
 }
 

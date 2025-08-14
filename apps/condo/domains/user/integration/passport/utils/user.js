@@ -314,7 +314,7 @@ async function _findOrCreateUser (req, userData, userType, providerInfo, userMet
  * isEmailVerified: boolean 
  * }}
  */
-function extractUserDataFromProvider (req, userProfile, fieldMapping = {}) {
+function _extractUserDataFromProvider (req, userProfile, fieldMapping = {}) {
     const errorContext = { req }
 
     const { success: isValidFieldMapping, error: fieldMappingError, data: fieldMappingData } = fieldMappingSchema.safeParse(fieldMapping)
@@ -354,7 +354,7 @@ async function getExistingUserIdentity (req, userProfile, userType, providerInfo
     _ensureProviderInfo(providerInfo, errorContext)
 
     // Step 1. Convert provider shape to condo shape
-    const userData = extractUserDataFromProvider(req, userProfile, fieldMapping)
+    const userData = _extractUserDataFromProvider(req, userProfile, fieldMapping)
 
     // Step 2. Try to find identity
     // NOTE: does not add user.deletedAt filter, since it's the way to ban user (delete their profile with linked identity)
@@ -384,7 +384,7 @@ async function getExistingUserIdentity (req, userProfile, userType, providerInfo
  * phone number or email. If no existing user is found, a new user is created.
  * Finally, it creates the external identity and links it to the user.
  * @param {import('http').IncomingMessage} req - request object
- * @param {Record<string, string>} userProfile - information about user in shape of auth provider
+ * @param {Record<string, unknown>} userProfile - information about user in shape of auth provider
  * @param {'staff' | 'resident'} userType - condo user's type
  * @param {{ name: string, trustPhone: boolean, trustEmail: boolean }} providerInfo - information about provider (name, trustPhone, trustEmail)
  * @param {Record<string, string>} fieldMapping - userInfo json remap options. For example { id: 'sub' } converts oidc default "sub" field to "id"
@@ -410,7 +410,7 @@ async function syncUser (
 
 
     // Step 2. If no external identity, we need to find or create user first, and then create and link identity to it
-    const userData = extractUserDataFromProvider(req, userProfile, fieldMapping)
+    const userData = _extractUserDataFromProvider(req, userProfile, fieldMapping)
     const user = await _findOrCreateUser(req, userData, userType, providerInfo, userProfile)
 
     const { keystone } = getSchemaCtx('User')
@@ -481,7 +481,7 @@ function ensureUserType (req, res, next) {
 }
 
 module.exports = {
-    extractUserDataFromProvider,
+    DEFAULT_USER_FIELDS_MAPPING,
     getExistingUserIdentity,
     syncUser,
     captureUserType,
