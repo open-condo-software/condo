@@ -139,7 +139,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 try {
                     const IDENTIFICATION_USER_REQUIRED_FIELDS = getIdentificationUserRequiredFields()
                     const INVITE_REQUIRED_FIELDS = conf['INVITE_REQUIRED_FIELDS']
-                    let raw = INVITE_REQUIRED_FIELDS !== undefined ? INVITE_REQUIRED_FIELDS : IDENTIFICATION_USER_REQUIRED_FIELDS.staff
+                    const raw = INVITE_REQUIRED_FIELDS !== undefined ? INVITE_REQUIRED_FIELDS : IDENTIFICATION_USER_REQUIRED_FIELDS.staff
                     if (!raw) {
                         return scenario = CASES.phone
                     }
