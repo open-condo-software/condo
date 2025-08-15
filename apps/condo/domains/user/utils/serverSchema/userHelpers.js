@@ -19,8 +19,12 @@ const IdentificationUserFieldsSchema = z.object({
 })
 
 /**
+ * Returns required user identifiers: phone, email, or both.
+ * Each user type can have its own set.
+ * For service users, only email is required, cannot be changed.
+ * For all others user types, only phone is returned by default.
  *
- * @return {{staff: string[], resident: string[]}}
+ * @return {{staff: string[], resident: string[], service: string[]}}
  */
 function getIdentificationUserRequiredFields () {
     const defaultFields = ['phone']
@@ -29,13 +33,14 @@ function getIdentificationUserRequiredFields () {
     try {
         userIdentificationRequiredFieldsFromEnv = conf.IDENTIFICATION_USER_REQUIRED_FIELDS ? JSON.parse(conf.IDENTIFICATION_USER_REQUIRED_FIELDS) : null
     } catch (error) {
-        throw new Error('Failed to parse USER REQUIRED_FIELDS!')
+        throw new Error('Failed to parse USER_REQUIRED_FIELDS!')
     }
 
     if (!userIdentificationRequiredFieldsFromEnv) {
         return {
             staff: defaultFields,
             resident: defaultFields,
+            service: ['email'], // NOTE: Service user registers only by email
         }
     }
 
@@ -44,6 +49,7 @@ function getIdentificationUserRequiredFields () {
     return {
         staff: userIdentificationRequiredFieldsFromEnv.staff || defaultFields,
         resident: userIdentificationRequiredFieldsFromEnv.resident || defaultFields,
+        service: ['email'], // NOTE: Service user registers only by email
     }
 }
 

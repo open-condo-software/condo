@@ -24,6 +24,8 @@ const INVITE_REQUIRE_ALLOWED_FIELDS = [PHONE_TYPE, EMAIL_TYPE]
 let INVITE_REQUIRED_FIELDS = conf['INVITE_REQUIRED_FIELDS'] ? JSON.parse(conf['INVITE_REQUIRED_FIELDS']) : [PHONE_TYPE]
 
 
+// NOTE: backward compatibility!
+// TODO(DOMA-12135): Remove deprecated INVITE_REQUIRED_FIELDS
 if (conf.IDENTIFICATION_USER_REQUIRED_FIELDS !== undefined && conf.INVITE_REQUIRED_FIELDS !== undefined) {
     throw new Error('You should use IDENTIFICATION_USER_REQUIRED_FIELDS instead of INVITE_REQUIRED_FIELDS env! Variable INVITE_REQUIRED_FIELDS is deprecated!')
 } else if (conf.INVITE_REQUIRED_FIELDS !== undefined) {
