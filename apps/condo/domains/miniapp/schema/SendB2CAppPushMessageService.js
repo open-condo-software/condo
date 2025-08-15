@@ -163,7 +163,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
 
                 // App requested to send notification to is not a DEBUG one
                 if (!DEBUG_APP_ENABLED || b2cAppId !== DEBUG_APP_ID) {
-                    const appExisted = await B2CApp.getOne(context, { id: b2cAppId, deletedAt: null })
+                    const appExisted = await B2CApp.getOne(context, { id: b2cAppId, deletedAt: null }, 'id name')
 
                     if (!appExisted) throw new GQLError(ERRORS.APP_NOT_FOUND, context)
 
