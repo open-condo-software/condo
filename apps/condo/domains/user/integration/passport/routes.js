@@ -10,6 +10,7 @@ const { User } = require('@condo/domains/user/utils/serverSchema')
 const { ERRORS } = require('./errors')
 const { KNOWN_STRATEGIES } = require('./strategies')
 const { passportConfigSchema } = require('./utils/config')
+const { checkAuthRateLimits } = require('./utils/routes')
 const { captureUserType, ensureUserType } = require('./utils/user')
 
 /** @type PassportAuthRouter */
@@ -105,6 +106,7 @@ class PassportAuthRouter {
         app.get(
             `${this.apiPrefix}/:provider/callback`,
             ensureUserType,
+            checkAuthRateLimits,
             authenticate,
             onAuthSuccess,
             PassportAuthRouter.onAuthFail,

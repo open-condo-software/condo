@@ -85,12 +85,16 @@ function generateValidOIDCTokenOptions () {
         isEmailVerified: ['email_verified', undefined],
         trustPhone: [true, false, undefined],
         trustEmail: [true, false, undefined],
+        requireConfirmPhoneAction: [true, false, undefined],
+        requireConfirmEmailAction: [true, false, undefined],
     })) {
         const filtered = _omitUndefined(combination)
-        const { trustEmail, trustPhone, ...fieldMapping } = filtered
+        const { trustEmail, trustPhone, requireConfirmPhoneAction, requireConfirmEmailAction, ...fieldMapping } = filtered
         const clientOptions = _omitUndefined({
             trustEmail,
             trustPhone,
+            requireConfirmPhoneAction,
+            requireConfirmEmailAction,
             userInfoURL: faker.internet.url(),
             fieldMapping,
             identityType: faker.random.alphaNumeric(12),

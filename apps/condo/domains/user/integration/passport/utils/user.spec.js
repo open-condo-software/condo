@@ -35,7 +35,11 @@ const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/comm
 const { User, UserRightsSet } = require('@condo/domains/user/utils/serverSchema')
 const { createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
-const { syncUser, captureUserType, ensureUserType } = require('./user')
+const {
+    syncUser,
+    captureUserType,
+    ensureUserType,
+} = require('./user')
 
 const DV_SENDER = {
     dv: 1,

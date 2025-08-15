@@ -25,6 +25,8 @@ const OIDC_TOKEN_VERIFICATION_CONFIG_SCHEMA = z.object({
         identityType: z.string(),
         trustEmail: z.boolean().optional().default(false),
         trustPhone: z.boolean().optional().default(false),
+        requireConfirmPhoneAction: z.boolean().optional().default(true),
+        requireConfirmEmailAction: z.boolean().optional().default(true),
         // Strategy-related part
         userInfoURL: z.string(),
     })),
