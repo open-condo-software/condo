@@ -184,7 +184,7 @@ export const CreateContactForm: React.FC = () => {
                 await router.push(`/phone/${phone}?tab=${getClientCardTabKey(propertyId, ClientCardTab.Resident, contact.unitName, contact.unitType)}`)
             }
         } else {
-            await router.push('/contact/')
+            await router.push('/contact')
         }
     }, [client.cache, createContactMutation, organization.id, redirectToClientCard, router])
 

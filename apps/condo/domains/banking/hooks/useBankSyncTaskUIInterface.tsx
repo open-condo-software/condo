@@ -41,7 +41,7 @@ export const useBankSyncTaskUIInterface: UseBankSyncTaskUIInterfaceType = () => 
         if (propertyId && BANK_ACCOUNT_REPORT_PAGE_PATHNAME === pathname) {
             reload()
         } else {
-            push(`/property/${propertyId}/report/`)
+            push(`/property/${propertyId}/report`)
         }
     }, [reload, push, pathname])
 

@@ -66,7 +66,7 @@ export const PropertyScopeSettingsContent = () => {
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
-                await router.push(`/settings/propertyScope/${record.id}/`)
+                await router.push(`/settings/propertyScope/${record.id}`)
             },
         }
     }, [router])

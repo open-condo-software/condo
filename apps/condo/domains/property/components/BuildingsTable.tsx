@@ -293,7 +293,7 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
-                await router.push(`/property/${record.id}/`)
+                await router.push(`/property/${record.id}`)
             },
         }
     }, [router])

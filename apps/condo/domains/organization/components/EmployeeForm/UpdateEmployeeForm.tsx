@@ -138,7 +138,7 @@ export const UpdateEmployeeForm: React.FC = () => {
 
         await updateEmployeeAction(OrganizationEmployee.formValuesProcessor(updateEmployeeFormValues), employee)
 
-        await push(`/employee/${employeeId}/`)
+        await push(`/employee/${employeeId}`)
     }, [createOrganizationEmployeeSpecializationAction, employee, employeeId, initialSpecializations, push, organizationEmployeeSpecializations,
         updateEmployeeAction, updateOrganizationEmployeeSpecializationAction])
 

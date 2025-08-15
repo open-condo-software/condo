@@ -193,7 +193,7 @@ const NewsItemCard: React.FC = () => {
         },
     })
 
-    const softDeleteNewsAction = NewsItem.useSoftDelete(() => push('/news/'))
+    const softDeleteNewsAction = NewsItem.useSoftDelete(() => push('/news'))
     const handleDeleteButtonClick = useCallback(async () => {
         notification.close(newsItem.id)
         await softDeleteNewsAction(newsItem)

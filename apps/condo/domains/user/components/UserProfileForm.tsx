@@ -50,7 +50,7 @@ export const UserProfileForm: React.FC = () => {
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { user } = useAuth()
-    const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
+    const updateUserAction = User.useUpdate({}, () => router.push('/user'))
     const formAction = (formValues) => updateUserAction(formValues, user)
     const { breakpoints } = useLayoutContext()
 

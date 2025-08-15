@@ -273,7 +273,7 @@ const ClientCardTabContent: React.FC<IClientCardTabContent> = ({
         return {
             onClick: async () => {
                 if (typeof window !== 'undefined') {
-                    window.open(`/ticket/${record.id}/`, '_blank')
+                    window.open(`/ticket/${record.id}`, '_blank')
                 }
             },
         }
