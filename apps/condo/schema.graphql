@@ -28,6 +28,7 @@ type UserHistoryRecord {
   externalEmail: String
   isExternalEmailVerified: Boolean
   externalSystemName: String
+  hasMarketingConsent: Boolean
   avatar: JSON
   meta: JSON
   locale: String
@@ -208,6 +209,8 @@ input UserHistoryRecordWhereInput {
   externalSystemName_not_ends_with_i: String
   externalSystemName_in: [String]
   externalSystemName_not_in: [String]
+  hasMarketingConsent: Boolean
+  hasMarketingConsent_not: Boolean
   avatar: JSON
   avatar_not: JSON
   avatar_in: [JSON]
@@ -355,6 +358,8 @@ enum SortUserHistoryRecordsBy {
   isExternalEmailVerified_DESC
   externalSystemName_ASC
   externalSystemName_DESC
+  hasMarketingConsent_ASC
+  hasMarketingConsent_DESC
   locale_ASC
   locale_DESC
   showGlobalHints_ASC
@@ -392,6 +397,7 @@ input UserHistoryRecordUpdateInput {
   externalEmail: String
   isExternalEmailVerified: Boolean
   externalSystemName: String
+  hasMarketingConsent: Boolean
   avatar: JSON
   meta: JSON
   locale: String
@@ -432,6 +438,7 @@ input UserHistoryRecordCreateInput {
   externalEmail: String
   isExternalEmailVerified: Boolean
   externalSystemName: String
+  hasMarketingConsent: Boolean
   avatar: JSON
   meta: JSON
   locale: String
@@ -599,6 +606,10 @@ type User {
 
   """ Name of the provider that created this user """
   externalSystemName: String
+
+  """ Global consent to receive marketing materials. If true – this means user has given the consent to get marketing materials 
+  """
+  hasMarketingConsent: Boolean
 
   """ User loaded avatar image """
   avatar: File
@@ -770,6 +781,8 @@ input UserWhereInput {
   externalSystemName_not_ends_with_i: String
   externalSystemName_in: [String]
   externalSystemName_not_in: [String]
+  hasMarketingConsent: Boolean
+  hasMarketingConsent_not: Boolean
   avatar: String
   avatar_not: String
   avatar_in: [String]
@@ -879,6 +892,8 @@ enum SortUsersBy {
   isExternalEmailVerified_DESC
   externalSystemName_ASC
   externalSystemName_DESC
+  hasMarketingConsent_ASC
+  hasMarketingConsent_DESC
   locale_ASC
   locale_DESC
   showGlobalHints_ASC
@@ -918,6 +933,7 @@ input UserUpdateInput {
   externalEmail: String
   isExternalEmailVerified: Boolean
   externalSystemName: String
+  hasMarketingConsent: Boolean
   avatar: Upload
   meta: JSON
   locale: UserLocaleType
@@ -955,6 +971,7 @@ input UserCreateInput {
   externalEmail: String
   isExternalEmailVerified: Boolean
   externalSystemName: String
+  hasMarketingConsent: Boolean
   avatar: Upload
   meta: JSON
   locale: UserLocaleType

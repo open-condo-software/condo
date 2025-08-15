@@ -139,6 +139,12 @@ async function canReadUserNameField (args) {
     return true
 }
 
+const canAccessMarketingConsent = {
+    read: true,
+    create: access.userIsAdminOrIsSupport,
+    update: access.userIsAdminOrIsThisItem,
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -159,4 +165,5 @@ module.exports = {
     canAccessToEmployeesField,
     canAccessCustomAccessField,
     canReadUserNameField,
+    canAccessMarketingConsent,
 }

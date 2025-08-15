@@ -584,6 +584,30 @@ describe('User fields', () => {
         })
     })
 
+    describe('hasMarketingConsent', () => {
+        let admin
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+        })
+
+        test('cannot be updated by support', async () => {
+            const support = await makeClientWithSupportUser()
+            const [user] = await createTestUser(admin)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestUser(support, user.id, { hasMarketingConsent: true })
+            })
+        })
+
+        test('can be updated by user himself', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [updatedUser] = await updateTestUser(client, client.user.id, { hasMarketingConsent: true })
+
+            expect(updatedUser.hasMarketingConsent).toBe(true)
+        })
+    })
+
     describe('_label_', () => {
 
         let admin

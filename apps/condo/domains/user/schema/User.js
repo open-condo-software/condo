@@ -32,8 +32,8 @@ const {
 const { RUNTIME_IDP_TYPES } = require('@condo/domains/user/constants/identityProviders')
 const { USER_CUSTOM_ACCESS_GRAPHQL_TYPES, USER_CUSTOM_ACCESS_FIELDS } = require('@condo/domains/user/gql')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
+const { sendUserDataWebhook } = require('@condo/domains/user/utils/serverSchema/User')
 const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
-
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
@@ -298,6 +298,17 @@ const User = new GQLListSchema('User', {
             },
         },
 
+        hasMarketingConsent: {
+            schemaDoc:
+                'Global consent to receive marketing materials. ' +
+                'If true – this means user has given the consent to get marketing materials',
+            type: 'Checkbox',
+            isRequired: false,
+            defaultValue: false,
+            kmigratorOptions: { null: false },
+            access: access.canAccessMarketingConsent,
+        },
+
         avatar: {
             schemaDoc: 'User loaded avatar image',
             type: 'File',
@@ -315,6 +326,7 @@ const User = new GQLListSchema('User', {
             type: 'Select',
             options: LOCALES,
         },
+
         customAccess: {
             schemaDoc: 'Override for business access rights for list or field of provided schema',
             type: 'Json',
@@ -373,6 +385,29 @@ const User = new GQLListSchema('User', {
                 updatedItem.name !== existingItem.name)
             ) {
                 await updateEmployeesRelatedToUser(context, updatedItem)
+            }
+
+            // TODO(DOMA-12119): Remove this code
+            if (updatedItem.type === STAFF) {
+                const existingItemEmailField = (existingItem ? existingItem.email : null)
+                const existingItemIsEmailVerifiedField = (existingItem ? existingItem.isEmailVerified : null)
+                const existingItemHasMarketingConsentField = (existingItem ? existingItem.hasMarketingConsent : null)
+
+                const isEmailChanged = updatedItem.email !== existingItemEmailField
+                const isEmailVerifiedChanged = updatedItem.isEmailVerified !== existingItemIsEmailVerifiedField
+                const isHasMarketingConsentChanged = updatedItem.hasMarketingConsent !== existingItemHasMarketingConsentField
+
+                if (isEmailChanged || isEmailVerifiedChanged || isHasMarketingConsentChanged) {
+                    await sendUserDataWebhook({
+                        id: updatedItem.id,
+                        oldEmail: existingItemEmailField,
+                        email: updatedItem.email,
+                        oldIsEmailVerified: existingItemIsEmailVerifiedField,
+                        isEmailVerified: updatedItem.isEmailVerified,
+                        oldHasMarketingConsent: existingItemHasMarketingConsentField,
+                        hasMarketingConsent: updatedItem.hasMarketingConsent,
+                    })
+                }
             }
         },
     },
