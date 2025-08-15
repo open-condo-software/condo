@@ -58,7 +58,9 @@ const defaultCurrencyCode = conf['DEFAULT_CURRENCY_CODE'] || 'RUB'
 const aiEnabled = conf['AI_ENABLED']
 const contactPageResidentAnalytics = JSON.parse(conf['CONTACT_PAGE_RESIDENT_ANALYTICS'] || '{}')
 const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
-const inviteRequiredFields = JSON.parse(conf['INVITE_REQUIRED_FIELDS'] || '["phone"]')
+const identificationUserRequiredFields = JSON.parse(conf['IDENTIFICATION_USER_REQUIRED_FIELDS'] || '{ "staff": ["phone"] }')
+const identificationStaffUserRequiredFields = identificationUserRequiredFields?.staff || ['phone']
+const inviteRequiredFields = conf['INVITE_REQUIRED_FIELDS'] ? JSON.parse(conf['INVITE_REQUIRED_FIELDS']) : identificationStaffUserRequiredFields
 const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
 
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
