@@ -1,11 +1,12 @@
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Col, InputNumber, Row } from 'antd'
+import { debounce } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { ChevronDown, ChevronUp, Trash } from '@open-condo/icons'
+import { ChevronDown, ChevronUp, QuestionCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Checkbox, Select, Space, Typography } from '@open-condo/ui'
+import { Button, Checkbox, Select, Space, Tooltip, Typography } from '@open-condo/ui'
 
 import {
     MAX_PROPERTY_FLOORS_COUNT,
@@ -256,6 +257,20 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
 }
 
 
+const DEBOUNCE_TIME = 300
+
+type HasChangeValueType = {
+    floorCount: boolean
+    minFloor: boolean
+    unitsOnFloor: boolean
+}
+
+const initialHasChangeValue: HasChangeValueType = {
+    floorCount: false,
+    minFloor: false,
+    unitsOnFloor: false,
+}
+
 const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
@@ -269,10 +284,17 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
     const ShowMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.showMinFloor' })
     const HideMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.hideMinFloor' })
-
+    const RenameNextUnitsTooltip = intl.formatMessage({ id: 'pages.condo.property.modal.sections.RenameNextUnits.tooltip' })
+    const RenameNextSectionsTooltip = intl.formatMessage({ id: 'pages.condo.property.modal.sections.RenameNextSections.tooltip' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
+    const initialSections = builder.sections
     const sections = builder.getSelectedSections()
     const section = sections?.[0]
     const canChangeName = sections.length < 2
+
+    const SelectSectionsMessage = intl.formatMessage({ id: 'pages.condo.property.index.SelectSectionsLabel' }, {
+        count: sections.length,
+    })
 
     useEffect(() => {
         if (!section) {
@@ -281,19 +303,33 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         }
     }, [section, builder, refresh])
 
-    const firstNotEmptyFloorIndex = section?.floors?.map(floor => floor.units.length)?.findIndex(unitsCount => !!unitsCount) ?? 0
-    const sectionIndex = sections.findIndex(el => el.index === section.index)
-    const sectionMinFloor = section && sectionIndex !== -1 ? builder.getSectionMinFloor(sectionIndex) : 1
-    const sectionMaxFloor = section && sectionIndex !== -1 ? builder.getSectionMaxFloor(sectionIndex) - firstNotEmptyFloorIndex : 1
-    const sectionUnitOnFloor = section?.floors?.[0]?.units?.length ?? 0
+    const sectionIndex = useMemo(
+        () => initialSections.findIndex(el => el.index === section?.index),
+        [initialSections, section?.index]
+    )
+
+    const sectionMinFloor = useMemo(
+        () => section && sectionIndex !== -1 ? builder.getSectionMinFloor(sectionIndex) : 1,
+        [section, sectionIndex, builder]
+    )
+
+    const sectionMaxUnitsPerFloor = useMemo(
+        () => section ? builder.getMaxUnitsPerFloor(section.id) : 0,
+        [section, builder]
+    )
 
     const [name, setName] = useState<string>('')
     const renameNextSections = useRef(false)
+    const renameNextUnits = useRef(false)
     const toggleRenameNextSections = useCallback((event) => { renameNextSections.current = event.target.checked }, [])
+    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
     const [minFloor, setMinFloor] = useState(sectionMinFloor)
-    const [floorCount, setFloorCount] = useState(sectionMaxFloor)
-    const [unitsOnFloor, setUnitsOnFloor] = useState<number>(sectionUnitOnFloor)
+    const [floorCount, setFloorCount] = useState(section ? section.floors.length : 0)
+    const [unitsOnFloor, setUnitsOnFloor] = useState<number>(sectionMaxUnitsPerFloor)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
+    const [hasChanges, setHasChanges] = useState<HasChangeValueType>(initialHasChangeValue)
+
+    const oldSectionsIds = useRef(null)
 
     useEffect(() => {
         setName(section ? section.name : '')
@@ -308,10 +344,29 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         refresh()
     }, [builder, refresh, sections])
 
-    const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
-    const setFloorCountValue = useCallback((value) => { setFloorCount(value) }, [])
+    const debouncedSetMinFloor = useCallback(debounce((value) => {
+        setMinFloor(value)
+        if (sections.length > 1 ) {
+            setHasChanges(prev => ({ ...prev, minFloor:true }))
+        }
+    }, DEBOUNCE_TIME), [sections.length])
+
+    const debouncedSetFloorCount = useCallback(debounce((value) => {
+        setFloorCount(value)
+        if (sections.length > 1 ) {
+            setHasChanges(prev => ({ ...prev, floorCount:true }))
+        }
+    }, DEBOUNCE_TIME), [sections.length])
+
+    const debouncedSetUnitsOnFloor = useCallback(debounce((value) => {
+        setUnitsOnFloor(value)
+        if (sections.length > 1 ) {
+            setHasChanges(prev => ({ ...prev, unitsOnFloor:true }))
+        }
+    }, DEBOUNCE_TIME), [sections.length])
+
     const maxFloorValue = useMemo(() => {
-        if (floorCount === 1) return minFloor
+        if ((floorCount === 1 || !floorCount) && minFloor) return minFloor
         if (minFloor > 0) return floorCount + minFloor - 1
         return floorCount + minFloor
     }, [floorCount, minFloor])
@@ -333,38 +388,72 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         setName(section?.name || '')
     }, [section?.name])
 
+    useEffect(() => {
+        const sectionsIds = sections.map(section => section.id)
+
+        if (oldSectionsIds.current && JSON.stringify(sectionsIds) === JSON.stringify(oldSectionsIds.current)) return
+
+        if (sections.length > 1 ) {
+            setFloorCount(null)
+            setUnitsOnFloor(null)
+            setMinFloor(null)
+        } else {
+            setMinFloor(sectionMinFloor)
+            setFloorCount(section ? section.floors.length : 1)
+            setUnitsOnFloor(sectionMaxUnitsPerFloor)
+        }
+
+        setHasChanges(initialHasChangeValue)
+        oldSectionsIds.current = sectionsIds
+    }, [section, sectionMaxUnitsPerFloor, sectionMinFloor, sections])
+
+    useEffect(() => {
+        sections.map(section => {
+            const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
+            const sectionMinFloor = builder.getSectionMinFloor(sectionIndex)
+            const sectionMaxFloor = builder.getSectionMaxFloor(sectionIndex)
+            const sectionMaxUnitsPerFloor = builder.getMaxUnitsPerFloor(section.id)
+
+            builder.updatePreviewSection({
+                ...section,
+                minFloor: hasChanges.minFloor || sections.length === 1 ? minFloor : sectionMinFloor,
+                maxFloor: (hasChanges.floorCount || sections.length === 1) && maxFloorValue ? maxFloorValue : sectionMaxFloor,
+                unitsOnFloor: hasChanges.unitsOnFloor || sections.length === 1 ? unitsOnFloor : sectionMaxUnitsPerFloor,
+            })
+        })
+    }, [builder, name, minFloor, maxFloorValue, unitsOnFloor, floorCount, canChangeName, sections, initialSections, hasChanges])
+
     const updateSection = useCallback(() => {
         sections.forEach(section => {
+            builder.restoreSection(section.id)
+        })
 
-            builder.removeUpdatePreviewSection(section.id, renameNextSections.current)
+        sections.map(section => {
+            const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
+            const sectionMinFloor = builder.getSectionMinFloor(sectionIndex)
+            const sectionMaxFloor = builder.getSectionMaxFloor(sectionIndex)
+            const sectionMaxUnitsPerFloor = builder.getMaxUnitsPerFloor(section.id)
 
             builder.updateSection({
                 ...section,
                 name: canChangeName ? name : undefined,
-                minFloor,
-                maxFloor: maxFloorValue,
-                unitsOnFloor,
-            }, renameNextSections.current)
-        })
+                minFloor: hasChanges.minFloor || sections.length === 1 ? minFloor ?? sectionMinFloor : sectionMinFloor,
+                maxFloor: (hasChanges.floorCount || sections.length === 1) && maxFloorValue ? maxFloorValue : sectionMaxFloor,
+                unitsOnFloor: hasChanges.unitsOnFloor || sections.length === 1 ? unitsOnFloor ?? sectionMaxUnitsPerFloor : sectionMaxUnitsPerFloor,
+            }, renameNextUnits.current, renameNextSections.current)}
+        )
 
         refresh()
         resetForm()
-    }, [sections, refresh, resetForm, builder, canChangeName, name, minFloor, maxFloorValue, unitsOnFloor])
+    }, [sections, refresh, resetForm, builder, initialSections, canChangeName, name, hasChanges, minFloor, maxFloorValue, unitsOnFloor])
 
     useEffect(() => {
-        if (minFloor && floorCount && unitsOnFloor && (canChangeName ? name : true) && maxFloorValue) {
-            sections.forEach(section => {
-                builder.updatePreviewSection({
-                    ...section,
-                    name: canChangeName ? name : undefined,
-                    minFloor,
-                    maxFloor: maxFloorValue,
-                    unitsOnFloor,
-                }, renameNextSections.current)
-            })
+        return () => {
+            debouncedSetMinFloor.cancel()
+            debouncedSetFloorCount.cancel()
+            debouncedSetUnitsOnFloor.cancel()
         }
-
-    }, [builder, section, name, minFloor, maxFloorValue, unitsOnFloor, refresh, resetForm, floorCount, canChangeName, sections])
+    }, [debouncedSetMinFloor, debouncedSetFloorCount, debouncedSetUnitsOnFloor])
 
     return (
         <Row gutter={[0, 40]} data-cy='property-map__edit-section-form'>
@@ -383,12 +472,18 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                         </Space>
                     </Col>}
 
+                    {sections.length > 1 &&
+                        <Col span={24}>
+                            <Typography.Text>{SelectSectionsMessage}</Typography.Text>
+                        </Col>
+                    }
+
                     <Col span={24}>
                         <Space direction='vertical' size={8} width='100%'>
                             <Typography.Text type='secondary' size='medium'>{FloorCountLabel}</Typography.Text>
                             <InputNumber
                                 value={floorCount}
-                                onChange={setFloorCountValue}
+                                onChange={(value) => debouncedSetFloorCount(value)}
                                 min={1}
                                 max={MAX_PROPERTY_FLOORS_COUNT}
                                 style={INPUT_STYLE}
@@ -405,7 +500,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                         <Typography.Text type='secondary' size='medium'>{MinFloorLabel}</Typography.Text>
                                         <InputNumber
                                             value={minFloor}
-                                            onChange={setMinFloorValue}
+                                            onChange={(value) => debouncedSetMinFloor(value)}
                                             style={INPUT_STYLE}
                                             type='number'
                                         />
@@ -440,7 +535,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                 min={1}
                                 max={MAX_PROPERTY_UNITS_COUNT_PER_FLOOR}
                                 value={unitsOnFloor}
-                                onChange={value=>setUnitsOnFloor(value)}
+                                onChange={(value) => debouncedSetUnitsOnFloor(value)}
                                 style={INPUT_STYLE}
                                 type='number'
                                 data-cy='property-map__add-section-form__units-on-floor'
@@ -449,10 +544,32 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </Col>
 
                     <Col span={24}>
-                        <Checkbox onChange={toggleRenameNextSections}>
-                            {builder.viewMode === MapViewMode.parking ? RenameNextParkingsLabel : RenameNextSectionsLabel}
+                        <Checkbox onChange={toggleRenameNextUnits}>
+                            <Space size={8}>
+                                {RenameNextUnitsLabel}
+                                <Tooltip title={RenameNextUnitsTooltip}>
+                                    <Typography.Text type='secondary'>
+                                        <QuestionCircle size='small'/>
+                                    </Typography.Text>
+                                </Tooltip>
+                            </Space>
                         </Checkbox>
                     </Col>
+
+                    {canChangeName &&
+                        <Col span={24}>
+                            <Checkbox onChange={toggleRenameNextSections}>
+                                <Space size={8}>
+                                    {builder.viewMode === MapViewMode.parking ? RenameNextParkingsLabel : RenameNextSectionsLabel}
+                                    <Tooltip title={RenameNextSectionsTooltip}>
+                                        <Typography.Text type='secondary'>
+                                            <QuestionCircle size='small'/>
+                                        </Typography.Text>
+                                    </Tooltip>
+                                </Space>
+                            </Checkbox>
+                        </Col>
+                    }
                 </Row>
             </Col>
             <Col span={24}>
