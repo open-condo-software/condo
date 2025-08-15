@@ -43,6 +43,8 @@ class ApolloRateLimitingPlugin {
     #redisClient = getKVClient()
     #pageLimit = DEFAULT_PAGE_LIMIT
     #customQuotas = {}
+    #customQueryWeights = {}
+    #customMutationWeights = {}
 
     /**
      * @param keystone {import('@open-keystone/keystone').Keystone} keystone instance
@@ -56,6 +58,8 @@ class ApolloRateLimitingPlugin {
      * pageLimit?: number,
      * customQuotas?: Record<string, number>,
      * identifiersWhiteList?: Array<string>
+     * customQueryWeights?: Record<string, number>
+     * customMutationWeights?: Record<string, number>
      * }} plugin options
      */
     constructor (keystone, opts = {}) {
@@ -94,9 +98,23 @@ class ApolloRateLimitingPlugin {
         if (opts.customQuotas) {
             this.#customQuotas = opts.customQuotas
         }
+        if (opts.customQueryWeights) {
+            this.#customQueryWeights = opts.customQueryWeights
+        }
+        if (opts.customMutationWeights) {
+            this.#customMutationWeights = opts.customMutationWeights
+        }
     }
 
     static buildQuotaKey = buildQuotaKey
+
+    #getBaseQueryWeight (query) {
+        return typeof this.#customQueryWeights[query.name] === 'number' ? this.#customQueryWeights[query.name] : this.#queryWeight
+    }
+
+    #getBaseMutationWeight (mutation) {
+        return typeof this.#customMutationWeights[mutation.name] === 'number' ? this.#customMutationWeights[mutation.name] : this.#mutationWeight
+    }
 
     /**
      * Calculates complexity coefficient of the query
@@ -104,6 +122,7 @@ class ApolloRateLimitingPlugin {
      * @return {number}
      */
     #getQueryComplexity (query) {
+        const queryWeight = this.#getBaseQueryWeight(query)
         // all<Objects> queries
         if (this.#listReadQueries[query.name]) {
             const listKey = this.#listReadQueries[query.name]
@@ -113,8 +132,8 @@ class ApolloRateLimitingPlugin {
             const whereFactor = extractWhereComplexityFactor(where, this.#whereScalingFactor, this.#pageLimit)
             const selectionFactor = extractRelationsComplexityFactor(query.selectionSet, listKey, this.#listRelations)
             const paginationFactor = Math.max(1.0, Math.ceil(first / this.#pageLimit))
-            // TODO: Obtain custom weights overrides for query if needed
-            const totalComplexity = this.#queryWeight * paginationFactor * (whereFactor + (selectionFactor - 1))
+
+            const totalComplexity = queryWeight * paginationFactor * (whereFactor + (selectionFactor - 1))
 
             return Math.ceil(totalComplexity)
         }
@@ -125,13 +144,11 @@ class ApolloRateLimitingPlugin {
             const whereFactor = extractWhereComplexityFactor(where, this.#whereScalingFactor, this.#pageLimit)
             const maxPaginationFactor = Math.ceil(this.#maxTotalResults / this.#pageLimit)
 
-            // TODO: Obtain custom weights overrides for query if needed
-            return this.#queryWeight * whereFactor * maxPaginationFactor
+            return queryWeight * whereFactor * maxPaginationFactor
         }
 
         // custom queries
-        // TODO: Obtain custom weights overrides for query if needed
-        return this.#queryWeight
+        return queryWeight
     }
 
     /**
@@ -140,8 +157,7 @@ class ApolloRateLimitingPlugin {
      * @return {number}
      */
     #getMutationComplexity (mutation) {
-        // TODO: Obtain custom override values later if needed
-        return this.#mutationWeight
+        return this.#getBaseMutationWeight(mutation)
     }
 
     serverWillStart (service) {
@@ -201,6 +217,9 @@ class ApolloRateLimitingPlugin {
                     allowedQuota = this.#customQuotas[identifier]
                 }
 
+                if (allowedQuota < 0) {
+                    allowedQuota = Infinity
+                }
 
                 // NOTE: Request in batch are executed via Promise.all (probably),
                 // that's why we need an atomic way to increment counters / set TTLs
