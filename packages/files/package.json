@@ -1,0 +1,27 @@
+{
+  "name": "@open-condo/files",
+  "version": "1.0.0",
+  "author": {
+    "name": "Ivan Sitnikov",
+    "email": "isitnikov@doma.ai",
+    "url": "https://github.com/sitozzz"
+  },
+  "license": "MIT",
+  "exports": {
+    "./*": "./*.js"
+  },
+  "dependencies": {
+    "@open-condo/config": "workspace:^",
+    "ajv": "8.11.0",
+    "busboy": "^1.6.0",
+    "cuid": "^3.0.0",
+    "express": "^4.21.2",
+    "fs-capacitor": "^6.2.0",
+    "jsonwebtoken": "^9.0.0",
+    "uuid": "^8.3.0"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "form-data": "^4.0.4"
+  }
+}
