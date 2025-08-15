@@ -136,10 +136,10 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
         content: [requiredValidator],
     }
 
-    const [editorValue, setEditorValue] = useState('')
-    const [editorLoading, setEditorLoading] = useState(true)
-
     const initialContent = useMemo(() => get(initialValues, 'content'), [initialValues])
+
+    const [editorValue, setEditorValue] = useState(initialContent)
+    const [editorLoading, setEditorLoading] = useState(true)
 
     const { objs: organizationTicketPropertyHintProperties, loading: organizationTicketPropertyHintPropertiesLoading } =
         TicketPropertyHintProperty.useAllObjects({
