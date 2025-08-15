@@ -1105,6 +1105,13 @@ export type AuthenticateOrRegisterUserWithTokenMutationVariables = Types.Exact<{
 
 export type AuthenticateOrRegisterUserWithTokenMutation = { __typename?: 'Mutation', result?: { __typename?: 'AuthenticateOrRegisterUserWithTokenOutput', user?: { __typename?: 'User', id: string } | null } | null };
 
+export type AuthenticateUserWithEmailAndPasswordMutationVariables = Types.Exact<{
+  data: Types.AuthenticateUserWithEmailAndPasswordInput;
+}>;
+
+
+export type AuthenticateUserWithEmailAndPasswordMutation = { __typename?: 'Mutation', result?: { __typename?: 'AuthenticateUserWithEmailAndPasswordOutput', item?: { __typename?: 'User', id: string } | null } | null };
+
 export type AuthenticateUserWithPhoneAndPasswordMutationVariables = Types.Exact<{
   data: Types.AuthenticateUserWithPhoneAndPasswordInput;
 }>;
@@ -1119,12 +1126,26 @@ export type ChangePasswordWithTokenMutationVariables = Types.Exact<{
 
 export type ChangePasswordWithTokenMutation = { __typename?: 'Mutation', result?: { __typename?: 'ChangePasswordWithTokenOutput', status: string, phone: string } | null };
 
+export type ChangeUserPasswordMutationVariables = Types.Exact<{
+  data: Types.ChangeUserPasswordInput;
+}>;
+
+
+export type ChangeUserPasswordMutation = { __typename?: 'Mutation', result?: { __typename?: 'ChangeUserPasswordOutput', status: string } | null };
+
 export type CheckUserExistenceQueryVariables = Types.Exact<{
   data: Types.CheckUserExistenceInput;
 }>;
 
 
 export type CheckUserExistenceQuery = { __typename?: 'Query', result?: { __typename?: 'CheckUserExistenceOutput', isUserExists: boolean, isNameSet: boolean, isEmailSet: boolean, isPhoneSet: boolean, isPasswordSet: boolean } | null };
+
+export type CompleteConfirmEmailActionMutationVariables = Types.Exact<{
+  data: Types.CompleteConfirmEmailActionInput;
+}>;
+
+
+export type CompleteConfirmEmailActionMutation = { __typename?: 'Mutation', result?: { __typename?: 'CompleteConfirmEmailActionOutput', status: string } | null };
 
 export type CompleteConfirmPhoneActionMutationVariables = Types.Exact<{
   data: Types.CompleteConfirmPhoneActionInput;
@@ -1133,6 +1154,20 @@ export type CompleteConfirmPhoneActionMutationVariables = Types.Exact<{
 
 export type CompleteConfirmPhoneActionMutation = { __typename?: 'Mutation', result?: { __typename?: 'CompleteConfirmPhoneActionOutput', status: string } | null };
 
+export type GenerateSudoTokenMutationVariables = Types.Exact<{
+  data: Types.GenerateSudoTokenInput;
+}>;
+
+
+export type GenerateSudoTokenMutation = { __typename?: 'Mutation', result?: { __typename?: 'GenerateSudoTokenOutput', token: string } | null };
+
+export type GetEmailByConfirmEmailActionTokenQueryVariables = Types.Exact<{
+  data: Types.GetEmailByConfirmEmailActionTokenInput;
+}>;
+
+
+export type GetEmailByConfirmEmailActionTokenQuery = { __typename?: 'Query', result?: { __typename?: 'GetEmailByConfirmEmailActionTokenOutput', email: string, isEmailVerified: boolean } | null };
+
 export type GetPhoneByConfirmPhoneActionTokenQueryVariables = Types.Exact<{
   data: Types.GetPhoneByConfirmPhoneActionTokenInput;
 }>;
@@ -1140,12 +1175,26 @@ export type GetPhoneByConfirmPhoneActionTokenQueryVariables = Types.Exact<{
 
 export type GetPhoneByConfirmPhoneActionTokenQuery = { __typename?: 'Query', result?: { __typename?: 'GetPhoneByConfirmPhoneActionTokenOutput', phone: string, isPhoneVerified: boolean } | null };
 
+export type ResendConfirmEmailActionMutationVariables = Types.Exact<{
+  data: Types.ResendConfirmEmailActionInput;
+}>;
+
+
+export type ResendConfirmEmailActionMutation = { __typename?: 'Mutation', result?: { __typename?: 'ResendConfirmEmailActionOutput', status: string } | null };
+
 export type ResendConfirmPhoneActionSmsMutationVariables = Types.Exact<{
   data: Types.ResendConfirmPhoneActionSmsInput;
 }>;
 
 
 export type ResendConfirmPhoneActionSmsMutation = { __typename?: 'Mutation', result?: { __typename?: 'ResendConfirmPhoneActionSmsOutput', status: string } | null };
+
+export type StartConfirmEmailActionMutationVariables = Types.Exact<{
+  data: Types.StartConfirmEmailActionInput;
+}>;
+
+
+export type StartConfirmEmailActionMutation = { __typename?: 'Mutation', result?: { __typename?: 'StartConfirmEmailActionOutput', token: string } | null };
 
 export type StartConfirmPhoneActionMutationVariables = Types.Exact<{
   data: Types.StartConfirmPhoneActionInput;

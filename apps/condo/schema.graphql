@@ -4393,6 +4393,7 @@ enum ResetUserLimitActionTypeType {
   findOrganizationsByTin
   auth
   checkUserExistence
+  changeUserPassword
 }
 
 """ A model for resetting user counters limit. To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset. 
@@ -4407,7 +4408,7 @@ type ResetUserLimitAction {
   """
   _label_: String
 
-  """ Type of limit to reset. Possible values: ["email", "sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence"] 
+  """ Type of limit to reset. Possible values: ["email", "sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence", "changeUserPassword"] 
   """
   type: ResetUserLimitActionTypeType
 
@@ -4418,7 +4419,8 @@ type ResetUserLimitAction {
   rateLimit: ["uuid", "ip"], 
   findOrganizationsByTin: ["email", "phone", "uuid"], 
   auth: ["ip", "uuid", "phone", "email"], 
-  checkUserExistence: ["ip", "phone"] 
+  checkUserExistence: ["ip", "phone"], 
+  changeUserPassword: ["ip"] 
   """
   identifier: String
 
@@ -85366,6 +85368,17 @@ type AuthenticateUserWithEmailAndPasswordOutput {
   token: String!
 }
 
+input ChangeUserPasswordInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  token: String!
+  newPassword: String!
+}
+
+type ChangeUserPasswordOutput {
+  status: String!
+}
+
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
@@ -96662,7 +96675,7 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "TOKEN_NOT_FOUND",
     "message": "Unable to find non-expired ConfirmPhoneAction by specified token",
-    "messageForUser": "Unable to find non-expired ConfirmPhoneAction by specified token"
+    "messageForUser": "No valid password change token found"
   }`
   
   `{
@@ -97371,6 +97384,107 @@ type Mutation {
   }`
   """
   authenticateUserWithEmailAndPassword(data: AuthenticateUserWithEmailAndPasswordInput!): AuthenticateUserWithEmailAndPasswordOutput
+
+  """
+  Changes password this action via correct token, that should correspond to UserSudoToken
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_PASSWORD_FORMAT",
+    "message": "Password must be in string format",
+    "messageForUser": "Password must be in string format"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_PASSWORD_LENGTH",
+    "message": "Password length must be between 8 and 128 characters",
+    "messageForUser": "Password length must be between 8 and 128 characters"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_EMAIL",
+    "message": "Password must not contain email",
+    "messageForUser": "Password must not contain email"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_PHONE",
+    "message": "Password must not contain phone",
+    "messageForUser": "Password must not contain phone"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_IS_FREQUENTLY_USED",
+    "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
+    "messageForUser": "This password is weak or too obvious please choose something more secure"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "message": "Password must contain at least 4 different characters",
+    "messageForUser": "Password must contain at least 4 different characters"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_TOKEN",
+    "message": "Invalid token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNSUPPORTED_TOKEN",
+    "message": "Unsupported token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOKEN_NOT_FOUND",
+    "message": "Unable to find non-expired SudoUserToken by specified token",
+    "messageForUser": "No valid password change token found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_NOT_FOUND",
+    "message": "User not found",
+    "messageForUser": "User not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "OPERATION_FAILED",
+    "message": "Failed to complete the operation",
+    "messageForUser": "Operation failed"
+  }`
+  """
+  changeUserPassword(data: ChangeUserPasswordInput!): ChangeUserPasswordOutput
 
   """
   Registers new Organization for current user
