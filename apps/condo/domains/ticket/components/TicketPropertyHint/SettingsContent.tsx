@@ -107,7 +107,7 @@ export const SettingsContent = () => {
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
-                await router.push(`/settings/hint/${record.id}/`)
+                await router.push(`/settings/hint/${record.id}`)
             },
         }
     }, [router])

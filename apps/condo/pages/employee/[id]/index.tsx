@@ -333,7 +333,7 @@ export const EmployeeInfoPage: PageComponentType = () => {
 
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete(() => {
-        if (window && window.location.pathname === `/employee/${employeeId}`) push('/employee/')
+        if (window && window.location.pathname === `/employee/${employeeId}`) push('/employee')
     })
 
     const isEmployeeEditable = get(link, ['role', 'canManageEmployees'], false)

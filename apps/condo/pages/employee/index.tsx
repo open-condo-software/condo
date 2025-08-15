@@ -36,7 +36,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { IFilters } from '@condo/domains/organization/utils/helpers'
 
 
-const ADD_EMPLOYEE_ROUTE = '/employee/create/'
+const ADD_EMPLOYEE_ROUTE = '/employee/create'
 const SORTABLE_PROPERTIES = ['name', 'role', 'position', 'phone', 'email']
 const EMPLOYEE_DEFAULT_SORT_BY = ['createdAt_DESC']
 
@@ -74,7 +74,7 @@ export const EmployeesPageContent = ({
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
-                router.push(`/employee/${record.id}/`)
+                router.push(`/employee/${record.id}`)
             },
         }
     }, [])

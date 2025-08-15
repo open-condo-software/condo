@@ -95,7 +95,7 @@ export const ContactRolesSettingsContent = () => {
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
-                await router.push(`/settings/contactRole/${record.id}/`)
+                await router.push(`/settings/contactRole/${record.id}`)
             },
         }
     }, [router])

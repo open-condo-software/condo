@@ -72,7 +72,7 @@ import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hook
 import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 
 
-const ADD_CONTACT_ROUTE = '/contact/create/'
+const ADD_CONTACT_ROUTE = '/contact/create'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SORTABLE_PROPERTIES = ['name', 'unitName', 'phone', 'email', 'role', 'createdAt']
 
@@ -363,7 +363,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
-                router.push(`/contact/${record.id}/`)
+                router.push(`/contact/${record.id}`)
             },
         }
     }, [router])

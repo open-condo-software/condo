@@ -224,7 +224,7 @@ const TicketTable = ({
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
-                await router.push(`/ticket/${record.id}/`)
+                await router.push(`/ticket/${record.id}`)
             },
         }
     }, [router])
