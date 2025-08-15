@@ -584,7 +584,7 @@ const FiltersContainer = ({ filterMetas }) => {
 
     const [{ width: contentWidth }, setRef] = useContainerSize()
 
-    const [search, changeSearch, handleResetSearch] = useSearch<IFilters>()
+    const [search, changeSearch, handleResetSearch] = useSearch<IFilters>(1500)
     const [attributes, handleChangeAttribute, handleResetAllAttributes, handleFilterChangesAllAttributes] = useBooleanAttributesSearch(ATTRIBUTE_NAMES_To_FILTERS)
     const {
         isEmergency: emergency,

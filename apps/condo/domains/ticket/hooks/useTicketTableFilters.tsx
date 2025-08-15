@@ -64,7 +64,7 @@ const filterStatus = getFilter(['status', 'type'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
 const filterAddress = getStringContainsFilter(['property', 'address'])
-const filterAddressForSearch = getFilterAddressForSearch()
+const filterAddressForSearch = getFilterAddressForSearch('propertyAddress', null)
 const filterClientName = getClientNameFilter()
 const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
@@ -223,7 +223,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     filterAssigneeName,
                     filterClientPhone,
                     filterCreatedAtRange,
-                    filterCategoryClassifierSearch,
                 ],
                 combineType: 'OR',
             },
