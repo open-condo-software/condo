@@ -1,6 +1,6 @@
 const { existsSync, mkdirSync } = require('fs')
 
-const { LocalFileAdapter } = require('@open-keystone/file-adapters')
+const { LocalFileAdapter: BaseLocalFileAdapter } = require('@open-keystone/file-adapters')
 const express = require('express')
 const { isEmpty, get } = require('lodash')
 
@@ -31,6 +31,23 @@ class NoFileAdapter {
 
 }
 
+
+class LocalFileAdapter extends BaseLocalFileAdapter {
+    constructor ({ src, path, getFilename, mediaPath }) {
+        super({ src, path, getFilename })
+        this.mediaPath = mediaPath
+    }
+
+    publicUrl ({ filename, ...props }) {
+        if ('meta' in props && props['meta']['appId']) {
+            return `${this.mediaPath}/${props['meta']['appId']}/${filename}`
+        }
+
+        return super.publicUrl({ filename })
+    }
+}
+
+
 class LocalFilesMiddleware {
     constructor ({ path, src }) {
         if (typeof path !== 'string') throw new Error('LocalFilesMiddleware requires a "path" option, which must be a string.')
@@ -44,6 +61,7 @@ class LocalFilesMiddleware {
         // also, it used for development purposes only (see conf.FILE_FIELD_ADAPTER configuration)
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
+        console.log(this._src)
         app.use(this._path, express.static(this._src))
         return app
     }
@@ -88,6 +106,7 @@ class FileAdapter {
         const config = {
             src: `${conf.MEDIA_ROOT}/${this.folder}`,
             path: `${conf.SERVER_URL}${conf.MEDIA_URL}/${this.folder}`,
+            mediaPath: `${conf.SERVER_URL}${conf.MEDIA_URL}`,
         }
 
         if (this.saveFileName) {

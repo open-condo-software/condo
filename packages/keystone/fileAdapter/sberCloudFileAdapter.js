@@ -70,7 +70,7 @@ class SberCloudObsAcl {
                 'response-content-disposition': `attachment; filename="${encodeURIComponent(originalFilename)}"`,
             },
         } : {}
-    
+
         const { SignedUrl } = this.s3.createSignedUrlSync({
             Method: 'GET',
             Bucket: this.bucket,
@@ -164,7 +164,7 @@ class SberCloudFileAdapter {
         return `${id}${path.extname(originalFilename).replace(forbiddenCharacters, '')}` // will skip adding originalFilename
     }
 
-    publicUrl ({ filename, originalFilename }) {
+    publicUrl ({ filename, originalFilename, ...props }) {
         // It is possible to sign public URL here and to return the signed URL with access token without using middleware.
         // We are using middleware on the following reasons
         // 1. we want file urls to point to our server
@@ -172,9 +172,13 @@ class SberCloudFileAdapter {
         //    user opens ticket page
         //    then after 5 minutes, he decides to download the file and click on the URL
         //    the token is expired - user needs to reload the page to generate a new access token
+        let folder = this.folder
+        if ('meta' in props && props['meta']['appId']) {
+            folder = props['meta']['appId']
+        }
         if (this.shouldResolveDirectUrl) {
             return this.acl.generateUrl({
-                filename: `${this.folder}/${filename}`,
+                filename: `${folder}/${filename}`,
                 ttl: PUBLIC_URL_TTL,
                 originalFilename,
             })
