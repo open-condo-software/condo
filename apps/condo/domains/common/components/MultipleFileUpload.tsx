@@ -98,8 +98,8 @@ interface IMultipleFileUploadHookArgs {
     initialFileList?: DBFile[]
     initialCreateValues?: Record<string, unknown>
     dependenciesForRerenderUploadComponent?: Array<unknown>
-    appId: string
-    modelNames: Array<string>
+    appId?: string
+    modelNames?: Array<string>
 }
 
 interface IMultipleFileUploadHookResult {
