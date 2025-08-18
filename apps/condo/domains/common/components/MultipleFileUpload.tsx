@@ -387,6 +387,14 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
 
             if (!res.ok) {
                 const error = new Error(UploadFailedErrorMessage)
+
+                try {
+                    const jsonError = await res.json()
+                    console.log(jsonError)
+                } catch (e) {
+                    console.log('unable to parse error from server ', e)
+                }
+
                 onError(error)
             }
 
