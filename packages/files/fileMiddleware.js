@@ -10,11 +10,12 @@ const conf = require('@open-condo/config')
 const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getKVClient } = require('@open-condo/keystone/kv')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const DEFAULT_USER_QUOTA = 100
 const DEFAULT_IP_QUOTA = 100
 const ajv = new Ajv()
-
+const logger = getLogger('file-middleware')
 const validateAppClientSchema = ajv.compile({
     type: 'object',
     patternProperties: {
@@ -63,6 +64,7 @@ class RedisGuard {
 
 
 function createError (status, message, response) {
+    logger.error({ msg: message })
     response.status(status).json({ error: message })
 }
 
@@ -365,6 +367,7 @@ const rateLimitHandler = ({ quota, guard }) => {
 const authHandler = () => {
     return async function (request, response, next) {
         if (!request.user || request.user.deletedAt !== null) {
+            logger.error({ msg: 'auth handler error' })
             return response.status(403).json({ error: 'Authorization is required' })
         }
 
@@ -443,6 +446,10 @@ class FileMiddleware {
         // upload
         app.post(
             this.apiUrl + '/upload',
+            function (req, res, next) {
+                logger.info({ msg: 'start uploading file', req })
+                next()
+            },
             authHandler(),
             rateLimitHandler({ keystone, quota, guard }),
             parserHandler({ processRequestOptions }),
