@@ -294,7 +294,7 @@ const parserHandler = ({ processRequestOptions  }) => {
     }
 }
 
-const fileStorageHandler = ({ keystone, fileAdapter, appClients }) => {
+const fileStorageHandler = ({ keystone, appClients }) => {
     return async function (request, response) {
         // Check provided app client exists
         const { meta, files } = request
@@ -305,9 +305,11 @@ const fileStorageHandler = ({ keystone, fileAdapter, appClients }) => {
             return response.status(403).json({ error: `${meta['appId']} does not have permission to upload files` })
         }
 
+        const fileAdapter = new FileAdapter(meta['appId'])
+
         const context = keystone.createContext({ skipAccessControl: true })
         const savedFiles = await Promise.all(files.map(file => fileAdapter.save({
-            stream: file.stream,
+            stream: file.createReadStream(),
             filename: file.filename,
             mimetype: file.mimetype,
             encoding: file.encoding,
@@ -396,7 +398,6 @@ class FileMiddleware {
     }) {
         this.apiUrl = apiUrl
         this.processRequestOptions = { maxFieldSize, maxFileSize, maxFiles }
-        this.adapter = new FileAdapter('files')
 
         let quota, appClients
         try {
@@ -435,7 +436,6 @@ class FileMiddleware {
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         const processRequestOptions = this.processRequestOptions
-        const fileAdapter = this.adapter
         const guard = new RedisGuard()
         const quota = this.quota
         const appClients = this.appClients
@@ -446,7 +446,7 @@ class FileMiddleware {
             authHandler(),
             rateLimitHandler({ keystone, quota, guard }),
             parserHandler({ processRequestOptions }),
-            fileStorageHandler({ keystone, fileAdapter, appClients }),
+            fileStorageHandler({ keystone, appClients }),
         )
 
         app.post(
@@ -454,22 +454,6 @@ class FileMiddleware {
             authHandler(),
             attachHandler({ keystone })
         )
-
-        // FIXME: maybe it's unnecessary and all of the adapters may work with same url
-        let fileDownloadUrl
-        switch (this.adapter.type) {
-            case 'local':
-                fileDownloadUrl = this.apiUrl + '/:id'
-                break
-            case 'sbercloud':
-                fileDownloadUrl = this.apiUrl + '/:id'
-                break
-            case 'aws':
-                fileDownloadUrl = this.apiUrl + '/:id'
-                break
-            default:
-                fileDownloadUrl = this.apiUrl + '/:id'
-        }
 
         return app
     }
