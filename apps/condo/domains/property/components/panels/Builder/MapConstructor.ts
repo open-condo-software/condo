@@ -42,6 +42,7 @@ export type BuildingSectionArg =  BuildingSection & {
     maxFloor?: number
     unitsOnFloor?: number
     name?: string
+    hasChanges?: boolean
 }
 
 export type BuildingUnitArg = BuildingUnit & {
@@ -285,15 +286,19 @@ class MapView extends Map {
     // view or hide sections
     public visibleSections: string | null = null
 
-    public getMaxUnitsPerFloor (sectionId: string): number {
+    public getMaxUnitsPerFloor (sectionId: string): number | null {
         const section = this.sections.find(s => s.id === sectionId)
-        if (!section) return 0
+        if (!section || section.floors.length === 0) return 0
 
-        return section.floors.reduce((max, floor) => {
-            return Math.max(max, floor.units.length)
-        }, 0)
+        const firstFloorUnitsCount = section.floors[0].units.length
+
+        const allFloorsHaveSameUnits = section.floors.every(
+            floor => floor.units.length === firstFloorUnitsCount
+        )
+
+        return allFloorsHaveSameUnits ? firstFloorUnitsCount : null
     }
-
+    
     public getSectionMaxFloor (sectionIdx: number): number {
         return Math.max(...this.sections[sectionIdx].floors.map(floor => floor.index))
     }
@@ -824,6 +829,9 @@ class MapEdit extends MapView {
             this.backupSection(sectionId)
         }
 
+        if (sectionUpdate.maxFloor < sectionUpdate.minFloor) {
+            return
+        }
         const sectionIndex = this.sections.findIndex(s => s.id === sectionId)
         if (sectionIndex === -1) return
 
@@ -831,8 +839,14 @@ class MapEdit extends MapView {
             this.updateUnitsPerFloor(sectionIndex, sectionUpdate.unitsOnFloor, false, true)
         }
 
-        if ((sectionUpdate.minFloor !== undefined && sectionUpdate.minFloor !== null) ||
-            (sectionUpdate.maxFloor !== undefined && sectionUpdate.maxFloor !== null)) {
+        if (
+            (sectionUpdate.minFloor !== undefined &&
+                sectionUpdate.minFloor !== null &&
+                Number.isFinite(sectionUpdate.minFloor)) ||
+            (sectionUpdate.maxFloor !== undefined &&
+                sectionUpdate.maxFloor !== null &&
+                Number.isFinite(sectionUpdate.maxFloor))
+        ) {
             this.updateFloorRange(
                 sectionIndex,
                 sectionUpdate.minFloor,
@@ -877,6 +891,10 @@ class MapEdit extends MapView {
         // Find the section to update
         const sectionIndex = this.sections.findIndex(s => sectionUpdate.id === s.id)
         if (sectionIndex === -1) return
+
+        if (sectionUpdate.maxFloor < sectionUpdate.minFloor) {
+            return
+        }
 
         const section = this.sections[sectionIndex]
         // Update section name if provided
@@ -985,8 +1003,19 @@ class MapEdit extends MapView {
         const currentSectionFloorCount = section.floors.length
 
         const hasNegativeMinFloor = newMinFloor < 0
-        const absoluteMinFloor = hasNegativeMinFloor ? -newMinFloor : 0
-        const floorsToAddOrRemove = newMaxFloor - currentSectionFloorCount + absoluteMinFloor
+
+        let count
+        if (newMaxFloor > 0 && newMinFloor > 0) {
+            count = newMaxFloor + newMinFloor - 1
+        }
+        else if (newMaxFloor > 0 && newMinFloor < 0) {
+            count = newMaxFloor - newMinFloor + 1
+        }
+        else if (newMaxFloor < 0 && newMinFloor < 0) {
+            count = Math.abs(newMaxFloor - newMinFloor) + 1
+        }
+
+        const floorsToAddOrRemove = count - currentSectionFloorCount
 
         if (floorsToAddOrRemove > 0) {
             const maxFloorForNewFloors = hasNegativeMinFloor ? newMaxFloor - 1 : newMaxFloor
@@ -1004,22 +1033,32 @@ class MapEdit extends MapView {
         renameNextUnits: boolean,
         preview?: boolean
     ): void {
-        let maxUnitInSection = 0
-        this.sections[sectionIndex].floors.forEach(floor => {
-            floor.units.forEach(unit => {
-                const unitNumber = Number(unit.label)
-                if (!Number.isNaN(unitNumber) && unitNumber > maxUnitInSection) {
-                    maxUnitInSection = unitNumber
-                }
-            })
-        })
-
         for (let floorIndex = currentMaxFloor; floorIndex < newMaxFloor; floorIndex++) {
+            let lastUnit = null
+            const floors = this.sections[sectionIndex].floors
+
+            for (let i = 0; i < floors.length; i++) {
+                const units = floors[i].units
+
+                for (let j = units.length - 1; j >= 0; j--) {
+                    const unitNumber = Number(units[j].label)
+
+                    if (!isNaN(unitNumber)) {
+                        lastUnit = unitNumber
+                        break
+                    }
+                }
+
+                if (lastUnit !== null) {
+                    break
+                }
+            }
+
             this.addSectionFloor({
                 section: sectionIndex,
                 index: floorIndex + 1,
                 unitCount: unitsPerFloor,
-                startUnitIndex: maxUnitInSection,
+                startUnitIndex: lastUnit,
             }, renameNextUnits, preview)
         }
     }
