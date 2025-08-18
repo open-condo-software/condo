@@ -61,7 +61,6 @@ class LocalFilesMiddleware {
         // also, it used for development purposes only (see conf.FILE_FIELD_ADAPTER configuration)
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
-        console.log(this._src)
         app.use(this._path, express.static(this._src))
         return app
     }
