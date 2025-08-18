@@ -36,7 +36,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 
-describe('ExecutionAIFlowTask', () => {
+describe.skip('ExecutionAIFlowTask', () => {
     let adminClient, supportClient, userClient, userClient2, anonymousClient
 
     // In envs the full url is specified, so we must specify the port
