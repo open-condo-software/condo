@@ -51,7 +51,7 @@ class AwsS3Acl {
             return false
         }
     }
-    
+
     generateUrl ({ filename, ttl = 300, originalFilename }) {
         const params = {
             Bucket: this.bucket,
@@ -118,18 +118,23 @@ class AwsFileAdapter {
         return `${id}${path.extname(originalFilename).replace(forbiddenCharacters, '')}`
     }
 
-    publicUrl ({ filename, originalFilename }) {
+    publicUrl ({ filename, originalFilename, ...props }) {
+        let folder = this.folder
+        if ('meta' in props && props['meta']['appId']) {
+            folder = props['meta']['appId']
+        }
+
         if (this.shouldResolveDirectUrl) {
             return this.acl.generateUrl({
-                filename: `${this.folder}/${filename}`,
+                filename: `${folder}/${filename}`,
                 ttl: PUBLIC_URL_TTL,
                 originalFilename,
             })
         }
-        const qs = isNil(originalFilename) || NO_SET_CONTENT_DISPOSITION_FOLDERS.includes(this.folder)
+        const qs = isNil(originalFilename) || NO_SET_CONTENT_DISPOSITION_FOLDERS.includes(folder)
             ? ''
             : `?original_filename=${encodeURIComponent(originalFilename)}`
-        return `${SERVER_URL}/api/files/${this.folder}/${filename}${qs}`
+        return `${SERVER_URL}/api/files/${folder}/${filename}${qs}`
     }
 
     uploadParams ({ meta = {} }) {
