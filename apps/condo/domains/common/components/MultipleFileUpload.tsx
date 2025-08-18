@@ -17,8 +17,6 @@ import { colors } from '@open-condo/ui/colors'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 import { analytics } from '@condo/domains/common/utils/analytics'
 
-import type { RcFile } from 'antd/es/upload/interface'
-
 type DBFile = {
     id: string
     file?: File
@@ -100,6 +98,8 @@ interface IMultipleFileUploadHookArgs {
     initialFileList?: DBFile[]
     initialCreateValues?: Record<string, unknown>
     dependenciesForRerenderUploadComponent?: Array<unknown>
+    appId: string
+    modelNames: Array<string>
 }
 
 interface IMultipleFileUploadHookResult {
@@ -116,6 +116,7 @@ export const useMultipleFileUploadHook = ({
     initialCreateValues = {},
     // TODO(nomerdvadcatpyat): find another solution
     dependenciesForRerenderUploadComponent = [],
+    appId, modelNames,
 }: IMultipleFileUploadHookArgs): IMultipleFileUploadHookResult => {
     const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
     const [filesCount, setFilesCount] = useState(initialFileList.length)
@@ -159,11 +160,13 @@ export const useMultipleFileUploadHook = ({
                 initialCreateValues={initialValues}
                 Model={Model}
                 updateFileList={dispatch}
+                appId={appId}
+                modelNames={modelNames}
                 {...props}
             />
         )
         return UploadWrapper
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [...dependenciesForRerenderUploadComponent])
     return {
         UploadComponent,
@@ -191,11 +194,11 @@ export const StyledUpload = styled(Upload)<{ reverseFileList?: boolean }>`
       }
     }
   }
-    
-    .ant-upload-list-item-card-actions-btn:hover {
-        background-color: inherit;
-    }
-    
+
+  .ant-upload-list-item-card-actions-btn:hover {
+    background-color: inherit;
+  }
+
   .ant-upload-list-text-container {
     & .ant-upload-list-item-name {
       font-size: 16px;
@@ -213,12 +216,12 @@ export const StyledUpload = styled(Upload)<{ reverseFileList?: boolean }>`
       width: auto;
      }`}
   }
-  
+
   .ant-upload-list-item-card-actions {
     display: flex;
     align-items: center;
   }
-  
+
   .ant-upload-list-item:not(.ant-upload-list-item-error) {
     & .ant-upload-list-item-name {
       text-decoration: underline;
@@ -230,7 +233,7 @@ export const StyledUpload = styled(Upload)<{ reverseFileList?: boolean }>`
       }
     }
   }
-  
+
   .ant-upload-list-item-error {
     & .ant-upload-list-item-name {
       text-decoration: none;
@@ -252,6 +255,8 @@ interface IMultipleFileUploadProps {
     UploadButton?: React.ReactNode
     uploadProps?: UploadProps
     onFileListChange?: (fileList) => void
+    modelNames: Array<string>
+    appId: string
 }
 
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
@@ -269,6 +274,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         UploadButton,
         uploadProps = {},
         onFileListChange,
+        modelNames, appId,
     } = props
 
     const { user } = useAuth()
@@ -337,20 +343,36 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
             },
         },
         customRequest: async (options: UploadRequestOption) => {
-            const { onSuccess, onError } = options
-            const file = options.file as RcFile
-            if (file.size > MAX_UPLOAD_FILE_SIZE) {
+            const {  file, headers, onSuccess, onError } = options
+            let realFile
+
+            try {
+                realFile =
+          file instanceof Blob
+              ? file
+              : (file as any)?.originFileObj instanceof Blob
+                  ? (file as any).originFileObj
+                  : undefined
+
+                if (!realFile) throw new Error('No File/Blob received from rc-upload.')
+            } catch (e) {
+                console.log('error', e)
+                onError(e)
+            }
+
+            // const file = options.file as RcFile
+            if (realFile.size > MAX_UPLOAD_FILE_SIZE) {
                 const error = new Error(FileTooBigErrorMessage)
                 onError(error)
                 return
             }
 
             const formData = new FormData()
-            formData.append('file', file, file.name)
+            formData.append('file', realFile, realFile.name)
             formData.append('meta', JSON.stringify({
-                appId: 'condo',
+                appId,
                 authedItem: user.id,
-                modelNames: ['TicketCommentFile'],
+                modelNames,
                 dv: 1, sender: { dv: 1, fingerprint: 'just-test-fingerprint' },
             }))
 
@@ -358,6 +380,9 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 method: 'POST',
                 body: formData,
                 credentials: 'include',
+                headers: {
+                    ...headers,
+                },
             })
 
             if (!res.ok) {
