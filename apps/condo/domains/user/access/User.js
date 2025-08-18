@@ -75,7 +75,7 @@ const canAccessToEmailField = {
         if (!access.userIsAuthenticated(args)) return false
 
         const { authentication: { item: user } } = args
-        const userType = user.userType
+        const userType = user.type
         const requiredIdentificationFields = IDENTIFICATION_USER_REQUIRED_FIELDS?.[userType]
 
         // NOTE: backward compatibility!
@@ -102,7 +102,7 @@ const canAccessToPhoneField = {
         if (!access.userIsAuthenticated(args)) return false
 
         const { authentication: { item: user }, existingItem, originalInput } = args
-        const userType = user.userType
+        const userType = user.type
         const requiredIdentificationFields = IDENTIFICATION_USER_REQUIRED_FIELDS?.[userType]
 
         const updateByResidentToTheSamePhone = Boolean(existingItem && user.type === RESIDENT && existingItem.id === user.id && originalInput.phone === existingItem.phone)
