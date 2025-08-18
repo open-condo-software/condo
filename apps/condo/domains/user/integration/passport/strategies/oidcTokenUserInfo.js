@@ -205,7 +205,10 @@ class OidcTokenUserInfoAuthStrategy {
                     confirmEmailActionId = actionId
                 }
 
-                // Step 5.
+                // Step 5. Call syncUser for final user / identity creation
+                const user = await syncUser(req, userProfile, req.session.userType, providerInfo, fieldMapping)
+
+                // Step 5. Mark tokens as used
                 const updateActionTasks = []
                 const { keystone } = getSchemaCtx('User')
                 const context = await keystone.createContext({ skipAccessControl: true })
@@ -225,9 +228,6 @@ class OidcTokenUserInfoAuthStrategy {
                 }
 
                 await Promise.all(updateActionTasks)
-
-                // Step 6. Call syncUser for final user / identity creation
-                const user = await syncUser(req, userProfile, req.session.userType, providerInfo, fieldMapping)
 
                 return done(null, user)
             } catch (err) {

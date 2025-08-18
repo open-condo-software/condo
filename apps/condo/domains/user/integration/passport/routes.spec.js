@@ -18,11 +18,13 @@ jest.mock('@open-condo/config', () => {
                     strategy: 'oidcTokenUserInfo',
                     options: {
                         clients: {
-                            'some-client-id': {
+                            'trusted-client': {
                                 identityType: 'some-provider-name',
                                 userInfoURL: 'https://oidc.auth.example.com/userInfo',
                                 trustPhone: true,
                                 trustEmail: true,
+                                requireConfirmPhoneAction: false,
+                                requireConfirmEmailAction: false,
                             },
                         },
                     },
@@ -246,7 +248,8 @@ describe('Passport authentication E2E test', () => {
         serverUrl = client.serverUrl
     })
     beforeEach( () => {
-        agent = request.agent(serverUrl)
+        // NOTE: x-forwarded-for + trust proxy = bypass rate-limits during tests
+        agent = request.agent(serverUrl).set('x-forwarded-for', faker.internet.ip())
     })
     afterEach(() => {
         nock.cleanAll()
@@ -419,7 +422,7 @@ describe('Passport authentication E2E test', () => {
                 const params = new URLSearchParams({
                     user_type: userType,
                     access_token: token,
-                    client_id: 'some-client-id',
+                    client_id: 'trusted-client',
                 })
                 const authResponse = await agent.get(`/api/auth/test-sdk?${params.toString()}`)
                 expect(authResponse.status).toEqual(302)
@@ -428,7 +431,7 @@ describe('Passport authentication E2E test', () => {
                 expect(redirectUrl.pathname).toEqual('/api/auth/test-sdk/callback')
                 expect(redirectUrl.searchParams.get('user_type')).toEqual(userType)
                 expect(redirectUrl.searchParams.get('access_token')).toEqual(token)
-                expect(redirectUrl.searchParams.get('client_id')).toEqual('some-client-id')
+                expect(redirectUrl.searchParams.get('client_id')).toEqual('trusted-client')
 
                 const callbackResponse = await agent.get(`/api/auth/test-sdk/callback?${params.toString()}`)
                 expect(callbackResponse.status).toEqual(302)
