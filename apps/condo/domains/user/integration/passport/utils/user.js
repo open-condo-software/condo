@@ -81,6 +81,22 @@ function _ensureUser (foundUser, userType, errorContext) {
     }
 }
 
+function _ensureProviderInfo (providerInfo, errorContext) {
+    const { success, error } = providerInfoSchema.safeParse(providerInfo)
+    if (!success) {
+        throw new GQLError(ERRORS.INVALID_IDENTITY_PROVIDER_INFO, errorContext, [new Error(z.prettifyError(error))])
+    }
+}
+
+function _ensureUserType (userType, errorContext) {
+    if (!ALLOWED_USER_TYPES.includes(userType)) {
+        throw new GQLError({
+            ...ERRORS.INVALID_USER_TYPE,
+            messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES.join(', ') },
+        }, errorContext)
+    }
+}
+
 function _isSuperUser (user) {
     return user.isSupport || user.isAdmin || user.rightsSet
 }
@@ -184,7 +200,6 @@ async function _findOrCreateUser (req, userData, userType, providerInfo, userMet
         } else if (userData.phone && !userFoundByPhone) {
             // We can also store data in user if there's no conflicts, even for untrusted providers
             // so user can sign in via GQL and receive profile
-            // TODO: approve this lines
             createPayload.phone = userData.phone
             createPayload.isPhoneVerified = false
         }
@@ -211,7 +226,6 @@ async function _findOrCreateUser (req, userData, userType, providerInfo, userMet
         } else if (userData.email && !userFoundByEmail) {
             // We can also store data in user if there's no conflicts, even for untrusted providers
             // so user can sign in via GQL and receive profile
-            // TODO: approve this lines
             createPayload.email = userData.email
             createPayload.isEmailVerified = false
         }
@@ -284,40 +298,24 @@ async function _findOrCreateUser (req, userData, userType, providerInfo, userMet
 }
 
 /**
- * Gets or creates a user and their external identity.
- *
- * This function first attempts to find a user's external identity.
- * If found, it returns the associated user.
- * If not found, it proceeds to find an existing user by their verified and trusted
- * phone number or email. If no existing user is found, a new user is created.
- * Finally, it creates the external identity and links it to the user.
- * @param {import('http').IncomingMessage} req - keystone instance object
- * @param {object} userProfile - The profile of the user from the external provider.
- * @param {string} userType - The type of the user (e.g., 'staff', 'resident').
- * @param {object} providerInfo - information about identity provider (name / trustPhone / trustEmail).
- * @param {object} fieldMapping - userInfo json remap options. For example { id: 'sub' } converts oidc default "sub" field "id"
- * @returns {Promise<object>} The resolved user object.
+ * Internal utility function, which is reused by syncUser and getExistingUserIdentity and must not be used directly.
+ * It:
+ * - validates all parameters;
+ * - converts provider's userProfile to condo user shape (via combination of fieldMapping and DEFAULT_USER_FIELDS_MAPPING);
+ * - ensures errors thrown by syncUser and getExistingUserIdentity are the same;
+ * @param {import('http').IncomingMessage} req - request object
+ * @param {Record<string, unknown>} userProfile - information about user in shape of auth provider
+ * @param {Record<string, string>} fieldMapping - userInfo json remap options. For example { id: 'sub' } converts oidc default "sub" field to "id"
+ * @returns {{ 
+ * id: string, name: string | null, 
+ * phone: string | null, 
+ * email: string | null, 
+ * isPhoneVerified: boolean, 
+ * isEmailVerified: boolean 
+ * }}
  */
-async function syncUser (
-    req,
-    userProfile,
-    userType,
-    providerInfo,
-    fieldMapping = {}
-) {
+function _extractUserDataFromProvider (req, userProfile, fieldMapping = {}) {
     const errorContext = { req }
-
-    // Step 0. Sanity checks
-    if (!ALLOWED_USER_TYPES.includes(userType)) {
-        throw new GQLError({
-            ...ERRORS.INVALID_USER_TYPE,
-            messageInterpolation: { allowedTypes: ALLOWED_USER_TYPES.join(', ') },
-        }, errorContext)
-    }
-    const { success: isValidProviderInfo, error: providerInfoError, data: providerInfoData } = providerInfoSchema.safeParse(providerInfo)
-    if (!isValidProviderInfo) {
-        throw new GQLError(ERRORS.INVALID_IDENTITY_PROVIDER_INFO, errorContext, [new Error(z.prettifyError(providerInfoError))])
-    }
 
     const { success: isValidFieldMapping, error: fieldMappingError, data: fieldMappingData } = fieldMappingSchema.safeParse(fieldMapping)
     if (!isValidFieldMapping) {
@@ -337,31 +335,86 @@ async function syncUser (
         throw new GQLError(ERRORS.INVALID_USER_DATA, errorContext, [new Error(z.prettifyError(error))])
     }
 
-    // Step 3. Try to find existing identity to authenticate
+    return userData
+}
+
+/**
+ * Tries to find existing UserExternalIdentity linked to user by providers userProfile
+ * @param {import('http').IncomingMessage} req - request object
+ * @param {Record<string, string>} userProfile - information about user in shape of auth provider
+ * @param {'staff' | 'resident'} userType - condo user's type
+ * @param {{ name: string, trustPhone: boolean, trustEmail: boolean }} providerInfo - information about provider (name, trustPhone, trustEmail)
+ * @param {Record<string, string>} fieldMapping - userInfo json remap options. For example { id: 'sub' } converts oidc default "sub" field to "id"
+ * @returns {Promise<{ id: string, user: { id: string } } | null>}
+ */
+async function getExistingUserIdentity (req, userProfile, userType, providerInfo, fieldMapping = {}) {
+    // Step 0. Basic sanity checks
+    const errorContext = { req }
+    _ensureUserType(userType, errorContext)
+    _ensureProviderInfo(providerInfo, errorContext)
+
+    // Step 1. Convert provider shape to condo shape
+    const userData = _extractUserDataFromProvider(req, userProfile, fieldMapping)
+
+    // Step 2. Try to find identity
     // NOTE: does not add user.deletedAt filter, since it's the way to ban user (delete their profile with linked identity)
     const { keystone } = getSchemaCtx('User')
     const context = await keystone.createContext({ skipAccessControl: true })
-    const userExternalIdentity = await UserExternalIdentity.getOne(context, {
+    const identity =  await UserExternalIdentity.getOne(context, {
         identityId: userData.id,
         userType,
         identityType: providerInfo.name,
         deletedAt: null,
     }, 'user { id deletedAt }')
 
-
-    // Step 4 If identity found -> return its user
-    if (userExternalIdentity) {
-        // NOTE: If identity linked to deleted user = user is probably banned
-        if (userExternalIdentity.user.deletedAt) {
-            throw new GQLError(ERRORS.EXTERNAL_IDENTITY_BLOCKED, errorContext)
-        }
-
-        return userExternalIdentity.user
+    // NOTE: If identity linked to deleted user = user is probably banned
+    if (identity && identity.user.deletedAt) {
+        throw new GQLError(ERRORS.EXTERNAL_IDENTITY_BLOCKED, errorContext)
     }
 
-    // Step 5. If no external identity, we need to create find or create user and create identity
-    const user = await _findOrCreateUser(req, userData, userType, providerInfoData, userProfile)
+    return identity
+}
 
+/**
+ * Gets or creates a user and their external identity.
+ *
+ * This function first attempts to find a user's external identity.
+ * If found, it returns the associated user.
+ * If not found, it proceeds to find an existing user by their verified and trusted
+ * phone number or email. If no existing user is found, a new user is created.
+ * Finally, it creates the external identity and links it to the user.
+ * @param {import('http').IncomingMessage} req - request object
+ * @param {Record<string, unknown>} userProfile - information about user in shape of auth provider
+ * @param {'staff' | 'resident'} userType - condo user's type
+ * @param {{ name: string, trustPhone: boolean, trustEmail: boolean }} providerInfo - information about provider (name, trustPhone, trustEmail)
+ * @param {Record<string, string>} fieldMapping - userInfo json remap options. For example { id: 'sub' } converts oidc default "sub" field to "id"
+ * @returns {Promise<{ id: string }>} The resolved user object.
+ */
+async function syncUser (
+    req,
+    userProfile,
+    userType,
+    providerInfo,
+    fieldMapping = {}
+) {
+    // Step 0. Basic sanity checks
+    const errorContext = { req }
+    _ensureUserType(userType, errorContext)
+    _ensureProviderInfo(providerInfo, errorContext)
+
+    // Step 1. Try to find existing identity. If found, return user from it
+    const identity = await getExistingUserIdentity(req, userProfile, userType, providerInfo, fieldMapping)
+    if (identity) {
+        return identity.user
+    }
+
+
+    // Step 2. If no external identity, we need to find or create user first, and then create and link identity to it
+    const userData = _extractUserDataFromProvider(req, userProfile, fieldMapping)
+    const user = await _findOrCreateUser(req, userData, userType, providerInfo, userProfile)
+
+    const { keystone } = getSchemaCtx('User')
+    const context = await keystone.createContext({ skipAccessControl: true })
     await UserExternalIdentity.create(context, {
         identityId: userData.id,
         user: { connect: { id: user.id } },
@@ -428,6 +481,8 @@ function ensureUserType (req, res, next) {
 }
 
 module.exports = {
+    DEFAULT_USER_FIELDS_MAPPING,
+    getExistingUserIdentity,
     syncUser,
     captureUserType,
     ensureUserType,

@@ -1,11 +1,14 @@
 // @ts-check
+const set = require('lodash/set')
 const { Strategy: CustomStrategy } = require('passport-custom')
 
 const  { GQLError } = require('@open-condo/keystone/errors')
 const { fetch } = require('@open-condo/keystone/fetch')
+const  { getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { ERRORS } = require('@condo/domains/user/integration/passport/errors')
-const { syncUser } = require('@condo/domains/user/integration/passport/utils/user')
+const { syncUser, getExistingUserIdentity, DEFAULT_USER_FIELDS_MAPPING } = require('@condo/domains/user/integration/passport/utils/user')
+const { ConfirmEmailAction, ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 
 const { AuthStrategy } = require('./types')
 
@@ -28,6 +31,66 @@ class OidcTokenUserInfoAuthStrategy {
         this.#strategyTrustInfo = { trustEmail, trustPhone }
     }
 
+    static #capitalize (input) {
+        return `${input.charAt(0).toUpperCase()}${input.slice(1)}`
+    }
+
+    static async parseConfirmToken (req, tokenType) {
+        const errorContext = { req }
+        let success = false
+        let identity = null
+        let error = null
+        let actionId = null
+
+        if (!['phone', 'email'].includes(tokenType)) {
+            // Will be wrapped into generic
+            error = new GQLError(ERRORS.UNKNOWN_CONFIRM_TOKEN_TYPE, errorContext)
+            return { success, identity, actionId, error }
+        }
+
+        const capitalizedTokenType = OidcTokenUserInfoAuthStrategy.#capitalize(tokenType)
+        const queryParamName = `confirm_${tokenType}_action_token`
+        const modelName = `Confirm${capitalizedTokenType}Action`
+        const token = req.query[queryParamName]
+
+        if (!token) {
+            error = new GQLError({
+                ...ERRORS.MISSING_QUERY_PARAMETER,
+                messageInterpolation: { parameter: queryParamName },
+            }, errorContext)
+            return { success, identity, actionId, error }
+        }
+
+        if (typeof token !== 'string') {
+            error = new GQLError({
+                ...ERRORS.INVALID_PARAMETER,
+                messageInterpolation: { parameter: queryParamName },
+            }, errorContext)
+            return { success, identity, actionId, error }
+        }
+
+        const action = await getByCondition(modelName, {
+            token,
+            expiresAt_gte: new Date().toISOString(),
+            completedAt: null,
+            deletedAt: null,
+            [`is${capitalizedTokenType}Verified`]: true,
+        })
+        if (!action) {
+            error = new GQLError({
+                ...ERRORS.INVALID_PARAMETER,
+                messageInterpolation: { parameter: queryParamName },
+            }, errorContext)
+            return { success, identity, actionId, error }
+        }
+
+        identity = action[tokenType]
+        success = true
+        actionId = action.id
+
+        return { success, identity, actionId, error }
+    }
+
 
     build () {
         const callbackPath = new URL(this.#callbackURL).pathname
@@ -41,7 +104,7 @@ class OidcTokenUserInfoAuthStrategy {
                 return req.res.redirect([callbackPath, searchParams].filter(Boolean).join('?'))
             }
 
-            // Parameters verification
+            // Step 0. Required parameters verification
             const { access_token, client_id } = req.query
             const errorContext = { req }
             if (!access_token) {
@@ -69,7 +132,16 @@ class OidcTokenUserInfoAuthStrategy {
                 }, errorContext))
             }
 
-            const { trustEmail, trustPhone, identityType, fieldMapping, userInfoURL } = clients[client_id]
+            const {
+                trustEmail,
+                trustPhone,
+                identityType,
+                fieldMapping,
+                userInfoURL,
+                requireConfirmPhoneAction,
+                requireConfirmEmailAction,
+            } = clients[client_id]
+
             const providerInfo = {
                 name: identityType,
                 trustEmail: strategyTrustInfo.trustEmail && trustEmail,
@@ -77,6 +149,7 @@ class OidcTokenUserInfoAuthStrategy {
             }
 
             try {
+                // Step 1. Getting user info
                 const response = await fetch(userInfoURL, {
                     maxRetries: 1,
                     abortRequestTimeout: 5000,
@@ -89,7 +162,72 @@ class OidcTokenUserInfoAuthStrategy {
                     return done(new GQLError(ERRORS.AUTHORIZATION_FAILED, errorContext, [new Error('userInfo request was not successful')]))
                 }
                 const userProfile = await response.json()
+
+                // Step 2. Check if identity already exists (not the first authorization)
+                const identity = await getExistingUserIdentity(req, userProfile, req.session.userType, providerInfo, fieldMapping)
+                // Step 3. If so, login this linked user
+                if (identity) {
+                    return done(null, identity.user)
+                }
+
+                // Step 4. Otherwise, it's user first auth, so we need to check required tokens
+                // NOTE: might need to fill phone / email fields, so we need this keys to persist
+                const fullFieldMapping = { ...DEFAULT_USER_FIELDS_MAPPING, ...fieldMapping }
+
+                let confirmPhoneActionId = null
+                let confirmEmailActionId = null
+
+                if (requireConfirmPhoneAction) {
+                    const { identity, actionId, success, error  } = await OidcTokenUserInfoAuthStrategy.parseConfirmToken(req, 'phone')
+                    if (!success) {
+                        return done(error, null)
+                    }
+                    // NOTE: Override payload to guarantee user linking
+                    providerInfo.trustPhone = true
+                    // NOTE: We trust condo-verified phones more, than one from userProfile
+                    set(userProfile, fullFieldMapping['phone'], identity)
+                    set(userProfile, fullFieldMapping['isPhoneVerified'], true)
+
+                    confirmPhoneActionId = actionId
+                }
+
+                if (requireConfirmEmailAction) {
+                    const { identity, actionId, success, error  } = await OidcTokenUserInfoAuthStrategy.parseConfirmToken(req, 'email')
+                    if (!success) {
+                        return done(error, null)
+                    }
+                    // NOTE: Override payload to guarantee user linking
+                    providerInfo.trustEmail = true
+                    // NOTE: We trust condo-verified phones more, than one from userProfile
+                    set(userProfile, fullFieldMapping['email'], identity)
+                    set(userProfile, fullFieldMapping['isEmailVerified'], true)
+
+                    confirmEmailActionId = actionId
+                }
+
+                // Step 5. Call syncUser for final user / identity creation
                 const user = await syncUser(req, userProfile, req.session.userType, providerInfo, fieldMapping)
+
+                // Step 5. Mark tokens as used
+                const updateActionTasks = []
+                const { keystone } = getSchemaCtx('User')
+                const context = await keystone.createContext({ skipAccessControl: true })
+                if (confirmPhoneActionId) {
+                    updateActionTasks.push(ConfirmPhoneAction.update(context, confirmPhoneActionId, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'passport-oidc-token-userinfo' },
+                        completedAt: (new Date()).toISOString(),
+                    }))
+                }
+                if (confirmEmailActionId) {
+                    updateActionTasks.push(ConfirmEmailAction.update(context, confirmEmailActionId, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'passport-oidc-token-userinfo' },
+                        completedAt: (new Date()).toISOString(),
+                    }))
+                }
+
+                await Promise.all(updateActionTasks)
 
                 return done(null, user)
             } catch (err) {
