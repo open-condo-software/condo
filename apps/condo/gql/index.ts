@@ -7259,40 +7259,6 @@ export function useAuthenticateUserWithPhoneAndPasswordMutation(baseOptions?: Ap
 export type AuthenticateUserWithPhoneAndPasswordMutationHookResult = ReturnType<typeof useAuthenticateUserWithPhoneAndPasswordMutation>;
 export type AuthenticateUserWithPhoneAndPasswordMutationResult = Apollo.MutationResult<Types.AuthenticateUserWithPhoneAndPasswordMutation>;
 export type AuthenticateUserWithPhoneAndPasswordMutationOptions = Apollo.BaseMutationOptions<Types.AuthenticateUserWithPhoneAndPasswordMutation, Types.AuthenticateUserWithPhoneAndPasswordMutationVariables>;
-export const ChangePasswordWithTokenDocument = gql`
-    mutation changePasswordWithToken($data: ChangePasswordWithTokenInput!) {
-  result: changePasswordWithToken(data: $data) {
-    status
-    phone
-  }
-}
-    `;
-export type ChangePasswordWithTokenMutationFn = Apollo.MutationFunction<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>;
-
-/**
- * __useChangePasswordWithTokenMutation__
- *
- * To run a mutation, you first call `useChangePasswordWithTokenMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useChangePasswordWithTokenMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [changePasswordWithTokenMutation, { data, loading, error }] = useChangePasswordWithTokenMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useChangePasswordWithTokenMutation(baseOptions?: Apollo.MutationHookOptions<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>(ChangePasswordWithTokenDocument, options);
-      }
-export type ChangePasswordWithTokenMutationHookResult = ReturnType<typeof useChangePasswordWithTokenMutation>;
-export type ChangePasswordWithTokenMutationResult = Apollo.MutationResult<Types.ChangePasswordWithTokenMutation>;
-export type ChangePasswordWithTokenMutationOptions = Apollo.BaseMutationOptions<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>;
 export const ChangeUserPasswordDocument = gql`
     mutation changeUserPassword($data: ChangeUserPasswordInput!) {
   result: changeUserPassword(data: $data) {
