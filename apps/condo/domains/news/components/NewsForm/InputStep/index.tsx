@@ -6,7 +6,7 @@ import {
 } from '@app/condo/schema'
 import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
