@@ -10,7 +10,7 @@ import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/he
 
 type UseSearchOutputType = [string, (search: string) => void, () => void]
 
-export const useSearch = <F> (): UseSearchOutputType => {
+export const useSearch = <F> (debounceTime: number = 400): UseSearchOutputType => {
     const router = useRouter()
     const filtersFromQuery = useMemo(() => getFiltersFromQuery<F>(router.query), [router.query])
     const searchValueFromQuery = get(filtersFromQuery, 'search')
@@ -19,7 +19,7 @@ export const useSearch = <F> (): UseSearchOutputType => {
     const searchChange = useMemo(() => debounce(async (searchString) => {
         const newParameters = getFiltersQueryData({ ...filtersFromQuery, search: searchString })
         await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false, shallow: true })
-    }, 400), [router, filtersFromQuery])
+    }, debounceTime), [router, filtersFromQuery, debounceTime])
 
     const handleSearchChange = useCallback((value: string): void => {
         setSearch(value)
