@@ -47,7 +47,7 @@ interface IPageWrapper {
 }
 
 export const StyledPageWrapper = styled(Layout.Content)<IPageWrapper>`
-  padding: ${({ isSmall }) => isSmall ? '20px 20px 0' : '20px 40px 0'};
+  padding: ${({ isSmall }) => isSmall ? '24px 20px 0' : '20px 40px 0'};
   margin: 0;
   height: 100%;
   display: flex;

@@ -166,6 +166,16 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
         },
     ]
 
+    const handlePropertyEditClick = useCallback(async () => {
+        await push(`/property/${property?.id}/update`)
+    }, [property?.id, push])
+
+    const handlePropertyMapEditClick = useCallback(async () => {
+        await push(`/property/${property?.id}/map/update`)
+    }, [property?.id, push])
+
+    const handlePropertyDeleteClick = useCallback(() => softDeleteAction(property), [property])
+
     return (
         <>
             <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} align='top'>
@@ -208,29 +218,29 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                     <Col span={24} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
                         <ActionBar
                             actions={[
-                                <Link key='editProperty' href={`/property/${property.id}/update`}>
-                                    <Button
-                                        type='primary'
-                                    >
-                                        {EditPropertyTitle}
-                                    </Button>
-                                </Link>,
+                                <Button
+                                    key='editProperty'
+                                    type='primary'
+                                    onClick={handlePropertyEditClick}
+                                >
+                                    {EditPropertyTitle}
+                                </Button>,
                                 !isNull(get(property, 'map')) && breakpoints.TABLET_LARGE && (
-                                    <Link key='editPropertyMap' href={`/property/${property.id}/map/update`}>
-                                        <Button
-                                            type='secondary'
-                                            data-cy='property-map__update-button'
-                                        >
-                                            {EditPropertyMapTitle}
-                                        </Button>
-                                    </Link>
+                                    <Button
+                                        key='editPropertyMap'
+                                        type='secondary'
+                                        data-cy='property-map__update-button'
+                                        onClick={handlePropertyMapEditClick}
+                                    >
+                                        {EditPropertyMapTitle}
+                                    </Button>
                                 ),
                                 <DeleteButtonWithConfirmModal
                                     key='delete'
                                     title={ConfirmDeleteTitle}
                                     message={ConfirmDeleteMessage}
                                     okButtonLabel={DeletePropertyLabel}
-                                    action={() => softDeleteAction(property)}
+                                    action={handlePropertyDeleteClick}
                                     buttonContent={DeletePropertyLabel}
                                 />,
                             ]}
