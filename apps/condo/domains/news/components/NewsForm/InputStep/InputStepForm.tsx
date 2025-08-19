@@ -205,7 +205,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
                 name={inputType}
                 ref={newsTextAreaRef}
                 value={value}
-                autoSize={{ minRows: 1, maxRows: 5 }}
+                autoSize={{ minRows: 2, maxRows: 5 }}
                 disabled={isRewriteNewsTextLoading}
                 bottomPanelUtils={[
                     <Tooltip
