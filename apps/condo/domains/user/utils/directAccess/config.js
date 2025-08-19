@@ -73,7 +73,42 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
             { fieldName: 'isApproved', manage: true },
         ],
         User: [
-            { fieldName: 'email', read: true },
+            {
+                fieldName: 'email',
+                read: true,
+                access: {
+                    read: true,
+                    create: false,
+                    update: false,
+                },
+            },
+            {
+                fieldName: 'name',
+                read: true,
+                access: {
+                    read: true,
+                    create: false,
+                    update: false,
+                },
+            },
+            {
+                fieldName: 'phone',
+                read: true,
+                access: {
+                    read: true,
+                    create: false,
+                    update: false,
+                },
+            },
+            {
+                fieldName: 'rightsSet',
+                manage: true,
+                access: {
+                    read: true,
+                    create: false,
+                    update: false,
+                },
+            },
         ],
     },
     services: [
