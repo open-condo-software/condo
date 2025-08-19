@@ -285,7 +285,7 @@ export const InputStep: React.FC<InputStepProps> = ({
         return () => {
             debouncedPostMessage.cancel()
         }
-    }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl, selectedTitle, selectedBody, isSharingStep])
+    }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl, selectedTitle, selectedBody])
 
     useEffect(() => {
         if (!isCustomForm && !isCustomPreview) return
