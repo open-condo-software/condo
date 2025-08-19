@@ -232,7 +232,6 @@ const ChangePasswordPage: PageComponentType = () => {
             const res = await changeUserPassword(token, password, true)
 
             const status = res?.data?.result?.status
-            // const phone = res?.data?.result?.phone
             if (!res.errors && status === 'ok') {
                 invalidateSudoToken()
 
