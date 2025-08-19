@@ -69,6 +69,7 @@ function generateRightSetFields (config) {
                     ...DEFAULT_CHECKBOX_FIELD,
                     schemaDoc:
                         `Enables a user with the given UserRightsSet to read "${field.fieldName}" field of model "${schemaName}"`,
+                    ...(field.access || {}),
                 }
             }
             if (field.manage) {
@@ -76,6 +77,7 @@ function generateRightSetFields (config) {
                     ...DEFAULT_CHECKBOX_FIELD,
                     schemaDoc:
                         `Enables a user with the given UserRightsSet to update "${field.fieldName}" field of model "${schemaName}"`,
+                    ...(field.access || {}),
                 }
             }
         }
