@@ -123,8 +123,8 @@ const apps = () => {
         new FeaturesMiddleware(),
         new PaymentLinkMiddleware(),
         new UnsubscribeMiddleware(),
-        FileAdapter.makeFileAdapterMiddleware(),
         new FileMiddleware({ apiUrl: '/api/files' }),
+        FileAdapter.makeFileAdapterMiddleware(),
         new UserExternalIdentityMiddleware(),
     ]
 }
