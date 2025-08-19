@@ -38,7 +38,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
     gqlOutputFieldResolvers () {
         return {
-            [this.path]: item => {
+            [this.path]: (item, args, context) => {
                 const itemValues = item[this.path]
                 if (!itemValues) {
                     return null
@@ -48,8 +48,10 @@ class CustomFile extends FileWithUTF8Name.implementation {
                     return itemValues
                 }
 
+                const user = context?.req?.user || context?.authedItem || null
+
                 return {
-                    publicUrl: this.fileAdapter.publicUrl(itemValues),
+                    publicUrl: this.fileAdapter.publicUrl(itemValues, user),
                     ...itemValues,
                 }
             },

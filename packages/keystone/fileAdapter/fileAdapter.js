@@ -2,6 +2,7 @@ const { existsSync, mkdirSync } = require('fs')
 
 const { LocalFileAdapter: BaseLocalFileAdapter } = require('@open-keystone/file-adapters')
 const express = require('express')
+const jwt = require('jsonwebtoken')
 const { isEmpty, get } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -38,9 +39,18 @@ class LocalFileAdapter extends BaseLocalFileAdapter {
         this.mediaPath = mediaPath
     }
 
-    publicUrl ({ filename, ...props }) {
+    publicUrl ({ filename, ...props }, user) {
         if ('meta' in props && props['meta']['appId']) {
-            return `${this.mediaPath}/${props['meta']['appId']}/${filename}`
+            let sign
+            if (user !== null) {
+                sign = jwt.sign({ id: props.id, user, appId: props.meta.appId }, conf['FILE_SECRET'], { expiresIn: '1m' })
+            }
+
+            const search = sign
+                ? `?sign=${sign}`
+                : ''
+
+            return `${this.mediaPath}/${props['meta']['appId']}/${filename}${search}`
         }
 
         return super.publicUrl({ filename })
@@ -54,6 +64,7 @@ class LocalFilesMiddleware {
         if (typeof src !== 'string') throw new Error('LocalFilesMiddleware requires a "src" option, which must be a string.')
         this._path = path
         this._src = src
+        this._appClients = conf['FILE_APP_CLIENTS'] ? JSON.parse(conf['FILE_APP_CLIENTS']) : {}
     }
 
     prepareMiddleware () {
@@ -61,7 +72,39 @@ class LocalFilesMiddleware {
         // also, it used for development purposes only (see conf.FILE_FIELD_ADAPTER configuration)
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
-        app.use(this._path, express.static(this._src))
+
+        const staticHandler = express.static(this._src)
+
+        app.use(this._path, (req, res, next) => {
+            const hasSign = typeof req.query?.sign === 'string' && req.query.sign.length > 0
+            if (!hasSign) {
+                return staticHandler(req, res, next)
+            }
+
+            const appId = req.path.split('/')[1]
+            const { sign } = req.query
+
+            if (!(appId in this._appClients)) {
+                res.status(404)
+                return res.end()
+            }
+
+            try {
+                const result = jwt.verify(sign, this._appClients[appId].secret)
+
+                if (typeof result.user === 'undefined' || result.user.id !== req.user.id) {
+                    res.status(403)
+                    return res.end()
+                }
+            } catch (e) {
+                // Expired or not valid sign provided
+                res.status(410)
+                return res.end()
+            }
+
+            return staticHandler(req, res, next)
+        })
+
         return app
     }
 }
