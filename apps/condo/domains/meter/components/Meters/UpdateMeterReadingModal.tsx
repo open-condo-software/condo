@@ -9,6 +9,7 @@ import { Typography } from '@open-condo/ui'
 import { Button, Input, Modal } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MeterPageTypes, MeterReadingForOrganization, METER_TAB_TYPES, PropertyMeterReading } from '@condo/domains/meter/utils/clientSchema'
 
@@ -41,6 +42,7 @@ const UpdateMeterReadingModal = ({
     const SaveMessage = intl.formatMessage({ id: 'Save' })
     const ResourceMeasureMessage = get(resource, 'measure')
     
+    const { breakpoints } = useLayoutContext()
     const { requiredValidator, numberValidator } = useValidations()
     const numberOfTariffs = get(meter, 'numberOfTariffs')
     const numberRules = useMemo(() => [numberValidator], [numberValidator])
@@ -80,7 +82,7 @@ const UpdateMeterReadingModal = ({
                         </Typography.Text>
                 
                         {Array.from(Array(numberOfTariffs).keys()).map((number) => (
-                            <Col span={20} key={number + 1}>
+                            <Col span={breakpoints.TABLET_LARGE ? 20 : 24} key={number + 1}>
                                 <Form.Item
                                     name={`value${number + 1}`}
                                     required

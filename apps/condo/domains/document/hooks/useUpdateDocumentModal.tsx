@@ -1,12 +1,12 @@
 import { Document as DocumentType } from '@app/condo/schema'
-import { Col, Form, notification, Row, Space } from 'antd'
+import { Col, Form, notification, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { Download, Paperclip } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Modal, Typography } from '@open-condo/ui'
+import { Button, Modal, Typography, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -91,7 +91,7 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                     onCancel={closeModal}
                     title={fileName}
                     footer={(
-                        <Space size={16} direction='horizontal'>
+                        <Space size={16} direction='horizontal' wrap>
                             <Button type='secondary' danger onClick={openConfirmDeleteModal}>
                                 {DeleteMessage}
                             </Button>
