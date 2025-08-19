@@ -48,7 +48,6 @@ function ResetPageView () {
     const PhoneOrEmailMessage = intl.formatMessage({ id: 'pages.auth.register.field.PhoneOrEmail' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
-    const ExamplePhoneOrEmailMessage = intl.formatMessage({ id: 'example.PhoneOrEmail' })
     const TooManyRequestsErrorMessage = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
 
     const { queryParams, authMethods } = useAuthMethods()
@@ -230,7 +229,7 @@ function ResetPageView () {
                                                     rules={validations.identifier}
                                                     data-cy='forgot-identifier-item'
                                                 >
-                                                    <Input placeholder={ExamplePhoneOrEmailMessage} />
+                                                    <Input />
                                                 </FormItem>
                                             )
                                         }

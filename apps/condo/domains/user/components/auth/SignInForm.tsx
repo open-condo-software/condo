@@ -39,7 +39,6 @@ export const SignInForm = (): React.ReactElement => {
     const SignInMessage = intl.formatMessage({ id: 'SignIn' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
-    const ExamplePhoneOrEmailMessage = intl.formatMessage({ id: 'example.PhoneOrEmail' })
     const PasswordMessage = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const PhoneMessage = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const EmailMessage = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
@@ -163,7 +162,7 @@ export const SignInForm = (): React.ReactElement => {
                                                         rules={[{ required: true, message: FieldIsRequiredMessage }]}
                                                         data-cy='signin-identifier-item'
                                                     >
-                                                        <Input placeholder={ExamplePhoneOrEmailMessage} {...IDENTIFIER_INPUT_PROPS} />
+                                                        <Input {...IDENTIFIER_INPUT_PROPS} />
                                                     </FormItem>
                                                 )
                                             }

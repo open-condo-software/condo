@@ -876,7 +876,6 @@
   "example.Email": "name@example.org",
   "example.Name": "Иванов Сергей",
   "example.Phone": "+7 (900) 800 22 22",
-  "example.PhoneOrEmail": "+7 (900) 800 22 22 или name@example.org",
   "excelExport.header.contacts.forAllTime": "Контакты за всё время",
   "excelExport.header.contacts.forPeriod": "Контакты за период",
   "excelExport.header.newsRecipients": "Получатели новости",

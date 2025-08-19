@@ -40,7 +40,6 @@ export const InputIdentifierForm: React.FC<InputIdentifierFormProps> = ({ onFini
     const PhoneOrEmailMessage = intl.formatMessage({ id: 'pages.auth.register.field.PhoneOrEmail' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
-    const ExamplePhoneOrEmailMessage = intl.formatMessage({ id: 'example.PhoneOrEmail' })
     const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
     const TooManyRequestsErrorMessage = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const WrongPhoneFormatErrorMessage = intl.formatMessage({ id: 'api.common.WRONG_PHONE_FORMAT' })
@@ -193,7 +192,7 @@ export const InputIdentifierForm: React.FC<InputIdentifierFormProps> = ({ onFini
                                                 rules={registerIdentifierRules}
                                                 data-cy='register-identifier-item'
                                             >
-                                                <Input placeholder={ExamplePhoneOrEmailMessage} {...IDENTIFIER_INPUT_PROPS} />
+                                                <Input {...IDENTIFIER_INPUT_PROPS} />
                                             </FormItem>
                                         )
                                     }

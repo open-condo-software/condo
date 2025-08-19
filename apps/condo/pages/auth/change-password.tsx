@@ -192,7 +192,7 @@ const ChangePasswordPage: PageComponentType = () => {
             console.error(error)
             throw error
         }
-    }, [allowedTokenTypes, executeCaptcha, generateSudoTokenMutation])
+    }, [allowedTokenTypes, executeCaptcha, generateSudoTokenMutation, identifier])
 
     const invalidateSudoToken = useCallback(() => {
         sudoTokenRef.current = null

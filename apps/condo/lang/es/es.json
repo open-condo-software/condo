@@ -876,7 +876,6 @@
   "example.Email": "name@example.org",
   "example.Name": "Jorge Jiménez",
   "example.Phone": "+34 999 99 99 99",
-  "example.PhoneOrEmail": "+34 (600) 600 22 22 o name@example.org",
   "excelExport.header.contacts.forAllTime": "Contactos por todo tiempo",
   "excelExport.header.contacts.forPeriod": "Contactos por período",
   "excelExport.header.newsRecipients": "Destinatarios de la noticia",

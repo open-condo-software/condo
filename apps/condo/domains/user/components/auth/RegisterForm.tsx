@@ -24,6 +24,12 @@ import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/er
 import { useRegisterFormValidators } from './hooks'
 import { useRegisterContext } from './RegisterContextProvider'
 
+import type { FormRule as Rule } from 'antd'
+
+
+type ValidatorsMap = {
+    [key: string]: Rule[]
+}
 
 type RegisterFormProps = {
     onFinish: () => Promise<void>
@@ -31,13 +37,17 @@ type RegisterFormProps = {
 }
 
 
-const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+const { publicRuntimeConfig: { defaultLocale, inviteRequiredFields } } = getConfig()
+
+const isEmailRequired = Array.isArray(inviteRequiredFields) && inviteRequiredFields.includes('email')
+const isPhoneRequired = Array.isArray(inviteRequiredFields) && inviteRequiredFields.includes('phone')
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish }) => {
     const intl = useIntl()
     const RegisterMessage = intl.formatMessage({ id: 'Register' })
     const ExampleNameMessage = intl.formatMessage({ id: 'example.Name' })
     const EmailPlaceholder = intl.formatMessage({ id: 'example.Email' })
+    const PhonePlaceholder = intl.formatMessage({ id: 'example.Phone' })
     const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const PasswordMessage = intl.formatMessage({ id: 'pages.auth.register.field.Password' })
     const EmailMessage = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
@@ -57,7 +67,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const [passwordValidateStatus, setPasswordValidateStatus] = useState<ValidateStatus>()
     const [passwordHelp, setPasswordHelp] = useState<string>('')
 
-    const validators = useRegisterFormValidators()
+    const commonValidators = useRegisterFormValidators()
+
+    const validators: ValidatorsMap = useMemo(() => ({
+        name: commonValidators.name,
+        phone: [{ required: isPhoneRequired }],
+        email: [{ required: isEmailRequired }, ...commonValidators.email],
+        password: commonValidators.password,
+    }), [commonValidators])
 
     /**
      * 1) Check if user exists
@@ -87,6 +104,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const visibleFields = useMemo(() => ({
         name: !userExistenceResult?.data?.result?.isNameSet,
         email: identifierType === 'phone' && !userExistenceResult?.data?.result?.isUserExists,
+        consentToReceiveMarketingMaterialsMessage: ['phone', 'email'].includes(identifierType) && !userExistenceResult?.data?.result?.isUserExists,
         phone: identifierType === 'email' && !userExistenceResult?.data?.result?.isUserExists,
         password: !userExistenceResult?.data?.result?.isPasswordSet,
     }), [identifierType, userExistenceResult?.data])
@@ -289,37 +307,25 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
 
                                 {
                                     visibleFields.email && (
-                                        <>
-                                            <Col span={24}>
-                                                <RequiredFlagWrapper>
-                                                    <FormItem
-                                                        name='email'
-                                                        label={EmailMessage}
-                                                        rules={validators.email}
-                                                        data-cy='register-email-item'
-                                                        validateFirst
-                                                    >
-                                                        <Input
-                                                            autoComplete='chrome-off'
-                                                            placeholder={EmailPlaceholder}
-                                                            tabIndex={2}
-                                                            autoFocus={!visibleFields.name}
-                                                        />
-                                                    </FormItem>
-                                                </RequiredFlagWrapper>
-                                            </Col>
-
-                                            <Col span={24}>
-                                                <Checkbox
-                                                    tabIndex={4}
-                                                    children={(
-                                                        <Typography.Text size='small'>
-                                                            {ConsentToReceiveMarketingMaterialsMessage}
-                                                        </Typography.Text>
-                                                    )}
-                                                />
-                                            </Col>
-                                        </>
+                                        <Col span={24}>
+                                            <RequiredFlagWrapper>
+                                                <FormItem
+                                                    name='email'
+                                                    label={EmailMessage}
+                                                    rules={validators.email}
+                                                    data-cy='register-email-item'
+                                                    validateFirst
+                                                    required={isEmailRequired}
+                                                >
+                                                    <Input
+                                                        autoComplete='chrome-off'
+                                                        placeholder={EmailPlaceholder}
+                                                        tabIndex={2}
+                                                        autoFocus={!visibleFields.name}
+                                                    />
+                                                </FormItem>
+                                            </RequiredFlagWrapper>
+                                        </Col>
                                     )
                                 }
 
@@ -330,12 +336,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                                 <FormItem
                                                     name='phone'
                                                     label={PhoneMessage}
+                                                    rules={validators.phone}
                                                     data-cy='register-phone-item'
                                                     validateFirst
+                                                    required={isPhoneRequired}
                                                 >
                                                     <Input.Phone
                                                         country={defaultLocale}
-                                                        placeholder={EmailPlaceholder}
+                                                        placeholder={PhonePlaceholder}
                                                         inputProps={{
                                                             tabIndex: 2,
                                                             autoComplete: 'chrome-off',
@@ -344,6 +352,21 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                                     />
                                                 </FormItem>
                                             </RequiredFlagWrapper>
+                                        </Col>
+                                    )
+                                }
+
+                                {
+                                    visibleFields.consentToReceiveMarketingMaterialsMessage && (
+                                        <Col span={24}>
+                                            <Checkbox
+                                                tabIndex={4}
+                                                children={(
+                                                    <Typography.Text size='small'>
+                                                        {ConsentToReceiveMarketingMaterialsMessage}
+                                                    </Typography.Text>
+                                                )}
+                                            />
                                         </Col>
                                     )
                                 }
