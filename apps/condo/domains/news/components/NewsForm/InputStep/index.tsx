@@ -276,6 +276,8 @@ export const InputStep: React.FC<InputStepProps> = ({
     }, [isSharingStep])
 
     useEffect(() => {
+        if (!isSharingStep) return
+
         const title = sharingAppFormValues?.preview.renderedTitle || selectedTitle
         const body = sharingAppFormValues?.preview.renderedBody || selectedBody
         const scope = sharingAppFormValues?.scope
@@ -285,7 +287,7 @@ export const InputStep: React.FC<InputStepProps> = ({
         return () => {
             debouncedPostMessage.cancel()
         }
-    }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl, selectedTitle, selectedBody])
+    }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl, selectedTitle, selectedBody, isSharingStep])
 
     useEffect(() => {
         if (!isCustomForm && !isCustomPreview) return
