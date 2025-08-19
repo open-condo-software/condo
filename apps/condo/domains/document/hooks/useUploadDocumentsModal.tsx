@@ -1,14 +1,14 @@
-import { Form, Space, UploadFile, UploadProps } from 'antd'
+import { Form, UploadFile, UploadProps } from 'antd'
 import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import set from 'lodash/set'
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { Paperclip } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Modal, Typography } from '@open-condo/ui'
+import { Button, Modal, Typography, Space } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { StyledUpload } from '@condo/domains/common/components/MultipleFileUpload'
