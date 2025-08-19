@@ -1004,18 +1004,19 @@ class MapEdit extends MapView {
 
         const hasNegativeMinFloor = newMinFloor < 0
 
-        let count
+        let newFloorCount = currentSectionFloorCount
+
         if (newMaxFloor > 0 && newMinFloor > 0) {
-            count = newMaxFloor + newMinFloor - 1
+            newFloorCount = newMaxFloor + newMinFloor - 1
         }
         else if (newMaxFloor > 0 && newMinFloor < 0) {
-            count = newMaxFloor - newMinFloor + 1
+            newFloorCount = newMaxFloor - newMinFloor + 1
         }
         else if (newMaxFloor < 0 && newMinFloor < 0) {
-            count = Math.abs(newMaxFloor - newMinFloor) + 1
+            newFloorCount = Math.abs(newMaxFloor - newMinFloor) + 1
         }
 
-        const floorsToAddOrRemove = count - currentSectionFloorCount
+        const floorsToAddOrRemove = newFloorCount - currentSectionFloorCount
 
         if (floorsToAddOrRemove > 0) {
             const maxFloorForNewFloors = hasNegativeMinFloor ? newMaxFloor - 1 : newMaxFloor
