@@ -7,8 +7,12 @@ const access = require('@open-condo/keystone/access')
 const { isFilteringBy, isDirectListQuery } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { SERVICE } = require('@condo/domains/user/constants/common')
+const { SERVICE, RESIDENT } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyReadSchemaField } = require('@condo/domains/user/utils/directAccess')
+const { getIdentificationUserRequiredFields } = require('@condo/domains/user/utils/serverSchema/userHelpers')
+
+
+const IDENTIFICATION_USER_REQUIRED_FIELDS = getIdentificationUserRequiredFields()
 
 async function canReadUsers ({ authentication: { item: user }, listKey, args }) {
     if (!user) return throwAuthenticationError()
@@ -65,18 +69,56 @@ const canAccessToEmailField = {
         return false
     },
     create: access.userIsAdmin,
+    // TODO(DOMA-12133): Should to update accesses when adding a mutation to change user email address
     // TODO(pahaz): !!! change it to access.userIsAdmin
-    update: access.userIsAdminOrIsThisItem,
+    update: (args) => {
+        if (!access.userIsAuthenticated(args)) return false
+
+        const { authentication: { item: user } } = args
+        const userType = user.type
+        const requiredIdentificationFields = IDENTIFICATION_USER_REQUIRED_FIELDS?.[userType]
+
+        // NOTE: backward compatibility!
+        if (userType === SERVICE
+            || (
+                Array.isArray(requiredIdentificationFields)
+                && requiredIdentificationFields.length === 1
+                && requiredIdentificationFields.includes('phone')
+            )
+        ) {
+            return access.userIsAdminOrIsThisItem(args)
+        }
+
+        return access.userIsAdmin(args)
+    },
 }
 
 const canAccessToPhoneField = {
     read: access.userIsAdminOrIsThisItem,
     create: access.userIsAdmin,
+    // TODO(DOMA-12134): Should to update accesses when adding a mutation to change user phone
     // TODO(pahaz): !!! change it to access.userIsAdmin
-    update: ({ authentication: { item: user, listKey }, existingItem, originalInput }) => {
-        if (!access.userIsAuthenticated({ authentication: { item: user, listKey } })) return false
-        const updateByResidentToTheSamePhone = Boolean(existingItem && user.type === 'resident' && existingItem.id === user.id && originalInput.phone === existingItem.phone)
-        return Boolean(user && user.isAdmin) || updateByResidentToTheSamePhone
+    update: (args) => {
+        if (!access.userIsAuthenticated(args)) return false
+
+        const { authentication: { item: user }, existingItem, originalInput } = args
+        const userType = user.type
+        const requiredIdentificationFields = IDENTIFICATION_USER_REQUIRED_FIELDS?.[userType]
+
+        const updateByResidentToTheSamePhone = Boolean(existingItem && user.type === RESIDENT && existingItem.id === user.id && originalInput.phone === existingItem.phone)
+
+        // NOTE: backward compatibility!
+        if (updateByResidentToTheSamePhone
+            && (
+                Array.isArray(requiredIdentificationFields)
+                && requiredIdentificationFields.length === 1
+                && requiredIdentificationFields.includes('phone')
+            )
+        ) {
+            return true
+        }
+
+        return access.userIsAdmin(args)
     },
 }
 
