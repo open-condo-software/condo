@@ -446,10 +446,6 @@ class FileMiddleware {
         // upload
         app.post(
             this.apiUrl + '/upload',
-            function (req, res, next) {
-                logger.info({ msg: 'start uploading file', req })
-                next()
-            },
             authHandler(),
             rateLimitHandler({ keystone, quota, guard }),
             parserHandler({ processRequestOptions }),
