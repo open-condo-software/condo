@@ -215,37 +215,35 @@ const obsRouterHandler = ({ keystone }) => {
     return async function (req, res, next) {
         try {
             if (!req.user) {
-            // TODO(zuch): Ask where error pages are located in keystone - 403 is probably missing
+                // TODO(zuch): Ask where error pages are located in keystone - 403 is probably missing
                 res.status(403)
                 return res.end()
             }
             const meta = await Acl.getMeta(req.params.file)
 
-        if (isEmpty(meta)) {
-            res.status(404)
-            return res.end()
-        }
-
-        const hasSign = typeof req.query?.sign === 'string' && req.query.sign.length > 0
-
-        // Legacy download
-        if (!hasSign) {
-            const {
-                id: itemId,
-                ids: stringItemIds,
-                listkey: listKey,
-                propertyquery: encodedPropertyQuery,
-                propertyvalue: encodedPropertyValue,
-                mimetype,
-            } = meta
-            const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
-            const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
-
-            if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
+            if (isEmpty(meta)) {
                 res.status(404)
                 return res.end()
             }
 
+            const hasSign = typeof req.query?.sign === 'string' && req.query.sign.length > 0
+
+            // Legacy download
+            if (!hasSign) {
+                const {
+                    id: itemId,
+                    ids: stringItemIds,
+                    listkey: listKey,
+                    propertyquery: encodedPropertyQuery,
+                    propertyvalue: encodedPropertyValue,
+                mimetype,} = meta
+                const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
+                const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
+
+                if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
+                    res.status(404)
+                    return res.end()
+                }
 
                 const context = await keystone.createContext({ authentication: { item: req.user, listKey: 'User' } })
 
@@ -306,61 +304,61 @@ const obsRouterHandler = ({ keystone }) => {
             })
 
                 /*
-            * NOTE
-            * Problem:
-            *   In the case of a redirect according to the scheme: A --request--> B --redirect--> C,
-            *   it is impossible to read the response of the request.
-            *
-            * Solution:
-            *   When adding the "shallow-redirect" header,
-            *   the redirect link to the file comes in json format and a second request is made to get the file.
-            *   Thus, the scheme now looks like this: A --request(1)--> B + A --request(2)--> C
-            * */
+                * NOTE
+                * Problem:
+                *   In the case of a redirect according to the scheme: A --request--> B --redirect--> C,
+                *   it is impossible to read the response of the request.
+                *
+                * Solution:
+                *   When adding the "shallow-redirect" header,
+                *   the redirect link to the file comes in json format and a second request is made to get the file.
+                *   Thus, the scheme now looks like this: A --request(1)--> B + A --request(2)--> C
+                * */
                 if (req.get('shallow-redirect')) {
                     res.status(200)
                     return res.json({ redirectUrl: url })
                 }
 
                 return res.redirect(url)
-            } catch (err) {
-                logger.error({ msg: 's3 route handler error', err })
-                // TODO(pahaz): we need to research a better solution here may be we need a 404 or 403
-                res.status(500)
-                return res.end()
-            }
-        } else {
-            const pathArgs = req.path.split('/')
-            const appId = pathArgs[pathArgs.length - 2]
-            const { sign } = req.query
+            } else {
+                const pathArgs = req.path.split('/')
+                const appId = pathArgs[pathArgs.length - 2]
+                const { sign } = req.query
 
-            if (!(appId in appClients)) {
-                res.status(404)
-                return res.end()
-            }
-
-            try {
-                const result = jwt.verify(sign, appClients[appId].secret)
-
-                if (result?.user?.id !== req.user.id) {
-                    res.status(403)
+                if (!(appId in appClients)) {
+                    res.status(404)
                     return res.end()
                 }
-            } catch (e) {
-                res.status(410)
-                return res.end()
+
+                try {
+                    const result = jwt.verify(sign, appClients[appId].secret)
+
+                    if (result?.user?.id !== req.user.id) {
+                        res.status(403)
+                        return res.end()
+                    }
+                } catch (e) {
+                    res.status(410)
+                    return res.end()
+                }
+
+                const url = Acl.generateUrl({
+                    filename: req.params.file,
+                    originalFilename: req.query.original_filename,
+                })
+
+                if (req.get('shallow-redirect')) {
+                    res.status(200)
+                    return res.json({ redirectUrl: url })
+                }
+
+                return res.redirect(url)
             }
-
-            const url = Acl.generateUrl({
-                filename: req.params.file,
-                originalFilename: req.query.original_filename,
-            })
-
-            if (req.get('shallow-redirect')) {
-                res.status(200)
-                return res.json({ redirectUrl: url })
-            }
-
-            return res.redirect(url)
+        } catch (err) {
+            logger.error({ msg: 's3 route handler error', err })
+            // TODO(pahaz): we need to research a better solution here may be we need a 404 or 403
+            res.status(500)
+            return res.end()
         }
     }
 }
