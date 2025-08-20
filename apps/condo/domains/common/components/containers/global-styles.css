@@ -947,6 +947,8 @@ a.ant-typography.ant-typography-disabled,
 
 .sberRadioGroup .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before {
   background-color: var(--condo-global-color-black);
+}
+
 .condo-input-utils > span > .ant-upload-list.ant-upload-list-text {
   position: absolute;
   top: 52px;
