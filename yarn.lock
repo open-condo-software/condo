@@ -10655,6 +10655,7 @@ __metadata:
     form-data: ^4.0.4
     fs-capacitor: ^6.2.0
     jsonwebtoken: ^9.0.0
+    supertest: ^7.1.3
     uuid: ^8.3.0
     zod: ^4.0.8
   languageName: unknown
