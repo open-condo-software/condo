@@ -142,12 +142,12 @@ const rateLimitHandler = ({ quota, guard }) => async (req, res, next) => {
 
     const idCounter = await guard.incrementHourCounter(`file:${userId}`)
     if (idCounter > quota.user) {
-        return res.status(429).json({ error: 'You are reach request limit, try again later.' })
+        return res.status(429).json({ error: 'You have reached the request limit, try again later.' })
     }
 
     const ipCounter = await guard.incrementHourCounter(`file:${requestIp}`)
     if (ipCounter > quota.ip) {
-        return res.status(429).json({ error: 'You are reach request limit, try again later.' })
+        return res.status(429).json({ error: 'You have reached the request limit, try again later.' })
     }
 
     next()
