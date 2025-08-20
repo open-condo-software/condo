@@ -12,13 +12,13 @@
   },
   "dependencies": {
     "@open-condo/config": "workspace:^",
-    "ajv": "8.11.0",
     "busboy": "^1.6.0",
     "cuid": "^3.0.0",
     "express": "^4.21.2",
     "fs-capacitor": "^6.2.0",
     "jsonwebtoken": "^9.0.0",
-    "uuid": "^8.3.0"
+    "uuid": "^8.3.0",
+    "zod": "^4.0.8"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
