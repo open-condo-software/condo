@@ -22,6 +22,9 @@ import { normalizeUserIdentifier } from '@condo/domains/user/utils/helpers'
 import { AgreementText } from './AgreementText'
 import { useRegisterContext } from './RegisterContextProvider'
 
+import type { FetchResult } from '@apollo/client/link/core'
+import type { StartConfirmEmailActionMutation, StartConfirmPhoneActionMutation } from '@app/condo/gql'
+
 
 const { publicRuntimeConfig: { hasSbbolAuth, defaultLocale } } = getConfig()
 
@@ -104,20 +107,32 @@ export const InputIdentifierForm: React.FC<InputIdentifierFormProps> = ({ onFini
         try {
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
+            const commonPayload = {
+                dv: 1,
+                sender,
+                captcha,
+            }
 
-            const startConfirmAction = identifier.type === 'email' ? startConfirmEmailAction : startConfirmPhoneAction
-
-            const res = await startConfirmAction({
-                variables: {
-                    // @ts-ignore
-                    data: {
-                        dv: 1,
-                        sender,
-                        captcha,
-                        [identifier.type === 'email' ? 'email' : 'phone']: identifier.normalizedValue,
+            let res: FetchResult<StartConfirmEmailActionMutation> | FetchResult<StartConfirmPhoneActionMutation>
+            if (identifier.type === 'email') {
+                res = await startConfirmEmailAction({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            email: identifier.normalizedValue,
+                        },
                     },
-                },
-            })
+                })
+            } else {
+                res = await startConfirmPhoneAction({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            phone: identifier.normalizedValue,
+                        },
+                    },
+                })
+            }
 
             const token = res?.data?.result?.token
             if (!res.errors && token) {

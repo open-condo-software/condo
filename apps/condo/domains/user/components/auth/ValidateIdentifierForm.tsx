@@ -31,6 +31,9 @@ import {
 import { useRegisterContext } from './RegisterContextProvider'
 import { SecondaryLink } from './SecondaryLink'
 
+import type { FetchResult } from '@apollo/client/link/core'
+import type { CompleteConfirmEmailActionMutation, CompleteConfirmPhoneActionMutation } from '@app/condo/gql'
+
 
 const {
     publicRuntimeConfig: { HelpRequisites },
@@ -183,21 +186,34 @@ export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ 
         try {
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
+            const commonPayload = {
+                dv: 1,
+                sender,
+                captcha,
+            }
 
-            const completeConfirmMutation = identifierType === 'email' ? completeConfirmEmailMutation : completeConfirmPhoneMutation
-
-            const res = await completeConfirmMutation({
-                variables: {
-                    // @ts-ignore
-                    data: {
-                        dv: 1,
-                        sender,
-                        captcha,
-                        token,
-                        [identifierType === 'email' ? 'secretCode' : 'smsCode']: identifierType === 'email' ? confirmCode : confirmCodeAsNumber,
+            let res: FetchResult<CompleteConfirmEmailActionMutation> | FetchResult<CompleteConfirmPhoneActionMutation>
+            if (identifierType === 'email') {
+                res = await completeConfirmEmailMutation({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            token,
+                            secretCode: confirmCode,
+                        },
                     },
-                },
-            })
+                })
+            } else {
+                res = await completeConfirmPhoneMutation({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            token,
+                            smsCode: confirmCodeAsNumber,
+                        },
+                    },
+                })
+            }
 
             if (!res.errors && res?.data?.result?.status === 'ok') {
                 onFinish()

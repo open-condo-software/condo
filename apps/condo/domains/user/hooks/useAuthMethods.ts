@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 
 
-const { publicRuntimeConfig: { hasSbbolAuth, defaultCRMAuthMethods } } = getConfig()
+const { publicRuntimeConfig: { hasSbbolAuth, defaultStaffAuthMethods } } = getConfig()
 
 const ALLOWED_FLOWS = ['default', 'oidc'] as const
 const ALLOWED_AUTH_METHODS = ['phonePassword', 'emailPassword', 'sbbolid'] as const
@@ -13,7 +13,7 @@ const DEFAULT_AUTH_METHODS = getDefaultAuthMethods()
 
 function getDefaultAuthMethods () {
     const isValidAuthMethods = (method: string): method is AuthMethods => (ALLOWED_AUTH_METHODS as readonly string[]).includes(method)
-    const result = defaultCRMAuthMethods.filter(isValidAuthMethods) as Array<AuthMethods>
+    const result = defaultStaffAuthMethods.filter(isValidAuthMethods) as Array<AuthMethods>
     return result.length > 0
         ? result
         : ['phonePassword', ...(hasSbbolAuth ? ['sbbolid'] : [])] as Array<AuthMethods>

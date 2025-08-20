@@ -26,6 +26,9 @@ import { normalizeUserIdentifier } from '@condo/domains/user/utils/helpers'
 
 import { AgreementText } from './AgreementText'
 
+import type { FetchResult } from '@apollo/client/link/core'
+import type { AuthenticateUserWithPhoneAndPasswordMutation, AuthenticateUserWithEmailAndPasswordMutation } from '@app/condo/gql'
+
 
 const { publicRuntimeConfig: { hasSbbolAuth, defaultLocale } } = getConfig()
 
@@ -81,24 +84,38 @@ export const SignInForm = (): React.ReactElement => {
         try {
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
+            const commonPayload = {
+                dv: 1,
+                sender,
+                captcha,
+            }
 
             const identifierType = normalizeUserIdentifier(values.identifier).type
 
-            const authenticateUser = identifierType === 'email' ? authenticateUserWithEmailAndPassword : authenticateUserWithPhoneAndPassword
-
-            const res = await authenticateUser({
-                variables: {
-                    // @ts-ignore
-                    data: {
-                        captcha: captcha,
-                        [identifierType === 'email' ? 'email' : 'phone']: values.identifier,
-                        password: values.password,
-                        userType: UserType.Staff,
-                        sender,
-                        dv: 1,
+            let res: FetchResult<AuthenticateUserWithEmailAndPasswordMutation> | FetchResult<AuthenticateUserWithPhoneAndPasswordMutation>
+            if (identifierType === 'email') {
+                res = await authenticateUserWithEmailAndPassword({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            email: values.identifier,
+                            password: values.password,
+                            userType: UserType.Staff,
+                        },
                     },
-                },
-            })
+                })
+            } else {
+                res = await authenticateUserWithPhoneAndPassword({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            phone: values.identifier,
+                            password: values.password,
+                            userType: UserType.Staff,
+                        },
+                    },
+                })
+            }
 
             if (!res.errors && res.data?.result?.item?.id) {
                 await refetch()

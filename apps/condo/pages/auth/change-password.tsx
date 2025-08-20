@@ -30,6 +30,8 @@ import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 import { detectTokenTypeSafely, TOKEN_TYPES } from '@condo/domains/user/utils/tokens'
 
+import type { FetchResult } from '@apollo/client/link/core'
+import type { AuthenticateUserWithEmailAndPasswordMutation, AuthenticateUserWithPhoneAndPasswordMutation } from '@app/condo/gql'
 import type { GraphQLFormattedError } from 'graphql'
 
 
@@ -109,23 +111,36 @@ const ChangePasswordPage: PageComponentType = () => {
         try {
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
+            const commonPayload = {
+                dv: 1,
+                sender,
+                captcha,
+            }
 
-            const authenticateUserMutation = identifierType === 'email'
-                ? authenticateUserWithEmailAndPasswordMutation
-                : authenticateUserWithPhoneAndPasswordMutation
-            const res = await authenticateUserMutation({
-                variables: {
-                    // @ts-ignore
-                    data: {
-                        dv: 1,
-                        sender,
-                        captcha,
-                        password,
-                        [identifierType === 'email' ? 'email' : 'phone']: identifier,
-                        userType: UserType.Staff,
+            let res: FetchResult<AuthenticateUserWithEmailAndPasswordMutation> | FetchResult<AuthenticateUserWithPhoneAndPasswordMutation>
+            if (identifierType === 'email') {
+                res = await authenticateUserWithEmailAndPasswordMutation({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            password,
+                            email: identifier,
+                            userType: UserType.Staff,
+                        },
                     },
-                },
-            })
+                })
+            } else {
+                res = await authenticateUserWithPhoneAndPasswordMutation({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            password,
+                            phone: identifier,
+                            userType: UserType.Staff,
+                        },
+                    },
+                })
+            }
 
             if (res.errors || !res?.data?.result?.item?.id) {
                 const error: Error & { originalErrors? } = new Error('Authorization failed (request)')
@@ -162,7 +177,6 @@ const ChangePasswordPage: PageComponentType = () => {
             const captcha = await executeCaptcha()
             const res = await generateSudoTokenMutation({
                 variables: {
-                    // @ts-ignore
                     data: {
                         dv: 1,
                         sender,
