@@ -91,6 +91,7 @@ export type EventsData = {
     'incident_status_update': { newStatus: string }
     'ticket_set_favourite_click': Record<string, never>
     'confirm_phone_registration': Record<string, never>
+    'confirm_email_registration': Record<string, never>
     'register_user': { userId: string }
 }
 

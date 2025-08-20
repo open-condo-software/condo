@@ -67,7 +67,7 @@ export const useAuthMethods: UseAuthMethods = () => {
             sbbolid: authMethodsList.includes('sbbolid'),
         }
 
-        // authMethods from query was empty then we set defaults values (everything to true)
+        // Fallback: if query provides no valid methods, use DEFAULT_AUTH_METHODS
         if (Object.values(result).every((value) => !value)) {
             result['phonePassword'] = DEFAULT_AUTH_METHODS.includes('phonePassword')
             result['emailPassword'] = DEFAULT_AUTH_METHODS.includes('emailPassword')

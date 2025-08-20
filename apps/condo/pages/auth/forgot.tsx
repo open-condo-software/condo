@@ -102,12 +102,12 @@ function ResetPageView () {
     const startConfirmPhone = useCallback(async () => {
         if (isLoading) return
 
-        setIsLoading(true)
-
         const { identifier: inputIdentifier } = form.getFieldsValue(['identifier'])
         const identifier = normalizeUserIdentifier(inputIdentifier)
 
         if (!identifier.type || !identifier.normalizedValue) return
+
+        setIsLoading(true)
 
         try {
             const sender = getClientSideSenderInfo()
@@ -134,7 +134,7 @@ function ResetPageView () {
                 setStep('validateIdentifier')
             }
         } catch (error) {
-            console.error('Start confirm phone action failed')
+            console.error('Start confirm action failed')
             console.error(error)
             form.setFields([
                 {
@@ -241,7 +241,7 @@ function ResetPageView () {
                                 <CountDownTimer
                                     action={startConfirmPhone}
                                     id='FORGOT_ACTION'
-                                    timeout={SMS_CODE_TTL}
+                                    timeout={Math.max(SMS_CODE_TTL, EMAIL_CODE_TTL)}
                                 >
                                     {({ countdown, runAction }) => {
                                         const isCountDownActive = countdown > 0

@@ -25,7 +25,7 @@ import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 
 const RegisterPage: PageComponentType = () => {
     const intl = useIntl()
-    const InputPhoneTitle = intl.formatMessage({ id: 'pages.auth.register.step.inputPhone.title' })
+    const InputIdentifierTitle = intl.formatMessage({ id: 'pages.auth.register.step.inputIdentifier.title' })
     const ValidatePhoneTitle = intl.formatMessage({ id: 'pages.auth.register.step.validatePhone.title' })
     const RegisterTitle = intl.formatMessage({ id: 'pages.auth.register.step.register.title' })
     const PhoneConfirmTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorLabel' })
@@ -40,11 +40,11 @@ const RegisterPage: PageComponentType = () => {
     const [step, setStep] = useState<'inputIdentifier' | 'validateIdentifier' | 'register'>('inputIdentifier')
 
     const title = useMemo(() => {
-        if (step === 'inputIdentifier') return InputPhoneTitle
+        if (step === 'inputIdentifier') return InputIdentifierTitle
         if (step === 'validateIdentifier') return ValidatePhoneTitle
         if (step === 'register') return RegisterTitle
         return ''
-    }, [InputPhoneTitle, RegisterTitle, ValidatePhoneTitle, step])
+    }, [InputIdentifierTitle, RegisterTitle, ValidatePhoneTitle, step])
 
     const handleFinish = useCallback(async () => {
         if (isValidNextUrl) {
@@ -145,7 +145,7 @@ const HeaderAction: React.FC = () => {
 
     if (authFlow !== 'default') return null
 
-    return router.query.step == 'inputPhone' && (
+    return router.query.step === 'inputIdentifier' && (
         <WelcomeHeaderTitle userType='staff'/>
     )
 }

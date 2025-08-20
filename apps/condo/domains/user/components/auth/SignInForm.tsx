@@ -29,7 +29,7 @@ import { AgreementText } from './AgreementText'
 
 const { publicRuntimeConfig: { hasSbbolAuth, defaultLocale } } = getConfig()
 
-const INITIAL_VALUES = { password: '', phone: '' }
+const INITIAL_VALUES = { password: '', identifier: '' }
 const IDENTIFIER_INPUT_PROPS = { tabIndex: 1, autoFocus: true }
 const TAB_INDEXES = { termsOfUse: 7, consentLink: 9, privacyPolicyLink: 8 }
 

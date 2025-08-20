@@ -139,7 +139,7 @@ const ChangePasswordPage: PageComponentType = () => {
         }
     }, [authenticateUserWithEmailAndPasswordMutation, authenticateUserWithPhoneAndPasswordMutation, executeCaptcha])
 
-    const sudoTokenRef = useRef<string>(null)
+    const sudoTokenRef = useRef<string | null>(null)
     const generateSudoToken = useCallback(async (confirmToken: string): Promise<string> => {
         if (sudoTokenRef.current) {
             return sudoTokenRef.current
@@ -172,7 +172,7 @@ const ChangePasswordPage: PageComponentType = () => {
                         },
                         user: {
                             userType: UserType.Staff,
-                            [tokenTypeInfo.tokenType === TOKEN_TYPES.CONFIRM_EMAIL ? 'email' : 'phone']: identifier,
+                            ...(identifier ? { [tokenTypeInfo.tokenType === TOKEN_TYPES.CONFIRM_EMAIL ? 'email' : 'phone']: identifier } : null),
                         },
                     },
                 },

@@ -14,13 +14,13 @@ import { detectTokenTypeSafely, TOKEN_TYPES } from '@condo/domains/user/utils/to
 
 
 interface IRegisterContext {
-    token: string
-    setToken: Dispatch<SetStateAction<string>>
-    identifier: string
+    token: string | null
+    setToken: Dispatch<SetStateAction<string | null>>
+    identifier: string | null
     setIdentifier: Dispatch<SetStateAction<string>>
     identifierType: 'phone' | 'email' | null
-    tokenError: Error
-    setTokenError: Dispatch<SetStateAction<Error>>
+    tokenError: Error | null
+    setTokenError: Dispatch<SetStateAction<Error | null>>
     isConfirmed: boolean
 }
 
@@ -31,7 +31,7 @@ export const RegisterContext = createContext<IRegisterContext>({
     setIdentifier: () => null,
     identifierType: null,
     tokenError: null,
-    setTokenError: (error) => null,
+    setTokenError: () => null,
     isConfirmed: false,
 })
 
@@ -43,7 +43,7 @@ export const RegisterContextProvider: React.FC<React.PropsWithChildren> = ({ chi
     const { query: { token: tokenFromQuery } } = useRouter()
     const queryToken = typeof tokenFromQuery === 'string' ? tokenFromQuery : ''
 
-    const [token, setToken] = useState<string>(queryToken)
+    const [token, setToken] = useState<string | null>(queryToken)
     const [identifier, setIdentifier] = useState<string>('')
     const [tokenError, setTokenError] = useState<Error | null>(null)
     const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
@@ -105,7 +105,7 @@ export const RegisterContextProvider: React.FC<React.PropsWithChildren> = ({ chi
             setIdentifier(identifier)
             setIsConfirmed(false)
         }
-    }, [queryToken, executeCaptcha, loadPhoneTokenInfo, identifier])
+    }, [queryToken, executeCaptcha, loadPhoneTokenInfo, identifier, loadEmailTokenInfo])
 
     return (
         <RegisterContext.Provider

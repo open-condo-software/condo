@@ -204,7 +204,7 @@ export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ 
                 return
             }
         } catch (error) {
-            console.error('Phone verification error')
+            console.error('Verification error')
             console.error(error)
         }
     }, [completeConfirmEmailMutation, completeConfirmPhoneMutation, confirmCodeMismatchError, executeCaptcha, form, identifierType, onFinish, smsCodeMismatchError, token])

@@ -69,7 +69,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const phoneOrEmailValidator: FormRule = useMemo(() => ({
         validator: (_, value) => {
             if (!value) return Promise.resolve()
-            const phoneOrEmail = normalizeUserIdentifier(value, allowLandLine)
+            const phoneOrEmail = normalizeUserIdentifier(value)
             if (!phoneOrEmail.normalizedValue) return Promise.reject(PhoneOrEmailIsNotValidMessage)
             return Promise.resolve()
         },

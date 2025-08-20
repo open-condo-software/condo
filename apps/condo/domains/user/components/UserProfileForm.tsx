@@ -36,7 +36,7 @@ const RESET_PASSWORD_URL = '/auth/forgot'
 const { publicRuntimeConfig: { inviteRequiredFields } } = getConfig()
 
 const isEmailEditable = Array.isArray(inviteRequiredFields)
-    && inviteRequiredFields.toLocaleString.length === 1
+    && inviteRequiredFields.length === 1
     && inviteRequiredFields.includes(PHONE_TYPE)
 
 export const UserProfileForm: React.FC = () => {

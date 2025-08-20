@@ -135,12 +135,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
 
             const result = res?.data?.result
             if (!res.error && result) {
-                if (result.isUserExists && result.isNameSet && result.isPasswordSet && result.isPhoneSet) {
+                const isIdentifierSet = identifierType === 'email' ? result.isEmailSet : result.isPhoneSet
+                if (result.isUserExists && result.isNameSet && result.isPasswordSet && isIdentifierSet) {
                     setStep('authenticate')
                 } else {
                     setStep('register')
                     if (!result.isUserExists) {
-                        analytics.track('confirm_phone_registration', {})
+                        const eventName = identifierType === 'email' ? 'confirm_email_registration' : 'confirm_phone_registration'
+                        analytics.track(eventName, {})
                     }
                 }
             }
@@ -359,14 +361,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                 {
                                     visibleFields.consentToReceiveMarketingMaterialsMessage && (
                                         <Col span={24}>
-                                            <Checkbox
-                                                tabIndex={4}
-                                                children={(
-                                                    <Typography.Text size='small'>
-                                                        {ConsentToReceiveMarketingMaterialsMessage}
-                                                    </Typography.Text>
-                                                )}
-                                            />
+                                            <Checkbox tabIndex={4}>
+                                                <Typography.Text size='small'>
+                                                    {ConsentToReceiveMarketingMaterialsMessage}
+                                                </Typography.Text>
+                                            </Checkbox>
                                         </Col>
                                     )
                                 }
@@ -387,7 +386,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                                     <Input.Password
                                                         autoComplete='new-password'
                                                         tabIndex={3}
-                                                        autoFocus={!visibleFields.name && !visibleFields.email}
+                                                        autoFocus={!visibleFields.name && !visibleFields.email && !visibleFields.phone}
                                                     />
                                                 </FormItem>
                                                 <FormItem noStyle shouldUpdate>
