@@ -6,7 +6,7 @@ const {
     authHandler,
     rateLimitHandler,
 } = require('./utils')
-const { parseAndValidateMeta, extractRequestIp } = __test__
+const { parseAndValidateMeta, extractRequestIp, MetaSchema } = __test__
 
 const USER_UUID = faker.datatype.uuid()
 
@@ -53,21 +53,61 @@ const FileMiddlewareUtilsTests = () => {
             })
 
             test('rejects invalid key format', () => {
-                const data = {
-                    'condo app': { name: 'condo-app', secret: 'some-secret-string' },
-                }
+                const data = { 'condo app': { name: 'condo-app', secret: 'some-secret-string' } }
                 expect(() => validateAndParseAppClients(data)).toThrow()
             })
 
             test('rejects invalid value shape', () => {
-                const data = {
-                    condo: 'not-an-object',
-                }
+                const data = { condo: 'not-an-object' }
                 expect(() => validateAndParseAppClients(data)).toThrow()
             })
         })
 
-        describe('parseAndValidateMeta', () => {
+
+        describe('MetaSchema (direct)', () => {
+            test('valid meta passes', () => {
+                const ok = MetaSchema.safeParse(baseMeta())
+                expect(ok.success).toBe(true)
+            })
+
+            test('dv must equal 1', () => {
+                const bad = MetaSchema.safeParse(baseMeta({ dv: 2 }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message).toMatch('Invalid input: expected 1')
+            })
+
+            test('sender.dv must equal 1', () => {
+                const bad = MetaSchema.safeParse(baseMeta({ sender: { dv: 2, fingerprint: 'device-ABC_123' } }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message).toMatch('Invalid input: expected 1')
+            })
+
+            test('fingerprint must match regex', () => {
+                const bad = MetaSchema.safeParse(baseMeta({ sender: { dv: 1, fingerprint: 'bad space' } }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message).toMatch(/Invalid string|Invalid/)
+            })
+
+            test('authedItem must be uuid', () => {
+                const bad = MetaSchema.safeParse(baseMeta({ authedItem: 'nope' }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
+            })
+
+            test('appId must be non-empty string', () => {
+                const bad = MetaSchema.safeParse(baseMeta({ appId: '' }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message.toLowerCase()).toMatch('too small: expected string to have >=1 characters')
+            })
+
+            test('modelNames must be non-empty array of strings', () => {
+                const bad = MetaSchema.safeParse(baseMeta({ modelNames: [] }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message.toLowerCase()).toMatch('too small: expected array to have >=1 items')
+            })
+        })
+
+        describe('parseAndValidateMeta (via middleware helper)', () => {
             test('accepts valid meta object', () => {
                 const { req, res } = makeReqRes()
                 const { onError, calls } = onErrorRunner()
@@ -88,7 +128,7 @@ const FileMiddlewareUtilsTests = () => {
                 expect(result).toMatchObject(baseMeta())
             })
 
-            test('rejects non-JSON string', () => {
+            test('rejects non-JSON string with 400 + parse message', () => {
                 const { req, res } = makeReqRes()
                 const { onError } = onErrorRunner()
                 parseAndValidateMeta('nope', req, res, onError)
@@ -96,86 +136,34 @@ const FileMiddlewareUtilsTests = () => {
                 expect(res.json).toHaveBeenCalledWith({ error: 'Invalid type for the "meta" multipart field' })
             })
 
-            test('rejects wrong type', () => {
+            test('rejects wrong type with 400', () => {
                 const { req, res } = makeReqRes()
                 const { onError } = onErrorRunner()
                 parseAndValidateMeta(42, req, res, onError)
                 expect(res.status).toHaveBeenCalledWith(400)
             })
 
-            test('rejects missing dv', () => {
-                const { req, res } = makeReqRes()
-                const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta({ dv: undefined }), req, res, onError)
-                expect(res.json).toHaveBeenCalledWith({ error: 'Missing dv field for meta object' })
-            })
-
-            test('rejects missing sender', () => {
-                const { req, res } = makeReqRes()
-                const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta({ sender: undefined }), req, res, onError)
-                expect(res.json).toHaveBeenCalledWith({ error: 'Missing sender field for meta object' })
-            })
-
-            test('rejects wrong sender fields', () => {
-                const { req, res } = makeReqRes()
-                const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta({ sender: { dv: 'x', fingerprint: 1 } }), req, res, onError)
-                expect(res.json).toHaveBeenCalledWith({
-                    error: 'Wrong sender field data. Correct format is { "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
-                })
-            })
-
-            test('rejects dv not equal to 1', () => {
-                const { req, res } = makeReqRes()
-                const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta({ dv: 2, sender: { dv: 2, fingerprint: 'device-ABC_123' } }), req, res, onError)
-                expect(res.json).toHaveBeenCalledWith({ error: 'Wrong value for data version number' })
-            })
-
-            test('rejects bad fingerprint', () => {
-                const { req, res } = makeReqRes()
-                const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta({ sender: { dv: 1, fingerprint: 'bad space' } }), req, res, onError)
-                expect(res.json).toHaveBeenCalledWith({ error: 'Wrong sender.fingerprint value provided' })
-            })
-
-            test('rejects missing authedItem', () => {
-                const { req, res } = makeReqRes()
-                const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta({ authedItem: undefined }), req, res, onError)
-                expect(res.json).toHaveBeenCalledWith({ error: 'Missing authedItem field for meta object' })
-            })
-
-            test('rejects non-UUID authedItem', () => {
-                const { req, res } = makeReqRes()
-                const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta({ authedItem: 'nope' }), req, res, onError)
-                expect(res.json).toHaveBeenCalledWith({ error: 'Wrong authedItem value provided' })
-            })
-
-            test('rejects authedItem mismatch', () => {
-                const uuid = faker.datatype.uuid()
-                const { req, res } = makeReqRes({ req: { user: { id: uuid, deletedAt: null } } })
+            test('rejects mismatch authedItem with 403', () => {
+                const req = { user: { id: faker.datatype.uuid(), deletedAt: null } }
+                const { res } = makeReqRes({ req })
                 const { onError } = onErrorRunner()
                 parseAndValidateMeta(baseMeta(), req, res, onError)
+                expect(res.status).toHaveBeenCalledWith(403)
                 expect(res.json).toHaveBeenCalledWith({ error: 'Wrong authedItem. Unable to upload file for another user' })
             })
 
-            test('rejects missing appId', () => {
+            test('400 error returns first Zod message', () => {
                 const { req, res } = makeReqRes()
                 const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta({ appId: undefined }), req, res, onError)
-                expect(res.json).toHaveBeenCalledWith({ error: 'Missing appId field for meta object' })
-            })
-
-            test('rejects missing modelNames', () => {
-                const { req, res } = makeReqRes()
-                const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta({ modelNames: undefined }), req, res, onError)
-                expect(res.json).toHaveBeenCalledWith({ error: 'Missing modelNames field for meta object' })
+                parseAndValidateMeta(baseMeta({ modelNames: [] }), req, res, onError)
+                expect(res.status).toHaveBeenCalledWith(400)
+                const msg = res.json.mock.calls[0][0].error
+                expect(typeof msg).toBe('string')
+                expect(msg.length).toBeGreaterThan(0)
             })
         })
+
+        // ----------------- extractRequestIp -----------------
 
         describe('extractRequestIp', () => {
             test('handles IPv6-style forwarded ip with IPv4 tail', () => {
@@ -188,6 +176,8 @@ const FileMiddlewareUtilsTests = () => {
                 expect(ip).toBe('192.168.1.10')
             })
         })
+
+        // ----------------- authHandler & rateLimitHandler -----------------
 
         describe('authHandler', () => {
             test('allows valid user', async () => {
@@ -222,8 +212,8 @@ const FileMiddlewareUtilsTests = () => {
 
             test('blocks when user over quota', async () => {
                 const guard = { incrementHourCounter: jest.fn()
-                    .mockResolvedValueOnce(11)
-                    .mockResolvedValueOnce(1),
+                    .mockResolvedValueOnce(11) // user
+                    .mockResolvedValueOnce(1),  // ip (won't be reached)
                 }
                 const { req, res, next } = makeReqRes()
                 await rateLimitHandler({ quota: { user: 10, ip: 10 }, guard })(req, res, next)
@@ -233,8 +223,8 @@ const FileMiddlewareUtilsTests = () => {
 
             test('blocks when ip over quota', async () => {
                 const guard = { incrementHourCounter: jest.fn()
-                    .mockResolvedValueOnce(1)
-                    .mockResolvedValueOnce(999),
+                    .mockResolvedValueOnce(1)   // user
+                    .mockResolvedValueOnce(999), // ip
                 }
                 const { req, res, next } = makeReqRes()
                 await rateLimitHandler({ quota: { user: 10, ip: 10 }, guard })(req, res, next)
