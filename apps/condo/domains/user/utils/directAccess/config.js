@@ -83,15 +83,6 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
                 },
             },
             {
-                fieldName: 'name',
-                read: true,
-                access: {
-                    read: true,
-                    create: false,
-                    update: false,
-                },
-            },
-            {
                 fieldName: 'phone',
                 read: true,
                 access: {

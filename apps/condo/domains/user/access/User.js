@@ -8,7 +8,11 @@ const { isFilteringBy, isDirectListQuery } = require('@open-condo/keystone/acces
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { SERVICE, RESIDENT } = require('@condo/domains/user/constants/common')
-const { canDirectlyReadSchemaObjects, canDirectlyReadSchemaField } = require('@condo/domains/user/utils/directAccess')
+const {
+    canDirectlyReadSchemaObjects,
+    canDirectlyReadSchemaField,
+    canDirectlyManageSchemaField,
+} = require('@condo/domains/user/utils/directAccess')
 const { getIdentificationUserRequiredFields } = require('@condo/domains/user/utils/serverSchema/userHelpers')
 
 
@@ -51,23 +55,7 @@ const readBySupportUpdateByAdminField = {
 }
 
 const canAccessToEmailField = {
-    read: async (args) => {
-        const nonDirectAccess = access.userIsAdminOrIsThisItem(args)
-
-        if (nonDirectAccess) {
-            return nonDirectAccess
-        }
-
-        const { existingItem, authentication: { item: user }, listKey, fieldKey } = args
-
-        // Service users with right set (dev-portal) can read only emails of service users
-        if (user.type === SERVICE && existingItem.type === SERVICE) {
-            return await canDirectlyReadSchemaField(user, listKey, fieldKey)
-        }
-
-        // Otherwise no access
-        return false
-    },
+    read: userIsAdminOrIsThisItemOrCanDirectlyReadField,
     create: access.userIsAdmin,
     // TODO(DOMA-12133): Should to update accesses when adding a mutation to change user email address
     // TODO(pahaz): !!! change it to access.userIsAdmin
@@ -94,7 +82,7 @@ const canAccessToEmailField = {
 }
 
 const canAccessToPhoneField = {
-    read: access.userIsAdminOrIsThisItem,
+    read: userIsAdminOrIsThisItemOrCanDirectlyReadField,
     create: access.userIsAdmin,
     // TODO(DOMA-12134): Should to update accesses when adding a mutation to change user phone
     // TODO(pahaz): !!! change it to access.userIsAdmin
@@ -187,6 +175,32 @@ const canAccessMarketingConsent = {
     update: access.userIsAdminOrIsThisItem,
 }
 
+async function userIsAdminOrIsThisItemOrCanDirectlyReadField (args) {
+    const nonDirectAccess = access.userIsAdminOrIsThisItem(args)
+
+    if (nonDirectAccess) {
+        return nonDirectAccess
+    }
+
+    const { authentication: { item: user }, listKey, fieldKey } = args
+
+    return await canDirectlyReadSchemaField(user, listKey, fieldKey)
+}
+
+async function userIsAdminOrCanDirectlyManageField ({ authentication: { item: user }, listKey, fieldKey }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
+
+    return await canDirectlyManageSchemaField(user, listKey, fieldKey)
+}
+
+const canAccessRightsSet = {
+    read: access.userIsAdminOrIsSupport,
+    create: userIsAdminOrCanDirectlyManageField,
+    update: userIsAdminOrCanDirectlyManageField,
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -208,4 +222,5 @@ module.exports = {
     canAccessCustomAccessField,
     canReadUserNameField,
     canAccessMarketingConsent,
+    canAccessRightsSet,
 }
