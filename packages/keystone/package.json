@@ -37,6 +37,7 @@
     "@open-condo/apollo-server-client": "workspace:^",
     "@open-condo/config": "workspace:^",
     "@open-condo/locales": "workspace:^",
+    "@open-condo/miniapp-utils": "workspace:^",
     "@open-keystone/adapter-knex": "^14.0.15",
     "@open-keystone/adapter-mongoose": "^13.0.9",
     "@open-keystone/adapter-prisma": "^4.0.15",

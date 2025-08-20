@@ -1,6 +1,9 @@
 const debug = require('debug')('@open-condo/keystone/prepareKeystoneApp')
 const express = require('express')
 
+const conf = require('@open-condo/config')
+const { getRequestIp } = require('@open-condo/miniapp-utils/helpers/proxying')
+
 async function prepareKeystoneExpressApp (entryPoint, { excludeApps } = {}) {
     debug('prepareKeystoneExpressApp(%s) excludeApps=%j cwd=%s', entryPoint, excludeApps, process.cwd())
     const dev = process.env.NODE_ENV === 'development'
@@ -18,6 +21,17 @@ async function prepareKeystoneExpressApp (entryPoint, { excludeApps } = {}) {
     // not a csrf case: used for test & development scripts purposes
     // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
     const app = express()
+
+    const knownProxies = JSON.parse(conf['TRUSTED_PROXY_CONFIG'] || '{}')
+    // NOTE: from https://expressjs.com/en/guide/overriding-express-api.html
+    Object.defineProperty(app.request, 'ip', {
+        enumerable: true,
+        configurable: true,
+        get () {
+            return getRequestIp(this, knownProxies)
+        },
+    })
+
     if (configureExpress) configureExpress(app)
     app.use(middlewares)
     return { keystone, app }
