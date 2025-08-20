@@ -156,9 +156,9 @@ const FileMiddlewareUtilsTests = () => {
 
             test('rejects authedItem mismatch', () => {
                 const uuid = faker.datatype.uuid()
-                const { res } = makeReqRes({ req: { user: { id: uuid, deletedAt: null } } })
+                const { req, res } = makeReqRes({ req: { user: { id: uuid, deletedAt: null } } })
                 const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta(), { user: { id: uuid } }, res, onError)
+                parseAndValidateMeta(baseMeta(), req, res, onError)
                 expect(res.json).toHaveBeenCalledWith({ error: 'Wrong authedItem. Unable to upload file for another user' })
             })
 
