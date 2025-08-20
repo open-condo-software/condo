@@ -69,7 +69,7 @@ function generateRightSetFields (config) {
                     ...DEFAULT_CHECKBOX_FIELD,
                     schemaDoc:
                         `Enables a user with the given UserRightsSet to read "${field.fieldName}" field of model "${schemaName}"`,
-                    ...(field.access || {}),
+                    access: field.access || {},
                 }
             }
             if (field.manage) {
@@ -77,7 +77,7 @@ function generateRightSetFields (config) {
                     ...DEFAULT_CHECKBOX_FIELD,
                     schemaDoc:
                         `Enables a user with the given UserRightsSet to update "${field.fieldName}" field of model "${schemaName}"`,
-                    ...(field.access || {}),
+                    access: field.access || {},
                 }
             }
         }
@@ -150,6 +150,10 @@ async function canDirectlyReadSchemaField (user, schemaName, fieldName) {
     return await _hasSpecificRights(user, [generateReadSensitiveFieldFieldName(schemaName, fieldName)])
 }
 
+async function canDirectlyManageSchemaField (user, schemaName, fieldName) {
+    return await _hasSpecificRights(user, [generateManageSensitiveFieldFieldName(schemaName, fieldName)])
+}
+
 /**
  * Checks if user can execute query/mutation from GQLCustomSchema service
  * @param {AuthUser} user - user obtained from Keystone access function
@@ -166,5 +170,6 @@ module.exports = {
     canDirectlyReadSchemaObjects,
     canDirectlyReadSchemaField,
     canDirectlyManageSchemaObjects,
+    canDirectlyManageSchemaField,
     canDirectlyExecuteService,
 }
