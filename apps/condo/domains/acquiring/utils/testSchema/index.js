@@ -21,7 +21,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { MULTIPAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { makeLoggedInAdminClient, UploadingFile } = require('@open-condo/keystone/test.utils')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
@@ -79,6 +79,8 @@ const PaymentsFile = generateGQLTestUtils(PaymentsFileGQL)
 
 const RecurrentPaymentContextLiteGQL = generateGqlQueries('RecurrentPaymentContext', '{ id }')
 const RecurrentPaymentContextLite = generateGQLTestUtils(RecurrentPaymentContextLiteGQL)
+const RecurrentPaymentContextServiceGQL = generateGqlQueries('RecurrentPaymentContext', '{ id settings { cardId } }')
+const RecurrentPaymentContextService = generateGQLTestUtils(RecurrentPaymentContextServiceGQL)
 
 const FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')
 
@@ -457,6 +459,7 @@ async function sumPaymentsByTestClient(client, args = {}) {
     throwIfError(data, errors, { query: SUM_PAYMENTS_QUERY, variables: { data: args } })
     return data.result
 }
+
 async function createTestRecurrentPaymentContext (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -467,6 +470,20 @@ async function createTestRecurrentPaymentContext (client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await RecurrentPaymentContext.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestRecurrentPaymentContextService (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await RecurrentPaymentContextService.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -853,6 +870,15 @@ function generateQRCode (qrCodeData = {}, { version = '0001', encodingTag = '2' 
     return [Buffer.from(`ST${version}${encodingTag}|${Object.keys(qrCodeObj).map((k) => `${k}=${qrCodeObj[k]}`).join('|')}`).toString('base64'), qrCodeObj]
 }
 
+async function makeServiceUserForIntegration (integration) {
+    const admin = await makeLoggedInAdminClient()
+    const client = await makeClientWithServiceUser()
+    const [accessRight] = await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
+    client.accessRight = accessRight
+
+    return client
+}
+
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
@@ -876,7 +902,7 @@ module.exports = {
     registerMultiPaymentForVirtualReceiptByTestClient,
     generatePaymentLinkByTestClient,
     sumPaymentsByTestClient,
-    RecurrentPaymentContext, RecurrentPaymentContextLite, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext,
+    RecurrentPaymentContext, RecurrentPaymentContextLite, RecurrentPaymentContextService, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext, updateTestRecurrentPaymentContextService,
     RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment,
     createPaymentByLinkByTestClient,
     registerMultiPaymentForInvoicesByTestClient,
@@ -886,5 +912,6 @@ module.exports = {
     calculateFeeForReceiptByTestClient,
     generateQRCode,
     PaymentsFile, createTestPaymentsFile, updateTestPaymentsFile,
+    makeServiceUserForIntegration,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
