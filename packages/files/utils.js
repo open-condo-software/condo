@@ -69,63 +69,46 @@ class RedisGuard {
 }
 
 // ---------------------- validation ----------------------
+const MetaSchema = z.object({
+    dv: z.literal(1),
+    sender: z.object({
+        dv: z.literal(1),
+        fingerprint: z.string().regex(FINGERPRINT_RE),
+    }).strict(),
+    authedItem: z.string().uuid(),
+    appId: z.string().min(1),
+    modelNames: z.array(z.string()).min(1),
+}).strict()
 
 function parseAndValidateMeta (raw, req, res, onError) {
-    let meta = raw
-
+    let candidate = raw
     if (typeof raw === 'string') {
         try {
-            meta = JSON.parse(raw)
+            candidate = JSON.parse(raw)
         } catch {
             return onError(() => sendError(res, 400, 'Invalid type for the "meta" multipart field'))
         }
-    } else if (typeof raw !== 'object') {
+    } else if (typeof raw !== 'object' || raw === null) {
         return onError(() => sendError(res, 400, 'Invalid type for the "meta" multipart field'))
     }
 
-    if (typeof meta.dv !== 'number') {
-        return onError(() => sendError(res, 400, 'Missing dv field for meta object'))
+    const result = MetaSchema.safeParse(candidate)
+    if (!result.success) {
+        const msg = result.error.issues[0]?.message || 'Invalid meta'
+        return onError(() => sendError(res, 400, msg))
     }
 
-    if (typeof meta.sender !== 'object') {
-        return onError(() => sendError(res, 400, 'Missing sender field for meta object'))
-    }
-
-    if (typeof meta.sender.dv !== 'number' || typeof meta.sender.fingerprint !== 'string') {
-        return onError(() => sendError(res, 400, 'Wrong sender field data. Correct format is { "dv": 1, "fingerprint": "uniq-device-or-container-id" }'))
-    }
-
-    if (meta.dv !== 1 || meta.sender.dv !== 1) {
-        return onError(() => sendError(res, 400, 'Wrong value for data version number'))
-    }
-
-    if (!FINGERPRINT_RE.test(meta.sender.fingerprint)) {
-        return onError(() => sendError(res, 400, 'Wrong sender.fingerprint value provided'))
-    }
-
-    if (!meta.authedItem) {
-        return onError(() => sendError(res, 400, 'Missing authedItem field for meta object'))
-    }
-
+    const meta = result.data
     if (!validateUUID(meta.authedItem)) {
-        return onError(() => sendError(res, 400, 'Wrong authedItem value provided'))
+        return onError(() => sendError(res, 400, 'Invalid uuid'))
     }
 
     if (meta.authedItem !== req.user.id) {
         return onError(() => sendError(res, 403, 'Wrong authedItem. Unable to upload file for another user'))
     }
 
-    if (!meta.appId) {
-        return onError(() => sendError(res, 400, 'Missing appId field for meta object'))
-    }
-
-    if (!meta.modelNames) {
-        return onError(() => sendError(res, 400, 'Missing modelNames field for meta object'))
-    }
-
     return meta
 }
-
 // ---------------------- handlers ----------------------
 
 const authHandler = () => async (req, res, next) => {
@@ -384,5 +367,6 @@ module.exports = {
     __test__: {
         parseAndValidateMeta,
         extractRequestIp,
+        MetaSchema,
     },
 }
