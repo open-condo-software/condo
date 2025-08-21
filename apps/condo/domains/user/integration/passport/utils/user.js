@@ -298,7 +298,7 @@ async function _findOrCreateUser (req, userData, userType, providerInfo, userMet
 }
 
 /**
- * Internal utility function, which is reused by syncUser and getExistingUserIdentity and must not be used directly.
+ * Utility function, which is reused by syncUser and getExistingUserIdentity and in most scenarios must not be used directly.
  * It:
  * - validates all parameters;
  * - converts provider's userProfile to condo user shape (via combination of fieldMapping and DEFAULT_USER_FIELDS_MAPPING);
@@ -314,7 +314,7 @@ async function _findOrCreateUser (req, userData, userType, providerInfo, userMet
  * isEmailVerified: boolean 
  * }}
  */
-function _extractUserDataFromProvider (req, userProfile, fieldMapping = {}) {
+function extractUserDataFromProvider (req, userProfile, fieldMapping = {}) {
     const errorContext = { req }
 
     const { success: isValidFieldMapping, error: fieldMappingError, data: fieldMappingData } = fieldMappingSchema.safeParse(fieldMapping)
@@ -354,7 +354,7 @@ async function getExistingUserIdentity (req, userProfile, userType, providerInfo
     _ensureProviderInfo(providerInfo, errorContext)
 
     // Step 1. Convert provider shape to condo shape
-    const userData = _extractUserDataFromProvider(req, userProfile, fieldMapping)
+    const userData = extractUserDataFromProvider(req, userProfile, fieldMapping)
 
     // Step 2. Try to find identity
     // NOTE: does not add user.deletedAt filter, since it's the way to ban user (delete their profile with linked identity)
@@ -410,7 +410,7 @@ async function syncUser (
 
 
     // Step 2. If no external identity, we need to find or create user first, and then create and link identity to it
-    const userData = _extractUserDataFromProvider(req, userProfile, fieldMapping)
+    const userData = extractUserDataFromProvider(req, userProfile, fieldMapping)
     const user = await _findOrCreateUser(req, userData, userType, providerInfo, userProfile)
 
     const { keystone } = getSchemaCtx('User')
@@ -482,6 +482,7 @@ function ensureUserType (req, res, next) {
 
 module.exports = {
     DEFAULT_USER_FIELDS_MAPPING,
+    extractUserDataFromProvider,
     getExistingUserIdentity,
     syncUser,
     captureUserType,

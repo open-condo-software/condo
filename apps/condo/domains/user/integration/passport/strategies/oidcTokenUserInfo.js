@@ -7,7 +7,12 @@ const { fetch } = require('@open-condo/keystone/fetch')
 const  { getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { ERRORS } = require('@condo/domains/user/integration/passport/errors')
-const { syncUser, getExistingUserIdentity, DEFAULT_USER_FIELDS_MAPPING } = require('@condo/domains/user/integration/passport/utils/user')
+const {
+    DEFAULT_USER_FIELDS_MAPPING,
+    extractUserDataFromProvider,
+    getExistingUserIdentity,
+    syncUser,
+} = require('@condo/domains/user/integration/passport/utils/user')
 const { ConfirmEmailAction, ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 
 const { AuthStrategy } = require('./types')
@@ -35,7 +40,7 @@ class OidcTokenUserInfoAuthStrategy {
         return `${input.charAt(0).toUpperCase()}${input.slice(1)}`
     }
 
-    static async parseConfirmToken (req, tokenType) {
+    static async parseConfirmToken (req, tokenType, profileIdentity) {
         const errorContext = { req }
         let success = false
         let identity = null
@@ -55,8 +60,11 @@ class OidcTokenUserInfoAuthStrategy {
 
         if (!token) {
             error = new GQLError({
-                ...ERRORS.MISSING_QUERY_PARAMETER,
-                messageInterpolation: { parameter: queryParamName },
+                ...ERRORS[`${tokenType.toUpperCase()}_CONFIRMATION_REQUIRED`],
+                messageInterpolation: {
+                    [tokenType]: profileIdentity,
+                    parameter: queryParamName,
+                },
             }, errorContext)
             return { success, identity, actionId, error }
         }
@@ -178,7 +186,13 @@ class OidcTokenUserInfoAuthStrategy {
                 let confirmEmailActionId = null
 
                 if (requireConfirmPhoneAction) {
-                    const { identity, actionId, success, error  } = await OidcTokenUserInfoAuthStrategy.parseConfirmToken(req, 'phone')
+                    let providerPhone
+                    try {
+                        providerPhone = extractUserDataFromProvider(req, userProfile, fieldMapping).phone
+                    } catch {
+                        providerPhone = null
+                    }
+                    const { identity, actionId, success, error  } = await OidcTokenUserInfoAuthStrategy.parseConfirmToken(req, 'phone', providerPhone)
                     if (!success) {
                         return done(error, null)
                     }
@@ -192,7 +206,13 @@ class OidcTokenUserInfoAuthStrategy {
                 }
 
                 if (requireConfirmEmailAction) {
-                    const { identity, actionId, success, error  } = await OidcTokenUserInfoAuthStrategy.parseConfirmToken(req, 'email')
+                    let providerEmail
+                    try {
+                        providerEmail = extractUserDataFromProvider(req, userProfile, fieldMapping).email
+                    } catch {
+                        providerEmail = null
+                    }
+                    const { identity, actionId, success, error  } = await OidcTokenUserInfoAuthStrategy.parseConfirmToken(req, 'email', providerEmail)
                     if (!success) {
                         return done(error, null)
                     }
