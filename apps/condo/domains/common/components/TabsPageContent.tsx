@@ -11,9 +11,10 @@ import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 type PageContentProps = {
     tabItems: TabItem[]
     availableTabs: string[]
+    tabsClassName?: string
 }
 
-export const TabsPageContent: React.FC<PageContentProps> = ({ tabItems, availableTabs }) => {
+export const TabsPageContent: React.FC<PageContentProps> = ({ tabItems, availableTabs, tabsClassName }) => {
     const router = useRouter()
 
     const { tab } = parseQuery(router.query)
@@ -45,5 +46,6 @@ export const TabsPageContent: React.FC<PageContentProps> = ({ tabItems, availabl
         activeKey={defaultTab}
         onChange={handleTabChange}
         items={tabItems}
+        className={tabsClassName}
     />
 }

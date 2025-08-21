@@ -17,6 +17,8 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { UserInfoContent, type UserInfoContentProps } from '@condo/domains/user/components/UserInfoContent'
 import { UserSettingsContent } from '@condo/domains/user/components/UserSettingsContent'
 
+import styles from './index.module.css'
+
 
 const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
 
@@ -72,7 +74,11 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
                             </Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <TabsPageContent tabItems={userInfoTabs} availableTabs={AVAILABLE_TABS} />
+                            <TabsPageContent
+                                tabItems={userInfoTabs}
+                                availableTabs={AVAILABLE_TABS}
+                                tabsClassName={styles.customTabs}
+                            />
                         </Col>
                     </Row>
                 </PageContent>
