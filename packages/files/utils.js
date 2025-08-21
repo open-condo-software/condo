@@ -12,21 +12,38 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const logger = getLogger('file-middleware')
 
+const DEFAULT_USER_HOUR_QUOTA = 100
+const DEFAULT_IP_HOUR_QUOTA = 100
+
 const AppClientSchema = z.object({
-    name: z.string().min(3),
+    name: z.string().min(3).optional(),
     modelNames: z.array(z.string()).min(1).optional(),
     secret: z.string().min(8),
 }).strict()
 
-/** Top-level record: keys match /^[a-zA-Z0-9-]+$/, values are AppClientSchema */
 const AppClientsSchema = z.record(
     z.string().regex(/^[a-zA-Z0-9-]+$/),
     AppClientSchema
 )
 
-/** Validate and parse FILE_APP_CLIENTS. Returns the validated object. */
-function validateAndParseAppClients (data) {
-    return AppClientsSchema.parse(data)
+const AppConfigSchema = z.object({
+    clients: AppClientsSchema,
+    quota: z.object({
+        user: z.number().optional().default(DEFAULT_USER_HOUR_QUOTA),
+        ip: z.number().optional().default(DEFAULT_IP_HOUR_QUOTA),
+    }).optional().default({
+        user: DEFAULT_USER_HOUR_QUOTA,
+        ip: DEFAULT_IP_HOUR_QUOTA,
+    }),
+})
+
+function validateAndParseFileConfig (config) {
+    const { data, success, error } = AppConfigSchema.safeParse(config)
+    if (!success) {
+        console.error(error.issues[0]?.message || 'Invalid file upload config')
+        return {}
+    }
+    return data
 }
 
 // ---------------------- utilities ----------------------
@@ -320,35 +337,9 @@ const fileStorageHandler = ({ keystone, appClients }) => {
     }
 }
 
-const attachHandler = ({ keystone }) => {
-    return async function (req, res) {
-        const data = req.body
-        if (!data.signature) {
-            return res.status(403).json({ error: 'Missing id or signature in request body' })
-        }
-
-        const context = await keystone.createContext({ skipAccessControl: true })
-        const file = await CondoFile.getOne(
-            context,
-            { signature: data.signature },
-            'id file { id filename originalFilename mimetype encoding meta }'
-        )
-        if (!file) {
-            return res.status(403).json({ error: 'Invalid id or signature' })
-        }
-
-        await CondoFile.update(
-            context,
-            data.id,
-            { attach: true, dv: 1, sender: { dv: 1, fingerprint: 'file-attach-handler' } }
-        )
-        return res.status(200)
-    }
-}
-
 module.exports = {
     // zod entry point
-    validateAndParseAppClients,
+    validateAndParseFileConfig,
 
     // helpers
     sendError,
@@ -361,7 +352,6 @@ module.exports = {
     rateLimitHandler,
     parserHandler,
     fileStorageHandler,
-    attachHandler,
 
     // test-only surface
     __test__: {

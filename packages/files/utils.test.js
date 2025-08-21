@@ -2,7 +2,7 @@ const { faker } = require('@faker-js/faker')
 
 const {
     __test__,
-    validateAndParseAppClients,
+    validateAndParseFileConfig,
     authHandler,
     rateLimitHandler,
 } = require('./utils')
@@ -43,23 +43,60 @@ const baseMeta = (overrides = {}) => ({
 
 const FileMiddlewareUtilsTests = () => {
     describe('file middleware utils', () => {
-        describe('validateAndParseAppClients', () => {
-            test('accepts valid map', () => {
+        describe('validateAndParseFileConfig', () => {
+            test('accepts valid config', () => {
                 const data = {
-                    condo: { name: 'condo-app', secret: 'some-secret-string' },
+                    clients: {
+                        condo: { name: 'condo-app', secret: 'some-secret-string' },
+                    },
+                    quota: { user: 100, ip: 100 },
                 }
-                const out = validateAndParseAppClients(data)
+                const out = validateAndParseFileConfig(data)
                 expect(out).toEqual(data)
             })
 
             test('rejects invalid key format', () => {
-                const data = { 'condo app': { name: 'condo-app', secret: 'some-secret-string' } }
-                expect(() => validateAndParseAppClients(data)).toThrow()
+                const data = {
+                    clients: {
+                        'condo app': { name: 'condo-app', secret: 'some-secret-string' },
+                    },
+                    quota: { user: 100, ip: 100 },
+                }
+                const result = validateAndParseFileConfig(data)
+                expect(result).toMatchObject({})
             })
 
             test('rejects invalid value shape', () => {
                 const data = { condo: 'not-an-object' }
-                expect(() => validateAndParseAppClients(data)).toThrow()
+                const result = validateAndParseFileConfig(data)
+                expect(result).toMatchObject({})
+            })
+
+            test('should set defaults for quota props', () => {
+                const defaultQuota = validateAndParseFileConfig({
+                    clients: { condo: { secret: 'some-secret-string' } },
+                })
+
+                expect(defaultQuota).toHaveProperty(['clients', 'condo', 'secret'])
+                expect(defaultQuota).toHaveProperty(['quota', 'user'], 100)
+                expect(defaultQuota).toHaveProperty(['quota', 'ip'], 100)
+
+                const ipQuota = validateAndParseFileConfig({
+                    clients: { condo: { secret: 'some-secret-string' } },
+                    quota: { ip: 2 },
+                })
+                expect(ipQuota).toHaveProperty(['clients', 'condo', 'secret'])
+                expect(ipQuota).toHaveProperty(['quota', 'user'], 100)
+                expect(ipQuota).toHaveProperty(['quota', 'ip'], 2)
+
+                const userQuota = validateAndParseFileConfig({
+                    clients: { condo: { secret: 'some-secret-string' } },
+                    quota: { user: 5 },
+                })
+
+                expect(userQuota).toHaveProperty(['clients', 'condo', 'secret'])
+                expect(userQuota).toHaveProperty(['quota', 'user'], 5)
+                expect(userQuota).toHaveProperty(['quota', 'ip'], 100)
             })
         })
 

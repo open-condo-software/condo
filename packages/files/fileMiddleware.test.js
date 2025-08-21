@@ -1,120 +1,323 @@
-const supertest = require('supertest')
+const fs = require('fs')
 
-const FileMiddlewareUnitTests = () => {
-    jest.mock('@open-condo/config', () => ({}))
-    jest.mock('./utils', () => ({
-        RedisGuard: class {
-            incrementHourCounter () { return Promise.resolve(1) }
-        },
-        authHandler: () => (req, res, next) => next(),
-        rateLimitHandler: () => (req, res, next) => next(),
-        parserHandler: () => (req, res, next) => { req.meta = {}; req.files = []; next() },
-        fileStorageHandler: () => (req, res) => res.json({ ok: true, route: 'upload' }),
-        attachHandler: () => (req, res) => res.status(200).send('OK'),
-        validateAndParseAppClients: (data) => data,
-    }))
-    describe('file middleware unit tests', () => {
-        let conf
-        let FileMiddleware
+const { faker } = require('@faker-js/faker')
+const FormData = require('form-data')
+const jwt = require('jsonwebtoken')
 
-        beforeEach(() => {
-            jest.resetModules()
-            conf = require('@open-condo/config')
-            Object.keys(conf).forEach(k => delete conf[k])
-            FileMiddleware = require('./fileMiddleware').FileMiddleware
-        })
+const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
+const { getKVClient } = require('@open-condo/keystone/kv')
+const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-        test('loadQuota: accepts JSON string', () => {
-            conf.FILE_QUOTA = JSON.stringify({ user: 5, ip: 7 })
-            const mw = new FileMiddleware({})
-            expect(mw.quota).toEqual({ user: 5, ip: 7 })
-        })
+const DV_AND_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }
 
-        test('loadQuota: accepts object', () => {
-            conf.FILE_QUOTA = { user: 9, ip: 11 }
-            const mw = new FileMiddleware({})
-            expect(mw.quota).toEqual({ user: 9, ip: 11 })
-        })
+const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
+    const appClients = JSON.parse(conf['FILE_UPLOAD_CONFIG']).clients
+    const appId = Object.keys(appClients)[0]
+    let serverUrl
+    let admin
+    let filestream
+    beforeAll(async () => {
+    // Clean rate limits
+        const kv = getKVClient('guards')
 
-        test('loadQuota: falls back to defaults on parse error', () => {
-            conf.FILE_QUOTA = '{bad json'
-            const mw = new FileMiddleware({})
-            expect(mw.quota).toEqual({ user: 100, ip: 100 })
-        })
+        const client = await makeClient()
+        serverUrl = client.serverUrl + '/api/files/upload'
+        admin = await makeLoggedInAdminClient()
+        filestream = fs.readFileSync(testFile)
 
-        test('loadAppClients: accepts JSON string', () => {
-            conf.FILE_APP_CLIENTS = JSON.stringify({
-                condo: { name: 'condo-app', secret: 'some-secret-string' },
+        // Clear rate limits
+        await kv.del(`guard_counter:file:${admin.user.id}`)
+        await kv.del(`guard_counter:file:${admin}:127.0.0.1`)
+    })
+
+    describe('file middleware', () => {
+        describe('security', () => {
+            test('Unauthorized request should fail with 403 error', async () => {
+                const form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                })
+                const json = await result.json()
+
+                expect(result.status).toEqual(403)
+                expect(json).toHaveProperty('error', 'Authorization is required')
             })
-            const mw = new FileMiddleware({})
-            expect(mw.appClients).toMatchObject({
-                condo: { name: 'condo-app', secret: 'some-secret-string' },
+
+            test('Deleted user should not be able to upload file', async () => {
+                const deletedUser = await createTestUser()
+                const cookie = deletedUser.getCookie()
+                await UserSchema.softDelete(admin, deletedUser.user.id)
+                const form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                const result = await fetch(serverUrl, {
+                    headers: { Cookie: cookie },
+                    method: 'POST',
+                    body: form,
+                })
+                const json = await result.json()
+
+                expect(result.status).toEqual(403)
+                expect(json).toHaveProperty('error', 'Authorization is required')
+            })
+
+            test('User should not be able to upload file for another user', async () => {
+                const form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                form.append('meta', JSON.stringify({
+                    authedItem: faker.datatype.uuid(),
+                    appId,
+                    modelNames: ['SomeModel'],
+                    ...DV_AND_SENDER,
+                }))
+
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: admin.getCookie() },
+                })
+                const json = await result.json()
+
+                expect(result.status).toEqual(403)
+                expect(json).toHaveProperty('error', 'Wrong authedItem. Unable to upload file for another user')
+            })
+
+            test('Only POST request is allowed', async () => {
+                const result = await fetch(serverUrl, { method: 'GET' })
+                expect(result.status).toEqual(404)
+            })
+
+            test('Strict match url pattern', async () => {
+                const result = await fetch(serverUrl + '/something/else', {
+                    method: 'POST',
+                })
+                expect(result.status).toEqual(404)
             })
         })
 
-        test('loadAppClients: accepts object', () => {
-            conf.FILE_APP_CLIENTS = {
-                condo: { name: 'condo-app', secret: 'some-secret-string' },
-            }
-            const mw = new FileMiddleware({})
-            expect(mw.appClients.condo.name).toBe('condo-app')
+        describe('validation', () => {
+            test('Request type should be "multipart/form-data"', async () => {
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: {},
+                    headers: { Cookie: admin.getCookie() },
+                })
+                const json = await result.json()
+
+                expect(result.status).toEqual(405)
+                expect(json).toHaveProperty('error', 'Wrong request method type. Only "multipart/form-data" is allowed')
+            })
+
+            test('upload file without required meta field should be not possible', async () => {
+                const form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: admin.getCookie() },
+                })
+
+                expect(result.status).toEqual(400)
+            })
+
+            test('upload file without dv field should fail', async () => {
+                const form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id }))
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: admin.getCookie() },
+                })
+
+                expect(result.status).toEqual(400)
+            })
+
+            test('upload without sender meta field should fail', async () => {
+                const form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, dv: 1 }))
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: admin.getCookie() },
+                })
+
+                expect(result.status).toEqual(400)
+            })
+
+            test('upload with wrong data version number should fail', async () => {
+                let form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, dv: 2, sender: { dv: 1, fingerprint: 'test-runner' } }))
+                let result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: admin.getCookie() },
+                })
+                expect(result.status).toEqual(400)
+
+                form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, dv: 1, sender: { dv: 2, fingerprint: 'test-runner' } }))
+                result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: admin.getCookie() },
+                })
+
+                expect(result.status).toEqual(400)
+            })
+
+            test('upload with wrong meta.sender.fingerprint should fail', async () => {
+                const form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, dv: 1, sender: { dv: 1, fingerprint: 'test' } }))
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: admin.getCookie() },
+                })
+
+                expect(result.status).toEqual(400)
+            })
+
+            test('upload without file should fail', async () => {
+                const form = new FormData()
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, appId, modelNames: ['SomeModel'], ...DV_AND_SENDER }))
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: admin.getCookie() },
+                })
+                const json = await result.json()
+
+                expect(result.status).toEqual(400)
+                expect(json).toHaveProperty('error', 'Missing attached files')
+            })
+
+            test('upload with wrong authed item type should fail', async () => {
+                const form = new FormData()
+                form.append('meta', JSON.stringify({ authedItem: 123, ...DV_AND_SENDER }))
+                form.append('file', fs.readFileSync(testFile), 'dino.png')
+                const result = await fetch(serverUrl, {
+                    method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
+                })
+
+                expect(result.status).toEqual(400)
+            })
+
+            test('upload without app id should fail', async () => {
+                const form = new FormData()
+                form.append('file', fs.readFileSync(testFile), 'dino.png')
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, ...DV_AND_SENDER }))
+                const result = await fetch(serverUrl, {
+                    method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
+                })
+
+                expect(result.status).toEqual(400)
+            })
+
+            test('upload with wrong appId should fail', async () => {
+                const appId = faker.datatype.uuid()
+                const form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, appId, modelNames: ['SomeModel'], ...DV_AND_SENDER }))
+                const result = await fetch(serverUrl, {
+                    method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
+                })
+                const json = await result.json()
+                expect(result.status).toEqual(403)
+                expect(json).toHaveProperty('error', `${appId} does not have permission to upload files`)
+            })
         })
 
-        test('loadAppClients: disabled when missing', () => {
-            delete conf.FILE_APP_CLIENTS
-            const mw = new FileMiddleware({})
-            expect(mw.appClients).toBeUndefined()
-        })
-
-        test('loadAppClients: throws on invalid JSON', () => {
-            conf.FILE_APP_CLIENTS = '{not json'
-            expect(() => new FileMiddleware({})).toThrow(
-                'Unable to parse required FILE_APP_CLIENTS json from environment'
-            )
-        })
-
-        test('prepareMiddleware: mounts routes that respond', async () => {
-            conf = require('@open-condo/config')
-            conf.FILE_APP_CLIENTS = {
-                condo: { name: 'condo-app', secret: 'some-secret-string' },
-            }
-            const mw = new FileMiddleware({})
-            const app = mw.prepareMiddleware({ keystone: {} })
-            const request = supertest(app)
-
-            const uploadRes = await request.post('/api/files/upload')
-            expect(uploadRes.statusCode).toBe(200)
-            expect(uploadRes.body).toEqual({ ok: true, route: 'upload' })
-
-            const attachRes = await request.post('/api/files/attach')
-            expect(attachRes.statusCode).toBe(200)
-            expect(attachRes.text).toBe('OK')
-        })
-
-        test('loadAppClients: surfaces Zod issues as Error(JSON)', () => {
-            jest.resetModules()
-            conf = require('@open-condo/config')
-            conf.FILE_APP_CLIENTS = { condo: { name: 'ok', secret: 'ok-secret' } }
-            jest.doMock('./utils', () => {
-                return {
-                    RedisGuard: class { incrementHourCounter () { return Promise.resolve(1) } },
-                    authHandler: () => (req, res, next) => next(),
-                    rateLimitHandler: () => (req, res, next) => next(),
-                    parserHandler: () => (req, res, next) => { req.meta = {}; req.files = []; next() },
-                    fileStorageHandler: () => (req, res) => res.json({ ok: true }),
-                    attachHandler: () => (req, res) => res.status(200).send('OK'),
-                    validateAndParseAppClients: () => {
-                        const err = new Error('ZodError')
-                        err.name = 'ZodError'
-                        err.issues = [{ path: ['condo', 'secret'], message: 'too short' }]
-                        throw err
-                    },
+        describe('signature', () => {
+            test('signed file must be decryptable', async () => {
+                const user = await createTestUser()
+                const form = new FormData()
+                const meta = {
+                    authedItem: user.user.id,
+                    appId,
+                    modelNames: ['SomeModel'],
+                    ...DV_AND_SENDER,
                 }
+                form.append('file', filestream, 'dino.png')
+                form.append('meta', JSON.stringify(meta))
+
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: user.getCookie() },
+                })
+                const json = await result.json()
+
+                expect(result.status).toEqual(200)
+                expect(json).toHaveLength(1)
+                expect(json[0]).toHaveProperty('file')
+                expect(json[0]).toHaveProperty('signature')
+                const secret = JSON.parse(conf['FILE_UPLOAD_CONFIG']).clients[meta.appId]['secret']
+                const data = jwt.verify(json[0].signature, secret)
+                expect(data).not.toBeNull()
             })
-            const { FileMiddleware: MW } = require('./fileMiddleware')
-            expect(() => new MW({})).toThrow(JSON.stringify([{ path: ['condo', 'secret'], message: 'too short' }]))
+        })
+
+        describe('api', () => {
+            test('successful upload should return file id', async () => {
+                const user = await createTestUser()
+                const form = new FormData()
+                const meta = {
+                    authedItem: user.user.id,
+                    appId,
+                    modelNames: ['SomeModel'],
+                    ...DV_AND_SENDER,
+                }
+                form.append('meta', JSON.stringify(meta))
+                form.append('file', filestream, 'dino.png')
+
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: user.getCookie() },
+                })
+
+                const json = await result.json()
+
+                expect(result.status).toEqual(200)
+                expect(json).toHaveLength(1)
+                expect(json[0]).toHaveProperty('signature')
+                expect(json[0]).toHaveProperty('file.id')
+            })
+
+            test('uploading multiple files should be possible', async () => {
+                const user = await createTestUser()
+                const form = new FormData()
+                const meta = {
+                    authedItem: user.user.id,
+                    appId,
+                    modelNames: ['SomeModel'],
+                    ...DV_AND_SENDER,
+                }
+                form.append('meta', JSON.stringify(meta))
+                form.append('file', filestream, 'dino.png')
+                form.append('file', filestream, 'dino1.png')
+
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: user.getCookie() },
+                })
+                const json = await result.json()
+
+                expect(result.status).toEqual(200)
+                expect(json).toHaveLength(2)
+            })
         })
     })
 }
 
-module.exports = { FileMiddlewareUnitTests }
+module.exports = {
+    FileMiddlewareTests,
+}
