@@ -62,6 +62,7 @@ const identificationUserRequiredFields = JSON.parse(conf['IDENTIFICATION_USER_RE
 const identificationStaffUserRequiredFields = identificationUserRequiredFields?.staff || ['phone']
 const inviteRequiredFields = conf['INVITE_REQUIRED_FIELDS'] ? JSON.parse(conf['INVITE_REQUIRED_FIELDS']) : identificationStaffUserRequiredFields
 const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
+const defaultStaffAuthMethods = conf['DEFAULT_STAFF_AUTH_METHODS'] ? JSON.parse(conf['DEFAULT_STAFF_AUTH_METHODS']) : []
 
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
 
@@ -133,6 +134,7 @@ const nextConfig: NextConfig = {
         displayTicketInfoOnShare,
         inviteRequiredFields,
         footerConfig,
+        defaultStaffAuthMethods,
     },
     serverRuntimeConfig: {
         proxyName,

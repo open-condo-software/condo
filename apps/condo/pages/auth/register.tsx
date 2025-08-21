@@ -13,10 +13,10 @@ import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
 import { PageComponentType } from '@condo/domains/common/types'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
-import { InputPhoneForm } from '@condo/domains/user/components/auth/InputPhoneForm'
+import { InputIdentifierForm } from '@condo/domains/user/components/auth/InputIdentifierForm'
 import { RegisterContextProvider, useRegisterContext } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { RegisterForm } from '@condo/domains/user/components/auth/RegisterForm'
-import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
+import { ValidateIdentifierForm } from '@condo/domains/user/components/auth/ValidateIdentifierForm'
 import AuthLayout, { AuthLayoutProps } from '@condo/domains/user/components/containers/AuthLayout'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/auth'
@@ -25,7 +25,7 @@ import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 
 const RegisterPage: PageComponentType = () => {
     const intl = useIntl()
-    const InputPhoneTitle = intl.formatMessage({ id: 'pages.auth.register.step.inputPhone.title' })
+    const InputIdentifierTitle = intl.formatMessage({ id: 'pages.auth.register.step.inputIdentifier.title' })
     const ValidatePhoneTitle = intl.formatMessage({ id: 'pages.auth.register.step.validatePhone.title' })
     const RegisterTitle = intl.formatMessage({ id: 'pages.auth.register.step.register.title' })
     const PhoneConfirmTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorLabel' })
@@ -37,14 +37,14 @@ const RegisterPage: PageComponentType = () => {
     const { queryParams } = useAuthMethods()
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useRegisterContext()
-    const [step, setStep] = useState<'inputPhone' | 'validatePhone' | 'register'>('inputPhone')
+    const [step, setStep] = useState<'inputIdentifier' | 'validateIdentifier' | 'register'>('inputIdentifier')
 
     const title = useMemo(() => {
-        if (step === 'inputPhone') return InputPhoneTitle
-        if (step === 'validatePhone') return ValidatePhoneTitle
+        if (step === 'inputIdentifier') return InputIdentifierTitle
+        if (step === 'validateIdentifier') return ValidatePhoneTitle
         if (step === 'register') return RegisterTitle
         return ''
-    }, [InputPhoneTitle, RegisterTitle, ValidatePhoneTitle, step])
+    }, [InputIdentifierTitle, RegisterTitle, ValidatePhoneTitle, step])
 
     const handleFinish = useCallback(async () => {
         if (isValidNextUrl) {
@@ -55,13 +55,13 @@ const RegisterPage: PageComponentType = () => {
     }, [])
 
     const steps = useMemo(() => ({
-        inputPhone: <InputPhoneForm
-            onFinish={() => setStep('validatePhone')}
+        inputIdentifier: <InputIdentifierForm
+            onFinish={() => setStep('validateIdentifier')}
         />,
-        validatePhone: <ValidatePhoneForm
+        validateIdentifier: <ValidateIdentifierForm
             onFinish={() => setStep('register')}
             onReset={() => {
-                setStep('inputPhone')
+                setStep('inputIdentifier')
                 Router.push(`/auth/register?${queryParams}`)
             }}
             title={ValidatePhoneTitle}
@@ -69,7 +69,7 @@ const RegisterPage: PageComponentType = () => {
         register: <RegisterForm
             onFinish={handleFinish}
             onReset={() => {
-                setStep('inputPhone')
+                setStep('inputIdentifier')
                 Router.push(`/auth/register?${queryParams}`)
             }}
         />,
@@ -79,9 +79,9 @@ const RegisterPage: PageComponentType = () => {
         if (token && isConfirmed) {
             setStep('register')
         } else if (token) {
-            setStep('validatePhone')
+            setStep('validateIdentifier')
         } else {
-            setStep('inputPhone')
+            setStep('inputIdentifier')
         }
     }, [token, isConfirmed])
 
@@ -117,7 +117,7 @@ const RegisterPage: PageComponentType = () => {
                                 onClick={() => {
                                     setToken(null)
                                     setTokenError(null)
-                                    setStep('inputPhone')
+                                    setStep('inputIdentifier')
                                     Router.push('/auth/register')
                                 }}
                                 block
@@ -145,7 +145,7 @@ const HeaderAction: React.FC = () => {
 
     if (authFlow !== 'default') return null
 
-    return router.query.step == 'inputPhone' && (
+    return router.query.step === 'inputIdentifier' && (
         <WelcomeHeaderTitle userType='staff'/>
     )
 }

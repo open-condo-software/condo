@@ -1,4 +1,4 @@
-import { useStartConfirmPhoneActionMutation } from '@app/condo/gql'
+import { useStartConfirmPhoneActionMutation, useStartConfirmEmailActionMutation } from '@app/condo/gql'
 import { Col, Form, Row } from 'antd'
 import getConfig from 'next/config'
 import Head from 'next/head'
@@ -17,114 +17,161 @@ import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PageComponentType } from '@condo/domains/common/types'
-import { normalizePhone } from '@condo/domains/common/utils/phone'
 import {
     RegisterContextProvider,
     useRegisterContext,
 } from '@condo/domains/user/components/auth/RegisterContextProvider'
-import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
+import { ValidateIdentifierForm } from '@condo/domains/user/components/auth/ValidateIdentifierForm'
 import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
-import { SMS_CODE_TTL } from '@condo/domains/user/constants/common'
+import { SMS_CODE_TTL, EMAIL_CODE_TTL } from '@condo/domains/user/constants/common'
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
+import { normalizeUserIdentifier } from '@condo/domains/user/utils/helpers'
+
+import type { FetchResult } from '@apollo/client/link/core'
+import type { StartConfirmEmailActionMutation, StartConfirmPhoneActionMutation } from '@app/condo/gql'
 
 
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
-type StepType = 'inputPhone' | 'validatePhone'
+type StepType = 'inputIdentifier' | 'validateIdentifier'
 
-const INITIAL_VALUES = { email: '' }
+const INITIAL_VALUES = { identifier: '' }
 
 function ResetPageView () {
     const intl = useIntl()
     const RestorePasswordMessage = intl.formatMessage({ id: 'pages.auth.reset.ResetPasswordTitle' })
     const ResetTitleMessage = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
-    const InstructionsMessage = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
+    const InstructionsPhoneMessage = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp.phone' })
+    const InstructionsEmailMessage = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp.email' })
+    const InstructionsPhoneOrEmailMessage = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp.phoneOrEmail' })
     const PhoneMessage = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
+    const EmailMessage = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
+    const PhoneOrEmailMessage = intl.formatMessage({ id: 'pages.auth.register.field.PhoneOrEmail' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
-    const SMSTooManyRequestsErrorMessage = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
+    const TooManyRequestsErrorMessage = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+
+    const { queryParams, authMethods } = useAuthMethods()
+
+    const InstructionsMessage = authMethods.phonePassword && authMethods.emailPassword
+        ? InstructionsPhoneOrEmailMessage
+        : authMethods.emailPassword && !authMethods.phonePassword
+            ? InstructionsEmailMessage
+            : InstructionsPhoneMessage
 
     const router = useRouter()
-    const { queryParams } = useAuthMethods()
 
     const [form] = Form.useForm()
     const { executeCaptcha } = useHCaptcha()
-    const { token, setToken, setPhone } = useRegisterContext()
+    const { token, setToken, setIdentifier } = useRegisterContext()
 
     const { organization } = useOrganization()
     const country = organization?.country || defaultLocale
 
-    const [step, setStep] = useState<StepType>('inputPhone')
+    const [step, setStep] = useState<StepType>('inputIdentifier')
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const onError = useMutationErrorHandler({
         form,
         typeToFieldMapping: {
-            [TOO_MANY_REQUESTS]: 'phone',
+            [TOO_MANY_REQUESTS]: 'identifier',
         },
     })
     const [startConfirmPhoneActionMutation] = useStartConfirmPhoneActionMutation({
         onError,
     })
+    const [startConfirmEmailActionMutation] = useStartConfirmEmailActionMutation({
+        onError,
+    })
 
-    const { requiredValidator, phoneValidator } = useValidations()
-    const validations = useMemo(() => ({
-        phone: [requiredValidator, phoneValidator],
-    }), [requiredValidator, phoneValidator])
+    const { requiredValidator, phoneOrEmailValidator, phoneValidator, emailValidator } = useValidations()
+    const validations = useMemo(() => {
+        const rules = [requiredValidator]
+        if (authMethods.phonePassword && authMethods.emailPassword) {
+            rules.push(phoneOrEmailValidator)
+        } else if (authMethods.emailPassword && !authMethods.phonePassword) {
+            rules.push(emailValidator)
+        } else {
+            rules.push(phoneValidator)
+        }
+
+        return {
+            identifier: rules,
+        }
+    }, [requiredValidator, authMethods, phoneOrEmailValidator, emailValidator, phoneValidator])
 
     const startConfirmPhone = useCallback(async () => {
         if (isLoading) return
 
-        setIsLoading(true)
+        const { identifier: inputIdentifier } = form.getFieldsValue(['identifier'])
+        const identifier = normalizeUserIdentifier(inputIdentifier)
 
-        const { phone: inputPhone } = form.getFieldsValue(['phone'])
-        const phone = normalizePhone(inputPhone)
+        if (!identifier.type || !identifier.normalizedValue) return
+
+        setIsLoading(true)
 
         try {
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
-            const res = await startConfirmPhoneActionMutation({
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender,
-                        captcha,
-                        phone,
+            const commonPayload = {
+                dv: 1,
+                sender,
+                captcha,
+            }
+
+            let res: FetchResult<StartConfirmEmailActionMutation> | FetchResult<StartConfirmPhoneActionMutation>
+            if (identifier.type === 'email') {
+                res = await startConfirmEmailActionMutation({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            email: identifier.normalizedValue,
+                        },
                     },
-                },
-            })
+                })
+            } else {
+                res = await startConfirmPhoneActionMutation({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            phone: identifier.normalizedValue,
+                        },
+                    },
+                })
+            }
 
             const token = res?.data?.result?.token
             if (!res.errors && token) {
-                setPhone(phone)
+                setIdentifier(identifier.normalizedValue)
                 setToken(token)
-                setStep('validatePhone')
+                setStep('validateIdentifier')
             }
         } catch (error) {
-            console.error('Start confirm phone action failed')
+            console.error('Start confirm action failed')
             console.error(error)
             form.setFields([
                 {
-                    name: 'phone',
+                    name: 'identifier',
                     // NOTE(pahaz): `friendlyDescription` is the last GQLError.messageForUser!
-                    errors: [(error.friendlyDescription) ? error.friendlyDescription : SMSTooManyRequestsErrorMessage],
+                    errors: [(error.friendlyDescription) ? error.friendlyDescription : TooManyRequestsErrorMessage],
                 },
             ])
         } finally {
             setIsLoading(false)
         }
-    }, [SMSTooManyRequestsErrorMessage, executeCaptcha, form, isLoading, setPhone, setToken, startConfirmPhoneActionMutation])
+    }, [TooManyRequestsErrorMessage, executeCaptcha, form, isLoading, setIdentifier, setToken, startConfirmEmailActionMutation, startConfirmPhoneActionMutation])
 
     const onReset = useCallback(() => {
         router.back()
     }, [])
 
-    if (step === 'validatePhone') {
+    if (step === 'validateIdentifier') {
         return (
-            <ValidatePhoneForm
+            <ValidateIdentifierForm
                 onFinish={() => router.push(`/auth/change-password?token=${token}&${queryParams}`)}
-                onReset={() => setStep('inputPhone')}
+                onReset={() => setStep('inputIdentifier')}
                 title={ResetTitleMessage}
             />
         )
@@ -165,14 +212,42 @@ function ResetPageView () {
                                     </Col>
 
                                     <Col span={24}>
-                                        <FormItem
-                                            name='phone'
-                                            label={PhoneMessage}
-                                            rules={validations.phone}
-                                            data-cy='forgot-phone-item'
-                                        >
-                                            <Input.Phone country={country} placeholder={ExamplePhoneMessage}/>
-                                        </FormItem>
+                                        {
+                                            authMethods.phonePassword && !authMethods.emailPassword && (
+                                                <FormItem
+                                                    name='identifier'
+                                                    label={PhoneMessage}
+                                                    rules={validations.identifier}
+                                                    data-cy='forgot-identifier-item'
+                                                >
+                                                    <Input.Phone country={country} placeholder={ExamplePhoneMessage}/>
+                                                </FormItem>
+                                            )
+                                        }
+                                        {
+                                            !authMethods.phonePassword && authMethods.emailPassword && (
+                                                <FormItem
+                                                    name='identifier'
+                                                    label={EmailMessage}
+                                                    rules={validations.identifier}
+                                                    data-cy='forgot-identifier-item'
+                                                >
+                                                    <Input placeholder={ExampleEmailMessage} />
+                                                </FormItem>
+                                            )
+                                        }
+                                        {
+                                            authMethods.phonePassword && authMethods.emailPassword && (
+                                                <FormItem
+                                                    name='identifier'
+                                                    label={PhoneOrEmailMessage}
+                                                    rules={validations.identifier}
+                                                    data-cy='forgot-identifier-item'
+                                                >
+                                                    <Input />
+                                                </FormItem>
+                                            )
+                                        }
                                     </Col>
                                 </Row>
                             </Col>
@@ -181,7 +256,7 @@ function ResetPageView () {
                                 <CountDownTimer
                                     action={startConfirmPhone}
                                     id='FORGOT_ACTION'
-                                    timeout={SMS_CODE_TTL}
+                                    timeout={Math.max(SMS_CODE_TTL, EMAIL_CODE_TTL)}
                                 >
                                     {({ countdown, runAction }) => {
                                         const isCountDownActive = countdown > 0

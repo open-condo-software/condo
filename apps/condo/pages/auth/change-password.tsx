@@ -1,8 +1,13 @@
-import { useAuthenticateUserWithPhoneAndPasswordMutation, useChangePasswordWithTokenMutation } from '@app/condo/gql'
+import {
+    useAuthenticateUserWithPhoneAndPasswordMutation,
+    useAuthenticateUserWithEmailAndPasswordMutation,
+    useGenerateSudoTokenMutation,
+    useChangeUserPasswordMutation,
+} from '@app/condo/gql'
 import { UserTypeType as UserType } from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
 import Router, { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState, useRef } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useAuth } from '@open-condo/next/auth'
@@ -23,6 +28,11 @@ import AuthLayout, { AuthLayoutProps } from '@condo/domains/user/components/cont
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
+import { detectTokenTypeSafely, TOKEN_TYPES } from '@condo/domains/user/utils/tokens'
+
+import type { FetchResult } from '@apollo/client/link/core'
+import type { AuthenticateUserWithEmailAndPasswordMutation, AuthenticateUserWithPhoneAndPasswordMutation } from '@app/condo/gql'
+import type { GraphQLFormattedError } from 'graphql'
 
 
 const INITIAL_VALUES = {
@@ -47,10 +57,15 @@ const ChangePasswordPage: PageComponentType = () => {
     const router = useRouter()
     const { query: { next } } = router
     const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
-    const { queryParams } = useAuthMethods()
+    const { queryParams, authMethods } = useAuthMethods()
+
+    const allowedTokenTypes = useMemo(() => [
+        authMethods.phonePassword && TOKEN_TYPES.CONFIRM_PHONE,
+        authMethods.emailPassword && TOKEN_TYPES.CONFIRM_EMAIL,
+    ].filter(Boolean), [authMethods])
 
     const { executeCaptcha } = useHCaptcha()
-    const { token, tokenError } = useRegisterContext()
+    const { token, tokenError, identifierType, identifier } = useRegisterContext()
     const { refetch } = useAuth()
 
     const [form] = Form.useForm()
@@ -60,13 +75,19 @@ const ChangePasswordPage: PageComponentType = () => {
     const changePasswordErrorHandler = useMutationErrorHandler({
         form,
     })
-    const [changePasswordWithTokenMutation] = useChangePasswordWithTokenMutation({
-        onError: changePasswordErrorHandler,
-    })
 
-    const authenticateUserErrorHandler = useMutationErrorHandler()
+    const errorHandler = useMutationErrorHandler()
     const [authenticateUserWithPhoneAndPasswordMutation] = useAuthenticateUserWithPhoneAndPasswordMutation({
-        onError: authenticateUserErrorHandler,
+        onError: errorHandler,
+    })
+    const [authenticateUserWithEmailAndPasswordMutation] = useAuthenticateUserWithEmailAndPasswordMutation({
+        onError: errorHandler,
+    })
+    const [generateSudoTokenMutation] = useGenerateSudoTokenMutation({
+        onError: errorHandler,
+    })
+    const [changeUserPasswordMutation] = useChangeUserPasswordMutation({
+        onError: changePasswordErrorHandler,
     })
 
     const { requiredValidator, changeMessage, minLengthValidator } = useValidations()
@@ -86,22 +107,40 @@ const ChangePasswordPage: PageComponentType = () => {
         ],
     }), [PleaseConfirmYourPasswordMessage, PleaseInputYourPasswordMessage, TwoPasswordDontMatchMessage, changeMessage, minPasswordLengthValidator, requiredValidator])
 
-    const authWithPhoneAndPassword = useCallback(async (phone: string, password: string): Promise<void> => {
+    const authWithIdentifierAndPassword = useCallback(async (identifierType: string, identifier: string, password: string): Promise<void> => {
         try {
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
-            const res = await authenticateUserWithPhoneAndPasswordMutation({
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender,
-                        captcha,
-                        password,
-                        phone,
-                        userType: UserType.Staff,
+            const commonPayload = {
+                dv: 1,
+                sender,
+                captcha,
+            }
+
+            let res: FetchResult<AuthenticateUserWithEmailAndPasswordMutation> | FetchResult<AuthenticateUserWithPhoneAndPasswordMutation>
+            if (identifierType === 'email') {
+                res = await authenticateUserWithEmailAndPasswordMutation({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            password,
+                            email: identifier,
+                            userType: UserType.Staff,
+                        },
                     },
-                },
-            })
+                })
+            } else {
+                res = await authenticateUserWithPhoneAndPasswordMutation({
+                    variables: {
+                        data: {
+                            ...commonPayload,
+                            password,
+                            phone: identifier,
+                            userType: UserType.Staff,
+                        },
+                    },
+                })
+            }
 
             if (res.errors || !res?.data?.result?.item?.id) {
                 const error: Error & { originalErrors? } = new Error('Authorization failed (request)')
@@ -113,7 +152,89 @@ const ChangePasswordPage: PageComponentType = () => {
             console.error(error)
             throw error
         }
-    }, [authenticateUserWithPhoneAndPasswordMutation, executeCaptcha])
+    }, [authenticateUserWithEmailAndPasswordMutation, authenticateUserWithPhoneAndPasswordMutation, executeCaptcha])
+
+    const sudoTokenRef = useRef<string | null>(null)
+    const generateSudoToken = useCallback(async (confirmToken: string): Promise<string> => {
+        if (sudoTokenRef.current) {
+            return sudoTokenRef.current
+        }
+
+        try {
+            const tokenTypeInfo = detectTokenTypeSafely(confirmToken)
+
+            if (tokenTypeInfo.error) {
+                throw tokenTypeInfo.error
+            }
+            if (!tokenTypeInfo.tokenType) {
+                throw new Error('Unknown token type')
+            }
+            if (!allowedTokenTypes.includes(tokenTypeInfo.tokenType)) {
+                throw new Error('Unsupported token type')
+            }
+
+            const sender = getClientSideSenderInfo()
+            const captcha = await executeCaptcha()
+            const res = await generateSudoTokenMutation({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender,
+                        captcha,
+                        authFactors: {
+                            [tokenTypeInfo.tokenType === TOKEN_TYPES.CONFIRM_EMAIL ? 'confirmEmailToken' : 'confirmPhoneToken']: confirmToken,
+                        },
+                        user: {
+                            userType: UserType.Staff,
+                            ...(identifier ? { [tokenTypeInfo.tokenType === TOKEN_TYPES.CONFIRM_EMAIL ? 'email' : 'phone']: identifier } : null),
+                        },
+                    },
+                },
+            })
+            const sudoToken = res?.data?.result?.token
+
+            if (res.errors || !sudoToken) {
+                const error: Error & { originalErrors? } = new Error('Failed to get sudo token (request)')
+                error.originalErrors = res.errors
+                throw error
+            }
+
+            sudoTokenRef.current = sudoToken
+            return sudoTokenRef.current
+        } catch (error) {
+            console.error('Failed to get sudo token')
+            console.error(error)
+            throw error
+        }
+    }, [allowedTokenTypes, executeCaptcha, generateSudoTokenMutation, identifier])
+
+    const invalidateSudoToken = useCallback(() => {
+        sudoTokenRef.current = null
+    }, [])
+
+    const changeUserPassword = useCallback(async (confirmToken: string, password: string, withRetry: boolean = true) => {
+        const sender = getClientSideSenderInfo()
+        const sudoToken = await generateSudoToken(confirmToken)
+
+        const res = await changeUserPasswordMutation({
+            variables: {
+                data: {
+                    dv: 1,
+                    sender,
+                    token: sudoToken,
+                    newPassword: password,
+                },
+            },
+        })
+
+        const isTokenNotFoundError = (error: GraphQLFormattedError) => error?.extensions?.type === 'TOKEN_NOT_FOUND'
+        if (withRetry && res?.errors?.some(isTokenNotFoundError)) {
+            invalidateSudoToken()
+            return changeUserPassword(confirmToken, password, false)
+        }
+
+        return res
+    }, [changeUserPasswordMutation, generateSudoToken, invalidateSudoToken])
 
     const onSubmit = useCallback(async (values: typeof INITIAL_VALUES) => {
         if (isLoading) return
@@ -122,25 +243,18 @@ const ChangePasswordPage: PageComponentType = () => {
 
         try {
             const { password } = values
-            const sender = getClientSideSenderInfo()
-            // const captcha = await executeCaptcha()
-
-            const res = await changePasswordWithTokenMutation({
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender,
-                        password,
-                        token,
-                        // captcha,
-                    },
-                },
-            })
+            const res = await changeUserPassword(token, password, true)
 
             const status = res?.data?.result?.status
-            const phone = res?.data?.result?.phone
-            if (!res.errors && status === 'ok' && phone) {
-                await authWithPhoneAndPassword(phone, password)
+            if (!res.errors && status === 'ok') {
+                invalidateSudoToken()
+
+                if (!identifier || !identifierType) {
+                    await Router.push(`/auth/signin?next=${redirectUrl}`)
+                    return
+                }
+
+                await authWithIdentifierAndPassword(identifierType, identifier, password)
                 await refetch()
                 await Router.push(redirectUrl)
             }
@@ -150,7 +264,7 @@ const ChangePasswordPage: PageComponentType = () => {
         } finally {
             setIsLoading(false)
         }
-    }, [authWithPhoneAndPassword, changePasswordWithTokenMutation, isLoading, refetch, token])
+    }, [authWithIdentifierAndPassword, changeUserPassword, identifier, identifierType, invalidateSudoToken, isLoading, redirectUrl, token])
 
     const onResetPasswordClick = useCallback(() => Router.push(`/auth/forgot?${queryParams}`), [])
 

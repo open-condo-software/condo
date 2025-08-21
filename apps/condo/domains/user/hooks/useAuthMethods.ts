@@ -5,12 +5,21 @@ import { useMemo } from 'react'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 
 
-const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
+const { publicRuntimeConfig: { hasSbbolAuth, defaultStaffAuthMethods } } = getConfig()
 
 const ALLOWED_FLOWS = ['default', 'oidc'] as const
-const ALLOWED_AUTH_METHODS = ['phonePassword', 'sbbolid'] as const
+const ALLOWED_AUTH_METHODS = ['phonePassword', 'emailPassword', 'sbbolid'] as const
+const DEFAULT_AUTH_METHODS = getDefaultAuthMethods()
 
-type AuthMethods = 'phonePassword' | 'sbbolid'
+function getDefaultAuthMethods () {
+    const isValidAuthMethods = (method: string): method is AuthMethods => (ALLOWED_AUTH_METHODS as readonly string[]).includes(method)
+    const result = defaultStaffAuthMethods.filter(isValidAuthMethods) as Array<AuthMethods>
+    return result.length > 0
+        ? result
+        : ['phonePassword', ...(hasSbbolAuth ? ['sbbolid'] : [])] as Array<AuthMethods>
+}
+
+type AuthMethods = typeof ALLOWED_AUTH_METHODS[number]
 type AuthFlows = typeof ALLOWED_FLOWS[number]
 type UseAuthMethods = () => {
     authFlow: AuthFlows
@@ -47,24 +56,26 @@ export const useAuthMethods: UseAuthMethods = () => {
             : 'default'
     }, [flowFromQuery])
     const authMethodsList = useMemo(() => {
-        if (typeof methodsFromQuery === 'string') return methodsFromQuery.split(',')
-        return [...ALLOWED_AUTH_METHODS]
+        if (typeof methodsFromQuery === 'string') return methodsFromQuery.split(',').filter((method) => (ALLOWED_AUTH_METHODS as readonly string[]).includes(method))
+        return [...DEFAULT_AUTH_METHODS]
     }, [methodsFromQuery])
 
     const authMethods = useMemo(() => {
         const result = {
-            phonePassword: authFlow === 'default' || (authFlow === 'oidc' && authMethodsList.includes('phonePassword')),
-            sbbolid: (authFlow === 'default' || (authFlow === 'oidc' && authMethodsList.includes('sbbolid'))),
+            phonePassword: authMethodsList.includes('phonePassword'),
+            emailPassword: authMethodsList.includes('emailPassword'),
+            sbbolid: authMethodsList.includes('sbbolid'),
         }
 
-        // authMethods from query was empty then we set defaults values (everything to true)
+        // Fallback: if query provides no valid methods, use DEFAULT_AUTH_METHODS
         if (Object.values(result).every((value) => !value)) {
-            result['phonePassword'] = true
-            result['sbbolid'] = hasSbbolAuth
+            result['phonePassword'] = DEFAULT_AUTH_METHODS.includes('phonePassword')
+            result['emailPassword'] = DEFAULT_AUTH_METHODS.includes('emailPassword')
+            result['sbbolid'] = DEFAULT_AUTH_METHODS.includes('sbbolid')
         }
 
         return result
-    }, [authMethodsList, authFlow])
+    }, [authMethodsList])
 
     return {
         authFlow,

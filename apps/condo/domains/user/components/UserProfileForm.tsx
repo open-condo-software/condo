@@ -1,4 +1,5 @@
 import { Col, Form, Row } from 'antd'
+import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
@@ -12,6 +13,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
+import { PHONE_TYPE } from '@condo/domains/user/constants/identifiers'
 import { User } from '@condo/domains/user/utils/clientSchema'
 
 import { UserAvatar } from './UserAvatar'
@@ -31,6 +33,11 @@ const INPUT_LAYOUT_PROPS = {
 
 const RESET_PASSWORD_URL = '/auth/forgot'
 
+const { publicRuntimeConfig: { inviteRequiredFields } } = getConfig()
+
+const isEmailEditable = Array.isArray(inviteRequiredFields)
+    && inviteRequiredFields.length === 1
+    && inviteRequiredFields.includes(PHONE_TYPE)
 
 export const UserProfileForm: React.FC = () => {
     const intl = useIntl()
@@ -120,17 +127,21 @@ export const UserProfileForm: React.FC = () => {
                                             <Input/>
                                         </Form.Item>
                                     </Col>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            {...INPUT_LAYOUT_PROPS}
-                                            labelAlign='left'
-                                            name='email'
-                                            label={EmailLabel}
-                                            rules={validations.email}
-                                        >
-                                            <Input placeholder={ExampleEmailMessage}/>
-                                        </Form.Item>
-                                    </Col>
+                                    {
+                                        isEmailEditable && (
+                                            <Col span={24}>
+                                                <Form.Item
+                                                    {...INPUT_LAYOUT_PROPS}
+                                                    labelAlign='left'
+                                                    name='email'
+                                                    label={EmailLabel}
+                                                    rules={validations.email}
+                                                >
+                                                    <Input placeholder={ExampleEmailMessage}/>
+                                                </Form.Item>
+                                            </Col>
+                                        )
+                                    }
 
                                     <Col span={24}>
                                         <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>

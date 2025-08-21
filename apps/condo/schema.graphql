@@ -96625,6 +96625,11 @@ type Mutation {
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
 
   """
+  Changes password this action via correct token, that should correspond to ConfirmPhoneAction.
+  Only used for staff users
+  
+  
+  
   **Errors**
   
   Following objects will be presented in `extensions` property of thrown error
@@ -96698,7 +96703,7 @@ type Mutation {
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
-  changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput
+  changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput @deprecated(reason: "Please use `changeUserPassword` mutation")
 
   """
   Send confirmation phone SMS message and return confirmation token. You can use the token for completeConfirmPhoneAction mutation. And then use the token in other mutations to prove that the phone number is verified

@@ -32,7 +32,7 @@ const SignInPage: PageComponentType = () => {
             <Row>
                 <Col>
                     {
-                        authMethods.phonePassword && (
+                        (authMethods.phonePassword || authMethods.emailPassword) && (
                             <Row justify='center'>
                                 <Col>
                                     <TabsAuthAction currentActiveKey='signin'/>
