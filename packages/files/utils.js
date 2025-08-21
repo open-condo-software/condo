@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 const { validate: validateUUID } = require('uuid')
 const { z } = require('zod')
 
-const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
+const { File } = require('@open-condo/files/schema/utils/serverSchema')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -307,33 +307,37 @@ const fileStorageHandler = ({ keystone, appClients }) => {
             )
         )
 
-        const condoFiles = await CondoFile.createMany(
+        const condoFiles = await File.createMany(
             context,
-            savedFiles.map((data, index) => {
-                const fileData = {
-                    ...data,
-                    originalFilename: files[index].filename,
-                    mimetype: files[index].mimetype,
-                    encoding: files[index].encoding,
-                    meta,
-                }
-
-                const signature = jwt.sign(fileData, appClient.secret, { expiresIn: '5m' })
-
-                return {
-                    data: {
-                        file: fileData,
-                        dv: meta.dv,
-                        sender: meta.sender,
-                        signature,
-                        user: { connect: { id: req.user.id } },
+            savedFiles.map((data, index) => ({
+                data: {
+                    fileMeta: {
+                        ...data,
+                        originalFilename: files[index].filename,
+                        mimetype: files[index].mimetype,
+                        encoding: files[index].encoding,
+                        meta,
                     },
-                }
-            }),
-            'signature file { id }'
+                    dv: meta.dv,
+                    sender: meta.sender,
+                    user: { connect: { id: req.user.id } },
+                },
+            })),
+            'id fileMeta'
         )
 
-        res.json(condoFiles)
+        res.json({
+            data: {
+                files: condoFiles.map(file => ({
+                    ...file,
+                    signature: jwt.sign(
+                        file.fileMeta,
+                        appClient.secret,
+                        { expiresIn: '5m' }
+                    ),
+                })),
+            },
+        })
     }
 }
 

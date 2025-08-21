@@ -1,7 +1,7 @@
-const { CondoFile } = require('./CondoFile')
+const { File } = require('./File')
 
 const getFileModels = () => {
-    return { CondoFile }
+    return { File }
 }
 
 module.exports = {
