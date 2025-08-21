@@ -189,13 +189,13 @@ describe('Express proxying tests', () => {
                         'x-proxy-ip': ip,
                         'x-proxy-id': 'simple-proxy-name',
                         'x-proxy-timestamp': validTimestampString,
-                        // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                         'x-proxy-signature': jwt.sign({
                             'x-proxy-ip': ip,
                             'x-proxy-id': 'simple-proxy-name',
                             'x-proxy-timestamp': validTimestampString,
                             method: 'GET',
                             url: '/api/whoami',
+                        // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                         }, '123'),
                         'x-forwarded-for': proxyIp,
                     }, ip)
@@ -203,13 +203,13 @@ describe('Express proxying tests', () => {
                         'x-proxy-ip': ip,
                         'x-proxy-id': 'simple-proxy-name',
                         'x-proxy-timestamp': invalidTimestampString,
-                        // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                         'x-proxy-signature': jwt.sign({
                             'x-proxy-ip': ip,
                             'x-proxy-id': 'simple-proxy-name',
                             'x-proxy-timestamp': invalidTimestampString,
                             method: 'GET',
                             url: '/api/whoami',
+                        // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                         }, '123'),
                         'x-forwarded-for': proxyIp,
                     }, proxyIp)
@@ -310,13 +310,13 @@ describe('Express proxying tests', () => {
                     'x-proxy-ip': ip,
                     'x-proxy-id': 'simple-proxy-name',
                     'x-proxy-timestamp': validTimestampString,
-                    // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                     'x-proxy-signature': jwt.sign({
                         'x-proxy-ip': ip,
                         'x-proxy-id': 'simple-proxy-name',
                         'x-proxy-timestamp': validTimestampString,
                         method: 'GET',
                         url: '/api/whoami',
+                    // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                     }, '123', { expiresIn: expireInSeconds }),
                     'x-forwarded-for': proxyIp,
                 }

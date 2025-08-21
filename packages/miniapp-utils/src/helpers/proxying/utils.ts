@@ -87,6 +87,8 @@ export function getRequestIp (req: IncomingMessage, trustProxyFn: TrustProxyFunc
     }
 
     try {
+        // NOTE: config is passed from outside, where its obtained from .env, so its not hard-coded
+        // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
         const jwtPayload = jwt.verify(xProxySignature, proxyConfig.secret)
         const expectedPayloadSchema = z.object({
             [X_PROXY_TIMESTAMP_HEADER]: z.literal(xProxyTimestamp),
