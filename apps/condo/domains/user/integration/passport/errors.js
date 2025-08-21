@@ -12,6 +12,8 @@ const INVALID_PARAMETER = 'INVALID_PARAMETER'
 const AUTHORIZATION_FAILED = 'AUTHORIZATION_FAILED'
 const UNKNOWN_PROVIDER = 'UNKNOWN_PROVIDER'
 const UNKNOWN_CONFIRM_TOKEN_TYPE = 'UNKNOWN_CONFIRM_TOKEN_TYPE'
+const PHONE_CONFIRMATION_REQUIRED = 'PHONE_CONFIRMATION_REQUIRED'
+const EMAIL_CONFIRMATION_REQUIRED = 'EMAIL_CONFIRMATION_REQUIRED'
 
 const ERRORS = {
     MISSING_QUERY_PARAMETER: {
@@ -73,6 +75,16 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: UNKNOWN_CONFIRM_TOKEN_TYPE,
         message: 'Unknown confirm action token type',
+    },
+    PHONE_CONFIRMATION_REQUIRED: {
+        code: BAD_USER_INPUT,
+        type: PHONE_CONFIRMATION_REQUIRED,
+        message: 'Phone number must be verified to continue authorization. Verify it using startConfirmPhoneAction / completeConfirmPhoneAction mutations and provide verified token as "{parameter}" query-parameter',
+    },
+    EMAIL_CONFIRMATION_REQUIRED: {
+        code: BAD_USER_INPUT,
+        type: EMAIL_CONFIRMATION_REQUIRED,
+        message: 'Email must be verified to continue authorization. Verify it using startConfirmEmailAction / completeConfirmEmailAction mutations and provide verified token as "{parameter}" query-parameter',
     },
 }
 

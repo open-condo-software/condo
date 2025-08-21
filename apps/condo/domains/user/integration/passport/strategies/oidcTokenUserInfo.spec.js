@@ -267,9 +267,10 @@ describe('OidcTokenUserInfoAuthStrategy custom strategy E2E tests', () => {
                     expect(noCodeCallbackResponse).toHaveProperty('status', 400)
                     expectGQLErrorResponse(noCodeCallbackResponse, {
                         code: 'BAD_USER_INPUT',
-                        type: 'MISSING_QUERY_PARAMETER',
+                        type: 'PHONE_CONFIRMATION_REQUIRED',
                         messageInterpolation: {
                             parameter: 'confirm_phone_action_token',
+                            phone: userProfile.phone_number,
                         },
                     })
 
@@ -354,9 +355,10 @@ describe('OidcTokenUserInfoAuthStrategy custom strategy E2E tests', () => {
                     expect(noCodeCallbackResponse).toHaveProperty('status', 400)
                     expectGQLErrorResponse(noCodeCallbackResponse, {
                         code: 'BAD_USER_INPUT',
-                        type: 'MISSING_QUERY_PARAMETER',
+                        type: 'EMAIL_CONFIRMATION_REQUIRED',
                         messageInterpolation: {
                             parameter: 'confirm_email_action_token',
+                            email: userProfile.email,
                         },
                     })
 
