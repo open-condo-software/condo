@@ -30,7 +30,7 @@ const {
 
 
 // NOTE: We need custom utilities because the generic utilities don't have some fields that need to be checked in tests
-const USER_FIELDS = 'type name meta isPhoneVerified isEmailVerified isAdmin isSupport password_is_set email phone id'
+const USER_FIELDS = 'type name meta isPhoneVerified isEmailVerified isAdmin isSupport password_is_set email phone id hasMarketingConsent'
 const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
 const UserAdminUtils = generateGQLTestUtils(UserAdmin)
 
@@ -96,6 +96,7 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 expect(user.isPhoneVerified).toBeTruthy()
                 expect(user.meta).toBeNull()
                 expect(user.password_is_set).toBeFalsy()
+                expect(user.hasMarketingConsent).toBeFalsy()
             })
 
             test('should sign in resident with confirmed phone token if a resident with such a phone is already registered', async () => {

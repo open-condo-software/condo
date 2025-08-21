@@ -15,6 +15,7 @@ query authenticatedUser {
         type
         locale
         showGlobalHints
+        hasMarketingConsent
     }
 }
 

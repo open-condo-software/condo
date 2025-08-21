@@ -2,7 +2,6 @@ import { Col, Row, Switch } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { SwitchChangeEventHandler } from 'antd/lib/switch'
 import debounce from 'lodash/debounce'
-import get from 'lodash/get'
 import isBoolean from 'lodash/isBoolean'
 import getConfig from 'next/config'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -34,18 +33,23 @@ export const UserSettingsContent: React.FC = () => {
     const EmployeeTelegramTooltipMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.description' })
     const EmployeeTelegramOpenMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.open' })
     const GlobalHintsTitle = intl.formatMessage({ id: 'pages.condo.profile.globalHints' })
+    const CompanyName = intl.formatMessage({ id: 'CompanyName' })
+    const HasMarketingConsentTitle = intl.formatMessage({ id: 'pages.condo.profile.hasMarketingConsent' }, { company: CompanyName })
+    const DisabledHasMarketingConsentTooltip = intl.formatMessage({ id: 'pages.condo.profile.hasMarketingConsent.disabled.tooltip' })
 
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
     const EsTitle = intl.formatMessage({ id: 'language.spanish-es.withFlag' })
 
     const [showGlobalHints, setShowGlobalHints] = useState<boolean>(false)
+    const [hasMarketingConsent, setMarketingConsent] = useState<boolean>(false)
 
     const { user, refetch } = useAuth()
 
     const updateUser = User.useUpdate({})
 
-    const initialShowGlobalHints = get(user, 'showGlobalHints')
+    const initialShowGlobalHints = user?.showGlobalHints || false
+    const initialMarketingConsent = user?.hasMarketingConsent || false
 
     const possibleLocalesOptions = useMemo(() => ([
         { label: RuTitle, value: 'ru' },
@@ -58,23 +62,34 @@ export const UserSettingsContent: React.FC = () => {
         setLocale(newLocale)
     }, [user.id])
 
-    const updateGlobalHints = useMemo(() => debounce(async (checked) => {
+    const updateUserInfo = useMemo(() => debounce(async (checked: boolean, fieldName: 'showGlobalHints' | 'hasMarketingConsent') => {
         try {
-            await updateUser({ showGlobalHints: checked }, { id: user.id })
+            await updateUser({ [fieldName]: checked }, { id: user.id })
             refetch()
         } catch (e) {
-            console.error('Failed to update field "showGlobalHints"')
+            console.error(`Failed to update field "${fieldName}"`)
         }
     }, 400), [user.id])
 
     const handleGlobalHintsChange: SwitchChangeEventHandler = useCallback(async (checked) => {
         setShowGlobalHints(checked)
-        await updateGlobalHints(checked)
-    }, [updateGlobalHints])
+        await updateUserInfo(checked, 'showGlobalHints')
+    }, [updateUserInfo])
+
+    const handleMarketingConsentChange: SwitchChangeEventHandler = useCallback(async (checked) => {
+        setMarketingConsent(checked)
+        await updateUserInfo(checked, 'hasMarketingConsent')
+    }, [updateUserInfo])
 
     useEffect(() => {
         if (isBoolean(initialShowGlobalHints)) {
             setShowGlobalHints(initialShowGlobalHints)
+        }
+    }, [initialShowGlobalHints])
+
+    useEffect(() => {
+        if (isBoolean(initialMarketingConsent)) {
+            setMarketingConsent(initialMarketingConsent)
         }
     }, [initialShowGlobalHints])
 
@@ -87,7 +102,7 @@ export const UserSettingsContent: React.FC = () => {
                             <Col span={24}>
                                 <Row gutter={ROW_GUTTER_SMALL}>
                                     <Col span={24}>
-                                        <Row gutter={ROW_GUTTER_MID}>
+                                        <Row gutter={ROW_GUTTER_MID} align='middle'>
                                             <Col lg={5} xs={10}>
                                                 <Typography.Text type='secondary'>
                                                     {GlobalHintsTitle}
@@ -104,7 +119,26 @@ export const UserSettingsContent: React.FC = () => {
                                     </Col>
 
                                     <Col span={24}>
-                                        <Row gutter={ROW_GUTTER_SMALL}>
+                                        <Row gutter={ROW_GUTTER_MID} align='middle'>
+                                            <Col lg={5} xs={10}>
+                                                <Typography.Text type='secondary'>
+                                                    {HasMarketingConsentTitle}
+                                                </Typography.Text>
+                                            </Col>
+                                            <Col lg={5} offset={1}>
+                                                <Tooltip title={!user?.email ? DisabledHasMarketingConsentTooltip : null}>
+                                                    <Switch
+                                                        checked={hasMarketingConsent}
+                                                        onChange={handleMarketingConsentChange}
+                                                        disabled={!user?.email}
+                                                    />
+                                                </Tooltip>
+                                            </Col>
+                                        </Row>
+                                    </Col>
+
+                                    <Col span={24}>
+                                        <Row gutter={ROW_GUTTER_SMALL} align='middle'>
                                             <Col lg={5} xs={10}>
                                                 <Typography.Text type='secondary'>
                                                     {InterfaceLanguageTitle}
@@ -132,7 +166,7 @@ export const UserSettingsContent: React.FC = () => {
                             {
                                 telegramEmployeeBotName && (
                                     <Col span={24}>
-                                        <Row>
+                                        <Row align='middle'>
                                             <Col lg={5} xs={10}>
                                                 <Typography.Text type='secondary'>
                                                     <span style={{ marginRight: 8 }}>

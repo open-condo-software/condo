@@ -2344,6 +2344,8 @@
   "pages.condo.profile.employeeTelegramBot.open": "Открыть Telegram",
   "pages.condo.profile.employeeTelegramBot.title": "Telegram-бот заявок",
   "pages.condo.profile.globalHints": "Подсказки в разделах",
+  "pages.condo.profile.hasMarketingConsent": "Согласен получать материалы об управлении домами, скидках и новостях платформы {company}",
+  "pages.condo.profile.hasMarketingConsent.disabled.tooltip": "Чтобы мы могли присылать вам полезные материалы, укажите email. Для этого во вкладке «Информация» нажмите «Редактировать» и добавьте адрес электронной почты.",
   "pages.condo.profile.interfaceLanguage": "Язык интерфейса",
   "pages.condo.profile.tabs.info": "Информация",
   "pages.condo.profile.tabs.settings": "Настройки",

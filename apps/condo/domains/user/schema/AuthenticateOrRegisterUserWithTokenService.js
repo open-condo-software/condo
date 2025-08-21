@@ -249,7 +249,7 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
     types: [
         {
             access: true,
-            type: 'input AuthenticateOrRegisterUserWithTokenUserDataInput { phone: String, name: String, email: String, password: String }',
+            type: 'input AuthenticateOrRegisterUserWithTokenUserDataInput { phone: String, name: String, email: String, password: String, hasMarketingConsent: Boolean }',
         },
         {
             access: true,
@@ -347,6 +347,7 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                     isEmailVerified: !!confirmedEmail,
                     phone: confirmedPhone || notConfirmedPhone,
                     isPhoneVerified: !!confirmedPhone,
+                    hasMarketingConsent: !!userData.hasMarketingConsent,
                 }
                 const dvAndSender = { dv, sender }
 

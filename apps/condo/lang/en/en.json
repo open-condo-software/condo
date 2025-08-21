@@ -2344,6 +2344,8 @@
   "pages.condo.profile.employeeTelegramBot.open": "Open Telegram",
   "pages.condo.profile.employeeTelegramBot.title": "Telegram-bot for tickets",
   "pages.condo.profile.globalHints": "Hints in sections",
+  "pages.condo.profile.hasMarketingConsent": "I agree to receive materials about home management, discounts and news from the {company} platform",
+  "pages.condo.profile.hasMarketingConsent.disabled.tooltip": "To enable us to send you useful materials, please provide your email. To do this, in the \"Information\" tab, click \"Edit\" and add your email address.",
   "pages.condo.profile.interfaceLanguage": "Language",
   "pages.condo.profile.tabs.info": "Info",
   "pages.condo.profile.tabs.settings": "Settings",
