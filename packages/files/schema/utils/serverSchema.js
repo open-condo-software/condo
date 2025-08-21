@@ -1,7 +1,7 @@
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
-const CondoFile = generateServerUtils('CondoFile')
+const File = generateServerUtils('File')
 
 module.exports = {
-    CondoFile,
+    File,
 }

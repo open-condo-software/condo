@@ -255,11 +255,12 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const json = await result.json()
 
                 expect(result.status).toEqual(200)
-                expect(json).toHaveLength(1)
-                expect(json[0]).toHaveProperty('file')
-                expect(json[0]).toHaveProperty('signature')
+                expect(json).toHaveProperty(['data', 'files'])
+                expect(json.data.files).toHaveLength(1)
+                expect(json.data.files[0]).toHaveProperty('id')
+                expect(json.data.files[0]).toHaveProperty('signature')
                 const secret = JSON.parse(conf['FILE_UPLOAD_CONFIG']).clients[meta.appId]['secret']
-                const data = jwt.verify(json[0].signature, secret)
+                const data = jwt.verify(json.data.files[0].signature, secret)
                 expect(data).not.toBeNull()
             })
         })
@@ -286,9 +287,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const json = await result.json()
 
                 expect(result.status).toEqual(200)
-                expect(json).toHaveLength(1)
-                expect(json[0]).toHaveProperty('signature')
-                expect(json[0]).toHaveProperty('file.id')
+                expect(json.data.files).toHaveLength(1)
+                expect(json.data.files[0]).toHaveProperty('signature')
+                expect(json.data.files[0]).toHaveProperty('id')
+                expect(json.data.files[0]).toHaveProperty('fileMeta')
             })
 
             test('uploading multiple files should be possible', async () => {
@@ -312,7 +314,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const json = await result.json()
 
                 expect(result.status).toEqual(200)
-                expect(json).toHaveLength(2)
+                expect(json.data.files).toHaveLength(2)
             })
         })
     })
