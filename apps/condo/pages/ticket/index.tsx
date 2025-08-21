@@ -778,8 +778,8 @@ export const TicketsPageContent = ({
     const searchTicketsWithoutStatusQuery = useMemo(() => ({
         ...baseTicketsQuery,
         ...filtersToWhere(omit(filters, 'status')),
-    }),
-    [baseTicketsQuery, filters, filtersToWhere])
+    }), [baseTicketsQuery, filters, filtersToWhere])
+    
     const { userFavoriteTickets } = useFavoriteTickets()
     if (filters.type === 'favorite') {
         const favoriteTicketsIds = userFavoriteTickets.map(favoriteTicket => favoriteTicket.ticket.id)

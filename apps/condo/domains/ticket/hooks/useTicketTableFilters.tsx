@@ -4,7 +4,7 @@ import {
     Ticket,
     TicketWhereInput,
 } from '@app/condo/schema'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { QuestionCircle } from '@open-condo/icons'
@@ -23,6 +23,7 @@ import {
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
 import {
+    FiltersGetterType,
     getDayRangeFilter,
     getFilter,
     getNumberFilter,
@@ -82,13 +83,43 @@ const filterUnitType = getFilter('unitType', 'array', 'string', 'in')
 const filterPlaceClassifier = getFilter(['classifier', 'place', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifier = getFilter(['classifier', 'category', 'id'], 'array', 'string', 'in')
 const filterProblemClassifier = getFilter(['classifier', 'problem', 'id'], 'array', 'string', 'in')
-const filterCategoryClassifierSearch = getStringContainsFilter(['classifier', 'category', 'name'])
 const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
 const filterPropertyScope = getPropertyScopeFilter()
 const filterIsCompletedAfterDeadline = getIsCompletedAfterDeadlineFilter()
 
+const getSearchFilter: FiltersGetterType<TicketWhereInput> = (search: string) => {
+    if (!search) return []
+
+    const baseFilters = [
+        filterDetails,
+        filterAddressForSearch,
+    ]
+    const searchSpecificFilters = []
+
+    const isTicketNumberSearch = /^\d+$/.test(search)
+    const isPhoneNumberSearch = /^\+?\d+$/.test(search)
+    const isDateSearch = /^[\d.:]+$/.test(search)
+
+    if (isTicketNumberSearch) {
+        searchSpecificFilters.push(filterNumber)
+    }
+    if (isPhoneNumberSearch) {
+        searchSpecificFilters.push(filterClientPhone)
+    }
+    if (isDateSearch) {
+        searchSpecificFilters.push(filterCreatedAtRange)
+    }
+    if (!isTicketNumberSearch && !isPhoneNumberSearch && !isDateSearch) {
+        searchSpecificFilters.push(filterClientName, filterExecutorName, filterAssigneeName)
+    }
+
+    return [
+        ...baseFilters, 
+        ...searchSpecificFilters,
+    ]
+}
 
 export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ticket>> {
     const intl = useIntl()
@@ -214,16 +245,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
         return [
             {
                 keyword: 'search',
-                filters: [
-                    filterNumber,
-                    filterClientName,
-                    filterAddressForSearch,
-                    filterDetails,
-                    filterExecutorName,
-                    filterAssigneeName,
-                    filterClientPhone,
-                    filterCreatedAtRange,
-                ],
+                filters: getSearchFilter,
                 combineType: 'OR',
             },
             {

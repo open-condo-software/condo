@@ -29,6 +29,7 @@ type WhereArgumentType = string | number | boolean | OptionWhereArgumentType
 export type WhereType = { [key: string]: WhereArgumentType | Array<WhereArgumentType> | WhereType | Array<WhereType> }
 // TODO(mrfoxpro): make type generic
 export type FilterType<F = WhereType> = (search: QueryArgType) => F
+export type FiltersGetterType<F = WhereType> = (search: QueryArgType) => FilterType<F>[]
 export type ArgumentType = 'single' | 'array'
 export type ArgumentDataType = 'string' | 'number' | 'dateTime' | 'boolean'
 export type FiltersApplyMode = 'AND' | 'OR'
@@ -80,7 +81,7 @@ export type ColumnInfo<ColumnData> = {
 
 export type QueryMeta<F> = {
     keyword: string
-    filters: FilterType<F>[]
+    filters: FilterType<F>[] | FiltersGetterType<F>
     // by default === 'AND'
     combineType?: FiltersApplyMode
     defaultValue?: QueryArgType
@@ -158,13 +159,14 @@ export const getFilter: (
         if (argType === 'single') {
             args = args[0]
         }
-        return wrappedDataIndex.reduceRight<WhereType>((acc, current, index) => {
+        const res =  wrappedDataIndex.reduceRight<WhereType>((acc, current, index) => {
             if (index === wrappedDataIndex.length - 1) {
                 const propertyName = suffix ? `${wrappedDataIndex[index]}_${suffix}` : wrappedDataIndex[index]
                 return { [propertyName]: args }
             }
             return { [current]: acc }
         }, undefined)
+        return res
     }
 }
 

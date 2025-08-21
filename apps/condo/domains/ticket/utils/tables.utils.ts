@@ -186,14 +186,7 @@ export const getClientNameFilter = () => {
         return {
             OR: [
                 {
-                    AND: [
-                        {
-                            contact_is_null: true,
-                            clientName_contains_i: search,
-                        },
-                    ],
-                },
-                {
+                    clientName_contains_i: search,
                     contact: { name_contains_i: search },
                 },
             ],
