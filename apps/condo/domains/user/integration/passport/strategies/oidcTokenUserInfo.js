@@ -186,10 +186,10 @@ class OidcTokenUserInfoAuthStrategy {
                 let confirmEmailActionId = null
 
                 if (requireConfirmPhoneAction) {
-                    let providerPhone = null
+                    let providerPhone
                     try {
                         providerPhone = extractUserDataFromProvider(req, userProfile, fieldMapping).phone
-                    } catch (e) {
+                    } catch {
                         providerPhone = null
                     }
                     const { identity, actionId, success, error  } = await OidcTokenUserInfoAuthStrategy.parseConfirmToken(req, 'phone', providerPhone)
@@ -206,10 +206,10 @@ class OidcTokenUserInfoAuthStrategy {
                 }
 
                 if (requireConfirmEmailAction) {
-                    let providerEmail = null
+                    let providerEmail
                     try {
                         providerEmail = extractUserDataFromProvider(req, userProfile, fieldMapping).email
-                    } catch (e) {
+                    } catch {
                         providerEmail = null
                     }
                     const { identity, actionId, success, error  } = await OidcTokenUserInfoAuthStrategy.parseConfirmToken(req, 'email', providerEmail)
