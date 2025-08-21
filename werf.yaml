@@ -765,6 +765,7 @@ git:
 shell:
   install:
     - "cd /app"
+    - "npm i -g turbo"
     - "yarn install --immutable"
   setup:
     - "cd /app"
@@ -810,6 +811,7 @@ git:
 shell:
   install:
     - "cd /app"
+    - "npm i -g turbo"
     - "yarn install --immutable"
   setup:
     - "cd /app"
