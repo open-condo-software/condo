@@ -8,73 +8,46 @@ const {
     rateLimitHandler,
     parserHandler,
     fileStorageHandler,
-    attachHandler,
-    validateAndParseAppClients,
+    validateAndParseFileConfig,
 } = require('./utils')
-
-const DEFAULT_USER_QUOTA = 100
-const DEFAULT_IP_QUOTA = 100
 
 
 class FileMiddleware {
     constructor ({
-        apiUrl = '/api/files',
-        maxFieldSize = 200 * 1024 * 1024,
-        maxFileSize = 200 * 1024 * 1024,
+        apiPrefix = '/api/files',
+        maxFieldSize = 1024 * 1024, // 1Mb
+        maxFileSize = 100 * 1024 * 1024, // 100Mb
         maxFiles = 2,
     } = {}) {
-        this.apiUrl = apiUrl
+        this.apiPrefix = apiPrefix
         this.processRequestOptions = { maxFieldSize, maxFileSize, maxFiles }
-
-        this.quota = this.loadQuota()
-        this.appClients = this.loadAppClients()
+        const { clients, quota } = this.loadConfig()
+        this.quota = quota
+        this.appClients = clients
     }
 
-    loadQuota () {
-        let quota
-        try {
-            const raw = conf['FILE_QUOTA']
-            const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
-            if (parsed && parsed.user > 0 && parsed.ip > 0) quota = parsed
-        } catch (_) {
-            // fall back to defaults
+    loadConfig () {
+        const config = conf['FILE_UPLOAD_CONFIG']
+        if (!config) {
+            console.warn('File upload config not set, disabling v2 upload')
+            return {}
         }
-        return quota || { user: DEFAULT_USER_QUOTA, ip: DEFAULT_IP_QUOTA }
-    }
-
-    loadAppClients () {
-        const raw = conf['FILE_APP_CLIENTS']
-        if (!raw) {
-            console.warn('File - app access control disabled')
-            return undefined
-        }
-
-        // Accept string or already-parsed object
-        let parsed
-        if (typeof raw === 'string') {
+        let parsedConfig
+        if (typeof config === 'string') {
             try {
-                parsed = JSON.parse(raw)
+                parsedConfig = JSON.parse(config)
             } catch {
-                throw new Error('Unable to parse required FILE_APP_CLIENTS json from environment')
+                throw new Error('Unable to parse required FILE_UPLOAD_CONFIG json from environment')
             }
-        } else if (raw && typeof raw === 'object') {
-            parsed = raw
+        } else if (config && typeof config === 'object') {
+            parsedConfig = config
         } else {
-            throw new Error('Unable to parse required FILE_APP_CLIENTS json from environment')
+            throw new Error('Unable to parse required FILE_UPLOAD_CONFIG json from environment')
         }
 
-        try {
-            return validateAndParseAppClients(parsed)
-        } catch (e) {
-            const isZod = e && (e.issues || e.name === 'ZodError')
-            if (isZod) throw new Error(JSON.stringify(e.issues || e.errors || e))
-            throw e
-        }
+        return validateAndParseFileConfig(parsedConfig)
     }
 
-    /**
-   * Prepare and return an express app with routes mounted. No external routes exposed.
-   */
     prepareMiddleware ({ keystone }) {
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
@@ -86,18 +59,11 @@ class FileMiddleware {
 
         // upload route
         app.post(
-            this.apiUrl + '/upload',
+            this.apiPrefix + '/upload',
             authHandler(),
             rateLimitHandler({ keystone, quota, guard }),
             parserHandler({ processRequestOptions }),
             fileStorageHandler({ keystone, appClients }),
-        )
-
-        // attach route
-        app.post(
-            this.apiUrl + '/attach',
-            authHandler(),
-            attachHandler({ keystone })
         )
 
         return app
