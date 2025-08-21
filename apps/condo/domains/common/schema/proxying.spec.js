@@ -189,6 +189,7 @@ describe('Express proxying tests', () => {
                         'x-proxy-ip': ip,
                         'x-proxy-id': 'simple-proxy-name',
                         'x-proxy-timestamp': validTimestampString,
+                        // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                         'x-proxy-signature': jwt.sign({
                             'x-proxy-ip': ip,
                             'x-proxy-id': 'simple-proxy-name',
@@ -202,6 +203,7 @@ describe('Express proxying tests', () => {
                         'x-proxy-ip': ip,
                         'x-proxy-id': 'simple-proxy-name',
                         'x-proxy-timestamp': invalidTimestampString,
+                        // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                         'x-proxy-signature': jwt.sign({
                             'x-proxy-ip': ip,
                             'x-proxy-id': 'simple-proxy-name',
@@ -275,6 +277,7 @@ describe('Express proxying tests', () => {
                         'x-proxy-ip': ip,
                         'x-proxy-id': 'simple-proxy-name',
                         'x-proxy-timestamp': timestampString,
+                        // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                         'x-proxy-signature': jwt.sign(validSignatureFields, '123'),
                         'x-forwarded-for': proxyIp,
                     }, ip)
@@ -291,6 +294,7 @@ describe('Express proxying tests', () => {
                         'x-proxy-ip': ip,
                         'x-proxy-id': 'simple-proxy-name',
                         'x-proxy-timestamp': timestampString,
+                        // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                         'x-proxy-signature': jwt.sign(invalidSignatureFields, '123'),
                         'x-forwarded-for': proxyIp,
                     }, proxyIp)
@@ -306,6 +310,7 @@ describe('Express proxying tests', () => {
                     'x-proxy-ip': ip,
                     'x-proxy-id': 'simple-proxy-name',
                     'x-proxy-timestamp': validTimestampString,
+                    // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                     'x-proxy-signature': jwt.sign({
                         'x-proxy-ip': ip,
                         'x-proxy-id': 'simple-proxy-name',
