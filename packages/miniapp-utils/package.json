@@ -127,9 +127,9 @@
       "import": "./dist/helpers/posthog.mjs"
     },
     "./helpers/proxying": {
-      "types": "./dist/helpers/proxying.d.ts",
-      "require": "./dist/helpers/proxying.js",
-      "import": "./dist/helpers/proxying.mjs"
+      "types": "./dist/helpers/proxying/index.d.ts",
+      "require": "./dist/helpers/proxying/index.js",
+      "import": "./dist/helpers/proxying/index.mjs"
     },
     "./helpers/sender": {
       "types": "./dist/helpers/sender.d.ts",

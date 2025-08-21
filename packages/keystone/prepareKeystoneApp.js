@@ -22,13 +22,15 @@ async function prepareKeystoneExpressApp (entryPoint, { excludeApps } = {}) {
     // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
     const app = express()
 
-    const knownProxies = JSON.parse(conf['TRUSTED_PROXY_CONFIG'] || '{}')
+    const knownProxies = JSON.parse(conf['TRUSTED_PROXIES_CONFIG'] || '{}')
     // NOTE: from https://expressjs.com/en/guide/overriding-express-api.html
     Object.defineProperty(app.request, 'ip', {
         enumerable: true,
         configurable: true,
         get () {
-            return getRequestIp(this, knownProxies)
+            // NOTE: SRC: https://github.com/expressjs/express/blob/4.x/lib/request.js#L350
+            const trustProxyFn = this.app.get('trust proxy fn')
+            return getRequestIp(this, trustProxyFn, knownProxies)
         },
     })
 

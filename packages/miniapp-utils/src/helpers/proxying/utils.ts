@@ -13,6 +13,8 @@ type ProxyId = string
 
 export type KnownProxies = Record<ProxyId, ProxyConfig>
 
+export type TrustProxyFunction = (proxyAddr: string, idx: number) => boolean
+
 const _ipSchema = z.union([z.ipv4(), z.ipv6()])
 const _timeStampBasicRegexp = /^\d+$/
 
@@ -29,23 +31,14 @@ export type ProxyHeaders = {
     [X_PROXY_SIGNATURE_HEADER]: string
 }
 
-/**
- * When you set app.set('trust proxy', true), express is using this filtering function
- * SRC: https://github.com/expressjs/express/blob/4.x/lib/utils.js#L215
- */
-function _trustAllProxies () {
-    return true
-}
-
 function _getTimestampFromHeader (timestamp: string) {
     if (!_timeStampBasicRegexp.test(timestamp)) return Number.NaN
     return (new Date(parseInt(timestamp))).getTime()
 }
 
-
-export function getRequestIp (req: IncomingMessage, knownProxies?: KnownProxies): string {
+export function getRequestIp (req: IncomingMessage, trustProxyFn: TrustProxyFunction, knownProxies?: KnownProxies): string {
     // NOTE: That's what express does under the hood: https://github.com/expressjs/express/blob/4.x/lib/request.js#L349
-    const originalIP = proxyAddr(req, _trustAllProxies)
+    const originalIP = proxyAddr(req, trustProxyFn)
 
     if (!knownProxies) return originalIP
 
@@ -126,7 +119,3 @@ export function getProxyHeadersForIp (method: string, url: string, ip: string, p
         }, secret),
     }
 }
-
-// export function attachProxyHeadersToRequests (req: OutgoingMessage, proxyId: string, secret: string) {
-//     for (const [headerName, headerValue] of getProxyHeadersForIp(req.method))
-// }
