@@ -142,18 +142,13 @@ describe('Express proxying tests', () => {
                     'x-forwarded-for': proxyIp,
                 }, ip)
 
-                const duplicatedHeaders = new Headers()
-                for (const [name, value] of Object.entries(headers)) {
-                    duplicatedHeaders.set(name, value)
-                    if (name === headerName) {
-                        duplicatedHeaders.append(name, value)
-                    }
+                const duplicatedHeaders = {
+                    ...headers,
+                    'x-forwarded-for': proxyIp,
+                    [headerName]: `${headers[headerName]}, ${headers[headerName]}`,
                 }
 
-                await expectIP(serverUrl, {
-                    ...duplicatedHeaders,
-                    'x-forwarded-for': proxyIp,
-                }, proxyIp)
+                await expectIP(serverUrl, duplicatedHeaders, proxyIp)
             })
             describe('IP is not IPv4 or IPv6', () => {
                 const cases = [
