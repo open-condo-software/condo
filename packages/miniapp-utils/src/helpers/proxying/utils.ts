@@ -116,6 +116,8 @@ export function getProxyHeadersForIp (method: string, url: string, ip: string, p
             [X_PROXY_TIMESTAMP_HEADER]: timestampString,
             method,
             url,
-        }, secret),
+        }, secret, {
+            expiresIn: Math.round(DEFAULT_PROXY_TIMEOUT_IN_MS / 1000),
+        }),
     }
 }

@@ -63,6 +63,12 @@ async function expectIP (serverUrl, headers, ip, url = '/api/whoami', method = '
     expect(jsonBody).toHaveProperty('ip', ip)
 }
 
+async function sleep (ms) {
+    return new Promise((res) => {
+        setTimeout(() => res(), ms)
+    })
+}
+
 
 describe('Express proxying tests', () => {
     setFakeClientMode(index)
@@ -289,6 +295,29 @@ describe('Express proxying tests', () => {
                         'x-forwarded-for': proxyIp,
                     }, proxyIp)
                 })
+            })
+            test('If signature is expired', async () => {
+                const ip = faker.internet.ip()
+                const proxyIp = '1.2.3.4'
+                const now = Date.now()
+                const expireInSeconds = 3
+                const validTimestampString = String(now)
+                const headers = {
+                    'x-proxy-ip': ip,
+                    'x-proxy-id': 'simple-proxy-name',
+                    'x-proxy-timestamp': validTimestampString,
+                    'x-proxy-signature': jwt.sign({
+                        'x-proxy-ip': ip,
+                        'x-proxy-id': 'simple-proxy-name',
+                        'x-proxy-timestamp': validTimestampString,
+                        method: 'GET',
+                        url: '/api/whoami',
+                    }, '123', { expiresIn: expireInSeconds }),
+                    'x-forwarded-for': proxyIp,
+                }
+                await expectIP(serverUrl, headers, ip)
+                await sleep(expireInSeconds * 1000 + 50)
+                await expectIP(serverUrl, headers, proxyIp)
             })
         })
     })
