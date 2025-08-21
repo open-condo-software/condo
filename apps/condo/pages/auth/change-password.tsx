@@ -228,7 +228,7 @@ const ChangePasswordPage: PageComponentType = () => {
         })
 
         const isTokenNotFoundError = (error: GraphQLFormattedError) => error?.extensions?.type === 'TOKEN_NOT_FOUND'
-        if (withRetry && res.errors && res.errors.some(isTokenNotFoundError)) {
+        if (withRetry && res?.errors?.some(isTokenNotFoundError)) {
             invalidateSudoToken()
             return changeUserPassword(confirmToken, password, false)
         }

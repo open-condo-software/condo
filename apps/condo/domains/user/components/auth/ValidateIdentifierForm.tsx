@@ -296,7 +296,7 @@ export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ 
                                                                 {codeAvailableLabel}
                                                             </Typography.Text>
                                                             <Typography.Text type='secondary'>
-                                                                {`${new Date(countdown * 1000).toISOString().substr(14, 5)}`}
+                                                                {`${new Date(countdown * 1000).toISOString().substring(14, 19)}`}
                                                             </Typography.Text>
                                                         </Space>
                                                     )
