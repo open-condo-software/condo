@@ -1,7 +1,7 @@
-const { File } = require('./File')
+const { FileRecord } = require('./FileRecord')
 
 const getFileModels = () => {
-    return { File }
+    return { FileRecord }
 }
 
 module.exports = {
