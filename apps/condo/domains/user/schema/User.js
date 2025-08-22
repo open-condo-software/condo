@@ -390,20 +390,16 @@ const User = new GQLListSchema('User', {
             // TODO(DOMA-12119): Remove this code
             if (updatedItem.type === STAFF) {
                 const existingItemEmailField = (existingItem ? existingItem.email : null)
-                const existingItemIsEmailVerifiedField = (existingItem ? existingItem.isEmailVerified : null)
                 const existingItemHasMarketingConsentField = (existingItem ? existingItem.hasMarketingConsent : null)
 
                 const isEmailChanged = updatedItem.email !== existingItemEmailField
-                const isEmailVerifiedChanged = updatedItem.isEmailVerified !== existingItemIsEmailVerifiedField
                 const isHasMarketingConsentChanged = updatedItem.hasMarketingConsent !== existingItemHasMarketingConsentField
 
-                if (isEmailChanged || isEmailVerifiedChanged || isHasMarketingConsentChanged) {
+                if (isEmailChanged || isHasMarketingConsentChanged) {
                     await sendUserDataWebhook({
                         id: updatedItem.id,
                         oldEmail: existingItemEmailField,
                         email: updatedItem.email,
-                        oldIsEmailVerified: existingItemIsEmailVerifiedField,
-                        isEmailVerified: updatedItem.isEmailVerified,
                         oldHasMarketingConsent: existingItemHasMarketingConsentField,
                         hasMarketingConsent: updatedItem.hasMarketingConsent,
                     })
