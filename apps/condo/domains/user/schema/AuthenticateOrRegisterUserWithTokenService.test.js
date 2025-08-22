@@ -598,6 +598,7 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 email: faker.internet.email(),
                 phone: confirmPhoneAction.phone,
                 password: faker.internet.password(16),
+                hasMarketingConsent: true,
             },
         })
         expect(result.token).not.toHaveLength(0)
@@ -614,6 +615,7 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
         expect(user.isPhoneVerified).toBeTruthy()
         expect(user.meta).toBeNull()
         expect(user.password_is_set).toBeTruthy()
+        expect(user.hasMarketingConsent).toBeTruthy()
     })
 
     test('should be set empty user data from the specified user data if the user is already registered', async () => {
@@ -647,6 +649,7 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 email: faker.internet.email(),
                 phone: confirmPhoneAction.phone,
                 password: faker.internet.password(16),
+                hasMarketingConsent: true,
             },
         })
         expect(result2.token).not.toHaveLength(0)
@@ -662,6 +665,7 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
         expect(user2.isPhoneVerified).toBe(user.isPhoneVerified)
         expect(user.meta).toBeNull()
         expect(user2.password_is_set).toBeTruthy()
+        expect(user2.hasMarketingConsent).toBeFalsy()
     })
 
     test('should set the flag "isPhoneVerified" to TRUE if an existing user with an unverified phone sign in with a verified phone token', async () => {
