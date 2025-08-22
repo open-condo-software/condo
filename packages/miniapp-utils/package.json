@@ -61,7 +61,7 @@
         "dist/helpers/posthog.d.ts"
       ],
       "helpers/proxying": [
-        "dist/helpers/proxying.d.ts"
+        "dist/helpers/proxying/index.d.ts"
       ],
       "helpers/sender": [
         "dist/helpers/sender.d.ts"
