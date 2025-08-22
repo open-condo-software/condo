@@ -8,7 +8,12 @@
   },
   "license": "MIT",
   "exports": {
-    "./*": "./*.js"
+    "./schema/models": "./schema/models/index.js",
+    "./schema/utils/serverSchema": "./schema/utils/serverSchema.js",
+    "./fileMiddleware": "./fileMiddleware.js",
+    "./fileMiddleware.test": "./fileMiddleware.test.js",
+    "./utils": "./utils.js",
+    "./utils.test": "./utils.test.js"
   },
   "dependencies": {
     "@open-condo/config": "workspace:^",
