@@ -260,9 +260,13 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
 const DEBOUNCE_TIME = 300
 
 type HasChangeValueType = {
-    floorCount: boolean
-    minFloor: boolean
-    unitsOnFloor: boolean
+    floorCount: number
+    minFloor: number
+    unitsOnFloor: number
+}
+
+const getSectionsKey = (sections): string => {
+    return sections.map(s => s.id).sort().join('-')
 }
 
 const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
@@ -307,6 +311,14 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         [section, sectionIndex, builder]
     )
 
+    const sectionMissingFloors = useMemo(
+        () =>  builder.getSectionMissingFloorsCount(sectionIndex),
+        [builder, sectionIndex]
+    )
+
+    console.log(sectionMissingFloors)
+    console.log(section.floors.length)
+
     const sectionMaxUnitsPerFloor = useMemo(
         () => section ? builder.getMaxUnitsPerFloor(section.id) : 0,
         [section, builder]
@@ -318,7 +330,8 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const toggleRenameNextSections = useCallback((event) => { renameNextSections.current = event.target.checked }, [])
     const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
     const [minFloor, setMinFloor] = useState(sectionMinFloor)
-    const [floorCount, setFloorCount] = useState(section ? section.floors.length : 0)
+    console.log('section.floors.length + sectionMissingFloors', section.floors.length + sectionMissingFloors)
+    const [floorCount, setFloorCount] = useState(section ? section.floors.length + sectionMissingFloors : 0)
     const [unitsOnFloor, setUnitsOnFloor] = useState<number>(sectionMaxUnitsPerFloor)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
     const [hasChanges, setHasChanges] = useState<{ [key: string]: HasChangeValueType }>({})
@@ -340,39 +353,30 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const debouncedSetMinFloor = useCallback(debounce((value) => {
         setMinFloor(value)
+        const key = getSectionsKey(sections)
         const newHasChanges = { ...hasChanges }
-        sections.forEach(section => {
-            newHasChanges[section.id] = { ...newHasChanges[section.id], minFloor: true }
-        })
+        newHasChanges[key] = { ...newHasChanges[key], minFloor: value }
         setHasChanges(newHasChanges)
 
     }, DEBOUNCE_TIME), [sections, hasChanges])
 
     const debouncedSetFloorCount = useCallback(debounce((value) => {
         setFloorCount(value)
+        const key = getSectionsKey(sections)
         const newHasChanges = { ...hasChanges }
-        sections.forEach(section => {
-            newHasChanges[section.id] = { ...newHasChanges[section.id], floorCount: true }
-        })
+        newHasChanges[key] = { ...newHasChanges[key], floorCount: value }
         setHasChanges(newHasChanges)
 
     }, DEBOUNCE_TIME), [hasChanges, sections])
 
     const debouncedSetUnitsOnFloor = useCallback(debounce((value) => {
         setUnitsOnFloor(value)
+        const key = getSectionsKey(sections)
         const newHasChanges = { ...hasChanges }
-        sections.forEach(section => {
-            newHasChanges[section.id] = { ...newHasChanges[section.id], unitsOnFloor: true }
-        })
+        newHasChanges[key] = { ...newHasChanges[key], unitsOnFloor: value }
         setHasChanges(newHasChanges)
 
     }, DEBOUNCE_TIME), [hasChanges, sections])
-
-    const maxFloorValue = useMemo(() => {
-        if ((floorCount === 1 || !floorCount) && minFloor > 0) return minFloor
-        if (minFloor > 0) return floorCount + minFloor - 1
-        return floorCount + minFloor
-    }, [floorCount, minFloor])
 
     const toggleMinFloorVisible = useCallback(() => {
         if (!minFloorHidden) {
@@ -390,6 +394,43 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         setMinFloorHidden(true)
         setName(section?.name || '')
     }, [section?.name])
+
+    useEffect(() => {
+        const key = getSectionsKey(sections)
+
+        const isMinFloorChanged = hasChanges[key]?.minFloor !== undefined
+        const isFloorCountChanged = hasChanges[key]?.floorCount !== undefined
+        const isUnitsOnFloorChanged = hasChanges[key]?.unitsOnFloor !== undefined
+
+        const changesKeys = Object.keys(hasChanges)
+        const lastChangesKey = changesKeys[changesKeys.length - 1]
+
+        if (oldSectionsIds.current && JSON.stringify(changesKeys) === JSON.stringify(oldSectionsIds.current)) return
+
+        if (isMinFloorChanged) {
+            setMinFloor(hasChanges[key].minFloor)
+        } else if (sections.length === 1) {
+            setMinFloor(sectionMinFloor)
+        } else {
+            debouncedSetMinFloor(hasChanges[lastChangesKey]?.minFloor !== undefined ? hasChanges[lastChangesKey].minFloor : null)
+        }
+
+        if (isFloorCountChanged) {
+            setFloorCount(hasChanges[key].floorCount)
+        } else if (sections.length === 1) {
+            setFloorCount(section ? section.floors.length + sectionMissingFloors : 0)
+        } else {
+            debouncedSetFloorCount(hasChanges[lastChangesKey]?.floorCount !== undefined ? hasChanges[lastChangesKey].floorCount : null)
+        }
+
+        if (isUnitsOnFloorChanged) {
+            setUnitsOnFloor(hasChanges[key].unitsOnFloor)
+        } else if (sections.length === 1) {
+            setUnitsOnFloor(sectionMaxUnitsPerFloor)
+        } else {
+            debouncedSetUnitsOnFloor(hasChanges[lastChangesKey]?.unitsOnFloor !== undefined ? hasChanges[lastChangesKey].unitsOnFloor : null)
+        }
+    }, [sections, hasChanges, sectionMinFloor, section, sectionMissingFloors, sectionMaxUnitsPerFloor, debouncedSetMinFloor, debouncedSetFloorCount, debouncedSetUnitsOnFloor])
 
     useEffect(() => {
         const sectionsIds = sections.map(section => section.id)
@@ -414,38 +455,46 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 setMinFloor(null)
             } else {
                 setMinFloor(prev => prev || sectionMinFloor)
-                setFloorCount(prev => prev || section ? section.floors.length : 1)
+                setFloorCount(prev => prev || section ? section.floors.length + sectionMissingFloors : 1)
                 setUnitsOnFloor(prev => prev || sectionMaxUnitsPerFloor)
             }
         }
 
         oldSectionsIds.current = sectionsIds
-    }, [section, sectionMaxUnitsPerFloor, sectionMinFloor, sections, hasChanges])
+    }, [section, sectionMaxUnitsPerFloor, sectionMinFloor, sections, hasChanges, sectionMissingFloors])
 
     useEffect(() => {
         sections.forEach(section => {
             const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
             const sectionMinFloor = builder.getSectionMinFloor(sectionIndex)
-            const sectionMaxFloor = builder.getSectionMaxFloor(sectionIndex)
             const sectionMaxUnitsPerFloor = builder.getMaxUnitsPerFloor(section.id)
 
-            const isMinFloorChanged = hasChanges[section.id]?.minFloor
-            const isFloorCountChanged = hasChanges[section.id]?.floorCount
+            const currentChangesKey = getSectionsKey(sections)
+            const changesKeys = Object.keys(hasChanges)
+            const lastChangesKey = changesKeys[changesKeys.length - 1]
 
-            const newMinFloor = isMinFloorChanged  ? minFloor : sectionMinFloor
-            const floorShift = newMinFloor - sectionMinFloor
+            const minFloorChange = hasChanges[currentChangesKey]?.minFloor || hasChanges[lastChangesKey]?.minFloor
+            const floorCountChange = hasChanges[currentChangesKey]?.floorCount || hasChanges[lastChangesKey]?.floorCount
+            const unitsOnFloorChange = hasChanges[currentChangesKey]?.unitsOnFloor || hasChanges[lastChangesKey]?.unitsOnFloor
 
-            const newMaxFloor = isFloorCountChanged ? maxFloorValue : sectionMaxFloor + floorShift
+            const newMinFloor = minFloorChange !== undefined  && minFloorChange !== null ? minFloorChange : sectionMinFloor
+            const misingFloors = builder.getSectionMissingFloorsCount(sectionIndex)
+
+            const newMaxFloor = floorCountChange !== undefined && floorCountChange !== null ?
+                floorCountChange - 1  + newMinFloor
+                : section.floors.length + misingFloors - 1 + newMinFloor
+
+            const newUnitsOnFloor = unitsOnFloorChange !== undefined && unitsOnFloorChange !== null ? unitsOnFloorChange : sectionMaxUnitsPerFloor
 
             builder.updatePreviewSection({
                 ...section, 
                 name,
                 minFloor: newMinFloor,
                 maxFloor: newMaxFloor,
-                unitsOnFloor: hasChanges[section.id]?.unitsOnFloor  ? unitsOnFloor : sectionMaxUnitsPerFloor,
+                unitsOnFloor: newUnitsOnFloor,
             })
         })
-    }, [builder, name, minFloor, maxFloorValue, unitsOnFloor, floorCount, canChangeName, sections, initialSections, hasChanges])
+    }, [builder, name, minFloor, unitsOnFloor, floorCount, canChangeName, sections, initialSections, hasChanges])
 
     const updateSection = useCallback(() => {
         sections.forEach(section => {
@@ -455,29 +504,37 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         sections.map(section => {
             const sectionIndex = initialSections.findIndex(el => el.index === section?.index)
             const sectionMinFloor = builder.getSectionMinFloor(sectionIndex)
-            const sectionMaxFloor = builder.getSectionMaxFloor(sectionIndex)
             const sectionMaxUnitsPerFloor = builder.getMaxUnitsPerFloor(section.id)
 
-            const isMinFloorChanged = hasChanges[section.id]?.minFloor
-            const isFloorCountChanged = hasChanges[section.id]?.floorCount
+            const currentChangesKey = getSectionsKey(sections)
+            const changesKeys = Object.keys(hasChanges)
+            const lastChangesKey = changesKeys[changesKeys.length - 1]
 
-            const newMinFloor = isMinFloorChanged  ? minFloor : sectionMinFloor
-            const floorShift = newMinFloor - sectionMinFloor
+            const minFloorChange = hasChanges[currentChangesKey]?.minFloor || hasChanges[lastChangesKey]?.minFloor
+            const floorCountChange = hasChanges[currentChangesKey]?.floorCount || hasChanges[lastChangesKey]?.floorCount
+            const unitsOnFloorChange = hasChanges[currentChangesKey]?.unitsOnFloor || hasChanges[lastChangesKey]?.unitsOnFloor
 
-            const newMaxFloor = isFloorCountChanged ? maxFloorValue : sectionMaxFloor + floorShift
+            const newMinFloor = minFloorChange !== undefined  && minFloorChange !== null ? minFloorChange : sectionMinFloor
+            const misingFloors = builder.getSectionMissingFloorsCount(sectionIndex)
+
+            const newMaxFloor = floorCountChange !== undefined && floorCountChange !== null ?
+                floorCountChange - 1 + newMinFloor
+                : section.floors.length + misingFloors - 1 + newMinFloor
+
+            const newUnitsOnFloor = unitsOnFloorChange !== undefined && unitsOnFloorChange !== null ? unitsOnFloorChange : sectionMaxUnitsPerFloor
 
             builder.updateSection({
                 ...section,
                 name,
                 minFloor: newMinFloor,
                 maxFloor: newMaxFloor,
-                unitsOnFloor: hasChanges[section.id]?.unitsOnFloor ? unitsOnFloor : sectionMaxUnitsPerFloor,
+                unitsOnFloor: newUnitsOnFloor,
             }, renameNextUnits.current, renameNextSections.current)}
         )
 
         refresh()
         resetForm()
-    }, [sections, refresh, resetForm, builder, initialSections, name, hasChanges, minFloor, maxFloorValue, unitsOnFloor])
+    }, [sections, refresh, resetForm, builder, initialSections, name, hasChanges])
 
     const isSaveDisabled = useMemo(() => {
         if (isEmpty(section)) return true
