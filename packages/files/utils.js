@@ -251,7 +251,7 @@ function parserHandler ({ processRequestOptions }) {
             }
 
             if (fieldName === 'meta') {
-                meta = parseAndValidateMeta(value, req, res, next, exit)
+                meta = parseAndValidateMeta(value, req, next, exit)
             }
 
             req.meta = meta
