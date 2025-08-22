@@ -159,14 +159,13 @@ export const getFilter: (
         if (argType === 'single') {
             args = args[0]
         }
-        const res =  wrappedDataIndex.reduceRight<WhereType>((acc, current, index) => {
+        return wrappedDataIndex.reduceRight<WhereType>((acc, current, index) => {
             if (index === wrappedDataIndex.length - 1) {
                 const propertyName = suffix ? `${wrappedDataIndex[index]}_${suffix}` : wrappedDataIndex[index]
                 return { [propertyName]: args }
             }
             return { [current]: acc }
         }, undefined)
-        return res
     }
 }
 

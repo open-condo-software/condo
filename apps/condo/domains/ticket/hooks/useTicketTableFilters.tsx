@@ -88,6 +88,7 @@ const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
 const filterPropertyScope = getPropertyScopeFilter()
 const filterIsCompletedAfterDeadline = getIsCompletedAfterDeadlineFilter()
+const filterClientNameForSearch = getStringContainsFilter('clientName')
 
 const getSearchFilter: FiltersGetterType<TicketWhereInput> = (search: string) => {
     if (!search) return []
@@ -112,7 +113,7 @@ const getSearchFilter: FiltersGetterType<TicketWhereInput> = (search: string) =>
         searchSpecificFilters.push(filterCreatedAtRange)
     }
     if (!isTicketNumberSearch && !isPhoneNumberSearch && !isDateSearch) {
-        searchSpecificFilters.push(filterClientName, filterExecutorName, filterAssigneeName)
+        searchSpecificFilters.push(filterClientNameForSearch, filterExecutorName, filterAssigneeName)
     }
 
     return [

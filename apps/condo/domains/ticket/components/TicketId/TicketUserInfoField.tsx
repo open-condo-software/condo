@@ -44,7 +44,7 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
                 {({ name: userName, postfix }) => {
                     if (nameLink) {
                         return (
-                            <Link href={nameLink} legacyBehavior>
+                            <Link href={nameLink}>
                                 <a>
                                     {userName}
                                     {postfix && (
