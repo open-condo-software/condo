@@ -218,6 +218,7 @@ const prepareCreateOrUpdateUserData = (user, userData, dvAndSender) => {
     for (const [key, value] of Object.entries(userData)) {
         if (!value) continue
         if (user?.[key]) continue
+        if (key === 'hasMarketingConsent' && typeof user?.[key] === 'boolean') continue
         payload[key] = value
     }
     if (Object.keys(payload).length > 0) {
@@ -249,7 +250,7 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
     types: [
         {
             access: true,
-            type: 'input AuthenticateOrRegisterUserWithTokenUserDataInput { phone: String, name: String, email: String, password: String }',
+            type: 'input AuthenticateOrRegisterUserWithTokenUserDataInput { phone: String, name: String, email: String, password: String, hasMarketingConsent: Boolean }',
         },
         {
             access: true,

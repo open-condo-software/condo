@@ -30,7 +30,7 @@ const {
 
 
 // NOTE: We need custom utilities because the generic utilities don't have some fields that need to be checked in tests
-const USER_FIELDS = 'type name meta isPhoneVerified isEmailVerified isAdmin isSupport password_is_set email phone id'
+const USER_FIELDS = 'type name meta isPhoneVerified isEmailVerified isAdmin isSupport password_is_set email phone id hasMarketingConsent'
 const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
 const UserAdminUtils = generateGQLTestUtils(UserAdmin)
 
@@ -96,6 +96,7 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 expect(user.isPhoneVerified).toBeTruthy()
                 expect(user.meta).toBeNull()
                 expect(user.password_is_set).toBeFalsy()
+                expect(user.hasMarketingConsent).toBeFalsy()
             })
 
             test('should sign in resident with confirmed phone token if a resident with such a phone is already registered', async () => {
@@ -597,6 +598,7 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 email: faker.internet.email(),
                 phone: confirmPhoneAction.phone,
                 password: faker.internet.password(16),
+                hasMarketingConsent: true,
             },
         })
         expect(result.token).not.toHaveLength(0)
@@ -613,6 +615,7 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
         expect(user.isPhoneVerified).toBeTruthy()
         expect(user.meta).toBeNull()
         expect(user.password_is_set).toBeTruthy()
+        expect(user.hasMarketingConsent).toBeTruthy()
     })
 
     test('should be set empty user data from the specified user data if the user is already registered', async () => {
@@ -646,6 +649,7 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 email: faker.internet.email(),
                 phone: confirmPhoneAction.phone,
                 password: faker.internet.password(16),
+                hasMarketingConsent: true,
             },
         })
         expect(result2.token).not.toHaveLength(0)
@@ -661,6 +665,7 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
         expect(user2.isPhoneVerified).toBe(user.isPhoneVerified)
         expect(user.meta).toBeNull()
         expect(user2.password_is_set).toBeTruthy()
+        expect(user2.hasMarketingConsent).toBeFalsy()
     })
 
     test('should set the flag "isPhoneVerified" to TRUE if an existing user with an unverified phone sign in with a verified phone token', async () => {

@@ -85292,6 +85292,7 @@ input AuthenticateOrRegisterUserWithTokenUserDataInput {
   name: String
   email: String
   password: String
+  hasMarketingConsent: Boolean
 }
 
 input AuthenticateOrRegisterUserWithTokenInput {

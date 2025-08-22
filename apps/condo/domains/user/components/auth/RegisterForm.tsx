@@ -104,7 +104,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const visibleFields = useMemo(() => ({
         name: !userExistenceResult?.data?.result?.isNameSet,
         email: identifierType === 'phone' && !userExistenceResult?.data?.result?.isUserExists,
-        consentToReceiveMarketingMaterialsMessage: ['phone', 'email'].includes(identifierType) && !userExistenceResult?.data?.result?.isUserExists,
+        hasMarketingConsent: ['phone', 'email'].includes(identifierType) && !userExistenceResult?.data?.result?.isUserExists,
         phone: identifierType === 'email' && !userExistenceResult?.data?.result?.isUserExists,
         password: !userExistenceResult?.data?.result?.isPasswordSet,
     }), [identifierType, userExistenceResult?.data])
@@ -160,7 +160,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         try {
             setIsLoading(true)
 
-            const { name, email: inputEmail, phone: inputPhone, password } = form.getFieldsValue(['name', 'email', 'phone', 'password'])
+            const {
+                name, 
+                email: inputEmail,
+                phone: inputPhone,
+                password,
+                hasMarketingConsent,
+            } = form.getFieldsValue(['name', 'email', 'phone', 'password', 'hasMarketingConsent'])
             const email = inputEmail ? inputEmail.toLowerCase().trim() : ''
             const phone = inputPhone ? inputPhone.toLowerCase().trim() : ''
 
@@ -169,6 +175,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                 ...(visibleFields.phone ? { phone } : null),
                 ...(visibleFields.name ? { name } : null),
                 ...(visibleFields.password ? { password } : null),
+                ...(email && visibleFields.hasMarketingConsent ? { hasMarketingConsent } : null),
             }
 
             const sender = getClientSideSenderInfo()
@@ -359,13 +366,26 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                 }
 
                                 {
-                                    visibleFields.consentToReceiveMarketingMaterialsMessage && (
+                                    visibleFields.hasMarketingConsent && visibleFields.email && (
                                         <Col span={24}>
-                                            <Checkbox tabIndex={4}>
-                                                <Typography.Text size='small'>
-                                                    {ConsentToReceiveMarketingMaterialsMessage}
-                                                </Typography.Text>
-                                            </Checkbox>
+                                            <Form.Item noStyle shouldUpdate>
+                                                {
+                                                    ({ getFieldsValue }) => {
+                                                        const { email: emailFromForm } = getFieldsValue(['email'])
+                                                        const email = emailFromForm?.trim()
+
+                                                        return (
+                                                            <Form.Item noStyle name='hasMarketingConsent' valuePropName='checked' label={null}>
+                                                                <Checkbox tabIndex={4} disabled={!email}>
+                                                                    <Typography.Text size='small'>
+                                                                        {ConsentToReceiveMarketingMaterialsMessage}
+                                                                    </Typography.Text>
+                                                                </Checkbox>
+                                                            </Form.Item>
+                                                        )
+                                                    }
+                                                }
+                                            </Form.Item>
                                         </Col>
                                     )
                                 }
