@@ -1,6 +1,7 @@
 const express = require('express')
 
 const conf = require('@open-condo/config')
+const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
 
 const {
     RedisGuard,
@@ -65,6 +66,9 @@ class FileMiddleware {
             parserHandler({ processRequestOptions }),
             fileStorageHandler({ keystone, appClients }),
         )
+
+        // catch gql errors, that thrown from main handler
+        app.use(expressErrorHandler)
 
         return app
     }

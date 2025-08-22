@@ -5,8 +5,9 @@ const {
     validateAndParseFileConfig,
     authHandler,
     rateLimitHandler,
+    parseAndValidateMeta,
 } = require('./utils')
-const { parseAndValidateMeta, extractRequestIp, MetaSchema } = __test__
+const { MetaSchema } = __test__
 
 const USER_UUID = faker.datatype.uuid()
 
@@ -157,60 +158,81 @@ const FileMiddlewareUtilsTests = () => {
             })
 
             test('accepts valid meta JSON string', () => {
-                const { req, res } = makeReqRes()
+                const { req, next } = makeReqRes()
                 const { onError, calls } = onErrorRunner()
                 const metaStr = JSON.stringify(baseMeta())
-                const result = parseAndValidateMeta(metaStr, req, res, onError)
+                const result = parseAndValidateMeta(metaStr, req, next, onError)
                 expect(calls.called).toBe(false)
                 expect(result).toMatchObject(baseMeta())
             })
 
             test('rejects non-JSON string with 400 + parse message', () => {
-                const { req, res } = makeReqRes()
-                const { onError } = onErrorRunner()
-                parseAndValidateMeta('nope', req, res, onError)
-                expect(res.status).toHaveBeenCalledWith(400)
-                expect(res.json).toHaveBeenCalledWith({ error: 'Invalid type for the "meta" multipart field' })
+                const { req, next } = makeReqRes()
+                const { onError, calls } = onErrorRunner()
+                parseAndValidateMeta('nope', req, next, onError)
+                expect(calls.called).toBe(true)
+                const lastCall = next.mock.calls[0]
+
+                expect(lastCall).toHaveLength(1)
+                expect(lastCall[0]).toEqual(expect.objectContaining({
+                    name: 'GQLError',
+                    extensions: expect.objectContaining({
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_META',
+                    }),
+                }))
             })
 
             test('rejects wrong type with 400', () => {
-                const { req, res } = makeReqRes()
-                const { onError } = onErrorRunner()
-                parseAndValidateMeta(42, req, res, onError)
-                expect(res.status).toHaveBeenCalledWith(400)
+                const { req, next } = makeReqRes()
+                const { onError, calls } = onErrorRunner()
+                parseAndValidateMeta(42, req, next, onError)
+                expect(calls.called).toBe(true)
+                const lastCall = next.mock.calls[0]
+
+                expect(lastCall).toHaveLength(1)
+                expect(lastCall[0]).toEqual(expect.objectContaining({
+                    name: 'GQLError',
+                    extensions: expect.objectContaining({
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_META',
+                    }),
+                }))
             })
 
             test('rejects mismatch authedItem with 403', () => {
                 const req = { user: { id: faker.datatype.uuid(), deletedAt: null } }
-                const { res } = makeReqRes({ req })
+                const { next } = makeReqRes({ req })
+                const { onError, calls } = onErrorRunner()
+                parseAndValidateMeta(baseMeta(), req, next, onError)
+                expect(calls.called).toBe(true)
+                const lastCall = next.mock.calls[0]
+
+                expect(lastCall).toHaveLength(1)
+                expect(lastCall[0]).toEqual(expect.objectContaining({
+                    name: 'GQLError',
+                    extensions: expect.objectContaining({
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_META',
+                    }),
+                }))
+            })
+
+            test('modelNames should be non empty array', () => {
+                const { req, next } = makeReqRes()
                 const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta(), req, res, onError)
-                expect(res.status).toHaveBeenCalledWith(403)
-                expect(res.json).toHaveBeenCalledWith({ error: 'Wrong authedItem. Unable to upload file for another user' })
-            })
+                parseAndValidateMeta(baseMeta({ modelNames: [] }), req, next, onError)
+                const lastCall = next.mock.calls[0]
 
-            test('400 error returns first Zod message', () => {
-                const { req, res } = makeReqRes()
-                const { onError } = onErrorRunner()
-                parseAndValidateMeta(baseMeta({ modelNames: [] }), req, res, onError)
-                expect(res.status).toHaveBeenCalledWith(400)
-                const msg = res.json.mock.calls[0][0].error
-                expect(typeof msg).toBe('string')
-                expect(msg.length).toBeGreaterThan(0)
-            })
-        })
-
-        // ----------------- extractRequestIp -----------------
-
-        describe('extractRequestIp', () => {
-            test('handles IPv6-style forwarded ip with IPv4 tail', () => {
-                const ip = extractRequestIp({ ip: '::ffff:10.0.0.5' })
-                expect(ip).toBe('10.0.0.5')
-            })
-
-            test('handles plain IPv4', () => {
-                const ip = extractRequestIp({ ip: '192.168.1.10' })
-                expect(ip).toBe('192.168.1.10')
+                expect(lastCall).toHaveLength(1)
+                expect(lastCall[0]).toEqual(expect.objectContaining({
+                    name: 'GQLError',
+                    extensions: expect.objectContaining({
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_META',
+                        message: 'Too small: expected array to have >=1 items',
+                    }),
+                }))
             })
         })
 
@@ -226,16 +248,31 @@ const FileMiddlewareUtilsTests = () => {
             test('blocks missing user', async () => {
                 const { res, next } = makeReqRes({ req: { user: null } })
                 await authHandler()({ user: null }, res, next)
-                expect(res.status).toHaveBeenCalledWith(403)
-                expect(res.json).toHaveBeenCalledWith({ error: 'Authorization is required' })
-                expect(next).not.toHaveBeenCalled()
+                const lastCall = next.mock.calls[0]
+
+                expect(lastCall).toHaveLength(1)
+                expect(lastCall[0]).toEqual(expect.objectContaining({
+                    name: 'GQLError',
+                    extensions: expect.objectContaining({
+                        code: 'UNAUTHENTICATED',
+                        type: 'AUTHORIZATION_REQUIRED',
+                    }),
+                }))
             })
 
             test('blocks deleted user', async () => {
                 const { res, next } = makeReqRes({ req: { user: { id: 'x', deletedAt: 'now' } } })
                 await authHandler()({ user: { id: 'x', deletedAt: 'now' } }, res, next)
-                expect(res.status).toHaveBeenCalledWith(403)
-                expect(next).not.toHaveBeenCalled()
+                const lastCall = next.mock.calls[0]
+
+                expect(lastCall).toHaveLength(1)
+                expect(lastCall[0]).toEqual(expect.objectContaining({
+                    name: 'GQLError',
+                    extensions: expect.objectContaining({
+                        code: 'UNAUTHENTICATED',
+                        type: 'AUTHORIZATION_REQUIRED',
+                    }),
+                }))
             })
         })
 
@@ -254,8 +291,16 @@ const FileMiddlewareUtilsTests = () => {
                 }
                 const { req, res, next } = makeReqRes()
                 await rateLimitHandler({ quota: { user: 10, ip: 10 }, guard })(req, res, next)
-                expect(res.status).toHaveBeenCalledWith(429)
-                expect(next).not.toHaveBeenCalled()
+                const lastCall = next.mock.calls[0]
+
+                expect(lastCall).toHaveLength(1)
+                expect(lastCall[0]).toEqual(expect.objectContaining({
+                    name: 'GQLError',
+                    extensions: expect.objectContaining({
+                        code: 'TOO_MANY_REQUESTS',
+                        type: 'RATE_LIMIT_EXCEEDED',
+                    }),
+                }))
             })
 
             test('blocks when ip over quota', async () => {
@@ -265,8 +310,16 @@ const FileMiddlewareUtilsTests = () => {
                 }
                 const { req, res, next } = makeReqRes()
                 await rateLimitHandler({ quota: { user: 10, ip: 10 }, guard })(req, res, next)
-                expect(res.status).toHaveBeenCalledWith(429)
-                expect(next).not.toHaveBeenCalled()
+                const lastCall = next.mock.calls[0]
+
+                expect(lastCall).toHaveLength(1)
+                expect(lastCall[0]).toEqual(expect.objectContaining({
+                    name: 'GQLError',
+                    extensions: expect.objectContaining({
+                        code: 'TOO_MANY_REQUESTS',
+                        type: 'RATE_LIMIT_EXCEEDED',
+                    }),
+                }))
             })
         })
     })

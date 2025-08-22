@@ -18,7 +18,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
     let admin
     let filestream
     beforeAll(async () => {
-    // Clean rate limits
+        // Clean rate limits
         const kv = getKVClient('guards')
 
         const client = await makeClient()
@@ -26,9 +26,11 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
         admin = await makeLoggedInAdminClient()
         filestream = fs.readFileSync(testFile)
 
+        console.log(admin.user.id)
+
         // Clear rate limits
         await kv.del(`guard_counter:file:${admin.user.id}`)
-        await kv.del(`guard_counter:file:${admin}:127.0.0.1`)
+        await kv.del('guard_counter:file:::ffff:127.0.0.1')
     })
 
     describe('file middleware', () => {
@@ -42,8 +44,15 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 })
                 const json = await result.json()
 
-                expect(result.status).toEqual(403)
-                expect(json).toHaveProperty('error', 'Authorization is required')
+                expect(result.status).toEqual(401)
+                expect(json).toEqual({
+                    errors: [
+                        expect.objectContaining({
+                            name: 'GQLError',
+                            message: 'Authorization is required',
+                        }),
+                    ],
+                })
             })
 
             test('Deleted user should not be able to upload file', async () => {
@@ -58,9 +67,15 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     body: form,
                 })
                 const json = await result.json()
-
-                expect(result.status).toEqual(403)
-                expect(json).toHaveProperty('error', 'Authorization is required')
+                expect(result.status).toEqual(401)
+                expect(json).toEqual({
+                    errors: [
+                        expect.objectContaining({
+                            name: 'GQLError',
+                            message: 'Authorization is required',
+                        }),
+                    ],
+                })
             })
 
             test('User should not be able to upload file for another user', async () => {
@@ -80,8 +95,15 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 })
                 const json = await result.json()
 
-                expect(result.status).toEqual(403)
-                expect(json).toHaveProperty('error', 'Wrong authedItem. Unable to upload file for another user')
+                expect(result.status).toEqual(400)
+                expect(json).toEqual({
+                    errors: [
+                        expect.objectContaining({
+                            name: 'GQLError',
+                            message: 'Wrong authedItem. Unable to upload file for another user',
+                        }),
+                    ],
+                })
             })
 
             test('Only POST request is allowed', async () => {
@@ -106,8 +128,15 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 })
                 const json = await result.json()
 
-                expect(result.status).toEqual(405)
-                expect(json).toHaveProperty('error', 'Wrong request method type. Only "multipart/form-data" is allowed')
+                expect(result.status).toEqual(400)
+                expect(json).toEqual({
+                    errors: [
+                        expect.objectContaining({
+                            name: 'GQLError',
+                            message: 'Wrong request method type. Only "multipart/form-data" is allowed',
+                        }),
+                    ],
+                })
             })
 
             test('upload file without required meta field should be not possible', async () => {
@@ -195,7 +224,14 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const json = await result.json()
 
                 expect(result.status).toEqual(400)
-                expect(json).toHaveProperty('error', 'Missing attached files')
+                expect(json).toEqual({
+                    errors: [
+                        expect.objectContaining({
+                            name: 'GQLError',
+                            message: 'Missing binary data in request',
+                        }),
+                    ],
+                })
             })
 
             test('upload with wrong authed item type should fail', async () => {
@@ -230,7 +266,14 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 })
                 const json = await result.json()
                 expect(result.status).toEqual(403)
-                expect(json).toHaveProperty('error', `${appId} does not have permission to upload files`)
+                expect(json).toEqual({
+                    errors: [
+                        expect.objectContaining({
+                            name: 'GQLError',
+                            message: 'Provided appId does not have permission to upload file',
+                        }),
+                    ],
+                })
             })
         })
 
@@ -259,6 +302,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 expect(json.data.files).toHaveLength(1)
                 expect(json.data.files[0]).toHaveProperty('id')
                 expect(json.data.files[0]).toHaveProperty('signature')
+
                 const secret = JSON.parse(conf['FILE_UPLOAD_CONFIG']).clients[meta.appId]['secret']
                 const data = jwt.verify(json.data.files[0].signature, secret)
                 expect(data).not.toBeNull()
@@ -291,6 +335,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 expect(json.data.files[0]).toHaveProperty('signature')
                 expect(json.data.files[0]).toHaveProperty('id')
                 expect(json.data.files[0]).toHaveProperty('fileMeta')
+                // expect(json.data.files[0].fileMeta).toHaveProperty(['meta', 'fileAdapter'], conf['FILE_FIELD_ADAPTER'])
             })
 
             test('uploading multiple files should be possible', async () => {
