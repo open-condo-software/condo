@@ -982,6 +982,22 @@ class MapEdit extends MapView {
         }
     }
 
+    getSectionMissingFloorsCount (sectionIndex: number): number {
+        const currentFloorIndexes = this.sections[sectionIndex].floors.map(floor => floor.index).sort((a, b) => a - b)
+
+        let missingFloors = 0
+        if (currentFloorIndexes.length > 1) {
+            for (let i = 1; i < currentFloorIndexes.length; i++) {
+                const gap = currentFloorIndexes[i] - currentFloorIndexes[i - 1] - 1
+                if (gap > 0) {
+                    missingFloors += gap
+                }
+            }
+        }
+
+        return missingFloors
+    }
+
     private updateFloorRange (
         sectionIndex: number,
         newMinFloor: number,
@@ -998,29 +1014,23 @@ class MapEdit extends MapView {
         if (floorShift !== 0) {
             section.floors.forEach(floor => floor.index += floorShift)
         }
-        // Handle max floor adjustment
+
+        const missingFloors = this.getSectionMissingFloorsCount(sectionIndex)
+
+        // Calculate required floor count and adjustment needed
+        const requiredFloorCount = Math.abs(newMaxFloor - newMinFloor) + 1
+        const currentFloorCount = section.floors.length
+        const effectiveCurrentFloorCount = currentFloorCount + missingFloors
+
+        console.log('effectiveCurrentFloorCount', effectiveCurrentFloorCount)
+        console.log('requiredFloorCount', requiredFloorCount)
+
+        const floorsToAddOrRemove = requiredFloorCount - effectiveCurrentFloorCount
+
         const currentSectionMaxFloor = this.getSectionMaxFloor(sectionIndex)
-        const currentSectionFloorCount = section.floors.length
-
-        const hasNegativeMinFloor = newMinFloor < 0
-
-        let newFloorCount = currentSectionFloorCount
-
-        if (newMaxFloor > 0 && newMinFloor > 0) {
-            newFloorCount = newMaxFloor + newMinFloor - 1
-        }
-        else if (newMaxFloor > 0 && newMinFloor < 0) {
-            newFloorCount = newMaxFloor - newMinFloor + 1
-        }
-        else if (newMaxFloor < 0 && newMinFloor < 0) {
-            newFloorCount = Math.abs(newMaxFloor - newMinFloor) + 1
-        }
-
-        const floorsToAddOrRemove = newFloorCount - currentSectionFloorCount
 
         if (floorsToAddOrRemove > 0) {
-            const maxFloorForNewFloors = hasNegativeMinFloor ? newMaxFloor - 1 : newMaxFloor
-            this.addFloorsToSection(sectionIndex, currentSectionMaxFloor, maxFloorForNewFloors, unitsPerFloor, renameNextUnits, preview)
+            this.addFloorsToSection(sectionIndex, currentSectionMaxFloor, newMaxFloor, unitsPerFloor, renameNextUnits, preview)
         } else if (floorsToAddOrRemove < 0) {
             this.removeFloorsFromSection(sectionIndex, Math.abs(floorsToAddOrRemove), renameNextUnits)
         }
@@ -1036,7 +1046,7 @@ class MapEdit extends MapView {
     ): void {
         for (let floorIndex = currentMaxFloor; floorIndex < newMaxFloor; floorIndex++) {
             let lastUnit = null
-            const floors = this.sections[sectionIndex].floors
+            const floors = this.sections[sectionIndex].floors.sort((a, b) => b.index - a.index)
 
             for (let i = 0; i < floors.length; i++) {
                 const units = floors[i].units
@@ -1163,7 +1173,7 @@ class MapEdit extends MapView {
                 this.removeFloor(unitIndex.section, unitIndex.floor)
             }
 
-            if (nextUnit && NUMERIC_REGEXP.test(removedUnit.label) && (renameNextUnits || sectionIndex)) {
+            if (nextUnit && NUMERIC_REGEXP.test(removedUnit.label) && (renameNextUnits || sectionIndex !== undefined)) {
                 nextUnit.label = !sectionIndex ? removedUnit.label : nextUnit.label
                 const updatedSectionIndex = renameNextUnits ? null : this.sections[sectionIndex].index + 1
                 const unitNumberToStartRenaming = renameNextUnits ? null : updatedSectionIndex
