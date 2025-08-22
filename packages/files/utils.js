@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 const { validate: validateUUID } = require('uuid')
 const { z } = require('zod')
 
-const { File } = require('@open-condo/files/schema/utils/serverSchema')
+const { FileRecord } = require('@open-condo/files/schema/utils/serverSchema')
 const  { GQLError } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getKVClient } = require('@open-condo/keystone/kv')
@@ -306,7 +306,7 @@ function fileStorageHandler ({ keystone, appClients }) {
             )
         )
 
-        const condoFiles = await File.createMany(
+        const condoFiles = await FileRecord.createMany(
             context,
             savedFiles.map((data, index) => ({
                 data: {
