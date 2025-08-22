@@ -88,31 +88,39 @@ const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
 const filterPropertyScope = getPropertyScopeFilter()
 const filterIsCompletedAfterDeadline = getIsCompletedAfterDeadlineFilter()
+const filterClientNameForSearch = getStringContainsFilter('clientName')
+const filterClientPhoneForSearch = getStringContainsFilter('clientPhone')
 
-const getSearchFilter: FiltersGetterType<TicketWhereInput> = (search: string) => {
+
+const getSearchFilter: FiltersGetterType<TicketWhereInput> = (rawSearch: string) => {
+    const search = rawSearch?.trim()
     if (!search) return []
 
     const baseFilters = [
         filterDetails,
-        filterAddressForSearch,
     ]
     const searchSpecificFilters = []
 
     const isTicketNumberSearch = /^\d+$/.test(search)
     const isPhoneNumberSearch = /^\+?\d+$/.test(search)
-    const isDateSearch = /^[\d.:]+$/.test(search)
+    const isDateSearch = /^[\d.:-]+$/.test(search)
+    const isNameSearch = !isTicketNumberSearch && /^[\p{L}\d\s.'"-]+$/u.test(search)
+    const isAddressSearch = /^[\p{L}\d\s,.-]+$/u.test(search)
 
     if (isTicketNumberSearch) {
         searchSpecificFilters.push(filterNumber)
     }
     if (isPhoneNumberSearch) {
-        searchSpecificFilters.push(filterClientPhone)
+        searchSpecificFilters.push(filterClientPhoneForSearch)
     }
     if (isDateSearch) {
         searchSpecificFilters.push(filterCreatedAtRange)
     }
-    if (!isTicketNumberSearch && !isPhoneNumberSearch && !isDateSearch) {
-        searchSpecificFilters.push(filterClientName, filterExecutorName, filterAssigneeName)
+    if (isNameSearch) {
+        searchSpecificFilters.push(filterClientNameForSearch, filterExecutorName, filterAssigneeName)
+    }
+    if (isAddressSearch) {
+        searchSpecificFilters.push(filterAddressForSearch)
     }
 
     return [
