@@ -14,7 +14,7 @@ export type TypographyLinkProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElem
     size?: typeof TEXT_SIZES[number]
     id?: string
     children?: React.ReactNode
-    component?: React.Component
+    component?: React.ElementType<never> | string
     ['aria-label']?: string
 }
 
