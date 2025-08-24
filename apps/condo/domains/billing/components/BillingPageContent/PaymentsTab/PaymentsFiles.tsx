@@ -10,7 +10,7 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { Loader } from '@condo/domains/common/components/Loader'
 
 
-const SEARCHING_DINO_IMG = 'dino/searching@2x.png'
+const SEARCHING_DINO_IMG = '/dino/searching@2x.png'
 const IMG_STYLES: CSSProperties = { marginBottom: 24 }
 const TEXT_GAP = 16
 
@@ -39,7 +39,7 @@ const PaymentsFiles = (): JSX.Element => {
     }
 
     if (anyPaymentsFilesError) {
-        return <Typography.Title>{anyPaymentsFilesError}</Typography.Title>
+        return <Typography.Title>{anyPaymentsFilesError.message}</Typography.Title>
     }
 
     if (!anyPaymentsFiles?.paymentsFiles?.length) {

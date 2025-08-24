@@ -17,9 +17,24 @@ const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization, 
 const guards = require('@condo/domains/organization/utils/serverSchema/guards')
 const { PHONE_TYPE, EMAIL_TYPE } = require('@condo/domains/user/constants/identifiers')
 const { createUser } = require('@condo/domains/user/utils/serverSchema')
+const { getIdentificationUserRequiredFields } = require('@condo/domains/user/utils/serverSchema/userHelpers')
+
 
 const INVITE_REQUIRE_ALLOWED_FIELDS = [PHONE_TYPE, EMAIL_TYPE]
-const INVITE_REQUIRED_FIELDS = conf['INVITE_REQUIRED_FIELDS'] ? JSON.parse(conf['INVITE_REQUIRED_FIELDS']) : [PHONE_TYPE]
+let INVITE_REQUIRED_FIELDS = conf['INVITE_REQUIRED_FIELDS'] ? JSON.parse(conf['INVITE_REQUIRED_FIELDS']) : [PHONE_TYPE]
+
+
+// NOTE: backward compatibility!
+// TODO(DOMA-12135): Remove deprecated INVITE_REQUIRED_FIELDS
+if (conf.IDENTIFICATION_USER_REQUIRED_FIELDS !== undefined && conf.INVITE_REQUIRED_FIELDS !== undefined) {
+    throw new Error('You should use IDENTIFICATION_USER_REQUIRED_FIELDS instead of INVITE_REQUIRED_FIELDS env! Variable INVITE_REQUIRED_FIELDS is deprecated!')
+} else if (conf.INVITE_REQUIRED_FIELDS !== undefined) {
+    console.warn('You should use IDENTIFICATION_USER_REQUIRED_FIELDS instead of INVITE_REQUIRED_FIELDS env! Variable INVITE_REQUIRED_FIELDS is deprecated!')
+} else {
+    const IDENTIFICATION_USER_REQUIRED_FIELDS = getIdentificationUserRequiredFields()
+    INVITE_REQUIRED_FIELDS = IDENTIFICATION_USER_REQUIRED_FIELDS.staff
+}
+
 
 if (INVITE_REQUIRED_FIELDS.some(item => !INVITE_REQUIRE_ALLOWED_FIELDS.includes(item))) throw new Error('INVITE_REQUIRED_FIELDS must be ["phone"], ["email"] or ["phone","email"]')
 

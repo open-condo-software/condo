@@ -337,36 +337,25 @@ const MarketplacePaymentsTableContent = () => {
                     {textStatusDescModal}
                 </Typography.Text>
             </Modal>
-            {
-                (
-                    <ExportToExcelActionBar
-                        key='exportToExcel'
-                        searchObjectsQuery={{
-                            ...searchPaymentsQuery,
-                            ...filtersToWhere(filters),
-                        }}
-                        sortBy={sortBy}
-                        exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
-                        disabled={total < 1}
-                        actions={[
-                            selectedRows.length > 0 ? <Button
-                                key='clearListSelectedRow'
-                                type='primary'
-                                onClick={handleClearListSelectedRow}
-                            >
-                                {ClearListSelectedRowMessage}
-                            </Button> : undefined,
-                            // <Button
-                            //     key='downloadCheck'
-                            //     type='primary'
-                            //     onClick={handleDownloadCheckButtonClick}
-                            // >
-                            //     {DownloadCheckLabel}
-                            // </Button>,
-                        ]}
-                    />
-                )
-            }
+            <ExportToExcelActionBar
+                key='exportToExcel'
+                searchObjectsQuery={{
+                    ...searchPaymentsQuery,
+                    ...filtersToWhere(filters),
+                }}
+                sortBy={sortBy}
+                exportToExcelQuery={EXPORT_PAYMENTS_TO_EXCEL}
+                disabled={total < 1}
+                actions={[
+                    selectedRows.length > 0 ? <Button
+                        key='clearListSelectedRow'
+                        type='primary'
+                        onClick={handleClearListSelectedRow}
+                    >
+                        {ClearListSelectedRowMessage}
+                    </Button> : undefined,
+                ]}
+            />
         </TablePageContent>
     )
 }

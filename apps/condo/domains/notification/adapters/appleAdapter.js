@@ -242,6 +242,7 @@ class AppleAdapter {
                                     ...response,
                                     pushToken: notificationsBatchForApp[idx].token,
                                     pushType: pushTypes[notificationsBatchForApp[idx].token],
+                                    appleServerUrl: configForApp.url,
                                 })
                         )
                     }

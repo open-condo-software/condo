@@ -140,7 +140,6 @@ async function exportMeterReadings (taskId) {
             meterReading.resource = resourceName
             meterReading.unitName = meter.unitName
             meterReading.unitType = meter.unitType
-            meterReading.accountNumber = meter.accountNumber
             meterReading.number = meter.number
             meterReading.place = meter.place
             meterReading.address = meter.property

@@ -33,7 +33,7 @@ const ERRORS = {
         messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_CREDENTIALS',
     },
     CAPTCHA_CHECK_FAILED: {
-        query: 'authenticateUserWithPhoneAndPassword',
+        mutation: 'authenticateUserWithPhoneAndPassword',
         variable: ['data', 'captcha'],
         code: BAD_USER_INPUT,
         type: CAPTCHA_CHECK_FAILED,
@@ -42,11 +42,11 @@ const ERRORS = {
     },
     DV_VERSION_MISMATCH: {
         ...COMMON_ERRORS.DV_VERSION_MISMATCH,
-        query: 'authenticateOrRegisterUserWithToken',
+        mutation: 'authenticateUserWithPhoneAndPassword',
     },
     WRONG_SENDER_FORMAT: {
         ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
-        query: 'authenticateOrRegisterUserWithToken',
+        mutation: 'authenticateUserWithPhoneAndPassword',
     },
 }
 

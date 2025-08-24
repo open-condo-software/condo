@@ -352,6 +352,14 @@ export type GetEmployeeB2BAppRolesQueryVariables = Types.Exact<{
 
 export type GetEmployeeB2BAppRolesQuery = { __typename?: 'Query', b2bRoles?: Array<{ __typename?: 'B2BAppRole', id: string, app?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
 
+export type GetCustomValuesForObjectQueryVariables = Types.Exact<{
+  schemaName: Types.CustomFieldSchemaNameType;
+  objectId: Types.Scalars['String']['input'];
+}>;
+
+
+export type GetCustomValuesForObjectQuery = { __typename?: 'Query', customValues?: Array<{ __typename?: 'CustomValue', id: string, data?: any | null, sourceType?: Types.CustomValueSourceTypeType | null, sourceId?: string | null, customField?: { __typename?: 'CustomField', priority?: number | null, name?: string | null } | null } | null> | null };
+
 export type GetNewsItemsRecipientsCountersQueryVariables = Types.Exact<{
   data: Types.GetNewsItemsRecipientsCountersInput;
 }>;
@@ -589,7 +597,7 @@ export type GetPropertyByIdQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetPropertyByIdQuery = { __typename?: 'Query', properties?: Array<{ __typename?: 'Property', id: string, address?: string | null, organization?: { __typename?: 'Organization', id: string } | null, map?: { __typename?: 'BuildingMap', sections?: Array<{ __typename?: 'BuildingSection', id: string, type: Types.BuildingSectionType, index: number, name: string, preview?: boolean | null, floors: Array<{ __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> } | null> } | null> | null, parking?: Array<{ __typename?: 'BuildingSection', id: string, type: Types.BuildingSectionType, index: number, name: string, preview?: boolean | null, floors: Array<{ __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> } | null> } | null> | null } | null } | null> | null };
+export type GetPropertyByIdQuery = { __typename?: 'Query', properties?: Array<{ __typename?: 'Property', id: string, address?: string | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null, map?: { __typename?: 'BuildingMap', sections?: Array<{ __typename?: 'BuildingSection', id: string, type: Types.BuildingSectionType, index: number, name: string, preview?: boolean | null, floors: Array<{ __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> } | null> } | null> | null, parking?: Array<{ __typename?: 'BuildingSection', id: string, type: Types.BuildingSectionType, index: number, name: string, preview?: boolean | null, floors: Array<{ __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> } | null> } | null> | null } | null } | null> | null };
 
 export type GetLastCreatedPropertyByOrganizationIdQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
@@ -670,6 +678,14 @@ export type GetTicketCallRecordsFragmentsQueryVariables = Types.Exact<{
 
 
 export type GetTicketCallRecordsFragmentsQuery = { __typename?: 'Query', callRecordFragments?: Array<{ __typename?: 'CallRecordFragment', id: string, callRecord?: { __typename?: 'CallRecord', id: string, isIncomingCall?: boolean | null, callerPhone?: string | null, destCallerPhone?: string | null, startedAt?: string | null, file?: { __typename?: 'File', publicUrl?: string | null, id?: string | null } | null } | null } | null> | null };
+
+export type GetClientCallRecordsExistenceQueryVariables = Types.Exact<{
+  phone: Types.Scalars['String']['input'];
+  propertyId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetClientCallRecordsExistenceQuery = { __typename?: 'Query', callRecordFragments?: Array<{ __typename?: 'CallRecordFragment', id: string } | null> | null };
 
 export type GetIncidentsQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.IncidentWhereInput>;
@@ -891,6 +907,15 @@ export type GetOrganizationEmployeeTicketsForReassignmentQueryVariables = Types.
 
 export type GetOrganizationEmployeeTicketsForReassignmentQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string, assignee?: { __typename?: 'User', id: string } | null, executor?: { __typename?: 'User', id: string } | null } | null> | null };
 
+export type GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables = Types.Exact<{
+  propertyId: Types.Scalars['ID']['input'];
+  placeId: Types.Scalars['ID']['input'];
+  categoryId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetTicketsWithSamePropertyAndClassifierExistenceQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null };
+
 export type CreateTicketMutationVariables = Types.Exact<{
   data: Types.TicketCreateInput;
 }>;
@@ -1080,6 +1105,13 @@ export type AuthenticateOrRegisterUserWithTokenMutationVariables = Types.Exact<{
 
 export type AuthenticateOrRegisterUserWithTokenMutation = { __typename?: 'Mutation', result?: { __typename?: 'AuthenticateOrRegisterUserWithTokenOutput', user?: { __typename?: 'User', id: string } | null } | null };
 
+export type AuthenticateUserWithEmailAndPasswordMutationVariables = Types.Exact<{
+  data: Types.AuthenticateUserWithEmailAndPasswordInput;
+}>;
+
+
+export type AuthenticateUserWithEmailAndPasswordMutation = { __typename?: 'Mutation', result?: { __typename?: 'AuthenticateUserWithEmailAndPasswordOutput', item?: { __typename?: 'User', id: string } | null } | null };
+
 export type AuthenticateUserWithPhoneAndPasswordMutationVariables = Types.Exact<{
   data: Types.AuthenticateUserWithPhoneAndPasswordInput;
 }>;
@@ -1087,12 +1119,12 @@ export type AuthenticateUserWithPhoneAndPasswordMutationVariables = Types.Exact<
 
 export type AuthenticateUserWithPhoneAndPasswordMutation = { __typename?: 'Mutation', result?: { __typename?: 'AuthenticateUserWithPhoneAndPasswordOutput', item?: { __typename?: 'User', id: string } | null } | null };
 
-export type ChangePasswordWithTokenMutationVariables = Types.Exact<{
-  data: Types.ChangePasswordWithTokenInput;
+export type ChangeUserPasswordMutationVariables = Types.Exact<{
+  data: Types.ChangeUserPasswordInput;
 }>;
 
 
-export type ChangePasswordWithTokenMutation = { __typename?: 'Mutation', result?: { __typename?: 'ChangePasswordWithTokenOutput', status: string, phone: string } | null };
+export type ChangeUserPasswordMutation = { __typename?: 'Mutation', result?: { __typename?: 'ChangeUserPasswordOutput', status: string } | null };
 
 export type CheckUserExistenceQueryVariables = Types.Exact<{
   data: Types.CheckUserExistenceInput;
@@ -1101,12 +1133,33 @@ export type CheckUserExistenceQueryVariables = Types.Exact<{
 
 export type CheckUserExistenceQuery = { __typename?: 'Query', result?: { __typename?: 'CheckUserExistenceOutput', isUserExists: boolean, isNameSet: boolean, isEmailSet: boolean, isPhoneSet: boolean, isPasswordSet: boolean } | null };
 
+export type CompleteConfirmEmailActionMutationVariables = Types.Exact<{
+  data: Types.CompleteConfirmEmailActionInput;
+}>;
+
+
+export type CompleteConfirmEmailActionMutation = { __typename?: 'Mutation', result?: { __typename?: 'CompleteConfirmEmailActionOutput', status: string } | null };
+
 export type CompleteConfirmPhoneActionMutationVariables = Types.Exact<{
   data: Types.CompleteConfirmPhoneActionInput;
 }>;
 
 
 export type CompleteConfirmPhoneActionMutation = { __typename?: 'Mutation', result?: { __typename?: 'CompleteConfirmPhoneActionOutput', status: string } | null };
+
+export type GenerateSudoTokenMutationVariables = Types.Exact<{
+  data: Types.GenerateSudoTokenInput;
+}>;
+
+
+export type GenerateSudoTokenMutation = { __typename?: 'Mutation', result?: { __typename?: 'GenerateSudoTokenOutput', token: string } | null };
+
+export type GetEmailByConfirmEmailActionTokenQueryVariables = Types.Exact<{
+  data: Types.GetEmailByConfirmEmailActionTokenInput;
+}>;
+
+
+export type GetEmailByConfirmEmailActionTokenQuery = { __typename?: 'Query', result?: { __typename?: 'GetEmailByConfirmEmailActionTokenOutput', email: string, isEmailVerified: boolean } | null };
 
 export type GetPhoneByConfirmPhoneActionTokenQueryVariables = Types.Exact<{
   data: Types.GetPhoneByConfirmPhoneActionTokenInput;
@@ -1115,12 +1168,26 @@ export type GetPhoneByConfirmPhoneActionTokenQueryVariables = Types.Exact<{
 
 export type GetPhoneByConfirmPhoneActionTokenQuery = { __typename?: 'Query', result?: { __typename?: 'GetPhoneByConfirmPhoneActionTokenOutput', phone: string, isPhoneVerified: boolean } | null };
 
+export type ResendConfirmEmailActionMutationVariables = Types.Exact<{
+  data: Types.ResendConfirmEmailActionInput;
+}>;
+
+
+export type ResendConfirmEmailActionMutation = { __typename?: 'Mutation', result?: { __typename?: 'ResendConfirmEmailActionOutput', status: string } | null };
+
 export type ResendConfirmPhoneActionSmsMutationVariables = Types.Exact<{
   data: Types.ResendConfirmPhoneActionSmsInput;
 }>;
 
 
 export type ResendConfirmPhoneActionSmsMutation = { __typename?: 'Mutation', result?: { __typename?: 'ResendConfirmPhoneActionSmsOutput', status: string } | null };
+
+export type StartConfirmEmailActionMutationVariables = Types.Exact<{
+  data: Types.StartConfirmEmailActionInput;
+}>;
+
+
+export type StartConfirmEmailActionMutation = { __typename?: 'Mutation', result?: { __typename?: 'StartConfirmEmailActionOutput', token: string } | null };
 
 export type StartConfirmPhoneActionMutationVariables = Types.Exact<{
   data: Types.StartConfirmPhoneActionInput;
@@ -1132,7 +1199,7 @@ export type StartConfirmPhoneActionMutation = { __typename?: 'Mutation', result?
 export type AuthenticatedUserQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type AuthenticatedUserQuery = { __typename?: 'Query', authenticatedUser?: { __typename?: 'User', id: string, name?: string | null, phone?: string | null, email?: string | null, isAdmin?: boolean | null, isSupport?: boolean | null, type?: Types.UserTypeType | null, locale?: Types.UserLocaleType | null, showGlobalHints?: boolean | null, avatar?: { __typename?: 'File', publicUrl?: string | null } | null, rightsSet?: { __typename?: 'UserRightsSet', id: string } | null } | null };
+export type AuthenticatedUserQuery = { __typename?: 'Query', authenticatedUser?: { __typename?: 'User', id: string, name?: string | null, phone?: string | null, email?: string | null, isAdmin?: boolean | null, isSupport?: boolean | null, type?: Types.UserTypeType | null, locale?: Types.UserLocaleType | null, showGlobalHints?: boolean | null, hasMarketingConsent?: boolean | null, avatar?: { __typename?: 'File', publicUrl?: string | null } | null, rightsSet?: { __typename?: 'UserRightsSet', id: string } | null } | null };
 
 export type SignOutMutationVariables = Types.Exact<{ [key: string]: never; }>;
 

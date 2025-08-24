@@ -93,7 +93,7 @@ export const MarketplacePageContent = () => {
             <PageContent>
                 {!marketplaceIsSetup ? (
                     <EmptyListContent
-                        image='dino/playing@2x.png'
+                        image='/dino/playing@2x.png'
                         message={NotSetupText}
                         label={NotSetupTitle}
                         createLabel={NotSetupButton}

@@ -6,7 +6,8 @@
 
 .custom-carousel-wrapper :global(.condo-carousel .slick-list) {
   width: calc(100% + 24px);
-  margin: 0;
+  margin: -20px 0;
+  padding: 20px 0;
 }
 
 .custom-carousel-wrapper :global(.condo-carousel .slick-list .slick-track .slick-slide) {
@@ -24,41 +25,4 @@
 
 .custom-carousel-wrapper :global(.condo-carousel .slick-next) {
   right: -32px !important;
-}
-
-.address-tab-wrapper > div {
-  height: 100%;
-  padding: 20px;
-  background-color: white;
-  border-radius: 11px;
-}
-
-.address-tab-content > div {
-  display: flex;
-  flex-direction: column;
-  row-gap: 12px;
-}
-
-.link-wrapper {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.address-tab-wrapper {
-  height: 165px;
-  padding: 1px;
-  border: 1px solid #e6e8f1;
-  border-radius: 12px;
-  transition: all 0.3s;
-}
-
-.address-tab-wrapper[data-active="true"] {
-  background: linear-gradient(115deg, #4cd174 16%, #6db8f2 84%);
-  box-shadow: var(--condo-global-box-shadow-default);
-}
-
-.address-tab-wrapper:hover {
-  box-shadow: inherit;
-  cursor: pointer;
 }

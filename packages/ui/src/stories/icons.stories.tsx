@@ -4,7 +4,7 @@ import type { IconProps } from '@open-condo/icons'
 import * as AllIcons from '@open-condo/icons'
 import { Space, Typography } from '@open-condo/ui/src'
 
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
 type IconBlockProps = {
     name: string

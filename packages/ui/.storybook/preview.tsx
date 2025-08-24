@@ -1,5 +1,5 @@
 import React from 'react'
-import { styled } from '@storybook/theming'
+import { styled } from 'storybook/theming'
 import '@open-condo/ui/src/components/style/core/global.less'
 
 const PaddedContentWrapper = styled.div`

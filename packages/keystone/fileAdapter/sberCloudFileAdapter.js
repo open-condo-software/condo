@@ -193,33 +193,33 @@ const obsRouterHandler = ({ keystone }) => {
     const Acl = new SberCloudObsAcl(obsConfig)
 
     return async function (req, res, next) {
-        if (!req.user) {
-            // TODO(zuch): Ask where error pages are located in keystone - 403 is probably missing
-            res.status(403)
-            return res.end()
-        }
-        const meta = await Acl.getMeta(req.params.file)
-
-        if (isEmpty(meta)) {
-            res.status(404)
-            return res.end()
-        }
-        const {
-            id: itemId,
-            ids: stringItemIds,
-            listkey: listKey,
-            propertyquery: encodedPropertyQuery,
-            propertyvalue: encodedPropertyValue,
-        } = meta
-        const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
-        const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
-
-        if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
-            res.status(404)
-            return res.end()
-        }
-
         try {
+            if (!req.user) {
+            // TODO(zuch): Ask where error pages are located in keystone - 403 is probably missing
+                res.status(403)
+                return res.end()
+            }
+            const meta = await Acl.getMeta(req.params.file)
+
+            if (isEmpty(meta)) {
+                res.status(404)
+                return res.end()
+            }
+            const {
+                id: itemId,
+                ids: stringItemIds,
+                listkey: listKey,
+                propertyquery: encodedPropertyQuery,
+                propertyvalue: encodedPropertyValue,
+            } = meta
+            const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
+            const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
+
+            if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
+                res.status(404)
+                return res.end()
+            }
+
             const context = await keystone.createContext({ authentication: { item: req.user, listKey: 'User' } })
 
             let hasAccessToReadFile

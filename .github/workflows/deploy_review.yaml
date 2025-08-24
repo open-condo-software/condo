@@ -14,12 +14,12 @@ jobs:
       PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
       KUBE_CONFIG_BASE64_DATA: ${{ secrets.TEST_CLUSTER_KUBE_CONFIG_BASE64_DATA }}
     steps:
+
+      - name: Echo review namespaces
+        run: echo "Active review stands = $(kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns | grep "review-" -c)"
       - name: Check review limits
         run: |
-          review_namespaces=$(kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns | grep "review-" -c)
-          echo "active review namespaces = ${review_namespaces}"
-          
-          if [[ $review_namespaces == 7 ]]; then
+          if [[ $review_namespaces == $(kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns | grep "review-" -c) ]]; then
             echo "The maximum number of simultaneous reviews has been reached.";
             exit 1;
           fi
@@ -71,6 +71,7 @@ jobs:
           WERF_SET_CI_NEWS_GREENHOUSE_URL: "global.ci_news_greenhouse_url=news-sharing-greendom.r.doma.ai"
           WERF_SET_CI_METER_IMPORTER_URL: "global.ci_meter_importer_url=meters-billing-integration.r.doma.ai"
           WERF_SET_CI_BILLING_CONNECTOR_URL: "global.ci_billing_connector_url=review-${{ env.REVIEW_URL_PREFIX }}-billing-connector.r.doma.ai"
+          WERF_SET_CI_POS_INTEGRATION_URL: "global.ci_pos_integration_url=review-${{ env.REVIEW_URL_PREFIX }}-pos-integration.r.doma.ai"
           WERF_SET_CI_NAMESPACE: "global.ci_namespace=${{ env.REVIEW_NAMESPACE }}"
           WERF_SET_CI_URL_PREFIX: "global.ci_url_prefix=${{ env.REVIEW_URL_PREFIX }}"
           WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE }}

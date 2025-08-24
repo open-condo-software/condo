@@ -67,6 +67,7 @@ jobs:
           WERF_SET_CI_ANNOUNCEMENT_GENERATOR_URL: "global.ci_announcement_url=announcement-generator.s1.doma.ai"
           WERF_SET_CI_NEWS_GREENHOUSE_URL: "global.ci_news_greenhouse_url=news-sharing-greendom.s1.doma.ai"
           WERF_SET_CI_METER_IMPORTER_URL: "global.ci_meter_importer_url=meters-billing-integration.s1.doma.ai"
+          WERF_SET_CI_POS_INTEGRATION_URL: "global.ci_pos_integration_url=pos-integration.s1.doma.ai"
           WERF_NAMESPACE: "stage"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"

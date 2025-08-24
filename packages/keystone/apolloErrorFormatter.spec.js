@@ -105,6 +105,7 @@ describe('safeFormatError hide=false', () => {
             'message': 'Hello',
             'name': 'Error',
             'stack': expect.stringMatching(/^Error: Hello/),
+            'errId': error.uid,
         })
     })
     test('safeFormatError(new NestedError)', () => {
@@ -364,7 +365,7 @@ describe('safeFormatError hide=false', () => {
         })
         const error = new GraphQLError(message2, null, null, null, null, original, {})
         const result = safeFormatError(error)
-        const uid = result?.originalError?.uid
+        const errId = result?.originalError?.errId
         expect(result).toEqual({
             'name': 'GQLError',
             'message': message2,
@@ -375,7 +376,7 @@ describe('safeFormatError hide=false', () => {
                 'message': message1,
             },
             'originalError': {
-                uid,
+                errId,
                 'name': 'GQLError',
                 'message': message1,
                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
@@ -398,10 +399,12 @@ describe('safeFormatError hide=false', () => {
                 bar: 1,
             },
         })
+        const errId = error.uid
         expect(safeFormatError(error)).toEqual({
             'name': 'GQLError',
             'message': 'string and 1',
             'stack': expect.stringMatching(new RegExp('^GQLError: string and 1')),
+            errId,
             'extensions': {
                 code: 'INTERNAL_ERROR',
                 type: 'SOME_TYPE',
@@ -424,7 +427,7 @@ describe('safeFormatError hide=false', () => {
         }, { req: { id: reqId }, name: 'context1' })
         const error = new GraphQLError(message2, null, null, null, null, original, {})
         const result = safeFormatError(error)
-        const uid = result?.originalError?.uid
+        const errId = result?.originalError?.errId
         expect(result).toEqual({
             'name': 'GQLError',
             'message': message2,
@@ -435,7 +438,8 @@ describe('safeFormatError hide=false', () => {
                 'message': message1,
             },
             'originalError': {
-                uid,
+                errId,
+                reqId,
                 'name': 'GQLError',
                 'message': message1,
                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
@@ -459,7 +463,7 @@ describe('safeFormatError hide=false', () => {
         }, { req: { id: reqId }, name: 'context1' })
         const error = new GraphQLError(message2, null, null, null, null, original, {})
         const result = safeFormatError(error)
-        const uid = result?.originalError?.uid
+        const errId = result?.originalError?.errId
         expect(result).toEqual({
             'name': 'GQLError',
             'message': message2,
@@ -471,7 +475,8 @@ describe('safeFormatError hide=false', () => {
                 'message': message1,
             },
             'originalError': {
-                uid,
+                errId,
+                reqId,
                 'name': 'GQLError',
                 'message': message1,
                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
@@ -495,7 +500,7 @@ describe('safeFormatError hide=false', () => {
         })
         const error = new GraphQLError(message2, null, null, null, null, original, {})
         const result = safeFormatError(error)
-        const uid = result?.originalError?.uid
+        const errId = result?.originalError?.errId
         expect(result).toEqual({
             'name': 'GQLError',
             'message': message2,
@@ -507,7 +512,7 @@ describe('safeFormatError hide=false', () => {
                 'message': message1,
             },
             'originalError': {
-                uid,
+                errId,
                 'name': 'GQLError',
                 'message': message1,
                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
@@ -531,7 +536,7 @@ describe('safeFormatError hide=false', () => {
         const original = new GQLError({ ...fields, message: message1 }, null, errors)
         const error = new GraphQLError(message2, null, null, null, null, original, {})
         const result = safeFormatError(error)
-        const uid = result?.originalError?.uid
+        const errId = result?.originalError?.errId
         expect(result).toEqual({
             'name': 'GQLError',
             'message': message2,
@@ -539,7 +544,7 @@ describe('safeFormatError hide=false', () => {
             'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
             'extensions': { ...fields, 'message': message1 },
             'originalError': {
-                uid,
+                errId,
                 'name': 'GQLError',
                 'message': message1,
                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
@@ -570,6 +575,8 @@ describe('safeFormatError hide=false', () => {
         const original = new GQLError({ ...fields1, message: message1 }, null, errors)
         const error = new GraphQLError(message2, null, null, null, null, original, {})
         const result = safeFormatError(error)
+        const topErrId = original.uid
+        const nestedErrId = errors[0].uid
         expect(result).toEqual({
             'name': 'GQLError',
             'message': message2,
@@ -581,10 +588,12 @@ describe('safeFormatError hide=false', () => {
                 'message': message1,
                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
                 'extensions': { ...fields1, 'message': message1 },
+                'errId': topErrId,
                 'errors': [
                     {
                         'name': 'GQLError',
                         'message': message3,
+                        'errId': nestedErrId,
                         'stack': expect.stringMatching(new RegExp(`^GQLError: ${message3}`)),
                         'extensions': { ...fields2, 'message': message3 },
                         'errors': [{
@@ -606,7 +615,9 @@ describe('safeFormatError hide=false', () => {
             message: gqlMessage,
         }
         const validation1 = new Error('KeystoneValidationLevel1')
-        validation1.errors = [new GQLError({ ...gqlFields }, null)]
+        const gqlErr = new GQLError({ ...gqlFields }, null)
+        const errId = gqlErr.uid
+        validation1.errors = [gqlErr]
         const error = new GraphQLError(graphqlMessage, null, null, null, null, validation1, {})
         const result = safeFormatError(error)
         expect(result).toEqual({
@@ -621,6 +632,7 @@ describe('safeFormatError hide=false', () => {
                 'stack': expect.stringMatching(new RegExp('^Error: KeystoneValidationLevel1')),
                 'errors': [
                     {
+                        errId,
                         'extensions': { ...gqlFields },
                         message: gqlMessage,
                         name: 'GQLError',
@@ -645,9 +657,11 @@ describe('safeFormatError hide=false', () => {
             message: gqlF1Message,
         }
         const validation2 = new Error('KeystoneValidationLevel2')
-        validation2.errors = [new GQLError({ ...gqlFields2 }, null)]
+        const gql2 = new GQLError({ ...gqlFields2 }, null)
+        validation2.errors = [gql2]
         const validation1 = new Error('KeystoneValidationLevel1')
-        validation1.errors = [new GQLError({ ...gqlFields1 }, null, validation2)]
+        const gql1 = new GQLError({ ...gqlFields1 }, null, validation2)
+        validation1.errors = [gql1]
         const error = new GraphQLError(graphqlMessage, null, null, null, null, validation1, {})
         const result = safeFormatError(error)
         expect(result).toEqual({
@@ -664,6 +678,7 @@ describe('safeFormatError hide=false', () => {
                 'errors': [
                     {
                         'extensions': { ...gqlFields1 },
+                        errId: gql1.uid,
                         'name': 'GQLError',
                         'message': gqlF1Message,
                         'stack': expect.stringMatching(new RegExp(`^GQLError: ${gqlF1Message}`)),
@@ -675,6 +690,7 @@ describe('safeFormatError hide=false', () => {
                                         'message': gqlF2Message,
                                         'name': 'GQLError',
                                         'stack': expect.stringMatching(new RegExp(`^GQLError: ${gqlF2Message}`)),
+                                        errId: gql2.uid,
                                     },
                                 ],
                                 'message': 'KeystoneValidationLevel2',
@@ -701,9 +717,11 @@ describe('safeFormatError hide=false', () => {
             type: GQLInternalErrorTypes.SUB_GQL_ERROR,
         }
         const original2 = new Error('InError')
-        original2.errors = [new GQLError({ ...fields1, message: message4 }, null)]
+        const gql2 = new GQLError({ ...fields1, message: message4 }, null)
+        original2.errors = [gql2]
         const validation = new Error('KeystoneValidation')
-        validation.errors = [new GraphQLError(message1, null, null, null, null, new GQLError({ ...fields2, message: message3 }, null, original2), {})]
+        const originalGql = new GQLError({ ...fields2, message: message3 }, null, original2)
+        validation.errors = [new GraphQLError(message1, null, null, null, null, originalGql, {})]
         const error = new GraphQLError(message2, null, null, null, null, validation, {})
         const result = safeFormatError(error)
         expect(result).toEqual({
@@ -728,6 +746,7 @@ describe('safeFormatError hide=false', () => {
                                     'errors': [
                                         {
                                             'extensions': { ...fields1, 'message': message4 },
+                                            errId: gql2.uid,
                                             'message': message4,
                                             'name': 'GQLError',
                                             'stack': expect.stringMatching(new RegExp(`^GQLError: ${message4}`)),
@@ -739,6 +758,7 @@ describe('safeFormatError hide=false', () => {
                                 },
                             ],
                             'extensions': { ...fields2, message: message3 },
+                            errId: originalGql.uid,
                             message: message3,
                             name: 'GQLError',
                             'stack': expect.stringMatching(new RegExp(`^GQLError: ${message3}`)),
@@ -797,6 +817,7 @@ describe('safeFormatError hide=false', () => {
             'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)$', 's')),
             'fullstack': expect.stringMatching(new RegExp(`^GQLError: \\[error\\] Update User internal error(.*?)Caused By: GQLError: ${passwordLengthErrorMessage}(.*?)`, 's')),
             'originalError': {
+                errId: gqlError1.uid,
                 'errors': [
                     {
                         'extensions': {
@@ -818,6 +839,7 @@ describe('safeFormatError hide=false', () => {
                         'message': passwordLengthErrorMessage,
                         'name': 'GraphQLError',
                         'originalError': {
+                            errId: gqlError2.uid,
                             'extensions': {
                                 'code': 'BAD_USER_INPUT',
                                 'type': 'INVALID_PASSWORD_LENGTH',
@@ -904,6 +926,7 @@ describe('safeFormatError hide=false', () => {
             'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)$', 's')),
             'fullstack': expect.stringMatching(new RegExp(`^GQLError: \\[error\\] Update User internal error(.*?)Caused By: Error: keystone error(.*?)Caused By: GQLError: ${passwordLengthErrorMessage}(.*?)`, 's')),
             'originalError': {
+                errId: gqlError1.uid,
                 'errors': [
                     {
                         'errors': [
@@ -925,6 +948,7 @@ describe('safeFormatError hide=false', () => {
                                         'password',
                                     ],
                                 },
+                                errId: gqlError2.uid,
                                 'message': passwordLengthErrorMessage,
                                 'name': 'GQLError',
                                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
@@ -997,6 +1021,7 @@ describe('safeFormatError hide=false', () => {
             'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)$', 's')),
             'fullstack': expect.stringMatching(new RegExp(`^GQLError: \\[error\\] Update User internal error(.*?)Caused By: Error: keystone error(.*?)Caused By: GQLError: ${passwordLengthErrorMessage}(.*?)`, 's')),
             'originalError': {
+                errId: gqlError1.uid,
                 'errors': [
                     {
                         'errors': [
@@ -1022,6 +1047,7 @@ describe('safeFormatError hide=false', () => {
                                 'name': 'GraphQLError',
                                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
                                 'originalError': {
+                                    errId: gqlError2.uid,
                                     'extensions': {
                                         'code': 'BAD_USER_INPUT',
                                         'message': 'Password length must be between 8 and 128 characters',
@@ -1172,6 +1198,7 @@ describe('safeFormatError hide=false', () => {
         const graphQLError = new GraphQLError(gqlError.message, null, null, null, null, gqlError, {
             'code': 'INTERNAL_SERVER_ERROR',
         })
+        const errId = gqlError.uid
         expect(safeFormatError(graphQLError)).toEqual({
             'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update B2BApp internal error(.*?)', 's')),
             'fullstack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update B2BApp internal error(.*?)Caused By: ValidationFailureError: You attempted to perform an invalid mutation', 's')),
@@ -1228,6 +1255,7 @@ describe('safeFormatError hide=false', () => {
                 }],
                 'message': '[error] Update B2BApp internal error',
                 'name': 'GQLError',
+                errId,
                 'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update B2BApp internal error(.*?)', 's')),
                 'extensions': {
                     code: GQLErrorCode.INTERNAL_ERROR,
@@ -1270,6 +1298,7 @@ describe('safeFormatError hide=false', () => {
         const graphQLError = new GraphQLError(gqlError.message, null, null, null, null, gqlError, {
             'code': 'INTERNAL_SERVER_ERROR',
         })
+        const errId = gqlError.uid
         expect(safeFormatError(graphQLError)).toEqual({
             'name': 'GQLError',
             'message': '[error] Create Meter internal error',
@@ -1282,6 +1311,7 @@ describe('safeFormatError hide=false', () => {
             },
             'originalError': {
                 'name': 'GQLError',
+                errId,
                 'message': '[error] Create Meter internal error',
                 'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Create Meter internal error(.*?)', 's')),
                 'extensions': {
@@ -1368,6 +1398,7 @@ describe('safeFormatError hide=true', () => {
         error.uid = 'nfiqwjfqf'
         const result = safeFormatError(error, true)
         expect(result).toEqual({
+            errId: error.uid,
             'message': 'Hello',
             'name': 'Error',
         })
@@ -1651,8 +1682,9 @@ describe('toGraphQLFormat', () => {
             name: name1,
         })
         const error = new GraphQLError(message2, null, null, null, null, original, {})
-        const result = toGraphQLFormat(safeFormatError(error))
-        const uid = result?.originalError?.uid
+        const sf = safeFormatError(error)
+        const result = toGraphQLFormat(sf)
+        const errId = result?.originalError?.errId
         expect(result).toEqual({
             'name': name1,
             'message': message2,
@@ -1664,7 +1696,7 @@ describe('toGraphQLFormat', () => {
             'locations': null,
             'path': null,
             'originalError': {
-                uid,
+                errId,
                 'name': name1,
                 'message': message1,
                 'stack': expect.stringMatching(new RegExp(`^${name1}: ${message1}`)),

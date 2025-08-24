@@ -26,7 +26,7 @@ const urlParse = urlLib.parse
 const axios = axiosLib.default
 const axiosCookieJarSupport = axiosCookieJarSupportLib.default
 
-const getRandomString = () => crypto.randomBytes(6).hexSlice()
+const getRandomString = (length = 16) => crypto.randomBytes(Math.ceil(length / 2)).toString('hex')
 
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
 const NUMBER_RE = /^[1-9][0-9]*$/i
@@ -131,7 +131,7 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     if (module.hasOwnProperty('keystone') && module.hasOwnProperty('apps')) {
         mode = 'keystone'
         beforeAll(async () => {
-            const res = await prepareKeystoneExpressApp(entryPoint, prepareKeystoneOptions)
+            const res = await prepareKeystoneExpressApp(entryPoint, { excludeApps: ['NextApp', 'AdminUIApp'], ...prepareKeystoneOptions })
             __expressApp = res.app
             __keystone = res.keystone
             // tests express for a fake gql client
@@ -158,8 +158,15 @@ let __expressTestServers = {}
  * @param {string} name
  * @param {Express} app
  * @param {string} protocol like http, ssh, rdp, https. Used only in address
+ * @param {number} port – defaults to 0 (random open port) – this is *preferred* way of using this utility
+ * @param {boolean} useDanglingMode - if true then:
+ *   - If server is already launched (port in use), do nothing
+ *   - Server won't be closed after tests (will close when jest process dies)
+ *   If false (default):
+ *   - If server is already launched, throws error
+ *   - Server will be closed after tests
  */
-function initTestExpressApp (name, app, protocol = 'http', port = 0) {
+function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDanglingMode = false } = {}) {
     if (!name) {
         throw new Error('initTestExpressApp(name, app) no name!')
     }
@@ -168,31 +175,66 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0) {
         throw new Error('initTestExpressApp(name, app) no app!')
     }
 
-    if (getTestExpressApp(name)) {
-        throw new Error('initTestExpressApp(name, app) express app with this name is already initialized')
+    if (useDanglingMode && (!port || port === 0)) {
+        throw new Error('Dangling mode should only be used when port is specified')
     }
 
     beforeAll(async () => {
-
         __expressTestServers[name] = {
             server: null,
             address: null,
             port: null,
             baseUrl: null,
         }
-        // This express runs only in tests
-        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
-        __expressTestServers[name].server = await http.createServer(app).listen(port)
 
-        const addressInfo = __expressTestServers[name].server.address()
-        __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
-        __expressTestServers[name].port = addressInfo.port
-        __expressTestServers[name].baseUrl = `${protocol}://${__expressTestServers[name].address}:${__expressTestServers[name].port}`
+        // Used only inside of jest files
+        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+        const server = http.createServer(app)
+
+        try {
+            await new Promise((resolve, reject) => {
+                const listenInstance = server.listen(port)
+
+                listenInstance.on('listening', () => {
+                    const addressInfo = listenInstance.address()
+                    __expressTestServers[name] = {
+                        server: listenInstance,
+                        address: addressInfo.address === '::' ? 'localhost' : addressInfo.address,
+                        port: addressInfo.port,
+                        baseUrl: `${protocol}://${addressInfo.address === '::' ? 'localhost' : addressInfo.address}:${addressInfo.port}`,
+                        isDangling: false,
+                    }
+                    resolve()
+                })
+
+                listenInstance.on('error', (err) => {
+                    if (useDanglingMode && err.code === 'EADDRINUSE') {
+                        __expressTestServers[name] = {
+                            server: null,
+                            address: 'localhost',
+                            port: port,
+                            baseUrl: `${protocol}://'localhost':${port}`,
+                            isDangling: true,
+                        }
+                        resolve()
+                    } else {
+                        reject(err)
+                    }
+                })
+            })
+        } catch (err) {
+            if (err.code === 'EADDRINUSE' && !useDanglingMode) {
+                throw new Error(`Specified port: ${port} is already in use`)
+            }
+            throw err
+        }
     })
 
     afterAll(async () => {
-        if (__expressTestServers[name]) {
-            __expressTestServers[name].server.close()
+        if (__expressTestServers[name] && __expressTestServers[name].server && !useDanglingMode) {
+            await new Promise((resolve) => {
+                __expressTestServers[name].server.close(resolve)
+            })
             delete __expressTestServers[name]
         }
     })
@@ -308,7 +350,7 @@ const makeApolloClient = (serverUrl, opts = {}) => {
     const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
 
     const apolloLinks = []
-    // Terminating link must be in the end of links chain
+    // Terminating link must be in the end of links chains
     apolloLinks.push(createUploadLink({
         uri: `${serverUrl}${API_PATH}`,
         credentials: 'include',
@@ -528,7 +570,7 @@ const isMongo = () => {
 
 /**
  * Implements correct expecting of GraphQLError, thrown by Keystone.
- * Expectation checks inside of `catch` are not covering a case,
+ * Expectation checks inside `catch` are not covering a case,
  * when no exception is thrown, — test will pass, but should fail.
  * https://stackoverflow.com/questions/48707111/asserting-against-thrown-error-objects-in-jest
  *
@@ -857,13 +899,7 @@ function createRegExByTemplate (template, { eol = true, sol = true } = {}) {
     return new RegExp((sol ? '^' : '') + regexString + (eol ? '$' : ''))
 }
 
-/**
- * @param testFunc {() => Promise<void>}
- * @param errorFields {{[key: string]: string}}
- * @param path {string}
- * @returns {Promise<void>}
- */
-const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
+function _getGQLErrorMatcher (errorFields, path, locations, originalErrorMatcher) {
     if (isEmpty(errorFields) || typeof errorFields !== 'object') throw new Error('expectToThrowGQLError(): wrong errorFields argument')
     if (!errorFields.code || !errorFields.type) throw new Error('expectToThrowGQLError(): errorFields argument: no code or no type')
     if (errorFields.messageForUserTemplateKey) throw new Error('expectToThrowGQLError(): you do not really need to use `messageForUserTemplateKey` key! You should pass it as `messageForUser` value! Look like a developer error!')
@@ -902,19 +938,55 @@ const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
         fieldsToCheck['message'] = expect.stringMatching(createRegExByTemplate(errorFields.message))
     }
 
+    return expect.objectContaining({
+        message: expect.anything(),
+        name: 'GQLError',
+        extensions: expect.objectContaining({ ...fieldsToCheck }),
+        ...(path ? { path: [path] } : {}),
+        ...(locations ? { locations: [expect.objectContaining({ line: expect.anything(), column: expect.anything() })] } : {}),
+        ...(originalErrorMatcher ? { errors: originalErrorMatcher } : {}),
+    })
+    // TODO(pahaz): check another fields: messageForDeveloper
+}
+
+/**
+ * Catches GQLError thrown by functions, such as serverUtils
+ * @example
+ * async function someServerUtil() {
+ *     throw new GQLError(...)
+ * }
+ *
+ * await expectToThrowRawGQLError(async () => {
+ *     await someServerUtil()
+ * }, { ... })
+ * @param {() => Promise<void>} testFunc
+ * @param {{[key: string]: string}} errorFields
+ * @returns {Promise<void>}
+ */
+async function expectToThrowRawGQLError (testFunc, errorFields, originalErrors) {
+    await catchErrorFrom(testFunc, (caught) =>
+        expect(caught).toEqual(_getGQLErrorMatcher(errorFields, null, false, originalErrors))
+    )
+}
+
+/**
+ * Catches GQLError thrown by API
+ * @example
+ * await expectToThrowGQLError(async () => {
+ *     await createTestModel(context, data)
+ * }, { ... })
+ * @param testFunc {() => Promise<void>}
+ * @param errorFields {{[key: string]: string}}
+ * @param path {string}
+ * @returns {Promise<void>}
+ */
+const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
     await catchErrorFrom(testFunc, (caught) => {
         expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
             data: { [path]: null },
-            errors: [expect.objectContaining({
-                message: expect.anything(),
-                name: 'GQLError',
-                path: [path],
-                locations: [expect.objectContaining({ line: expect.anything(), column: expect.anything() })],
-                extensions: expect.objectContaining({ ...fieldsToCheck }),
-            })],
+            errors: [_getGQLErrorMatcher(errorFields, path, true)],
         })
-        // TODO(pahaz): check another fields: messageForDeveloper
     })
 }
 
@@ -1075,6 +1147,7 @@ module.exports = {
     expectToThrowInternalError,
     expectToThrowGQLError,
     expectToThrowGQLErrorToResult,
+    expectToThrowRawGQLError,
     expectToThrowGraphQLRequestError,
     expectToThrowGraphQLRequestErrors,
     expectValuesOfCommonFields,

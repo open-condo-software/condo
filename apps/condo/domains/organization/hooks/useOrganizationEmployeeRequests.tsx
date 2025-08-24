@@ -174,10 +174,11 @@ export const useOrganizationEmployeeRequests = () => {
         variables: { userId },
         skip: !userId || !persistor || isOrganizationRequestsHidden,
     })
-    const userOrganizationIds = useMemo(() => actualEmployeesData?.actualEmployees
+    const actualEmployees = useMemo(() => actualEmployeesData?.actualEmployees?.filter(Boolean) || [], [actualEmployeesData?.actualEmployees])
+    const userOrganizationIds = useMemo(() => actualEmployees
         ?.map(employee => employee?.organization?.id)
         ?.filter(Boolean)
-    , [actualEmployeesData?.actualEmployees])
+    , [actualEmployees])
 
     const {
         data: userOrganizationsRequestsData,
@@ -188,7 +189,7 @@ export const useOrganizationEmployeeRequests = () => {
             userOrganizationIds,
         },
         onError,
-        skip: !user || !employee || isEmployeesLoading || isOrganizationRequestsHidden,
+        skip: !user || !employee || isEmployeesLoading || isOrganizationRequestsHidden || !userOrganizationIds.length,
     })
     const [acceptOrRejectRequest] = useAcceptOrRejectOrganizationEmployeeRequestMutation({
         onError,

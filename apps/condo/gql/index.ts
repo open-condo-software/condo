@@ -2333,6 +2333,56 @@ export type GetEmployeeB2BAppRolesQueryHookResult = ReturnType<typeof useGetEmpl
 export type GetEmployeeB2BAppRolesLazyQueryHookResult = ReturnType<typeof useGetEmployeeB2BAppRolesLazyQuery>;
 export type GetEmployeeB2BAppRolesSuspenseQueryHookResult = ReturnType<typeof useGetEmployeeB2BAppRolesSuspenseQuery>;
 export type GetEmployeeB2BAppRolesQueryResult = Apollo.QueryResult<Types.GetEmployeeB2BAppRolesQuery, Types.GetEmployeeB2BAppRolesQueryVariables>;
+export const GetCustomValuesForObjectDocument = gql`
+    query getCustomValuesForObject($schemaName: CustomFieldSchemaNameType!, $objectId: String!) {
+  customValues: allCustomValues(
+    where: {customField: {schemaName: $schemaName}, objectId: $objectId}
+  ) {
+    id
+    data
+    customField {
+      priority
+      name
+    }
+    sourceType
+    sourceId
+  }
+}
+    `;
+
+/**
+ * __useGetCustomValuesForObjectQuery__
+ *
+ * To run a query within a React component, call `useGetCustomValuesForObjectQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomValuesForObjectQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomValuesForObjectQuery({
+ *   variables: {
+ *      schemaName: // value for 'schemaName'
+ *      objectId: // value for 'objectId'
+ *   },
+ * });
+ */
+export function useGetCustomValuesForObjectQuery(baseOptions: Apollo.QueryHookOptions<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables> & ({ variables: Types.GetCustomValuesForObjectQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>(GetCustomValuesForObjectDocument, options);
+      }
+export function useGetCustomValuesForObjectLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>(GetCustomValuesForObjectDocument, options);
+        }
+export function useGetCustomValuesForObjectSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>(GetCustomValuesForObjectDocument, options);
+        }
+export type GetCustomValuesForObjectQueryHookResult = ReturnType<typeof useGetCustomValuesForObjectQuery>;
+export type GetCustomValuesForObjectLazyQueryHookResult = ReturnType<typeof useGetCustomValuesForObjectLazyQuery>;
+export type GetCustomValuesForObjectSuspenseQueryHookResult = ReturnType<typeof useGetCustomValuesForObjectSuspenseQuery>;
+export type GetCustomValuesForObjectQueryResult = Apollo.QueryResult<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>;
 export const GetNewsItemsRecipientsCountersDocument = gql`
     query getNewsItemsRecipientsCounters($data: GetNewsItemsRecipientsCountersInput!) {
   result: getNewsItemsRecipientsCounters(data: $data) {
@@ -3743,6 +3793,7 @@ export const GetPropertyByIdDocument = gql`
     address
     organization {
       id
+      name
     }
     map {
       sections {
@@ -4281,6 +4332,50 @@ export type GetTicketCallRecordsFragmentsQueryHookResult = ReturnType<typeof use
 export type GetTicketCallRecordsFragmentsLazyQueryHookResult = ReturnType<typeof useGetTicketCallRecordsFragmentsLazyQuery>;
 export type GetTicketCallRecordsFragmentsSuspenseQueryHookResult = ReturnType<typeof useGetTicketCallRecordsFragmentsSuspenseQuery>;
 export type GetTicketCallRecordsFragmentsQueryResult = Apollo.QueryResult<Types.GetTicketCallRecordsFragmentsQuery, Types.GetTicketCallRecordsFragmentsQueryVariables>;
+export const GetClientCallRecordsExistenceDocument = gql`
+    query getClientCallRecordsExistence($phone: String!, $propertyId: ID!) {
+  callRecordFragments: allCallRecordFragments(
+    where: {callRecord: {OR: [{callerPhone: $phone}, {destCallerPhone: $phone}]}, OR: [{ticket_is_null: true}, {ticket: {property: {id: $propertyId}}}]}
+    first: 1
+  ) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetClientCallRecordsExistenceQuery__
+ *
+ * To run a query within a React component, call `useGetClientCallRecordsExistenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetClientCallRecordsExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetClientCallRecordsExistenceQuery({
+ *   variables: {
+ *      phone: // value for 'phone'
+ *      propertyId: // value for 'propertyId'
+ *   },
+ * });
+ */
+export function useGetClientCallRecordsExistenceQuery(baseOptions: Apollo.QueryHookOptions<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables> & ({ variables: Types.GetClientCallRecordsExistenceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>(GetClientCallRecordsExistenceDocument, options);
+      }
+export function useGetClientCallRecordsExistenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>(GetClientCallRecordsExistenceDocument, options);
+        }
+export function useGetClientCallRecordsExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>(GetClientCallRecordsExistenceDocument, options);
+        }
+export type GetClientCallRecordsExistenceQueryHookResult = ReturnType<typeof useGetClientCallRecordsExistenceQuery>;
+export type GetClientCallRecordsExistenceLazyQueryHookResult = ReturnType<typeof useGetClientCallRecordsExistenceLazyQuery>;
+export type GetClientCallRecordsExistenceSuspenseQueryHookResult = ReturnType<typeof useGetClientCallRecordsExistenceSuspenseQuery>;
+export type GetClientCallRecordsExistenceQueryResult = Apollo.QueryResult<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>;
 export const GetIncidentsDocument = gql`
     query getIncidents($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!], $first: Int!) {
   incidents: allIncidents(where: $where, sortBy: $sortBy, first: $first) {
@@ -5832,6 +5927,51 @@ export type GetOrganizationEmployeeTicketsForReassignmentQueryHookResult = Retur
 export type GetOrganizationEmployeeTicketsForReassignmentLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsForReassignmentLazyQuery>;
 export type GetOrganizationEmployeeTicketsForReassignmentSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsForReassignmentSuspenseQuery>;
 export type GetOrganizationEmployeeTicketsForReassignmentQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeTicketsForReassignmentQuery, Types.GetOrganizationEmployeeTicketsForReassignmentQueryVariables>;
+export const GetTicketsWithSamePropertyAndClassifierExistenceDocument = gql`
+    query getTicketsWithSamePropertyAndClassifierExistence($propertyId: ID!, $placeId: ID!, $categoryId: ID!) {
+  tickets: allTickets(
+    where: {property: {id: $propertyId}, classifier: {place: {id: $placeId}, category: {id: $categoryId}}, status: {type_in: [new_or_reopened, processing, deferred]}}
+    first: 1
+  ) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetTicketsWithSamePropertyAndClassifierExistenceQuery__
+ *
+ * To run a query within a React component, call `useGetTicketsWithSamePropertyAndClassifierExistenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketsWithSamePropertyAndClassifierExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketsWithSamePropertyAndClassifierExistenceQuery({
+ *   variables: {
+ *      propertyId: // value for 'propertyId'
+ *      placeId: // value for 'placeId'
+ *      categoryId: // value for 'categoryId'
+ *   },
+ * });
+ */
+export function useGetTicketsWithSamePropertyAndClassifierExistenceQuery(baseOptions: Apollo.QueryHookOptions<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables> & ({ variables: Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>(GetTicketsWithSamePropertyAndClassifierExistenceDocument, options);
+      }
+export function useGetTicketsWithSamePropertyAndClassifierExistenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>(GetTicketsWithSamePropertyAndClassifierExistenceDocument, options);
+        }
+export function useGetTicketsWithSamePropertyAndClassifierExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>(GetTicketsWithSamePropertyAndClassifierExistenceDocument, options);
+        }
+export type GetTicketsWithSamePropertyAndClassifierExistenceQueryHookResult = ReturnType<typeof useGetTicketsWithSamePropertyAndClassifierExistenceQuery>;
+export type GetTicketsWithSamePropertyAndClassifierExistenceLazyQueryHookResult = ReturnType<typeof useGetTicketsWithSamePropertyAndClassifierExistenceLazyQuery>;
+export type GetTicketsWithSamePropertyAndClassifierExistenceSuspenseQueryHookResult = ReturnType<typeof useGetTicketsWithSamePropertyAndClassifierExistenceSuspenseQuery>;
+export type GetTicketsWithSamePropertyAndClassifierExistenceQueryResult = Apollo.QueryResult<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>;
 export const CreateTicketDocument = gql`
     mutation createTicket($data: TicketCreateInput!) {
   ticket: createTicket(data: $data) {
@@ -7049,6 +7189,41 @@ export function useAuthenticateOrRegisterUserWithTokenMutation(baseOptions?: Apo
 export type AuthenticateOrRegisterUserWithTokenMutationHookResult = ReturnType<typeof useAuthenticateOrRegisterUserWithTokenMutation>;
 export type AuthenticateOrRegisterUserWithTokenMutationResult = Apollo.MutationResult<Types.AuthenticateOrRegisterUserWithTokenMutation>;
 export type AuthenticateOrRegisterUserWithTokenMutationOptions = Apollo.BaseMutationOptions<Types.AuthenticateOrRegisterUserWithTokenMutation, Types.AuthenticateOrRegisterUserWithTokenMutationVariables>;
+export const AuthenticateUserWithEmailAndPasswordDocument = gql`
+    mutation authenticateUserWithEmailAndPassword($data: AuthenticateUserWithEmailAndPasswordInput!) {
+  result: authenticateUserWithEmailAndPassword(data: $data) {
+    item {
+      id
+    }
+  }
+}
+    `;
+export type AuthenticateUserWithEmailAndPasswordMutationFn = Apollo.MutationFunction<Types.AuthenticateUserWithEmailAndPasswordMutation, Types.AuthenticateUserWithEmailAndPasswordMutationVariables>;
+
+/**
+ * __useAuthenticateUserWithEmailAndPasswordMutation__
+ *
+ * To run a mutation, you first call `useAuthenticateUserWithEmailAndPasswordMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAuthenticateUserWithEmailAndPasswordMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [authenticateUserWithEmailAndPasswordMutation, { data, loading, error }] = useAuthenticateUserWithEmailAndPasswordMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useAuthenticateUserWithEmailAndPasswordMutation(baseOptions?: Apollo.MutationHookOptions<Types.AuthenticateUserWithEmailAndPasswordMutation, Types.AuthenticateUserWithEmailAndPasswordMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.AuthenticateUserWithEmailAndPasswordMutation, Types.AuthenticateUserWithEmailAndPasswordMutationVariables>(AuthenticateUserWithEmailAndPasswordDocument, options);
+      }
+export type AuthenticateUserWithEmailAndPasswordMutationHookResult = ReturnType<typeof useAuthenticateUserWithEmailAndPasswordMutation>;
+export type AuthenticateUserWithEmailAndPasswordMutationResult = Apollo.MutationResult<Types.AuthenticateUserWithEmailAndPasswordMutation>;
+export type AuthenticateUserWithEmailAndPasswordMutationOptions = Apollo.BaseMutationOptions<Types.AuthenticateUserWithEmailAndPasswordMutation, Types.AuthenticateUserWithEmailAndPasswordMutationVariables>;
 export const AuthenticateUserWithPhoneAndPasswordDocument = gql`
     mutation authenticateUserWithPhoneAndPassword($data: AuthenticateUserWithPhoneAndPasswordInput!) {
   result: authenticateUserWithPhoneAndPassword(data: $data) {
@@ -7084,40 +7259,39 @@ export function useAuthenticateUserWithPhoneAndPasswordMutation(baseOptions?: Ap
 export type AuthenticateUserWithPhoneAndPasswordMutationHookResult = ReturnType<typeof useAuthenticateUserWithPhoneAndPasswordMutation>;
 export type AuthenticateUserWithPhoneAndPasswordMutationResult = Apollo.MutationResult<Types.AuthenticateUserWithPhoneAndPasswordMutation>;
 export type AuthenticateUserWithPhoneAndPasswordMutationOptions = Apollo.BaseMutationOptions<Types.AuthenticateUserWithPhoneAndPasswordMutation, Types.AuthenticateUserWithPhoneAndPasswordMutationVariables>;
-export const ChangePasswordWithTokenDocument = gql`
-    mutation changePasswordWithToken($data: ChangePasswordWithTokenInput!) {
-  result: changePasswordWithToken(data: $data) {
+export const ChangeUserPasswordDocument = gql`
+    mutation changeUserPassword($data: ChangeUserPasswordInput!) {
+  result: changeUserPassword(data: $data) {
     status
-    phone
   }
 }
     `;
-export type ChangePasswordWithTokenMutationFn = Apollo.MutationFunction<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>;
+export type ChangeUserPasswordMutationFn = Apollo.MutationFunction<Types.ChangeUserPasswordMutation, Types.ChangeUserPasswordMutationVariables>;
 
 /**
- * __useChangePasswordWithTokenMutation__
+ * __useChangeUserPasswordMutation__
  *
- * To run a mutation, you first call `useChangePasswordWithTokenMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useChangePasswordWithTokenMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useChangeUserPasswordMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChangeUserPasswordMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [changePasswordWithTokenMutation, { data, loading, error }] = useChangePasswordWithTokenMutation({
+ * const [changeUserPasswordMutation, { data, loading, error }] = useChangeUserPasswordMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useChangePasswordWithTokenMutation(baseOptions?: Apollo.MutationHookOptions<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>) {
+export function useChangeUserPasswordMutation(baseOptions?: Apollo.MutationHookOptions<Types.ChangeUserPasswordMutation, Types.ChangeUserPasswordMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>(ChangePasswordWithTokenDocument, options);
+        return Apollo.useMutation<Types.ChangeUserPasswordMutation, Types.ChangeUserPasswordMutationVariables>(ChangeUserPasswordDocument, options);
       }
-export type ChangePasswordWithTokenMutationHookResult = ReturnType<typeof useChangePasswordWithTokenMutation>;
-export type ChangePasswordWithTokenMutationResult = Apollo.MutationResult<Types.ChangePasswordWithTokenMutation>;
-export type ChangePasswordWithTokenMutationOptions = Apollo.BaseMutationOptions<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>;
+export type ChangeUserPasswordMutationHookResult = ReturnType<typeof useChangeUserPasswordMutation>;
+export type ChangeUserPasswordMutationResult = Apollo.MutationResult<Types.ChangeUserPasswordMutation>;
+export type ChangeUserPasswordMutationOptions = Apollo.BaseMutationOptions<Types.ChangeUserPasswordMutation, Types.ChangeUserPasswordMutationVariables>;
 export const CheckUserExistenceDocument = gql`
     query checkUserExistence($data: CheckUserExistenceInput!) {
   result: checkUserExistence(data: $data) {
@@ -7162,6 +7336,39 @@ export type CheckUserExistenceQueryHookResult = ReturnType<typeof useCheckUserEx
 export type CheckUserExistenceLazyQueryHookResult = ReturnType<typeof useCheckUserExistenceLazyQuery>;
 export type CheckUserExistenceSuspenseQueryHookResult = ReturnType<typeof useCheckUserExistenceSuspenseQuery>;
 export type CheckUserExistenceQueryResult = Apollo.QueryResult<Types.CheckUserExistenceQuery, Types.CheckUserExistenceQueryVariables>;
+export const CompleteConfirmEmailActionDocument = gql`
+    mutation completeConfirmEmailAction($data: CompleteConfirmEmailActionInput!) {
+  result: completeConfirmEmailAction(data: $data) {
+    status
+  }
+}
+    `;
+export type CompleteConfirmEmailActionMutationFn = Apollo.MutationFunction<Types.CompleteConfirmEmailActionMutation, Types.CompleteConfirmEmailActionMutationVariables>;
+
+/**
+ * __useCompleteConfirmEmailActionMutation__
+ *
+ * To run a mutation, you first call `useCompleteConfirmEmailActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCompleteConfirmEmailActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [completeConfirmEmailActionMutation, { data, loading, error }] = useCompleteConfirmEmailActionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCompleteConfirmEmailActionMutation(baseOptions?: Apollo.MutationHookOptions<Types.CompleteConfirmEmailActionMutation, Types.CompleteConfirmEmailActionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CompleteConfirmEmailActionMutation, Types.CompleteConfirmEmailActionMutationVariables>(CompleteConfirmEmailActionDocument, options);
+      }
+export type CompleteConfirmEmailActionMutationHookResult = ReturnType<typeof useCompleteConfirmEmailActionMutation>;
+export type CompleteConfirmEmailActionMutationResult = Apollo.MutationResult<Types.CompleteConfirmEmailActionMutation>;
+export type CompleteConfirmEmailActionMutationOptions = Apollo.BaseMutationOptions<Types.CompleteConfirmEmailActionMutation, Types.CompleteConfirmEmailActionMutationVariables>;
 export const CompleteConfirmPhoneActionDocument = gql`
     mutation completeConfirmPhoneAction($data: CompleteConfirmPhoneActionInput!) {
   result: completeConfirmPhoneAction(data: $data) {
@@ -7195,6 +7402,80 @@ export function useCompleteConfirmPhoneActionMutation(baseOptions?: Apollo.Mutat
 export type CompleteConfirmPhoneActionMutationHookResult = ReturnType<typeof useCompleteConfirmPhoneActionMutation>;
 export type CompleteConfirmPhoneActionMutationResult = Apollo.MutationResult<Types.CompleteConfirmPhoneActionMutation>;
 export type CompleteConfirmPhoneActionMutationOptions = Apollo.BaseMutationOptions<Types.CompleteConfirmPhoneActionMutation, Types.CompleteConfirmPhoneActionMutationVariables>;
+export const GenerateSudoTokenDocument = gql`
+    mutation generateSudoToken($data: GenerateSudoTokenInput!) {
+  result: generateSudoToken(data: $data) {
+    token
+  }
+}
+    `;
+export type GenerateSudoTokenMutationFn = Apollo.MutationFunction<Types.GenerateSudoTokenMutation, Types.GenerateSudoTokenMutationVariables>;
+
+/**
+ * __useGenerateSudoTokenMutation__
+ *
+ * To run a mutation, you first call `useGenerateSudoTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateSudoTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateSudoTokenMutation, { data, loading, error }] = useGenerateSudoTokenMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGenerateSudoTokenMutation(baseOptions?: Apollo.MutationHookOptions<Types.GenerateSudoTokenMutation, Types.GenerateSudoTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.GenerateSudoTokenMutation, Types.GenerateSudoTokenMutationVariables>(GenerateSudoTokenDocument, options);
+      }
+export type GenerateSudoTokenMutationHookResult = ReturnType<typeof useGenerateSudoTokenMutation>;
+export type GenerateSudoTokenMutationResult = Apollo.MutationResult<Types.GenerateSudoTokenMutation>;
+export type GenerateSudoTokenMutationOptions = Apollo.BaseMutationOptions<Types.GenerateSudoTokenMutation, Types.GenerateSudoTokenMutationVariables>;
+export const GetEmailByConfirmEmailActionTokenDocument = gql`
+    query getEmailByConfirmEmailActionToken($data: GetEmailByConfirmEmailActionTokenInput!) {
+  result: getEmailByConfirmEmailActionToken(data: $data) {
+    email
+    isEmailVerified
+  }
+}
+    `;
+
+/**
+ * __useGetEmailByConfirmEmailActionTokenQuery__
+ *
+ * To run a query within a React component, call `useGetEmailByConfirmEmailActionTokenQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEmailByConfirmEmailActionTokenQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEmailByConfirmEmailActionTokenQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetEmailByConfirmEmailActionTokenQuery(baseOptions: Apollo.QueryHookOptions<Types.GetEmailByConfirmEmailActionTokenQuery, Types.GetEmailByConfirmEmailActionTokenQueryVariables> & ({ variables: Types.GetEmailByConfirmEmailActionTokenQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetEmailByConfirmEmailActionTokenQuery, Types.GetEmailByConfirmEmailActionTokenQueryVariables>(GetEmailByConfirmEmailActionTokenDocument, options);
+      }
+export function useGetEmailByConfirmEmailActionTokenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetEmailByConfirmEmailActionTokenQuery, Types.GetEmailByConfirmEmailActionTokenQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetEmailByConfirmEmailActionTokenQuery, Types.GetEmailByConfirmEmailActionTokenQueryVariables>(GetEmailByConfirmEmailActionTokenDocument, options);
+        }
+export function useGetEmailByConfirmEmailActionTokenSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetEmailByConfirmEmailActionTokenQuery, Types.GetEmailByConfirmEmailActionTokenQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetEmailByConfirmEmailActionTokenQuery, Types.GetEmailByConfirmEmailActionTokenQueryVariables>(GetEmailByConfirmEmailActionTokenDocument, options);
+        }
+export type GetEmailByConfirmEmailActionTokenQueryHookResult = ReturnType<typeof useGetEmailByConfirmEmailActionTokenQuery>;
+export type GetEmailByConfirmEmailActionTokenLazyQueryHookResult = ReturnType<typeof useGetEmailByConfirmEmailActionTokenLazyQuery>;
+export type GetEmailByConfirmEmailActionTokenSuspenseQueryHookResult = ReturnType<typeof useGetEmailByConfirmEmailActionTokenSuspenseQuery>;
+export type GetEmailByConfirmEmailActionTokenQueryResult = Apollo.QueryResult<Types.GetEmailByConfirmEmailActionTokenQuery, Types.GetEmailByConfirmEmailActionTokenQueryVariables>;
 export const GetPhoneByConfirmPhoneActionTokenDocument = gql`
     query getPhoneByConfirmPhoneActionToken($data: GetPhoneByConfirmPhoneActionTokenInput!) {
   result: getPhoneByConfirmPhoneActionToken(data: $data) {
@@ -7236,6 +7517,39 @@ export type GetPhoneByConfirmPhoneActionTokenQueryHookResult = ReturnType<typeof
 export type GetPhoneByConfirmPhoneActionTokenLazyQueryHookResult = ReturnType<typeof useGetPhoneByConfirmPhoneActionTokenLazyQuery>;
 export type GetPhoneByConfirmPhoneActionTokenSuspenseQueryHookResult = ReturnType<typeof useGetPhoneByConfirmPhoneActionTokenSuspenseQuery>;
 export type GetPhoneByConfirmPhoneActionTokenQueryResult = Apollo.QueryResult<Types.GetPhoneByConfirmPhoneActionTokenQuery, Types.GetPhoneByConfirmPhoneActionTokenQueryVariables>;
+export const ResendConfirmEmailActionDocument = gql`
+    mutation resendConfirmEmailAction($data: ResendConfirmEmailActionInput!) {
+  result: resendConfirmEmailAction(data: $data) {
+    status
+  }
+}
+    `;
+export type ResendConfirmEmailActionMutationFn = Apollo.MutationFunction<Types.ResendConfirmEmailActionMutation, Types.ResendConfirmEmailActionMutationVariables>;
+
+/**
+ * __useResendConfirmEmailActionMutation__
+ *
+ * To run a mutation, you first call `useResendConfirmEmailActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResendConfirmEmailActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resendConfirmEmailActionMutation, { data, loading, error }] = useResendConfirmEmailActionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useResendConfirmEmailActionMutation(baseOptions?: Apollo.MutationHookOptions<Types.ResendConfirmEmailActionMutation, Types.ResendConfirmEmailActionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.ResendConfirmEmailActionMutation, Types.ResendConfirmEmailActionMutationVariables>(ResendConfirmEmailActionDocument, options);
+      }
+export type ResendConfirmEmailActionMutationHookResult = ReturnType<typeof useResendConfirmEmailActionMutation>;
+export type ResendConfirmEmailActionMutationResult = Apollo.MutationResult<Types.ResendConfirmEmailActionMutation>;
+export type ResendConfirmEmailActionMutationOptions = Apollo.BaseMutationOptions<Types.ResendConfirmEmailActionMutation, Types.ResendConfirmEmailActionMutationVariables>;
 export const ResendConfirmPhoneActionSmsDocument = gql`
     mutation resendConfirmPhoneActionSms($data: ResendConfirmPhoneActionSmsInput!) {
   result: resendConfirmPhoneActionSms(data: $data) {
@@ -7269,6 +7583,39 @@ export function useResendConfirmPhoneActionSmsMutation(baseOptions?: Apollo.Muta
 export type ResendConfirmPhoneActionSmsMutationHookResult = ReturnType<typeof useResendConfirmPhoneActionSmsMutation>;
 export type ResendConfirmPhoneActionSmsMutationResult = Apollo.MutationResult<Types.ResendConfirmPhoneActionSmsMutation>;
 export type ResendConfirmPhoneActionSmsMutationOptions = Apollo.BaseMutationOptions<Types.ResendConfirmPhoneActionSmsMutation, Types.ResendConfirmPhoneActionSmsMutationVariables>;
+export const StartConfirmEmailActionDocument = gql`
+    mutation startConfirmEmailAction($data: StartConfirmEmailActionInput!) {
+  result: startConfirmEmailAction(data: $data) {
+    token
+  }
+}
+    `;
+export type StartConfirmEmailActionMutationFn = Apollo.MutationFunction<Types.StartConfirmEmailActionMutation, Types.StartConfirmEmailActionMutationVariables>;
+
+/**
+ * __useStartConfirmEmailActionMutation__
+ *
+ * To run a mutation, you first call `useStartConfirmEmailActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartConfirmEmailActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startConfirmEmailActionMutation, { data, loading, error }] = useStartConfirmEmailActionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useStartConfirmEmailActionMutation(baseOptions?: Apollo.MutationHookOptions<Types.StartConfirmEmailActionMutation, Types.StartConfirmEmailActionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.StartConfirmEmailActionMutation, Types.StartConfirmEmailActionMutationVariables>(StartConfirmEmailActionDocument, options);
+      }
+export type StartConfirmEmailActionMutationHookResult = ReturnType<typeof useStartConfirmEmailActionMutation>;
+export type StartConfirmEmailActionMutationResult = Apollo.MutationResult<Types.StartConfirmEmailActionMutation>;
+export type StartConfirmEmailActionMutationOptions = Apollo.BaseMutationOptions<Types.StartConfirmEmailActionMutation, Types.StartConfirmEmailActionMutationVariables>;
 export const StartConfirmPhoneActionDocument = gql`
     mutation startConfirmPhoneAction($data: StartConfirmPhoneActionInput!) {
   result: startConfirmPhoneAction(data: $data) {
@@ -7320,6 +7667,7 @@ export const AuthenticatedUserDocument = gql`
     type
     locale
     showGlobalHints
+    hasMarketingConsent
   }
 }
     `;

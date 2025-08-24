@@ -202,12 +202,16 @@ async function getAppServerUrl (appName) {
     return await getAppEnvValue(appName, 'SERVER_URL')
 }
 
-async function prepareCondoAppOidcConfig (appName) {
+async function prepareCondoAppOidcConfig (appName, { redirectUrl, postLogoutRedirectUrl } = {}) {
     const clientSecret = getRandomString(20)
     const clientId = appName
     const serverUrl = await getAppServerUrl('condo')
-    const callbackUrl = await getAppServerUrl(appName) + '/oidc/callback'
-    await safeExec(`yarn workspace @app/condo node ./bin/create-oidc-client.js ${appName} ${clientSecret} ${callbackUrl}`)
+    const callbackUrl = redirectUrl || await getAppServerUrl(appName) + '/oidc/callback'
+    let command = `yarn workspace @app/condo node ./bin/create-oidc-client.js ${appName} ${clientSecret} ${callbackUrl}`
+    if (postLogoutRedirectUrl) {
+        command += ` ${postLogoutRedirectUrl}`
+    }
+    await safeExec(command)
     return { serverUrl, clientId, clientSecret }
 }
 
@@ -313,6 +317,7 @@ async function _isNextJSApp (appName) {
     return (await Promise.all([
         exists(`${PROJECT_ROOT}/apps/${appName}/next.config.js`),
         exists(`${PROJECT_ROOT}/apps/${appName}/next.config.mjs`),
+        exists(`${PROJECT_ROOT}/apps/${appName}/next.config.ts`),
     ])).some(Boolean)
 }
 

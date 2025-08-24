@@ -1,9 +1,14 @@
 import React from 'react'
 
 import { FileText } from '@open-condo/icons'
-import { RadioGroup as Component, Radio, Space, Typography } from '@open-condo/ui/src'
+import {
+    RadioGroup as Component,
+    Radio,
+    Space,
+    Typography,
+} from '@open-condo/ui/src'
 
-import type { StoryFn, Meta, StoryObj } from '@storybook/react'
+import type { StoryFn, Meta, StoryObj } from '@storybook/react-webpack5'
 
 const { ItemGroup } = Component
 const SPACE_WIDTH = 500
@@ -35,7 +40,11 @@ const radioGroupButtonTemplateArgs = [
         title: 'Label with icon',
         customProps: {
             children: Array.from({ length: 3 }, (_, i) => (
-                <Radio label={(i + 1).toString()} value={i} icon={<FileText size='small' />} />
+                <Radio
+                    label={(i + 1).toString()}
+                    value={i}
+                    icon={<FileText size='small' />}
+                />
             )),
         },
     },
@@ -113,7 +122,11 @@ export const ManyRadioGroups: StoryObj<typeof Component> = {
                         ],
                     },
                 ].map((group) => (
-                    <ItemGroup name={group.name} options={group.options} key={group.name} />
+                    <ItemGroup
+                        name={group.name}
+                        options={group.options}
+                        key={group.name}
+                    />
                 ))}
             </>
         ),

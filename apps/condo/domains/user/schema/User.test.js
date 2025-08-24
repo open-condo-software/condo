@@ -584,6 +584,30 @@ describe('User fields', () => {
         })
     })
 
+    describe('hasMarketingConsent', () => {
+        let admin
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+        })
+
+        test('cannot be updated by support', async () => {
+            const support = await makeClientWithSupportUser()
+            const [user] = await createTestUser(admin)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestUser(support, user.id, { hasMarketingConsent: true })
+            })
+        })
+
+        test('can be updated by user himself', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [updatedUser] = await updateTestUser(client, client.user.id, { hasMarketingConsent: true })
+
+            expect(updatedUser.hasMarketingConsent).toBe(true)
+        })
+    })
+
     describe('_label_', () => {
 
         let admin
@@ -616,6 +640,49 @@ describe('User fields', () => {
             expect(userForClient).toHaveProperty('_label_', user.id)
         })
 
+    })
+
+    describe('external fields', () => {
+        const externalFieldsPayload = {
+            externalPhone: createTestPhone(),
+            externalEmail: createTestEmail(),
+            isExternalPhoneVerified: Math.random() > 0.5,
+            isExternalEmailVerified: Math.random() > 0.5,
+        }
+        const actors = {
+            admin: null,
+            support: null,
+        }
+        beforeAll(async () => {
+            actors.admin = await makeLoggedInAdminClient()
+            actors.support = await makeClientWithSupportUser()
+        })
+        describe.each(Object.keys(externalFieldsPayload))('%p', (fieldName) => {
+            describe('Cannot be created via GQL-request',  () => {
+                test.each(Object.keys(actors))('Actor: %p', async (actorName) => {
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestUser(actors[actorName], {
+                            [fieldName]: externalFieldsPayload[fieldName],
+                        })
+                    })
+                })
+
+            })
+            describe('Cannot be updated via GQL-request',  () => {
+                test.each(Object.keys(actors))('Actor: %p', async (actorName) => {
+                    const [user] = await createTestUser(actors.admin)
+                    await catchErrorFrom(async () => {
+                        await updateTestUser(actors[actorName], user.id, {
+                            [fieldName]: externalFieldsPayload[fieldName],
+                        })
+                    }, (error) => {
+                        expect(error.errors).toHaveLength(1)
+                        expect(error.errors[0].message).toContain(`Field "${fieldName}" is not defined by type "UserUpdateInput"`)
+                    })
+                })
+
+            })
+        })
     })
 })
 

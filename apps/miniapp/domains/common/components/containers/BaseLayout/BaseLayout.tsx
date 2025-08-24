@@ -2,7 +2,7 @@ import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Layout } from 'antd'
 import classnames from 'classnames'
-import React, { CSSProperties, FunctionComponent } from 'react'
+import React, { CSSProperties, FunctionComponent, PropsWithChildren } from 'react'
 
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -26,7 +26,6 @@ const SUB_LAYOUT_CSS = css`
 const PAGE_CONTENT_CSS = css`
   flex-grow: 1;
   max-width: 1600px;
-  padding-bottom: 56px;
   background: ${colors.white};
 `
 
@@ -37,7 +36,6 @@ const PAGE_HEADER_CSS = css`
 
 export const TABLE_PAGE_CONTENT_CSS = css`
   flex-grow: 1;
-  padding-bottom: 60px;
   max-width: ${MAX_CONTENT_WIDTH}px;
   background: ${colors.white};
 `
@@ -55,7 +53,7 @@ interface IBaseLayoutProps {
     className?: string
 }
 
-const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
+const BaseLayout: React.FC<PropsWithChildren<IBaseLayoutProps>> = (props) => {
     const {
         style,
         children,
@@ -76,7 +74,7 @@ interface IPageWrapperProps {
     style?: CSSProperties
 }
 
-const PageWrapper: FunctionComponent<IPageWrapperProps> = ({ children, className, style }) => {
+const PageWrapper: FunctionComponent<PropsWithChildren<IPageWrapperProps>> = ({ children, className, style }) => {
     return (
         <StyledPageWrapper className={classnames('page-wrapper', className)} style={style}>
             {children}
@@ -88,7 +86,7 @@ interface IPageHeaderProps {
     className?: string
 }
 
-const PageHeader: FunctionComponent<IPageHeaderProps> = ({
+const PageHeader: FunctionComponent<PropsWithChildren<IPageHeaderProps>> = ({
     className,
     children,
 }) => {
@@ -104,7 +102,7 @@ interface IPageContentProps {
     style?: CSSProperties
 }
 
-const PageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
+const PageContent: FunctionComponent<PropsWithChildren<IPageContentProps>> = ({ children, className, style }) => {
     return (
         <div className={classnames('page-content', className)} css={PAGE_CONTENT_CSS} style={style}>
             {children}
@@ -113,7 +111,7 @@ const PageContent: FunctionComponent<IPageContentProps> = ({ children, className
 }
 
 
-const TablePageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
+const TablePageContent: FunctionComponent<PropsWithChildren<IPageContentProps>> = ({ children, className, style }) => {
     return (
         <div className={classnames('page-content', className)} css={TABLE_PAGE_CONTENT_CSS} style={style}>
             {children}

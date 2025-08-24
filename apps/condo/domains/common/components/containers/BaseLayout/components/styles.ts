@@ -22,7 +22,7 @@ export const MobileMenuItemsContainer = styled.div`
 `
 
 export const LAYOUT_CSS = css`
-  height: 100%;
+  min-height: 100vh !important;
   display: flex;
   align-items: stretch;
   flex-direction: row;
@@ -47,7 +47,7 @@ interface IPageWrapper {
 }
 
 export const StyledPageWrapper = styled(Layout.Content)<IPageWrapper>`
-  padding: ${({ isSmall }) => isSmall ? '20px 20px 0' : '20px 40px 0'};
+  padding: ${({ isSmall }) => isSmall ? '24px 20px 0' : '20px 40px 0'};
   margin: 0;
   height: 100%;
   display: flex;
@@ -79,14 +79,12 @@ export const SPACED_PAGE_HEADER_CSS = css`
 
 export const PAGE_CONTENT_CSS = css`
   flex-grow: 1;
-  padding-bottom: 60px;
   max-width: ${MAX_CONTENT_WIDTH}px;
   background: ${colors.white};
 `
 
 export const TABLE_PAGE_CONTENT_CSS = css`
   flex-grow: 1;
-  padding-bottom: 60px;
   max-width: ${MAX_CONTENT_WIDTH}px;
   background: ${colors.white};
 `

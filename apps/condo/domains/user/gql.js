@@ -13,7 +13,7 @@ const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/user/utils/d
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const USER_FIELDS = `type name avatar { publicUrl } rightsSet { id } meta isPhoneVerified isEmailVerified isAdmin isSupport locale showGlobalHints ${COMMON_FIELDS}`
+const USER_FIELDS = `type name avatar { publicUrl } rightsSet { id } meta isPhoneVerified isEmailVerified isAdmin isSupport locale showGlobalHints hasMarketingConsent ${COMMON_FIELDS}`
 const User = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
 const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone }`)
 
@@ -65,7 +65,7 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
-const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport rightsSet { id } locale showGlobalHints }'
+const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport rightsSet { id } locale showGlobalHints hasMarketingConsent }'
 
 const USER_QUERY = gql`
     query {
@@ -205,6 +205,50 @@ const AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION = gql`
     }
 `
 
+const CONFIRM_EMAIL_ACTION_FIELDS = '{ email token secretCode secretCodeRequestedAt secretCodeExpiresAt retries isEmailVerified requestedAt expiresAt completedAt id dv sender { dv fingerprint } v deletedAt newId }'
+const ConfirmEmailAction = generateGqlQueries('ConfirmEmailAction', CONFIRM_EMAIL_ACTION_FIELDS)
+
+
+const GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY = gql`
+    query getEmailByConfirmEmailActionToken ($data: GetEmailByConfirmEmailActionTokenInput!) {
+        result: getEmailByConfirmEmailActionToken(data: $data) { email, isEmailVerified }
+    }
+`
+
+const START_CONFIRM_EMAIL_ACTION_MUTATION = gql`
+    mutation startConfirmEmailAction ($data: StartConfirmEmailActionInput!) {
+        result: startConfirmEmailAction(data: $data) { token }
+    }
+`
+
+const RESEND_CONFIRM_EMAIL_ACTION_MUTATION = gql`
+    mutation resendConfirmEmailAction ($data: ResendConfirmEmailActionInput!) {
+        result: resendConfirmEmailAction(data: $data) { status }
+    }
+`
+
+const COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION = gql`
+    mutation completeConfirmEmailAction ($data: CompleteConfirmEmailActionInput!) {
+        result: completeConfirmEmailAction(data: $data) { status }
+    }
+`
+
+const AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION = gql`
+    mutation authenticateUserWithEmailAndPassword ($data: AuthenticateUserWithEmailAndPasswordInput!) {
+        result: authenticateUserWithEmailAndPassword(data: $data) { 
+            item {
+                id
+            }
+        }
+    }
+`
+
+const CHANGE_USER_PASSWORD_MUTATION = gql`
+    mutation changeUserPassword ($data: ChangeUserPasswordInput!) {
+        result: changeUserPassword(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -240,5 +284,12 @@ module.exports = {
     UserSudoToken,
     GENERATE_SUDO_TOKEN_MUTATION,
     AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION,
+    ConfirmEmailAction,
+    GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY,
+    START_CONFIRM_EMAIL_ACTION_MUTATION,
+    RESEND_CONFIRM_EMAIL_ACTION_MUTATION,
+    COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION,
+    AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION,
+    CHANGE_USER_PASSWORD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

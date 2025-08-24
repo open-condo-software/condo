@@ -12,8 +12,6 @@ import {
     MAX_PROPERTY_UNITS_COUNT_PER_FLOOR,
 } from '@condo/domains/property/constants/property'
 
-
-
 import {
     INPUT_STYLE,
     IPropertyMapModalForm,
@@ -266,12 +264,36 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const RenameNextSectionsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextSections' })
     const RenameNextParkingsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParking' })
+    const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
+    const FloorCountLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.floorCount' })
+    const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
+    const ShowMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.showMinFloor' })
+    const HideMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.hideMinFloor' })
+
+    const sections = builder.getSelectedSections()
+    const section = sections?.[0]
+    const canChangeName = sections.length < 2
+
+    useEffect(() => {
+        if (!section) {
+            builder.editMode = null
+            refresh()
+        }
+    }, [section, builder, refresh])
+
+    const firstNotEmptyFloorIndex = section?.floors?.map(floor => floor.units.length)?.findIndex(unitsCount => !!unitsCount) ?? 0
+    const sectionIndex = sections.findIndex(el => el.index === section.index)
+    const sectionMinFloor = section && sectionIndex !== -1 ? builder.getSectionMinFloor(sectionIndex) : 1
+    const sectionMaxFloor = section && sectionIndex !== -1 ? builder.getSectionMaxFloor(sectionIndex) - firstNotEmptyFloorIndex : 1
+    const sectionUnitOnFloor = section?.floors?.[0]?.units?.length ?? 0
 
     const [name, setName] = useState<string>('')
     const renameNextSections = useRef(false)
     const toggleRenameNextSections = useCallback((event) => { renameNextSections.current = event.target.checked }, [])
-
-    const section = builder.getSelectedSection()
+    const [minFloor, setMinFloor] = useState(sectionMinFloor)
+    const [floorCount, setFloorCount] = useState(sectionMaxFloor)
+    const [unitsOnFloor, setUnitsOnFloor] = useState<number>(sectionUnitOnFloor)
+    const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
 
     useEffect(() => {
         setName(section ? section.name : '')
@@ -279,21 +301,76 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const setNameValue = useCallback((value) => setName(value ? value.toString() : ''), [])
 
-    const updateSection = useCallback(() => {
-        builder.updateSection({ ...section, name }, renameNextSections.current)
-        refresh()
-    }, [builder, refresh, name, section])
-
     const deleteSection = useCallback(() => {
-        builder.removeSection(section.id, renameNextSections.current)
+        sections.forEach(section => {
+            builder.removeSection(section.id, renameNextSections.current)
+        })
         refresh()
-    }, [builder, refresh, section])
+    }, [builder, refresh, sections])
+
+    const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
+    const setFloorCountValue = useCallback((value) => { setFloorCount(value) }, [])
+    const maxFloorValue = useMemo(() => {
+        if (floorCount === 1) return minFloor
+        if (minFloor > 0) return floorCount + minFloor - 1
+        return floorCount + minFloor
+    }, [floorCount, minFloor])
+
+    const toggleMinFloorVisible = useCallback(() => {
+        if (!minFloorHidden) {
+            setMinFloor(1)
+        }
+        setMinFloorHidden(!minFloorHidden)
+    }, [minFloorHidden])
+
+    const minFloorMargin = minFloorHidden ? '-20px' : 0
+
+    const resetForm = useCallback(() => {
+        setMinFloor(1)
+        setFloorCount(null)
+        setUnitsOnFloor(null)
+        setMinFloorHidden(true)
+        setName(section?.name || '')
+    }, [section?.name])
+
+    const updateSection = useCallback(() => {
+        sections.forEach(section => {
+
+            builder.removeUpdatePreviewSection(section.id, renameNextSections.current)
+
+            builder.updateSection({
+                ...section,
+                name: canChangeName ? name : undefined,
+                minFloor,
+                maxFloor: maxFloorValue,
+                unitsOnFloor,
+            }, renameNextSections.current)
+        })
+
+        refresh()
+        resetForm()
+    }, [sections, refresh, resetForm, builder, canChangeName, name, minFloor, maxFloorValue, unitsOnFloor])
+
+    useEffect(() => {
+        if (minFloor && floorCount && unitsOnFloor && (canChangeName ? name : true) && maxFloorValue) {
+            sections.forEach(section => {
+                builder.updatePreviewSection({
+                    ...section,
+                    name: canChangeName ? name : undefined,
+                    minFloor,
+                    maxFloor: maxFloorValue,
+                    unitsOnFloor,
+                }, renameNextSections.current)
+            })
+        }
+
+    }, [builder, section, name, minFloor, maxFloorValue, unitsOnFloor, refresh, resetForm, floorCount, canChangeName, sections])
 
     return (
         <Row gutter={[0, 40]} data-cy='property-map__edit-section-form'>
             <Col span={24}>
                 <Row gutter={MODAL_FORM_EDIT_GUTTER}>
-                    <Col span={24}>
+                    {canChangeName && <Col span={24}>
                         <Space direction='vertical' size={8} width='100%'>
                             <Typography.Text size='medium' type='secondary'>{NameLabel}</Typography.Text>
                             <InputNumber
@@ -304,7 +381,73 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                 style={INPUT_STYLE}
                             />
                         </Space>
+                    </Col>}
+
+                    <Col span={24}>
+                        <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text type='secondary' size='medium'>{FloorCountLabel}</Typography.Text>
+                            <InputNumber
+                                value={floorCount}
+                                onChange={setFloorCountValue}
+                                min={1}
+                                max={MAX_PROPERTY_FLOORS_COUNT}
+                                style={INPUT_STYLE}
+                                type='number'
+                                data-cy='property-map__add-section-form__floor-count'
+                            />
+                        </Space>
                     </Col>
+                    <Col span={24} style={{ marginTop: minFloorMargin }}>
+                        <Space direction='vertical' size={8} width='100%'>
+                            {
+                                !minFloorHidden && (
+                                    <>
+                                        <Typography.Text type='secondary' size='medium'>{MinFloorLabel}</Typography.Text>
+                                        <InputNumber
+                                            value={minFloor}
+                                            onChange={setMinFloorValue}
+                                            style={INPUT_STYLE}
+                                            type='number'
+                                        />
+                                    </>
+                                )
+                            }
+                            <Typography.Text onClick={toggleMinFloorVisible} size='medium'>
+                                <Space size={8} width='100%'>
+                                    {
+                                        minFloorHidden ? (
+                                            <>
+                                                {ShowMinFloor}
+                                                <ChevronDown size='medium' />
+                                            </>
+                                        ) : (
+                                            <>
+                                                {HideMinFloor}
+                                                <ChevronUp size='medium' />
+                                            </>
+                                        )
+                                    }
+                                </Space>
+                            </Typography.Text>
+                        </Space>
+                    </Col>
+                    <Col span={24}>
+                        <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text size='medium' type='secondary'>
+                                {UnitsOnFloorLabel}
+                            </Typography.Text>
+                            <InputNumber
+                                min={1}
+                                max={MAX_PROPERTY_UNITS_COUNT_PER_FLOOR}
+                                value={unitsOnFloor}
+                                onChange={value=>setUnitsOnFloor(value)}
+                                style={INPUT_STYLE}
+                                type='number'
+                                data-cy='property-map__add-section-form__units-on-floor'
+                            />
+                        </Space>
+                    </Col>
+
                     <Col span={24}>
                         <Checkbox onChange={toggleRenameNextSections}>
                             {builder.viewMode === MapViewMode.parking ? RenameNextParkingsLabel : RenameNextSectionsLabel}

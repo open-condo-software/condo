@@ -217,7 +217,7 @@ export const getClientNameFilter = () => {
  *      },
  *  }
  */
-export const getFilterAddressForSearch = (addressFieldName = 'address'): FilterType => {
+export const getFilterAddressForSearch = (addressFieldName = 'address', fieldModelWithAddress = 'property'): FilterType => {
     return function getWhereQuery (search) {
         if (!search || !isString(search)) return
 
@@ -232,8 +232,14 @@ export const getFilterAddressForSearch = (addressFieldName = 'address'): FilterT
 
         if (isEmpty(addresses)) return
 
+        if (!fieldModelWithAddress) {
+            return {
+                AND: addresses.map(item => ({ [`${addressFieldName}_contains_i`]: item })),
+            }
+        }
+
         return {
-            property: {
+            [fieldModelWithAddress]: {
                 AND: addresses.map(item => ({ [`${addressFieldName}_contains_i`]: item })),
             },
         }

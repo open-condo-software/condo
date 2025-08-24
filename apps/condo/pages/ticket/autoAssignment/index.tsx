@@ -572,7 +572,7 @@ const USER_WITH_RIGHTS_SET = gql`
     }
 `
 
-const TicketAutoAssignmentPermissionRequired: React.FC = ({ children }) => {
+const TicketAutoAssignmentPermissionRequired: React.FC<React.PropsWithChildren> = ({ children }) => {
     const { user } = useAuth()
     const userId = get(user, 'id', null)
 

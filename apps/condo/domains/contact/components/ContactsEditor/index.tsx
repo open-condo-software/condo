@@ -1,32 +1,31 @@
-import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { useGetContactEditorContactsQuery, useGetContactEditorOrganizationEmployeesQuery } from '@app/condo/gql'
 import { BuildingUnitSubType, Contact as ContactType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, FormItemProps, Row, Tabs } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
+import { isNil } from 'lodash'
 import debounce from 'lodash/debounce'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import pickBy from 'lodash/pickBy'
-import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { PlusCircle, MinusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from '@open-condo/ui'
+import { Typography, Button } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors } from '@condo/domains/common/constants/style'
 
 import { ContactOption } from './ContactOption'
-import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NewContactFields } from './NewContactFields'
+import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NEW_CONTACT_NAME_FORM_ITEM_NAME, NewContactFields } from './NewContactFields'
 import { NotResidentFields } from './NotResidentFields'
 
 
@@ -78,6 +77,7 @@ export interface IContactEditorProps {
     newContactPhoneFormItemProps?: FormItemProps
     newContactNameFormItemProps?: FormItemProps
     disabled?: boolean
+    initialIsResident?: boolean
 }
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
@@ -90,16 +90,6 @@ const { TabPane } = Tabs
 
 const TAB_PANE_ROW_GUTTERS: [Gutter, Gutter] = [0, 24]
 const TABS_STYLE: CSSProperties = { width: '100%' }
-const BUTTON_ICON_STYLE: CSSProperties = {
-    color: colors.black,
-    fontSize: 21,
-    position: 'relative',
-    top: '2px',
-}
-const BUTTON_STYLE: CSSProperties = {
-    color: colors.black,
-    paddingLeft: '5px',
-}
 
 export enum CONTACT_TYPE {
     RESIDENT = 'resident',
@@ -132,6 +122,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         newContactPhoneFormItemProps,
         newContactNameFormItemProps,
         disabled,
+        initialIsResident,
     } = props
 
     const [selectedContact, setSelectedContact] = useState(null)
@@ -147,7 +138,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const { link } = useOrganization()
     const canReadContacts = get(link, ['role', 'canReadContacts'], false)
     const canManageContacts = get(link, ['role', 'canManageContacts'], false)
-    const router = useRouter()
 
     const initialContactsQuery = useMemo(() => ({
         ...initialQuery,
@@ -160,12 +150,20 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         ...initialQuery,
     }), [initialQuery, organization])
 
-    const isEmptyInitialValue = useMemo(() => isEmpty(Object.values(initialValue).filter(Boolean)), [initialValue])
     const initialValueWithoutContact = !initialValue.id && initialValue
     const isEmptyInitialNotResidentValue = useMemo(() => isEmpty(Object.values(initialValueWithoutContact).filter(Boolean)), [initialValueWithoutContact])
-    const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
-    const initialTab = hasNotResidentTab && (isEmptyInitialValue || !isEmptyInitialNotResidentValue || (!canReadContacts && !canManageContacts))
-        ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
+    
+    const initialTab = useMemo(() => {
+        if (!hasNotResidentTab) return CONTACT_TYPE.RESIDENT
+        if (isNil(unitName)) return CONTACT_TYPE.NOT_RESIDENT
+
+        if (initialIsResident) return CONTACT_TYPE.RESIDENT
+        if (initialIsResident === false) return CONTACT_TYPE.NOT_RESIDENT
+
+        if (!canReadContacts && !canManageContacts) return CONTACT_TYPE.NOT_RESIDENT
+
+        return CONTACT_TYPE.RESIDENT
+    }, [hasNotResidentTab, canReadContacts, canManageContacts, unitName, initialIsResident])
 
     const {
         data: contactsData,
@@ -203,6 +201,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }, [fields.id, fields.name, fields.phone, form, onChange])
 
     useEffect(() => {
+        setActiveTab(initialTab)
+    }, [initialTab])
+
+    useEffect(() => {
         if (!contactsLoading) {
             form.validateFields([NEW_CONTACT_PHONE_FORM_ITEM_NAME])
         }
@@ -229,6 +231,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     useDeepCompareEffect(() => {
         if (initialValue) {
             triggerOnChange(initialValue, !initialValue.id)
+
+            if (initialValue?.phone && !initialValue?.id) {
+                setEditableFieldsChecked(true)
+            }
         }
     }, [initialValue])
 
@@ -236,31 +242,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         form.setFieldValue('isResidentTicket', activeTab === CONTACT_TYPE.RESIDENT)
     }, [activeTab, fields.id, fields.name, fields.phone, form])
 
-    useEffect(() => {
-        if (!canReadContacts && !canManageContacts) return
-
-        if (hasNotResidentTab) {
-            if (unitName && (redirectToClientCard || isEmptyInitialNotResidentValue)) {
-                setActiveTab(CONTACT_TYPE.RESIDENT)
-
-                if (redirectToClientCard && !isEmptyInitialNotResidentValue) {
-                    setEditableFieldsChecked(true)
-                }
-            } else {
-                setActiveTab(CONTACT_TYPE.NOT_RESIDENT)
-            }
-        } else {
-            setActiveTab(CONTACT_TYPE.RESIDENT)
-        }
-    }, [canManageContacts, canReadContacts, hasNotResidentTab, isEmptyInitialNotResidentValue, redirectToClientCard, unitName])
-
-    useEffect(() => {
-        setActiveTab(initialTab)
-    }, [initialTab])
-
     const handleClickOnPlusButton = useCallback(() => {
         form.setFieldsValue({
             [NEW_CONTACT_PHONE_FORM_ITEM_NAME]: null,
+            [NEW_CONTACT_NAME_FORM_ITEM_NAME]: null,
             [fields.id]: null,
             [fields.name]: null,
             [fields.phone]: null,
@@ -409,10 +394,11 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                 !breakpoints.TABLET_LARGE && (
                                                     <Col span={24}>
                                                         <Button
-                                                            type='link'
-                                                            style={BUTTON_STYLE}
+                                                            type='primary'
+                                                            minimal
+                                                            compact
                                                             onClick={handleClickOnMinusButton}
-                                                            icon={<MinusCircleOutlined style={BUTTON_ICON_STYLE} />}
+                                                            icon={<MinusCircle/>}
                                                         >
                                                             {CancelMessage}
                                                         </Button>
@@ -423,10 +409,11 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     ) : (
                                         <Col span={24}>
                                             <Button
-                                                type='link'
-                                                style={BUTTON_STYLE}
+                                                type='primary'
+                                                minimal
+                                                compact
                                                 onClick={handleClickOnPlusButton}
-                                                icon={<PlusCircleOutlined style={BUTTON_ICON_STYLE}/>}
+                                                icon={<PlusCircle/>}
                                                 disabled={disabled}
                                             >
                                                 {AddNewContactLabel}

@@ -1,12 +1,12 @@
-import { DownOutlined } from '@ant-design/icons'
 import { TicketGroupedCounter } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Skeleton, Typography, List } from 'antd'
 import get from 'lodash/get'
 import dynamic from 'next/dynamic'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
-import InfiniteScroll from 'react-infinite-scroller'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
+import { ChevronDown } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 
 import TicketChart, {
@@ -62,7 +62,7 @@ const EMPTY_CONTAINER_STYLE: React.CSSProperties = {
     alignItems: 'start',
 }
 
-const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
+const TicketChartView: React.FC<React.PropsWithChildren<ITicketAnalyticsPageChartProps>> = (props) => {
     const {
         children,
         data,
@@ -196,7 +196,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                         option={option}/>
                     {barChartPagedRenderEnabled ? (
                         <Button style={{ width: '100%', marginTop: 16 }} type='ghost' onClick={loadMore}>
-                            {LoadMoreTitle} <DownOutlined />
+                            {LoadMoreTitle} <ChevronDown />
                         </Button>
                     ) : null}
                     {children}
@@ -251,10 +251,11 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                 />
                 <ScrollContainer height={infiniteScrollContainerHeight}>
                     <InfiniteScroll
-                        initialLoad={false}
-                        loadMore={loadMore}
                         hasMore={hasMore}
-                        useWindow={false}>
+                        dataLength={seriesRef.current.length}
+                        next={loadMore}
+                        loader={null}
+                    >
                         <List
                             grid={{ gutter: 24, xs: 1, sm: 1, md: 1, lg: 1, xl: 2, xxl: 2 }}
                             dataSource={seriesRef.current}

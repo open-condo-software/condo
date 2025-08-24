@@ -1,4 +1,3 @@
-import { PlusCircleOutlined } from '@ant-design/icons'
 import {
     BuildingUnitSubType,
     Invoice,
@@ -9,15 +8,18 @@ import { Col, Form, Row, RowProps, Input, AutoComplete, Select, FormInstance } f
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
-import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Trash } from '@open-condo/icons'
+import { Trash, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Card, Button, Modal, Radio, RadioGroup, Space, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
-import { Button as OldButton } from '@condo/domains/common/components/Button'
-import { BaseModalForm, FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import {
+    BaseModalForm,
+    FormWithAction,
+    IFormWithActionChildren,
+} from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
@@ -48,8 +50,6 @@ import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/componen
 
 import { ResidentPaymentAlert } from './ResidentPaymentAlert'
 
-
-
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 
 const SCROLL_TO_FIRST_ERROR_CONFIG = { behavior: 'smooth', block: 'center' }
@@ -60,16 +60,6 @@ const CONTACT_FORM_FIELDS = {
     id: 'contact',
     phone: 'clientPhone',
     name: 'clientName',
-}
-const PLUS_BUTTON_ICON_STYLE: CSSProperties = {
-    color: colors.black,
-    fontSize: 20,
-    position: 'relative',
-    top: '2px',
-}
-const PLUS_BUTTON_STYLE: CSSProperties = {
-    color: colors.black,
-    paddingLeft: '5px',
 }
 
 const ServiceFormItem = styled(Form.Item)`
@@ -183,6 +173,7 @@ const PropertyFormField = ({ organizationId, form, disabled, selectedPropertyId,
         <>
             <Form.Item
                 label={AddressLabel}
+                labelAlign='left'
                 labelCol={{ span: 24 }}
                 required
                 rules={[requiredValidator]}
@@ -399,12 +390,14 @@ const PayerDataFields = ({ organizationId, form, disabled, initialValues }) => {
                                     </Col>
                                 </Row>
                             </Col>
+                            <Col span={24}>
+                                <ContactFormField
+                                    organizationId={organizationId}
+                                    form={form}
+                                    disabled={disabled}
+                                />
+                            </Col>
                         </Row>
-                        <ContactFormField
-                            organizationId={organizationId}
-                            form={form}
-                            disabled={disabled}
-                        />
                     </Col>
                 )
             }
@@ -854,15 +847,16 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                         ))
                     }
                     <Col span={24} hidden={disabled}>
-                        <OldButton
-                            type='link'
-                            style={PLUS_BUTTON_STYLE}
+                        <Button
+                            type='primary'
+                            minimal
+                            compact
                             onClick={() => operation.add()}
-                            icon={<PlusCircleOutlined style={PLUS_BUTTON_ICON_STYLE}/>}
+                            icon={<PlusCircle/>}
                             disabled={disabled}
                         >
-                            <Typography.Text strong>{AddServiceLabel}</Typography.Text>
-                        </OldButton>
+                            {AddServiceLabel}
+                        </Button>
                     </Col>
                 </Row>
             }
@@ -992,6 +986,7 @@ type BaseInvoiceFormProps = {
     isAllFieldsDisabled?: boolean
     isContactsFieldsDisabled?: boolean
     formInstance?: FormInstance
+    children: React.ReactNode | IFormWithActionChildren
 }
 
 export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
@@ -1089,6 +1084,10 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                         const status = getFieldValue('status')
                                         const disabled = isContactsFieldsDisabled || isAllFieldsDisabled || onlyStatusTransitionsActive ||
                                             status !== INVOICE_STATUS_DRAFT || isCreatedByResident
+
+                                        if (isModalForm) {
+                                            return null
+                                        }
 
                                         return (
                                             <PayerDataFields

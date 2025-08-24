@@ -487,7 +487,7 @@ const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
-    let RequiredAccess: React.FC = React.Fragment
+    let RequiredAccess: React.FC<React.PropsWithChildren> = React.Fragment
 
     if (Component.requiredAccess) {
         RequiredAccess = Component.requiredAccess
@@ -610,7 +610,10 @@ if (!isDisabledSsr || !isSSR()) {
 
                 if (!activeEmployee) {
                     const { asPath } = pageContext
-                    const currentPath = asPath.split('?')[0]
+                    let currentPath = asPath.split('?')[0]
+                    if (currentPath.endsWith('/')) {
+                        currentPath = currentPath.slice(0, -1)
+                    }
                     const redirectPath = '/auth/organization'
 
                     if (currentPath !== redirectPath) {

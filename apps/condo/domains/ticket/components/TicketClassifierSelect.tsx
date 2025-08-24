@@ -1,5 +1,6 @@
-import { usePredictTicketClassificationLazyQuery } from '@app/condo/gql'
-import { Col, Form, Row } from 'antd'
+import { useGetTicketsWithSamePropertyAndClassifierExistenceQuery, usePredictTicketClassificationLazyQuery } from '@app/condo/gql'
+import { TicketStatusTypeType } from '@app/condo/schema'
+import { Col, Form, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { uniqBy, isEmpty, find, pick } from 'lodash'
 import isFunction from 'lodash/isFunction'
@@ -8,9 +9,11 @@ import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { useCachePersistor } from '@open-condo/apollo'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { Alert, Typography } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
+import { FadeCol } from '@condo/domains/common/components/FadeCol/FadeCol'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
@@ -401,23 +404,32 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
                     <Form.Item name='classifier' rules={validations.classifierRule} noStyle={true}>
                         <Input type='hidden' />
                     </Form.Item>
-                    <Col span={12} data-cy='ticket__place-select-item'>
-                        <TicketFormItem
-                            label={PlaceClassifierLabel}
-                            name='placeClassifier'
-                            rules={validations.placeClassifier}
-                        >
-                            <PlaceSelect disabled={disabled} />
-                        </TicketFormItem>
-                    </Col>
-                    <Col span={12} data-cy='ticket__category-select-item'>
-                        <TicketFormItem
-                            label={CategoryClassifierLabel}
-                            name='categoryClassifier'
-                            rules={validations.categoryClassifier}
-                        >
-                            <CategorySelect disabled={disabled} />
-                        </TicketFormItem>
+                    <Col span={24}>
+                        <Row gutter={[0, 24]}>
+                            <Col span={24}>
+                                <Row gutter={CLASSIFIER_ROW_GUTTER}>
+                                    <Col span={12} data-cy='ticket__place-select-item'>
+                                        <TicketFormItem
+                                            label={PlaceClassifierLabel}
+                                            name='placeClassifier'
+                                            rules={validations.placeClassifier}
+                                        >
+                                            <PlaceSelect disabled={disabled} />
+                                        </TicketFormItem>
+                                    </Col>
+                                    <Col span={12} data-cy='ticket__category-select-item'>
+                                        <TicketFormItem
+                                            label={CategoryClassifierLabel}
+                                            name='categoryClassifier'
+                                            rules={validations.categoryClassifier}
+                                        >
+                                            <CategorySelect disabled={disabled} />
+                                        </TicketFormItem>
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <SameTicketsAlert form={form} />
+                        </Row>
                     </Col>
                     <Col span={24} data-cy='ticket-problem-select-item'>
                         <TicketFormItem
@@ -438,4 +450,53 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         ClassifiersEditorComponent,
         predictTicketClassifier, // NOSONAR
     }
+}
+
+interface ISameTicketsAlertProps {
+    form: FormInstance
+}
+const SameTicketsAlert: React.FC<ISameTicketsAlertProps> = ({ form }) => {
+    const intl = useIntl()
+    const AlertMessage = intl.formatMessage({ id: 'component.ticketclassifier.SameTicketsAlert.message' })
+    const AlertLinkText = intl.formatMessage({ id: 'component.ticketclassifier.SameTicketsAlert.linkText' })
+
+    const placeClassifier = Form.useWatch('placeClassifier', form)
+    const categoryClassifier = Form.useWatch('categoryClassifier', form)
+    const propertyId = Form.useWatch('property', form)
+
+    const { data: ticketsExistsData } = useGetTicketsWithSamePropertyAndClassifierExistenceQuery({
+        variables: {
+            propertyId,
+            placeId: placeClassifier,
+            categoryId: categoryClassifier,
+        },
+        skip: !propertyId || !placeClassifier || !categoryClassifier,
+    })
+    const isTicketsExists = ticketsExistsData?.tickets?.length > 0
+    
+    const statuses = [TicketStatusTypeType.Processing, TicketStatusTypeType.NewOrReopened, TicketStatusTypeType.Deferred]
+    const filters = { status: statuses, property: propertyId, placeClassifier, categoryClassifier }
+    const ticketsLink = `/ticket?filters=${encodeURIComponent(JSON.stringify(filters))}`
+    
+    if (!isTicketsExists) {
+        return null
+    }
+
+    return (
+        <FadeCol span={24}>
+            <Alert
+                message={AlertMessage}
+                type='info'
+                showIcon
+                description={
+                    <Typography.Link
+                        href={ticketsLink}
+                        target='_blank'
+                    >
+                        {AlertLinkText}
+                    </Typography.Link>
+                }
+            />
+        </FadeCol>
+    )
 }

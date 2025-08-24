@@ -18,7 +18,7 @@ import {
 
 interface ISideNavProps {
     onLogoClick: (...args) => void
-    menuData?: React.ElementType
+    menuData?: React.ReactNode
 }
 
 export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {

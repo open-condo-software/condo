@@ -9,7 +9,8 @@ const {
     expectToThrowAuthenticationErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const { STAFF, RESIDENT, SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
+const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const { CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
 const {
     createTestUser,

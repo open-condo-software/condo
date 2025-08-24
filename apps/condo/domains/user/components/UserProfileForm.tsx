@@ -1,4 +1,5 @@
 import { Col, Form, Row } from 'antd'
+import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
@@ -12,6 +13,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
+import { PHONE_TYPE } from '@condo/domains/user/constants/identifiers'
 import { User } from '@condo/domains/user/utils/clientSchema'
 
 import { UserAvatar } from './UserAvatar'
@@ -31,6 +33,11 @@ const INPUT_LAYOUT_PROPS = {
 
 const RESET_PASSWORD_URL = '/auth/forgot'
 
+const { publicRuntimeConfig: { inviteRequiredFields } } = getConfig()
+
+const isEmailEditable = Array.isArray(inviteRequiredFields)
+    && inviteRequiredFields.length === 1
+    && inviteRequiredFields.includes(PHONE_TYPE)
 
 export const UserProfileForm: React.FC = () => {
     const intl = useIntl()
@@ -41,6 +48,7 @@ export const UserProfileForm: React.FC = () => {
     const PasswordLabel = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const MinLengthError = intl.formatMessage({ id: 'field.ClientName.minLengthError' })
+    const MaxLengthError = intl.formatMessage({ id: 'field.ClientName.maxLengthError' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ChangePasswordLabel = intl.formatMessage({ id: 'profile.ChangePassword' })
@@ -49,7 +57,7 @@ export const UserProfileForm: React.FC = () => {
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { user } = useAuth()
-    const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
+    const updateUserAction = User.useUpdate({}, () => router.push('/user'))
     const formAction = (formValues) => updateUserAction(formValues, user)
     const { breakpoints } = useLayoutContext()
 
@@ -57,11 +65,12 @@ export const UserProfileForm: React.FC = () => {
         router.push('/user')
     }, [router])
 
-    const { requiredValidator, emailValidator, changeMessage, minLengthValidator } = useValidations()
+    const { requiredValidator, emailValidator, changeMessage, minLengthValidator, maxLengthValidator } = useValidations()
     const minClientNameRule = changeMessage(minLengthValidator(2), MinLengthError)
+    const maxClientNameRule = changeMessage(maxLengthValidator(100), MaxLengthError)
     const validations = {
         email: [emailValidator],
-        name: [requiredValidator, minClientNameRule],
+        name: [requiredValidator, minClientNameRule, maxClientNameRule],
     }
 
     const initialValues = useMemo(() => ({
@@ -118,17 +127,21 @@ export const UserProfileForm: React.FC = () => {
                                             <Input/>
                                         </Form.Item>
                                     </Col>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            {...INPUT_LAYOUT_PROPS}
-                                            labelAlign='left'
-                                            name='email'
-                                            label={EmailLabel}
-                                            rules={validations.email}
-                                        >
-                                            <Input placeholder={ExampleEmailMessage}/>
-                                        </Form.Item>
-                                    </Col>
+                                    {
+                                        isEmailEditable && (
+                                            <Col span={24}>
+                                                <Form.Item
+                                                    {...INPUT_LAYOUT_PROPS}
+                                                    labelAlign='left'
+                                                    name='email'
+                                                    label={EmailLabel}
+                                                    rules={validations.email}
+                                                >
+                                                    <Input placeholder={ExampleEmailMessage}/>
+                                                </Form.Item>
+                                            </Col>
+                                        )
+                                    }
 
                                     <Col span={24}>
                                         <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>

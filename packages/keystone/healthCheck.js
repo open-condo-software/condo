@@ -118,11 +118,13 @@ const HEALTHCHECK_WARNING = 417
 /**
  * Creates a health check function that verifies the remaining GraphQL rate limit complexity.
  * @param {Object} options - Configuration options.
+ * @param {string} options.name - Unique identifier to distinguish rate limit checks for multiple accounts.
  * @param {string} options.endpoint - GraphQL endpoint to be queried.
  * @param {Object} options.authRequisites - Credentials or data used for authorization.
  * @param {number} [options.threshold=1000] - Complexity threshold below which WARN is returned.
  */
 const getRateLimitHealthCheck = ({
+    name,
     endpoint,
     authRequisites,
     threshold = 1000,
@@ -133,11 +135,11 @@ const getRateLimitHealthCheck = ({
     let client
 
     return {
-        name: 'rate_limit',
+        name: `${name}_rate_limit`,
 
         prepare: async () => {
             client = new ApolloServerClient(endpoint, authRequisites, {
-                clientName: 'healthcheck-client',
+                clientName: `healthcheck-client-${name}`,
             })
         },
 

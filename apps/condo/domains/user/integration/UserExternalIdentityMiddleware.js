@@ -1,11 +1,14 @@
-const bodyParser = require('body-parser')
 const express = require('express')
 
-const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
+const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
 
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const { AppleIdRoutes } = require('@condo/domains/user/integration/appleid/routes')
 const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes')
+const { TelegramOauthRoutes } = require('@condo/domains/user/integration/telegram/routes')
+
+const { PassportAuthRouter } = require('./passport')
+
 
 class UserExternalIdentityMiddleware {
     async prepareMiddleware ({ keystone }) {
@@ -29,6 +32,14 @@ class UserExternalIdentityMiddleware {
         const sberIdRoutes = new SberIdRoutes()
         app.get('/api/sber_id/auth', sberIdRoutes.startAuth.bind(sberIdRoutes))
         app.get('/api/sber_id/auth/callback', sberIdRoutes.completeAuth.bind(sberIdRoutes))
+
+        // telegram oauth routes
+        const telegramOauthRoutes = new TelegramOauthRoutes()
+        app.get('/api/tg/auth', telegramOauthRoutes.startAuth.bind(telegramOauthRoutes))
+        app.get('/api/tg/auth/callback', telegramOauthRoutes.completeAuth.bind(telegramOauthRoutes))
+
+        const passportRouter = PassportAuthRouter.init()
+        passportRouter.addPassportRoutes(app, keystone)
 
         // error handler
         app.use(expressErrorHandler)

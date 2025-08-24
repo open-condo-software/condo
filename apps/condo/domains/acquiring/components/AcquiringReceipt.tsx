@@ -359,7 +359,7 @@ const ReceiptSection: React.FC<IReceiptSectionProps> = ({ section, currencyCode 
 
 const InvoiceSection: React.FC<IInvoiceSectionProps> = ({ section, currencyCode }) => {
     const intl = useIntl()
-    const InvoiceTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.title' }, pick(section, ['number', 'date']))
+    const InvoiceTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.title' }, pick(section, 'number', 'date'))
     const TaxRegimeTitle = intl.formatMessage({ id: 'acquiringReceipt.taxRegime' })
     const TaxRegimeModeTitle = intl.formatMessage({ id: `acquiringReceipt.taxRegime.${section.taxRegime}` as FormatjsIntl.Message['ids'] })
 

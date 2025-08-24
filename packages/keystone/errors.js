@@ -69,7 +69,7 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { getTranslations } = require('@open-condo/locales/loader')
 
 const { getLogger } = require('./logging')
-const { GQLErrorCode, GQLInternalErrorTypes } = require('./utils/errors/constants')
+const { GQLErrorCode, GQLInternalErrorTypes, HTTPStatusByGQLErrorCode } = require('./utils/errors/constants')
 
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g
@@ -152,7 +152,7 @@ class GQLError extends Error {
             if (extensions.messageForUser === extensions.messageForUserTemplateKey) {
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
                 logger.warn({
-                    msg: 'GQLError: it loos like you already hardcode localised message inside messageForUser. ' +
+                    msg: 'GQLError: it looks like you already hardcode localised message inside messageForUser. ' +
                         'Could you please use translation key here!',
                     data: { messageForUser: extensions.messageForUser },
                 })
@@ -189,4 +189,5 @@ module.exports = {
     GQLError,
     GQLErrorCode,
     GQLInternalErrorTypes,
+    HTTPStatusByGQLErrorCode,
 }

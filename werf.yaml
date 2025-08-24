@@ -2,7 +2,7 @@ project: condo
 configVersion: 1
 ---
 image: base
-from: ubuntu:20.04
+from: ubuntu:22.04
 shell:
   beforeInstall:
   - "export DEBIAN_FRONTEND=noninteractive"
@@ -10,7 +10,7 @@ shell:
   - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
   - "apt update -qq"
   - "apt install -qq -y curl"
-  - "curl -fsL https://deb.nodesource.com/setup_16.x | bash"
+  - "curl -fsSL https://deb.nodesource.com/setup_22.x | bash"
   - "apt install -qq -y --no-install-recommends
       g++
       automake
@@ -18,7 +18,7 @@ shell:
       make
       nodejs
       python3-pip"
-  - "pip3 install django>=3.0.6 psycopg2-binary>=2.8.5"
+  - "pip3 install Django==5.2 psycopg2-binary==2.9.10"
   - "npm install --global yarn"
 
 docker:
@@ -765,6 +765,7 @@ git:
 shell:
   install:
     - "cd /app"
+    - "npm i -g turbo"
     - "yarn install --immutable"
   setup:
     - "cd /app"
@@ -774,6 +775,7 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+    - "yarn workspace @app/employee-bot build:deps"
     - "yarn workspace @app/employee-bot build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
@@ -809,6 +811,7 @@ git:
 shell:
   install:
     - "cd /app"
+    - "npm i -g turbo"
     - "yarn install --immutable"
   setup:
     - "cd /app"
@@ -818,6 +821,7 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+    - "yarn workspace @app/ticket-importer build:deps"
     - "yarn workspace @app/ticket-importer build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
@@ -1153,6 +1157,53 @@ shell:
     - "yarn workspace @app/billing-connector next telemetry disable"
     - "yarn workspace @app/billing-connector build:deps"
     - "yarn workspace @app/billing-connector build"
+    - "rm -rf /app/.env"
+    - "rm -rf /app/.config"
+
+docker:
+  ENV:
+    LANG: C.UTF-8
+
+---
+image: pos_integration
+fromImage: base
+fromCacheVersion: "3"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "yarn.lock"
+        - "package.json"
+        - "**/yarn.lock"
+        - "**/package.json"
+      setup:
+        - "apps/**"
+        - "packages/**"
+        - "bin/**/*"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+
+shell:
+  install:
+    - "cd /app"
+    - "npm i -g turbo"
+    - "yarn install --immutable"
+  setup:
+    - "cd /app"
+    - "echo '# Build time .env config!' >> /app/.env"
+    - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+    - "echo 'DATABASE_URL=undefined' >> /app/.env"
+    - "echo 'REDIS_URL=undefined' >> /app/.env"
+    - "echo 'NODE_ENV=production' >> /app/.env"
+    - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+    - "yarn workspace @app/pos-integration build:deps"
+    - "yarn workspace @app/pos-integration build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
 

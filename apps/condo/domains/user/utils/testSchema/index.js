@@ -4,10 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
-const { gql } = require('graphql-tag')
-const { v4: uuid } = require('uuid')
 const { countryPhoneData } = require('phone')
-const { max, repeat, get, isEmpty } = require('lodash')
+const { repeat, get, isEmpty } = require('lodash')
 const dayjs = require('dayjs')
 
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -17,11 +15,11 @@ const { TOKEN_TYPES, generateToken } = require('@condo/domains/user/utils/tokens
 const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
-    SBER_ID_IDP_TYPE,
     RESIDENT,
     STAFF,
     SERVICE,
 } = require('@condo/domains/user/constants/common')
+const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const { IDENTITY_TYPES } = require('@condo/domains/user/constants')
 const {
     ConfirmPhoneAction: ConfirmPhoneActionGQL,
@@ -38,8 +36,12 @@ const {
     RESET_USER_MUTATION,
     SEND_MESSAGE_TO_SUPPORT_MUTATION,
     SIGNIN_AS_USER_MUTATION,
+    COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION,
+    RESEND_CONFIRM_EMAIL_ACTION_MUTATION,
+    GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY,
+    START_CONFIRM_EMAIL_ACTION_MUTATION,
 } = require('@condo/domains/user/gql')
-const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
+const { generateSmsCode, generateSecureCode } = require('@condo/domains/user/utils/serverSchema')
 
 const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
@@ -53,12 +55,15 @@ const { ResetUserLimitAction: ResetUserLimitActionGQL } = require('@condo/domain
 const { UserSudoToken: UserSudoTokenGQL } = require('@condo/domains/user/gql')
 const { GENERATE_SUDO_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 const { AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
+const { ConfirmEmailAction: ConfirmEmailActionGQL } = require('@condo/domains/user/gql')
+const { AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
+const { CHANGE_USER_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
+const OIDC_REDIRECT_URI = 'https://httpbingo.org/dump/request'
 
 function createTestEmail () {
-    return ('test.' + getRandomString() + '@example.com').toLowerCase()
+    return ('test.' + getRandomString(32) + '@example.com').toLowerCase()
 }
 
 const captcha = () => {
@@ -67,10 +72,16 @@ const captcha = () => {
 
 function createTestPhone () {
     const { country_code, mobile_begin_with, phone_number_lengths } = faker.helpers.arrayElement(countryPhoneData.filter(x => get(x, 'mobile_begin_with.length', 0) > 0))
-    const length = max(phone_number_lengths)
-    const code = String(faker.helpers.arrayElement(mobile_begin_with))
 
-    return faker.phone.number('+' + country_code + code + repeat('#', length - code.length))
+    const mobilePrefix = String(faker.helpers.arrayElement(mobile_begin_with))
+    const allowedLengths = phone_number_lengths
+        .filter((l) => country_code.length + l <= 15)
+    const len = faker.helpers.arrayElement(
+        allowedLengths.length ? allowedLengths : [Math.min(...phone_number_lengths)]
+    )
+
+    const pattern = `+${country_code}${mobilePrefix}${repeat('#', len - mobilePrefix.length)}`
+    return faker.phone.number(pattern)
 }
 
 function createTestLandlineNumber () {
@@ -252,6 +263,7 @@ const ExternalTokenAccessRight = generateGQLTestUtils(ExternalTokenAccessRightGQ
 const UserRightsSet = generateGQLTestUtils(UserRightsSetGQL)
 const ResetUserLimitAction = generateGQLTestUtils(ResetUserLimitActionGQL)
 const UserSudoToken = generateGQLTestUtils(UserSudoTokenGQL)
+const ConfirmEmailAction = generateGQLTestUtils(ConfirmEmailActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -629,6 +641,139 @@ async function authenticateOrRegisterUserWithTokenByTestClient(client, extraAttr
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestConfirmEmailAction (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const email = createTestEmail()
+    const token = generateToken(TOKEN_TYPES.CONFIRM_EMAIL)
+    const secretCode = generateSecureCode(4)
+    const now = dayjs()
+    const secretCodeRequestedAt = now.toISOString()
+    const secretCodeExpiresAt = now.add(1, 'minute').toISOString()
+    const requestedAt = now.toISOString()
+    const expiresAt = now.add(15, 'minutes').toISOString()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        email,
+        token,
+        secretCode,
+        secretCodeRequestedAt,
+        secretCodeExpiresAt,
+        requestedAt,
+        expiresAt,
+        ...extraAttrs,
+    }
+    const obj = await ConfirmEmailAction.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestConfirmEmailAction (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ConfirmEmailAction.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function completeConfirmEmailActionByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function startConfirmEmailActionByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(START_CONFIRM_EMAIL_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function resendConfirmEmailActionByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(RESEND_CONFIRM_EMAIL_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function getEmailByConfirmEmailActionTokenByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function authenticateUserWithEmailAndPasswordByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function changeUserPasswordByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CHANGE_USER_PASSWORD_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -674,5 +819,12 @@ module.exports = {
     generateSudoTokenByTestClient,
     OIDC_REDIRECT_URI,
     authenticateOrRegisterUserWithTokenByTestClient,
+    ConfirmEmailAction, createTestConfirmEmailAction, updateTestConfirmEmailAction,
+    completeConfirmEmailActionByTestClient,
+    startConfirmEmailActionByTestClient,
+    resendConfirmEmailActionByTestClient,
+    getEmailByConfirmEmailActionTokenByTestClient,
+    authenticateUserWithEmailAndPasswordByTestClient,
+    changeUserPasswordByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

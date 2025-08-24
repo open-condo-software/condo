@@ -22,14 +22,14 @@ const FOCUS_BROADCAST_CHANNEL = 'tab-focus-status'
 const TITLE_BLINK_INTERVAL_IN_MS = 3000
 
 // Play audio and update favicon when new notification received
-export const useNewMessageTitleNotification = (unreadMessagesCount: number): void => {
+export const useNewMessageTitleNotification = (unreadMessagesCount: number, lastMessageCreatedAt: string): void => {
     const intl = useIntl()
     const NewMessagePageTitle = intl.formatMessage({ id: 'notification.UserMessagesList.newMessagePageTitle' })
 
     const audio = useAudio()
     const { isNotificationSoundEnabled } = useUserMessagesList()
 
-    const previousMessagesCount = useRef<number>()
+    const previousMessageCreatedAt = useRef<string>()
     const originalPageTitle = useRef<string>()
     const originalIconHref = useRef<string>()
     const changeTitleInterval = useRef<ReturnType<typeof setInterval>>(null)
@@ -88,7 +88,7 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
         return () => {
             observer.disconnect()
         }
-    }, [NewMessagePageTitle, unreadMessagesCount])
+    }, [NewMessagePageTitle, lastMessageCreatedAt])
 
     // Remember page favicon on first load
     useEffect(() => {
@@ -98,7 +98,7 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
     }, [])
 
     useEffect(() => {
-        if (unreadMessagesCount === undefined) {
+        if (unreadMessagesCount === undefined || lastMessageCreatedAt === undefined) {
             return
         }
         if (changeTitleInterval.current) {
@@ -109,9 +109,9 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
         // Do not indicate about new messages when it's first messages load
         if (
             originalPageTitle.current &&
-            previousMessagesCount.current !== undefined &&
             unreadMessagesCount > 0 &&
-            unreadMessagesCount > previousMessagesCount.current
+            previousMessageCreatedAt.current !== undefined &&
+            new Date(previousMessageCreatedAt.current) < new Date(lastMessageCreatedAt)
         ) {
             if (isAnyTabFocusedRef.current) {
                 document.title = NewMessagePageTitle
@@ -142,8 +142,8 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
             }
         }
 
-        previousMessagesCount.current = unreadMessagesCount
-    }, [unreadMessagesCount])
+        previousMessageCreatedAt.current = lastMessageCreatedAt
+    }, [lastMessageCreatedAt, unreadMessagesCount])
 
     const handleBroadcastMessage = useCallback(() => {
         if (changeTitleInterval.current) {

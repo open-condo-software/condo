@@ -1,760 +1,56 @@
 import {
-    GetTicketsForClientCardQuery,
     useGetContactForClientCardQuery,
     useGetEmployeesForClientCardQuery,
     useGetTicketsForClientCardQuery,
 } from '@app/condo/gql'
-import {
-    BuildingUnitSubType,
-    Contact as ContactType,
-    Organization as OrganizationType,
-    Property,
-    SortTicketsBy,
-} from '@app/condo/schema'
-import { Col, ColProps, Row, RowProps } from 'antd'
+import { ContactWhereInput, TicketWhereInput } from '@app/condo/schema'
+import { Col, Row, RowProps } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
-import { EllipsisConfig } from 'antd/lib/typography/Base'
+import isEqual from 'lodash/isEqual'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import qs from 'qs'
-import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { ExternalLink, History, Mail, PlusCircle } from '@open-condo/icons'
+import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Carousel, Space, Tabs, Typography } from '@open-condo/ui'
+import { Button, Carousel, Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { Tag } from '@condo/domains/common/components/Tag'
 import { PageComponentType } from '@condo/domains/common/types'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
-import { METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
-import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
-import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
+import { ClientAddressCard, SearchByAddressCard } from '@condo/domains/ticket/components/ClientCard/ClientAddressCard'
+import { ResidentClientTabContent, NotResidentClientTabContent, SearchByAddressTabContent } from '@condo/domains/ticket/components/ClientCard/TabContent'
 import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
-import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
-import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
-import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
-import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
+import { ClientCardAddressSearchInputType, ClientCardTab, getClientCardTabKey, parseCardDataFromQuery, redirectToForm, TabDataType } from '@condo/domains/ticket/utils/clientSchema/clientCard'
 import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
-
 
 import styles from './index.module.css'
 
 
-//#region Constants, types and styles
-type TabDataType = {
-    type: ClientType
-    property: Property
-    unitName: string
-    unitType: string
-    sectionType: string
-    sectionName: string
-    organization: OrganizationType
-    contact?: Pick<ContactType, 'name' | 'id'>
-}
-
-type ClientContactPropsType = {
-    phone: string
-    lastTicket: GetTicketsForClientCardQuery['tickets'][number]
-    contact?: ContactType & { isEmployee?: boolean }
-    type: ClientType
-    showOrganizationMessage: boolean
-}
-
-export type TabKey = 'contactPropertyTickets' | 'residentsEntranceTickets' | 'residentsPropertyTickets'
-type TabsItems = { key: TabKey, label: string }[]
-
 const MAX_TABLE_SIZE = 20
-
-export const CONTACT_PROPERTY_TICKETS_TAB = 'contactPropertyTickets'
-const RESIDENTS_PROPERTY_TICKETS_TAB = 'residentsPropertyTickets'
-const RESIDENTS_ENTRANCE_TICKETS_TAB = 'residentsEntranceTickets'
-const tableTabs: Array<TabKey> =  [CONTACT_PROPERTY_TICKETS_TAB, RESIDENTS_ENTRANCE_TICKETS_TAB, RESIDENTS_PROPERTY_TICKETS_TAB]
-const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
-const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22
-
-const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
-const ROW_BIG_GUTTER: RowProps['gutter'] = [0, 60]
+const SMALL_GUTTER: RowProps['gutter'] = [0, 12]
 const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
-const ROW_MEDIUM_SMALL_GUTTER: RowProps['gutter'] = [0, 24]
-const HINT_CARD_STYLE = { maxHeight: '3em' }
-const TICKET_SORT_BY = [SortTicketsBy.OrderAsc, SortTicketsBy.CreatedAtDesc]
-const HINTS_COL_PROPS: ColProps = { span: 24 }
 
-const getMapData = async (cardsData) => {
-    return cardsData.map((tab) => {
-        if (tab.unitName && tab.unitType && tab.floorName) return tab
 
-        const section = getSectionAndFloorByUnitName(tab.property, tab.unitName, tab.unitType)
-
-        return { ...tab, ...section }
-    })
+interface IClientCardPageContentProps {
+    AddressSearchInput: ClientCardAddressSearchInputType
+    tabsData: TabDataType[]
+    canManageContacts?: boolean
+    loading?: boolean
+    showOrganizationMessage?: boolean   
+    phoneNumberPrefix?: string
 }
 
-const ClientAddressCard = ({ onClick, active, property, organization, unitName, floorName, unitType, sectionName }) => {
-    const intl = useIntl()
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const FlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
-    const ParkingMessage = intl.formatMessage({ id: 'field.UnitType.prefix.parking' })
-    const FloorMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
-    const SectionMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
-
-    const addressStreetRef = useRef<HTMLDivElement>()
-    const addressPostfixRef = useRef<HTMLDivElement>()
-
-    const [addressStreetEllipsis, setAddressStreetEllipsis] = useState<EllipsisConfig>({ rows: 2 })
-    const [addressPostfixEllipsis, setAddressPostfixEllipsis] = useState<EllipsisConfig>({ rows: 2 })
-
-    useLayoutEffect(() => {
-        const addressStreetTextHeight = addressStreetRef.current.clientHeight
-        const addressPostfixTextHeight = addressPostfixRef.current.clientHeight
-
-        if (addressStreetTextHeight > ADDRESS_STREET_ONE_ROW_HEIGHT) {
-            setAddressStreetEllipsis({ rows: 2 })
-            setAddressPostfixEllipsis({ rows: 1 })
-        } else if (addressPostfixTextHeight > ADDRESS_POSTFIX_ONE_ROW_HEIGHT) {
-            setAddressStreetEllipsis({ rows: 1 })
-            setAddressPostfixEllipsis({ rows: 2 })
-        }
-    }, [])
-
-    const { text, postfix } = getPropertyAddressParts(property, DeletedMessage)
-    const unitNamePrefix = unitType === BuildingUnitSubType.Parking ? ParkingMessage : FlatMessage
-    const streetMessage = unitName ? text : text.substring(0, text.length - 1)
-
-    return (
-        <div data-active={active} className={styles.addressTabWrapper} onClick={onClick}>
-            <div className={styles.addressTabContent}>
-                <Space size={8} direction='vertical'>
-                    <Typography.Paragraph
-                        size='large'
-                        ellipsis={{ rows: 2 }}
-                        type='secondary'
-                    >
-                        {organization.name}
-                    </Typography.Paragraph>
-
-                    <Typography.Text
-                        ref={addressStreetRef}
-                        ellipsis={addressStreetEllipsis}
-                        title={streetMessage}
-                        strong
-                    >
-                        {streetMessage}
-                    </Typography.Text>
-
-                    { floorName || sectionName || unitName ? (
-                        <Row style={{ gap: 4 }}>
-                            <Typography.Text
-                                ref={addressStreetRef}
-                                ellipsis={addressStreetEllipsis}
-                                title={streetMessage}
-                                strong
-                            >
-                                {unitNamePrefix} {unitName}
-                            </Typography.Text>
-
-                            {sectionName && floorName && (
-                                <Typography.Text type='secondary'>
-                                    ({SectionMessage} {sectionName}, {FloorMessage} {floorName})
-                                </Typography.Text>
-                            )}
-                        </Row>
-                    ) : null}
-
-                    <Typography.Paragraph
-                        size='medium'
-                        ref={addressPostfixRef}
-                        ellipsis={addressPostfixEllipsis}
-                        title={postfix}
-                        type='secondary'
-                    >
-                        {postfix}
-                    </Typography.Paragraph>
-                </Space>
-            </div>
-        </div>
-    )
-}
-//#endregion
-
-//#region Contact and Not resident client Tab content
-const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, type, phone, showOrganizationMessage }) => {
-    const intl = useIntl()
-    const CallRecordsLogMessage = intl.formatMessage({ id: 'pages.clientCard.callRecordsLog' })
-    const ContactMessage = intl.formatMessage({ id: 'Contact' })
-    const NotResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
-    const EmployeeMessage = intl.formatMessage({ id: 'Employee' })
-
-    const isEmployee = contact?.isEmployee
-
-    const name = useMemo(
-        () => contact?.name ?? lastTicket?.clientName,
-        [contact?.name, lastTicket?.clientName]
-    )
-
-    const email = useMemo(
-        () => contact?.email ?? lastTicket?.clientEmail,
-        [contact?.email, lastTicket?.clientEmail]
-    )
-
-    const propertyId = useMemo(
-        () => contact?.property?.id ?? lastTicket?.property?.id,
-        [contact?.property?.id, lastTicket?.property?.id]
-    )
-
-    const organizationName = useMemo(
-        () => contact?.organization?.name ?? lastTicket?.organization?.name,
-        [contact?.organization?.name, lastTicket?.organization?.name]
-    )
-
-    const {
-        count,
-    } = CallRecordFragment.useCount({
-        where: {
-            callRecord: {
-                OR: [{ callerPhone: phone, destCallerPhone: phone }],
-            },
-            OR: [
-                { ticket_is_null: true },
-                { ticket: { property: { id: propertyId } } },
-            ],
-        },
-    })
-
-    const handleCallRecordLinkClick = useCallback(() => {
-        if (typeof window !== 'undefined') {
-            const query = qs.stringify({
-                filters: JSON.stringify({
-                    phone,
-                    property: [propertyId],
-                }),
-            }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-
-            window.open(`/callRecord${query}`, '_blank')
-        }
-    }, [phone, propertyId])
-
-    const typeToMessage = useMemo(() => ({
-        [ClientType.Resident]: ContactMessage,
-        [ClientType.NotResident]: isEmployee ? EmployeeMessage : NotResidentMessage,
-    }), [ContactMessage, EmployeeMessage, NotResidentMessage, isEmployee])
-
-    return (
-        <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
-            <Col span={24}>
-                <Space size={12} direction='vertical' >
-                    <Space size={24} direction='horizontal' >
-                        <Typography.Title level={2}>
-                            {name}
-                        </Typography.Title>
-                        <Tag type='gray' style={TAG_STYLE}>
-                            {typeToMessage[type]}
-                        </Tag>
-                        {
-                            lastTicket && (
-                                <TicketResidentFeatures ticket={lastTicket}/>
-                            )
-                        }
-                        {
-                            showOrganizationMessage && (
-                                <Typography.Text strong type='secondary' size='medium'>
-                                    {organizationName}
-                                </Typography.Text>
-                            )
-                        }
-                    </Space>
-                </Space>
-            </Col>
-            {
-                (email || count > 0) && (
-                    <Col span={24}>
-                        <Space size={60}>
-                            {
-                                email && (
-                                    <Typography.Link size='large' href={`mailto:${email}`}>
-                                        <Space size={8}>
-                                            <Mail size='medium'/>
-                                            {email}
-                                        </Space>
-                                    </Typography.Link>
-                                )
-                            }
-                            {
-                                count > 0 && (
-                                    <Typography.Link
-                                        size='large'
-                                        onClick={handleCallRecordLinkClick}
-                                        target='_blank'
-                                    >
-                                        <Space size={8} align='center'>
-                                            <History size='medium'/>
-                                            {CallRecordsLogMessage}
-                                        </Space>
-                                    </Typography.Link>
-                                )
-                            }
-                        </Space>
-                    </Col>
-                )
-            }
-        </Row>
-    )
-}
-
-const ClientCardTabContent = ({
-    phone,
-    property,
-    searchTicketsQuery = null,
-    handleTicketCreateClick,
-    getQueryForCreatingMeterReading,
-    canManageContacts,
-    showOrganizationMessage = false,
-    handleContactEditClick = null,
-    contact = null,
-    organization,
-    sectionName,
-    type,
-    sectionType,
-    unitName,
-    unitType,
-}) => {
-    const intl = useIntl()
-    const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
-    const CreateMeterReadingMessage = intl.formatMessage({ id: 'CreateMeterReading' })
-    const EditContactMessage = intl.formatMessage({ id: 'pages.clientCard.editContact' })
-    const LastTicketsLoadedMessage = intl.formatMessage({ id: 'pages.clientCard.lastTicketsLoaded' }, { count: MAX_TABLE_SIZE })
-    const OpenAllTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.openAllTickets' })
-
-    const tabsItems: TabsItems = useMemo(() => tableTabs.map(tab => ({
-        label: intl.formatMessage({ id: `pages.clientCard.table.tabs.${tab}` }),
-        key: tab,
-    })), [intl])
-
-    const [currentTableTab, setCurrentTableTab] = useState<TabKey>('contactPropertyTickets')
-
-    const router = useRouter()
-
-    const { offset } = parseQuery(router.query)
-    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-
-    const { persistor } = useCachePersistor()
-
-    const searchQuery = useMemo(() => {
-        if (currentTableTab === RESIDENTS_ENTRANCE_TICKETS_TAB) {
-            return {
-                property: { id: property?.id },
-                sectionName,
-                sectionType,
-            }
-        }
-
-        if (currentTableTab === RESIDENTS_PROPERTY_TICKETS_TAB) {
-            return { property: { id: property?.id } }
-        }
-
-        return {
-            ...searchTicketsQuery,
-            property: { id: property?.id },
-            unitName,
-            unitType,
-            contact: { id: contact?.id },
-        }
-    }, [searchTicketsQuery, currentTableTab, unitType, unitName, property?.id, sectionName, sectionType])
-
-    const { data: ticketsQuery, loading: isTicketsFetching } = useGetTicketsForClientCardQuery({
-        variables: {
-            where: searchQuery,
-            first: MAX_TABLE_SIZE,
-            sortBy: TICKET_SORT_BY,
-            skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-        },
-        skip: !persistor,
-    })
-    const tickets = ticketsQuery?.tickets
-
-    const total = tickets?.length
-
-    const lastCreatedTicket = tickets?.filter(el=>el?.clientPhone === phone)?.[0]
-    const propertyId = useMemo(() => property?.id, [property])
-    const organizationId = useMemo(() => organization?.id, [organization])
-
-    const columns = useClientCardTicketTableColumns(tickets, currentTableTab, MAX_TABLE_SIZE)
-
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: async () => {
-                if (typeof window !== 'undefined') {
-                    window.open(`/ticket/${record.id}/`, '_blank')
-                }
-            },
-        }
-    }, [])
-
-    const handleCreateTicket = useCallback(() => {
-        const dataForTicketForm = property ? lastCreatedTicket : { clientPhone: phone }
-        handleTicketCreateClick(dataForTicketForm)
-    },
-    [handleTicketCreateClick, lastCreatedTicket, phone, property])
-
-    const handleCreateMeterReading = useCallback(async () => {
-        const dataForMeterReadingForm = property ? lastCreatedTicket : { clientPhone: phone }
-        const query = qs.stringify(
-            getQueryForCreatingMeterReading(dataForMeterReadingForm),
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        const newUrl = `/meter/create${query}`
-
-        if (typeof window !== 'undefined') {
-            window.open(newUrl, '_blank')
-        } else {
-            await router.push(newUrl)
-        }
-
-    }, [lastCreatedTicket, phone, property, router, getQueryForCreatingMeterReading])
-
-    const redirectToTicketPage = useCallback(async () => {
-        let filters = {}
-        if (currentTableTab === RESIDENTS_ENTRANCE_TICKETS_TAB) {
-            filters = {
-                property: property?.id,
-                sectionName,
-                sectionType,
-            }
-        }
-
-        if (currentTableTab === RESIDENTS_PROPERTY_TICKETS_TAB) {
-            filters = { property: property?.id }
-        }
-
-        if (currentTableTab === CONTACT_PROPERTY_TICKETS_TAB) {
-            filters = {
-                clientPhone: phone,
-                property: property?.id,
-                unitName,
-                unitType,
-            }
-        }
-
-        if (typeof window !== 'undefined') {
-            window.open(`/ticket?filters=${encodeURIComponent(JSON.stringify(filters))}`, '_blank')
-        }
-    }, [phone, unitName, unitType, property, sectionName, sectionType, currentTableTab])
-
-    return (
-        <Row gutter={ROW_BIG_GUTTER}>
-            {
-                property && (
-                    <>
-                        <Col span={24}>
-                            <Row gutter={ROW_BIG_GUTTER}>
-                                <Col span={24}>
-                                    <ClientContent
-                                        phone={phone}
-                                        type={type}
-                                        lastTicket={lastCreatedTicket}
-                                        showOrganizationMessage={showOrganizationMessage}
-                                        contact={contact}
-                                    />
-                                </Col>
-                                <TicketPropertyHintCard
-                                    propertyId={propertyId}
-                                    hintContentStyle={HINT_CARD_STYLE}
-                                    colProps={HINTS_COL_PROPS}
-                                />
-                                {
-                                    propertyId && organizationId && (
-                                        <IncidentHints
-                                            organizationId={organizationId}
-                                            propertyId={propertyId}
-                                            colProps={HINTS_COL_PROPS}
-                                        />
-                                    )
-                                }
-                            </Row>
-                        </Col>
-                        <Col span={24}>
-                            <Row>
-                                <Col span={24}>
-                                    <Tabs
-                                        onChange={(tab: TabKey) => setCurrentTableTab(tab)}
-                                        items={tabsItems}
-                                    />
-                                </Col>
-
-                                <Row gutter={[0, 24]}>
-                                    <Col span={24}>
-                                        <Table
-                                            totalRows={total}
-                                            loading={isTicketsFetching}
-                                            dataSource={tickets}
-                                            columns={columns}
-                                            onRow={handleRowAction}
-                                            data-cy='ticket__table'
-                                        />
-                                    </Col>
-
-
-                                    {tickets?.length >= MAX_TABLE_SIZE && (
-                                        <Row gutter={[0, 8]}>
-                                            <Col span={24}>
-                                                <Typography.Paragraph size='large' >
-                                                    {LastTicketsLoadedMessage}
-                                                </Typography.Paragraph>
-                                            </Col>
-                                            <Col>
-                                                <Typography.Link size='large' onClick={redirectToTicketPage}>
-                                                    <Col className={styles.linkWrapper}>
-                                                        <ExternalLink size='auto'/>
-
-                                                        {OpenAllTicketsMessage}
-                                                    </Col>
-                                                </Typography.Link>
-                                            </Col>
-                                        </Row>
-                                    )}
-                                </Row>
-                            </Row>
-                        </Col>
-                    </>
-                )
-            }
-            <Col span={24}>
-                <ActionBar
-                    actions={[
-                        <Button
-                            key='submit'
-                            onClick={handleCreateTicket}
-                            type='primary'
-                            id='ClientCardCreateTicketClick'
-                        >
-                            {CreateTicketMessage}
-                        </Button>,
-                        <Button
-                            key='submit'
-                            onClick={handleCreateMeterReading}
-                            type='secondary'
-                            id='ClientCardCreateMeterReadingClick'
-                        >
-                            {CreateMeterReadingMessage}
-                        </Button>,
-                        canManageContacts && handleContactEditClick && (
-                            <Button
-                                key='edit'
-                                onClick={handleContactEditClick}
-                                type='secondary'
-                                id='ClientCardEditContactClick'
-                            >
-                                {EditContactMessage}
-                            </Button>
-                        ),
-                    ]}
-                />
-            </Col>
-        </Row>
-    )
-}
-
-const ContactClientTabContent = ({
-    contact,
-    property,
-    unitName,
-    unitType,
-    phone,
-    type,
-    showOrganizationMessage = false,
-    sectionName,
-    sectionType,
-    canManageContacts,
-    organization,
-}) => {
-    const router = useRouter()
-
-    const handleTicketCreateClick = useCallback(async () => {
-        const initialValues = {
-            property: property?.id,
-            unitName,
-            unitType,
-            sectionName,
-            sectionType,
-            contact: contact?.id,
-            clientName: contact?.name,
-            clientPhone: contact?.phone,
-            clientEmail: contact?.email,
-            isResidentTicket: true,
-        }
-
-        await redirectToForm({
-            router,
-            formRoute: '/ticket/create',
-            initialValues,
-        })
-    }, [contact, property, router, unitName, unitType])
-
-    const getQueryForCreatingMeterReadingWithContact = useCallback(() => ({
-        tab: METER_TAB_TYPES.meterReading,
-        propertyId: property?.id,
-        unitName,
-        unitType,
-        sectionName,
-        sectionType,
-        contact: contact?.id,
-        clientName: contact?.name,
-        clientPhone: contact?.phone,
-    }), [property, unitName, unitType, sectionName, sectionType, contact])
-
-    const handleContactEditClick = useCallback(async () => {
-        await redirectToForm({
-            router,
-            formRoute: `/contact/${contact.id}/update`,
-        })
-    }, [contact, router])
-
-    return (
-        <ClientCardTabContent
-            phone={phone}
-            unitName={unitName}
-            unitType={unitType}
-            type={type}
-            showOrganizationMessage={showOrganizationMessage}
-            sectionType={sectionType}
-            sectionName={sectionName}
-            property={property}
-            handleTicketCreateClick={handleTicketCreateClick}
-            getQueryForCreatingMeterReading={getQueryForCreatingMeterReadingWithContact}
-            handleContactEditClick={handleContactEditClick}
-            canManageContacts={canManageContacts}
-            contact={contact}
-            organization={organization}
-        />
-    )
-}
-
-const NotResidentClientTabContent = ({
-    property,
-    unitName,
-    unitType,
-    sectionName,
-    sectionType,
-    phone,
-    type,
-    showOrganizationMessage = false,
-    organization,
-}) => {
-    const router = useRouter()
-
-    const searchTicketsQuery = useMemo(() => ({
-        clientPhone: phone,
-        clientName_not: null,
-        isResidentTicket: false,
-    }), [phone])
-
-    const handleTicketCreateClick = useCallback(async (ticket) => {
-        const initialValues = {
-            property: property?.id,
-            unitName,
-            unitType,
-            clientName: ticket?.clientName,
-            clientPhone: ticket?.clientPhone,
-            isResidentTicket: false,
-        }
-
-        await redirectToForm({
-            router,
-            formRoute: '/ticket/create',
-            initialValues,
-        })
-    }, [property, router, unitName, unitType])
-
-    const getQueryForCreatingMeterReadingWithoutContact = useCallback((ticket) => ({
-        tab: METER_TAB_TYPES.meterReading,
-        propertyId: property?.id,
-        unitName,
-        unitType,
-        clientName: ticket?.clientName,
-        clientPhone: ticket?.clientPhone,
-    }), [property, unitName, unitType])
-
-    return (
-        <ClientCardTabContent
-            unitName={unitName}
-            unitType={unitType}
-            phone={phone}
-            property={property}
-            type={type}
-            showOrganizationMessage={showOrganizationMessage}
-            sectionName={sectionName}
-            sectionType={sectionType}
-            searchTicketsQuery={searchTicketsQuery}
-            handleTicketCreateClick={handleTicketCreateClick}
-            getQueryForCreatingMeterReading={getQueryForCreatingMeterReadingWithoutContact}
-            canManageContacts={false}
-            organization={organization}
-        />
-    )
-}
-
-const parseCardDataFromQuery = (stringCard) => {
-    try {
-        return JSON.parse(stringCard)
-    } catch (e) {
-        return {}
-    }
-}
-
-const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationMessage = false }) => {
-    const property = tabData?.property
-    const unitName = tabData?.unitName
-    const unitType = tabData?.unitType
-    const sectionType = tabData?.sectionType
-    const sectionName = tabData?.sectionName
-    const type = tabData?.type
-    const organization = tabData?.organization
-    const contact = tabData?.contact
-
-    return type === ClientType.Resident ? (
-        <ContactClientTabContent
-            contact={contact}
-            phone={phone}
-            type={ClientType.Resident}
-            property={property}
-            unitName={unitName}
-            unitType={unitType}
-            sectionType={sectionType}
-            sectionName={sectionName}
-            canManageContacts={canManageContacts}
-            showOrganizationMessage={showOrganizationMessage}
-            organization={organization}
-        />
-    ) : (
-        <NotResidentClientTabContent
-            phone={phone}
-            type={type}
-            property={property}
-            unitName={unitName}
-            unitType={unitType}
-            sectionType={sectionType}
-            sectionName={sectionName}
-            showOrganizationMessage={showOrganizationMessage}
-            organization={organization}
-        />
-    )
-}
-//#endregion
-
-//#region Page Content
-const ClientCardPageContent = ({
-    phoneNumber,
+const ClientCardPageContent: React.FC<IClientCardPageContentProps> = ({
+    AddressSearchInput,
     tabsData,
     canManageContacts,
     loading,
@@ -762,6 +58,10 @@ const ClientCardPageContent = ({
     phoneNumberPrefix,
 }) => {
     const intl = useIntl()
+    const router = useRouter()
+    const phoneNumber = router?.query.number as string
+    const { tab } = parseQuery(router.query)
+
     const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
         phone: renderPhone(phoneNumber),
     })
@@ -774,9 +74,6 @@ const ClientCardPageContent = ({
         ),
     })
     const AddAddressMessage = intl.formatMessage({ id: 'pages.clientCard.addAddress' })
-
-    const router = useRouter()
-    const { tab } = parseQuery(router.query)
 
     const carouselRef = useRef<CarouselRef>()
     const activeTabIndexRef = useRef<number>()
@@ -815,46 +112,54 @@ const ClientCardPageContent = ({
     }, [tabsData, slidesToShow, carouselRef.current])
 
     useEffect(() => {
-        const { type, property: propertyId, unitName, unitType, sectionType, sectionName } = parseCardDataFromQuery(tab)
+        // Set initial tab if it is not set
+        if (tabsData.length > 0 && !tab) {
+            const initialTabKey = getClientCardTabKey(
+                tabsData[0].property?.id,
+                tabsData[0].type,
+                tabsData[0].unitName,
+                tabsData[0].unitType,
+                tabsData[0].sectionName,
+                tabsData[0].sectionType,
+            )
+            const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${initialTabKey}`
+            router.push(newRoute, undefined, { shallow: true })
+        }
+    }, [phoneNumber, router, tab, tabsData])
 
-        const isTabSelected = unitName || unitType
-        let tabDataWithProperty
-        if (isTabSelected) {
-            tabDataWithProperty = tabsData?.find(tab => (
-                tab.property.id === propertyId &&
-                tab.unitName === unitName &&
-                tab.unitType === unitType
-            ))
+    useDeepCompareEffect(() => {
+        const { type, property: propertyId, unitName, unitType, sectionType, sectionName } = parseCardDataFromQuery(tab)
+        if (type === ClientCardTab.SearchByAddress) {
+            setActiveTabData({ type } as TabDataType)
+            return
         }
-        else {
-            tabDataWithProperty = tabsData?.[0]
+        if (!propertyId) {
+            return
         }
-        const property = tabDataWithProperty?.property
-        const organization = tabDataWithProperty?.organization
-        const contact = tabDataWithProperty?.contact
-        const tabSectionType = sectionType ?? tabDataWithProperty?.sectionType
-        const tabSectionName = sectionName ?? tabDataWithProperty?.sectionName
-        const tabUnitName = unitName ?? tabDataWithProperty?.unitName
-        const tabUnitType = unitType ?? tabDataWithProperty?.unitType
-        const tabType = type ?? tabDataWithProperty?.type
+
+        const selectedTabData = tabsData?.find(tab => (
+            tab.property?.id === propertyId &&
+                tab?.unitName === unitName &&
+                tab?.unitType === unitType
+        ))
+        if (isEqual(selectedTabData, activeTabData)) {
+            return 
+        }
+        const property = selectedTabData?.property
+        const tabSectionType = sectionType ?? selectedTabData?.sectionType
+        const tabSectionName = sectionName ?? selectedTabData?.sectionName
+        const tabUnitName = unitName ?? selectedTabData?.unitName
+        const tabUnitType = unitType ?? selectedTabData?.unitType
+        const tabType = type ?? selectedTabData?.type
 
         if (property) {
             const key = getClientCardTabKey(property?.id, tabType, tabUnitName, tabUnitType, tabSectionName, tabSectionType)
             const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${key}`
             router.push(newRoute, undefined, { shallow: true })
 
-            setActiveTabData({
-                type: tabType,
-                property,
-                unitName: tabUnitName,
-                unitType: tabUnitType,
-                organization,
-                contact,
-                sectionType: tabSectionType,
-                sectionName: tabSectionName,
-            })
+            setActiveTabData(selectedTabData)
         }
-    }, [tab, tabsData, phoneNumber])
+    }, [tab, tabsData, phoneNumber, router])
 
     const handleTabChange = useCallback(async (newKey) => {
         const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${newKey}`
@@ -872,21 +177,37 @@ const ClientCardPageContent = ({
                 activeTabIndexRef.current = index
             }
 
-            return <ClientAddressCard
-                onClick={() => handleTabChange(key)}
-                organization={organization}
-                key={key}
-                floorName={floorName}
-                property={property}
-                unitName={unitName}
-                unitType={unitType}
-                sectionName={sectionName}
-                active={isActive}
-            />
-        })
+            return (
+                <ClientAddressCard
+                    onClick={() => handleTabChange(key)}
+                    organization={organization}
+                    key={key}
+                    floorName={floorName}
+                    property={property}
+                    unitName={unitName}
+                    unitType={unitType}
+                    sectionName={sectionName}
+                    active={isActive}
+                    showOrganizationMessage={showOrganizationMessage}
+                />
+            )
+        }).filter(Boolean)
 
-        return addressTabs.filter(Boolean)
-    }, [handleTabChange, tabsData, tab])
+        if (addressTabs.length > 0) {
+            const key = getClientCardTabKey(undefined, ClientCardTab.SearchByAddress)
+
+            return [
+                ...addressTabs,
+                <SearchByAddressCard
+                    active={tab === key}
+                    onClick={() => handleTabChange(key)}
+                    key={key}
+                />,
+            ]
+        }
+
+        return []
+    }, [tabsData, tab, showOrganizationMessage, handleTabChange])
 
     const redirectToCreateContact = useCallback(() => redirectToForm({
         router,
@@ -895,6 +216,43 @@ const ClientCardPageContent = ({
             phone: phoneNumber,
         },
     }), [phoneNumber, router])
+        
+    const ActiveTabContent = useMemo(() => {
+        const type = activeTabData?.type
+        const firstClientData = tabsData?.[0]
+
+        if (type === ClientCardTab.Resident) {
+            return (
+                <ResidentClientTabContent
+                    tabData={activeTabData}
+                    canManageContacts={canManageContacts}
+                    showOrganizationMessage={showOrganizationMessage}
+                />
+            )
+        }
+
+        if (type === ClientCardTab.NotResident || type === ClientCardTab.Employee) {
+            return (
+                <NotResidentClientTabContent
+                    tabData={activeTabData}
+                    showOrganizationMessage={showOrganizationMessage}
+                />
+            )
+        }
+
+        return (
+            <SearchByAddressTabContent
+                AddressSearchInput={AddressSearchInput}
+                canManageContacts={canManageContacts}
+                firstClientData={firstClientData}
+                showOrganizationMessage={showOrganizationMessage}
+            />
+        )
+    }, [AddressSearchInput, activeTabData, canManageContacts, showOrganizationMessage, tabsData])
+
+    if (loading) {
+        return <Loader />
+    }
 
     return (
         <>
@@ -903,24 +261,35 @@ const ClientCardPageContent = ({
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={ROW_MEDIUM_GUTTER}>
+                    <Row gutter={ROW_MEDIUM_GUTTER}> 
                         <Col span={24}>
-                            <Row justify='space-between' align='bottom' >
-                                <Typography.Title>{ClientCardHeader}</Typography.Title>
-
-                                <Typography.Link size='large' onClick={redirectToCreateContact}>
-                                    <Col className={styles.linkWrapper}>
-                                        <PlusCircle/>
-
-                                        {AddAddressMessage}
-                                    </Col>
-                                </Typography.Link>
-                            </Row>
-                        </Col>
-                        <Col span={24}>
-                            <Row gutter={[0, 20]}>
+                            <Row justify='space-between' align='middle' gutter={SMALL_GUTTER}>
+                                <Col>
+                                    <Typography.Title>{ClientCardHeader}</Typography.Title>
+                                </Col>
                                 {
-                                    loading ? <Loader/> : (
+                                    tabsData.length === 0 && (
+                                        <Col>
+                                            <Button 
+                                                onClick={redirectToCreateContact}
+                                                type='primary'
+                                                size='large'
+                                                id='ClientCardCreateContactButton'
+                                                minimal
+                                                compact
+                                                icon={<PlusCircle />}
+                                            >
+                                                {AddAddressMessage}
+                                            </Button>
+                                        </Col>
+                                    )
+                                }    
+                            </Row>
+                        </Col> 
+                        <Col span={24}>
+                            <Row gutter={ROW_MEDIUM_GUTTER}>
+                                {
+                                    tabsData.length > 0 && (
                                         <Col span={24} className={styles.customCarouselWrapper}>
                                             <Carousel
                                                 infinite={false}
@@ -934,12 +303,7 @@ const ClientCardPageContent = ({
                                     )
                                 }
                                 <Col span={24}>
-                                    <ClientTabContent
-                                        tabData={activeTabData}
-                                        phone={phoneNumber}
-                                        showOrganizationMessage={showOrganizationMessage}
-                                        canManageContacts={canManageContacts}
-                                    />
+                                    {ActiveTabContent}
                                 </Col>
                             </Row>
                         </Col>
@@ -950,7 +314,18 @@ const ClientCardPageContent = ({
     )
 }
 
-export const ClientCardPageContentWrapper = ({
+interface IClientCardPageContentWrapperProps {
+    AddressSearchInput: ClientCardAddressSearchInputType
+    organizationQuery?: ContactWhereInput
+    allQueriesLoading?: boolean
+    ticketsQuery?: TicketWhereInput
+    canManageContacts?: boolean
+    showOrganizationMessage?: boolean
+    usePhonePrefix?: boolean
+}
+
+export const ClientCardPageContentWrapper: React.FC<IClientCardPageContentWrapperProps> = ({
+    AddressSearchInput,
     organizationQuery,
     allQueriesLoading,
     ticketsQuery,
@@ -959,7 +334,7 @@ export const ClientCardPageContentWrapper = ({
     usePhonePrefix = false,
 }) => {
     const router = useRouter()
-    const phoneNumber = router?.query.number
+    const phoneNumber = router?.query.number as string
 
     const { persistor } = useCachePersistor()
 
@@ -1005,19 +380,21 @@ export const ClientCardPageContentWrapper = ({
         ticketsQueryData?.tickets.filter(ticket => !employeeTickets.find(employeeTicket => employeeTicket.id === ticket.id)),
     [employeeTickets, ticketsQueryData])
 
-    const [tabsData, setTabsData] = useState([])
+    const [tabsData, setTabsData] = useState<TabDataType[]>([])
 
-    useEffect(() => {
+    useDeepCompareEffect(() => {
         const contactsData = contactsQueryData?.contacts?.map(contact => ({
-            type: ClientType.Resident,
+            type: ClientCardTab.Resident,
             property: contact.property,
             unitName: contact.unitName,
             unitType: contact.unitType,
             organization: contact.organization,
             contact: contact,
+            name: contact?.name,
+            email: contact?.email,
         })) || []
         const notResidentData = uniqBy(notResidentTickets?.map(ticket => ({
-            type: ClientType.NotResident,
+            type: ClientCardTab.NotResident,
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
@@ -1025,20 +402,30 @@ export const ClientCardPageContentWrapper = ({
             sectionType: ticket.sectionType,
             floorName: ticket.floorName,
             organization: ticket.organization,
+            name: ticket?.clientName,
+            email: ticket?.clientEmail,
         })), 'property.id') || []
-        const employeesData = uniqBy(employeeTickets?.map(ticket => ({
-            type: ClientType.NotResident,
+        const employeesData: TabDataType[] = uniqBy(employeeTickets?.map(ticket => ({
+            type: ClientCardTab.NotResident,
             isEmployee: true,
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
             organization: ticket.organization,
+            name: ticket?.clientName,
+            email: ticket?.clientEmail,
         })), 'property.id') || []
 
-        const concatData =  [...contactsData, ...notResidentData, ...employeesData]
-            .filter(tabsData => tabsData.organization && tabsData.property)
+        const clientData = [...contactsData, ...notResidentData, ...employeesData]
+            .filter(tabsData => tabsData.organization && tabsData.property) as TabDataType[]
+        const clientDataWithSectionAndFloorData = clientData.map((tab) => {
+            if (tab.unitName && tab.unitType && tab?.floorName) return tab
+            const section = getSectionAndFloorByUnitName(tab.property, tab.unitName, tab.unitType)
 
-        getMapData(concatData).then(res => setTabsData(res))
+            return { ...tab, ...section }
+        })
+
+        setTabsData(clientDataWithSectionAndFloorData)
     }, [contactsQueryData, notResidentTickets, employeeTickets])
 
     const phoneNumberPrefixFromContacts = contactsQueryData?.contacts?.[0]?.organization?.phoneNumberPrefix
@@ -1052,12 +439,24 @@ export const ClientCardPageContentWrapper = ({
 
     return (
         <ClientCardPageContent
-            phoneNumber={phoneNumber}
+            AddressSearchInput={AddressSearchInput}
             phoneNumberPrefix={phoneNumberPrefix}
             tabsData={tabsData}
             canManageContacts={canManageContacts}
             showOrganizationMessage={showOrganizationMessage}
             loading={ticketsLoading || contactsLoading || employeesLoading}
+        />
+    )
+}
+
+const AddressSearchInput = (props) => {
+    const { organization } = useOrganization()
+    const organizationId = useMemo(() => organization?.id, [organization?.id])
+    
+    return (
+        <PropertyAddressSearchInput
+            organizationId={organizationId}
+            {...props}
         />
     )
 }
@@ -1073,6 +472,7 @@ const ClientCardPage: PageComponentType = () => {
 
     return (
         <ClientCardPageContentWrapper
+            AddressSearchInput={AddressSearchInput}
             organizationQuery={organizationQuery}
             allQueriesLoading={ticketFilterQueryLoading || isLoading}
             ticketsQuery={ticketsQuery}
@@ -1080,7 +480,6 @@ const ClientCardPage: PageComponentType = () => {
         />
     )
 }
-//#endregion
 
 ClientCardPage.requiredAccess = TicketReadPermissionRequired
 

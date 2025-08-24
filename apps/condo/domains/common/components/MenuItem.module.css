@@ -1,0 +1,29 @@
+.menu-item-wrapper {
+  padding: 9px 0;
+  cursor: pointer;
+}
+
+.menu-item-wrapper .menu-item * {
+  color: var(--condo-global-color-gray-7);
+  transition: var(--condo-global-transition-duration-default);
+}
+
+.menu-item-wrapper:hover .menu-item *,
+.menu-item-wrapper.active .menu-item * {
+  color: var(--condo-global-color-black) !important;
+}
+
+.menu-item-wrapper .condo-typography {
+  width: max-content;
+}
+
+.disabled {
+  opacity: 0.4;
+}
+
+.menu-item > div h5 {
+  height: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
+}

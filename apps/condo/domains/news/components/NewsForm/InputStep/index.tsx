@@ -6,6 +6,7 @@ import {
 } from '@app/condo/schema'
 import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import debounce from 'lodash/debounce'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -91,7 +92,18 @@ type InputStepProps = NewsItemSharingFormProps & BaseNewsFormProps & {
     initialFormValues: Record<string, unknown> & Properties
 }
 
-export const FormContainer: React.FC = ({ children }) => {
+const debouncedPostMessage = debounce((iframeRef, url, title, body, scope) => {
+    if (!iframeRef.current) return
+
+    iframeRef.current.contentWindow.postMessage({
+        handler: 'handleUpdateFromCondo',
+        title,
+        body,
+        scope: JSON.stringify(scope),
+    }, url)
+}, 300)
+
+export const FormContainer: React.FC<React.PropsWithChildren> = ({ children }) => {
     return (
         <Col span={24}>
             <Row gutter={BIG_HORIZONTAL_GUTTER}>
@@ -208,7 +220,7 @@ export const InputStep: React.FC<InputStepProps> = ({
             showArrow: false,
             infinityScroll: true,
             initialValue: initialPropertyIds,
-            search: searchOrganizationProperty(organizationId),
+            search: searchOrganizationProperty(organizationId, selectedProperties),
             disabled: !organizationId,
             required: true,
             placeholder: SelectAddressPlaceholder,
@@ -223,7 +235,7 @@ export const InputStep: React.FC<InputStepProps> = ({
                 setScope(prev=>({ ...prev, selectedSectionKeys: [] }))
             },
         }
-    }, [initialPropertyIds, organizationId, SelectAddressPlaceholder])
+    }, [initialPropertyIds, organizationId, SelectAddressPlaceholder, setScope, selectedProperties])
 
     useEffect(() => {
         setSharingAppFormValues(processedInitialValues)
@@ -237,75 +249,52 @@ export const InputStep: React.FC<InputStepProps> = ({
         }
     }, [sharingAppId])
 
-    const handleTitleChange = useCallback((value) => {
-        setSelectedTitle(value)
-    }, [])
-
-    const handleBodyChange = useCallback((value) => {
-        setSelectedBody(value)
-    }, [])
-
-    const handleFormTitleChange = useCallback((value) => {
+    const handleFormTitleChange = useCallback((form) => (value: string) => {
         if (isSharingStep){
             setSharingAppFormValues(prev=>({ ...prev,
                 formValues: { body: prev.formValues.body, title: value },
                 preview: { renderedBody: prev.preview.renderedBody, renderedTitle: value },
             }))
         }
-        else handleTitleChange(value)
-    }, [isSharingStep, sharingAppFormValues])
 
-    const handleFormBodyChange = useCallback((value) => {
+        setSelectedTitle(value)
+        form.setFieldsValue({ title: value })
+        form.validateFields(['title'])
+    }, [isSharingStep])
+
+    const handleFormBodyChange = useCallback((form) => (value: string) => {
         if (isSharingStep){
             setSharingAppFormValues(prev=>({ ...prev,
                 formValues: { title: prev.formValues.title, body: value },
                 preview: { renderedTitle: prev.preview.renderedTitle, renderedBody: value },
             }))
         }
-        else handleBodyChange(value)
-    }, [isSharingStep, sharingAppFormValues])
+
+        setSelectedBody(value)
+        form.setFieldsValue({ body: value })
+        form.validateFields(['body'])
+    }, [isSharingStep])
 
     useEffect(() => {
-        if (!iFramePreviewRef.current) return 
-        
-        const title = sharingAppFormValues?.preview.renderedTitle
-        const body = sharingAppFormValues?.preview.renderedBody
+        if (!isSharingStep) return
+
+        const title = sharingAppFormValues?.preview.renderedTitle || selectedTitle
+        const body = sharingAppFormValues?.preview.renderedBody || selectedBody
         const scope = sharingAppFormValues?.scope
 
-        iFramePreviewRef.current.contentWindow.postMessage({
-            handler: 'handleUpdateFromCondo',
-            title,
-            body,
-            scope: JSON.stringify(scope),
-        }, appPreviewUrl)
-    }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl])
+        debouncedPostMessage(iFramePreviewRef, appPreviewUrl, title, body, scope)
 
-    useEffect(() => {
-        if (!title.length) return
-
-        const renderedTitle = sharingAppFormValues?.preview.renderedTitle
-        const finalTitle = isSharingStep && (isCustomForm || (!isCustomForm && renderedTitle)) ? renderedTitle : title
-
-        handleFormTitleChange(finalTitle)
-        form.setFieldsValue({ title: finalTitle })
-    }, [title, form, isSharingStep, isCustomForm])
-
-    useEffect(() => {
-        if (!body.length) return
-
-        const renderedBody = sharingAppFormValues?.preview.renderedBody
-        const finalBody = isSharingStep && (isCustomForm || (!isCustomForm && renderedBody)) ? renderedBody : body
-
-        handleFormBodyChange(finalBody)
-        form.setFieldsValue({ body: finalBody })
-    }, [body, form, isSharingStep, isCustomForm])
+        return () => {
+            debouncedPostMessage.cancel()
+        }
+    }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl, selectedTitle, selectedBody, isSharingStep])
 
     useEffect(() => {
         if (!isCustomForm && !isCustomPreview) return
 
         window.addEventListener('message', handleSharingAppIFrameFormMessage)
         return () => window.removeEventListener('message', handleSharingAppIFrameFormMessage)
-    }, [handleSharingAppIFrameFormMessage, isCustomForm])
+    }, [handleSharingAppIFrameFormMessage, isCustomForm, isCustomPreview])
 
     const handleTemplateChange = useCallback((form) => (value: string) => {
         setTemplateId(value)
@@ -319,6 +308,8 @@ export const InputStep: React.FC<InputStepProps> = ({
 
         form.setFieldValue('body', body)
         setSelectedBody(body)
+
+        form.validateFields(['title', 'body'])
     }, [templates])
 
     return (

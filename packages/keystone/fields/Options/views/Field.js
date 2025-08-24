@@ -1,9 +1,9 @@
 /** @jsx jsx */
-import { CheckboxPrimitive } from '@arch-ui/controls'
-import { FieldContainer, FieldDescription, FieldInput } from '@arch-ui/fields'
-import { Lozenge } from '@arch-ui/lozenge'
-import { colors, gridSize } from '@arch-ui/theme'
 import { css, jsx } from '@emotion/react'
+import { CheckboxPrimitive } from '@open-arch-ui/controls'
+import { FieldContainer, FieldDescription, FieldInput } from '@open-arch-ui/fields'
+import { Lozenge } from '@open-arch-ui/lozenge'
+import { colors, gridSize } from '@open-arch-ui/theme'
 import { ShieldIcon } from '@primer/octicons-react'
 import { useEffect, useState } from 'react'
 

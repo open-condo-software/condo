@@ -25,6 +25,7 @@ env:
   PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:16.8
   REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
   REF: ${{ github.event.pull_request.head.sha || github.ref }}
+  REDIS_RUN_COMMAND: docker run -p="127.0.0.1:6379:6379" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2 --databases 64
 
 jobs:
   authorize:
@@ -129,6 +130,7 @@ jobs:
       rb: ${{ steps.detect-changes.outputs.rb }}
       registry-importer: ${{ steps.detect-changes.outputs.registry-importer }}
       webhooks: ${{ steps.detect-changes.outputs.webhooks }}
+      pos-integration: ${{ steps.detect-changes.outputs.pos-integration }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -173,6 +175,11 @@ jobs:
               - '**/*.md'
               - '*'
               - '!.helm/**'
+            pos-integration:
+              - 'apps/pos-integration/**'
+              - 'packages/**'
+              - 'apps/condo/domains/acquiring/**'
+              - 'apps/condo/domains/billing/**'
             rb:
               - 'apps/rb'
               - 'apps/condo/domains/acquiring/**'
@@ -180,6 +187,7 @@ jobs:
               - 'packages/**'
             registry-importer:
               - 'apps/registry-importer/**'
+              - 'apps/rb'
               - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
@@ -276,7 +284,9 @@ jobs:
     if: ${{ needs.detect-changes.outputs.open-condo == 'true' }}
     strategy:
       matrix:
-        os: [ ubuntu-22.04, windows-latest ]
+#        TODO: Fix windows "too many files open" runner issue
+#        os: [ ubuntu-22.04, windows-latest ]
+        os: [ ubuntu-22.04 ]
         node-version: [ 22.x ]
         python-version: [ 3.13 ]
     runs-on: ${{ matrix.os }}
@@ -354,7 +364,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
@@ -437,7 +447,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           mkdir test_logs
@@ -505,7 +515,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
@@ -557,7 +567,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
@@ -579,6 +589,58 @@ jobs:
           yarn workspace @app/meter-importer start & \
           node bin/wait-apps-apis.js -f condo meter-importer) && \
           yarn workspace @app/meter-importer test"
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+  run-pos-integration-tests:
+    name: Pos-integration Tests
+    runs-on: ubuntu-22.04
+    needs:
+      - authorize
+      - build-image
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.pos-integration == 'true' }}
+    steps:
+      - name: Login to cloud registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Setup PG db
+        run: |
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main
+      - name: Setup Redis db
+        run: |
+          ${{ env.REDIS_RUN_COMMAND }}
+      - name: Run condo container with daemon
+        run: |
+          docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
+      - name: Prepare apps
+        run: |
+          docker exec condo-container node bin/prepare.js -f condo pos-integration
+      - name: Check migrations state
+        run: |
+          docker exec condo-container yarn workspace @app/pos-integration makemigrations --check
+      - name: Run apps and tests
+        run: |
+          docker exec \
+          -e PROMETHEUS_RW_SERVER_URL=$PROMETHEUS_RW_SERVER_URL \
+          -e PROMETHEUS_USER=$PROMETHEUS_USER \
+          -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
+          -e GH_REF_NAME=$GH_REF_NAME \
+          condo-container sh -c "(\
+          yarn workspace @app/condo start & \
+          yarn workspace @app/pos-integration start & \
+          node bin/wait-apps-apis.js -f condo pos-integration) && \
+          yarn workspace @app/pos-integration test"
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
@@ -609,7 +671,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
@@ -711,7 +773,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
@@ -763,13 +825,13 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
       - name: Prepare apps
         run: |
-          docker exec condo-container node bin/prepare.js -f condo registry-importer
+          docker exec condo-container node bin/prepare.js -f condo registry-importer rb
       - name: Check migrations state
         run: |
           docker exec condo-container yarn workspace @app/registry-importer makemigrations --check
@@ -782,8 +844,9 @@ jobs:
           -e GH_REF_NAME=$GH_REF_NAME \
           condo-container sh -c "(\
           yarn workspace @app/condo start & \
+          yarn workspace @app/rb start & \
           yarn workspace @app/registry-importer start & \
-          node bin/wait-apps-apis.js -f condo registry-importer) && \
+          node bin/wait-apps-apis.js -f condo registry-importer rb) && \
           yarn workspace @app/registry-importer test"
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}

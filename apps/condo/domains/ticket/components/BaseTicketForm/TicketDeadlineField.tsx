@@ -21,9 +21,7 @@ import { TicketFormItem } from './index'
 
 
 const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
-const AUTO_DETECTED_DEADLINE_COL_STYLE = { height: '48px' }
-const AUTO_DETECTED_DEADLINE_ROW_STYLE = { height: '100%' }
-const TICKET_DEADLINE_FIELD_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
+const TICKET_DEADLINE_FIELD_ROW_GUTTER: [Gutter, Gutter] = [0, 8]
 const DATE_PICKER_STYLE = { width: '100%' }
 const AUTO_COMPLETE_MESSAGE_STYLE: CSSProperties = { whiteSpace:'nowrap' }
 
@@ -74,12 +72,12 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
         const DaysMessage = intl.formatMessage({ id: 'DaysShort' }, { days: autoAddDays })
 
         return (
-            <Col style={AUTO_DETECTED_DEADLINE_COL_STYLE} span={!breakpoints.TABLET_LARGE ? 24 : 11}>
-                <Row justify='start' align='middle' style={AUTO_DETECTED_DEADLINE_ROW_STYLE}>
+            <Col span={24}>
+                <Row justify='start' align='middle'>
                     <Col span={24}>
                         <Tooltip
                             title={(
-                                <FormItemTooltipWrapper padding='4px'>
+                                <FormItemTooltipWrapper>
                                     <Typography.Text>
                                         {TicketDeadlineTooltipTitle}
                                     </Typography.Text>

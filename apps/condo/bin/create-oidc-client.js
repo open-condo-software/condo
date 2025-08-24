@@ -6,8 +6,9 @@ const { createOidcClient } = require('@condo/domains/user/oidc')
 
 
 async function main (args) {
-    const [clientId, clientSecret, redirectUri] = args
+    const [clientId, clientSecret, redirectUri, postLogoutRedirectUri] = args
     if (!clientId || !clientSecret || !redirectUri.startsWith('http')) throw new Error('use: create-oidc-client <clientId> <clientSecret> <redirectUri>')
+    if (postLogoutRedirectUri && !postLogoutRedirectUri.startsWith('http')) throw new Error('use: create-oidc-client <clientId> <clientSecret> <redirectUri> <postLogoutRedirectUri>')
     const { keystone } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
     await createOidcClient({
@@ -19,6 +20,7 @@ async function main (args) {
         response_types: ['code id_token', 'code', 'id_token'],
         grant_types: ['implicit', 'authorization_code', 'refresh_token'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
         token_endpoint_auth_method: 'client_secret_basic',
+        ...(postLogoutRedirectUri ? { post_logout_redirect_uris: [postLogoutRedirectUri] } : {}),
     }, keystone)
 
     console.log(`Created: ${clientId}`)

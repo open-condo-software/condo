@@ -75,9 +75,9 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
     mutations: [
         {
             access: true,
-            schema: 'changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput',
+            schema: 'changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput @deprecated(reason: "Please use `changeUserPassword` mutation")',
             doc: {
-                schema: 'Changes password this action via correct token, that should correspond to ConfirmPhoneAction.' +
+                summary: 'Changes password this action via correct token, that should correspond to ConfirmPhoneAction.' +
                     '\nOnly used for staff users',
                 errors: ERRORS.changePasswordWithToken,
             },

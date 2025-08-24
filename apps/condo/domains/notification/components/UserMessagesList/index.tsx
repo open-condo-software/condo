@@ -57,7 +57,7 @@ export const UserMessagesList: React.FC<UserMessagesListProps> = ({ MessageCard 
         () => userMessages?.filter(message => message.createdAt <= readUserMessagesAt),
         [readUserMessagesAt, userMessages])
 
-    useNewMessageTitleNotification(unreadMessages?.length)
+    useNewMessageTitleNotification(unreadMessages?.length, unreadMessages?.[0]?.createdAt)
 
     const emptyPlaceholder = useMemo(() => (
         <BasicEmptyListView image='/dino/searching@2x.png'>

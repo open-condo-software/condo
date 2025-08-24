@@ -156,6 +156,8 @@ function generateGqlQueries (key, fields, prefix = '') {
 }
 
 function generateQueryWhereInput (schemaName, fieldsObj) {
+    // TODO: DOMA-12051 it is possible to generate this all and more automatically, using @keystonejs fields, as they can return all possible filter for them
+    // but there is currently problems with pragma jsx lines in @open-keystone fields
     const resFields = Object.entries(fieldsObj).map(([ name, type ]) => {
         switch (type) {
             case 'ID': {
@@ -166,16 +168,19 @@ function generateQueryWhereInput (schemaName, fieldsObj) {
                     ${name}_not_in: [ID]
                 `
             }
+            case 'Decimal':
+            case 'CalendarDay':
             case 'Int': {
+                const returnType = type === 'Int' ? 'Int' : 'String'
                 return `
-                    ${name}: Int,
-                    ${name}_not: Int,
-                    ${name}_lt: Int,
-                    ${name}_gt: Int,
-                    ${name}_lte: Int,
-                    ${name}_gte: Int,
-                    ${name}_in: [Int],
-                    ${name}_not_in: [Int]
+                    ${name}: ${returnType},
+                    ${name}_not: ${returnType},
+                    ${name}_lt: ${returnType},
+                    ${name}_gt: ${returnType},
+                    ${name}_lte: ${returnType},
+                    ${name}_gte: ${returnType},
+                    ${name}_in: [${returnType}],
+                    ${name}_not_in: [${returnType}]
                 `
             }
             case 'Boolean': {

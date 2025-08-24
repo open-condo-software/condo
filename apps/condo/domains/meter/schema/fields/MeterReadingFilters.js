@@ -8,7 +8,7 @@ const MeterReadingFilterFields = {
     organization: '[String]',
     address: '[String]',
     accountNumber: 'String',
-    place: 'String',
+    place: '[String]',
     number: 'String',
     unitName: '[String]',
     resource: '[String]',

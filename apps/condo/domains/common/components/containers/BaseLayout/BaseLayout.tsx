@@ -17,6 +17,7 @@ import {
     TABLE_PAGE_CONTENT_CSS,
 } from './components/styles'
 import { ITopMenuItemsProps } from './components/TopMenuItems'
+import { Footer } from './Footer'
 import { Header } from './Header'
 
 interface IBaseLayoutProps {
@@ -26,11 +27,11 @@ interface IBaseLayoutProps {
     menuDataRender?: () => MenuItem[]
     TopMenuItems?: React.FC<ITopMenuItemsProps>
     logoLocation?: string
-    menuData?: React.ElementType
+    menuData?: React.ReactNode
     onLogoClick?: () => void
 }
 
-const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
+const BaseLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props) => {
     const {
         style,
         children,
@@ -47,6 +48,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
             <Layout css={SUB_LAYOUT_CSS}>
                 <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />
                 {children}
+                <Footer />
             </Layout>
         </Layout>
     )
@@ -57,7 +59,7 @@ interface IPageWrapperProps {
     style?: CSSProperties
 }
 
-const PageWrapper: FunctionComponent<IPageWrapperProps> = (props) => {
+const PageWrapper: FunctionComponent<React.PropsWithChildren<IPageWrapperProps>> = (props) => {
     const { children, className, style } = props
     const { breakpoints } = useLayoutContext()
 
@@ -101,7 +103,7 @@ interface IPageContentProps {
     style?: CSSProperties
 }
 
-const PageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
+const PageContent: FunctionComponent<React.PropsWithChildren<IPageContentProps>> = ({ children, className, style }) => {
     return (
         <div className={classnames('page-content', className)} css={PAGE_CONTENT_CSS} style={style}>
             {children}
@@ -109,7 +111,7 @@ const PageContent: FunctionComponent<IPageContentProps> = ({ children, className
     )
 }
 
-const TablePageContent: FunctionComponent<IPageContentProps> = ({ children, className, style }) => {
+const TablePageContent: FunctionComponent<React.PropsWithChildren<IPageContentProps>> = ({ children, className, style }) => {
     return (
         <div className={classnames('page-content', className)} css={TABLE_PAGE_CONTENT_CSS} style={style}>
             {children}

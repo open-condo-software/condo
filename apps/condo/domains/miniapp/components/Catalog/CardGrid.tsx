@@ -102,7 +102,7 @@ const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab, fallback }) => {
         ) : (
             (
                 <BasicEmptyListView
-                    image='dino/playing@2x.png'
+                    image='/dino/playing@2x.png'
                 >
                     <Typography.Title level={3}>
                         {NoAppsMessage}
@@ -177,7 +177,7 @@ export const CardGrid: React.FC<CardGridProps> = ({ tabs, search, resetSearch })
                         tab={searchTab}
                         fallback={(
                             <BasicEmptyListView
-                                image='dino/searching@2x.png'
+                                image='/dino/searching@2x.png'
                             >
                                 <Typography.Title level={3}>
                                     {NoAppsFoundMessage}

@@ -5,12 +5,12 @@ import {
     IncidentClassifierIncident as IIncidentClassifierIncident,
     IncidentProperty as IIncidentProperty,
 } from '@app/condo/schema'
+import { TableColumnType } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import dayjs from 'dayjs'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
-import { ColumnType } from 'rc-table/lib/interface'
 import React from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
@@ -22,7 +22,7 @@ import { getOneAddressAndPropertiesCountRender } from '@condo/domains/property/u
 import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
 
 
-type GetRenderType = ColumnType<IIncident>['render']
+type GetRenderType = TableColumnType<IIncident>['render']
 
 type GetRenderNumberType = () => GetRenderType
 

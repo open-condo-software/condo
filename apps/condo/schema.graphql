@@ -23,6 +23,12 @@ type UserHistoryRecord {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
+  externalPhone: String
+  isExternalPhoneVerified: Boolean
+  externalEmail: String
+  isExternalEmailVerified: Boolean
+  externalSystemName: String
+  hasMarketingConsent: Boolean
   avatar: JSON
   meta: JSON
   locale: String
@@ -145,6 +151,66 @@ input UserHistoryRecordWhereInput {
   phone_not_in: [String]
   isPhoneVerified: Boolean
   isPhoneVerified_not: Boolean
+  externalPhone: String
+  externalPhone_not: String
+  externalPhone_contains: String
+  externalPhone_not_contains: String
+  externalPhone_starts_with: String
+  externalPhone_not_starts_with: String
+  externalPhone_ends_with: String
+  externalPhone_not_ends_with: String
+  externalPhone_i: String
+  externalPhone_not_i: String
+  externalPhone_contains_i: String
+  externalPhone_not_contains_i: String
+  externalPhone_starts_with_i: String
+  externalPhone_not_starts_with_i: String
+  externalPhone_ends_with_i: String
+  externalPhone_not_ends_with_i: String
+  externalPhone_in: [String]
+  externalPhone_not_in: [String]
+  isExternalPhoneVerified: Boolean
+  isExternalPhoneVerified_not: Boolean
+  externalEmail: String
+  externalEmail_not: String
+  externalEmail_contains: String
+  externalEmail_not_contains: String
+  externalEmail_starts_with: String
+  externalEmail_not_starts_with: String
+  externalEmail_ends_with: String
+  externalEmail_not_ends_with: String
+  externalEmail_i: String
+  externalEmail_not_i: String
+  externalEmail_contains_i: String
+  externalEmail_not_contains_i: String
+  externalEmail_starts_with_i: String
+  externalEmail_not_starts_with_i: String
+  externalEmail_ends_with_i: String
+  externalEmail_not_ends_with_i: String
+  externalEmail_in: [String]
+  externalEmail_not_in: [String]
+  isExternalEmailVerified: Boolean
+  isExternalEmailVerified_not: Boolean
+  externalSystemName: String
+  externalSystemName_not: String
+  externalSystemName_contains: String
+  externalSystemName_not_contains: String
+  externalSystemName_starts_with: String
+  externalSystemName_not_starts_with: String
+  externalSystemName_ends_with: String
+  externalSystemName_not_ends_with: String
+  externalSystemName_i: String
+  externalSystemName_not_i: String
+  externalSystemName_contains_i: String
+  externalSystemName_not_contains_i: String
+  externalSystemName_starts_with_i: String
+  externalSystemName_not_starts_with_i: String
+  externalSystemName_ends_with_i: String
+  externalSystemName_not_ends_with_i: String
+  externalSystemName_in: [String]
+  externalSystemName_not_in: [String]
+  hasMarketingConsent: Boolean
+  hasMarketingConsent_not: Boolean
   avatar: JSON
   avatar_not: JSON
   avatar_in: [JSON]
@@ -282,6 +348,18 @@ enum SortUserHistoryRecordsBy {
   phone_DESC
   isPhoneVerified_ASC
   isPhoneVerified_DESC
+  externalPhone_ASC
+  externalPhone_DESC
+  isExternalPhoneVerified_ASC
+  isExternalPhoneVerified_DESC
+  externalEmail_ASC
+  externalEmail_DESC
+  isExternalEmailVerified_ASC
+  isExternalEmailVerified_DESC
+  externalSystemName_ASC
+  externalSystemName_DESC
+  hasMarketingConsent_ASC
+  hasMarketingConsent_DESC
   locale_ASC
   locale_DESC
   showGlobalHints_ASC
@@ -314,6 +392,12 @@ input UserHistoryRecordUpdateInput {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
+  externalPhone: String
+  isExternalPhoneVerified: Boolean
+  externalEmail: String
+  isExternalEmailVerified: Boolean
+  externalSystemName: String
+  hasMarketingConsent: Boolean
   avatar: JSON
   meta: JSON
   locale: String
@@ -349,6 +433,12 @@ input UserHistoryRecordCreateInput {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
+  externalPhone: String
+  isExternalPhoneVerified: Boolean
+  externalEmail: String
+  isExternalEmailVerified: Boolean
+  externalSystemName: String
+  hasMarketingConsent: Boolean
   avatar: JSON
   meta: JSON
   locale: String
@@ -498,6 +588,29 @@ type User {
   """
   isPhoneVerified: Boolean
 
+  """ The user's phone number obtained from a third-party integration. It can be used as contact information but cannot be used for authorization. It may be the same for several users. 
+  """
+  externalPhone: String
+
+  """ Verification status of the user's phone number obtained from an external system 
+  """
+  isExternalPhoneVerified: Boolean
+
+  """ The user's email address obtained from a third-party integration. It can be used as contact information but cannot be used for authorization. It may be the same for several users. 
+  """
+  externalEmail: String
+
+  """ Verification status of the user's email address obtained from an external system 
+  """
+  isExternalEmailVerified: Boolean
+
+  """ Name of the provider that created this user """
+  externalSystemName: String
+
+  """ Global consent to receive marketing materials. If true – this means user has given the consent to get marketing materials 
+  """
+  hasMarketingConsent: Boolean
+
   """ User loaded avatar image """
   avatar: File
 
@@ -610,6 +723,66 @@ input UserWhereInput {
   phone_not_in: [String]
   isPhoneVerified: Boolean
   isPhoneVerified_not: Boolean
+  externalPhone: String
+  externalPhone_not: String
+  externalPhone_contains: String
+  externalPhone_not_contains: String
+  externalPhone_starts_with: String
+  externalPhone_not_starts_with: String
+  externalPhone_ends_with: String
+  externalPhone_not_ends_with: String
+  externalPhone_i: String
+  externalPhone_not_i: String
+  externalPhone_contains_i: String
+  externalPhone_not_contains_i: String
+  externalPhone_starts_with_i: String
+  externalPhone_not_starts_with_i: String
+  externalPhone_ends_with_i: String
+  externalPhone_not_ends_with_i: String
+  externalPhone_in: [String]
+  externalPhone_not_in: [String]
+  isExternalPhoneVerified: Boolean
+  isExternalPhoneVerified_not: Boolean
+  externalEmail: String
+  externalEmail_not: String
+  externalEmail_contains: String
+  externalEmail_not_contains: String
+  externalEmail_starts_with: String
+  externalEmail_not_starts_with: String
+  externalEmail_ends_with: String
+  externalEmail_not_ends_with: String
+  externalEmail_i: String
+  externalEmail_not_i: String
+  externalEmail_contains_i: String
+  externalEmail_not_contains_i: String
+  externalEmail_starts_with_i: String
+  externalEmail_not_starts_with_i: String
+  externalEmail_ends_with_i: String
+  externalEmail_not_ends_with_i: String
+  externalEmail_in: [String]
+  externalEmail_not_in: [String]
+  isExternalEmailVerified: Boolean
+  isExternalEmailVerified_not: Boolean
+  externalSystemName: String
+  externalSystemName_not: String
+  externalSystemName_contains: String
+  externalSystemName_not_contains: String
+  externalSystemName_starts_with: String
+  externalSystemName_not_starts_with: String
+  externalSystemName_ends_with: String
+  externalSystemName_not_ends_with: String
+  externalSystemName_i: String
+  externalSystemName_not_i: String
+  externalSystemName_contains_i: String
+  externalSystemName_not_contains_i: String
+  externalSystemName_starts_with_i: String
+  externalSystemName_not_starts_with_i: String
+  externalSystemName_ends_with_i: String
+  externalSystemName_not_ends_with_i: String
+  externalSystemName_in: [String]
+  externalSystemName_not_in: [String]
+  hasMarketingConsent: Boolean
+  hasMarketingConsent_not: Boolean
   avatar: String
   avatar_not: String
   avatar_in: [String]
@@ -709,6 +882,18 @@ enum SortUsersBy {
   phone_DESC
   isPhoneVerified_ASC
   isPhoneVerified_DESC
+  externalPhone_ASC
+  externalPhone_DESC
+  isExternalPhoneVerified_ASC
+  isExternalPhoneVerified_DESC
+  externalEmail_ASC
+  externalEmail_DESC
+  isExternalEmailVerified_ASC
+  isExternalEmailVerified_DESC
+  externalSystemName_ASC
+  externalSystemName_DESC
+  hasMarketingConsent_ASC
+  hasMarketingConsent_DESC
   locale_ASC
   locale_DESC
   showGlobalHints_ASC
@@ -743,6 +928,12 @@ input UserUpdateInput {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
+  externalPhone: String
+  isExternalPhoneVerified: Boolean
+  externalEmail: String
+  isExternalEmailVerified: Boolean
+  externalSystemName: String
+  hasMarketingConsent: Boolean
   avatar: Upload
   meta: JSON
   locale: UserLocaleType
@@ -775,6 +966,12 @@ input UserCreateInput {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
+  externalPhone: String
+  isExternalPhoneVerified: Boolean
+  externalEmail: String
+  isExternalEmailVerified: Boolean
+  externalSystemName: String
+  hasMarketingConsent: Boolean
   avatar: Upload
   meta: JSON
   locale: UserLocaleType
@@ -2138,12 +2335,6 @@ input UserExternalIdentityHistoryRecordsCreateInput {
   data: UserExternalIdentityHistoryRecordCreateInput
 }
 
-enum UserExternalIdentityIdentityTypeType {
-  apple_id
-  sber_id
-  sbbol
-}
-
 enum UserExternalIdentityUserTypeType {
   staff
   resident
@@ -2170,7 +2361,7 @@ type UserExternalIdentity {
   identityId: String
 
   """ The type of external identity that was a source for this link """
-  identityType: UserExternalIdentityIdentityTypeType
+  identityType: String
 
   """ Type of connected user """
   userType: UserExternalIdentityUserTypeType
@@ -2223,10 +2414,24 @@ input UserExternalIdentityWhereInput {
   identityId_not_ends_with_i: String
   identityId_in: [String]
   identityId_not_in: [String]
-  identityType: UserExternalIdentityIdentityTypeType
-  identityType_not: UserExternalIdentityIdentityTypeType
-  identityType_in: [UserExternalIdentityIdentityTypeType]
-  identityType_not_in: [UserExternalIdentityIdentityTypeType]
+  identityType: String
+  identityType_not: String
+  identityType_contains: String
+  identityType_not_contains: String
+  identityType_starts_with: String
+  identityType_not_starts_with: String
+  identityType_ends_with: String
+  identityType_not_ends_with: String
+  identityType_i: String
+  identityType_not_i: String
+  identityType_contains_i: String
+  identityType_not_contains_i: String
+  identityType_starts_with_i: String
+  identityType_not_starts_with_i: String
+  identityType_ends_with_i: String
+  identityType_not_ends_with_i: String
+  identityType_in: [String]
+  identityType_not_in: [String]
   userType: UserExternalIdentityUserTypeType
   userType_not: UserExternalIdentityUserTypeType
   userType_in: [UserExternalIdentityUserTypeType]
@@ -2327,7 +2532,7 @@ enum SortUserExternalIdentitiesBy {
 input UserExternalIdentityUpdateInput {
   user: UserRelateToOneInput
   identityId: String
-  identityType: UserExternalIdentityIdentityTypeType
+  identityType: String
   userType: UserExternalIdentityUserTypeType
   meta: JSON
   v: Int
@@ -2349,7 +2554,7 @@ input UserExternalIdentitiesUpdateInput {
 input UserExternalIdentityCreateInput {
   user: UserRelateToOneInput
   identityId: String
-  identityType: UserExternalIdentityIdentityTypeType
+  identityType: String
   userType: UserExternalIdentityUserTypeType
   meta: JSON
   v: Int
@@ -4182,11 +4387,13 @@ input ResetUserLimitActionHistoryRecordsCreateInput {
 }
 
 enum ResetUserLimitActionTypeType {
+  email
   sms
   rateLimit
   findOrganizationsByTin
   auth
   checkUserExistence
+  changeUserPassword
 }
 
 """ A model for resetting user counters limit. To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset. 
@@ -4201,17 +4408,19 @@ type ResetUserLimitAction {
   """
   _label_: String
 
-  """ Type of limit to reset. Possible values: ["sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence"] 
+  """ Type of limit to reset. Possible values: ["email", "sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence", "changeUserPassword"] 
   """
   type: ResetUserLimitActionTypeType
 
   """
    The identifier of user, to which reset will apply. Possible values are based on reset type: 
+  email: ["email", "ip"], 
   sms: ["phone", "ip"], 
   rateLimit: ["uuid", "ip"], 
   findOrganizationsByTin: ["email", "phone", "uuid"], 
   auth: ["ip", "uuid", "phone", "email"], 
-  checkUserExistence: ["ip", "phone"] 
+  checkUserExistence: ["ip", "phone"], 
+  changeUserPassword: ["ip"] 
   """
   identifier: String
 
@@ -4853,6 +5062,560 @@ input UserSudoTokenCreateInput {
 
 input UserSudoTokensCreateInput {
   data: UserSudoTokenCreateInput
+}
+
+enum ConfirmEmailActionHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type ConfirmEmailActionHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the ConfirmEmailActionHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the ConfirmEmailActionHistoryRecord List config, or
+   3. As an alias to a 'name' field on the ConfirmEmailActionHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the ConfirmEmailActionHistoryRecord List.
+  """
+  _label_: String
+  email: String
+  token: String
+  secretCode: String
+  secretCodeRequestedAt: String
+  secretCodeExpiresAt: String
+  retries: Int
+  isEmailVerified: Boolean
+  requestedAt: String
+  expiresAt: String
+  completedAt: String
+  id: ID!
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ConfirmEmailActionHistoryRecordWhereInput {
+  AND: [ConfirmEmailActionHistoryRecordWhereInput]
+  OR: [ConfirmEmailActionHistoryRecordWhereInput]
+  email: String
+  email_not: String
+  email_contains: String
+  email_not_contains: String
+  email_starts_with: String
+  email_not_starts_with: String
+  email_ends_with: String
+  email_not_ends_with: String
+  email_i: String
+  email_not_i: String
+  email_contains_i: String
+  email_not_contains_i: String
+  email_starts_with_i: String
+  email_not_starts_with_i: String
+  email_ends_with_i: String
+  email_not_ends_with_i: String
+  email_in: [String]
+  email_not_in: [String]
+  token: String
+  token_not: String
+  token_contains: String
+  token_not_contains: String
+  token_starts_with: String
+  token_not_starts_with: String
+  token_ends_with: String
+  token_not_ends_with: String
+  token_i: String
+  token_not_i: String
+  token_contains_i: String
+  token_not_contains_i: String
+  token_starts_with_i: String
+  token_not_starts_with_i: String
+  token_ends_with_i: String
+  token_not_ends_with_i: String
+  token_in: [String]
+  token_not_in: [String]
+  secretCode: String
+  secretCode_not: String
+  secretCode_contains: String
+  secretCode_not_contains: String
+  secretCode_starts_with: String
+  secretCode_not_starts_with: String
+  secretCode_ends_with: String
+  secretCode_not_ends_with: String
+  secretCode_i: String
+  secretCode_not_i: String
+  secretCode_contains_i: String
+  secretCode_not_contains_i: String
+  secretCode_starts_with_i: String
+  secretCode_not_starts_with_i: String
+  secretCode_ends_with_i: String
+  secretCode_not_ends_with_i: String
+  secretCode_in: [String]
+  secretCode_not_in: [String]
+  secretCodeRequestedAt: String
+  secretCodeRequestedAt_not: String
+  secretCodeRequestedAt_lt: String
+  secretCodeRequestedAt_lte: String
+  secretCodeRequestedAt_gt: String
+  secretCodeRequestedAt_gte: String
+  secretCodeRequestedAt_in: [String]
+  secretCodeRequestedAt_not_in: [String]
+  secretCodeExpiresAt: String
+  secretCodeExpiresAt_not: String
+  secretCodeExpiresAt_lt: String
+  secretCodeExpiresAt_lte: String
+  secretCodeExpiresAt_gt: String
+  secretCodeExpiresAt_gte: String
+  secretCodeExpiresAt_in: [String]
+  secretCodeExpiresAt_not_in: [String]
+  retries: Int
+  retries_not: Int
+  retries_lt: Int
+  retries_lte: Int
+  retries_gt: Int
+  retries_gte: Int
+  retries_in: [Int]
+  retries_not_in: [Int]
+  isEmailVerified: Boolean
+  isEmailVerified_not: Boolean
+  requestedAt: String
+  requestedAt_not: String
+  requestedAt_lt: String
+  requestedAt_lte: String
+  requestedAt_gt: String
+  requestedAt_gte: String
+  requestedAt_in: [String]
+  requestedAt_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  completedAt: String
+  completedAt_not: String
+  completedAt_lt: String
+  completedAt_lte: String
+  completedAt_gt: String
+  completedAt_gte: String
+  completedAt_in: [String]
+  completedAt_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_action_not: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_action_in: [ConfirmEmailActionHistoryRecordHistoryActionType]
+  history_action_not_in: [ConfirmEmailActionHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input ConfirmEmailActionHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortConfirmEmailActionHistoryRecordsBy {
+  email_ASC
+  email_DESC
+  token_ASC
+  token_DESC
+  secretCode_ASC
+  secretCode_DESC
+  secretCodeRequestedAt_ASC
+  secretCodeRequestedAt_DESC
+  secretCodeExpiresAt_ASC
+  secretCodeExpiresAt_DESC
+  retries_ASC
+  retries_DESC
+  isEmailVerified_ASC
+  isEmailVerified_DESC
+  requestedAt_ASC
+  requestedAt_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  completedAt_ASC
+  completedAt_DESC
+  id_ASC
+  id_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input ConfirmEmailActionHistoryRecordUpdateInput {
+  email: String
+  token: String
+  secretCode: String
+  secretCodeRequestedAt: String
+  secretCodeExpiresAt: String
+  retries: Int
+  isEmailVerified: Boolean
+  requestedAt: String
+  expiresAt: String
+  completedAt: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ConfirmEmailActionHistoryRecordsUpdateInput {
+  id: ID!
+  data: ConfirmEmailActionHistoryRecordUpdateInput
+}
+
+input ConfirmEmailActionHistoryRecordCreateInput {
+  email: String
+  token: String
+  secretCode: String
+  secretCodeRequestedAt: String
+  secretCodeExpiresAt: String
+  retries: Int
+  isEmailVerified: Boolean
+  requestedAt: String
+  expiresAt: String
+  completedAt: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ConfirmEmailActionHistoryRecordsCreateInput {
+  data: ConfirmEmailActionHistoryRecordCreateInput
+}
+
+""" User confirm email actions """
+type ConfirmEmailAction {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the ConfirmEmailAction List config, or
+   2. As an alias to the field set on 'labelField' in the ConfirmEmailAction List config, or
+   3. As an alias to a 'name' field on the ConfirmEmailAction List (if one exists), or
+   4. As an alias to the 'id' field on the ConfirmEmailAction List.
+  """
+  _label_: String
+
+  """ Normalized email for confirm action """
+  email: String
+
+  """ Unique token to complete confirmation """
+  token: String
+
+  """ Last secret code sent to user """
+  secretCode: String
+
+  """ Time when secret code was requested """
+  secretCodeRequestedAt: String
+
+  """ Time when secret code becomes not valid """
+  secretCodeExpiresAt: String
+
+  """ Number of times secret code input from user failed """
+  retries: Int
+
+  """ Email verification flag. User verify email by access to email message 
+  """
+  isEmailVerified: Boolean
+
+  """ DateTime when confirm email action was started """
+  requestedAt: String
+
+  """ When confirm email action becomes invalid """
+  expiresAt: String
+
+  """ When confirm email action was completed """
+  completedAt: String
+  id: ID!
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+  v: Int
+}
+
+input ConfirmEmailActionWhereInput {
+  AND: [ConfirmEmailActionWhereInput]
+  OR: [ConfirmEmailActionWhereInput]
+  email: String
+  email_not: String
+  email_contains: String
+  email_not_contains: String
+  email_starts_with: String
+  email_not_starts_with: String
+  email_ends_with: String
+  email_not_ends_with: String
+  email_i: String
+  email_not_i: String
+  email_contains_i: String
+  email_not_contains_i: String
+  email_starts_with_i: String
+  email_not_starts_with_i: String
+  email_ends_with_i: String
+  email_not_ends_with_i: String
+  email_in: [String]
+  email_not_in: [String]
+  token: String
+  token_not: String
+  token_contains: String
+  token_not_contains: String
+  token_starts_with: String
+  token_not_starts_with: String
+  token_ends_with: String
+  token_not_ends_with: String
+  token_i: String
+  token_not_i: String
+  token_contains_i: String
+  token_not_contains_i: String
+  token_starts_with_i: String
+  token_not_starts_with_i: String
+  token_ends_with_i: String
+  token_not_ends_with_i: String
+  token_in: [String]
+  token_not_in: [String]
+  secretCode: String
+  secretCode_not: String
+  secretCode_contains: String
+  secretCode_not_contains: String
+  secretCode_starts_with: String
+  secretCode_not_starts_with: String
+  secretCode_ends_with: String
+  secretCode_not_ends_with: String
+  secretCode_i: String
+  secretCode_not_i: String
+  secretCode_contains_i: String
+  secretCode_not_contains_i: String
+  secretCode_starts_with_i: String
+  secretCode_not_starts_with_i: String
+  secretCode_ends_with_i: String
+  secretCode_not_ends_with_i: String
+  secretCode_in: [String]
+  secretCode_not_in: [String]
+  secretCodeRequestedAt: String
+  secretCodeRequestedAt_not: String
+  secretCodeRequestedAt_lt: String
+  secretCodeRequestedAt_lte: String
+  secretCodeRequestedAt_gt: String
+  secretCodeRequestedAt_gte: String
+  secretCodeRequestedAt_in: [String]
+  secretCodeRequestedAt_not_in: [String]
+  secretCodeExpiresAt: String
+  secretCodeExpiresAt_not: String
+  secretCodeExpiresAt_lt: String
+  secretCodeExpiresAt_lte: String
+  secretCodeExpiresAt_gt: String
+  secretCodeExpiresAt_gte: String
+  secretCodeExpiresAt_in: [String]
+  secretCodeExpiresAt_not_in: [String]
+  retries: Int
+  retries_not: Int
+  retries_lt: Int
+  retries_lte: Int
+  retries_gt: Int
+  retries_gte: Int
+  retries_in: [Int]
+  retries_not_in: [Int]
+  isEmailVerified: Boolean
+  isEmailVerified_not: Boolean
+  requestedAt: String
+  requestedAt_not: String
+  requestedAt_lt: String
+  requestedAt_lte: String
+  requestedAt_gt: String
+  requestedAt_gte: String
+  requestedAt_in: [String]
+  requestedAt_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  completedAt: String
+  completedAt_not: String
+  completedAt_lt: String
+  completedAt_lte: String
+  completedAt_gt: String
+  completedAt_gte: String
+  completedAt_in: [String]
+  completedAt_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+}
+
+input ConfirmEmailActionWhereUniqueInput {
+  id: ID!
+}
+
+enum SortConfirmEmailActionsBy {
+  email_ASC
+  email_DESC
+  token_ASC
+  token_DESC
+  secretCode_ASC
+  secretCode_DESC
+  secretCodeRequestedAt_ASC
+  secretCodeRequestedAt_DESC
+  secretCodeExpiresAt_ASC
+  secretCodeExpiresAt_DESC
+  retries_ASC
+  retries_DESC
+  isEmailVerified_ASC
+  isEmailVerified_DESC
+  requestedAt_ASC
+  requestedAt_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  completedAt_ASC
+  completedAt_DESC
+  id_ASC
+  id_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  v_ASC
+  v_DESC
+}
+
+input ConfirmEmailActionUpdateInput {
+  email: String
+  token: String
+  secretCode: String
+  secretCodeRequestedAt: String
+  secretCodeExpiresAt: String
+  retries: Int
+  isEmailVerified: Boolean
+  requestedAt: String
+  expiresAt: String
+  completedAt: String
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  v: Int
+}
+
+input ConfirmEmailActionsUpdateInput {
+  id: ID!
+  data: ConfirmEmailActionUpdateInput
+}
+
+input ConfirmEmailActionCreateInput {
+  email: String
+  token: String
+  secretCode: String
+  secretCodeRequestedAt: String
+  secretCodeExpiresAt: String
+  retries: Int
+  isEmailVerified: Boolean
+  requestedAt: String
+  expiresAt: String
+  completedAt: String
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  v: Int
+}
+
+input ConfirmEmailActionsCreateInput {
+  data: ConfirmEmailActionCreateInput
 }
 
 enum OrganizationHistoryRecordHistoryActionType {
@@ -52231,7 +52994,7 @@ type MeterReadingFilters {
   organization: [String]
   address: [String]
   accountNumber: String
-  place: String
+  place: [String]
   number: String
   unitName: [String]
   resource: [String]
@@ -73755,6 +74518,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -73874,6 +74639,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadCustomValues: Boolean
+  canReadCustomValues_not: Boolean
+  canManageCustomValues: Boolean
+  canManageCustomValues_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
@@ -74035,6 +74804,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadCustomValues_ASC
+  canReadCustomValues_DESC
+  canManageCustomValues_ASC
+  canManageCustomValues_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
@@ -74107,6 +74880,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -74167,6 +74942,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -74268,6 +75045,8 @@ type B2BAppAccessRightSet {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -74379,6 +75158,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadCustomValues: Boolean
+  canReadCustomValues_not: Boolean
+  canManageCustomValues: Boolean
+  canManageCustomValues_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
@@ -74522,6 +75305,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadCustomValues_ASC
+  canReadCustomValues_DESC
+  canManageCustomValues_ASC
+  canManageCustomValues_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
@@ -74594,6 +75381,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -74651,6 +75440,8 @@ input B2BAppAccessRightSetCreateInput {
   canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadCustomValues: Boolean
+  canManageCustomValues: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canReadTicketComments: Boolean
@@ -76301,6 +77092,1370 @@ input B2BAccessTokenCreateInput {
 
 input B2BAccessTokensCreateInput {
   data: B2BAccessTokenCreateInput
+}
+
+enum CustomFieldHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type CustomFieldHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the CustomFieldHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the CustomFieldHistoryRecord List config, or
+   3. As an alias to a 'name' field on the CustomFieldHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the CustomFieldHistoryRecord List.
+  """
+  _label_: String
+  locale: String
+  isVisible: Boolean
+  name: String
+  priority: Int
+  schemaName: String
+  type: String
+  isUniquePerObject: Boolean
+  validationRules: JSON
+  staffCanRead: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomFieldHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomFieldHistoryRecordWhereInput {
+  AND: [CustomFieldHistoryRecordWhereInput]
+  OR: [CustomFieldHistoryRecordWhereInput]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  isVisible: Boolean
+  isVisible_not: Boolean
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  schemaName: String
+  schemaName_not: String
+  schemaName_contains: String
+  schemaName_not_contains: String
+  schemaName_starts_with: String
+  schemaName_not_starts_with: String
+  schemaName_ends_with: String
+  schemaName_not_ends_with: String
+  schemaName_i: String
+  schemaName_not_i: String
+  schemaName_contains_i: String
+  schemaName_not_contains_i: String
+  schemaName_starts_with_i: String
+  schemaName_not_starts_with_i: String
+  schemaName_ends_with_i: String
+  schemaName_not_ends_with_i: String
+  schemaName_in: [String]
+  schemaName_not_in: [String]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
+  isUniquePerObject: Boolean
+  isUniquePerObject_not: Boolean
+  validationRules: JSON
+  validationRules_not: JSON
+  validationRules_in: [JSON]
+  validationRules_not_in: [JSON]
+  staffCanRead: Boolean
+  staffCanRead_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: CustomFieldHistoryRecordHistoryActionType
+  history_action_not: CustomFieldHistoryRecordHistoryActionType
+  history_action_in: [CustomFieldHistoryRecordHistoryActionType]
+  history_action_not_in: [CustomFieldHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input CustomFieldHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortCustomFieldHistoryRecordsBy {
+  locale_ASC
+  locale_DESC
+  isVisible_ASC
+  isVisible_DESC
+  name_ASC
+  name_DESC
+  priority_ASC
+  priority_DESC
+  schemaName_ASC
+  schemaName_DESC
+  type_ASC
+  type_DESC
+  isUniquePerObject_ASC
+  isUniquePerObject_DESC
+  staffCanRead_ASC
+  staffCanRead_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input CustomFieldHistoryRecordUpdateInput {
+  locale: String
+  isVisible: Boolean
+  name: String
+  priority: Int
+  schemaName: String
+  type: String
+  isUniquePerObject: Boolean
+  validationRules: JSON
+  staffCanRead: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomFieldHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomFieldHistoryRecordsUpdateInput {
+  id: ID!
+  data: CustomFieldHistoryRecordUpdateInput
+}
+
+input CustomFieldHistoryRecordCreateInput {
+  locale: String
+  isVisible: Boolean
+  name: String
+  priority: Int
+  schemaName: String
+  type: String
+  isUniquePerObject: Boolean
+  validationRules: JSON
+  staffCanRead: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomFieldHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomFieldHistoryRecordsCreateInput {
+  data: CustomFieldHistoryRecordCreateInput
+}
+
+enum CustomFieldSchemaNameType {
+  Contact
+  Resident
+  Property
+  Organization
+}
+
+enum CustomFieldTypeType {
+  String
+  Json
+}
+
+""" Custom field allows you to extend functionality of the platform without coding. Use it to store domain-specific stuff or to develop miniapps 
+"""
+type CustomField {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the CustomField List config, or
+   2. As an alias to the field set on 'labelField' in the CustomField List config, or
+   3. As an alias to a 'name' field on the CustomField List (if one exists), or
+   4. As an alias to the 'id' field on the CustomField List.
+  """
+  _label_: String
+
+  """ Locale of this field, For example, if you create SSN field (social security number) you should use en-US locale. If not set, then it is considered that this CustomField is global and not region specific 
+  """
+  locale: String
+
+  """ If field is visible, then it will be displayed in UI """
+  isVisible: Boolean
+
+  """ User friendly name of the field. Will be displayed in UI """
+  name: String
+
+  """ Higher the priority, higher (visually) the custom value is displayed in UI 
+  """
+  priority: Int
+
+  """ Condo schema that this field relates to. """
+  schemaName: CustomFieldSchemaNameType
+
+  """ Type of that field """
+  type: CustomFieldTypeType
+
+  """ If true, then only single CustomValues can exist on condo object (CustomValue.objectId) 
+  """
+  isUniquePerObject: Boolean
+
+  """ Custom user defined validation rules for this field. Should be json-schema 
+  """
+  validationRules: JSON
+
+  """ If true, staff type account can read values of this custom field """
+  staffCanRead: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input CustomFieldWhereInput {
+  AND: [CustomFieldWhereInput]
+  OR: [CustomFieldWhereInput]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  isVisible: Boolean
+  isVisible_not: Boolean
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  schemaName: CustomFieldSchemaNameType
+  schemaName_not: CustomFieldSchemaNameType
+  schemaName_in: [CustomFieldSchemaNameType]
+  schemaName_not_in: [CustomFieldSchemaNameType]
+  type: CustomFieldTypeType
+  type_not: CustomFieldTypeType
+  type_in: [CustomFieldTypeType]
+  type_not_in: [CustomFieldTypeType]
+  isUniquePerObject: Boolean
+  isUniquePerObject_not: Boolean
+  validationRules: JSON
+  validationRules_not: JSON
+  validationRules_in: [JSON]
+  validationRules_not_in: [JSON]
+  staffCanRead: Boolean
+  staffCanRead_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input CustomFieldWhereUniqueInput {
+  id: ID!
+}
+
+enum SortCustomFieldsBy {
+  locale_ASC
+  locale_DESC
+  isVisible_ASC
+  isVisible_DESC
+  name_ASC
+  name_DESC
+  priority_ASC
+  priority_DESC
+  schemaName_ASC
+  schemaName_DESC
+  type_ASC
+  type_DESC
+  isUniquePerObject_ASC
+  isUniquePerObject_DESC
+  staffCanRead_ASC
+  staffCanRead_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input CustomFieldUpdateInput {
+  locale: String
+  isVisible: Boolean
+  name: String
+  priority: Int
+  schemaName: CustomFieldSchemaNameType
+  type: CustomFieldTypeType
+  isUniquePerObject: Boolean
+  validationRules: JSON
+  staffCanRead: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input CustomFieldsUpdateInput {
+  id: ID!
+  data: CustomFieldUpdateInput
+}
+
+input CustomFieldCreateInput {
+  locale: String
+  isVisible: Boolean
+  name: String
+  priority: Int
+  schemaName: CustomFieldSchemaNameType
+  type: CustomFieldTypeType
+  isUniquePerObject: Boolean
+  validationRules: JSON
+  staffCanRead: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input CustomFieldsCreateInput {
+  data: CustomFieldCreateInput
+}
+
+enum CustomValueHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type CustomValueHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the CustomValueHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the CustomValueHistoryRecord List config, or
+   3. As an alias to a 'name' field on the CustomValueHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the CustomValueHistoryRecord List.
+  """
+  _label_: String
+  customField: String
+  data: JSON
+  objectId: String
+  filterDataString: String
+  sourceType: String
+  sourceId: String
+  organization: String
+  unitName: String
+  unitType: String
+  addressKey: String
+  isUniquePerObject: Boolean
+  uniqKey: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomValueHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomValueHistoryRecordWhereInput {
+  AND: [CustomValueHistoryRecordWhereInput]
+  OR: [CustomValueHistoryRecordWhereInput]
+  customField: String
+  customField_not: String
+  customField_in: [String]
+  customField_not_in: [String]
+  data: JSON
+  data_not: JSON
+  data_in: [JSON]
+  data_not_in: [JSON]
+  objectId: String
+  objectId_not: String
+  objectId_contains: String
+  objectId_not_contains: String
+  objectId_starts_with: String
+  objectId_not_starts_with: String
+  objectId_ends_with: String
+  objectId_not_ends_with: String
+  objectId_i: String
+  objectId_not_i: String
+  objectId_contains_i: String
+  objectId_not_contains_i: String
+  objectId_starts_with_i: String
+  objectId_not_starts_with_i: String
+  objectId_ends_with_i: String
+  objectId_not_ends_with_i: String
+  objectId_in: [String]
+  objectId_not_in: [String]
+  filterDataString: String
+  filterDataString_not: String
+  filterDataString_contains: String
+  filterDataString_not_contains: String
+  filterDataString_starts_with: String
+  filterDataString_not_starts_with: String
+  filterDataString_ends_with: String
+  filterDataString_not_ends_with: String
+  filterDataString_i: String
+  filterDataString_not_i: String
+  filterDataString_contains_i: String
+  filterDataString_not_contains_i: String
+  filterDataString_starts_with_i: String
+  filterDataString_not_starts_with_i: String
+  filterDataString_ends_with_i: String
+  filterDataString_not_ends_with_i: String
+  filterDataString_in: [String]
+  filterDataString_not_in: [String]
+  sourceType: String
+  sourceType_not: String
+  sourceType_contains: String
+  sourceType_not_contains: String
+  sourceType_starts_with: String
+  sourceType_not_starts_with: String
+  sourceType_ends_with: String
+  sourceType_not_ends_with: String
+  sourceType_i: String
+  sourceType_not_i: String
+  sourceType_contains_i: String
+  sourceType_not_contains_i: String
+  sourceType_starts_with_i: String
+  sourceType_not_starts_with_i: String
+  sourceType_ends_with_i: String
+  sourceType_not_ends_with_i: String
+  sourceType_in: [String]
+  sourceType_not_in: [String]
+  sourceId: String
+  sourceId_not: String
+  sourceId_contains: String
+  sourceId_not_contains: String
+  sourceId_starts_with: String
+  sourceId_not_starts_with: String
+  sourceId_ends_with: String
+  sourceId_not_ends_with: String
+  sourceId_i: String
+  sourceId_not_i: String
+  sourceId_contains_i: String
+  sourceId_not_contains_i: String
+  sourceId_starts_with_i: String
+  sourceId_not_starts_with_i: String
+  sourceId_ends_with_i: String
+  sourceId_not_ends_with_i: String
+  sourceId_in: [String]
+  sourceId_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  unitName: String
+  unitName_not: String
+  unitName_contains: String
+  unitName_not_contains: String
+  unitName_starts_with: String
+  unitName_not_starts_with: String
+  unitName_ends_with: String
+  unitName_not_ends_with: String
+  unitName_i: String
+  unitName_not_i: String
+  unitName_contains_i: String
+  unitName_not_contains_i: String
+  unitName_starts_with_i: String
+  unitName_not_starts_with_i: String
+  unitName_ends_with_i: String
+  unitName_not_ends_with_i: String
+  unitName_in: [String]
+  unitName_not_in: [String]
+  unitType: String
+  unitType_not: String
+  unitType_contains: String
+  unitType_not_contains: String
+  unitType_starts_with: String
+  unitType_not_starts_with: String
+  unitType_ends_with: String
+  unitType_not_ends_with: String
+  unitType_i: String
+  unitType_not_i: String
+  unitType_contains_i: String
+  unitType_not_contains_i: String
+  unitType_starts_with_i: String
+  unitType_not_starts_with_i: String
+  unitType_ends_with_i: String
+  unitType_not_ends_with_i: String
+  unitType_in: [String]
+  unitType_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  isUniquePerObject: Boolean
+  isUniquePerObject_not: Boolean
+  uniqKey: String
+  uniqKey_not: String
+  uniqKey_contains: String
+  uniqKey_not_contains: String
+  uniqKey_starts_with: String
+  uniqKey_not_starts_with: String
+  uniqKey_ends_with: String
+  uniqKey_not_ends_with: String
+  uniqKey_i: String
+  uniqKey_not_i: String
+  uniqKey_contains_i: String
+  uniqKey_not_contains_i: String
+  uniqKey_starts_with_i: String
+  uniqKey_not_starts_with_i: String
+  uniqKey_ends_with_i: String
+  uniqKey_not_ends_with_i: String
+  uniqKey_in: [String]
+  uniqKey_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: CustomValueHistoryRecordHistoryActionType
+  history_action_not: CustomValueHistoryRecordHistoryActionType
+  history_action_in: [CustomValueHistoryRecordHistoryActionType]
+  history_action_not_in: [CustomValueHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input CustomValueHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortCustomValueHistoryRecordsBy {
+  objectId_ASC
+  objectId_DESC
+  filterDataString_ASC
+  filterDataString_DESC
+  sourceType_ASC
+  sourceType_DESC
+  sourceId_ASC
+  sourceId_DESC
+  unitName_ASC
+  unitName_DESC
+  unitType_ASC
+  unitType_DESC
+  addressKey_ASC
+  addressKey_DESC
+  isUniquePerObject_ASC
+  isUniquePerObject_DESC
+  uniqKey_ASC
+  uniqKey_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input CustomValueHistoryRecordUpdateInput {
+  customField: String
+  data: JSON
+  objectId: String
+  filterDataString: String
+  sourceType: String
+  sourceId: String
+  organization: String
+  unitName: String
+  unitType: String
+  addressKey: String
+  isUniquePerObject: Boolean
+  uniqKey: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomValueHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomValueHistoryRecordsUpdateInput {
+  id: ID!
+  data: CustomValueHistoryRecordUpdateInput
+}
+
+input CustomValueHistoryRecordCreateInput {
+  customField: String
+  data: JSON
+  objectId: String
+  filterDataString: String
+  sourceType: String
+  sourceId: String
+  organization: String
+  unitName: String
+  unitType: String
+  addressKey: String
+  isUniquePerObject: Boolean
+  uniqKey: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: CustomValueHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input CustomValueHistoryRecordsCreateInput {
+  data: CustomValueHistoryRecordCreateInput
+}
+
+input CustomFieldRelateToOneInput {
+  create: CustomFieldCreateInput
+  connect: CustomFieldWhereUniqueInput
+  disconnect: CustomFieldWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+enum CustomValueSourceTypeType {
+  B2BApp
+}
+
+enum CustomValueUnitTypeType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
+""" Custom value for CustomField """
+type CustomValue {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the CustomValue List config, or
+   2. As an alias to the field set on 'labelField' in the CustomValue List config, or
+   3. As an alias to a 'name' field on the CustomValue List (if one exists), or
+   4. As an alias to the 'id' field on the CustomValue List.
+  """
+  _label_: String
+
+  """ CustomField object that this data refers to  """
+  customField: CustomField
+
+  """ Data of this customValue """
+  data: JSON
+
+  """ What instance of CustomField.schemaName this customValue relates to? """
+  objectId: String
+
+  """ String representation of data. Actual logic is controlled by type field in customValue. Use it for filtering 
+  """
+  filterDataString: String
+
+  """ Type of entity, responsible for the last update of this customField """
+  sourceType: CustomValueSourceTypeType
+
+  """ ID of entity, responsible for the last update of this customField """
+  sourceId: String
+
+  """ Organization that owns data inside this CustomValue. Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ Flat number / door number of an apartment building (property) """
+  unitName: String
+
+  """ Type of unit, such as parking lot or flat """
+  unitType: CustomValueUnitTypeType
+
+  """ The unique key of the address """
+  addressKey: String
+
+  """ System field, equals to CustomField.isUniquePerObject, used in constraints logic 
+  """
+  isUniquePerObject: Boolean
+
+  """ User defined custom ID. If set, customValue is guaranteed to be unique among single source (sourceType + sourceId) 
+  """
+  uniqKey: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input CustomValueWhereInput {
+  AND: [CustomValueWhereInput]
+  OR: [CustomValueWhereInput]
+  customField: CustomFieldWhereInput
+  customField_is_null: Boolean
+  data: JSON
+  data_not: JSON
+  data_in: [JSON]
+  data_not_in: [JSON]
+  objectId: String
+  objectId_not: String
+  objectId_contains: String
+  objectId_not_contains: String
+  objectId_starts_with: String
+  objectId_not_starts_with: String
+  objectId_ends_with: String
+  objectId_not_ends_with: String
+  objectId_i: String
+  objectId_not_i: String
+  objectId_contains_i: String
+  objectId_not_contains_i: String
+  objectId_starts_with_i: String
+  objectId_not_starts_with_i: String
+  objectId_ends_with_i: String
+  objectId_not_ends_with_i: String
+  objectId_in: [String]
+  objectId_not_in: [String]
+  filterDataString: String
+  filterDataString_not: String
+  filterDataString_contains: String
+  filterDataString_not_contains: String
+  filterDataString_starts_with: String
+  filterDataString_not_starts_with: String
+  filterDataString_ends_with: String
+  filterDataString_not_ends_with: String
+  filterDataString_i: String
+  filterDataString_not_i: String
+  filterDataString_contains_i: String
+  filterDataString_not_contains_i: String
+  filterDataString_starts_with_i: String
+  filterDataString_not_starts_with_i: String
+  filterDataString_ends_with_i: String
+  filterDataString_not_ends_with_i: String
+  filterDataString_in: [String]
+  filterDataString_not_in: [String]
+  sourceType: CustomValueSourceTypeType
+  sourceType_not: CustomValueSourceTypeType
+  sourceType_in: [CustomValueSourceTypeType]
+  sourceType_not_in: [CustomValueSourceTypeType]
+  sourceId: String
+  sourceId_not: String
+  sourceId_contains: String
+  sourceId_not_contains: String
+  sourceId_starts_with: String
+  sourceId_not_starts_with: String
+  sourceId_ends_with: String
+  sourceId_not_ends_with: String
+  sourceId_i: String
+  sourceId_not_i: String
+  sourceId_contains_i: String
+  sourceId_not_contains_i: String
+  sourceId_starts_with_i: String
+  sourceId_not_starts_with_i: String
+  sourceId_ends_with_i: String
+  sourceId_not_ends_with_i: String
+  sourceId_in: [String]
+  sourceId_not_in: [String]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  unitName: String
+  unitName_not: String
+  unitName_contains: String
+  unitName_not_contains: String
+  unitName_starts_with: String
+  unitName_not_starts_with: String
+  unitName_ends_with: String
+  unitName_not_ends_with: String
+  unitName_i: String
+  unitName_not_i: String
+  unitName_contains_i: String
+  unitName_not_contains_i: String
+  unitName_starts_with_i: String
+  unitName_not_starts_with_i: String
+  unitName_ends_with_i: String
+  unitName_not_ends_with_i: String
+  unitName_in: [String]
+  unitName_not_in: [String]
+  unitType: CustomValueUnitTypeType
+  unitType_not: CustomValueUnitTypeType
+  unitType_in: [CustomValueUnitTypeType]
+  unitType_not_in: [CustomValueUnitTypeType]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  isUniquePerObject: Boolean
+  isUniquePerObject_not: Boolean
+  uniqKey: String
+  uniqKey_not: String
+  uniqKey_contains: String
+  uniqKey_not_contains: String
+  uniqKey_starts_with: String
+  uniqKey_not_starts_with: String
+  uniqKey_ends_with: String
+  uniqKey_not_ends_with: String
+  uniqKey_i: String
+  uniqKey_not_i: String
+  uniqKey_contains_i: String
+  uniqKey_not_contains_i: String
+  uniqKey_starts_with_i: String
+  uniqKey_not_starts_with_i: String
+  uniqKey_ends_with_i: String
+  uniqKey_not_ends_with_i: String
+  uniqKey_in: [String]
+  uniqKey_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input CustomValueWhereUniqueInput {
+  id: ID!
+}
+
+enum SortCustomValuesBy {
+  customField_ASC
+  customField_DESC
+  objectId_ASC
+  objectId_DESC
+  filterDataString_ASC
+  filterDataString_DESC
+  sourceType_ASC
+  sourceType_DESC
+  sourceId_ASC
+  sourceId_DESC
+  organization_ASC
+  organization_DESC
+  unitName_ASC
+  unitName_DESC
+  unitType_ASC
+  unitType_DESC
+  addressKey_ASC
+  addressKey_DESC
+  isUniquePerObject_ASC
+  isUniquePerObject_DESC
+  uniqKey_ASC
+  uniqKey_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input CustomValueUpdateInput {
+  customField: CustomFieldRelateToOneInput
+  data: JSON
+  objectId: String
+  filterDataString: String
+  sourceType: CustomValueSourceTypeType
+  sourceId: String
+  organization: OrganizationRelateToOneInput
+  unitName: String
+  unitType: CustomValueUnitTypeType
+  addressKey: String
+  isUniquePerObject: Boolean
+  uniqKey: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input CustomValuesUpdateInput {
+  id: ID!
+  data: CustomValueUpdateInput
+}
+
+input CustomValueCreateInput {
+  customField: CustomFieldRelateToOneInput
+  data: JSON
+  objectId: String
+  filterDataString: String
+  sourceType: CustomValueSourceTypeType
+  sourceId: String
+  organization: OrganizationRelateToOneInput
+  unitName: String
+  unitType: CustomValueUnitTypeType
+  addressKey: String
+  isUniquePerObject: Boolean
+  uniqKey: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input CustomValuesCreateInput {
+  data: CustomValueCreateInput
 }
 
 enum MobileFeatureConfigHistoryRecordHistoryActionType {
@@ -81027,6 +83182,7 @@ type ExecutionAIFlowTaskHistoryRecord {
   _label_: String
   flowType: String
   context: JSON
+  cleanContext: JSON
   status: String
   result: JSON
   errorMessage: String
@@ -81074,6 +83230,10 @@ input ExecutionAIFlowTaskHistoryRecordWhereInput {
   context_not: JSON
   context_in: [JSON]
   context_not_in: [JSON]
+  cleanContext: JSON
+  cleanContext_not: JSON
+  cleanContext_in: [JSON]
+  cleanContext_not_in: [JSON]
   status: String
   status_not: String
   status_contains: String
@@ -81256,6 +83416,7 @@ enum SortExecutionAIFlowTaskHistoryRecordsBy {
 input ExecutionAIFlowTaskHistoryRecordUpdateInput {
   flowType: String
   context: JSON
+  cleanContext: JSON
   status: String
   result: JSON
   errorMessage: String
@@ -81285,6 +83446,7 @@ input ExecutionAIFlowTaskHistoryRecordsUpdateInput {
 input ExecutionAIFlowTaskHistoryRecordCreateInput {
   flowType: String
   context: JSON
+  cleanContext: JSON
   status: String
   result: JSON
   errorMessage: String
@@ -81338,12 +83500,16 @@ type ExecutionAIFlowTask {
   """
    The type of AI flow to be called.
                
-  The value can be one of the list ("ticket_rewrite_comment_flow"), or some allowed custom value. 
+  The value can be one of the list ("ticket_rewrite_comment_flow"."rewrite_text_flow"."news_rewrite_text_flow"), or some allowed custom value. 
   """
   flowType: String
 
   """ Context for executing a request to AI. """
   context: JSON
+
+  """ Cleaned context for executing a request to AI. This field is managed by the system 
+  """
+  cleanContext: JSON
 
   """ Status of the job. Used at client side progress information component. 
   """
@@ -81414,6 +83580,10 @@ input ExecutionAIFlowTaskWhereInput {
   context_not: JSON
   context_in: [JSON]
   context_not_in: [JSON]
+  cleanContext: JSON
+  cleanContext_not: JSON
+  cleanContext_in: [JSON]
+  cleanContext_not_in: [JSON]
   status: ExecutionAIFlowTaskStatusType
   status_not: ExecutionAIFlowTaskStatusType
   status_in: [ExecutionAIFlowTaskStatusType]
@@ -81548,6 +83718,7 @@ enum SortExecutionAIFlowTasksBy {
 input ExecutionAIFlowTaskUpdateInput {
   flowType: String
   context: JSON
+  cleanContext: JSON
   status: ExecutionAIFlowTaskStatusType
   result: JSON
   errorMessage: String
@@ -81574,6 +83745,7 @@ input ExecutionAIFlowTasksUpdateInput {
 input ExecutionAIFlowTaskCreateInput {
   flowType: String
   context: JSON
+  cleanContext: JSON
   status: ExecutionAIFlowTaskStatusType
   result: JSON
   errorMessage: String
@@ -83100,6 +85272,7 @@ input GenerateSudoTokenUserIdentifierInput {
 input GenerateSudoTokenAuthFactorsInput {
   confirmPhoneToken: String
   password: String
+  confirmEmailToken: String
 }
 
 input GenerateSudoTokenInput {
@@ -83119,6 +85292,7 @@ input AuthenticateOrRegisterUserWithTokenUserDataInput {
   name: String
   email: String
   password: String
+  hasMarketingConsent: Boolean
 }
 
 input AuthenticateOrRegisterUserWithTokenInput {
@@ -83133,6 +85307,77 @@ input AuthenticateOrRegisterUserWithTokenInput {
 type AuthenticateOrRegisterUserWithTokenOutput {
   item: User
   token: String!
+}
+
+input GetEmailByConfirmEmailActionTokenInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  token: String!
+  captcha: String!
+}
+
+type GetEmailByConfirmEmailActionTokenOutput {
+  email: String!
+  isEmailVerified: Boolean!
+}
+
+input StartConfirmEmailActionInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  captcha: String!
+  email: String!
+}
+
+type StartConfirmEmailActionOutput {
+  token: String!
+}
+
+input ResendConfirmEmailActionInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  captcha: String!
+  token: String!
+}
+
+type ResendConfirmEmailActionOutput {
+  status: String!
+}
+
+input CompleteConfirmEmailActionInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  captcha: String!
+  token: String!
+  secretCode: String!
+}
+
+type CompleteConfirmEmailActionOutput {
+  status: String!
+}
+
+input AuthenticateUserWithEmailAndPasswordInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  captcha: String
+  userType: UserTypeType!
+  email: String!
+  password: String!
+}
+
+type AuthenticateUserWithEmailAndPasswordOutput {
+  item: User
+  token: String!
+}
+
+input ChangeUserPasswordInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  token: String!
+  newPassword: String!
+}
+
+type ChangeUserPasswordOutput {
+  status: String!
 }
 
 enum OrganizationType {
@@ -83257,36 +85502,20 @@ input ResidentBillingReceiptWhereInput {
   id_not_in: [ID]
   period: String
   period_not: String
-  period_contains: String
-  period_not_contains: String
-  period_starts_with: String
-  period_not_starts_with: String
-  period_ends_with: String
-  period_not_ends_with: String
-  period_i: String
-  period_not_i: String
-  period_contains_i: String
-  period_not_contains_i: String
-  period_starts_with_i: String
-  period_not_starts_with_i: String
-  period_ends_with_i: String
-  period_not_ends_with_i: String
+  period_lt: String
+  period_gt: String
+  period_lte: String
+  period_gte: String
+  period_in: [String]
+  period_not_in: [String]
   toPay: String
   toPay_not: String
-  toPay_contains: String
-  toPay_not_contains: String
-  toPay_starts_with: String
-  toPay_not_starts_with: String
-  toPay_ends_with: String
-  toPay_not_ends_with: String
-  toPay_i: String
-  toPay_not_i: String
-  toPay_contains_i: String
-  toPay_not_contains_i: String
-  toPay_starts_with_i: String
-  toPay_not_starts_with_i: String
-  toPay_ends_with_i: String
-  toPay_not_ends_with_i: String
+  toPay_lt: String
+  toPay_gt: String
+  toPay_lte: String
+  toPay_gte: String
+  toPay_in: [String]
+  toPay_not_in: [String]
   printableNumber: String
   printableNumber_not: String
   printableNumber_contains: String
@@ -83632,6 +85861,7 @@ enum MessageType {
   DIRTY_INVITE_NEW_EMPLOYEE_SMS
   DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
   SMS_VERIFY
+  EMAIL_VERIFY
   DEVELOPER_IMPORTANT_NOTE_TYPE
   CUSTOMER_IMPORTANT_NOTE_TYPE
   MESSAGE_FORWARDED_TO_SUPPORT
@@ -84920,6 +87150,35 @@ type Query {
 
   """ Retrieve the meta-data for the UserSudoToken list. """
   _UserSudoTokensMeta: _ListMeta
+
+  """ Search for all ConfirmEmailActionHistoryRecord items which match the where clause. 
+  """
+  allConfirmEmailActionHistoryRecords(where: ConfirmEmailActionHistoryRecordWhereInput, search: String, sortBy: [SortConfirmEmailActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ConfirmEmailActionHistoryRecord]
+
+  """ Search for the ConfirmEmailActionHistoryRecord item with the matching ID. 
+  """
+  ConfirmEmailActionHistoryRecord(where: ConfirmEmailActionHistoryRecordWhereUniqueInput!): ConfirmEmailActionHistoryRecord
+
+  """ Perform a meta-query on all ConfirmEmailActionHistoryRecord items which match the where clause. 
+  """
+  _allConfirmEmailActionHistoryRecordsMeta(where: ConfirmEmailActionHistoryRecordWhereInput, search: String, sortBy: [SortConfirmEmailActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the ConfirmEmailActionHistoryRecord list. """
+  _ConfirmEmailActionHistoryRecordsMeta: _ListMeta
+
+  """ Search for all ConfirmEmailAction items which match the where clause. 
+  """
+  allConfirmEmailActions(where: ConfirmEmailActionWhereInput, search: String, sortBy: [SortConfirmEmailActionsBy!], orderBy: String, first: Int, skip: Int): [ConfirmEmailAction]
+
+  """ Search for the ConfirmEmailAction item with the matching ID. """
+  ConfirmEmailAction(where: ConfirmEmailActionWhereUniqueInput!): ConfirmEmailAction
+
+  """ Perform a meta-query on all ConfirmEmailAction items which match the where clause. 
+  """
+  _allConfirmEmailActionsMeta(where: ConfirmEmailActionWhereInput, search: String, sortBy: [SortConfirmEmailActionsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the ConfirmEmailAction list. """
+  _ConfirmEmailActionsMeta: _ListMeta
 
   """ Search for all OrganizationHistoryRecord items which match the where clause. 
   """
@@ -88300,6 +90559,60 @@ type Query {
   """ Retrieve the meta-data for the B2BAccessToken list. """
   _B2BAccessTokensMeta: _ListMeta
 
+  """ Search for all CustomFieldHistoryRecord items which match the where clause. 
+  """
+  allCustomFieldHistoryRecords(where: CustomFieldHistoryRecordWhereInput, search: String, sortBy: [SortCustomFieldHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [CustomFieldHistoryRecord]
+
+  """ Search for the CustomFieldHistoryRecord item with the matching ID. """
+  CustomFieldHistoryRecord(where: CustomFieldHistoryRecordWhereUniqueInput!): CustomFieldHistoryRecord
+
+  """ Perform a meta-query on all CustomFieldHistoryRecord items which match the where clause. 
+  """
+  _allCustomFieldHistoryRecordsMeta(where: CustomFieldHistoryRecordWhereInput, search: String, sortBy: [SortCustomFieldHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the CustomFieldHistoryRecord list. """
+  _CustomFieldHistoryRecordsMeta: _ListMeta
+
+  """ Search for all CustomField items which match the where clause. """
+  allCustomFields(where: CustomFieldWhereInput, search: String, sortBy: [SortCustomFieldsBy!], orderBy: String, first: Int, skip: Int): [CustomField]
+
+  """ Search for the CustomField item with the matching ID. """
+  CustomField(where: CustomFieldWhereUniqueInput!): CustomField
+
+  """ Perform a meta-query on all CustomField items which match the where clause. 
+  """
+  _allCustomFieldsMeta(where: CustomFieldWhereInput, search: String, sortBy: [SortCustomFieldsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the CustomField list. """
+  _CustomFieldsMeta: _ListMeta
+
+  """ Search for all CustomValueHistoryRecord items which match the where clause. 
+  """
+  allCustomValueHistoryRecords(where: CustomValueHistoryRecordWhereInput, search: String, sortBy: [SortCustomValueHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [CustomValueHistoryRecord]
+
+  """ Search for the CustomValueHistoryRecord item with the matching ID. """
+  CustomValueHistoryRecord(where: CustomValueHistoryRecordWhereUniqueInput!): CustomValueHistoryRecord
+
+  """ Perform a meta-query on all CustomValueHistoryRecord items which match the where clause. 
+  """
+  _allCustomValueHistoryRecordsMeta(where: CustomValueHistoryRecordWhereInput, search: String, sortBy: [SortCustomValueHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the CustomValueHistoryRecord list. """
+  _CustomValueHistoryRecordsMeta: _ListMeta
+
+  """ Search for all CustomValue items which match the where clause. """
+  allCustomValues(where: CustomValueWhereInput, search: String, sortBy: [SortCustomValuesBy!], orderBy: String, first: Int, skip: Int): [CustomValue]
+
+  """ Search for the CustomValue item with the matching ID. """
+  CustomValue(where: CustomValueWhereUniqueInput!): CustomValue
+
+  """ Perform a meta-query on all CustomValue items which match the where clause. 
+  """
+  _allCustomValuesMeta(where: CustomValueWhereInput, search: String, sortBy: [SortCustomValuesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the CustomValue list. """
+  _CustomValuesMeta: _ListMeta
+
   """ Search for all MobileFeatureConfigHistoryRecord items which match the where clause. 
   """
   allMobileFeatureConfigHistoryRecords(where: MobileFeatureConfigHistoryRecordWhereInput, search: String, sortBy: [SortMobileFeatureConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MobileFeatureConfigHistoryRecord]
@@ -88719,7 +91032,7 @@ type Query {
   As a result, information about the completion of some important fields (name, email, phone, password) is also returned.
   
   Token can be: 
-   - confirmPhoneToken
+   - confirmPhoneToken - confirmEmailToken
   
   **Errors**
   
@@ -88778,6 +91091,44 @@ type Query {
   }`
   """
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
+
+  """
+  Returns email information from ConfirmEmailAction, that matches provided search conditions
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  """
+  getEmailByConfirmEmailActionToken(data: GetEmailByConfirmEmailActionTokenInput!): GetEmailByConfirmEmailActionTokenOutput
 
   """
   Returns all organizations by TIN. Used to get organizations that the user can apply to join
@@ -89246,6 +91597,42 @@ type Mutation {
 
   """ Delete multiple UserSudoToken items by ID. """
   deleteUserSudoTokens(ids: [ID!]): [UserSudoToken]
+
+  """ Create a single ConfirmEmailActionHistoryRecord item. """
+  createConfirmEmailActionHistoryRecord(data: ConfirmEmailActionHistoryRecordCreateInput): ConfirmEmailActionHistoryRecord
+
+  """ Create multiple ConfirmEmailActionHistoryRecord items. """
+  createConfirmEmailActionHistoryRecords(data: [ConfirmEmailActionHistoryRecordsCreateInput]): [ConfirmEmailActionHistoryRecord]
+
+  """ Update a single ConfirmEmailActionHistoryRecord item by ID. """
+  updateConfirmEmailActionHistoryRecord(id: ID!, data: ConfirmEmailActionHistoryRecordUpdateInput): ConfirmEmailActionHistoryRecord
+
+  """ Update multiple ConfirmEmailActionHistoryRecord items by ID. """
+  updateConfirmEmailActionHistoryRecords(data: [ConfirmEmailActionHistoryRecordsUpdateInput]): [ConfirmEmailActionHistoryRecord]
+
+  """ Delete a single ConfirmEmailActionHistoryRecord item by ID. """
+  deleteConfirmEmailActionHistoryRecord(id: ID!): ConfirmEmailActionHistoryRecord
+
+  """ Delete multiple ConfirmEmailActionHistoryRecord items by ID. """
+  deleteConfirmEmailActionHistoryRecords(ids: [ID!]): [ConfirmEmailActionHistoryRecord]
+
+  """ Create a single ConfirmEmailAction item. """
+  createConfirmEmailAction(data: ConfirmEmailActionCreateInput): ConfirmEmailAction
+
+  """ Create multiple ConfirmEmailAction items. """
+  createConfirmEmailActions(data: [ConfirmEmailActionsCreateInput]): [ConfirmEmailAction]
+
+  """ Update a single ConfirmEmailAction item by ID. """
+  updateConfirmEmailAction(id: ID!, data: ConfirmEmailActionUpdateInput): ConfirmEmailAction
+
+  """ Update multiple ConfirmEmailAction items by ID. """
+  updateConfirmEmailActions(data: [ConfirmEmailActionsUpdateInput]): [ConfirmEmailAction]
+
+  """ Delete a single ConfirmEmailAction item by ID. """
+  deleteConfirmEmailAction(id: ID!): ConfirmEmailAction
+
+  """ Delete multiple ConfirmEmailAction items by ID. """
+  deleteConfirmEmailActions(ids: [ID!]): [ConfirmEmailAction]
 
   """ Create a single OrganizationHistoryRecord item. """
   createOrganizationHistoryRecord(data: OrganizationHistoryRecordCreateInput): OrganizationHistoryRecord
@@ -93550,6 +95937,78 @@ type Mutation {
   """ Delete multiple B2BAccessToken items by ID. """
   deleteB2BAccessTokens(ids: [ID!]): [B2BAccessToken]
 
+  """ Create a single CustomFieldHistoryRecord item. """
+  createCustomFieldHistoryRecord(data: CustomFieldHistoryRecordCreateInput): CustomFieldHistoryRecord
+
+  """ Create multiple CustomFieldHistoryRecord items. """
+  createCustomFieldHistoryRecords(data: [CustomFieldHistoryRecordsCreateInput]): [CustomFieldHistoryRecord]
+
+  """ Update a single CustomFieldHistoryRecord item by ID. """
+  updateCustomFieldHistoryRecord(id: ID!, data: CustomFieldHistoryRecordUpdateInput): CustomFieldHistoryRecord
+
+  """ Update multiple CustomFieldHistoryRecord items by ID. """
+  updateCustomFieldHistoryRecords(data: [CustomFieldHistoryRecordsUpdateInput]): [CustomFieldHistoryRecord]
+
+  """ Delete a single CustomFieldHistoryRecord item by ID. """
+  deleteCustomFieldHistoryRecord(id: ID!): CustomFieldHistoryRecord
+
+  """ Delete multiple CustomFieldHistoryRecord items by ID. """
+  deleteCustomFieldHistoryRecords(ids: [ID!]): [CustomFieldHistoryRecord]
+
+  """ Create a single CustomField item. """
+  createCustomField(data: CustomFieldCreateInput): CustomField
+
+  """ Create multiple CustomField items. """
+  createCustomFields(data: [CustomFieldsCreateInput]): [CustomField]
+
+  """ Update a single CustomField item by ID. """
+  updateCustomField(id: ID!, data: CustomFieldUpdateInput): CustomField
+
+  """ Update multiple CustomField items by ID. """
+  updateCustomFields(data: [CustomFieldsUpdateInput]): [CustomField]
+
+  """ Delete a single CustomField item by ID. """
+  deleteCustomField(id: ID!): CustomField
+
+  """ Delete multiple CustomField items by ID. """
+  deleteCustomFields(ids: [ID!]): [CustomField]
+
+  """ Create a single CustomValueHistoryRecord item. """
+  createCustomValueHistoryRecord(data: CustomValueHistoryRecordCreateInput): CustomValueHistoryRecord
+
+  """ Create multiple CustomValueHistoryRecord items. """
+  createCustomValueHistoryRecords(data: [CustomValueHistoryRecordsCreateInput]): [CustomValueHistoryRecord]
+
+  """ Update a single CustomValueHistoryRecord item by ID. """
+  updateCustomValueHistoryRecord(id: ID!, data: CustomValueHistoryRecordUpdateInput): CustomValueHistoryRecord
+
+  """ Update multiple CustomValueHistoryRecord items by ID. """
+  updateCustomValueHistoryRecords(data: [CustomValueHistoryRecordsUpdateInput]): [CustomValueHistoryRecord]
+
+  """ Delete a single CustomValueHistoryRecord item by ID. """
+  deleteCustomValueHistoryRecord(id: ID!): CustomValueHistoryRecord
+
+  """ Delete multiple CustomValueHistoryRecord items by ID. """
+  deleteCustomValueHistoryRecords(ids: [ID!]): [CustomValueHistoryRecord]
+
+  """ Create a single CustomValue item. """
+  createCustomValue(data: CustomValueCreateInput): CustomValue
+
+  """ Create multiple CustomValue items. """
+  createCustomValues(data: [CustomValuesCreateInput]): [CustomValue]
+
+  """ Update a single CustomValue item by ID. """
+  updateCustomValue(id: ID!, data: CustomValueUpdateInput): CustomValue
+
+  """ Update multiple CustomValue items by ID. """
+  updateCustomValues(data: [CustomValuesUpdateInput]): [CustomValue]
+
+  """ Delete a single CustomValue item by ID. """
+  deleteCustomValue(id: ID!): CustomValue
+
+  """ Delete multiple CustomValue items by ID. """
+  deleteCustomValues(ids: [ID!]): [CustomValue]
+
   """ Create a single MobileFeatureConfigHistoryRecord item. """
   createMobileFeatureConfigHistoryRecord(data: MobileFeatureConfigHistoryRecordCreateInput): MobileFeatureConfigHistoryRecord
 
@@ -94111,6 +96570,12 @@ type Mutation {
     "type": "USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE",
     "message": "UserType must be same as user.type"
   }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_EXTERNAL_IDENTITY_WRONG_IDENTITY_TYPE",
+    "message": "IdentityType has unsupported value"
+  }`
   """
   registerNewUser(data: RegisterNewUserInput!): User
 
@@ -94161,6 +96626,11 @@ type Mutation {
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
 
   """
+  Changes password this action via correct token, that should correspond to ConfirmPhoneAction.
+  Only used for staff users
+  
+  
+  
   **Errors**
   
   Following objects will be presented in `extensions` property of thrown error
@@ -94211,7 +96681,7 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "TOKEN_NOT_FOUND",
     "message": "Unable to find non-expired ConfirmPhoneAction by specified token",
-    "messageForUser": "Unable to find non-expired ConfirmPhoneAction by specified token"
+    "messageForUser": "No valid password change token found"
   }`
   
   `{
@@ -94234,7 +96704,7 @@ type Mutation {
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
-  changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput
+  changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput @deprecated(reason: "Please use `changeUserPassword` mutation")
 
   """
   Send confirmation phone SMS message and return confirmation token. You can use the token for completeConfirmPhoneAction mutation. And then use the token in other mutations to prove that the phone number is verified
@@ -94631,6 +97101,13 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
+    "type": "DIFFERENT_EMAILS",
+    "message": "The verified email and the email from the payload cannot be different",
+    "messageForUser": "You cannot specify different emails"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
     "type": "OPERATION_FAILED",
     "message": "The operation failed",
     "messageForUser": "Operation failed"
@@ -94648,6 +97125,13 @@ type Mutation {
     "type": "SHOULD_AUTHORIZE_WITH_EMAIL",
     "message": "You should log in to your account using a verified email to be able to log in by phone",
     "messageForUser": "To be able to log in with your phone number, you must log in to your account using a verified email"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "SHOULD_AUTHORIZE_WITH_PHONE",
+    "message": "You should log in to your account using a verified phone to be able to log in by email",
+    "messageForUser": "To be able to log in with your email, you must log in to your account using a verified phone number"
   }`
   
   `{
@@ -94711,6 +97195,302 @@ type Mutation {
   }`
   """
   authenticateOrRegisterUserWithToken(data: AuthenticateOrRegisterUserWithTokenInput!): AuthenticateOrRegisterUserWithTokenOutput
+
+  """
+  Send confirmation email and return confirmation token. You can use the token for completeConfirmEmailAction mutation. And then use the token in other mutations to prove that the email is verified
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_EMAIL_VALUE",
+    "message": "Wrong format of provided email",
+    "messageForUser": "Invalid E-mail format",
+    "correctExample": "example@example.com"
+  }`
+  
+  `{
+    "code": "INTERNAL_ERROR",
+    "type": "GENERATE_TOKEN_FAILED",
+    "message": "Generate token failed"
+  }`
+  """
+  startConfirmEmailAction(data: StartConfirmEmailActionInput!): StartConfirmEmailActionOutput
+
+  """
+  Resend the confirm email for existing token
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
+  """
+  resendConfirmEmailAction(data: ResendConfirmEmailActionInput!): ResendConfirmEmailActionOutput
+
+  """
+  The final step of a email confirmation. You should use the token from startConfirmEmailAction and a secret code from the confirm email message. After success call, you can use the token in other mutations to prove that you have access to the email address
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_CODE_EXPIRED",
+    "message": "Email code expired. Try to initiate email confirmation again",
+    "messageForUser": "Confirmation code expired, try to verify email again"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_CODE_MAX_RETRIES_REACHED",
+    "message": "Max retries reached for email confirmation. Try to initiate email confirmation again",
+    "messageForUser": "Max retries reached for email code confirmation. Try to initiate email confirmation again"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_CODE_VERIFICATION_FAILED",
+    "message": "Code verification mismatch",
+    "messageForUser": "Email code verification mismatch"
+  }`
+  """
+  completeConfirmEmailAction(data: CompleteConfirmEmailActionInput!): CompleteConfirmEmailActionOutput
+
+  """
+  This mutation authorizes the user by email and password
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_EMAIL_VALUE",
+    "message": "Wrong format of provided email",
+    "messageForUser": "Invalid E-mail format",
+    "correctExample": "example@example.com"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_CREDENTIALS",
+    "message": "Wrong email or password",
+    "messageForUser": "Wrong email or password"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  """
+  authenticateUserWithEmailAndPassword(data: AuthenticateUserWithEmailAndPasswordInput!): AuthenticateUserWithEmailAndPasswordOutput
+
+  """
+  Changes password this action via correct token, that should correspond to UserSudoToken
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_PASSWORD_FORMAT",
+    "message": "Password must be in string format",
+    "messageForUser": "Password must be in string format"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_PASSWORD_LENGTH",
+    "message": "Password length must be between 8 and 128 characters",
+    "messageForUser": "Password length must be between 8 and 128 characters"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_EMAIL",
+    "message": "Password must not contain email",
+    "messageForUser": "Password must not contain email"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_PHONE",
+    "message": "Password must not contain phone",
+    "messageForUser": "Password must not contain phone"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_IS_FREQUENTLY_USED",
+    "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
+    "messageForUser": "This password is weak or too obvious please choose something more secure"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "message": "Password must contain at least 4 different characters",
+    "messageForUser": "Password must contain at least 4 different characters"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_TOKEN",
+    "message": "Invalid token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNSUPPORTED_TOKEN",
+    "message": "Unsupported token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOKEN_NOT_FOUND",
+    "message": "Unable to find non-expired SudoUserToken by specified token",
+    "messageForUser": "No valid password change token found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_NOT_FOUND",
+    "message": "User not found",
+    "messageForUser": "User not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "OPERATION_FAILED",
+    "message": "Failed to complete the operation",
+    "messageForUser": "Operation failed"
+  }`
+  """
+  changeUserPassword(data: ChangeUserPasswordInput!): ChangeUserPasswordOutput
 
   """
   Registers new Organization for current user
@@ -95336,6 +98116,16 @@ type Mutation {
   		},
   		"appId": {
   			"required": false
+  		}
+  	},
+  	"EMAIL_VERIFY": {
+  		"dv": {
+  			"defaultValue": "",
+  			"required": true
+  		},
+  		"secretCode": {
+  			"defaultValue": "",
+  			"required": true
   		}
   	},
   	"DEVELOPER_IMPORTANT_NOTE_TYPE": {

@@ -1,4 +1,3 @@
-import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons'
 import { BillingReceipt } from '@app/condo/schema'
 import { css, Global } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -6,11 +5,11 @@ import { Typography, Space, Table, Row, Col } from 'antd'
 import get from 'lodash/get'
 import React, { useMemo, useState } from 'react'
 
+import { PlusCircle, MinusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal } from '@open-condo/ui'
 
 import { useServicesTableColumns } from '@condo/domains/billing/hooks/useServicesTableColumns'
-import { BillingReceiptFile } from '@condo/domains/billing/utils/clientSchema'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
@@ -180,12 +179,12 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                                     if (record.name !== ExpandMessage) return
                                     if (expanded) return (
                                         <ExpandIconWrapper>
-                                            <MinusSquareOutlined onClick={(e) => onExpand(record, e)}/>
+                                            <MinusCircle onClick={(e) => onExpand(record, e)}/>
                                         </ExpandIconWrapper>
                                     )
                                     return (
                                         <ExpandIconWrapper>
-                                            <PlusSquareOutlined onClick={(e) => onExpand(record, e)}/>
+                                            <PlusCircle onClick={(e) => onExpand(record, e)}/>
                                         </ExpandIconWrapper>
                                     )
                                 },

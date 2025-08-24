@@ -77,6 +77,7 @@ jobs:
           WERF_SET_CI_NEWS_TELEGRAM_WEB_URL: "global.ci_news_telegram_web_url=news-telegram.doma.ai"
           WERF_SET_CI_NEWS_TELEGRAM_API_URL: "global.ci_news_telegram_api_url=news-telegram-api.doma.ai"
           WERF_SET_CI_BILLING_CONNECTOR_URL: "global.ci_billing_connector_url=billing-connector.doma.ai"
+          WERF_SET_CI_POS_INTEGRATION_URL: "global.ci_pos_integration_url=pos-integration.doma.ai"
           WERF_SET_CI_NAMESPACE: "global.ci_namespace=production"
           WERF_NAMESPACE: "production"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"

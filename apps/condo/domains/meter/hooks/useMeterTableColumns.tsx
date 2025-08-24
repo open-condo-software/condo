@@ -31,7 +31,7 @@ const inputNumberCSS = css`
 
   font-size: ${fontSizes.label};
   
-  width: 100%;
+  width: 100% !important;
   padding-right: 20%;
 `
 

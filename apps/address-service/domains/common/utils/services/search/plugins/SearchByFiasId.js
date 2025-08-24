@@ -1,11 +1,11 @@
 const get = require('lodash/get')
+const { validate: isUUID } = require('uuid')
 
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
-const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { DADATA_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
-const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 
 const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 
@@ -23,7 +23,10 @@ class SearchByFiasId extends AbstractSearchPlugin {
         const [type, fiasId] = s.split(SEPARATOR, 2)
         const provider = getSearchProvider({ req: params.req })
 
-        return type === 'fiasId' && !!fiasId && !!provider && provider.getProviderName() === DADATA_PROVIDER
+        return !!type && type === 'fiasId'
+            && !!fiasId && isUUID(fiasId)
+            && !!provider
+            && [DADATA_PROVIDER, PULLENTI_PROVIDER].includes(provider?.getProviderName())
     }
 
     /**
@@ -33,16 +36,18 @@ class SearchByFiasId extends AbstractSearchPlugin {
      */
     async search (s) {
         const [, fiasId] = s.split(SEPARATOR, 2)
-        const suggestionProvider = new DadataSuggestionProvider({ req: this.req })
+        const searchProvider = getSearchProvider({ req: this.req })
         const godContext = this.keystoneContext.sudo()
         const dvSender = this.getDvAndSender(this.constructor.name)
 
-        const denormalizedResult = await suggestionProvider.getAddressByFiasId(fiasId)
-        const [searchResult] = suggestionProvider.normalize([denormalizedResult])
+        const denormalizedResult = await searchProvider.getAddressByFiasId(fiasId)
+        const searchResults = searchProvider ? searchProvider.normalize([denormalizedResult]) : []
 
-        if (!searchResult) {
+        if (searchResults.length === 0) {
             return null
         }
+
+        const searchResult = searchResults[0]
 
         if (get(searchResult, ['data', 'house_fias_id']) !== fiasId) {
             // For now, we want only houses
@@ -56,8 +61,8 @@ class SearchByFiasId extends AbstractSearchPlugin {
             key: addressKey,
             meta: {
                 provider: {
-                    name: suggestionProvider.getProviderName(),
-                    rawData: denormalizedResult,
+                    name: searchProvider.getProviderName(),
+                    rawData: denormalizedResult || null,
                 },
                 value: searchResult.value,
                 unrestricted_value: searchResult.unrestricted_value,

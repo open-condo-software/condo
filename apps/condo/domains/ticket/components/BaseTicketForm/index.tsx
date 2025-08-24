@@ -39,7 +39,12 @@ import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/cont
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
-import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
+import {
+    FormWithAction,
+    IFormWithActionChildren,
+    OnCompletedMsgType,
+} from '@condo/domains/common/components/containers/FormList'
+import { FadeCol } from '@condo/domains/common/components/FadeCol/FadeCol'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -110,6 +115,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
         name: get(initialValues, 'clientName'),
         phone: get(initialValues, 'clientPhone'),
     }), [contactId, initialValues])
+    const isResidentTicket = useMemo(() => get(initialValues, 'isResidentTicket'), [initialValues])
 
     const contactEditorComponentFields = useMemo(() => ({
         id: 'contact',
@@ -130,13 +136,14 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                 property={selectedPropertyId}
                 unitName={unitName}
                 unitType={unitType}
+                initialIsResident={isResidentTicket}
                 hasNotResidentTab={hasNotResidentTab}
                 residentTitle={residentTitle}
                 notResidentTitle={notResidentTitle}
                 disabled={disabled}
             />
         )
-    }, [ContactsEditorComponent, contactEditorComponentFields, disabled, form, hasNotResidentTab, notResidentTitle, residentTitle, selectedPropertyId, value])
+    }, [ContactsEditorComponent, isResidentTicket, contactEditorComponentFields, disabled, form, hasNotResidentTab, notResidentTitle, residentTitle, selectedPropertyId, value])
 
     return (
         <Col span={24}>
@@ -257,7 +264,7 @@ const TicketFormInvoicesEmptyContent = ({
         }
 
         return (
-            <Col span={24} md={18}>
+            <FadeCol span={24}>
                 <Alert
                     type='warning'
                     showIcon
@@ -273,7 +280,7 @@ const TicketFormInvoicesEmptyContent = ({
                         </Space>
                     }
                 />
-            </Col>
+            </FadeCol>
         )
     }
 
@@ -413,9 +420,6 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
     const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, MAX_DETAILS_LENGTH)
     const handleInputBlur = useCallback(e => predictTicketClassifier(e.target.value), [predictTicketClassifier])
 
-    const classifierColSpan = !breakpoints.TABLET_LARGE ? 24 : 18
-    const deadlineColSpan = !breakpoints.TABLET_LARGE ? 24 : 18
-
     const createdAt = get(initialValues, 'createdAt', null)
 
     const handleChangeType = useCallback(() => {
@@ -487,7 +491,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                             <Col span={24}>
                                                 <Typography.Title level={3}>{ClassifierLabel}</Typography.Title>
                                             </Col>
-                                            <Col span={classifierColSpan}>
+                                            <Col span={24}>
                                                 <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
                                             </Col>
                                         </Row>
@@ -587,7 +591,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                     </>
                                 )
                             }
-                            <Col span={deadlineColSpan}>
+                            <Col span={24}>
                                 <Row gutter={SMALL_VERTICAL_GUTTER}>
                                     <Col span={24}>
                                         <Typography.Title level={3}>{TicketDeadlineLabel}</Typography.Title>
@@ -602,7 +606,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                             </Col>
                             {
                                 initialValues.statusType === TicketStatusTypeType.Deferred &&
-                                <Col span={deadlineColSpan}>
+                                <Col span={24}>
                                     <Row gutter={SMALL_VERTICAL_GUTTER}>
                                         <Col span={24}>
                                             <Typography.Title level={3}>{TicketDeferredDeadlineLabel}</Typography.Title>
@@ -688,6 +692,7 @@ export interface ITicketFormProps {
     OnCompletedMsg?: OnCompletedMsgType<Ticket>
     autoAssign?: boolean
     isExisted?: boolean
+    children: React.ReactNode | IFormWithActionChildren
 }
 
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {

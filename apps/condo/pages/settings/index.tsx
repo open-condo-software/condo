@@ -13,7 +13,7 @@ import { PageHeader, PageWrapper } from '@condo/domains/common/components/contai
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
-import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
+import { TabsPageContent } from '@condo/domains/common/components/TabsPageContent'
 import { SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
@@ -144,7 +144,7 @@ const SettingsPage: PageComponentType = () => {
                 <OrganizationRequired>
                     <PageHeader title={titleContent}/>
                     <TablePageContent>
-                        <SettingsPageContent settingsTabs={settingsTabs} availableTabs={availableTabs}/>
+                        <TabsPageContent tabItems={settingsTabs} availableTabs={availableTabs} />
                     </TablePageContent>
                 </OrganizationRequired>
             </PageWrapper>

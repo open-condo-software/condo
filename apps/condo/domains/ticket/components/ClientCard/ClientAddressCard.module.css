@@ -1,0 +1,39 @@
+.address-tab-wrapper > div {
+  height: 100%;
+  padding: var(--condo-global-spacing-20);
+  background-color: white;
+  border-radius: var(--condo-global-spacing-12);
+}
+
+.address-tab-content > div {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--condo-global-spacing-12);
+}
+
+.address-tab-wrapper {
+  height: 160px;
+  padding: 1px;
+  border: 1px solid var(--condo-global-color-gray-5);
+  border-radius: var(--condo-global-spacing-12);
+  transition: all var(--condo-global-transition-duration-default);
+}
+
+.address-tab-wrapper[data-active="true"] {
+  background: var(--condo-global-color-brand-gradient-7);
+  border: none;
+  box-shadow: var(--condo-global-box-shadow-default);
+}
+
+.address-tab-wrapper:hover {
+  box-shadow: var(--condo-global-box-shadow-default);
+  cursor: pointer;
+}
+
+.address-search-tab-wrapper {
+  justify-content: center;
+}
+
+.unit-rows {
+  gap: var(--condo-global-spacing-4);
+}

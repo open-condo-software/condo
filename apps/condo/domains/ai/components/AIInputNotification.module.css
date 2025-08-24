@@ -1,0 +1,43 @@
+.notification {
+  width: 100%;
+  background-color: white;
+}
+
+.notification > div {
+  width: 100%;
+}
+
+.wrapper {
+  display: inline-block;
+  width: 100%;
+  height: fit-content;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.status {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.smooth-blinking-text {
+  animation: smooth-blink 2s ease-in-out infinite;
+}
+
+@keyframes smooth-blink {
+  0%,
+  100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}

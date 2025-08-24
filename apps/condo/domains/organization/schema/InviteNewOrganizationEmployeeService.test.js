@@ -36,6 +36,7 @@ const {
     acceptOrRejectOrganizationEmployeeRequestByTestClient,
 } = require('@condo/domains/organization/utils/testSchema')
 const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
+const { getIdentificationUserRequiredFields } = require('@condo/domains/user/utils/serverSchema/userHelpers')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     createTestUser,
@@ -136,7 +137,9 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
             beforeAll(() => {
                 try {
-                    const raw = conf['INVITE_REQUIRED_FIELDS']
+                    const IDENTIFICATION_USER_REQUIRED_FIELDS = getIdentificationUserRequiredFields()
+                    const INVITE_REQUIRED_FIELDS = conf['INVITE_REQUIRED_FIELDS']
+                    const raw = INVITE_REQUIRED_FIELDS !== undefined ? INVITE_REQUIRED_FIELDS : IDENTIFICATION_USER_REQUIRED_FIELDS.staff
                     if (!raw) {
                         return scenario = CASES.phone
                     }

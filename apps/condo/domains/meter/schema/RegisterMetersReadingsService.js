@@ -176,6 +176,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     const dateISO = tryToISO(reading.date)
+                    const startOfDayISO = dateISO ? dayjs(dateISO).startOf('day').toISOString() : undefined
                     const property = properties.find((p) => p.addressKey === addressKey)
 
                     if (!property) {
@@ -184,14 +185,13 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     let meterId
-                    const foundMeters = meters.filter(meter => {
-                        return meter.property === property.id &&
-                            meter.unitType === unitType &&
-                            meter.unitName === unitName &&
-                            meter.accountNumber === accountNumber &&
-                            meter.number === meterNumber &&
-                            meter.resource === reading.meterResource.id
-                    })
+                    const foundMeters = meters.filter((meter) =>
+                        meter.property === property.id
+                        && meter.unitType === unitType
+                        && meter.unitName === unitName
+                        && meter.number === meterNumber
+                        && meter.resource === reading.meterResource.id
+                    )
 
                     if (foundMeters.length > 1) {
                         resultRows.push(new GQLError({
@@ -247,7 +247,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     try {
-                        const key = `${meterId}-${dateISO}`
+                        // NOTE: we look for duplicates with the same date, disregarding the time of day
+                        const key = `${meterId}-${startOfDayISO}`
                         const duplicateReading = meterReadingByDate[key]
 
                         if (!duplicateReading) {

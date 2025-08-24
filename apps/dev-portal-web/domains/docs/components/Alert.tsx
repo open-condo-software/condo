@@ -7,6 +7,6 @@ type AlertProps = UIAlertProps & {
     children: React.ReactNode
 }
 
-export const Alert: React.FC<AlertProps> = ({ showIcon = true, description, children, ...restProps }) => {
+export const Alert = ({ showIcon = true, description, children, ...restProps }: AlertProps): React.ReactElement => {
     return <UIAlert {...restProps} showIcon={showIcon} description={description || children}/>
 }

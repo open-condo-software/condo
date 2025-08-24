@@ -48,7 +48,7 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
     const previewHasPush = useMemo(() =>
         (newsSharingConfig?.pushNotificationSettings === NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS.ENABLED) ||
             (newsSharingConfig?.pushNotificationSettings === NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS.ONLY_EMERGENCY && newsItemData.type === NEWS_TYPE_EMERGENCY),
-    [newsSharingConfig, newsItemData, NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS])
+    [newsSharingConfig, newsItemData])
 
     const appName = newsSharingConfig?.name
     const appIcon = newsSharingConfig?.icon?.publicUrl
@@ -58,7 +58,7 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
         <>
             {isCustomPreview ? (
                 <Col span={formInfoColSpan}>
-                    {(!!sharingAppFormValues?.preview?.renderedTitle || !!sharingAppFormValues?.preview?.renderedBody) && (
+                    {(!!sharingAppFormValues?.preview?.renderedTitle || !!sharingAppFormValues?.preview?.renderedBody || !!selectedBody || !!selectedTitle) && (
                         <MemoizedSharingNewsPreview
                             hasPush={previewHasPush}
                             ctxId={sharingAppId}
@@ -66,8 +66,8 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
                             appIcon={appIcon}
                             iFrameUrl={appPreviewUrl}
                             iFrameRef={iFramePreviewRef}
-                            title = {sharingAppFormValues?.preview?.renderedTitle}
-                            body = {sharingAppFormValues?.preview?.renderedBody}
+                            title = {sharingAppFormValues?.preview?.renderedTitle || selectedTitle}
+                            body = {sharingAppFormValues?.preview?.renderedBody || selectedBody}
                             newsType={newsItemData.type}
                             validBefore={newsItemData.validBefore}
                         />

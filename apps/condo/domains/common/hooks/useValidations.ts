@@ -5,6 +5,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { SPECIAL_CHAR_REGEXP, MULTIPLE_EMAILS_REGEX } from '@condo/domains/common/constants/regexps'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { isValidTin } from '@condo/domains/organization/utils/tin.utils'
+import { normalizeUserIdentifier } from '@condo/domains/user/utils/helpers'
 
 import type { FormRule } from 'antd'
 
@@ -14,6 +15,7 @@ type ValidatorTypes = {
     requiredValidator: FormRule
     phoneValidator: FormRule
     emailValidator: FormRule
+    phoneOrEmailValidator: FormRule
     trimValidator: FormRule
     specCharValidator: FormRule
     minLengthValidator: (length: number) => FormRule
@@ -40,6 +42,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const ThisFieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
     const MobilePhoneIsNotValidMessage = intl.formatMessage({ id: 'global.input.error.wrongMobilePhone' })
     const PhoneIsNotValidMessage = intl.formatMessage({ id: 'global.input.error.wrongPhone' })
+    const PhoneOrEmailIsNotValidMessage = intl.formatMessage({ id: 'global.input.error.wrongPhoneOrEmail' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const FieldIsTooShortMessage = intl.formatMessage({ id: 'ValueIsTooShort' })
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
@@ -62,6 +65,15 @@ export const useValidations: UseValidations = (settings = {}) => {
             return Promise.resolve()
         },
     }), [MobilePhoneIsNotValidMessage, PhoneIsNotValidMessage, allowLandLine])
+
+    const phoneOrEmailValidator: FormRule = useMemo(() => ({
+        validator: (_, value) => {
+            if (!value) return Promise.resolve()
+            const phoneOrEmail = normalizeUserIdentifier(value)
+            if (!phoneOrEmail.normalizedValue) return Promise.reject(PhoneOrEmailIsNotValidMessage)
+            return Promise.resolve()
+        },
+    }), [PhoneOrEmailIsNotValidMessage, allowLandLine])
 
     const emailValidator: FormRule = useMemo(() => ({
         type: 'email',
@@ -173,6 +185,7 @@ export const useValidations: UseValidations = (settings = {}) => {
         requiredValidator,
         phoneValidator,
         emailValidator,
+        phoneOrEmailValidator,
         trimValidator,
         specCharValidator,
         lessThanValidator,
@@ -182,5 +195,5 @@ export const useValidations: UseValidations = (settings = {}) => {
         numberValidator,
         tinValidator,
         multipleEmailsValidator,
-    }), [emailValidator, greaterThanValidator, lessThanValidator, maxLengthValidator, minLengthValidator, multipleEmailsValidator, numberValidator, phoneValidator, requiredValidator, specCharValidator, tinValidator, trimValidator])
+    }), [phoneOrEmailValidator, emailValidator, greaterThanValidator, lessThanValidator, maxLengthValidator, minLengthValidator, multipleEmailsValidator, numberValidator, phoneValidator, requiredValidator, specCharValidator, tinValidator, trimValidator])
 }
