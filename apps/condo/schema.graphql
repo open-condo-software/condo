@@ -85217,6 +85217,8 @@ type FileRecordHistoryRecord {
   _label_: String
   fileMeta: JSON
   user: String
+  sourceId: String
+  sourceApp: String
   id: ID!
   v: Int
   createdAt: String
@@ -85243,6 +85245,28 @@ input FileRecordHistoryRecordWhereInput {
   user_not: String
   user_in: [String]
   user_not_in: [String]
+  sourceId: String
+  sourceId_not: String
+  sourceId_in: [String]
+  sourceId_not_in: [String]
+  sourceApp: String
+  sourceApp_not: String
+  sourceApp_contains: String
+  sourceApp_not_contains: String
+  sourceApp_starts_with: String
+  sourceApp_not_starts_with: String
+  sourceApp_ends_with: String
+  sourceApp_not_ends_with: String
+  sourceApp_i: String
+  sourceApp_not_i: String
+  sourceApp_contains_i: String
+  sourceApp_not_contains_i: String
+  sourceApp_starts_with_i: String
+  sourceApp_not_starts_with_i: String
+  sourceApp_ends_with_i: String
+  sourceApp_not_ends_with_i: String
+  sourceApp_in: [String]
+  sourceApp_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -85326,6 +85350,8 @@ input FileRecordHistoryRecordWhereUniqueInput {
 }
 
 enum SortFileRecordHistoryRecordsBy {
+  sourceApp_ASC
+  sourceApp_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -85347,6 +85373,8 @@ enum SortFileRecordHistoryRecordsBy {
 input FileRecordHistoryRecordUpdateInput {
   fileMeta: JSON
   user: String
+  sourceId: String
+  sourceApp: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -85369,6 +85397,8 @@ input FileRecordHistoryRecordsUpdateInput {
 input FileRecordHistoryRecordCreateInput {
   fileMeta: JSON
   user: String
+  sourceId: String
+  sourceApp: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -85385,6 +85415,13 @@ input FileRecordHistoryRecordCreateInput {
 
 input FileRecordHistoryRecordsCreateInput {
   data: FileRecordHistoryRecordCreateInput
+}
+
+input FileRecordRelateToOneInput {
+  create: FileRecordCreateInput
+  connect: FileRecordWhereUniqueInput
+  disconnect: FileRecordWhereUniqueInput
+  disconnectAll: Boolean
 }
 
 """ Stores uploaded file meta data and owner """
@@ -85404,6 +85441,12 @@ type FileRecord {
 
   """ User who uploaded the file """
   user: User
+
+  """ Link to original FileRecord which was shared """
+  sourceId: FileRecord
+
+  """ Applicaiton id - should be used for final routing """
+  sourceApp: String
   id: ID!
   v: Int
   createdAt: String
@@ -85436,6 +85479,26 @@ input FileRecordWhereInput {
   fileMeta_not_in: [JSON]
   user: UserWhereInput
   user_is_null: Boolean
+  sourceId: FileRecordWhereInput
+  sourceId_is_null: Boolean
+  sourceApp: String
+  sourceApp_not: String
+  sourceApp_contains: String
+  sourceApp_not_contains: String
+  sourceApp_starts_with: String
+  sourceApp_not_starts_with: String
+  sourceApp_ends_with: String
+  sourceApp_not_ends_with: String
+  sourceApp_i: String
+  sourceApp_not_i: String
+  sourceApp_contains_i: String
+  sourceApp_not_contains_i: String
+  sourceApp_starts_with_i: String
+  sourceApp_not_starts_with_i: String
+  sourceApp_ends_with_i: String
+  sourceApp_not_ends_with_i: String
+  sourceApp_in: [String]
+  sourceApp_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -85501,6 +85564,10 @@ input FileRecordWhereUniqueInput {
 enum SortFileRecordsBy {
   user_ASC
   user_DESC
+  sourceId_ASC
+  sourceId_DESC
+  sourceApp_ASC
+  sourceApp_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -85522,6 +85589,8 @@ enum SortFileRecordsBy {
 input FileRecordUpdateInput {
   fileMeta: JSON
   user: UserRelateToOneInput
+  sourceId: FileRecordRelateToOneInput
+  sourceApp: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -85541,6 +85610,8 @@ input FileRecordsUpdateInput {
 input FileRecordCreateInput {
   fileMeta: JSON
   user: UserRelateToOneInput
+  sourceId: FileRecordRelateToOneInput
+  sourceApp: String
   v: Int
   createdAt: String
   updatedAt: String

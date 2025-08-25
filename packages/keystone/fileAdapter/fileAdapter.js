@@ -41,16 +41,23 @@ class LocalFileAdapter extends BaseLocalFileAdapter {
 
     publicUrl ({ filename, ...props }, user) {
         if ('meta' in props && props['meta']['appId']) {
+            const meta = props['meta']
+
+            const appId = meta.sourceAppId || meta.appId
             let sign
             if (user !== null) {
-                sign = jwt.sign({ id: props.id, user, appId: props.meta.appId }, conf['FILE_SECRET'], { expiresIn: '1m' })
+                sign = jwt.sign(
+                    { id: props.id, user, appId },
+                    conf['FILE_SECRET'],
+                    { expiresIn: '1m' }
+                )
             }
 
             const search = sign
                 ? `?sign=${sign}`
                 : ''
 
-            return `${this.mediaPath}/${props['meta']['appId']}/${filename}${search}`
+            return `${this.mediaPath}/${appId}/${filename}${search}`
         }
 
         return super.publicUrl({ filename })

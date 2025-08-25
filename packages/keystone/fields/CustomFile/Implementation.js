@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken')
 const { omit, get } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { File } = require('@open-condo/files/schema/utils/serverSchema')
 const { GQLError } = require('@open-condo/keystone/errors')
 
 const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
@@ -11,7 +10,6 @@ class CustomFile extends FileWithUTF8Name.implementation {
     constructor () {
         super(...arguments)
         this.graphQLOutputType = 'File'
-        // this.fileServiceUrl = conf['FILE_SERVICE_URL']
         this._fileSecret = conf['FILE_SECRET']
     }
 

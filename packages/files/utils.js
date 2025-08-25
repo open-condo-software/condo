@@ -82,7 +82,7 @@ const MetaSchema = z.object({
         dv: z.literal(1),
         fingerprint: z.string().regex(FINGERPRINT_RE),
     }).strict(),
-    authedItem: z.string().uuid(),
+    authedItem: z.uuid(),
     appId: z.string().min(1),
     modelNames: z.array(z.string()).min(1),
 }).strict()
@@ -116,6 +116,18 @@ function parseAndValidateMeta (raw, req, next, onError) {
 
     return meta
 }
+
+const SharePayloadSchema = z.object({
+    dv: z.literal(1),
+    sender: z.object({
+        dv: z.literal(1),
+        fingerprint: z.string().regex(FINGERPRINT_RE),
+    }).strict(),
+    id: z.uuid(),
+    authedItem: z.uuid(),
+    appId: z.string().min(1),
+    modelNames: z.array(z.string()).min(1).optional(),
+}).strict()
 // ---------------------- handlers ----------------------
 
 function authHandler ()  {
@@ -341,6 +353,74 @@ function fileStorageHandler ({ keystone, appClients }) {
     }
 }
 
+function fileShareHandler ({ keystone, appClients }) {
+    return async function (req, res, next) {
+        const {
+            success,
+            error: validationPayload,
+            data,
+        } = SharePayloadSchema.safeParse(req.body)
+
+        if (!success) {
+            const message = validationPayload.issues[0]?.message || 'Invalid payload'
+            const error = new GQLError({ ...ERRORS.INVALID_PAYLOAD, message }, { req })
+            return next(error)
+        }
+
+        const { id, appId, authedItem, modelNames, dv, sender } = data
+
+        if (!(appId in (appClients || {}))) {
+            const error = new GQLError(ERRORS.INVALID_APP_ID, { req })
+            return next(error)
+        }
+
+        const appClient = appClients[appId]
+
+        const context = keystone.createContext({ skipAccessControl: true })
+        const fileRecord = await FileRecord
+            .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, 'id fileMeta')
+
+        if (!fileRecord) {
+            const error = new GQLError(ERRORS.FILE_NOT_FOUND, { req })
+            return next(error)
+        }
+
+        // Clean original fields, replace with new one and add marker that this file was shared
+        const sourceAppId = fileRecord.fileMeta.meta.appId
+        const sharedFileMeta = {
+            ...fileRecord.fileMeta,
+            meta: {
+                ...fileRecord.fileMeta.meta,
+                appId,
+                authedItem,
+                sourceAppId,
+                modelNames,
+            },
+        }
+
+        const sharedFile = await FileRecord.create(context, {
+            fileMeta: sharedFileMeta,
+            dv, sender,
+            user: { connect: { id: authedItem } },
+            sourceId: { connect: { id: fileRecord.id } }, // point to original FileRecord
+            sourceApp: sourceAppId, // original appId for routing
+        }, 'id fileMeta')
+
+        res.json({
+            data: {
+                file: {
+                    ...sharedFile,
+                    signature: jwt.sign(
+                        sharedFile.fileMeta,
+                        appClient.secret,
+                        { expiresIn: '5m' }
+                    ),
+                },
+            },
+        })
+    }
+}
+
 module.exports = {
     // zod entry point
     validateAndParseFileConfig,
@@ -355,6 +435,7 @@ module.exports = {
     rateLimitHandler,
     parserHandler,
     fileStorageHandler,
+    fileShareHandler,
 
     __test__: {
         MetaSchema,

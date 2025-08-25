@@ -18,7 +18,9 @@ const MISSING_META = 'MISSING_META'
 const REQUEST_DISCONNECTED = 'REQUEST_DISCONNECTED'
 const PAYLOAD_TOO_LARGE = 'PAYLOAD_TOO_LARGE'
 const INVALID_META = 'INVALID_META'
+const INVALID_PAYLOAD = 'INVALID_PAYLOAD'
 const WRONG_REQUEST_METHOD_TYPE = 'WRONG_REQUEST_METHOD_TYPE'
+const FILE_NOT_FOUND = 'FILE_NOT_FOUND'
 
 const ERRORS = {
     AUTHORIZATION_REQUIRED: {
@@ -74,6 +76,15 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_REQUEST_METHOD_TYPE,
         message: 'Wrong request method type. Only "multipart/form-data" is allowed',
+    },
+    FILE_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: FILE_NOT_FOUND,
+        message: 'File not found or you don\'t have access to it',
+    },
+    INVALID_PAYLOAD: {
+        code: BAD_USER_INPUT,
+        type: INVALID_PAYLOAD,
     },
 }
 

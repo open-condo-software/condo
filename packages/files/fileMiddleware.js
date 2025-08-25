@@ -10,6 +10,7 @@ const {
     parserHandler,
     fileStorageHandler,
     validateAndParseFileConfig,
+    fileShareHandler,
 } = require('./utils')
 
 
@@ -52,6 +53,7 @@ class FileMiddleware {
     prepareMiddleware ({ keystone }) {
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
+        app.use(express.json())
 
         const guard = new RedisGuard()
         const quota = this.quota
@@ -65,6 +67,14 @@ class FileMiddleware {
             rateLimitHandler({ keystone, quota, guard }),
             parserHandler({ processRequestOptions }),
             fileStorageHandler({ keystone, appClients }),
+        )
+
+        // share route
+        app.post(
+            this.apiPrefix + '/share',
+            authHandler(),
+            rateLimitHandler({ keystone, quota, guard }),
+            fileShareHandler({ keystone, appClients })
         )
 
         // catch gql errors, that thrown from main handler
