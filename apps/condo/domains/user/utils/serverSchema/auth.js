@@ -48,15 +48,7 @@ const GUARD_DEFAULT_WINDOW_LIMIT = 10
  * 4 Change window size and limit for user email and phone
  * { "phone": { "+7**********": { windowSizeInSec: 3600, windowLimit: 60 } }, "email": { "example@mail.com": { windowSizeInSec: 3600, windowLimit: 60 } } }
  */
-let customQuotas
-try {
-    customQuotas = JSON.parse(conf.AUTH_GUARD_CUSTOM_QUOTAS)
-} catch (e) {
-    console.error('AUTH_GUARD_CUSTOM_QUOTAS could not be parsed!')
-    console.error(e)
-    customQuotas = {}
-}
-
+const customQuotas = JSON.parse(conf.AUTH_GUARD_CUSTOM_QUOTAS || '{}')
 
 const redisGuard = new RedisGuard()
 
