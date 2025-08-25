@@ -38,7 +38,7 @@ describe('_internalSendHashedResidentPhonesService', () => {
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
         const [userRightsSet] = await createTestUserRightsSet(support, { canExecute_internalSendHashedResidentPhones: true })
-        await updateTestUser(support, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+        await updateTestUser(admin, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
 
         const [data] = await _internalSendHashedResidentPhonesByTestClient(userClient)
 
