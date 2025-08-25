@@ -30,7 +30,22 @@ async function prepareKeystoneExpressApp (entryPoint, { excludeApps } = {}) {
         get () {
             // NOTE: SRC: https://github.com/expressjs/express/blob/4.x/lib/request.js#L350
             const trustProxyFn = this.app.get('trust proxy fn')
-            return getRequestIp(this, trustProxyFn, knownProxies)
+
+            // NOTE:
+            // 1. express can modify req.url when handling routes via app.use('/some-prefix', handler),
+            // so req.url inside handler is '/path' instead of '/some-prefix/path'
+            // 2. getRequestIp util is framework-agnostic and expects generic node's Incoming Message
+            // So we need to make express request behave back like Node native request
+            const modifiedReq = new Proxy(this, {
+                get (target, p, receiver) {
+                    if (p === 'url') {
+                        return target.originalUrl || target.url
+                    }
+                    return Reflect.get(target, p, receiver)
+                },
+            })
+
+            return getRequestIp(modifiedReq, trustProxyFn, knownProxies)
         },
     })
 
