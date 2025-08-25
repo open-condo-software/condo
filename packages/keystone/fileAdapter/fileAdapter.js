@@ -141,6 +141,10 @@ class FileAdapter {
         return Adapter
     }
 
+    static type () {
+        return conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
+    }
+
     createLocalFileApapter () {
         if (!this.isConfigValid(conf, ['MEDIA_ROOT', 'MEDIA_URL', 'SERVER_URL'])) {
             return null
