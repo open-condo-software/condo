@@ -2,7 +2,7 @@ const { get } = require('lodash')
 
 const EXTRA_LOGGING = process.env.DISABLE_LOGGING !== 'true'
 
-jest.setTimeout(120000)
+jest.setTimeout(60000)
 
 if (EXTRA_LOGGING) {
     beforeEach(() => console.log(`[TEST BEGIN][${get(jasmine, ['currentTest', 'fullName'], jasmine['testPath'].split('/').pop().split('.')[0])}]`)) // eslint-disable-line
