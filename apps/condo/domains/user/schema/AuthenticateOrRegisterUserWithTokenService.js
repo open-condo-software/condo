@@ -437,6 +437,10 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                 const sessionToken = await context.startAuthedSession({
                     item: actualUser,
                     list: keystone.lists['User'],
+                    meta: {
+                        source: 'gql',
+                        provider: 'authenticateOrRegisterUserWithToken',
+                    },
                 })
 
                 return {

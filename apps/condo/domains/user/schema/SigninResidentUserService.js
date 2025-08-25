@@ -98,7 +98,14 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                 }
                 await ConfirmPhoneAction.update(context, action.id, { dv: 1, sender, completedAt: new Date().toISOString() })
                 const { keystone } = getSchemaCtx('User')
-                const sessionToken = await context.startAuthedSession({ item: user, list: keystone.lists['User'] })
+                const sessionToken = await context.startAuthedSession({
+                    item: user,
+                    list: keystone.lists['User'],
+                    meta: {
+                        source: 'gql',
+                        provider: 'signinResidentUser',
+                    },
+                })
                 return {
                     user: await getById('User', user.id),
                     token: sessionToken,
