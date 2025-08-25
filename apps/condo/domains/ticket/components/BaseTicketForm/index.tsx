@@ -632,7 +632,7 @@ export const TicketSourceSelect: React.FC = () => {
     const intl = useIntl()
     const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    
+
     const {
         data: sourcesData,
         loading,
@@ -775,6 +775,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         Model: TicketFile,
         relationField: 'ticket',
         initialFileList: files,
+        modelNames: ['TicketFile'],
     })
 
     const { ContactsEditorComponent } = useContactsEditorHook({

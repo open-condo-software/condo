@@ -169,6 +169,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         initialFileList: editableCommentFiles,
         initialCreateValues: { ticket: { connect: { id: ticketId } } },
         dependenciesForRerenderUploadComponent: [editableComment],
+        modelNames: ['TicketCommentFile'],
     })
 
     useEffect(() => {

@@ -154,7 +154,7 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
                 },
             },
         },
-        
+
         sortBy: {
             schemaDoc: 'Sorting parameters for records to export',
             type: 'Json',
