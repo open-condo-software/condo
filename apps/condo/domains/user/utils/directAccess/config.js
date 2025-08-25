@@ -77,7 +77,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
             {
                 fieldName: 'email',
                 read: true,
-                access: {
+                accessesForGeneratedField: {
                     read: true,
                     create: access ? access.userIsAdmin : false,
                     update: access ? access.userIsAdmin : false,

@@ -68,7 +68,7 @@ describe('Organization', () => {
             test('User with custom rights cannot create organization directly', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [userRightsSet] = await createTestUserRightsSet(support, { canReadOrganizations: true, canManageOrganizations: true })
-                await updateTestUser(support, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+                await updateTestUser(admin, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestOrganization(userClient)
                 })

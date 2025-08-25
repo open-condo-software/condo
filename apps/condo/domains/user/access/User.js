@@ -196,7 +196,7 @@ async function userIsAdminOrCanDirectlyManageField ({ authentication: { item: us
 }
 
 const canAccessRightsSet = {
-    read: access.userIsAdminOrIsSupport,
+    read: true,
     create: userIsAdminOrCanDirectlyManageField,
     update: userIsAdminOrCanDirectlyManageField,
 }

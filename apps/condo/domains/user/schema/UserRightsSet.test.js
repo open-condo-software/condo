@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
-const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, waitFor, expectToThrowValidationFailureError, makeLoggedInClient} = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -70,6 +70,8 @@ const {
     createTestOidcClient,
     updateTestOidcClient,
 } = require('@condo/domains/user/utils/testSchema')
+const {WRONG_TEXT_FORMAT} = require("../../common/constants/errors");
+const {createTestBillingReceipt} = require("../../billing/utils/testSchema");
 
 
 function expectDeleted (obj) {
@@ -620,7 +622,7 @@ describe('UserRightsSet', () => {
             describe('Dev-portal service user', () => {
                 let portalClient
                 beforeAll(async () => {
-                    const [portalRightSet] = await createTestUserRightsSet(support, {
+                    const [portalRightSet] = await createTestUserRightsSet(admin, {
                         canReadB2BApps: true,
                         canReadB2BAppAccessRights: true,
                         canReadB2BAppAccessRightSets: true,
@@ -833,24 +835,22 @@ describe('UserRightsSet', () => {
         })
 
         describe('Cannot create and update sensitive UserRightsSet', () => {
-            test('Support cannot create canReadUserPhoneField', async () => {
+            const createCases = [
+                ['canReadUserPhoneField', true, ''],
+                ['canReadUserEmailField', true, ''],
+                ['canManageUserRightsSetField', true, ''],
+            ]
+            test.each(createCases)('Support cannot create %p', async (name, value) => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestUserRightsSet(support, { canReadUserPhoneField: true })
+                    await createTestUserRightsSet(support, { [name]: value })
                 })
             })
 
-            test('Support cannot update canReadUserEmailField', async () => {
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestUserRightsSet(support, { canReadUserEmailField: true })
-                })
-
-            })
-
-            test('Support cannot create canManageUserRightsSetField', async () => {
+            test.each(createCases)('Support cannot update %p', async (name, value) => {
                 const [rightsSet] = await createTestUserRightsSet(support, { canManageOrganizations: false })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestUserRightsSet(support, rightsSet.id, { canManageUserRightsSetField: true })
+                    await updateTestUserRightsSet(support, rightsSet.id, { [name]: value })
                 })
             })
         })

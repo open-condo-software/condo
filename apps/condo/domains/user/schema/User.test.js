@@ -607,14 +607,13 @@ describe('User fields', () => {
             expect(updatedUser.hasMarketingConsent).toBe(true)
         })
 
-        test('can be updated by user with permissions', async () => {
+        test('can be updated by user with permission for manage User.hasMarketingConsent', async () => {
             const userWithPermissions = await makeClientWithSupportUser()
-            const [canManageUserFields] = await createTestUserRightsSet(admin, {
-                canManageUserRightsSetField: true,
+            const [canManageUserHasMarketingConsentField] = await createTestUserRightsSet(admin, {
                 canManageUserHasMarketingConsentField: true,
             })
 
-            await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canManageUserFields.id } } })
+            await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canManageUserHasMarketingConsentField.id } } })
 
             const [userForUpdate] = await createTestUser(admin)
             const [updatedUser] = await updateTestUser(userWithPermissions, userForUpdate.id, { hasMarketingConsent: true })
@@ -628,8 +627,8 @@ describe('User fields', () => {
             admin = await makeLoggedInAdminClient()
         })
 
-        test('Admin and user with rightsSet for manage User.rightSet field can add to user some rightsSet', async () => {
-            const userWithPermissions = await makeClientWithSupportUser()
+        test('Admin and user with rightsSet for manage User.rightsSet field can add to user some rightsSet', async () => {
+            const [userWithPermissions] = await makeClientWithNewRegisteredAndLoggedInUser()
             const [canManageUserRightsSetField] = await createTestUserRightsSet(admin, {
                 canManageUserRightsSetField: true,
             })
@@ -655,62 +654,60 @@ describe('User fields', () => {
 
     describe('email', () => {
         let admin
-        let support
         let UserWithEmail
         beforeAll(async () => {
             admin = await makeLoggedInAdminClient()
-            support = await makeClientWithSupportUser()
             UserWithEmail = generateGQLTestUtils(generateGqlQueries('User', '{ id email deletedAt }'))
         })
 
         test('cannot be read by support', async () => {
             const [user] = await createTestUser(admin)
+            const support = await makeClientWithSupportUser()
             await expectToThrowAccessDeniedError(async () => {
                 await UserWithEmail.getOne(support, { id: user.id })
             }, ['objs', 0, 'email'])
         })
 
-        test('can read by user with permissions', async () => {
+        test('can read by user with permission for read User.email', async () => {
             const [user, userAttrs] = await createTestUser(admin)
-            const support = await makeClientWithSupportUser()
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
             const [canReadUserEmailField] = await createTestUserRightsSet(admin, {
                 canReadUserEmailField: true,
             })
 
-            await updateTestUser(admin, support.user.id, { rightsSet: { connect: { id: canReadUserEmailField.id } } })
+            await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canReadUserEmailField.id } } })
 
-            const readUser = await UserWithEmail.getOne(support, { id: user.id } )
+            const readUser = await UserWithEmail.getOne(userWithPermissions, { id: user.id } )
             expect(readUser.email).toEqual(userAttrs.email)
         })
     })
 
     describe('phone', () => {
         let admin
-        let support
         let UserWithPhone
         beforeAll(async () => {
             admin = await makeLoggedInAdminClient()
-            support = await makeClientWithSupportUser()
             UserWithPhone = generateGQLTestUtils(generateGqlQueries('User', '{ id phone deletedAt }'))
         })
 
         test('cannot be read by support', async () => {
             const [user] = await createTestUser(admin)
+            const support = await makeClientWithSupportUser()
             await expectToThrowAccessDeniedError(async () => {
                 await UserWithPhone.getOne(support, { id: user.id })
             }, ['objs', 0, 'phone'])
         })
 
-        test('can read by user with permissions', async () => {
+        test('can read by user with permission for read User.phone', async () => {
             const [user, userAttrs] = await createTestUser(admin)
-            const support = await makeClientWithSupportUser()
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
             const [canReadUserPhoneField] = await createTestUserRightsSet(admin, {
                 canReadUserPhoneField: true,
             })
 
-            await updateTestUser(admin, support.user.id, { rightsSet: { connect: { id: canReadUserPhoneField.id } } })
+            await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canReadUserPhoneField.id } } })
 
-            const readUser = await UserWithPhone.getOne(support, { id: user.id } )
+            const readUser = await UserWithPhone.getOne(userWithPermissions, { id: user.id } )
             expect(readUser.phone).toEqual(userAttrs.phone)
         })
     })
