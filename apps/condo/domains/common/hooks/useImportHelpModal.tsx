@@ -177,7 +177,6 @@ const FileImportModal = ({ domainName, activeModal, setActiveModal }) => {
         Model: UserHelpRequestFile,
         relationField: 'userHelpRequest',
         initialFileList: [],
-        appId: 'condo',
         modelNames: ['UserHelpRequestFile'],
     })
 
