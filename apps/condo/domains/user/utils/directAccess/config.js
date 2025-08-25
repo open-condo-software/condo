@@ -1,4 +1,3 @@
-const access = typeof window === 'undefined' ? require('@open-condo/keystone/access') : null
 /**
  * @typedef {Object} DirectAccessList
  * @property {string} schemaName
@@ -74,37 +73,10 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
             { fieldName: 'isApproved', manage: true },
         ],
         User: [
-            {
-                fieldName: 'email',
-                read: true,
-                accessesForGeneratedField: {
-                    read: true,
-                    create: access ? access.userIsAdmin : false,
-                    update: access ? access.userIsAdmin : false,
-                },
-            },
-            {
-                fieldName: 'phone',
-                read: true,
-                access: {
-                    read: true,
-                    create: access ? access.userIsAdmin : false,
-                    update: access ? access.userIsAdmin : false,
-                },
-            },
-            {
-                fieldName: 'hasMarketingConsent',
-                manage: true,
-            },
-            {
-                fieldName: 'rightsSet',
-                manage: true,
-                access: {
-                    read: true,
-                    create: access ? access.userIsAdmin : false,
-                    update: access ? access.userIsAdmin : false,
-                },
-            },
+            { fieldName: 'email', read: true },
+            { fieldName: 'phone', read: true },
+            { fieldName: 'hasMarketingConsent', manage: true },
+            { fieldName: 'rightsSet', manage: true },
         ],
     },
     services: [

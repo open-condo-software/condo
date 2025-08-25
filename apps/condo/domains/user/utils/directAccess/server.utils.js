@@ -13,7 +13,6 @@ const {
 } = require('./common.utils')
 const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('./config')
 
-
 const DEFAULT_CHECKBOX_FIELD = {
     type: 'Checkbox',
     isRequired: true,
@@ -31,9 +30,10 @@ const DEFAULT_CHECKBOX_FIELD = {
 /**
  * Generates a set of Keystone fields based on provided config. Obtained fields are used to form UserRightsSet schema.
  * @param {DirectAccessConfig} config
+ * @param {Object} accessConfig
  * @return {Record<string, CheckboxField>}
  */
-function generateRightSetFields (config) {
+function generateRightSetFields (config, accessConfig = {}) {
     const fields = {}
 
     for (const listSchema of config.lists) {
@@ -65,19 +65,21 @@ function generateRightSetFields (config) {
     for (const [schemaName, schemaFields] of Object.entries(config.fields)) {
         for (const field of schemaFields) {
             if (field.read) {
-                fields[generateReadSensitiveFieldFieldName(schemaName, field.fieldName)] = {
+                const fieldName = generateReadSensitiveFieldFieldName(schemaName, field.fieldName)
+                fields[fieldName] = {
                     ...DEFAULT_CHECKBOX_FIELD,
                     schemaDoc:
                         `Enables a user with the given UserRightsSet to read "${field.fieldName}" field of model "${schemaName}"`,
-                    access: field.access,
+                    access: accessConfig[fieldName],
                 }
             }
             if (field.manage) {
-                fields[generateManageSensitiveFieldFieldName(schemaName, field.fieldName)] = {
+                const fieldName = generateManageSensitiveFieldFieldName(schemaName, field.fieldName)
+                fields[fieldName] = {
                     ...DEFAULT_CHECKBOX_FIELD,
                     schemaDoc:
                         `Enables a user with the given UserRightsSet to update "${field.fieldName}" field of model "${schemaName}"`,
-                    access: field.access,
+                    access: accessConfig[fieldName],
                 }
             }
         }
