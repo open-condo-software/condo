@@ -73,7 +73,7 @@ const logger = getLogger('adapter-cache')
 
 class AdapterCache {
 
-    constructor ({ enabled, debugMode, excludedLists, maxCacheKeys, logging, logStatsEachSecs }) {
+    constructor ({ enabled, debugMode, excludedLists, includedLists, useIncludedLists, maxCacheKeys, logging, logStatsEachSecs }) {
         try {
             this.enabled = !!enabled
 
@@ -90,6 +90,9 @@ class AdapterCache {
             // This mechanism allows to skip caching some lists.
             // Useful for hotfixes or disabling cache for business critical lists
             this.excludedLists = excludedLists || []
+
+            this.useIncludedLists = !!useIncludedLists || false
+            this.includedLists = includedLists || []
 
             // This mechanism allows to control garbage collection.
             this.maxCacheKeys = maxCacheKeys || 1000
@@ -262,6 +265,8 @@ class AdapterCache {
 async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
     const cache = cacheAPI.cache
     const excludedLists = cacheAPI.excludedLists
+    const includedLists = cacheAPI.includedLists
+    const useIncludedLists = cacheAPI.useIncludedLists
     const listAdapters = Object.values(getListAdapters(keystone))
 
     // Step 1: Preprocess lists.
@@ -316,7 +321,7 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
         // Skip patching list if:
 
         // 1. It is explicitly specified in config that list should not be cached
-        if (excludedLists.includes(listName)) {
+        if ((!useIncludedLists && excludedLists.includes(listName)) || (useIncludedLists && !includedLists.includes(listName))) {
             disabledLists.push({ listName, reason: 'Cache is excluded by config' })
             continue
         }
