@@ -831,5 +831,28 @@ describe('UserRightsSet', () => {
                 })
             })
         })
+
+        describe('Cannot create and update sensitive UserRightsSet', () => {
+            test('Support cannot create canReadUserPhoneField', async () => {
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await createTestUserRightsSet(support, { canReadUserPhoneField: true })
+                })
+            })
+
+            test('Support cannot update canReadUserEmailField', async () => {
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await createTestUserRightsSet(support, { canReadUserEmailField: true })
+                })
+
+            })
+
+            test('Support cannot create canManageUserRightsSetField', async () => {
+                const [rightsSet] = await createTestUserRightsSet(support, { canManageOrganizations: false })
+
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await updateTestUserRightsSet(support, rightsSet.id, { canManageUserRightsSetField: true })
+                })
+            })
+        })
     })
 })

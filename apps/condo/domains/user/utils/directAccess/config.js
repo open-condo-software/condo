@@ -1,3 +1,4 @@
+const access = require('@open-condo/keystone/access')
 /**
  * @typedef {Object} DirectAccessList
  * @property {string} schemaName
@@ -78,8 +79,8 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
                 read: true,
                 access: {
                     read: true,
-                    create: false,
-                    update: false,
+                    create: access.userIsAdmin,
+                    update: access.userIsAdmin,
                 },
             },
             {
@@ -87,17 +88,21 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
                 read: true,
                 access: {
                     read: true,
-                    create: false,
-                    update: false,
+                    create: access.userIsAdmin,
+                    update: access.userIsAdmin,
                 },
+            },
+            {
+                fieldName: 'hasMarketingConsent',
+                manage: true,
             },
             {
                 fieldName: 'rightsSet',
                 manage: true,
                 access: {
                     read: true,
-                    create: false,
-                    update: false,
+                    create: access.userIsAdmin,
+                    update: access.userIsAdmin,
                 },
             },
         ],
