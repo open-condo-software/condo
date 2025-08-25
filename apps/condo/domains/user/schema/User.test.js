@@ -614,9 +614,9 @@ describe('User fields', () => {
             })
             await updateTestUser(admin, userWithPermissions, { rightsSet: { connect: { id: manageHasMarketingFieldRightsSet.id } } })
 
-            const userForUpdate = await registerNewUser(admin)
+            const [userForUpdate] = await createTestUser(admin)
 
-            const [updatedUser] = await updateTestUser(userWithPermissions, userForUpdate, { hasMarketingConsent: true })
+            const [updatedUser] = await updateTestUser(userWithPermissions, userForUpdate.id, { hasMarketingConsent: true })
 
             expect(updatedUser.hasMarketingConsent).toBe(true)
         })
@@ -629,7 +629,7 @@ describe('User fields', () => {
         })
 
         test('Admin and user with rightsSet for manage User.rightSet field can add to user some rightsSet', async () => {
-            const user = await registerNewUser(admin)
+            const [user] = await createTestUser(admin)
             const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
             const [manageUserRightsSetFieldRightsSet] = await createTestUserRightsSet(admin, {
                 canManageUserRightsSetField: true,
@@ -638,18 +638,18 @@ describe('User fields', () => {
             const [updatedUserWithPermissions] = await updateTestUser(admin, userWithPermissions, { rightsSet: { connect: { id: manageUserRightsSetFieldRightsSet.id } } })
             expect(updatedUserWithPermissions.rightsSet).toEqual(manageUserRightsSetFieldRightsSet.id)
 
-            const [updatedUser] = await updateTestUser(updatedUserWithPermissions, user, { rightsSet: { connect: { id: manageUserRightsSetFieldRightsSet.id } } })
+            const [updatedUser] = await updateTestUser(updatedUserWithPermissions, user.id, { rightsSet: { connect: { id: manageUserRightsSetFieldRightsSet.id } } })
             expect(updatedUser.rightsSet).toEqual(manageUserRightsSetFieldRightsSet.id)
         })
 
         test('Support cannot add to user some rightsSet', async () => {
-            const user = await registerNewUser(admin)
+            const [user] = await createTestUser(admin)
             const supportUser = await makeClientWithSupportUser()
             const [manageHasMarketingFieldRightsSet] = await createTestUserRightsSet(admin, {
                 canManageHasMarketingConsentField: true,
             })
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestUser(supportUser, user, { rightsSet: { connect: { id: manageHasMarketingFieldRightsSet.id } } })
+                await updateTestUser(supportUser, user.id, { rightsSet: { connect: { id: manageHasMarketingFieldRightsSet.id } } })
             })
         })
     })
@@ -663,7 +663,7 @@ describe('User fields', () => {
         })
 
         test('cannot be read by support', async () => {
-            const user = await registerNewUser(admin)
+            const [user] = await createTestUser(admin)
             const variables = {
                 where: {
                     id: user.id,
@@ -676,7 +676,7 @@ describe('User fields', () => {
         })
 
         test('can read by userWithPermissions', async () => {
-            const user = await registerNewUser(admin)
+            const [user] = await createTestUser(admin)
             const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
             const [manageUserRightsSetFieldRightsSet] = await createTestUserRightsSet(admin, {
                 canReadUserEmailField: true,
@@ -706,7 +706,7 @@ describe('User fields', () => {
         })
 
         test('cannot be read by support', async () => {
-            const user = await registerNewUser(admin)
+            const user = await createTestUser(admin)
             const variables = {
                 where: {
                     id: user.id,
@@ -719,7 +719,7 @@ describe('User fields', () => {
         })
 
         test('can read by userWithPermissions', async () => {
-            const user = await registerNewUser(admin)
+            const user = await createTestUser(admin)
             const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
             const [manageUserRightsSetFieldRightsSet] = await createTestUserRightsSet(admin, {
                 canReadUserPhoneField: true,
