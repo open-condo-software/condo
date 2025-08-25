@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
-const { makeLoggedInAdminClient, makeClient, waitFor, expectToThrowValidationFailureError, makeLoggedInClient} = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -70,8 +70,6 @@ const {
     createTestOidcClient,
     updateTestOidcClient,
 } = require('@condo/domains/user/utils/testSchema')
-const {WRONG_TEXT_FORMAT} = require("../../common/constants/errors");
-const {createTestBillingReceipt} = require("../../billing/utils/testSchema");
 
 
 function expectDeleted (obj) {
