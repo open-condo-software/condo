@@ -335,7 +335,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 expect(json.data.files[0]).toHaveProperty('signature')
                 expect(json.data.files[0]).toHaveProperty('id')
                 expect(json.data.files[0]).toHaveProperty('fileMeta')
-                // expect(json.data.files[0].fileMeta).toHaveProperty(['meta', 'fileAdapter'], conf['FILE_FIELD_ADAPTER'])
+                expect(json.data.files[0].fileMeta).toHaveProperty(['meta', 'fileAdapter'], conf['FILE_FIELD_ADAPTER'])
             })
 
             test('uploading multiple files should be possible', async () => {

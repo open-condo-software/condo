@@ -775,7 +775,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         Model: TicketFile,
         relationField: 'ticket',
         initialFileList: files,
-        appId: 'condo',
         modelNames: ['TicketFile'],
     })
 

@@ -292,6 +292,7 @@ function fileStorageHandler ({ keystone, appClients }) {
         }
 
         const fileAdapter = new FileAdapter(meta['appId'])
+        meta['fileAdapter'] = FileAdapter.type()
         const context = keystone.createContext({ skipAccessControl: true })
         const savedFiles = await Promise.all(
             files.map(file =>
@@ -301,7 +302,7 @@ function fileStorageHandler ({ keystone, appClients }) {
                     mimetype: file.mimetype,
                     encoding: file.encoding,
                     id: cuid(),
-                    meta: { ...meta, fileAdapter: fileAdapter.type },
+                    meta,
                 })
             )
         )
