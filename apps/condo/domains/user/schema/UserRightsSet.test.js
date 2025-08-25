@@ -833,10 +833,10 @@ describe('UserRightsSet', () => {
         })
 
         describe('Cannot create and update sensitive UserRightsSet', () => {
-            const createCases = [
-                ['canReadUserPhoneField', true, ''],
-                ['canReadUserEmailField', true, ''],
-                ['canManageUserRightsSetField', true, ''],
+            const cases = [
+                ['canReadUserPhoneField', true],
+                ['canReadUserEmailField', true],
+                ['canManageUserRightsSetField', true],
             ]
             test.each(createCases)('Support cannot create %p', async (name, value) => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
