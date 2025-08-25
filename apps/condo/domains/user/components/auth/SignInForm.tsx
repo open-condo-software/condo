@@ -198,11 +198,9 @@ export const SignInForm = (): React.ReactElement => {
                                                 </Col>
 
                                                 <Col span={24}>
-                                                    <Link href={`/auth/forgot?next=${encodeURIComponent(redirectUrl)}`}>
-                                                        <Typography.Link href={`/auth/forgot?next=${encodeURIComponent(redirectUrl)}`} tabIndex={3}>
-                                                            {ResetPasswordMessage}
-                                                        </Typography.Link>
-                                                    </Link>
+                                                    <Typography.Link component={Link} href={`/auth/forgot?next=${encodeURIComponent(redirectUrl)}`} tabIndex={3}>
+                                                        {ResetPasswordMessage}
+                                                    </Typography.Link>
                                                 </Col>
                                             </Row>
                                         </Col>

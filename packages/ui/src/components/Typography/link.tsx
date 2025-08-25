@@ -14,6 +14,7 @@ export type TypographyLinkProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElem
     size?: typeof TEXT_SIZES[number]
     id?: string
     children?: React.ReactNode
+    component?: unknown
     ['aria-label']?: string
 }
 
@@ -23,7 +24,7 @@ const Link = React.forwardRef<HTMLElement, TypographyLinkProps>((props, ref) => 
         [`${TYPOGRAPHY_CLASS_PREFIX}-${size}`]: size,
     })
     // NOTE: Used wrapper destructuring to explicitly pass component props, which is marked as internal in antd
-    const componentProps = { component: 'a' }
+    const componentProps = { component: props.component ? props.component : 'a' }
 
     const handleClick = useCallback<React.MouseEventHandler<HTMLAnchorElement>>((event) => {
         const stringContent = extractChildrenContent(children)
