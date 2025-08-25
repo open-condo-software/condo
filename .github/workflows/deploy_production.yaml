@@ -71,6 +71,8 @@ jobs:
           WERF_SET_CI_EMPLOYEE_BOT_URL: "global.ci_employee_bot_url=telegram-employee-bot.doma.ai"
           WERF_SET_CI_TICKET_IMPORTER_URL: "global.ci_ticket_importer_url=eds-integration.doma.ai"
           WERF_SET_CI_EXTERNAL_API_URL: "global.ci_external_api_url=bank-rest-api.doma.ai"
+          WERF_SET_CI_RESIDENT_APP_URL: "global.ci_resident_app_url=m.doma.ai"
+          WERF_SET_CI_RESIDENT_APP_BOT_URL: "global.ci_resident_app_bot_url=m-bot.doma.ai"
           WERF_SET_CI_ANNOUNCEMENT_GENERATOR_URL: "global.ci_announcement_url=announcement-generator.doma.ai"
           WERF_SET_CI_NEWS_GREENHOUSE_URL: "global.ci_news_greenhouse_url=news-sharing-greendom.doma.ai"
           WERF_SET_CI_METER_IMPORTER_URL: "global.ci_meter_importer_url=meters-billing-integration.doma.ai"
