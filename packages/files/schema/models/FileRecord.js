@@ -7,7 +7,7 @@ const FileRecord = new GQLListSchema('FileRecord', {
         fileMeta: {
             type: 'Json',
             isRequired: true,
-            schemaDoc: 'Metadata of the file, that was uploaded to platform',
+            schemaDoc: 'Information about file including its encoding, mime type, filename and user related metadata',
         },
         user: {
             type: 'Relationship',
