@@ -125,12 +125,21 @@ class TelegramOauthRoutes {
 
     async authorizeUser (req, context, userId) {
         // auth session
+        const botId = getBotId(req)
         const user = await User.getOne(context, { id: userId }, 'id type isSupport isAdmin rightsSet')
         if (isSuperUser({ user })) {
             throw new HttpError(ERRORS.SUPER_USERS_NOT_ALLOWED)
         }
         const { keystone } = await getSchemaCtx('User')
-        await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
+        await keystone._sessionManager.startAuthedSession(req, {
+            item: { id: user.id },
+            list: keystone.lists['User'],
+            meta: {
+                source: 'auth-integration',
+                provider: 'telegram',
+                clientID: botId,
+            },
+        })
         await req.session.save()
     }
 

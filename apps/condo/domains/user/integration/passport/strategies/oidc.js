@@ -46,7 +46,7 @@ class OIDCAuthStrategy {
             async function oidcAuthCallback (req, issuer, uiProfile, idProfile, context, idToken, accessToken, refreshToken, params, done) {
                 try {
                     const user = await syncUser(req, uiProfile._json, req.session.userType, providerInfo, fieldMapping)
-                    done(null, user)
+                    done(null, user, { accessToken, refreshToken, provider: providerInfo.name })
                 } catch (err) {
                     done(err)
                 }
