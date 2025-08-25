@@ -85398,7 +85398,8 @@ type FileRecord {
   """
   _label_: String
 
-  """ Metadata of the file, that was uploaded to platform """
+  """ Information about file including its encoding, mime type, filename and user related metadata 
+  """
   fileMeta: JSON
 
   """ User who uploaded the file """
