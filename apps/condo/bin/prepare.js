@@ -12,7 +12,10 @@ async function updateAppEnvAddressSuggestionConfig (serviceName) {
 
 async function updateAppEnvFileClients (appName) {
     await updateAppEnvFile(appName, 'FILE_UPLOAD_CONFIG', JSON.stringify({
-        clients: { condo: { name: `${appName}-app`, secret: uuid() } },
+        clients: {
+            condo: { secret: uuid() },
+            miniapp: { secret: uuid() },
+        },
     }))
 }
 
