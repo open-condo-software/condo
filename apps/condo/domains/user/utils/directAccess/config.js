@@ -74,6 +74,9 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         ],
         User: [
             { fieldName: 'email', read: true },
+            { fieldName: 'phone', read: true },
+            { fieldName: 'hasMarketingConsent', manage: true },
+            { fieldName: 'rightsSet', manage: true },
         ],
     },
     services: [

@@ -3018,6 +3018,9 @@ type UserRightsSetHistoryRecord {
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
+  canReadUserPhoneField: Boolean
+  canManageUserHasMarketingConsentField: Boolean
+  canManageUserRightsSetField: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3150,6 +3153,12 @@ input UserRightsSetHistoryRecordWhereInput {
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
   canReadUserEmailField_not: Boolean
+  canReadUserPhoneField: Boolean
+  canReadUserPhoneField_not: Boolean
+  canManageUserHasMarketingConsentField: Boolean
+  canManageUserHasMarketingConsentField_not: Boolean
+  canManageUserRightsSetField: Boolean
+  canManageUserRightsSetField_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3331,6 +3340,12 @@ enum SortUserRightsSetHistoryRecordsBy {
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
   canReadUserEmailField_DESC
+  canReadUserPhoneField_ASC
+  canReadUserPhoneField_DESC
+  canManageUserHasMarketingConsentField_ASC
+  canManageUserHasMarketingConsentField_DESC
+  canManageUserRightsSetField_ASC
+  canManageUserRightsSetField_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3399,6 +3414,9 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
+  canReadUserPhoneField: Boolean
+  canManageUserHasMarketingConsentField: Boolean
+  canManageUserRightsSetField: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3468,6 +3486,9 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
+  canReadUserPhoneField: Boolean
+  canManageUserHasMarketingConsentField: Boolean
+  canManageUserRightsSetField: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3693,6 +3714,18 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to read "email" field of model "User" 
   """
   canReadUserEmailField: Boolean
+
+  """ Enables a user with the given UserRightsSet to read "phone" field of model "User" 
+  """
+  canReadUserPhoneField: Boolean
+
+  """ Enables a user with the given UserRightsSet to update "hasMarketingConsent" field of model "User" 
+  """
+  canManageUserHasMarketingConsentField: Boolean
+
+  """ Enables a user with the given UserRightsSet to update "rightsSet" field of model "User" 
+  """
+  canManageUserRightsSetField: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3833,6 +3866,12 @@ input UserRightsSetWhereInput {
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
   canReadUserEmailField_not: Boolean
+  canReadUserPhoneField: Boolean
+  canReadUserPhoneField_not: Boolean
+  canManageUserHasMarketingConsentField: Boolean
+  canManageUserHasMarketingConsentField_not: Boolean
+  canManageUserRightsSetField: Boolean
+  canManageUserRightsSetField_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3994,6 +4033,12 @@ enum SortUserRightsSetsBy {
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
   canReadUserEmailField_DESC
+  canReadUserPhoneField_ASC
+  canReadUserPhoneField_DESC
+  canManageUserHasMarketingConsentField_ASC
+  canManageUserHasMarketingConsentField_DESC
+  canManageUserRightsSetField_ASC
+  canManageUserRightsSetField_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4062,6 +4107,9 @@ input UserRightsSetUpdateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
+  canReadUserPhoneField: Boolean
+  canManageUserHasMarketingConsentField: Boolean
+  canManageUserRightsSetField: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4128,6 +4176,9 @@ input UserRightsSetCreateInput {
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
+  canReadUserPhoneField: Boolean
+  canManageUserHasMarketingConsentField: Boolean
+  canManageUserRightsSetField: Boolean
   v: Int
   createdAt: String
   updatedAt: String

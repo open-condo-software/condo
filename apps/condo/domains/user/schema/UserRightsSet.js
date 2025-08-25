@@ -10,6 +10,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/user/access/UserRightsSet')
+const { USER_RIGHTS_SET_FIELD_ACCESS } = require('@condo/domains/user/utils/directAccess/accessConfig')
 const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/user/utils/directAccess/config')
 const { generateRightSetFields } = require('@condo/domains/user/utils/directAccess/server.utils')
 const { User } = require('@condo/domains/user/utils/serverSchema')
@@ -29,7 +30,7 @@ const UserRightsSet = new GQLListSchema('UserRightsSet', {
             type: 'Text',
             isRequired: true,
         },
-        ...generateRightSetFields(DIRECT_ACCESS_AVAILABLE_SCHEMAS),
+        ...generateRightSetFields(DIRECT_ACCESS_AVAILABLE_SCHEMAS, USER_RIGHTS_SET_FIELD_ACCESS),
     },
     hooks: {
         beforeChange: async ({ resolvedData, existingItem, context }) => {
