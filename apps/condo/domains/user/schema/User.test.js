@@ -38,7 +38,7 @@ const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const {
     WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR, GQL_ERRORS: ERRORS,
 } = require('@condo/domains/user/constants/errors')
-const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
+const { GET_MY_USERINFO, SIGNIN_MUTATION, User: UserGQL } = require('@condo/domains/user/gql')
 const {
     User,
     UserAdmin,
@@ -605,6 +605,137 @@ describe('User fields', () => {
             const [updatedUser] = await updateTestUser(client, client.user.id, { hasMarketingConsent: true })
 
             expect(updatedUser.hasMarketingConsent).toBe(true)
+        })
+
+        test('can be updated by user with permissions', async () => {
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [manageHasMarketingFieldRightsSet] = await createTestUserRightsSet(admin, {
+                canManageHasMarketingConsentField: true,
+            })
+            await updateTestUser(admin, userWithPermissions, { rightsSet: { connect: { id: manageHasMarketingFieldRightsSet.id } } })
+
+            const userForUpdate = await registerNewUser(admin)
+
+            const [updatedUser] = await updateTestUser(userWithPermissions, userForUpdate, { hasMarketingConsent: true })
+
+            expect(updatedUser.hasMarketingConsent).toBe(true)
+        })
+    })
+
+    describe('rightsSet', () => {
+        let admin
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+        })
+
+        test('Admin and user with rightsSet for manage User.rightSet field can add to user some rightsSet', async () => {
+            const user = await registerNewUser(admin)
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [manageUserRightsSetFieldRightsSet] = await createTestUserRightsSet(admin, {
+                canManageUserRightsSetField: true,
+            })
+
+            const [updatedUserWithPermissions] = await updateTestUser(admin, userWithPermissions, { rightsSet: { connect: { id: manageUserRightsSetFieldRightsSet.id } } })
+            expect(updatedUserWithPermissions.rightsSet).toEqual(manageUserRightsSetFieldRightsSet.id)
+
+            const [updatedUser] = await updateTestUser(updatedUserWithPermissions, user, { rightsSet: { connect: { id: manageUserRightsSetFieldRightsSet.id } } })
+            expect(updatedUser.rightsSet).toEqual(manageUserRightsSetFieldRightsSet.id)
+        })
+
+        test('Support cannot add to user some rightsSet', async () => {
+            const user = await registerNewUser(admin)
+            const supportUser = await makeClientWithSupportUser()
+            const [manageHasMarketingFieldRightsSet] = await createTestUserRightsSet(admin, {
+                canManageHasMarketingConsentField: true,
+            })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestUser(supportUser, user, { rightsSet: { connect: { id: manageHasMarketingFieldRightsSet.id } } })
+            })
+        })
+    })
+
+    describe('email', () => {
+        let admin
+        let support
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            support = await makeClientWithSupportUser()
+        })
+
+        test('cannot be read by support', async () => {
+            const user = await registerNewUser(admin)
+            const variables = {
+                where: {
+                    id: user.id,
+                    email: user.email,
+                },
+            }
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await support.query(UserGQL, variables)
+            })
+        })
+
+        test('can read by userWithPermissions', async () => {
+            const user = await registerNewUser(admin)
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [manageUserRightsSetFieldRightsSet] = await createTestUserRightsSet(admin, {
+                canReadUserEmailField: true,
+            })
+
+            const [updatedUserWithPermissions] = await updateTestUser(admin, userWithPermissions, { rightsSet: { connect: { id: manageUserRightsSetFieldRightsSet.id } } })
+            expect(updatedUserWithPermissions.rightsSet).toEqual(manageUserRightsSetFieldRightsSet.id)
+
+            const variables = {
+                where: {
+                    id: user.id,
+                    email: user.email,
+                },
+            }
+            const readUser = await userWithPermissions.query(UserGQL, variables)
+            console.log('readUser', readUser)
+            expect(readUser.email).toEqual(user.email)
+        })
+    })
+
+    describe('phone', () => {
+        let admin
+        let support
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            support = await makeClientWithSupportUser()
+        })
+
+        test('cannot be read by support', async () => {
+            const user = await registerNewUser(admin)
+            const variables = {
+                where: {
+                    id: user.id,
+                    phone: user.phone,
+                },
+            }
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await support.query(UserGQL, variables)
+            })
+        })
+
+        test('can read by userWithPermissions', async () => {
+            const user = await registerNewUser(admin)
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [manageUserRightsSetFieldRightsSet] = await createTestUserRightsSet(admin, {
+                canReadUserPhoneField: true,
+            })
+
+            const [updatedUserWithPermissions] = await updateTestUser(admin, userWithPermissions, { rightsSet: { connect: { id: manageUserRightsSetFieldRightsSet.id } } })
+            expect(updatedUserWithPermissions.rightsSet).toEqual(manageUserRightsSetFieldRightsSet.id)
+
+            const variables = {
+                where: {
+                    id: user.id,
+                    phone: user.phone,
+                },
+            }
+            const readUser = await userWithPermissions.query(UserGQL, variables)
+            expect(readUser.phone).toEqual(user.phone)
         })
     })
 

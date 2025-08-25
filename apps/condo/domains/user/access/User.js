@@ -172,7 +172,7 @@ async function canReadUserNameField (args) {
 const canAccessMarketingConsent = {
     read: true,
     create: access.userIsAdminOrIsSupport,
-    update: access.userIsAdminOrIsThisItem,
+    update: userIsAdminOrCanDirectlyManageField,
 }
 
 async function userIsAdminOrIsThisItemOrCanDirectlyReadField (args) {
