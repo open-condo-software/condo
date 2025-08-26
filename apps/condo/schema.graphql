@@ -85217,6 +85217,7 @@ type FileRecordHistoryRecord {
   _label_: String
   fileMeta: JSON
   user: String
+  fileKey: String
   sourceId: String
   sourceApp: String
   id: ID!
@@ -85245,6 +85246,24 @@ input FileRecordHistoryRecordWhereInput {
   user_not: String
   user_in: [String]
   user_not_in: [String]
+  fileKey: String
+  fileKey_not: String
+  fileKey_contains: String
+  fileKey_not_contains: String
+  fileKey_starts_with: String
+  fileKey_not_starts_with: String
+  fileKey_ends_with: String
+  fileKey_not_ends_with: String
+  fileKey_i: String
+  fileKey_not_i: String
+  fileKey_contains_i: String
+  fileKey_not_contains_i: String
+  fileKey_starts_with_i: String
+  fileKey_not_starts_with_i: String
+  fileKey_ends_with_i: String
+  fileKey_not_ends_with_i: String
+  fileKey_in: [String]
+  fileKey_not_in: [String]
   sourceId: String
   sourceId_not: String
   sourceId_in: [String]
@@ -85350,6 +85369,8 @@ input FileRecordHistoryRecordWhereUniqueInput {
 }
 
 enum SortFileRecordHistoryRecordsBy {
+  fileKey_ASC
+  fileKey_DESC
   sourceApp_ASC
   sourceApp_DESC
   id_ASC
@@ -85373,6 +85394,7 @@ enum SortFileRecordHistoryRecordsBy {
 input FileRecordHistoryRecordUpdateInput {
   fileMeta: JSON
   user: String
+  fileKey: String
   sourceId: String
   sourceApp: String
   v: Int
@@ -85397,6 +85419,7 @@ input FileRecordHistoryRecordsUpdateInput {
 input FileRecordHistoryRecordCreateInput {
   fileMeta: JSON
   user: String
+  fileKey: String
   sourceId: String
   sourceApp: String
   v: Int
@@ -85445,6 +85468,9 @@ type FileRecord {
   """ User who uploaded the file """
   user: User
 
+  """ Unique identifier on the storage side (eg file adapter) """
+  fileKey: String
+
   """ Link to original FileRecord which was shared """
   sourceId: FileRecord
 
@@ -85482,6 +85508,24 @@ input FileRecordWhereInput {
   fileMeta_not_in: [JSON]
   user: UserWhereInput
   user_is_null: Boolean
+  fileKey: String
+  fileKey_not: String
+  fileKey_contains: String
+  fileKey_not_contains: String
+  fileKey_starts_with: String
+  fileKey_not_starts_with: String
+  fileKey_ends_with: String
+  fileKey_not_ends_with: String
+  fileKey_i: String
+  fileKey_not_i: String
+  fileKey_contains_i: String
+  fileKey_not_contains_i: String
+  fileKey_starts_with_i: String
+  fileKey_not_starts_with_i: String
+  fileKey_ends_with_i: String
+  fileKey_not_ends_with_i: String
+  fileKey_in: [String]
+  fileKey_not_in: [String]
   sourceId: FileRecordWhereInput
   sourceId_is_null: Boolean
   sourceApp: String
@@ -85567,6 +85611,8 @@ input FileRecordWhereUniqueInput {
 enum SortFileRecordsBy {
   user_ASC
   user_DESC
+  fileKey_ASC
+  fileKey_DESC
   sourceId_ASC
   sourceId_DESC
   sourceApp_ASC
@@ -85592,6 +85638,7 @@ enum SortFileRecordsBy {
 input FileRecordUpdateInput {
   fileMeta: JSON
   user: UserRelateToOneInput
+  fileKey: String
   sourceId: FileRecordRelateToOneInput
   sourceApp: String
   v: Int
@@ -85613,6 +85660,7 @@ input FileRecordsUpdateInput {
 input FileRecordCreateInput {
   fileMeta: JSON
   user: UserRelateToOneInput
+  fileKey: String
   sourceId: FileRecordRelateToOneInput
   sourceApp: String
   v: Int
