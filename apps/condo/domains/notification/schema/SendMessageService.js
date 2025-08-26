@@ -18,6 +18,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { deliverMessage } = require('@condo/domains/notification/tasks')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
+const {MESSAGE_FIELDS} = require("../gql");
 
 const logger = getLogger()
 
@@ -202,9 +203,9 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
 
                 const message = messageWithSameUniqKey
                     ? messageWithSameUniqKey
-                    : await Message.create(context, messageAttrs, 'id status')
+                    : await Message.create(context, messageAttrs, MESSAGE_FIELDS)
 
-                if (!messageWithSameUniqKey) await deliverMessage.applyAsync([message.id], getMessageQueue({ type }))
+                if (!messageWithSameUniqKey) await deliverMessage.applyAsync([message], getMessageQueue({ type }))
 
                 return {
                     isDuplicateMessage: !!messageWithSameUniqKey,
@@ -226,9 +227,9 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     sentAt: null,
                     deliveredAt: null,
                     readAt: null,
-                }, 'id status type')
+                }, MESSAGE_FIELDS)
 
-                await deliverMessage.applyAsync([message.id], getMessageQueue({ type: message.type }))
+                await deliverMessage.applyAsync([message], getMessageQueue({ type: message.type }))
 
                 return {
                     id: message.id,
