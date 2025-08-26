@@ -108,7 +108,7 @@ describe('SumPaymentsService', () => {
                 const support = await makeClientWithSupportUser()
                 const serviceUserClient = await makeClientWithServiceUser()
                 const [userRightsSet] = await createTestUserRightsSet(support, { canExecute_allPaymentsSum: true })
-                await updateTestUser(support, serviceUserClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+                await updateTestUser(admin, serviceUserClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
 
                 const paymentsWhere = { organization: { id: organization.id } }
                 const { sum } = await sumPaymentsByTestClient(serviceUserClient, { paymentsWhere })
@@ -178,7 +178,7 @@ describe('SumPaymentsService', () => {
                 const support = await makeClientWithSupportUser()
                 const serviceUserClient = await makeClientWithServiceUser()
                 const [userRightsSet] = await createTestUserRightsSet(support, { canExecute_allPaymentsSum: true })
-                await updateTestUser(support, serviceUserClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+                await updateTestUser(admin, serviceUserClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
 
                 const paymentsFilesWhere = { context: { id: context.id } }
                 const { sum } = await sumPaymentsByTestClient(serviceUserClient, { paymentsFilesWhere })
@@ -296,7 +296,7 @@ describe('SumPaymentsService', () => {
             const support = await makeClientWithSupportUser()
             const serviceUserClient = await makeClientWithServiceUser()
             const [userRightsSet] = await createTestUserRightsSet(support, { canExecute_allPaymentsSum: true })
-            await updateTestUser(support, serviceUserClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+            await updateTestUser(admin, serviceUserClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
 
             const paymentsFilesWhere = { context: { id: context.id } }
             const { sum } = await sumPaymentsByTestClient(serviceUserClient, { paymentsFilesWhere })

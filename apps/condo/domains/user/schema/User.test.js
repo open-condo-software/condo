@@ -603,8 +603,115 @@ describe('User fields', () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
             const [updatedUser] = await updateTestUser(client, client.user.id, { hasMarketingConsent: true })
-
             expect(updatedUser.hasMarketingConsent).toBe(true)
+        })
+
+        test('can be updated by user with "canManageUserHasMarketingConsentField" set in rights set', async () => {
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [canManageUserHasMarketingConsentField] = await createTestUserRightsSet(admin, {
+                canManageUserHasMarketingConsentField: true,
+            })
+
+            const [updatedUserWithPermissions] = await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canManageUserHasMarketingConsentField.id } } })
+            expect(updatedUserWithPermissions.rightsSet.id).toEqual(canManageUserHasMarketingConsentField.id)
+
+            const [user] = await createTestUser(admin)
+            const [updatedUser] = await updateTestUser(userWithPermissions, user.id, { hasMarketingConsent: true })
+            expect(updatedUser.hasMarketingConsent).toBe(true)
+        })
+    })
+
+    describe('rightsSet', () => {
+        let admin
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+        })
+
+        test('Admin and user with rightsSet for manage User.rightsSet field can add to user some rightsSet', async () => {
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [canManageUserRightsSetField] = await createTestUserRightsSet(admin, {
+                canManageUserRightsSetField: true,
+            })
+
+            const [updatedUserWithPermissionsByAdmin] = await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canManageUserRightsSetField.id } } })
+            expect(updatedUserWithPermissionsByAdmin.rightsSet.id).toEqual(canManageUserRightsSetField.id)
+            // NOTE: We can do it!
+            const [user] = await createTestUser(admin)
+            const [updatedUser] = await updateTestUser(userWithPermissions, user.id, { rightsSet: { connect: { id: canManageUserRightsSetField.id } } })
+            expect(updatedUser.rightsSet.id).toEqual(canManageUserRightsSetField.id)
+        })
+
+        test('Support cannot add to user some rightsSet', async () => {
+            const [user] = await createTestUser(admin)
+            const support = await makeClientWithSupportUser()
+            const [canManageUserHasMarketingConsentField] = await createTestUserRightsSet(admin, {
+                canManageUserHasMarketingConsentField: true,
+            })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestUser(support, user.id, { rightsSet: { connect: { id: canManageUserHasMarketingConsentField.id } } })
+            })
+        })
+    })
+
+    describe('email', () => {
+        let admin
+        let UserWithEmail
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            UserWithEmail = generateGQLTestUtils(generateGqlQueries('User', '{ id email deletedAt }'))
+        })
+
+        test('cannot be read by support', async () => {
+            const [user] = await createTestUser(admin)
+            const support = await makeClientWithSupportUser()
+            await expectToThrowAccessDeniedError(async () => {
+                await UserWithEmail.getOne(support, { id: user.id })
+            }, ['objs', 0, 'email'])
+        })
+
+        test('can read by user with "canReadUserEmailField" permission in rights set', async () => {
+            const [user, userAttrs] = await createTestUser(admin)
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [canReadUserEmailField] = await createTestUserRightsSet(admin, {
+                canReadUserEmailField: true,
+            })
+
+            const [updatedUserWithPermissions]  = await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canReadUserEmailField.id } } })
+            expect(updatedUserWithPermissions.rightsSet.id).toEqual(canReadUserEmailField.id)
+
+            const readUser = await UserWithEmail.getOne(userWithPermissions, { id: user.id } )
+            expect(readUser.email).toEqual(userAttrs.email)
+        })
+    })
+
+    describe('phone', () => {
+        let admin
+        let UserWithPhone
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            UserWithPhone = generateGQLTestUtils(generateGqlQueries('User', '{ id phone deletedAt }'))
+        })
+
+        test('cannot be read by support', async () => {
+            const [user] = await createTestUser(admin)
+            const support = await makeClientWithSupportUser()
+            await expectToThrowAccessDeniedError(async () => {
+                await UserWithPhone.getOne(support, { id: user.id })
+            }, ['objs', 0, 'phone'])
+        })
+
+        test('can read by user with "canReadUserPhoneField" permission in rights set', async () => {
+            const [user, userAttrs] = await createTestUser(admin)
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [canReadUserPhoneField] = await createTestUserRightsSet(admin, {
+                canReadUserPhoneField: true,
+            })
+
+            const [updatedUserWithPermissions] = await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canReadUserPhoneField.id } } })
+            expect(updatedUserWithPermissions.rightsSet.id).toEqual(canReadUserPhoneField.id)
+
+            const readUser = await UserWithPhone.getOne(userWithPermissions, { id: user.id } )
+            expect(readUser.phone).toEqual(userAttrs.phone)
         })
     })
 
@@ -1024,7 +1131,6 @@ describe('Sensitive data search', () => {
         expect(readUser.deletedAt).toBeNull()
 
         const accessDeniedCases = [
-            [firstServiceUser, nonServiceUser],
             [secondServiceUser, firstServiceUser],
             [secondServiceUser, nonServiceUser],
             [nonServiceUser, secondServiceUser],
