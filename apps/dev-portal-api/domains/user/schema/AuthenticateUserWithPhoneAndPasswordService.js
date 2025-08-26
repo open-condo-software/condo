@@ -81,7 +81,14 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                     const { success } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'] )
 
                     if (success) {
-                        const token = await context.startAuthedSession({ item: user, list: keystone.lists['User'] })
+                        const token = await context.startAuthedSession({
+                            item: user,
+                            list: keystone.lists['User'],
+                            meta: {
+                                source: 'gql',
+                                provider: 'authenticateUserWithPhoneAndPassword',
+                            },
+                        })
 
                         return {
                             token,
