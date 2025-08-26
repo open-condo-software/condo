@@ -1,9 +1,11 @@
+import { useUpdateUserMutation } from '@app/condo/gql'
 import { Col, Form, Row } from 'antd'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Typography, Input } from '@open-condo/ui'
@@ -14,7 +16,6 @@ import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
 import { PHONE_TYPE } from '@condo/domains/user/constants/identifiers'
-import { User } from '@condo/domains/user/utils/clientSchema'
 
 import { UserAvatar } from './UserAvatar'
 
@@ -57,8 +58,19 @@ export const UserProfileForm: React.FC = () => {
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { user } = useAuth()
-    const updateUserAction = User.useUpdate({}, () => router.push('/user'))
-    const formAction = (formValues) => updateUserAction(formValues, user)
+    const [updateUserAction] = useUpdateUserMutation({
+        onCompleted: () => router.push('/user'), 
+    })
+    const formAction = (formValues) => updateUserAction({
+        variables: {
+            id: user.id,
+            data: {
+                ...formValues,
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+            },
+        },
+    })
     const { breakpoints } = useLayoutContext()
 
     const onCancel = useCallback(() => {

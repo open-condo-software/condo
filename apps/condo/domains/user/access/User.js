@@ -8,7 +8,12 @@ const { isFilteringBy, isDirectListQuery } = require('@open-condo/keystone/acces
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { SERVICE, RESIDENT } = require('@condo/domains/user/constants/common')
-const { canDirectlyReadSchemaObjects, canDirectlyReadSchemaField } = require('@condo/domains/user/utils/directAccess')
+const {
+    canDirectlyReadSchemaObjects,
+    canDirectlyReadSchemaField,
+    canDirectlyManageSchemaField,
+} = require('@condo/domains/user/utils/directAccess')
+const { canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 const { getIdentificationUserRequiredFields } = require('@condo/domains/user/utils/serverSchema/userHelpers')
 
 
@@ -27,12 +32,16 @@ async function canReadUsers ({ authentication: { item: user }, listKey, args }) 
     return !isFilteringBy(where, ['phone', 'email'])
 }
 
-async function canManageUsers ({ authentication: { item: user }, operation, itemId }) {
+async function canManageUsers ({ authentication: { item: user }, operation, itemId, listKey, originalInput }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
 
     if (operation === 'create') return false
+
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+    if (hasDirectAccess) return true
+
     if (operation === 'update') return itemId === user.id
 
     return false
@@ -51,23 +60,7 @@ const readBySupportUpdateByAdminField = {
 }
 
 const canAccessToEmailField = {
-    read: async (args) => {
-        const nonDirectAccess = access.userIsAdminOrIsThisItem(args)
-
-        if (nonDirectAccess) {
-            return nonDirectAccess
-        }
-
-        const { existingItem, authentication: { item: user }, listKey, fieldKey } = args
-
-        // Service users with right set (dev-portal) can read only emails of service users
-        if (user.type === SERVICE && existingItem.type === SERVICE) {
-            return await canDirectlyReadSchemaField(user, listKey, fieldKey)
-        }
-
-        // Otherwise no access
-        return false
-    },
+    read: userIsAdminOrIsThisItemOrCanDirectlyReadField,
     create: access.userIsAdmin,
     // TODO(DOMA-12133): Should to update accesses when adding a mutation to change user email address
     // TODO(pahaz): !!! change it to access.userIsAdmin
@@ -94,7 +87,7 @@ const canAccessToEmailField = {
 }
 
 const canAccessToPhoneField = {
-    read: access.userIsAdminOrIsThisItem,
+    read: userIsAdminOrIsThisItemOrCanDirectlyReadField,
     create: access.userIsAdmin,
     // TODO(DOMA-12134): Should to update accesses when adding a mutation to change user phone
     // TODO(pahaz): !!! change it to access.userIsAdmin
@@ -184,7 +177,43 @@ async function canReadUserNameField (args) {
 const canAccessMarketingConsent = {
     read: true,
     create: access.userIsAdminOrIsSupport,
-    update: access.userIsAdminOrIsThisItem,
+    update: async (args) => {
+        const nonDirectAccess = access.userIsAdminOrIsThisItem(args)
+
+        if (nonDirectAccess) {
+            return nonDirectAccess
+        }
+
+        const { authentication: { item: user }, listKey, fieldKey } = args
+
+        return await canDirectlyManageSchemaField(user, listKey, fieldKey)
+    },
+}
+
+async function userIsAdminOrIsThisItemOrCanDirectlyReadField (args) {
+    const nonDirectAccess = access.userIsAdminOrIsThisItem(args)
+
+    if (nonDirectAccess) {
+        return nonDirectAccess
+    }
+
+    const { authentication: { item: user }, listKey, fieldKey } = args
+
+    return await canDirectlyReadSchemaField(user, listKey, fieldKey)
+}
+
+async function userIsAdminOrCanDirectlyManageField ({ authentication: { item: user }, listKey, fieldKey }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
+
+    return await canDirectlyManageSchemaField(user, listKey, fieldKey)
+}
+
+const canAccessRightsSet = {
+    read: true,
+    create: userIsAdminOrCanDirectlyManageField,
+    update: userIsAdminOrCanDirectlyManageField,
 }
 
 /*
@@ -208,4 +237,5 @@ module.exports = {
     canAccessCustomAccessField,
     canReadUserNameField,
     canAccessMarketingConsent,
+    canAccessRightsSet,
 }

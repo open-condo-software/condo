@@ -1,3 +1,4 @@
+import { useUpdateUserMutation } from '@app/condo/gql'
 import { Col, Row, Switch } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { SwitchChangeEventHandler } from 'antd/lib/switch'
@@ -7,11 +8,10 @@ import getConfig from 'next/config'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Info } from '@open-condo/icons'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
 import { Select, Tooltip, Typography } from '@open-condo/ui'
-
-import { User } from '@condo/domains/user/utils/clientSchema'
 
 
 const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
@@ -46,7 +46,7 @@ export const UserSettingsContent: React.FC = () => {
 
     const { user, refetch } = useAuth()
 
-    const updateUser = User.useUpdate({})
+    const [updateUser] = useUpdateUserMutation()
 
     const initialShowGlobalHints = user?.showGlobalHints || false
     const initialMarketingConsent = user?.hasMarketingConsent || false
@@ -58,18 +58,38 @@ export const UserSettingsContent: React.FC = () => {
     ]), [EnTitle, RuTitle, EsTitle])
 
     const handleLocaleChange = useCallback((setLocale) => async (newLocale) => {
-        await updateUser({ locale: newLocale }, { id: user.id })
+        if (!user?.id) return
+        await updateUser({
+            variables: {
+                id: user.id,
+                data: {
+                    locale: newLocale,
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                },
+            },
+        })
         setLocale(newLocale)
-    }, [user.id])
+    }, [updateUser, user.id])
 
     const updateUserInfo = useMemo(() => debounce(async (checked: boolean, fieldName: 'showGlobalHints' | 'hasMarketingConsent') => {
         try {
-            await updateUser({ [fieldName]: checked }, { id: user.id })
+            if (!user?.id) return
+            await updateUser({
+                variables: {
+                    id: user.id,
+                    data: {
+                        [fieldName]: checked,
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                    },
+                },
+            })
             refetch()
         } catch (e) {
             console.error(`Failed to update field "${fieldName}"`)
         }
-    }, 400), [user.id])
+    }, 400), [refetch, updateUser, user.id])
 
     const handleGlobalHintsChange: SwitchChangeEventHandler = useCallback(async (checked) => {
         setShowGlobalHints(checked)

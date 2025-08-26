@@ -355,11 +355,7 @@ const User = new GQLListSchema('User', {
             ref: 'UserRightsSet',
             knexOptions: { isNotNullable: false }, // Required relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-            access: {
-                read: true,
-                create: userAccess.userIsAdminOrIsSupport,
-                update: userAccess.userIsAdminOrIsSupport,
-            },
+            access: access.canAccessRightsSet,
         },
     },
     kmigratorOptions: {

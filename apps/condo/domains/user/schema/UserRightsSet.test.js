@@ -303,7 +303,7 @@ describe('UserRightsSet', () => {
                     canManageB2BApps: true,
                     canReadB2BApps: true,
                 })
-                const [updatedUser] = await updateTestUser(support, executor.user.id, {
+                const [updatedUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -311,7 +311,7 @@ describe('UserRightsSet', () => {
                 expect(createdApp).toHaveProperty('id')
 
                 // Access removed from specific user
-                const [removedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [removedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { disconnectAll: true },
                 })
                 expect(removedAccessUser).toHaveProperty('rightsSet', null)
@@ -323,7 +323,7 @@ describe('UserRightsSet', () => {
                 })
 
                 // Access provided again
-                const [addedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [addedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(addedAccessUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -362,7 +362,7 @@ describe('UserRightsSet', () => {
                 const [rightsSet] = await createTestUserRightsSet(support, {
                     canReadOrganizations: true,
                 })
-                const [updatedUser] = await updateTestUser(support, reader.user.id, {
+                const [updatedUser] = await updateTestUser(admin, reader.user.id, {
                     rightsSet: { connect:{ id: rightsSet.id } },
                 })
                 expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -373,7 +373,7 @@ describe('UserRightsSet', () => {
                 })])
 
                 // Access removed from specific user
-                const [removedAccessUser] = await updateTestUser(support, reader.user.id, {
+                const [removedAccessUser] = await updateTestUser(admin, reader.user.id, {
                     rightsSet: { disconnectAll: true },
                 })
                 expect(removedAccessUser).toHaveProperty('rightsSet', null)
@@ -381,7 +381,7 @@ describe('UserRightsSet', () => {
                 expect(allOrganizations2).toHaveLength(0)
 
                 // Access provided again
-                const [addedAccessUser] = await updateTestUser(support, reader.user.id, {
+                const [addedAccessUser] = await updateTestUser(admin, reader.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(addedAccessUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -416,7 +416,7 @@ describe('UserRightsSet', () => {
                 const [rightsSet] = await createTestUserRightsSet(support, {
                     canExecuteRegisterNewServiceUser: true,
                 })
-                const [updatedUser] = await updateTestUser(support, executor.user.id, {
+                const [updatedUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -424,7 +424,7 @@ describe('UserRightsSet', () => {
                 expect(registeredUser1).toHaveProperty('id')
 
                 // Access removed from specific user
-                const [removedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [removedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { disconnectAll: true },
                 })
                 expect(removedAccessUser).toHaveProperty('rightsSet', null)
@@ -433,7 +433,7 @@ describe('UserRightsSet', () => {
                 })
 
                 // Access provided again
-                const [addedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [addedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(addedAccessUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -477,7 +477,7 @@ describe('UserRightsSet', () => {
                     canReadOrganizations: true,
                     canManageOrganizationIsApprovedField: true,
                 })
-                const [updatedUser] = await updateTestUser(support, executor.user.id, {
+                const [updatedUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -494,7 +494,7 @@ describe('UserRightsSet', () => {
                 })
 
                 // Access removed from specific user
-                const [removedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [removedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { disconnectAll: true },
                 })
                 expect(removedAccessUser).toHaveProperty('rightsSet', null)
@@ -512,7 +512,7 @@ describe('UserRightsSet', () => {
                 })
 
                 // Access provided again
-                const [addedAccessUser] = await updateTestUser(support, executor.user.id, {
+                const [addedAccessUser] = await updateTestUser(admin, executor.user.id, {
                     rightsSet: { connect: { id: rightsSet.id } },
                 })
                 expect(addedAccessUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
@@ -620,7 +620,7 @@ describe('UserRightsSet', () => {
             describe('Dev-portal service user', () => {
                 let portalClient
                 beforeAll(async () => {
-                    const [portalRightSet] = await createTestUserRightsSet(support, {
+                    const [portalRightSet] = await createTestUserRightsSet(admin, {
                         canReadB2BApps: true,
                         canReadB2BAppAccessRights: true,
                         canReadB2BAppAccessRightSets: true,
@@ -828,6 +828,27 @@ describe('UserRightsSet', () => {
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await createTestOrganization(executor)
                     })
+                })
+            })
+        })
+
+        describe('Cannot create and update sensitive UserRightsSet', () => {
+            const cases = [
+                ['canReadUserPhoneField', true],
+                ['canReadUserEmailField', true],
+                ['canManageUserRightsSetField', true],
+            ]
+            test.each(cases)('Support cannot create %p', async (name, value) => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestUserRightsSet(support, { [name]: value })
+                })
+            })
+
+            test.each(cases)('Support cannot update %p', async (name, value) => {
+                const [rightsSet] = await createTestUserRightsSet(support, { canManageOrganizations: false })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestUserRightsSet(support, rightsSet.id, { [name]: value })
                 })
             })
         })
