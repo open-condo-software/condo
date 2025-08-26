@@ -16,9 +16,9 @@ const {
     MESSAGE_DELIVERY_DEFAULT_PRIORITY,
     MESSAGE_DELIVERY_PRIORITY_TO_TASK_QUEUE_MAP,
 } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { deliverMessage } = require('@condo/domains/notification/tasks')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
-const {MESSAGE_FIELDS} = require("../gql");
 
 const logger = getLogger()
 

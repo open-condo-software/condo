@@ -27,7 +27,6 @@ const {
     MESSAGE_THROTTLED_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER } = require('@condo/domains/notification/constants/errors')
-const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const emailAdapter = require('@condo/domains/notification/transports/email')
 const pushAdapter = require('@condo/domains/notification/transports/push')
 const smsAdapter = require('@condo/domains/notification/transports/sms')
