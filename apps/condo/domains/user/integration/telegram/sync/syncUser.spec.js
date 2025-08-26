@@ -147,7 +147,7 @@ describe('syncUser from Telegram', () => {
             clients.support = await makeClientWithSupportUser()
             clients.userWithRightsSet = await makeClientWithNewRegisteredAndLoggedInUser()
             const [rightsSet] = await createTestUserRightsSet(clients.support)
-            const [updatedUserWithReightsSet] = await updateTestUser(clients.support, clients.userWithRightsSet.user.id, {
+            const [updatedUserWithReightsSet] = await updateTestUser(clients.admin, clients.userWithRightsSet.user.id, {
                 rightsSet: { connect: { id: rightsSet.id } },
             })
             clients.userWithRightsSet.user = updatedUserWithReightsSet
@@ -179,9 +179,9 @@ describe('syncUser from Telegram', () => {
     })
 
     test('deleted authenticatedUser is not allowed', async () => {
-        const support = await makeClientWithSupportUser()
+        const admin = await makeLoggedInAdminClient()
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [updatedUser] = await updateTestUser(support, userClient.user.id, { deletedAt: new Date().toISOString() })
+        const [updatedUser] = await updateTestUser(admin, userClient.user.id, { deletedAt: new Date().toISOString() })
         userClient.user = updatedUser
         const identityId = faker.datatype.uuid()
         const userInfo = mockUserInfo(identityId)

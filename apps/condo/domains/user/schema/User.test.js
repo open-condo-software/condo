@@ -643,12 +643,12 @@ describe('User fields', () => {
 
         test('Support cannot add to user some rightsSet', async () => {
             const [user] = await createTestUser(admin)
-            const supportUser = await makeClientWithSupportUser()
+            const support = await makeClientWithSupportUser()
             const [canManageUserHasMarketingConsentField] = await createTestUserRightsSet(admin, {
                 canManageUserHasMarketingConsentField: true,
             })
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestUser(supportUser, user.id, { rightsSet: { connect: { id: canManageUserHasMarketingConsentField.id } } })
+                await updateTestUser(support, user.id, { rightsSet: { connect: { id: canManageUserHasMarketingConsentField.id } } })
             })
         })
     })
