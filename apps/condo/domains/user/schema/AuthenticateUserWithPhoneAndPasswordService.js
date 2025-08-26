@@ -109,7 +109,14 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 }
 
                 const { keystone } = getSchemaCtx('User')
-                const token = await context.startAuthedSession({ item: user, list: keystone.lists['User'] })
+                const token = await context.startAuthedSession({
+                    item: user,
+                    list: keystone.lists['User'],
+                    meta: {
+                        source: 'gql',
+                        provider: 'authenticateUserWithPhoneAndPassword',
+                    },
+                })
 
                 return {
                     item: user,

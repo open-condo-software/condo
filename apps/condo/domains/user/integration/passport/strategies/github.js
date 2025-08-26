@@ -55,6 +55,8 @@ class GithubAuthStrategy {
             ...this.#trustInfo,
         }
 
+        const clientID = this.#options.clientID
+
 
         return new GithubStrategy(
             {
@@ -72,7 +74,7 @@ class GithubAuthStrategy {
 
                 try {
                     const user = await syncUser(req, profile, req.session.userType, providerInfo, GithubAuthStrategy.fieldMapping)
-                    done(null, user)
+                    done(null, user, { accessToken, refreshToken, clientID, provider: providerInfo.name })
                 } catch (err) {
                     done(err)
                 }

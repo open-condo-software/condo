@@ -249,7 +249,7 @@ class OidcTokenUserInfoAuthStrategy {
 
                 await Promise.all(updateActionTasks)
 
-                return done(null, user)
+                return done(null, user, { accessToken: access_token, clientID: client_id, provider: providerInfo.name })
             } catch (err) {
                 done(err)
             }
