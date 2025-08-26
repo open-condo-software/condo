@@ -26,7 +26,7 @@ const REMOTE_ENV_HEADER_NAME = 'x-remote-env'
 const TARGET_HEADER_NAME = 'x-target'
 const START_REQUEST_ID_HEADER_NAME = 'x-start-request-id'
 const PARENT_REQUEST_ID_HEADER_NAME = 'x-parent-request-id'
-const SSR_PROXY_IP_HEADER_NAME = 'x-ssr-proxy-ip'
+const SSR_ORIGINAL_IP_HEADER_NAME = 'x-ssr-original-ip'
 
 export type TracingMiddlewareOptions = {
     serviceUrl: string
@@ -104,7 +104,7 @@ export function prepareSSRContext (req?: IncomingMessage, res?: Response): SSRCo
 
     const proxyingHeaders: Record<string, string> = {}
     if (req.socket?.remoteAddress) {
-        proxyingHeaders[SSR_PROXY_IP_HEADER_NAME] = req.socket.remoteAddress
+        proxyingHeaders[SSR_ORIGINAL_IP_HEADER_NAME] = req.socket.remoteAddress
     }
 
     return {
