@@ -30,10 +30,9 @@ const DEFAULT_CHECKBOX_FIELD = {
 /**
  * Generates a set of Keystone fields based on provided config. Obtained fields are used to form UserRightsSet schema.
  * @param {DirectAccessConfig} config
- * @param {Object} accessConfig
  * @return {Record<string, CheckboxField>}
  */
-function generateRightSetFields (config, accessConfig = {}) {
+function generateRightSetFields (config) {
     const fields = {}
 
     for (const listSchema of config.lists) {
@@ -65,21 +64,19 @@ function generateRightSetFields (config, accessConfig = {}) {
     for (const [schemaName, schemaFields] of Object.entries(config.fields)) {
         for (const field of schemaFields) {
             if (field.read) {
-                const fieldName = generateReadSensitiveFieldFieldName(schemaName, field.fieldName)
-                fields[fieldName] = {
+                fields[generateReadSensitiveFieldFieldName(schemaName, field.fieldName)] = {
                     ...DEFAULT_CHECKBOX_FIELD,
                     schemaDoc:
                         `Enables a user with the given UserRightsSet to read "${field.fieldName}" field of model "${schemaName}"`,
-                    access: accessConfig[fieldName],
+                    access: field.accessToRightsSet,
                 }
             }
             if (field.manage) {
-                const fieldName = generateManageSensitiveFieldFieldName(schemaName, field.fieldName)
-                fields[fieldName] = {
+                fields[generateManageSensitiveFieldFieldName(schemaName, field.fieldName)] = {
                     ...DEFAULT_CHECKBOX_FIELD,
                     schemaDoc:
                         `Enables a user with the given UserRightsSet to update "${field.fieldName}" field of model "${schemaName}"`,
-                    access: accessConfig[fieldName],
+                    access: field.accessToRightsSet,
                 }
             }
         }

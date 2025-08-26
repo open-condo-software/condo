@@ -13,6 +13,7 @@ const {
     canDirectlyReadSchemaField,
     canDirectlyManageSchemaField,
 } = require('@condo/domains/user/utils/directAccess')
+const { canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 const { getIdentificationUserRequiredFields } = require('@condo/domains/user/utils/serverSchema/userHelpers')
 
 
@@ -31,10 +32,13 @@ async function canReadUsers ({ authentication: { item: user }, listKey, args }) 
     return !isFilteringBy(where, ['phone', 'email'])
 }
 
-async function canManageUsers ({ authentication: { item: user }, operation, itemId }) {
+async function canManageUsers ({ authentication: { item: user }, operation, itemId, listKey, originalInput }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
+
+    const hasDirectAccessToFields =  await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+    if (hasDirectAccessToFields) return true
 
     if (operation === 'create') return false
     if (operation === 'update') return itemId === user.id
@@ -172,7 +176,17 @@ async function canReadUserNameField (args) {
 const canAccessMarketingConsent = {
     read: true,
     create: access.userIsAdminOrIsSupport,
-    update: userIsAdminOrCanDirectlyManageField,
+    update: async (args) => {
+        const nonDirectAccess = access.userIsAdminOrIsThisItem(args)
+
+        if (nonDirectAccess) {
+            return nonDirectAccess
+        }
+
+        const { authentication: { item: user }, listKey, fieldKey } = args
+
+        return await canDirectlyManageSchemaField(user, listKey, fieldKey)
+    },
 }
 
 async function userIsAdminOrIsThisItemOrCanDirectlyReadField (args) {

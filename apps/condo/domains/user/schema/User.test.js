@@ -38,7 +38,7 @@ const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const {
     WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR, GQL_ERRORS: ERRORS,
 } = require('@condo/domains/user/constants/errors')
-const { GET_MY_USERINFO, SIGNIN_MUTATION, UserAdmin: UserAdminGQL } = require('@condo/domains/user/gql')
+const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const {
     User,
     UserAdmin,
@@ -603,20 +603,20 @@ describe('User fields', () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
             const [updatedUser] = await updateTestUser(client, client.user.id, { hasMarketingConsent: true })
-
             expect(updatedUser.hasMarketingConsent).toBe(true)
         })
 
         test('can be updated by user with permission for manage User.hasMarketingConsent', async () => {
-            const userWithPermissions = await makeClientWithSupportUser()
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
             const [canManageUserHasMarketingConsentField] = await createTestUserRightsSet(admin, {
                 canManageUserHasMarketingConsentField: true,
             })
 
-            await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canManageUserHasMarketingConsentField.id } } })
+            const [updatedUserWithPermissions] = await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canManageUserHasMarketingConsentField.id } } })
+            expect(updatedUserWithPermissions.rightsSet.id).toEqual(canManageUserHasMarketingConsentField.id)
 
-            const [userForUpdate] = await createTestUser(admin)
-            const [updatedUser] = await updateTestUser(userWithPermissions, userForUpdate.id, { hasMarketingConsent: true })
+            const [user] = await createTestUser(admin)
+            const [updatedUser] = await updateTestUser(userWithPermissions, user.id, { hasMarketingConsent: true })
             expect(updatedUser.hasMarketingConsent).toBe(true)
         })
     })
@@ -628,16 +628,17 @@ describe('User fields', () => {
         })
 
         test('Admin and user with rightsSet for manage User.rightsSet field can add to user some rightsSet', async () => {
-            const [userWithPermissions] = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
             const [canManageUserRightsSetField] = await createTestUserRightsSet(admin, {
                 canManageUserRightsSetField: true,
             })
 
-            await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canManageUserRightsSetField.id } } })
-
+            const [updatedUserWithPermissionsByAdmin] = await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canManageUserRightsSetField.id } } })
+            expect(updatedUserWithPermissionsByAdmin.rightsSet.id).toEqual(canManageUserRightsSetField.id)
             // NOTE: We can do it!
-            const [, userAttrsByUserWithPermissions] = await updateTestUser(userWithPermissions, userWithPermissions.user.id, { rightsSet: { connect: { id: canManageUserRightsSetField.id } } })
-            expect(userAttrsByUserWithPermissions.rightsSet.connect.id).toEqual(canManageUserRightsSetField.id)
+            const [user] = await createTestUser(admin)
+            const [updatedUser] = await updateTestUser(userWithPermissions, user.id, { rightsSet: { connect: { id: canManageUserRightsSetField.id } } })
+            expect(updatedUser.rightsSet.id).toEqual(canManageUserRightsSetField.id)
         })
 
         test('Support cannot add to user some rightsSet', async () => {
@@ -675,7 +676,8 @@ describe('User fields', () => {
                 canReadUserEmailField: true,
             })
 
-            await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canReadUserEmailField.id } } })
+            const [updatedUserWithPermissions]  = await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canReadUserEmailField.id } } })
+            expect(updatedUserWithPermissions.rightsSet.id).toEqual(canReadUserEmailField.id)
 
             const readUser = await UserWithEmail.getOne(userWithPermissions, { id: user.id } )
             expect(readUser.email).toEqual(userAttrs.email)
@@ -705,7 +707,8 @@ describe('User fields', () => {
                 canReadUserPhoneField: true,
             })
 
-            await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canReadUserPhoneField.id } } })
+            const [updatedUserWithPermissions] = await updateTestUser(admin, userWithPermissions.user.id, { rightsSet: { connect: { id: canReadUserPhoneField.id } } })
+            expect(updatedUserWithPermissions.rightsSet.id).toEqual(canReadUserPhoneField.id)
 
             const readUser = await UserWithPhone.getOne(userWithPermissions, { id: user.id } )
             expect(readUser.phone).toEqual(userAttrs.phone)

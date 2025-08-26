@@ -13,9 +13,9 @@ const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/user/utils/d
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const USER_FIELDS = `type name avatar { publicUrl } meta isPhoneVerified isEmailVerified isAdmin isSupport locale showGlobalHints hasMarketingConsent ${COMMON_FIELDS}`
+const USER_FIELDS = `type name avatar { publicUrl } rightsSet { id } meta isPhoneVerified isEmailVerified isAdmin isSupport locale showGlobalHints hasMarketingConsent ${COMMON_FIELDS}`
 const User = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
-const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone rightsSet { id } }`)
+const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone }`)
 
 const USER_EXTERNAL_IDENTITY_FIELDS = '{ id user { id } identityId identityType userType meta deletedAt }'
 const UserExternalIdentity = generateGqlQueries('UserExternalIdentity', USER_EXTERNAL_IDENTITY_FIELDS)
