@@ -8,6 +8,7 @@ const FileRecord = new GQLListSchema('FileRecord', {
             type: 'Json',
             isRequired: true,
             schemaDoc: 'Information about file including its encoding, mime type, filename and user related metadata',
+            extendGraphQLTypes: ['scalar CustomUpload'],
         },
         user: {
             type: 'Relationship',

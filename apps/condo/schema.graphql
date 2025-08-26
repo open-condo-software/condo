@@ -85417,6 +85417,9 @@ input FileRecordHistoryRecordsCreateInput {
   data: FileRecordHistoryRecordCreateInput
 }
 
+"""File, that could be loaded through new file server or by legacy way"""
+scalar CustomUpload
+
 input FileRecordRelateToOneInput {
   create: FileRecordCreateInput
   connect: FileRecordWhereUniqueInput
@@ -101235,6 +101238,3 @@ type Mutation {
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
-
-"""File, that could be loaded through new file server or by legacy way"""
-scalar CustomUpload
