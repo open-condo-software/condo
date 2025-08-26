@@ -1,7 +1,6 @@
 const { format } = require('util')
 
 const dayjs = require('dayjs')
-const { isEmpty } = require('lodash')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
@@ -99,7 +98,9 @@ function getThrottlingCacheKey (message) {
 async function deliverMessage (message) {
     const { keystone: context } = getSchemaCtx('Message')
 
-    if (isEmpty(message)) throw new Error('get message by id has wrong result')
+    if (!message || !message.id) {
+        throw new Error('deliverMessage: invalid "message" argument – expected object with non-empty "id"')
+    }
     // Skip messages that are already have been processed
     if (!MESSAGE_TASK_RETRY_STATUSES.includes(message.status)) return `already-${message.status}`
 
