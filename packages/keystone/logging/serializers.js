@@ -1,3 +1,4 @@
+const pick = require('lodash/pick')
 const toString = require('lodash/toString')
 const stdSerializers = require('pino-std-serializers')
 
@@ -13,6 +14,12 @@ function toNumber (data) {
 
 function raw (data) {
     return data
+}
+
+function pickSerializer (...fields) {
+    return function (data) {
+        return pick(data, ...fields)
+    }
 }
 
 const SERIALIZERS = {
@@ -60,6 +67,9 @@ const SERIALIZERS = {
 
     /** ID of request. Will be filled automatically from execution context, don't pass it directly */
     reqId: toString,
+
+    /** ID of error */
+    errId: toString,
 
     /**
      * ID of stating request
@@ -110,14 +120,26 @@ const SERIALIZERS = {
     /** time of server response / task execution in milliseconds */
     responseTime: toNumber,
 
+    /** time of task execution in milliseconds */
+    executionTime: toNumber,
+
+    /** time of task procession (wait + execution/response time) */
+    processingTime: toNumber,
+
     /** time of request waiting before execution */
     timeUntilExecution: toNumber,
 
     /** GQL-request state */
     state: toString,
 
-    /** session identifier */
+    /**
+     * session identifier
+     * @deprecated use session.id instead
+     * */
     sessionId: toString,
+
+    /** session information (id, source, provider, clientID, createdBy) */
+    session: pickSerializer('id', 'source', 'provider', 'clientID', 'createdBy'),
 
     /** device fingerprint */
     fingerprint: toString,
@@ -157,6 +179,24 @@ const SERIALIZERS = {
 
     /** name of task based on file, where logger is initialized */
     taskName: toString,
+
+    /** runtime statistics of current container */
+    runtimeStats: raw,
+
+    /** name of queue where task is executed */
+    queue: toString,
+
+    /** task information (name, id, execution time, etc.) */
+    task: raw,
+
+    /** name of function related to log */
+    functionName: toString,
+
+    /** name of listKey related to log */
+    listKey: toString,
+
+    /** development / production. Used for services communicating with multiple envs at once (dev-portal) */
+    environment: toString,
 }
 
 const KNOWN_FIELDS = new Set(Object.keys(SERIALIZERS))

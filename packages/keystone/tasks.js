@@ -427,7 +427,7 @@ async function createWorker (keystoneModule, config, processWrapper = undefined)
                 queue: queueName,
                 task: getTaskLoggingContext(job),
                 processingTime: job.finishedOn - job.timestamp,
-                waitTime: job.processedOn - job.timestamp,
+                timeUntilExecution: job.processedOn - job.timestamp,
                 executionTime: job.finishedOn - job.processedOn,
             })
             gauge({ name: `worker.${queueName}.${job.name}ExecutionTime`, value: job.finishedOn - job.processedOn })

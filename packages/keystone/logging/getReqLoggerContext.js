@@ -16,6 +16,7 @@ const { get } = require('lodash')
  *  sessionId?: string,
  *  user?: {isSupport: boolean, id: string, isAdmin: boolean, type: string},
  *  reqId?: string
+ *  session?: { id?: string, source?: string, provider?: string, clientID?: string, createdBy?: string }
  *  }}
  */
 function getReqLoggerContext (req) {
@@ -35,7 +36,12 @@ function getReqLoggerContext (req) {
         }
     }
 
-    return { reqId, sessionId, user, ip, fingerprint, complexity }
+    const session = {
+        id: sessionId,
+        ...get(req, ['session', 'keystoneSessionMeta']),
+    }
+
+    return { reqId, sessionId, user, ip, fingerprint, complexity, session }
 }
 
 module.exports = {
