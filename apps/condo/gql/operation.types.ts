@@ -1205,3 +1205,11 @@ export type SignOutMutationVariables = Types.Exact<{ [key: string]: never; }>;
 
 
 export type SignOutMutation = { __typename?: 'Mutation', unauthenticateUser?: { __typename?: 'unauthenticateUserOutput', success?: boolean | null } | null };
+
+export type UpdateUserMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.UserUpdateInput;
+}>;
+
+
+export type UpdateUserMutation = { __typename?: 'Mutation', user?: { __typename?: 'User', id: string } | null };

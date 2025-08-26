@@ -24,3 +24,10 @@ mutation signOut {
         success
     }
 }
+
+mutation updateUser ($id: ID!, $data: UserUpdateInput!) {
+    user: updateUser (id: $id, data: $data) {
+        id
+    }
+}
+
