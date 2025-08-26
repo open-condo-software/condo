@@ -362,7 +362,8 @@ function fileShareHandler ({ keystone, appClients }) {
         } = SharePayloadSchema.safeParse(req.body)
 
         if (!success) {
-            const message = validationPayload.issues[0]?.message || 'Invalid payload'
+            const fieldPath = validationPayload.issues[0].path.join('.')
+            const message = `${validationPayload.issues[0]?.message} - ${fieldPath}` || 'Invalid payload'
             const error = new GQLError({ ...ERRORS.INVALID_PAYLOAD, message }, { req })
             return next(error)
         }

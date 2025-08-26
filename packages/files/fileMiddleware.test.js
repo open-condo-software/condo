@@ -280,8 +280,117 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 })
             })
 
-            describe.skip('share', () => {
-                // FIXME: add share validation tests
+            describe('share', () => {
+                test('only authorized user can share file', async () => {
+                    const result = await fetch(serverShareUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({}),
+                        headers: { 'Content-Type': 'application/json' },
+                    })
+                    const json = await result.json()
+                    expect(result.status).toEqual(401)
+                    expect(json).toEqual({
+                        errors: [
+                            expect.objectContaining({
+                                name: 'GQLError',
+                                message: 'Authorization is required',
+                            }),
+                        ],
+                    })
+                })
+
+                test('only owner of the binary can share', async () => {
+                    const user1 = await createTestUser()
+                    const user2 = await createTestUser()
+                    const form = new FormData()
+                    const meta = {
+                        authedItem: user1.user.id,
+                        appId, modelNames: ['SomeModel'],
+                        ...DV_AND_SENDER,
+                    }
+                    form.append('file', filestream, 'dino.png')
+                    form.append('meta', JSON.stringify(meta))
+
+                    const uploadResult = await fetch(serverUrl, {
+                        method: 'POST',
+                        body: form,
+                        headers: { Cookie: user1.getCookie() },
+                    })
+                    expect(uploadResult.status).toEqual(200)
+                    const uploadResultJson = await uploadResult.json()
+                    expect(uploadResultJson.data.files).toHaveLength(1)
+                    expect(uploadResultJson.data.files[0]).toHaveProperty('id')
+
+                    const result = await fetch(serverShareUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            id: uploadResultJson.data.files[0].id,
+                            appId: Object.keys(appClients)[1],
+                            authedItem: user2.user.id,
+                            modelNames: ['AnotherModel'],
+                            ...DV_AND_SENDER,
+                        }),
+                        // Here should be user1 - file owner
+                        headers: { Cookie: user2.getCookie(), 'Content-Type': 'application/json' },
+                    })
+                    const json = await result.json()
+                    expect(result.status).toEqual(400)
+                    expect(json).toEqual({
+                        errors: [
+                            expect.objectContaining({
+                                name: 'GQLError',
+                                message: 'File not found or you don\'t have access to it',
+                            }),
+                        ],
+                    })
+                })
+
+                test('should strict check for required variables at payload', async () => {
+                    const user1 = await createTestUser()
+                    const user2 = await createTestUser()
+                    const form = new FormData()
+                    const meta = {
+                        authedItem: user1.user.id,
+                        appId, modelNames: ['SomeModel'],
+                        ...DV_AND_SENDER,
+                    }
+                    form.append('file', filestream, 'dino.png')
+                    form.append('meta', JSON.stringify(meta))
+
+                    const uploadResult = await fetch(serverUrl, {
+                        method: 'POST',
+                        body: form,
+                        headers: { Cookie: user1.getCookie() },
+                    })
+                    expect(uploadResult.status).toEqual(200)
+                    const uploadResultJson = await uploadResult.json()
+                    expect(uploadResultJson.data.files).toHaveLength(1)
+                    expect(uploadResultJson.data.files[0]).toHaveProperty('id')
+
+                    const result1 = await fetch(serverShareUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            appId: Object.keys(appClients)[1],
+                            authedItem: user2.user.id,
+                            modelNames: ['AnotherModel'],
+                            ...DV_AND_SENDER,
+                        }),
+                        headers: {
+                            Cookie: user1.getCookie(),
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    const json1 = await result1.json()
+                    expect(result1.status).toEqual(400)
+                    expect(json1).toEqual({
+                        errors: [
+                            expect.objectContaining({
+                                name: 'GQLError',
+                                message: 'Invalid input: expected string, received undefined - id',
+                            }),
+                        ],
+                    })
+                })
             })
         })
 
