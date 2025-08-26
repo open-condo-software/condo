@@ -9,15 +9,13 @@ import { UploadRequestOption } from 'rc-upload/lib/interface'
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 
 import { Paperclip, Trash } from '@open-condo/icons'
-import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
-import { useFormDataUpload } from '@condo/domains/common/hooks/useFormDataUpload'
 import { analytics } from '@condo/domains/common/utils/analytics'
+
 
 type DBFile = {
     id: string
@@ -100,8 +98,6 @@ interface IMultipleFileUploadHookArgs {
     initialFileList?: DBFile[]
     initialCreateValues?: Record<string, unknown>
     dependenciesForRerenderUploadComponent?: Array<unknown>
-    appId?: string
-    modelNames?: Array<string>
 }
 
 interface IMultipleFileUploadHookResult {
@@ -118,7 +114,6 @@ export const useMultipleFileUploadHook = ({
     initialCreateValues = {},
     // TODO(nomerdvadcatpyat): find another solution
     dependenciesForRerenderUploadComponent = [],
-    appId = 'condo', modelNames,
 }: IMultipleFileUploadHookArgs): IMultipleFileUploadHookResult => {
     const [modifiedFiles, dispatch] = useReducer(reducer, { added: [], deleted: [] })
     const [filesCount, setFilesCount] = useState(initialFileList.length)
@@ -162,8 +157,6 @@ export const useMultipleFileUploadHook = ({
                 initialCreateValues={initialValues}
                 Model={Model}
                 updateFileList={dispatch}
-                appId={appId}
-                modelNames={modelNames}
                 {...props}
             />
         )
@@ -257,8 +250,6 @@ interface IMultipleFileUploadProps {
     UploadButton?: React.ReactNode
     uploadProps?: UploadProps
     onFileListChange?: (fileList) => void
-    modelNames: Array<string>
-    appId: string
 }
 
 const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
@@ -276,10 +267,8 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         UploadButton,
         uploadProps = {},
         onFileListChange,
-        modelNames, appId,
     } = props
 
-    const { user } = useAuth()
     const [listFiles, setListFiles] = useState<UploadListFile[]>([])
 
     useEffect(() => {
@@ -288,7 +277,6 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     }, [fileList])
 
     const createAction = Model.useCreate(initialCreateValues, (file: DBFile) => Promise.resolve(file))
-    const { upload } = useFormDataUpload()
 
     useEffect(() => {
         if (listFiles.length === 0) {
@@ -345,56 +333,15 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 )
             },
         },
-        customRequest: async (options: UploadRequestOption) => {
-            const { file, onSuccess, onError } = options
-            let realFile
-
-            try {
-                realFile = file instanceof Blob
-                    ? file
-                    : (file as any)?.originFileObj instanceof Blob
-                        ? (file as any).originFileObj
-                        : undefined
-
-                if (!realFile) {
-                    throw new Error('No File/Blob received from rc-upload.')
-                }
-            } catch (e) {
-                onError(e)
-            }
-
-            // const file = options.file as RcFile
-            if (realFile.size > MAX_UPLOAD_FILE_SIZE) {
+        customRequest: (options: UploadRequestOption) => {
+            const { onSuccess, onError } = options
+            const file = options.file as UploadFile
+            if (file.size > MAX_UPLOAD_FILE_SIZE) {
                 const error = new Error(FileTooBigErrorMessage)
                 onError(error)
                 return
             }
-
-            let uploadResult
-            try {
-                uploadResult = await upload({
-                    file: realFile,
-                    filename: realFile.name,
-                    meta: {
-                        appId, authedItem: user.id,
-                        modelNames,
-                        dv: 1,
-                        sender: getClientSideSenderInfo(),
-                    },
-                })
-
-                if (!uploadResult?.data?.files?.[0]?.signature) {
-                    const error = new Error(UploadFailedErrorMessage)
-                    onError(error)
-                }
-            } catch (e) {
-                const error = new Error(UploadFailedErrorMessage)
-                onError(error)
-            }
-
-            const fileData = uploadResult.data.files[0]
-
-            return createAction({ ...initialCreateValues, file: fileData }).then(dbFile => {
+            return createAction({ ...initialCreateValues, file }).then(dbFile => {
                 const [uploadFile] = convertFilesToUploadFormat([dbFile])
                 onSuccess(uploadFile, null)
                 updateFileList({ type: 'add', payload: dbFile })
@@ -409,7 +356,6 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         },
         ...uploadProps,
     }
-
 
     return (
         <StyledUpload {...options}>
