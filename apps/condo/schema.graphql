@@ -85445,7 +85445,7 @@ type FileRecord {
   """ Link to original FileRecord which was shared """
   sourceId: FileRecord
 
-  """ Applicaiton id - should be used for final routing """
+  """ App id - used for final routing when original file was shared """
   sourceApp: String
   id: ID!
   v: Int
