@@ -58,6 +58,7 @@ export const UserSettingsContent: React.FC = () => {
     ]), [EnTitle, RuTitle, EsTitle])
 
     const handleLocaleChange = useCallback((setLocale) => async (newLocale) => {
+        if (!user?.id) return
         await updateUser({
             variables: {
                 id: user.id,
@@ -73,6 +74,7 @@ export const UserSettingsContent: React.FC = () => {
 
     const updateUserInfo = useMemo(() => debounce(async (checked: boolean, fieldName: 'showGlobalHints' | 'hasMarketingConsent') => {
         try {
+            if (!user?.id) return
             await updateUser({
                 variables: {
                     id: user.id,

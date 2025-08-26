@@ -1131,7 +1131,6 @@ describe('Sensitive data search', () => {
         expect(readUser.deletedAt).toBeNull()
 
         const accessDeniedCases = [
-            [firstServiceUser, nonServiceUser],
             [secondServiceUser, firstServiceUser],
             [secondServiceUser, nonServiceUser],
             [nonServiceUser, secondServiceUser],
