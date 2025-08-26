@@ -37,10 +37,11 @@ async function canManageUsers ({ authentication: { item: user }, operation, item
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
 
-    const hasDirectAccessToFields =  await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
-    if (hasDirectAccessToFields) return true
-
     if (operation === 'create') return false
+
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+    if (hasDirectAccess) return true
+
     if (operation === 'update') return itemId === user.id
 
     return false
