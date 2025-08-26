@@ -7,7 +7,7 @@ const {
     rateLimitHandler,
     parseAndValidateMeta,
 } = require('./utils')
-const { MetaSchema } = __test__
+const { MetaSchema, SharePayloadSchema } = __test__
 
 const USER_UUID = faker.datatype.uuid()
 
@@ -36,6 +36,16 @@ function onErrorRunner () {
 const baseMeta = (overrides = {}) => ({
     dv: 1,
     sender: { dv: 1, fingerprint: 'device-ABC_123' },
+    authedItem: USER_UUID,
+    appId: 'condo',
+    modelNames: ['Example'],
+    ...overrides,
+})
+
+const baseShare = (overrides = {}) => ({
+    dv: 1,
+    sender: { dv: 1, fingerprint: 'device-ABC_123' },
+    id: faker.datatype.uuid(),
     authedItem: USER_UUID,
     appId: 'condo',
     modelNames: ['Example'],
@@ -144,6 +154,60 @@ const FileMiddlewareUtilsTests = () => {
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch('too small: expected array to have >=1 items')
             })
         })
+
+        describe('SharePayloadSchema (direct)', () => {
+            test('valid payload passes', () => {
+                const ok = SharePayloadSchema.safeParse(baseShare())
+                expect(ok.success).toBe(true)
+            })
+
+            test('dv must equal 1', () => {
+                const bad = SharePayloadSchema.safeParse(baseShare({ dv: 2 }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message).toMatch('Invalid input: expected 1')
+            })
+
+            test('sender.dv must equal 1', () => {
+                const bad = SharePayloadSchema.safeParse(baseShare({ sender: { dv: 2, fingerprint: 'device-ABC_123' } }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message).toMatch('Invalid input: expected 1')
+            })
+
+            test('fingerprint must match regex', () => {
+                const bad = SharePayloadSchema.safeParse(baseShare({ sender: { dv: 1, fingerprint: 'bad space' } }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message).toMatch(/Invalid string|Invalid/)
+            })
+
+            test('id must be uuid', () => {
+                const bad = SharePayloadSchema.safeParse(baseShare({ id: 'nope' }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
+            })
+
+            test('authedItem must be uuid', () => {
+                const bad = SharePayloadSchema.safeParse(baseShare({ authedItem: 'nope' }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
+            })
+
+            test('appId must be non-empty string', () => {
+                const bad = SharePayloadSchema.safeParse(baseShare({ appId: '' }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message.toLowerCase()).toMatch('too small: expected string to have >=1 characters')
+            })
+
+            test('modelNames is optional, but when present must be non-empty array', () => {
+                const okWithout = SharePayloadSchema.safeParse(baseShare({ modelNames: undefined }))
+                expect(okWithout.success).toBe(true)
+
+                const bad = SharePayloadSchema.safeParse(baseShare({ modelNames: [] }))
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message.toLowerCase()).toMatch('too small: expected array to have >=1 items')
+            })
+        })
+
+        
 
         describe('parseAndValidateMeta (via middleware helper)', () => {
             test('accepts valid meta object', () => {
