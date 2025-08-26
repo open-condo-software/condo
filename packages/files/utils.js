@@ -440,5 +440,6 @@ module.exports = {
 
     __test__: {
         MetaSchema,
+        SharePayloadSchema,
     },
 }
