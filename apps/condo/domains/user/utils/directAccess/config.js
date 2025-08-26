@@ -77,7 +77,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
             {
                 fieldName: 'email',
                 read: true,
-                accessToRightsSet: {
+                userRightsSetAccess: {
                     read: true,
                     create: access.userIsAdmin,
                     update: access.userIsAdmin,
@@ -86,7 +86,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
             {
                 fieldName: 'phone',
                 read: true,
-                accessToRightsSet: {
+                userRightsSetAccess: {
                     read: true,
                     create: access.userIsAdmin,
                     update: access.userIsAdmin,
@@ -99,7 +99,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
             {
                 fieldName: 'rightsSet',
                 manage: true,
-                accessToRightsSet: {
+                userRightsSetAccess: {
                     read: true,
                     create: access.userIsAdmin,
                     update: access.userIsAdmin,
