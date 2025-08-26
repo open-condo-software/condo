@@ -449,10 +449,13 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
                 expect(result.status).toEqual(200)
                 expect(json.data.files).toHaveLength(1)
-                expect(json.data.files[0]).toHaveProperty('signature')
-                expect(json.data.files[0]).toHaveProperty('id')
-                expect(json.data.files[0]).toHaveProperty('fileMeta')
-                expect(json.data.files[0].fileMeta).toHaveProperty(['meta', 'fileAdapter'], conf['FILE_FIELD_ADAPTER'])
+                const file = json.data.files[0]
+                expect(file).toHaveProperty('signature')
+                expect(file).toHaveProperty('id')
+                expect(file).toHaveProperty('fileMeta')
+                expect(file.fileMeta).toHaveProperty(['meta', 'fileAdapter'], conf['FILE_FIELD_ADAPTER'])
+                expect(file).toHaveProperty('fileKey', file.fileMeta.id)
+                expect(file.id).toEqual(file.fileMeta.shareId)
             })
 
             test('uploading multiple files should be possible', async () => {
@@ -515,7 +518,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        id: originalFile.id,
+                        id: originalFile.fileMeta.shareId,
                         // Took another client
                         appId: Object.keys(appClients)[1],
                         // Here we insert the id for which this file is intended

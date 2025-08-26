@@ -319,7 +319,7 @@ function fileStorageHandler ({ keystone, appClients }) {
             )
         )
 
-        const condoFiles = await FileRecord.createMany(
+        const createdFiles = await FileRecord.createMany(
             context,
             savedFiles.map((data, index) => ({
                 data: {
@@ -333,14 +333,19 @@ function fileStorageHandler ({ keystone, appClients }) {
                     dv: meta.dv,
                     sender: meta.sender,
                     user: { connect: { id: req.user.id } },
+                    fileKey: data.id,
                 },
             })),
             'id fileMeta'
         )
+        const fileRecords = await FileRecord.updateMany(context,
+            createdFiles.map(e => ({
+                id: e.id, data: { fileMeta: { ...e.fileMeta, shareId: e.id }, dv: meta.dv, sender: meta.sender },
+            })), 'id fileKey fileMeta')
 
         res.json({
             data: {
-                files: condoFiles.map(file => ({
+                files: fileRecords.map(file => ({
                     ...file,
                     signature: jwt.sign(
                         file.fileMeta,
@@ -379,7 +384,7 @@ function fileShareHandler ({ keystone, appClients }) {
 
         const context = keystone.createContext({ skipAccessControl: true })
         const fileRecord = await FileRecord
-            .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, 'id fileMeta')
+            .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, 'id fileKey fileMeta')
 
         if (!fileRecord) {
             const error = new GQLError(ERRORS.FILE_NOT_FOUND, { req })
@@ -399,13 +404,19 @@ function fileShareHandler ({ keystone, appClients }) {
             },
         }
 
-        const sharedFile = await FileRecord.create(context, {
+        const created = await FileRecord.create(context, {
             fileMeta: sharedFileMeta,
             dv, sender,
             user: { connect: { id: authedItem } },
             sourceId: { connect: { id: fileRecord.id } }, // point to original FileRecord
             sourceApp: sourceAppId, // original appId for routing
+            fileKey: fileRecord.fileKey,
         }, 'id fileMeta')
+
+        const sharedFile = await FileRecord.update(context, created.id, {
+            fileMeta: { ...created.fileMeta, shareId: created.id },
+            dv, sender,
+        }, 'id fileMeta fileKey')
 
         res.json({
             data: {
