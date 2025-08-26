@@ -23,17 +23,11 @@ const CustomFileScalar = new GraphQLScalarType({
 
 
 class Keystone extends DefaultKeystone {
-    getTypeDefs ({ schemaName }) {
-        const originalTypeDefs = super.getTypeDefs({ schemaName })
-
-        return [...originalTypeDefs, 'scalar CustomUpload']
-    }
     getResolvers ({ schemaName }) {
         const originalResolvers = super.getResolvers({ schemaName })
 
         return _patchResolverWithGQLContext({ ...originalResolvers, CustomUpload: CustomFileScalar })
     }
-
 }
 
 module.exports = {
