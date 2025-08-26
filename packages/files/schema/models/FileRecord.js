@@ -18,6 +18,11 @@ const FileRecord = new GQLListSchema('FileRecord', {
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
+        fileKey: {
+            type: 'Text',
+            isRequired: true,
+            schemaDoc: 'Unique identifier on the storage side (eg file adapter)',
+        },
         sourceId: {
             type: 'Relationship',
             ref: 'FileRecord',
