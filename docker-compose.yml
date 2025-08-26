@@ -46,6 +46,8 @@ services:
         -c max_connections=2000
         -c wal_level=replica
         -c synchronous_commit=on
+        -c statement_timeout=10s
+        -c shared_buffers=256MB
     volumes:
       - ./docker-compose-postgresql-init-replication.sql:/docker-entrypoint-initdb.d/docker-compose-postgresql-init-replication.sql
     networks:
@@ -70,7 +72,7 @@ services:
         chmod -R 0700 /var/lib/postgresql/data
         touch /var/lib/postgresql/initialized
       fi
-      postgres -c max_connections=2000
+      postgres -c max_connections=2000 -c statement_timeout=10s -c shared_buffers=256MB
       "
     networks:
       - app-network
