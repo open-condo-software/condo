@@ -177,7 +177,6 @@ const FileImportModal = ({ domainName, activeModal, setActiveModal }) => {
         Model: UserHelpRequestFile,
         relationField: 'userHelpRequest',
         initialFileList: [],
-        modelNames: ['UserHelpRequestFile'],
     })
 
     const uploadFormAction = useCallback(async values => {
