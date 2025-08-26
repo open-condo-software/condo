@@ -74,7 +74,7 @@ class GithubAuthStrategy {
 
                 try {
                     const user = await syncUser(req, profile, req.session.userType, providerInfo, GithubAuthStrategy.fieldMapping)
-                    done(null, user, { accessToken, refreshToken, clientID })
+                    done(null, user, { accessToken, refreshToken, clientID, provider: providerInfo.name })
                 } catch (err) {
                     done(err)
                 }

@@ -97,19 +97,15 @@ class PassportAuthRouter {
                 return next(new GQLError(ERRORS.INVALID_AUTH_INFO, { req }, [authInfoError]))
             }
 
-            const sessionMeta = {
-                source: 'passport',
-                provider: authInfo.provider || req.params.provider,
-            }
-            if (authInfo.clientID) {
-                sessionMeta.clientID = authInfo.clientID
-            }
-
             try {
                 await keystone._sessionManager.startAuthedSession(req, {
                     item: { id: user.id },
                     list: keystone.lists['User'],
-                    meta: sessionMeta,
+                    meta: {
+                        source: 'passport',
+                        provider: authInfo.provider || req.params.provider,
+                        clientID: authInfo.clientID,
+                    },
                 })
 
                 return res.redirect('/')

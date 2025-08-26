@@ -82,7 +82,7 @@ const SigninAsUserService = new GQLCustomSchema('SigninAsUserService', {
                     meta: {
                         source: 'gql',
                         provider: 'signinAsUser',
-                        createdBy: user.id,
+                        createdBy: context.authedItem.id,
                     },
                 })
 
