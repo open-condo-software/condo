@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Typography, Input } from '@open-condo/ui'

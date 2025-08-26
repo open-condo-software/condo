@@ -606,7 +606,7 @@ describe('User fields', () => {
             expect(updatedUser.hasMarketingConsent).toBe(true)
         })
 
-        test('can be updated by user with permission for manage User.hasMarketingConsent', async () => {
+        test('can be updated by user with "canManageUserHasMarketingConsentField" set in rights set', async () => {
             const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
             const [canManageUserHasMarketingConsentField] = await createTestUserRightsSet(admin, {
                 canManageUserHasMarketingConsentField: true,
@@ -669,7 +669,7 @@ describe('User fields', () => {
             }, ['objs', 0, 'email'])
         })
 
-        test('can read by user with permission for read User.email', async () => {
+        test('can read by user with "canReadUserEmailField" permission in rights set', async () => {
             const [user, userAttrs] = await createTestUser(admin)
             const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
             const [canReadUserEmailField] = await createTestUserRightsSet(admin, {
@@ -700,7 +700,7 @@ describe('User fields', () => {
             }, ['objs', 0, 'phone'])
         })
 
-        test('can read by user with permission for read User.phone', async () => {
+        test('can read by user with "canReadUserPhoneField" permission in rights set', async () => {
             const [user, userAttrs] = await createTestUser(admin)
             const userWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
             const [canReadUserPhoneField] = await createTestUserRightsSet(admin, {
