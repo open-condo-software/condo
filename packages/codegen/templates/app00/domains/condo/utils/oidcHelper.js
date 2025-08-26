@@ -32,6 +32,7 @@ class OIDCHelper {
             token_endpoint_auth_method: 'client_secret_basic',
             ...(clientOptions || {}),
         })
+        this.clientID = clientId
     }
 
     /**
