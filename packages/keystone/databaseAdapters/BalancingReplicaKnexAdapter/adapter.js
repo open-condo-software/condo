@@ -17,7 +17,6 @@ const { extractCRUDQueryData } = require('./utils/sql')
 class BalancingReplicaKnexAdapter extends KnexAdapter {
     constructor ({ databaseUrl, replicaPools, routingRules }) {
         super()
-
         this._dbConnections = getNamedDBs(databaseUrl || conf['DATABASE_URL'])
         const availableDatabases = Object.keys(this._dbConnections)
         this._replicaPoolsConfig = getReplicaPoolsConfig(replicaPools || conf['DATABASE_POOLS'], availableDatabases)
@@ -26,10 +25,11 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
     async _initKnexClients () {
         const dbNames = Object.keys(this._dbConnections)
+        const maxConnections = conf['DATABASE_POOL_MAX'] ? parseInt(conf['DATABASE_POOL_MAX']) : 3
         const connectionResults = await Promise.allSettled(
             dbNames.map(dbName => initKnexClient({
                 client: 'postgres',
-                pool: { min: 0, max: 3 },
+                pool: { min: 0, max: maxConnections },
                 connection: this._dbConnections[dbName],
             }))
         )
