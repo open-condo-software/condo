@@ -489,7 +489,7 @@ class MapEdit extends MapView {
     private _previewSectionFloor: number | null = null
     private _previewUnitId: string | null = null
     private _duplicatedUnits: string[] | null = []
-    private selectedSections: Array<BuildingSection> = []
+    private selectedSection: BuildingSection | null = null
     private selectedFloorSectionIndex: number | null = null
     private sectionFloorMap: Record<number, number> = {}
     private selectedUnits: BuildingUnit[] = []
@@ -535,7 +535,7 @@ class MapEdit extends MapView {
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnits = []
-                this.selectedSections = []
+                this.selectedSection = null
                 break
             case 'editSection':
             case 'editParking':
@@ -549,8 +549,8 @@ class MapEdit extends MapView {
             case 'addParkingFacilityUnit':
                 this.restoreSections()
                 this.removePreviewSection()
-                this.selectedSections = []
                 this.selectedUnits = []
+                this.selectedSection = null
                 break
             case 'editUnit':
             case 'editUnits':
@@ -560,15 +560,15 @@ class MapEdit extends MapView {
                 this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
-                this.selectedSections = []
+                this.selectedUnits = []
                 break
             case 'addSectionFloor':
             case 'addParkingFloor':
                 this.removePreviewSectionFloor()
                 break
             default:
-                this.selectedSections = []
                 this.selectedUnits = []
+                this.selectedSection = null
                 this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
@@ -612,32 +612,27 @@ class MapEdit extends MapView {
     }
 
     public setSelectedSection (section: BuildingSection): void {
-        const newSelectedSections = [...this.selectedSections]
+        const isAlreadySelected = this.selectedSection && this.selectedSection.id === section.id
 
-        const existingSection = newSelectedSections.find(s => s.id === section.id)
-        const existingIndex = newSelectedSections.findIndex(s => s.id === section.id)
-
-        if (existingIndex === -1) {
-            newSelectedSections.push(section)
+        if (isAlreadySelected) {
+            this.selectedSection = null
         } else {
-            this.restoreSection(existingSection.id)
-            newSelectedSections.splice(existingIndex, 1)
+            this.selectedSection = section
         }
 
-        this.selectedSections = newSelectedSections
-        if (this.selectedSections.length > 0) {
+        if (this.selectedSection) {
             this.editMode = this.viewMode === MapViewMode.section ? 'editSection' : 'editParking'
         } else {
             this.editMode = null
         }
     }
 
-    public getSelectedSections (): Array<BuildingSection> {
-        return [...this.selectedSections]
+    public getSelectedSection (): BuildingSection | null {
+        return this.selectedSection
     }
 
     public isSectionSelected (id: string): boolean {
-        return Array.isArray(this.selectedSections) && this.selectedSections && this.selectedSections.map(s => s.id).some(s => s === id)
+        return this.selectedSection && this.selectedSection.id === id
     }
 
     public setSelectedUnit (unit: BuildingUnit): void {
@@ -723,7 +718,7 @@ class MapEdit extends MapView {
         this.sections.push(newSection)
         this.removePreviewUnit()
         this.selectedUnits = []
-        this.selectedSections = []
+        this.selectedSection = null
         this.mode = null
         this.notifyUpdater()
     }
@@ -836,7 +831,7 @@ class MapEdit extends MapView {
         if (sectionIndex === -1) return
 
         if (sectionUpdate.unitsOnFloor !== undefined && sectionUpdate.unitsOnFloor !== null) {
-            this.updateUnitsPerFloor(sectionIndex, sectionUpdate.unitsOnFloor, false, true)
+            this.updateUnitsPerFloor(sectionIndex, sectionUpdate.unitsOnFloor, true)
         }
 
         if (
@@ -852,7 +847,6 @@ class MapEdit extends MapView {
                 sectionUpdate.minFloor,
                 sectionUpdate.maxFloor,
                 sectionUpdate.unitsOnFloor,
-                false,
                 true
             )
         }
@@ -888,11 +882,11 @@ class MapEdit extends MapView {
     }
 
     public updateSection (sectionUpdate: Partial<BuildingSectionArg>, renameNextUnits = true, renameNextSections = true): void {
-        // Find the section to update
-        const sectionIndex = this.sections.findIndex(s => sectionUpdate.id === s.id)
+        const sectionIndex = this.sections.findIndex(section => section.id === sectionUpdate.id)
         if (sectionIndex === -1) return
 
-        if (sectionUpdate.maxFloor < sectionUpdate.minFloor) {
+        if (sectionUpdate.maxFloor !== undefined && sectionUpdate.minFloor !== undefined &&
+            sectionUpdate.maxFloor < sectionUpdate.minFloor) {
             return
         }
 
@@ -922,11 +916,11 @@ class MapEdit extends MapView {
         }
 
         if (renameNextUnits) {
-            const floor = section.floors
+            const floor = section.floors.sort((a, b) => b.index - a.index)
             const lastFloor = floor[floor.length - 1]
             const lastUnit = lastFloor.units[lastFloor.units.length - 1]
 
-            this.updateUnitNumbers(lastUnit)
+            if (lastUnit) this.updateUnitNumbers(lastUnit)
         }
 
         this.restoreSections()
@@ -934,25 +928,41 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    private updateUnitsPerFloor (sectionIndex: number, newUnitsPerFloor: number, renameNextUnits: boolean, preview?: boolean): void {
+    private updateUnitsPerFloor (sectionIndex: number, newUnitsPerFloor: number, preview?: boolean): void {
         const section = this.sections[sectionIndex]
+        let lastUntouchedUnit: BuildingUnit | null = null
+
         for (const floor of section.floors) {
             const unitDifference = newUnitsPerFloor - floor.units.length
             if (unitDifference > 0) {
-                this.addUnitsToFloor(floor, unitDifference, sectionIndex, renameNextUnits, preview)
+                if (floor.units.length > 0) {
+                    const sortedUnits = [...floor.units].sort((a, b) => Number(a.label) - Number(b.label))
+                    lastUntouchedUnit = sortedUnits[sortedUnits.length - 1]
+                }
+                this.addUnitsToFloor(floor, unitDifference, preview)
             } else if (unitDifference < 0) {
-                this.removeUnitsFromFloor(floor, Math.abs(unitDifference), sectionIndex, renameNextUnits)
+                if (floor.units.length > 0) {
+                    const sortedUnits = [...floor.units].sort((a, b) => Number(a.label) - Number(b.label))
+                    const unitsToKeep = sortedUnits.slice(0, sortedUnits.length + unitDifference)
+                    if (unitsToKeep.length > 0) {
+                        lastUntouchedUnit = unitsToKeep[unitsToKeep.length - 1]
+                    }
+                }
+                this.removeUnitsFromFloor(floor, Math.abs(unitDifference))
             }
+        }
+
+        if (lastUntouchedUnit) {
+            this.updateUnitNumbers(lastUntouchedUnit, this.sections[sectionIndex].index)
         }
     }
 
-    private addUnitsToFloor (floor: BuildingFloor, count: number, sectionIndex: number, renameNextUnits: boolean, preview?: boolean): void {
+    private addUnitsToFloor (floor: BuildingFloor, count: number, preview?: boolean): void {
         let maxUnitLabel = 0
         if (floor.units.length > 0) {
-            maxUnitLabel = Math.max(...floor.units.map(unit => Number(unit.label)))
+            const numericLabels = floor.units.map(unit => Number(unit.label)).filter(label => !isNaN(label))
+            maxUnitLabel = numericLabels.length > 0 ? Math.max(...numericLabels) : 0
         }
-
-        if (Number.isNaN(maxUnitLabel)) maxUnitLabel = 0
 
         const newUnits: BuildingUnit[] = []
         for (let i = 1; i <= count; i++) {
@@ -965,21 +975,6 @@ class MapEdit extends MapView {
             })
         }
         floor.units.push(...newUnits)
-
-        if (newUnits[newUnits.length - 1]) {
-            const shouldRenameUnits = renameNextUnits && !preview
-            const updatedSectionIndex = this.sections[sectionIndex].index + 1
-            const unitNumberToStartRenaming = shouldRenameUnits ? null : updatedSectionIndex
-
-            this.updateUnitNumbers(newUnits[newUnits.length - 1], unitNumberToStartRenaming)
-        }
-    }
-
-    private removeUnitsFromFloor (floor: BuildingFloor, count: number, sectionIndex: number, renameNextUnits: boolean): void {
-        const unitsToRemove = floor.units.slice(-count)
-        for (const unit of unitsToRemove) {
-            this.removeUnit(unit.id, renameNextUnits, sectionIndex)
-        }
     }
 
     getSectionMissingFloorsCount (sectionIndex: number): number {
@@ -1000,10 +995,9 @@ class MapEdit extends MapView {
 
     private updateFloorRange (
         sectionIndex: number,
-        newMinFloor: number,
-        newMaxFloor: number,
-        unitsPerFloor: number,
-        renameNextUnits: boolean,
+        newMinFloor: number | undefined,
+        newMaxFloor: number | undefined,
+        unitsPerFloor: number | undefined,
         preview?: boolean
     ): void {
         const section = this.sections[sectionIndex]
@@ -1022,17 +1016,14 @@ class MapEdit extends MapView {
         const currentFloorCount = section.floors.length
         const effectiveCurrentFloorCount = currentFloorCount + missingFloors
 
-        console.log('effectiveCurrentFloorCount', effectiveCurrentFloorCount)
-        console.log('requiredFloorCount', requiredFloorCount)
-
         const floorsToAddOrRemove = requiredFloorCount - effectiveCurrentFloorCount
 
         const currentSectionMaxFloor = this.getSectionMaxFloor(sectionIndex)
 
         if (floorsToAddOrRemove > 0) {
-            this.addFloorsToSection(sectionIndex, currentSectionMaxFloor, newMaxFloor, unitsPerFloor, renameNextUnits, preview)
+            this.addFloorsToSection(sectionIndex, currentSectionMaxFloor, newMaxFloor, unitsPerFloor, preview)
         } else if (floorsToAddOrRemove < 0) {
-            this.removeFloorsFromSection(sectionIndex, Math.abs(floorsToAddOrRemove), renameNextUnits)
+            this.removeFloorsFromSection(sectionIndex, Math.abs(floorsToAddOrRemove))
         }
     }
 
@@ -1041,55 +1032,124 @@ class MapEdit extends MapView {
         currentMaxFloor: number,
         newMaxFloor: number,
         unitsPerFloor: number,
-        renameNextUnits: boolean,
         preview?: boolean
     ): void {
-        for (let floorIndex = currentMaxFloor; floorIndex < newMaxFloor; floorIndex++) {
-            let lastUnit = null
-            const floors = this.sections[sectionIndex].floors.sort((a, b) => b.index - a.index)
+        const section = this.sections[sectionIndex]
+        const floors = [...this.sections[sectionIndex].floors].sort((a, b) => a.index - b.index)
+        let lastUnitNumber = 0
 
-            for (let i = 0; i < floors.length; i++) {
-                const units = floors[i].units
+        for (let i = 0; i < floors.length; i++) {
+            const units = floors[i].units
 
-                for (let j = units.length - 1; j >= 0; j--) {
-                    const unitNumber = Number(units[j].label)
+            for (let j = units.length - 1; j >= 0; j--) {
+                const unitNumber = Number(units[j].label)
 
-                    if (!isNaN(unitNumber)) {
-                        lastUnit = unitNumber
-                        break
-                    }
-                }
-
-                if (lastUnit !== null) {
+                if (!isNaN(unitNumber)) {
+                    lastUnitNumber = unitNumber
                     break
                 }
             }
+        }
 
-            this.addSectionFloor({
-                section: sectionIndex,
-                index: floorIndex + 1,
-                unitCount: unitsPerFloor,
-                startUnitIndex: lastUnit,
-            }, renameNextUnits, preview)
+        // Добавляем новые этажи
+        for (let floorIndex = currentMaxFloor + 1; floorIndex <= newMaxFloor; floorIndex++) {
+            const newFloor = {
+                id: String(++this.autoincrement),
+                index: floorIndex,
+                units: [],
+                name: String(floorIndex),
+                type: BuildingFloorType.Floor,
+            }
+
+            // Добавляем помещения на новый этаж
+            for (let i = 1; i <= unitsPerFloor; i++) {
+                newFloor.units.push({
+                    id: String(++this.autoincrement),
+                    label: String(lastUnitNumber + i),
+                    type: BuildingUnitType.Unit,
+                    unitType: this.defaultUnitType,
+                    preview: preview,
+                })
+            }
+
+            lastUnitNumber += unitsPerFloor
+            section.floors.push(newFloor)
         }
     }
 
-    private removeFloorsFromSection (sectionIndex: number, count: number, renameNextUnits: boolean): void {
+    private removeFloorsFromSection (sectionIndex: number, count: number): void {
         for (let i = 0; i < count; i++) {
             this.removeFloor(sectionIndex, 0)
         }
+    }
 
-        const maxFloorIndex = this.getSectionMaxFloor(sectionIndex)
-        const maxFloor = this.sections[sectionIndex].floors.find(f => maxFloorIndex === f.index)
+    // Новая функция для пересчета номеров этажей от заданного этажа
+    private renumberFloorsFrom (sectionIndex: number, startFromFloorIndex: number): void {
+        const section = this.sections[sectionIndex]
+        const sortedFloors = [...section.floors].sort((a, b) => a.index - b.index)
 
-        if (maxFloor && maxFloor.units.length > 0) {
-            const maxUnitLabel = String(Math.max(...maxFloor.units.map(unit => Number(unit.label))))
-            const maxUnit = maxFloor.units.find(unit => unit.label === maxUnitLabel)
-
-            if (maxUnit && renameNextUnits) {
-                this.updateUnitNumbers(maxUnit)
+        let currentFloorNumber = startFromFloorIndex
+        for (const floor of sortedFloors) {
+            if (floor.index >= startFromFloorIndex) {
+                floor.index = currentFloorNumber++
             }
         }
+    }
+
+    // Новая функция для пересчета номеров помещений от заданного помещения
+    private renumberUnitsFrom (startFromUnit: BuildingUnit): void {
+        // Находим секцию и этаж, содержащие помещение
+        let foundSection: BuildingSection | null = null
+        let foundFloor: BuildingFloor | null = null
+        let unitIndex = -1
+
+        for (const section of this.sections) {
+            for (const floor of section.floors) {
+                const index = floor.units.findIndex(unit => unit.id === startFromUnit.id)
+                if (index !== -1) {
+                    foundSection = section
+                    foundFloor = floor
+                    unitIndex = index
+                    break
+                }
+            }
+            if (foundSection) break
+        }
+
+        if (!foundSection || !foundFloor) return
+
+        // Сортируем все помещения начиная с найденного этажа
+        const allUnits: BuildingUnit[] = []
+        let startRenaming = false
+
+        // Собираем все помещения, начиная с целевого
+        for (const section of this.sections) {
+            for (const floor of section.floors) {
+                const sortedFloorUnits = [...floor.units].sort((a, b) => Number(a.label) - Number(b.label))
+
+                for (const unit of sortedFloorUnits) {
+                    if (unit.id === startFromUnit.id) {
+                        startRenaming = true
+                    }
+                    if (startRenaming) {
+                        allUnits.push(unit)
+                    }
+                }
+            }
+        }
+
+        // Перенумеровываем начиная с исходного номера
+        let currentNumber = Number(startFromUnit.label)
+        for (const unit of allUnits) {
+            unit.label = String(currentNumber++)
+        }
+    }
+
+    private removeUnitsFromFloor (floor: BuildingFloor, count: number): void {
+        const unitsToRemove = floor.units.slice(-count)
+        const unitIdsToRemove = unitsToRemove.map(unit => unit.id)
+
+        floor.units = floor.units.filter(unit => !unitIdsToRemove.includes(unit.id))
     }
 
     public removeSection (id: string, renameNextUnits = true): void {
@@ -1098,7 +1158,7 @@ class MapEdit extends MapView {
         this.sections.splice(sectionIndex, 1)
         if (renameNextUnits) this.updateSectionNumbers(sectionIndex, renameNextUnits, removedSection)
 
-        this.selectedSections = []
+        this.selectedSection = null
         this.mode = null
         this.editMode = null
         this.notifyUpdater()
@@ -1156,7 +1216,7 @@ class MapEdit extends MapView {
         if (renameNextUnits) this.updateUnitNumbers(newUnit)
 
         this.removePreviewSection()
-        this.selectedSections = []
+        this.selectedSection = null
         this.selectedUnits = []
         this.mode = null
         this.notifyUpdater()
@@ -1175,7 +1235,7 @@ class MapEdit extends MapView {
 
             if (nextUnit && NUMERIC_REGEXP.test(removedUnit.label) && (renameNextUnits || sectionIndex !== undefined)) {
                 nextUnit.label = !sectionIndex ? removedUnit.label : nextUnit.label
-                const updatedSectionIndex = renameNextUnits ? null : this.sections[sectionIndex].index + 1
+                const updatedSectionIndex = renameNextUnits ? null : this.sections[sectionIndex].index
                 const unitNumberToStartRenaming = renameNextUnits ? null : updatedSectionIndex
 
                 this.updateUnitNumbers(nextUnit, unitNumberToStartRenaming)
@@ -1220,7 +1280,7 @@ class MapEdit extends MapView {
         let started = false
         let next = Number(label) + 1
         this.sections.forEach(section => {
-            if (sectionIndex && section.index !== sectionIndex - 1) return
+            if (sectionIndex !== undefined && section.index !== sectionIndex) return
 
             section.floors.slice().reverse().forEach(floor => {
                 floor.units.forEach(unit => {
