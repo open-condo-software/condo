@@ -1,4 +1,5 @@
 import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
 import { useMemo } from 'react'
 
 import { QueryMeta, SorterColumn, convertSortersToSortBy } from '../utils/tables.utils'
@@ -12,7 +13,7 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
         }, [])
 
         const validMetas = queryMetas
-            .filter((meta) => meta && meta.keyword && meta.filters && meta.filters.length > 0)
+            .filter((meta) => meta && meta.keyword && meta.filters && (isFunction(meta.filters) || meta.filters.length > 0))
 
         const filtersToWhere = (queryFilters) => {
             const whereQueries = []
@@ -24,7 +25,8 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
                     searchValue = queryToWhereProcessor(searchValue)
                 }
 
-                const createdFilters = meta.filters
+                const filters = isFunction(meta.filters) ? meta.filters(searchValue || meta.defaultValue) : meta.filters
+                const createdFilters = filters
                     .map((filter) => filter(searchValue || meta.defaultValue))
                     .filter(Boolean)
                 

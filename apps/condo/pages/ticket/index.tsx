@@ -4,6 +4,7 @@ import {
     useGetTicketsCountLazyQuery,
     useGetTicketsCountQuery,
     useGetTicketsQuery,
+    useGetUserTicketCommentsReadTimeQuery,
 } from '@app/condo/gql'
 import { SortTicketsBy, Ticket as ITicket, TicketStatusTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
@@ -349,9 +350,12 @@ const TicketsTableContainer = ({
     baseQueryLoading,
     TicketImportButton,
     playSoundOnNewTickets,
+    refetchTicketTypeCountersRef,
 }) => {
     const intl = useIntl()
 
+    const { user } = useAuth()
+    const { persistor } = useCachePersistor()
     const router = useRouter()
     const { filters, offset } = useMemo(() => parseQuery(router.query), [router.query])
 
@@ -384,6 +388,22 @@ const TicketsTableContainer = ({
     })
     const tickets = useMemo(() => ticketsData?.tickets?.filter(Boolean) || [], [ticketsData?.tickets])
     const total = useMemo(() => ticketsData?.meta?.count, [ticketsData?.meta?.count])
+    const ticketIds = useMemo(() => tickets?.map(ticket => ticket?.id), [tickets])
+    const userId = useMemo(() => user?.id, [user?.id])
+
+    const {
+        data: userTicketCommentReadTimesData,
+        loading: userTicketCommentReadTimesLoading,
+        refetch: refetchUserTicketCommentReadTimes,
+    } = useGetUserTicketCommentsReadTimeQuery({
+        variables: {
+            userId,
+            ticketIds,
+        },
+        skip: !persistor || !userId || isEmpty(ticketIds),
+    })
+    const userTicketCommentReadTimes = useMemo(() => userTicketCommentReadTimesData?.objs?.filter(Boolean) || [],
+        [userTicketCommentReadTimesData?.objs])
 
     const [loadNewTicketCount] = useGetTicketsCountLazyQuery({
         onCompleted: ({ meta: { count } }) => {
@@ -420,26 +440,72 @@ const TicketsTableContainer = ({
         },
     })
 
-    const refetchTickets = useCallback(async () => {
-        await refetch()
-
-        if (playSoundOnNewTicketsRef.current) {
-            await loadNewTicketCount()
-        }
-    }, [loadNewTicketCount, refetch])
-
-    const {
-        columns,
-        loading: columnsLoading,
-    } = useTableColumns(filterMetas, tickets, refetchTickets, isRefetching, setIsRefetching)
-
     useEffect(() => {
         if (playSoundOnNewTicketsRef.current) {
             loadNewTicketCount()
         }
     }, [loadNewTicketCount])
 
-    const loading = (isTicketsFetching || columnsLoading || baseQueryLoading) && !isRefetching
+    const { isRefetchTicketsFeatureEnabled, refetchInterval } = useAutoRefetchTickets()
+
+    const refetchTickets = useCallback(async () => {
+        setIsRefetching(true)
+        await refetch()
+        await refetchUserTicketCommentReadTimes()
+        if (refetchTicketTypeCountersRef.current) {
+            await refetchTicketTypeCountersRef.current()
+        }
+        setIsRefetching(false)
+    }, [refetch, refetchUserTicketCommentReadTimes])
+    
+    const shouldRefetchOnFocusRef = useRef(false)
+    const timerRef = useRef<NodeJS.Timeout | null>(null)
+    
+    useEffect(() => {
+        if (!isRefetchTicketsFeatureEnabled) return
+    
+        const scheduleNext = () => {
+            timerRef.current = setTimeout(async () => {
+                if (document.hidden) {
+                    shouldRefetchOnFocusRef.current = true
+                } else {
+                    await refetchTickets()
+                    shouldRefetchOnFocusRef.current = false
+                }
+
+                if (playSoundOnNewTicketsRef.current) {
+                    await loadNewTicketCount()
+                }
+
+                scheduleNext()
+            }, refetchInterval)
+        }
+    
+        const onVisibilityChange = async () => {
+            if (!document.hidden && shouldRefetchOnFocusRef.current) {
+                await refetchTickets()
+                shouldRefetchOnFocusRef.current = false
+
+                if (timerRef.current) clearTimeout(timerRef.current)
+                scheduleNext()
+            }
+        }
+    
+        scheduleNext()
+        document.addEventListener('visibilitychange', onVisibilityChange)
+    
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current)
+            document.removeEventListener('visibilitychange', onVisibilityChange)
+        }
+    }, [isRefetchTicketsFeatureEnabled, refetchTickets, loadNewTicketCount, refetchInterval])
+
+    const columns = useTableColumns({
+        filterMetas,
+        userTicketCommentReadTimes,
+    })
+
+    const loading = (isTicketsFetching || userTicketCommentReadTimesLoading || baseQueryLoading) && !isRefetching
 
     return (
         <TicketTable
@@ -762,6 +828,7 @@ export const TicketsPageContent = ({
     isTicketsExists,
     playSoundOnNewTickets = false,
     error,
+    refetchTicketTypeCountersRef,
 }): JSX.Element => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
@@ -778,8 +845,8 @@ export const TicketsPageContent = ({
     const searchTicketsWithoutStatusQuery = useMemo(() => ({
         ...baseTicketsQuery,
         ...filtersToWhere(omit(filters, 'status')),
-    }),
-    [baseTicketsQuery, filters, filtersToWhere])
+    }), [baseTicketsQuery, filters, filtersToWhere])
+    
     const { userFavoriteTickets } = useFavoriteTickets()
     if (filters.type === 'favorite') {
         const favoriteTicketsIds = userFavoriteTickets.map(favoriteTicket => favoriteTicket.ticket.id)
@@ -859,12 +926,13 @@ export const TicketsPageContent = ({
                 baseQueryLoading={loading}
                 TicketImportButton={TicketImportButton}
                 playSoundOnNewTickets={playSoundOnNewTickets}
+                refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
             />
         </>
     )
 }
 
-export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
+export const TicketTypeFilterSwitch = ({ ticketFilterQuery, refetchTicketTypeCountersRef }) => {
     const intl = useIntl()
     const AllTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.all' })
     const OwnTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.own' })
@@ -913,22 +981,14 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
     })
     const ownTicketsCount = useMemo(() => ownTicketsCountData?.meta?.count, [ownTicketsCountData?.meta?.count])
 
-    const { isRefetchTicketsFeatureEnabled, refetchInterval } = useAutoRefetchTickets()
     const refetch = useCallback(async () => {
         await refetchOwnTickets()
         await refetchAllTickets()
     }, [refetchAllTickets, refetchOwnTickets])
 
     useEffect(() => {
-        if (isRefetchTicketsFeatureEnabled) {
-            const handler = setInterval(async () => {
-                await refetch()
-            }, refetchInterval)
-            return () => {
-                clearInterval(handler)
-            }
-        }
-    }, [isRefetchTicketsFeatureEnabled, refetchInterval])
+        refetchTicketTypeCountersRef.current = refetch
+    }, [refetch])
 
     const handleRadioChange = useCallback(async (event) => {
         const value = event.target.value
@@ -1032,6 +1092,8 @@ const TicketsPage: PageComponentType = () => {
     const isCallRecordsExists = useMemo(() => callRecordFragmentExistenceData?.callRecordFragments?.length > 0,
         [callRecordFragmentExistenceData?.callRecordFragments?.length])
 
+    const refetchTicketTypeCountersRef = useRef()
+
     return (
         <>
             <Head>
@@ -1072,6 +1134,7 @@ const TicketsPage: PageComponentType = () => {
                                                 !ticketExistenceLoading && isTicketsExists && (
                                                     <TicketTypeFilterSwitch
                                                         ticketFilterQuery={ticketFilterQuery}
+                                                        refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
                                                     />
                                                 )
                                             }
@@ -1089,6 +1152,7 @@ const TicketsPage: PageComponentType = () => {
                                             showImport
                                             isTicketsExists={isTicketsExists}
                                             error={error}
+                                            refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
                                         />
                                     </MultipleFilterContextProvider>
                                 </TablePageContent>
