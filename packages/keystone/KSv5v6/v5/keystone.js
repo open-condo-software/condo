@@ -6,11 +6,10 @@ const { _patchResolverWithGQLContext } = require('../utils/resolvers')
 
 
 const CustomFileScalar = new GraphQLScalarType({
-    name: 'CustomUpload',
+    name: 'Upload',
     description: 'File, that could be loaded through new file server or by legacy way',
     parseValue (value) {
         if (value instanceof Upload) return value.promise
-        if (typeof value === 'string') return value
         return value
     },
     parseLiteral (node) {
@@ -26,7 +25,7 @@ class Keystone extends DefaultKeystone {
     getResolvers ({ schemaName }) {
         const originalResolvers = super.getResolvers({ schemaName })
 
-        return _patchResolverWithGQLContext({ ...originalResolvers, CustomUpload: CustomFileScalar })
+        return _patchResolverWithGQLContext({ ...originalResolvers, Upload: CustomFileScalar })
     }
 }
 

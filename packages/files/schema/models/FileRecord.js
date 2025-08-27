@@ -12,7 +12,6 @@ const FileRecord = new GQLListSchema('FileRecord', {
             schemaDoc: 'Information about file including its encoding, mime type, filename and user related metadata',
             graphQLReturnType: 'FileRecordMeta',
             extendGraphQLTypes: [
-                'scalar CustomUpload',
                 'type FileSender { dv: Int!, fingerprint: String! }',
                 'type FileRecordUserMeta { dv: Int!, sender: FileSender!, authedItem: String!, appId: String!, modelNames: [String!]!, fileAdapter: String, sourceAppId: String }',
                 'type FileRecordMeta { id: ID, shareId: String, path: String, filename: String!, originalFilename: String, mimetype: String!, encoding: String!, meta: FileRecordUserMeta! }',
