@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 const { validate: validateUUID } = require('uuid')
 const { z } = require('zod')
 
+const { FILE_RECORD_META_FIELDS } = require('@open-condo/files/schema/models')
 const { FileRecord } = require('@open-condo/files/schema/utils/serverSchema')
 const  { GQLError } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
@@ -336,12 +337,12 @@ function fileStorageHandler ({ keystone, appClients }) {
                     fileKey: data.id,
                 },
             })),
-            'id fileMeta'
+            `id fileMeta ${FILE_RECORD_META_FIELDS}`
         )
         const fileRecords = await FileRecord.updateMany(context,
             createdFiles.map(e => ({
                 id: e.id, data: { fileMeta: { ...e.fileMeta, shareId: e.id }, dv: meta.dv, sender: meta.sender },
-            })), 'id fileKey fileMeta')
+            })), `id fileKey fileMeta ${FILE_RECORD_META_FIELDS}`)
 
         res.json({
             data: {
@@ -384,7 +385,7 @@ function fileShareHandler ({ keystone, appClients }) {
 
         const context = keystone.createContext({ skipAccessControl: true })
         const fileRecord = await FileRecord
-            .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, 'id fileKey fileMeta')
+            .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, `id fileKey fileMeta ${FILE_RECORD_META_FIELDS}`)
 
         if (!fileRecord) {
             const error = new GQLError(ERRORS.FILE_NOT_FOUND, { req })
@@ -411,12 +412,12 @@ function fileShareHandler ({ keystone, appClients }) {
             sourceId: { connect: { id: fileRecord.id } }, // point to original FileRecord
             sourceApp: sourceAppId, // original appId for routing
             fileKey: fileRecord.fileKey,
-        }, 'id fileMeta')
+        }, `id fileMeta ${FILE_RECORD_META_FIELDS}`)
 
         const sharedFile = await FileRecord.update(context, created.id, {
             fileMeta: { ...created.fileMeta, shareId: created.id },
             dv, sender,
-        }, 'id fileMeta fileKey')
+        }, `id fileMeta ${FILE_RECORD_META_FIELDS} fileKey`)
 
         res.json({
             data: {
