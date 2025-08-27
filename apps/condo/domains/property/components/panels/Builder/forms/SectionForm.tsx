@@ -1,6 +1,5 @@
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Col, InputNumber, Row } from 'antd'
-import { debounce } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
