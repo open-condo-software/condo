@@ -102,7 +102,7 @@ function parseAndValidateMeta (raw, req, next, onError) {
 
     const result = MetaSchema.safeParse(candidate)
     if (!result.success) {
-        const message = result.error.issues[0]?.message || 'Invalid meta'
+        const message = result.error.issues[0]?.message
         return onError(() => sendError(req, next, { ...ERRORS.INVALID_META, message }))
     }
 
@@ -369,7 +369,7 @@ function fileShareHandler ({ keystone, appClients }) {
 
         if (!success) {
             const fieldPath = validationPayload.issues[0].path.join('.')
-            const message = `${validationPayload.issues[0]?.message} - ${fieldPath}` || 'Invalid payload'
+            const message = `${validationPayload.issues[0]?.message} - ${fieldPath}`
             const error = new GQLError({ ...ERRORS.INVALID_PAYLOAD, message }, { req })
             return next(error)
         }
