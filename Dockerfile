@@ -53,8 +53,6 @@ RUN set -ex \
     && rm -rf /app/.config /app/.cache /app/.docker  \
     && ls -lah /app/
 
-# Runtime container
 FROM base
 USER app:app
 WORKDIR /app
-COPY --from=builder --chown=app:app /app /app
