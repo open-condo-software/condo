@@ -531,7 +531,6 @@ class MapEdit extends MapView {
         switch (mode) {
             case 'addSection':
             case 'addParking':
-                this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnits = []
@@ -539,7 +538,6 @@ class MapEdit extends MapView {
                 break
             case 'editSection':
             case 'editParking':
-                this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnits = []
@@ -547,7 +545,6 @@ class MapEdit extends MapView {
             case 'addUnit':
             case 'addParkingUnit':
             case 'addParkingFacilityUnit':
-                this.restoreSections()
                 this.removePreviewSection()
                 this.selectedUnits = []
                 this.selectedSection = null
@@ -557,7 +554,6 @@ class MapEdit extends MapView {
             case 'editParkingUnit':
             case 'editParkingUnits':
             case 'editParkingFacilityUnit':
-                this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnits = []
@@ -569,7 +565,6 @@ class MapEdit extends MapView {
             default:
                 this.selectedUnits = []
                 this.selectedSection = null
-                this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.removePreviewSectionFloor()
@@ -867,20 +862,6 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public restoreSections (): void {
-        Object.keys(this.sectionBackups).forEach(sectionId => {
-            const backup = this.sectionBackups[sectionId]
-            const sectionIndex = this.sections.findIndex(s => s.id === sectionId)
-
-            if (sectionIndex >= 0) {
-                this.sections[sectionIndex] = cloneDeep(backup)
-            }
-        })
-
-        this.sectionBackups = {}
-        this.notifyUpdater()
-    }
-
     public updateSection (sectionUpdate: Partial<BuildingSectionArg>, renameNextUnits = true, renameNextSections = true): void {
         const sectionIndex = this.sections.findIndex(section => section.id === sectionUpdate.id)
         if (sectionIndex === -1) return
@@ -923,7 +904,7 @@ class MapEdit extends MapView {
             if (lastUnit) this.updateUnitNumbers(lastUnit)
         }
 
-        this.restoreSections()
+        this.restoreSection(section.id)
         this.editMode = null
         this.notifyUpdater()
     }
