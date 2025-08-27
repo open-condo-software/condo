@@ -485,7 +485,7 @@ const TicketsTableContainer = ({
             if (!document.hidden && shouldRefetchOnFocusRef.current) {
                 await refetchTickets()
                 shouldRefetchOnFocusRef.current = false
-                
+
                 if (timerRef.current) clearTimeout(timerRef.current)
                 scheduleNext()
             }
@@ -502,10 +502,6 @@ const TicketsTableContainer = ({
 
     const columns = useTableColumns({
         filterMetas,
-        tickets,
-        refetchTickets,
-        isRefetching,
-        setIsRefetching,
         userTicketCommentReadTimes,
     })
 
