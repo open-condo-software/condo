@@ -1032,7 +1032,6 @@ class MapEdit extends MapView {
             }
         }
 
-        // Добавляем новые этажи
         for (let floorIndex = currentMaxFloor + 1; floorIndex <= newMaxFloor; floorIndex++) {
             const newFloor = {
                 id: String(++this.autoincrement),
@@ -1042,7 +1041,6 @@ class MapEdit extends MapView {
                 type: BuildingFloorType.Floor,
             }
 
-            // Добавляем помещения на новый этаж
             for (let i = 1; i <= unitsPerFloor; i++) {
                 newFloor.units.push({
                     id: String(++this.autoincrement),
@@ -1061,68 +1059,6 @@ class MapEdit extends MapView {
     private removeFloorsFromSection (sectionIndex: number, count: number): void {
         for (let i = 0; i < count; i++) {
             this.removeFloor(sectionIndex, 0)
-        }
-    }
-
-    // Новая функция для пересчета номеров этажей от заданного этажа
-    private renumberFloorsFrom (sectionIndex: number, startFromFloorIndex: number): void {
-        const section = this.sections[sectionIndex]
-        const sortedFloors = [...section.floors].sort((a, b) => a.index - b.index)
-
-        let currentFloorNumber = startFromFloorIndex
-        for (const floor of sortedFloors) {
-            if (floor.index >= startFromFloorIndex) {
-                floor.index = currentFloorNumber++
-            }
-        }
-    }
-
-    // Новая функция для пересчета номеров помещений от заданного помещения
-    private renumberUnitsFrom (startFromUnit: BuildingUnit): void {
-        // Находим секцию и этаж, содержащие помещение
-        let foundSection: BuildingSection | null = null
-        let foundFloor: BuildingFloor | null = null
-        let unitIndex = -1
-
-        for (const section of this.sections) {
-            for (const floor of section.floors) {
-                const index = floor.units.findIndex(unit => unit.id === startFromUnit.id)
-                if (index !== -1) {
-                    foundSection = section
-                    foundFloor = floor
-                    unitIndex = index
-                    break
-                }
-            }
-            if (foundSection) break
-        }
-
-        if (!foundSection || !foundFloor) return
-
-        // Сортируем все помещения начиная с найденного этажа
-        const allUnits: BuildingUnit[] = []
-        let startRenaming = false
-
-        // Собираем все помещения, начиная с целевого
-        for (const section of this.sections) {
-            for (const floor of section.floors) {
-                const sortedFloorUnits = [...floor.units].sort((a, b) => Number(a.label) - Number(b.label))
-
-                for (const unit of sortedFloorUnits) {
-                    if (unit.id === startFromUnit.id) {
-                        startRenaming = true
-                    }
-                    if (startRenaming) {
-                        allUnits.push(unit)
-                    }
-                }
-            }
-        }
-
-        // Перенумеровываем начиная с исходного номера
-        let currentNumber = Number(startFromUnit.label)
-        for (const unit of allUnits) {
-            unit.label = String(currentNumber++)
         }
     }
 
