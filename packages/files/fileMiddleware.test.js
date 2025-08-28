@@ -421,7 +421,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 expect(json.data.files[0]).toHaveProperty('signature')
 
                 const secret = JSON.parse(conf['FILE_UPLOAD_CONFIG']).clients[meta.appId]['secret']
-                const data = jwt.verify(json.data.files[0].signature, secret)
+                const data = jwt.verify(json.data.files[0].signature, secret, { algorithms: ['HS256'] })
                 expect(data).not.toBeNull()
             })
         })
@@ -541,7 +541,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 expect(sharedFile.fileMeta).toHaveProperty(['meta', 'modelNames'], ['AnotherModel'])
 
                 // Final check - verify new application secret can decrypt sign
-                const data = jwt.verify(sharedFile.signature, appClients[sharedFile.fileMeta.meta.appId].secret)
+                const data = jwt.verify(sharedFile.signature, appClients[sharedFile.fileMeta.meta.appId].secret, { algorithms: ['HS256'] })
                 expect(data).not.toBeNull()
             })
         })
