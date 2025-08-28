@@ -935,7 +935,7 @@ input UserUpdateInput {
   isExternalEmailVerified: Boolean
   externalSystemName: String
   hasMarketingConsent: Boolean
-  avatar: Upload
+  avatar: FileUpload
   meta: JSON
   locale: UserLocaleType
   customAccess: CustomAccessInput
@@ -973,7 +973,7 @@ input UserCreateInput {
   isExternalEmailVerified: Boolean
   externalSystemName: String
   hasMarketingConsent: Boolean
-  avatar: Upload
+  avatar: FileUpload
   meta: JSON
   locale: UserLocaleType
   customAccess: CustomAccessInput
@@ -6471,7 +6471,7 @@ input OrganizationUpdateInput {
   type: OrganizationTypeType
   tin: String
   description: String
-  avatar: Upload
+  avatar: FileUpload
   meta: JSON
   phone: String
   phoneNumberPrefix: String
@@ -6503,7 +6503,7 @@ input OrganizationCreateInput {
   type: OrganizationTypeType
   tin: String
   description: String
-  avatar: Upload
+  avatar: FileUpload
   meta: JSON
   phone: String
   phoneNumberPrefix: String
@@ -12798,12 +12798,12 @@ enum SortBillingIntegrationsBy {
 
 input BillingIntegrationUpdateInput {
   name: String
-  logo: Upload
+  logo: FileUpload
   shortDescription: String
   targetDescription: String
   bannerTextColor: BillingIntegrationBannerTextColorType
   bannerColor: String
-  bannerPromoImage: Upload
+  bannerPromoImage: FileUpload
   receiptsLoadingTime: String
   detailedDescription: String
   setupUrl: String
@@ -12814,7 +12814,7 @@ input BillingIntegrationUpdateInput {
   appUrl: String
   extendsBillingPage: Boolean
   billingPageTitle: String
-  billingPageIcon: Upload
+  billingPageIcon: FileUpload
   group: String
   connectedMessage: String
   connectedUrl: String
@@ -12846,12 +12846,12 @@ input BillingIntegrationsUpdateInput {
 
 input BillingIntegrationCreateInput {
   name: String
-  logo: Upload
+  logo: FileUpload
   shortDescription: String
   targetDescription: String
   bannerTextColor: BillingIntegrationBannerTextColorType
   bannerColor: String
-  bannerPromoImage: Upload
+  bannerPromoImage: FileUpload
   receiptsLoadingTime: String
   detailedDescription: String
   setupUrl: String
@@ -12862,7 +12862,7 @@ input BillingIntegrationCreateInput {
   appUrl: String
   extendsBillingPage: Boolean
   billingPageTitle: String
-  billingPageIcon: Upload
+  billingPageIcon: FileUpload
   group: String
   connectedMessage: String
   connectedUrl: String
@@ -18164,8 +18164,8 @@ enum SortBillingReceiptFilesBy {
 }
 
 input BillingReceiptFileUpdateInput {
-  sensitiveDataFile: Upload
-  publicDataFile: Upload
+  sensitiveDataFile: FileUpload
+  publicDataFile: FileUpload
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String
@@ -18187,8 +18187,8 @@ input BillingReceiptFilesUpdateInput {
 }
 
 input BillingReceiptFileCreateInput {
-  sensitiveDataFile: Upload
-  publicDataFile: Upload
+  sensitiveDataFile: FileUpload
+  publicDataFile: FileUpload
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String
@@ -23700,7 +23700,7 @@ input BankSyncTaskUpdateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   status: BankSyncTaskStatusType
-  file: Upload
+  file: FileUpload
   totalCount: Int
   processedCount: Int
   user: UserRelateToOneInput
@@ -23728,7 +23728,7 @@ input BankSyncTaskCreateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   status: BankSyncTaskStatusType
-  file: Upload
+  file: FileUpload
   totalCount: Int
   processedCount: Int
   user: UserRelateToOneInput
@@ -28696,7 +28696,7 @@ enum SortTicketFilesBy {
 }
 
 input TicketFileUpdateInput {
-  file: Upload
+  file: FileUpload
   ticket: TicketRelateToOneInput
   organization: OrganizationRelateToOneInput
   v: Int
@@ -28716,7 +28716,7 @@ input TicketFilesUpdateInput {
 }
 
 input TicketFileCreateInput {
-  file: Upload
+  file: FileUpload
   ticket: TicketRelateToOneInput
   organization: OrganizationRelateToOneInput
   v: Int
@@ -33792,7 +33792,7 @@ enum SortTicketCommentFilesBy {
 }
 
 input TicketCommentFileUpdateInput {
-  file: Upload
+  file: FileUpload
   ticket: TicketRelateToOneInput
   ticketComment: TicketCommentRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -33813,7 +33813,7 @@ input TicketCommentFilesUpdateInput {
 }
 
 input TicketCommentFileCreateInput {
-  file: Upload
+  file: FileUpload
   ticket: TicketRelateToOneInput
   ticketComment: TicketCommentRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -35713,7 +35713,7 @@ input TicketExportTaskUpdateInput {
   format: TicketExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileUpload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -35742,7 +35742,7 @@ input TicketExportTaskCreateInput {
   format: TicketExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileUpload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -39457,7 +39457,7 @@ input IncidentExportTaskUpdateInput {
   format: IncidentExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileUpload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -39485,7 +39485,7 @@ input IncidentExportTaskCreateInput {
   format: IncidentExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileUpload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -40032,7 +40032,7 @@ enum SortCallRecordsBy {
 
 input CallRecordUpdateInput {
   organization: OrganizationRelateToOneInput
-  file: Upload
+  file: FileUpload
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
@@ -40057,7 +40057,7 @@ input CallRecordsUpdateInput {
 
 input CallRecordCreateInput {
   organization: OrganizationRelateToOneInput
-  file: Upload
+  file: FileUpload
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
@@ -41421,7 +41421,7 @@ input TicketDocumentGenerationTaskUpdateInput {
   progress: Int
   user: UserRelateToOneInput
   timeZone: String
-  file: Upload
+  file: FileUpload
   documentType: TicketDocumentGenerationTaskDocumentTypeType
   meta: JSON
   v: Int
@@ -41447,7 +41447,7 @@ input TicketDocumentGenerationTaskCreateInput {
   progress: Int
   user: UserRelateToOneInput
   timeZone: String
-  file: Upload
+  file: FileUpload
   documentType: TicketDocumentGenerationTaskDocumentTypeType
   meta: JSON
   v: Int
@@ -47644,7 +47644,7 @@ input ContactExportTaskUpdateInput {
   format: ContactExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileUpload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -47672,7 +47672,7 @@ input ContactExportTaskCreateInput {
   format: ContactExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileUpload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -50192,7 +50192,7 @@ enum SortUserHelpRequestFilesBy {
 
 input UserHelpRequestFileUpdateInput {
   userHelpRequest: UserHelpRequestRelateToOneInput
-  file: Upload
+  file: FileUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -50211,7 +50211,7 @@ input UserHelpRequestFilesUpdateInput {
 
 input UserHelpRequestFileCreateInput {
   userHelpRequest: UserHelpRequestRelateToOneInput
-  file: Upload
+  file: FileUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -56046,8 +56046,8 @@ input MeterReadingsImportTaskUpdateInput {
   importedRecordsCount: Int
   processedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
-  errorFile: Upload
+  file: FileUpload
+  errorFile: FileUpload
   errorMessage: String
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -56076,8 +56076,8 @@ input MeterReadingsImportTaskCreateInput {
   importedRecordsCount: Int
   processedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
-  errorFile: Upload
+  file: FileUpload
+  errorFile: FileUpload
   errorMessage: String
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -56682,7 +56682,7 @@ input MeterReadingExportTaskUpdateInput {
   format: MeterReadingExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileUpload
   meta: JSON
   where: MeterReadingWhereInput
   sortBy: [SortMeterReadingsBy]
@@ -56710,7 +56710,7 @@ input MeterReadingExportTaskCreateInput {
   format: MeterReadingExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileUpload
   meta: JSON
   where: MeterReadingWhereInput
   sortBy: [SortMeterReadingsBy]
@@ -64386,7 +64386,7 @@ input PaymentsFileUpdateInput {
   context: AcquiringIntegrationContextRelateToOneInput
   number: String
   paymentOrder: String
-  file: Upload
+  file: FileUpload
   bankAccount: String
   paymentPeriodStartDate: String
   paymentPeriodEndDay: String
@@ -64418,7 +64418,7 @@ input PaymentsFileCreateInput {
   context: AcquiringIntegrationContextRelateToOneInput
   number: String
   paymentOrder: String
-  file: Upload
+  file: FileUpload
   bankAccount: String
   paymentPeriodStartDate: String
   paymentPeriodEndDay: String
@@ -68077,7 +68077,7 @@ input NewsItemRecipientsExportTaskUpdateInput {
   organization: OrganizationRelateToOneInput
   scopes: JSON
   status: NewsItemRecipientsExportTaskStatusType
-  file: Upload
+  file: FileUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -68099,7 +68099,7 @@ input NewsItemRecipientsExportTaskCreateInput {
   organization: OrganizationRelateToOneInput
   scopes: JSON
   status: NewsItemRecipientsExportTaskStatusType
-  file: Upload
+  file: FileUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -69701,7 +69701,7 @@ enum SortB2BAppsBy {
 
 input B2BAppUpdateInput {
   name: String
-  logo: Upload
+  logo: FileUpload
   shortDescription: String
   developer: String
   partnerUrl: String
@@ -69740,7 +69740,7 @@ input B2BAppsUpdateInput {
 
 input B2BAppCreateInput {
   name: String
-  logo: Upload
+  logo: FileUpload
   shortDescription: String
   developer: String
   partnerUrl: String
@@ -71196,7 +71196,7 @@ enum SortB2CAppsBy {
 
 input B2CAppUpdateInput {
   name: String
-  logo: Upload
+  logo: FileUpload
   shortDescription: String
   developer: String
   isHidden: Boolean
@@ -71223,7 +71223,7 @@ input B2CAppsUpdateInput {
 
 input B2CAppCreateInput {
   name: String
-  logo: Upload
+  logo: FileUpload
   shortDescription: String
   developer: String
   isHidden: Boolean
@@ -72160,7 +72160,7 @@ enum SortB2CAppBuildsBy {
 input B2CAppBuildUpdateInput {
   app: B2CAppRelateToOneInput
   version: String
-  data: Upload
+  data: FileUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -72182,7 +72182,7 @@ input B2CAppBuildsUpdateInput {
 input B2CAppBuildCreateInput {
   app: B2CAppRelateToOneInput
   version: String
-  data: Upload
+  data: FileUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -73247,7 +73247,7 @@ input B2BAppPromoBlockUpdateInput {
   subtitle: String
   textVariant: B2BAppPromoBlockTextVariantType
   backgroundColor: String
-  backgroundImage: Upload
+  backgroundImage: FileUpload
   targetUrl: String
   external: Boolean
   priority: Int
@@ -73272,7 +73272,7 @@ input B2BAppPromoBlockCreateInput {
   subtitle: String
   textVariant: B2BAppPromoBlockTextVariantType
   backgroundColor: String
-  backgroundImage: Upload
+  backgroundImage: FileUpload
   targetUrl: String
   external: Boolean
   priority: Int
@@ -76164,8 +76164,8 @@ enum SortB2BAppNewsSharingConfigsBy {
 
 input B2BAppNewsSharingConfigUpdateInput {
   name: String
-  icon: Upload
-  previewPicture: Upload
+  icon: FileUpload
+  previewPicture: FileUpload
   pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
   publishUrl: String
   previewUrl: String
@@ -76190,8 +76190,8 @@ input B2BAppNewsSharingConfigsUpdateInput {
 
 input B2BAppNewsSharingConfigCreateInput {
   name: String
-  icon: Upload
-  previewPicture: Upload
+  icon: FileUpload
+  previewPicture: FileUpload
   pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
   publishUrl: String
   previewUrl: String
@@ -79377,7 +79377,7 @@ enum SortMarketCategoriesBy {
 
 input MarketCategoryUpdateInput {
   name: String
-  image: Upload
+  image: FileUpload
   mobileSettings: MarketCategoryMobileSettingsSchemaField
   parentCategory: MarketCategoryRelateToOneInput
   order: Int
@@ -79399,7 +79399,7 @@ input MarketCategoriesUpdateInput {
 
 input MarketCategoryCreateInput {
   name: String
-  image: Upload
+  image: FileUpload
   mobileSettings: MarketCategoryMobileSettingsSchemaField
   parentCategory: MarketCategoryRelateToOneInput
   order: Int
@@ -81188,7 +81188,7 @@ enum SortMarketItemFilesBy {
 
 input MarketItemFileUpdateInput {
   marketItem: MarketItemRelateToOneInput
-  file: Upload
+  file: FileUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -81207,7 +81207,7 @@ input MarketItemFilesUpdateInput {
 
 input MarketItemFileCreateInput {
   marketItem: MarketItemRelateToOneInput
-  file: Upload
+  file: FileUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -83174,7 +83174,7 @@ input DocumentUpdateInput {
   property: PropertyRelateToOneInput
   category: DocumentCategoryRelateToOneInput
   name: String
-  file: Upload
+  file: FileUpload
   canReadByResident: Boolean
   meta: JSON
   v: Int
@@ -83198,7 +83198,7 @@ input DocumentCreateInput {
   property: PropertyRelateToOneInput
   category: DocumentCategoryRelateToOneInput
   name: String
-  file: Upload
+  file: FileUpload
   canReadByResident: Boolean
   meta: JSON
   v: Int
@@ -85616,6 +85616,8 @@ input _ksListsMetaInput {
 input _ListSchemaFieldsInput {
   type: String
 }
+
+scalar FileUpload
 
 input _internalScheduleTaskByNameInput {
   dv: Int!
