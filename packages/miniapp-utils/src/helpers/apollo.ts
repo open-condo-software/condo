@@ -1,6 +1,7 @@
 import { parse as parseCookieString, serialize as serializeCookie } from 'cookie'
 import { setCookie, getCookies } from 'cookies-next'
 
+import { getRequestIp } from './proxying'
 import {
     FINGERPRINT_ID_COOKIE_NAME,
     generateFingerprint,
@@ -15,6 +16,7 @@ type Response = ServerResponse
 
 type SSRContext = {
     headers: Record<string, string>
+    defaultContext: DefaultContext
 }
 
 const SSR_DEFAULT_FINGERPRINT = 'webAppSSR'
@@ -26,7 +28,6 @@ const REMOTE_ENV_HEADER_NAME = 'x-remote-env'
 const TARGET_HEADER_NAME = 'x-target'
 const START_REQUEST_ID_HEADER_NAME = 'x-start-request-id'
 const PARENT_REQUEST_ID_HEADER_NAME = 'x-parent-request-id'
-const SSR_ORIGINAL_IP_HEADER_NAME = 'x-ssr-original-ip'
 
 export type TracingMiddlewareOptions = {
     serviceUrl: string
@@ -85,6 +86,7 @@ export function prepareSSRContext (req?: IncomingMessage, res?: Response): SSRCo
     if (!req) {
         return {
             headers: {},
+            defaultContext: {},
         }
     }
 
@@ -102,15 +104,14 @@ export function prepareSSRContext (req?: IncomingMessage, res?: Response): SSRCo
         .filter(Boolean)
         .join(';')
 
-    const proxyingHeaders: Record<string, string> = {}
-    if (req.socket?.remoteAddress) {
-        proxyingHeaders[SSR_ORIGINAL_IP_HEADER_NAME] = req.socket.remoteAddress
-    }
+    const clientIp = getRequestIp(req, () => true)
 
     return {
         headers: {
             cookie: cookieHeader,
-            ...proxyingHeaders,
+        },
+        defaultContext: {
+            clientIp,
         },
     }
 }
