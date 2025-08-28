@@ -120,10 +120,12 @@ class AwsFileAdapter {
         return `${id}${path.extname(originalFilename).replace(forbiddenCharacters, '')}`
     }
 
-    publicUrl ({ filename, originalFilename, ...props }) {
+    publicUrl ({ filename, originalFilename, ...props }, user) {
         let folder = this.folder
+        let sign
         if ('meta' in props && props['meta']['appId']) {
             folder = props['meta']['appId']
+            sign = jwt.sign({ id: props.id, filename, appId: props.meta.appId, user }, conf['FILE_SECRET'], { expiresIn: '1m', algorithm: 'HS256' })
         }
 
         if (this.shouldResolveDirectUrl) {
@@ -133,9 +135,19 @@ class AwsFileAdapter {
                 originalFilename,
             })
         }
-        const qs = isNil(originalFilename) || NO_SET_CONTENT_DISPOSITION_FOLDERS.includes(folder)
-            ? ''
-            : `?original_filename=${encodeURIComponent(originalFilename)}`
+        let qs = ''
+
+        const searchParams = new URLSearchParams({
+        // propagate original filename for an indirect url
+            ...((isNil(originalFilename) || NO_SET_CONTENT_DISPOSITION_FOLDERS.includes(folder))
+          && { original_filename: encodeURIComponent(originalFilename) }),
+            ...(sign && { sign }),
+        }).toString()
+
+        if (searchParams) {
+            qs = `?${searchParams}`
+        }
+
         return `${SERVER_URL}/api/files/${folder}/${filename}${qs}`
     }
 
@@ -243,7 +255,7 @@ const awsRouterHandler = ({ keystone }) => {
                 }
 
                 try {
-                    const result = jwt.verify(sign, appClients[appId].secret)
+                    const result = jwt.verify(sign, appClients[appId].secret, { algorithms: ['HS256'] })
 
                     if (result?.user?.id !== req.user.id) {
                         res.status(403)

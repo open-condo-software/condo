@@ -351,7 +351,7 @@ function fileStorageHandler ({ keystone, appClients }) {
                     signature: jwt.sign(
                         file.fileMeta,
                         appClient.secret,
-                        { expiresIn: '5m' }
+                        { expiresIn: '5m', algorithm: 'HS256' }
                     ),
                 })),
             },
@@ -426,7 +426,7 @@ function fileShareHandler ({ keystone, appClients }) {
                     signature: jwt.sign(
                         sharedFile.fileMeta,
                         appClient.secret,
-                        { expiresIn: '5m' }
+                        { expiresIn: '5m', algorithm: 'HS256' }
                     ),
                 },
             },
