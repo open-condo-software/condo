@@ -29,6 +29,8 @@ const { User } = require('./User')
 const { UserExternalIdentity } = require('./UserExternalIdentity')
 const { UserRightsSet } = require('./UserRightsSet')
 const { UserSudoToken } = require('./UserSudoToken')
+const { ChangeUserEmailService } = require('./ChangeUserEmailService')
+const { VerifyUserEmailService } = require('./VerifyUserEmailService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -58,5 +60,7 @@ module.exports = {
     ConfirmEmailActionService,
     AuthenticateUserWithEmailAndPasswordService,
     ChangeUserPasswordService,
+    ChangeUserEmailService,
+    VerifyUserEmailService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
