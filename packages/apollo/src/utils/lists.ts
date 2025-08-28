@@ -1,6 +1,6 @@
 import bindAll from 'lodash/bindAll'
 
-import { nonNull } from '@open-condo/miniapp-utils'
+import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 
 import type { InitCacheOptions } from './cache'
 import type { FieldReadFunction, FieldFunctionOptions, Reference } from '@apollo/client'
