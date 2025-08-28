@@ -28,8 +28,6 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
         admin = await makeLoggedInAdminClient()
         filestream = fs.readFileSync(testFile)
 
-        console.log(admin.user.id)
-
         // Clear rate limits
         await kv.del(`guard_counter:file:${admin.user.id}`)
         await kv.del('guard_counter:file:::ffff:127.0.0.1')
@@ -450,12 +448,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 expect(result.status).toEqual(200)
                 expect(json.data.files).toHaveLength(1)
                 const file = json.data.files[0]
-                expect(file).toHaveProperty('signature')
-                expect(file).toHaveProperty('id')
-                expect(file).toHaveProperty('fileMeta')
-                expect(file.fileMeta).toHaveProperty(['meta', 'fileAdapter'], conf['FILE_FIELD_ADAPTER'])
-                expect(file).toHaveProperty('fileKey', file.fileMeta.id)
-                expect(file.id).toEqual(file.fileMeta.shareId)
+                expect(file).toEqual({
+                    id: file.id,
+                    signature: file.signature,
+                })
             })
 
             test('uploading multiple files should be possible', async () => {
@@ -509,6 +505,8 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
                 const originalFile = uploadResultJson.data.files[0]
 
+                const originalFileMeta = jwt.verify(originalFile.signature, appClients[Object.keys(appClients)[0]].secret, { algorithms: ['HS256'] })
+
                 // Now create another file with same binary from owner user1
                 const shareResult = await fetch(serverShareUrl, {
                     method: 'POST',
@@ -518,7 +516,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        id: originalFile.fileMeta.shareId,
+                        id: originalFile.id,
                         // Took another client
                         appId: Object.keys(appClients)[1],
                         // Here we insert the id for which this file is intended
@@ -530,19 +528,37 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
                 expect(shareResult.status).toEqual(200)
                 const shareResultJson = await shareResult.json()
-                expect(shareResultJson).toHaveProperty(['data', 'file', 'id'])
-                const sharedFile = shareResultJson.data.file
-                expect(sharedFile).toHaveProperty('signature')
-                expect(sharedFile.id).not.toEqual(originalFile.id)
-                expect(sharedFile.signature).not.toEqual(originalFile.signature)
-                expect(sharedFile.fileMeta).toHaveProperty(['meta', 'authedItemId'], user2.user.id)
-                expect(sharedFile.fileMeta).toHaveProperty(['meta', 'appId'], Object.keys(appClients)[1])
-                expect(sharedFile.fileMeta).toHaveProperty(['meta', 'sourceAppId'], Object.keys(appClients)[0])
-                expect(sharedFile.fileMeta).toHaveProperty(['meta', 'modelNames'], ['AnotherModel'])
 
-                // Final check - verify new application secret can decrypt sign
-                const data = jwt.verify(sharedFile.signature, appClients[sharedFile.fileMeta.meta.appId].secret, { algorithms: ['HS256'] })
-                expect(data).not.toBeNull()
+                expect(shareResultJson).toEqual({
+                    data: {
+                        file: {
+                            id: shareResultJson.data.file.id,
+                            signature: shareResultJson.data.file.signature,
+                        },
+                    },
+                })
+                const sharedFile = shareResultJson.data.file
+                const decryptedData = jwt.verify(sharedFile.signature, appClients[Object.keys(appClients)[1]].secret, { algorithms: ['HS256'] })
+
+                expect(decryptedData).toEqual(expect.objectContaining({
+                    id: decryptedData.id,
+                    encoding: '7bit',
+                    filename: `${originalFileMeta.id}-dino.png`,
+                    originalFilename: 'dino.png',
+                    mimetype: 'image/png',
+                    path: null,
+                    exp: decryptedData.exp,
+                    iat: decryptedData.iat,
+                    meta: {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'test-runner' },
+                        appId: Object.keys(appClients)[1],
+                        modelNames: ['AnotherModel'],
+                        sourceAppId: Object.keys(appClients)[0],
+                        authedItemId: user2.user.id,
+                    },
+                    recordId: sharedFile.id,
+                }))
             })
         })
     })
