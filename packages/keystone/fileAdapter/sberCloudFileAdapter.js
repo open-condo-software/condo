@@ -179,7 +179,7 @@ class SberCloudFileAdapter {
         let sign
         if ('meta' in props && props['meta']['appId']) {
             folder = props['meta']['appId']
-            sign = jwt.sign({ id: props.id, filename, appId: props.meta.appId, user }, conf['FILE_SECRET'], { expiresIn: '1m' })
+            sign = jwt.sign({ id: props.id, filename, appId: props.meta.appId, user }, conf['FILE_SECRET'], { expiresIn: '1m', algorithm: 'HS256' })
         }
         if (this.shouldResolveDirectUrl) {
             return this.acl.generateUrl({
@@ -331,7 +331,7 @@ const obsRouterHandler = ({ keystone }) => {
                 }
 
                 try {
-                    const result = jwt.verify(sign, appClients[appId].secret)
+                    const result = jwt.verify(sign, appClients[appId].secret, { algorithms: ['HS256'] })
 
                     if (result?.user?.id !== req.user.id) {
                         res.status(403)

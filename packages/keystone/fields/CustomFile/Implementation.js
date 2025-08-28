@@ -63,7 +63,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         if (fileData && fileData['signature']) {
             let fileMeta
             try {
-                fileMeta = jwt.verify(fileData['signature'], this._fileSecret)
+                fileMeta = jwt.verify(fileData['signature'], this._fileSecret, { algorithms: ['HS256'] })
             } catch (err) {
                 throw new GQLError({
                     code: 'BAD_USER_INPUT',
@@ -101,7 +101,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             let file
             try {
-                file = jwt.verify(uploadData['signature'], this._fileSecret)
+                file = jwt.verify(uploadData['signature'], this._fileSecret, { algorithms: ['HS256'] })
             } catch (e) {
                 throw new GQLError({
                     code: 'BAD_USER_INPUT',
