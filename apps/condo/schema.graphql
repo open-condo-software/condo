@@ -85431,6 +85431,27 @@ type ChangeUserPasswordOutput {
   status: String!
 }
 
+input ChangeUserEmailInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  token: String!
+  newEmail: String
+}
+
+type ChangeUserEmailOutput {
+  status: String!
+}
+
+input VerifyUserEmailInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  confirmEmailToken: String!
+}
+
+type VerifyUserEmailOutput {
+  status: String!
+}
+
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
@@ -97542,6 +97563,118 @@ type Mutation {
   }`
   """
   changeUserPassword(data: ChangeUserPasswordInput!): ChangeUserPasswordOutput
+
+  """
+  Changes the user's email.
+  If the new email is not specified, the email is reset.
+  When changing the email, verification is reset.
+  The email change is confirmed by a sudo token.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_TOKEN",
+    "message": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNSUPPORTED_TOKEN",
+    "message": "Unsupported token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOKEN_NOT_FOUND",
+    "message": "Unable to find non-expired UserSudoToken by specified token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_NOT_FOUND",
+    "message": "User not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_EMAIL_VALUE",
+    "message": "Wrong email format",
+    "messageForUser": "Invalid E-mail format"
+  }`
+  """
+  changeUserEmail(data: ChangeUserEmailInput!): ChangeUserEmailOutput
+
+  """
+  Verifies the user's current email
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_TOKEN",
+    "message": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNSUPPORTED_TOKEN",
+    "message": "Unsupported token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOKEN_NOT_FOUND",
+    "message": "Unable to find non-expired ConfirmEmailAction by specified token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMPTY_USER_EMAIL",
+    "message": "User email is empty"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_ALREADY_VERIFIED",
+    "message": "User email already verified"
+  }`
+  """
+  verifyUserEmail(data: VerifyUserEmailInput!): VerifyUserEmailOutput
 
   """
   Registers new Organization for current user
