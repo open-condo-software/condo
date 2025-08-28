@@ -3,7 +3,10 @@ const { WriteStream } = require('fs-capacitor')
 const jwt = require('jsonwebtoken')
 const { z } = require('zod')
 
-const { FILE_RECORD_META_FIELDS } = require('@open-condo/files/schema/models')
+const {
+    FILE_RECORD_META_FIELDS,
+    FILE_RECORD_PUBLIC_META_FIELDS,
+} = require('@open-condo/files/schema/models')
 const { FileRecord } = require('@open-condo/files/schema/utils/serverSchema')
 const { GQLError } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
@@ -305,7 +308,6 @@ function fileStorageHandler ({ keystone, appClients }) {
         }
 
         const fileAdapter = new FileAdapter(meta['appId'])
-        meta['fileAdapter'] = FileAdapter.type()
         const context = keystone.createContext({ skipAccessControl: true })
         const savedFiles = await Promise.all(
             files.map(file =>
@@ -315,6 +317,7 @@ function fileStorageHandler ({ keystone, appClients }) {
                     mimetype: file.mimetype,
                     encoding: file.encoding,
                     id: generateUUIDv4(),
+                    fileAdapter: FileAdapter.type(),
                     meta,
                 })
             )
@@ -329,25 +332,26 @@ function fileStorageHandler ({ keystone, appClients }) {
                         originalFilename: files[index].filename,
                         mimetype: files[index].mimetype,
                         encoding: files[index].encoding,
+                        fileAdapter: FileAdapter.type(),
                         meta,
                     },
                     dv: meta.dv,
                     sender: meta.sender,
                     user: { connect: { id: req.user.id } },
-                    fileKey: data.id,
+                    fileAdapter: FileAdapter.type(),
                 },
             })),
             `id fileMeta ${FILE_RECORD_META_FIELDS}`
         )
         const fileRecords = await FileRecord.updateMany(context,
             createdFiles.map(e => ({
-                id: e.id, data: { fileMeta: { ...e.fileMeta, shareId: e.id }, dv: meta.dv, sender: meta.sender },
-            })), `id fileKey fileMeta ${FILE_RECORD_META_FIELDS}`)
+                id: e.id, data: { fileMeta: { ...e.fileMeta, recordId: e.id }, dv: meta.dv, sender: meta.sender },
+            })), `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
 
         res.json({
             data: {
                 files: fileRecords.map(file => ({
-                    ...file,
+                    id: file.id,
                     signature: jwt.sign(
                         file.fileMeta,
                         appClient.secret,
@@ -385,15 +389,26 @@ function fileShareHandler ({ keystone, appClients }) {
 
         const context = keystone.createContext({ skipAccessControl: true })
         const fileRecord = await FileRecord
-            .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, `id fileKey fileMeta ${FILE_RECORD_META_FIELDS}`)
+            .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, `id sourceId sourceApp fileMeta ${FILE_RECORD_META_FIELDS}`)
 
         if (!fileRecord) {
             const error = new GQLError(ERRORS.FILE_NOT_FOUND, { req })
             return next(error)
         }
 
+        /*
+         * These two stands for reshare file
+         * So if we share file_1 -> it create file_2 with point to file_1
+         * And then if we want to share file_2, file_3 should also point to file_1
+         * That's because only original file binary can be found in storage
+         */
+        const sourceAppId = fileRecord.sourceApp === null
+            ? fileRecord.fileMeta.meta.appId
+            : fileRecord.sourceApp
+        const sourceId = fileRecord.sourceId === null
+            ? fileRecord.id
+            : fileRecord.sourceId
         // Clean original fields, replace with new one and add marker that this file was shared
-        const sourceAppId = fileRecord.fileMeta.meta.appId
         const sharedFileMeta = {
             ...fileRecord.fileMeta,
             meta: {
@@ -409,20 +424,19 @@ function fileShareHandler ({ keystone, appClients }) {
             fileMeta: sharedFileMeta,
             dv, sender,
             user: { connect: { id: authedItemId } },
-            sourceId: { connect: { id: fileRecord.id } }, // point to original FileRecord
+            sourceId: { connect: { id: sourceId } }, // point to original FileRecord
             sourceApp: sourceAppId, // original appId for routing
-            fileKey: fileRecord.fileKey,
         }, `id fileMeta ${FILE_RECORD_META_FIELDS}`)
 
         const sharedFile = await FileRecord.update(context, created.id, {
-            fileMeta: { ...created.fileMeta, shareId: created.id },
+            fileMeta: { ...created.fileMeta, recordId: created.id },
             dv, sender,
-        }, `id fileMeta ${FILE_RECORD_META_FIELDS} fileKey`)
+        }, `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
 
         res.json({
             data: {
                 file: {
-                    ...sharedFile,
+                    id: sharedFile.id,
                     signature: jwt.sign(
                         sharedFile.fileMeta,
                         appClient.secret,
