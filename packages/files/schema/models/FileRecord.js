@@ -1,5 +1,5 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const FILE_RECORD_USER_META = '{ dv sender { dv fingerprint } authedItemId appId modelNames sourceAppId }'
 const FILE_RECORD_META_FIELDS = `{ id fileAdapter recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
@@ -57,8 +57,18 @@ const FileRecord = new GQLListSchema('FileRecord', {
     },
 })
 
+const FileRecordScalarSchema = new GQLCustomSchema('FileRecordScalar', {
+    types: [
+        {
+            access: true,
+            type: 'scalar FileUpload',
+        },
+    ],
+})
+
 module.exports = {
     FileRecord,
+    FileRecordScalarSchema,
     FILE_RECORD_META_FIELDS,
     FILE_RECORD_PUBLIC_META_FIELDS,
 }
