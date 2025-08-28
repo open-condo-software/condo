@@ -1,7 +1,10 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const FILE_RECORD_META_FIELDS = '{ id shareId path filename originalFilename mimetype encoding meta { dv sender { dv fingerprint } authedItemId appId modelNames fileAdapter sourceAppId } }'
+const FILE_RECORD_USER_META = '{ dv sender { dv fingerprint } authedItemId appId modelNames sourceAppId }'
+const FILE_RECORD_META_FIELDS = `{ id fileAdapter recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
+const FILE_RECORD_PUBLIC_META_FIELDS = `{ id recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
+
 
 const FileRecord = new GQLListSchema('FileRecord', {
     schemaDoc: 'Stores uploaded file meta data and owner',
@@ -13,8 +16,8 @@ const FileRecord = new GQLListSchema('FileRecord', {
             graphQLReturnType: 'FileRecordMeta',
             extendGraphQLTypes: [
                 'type FileSender { dv: Int!, fingerprint: String! }',
-                'type FileRecordUserMeta { dv: Int!, sender: FileSender!, authedItemId: ID!, appId: String!, modelNames: [String!]!, fileAdapter: String, sourceAppId: String }',
-                'type FileRecordMeta { id: ID, shareId: String, path: String, filename: String!, originalFilename: String, mimetype: String!, encoding: String!, meta: FileRecordUserMeta! }',
+                'type FileRecordUserMeta { dv: Int!, sender: FileSender!, authedItemId: ID!, appId: String!, modelNames: [String!]!, sourceAppId: String }',
+                'type FileRecordMeta { id: ID, fileAdapter: String, recordId: ID, path: String, filename: String!, originalFilename: String, mimetype: String!, encoding: String!, meta: FileRecordUserMeta! }',
             ],
         },
         user: {
@@ -24,11 +27,6 @@ const FileRecord = new GQLListSchema('FileRecord', {
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
-        },
-        fileKey: {
-            type: 'Text',
-            isRequired: true,
-            schemaDoc: 'Unique identifier on the storage side (eg file adapter)',
         },
         sourceId: {
             type: 'Relationship',
@@ -43,6 +41,11 @@ const FileRecord = new GQLListSchema('FileRecord', {
             schemaDoc: 'App id - used for final routing when original file was shared',
             isRequired: false,
         },
+        fileAdapter: {
+            type: 'Text',
+            schemaDoc: 'Type of the file adapter with which binary was saved to storage',
+            isRequired: false,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
@@ -54,4 +57,8 @@ const FileRecord = new GQLListSchema('FileRecord', {
     },
 })
 
-module.exports = { FileRecord, FILE_RECORD_META_FIELDS }
+module.exports = {
+    FileRecord,
+    FILE_RECORD_META_FIELDS,
+    FILE_RECORD_PUBLIC_META_FIELDS,
+}
