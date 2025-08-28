@@ -10649,13 +10649,12 @@ __metadata:
   dependencies:
     "@faker-js/faker": ^7.6.0
     "@open-condo/config": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
     busboy: ^1.6.0
-    cuid: ^3.0.0
     express: ^4.21.2
     form-data: ^4.0.4
     fs-capacitor: ^6.2.0
     jsonwebtoken: ^9.0.0
-    uuid: ^8.3.0
     zod: ^4.0.8
   languageName: unknown
   linkType: soft
@@ -21065,13 +21064,6 @@ __metadata:
   version: 2.1.8
   resolution: "cuid@npm:2.1.8"
   checksum: 12b85b3f5150a6f0b9e4f345c8d98299d74647419151751fa1132f6702fe2b5388ceceb1c9b49bad7cab1b3ac033c7cedea8ffc034930f90005b8a4345025288
-  languageName: node
-  linkType: hard
-
-"cuid@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "cuid@npm:3.0.0"
-  checksum: f9a344bd90e26b62f75a86b616ad717bad88b20b02df25c6e4008dd2c0948b081bd72ad8075b25ae644dce7fc367a43c622954e88aed972b72b1f132416faa4e
   languageName: node
   linkType: hard
 
