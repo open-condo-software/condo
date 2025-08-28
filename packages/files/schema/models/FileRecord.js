@@ -1,7 +1,7 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const FILE_RECORD_META_FIELDS = '{ id shareId path filename originalFilename mimetype encoding meta { dv sender { dv fingerprint } authedItem appId modelNames fileAdapter sourceAppId } }'
+const FILE_RECORD_META_FIELDS = '{ id shareId path filename originalFilename mimetype encoding meta { dv sender { dv fingerprint } authedItemId appId modelNames fileAdapter sourceAppId } }'
 
 const FileRecord = new GQLListSchema('FileRecord', {
     schemaDoc: 'Stores uploaded file meta data and owner',
@@ -13,7 +13,7 @@ const FileRecord = new GQLListSchema('FileRecord', {
             graphQLReturnType: 'FileRecordMeta',
             extendGraphQLTypes: [
                 'type FileSender { dv: Int!, fingerprint: String! }',
-                'type FileRecordUserMeta { dv: Int!, sender: FileSender!, authedItem: String!, appId: String!, modelNames: [String!]!, fileAdapter: String, sourceAppId: String }',
+                'type FileRecordUserMeta { dv: Int!, sender: FileSender!, authedItemId: ID!, appId: String!, modelNames: [String!]!, fileAdapter: String, sourceAppId: String }',
                 'type FileRecordMeta { id: ID, shareId: String, path: String, filename: String!, originalFilename: String, mimetype: String!, encoding: String!, meta: FileRecordUserMeta! }',
             ],
         },

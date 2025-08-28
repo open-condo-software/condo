@@ -85184,7 +85184,7 @@ type FileSender {
 type FileRecordUserMeta {
   dv: Int!
   sender: FileSender!
-  authedItem: String!
+  authedItemId: ID!
   appId: String!
   modelNames: [String!]!
   fileAdapter: String

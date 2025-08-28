@@ -1,6 +1,5 @@
-const { v4: uuid } = require('uuid')
-
 const { getAppServerUrl, updateAppEnvFile, prepareAppEnvLocalAdminUsers } = require('@open-condo/cli')
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 async function updateAppEnvAddressSuggestionConfig (serviceName) {
     const addressServiceUrl = await getAppServerUrl('address-service')
@@ -13,8 +12,8 @@ async function updateAppEnvAddressSuggestionConfig (serviceName) {
 async function updateAppEnvFileClients (appName) {
     await updateAppEnvFile(appName, 'FILE_UPLOAD_CONFIG', JSON.stringify({
         clients: {
-            condo: { secret: uuid() },
-            miniapp: { secret: uuid() },
+            condo: { secret: generateUUIDv4() },
+            miniapp: { secret: generateUUIDv4() },
         },
     }))
 }

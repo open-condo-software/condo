@@ -36,7 +36,7 @@ function onErrorRunner () {
 const baseMeta = (overrides = {}) => ({
     dv: 1,
     sender: { dv: 1, fingerprint: 'device-ABC_123' },
-    authedItem: USER_UUID,
+    authedItemId: USER_UUID,
     appId: 'condo',
     modelNames: ['Example'],
     ...overrides,
@@ -46,7 +46,7 @@ const baseShare = (overrides = {}) => ({
     dv: 1,
     sender: { dv: 1, fingerprint: 'device-ABC_123' },
     id: faker.datatype.uuid(),
-    authedItem: USER_UUID,
+    authedItemId: USER_UUID,
     appId: 'condo',
     modelNames: ['Example'],
     ...overrides,
@@ -136,8 +136,8 @@ const FileMiddlewareUtilsTests = () => {
                 expect(bad.error.issues[0].message).toMatch(/Invalid string|Invalid/)
             })
 
-            test('authedItem must be uuid', () => {
-                const bad = MetaSchema.safeParse(baseMeta({ authedItem: 'nope' }))
+            test('authedItemId must be uuid', () => {
+                const bad = MetaSchema.safeParse(baseMeta({ authedItemId: 'nope' }))
                 expect(bad.success).toBe(false)
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
             })
@@ -185,8 +185,8 @@ const FileMiddlewareUtilsTests = () => {
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
             })
 
-            test('authedItem must be uuid', () => {
-                const bad = SharePayloadSchema.safeParse(baseShare({ authedItem: 'nope' }))
+            test('authedItemId must be uuid', () => {
+                const bad = SharePayloadSchema.safeParse(baseShare({ authedItemId: 'nope' }))
                 expect(bad.success).toBe(false)
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
             })
@@ -207,7 +207,7 @@ const FileMiddlewareUtilsTests = () => {
             })
         })
 
-        
+
 
         describe('parseAndValidateMeta (via middleware helper)', () => {
             test('accepts valid meta object', () => {
@@ -264,7 +264,7 @@ const FileMiddlewareUtilsTests = () => {
                 }))
             })
 
-            test('rejects mismatch authedItem with 403', () => {
+            test('rejects mismatch authedItemId with 403', () => {
                 const req = { user: { id: faker.datatype.uuid(), deletedAt: null } }
                 const { next } = makeReqRes({ req })
                 const { onError, calls } = onErrorRunner()
