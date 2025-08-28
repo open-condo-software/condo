@@ -23,6 +23,7 @@ const {
     expectToThrowAccessDeniedError,
     expectToThrowGQLError,
     catchErrorFrom,
+    expectToThrowAccessDeniedToManageFieldError,
 } = require('@open-condo/keystone/test.utils')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
@@ -681,6 +682,14 @@ describe('User fields', () => {
 
             const readUser = await UserWithEmail.getOne(userWithPermissions, { id: user.id } )
             expect(readUser.email).toEqual(userAttrs.email)
+        })
+
+        test('cannot be updated directly by himself', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            await expectToThrowAccessDeniedToManageFieldError(async () => {
+                await updateTestUser(client, client.user.id, { email: createTestEmail() })
+            }, 'obj', 'email')
         })
     })
 
