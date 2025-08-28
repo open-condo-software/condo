@@ -257,7 +257,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
 
 const DEBOUNCE_TIME = 300
 
-const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
+const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplicatedUnitIds }) => {
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
@@ -328,13 +328,15 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const updatePreview = useCallback(() => {
         if (!section) return
 
+        setDuplicatedUnitIds([])
+
         builder.updatePreviewSection({
             id: section.id,
             minFloor: minFloor,
             maxFloor: floorCount + minFloor - 1,
             unitsOnFloor: unitsOnFloor,
         })
-    }, [builder, section, minFloor, floorCount, unitsOnFloor])
+    }, [builder, section, minFloor, floorCount, unitsOnFloor, setDuplicatedUnitIds])
 
     useEffect(() => {
         const timeoutId = setTimeout(updatePreview, DEBOUNCE_TIME)
@@ -373,6 +375,13 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const handleFinish = useCallback(() => {
         if (!section) return
 
+        const validateResult = builder.getNonUniquePreviewUnitIds()
+
+        if (validateResult.nonUniqueUnitIds.length > 0 && (!renameNextUnits.current || validateResult.nonUniqueIdBeforeCurrentSection)) {
+            setDuplicatedUnitIds(validateResult.nonUniqueUnitIds)
+            return
+        }
+
         builder.restoreSection(section.id)
 
         const maxFloor = floorCount + minFloor - 1
@@ -385,8 +394,10 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             unitsOnFloor,
         }, renameNextUnits.current, renameNextSections.current)
 
+        setDuplicatedUnitIds([])
+
         refresh()
-    }, [builder, name, section, refresh, floorCount, minFloor, unitsOnFloor])
+    }, [builder, name, section, refresh, floorCount, minFloor, unitsOnFloor, setDuplicatedUnitIds])
 
     if (!section) return null
 

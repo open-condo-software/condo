@@ -725,9 +725,51 @@ class MapEdit extends MapView {
         this.insertFloor(newSectionFloor, floor.section)
     }
 
-    public addSectionFloor (floor: BuildingFloorArg, renameNextUnits = true, preview?: boolean): void {
+    public getNonUniquePreviewUnitIds () {
+        const result = {
+            nonUniqueUnitIds: [],
+            nonUniqueIdBeforeCurrentSection: false,
+        }
+
+        if (!this.selectedSection) return result
+
+        const selectedPreviewUnitLabels = new Set<string>()
+
+        for (const floor of this.selectedSection.floors) {
+            for (const unit of floor.units) {
+                selectedPreviewUnitLabels.add(unit.label)
+            }
+        }
+
+        if (selectedPreviewUnitLabels.size === 0) return result
+
+        for (const section of this.sections) {
+            if (section.id === this.selectedSection.id) continue
+
+            for (const floor of section.floors) {
+                for (const unit of floor.units) {
+                    if (selectedPreviewUnitLabels.has(unit.label)) {
+                        result.nonUniqueUnitIds.push(unit.id)
+                        selectedPreviewUnitLabels.delete(unit.label)
+
+                        if (section.index < this.selectedSection.index) {
+                            result.nonUniqueIdBeforeCurrentSection = true
+                        }
+
+                        if (selectedPreviewUnitLabels.size === 0) {
+                            return result
+                        }
+                    }
+                }
+            }
+        }
+
+        return result
+    }
+
+    public addSectionFloor (floor: BuildingFloorArg, renameNextUnits = true): void {
         this.removePreviewSectionFloor()
-        const newSectionFloor = this.generateFloor(floor, preview)
+        const newSectionFloor = this.generateFloor(floor)
         const floorIndex = this.insertFloor(newSectionFloor, floor.section)
 
         let nextFloorIndex = floorIndex
@@ -748,7 +790,6 @@ class MapEdit extends MapView {
         }
 
         this._previewSectionFloor = null
-        this.sectionFloorMap = {}
         this.notifyUpdater()
     }
 
@@ -1274,7 +1315,7 @@ class MapEdit extends MapView {
             name: String(floor.index),
             type: BuildingFloorType.Floor,
             units: Array.from({ length: floor.unitCount }, (_, unitIndex) => {
-                const label = String(unitIndex + (floor.startUnitIndex ?? 0) + 1)
+                const label = floor.startUnitIndex !== undefined ? String(unitIndex + floor.startUnitIndex + 1) : null
 
                 return {
                     id: String(++this.autoincrement),
