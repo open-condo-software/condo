@@ -97,7 +97,7 @@ class LocalFilesMiddleware {
             }
 
             try {
-                const result = jwt.verify(sign, this._appClients[appId].secret)
+                const result = jwt.verify(sign, this._appClients[appId].secret, { algorithms: ['HS256'] })
 
                 if (typeof result.user === 'undefined' || result.user.id !== req.user.id) {
                     res.status(403)
