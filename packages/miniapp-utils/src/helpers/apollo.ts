@@ -1,6 +1,7 @@
 import { parse as parseCookieString, serialize as serializeCookie } from 'cookie'
 import { setCookie, getCookies } from 'cookies-next'
 
+import { getRequestIp } from './proxying'
 import {
     FINGERPRINT_ID_COOKIE_NAME,
     generateFingerprint,
@@ -15,6 +16,7 @@ type Response = ServerResponse
 
 type SSRContext = {
     headers: Record<string, string>
+    defaultContext: DefaultContext
 }
 
 const SSR_DEFAULT_FINGERPRINT = 'webAppSSR'
@@ -84,6 +86,7 @@ export function prepareSSRContext (req?: IncomingMessage, res?: Response): SSRCo
     if (!req) {
         return {
             headers: {},
+            defaultContext: {},
         }
     }
 
@@ -101,9 +104,14 @@ export function prepareSSRContext (req?: IncomingMessage, res?: Response): SSRCo
         .filter(Boolean)
         .join(';')
 
+    const clientIp = getRequestIp(req, () => true)
+
     return {
         headers: {
             cookie: cookieHeader,
+        },
+        defaultContext: {
+            clientIp,
         },
     }
 }
