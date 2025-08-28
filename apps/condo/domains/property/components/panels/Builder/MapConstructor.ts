@@ -535,11 +535,9 @@ class MapEdit extends MapView {
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnits = []
-                this.selectedSection = null
                 break
             case 'editSection':
             case 'editParking':
-                this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnits = []
@@ -550,7 +548,6 @@ class MapEdit extends MapView {
                 this.restoreSections()
                 this.removePreviewSection()
                 this.selectedUnits = []
-                this.selectedSection = null
                 break
             case 'editUnit':
             case 'editUnits':
@@ -560,7 +557,6 @@ class MapEdit extends MapView {
                 this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
-                this.selectedUnits = []
                 break
             case 'addSectionFloor':
             case 'addParkingFloor':
@@ -568,7 +564,6 @@ class MapEdit extends MapView {
                 break
             default:
                 this.selectedUnits = []
-                this.selectedSection = null
                 this.restoreSections()
                 this.removePreviewUnit()
                 this.removePreviewSection()
@@ -877,6 +872,7 @@ class MapEdit extends MapView {
             }
         })
 
+        this.selectedSection = null
         this.sectionBackups = {}
         this.notifyUpdater()
     }

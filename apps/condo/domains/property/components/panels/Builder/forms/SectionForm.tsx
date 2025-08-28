@@ -320,7 +320,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         if (sectionData) {
             setName(section.name || '')
             setFloorCount(section.floors.length + sectionData.sectionMissingFloors)
-            setUnitsOnFloor(sectionData.sectionMaxUnitsPerFloor || 0)
+            setUnitsOnFloor(sectionData.sectionMaxUnitsPerFloor)
             setMinFloor(sectionData.sectionMinFloor || 1)
         }
     }, [section, builder, refresh, sectionData])
