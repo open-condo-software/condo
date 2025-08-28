@@ -8,6 +8,7 @@
   },
   "license": "MIT",
   "exports": {
+    "./schema": "./schema/index.js",
     "./schema/models": "./schema/models/index.js",
     "./schema/utils/serverSchema": "./schema/utils/serverSchema.js",
     "./fileMiddleware": "./fileMiddleware.js",
@@ -17,12 +18,11 @@
   },
   "dependencies": {
     "@open-condo/config": "workspace:^",
+    "@open-condo/miniapp-utils": "workspace:^",
     "busboy": "^1.6.0",
-    "cuid": "^3.0.0",
     "express": "^4.21.2",
     "fs-capacitor": "^6.2.0",
     "jsonwebtoken": "^9.0.0",
-    "uuid": "^8.3.0",
     "zod": "^4.0.8"
   },
   "devDependencies": {

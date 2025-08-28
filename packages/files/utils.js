@@ -1,20 +1,20 @@
 const busboy = require('busboy')
-const cuid = require('cuid')
 const { WriteStream } = require('fs-capacitor')
 const jwt = require('jsonwebtoken')
-const { validate: validateUUID } = require('uuid')
 const { z } = require('zod')
 
 const { FILE_RECORD_META_FIELDS } = require('@open-condo/files/schema/models')
 const { FileRecord } = require('@open-condo/files/schema/utils/serverSchema')
-const  { GQLError } = require('@open-condo/keystone/errors')
+const { GQLError } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getKVClient } = require('@open-condo/keystone/kv')
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const { ERRORS } = require('./errors')
 
 const DEFAULT_USER_HOUR_QUOTA = 100
 const DEFAULT_IP_HOUR_QUOTA = 100
+const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
 
 const AppClientSchema = z.object({
     name: z.string().min(3).optional(),
@@ -41,7 +41,7 @@ const AppConfigSchema = z.object({
 function validateAndParseFileConfig (config) {
     const { data, success, error } = AppConfigSchema.safeParse(config)
     if (!success) {
-        console.error(error.issues[0]?.message || 'Invalid file upload config')
+        console.error(z.prettifyError(error))
         return {}
     }
     return data
@@ -83,7 +83,7 @@ const MetaSchema = z.object({
         dv: z.literal(1),
         fingerprint: z.string().regex(FINGERPRINT_RE),
     }).strict(),
-    authedItem: z.uuid(),
+    authedItemId: z.uuid(),
     appId: z.string().min(1),
     modelNames: z.array(z.string()).min(1),
 }).strict()
@@ -107,12 +107,12 @@ function parseAndValidateMeta (raw, req, next, onError) {
     }
 
     const meta = result.data
-    if (!validateUUID(meta.authedItem)) {
+    if (!UUID_REGEX.test(meta.authedItemId)) {
         return onError(() => sendError(req, next, { ...ERRORS.INVALID_META, message: 'Invalid uuid format' }))
     }
 
-    if (meta.authedItem !== req.user.id) {
-        return onError(() => sendError(req, next, { ...ERRORS.INVALID_META, message: 'Wrong authedItem. Unable to upload file for another user' }))
+    if (meta.authedItemId !== req.user.id) {
+        return onError(() => sendError(req, next, { ...ERRORS.INVALID_META, message: 'Wrong authedItemId. Unable to upload file for another user' }))
     }
 
     return meta
@@ -125,7 +125,7 @@ const SharePayloadSchema = z.object({
         fingerprint: z.string().regex(FINGERPRINT_RE),
     }).strict(),
     id: z.uuid(),
-    authedItem: z.uuid(),
+    authedItemId: z.uuid(),
     appId: z.string().min(1),
     modelNames: z.array(z.string()).min(1).optional(),
 }).strict()
@@ -314,7 +314,7 @@ function fileStorageHandler ({ keystone, appClients }) {
                     filename: file.filename,
                     mimetype: file.mimetype,
                     encoding: file.encoding,
-                    id: cuid(),
+                    id: generateUUIDv4(),
                     meta,
                 })
             )
@@ -374,7 +374,7 @@ function fileShareHandler ({ keystone, appClients }) {
             return next(error)
         }
 
-        const { id, appId, authedItem, modelNames, dv, sender } = data
+        const { id, appId, authedItemId, modelNames, dv, sender } = data
 
         if (!(appId in (appClients || {}))) {
             const error = new GQLError(ERRORS.INVALID_APP_ID, { req })
@@ -399,7 +399,7 @@ function fileShareHandler ({ keystone, appClients }) {
             meta: {
                 ...fileRecord.fileMeta.meta,
                 appId,
-                authedItem,
+                authedItemId,
                 sourceAppId,
                 modelNames,
             },
@@ -408,7 +408,7 @@ function fileShareHandler ({ keystone, appClients }) {
         const created = await FileRecord.create(context, {
             fileMeta: sharedFileMeta,
             dv, sender,
-            user: { connect: { id: authedItem } },
+            user: { connect: { id: authedItemId } },
             sourceId: { connect: { id: fileRecord.id } }, // point to original FileRecord
             sourceApp: sourceAppId, // original appId for routing
             fileKey: fileRecord.fileKey,
