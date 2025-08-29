@@ -71,6 +71,7 @@ const ERRORS = {
     INVALID_META: {
         code: BAD_USER_INPUT,
         type: INVALID_META,
+        message: 'Invalid file meta JSON object received',
     },
     WRONG_REQUEST_METHOD_TYPE: {
         code: BAD_USER_INPUT,
@@ -85,6 +86,7 @@ const ERRORS = {
     INVALID_PAYLOAD: {
         code: BAD_USER_INPUT,
         type: INVALID_PAYLOAD,
+        message: 'Invalid file share payload json received',
     },
 }
 

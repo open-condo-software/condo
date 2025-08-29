@@ -54,10 +54,6 @@ function validateAndParseFileConfig (config) {
 
 const FINGERPRINT_RE = /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`~]{5,42}$/
 
-function sendError (req, next, error) {
-    return next(new GQLError(error, { req }))
-}
-
 // ---------------------- guards ----------------------
 
 class RedisGuard {
@@ -97,25 +93,22 @@ function parseAndValidateMeta (raw, req, next, onError) {
         try {
             candidate = JSON.parse(raw)
         } catch {
-            return onError(() => sendError(req, next, { ...ERRORS.INVALID_META, message:'Invalid type for the "meta" multipart field' }))
+            return onError(() => next(new GQLError(ERRORS.INVALID_META, { req })))
         }
     } else if (typeof raw !== 'object' || raw === null) {
-        return onError(() => sendError(req, next, { ...ERRORS.INVALID_META, message:'Invalid type for the "meta" multipart field' }))
+
+        return onError(() => next(new GQLError(ERRORS.INVALID_META, { req })))
     }
 
     const result = MetaSchema.safeParse(candidate)
     if (!result.success) {
-        const message = result.error.issues[0]?.message
-        return onError(() => sendError(req, next, { ...ERRORS.INVALID_META, message }))
+
+        return onError(() => next(new GQLError(ERRORS.INVALID_META, { req }, [result.error])))
     }
 
     const meta = result.data
-    if (!UUID_REGEX.test(meta.authedItemId)) {
-        return onError(() => sendError(req, next, { ...ERRORS.INVALID_META, message: 'Invalid uuid format' }))
-    }
-
     if (meta.authedItemId !== req.user.id) {
-        return onError(() => sendError(req, next, { ...ERRORS.INVALID_META, message: 'Wrong authedItemId. Unable to upload file for another user' }))
+        return onError(() => next(new GQLError(ERRORS.INVALID_META, { req })))
     }
 
     return meta
@@ -195,6 +188,7 @@ function rateLimitHandler ({ quota, guard }) {
 }
 
 function parserHandler ({ processRequestOptions }) {
+    // That's originally took from graphql-upload/processRequest.js
     return async function (req, res, next) {
         if (!req.is('multipart/form-data')) {
             const error = new GQLError(ERRORS.WRONG_REQUEST_METHOD_TYPE, { req })
@@ -234,7 +228,7 @@ function parserHandler ({ processRequestOptions }) {
         }
 
         parser.on('error', () => {
-            exit(() => sendError(req, next, ERRORS.UNABLE_TO_PARSE_FILE_CONTENT))
+            exit(() => next(new GQLError(ERRORS.UNABLE_TO_PARSE_FILE_CONTENT, { req })))
         })
 
         parser.on('file', (fieldName, stream, { filename, encoding, mimeType: mimetype }) => {
@@ -249,7 +243,7 @@ function parserHandler ({ processRequestOptions }) {
             stream.on('limit', () => {
                 stream.unpipe()
                 capacitor.destroy(fileError)
-                sendError(req, next, ERRORS.PAYLOAD_TOO_LARGE)
+                return next(new GQLError(ERRORS.PAYLOAD_TOO_LARGE, { req }))
             })
 
             stream.on('error', (error) => {
@@ -283,14 +277,12 @@ function parserHandler ({ processRequestOptions }) {
         })
 
         parser.once('filesLimit', () =>
-            exit(() => sendError(req, next, ERRORS.MAX_FILE_UPLOAD_LIMIT_EXCEEDED))
+            exit(() => next(new GQLError(ERRORS.MAX_FILE_UPLOAD_LIMIT_EXCEEDED, { req })))
         )
 
         parser.on('field', (fieldName, value, { valueTruncated }) => {
             if (valueTruncated) {
-                return exit(() =>
-                    sendError(req, next, ERRORS.PAYLOAD_TOO_LARGE)
-                )
+                return exit(() => next(new GQLError(ERRORS.PAYLOAD_TOO_LARGE, { req })))
             }
 
             if (fieldName === 'meta') {
@@ -306,17 +298,17 @@ function parserHandler ({ processRequestOptions }) {
             req.resume()
 
             if (!Array.isArray(req.files)) {
-                return exit(() => sendError(req, next, ERRORS.MISSING_ATTACHED_FILES))
+                return exit(() => next(new GQLError(ERRORS.MISSING_ATTACHED_FILES, { req })))
             }
             if (!meta) {
-                return exit(() => sendError(req, next, ERRORS.MISSING_META))
+                return exit(() => next(new GQLError(ERRORS.MISSING_META, { req })))
             }
             next()
         })
 
         req.once('close', () => {
             if (!req.readableEnded) {
-                exit(() => sendError(req, next, ERRORS.REQUEST_DISCONNECTED))
+                exit(() => next(new GQLError(ERRORS.REQUEST_DISCONNECTED, { req })))
             }
         })
 
@@ -395,22 +387,18 @@ function fileShareHandler ({ keystone, appClients }) {
     return async function (req, res, next) {
         const {
             success,
-            error: validationPayload,
+            error,
             data,
         } = SharePayloadSchema.safeParse(req.body)
 
         if (!success) {
-            const fieldPath = validationPayload.issues[0].path.join('.')
-            const message = `${validationPayload.issues[0]?.message} - ${fieldPath}`
-            const error = new GQLError({ ...ERRORS.INVALID_PAYLOAD, message }, { req })
-            return next(error)
+            return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }, [error]))
         }
 
         const { id, appId, authedItemId, modelNames, dv, sender } = data
 
         if (!(appId in (appClients || {}))) {
-            const error = new GQLError(ERRORS.INVALID_APP_ID, { req })
-            return next(error)
+            return next(new GQLError(ERRORS.INVALID_APP_ID, { req }))
         }
 
         const appClient = appClients[appId]
@@ -420,8 +408,7 @@ function fileShareHandler ({ keystone, appClients }) {
             .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, `id sourceId sourceApp fileMeta ${FILE_RECORD_META_FIELDS}`)
 
         if (!fileRecord) {
-            const error = new GQLError(ERRORS.FILE_NOT_FOUND, { req })
-            return next(error)
+            return next(new GQLError(ERRORS.FILE_NOT_FOUND, { req }))
         }
 
         /*
@@ -481,7 +468,6 @@ module.exports = {
     validateAndParseFileConfig,
 
     // helpers
-    sendError,
     parseAndValidateMeta,
     parseAndValidateFileMetaSignature,
     RedisGuard,
