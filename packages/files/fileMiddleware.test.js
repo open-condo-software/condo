@@ -476,8 +476,8 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 })
 
                 const decryptedData = jwt.verify(file.signature, appClients[Object.keys(appClients)[0]].secret, { algorithms: ['HS256'] })
-                const { data, success, error } = parseAndValidateFileMetaSignature(decryptedData)
-
+                const { data, success } = parseAndValidateFileMetaSignature(decryptedData)
+                // Check encrypted shape has an expected shape
                 expect(success).toBeTruthy()
                 expect(data).toEqual(decryptedData)
             })

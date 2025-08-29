@@ -294,7 +294,7 @@ const FileMiddlewareUtilsTests = () => {
                     extensions: expect.objectContaining({
                         code: 'BAD_USER_INPUT',
                         type: 'INVALID_META',
-                        message: 'Too small: expected array to have >=1 items',
+                        message: 'Invalid file meta JSON object received',
                     }),
                 }))
             })
