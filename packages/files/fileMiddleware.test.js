@@ -5,11 +5,11 @@ const FormData = require('form-data')
 const jwt = require('jsonwebtoken')
 
 const conf = require('@open-condo/config')
+const { parseAndValidateFileMetaSignature } = require('@open-condo/files/utils')
 const { HTTPStatusByGQLErrorCode } = require('@open-condo/keystone/errors')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getKVClient } = require('@open-condo/keystone/kv')
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-
 const DV_AND_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }
 
 async function expectGQLErrorResponse (response, errorFields) {
@@ -445,6 +445,41 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     id: file.id,
                     signature: file.signature,
                 })
+            })
+
+            test('signature should contain correct payload', async () => {
+                const user = await createTestUser()
+                const form = new FormData()
+                const meta = {
+                    authedItemId: user.user.id,
+                    appId,
+                    modelNames: ['SomeModel'],
+                    ...DV_AND_SENDER,
+                }
+                form.append('meta', JSON.stringify(meta))
+                form.append('file', filestream, 'dino.png')
+
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: user.getCookie() },
+                })
+
+                const json = await result.json()
+
+                expect(result.status).toEqual(200)
+                expect(json.data.files).toHaveLength(1)
+                const file = json.data.files[0]
+                expect(file).toEqual({
+                    id: file.id,
+                    signature: file.signature,
+                })
+
+                const decryptedData = jwt.verify(file.signature, appClients[Object.keys(appClients)[0]].secret, { algorithms: ['HS256'] })
+                const { data, success, error } = parseAndValidateFileMetaSignature(decryptedData)
+
+                expect(success).toBeTruthy()
+                expect(data).toEqual(decryptedData)
             })
 
             test('uploading multiple files should be possible', async () => {
