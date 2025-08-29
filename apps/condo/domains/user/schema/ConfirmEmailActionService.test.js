@@ -9,6 +9,7 @@ const {
     expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONFIRM_EMAIL_ACTION_MESSAGE_TYPES } = require('@condo/domains/user/constants/confirmEmailAction')
 const {
     createTestEmail,
     createTestConfirmEmailAction,
@@ -51,6 +52,16 @@ describe('ConfirmEmailActionService', () => {
                 const email = createTestEmail()
                 const [{ token }] = await startConfirmEmailActionByTestClient(client, {
                     email,
+                })
+                expect(token).not.toHaveLength(0)
+            })
+
+            test.each(CONFIRM_EMAIL_ACTION_MESSAGE_TYPES)('User can start email confirm with messageType %p', async (messageType) => {
+                const client = await makeClient()
+                const email = createTestEmail()
+                const [{ token }] = await startConfirmEmailActionByTestClient(client, {
+                    email,
+                    messageType,
                 })
                 expect(token).not.toHaveLength(0)
             })

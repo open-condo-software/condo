@@ -17,10 +17,9 @@ const {
     WRONG_FORMAT,
     WRONG_EMAIL_VALUE,
 } = require('@condo/domains/common/constants/errors')
-const { encrypt } = require('@condo/domains/common/utils/crypto')
+const { encryptionManager } = require('@condo/domains/common/utils/encryption')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { isSafeUrl } = require('@condo/domains/common/utils/url.utils')
-const { EMAIL_VERIFY_CODE_MESSAGE_TYPE, EMAIL_VERIFY_CODE_WITH_LINK_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { EMAIL_VERIFY_CODE_MESSAGE_TYPE, VERIFY_USER_EMAIL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const {
     CONFIRM_EMAIL_ACTION_EXPIRY,
@@ -30,6 +29,7 @@ const {
     MAX_EMAIL_FOR_IP_BY_DAY: DEFAULT_MAX_EMAIL_FOR_IP_BY_DAY,
     MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY: DEFAULT_MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY,
 } = require('@condo/domains/user/constants/common')
+const { CONFIRM_EMAIL_ACTION_MESSAGE_TYPES } = require('@condo/domains/user/constants/confirmEmailAction')
 const {
     CAPTCHA_CHECK_FAILED,
     UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION,
@@ -46,6 +46,8 @@ const {
 const { getGuardKey } = require('@condo/domains/user/utils/serverSchema/confirmEmailAction')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const { generateTokenSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
+
+const { base64UrlEncode } = require('../../common/utils/base64.utils')
 
 
 /**
@@ -122,7 +124,6 @@ const ERRORS = {
     },
 }
 
-
 const DAY_IN_SEC = 60 * 60 * 24
 const MAX_EMAIL_FOR_IP_BY_DAY = Number(conf['MAX_EMAIL_FOR_IP_BY_DAY']) || DEFAULT_MAX_EMAIL_FOR_IP_BY_DAY
 const MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY = Number(conf['MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY']) || DEFAULT_MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY
@@ -171,15 +172,11 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
         },
         {
             access: true,
-            type: 'input StartConfirmEmailActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, email: String! }',
+            type: `enum ConfirmEmailActionMessageType { ${CONFIRM_EMAIL_ACTION_MESSAGE_TYPES.join(' ')} }`,
         },
         {
             access: true,
-            type: 'enum ConfirmEmailActionOperationType { verifyUserEmail }',
-        },
-        {
-            access: true,
-            type: 'input StartConfirmEmailActionWithLinkInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, email: String!, operationType: ConfirmEmailActionOperationType!, redirectUrl: String }',
+            type: 'input StartConfirmEmailActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, email: String!, messageType: ConfirmEmailActionMessageType }',
         },
         {
             access: true,
@@ -271,7 +268,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { email, sender, captcha } = data
+                const { email, sender, captcha, messageType = EMAIL_VERIFY_CODE_MESSAGE_TYPE } = data
 
                 const ip = context.req.ip
 
@@ -326,116 +323,37 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 
                 await ConfirmEmailAction.create(context, payload)
 
-                await sendMessage(context,  {
-                    to: { email: normalizedEmail },
-                    type: EMAIL_VERIFY_CODE_MESSAGE_TYPE,
-                    meta: {
-                        dv: 1,
+                let meta = {}
+
+                if (messageType === VERIFY_USER_EMAIL_MESSAGE_TYPE) {
+                    const tokenPayload = {
+                        messageType,
                         secretCode,
-                    },
-                    sender,
-                })
+                        token,
+                    }
+                    const tokenInString = JSON.stringify(tokenPayload)
+                    const encodedToken = encryptionManager.encrypt(tokenInString)
+                    const encodedTokenInBase64 = base64UrlEncode(encodedToken)
+                    const linkRaw = new URL(conf.SERVER_URL)
+                    linkRaw.pathname = '/user/confirmEmail'
+                    linkRaw.searchParams.set('token', encodedTokenInBase64)
+                    const link = linkRaw.href
 
-                return { token }
-            },
-        },
-        {
-            access: true,
-            schema: 'startConfirmEmailActionWithLink(data: StartConfirmEmailActionWithLinkInput!): StartConfirmEmailActionOutput',
-            doc: {
-                summary: 'Send confirmation email with link to confirm email.',
-                errors: {
-                    ...pick(ERRORS, [
-                        DV_VERSION_MISMATCH,
-                        'WRONG_SENDER_FORMAT',
-                        CAPTCHA_CHECK_FAILED,
-                        UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION,
-                        'WRONG_EMAIL_FORMAT',
-                        'GENERATE_TOKEN_ERROR',
-                    ]),
-                },
-            },
-            resolver: async (parent, args, context, info, extra = {}) => {
-                const { data } = args
-                const { email, sender, captcha, operationType: operationTypeFromInput, redirectUrl: redirectUrlFromInput } = data
-
-                const ip = context.req.ip
-
-                checkDvAndSender(data, {
-                    ...ERRORS.DV_VERSION_MISMATCH, mutation: 'startConfirmEmailAction',
-                }, {
-                    ...ERRORS.WRONG_SENDER_FORMAT, mutation: 'startConfirmEmailAction',
-                }, context)
-
-                const { error } = await captchaCheck(context, captcha)
-                if (error) {
-                    throw new GQLError({
-                        ...ERRORS.CAPTCHA_CHECK_FAILED,
-                        mutation: 'startConfirmEmailAction',
-                        error,
-                    }, context)
-                }
-
-                const normalizedEmail = normalizeEmail(email)
-                if (!normalizedEmail) {
-                    throw new GQLError(ERRORS.WRONG_EMAIL_FORMAT, context)
-                }
-
-                await checkEmailSendingLimits(context, email, ip)
-
-                const { error: tokenError, token } = generateTokenSafely(TOKEN_TYPES.CONFIRM_EMAIL)
-                if (tokenError) {
-                    throw new GQLError({ ...ERRORS.GENERATE_TOKEN_ERROR, data: { error: tokenError } }, context)
-                }
-
-                const secretCode = generateSecureCode(4)
-                const now = extra.extraNow || Date.now()
-                const requestedAt = new Date(now).toISOString()
-                const expiresAt = new Date(now + CONFIRM_EMAIL_ACTION_EXPIRY * 1000).toISOString()
-                const secretCodeRequestedAt = new Date(now).toISOString()
-                const secretCodeExpiresAt = new Date(now + EMAIL_CODE_TTL * 1000).toISOString()
-
-                const payload = {
-                    dv: 1,
-                    sender,
-                    email: normalizedEmail,
-                    secretCode,
-                    token,
-                    secretCodeRequestedAt,
-                    secretCodeExpiresAt,
-                    requestedAt,
-                    expiresAt,
-                }
-
-                const isInvalidData = await redisGuard.isLocked(captcha, 'validation-failed')
-                if (isInvalidData) return { token }
-
-                await ConfirmEmailAction.create(context, payload)
-
-                const tokenPayload = {
-                    redirectUrl: '/',
-                    operation: operationTypeFromInput,
-                    secretCode,
-                    token,
-                }
-                const redirectUrlFromInputRaw = new URL(redirectUrlFromInput)
-                // only condo url
-                if (isSafeUrl(redirectUrlFromInput) && redirectUrlFromInputRaw.origin === conf.SERVER_URL) {
-                    payload.redirectUrl = redirectUrlFromInputRaw.href
-                }
-                const encodedLinkToken = encrypt(JSON.stringify(tokenPayload))
-                const linkRaw = new URL(conf.SERVER_URL)
-                linkRaw.pathname = '/user/verifyEmail'
-                linkRaw.searchParams.set('token', encodedLinkToken)
-                const link = linkRaw.href
-
-                await sendMessage(context,  {
-                    to: { email: normalizedEmail },
-                    type: EMAIL_VERIFY_CODE_WITH_LINK_MESSAGE_TYPE,
-                    meta: {
+                    meta = {
                         dv: 1,
                         link,
-                    },
+                    }
+                } else {
+                    meta = {
+                        dv: 1,
+                        secretCode,
+                    }
+                }
+
+                await sendMessage(context,  {
+                    to: { email: normalizedEmail },
+                    type: messageType,
+                    meta,
                     sender,
                 })
 
@@ -623,3 +541,11 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 module.exports = {
     ConfirmEmailActionService,
 }
+
+
+// email -> click link
+// -> сраница для автоматического подтверждения почты
+// -> редирект на какую-то страницу (верификация почты + маркетинговая рассылка)
+// -> редирект на какую-то финальную страницу
+
+
