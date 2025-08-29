@@ -1,14 +1,23 @@
+import {
+    useCompleteConfirmEmailActionMutation,
+    useStartConfirmEmailActionMutation,
+} from '@app/condo/gql'
+import { ConfirmEmailActionMessageType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import Link from 'next/link'
 import React from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Typography } from '@open-condo/ui'
 
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserOrganizationsList, UserOrganizationsListProps } from '@condo/domains/user/components/UserOrganizationsList'
+
+import { useHCaptcha } from '../../common/components/HCaptcha'
+import { useMutationErrorHandler } from '../../common/hooks/useMutationErrorHandler'
 
 
 const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
@@ -29,6 +38,13 @@ export const UserInfoContent: React.FC<UserInfoContentProps> = ({ useAllOrganiza
 
     const email = user?.email || '—'
     const phone = user?.phone || '—'
+
+    const { executeCaptcha } = useHCaptcha()
+    const errorHandler = useMutationErrorHandler()
+
+    const [startConfirmEmailActionMutation] = useStartConfirmEmailActionMutation({
+        onError: errorHandler,
+    })
 
     return (
         <Row gutter={ROW_GUTTER_BIG}>
@@ -55,6 +71,29 @@ export const UserInfoContent: React.FC<UserInfoContentProps> = ({ useAllOrganiza
                                             </Col>
                                             <Col lg={18} xs={10} offset={1}>
                                                 <NotDefinedField value={email}/>
+                                            </Col>
+                                            <Col lg={18} xs={10} offset={1}>
+                                                {/* TODO(DOMA-12179): added banner with resend verify email */}
+                                                <Button
+                                                    type='primary'
+                                                    children='Send email'
+                                                    onClick={async () => {
+                                                        const sender = getClientSideSenderInfo()
+                                                        const captcha = await executeCaptcha()
+
+                                                        await startConfirmEmailActionMutation({
+                                                            variables: {
+                                                                data: {
+                                                                    dv: 1,
+                                                                    sender,
+                                                                    captcha,
+                                                                    email: user.email,
+                                                                    messageType: ConfirmEmailActionMessageType.VerifyUserEmail,
+                                                                },
+                                                            },
+                                                        })
+                                                    }}
+                                                />
                                             </Col>
                                             <Col lg={5} xs={10}>
                                                 <Typography.Text type='secondary'>
