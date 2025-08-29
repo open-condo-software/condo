@@ -444,19 +444,285 @@ describe('Map constructor', () => {
             })
         })
         describe('Edit section', () => {
-            it('should update structure in json on section edit', () => {
-                const Building = createBuildingMap(10)
-                const jsonMap = Building.getMap()
-                const updatedSection = jsonMap.sections[0]
-                Building.updateSection({ ...updatedSection, name: '2' })
-                Building.validate()
+            let Building
+            let jsonMap
+            let updatedSection
 
-                expect(Building.isMapValid).toBe(true)
-                const newJsonMap = Building.getMap()
-                expect(newJsonMap.sections[0].name).toEqual('2')
-                expect(newJsonMap.sections[1].name).toEqual('3')
+            beforeEach(() => {
+                Building = createBuildingMap(2)
+                jsonMap = Building.getMap()
+                updatedSection = jsonMap.sections[0]
+
+                Building.updateUnit({
+                    ...updatedSection.floors[updatedSection.floors.length - 1].units[0],
+                    label: '1000',
+                    section: '2',
+                    floor: '13',
+                }, true)
+                Building.updateUnit({
+                    ...updatedSection.floors[updatedSection.floors.length - 1].units[0],
+                    label: '1',
+                    section: '2',
+                    floor: '13',
+                }, true)
+            })
+
+            describe('Section name update', () => {
+                it('should update structure in json on section edit', () => {
+                    Building.updateSection({ ...updatedSection, name: '2' })
+                    Building.validate()
+
+                    expect(Building.isMapValid).toBe(true)
+                    const newJsonMap = Building.getMap()
+                    expect(newJsonMap.sections[0].name).toEqual('2')
+                    expect(newJsonMap.sections[1].name).toEqual('3')
+                })
+            })
+
+            describe('Units per floor operations', () => {
+                describe('Add units per floor', () => {
+                    it('should update structure in json on add unitsOnFloor', () => {
+                        const Building = createBuildingMap(1)
+                        const jsonMap = Building.getMap()
+                        const updatedSection = jsonMap.sections[0]
+
+                        Building.updateSection({ ...updatedSection, unitsOnFloor: 12 })
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+
+                        expect(newJsonMap.sections[0].floors[0].units).toHaveLength(12)
+                        expect(newJsonMap.sections[0].floors[1].units).toHaveLength(12)
+                        expect(newJsonMap.sections[0].floors[2].units).toHaveLength(12)
+                    })
+
+                    it('should update structure in json on add unitsOnFloor with check rename', () => {
+                        Building.updateSection({ ...updatedSection, unitsOnFloor: 12 })
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors[0].units[0].label).toEqual('169')
+                    })
+
+                    it('should update structure in json on add unitsOnFloor without rename next sections', () => {
+                        Building.updateSection({ ...updatedSection, unitsOnFloor: 12 }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[1].floors[0].units[0].label).toEqual('291')
+                    })
+
+                    it('should update structure in json on add unitsOnFloor with rename next sections', () => {
+                        Building.updateSection({ ...updatedSection, unitsOnFloor: 12 }, true)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[1].floors[0].units[0].label).toEqual('321')
+                    })
+                })
+
+                describe('Remove units per floor', () => {
+                    it('should update structure in json on remove unitsOnFloor', () => {
+                        Building.updateSection({ ...updatedSection, unitsOnFloor: 8 })
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+
+                        expect(newJsonMap.sections[0].floors[0].units).toHaveLength(8)
+                        expect(newJsonMap.sections[0].floors[1].units).toHaveLength(8)
+                        expect(newJsonMap.sections[0].floors[2].units).toHaveLength(8)
+                    })
+
+                    it('should update structure in json on remove unitsOnFloor with check rename', () => {
+                        Building.updateSection({ ...updatedSection, unitsOnFloor: 8 })
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors[0].units[0].label).toEqual('113')
+                    })
+
+                    it('should update structure in json on remove unitsOnFloor without rename next sections', () => {
+                        Building.updateSection({ ...updatedSection, unitsOnFloor: 8 }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[1].floors[0].units[0].label).toEqual('291')
+                    })
+
+                    it('should update structure in json on remove unitsOnFloor with rename next sections', () => {
+                        Building.updateSection({ ...updatedSection, unitsOnFloor: 8 }, true)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[1].floors[0].units[0].label).toEqual('261')
+                    })
+                })
+            })
+
+            describe('Floor operations', () => {
+                describe('Add floors', () => {
+                    beforeEach(() => {
+                        Building = createBuildingMap(2, { ...testSection, maxFloor: 10, minFloor: 1 })
+                        jsonMap = Building.getMap()
+                        updatedSection = jsonMap.sections[0]
+                    })
+
+                    it('should update structure in json on add floor section', () => {
+                        Building.updateSection({ ...updatedSection, maxFloor: 12, minFloor: 1 })
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors).toHaveLength(12)
+                    })
+
+                    it('should update structure in json on add floor section check rename', () => {
+                        Building.updateSection({ ...updatedSection, maxFloor: 12, minFloor: 1, unitsOnFloor: 10 })
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors[0].units[0].label).toEqual('111')
+                    })
+
+                    it('should update structure in json on add floor section with rename', () => {
+                        Building.updateSection({ ...updatedSection, maxFloor: 12, minFloor: 1, unitsOnFloor: 10 }, true)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[1].floors[0].units[0].label).toEqual('211')
+                    })
+
+                    it('should update structure in json on add floor section without rename', () => {
+                        Building.updateSection({ ...updatedSection, maxFloor: 12, minFloor: 1, unitsOnFloor: 10 }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[1].floors[0].units[0].label).toEqual('191')
+                    })
+                })
+
+                describe('Negative floor operations', () => {
+                    it('should update structure in json on add floor section lower then 0', () => {
+                        Building = createBuildingMap(2, { ...testSection, maxFloor: -10, minFloor: -20 })
+                        jsonMap = Building.getMap()
+                        updatedSection = jsonMap.sections[0]
+                        Building.updateSection({
+                            ...updatedSection,
+                            maxFloor: -8,
+                            minFloor: -20,
+                            unitsOnFloor: 10,
+                        }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors).toHaveLength(13)
+                    })
+
+                    it('should update structure in json on remove floor section lower then 0', () => {
+                        Building = createBuildingMap(2, { ...testSection, maxFloor: -10, minFloor: -20 })
+                        jsonMap = Building.getMap()
+                        updatedSection = jsonMap.sections[0]
+                        Building.updateSection({
+                            ...updatedSection,
+                            maxFloor: -12,
+                            minFloor: -20,
+                            unitsOnFloor: 10,
+                        }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors).toHaveLength(9)
+                    })
+
+                    it('should update structure in json on add floor section max floor upper then 0 and min lower then 0', () => {
+                        Building.updateSection({ ...updatedSection, maxFloor: 12, minFloor: -5, unitsOnFloor: 10 }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors).toHaveLength(17)
+                    })
+
+                    it('should update structure in json on remove floor section max floor upper then 0 and min lower then 0 without 0 floor', () => {
+                        Building.updateSection({ ...updatedSection, maxFloor: 9, minFloor: -5, unitsOnFloor: 10 }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors).toHaveLength(14)
+                    })
+                })
+
+                describe('Floor shifting operations', () => {
+                    beforeEach(() => {
+                        Building = createBuildingMap(2, { ...testSection, maxFloor: 10, minFloor: 1 })
+                        jsonMap = Building.getMap()
+                        updatedSection = jsonMap.sections[0]
+                    })
+
+                    it('should update structure in json on shift up', () => {
+                        Building.updateSection({ ...updatedSection, maxFloor: 12, minFloor: 3, unitsOnFloor: 10 }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors).toHaveLength(10)
+                    })
+
+                    it('should update structure in json on shift down to 0', () => {
+                        Building.updateSection({ ...updatedSection, maxFloor: 9, minFloor: 0, unitsOnFloor: 10 }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors).toHaveLength(10)
+                    })
+
+                    it('should update structure in json on shift down to lower then 0', () => {
+                        Building.updateSection({ ...updatedSection, maxFloor: 7, minFloor: -2, unitsOnFloor: 10 }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors).toHaveLength(10)
+                    })
+
+                    it('should update structure in json on shift down to lower then 0 and add floor', () => {
+                        Building.updateSection({ ...updatedSection, maxFloor: 7, minFloor: -2, unitsOnFloor: 10 }, false)
+                        Building.updateSection({ ...updatedSection, maxFloor: 9, minFloor: -2, unitsOnFloor: 10 }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors).toHaveLength(12)
+                    })
+
+                    it('should update structure in json on shift down to lower then 0 and remove floor', () => {
+                        Building.updateSection({ ...updatedSection, maxFloor: 7, minFloor: -2, unitsOnFloor: 10 }, false)
+                        Building.updateSection({ ...updatedSection, maxFloor: 6, minFloor: -2, unitsOnFloor: 10 }, false)
+                        Building.validate()
+
+                        expect(Building.isMapValid).toBe(true)
+                        const newJsonMap = Building.getMap()
+                        expect(newJsonMap.sections[0].floors).toHaveLength(9)
+                    })
+                })
             })
         })
+
         describe('Delete section', () => {
             it('should be removed', () => {
                 const Building = createBuildingMap(10)
@@ -483,7 +749,7 @@ describe('Map constructor', () => {
             })
         })
         describe('Copy section',  () => {
-            it('should add full copy of selected section',  () => {
+            it('should add full copy of selected section', () => {
                 const Building = createBuildingMap(1)
                 Building.removeUnit(Building.sections[0].floors[0].units[0].id)
                 Building.addCopySection(Building.sections[0].id)

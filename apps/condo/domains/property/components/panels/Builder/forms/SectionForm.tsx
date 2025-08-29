@@ -3,9 +3,9 @@ import { Col, InputNumber, Row } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { ChevronDown, ChevronUp, Trash } from '@open-condo/icons'
+import { ChevronDown, ChevronUp, QuestionCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Checkbox, Select, Space, Typography } from '@open-condo/ui'
+import { Button, Checkbox, Select, Space, Tooltip, Typography } from '@open-condo/ui'
 
 import {
     MAX_PROPERTY_FLOORS_COUNT,
@@ -255,8 +255,9 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     )
 }
 
+const DEBOUNCE_TIME = 300
 
-const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
+const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplicatedUnitIds }) => {
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
@@ -269,108 +270,144 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
     const ShowMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.showMinFloor' })
     const HideMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.hideMinFloor' })
+    const RenameNextUnitsTooltip = intl.formatMessage({ id: 'pages.condo.property.modal.sections.RenameNextUnits.tooltip' })
+    const RenameNextSectionsTooltip = intl.formatMessage({ id: 'pages.condo.property.modal.sections.RenameNextSections.tooltip' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
 
-    const sections = builder.getSelectedSections()
-    const section = sections?.[0]
-    const canChangeName = sections.length < 2
+    const section = builder.getSelectedSection()
+    const sectionIdRef = useRef<string | null>(null)
+
+    const renameNextSections = useRef(false)
+    const renameNextUnits = useRef(false)
+
+    const [name, setName] = useState<string>('')
+    const [minFloor, setMinFloor] = useState(1)
+    const [floorCount, setFloorCount] = useState(0)
+    const [unitsOnFloor, setUnitsOnFloor] = useState<number>(0)
+    const [showMinFloor, setShowMinFloor] = useState(false)
+
+    const sectionData = useMemo(() => {
+        if (!section) return null
+
+        const initialSections = builder.sections
+        const sectionIndex = initialSections.findIndex(el => el.index === section.index)
+        const sectionMinFloor = sectionIndex !== -1 ? builder.getSectionMinFloor(sectionIndex) : 1
+        const sectionMissingFloors = builder.getSectionMissingFloorsCount(sectionIndex)
+        const sectionMaxUnitsPerFloor = builder.getMaxUnitsPerFloor(section.id)
+
+        return {
+            sectionIndex,
+            sectionMinFloor,
+            sectionMissingFloors,
+            sectionMaxUnitsPerFloor,
+        }
+    }, [builder, section])
 
     useEffect(() => {
         if (!section) {
             builder.editMode = null
             refresh()
+            return
         }
-    }, [section, builder, refresh])
 
-    const firstNotEmptyFloorIndex = section?.floors?.map(floor => floor.units.length)?.findIndex(unitsCount => !!unitsCount) ?? 0
-    const sectionIndex = sections.findIndex(el => el.index === section.index)
-    const sectionMinFloor = section && sectionIndex !== -1 ? builder.getSectionMinFloor(sectionIndex) : 1
-    const sectionMaxFloor = section && sectionIndex !== -1 ? builder.getSectionMaxFloor(sectionIndex) - firstNotEmptyFloorIndex : 1
-    const sectionUnitOnFloor = section?.floors?.[0]?.units?.length ?? 0
+        if (sectionIdRef.current !== section.id) {
+            sectionIdRef.current = section.id
+            renameNextSections.current = false
+            renameNextUnits.current = false
+            setShowMinFloor(false)
+        }
 
-    const [name, setName] = useState<string>('')
-    const renameNextSections = useRef(false)
-    const toggleRenameNextSections = useCallback((event) => { renameNextSections.current = event.target.checked }, [])
-    const [minFloor, setMinFloor] = useState(sectionMinFloor)
-    const [floorCount, setFloorCount] = useState(sectionMaxFloor)
-    const [unitsOnFloor, setUnitsOnFloor] = useState<number>(sectionUnitOnFloor)
-    const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
+        if (sectionData) {
+            setName(section.name || '')
+            setFloorCount(section.floors.length + sectionData.sectionMissingFloors)
+            setUnitsOnFloor(sectionData.sectionMaxUnitsPerFloor)
+            setMinFloor(sectionData.sectionMinFloor || 1)
+        }
+    }, [section, builder, refresh, sectionData])
+
+    const updatePreview = useCallback(() => {
+        if (!section) return
+
+        setDuplicatedUnitIds([])
+
+        builder.updatePreviewSection({
+            id: section.id,
+            minFloor: minFloor,
+            maxFloor: floorCount + minFloor - 1,
+            unitsOnFloor: unitsOnFloor,
+        })
+    }, [builder, section, minFloor, floorCount, unitsOnFloor, setDuplicatedUnitIds])
 
     useEffect(() => {
-        setName(section ? section.name : '')
-    }, [section])
+        const timeoutId = setTimeout(updatePreview, DEBOUNCE_TIME)
+        return () => clearTimeout(timeoutId)
+    }, [updatePreview])
+
+    useEffect(() => {
+        return () => {
+            if (section) {
+                builder.restoreSection(section.id)
+            }
+        }
+    }, [builder, section])
 
     const setNameValue = useCallback((value) => setName(value ? value.toString() : ''), [])
 
-    const deleteSection = useCallback(() => {
-        sections.forEach(section => {
-            builder.removeSection(section.id, renameNextSections.current)
-        })
-        refresh()
-    }, [builder, refresh, sections])
+    const toggleRenameNextSections = useCallback((event) => {
+        renameNextSections.current = event.target.checked
+    }, [])
 
-    const setMinFloorValue = useCallback((value) => { setMinFloor(value) }, [])
-    const setFloorCountValue = useCallback((value) => { setFloorCount(value) }, [])
-    const maxFloorValue = useMemo(() => {
-        if (floorCount === 1) return minFloor
-        if (minFloor > 0) return floorCount + minFloor - 1
-        return floorCount + minFloor
-    }, [floorCount, minFloor])
+    const toggleRenameNextUnits = useCallback((event) => {
+        renameNextUnits.current = event.target.checked
+    }, [])
+
+    const deleteSection = useCallback(() => {
+        if (section) {
+            builder.removeSection(section.id, renameNextSections.current)
+        }
+        refresh()
+    }, [builder, refresh, section])
 
     const toggleMinFloorVisible = useCallback(() => {
-        if (!minFloorHidden) {
-            setMinFloor(1)
+        setShowMinFloor(prev => !prev)
+    }, [])
+
+    const handleFinish = useCallback(() => {
+        if (!section) return
+
+        const validateResult = builder.getNonUniquePreviewUnitIds()
+
+        if (validateResult.nonUniqueUnitIds.length > 0 && (!renameNextUnits.current || validateResult.nonUniqueIdBeforeCurrentSection)) {
+            setDuplicatedUnitIds(validateResult.nonUniqueUnitIds)
+            return
         }
-        setMinFloorHidden(!minFloorHidden)
-    }, [minFloorHidden])
 
-    const minFloorMargin = minFloorHidden ? '-20px' : 0
+        builder.restoreSection(section.id)
 
-    const resetForm = useCallback(() => {
-        setMinFloor(1)
-        setFloorCount(null)
-        setUnitsOnFloor(null)
-        setMinFloorHidden(true)
-        setName(section?.name || '')
-    }, [section?.name])
+        const maxFloor = floorCount + minFloor - 1
 
-    const updateSection = useCallback(() => {
-        sections.forEach(section => {
+        builder.updateSection({
+            id: section.id,
+            name: name,
+            minFloor,
+            maxFloor,
+            unitsOnFloor,
+        }, renameNextUnits.current, renameNextSections.current)
 
-            builder.removeUpdatePreviewSection(section.id, renameNextSections.current)
-
-            builder.updateSection({
-                ...section,
-                name: canChangeName ? name : undefined,
-                minFloor,
-                maxFloor: maxFloorValue,
-                unitsOnFloor,
-            }, renameNextSections.current)
-        })
+        setDuplicatedUnitIds([])
 
         refresh()
-        resetForm()
-    }, [sections, refresh, resetForm, builder, canChangeName, name, minFloor, maxFloorValue, unitsOnFloor])
+    }, [builder, name, section, refresh, floorCount, minFloor, unitsOnFloor, setDuplicatedUnitIds])
 
-    useEffect(() => {
-        if (minFloor && floorCount && unitsOnFloor && (canChangeName ? name : true) && maxFloorValue) {
-            sections.forEach(section => {
-                builder.updatePreviewSection({
-                    ...section,
-                    name: canChangeName ? name : undefined,
-                    minFloor,
-                    maxFloor: maxFloorValue,
-                    unitsOnFloor,
-                }, renameNextSections.current)
-            })
-        }
+    if (!section) return null
 
-    }, [builder, section, name, minFloor, maxFloorValue, unitsOnFloor, refresh, resetForm, floorCount, canChangeName, sections])
+    const minFloorMargin = showMinFloor ? 0 : '-20px'
 
     return (
         <Row gutter={[0, 40]} data-cy='property-map__edit-section-form'>
             <Col span={24}>
                 <Row gutter={MODAL_FORM_EDIT_GUTTER}>
-                    {canChangeName && <Col span={24}>
+                    <Col span={24}>
                         <Space direction='vertical' size={8} width='100%'>
                             <Typography.Text size='medium' type='secondary'>{NameLabel}</Typography.Text>
                             <InputNumber
@@ -381,14 +418,13 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                 style={INPUT_STYLE}
                             />
                         </Space>
-                    </Col>}
-
+                    </Col>
                     <Col span={24}>
                         <Space direction='vertical' size={8} width='100%'>
                             <Typography.Text type='secondary' size='medium'>{FloorCountLabel}</Typography.Text>
                             <InputNumber
                                 value={floorCount}
-                                onChange={setFloorCountValue}
+                                onChange={value => setFloorCount(value)}
                                 min={1}
                                 max={MAX_PROPERTY_FLOORS_COUNT}
                                 style={INPUT_STYLE}
@@ -399,34 +435,30 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </Col>
                     <Col span={24} style={{ marginTop: minFloorMargin }}>
                         <Space direction='vertical' size={8} width='100%'>
-                            {
-                                !minFloorHidden && (
-                                    <>
-                                        <Typography.Text type='secondary' size='medium'>{MinFloorLabel}</Typography.Text>
-                                        <InputNumber
-                                            value={minFloor}
-                                            onChange={setMinFloorValue}
-                                            style={INPUT_STYLE}
-                                            type='number'
-                                        />
-                                    </>
-                                )
-                            }
+                            {showMinFloor && (
+                                <>
+                                    <Typography.Text type='secondary' size='medium'>{MinFloorLabel}</Typography.Text>
+                                    <InputNumber
+                                        value={minFloor}
+                                        onChange={value => setMinFloor(value)}
+                                        style={INPUT_STYLE}
+                                        type='number'
+                                    />
+                                </>
+                            )}
                             <Typography.Text onClick={toggleMinFloorVisible} size='medium'>
                                 <Space size={8} width='100%'>
-                                    {
-                                        minFloorHidden ? (
-                                            <>
-                                                {ShowMinFloor}
-                                                <ChevronDown size='medium' />
-                                            </>
-                                        ) : (
-                                            <>
-                                                {HideMinFloor}
-                                                <ChevronUp size='medium' />
-                                            </>
-                                        )
-                                    }
+                                    {showMinFloor ? (
+                                        <>
+                                            {HideMinFloor}
+                                            <ChevronUp size='medium' />
+                                        </>
+                                    ) : (
+                                        <>
+                                            {ShowMinFloor}
+                                            <ChevronDown size='medium' />
+                                        </>
+                                    )}
                                 </Space>
                             </Typography.Text>
                         </Space>
@@ -440,7 +472,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                 min={1}
                                 max={MAX_PROPERTY_UNITS_COUNT_PER_FLOOR}
                                 value={unitsOnFloor}
-                                onChange={value=>setUnitsOnFloor(value)}
+                                onChange={value => setUnitsOnFloor(value)}
                                 style={INPUT_STYLE}
                                 type='number'
                                 data-cy='property-map__add-section-form__units-on-floor'
@@ -449,8 +481,28 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     </Col>
 
                     <Col span={24}>
+                        <Checkbox onChange={toggleRenameNextUnits}>
+                            <Space size={8}>
+                                {RenameNextUnitsLabel}
+                                <Tooltip title={RenameNextUnitsTooltip}>
+                                    <Typography.Text type='secondary'>
+                                        <QuestionCircle size='small'/>
+                                    </Typography.Text>
+                                </Tooltip>
+                            </Space>
+                        </Checkbox>
+                    </Col>
+
+                    <Col span={24}>
                         <Checkbox onChange={toggleRenameNextSections}>
-                            {builder.viewMode === MapViewMode.parking ? RenameNextParkingsLabel : RenameNextSectionsLabel}
+                            <Space size={8}>
+                                {builder.viewMode === MapViewMode.parking ? RenameNextParkingsLabel : RenameNextSectionsLabel}
+                                <Tooltip title={RenameNextSectionsTooltip}>
+                                    <Typography.Text type='secondary'>
+                                        <QuestionCircle size='small'/>
+                                    </Typography.Text>
+                                </Tooltip>
+                            </Space>
                         </Checkbox>
                     </Col>
                 </Row>
@@ -460,9 +512,10 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     <Col span={24}>
                         <Button
                             block
-                            onClick={updateSection}
+                            key='submit'
+                            onClick={handleFinish}
                             type='primary'
-                            disabled={isEmpty(name)}
+                            disabled={isEmpty(name) || floorCount === null || unitsOnFloor === null || minFloor === null}
                             data-cy='property-map__update-section-button'
                         >
                             {SaveLabel}

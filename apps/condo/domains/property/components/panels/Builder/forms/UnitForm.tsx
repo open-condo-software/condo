@@ -127,7 +127,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
             if (mapUnit) {
                 builder.updateUnit({ ...mapUnit, label: trimmedLabel, floor, section, unitType }, renameNextUnits.current)
             } else {
-                builder.removePreviewUnit()
+                builder.removePreviewUnit(false)
                 builder.addUnit({ id: '', label: trimmedLabel, floor, section, unitType }, renameNextUnits.current)
                 resetForm()
             }
