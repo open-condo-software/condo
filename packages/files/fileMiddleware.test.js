@@ -5,11 +5,29 @@ const FormData = require('form-data')
 const jwt = require('jsonwebtoken')
 
 const conf = require('@open-condo/config')
+const { HTTPStatusByGQLErrorCode } = require('@open-condo/keystone/errors')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getKVClient } = require('@open-condo/keystone/kv')
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const DV_AND_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }
+
+async function expectGQLErrorResponse (response, errorFields) {
+    const status = HTTPStatusByGQLErrorCode[errorFields.code] || 500
+    expect(response.status).toEqual(status)
+    const body = await response.json()
+    expect(body).toEqual({
+        errors: [
+            expect.objectContaining({
+                name: 'GQLError',
+                message: expect.stringContaining(''),
+                reqId: expect.stringContaining(''),
+                errId: expect.stringContaining(''),
+                extensions: expect.objectContaining(errorFields),
+            }),
+        ],
+    })
+}
 
 const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
     const appClients = JSON.parse(conf['FILE_UPLOAD_CONFIG']).clients
@@ -42,16 +60,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     method: 'POST',
                     body: form,
                 })
-                const json = await result.json()
 
-                expect(result.status).toEqual(401)
-                expect(json).toEqual({
-                    errors: [
-                        expect.objectContaining({
-                            name: 'GQLError',
-                            message: 'Authorization is required',
-                        }),
-                    ],
+                await expectGQLErrorResponse(result, {
+                    code: 'UNAUTHENTICATED',
+                    type: 'AUTHORIZATION_REQUIRED',
                 })
             })
 
@@ -66,15 +78,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     method: 'POST',
                     body: form,
                 })
-                const json = await result.json()
-                expect(result.status).toEqual(401)
-                expect(json).toEqual({
-                    errors: [
-                        expect.objectContaining({
-                            name: 'GQLError',
-                            message: 'Authorization is required',
-                        }),
-                    ],
+
+                await expectGQLErrorResponse(result, {
+                    code: 'UNAUTHENTICATED',
+                    type: 'AUTHORIZATION_REQUIRED',
                 })
             })
 
@@ -93,16 +100,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     body: form,
                     headers: { Cookie: admin.getCookie() },
                 })
-                const json = await result.json()
 
-                expect(result.status).toEqual(400)
-                expect(json).toEqual({
-                    errors: [
-                        expect.objectContaining({
-                            name: 'GQLError',
-                            message: 'Wrong authedItemId. Unable to upload file for another user',
-                        }),
-                    ],
+                await expectGQLErrorResponse(result, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_META',
                 })
             })
 
@@ -127,16 +128,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         body: {},
                         headers: { Cookie: admin.getCookie() },
                     })
-                    const json = await result.json()
 
-                    expect(result.status).toEqual(400)
-                    expect(json).toEqual({
-                        errors: [
-                            expect.objectContaining({
-                                name: 'GQLError',
-                                message: 'Wrong request method type. Only "multipart/form-data" is allowed',
-                            }),
-                        ],
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'WRONG_REQUEST_METHOD_TYPE',
                     })
                 })
 
@@ -149,7 +144,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         headers: { Cookie: admin.getCookie() },
                     })
 
-                    expect(result.status).toEqual(400)
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'MISSING_META',
+                    })
                 })
 
                 test('upload file without dv field should fail', async () => {
@@ -162,7 +160,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         headers: { Cookie: admin.getCookie() },
                     })
 
-                    expect(result.status).toEqual(400)
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_META',
+                    })
                 })
 
                 test('upload without sender meta field should fail', async () => {
@@ -175,7 +176,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         headers: { Cookie: admin.getCookie() },
                     })
 
-                    expect(result.status).toEqual(400)
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_META',
+                    })
                 })
 
                 test('upload with wrong data version number should fail', async () => {
@@ -187,7 +191,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         body: form,
                         headers: { Cookie: admin.getCookie() },
                     })
-                    expect(result.status).toEqual(400)
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_META',
+                    })
 
                     form = new FormData()
                     form.append('file', filestream, 'dino.png')
@@ -198,7 +205,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         headers: { Cookie: admin.getCookie() },
                     })
 
-                    expect(result.status).toEqual(400)
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_META',
+                    })
                 })
 
                 test('upload with wrong meta.sender.fingerprint should fail', async () => {
@@ -211,7 +221,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         headers: { Cookie: admin.getCookie() },
                     })
 
-                    expect(result.status).toEqual(400)
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_META',
+                    })
                 })
 
                 test('upload without file should fail', async () => {
@@ -222,16 +235,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         body: form,
                         headers: { Cookie: admin.getCookie() },
                     })
-                    const json = await result.json()
 
-                    expect(result.status).toEqual(400)
-                    expect(json).toEqual({
-                        errors: [
-                            expect.objectContaining({
-                                name: 'GQLError',
-                                message: 'Missing binary data in request',
-                            }),
-                        ],
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'MISSING_ATTACHED_FILES',
                     })
                 })
 
@@ -243,7 +250,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
                     })
 
-                    expect(result.status).toEqual(400)
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_META',
+                    })
                 })
 
                 test('upload without app id should fail', async () => {
@@ -254,7 +264,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
                     })
 
-                    expect(result.status).toEqual(400)
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_META',
+                    })
                 })
 
                 test('upload with wrong appId should fail', async () => {
@@ -265,15 +278,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     const result = await fetch(serverUrl, {
                         method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
                     })
-                    const json = await result.json()
-                    expect(result.status).toEqual(403)
-                    expect(json).toEqual({
-                        errors: [
-                            expect.objectContaining({
-                                name: 'GQLError',
-                                message: 'Provided appId does not have permission to upload file',
-                            }),
-                        ],
+
+                    await expectGQLErrorResponse(result, {
+                        code: 'FORBIDDEN',
+                        type: 'INVALID_APP_ID',
                     })
                 })
             })
@@ -285,15 +293,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         body: JSON.stringify({}),
                         headers: { 'Content-Type': 'application/json' },
                     })
-                    const json = await result.json()
-                    expect(result.status).toEqual(401)
-                    expect(json).toEqual({
-                        errors: [
-                            expect.objectContaining({
-                                name: 'GQLError',
-                                message: 'Authorization is required',
-                            }),
-                        ],
+
+                    await expectGQLErrorResponse(result, {
+                        code: 'UNAUTHENTICATED',
+                        type: 'AUTHORIZATION_REQUIRED',
                     })
                 })
 
@@ -331,15 +334,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         // Here should be user1 - file owner
                         headers: { Cookie: user2.getCookie(), 'Content-Type': 'application/json' },
                     })
-                    const json = await result.json()
-                    expect(result.status).toEqual(400)
-                    expect(json).toEqual({
-                        errors: [
-                            expect.objectContaining({
-                                name: 'GQLError',
-                                message: 'File not found or you don\'t have access to it',
-                            }),
-                        ],
+
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'FILE_NOT_FOUND',
                     })
                 })
 
@@ -378,15 +376,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                             'Content-Type': 'application/json',
                         },
                     })
-                    const json1 = await result1.json()
-                    expect(result1.status).toEqual(400)
-                    expect(json1).toEqual({
-                        errors: [
-                            expect.objectContaining({
-                                name: 'GQLError',
-                                message: 'Invalid input: expected string, received undefined - id',
-                            }),
-                        ],
+
+                    await expectGQLErrorResponse(result1, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_PAYLOAD',
                     })
                 })
             })
