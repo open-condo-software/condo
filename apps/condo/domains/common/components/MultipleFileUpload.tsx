@@ -161,7 +161,7 @@ export const useMultipleFileUploadHook = ({
             />
         )
         return UploadWrapper
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [...dependenciesForRerenderUploadComponent])
     return {
         UploadComponent,
@@ -189,11 +189,11 @@ export const StyledUpload = styled(Upload)<{ reverseFileList?: boolean }>`
       }
     }
   }
-    
-    .ant-upload-list-item-card-actions-btn:hover {
-        background-color: inherit;
-    }
-    
+
+  .ant-upload-list-item-card-actions-btn:hover {
+    background-color: inherit;
+  }
+
   .ant-upload-list-text-container {
     & .ant-upload-list-item-name {
       font-size: 16px;
@@ -211,12 +211,12 @@ export const StyledUpload = styled(Upload)<{ reverseFileList?: boolean }>`
       width: auto;
      }`}
   }
-  
+
   .ant-upload-list-item-card-actions {
     display: flex;
     align-items: center;
   }
-  
+
   .ant-upload-list-item:not(.ant-upload-list-item-error) {
     & .ant-upload-list-item-name {
       text-decoration: underline;
@@ -228,7 +228,7 @@ export const StyledUpload = styled(Upload)<{ reverseFileList?: boolean }>`
       }
     }
   }
-  
+
   .ant-upload-list-item-error {
     & .ant-upload-list-item-name {
       text-decoration: none;
