@@ -18,6 +18,7 @@ const { ERRORS } = require('./errors')
 const DEFAULT_USER_HOUR_QUOTA = 100
 const DEFAULT_IP_HOUR_QUOTA = 100
 const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
+const fileMetaSymbol = Symbol('fileMeta')
 
 const AppClientSchema = z.object({
     name: z.string().min(3).optional(),
@@ -270,7 +271,8 @@ function parserHandler ({ processRequestOptions }) {
                 meta = parseAndValidateMeta(value, req, next, exit)
             }
 
-            req.meta = meta
+            req[fileMetaSymbol] = meta
+
         })
 
         parser.once('finish', () => {
@@ -299,7 +301,7 @@ function parserHandler ({ processRequestOptions }) {
 
 function fileStorageHandler ({ keystone, appClients }) {
     return async function (req, res, next) {
-        const { meta, files } = req
+        const { [fileMetaSymbol]: meta, files } = req
         const appClient = appClients ? appClients[meta.appId] : undefined
 
         if (!(meta['appId'] in (appClients || {}))) {
