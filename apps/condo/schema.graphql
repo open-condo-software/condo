@@ -85372,24 +85372,17 @@ type GetEmailByConfirmEmailActionTokenOutput {
   isEmailVerified: Boolean!
 }
 
+enum ConfirmEmailActionMessageType {
+  EMAIL_VERIFY
+  VERIFY_USER_EMAIL
+}
+
 input StartConfirmEmailActionInput {
   dv: Int!
   sender: SenderFieldInput!
   captcha: String!
   email: String!
-}
-
-enum ConfirmEmailActionOperationType {
-  verifyUserEmail
-}
-
-input StartConfirmEmailActionWithLinkInput {
-  dv: Int!
-  sender: SenderFieldInput!
-  captcha: String!
-  email: String!
-  operationType: ConfirmEmailActionOperationType!
-  redirectUrl: String
+  messageType: ConfirmEmailActionMessageType
 }
 
 type StartConfirmEmailActionOutput {
@@ -85947,7 +85940,7 @@ enum MessageType {
   DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
   SMS_VERIFY
   EMAIL_VERIFY
-  EMAIL_VERIFY_WITH_LINK
+  VERIFY_USER_EMAIL
   DEVELOPER_IMPORTANT_NOTE_TYPE
   CUSTOMER_IMPORTANT_NOTE_TYPE
   MESSAGE_FORWARDED_TO_SUPPORT
@@ -97335,58 +97328,6 @@ type Mutation {
   startConfirmEmailAction(data: StartConfirmEmailActionInput!): StartConfirmEmailActionOutput
 
   """
-  Send confirmation email with link to confirm email.
-  
-  
-  
-  **Errors**
-  
-  Following objects will be presented in `extensions` property of thrown error
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "DV_VERSION_MISMATCH",
-    "message": "Wrong value for data version number"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
-    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "CAPTCHA_CHECK_FAILED",
-    "message": "Failed to check CAPTCHA",
-    "messageForUser": "The operation could not be completed. Please update the application"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
-    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
-    "messageForUser": "Unable to verify your email. Try again or ask our support"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "WRONG_EMAIL_VALUE",
-    "message": "Wrong format of provided email",
-    "messageForUser": "Invalid E-mail format",
-    "correctExample": "example@example.com"
-  }`
-  
-  `{
-    "code": "INTERNAL_ERROR",
-    "type": "GENERATE_TOKEN_FAILED",
-    "message": "Generate token failed"
-  }`
-  """
-  startConfirmEmailActionWithLink(data: StartConfirmEmailActionWithLinkInput!): StartConfirmEmailActionOutput
-
-  """
   Resend the confirm email for existing token
   
   
@@ -98378,7 +98319,7 @@ type Mutation {
   			"required": true
   		}
   	},
-  	"EMAIL_VERIFY_WITH_LINK": {
+  	"VERIFY_USER_EMAIL": {
   		"dv": {
   			"defaultValue": "",
   			"required": true
