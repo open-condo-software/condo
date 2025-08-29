@@ -22,7 +22,6 @@ const fileMetaSymbol = Symbol('fileMeta')
 
 const AppClientSchema = z.object({
     name: z.string().min(3).optional(),
-    modelNames: z.array(z.string()).min(1).optional(),
     secret: z.string().min(8),
 }).strict()
 
@@ -133,6 +132,33 @@ const SharePayloadSchema = z.object({
     appId: z.string().min(1),
     modelNames: z.array(z.string()).min(1).optional(),
 }).strict()
+
+const FileMetaSignatureSchema = z.object({
+    id: z.string(),
+    recordId: z.uuid(),
+    path: z.string().nullable(),
+    filename: z.string(),
+    originalFilename: z.string(),
+    mimetype: z.string(),
+    encoding: z.string(),
+    meta: z.object({
+        dv: z.literal(1),
+        sender: z.object({
+            dv: z.literal(1),
+            fingerprint: z.string().regex(FINGERPRINT_RE),
+        }).strict(),
+        authedItemId: z.uuid(),
+        appId: z.string(),
+        modelNames: z.array(z.string()).min(1).optional(),
+        sourceAppId: z.string().nullable(),
+    }).strict(),
+    iat: z.number(),
+    exp: z.number(),
+}).strict()
+
+function parseAndValidateFileMetaSignature (data) {
+    return z.safeParse(FileMetaSignatureSchema, data)
+}
 // ---------------------- handlers ----------------------
 
 function authHandler ()  {
@@ -457,6 +483,7 @@ module.exports = {
     // helpers
     sendError,
     parseAndValidateMeta,
+    parseAndValidateFileMetaSignature,
     RedisGuard,
 
     // handlers

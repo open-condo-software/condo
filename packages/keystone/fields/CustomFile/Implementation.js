@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const { omit, get } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { parseAndValidateFileMetaSignature } = require('@open-condo/files/utils')
 const { GQLError } = require('@open-condo/keystone/errors')
 
 const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
@@ -72,6 +73,17 @@ class CustomFile extends FileWithUTF8Name.implementation {
                     message: 'Signature is wrong or expired',
                 })
             }
+
+            const { data, success, error } = parseAndValidateFileMetaSignature(fileData)
+            if (!success) {
+                throw new GQLError({
+                    code: 'BAD_USER_INPUT',
+                    type: 'WRONG_SIGNATURE',
+                }, context, error)
+            }
+
+            fileMeta = data
+
             if (fileMeta.meta.authedItem !== context.authedItem.id) {
                 throw new GQLError({
                     code: 'FORBIDDEN',
@@ -87,7 +99,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
                     type: 'ACCESS_DENIED',
                     variable: [this.path],
                     message: 'Owner of this file restrict connection to this model',
-                })
+                }, context)
             }
         }
 
