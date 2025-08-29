@@ -1,43 +1,126 @@
+import {
+    useVerifyUserEmailMutation,
+    useUpdateUserMutation,
+} from '@app/condo/gql'
+import { useRouter } from 'next/router'
+import React, { useCallback, useEffect, useState } from 'react'
+
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
+import { useAuth } from '@open-condo/next/auth'
+
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { decrypt } from '@condo/domains/common/utils/crypto'
+import { HCaptchaProvider } from '@condo/domains/common/components/HCaptcha'
+import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
+import { PageComponentType } from '@condo/domains/common/types'
 
-import type { GetServerSideProps } from 'next'
 
+type ConfirmEmailPageProps = {
+    messageType?: string
+    secretCode?: string
+    token?: string
+}
 
-export default function VerifyEmail ({ redirectUrl, operation, secretCode, token }) {
-    // TODO(DOMA-12179): add logic VerifyEmail
-    console.log({
-        redirectUrl, operation, secretCode, token,
+const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = () => {
+    const [loading, setLoading] = useState<boolean>(false)
+
+    const { user } = useAuth()
+
+    const router = useRouter()
+    const { query: { token: tokenFromQuery } } = router
+    const queryToken = typeof tokenFromQuery === 'string' ? tokenFromQuery : ''
+
+    const errorHandler = useMutationErrorHandler()
+
+    const [verifyUserEmailMutation] = useVerifyUserEmailMutation({
+        onError: errorHandler,
+    })
+    const [updateUserMutation] = useUpdateUserMutation({
+        onError: errorHandler,
     })
 
-    if (!operation || !secretCode || !token) {
+    const handleUpdateMarketingConsent = useCallback(async () => {
+        try {
+            if (!user?.id) throw new Error('User.id not empty')
+
+            const sender = getClientSideSenderInfo()
+
+            const res = await updateUserMutation({
+                variables: {
+                    id: user.id,
+                    data: {
+                        dv: 1,
+                        sender,
+                        hasMarketingConsent: true,
+                    },
+                },
+            })
+
+            if (res.errors) {
+                throw new Error('Cannot set hasMarketingConsent to true')
+            }
+        } catch (error) {
+            console.error(error)
+
+            throw error
+        }
+    }, [user?.id])
+
+    const handleVerifyUserEmail = useCallback(async () => {
+        if (loading) return
+
+        setLoading(true)
+
+        try {
+            const sender = getClientSideSenderInfo()
+
+            const res = await verifyUserEmailMutation({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender,
+                        confirmEmailToken: queryToken,
+                    },
+                },
+            })
+
+            if (!res.errors && res?.data?.result?.status === 'ok') {
+                await handleUpdateMarketingConsent()
+            } else {
+                throw new Error('Cannot verify email')
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }, [queryToken])
+
+    useEffect(() => {
+        if (loading) return
+        if (!queryToken) return
+
+        handleVerifyUserEmail()
+    }, [queryToken])
+
+    // TODO(DOMA-12179): add logic ConfirmEmail
+    console.log({
+        queryToken,
+    })
+
+    if (!queryToken) {
         return <>Failed to verify email</>
     }
 
     return <>Loading...</>
 }
 
-VerifyEmail.requiredAccess = AuthRequired
+ConfirmEmailPage.requiredAccess = AuthRequired
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { query } = context
-    const { token = '' } = query
-
-    let data = {} as any
-    try {
-        const decodedToken = decrypt(token)
-        data = JSON.parse(decodedToken)
-    } catch (error) {
-        console.error('Unable to decode email verification token!')
-        console.error(error)
-    }
-    
-    return {
-        props: {
-            redirectUrl: data?.redirectUrl || null,
-            operation: data?.operation || null,
-            secretCode: data?.secretCode || null,
-            token: data?.token || null,
-        },
-    }
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    return (
+        <HCaptchaProvider>
+            {children}
+        </HCaptchaProvider>
+    )
 }
+ConfirmEmailPage.container = Layout
+
+export default ConfirmEmailPage
