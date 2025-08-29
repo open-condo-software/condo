@@ -85881,6 +85881,7 @@ input _ListSchemaFieldsInput {
   type: String
 }
 
+"""File, that could be loaded through new file server or by legacy way"""
 scalar FileUpload
 
 input _internalScheduleTaskByNameInput {
@@ -101309,5 +101310,5 @@ type Mutation {
   updateAuthenticatedUser(data: UserUpdateInput): User
 }
 
-"""File, that could be loaded through new file server or by legacy way"""
+"""The `Upload` scalar type represents a file upload."""
 scalar Upload
