@@ -1,1 +1,5 @@
 Email verification link: {{ message.meta.link }}
+
+{% if message.meta.withMarketingConsent %}
+By clicking on the link, you agree to receive marketing communications
+{% endif %}

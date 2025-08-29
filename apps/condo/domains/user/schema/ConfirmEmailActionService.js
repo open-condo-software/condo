@@ -129,6 +129,8 @@ const MAX_EMAIL_FOR_IP_BY_DAY = Number(conf['MAX_EMAIL_FOR_IP_BY_DAY']) || DEFAU
 const MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY = Number(conf['MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY']) || DEFAULT_MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY
 const EMAIL_WHITE_LIST = Object.keys(conf.EMAIL_WHITE_LIST ? JSON.parse(conf.EMAIL_WHITE_LIST) : {})
 const IP_WHITE_LIST = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
+const VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED = conf.VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED === 'true'
+const SERVER_URL = conf.SERVER_URL
 
 const redisGuard = new RedisGuard()
 
@@ -334,7 +336,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     const tokenInString = JSON.stringify(tokenPayload)
                     const encodedToken = encryptionManager.encrypt(tokenInString)
                     const encodedTokenInBase64 = base64UrlEncode(encodedToken)
-                    const linkRaw = new URL(conf.SERVER_URL)
+                    const linkRaw = new URL(SERVER_URL)
                     linkRaw.pathname = '/user/confirmEmail'
                     linkRaw.searchParams.set('token', encodedTokenInBase64)
                     const link = linkRaw.href
@@ -342,6 +344,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     meta = {
                         dv: 1,
                         link,
+                        withMarketingConsent: VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED,
                     }
                 } else {
                     meta = {
@@ -541,11 +544,3 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 module.exports = {
     ConfirmEmailActionService,
 }
-
-
-// email -> click link
-// -> сраница для автоматического подтверждения почты
-// -> редирект на какую-то страницу (верификация почты + маркетинговая рассылка)
-// -> редирект на какую-то финальную страницу
-
-
