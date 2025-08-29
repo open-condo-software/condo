@@ -51,6 +51,13 @@ const ERRORS = {
         message: 'Unable to find non-expired ConfirmEmailAction by specified token',
         messageForUser: 'api.user.verifyUserEmail.TOKEN_NOT_FOUND',
     },
+    DIFFERENT_EMAILS: {
+        mutation: 'verifyUserEmail',
+        code: BAD_USER_INPUT,
+        type: 'DIFFERENT_EMAILS',
+        message: 'The verified email and actual email cannot be different',
+        messageForUser: 'api.user.verifyUserEmail.DIFFERENT_EMAILS',
+    },
     EMPTY_USER_EMAIL: {
         mutation: 'verifyUserEmail',
         code: BAD_USER_INPUT,
@@ -131,7 +138,6 @@ const VerifyUserEmailService = new GQLCustomSchema('VerifyUserEmailService', {
                 if (actualIsEmailVerified === true) {
                     throw new GQLError(ERRORS.EMAIL_ALREADY_VERIFIED, context)
                 }
-
 
                 const currentUserId = context?.authedItem?.id
                 await User.update(context, currentUserId, {
