@@ -303,6 +303,7 @@ const MESSAGE_META = {
     [VERIFY_USER_EMAIL_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
         link: { defaultValue: '', required: true },
+        withMarketingConsent: { defaultValue: false, required: false },
     },
     [DEVELOPER_IMPORTANT_NOTE_TYPE]: {
         dv: { defaultValue: '', required: true },
