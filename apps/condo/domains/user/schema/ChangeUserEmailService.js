@@ -64,6 +64,13 @@ const ERRORS = {
         variable: ['data', 'newEmail'],
         mutation: 'changeUserEmail',
     },
+    OPERATION_FAILED: {
+        mutation: 'changeUserEmail',
+        code: BAD_USER_INPUT,
+        type: 'OPERATION_FAILED',
+        message: 'The operation failed',
+        messageForUser: 'api.user.changeUserEmail.OPERATION_FAILED',
+    },
 }
 
 const ChangeUserEmailService = new GQLCustomSchema('ChangeUserEmailService', {
