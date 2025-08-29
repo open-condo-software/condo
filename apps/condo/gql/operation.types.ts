@@ -1213,3 +1213,10 @@ export type UpdateUserMutationVariables = Types.Exact<{
 
 
 export type UpdateUserMutation = { __typename?: 'Mutation', user?: { __typename?: 'User', id: string } | null };
+
+export type VerifyUserEmailMutationVariables = Types.Exact<{
+  data: Types.VerifyUserEmailInput;
+}>;
+
+
+export type VerifyUserEmailMutation = { __typename?: 'Mutation', result?: { __typename?: 'VerifyUserEmailOutput', status: string } | null };

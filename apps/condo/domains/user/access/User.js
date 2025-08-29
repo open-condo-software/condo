@@ -62,34 +62,13 @@ const readBySupportUpdateByAdminField = {
 const canAccessToEmailField = {
     read: userIsAdminOrIsThisItemOrCanDirectlyReadField,
     create: access.userIsAdmin,
-    // TODO(DOMA-12133): Should to update accesses when adding a mutation to change user email address
-    // TODO(pahaz): !!! change it to access.userIsAdmin
-    update: (args) => {
-        if (!access.userIsAuthenticated(args)) return false
-
-        const { authentication: { item: user } } = args
-        const userType = user.type
-        const requiredIdentificationFields = IDENTIFICATION_USER_REQUIRED_FIELDS?.[userType]
-
-        // NOTE: backward compatibility!
-        if (userType === SERVICE
-            || (
-                Array.isArray(requiredIdentificationFields)
-                && requiredIdentificationFields.length === 1
-                && requiredIdentificationFields.includes('phone')
-            )
-        ) {
-            return access.userIsAdminOrIsThisItem(args)
-        }
-
-        return access.userIsAdmin(args)
-    },
+    update: access.userIsAdmin,
 }
 
 const canAccessToPhoneField = {
     read: userIsAdminOrIsThisItemOrCanDirectlyReadField,
     create: access.userIsAdmin,
-    // TODO(DOMA-12134): Should to update accesses when adding a mutation to change user phone
+    // TODO(DOMA-12133): Should to update accesses when adding a mutation to change user phone
     // TODO(pahaz): !!! change it to access.userIsAdmin
     update: (args) => {
         if (!access.userIsAuthenticated(args)) return false
