@@ -168,7 +168,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         this.knex = await initKnexClient({
           client: 'postgres',
           connection: fallbackConnection,
-          pool: { min: 0, max: 1, acquireTimeoutMillis: 15000, idleTimeoutMillis: 2000 },
+          pool: { min: 0, max: 3, acquireTimeoutMillis: 15000, idleTimeoutMillis: 2000 },
         });
         wirePoolDebug(this.knex, 'keystone-fallback');
 
