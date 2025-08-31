@@ -18,6 +18,7 @@ const { CookieJar, Cookie } = require('tough-cookie')
 
 const conf = require('@open-condo/config')
 const { getTranslations } = require('@open-condo/locales/loader')
+const { disconnectKvClient } = require('@open-condo/keystone/kv')
 
 const { GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
@@ -141,6 +142,8 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
         afterAll(async () => {
             if (__expressServer) __expressServer.close()
             if (__keystone) await __keystone.disconnect()
+            disconnectKvClient()
+
             __keystone = null
             __expressApp = null
             __expressServer = null

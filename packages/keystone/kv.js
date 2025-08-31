@@ -112,8 +112,18 @@ async function checkMinimalKVDataVersion (version) {
     }
 }
 
+function disconnectKvClient (clients) {
+    if (!clients) {
+        Object.entries(KV_CLIENTS).forEach(([key, client]) => {
+            client.quit()
+            delete KV_CLIENTS[key]
+        })
+    }
+}
+
 module.exports = {
     getKVClient,
     getKVPrefix,
     checkMinimalKVDataVersion,
+    disconnectKvClient,
 }
