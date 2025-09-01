@@ -15,13 +15,14 @@ const { extractCRUDQueryData } = require('./utils/sql')
 
 const DEFAULT_POOL_MAX = conf['DATABASE_POOL_MAX']
     ? parseInt(conf['DATABASE_POOL_MAX'], 10)
-    : 3;
+    : 5;
 
 const DEFAULT_POOL_CONFIG = {
-    min: 0,
+    min: 3,
     max: DEFAULT_POOL_MAX,
     acquireTimeoutMillis: 15000,
     idleTimeoutMillis: 2000,
+    propagateCreateError: false
 };
 
 function wirePoolDebug(knex, name) {
