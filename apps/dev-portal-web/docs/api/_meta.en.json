@@ -4,5 +4,7 @@
   "soft-delete": "Object deletion",
   "merge": "Object merge",
   "dv": "About Data-Version",
-  "examples": "API Usage Examples"
+  "examples": "API Usage Examples",
+  "external-auth": "Authorization via external services",
+  "proxying": "IP proxying"
 }
