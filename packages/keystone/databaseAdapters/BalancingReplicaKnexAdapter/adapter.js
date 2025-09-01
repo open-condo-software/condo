@@ -22,7 +22,6 @@ const DEFAULT_POOL_CONFIG = {
     max: DEFAULT_POOL_MAX,
     acquireTimeoutMillis: 15000,
     idleTimeoutMillis: 2000,
-    propagateCreateError: false
 };
 
 function wirePoolDebug(knex, name) {
@@ -92,6 +91,8 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
               client: 'postgres',
               connection: this._dbConnections[dbName],
               pool: { ...DEFAULT_POOL_CONFIG, max: maxConnections },
+              propagateCreateError: false,
+              debug: true,
             })
           )
         );
