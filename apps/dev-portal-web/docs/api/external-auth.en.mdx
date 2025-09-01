@@ -1,8 +1,8 @@
 The Condo API can be embedded into third-party surfaces and used as a backend
-in mobile, web, and desktop applications.
+in mobile, web and desktop applications.
 Such integrations often require the ability to authorize in the Condo API through an external partner service.
 
-Currently, the Condo platform allows adding this authorization using the [Open ID Connect](https://openid.net/developers/how-connect-works/) protocol.
+Condo allows adding this authorization using the [Open ID Connect](https://openid.net/developers/how-connect-works/) protocol.
 
 
 ## Authorization in Condo via OIDC
@@ -15,7 +15,7 @@ We strongly recommend not implementing the protocol yourself, but
 using [one of the certified libraries](https://openid.net/developers/certified-openid-connect-implementations/) (see the Certified OpenID Provider Libraries section).
 </Alert>
 
-After that, you need to provide us with the following set of parameters:
+After that, you need to provide the Condo team with the following set of parameters:
 
 | Parameter Name | Parameter Description                                                                                               | Example                                   |
 |----------------|---------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
@@ -49,8 +49,8 @@ It can be short-lived and have minimal access rights necessary to obtain informa
 Special attention should be paid to the `userInfoURL` endpoint,
 as it is responsible for creating and synchronizing users in the Condo platform with the partner's service.
 
-At a minimum, for correct user linking, `userInfo` must return the **user ID** in your service and their **phone number**.
-The username is an optional attribute in the Condo platform, but we strongly recommend providing it if available.
+At a minimum, for correct user linking, `userInfo` must return the **user ID** in your service,
+their **phone number**, and **name**. Email can be provided additionally if available.
 
 ```json
 {
@@ -77,7 +77,7 @@ you must also report the verification status of that phone or email.
 ```
 
 <Alert type='info'>
-We also expect the provided phone number to be in the normalized [E.164](https://en.wikipedia.org/wiki/E.164) format (+7XXXYYYYYYYY).
+The phone number must be transmitted in the normalized [E.164](https://en.wikipedia.org/wiki/E.164) format (+7XXXYYYYYYYY).
 </Alert>
 
 <Alert type='info'>
@@ -142,10 +142,10 @@ When implementing this integration in a browser environment, you may encounter t
  - CORS policy does not allow you to execute GraphQL queries from a third-party domain;
  - The `set-cookie` header is not available to the browser client.
 
-To do this, we recommend proxying the `/admin/api` GraphQL endpoint, as well as the `/api/auth/:provider` and `/api/auth/:provider/callback` you received,
-through your backend. This will allow you to bypass these restrictions.
+To resolve them, it is recommended to proxy the `/admin/api` GraphQL endpoint, as well as the `/api/auth/:provider` and `/api/auth/:provider/callback` you received,
+through your backend.
 
 <Alert type='warning'>
-The Condo API has additional restrictions on the frequency of sending SMS and authorizations from a single IP address.
-To bypass these restrictions when using a proxy server, use the ["IP Address Proxying"](/docs/api/proxying) guide.
+The Condo API has additional restrictions on the frequency of sending SMS and authorizations from a single IP address (no more than 10 per hour).
+To bypass these restrictions when using a proxy server, use the ["IP Proxying"](/docs/api/proxying) guide.
 </Alert>
