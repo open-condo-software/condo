@@ -11,7 +11,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Typography, Input } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
@@ -71,7 +70,6 @@ export const UserProfileForm: React.FC = () => {
             },
         },
     })
-    const { breakpoints } = useLayoutContext()
 
     const onCancel = useCallback(() => {
         router.push('/user')
@@ -87,7 +85,8 @@ export const UserProfileForm: React.FC = () => {
 
     const initialValues = useMemo(() => ({
         name: user?.name,
-        email: user?.email,
+        // TODO(DOMA-12201): Restore user email editing
+        // email: user?.email,
         avatar: user?.avatar,
     }), [user])
     const ErrorToFormFieldMsgMapping = {
@@ -99,6 +98,7 @@ export const UserProfileForm: React.FC = () => {
 
     return (
         <FormWithAction
+            colon={false}
             action={formAction}
             initialValues={initialValues}
             layout='horizontal'
@@ -117,76 +117,70 @@ export const UserProfileForm: React.FC = () => {
                                 {PromptHelpMessage}
                             </Typography.Paragraph>
                         </Prompt>
-                        <Row gutter={[0, 40]} justify='center'>
-                            <Col xs={10} lg={3}>
-                                <UserAvatar borderRadius={24}/>
+                        <Row gutter={[0, 40]}>
+                            <Col span={24}>
+                                <Typography.Title level={1}>
+                                    {ProfileUpdateTitle}
+                                </Typography.Title>
                             </Col>
-                            <Col lg={20} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
-                                <Row gutter={[0, 40]}>
-                                    <Col span={24}>
-                                        <Typography.Title level={1}>
-                                            {ProfileUpdateTitle}
-                                        </Typography.Title>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            {...INPUT_LAYOUT_PROPS}
-                                            labelAlign='left'
-                                            name='name'
-                                            label={FullNameLabel}
-                                            rules={validations.name}
+                            <Col span={24}>
+                                <Form.Item
+                                    {...INPUT_LAYOUT_PROPS}
+                                    labelAlign='left'
+                                    name='name'
+                                    label={FullNameLabel}
+                                    rules={validations.name}
+                                >
+                                    <Input/>
+                                </Form.Item>
+                            </Col>
+                            {/* TODO(DOMA-12201): Restore user email editing */}
+                            {/*{*/}
+                            {/*    isEmailEditable && (*/}
+                            {/*        <Col span={24}>*/}
+                            {/*            <Form.Item*/}
+                            {/*                {...INPUT_LAYOUT_PROPS}*/}
+                            {/*                labelAlign='left'*/}
+                            {/*                name='email'*/}
+                            {/*                label={EmailLabel}*/}
+                            {/*                rules={validations.email}*/}
+                            {/*            >*/}
+                            {/*                <Input placeholder={ExampleEmailMessage}/>*/}
+                            {/*            </Form.Item>*/}
+                            {/*        </Col>*/}
+                            {/*    )*/}
+                            {/*}*/}
+
+                            <Col span={24}>
+                                <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>
+                                    <Link href={RESET_PASSWORD_URL}>
+                                        <Typography.Link href={RESET_PASSWORD_URL}>
+                                            {ChangePasswordLabel}
+                                        </Typography.Link>
+                                    </Link>
+                                </Form.Item>
+                            </Col>
+
+                            <Col span={24}>
+                                <ActionBar
+                                    actions={[
+                                        <Button
+                                            key='submit'
+                                            onClick={handleSave}
+                                            type='primary'
+                                            loading={isLoading}
                                         >
-                                            <Input/>
-                                        </Form.Item>
-                                    </Col>
-                                    {
-                                        isEmailEditable && (
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    {...INPUT_LAYOUT_PROPS}
-                                                    labelAlign='left'
-                                                    name='email'
-                                                    label={EmailLabel}
-                                                    rules={validations.email}
-                                                >
-                                                    <Input placeholder={ExampleEmailMessage}/>
-                                                </Form.Item>
-                                            </Col>
-                                        )
-                                    }
-
-                                    <Col span={24}>
-                                        <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>
-                                            <Link href={RESET_PASSWORD_URL}>
-                                                <Typography.Link href={RESET_PASSWORD_URL}>
-                                                    {ChangePasswordLabel}
-                                                </Typography.Link>
-                                            </Link>
-                                        </Form.Item>
-                                    </Col>
-
-                                    <Col span={24}>
-                                        <ActionBar
-                                            actions={[
-                                                <Button
-                                                    key='submit'
-                                                    onClick={handleSave}
-                                                    type='primary'
-                                                    loading={isLoading}
-                                                >
-                                                    {ApplyChangesMessage}
-                                                </Button>,
-                                                <Button
-                                                    key='cancel'
-                                                    type='secondary'
-                                                    onClick={onCancel}
-                                                >
-                                                    {CancelLabel}
-                                                </Button>,
-                                            ]}
-                                        />
-                                    </Col>
-                                </Row>
+                                            {ApplyChangesMessage}
+                                        </Button>,
+                                        <Button
+                                            key='cancel'
+                                            type='secondary'
+                                            onClick={onCancel}
+                                        >
+                                            {CancelLabel}
+                                        </Button>,
+                                    ]}
+                                />
                             </Col>
                         </Row>
                     </>

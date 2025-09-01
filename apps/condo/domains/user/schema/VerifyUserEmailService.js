@@ -65,13 +65,6 @@ const ERRORS = {
         message: 'User email is empty',
         messageForUser: 'api.user.verifyUserEmail.EMPTY_USER_EMAIL',
     },
-    EMAIL_ALREADY_VERIFIED: {
-        mutation: 'verifyUserEmail',
-        code: BAD_USER_INPUT,
-        type: 'EMAIL_ALREADY_VERIFIED',
-        message: 'User email already verified',
-        messageForUser: 'api.user.verifyUserEmail.EMAIL_ALREADY_VERIFIED',
-    },
 }
 
 const VerifyUserEmailService = new GQLCustomSchema('VerifyUserEmailService', {
@@ -133,10 +126,6 @@ const VerifyUserEmailService = new GQLCustomSchema('VerifyUserEmailService', {
 
                 if (confirmedEmail !== actualEmail) {
                     throw new GQLError(ERRORS.DIFFERENT_EMAILS, context)
-                }
-
-                if (actualIsEmailVerified === true) {
-                    throw new GQLError(ERRORS.EMAIL_ALREADY_VERIFIED, context)
                 }
 
                 const currentUserId = context?.authedItem?.id

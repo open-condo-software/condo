@@ -7668,6 +7668,7 @@ export const AuthenticatedUserDocument = gql`
     locale
     showGlobalHints
     hasMarketingConsent
+    isEmailVerified
   }
 }
     `;

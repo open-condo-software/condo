@@ -1,7 +1,10 @@
 import {
     useVerifyUserEmailMutation,
-    useUpdateUserMutation,
+    useUpdateUserMutation, useStartConfirmEmailActionMutation,
 } from '@app/condo/gql'
+import { ConfirmEmailActionMessageType } from '@app/condo/schema'
+import { Row } from 'antd'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from 'react'
 
@@ -9,10 +12,15 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { HCaptchaProvider } from '@condo/domains/common/components/HCaptcha'
+import { HCaptchaProvider, useHCaptcha } from '@condo/domains/common/components/HCaptcha'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { PageComponentType } from '@condo/domains/common/types'
+import { OutdatedLinkPoster } from '@condo/domains/user/components/OutdatedLinkPoster'
+import { SuccessfulEmailVerificationPoster } from '@condo/domains/user/components/SuccessfulEmailVerificationPoster'
 
+
+const { publicRuntimeConfig: { verifyUserEmailWithMarketingConsentEnabled } } = getConfig()
 
 type ConfirmEmailPageProps = {
     messageType?: string
@@ -20,14 +28,16 @@ type ConfirmEmailPageProps = {
     token?: string
 }
 
-const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = () => {
-    const [loading, setLoading] = useState<boolean>(false)
-
-    const { user } = useAuth()
-
+const VerifyEmailPage: PageComponentType<ConfirmEmailPageProps> = () => {
     const router = useRouter()
     const { query: { token: tokenFromQuery } } = router
     const queryToken = typeof tokenFromQuery === 'string' ? tokenFromQuery : ''
+
+    const [loading, setLoading] = useState<boolean>(false)
+    const [isEmailResent, setIsEmailResent] = useState<boolean>(false)
+    const [step, setStep] = useState<'verification' | 'error' | 'done'>(queryToken ? 'verification' : 'error')
+
+    const { user } = useAuth()
 
     const errorHandler = useMutationErrorHandler()
 
@@ -35,6 +45,12 @@ const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = () => {
         onError: errorHandler,
     })
     const [updateUserMutation] = useUpdateUserMutation({
+        onError: errorHandler,
+    })
+
+    const { executeCaptcha } = useHCaptcha()
+
+    const [startConfirmEmailActionMutation] = useStartConfirmEmailActionMutation({
         onError: errorHandler,
     })
 
@@ -60,8 +76,6 @@ const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = () => {
             }
         } catch (error) {
             console.error(error)
-
-            throw error
         }
     }, [user?.id])
 
@@ -84,14 +98,38 @@ const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = () => {
             })
 
             if (!res.errors && res?.data?.result?.status === 'ok') {
-                await handleUpdateMarketingConsent()
+                if (verifyUserEmailWithMarketingConsentEnabled) {
+                    await handleUpdateMarketingConsent()
+                }
+
+                setStep('done')
             } else {
                 throw new Error('Cannot verify email')
             }
         } catch (error) {
             console.error(error)
+            setStep('error')
         }
-    }, [queryToken])
+    }, [queryToken, loading])
+
+    const handleResendConfirmEmailAction = useCallback(async () => {
+        if (!user?.email) return
+
+        const sender = getClientSideSenderInfo()
+        const captcha = await executeCaptcha()
+
+        await startConfirmEmailActionMutation({
+            variables: {
+                data: {
+                    dv: 1,
+                    sender,
+                    captcha,
+                    email: user.email,
+                    messageType: ConfirmEmailActionMessageType.VerifyUserEmail,
+                },
+            },
+        })
+    }, [user?.email])
 
     useEffect(() => {
         if (loading) return
@@ -100,19 +138,36 @@ const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = () => {
         handleVerifyUserEmail()
     }, [queryToken])
 
-    // TODO(DOMA-12179): add logic ConfirmEmail
-    console.log({
-        queryToken,
-    })
+    useEffect(() => {
+        if (step !== 'error') return
+        if (isEmailResent) return
+        setIsEmailResent(true)
 
-    if (!queryToken) {
-        return <>Failed to verify email</>
+        handleResendConfirmEmailAction()
+    }, [step])
+
+    if (step === 'error') {
+        return <OutdatedLinkPoster />
     }
 
-    return <>Loading...</>
+    if (step === 'done') {
+        return (
+            <SuccessfulEmailVerificationPoster
+                onContinueClick={async () => {
+                    await router.replace('/')
+                }}
+            />
+        )
+    }
+
+    return (
+        <Row justify='center'>
+            <Loader size='large' />
+        </Row>
+    )
 }
 
-ConfirmEmailPage.requiredAccess = AuthRequired
+VerifyEmailPage.requiredAccess = AuthRequired
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
@@ -121,6 +176,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         </HCaptchaProvider>
     )
 }
-ConfirmEmailPage.container = Layout
+VerifyEmailPage.container = Layout
 
-export default ConfirmEmailPage
+export default VerifyEmailPage

@@ -1,5 +1,9 @@
-import { useCheckUserExistenceLazyQuery, useAuthenticateOrRegisterUserWithTokenMutation } from '@app/condo/gql'
-import { UserTypeType as UserType } from '@app/condo/schema'
+import {
+    useCheckUserExistenceLazyQuery,
+    useAuthenticateOrRegisterUserWithTokenMutation,
+    useStartConfirmEmailActionMutation,
+} from '@app/condo/gql'
+import { ConfirmEmailActionMessageType, UserTypeType as UserType } from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
 import { ValidateStatus } from 'antd/lib/form/FormItem'
 import getConfig from 'next/config'
@@ -86,9 +90,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const [step, setStep] = useState<'checkUser' | 'authenticate' | 'register'>('checkUser')
     const [isLoading, setIsLoading] = useState(false)
 
-    const checkUserExistenceErrorHandler = useMutationErrorHandler()
+    const errorHandler = useMutationErrorHandler()
     const [checkUserExistenceQuery, userExistenceResult] = useCheckUserExistenceLazyQuery({
-        onError: checkUserExistenceErrorHandler,
+        onError: errorHandler,
+    })
+
+    const [startConfirmEmailActionMutation] = useStartConfirmEmailActionMutation({
+        onError: errorHandler,
     })
 
     const authOrRegisterErrorHandler = useMutationErrorHandler({
@@ -154,6 +162,27 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         }
     }, [checkUserExistenceQuery, executeCaptcha, isLoading, token])
 
+    const startConfirmEmailAction = useCallback(async (email) => {
+        try {
+            const sender = getClientSideSenderInfo()
+            const captcha = await executeCaptcha()
+
+            await startConfirmEmailActionMutation({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender,
+                        captcha,
+                        email: email,
+                        messageType: ConfirmEmailActionMessageType.VerifyUserEmail,
+                    },
+                },
+            })
+        } catch (error) {
+            console.log('Cannot start a user email verifying')
+        }
+    }, [])
+
     const authenticateOrRegister = useCallback(async () => {
         if (isLoading) return
 
@@ -198,6 +227,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
             if (!res.errors && userId) {
                 if (step === 'register' && !userExistenceResult?.data?.result?.isUserExists) {
                     analytics.track('register_user', { userId })
+
+                    if (userData?.email) {
+                        await startConfirmEmailAction(userData.email)
+                    }
                 }
                 await refetch()
                 await onFinish()

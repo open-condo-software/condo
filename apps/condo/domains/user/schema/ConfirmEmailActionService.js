@@ -323,7 +323,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                 const isInvalidData = await redisGuard.isLocked(captcha, 'validation-failed')
                 if (isInvalidData) return { token }
 
-                await ConfirmEmailAction.create(context, payload)
+                const confirmAction = await ConfirmEmailAction.create(context, payload, 'id')
 
                 let meta = {}
 
@@ -346,6 +346,13 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                         link,
                         withMarketingConsent: VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED,
                     }
+
+                    // NOTE: The user may open the link from the email later than one minute later
+                    await ConfirmEmailAction.update(context, confirmAction.id, {
+                        dv: 1,
+                        sender,
+                        secretCodeExpiresAt: expiresAt,
+                    })
                 } else {
                     meta = {
                         dv: 1,
@@ -544,3 +551,5 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 module.exports = {
     ConfirmEmailActionService,
 }
+
+// https://condo.app.localhost:8003/user/confirmEmail?token=4oCLzY%252FhoIzwnYW186CAu%252BKggDpjb25kb18xOmhYU0F3TkRXN3dJQ2d4blAxVWJGNW00ZHJTaHRhR1BhY0J6aUF3QUFPcGlKZHVhREI0aDJmYmVDNlBtejI3YWQvUDNRNzViNmMwVytBMUk3Ujd4SDYzZ3F6ZHFsb25lbUtURE1odDk0WHBLOCticWVGWjExRU9ZcWE3VmdnY2x5U0YyWFNuOEE4ekFtUU1yanhlZHpJMXByQzhnRWpEWEZkb0lZcmNtM0VsZy80S25XajZCUWVubWRhOTFvaWg4eXE4VT0%253D

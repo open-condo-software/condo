@@ -193,25 +193,5 @@ describe('VerifyUserEmailService', () => {
                 message: 'Unable to find non-expired ConfirmEmailAction by specified token',
             })
         })
-
-        test('throw error if user email already verified', async () => {
-            const staffClient = await makeClientWithStaffUser({
-                isEmailVerified: true,
-            })
-            expect(staffClient.user.isEmailVerified).toBeTruthy()
-            const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
-                isEmailVerified: true,
-                email: staffClient.userAttrs.email,
-            })
-            await expectToThrowGQLErrorToResult(async () => {
-                await verifyUserEmailByTestClient(staffClient, {
-                    confirmEmailToken: confirmEmailAction.token,
-                })
-            }, {
-                code: 'BAD_USER_INPUT',
-                type: 'EMAIL_ALREADY_VERIFIED',
-                message: 'User email already verified',
-            })
-        })
     })
 })

@@ -97696,13 +97696,6 @@ type Mutation {
     "message": "User email is empty",
     "messageForUser": "First, set up the email"
   }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "EMAIL_ALREADY_VERIFIED",
-    "message": "User email already verified",
-    "messageForUser": "Email already verified"
-  }`
   """
   verifyUserEmail(data: VerifyUserEmailInput!): VerifyUserEmailOutput
 
