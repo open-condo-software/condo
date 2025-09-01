@@ -48,6 +48,22 @@ services:
         -c synchronous_commit=on
         -c statement_timeout=10s
         -c shared_buffers=256MB
+        -c log_destination=stderr
+        -c logging_collector=off
+        -c log_min_messages=debug5
+        -c client_min_messages=debug5
+        -c log_statement=all
+        -c log_connections=on
+        -c log_disconnections=on
+        -c log_duration=on
+        -c log_min_duration_statement=0
+        -c log_checkpoints=on
+        -c log_lock_waits=on
+        -c log_autovacuum_min_duration=0
+        -c log_temp_files=0
+        -c track_io_timing=on
+        -c track_functions=all
+        -c log_line_prefix='%m [%p] %q%u@%d %r %a '
     volumes:
       - ./docker-compose-postgresql-init-replication.sql:/docker-entrypoint-initdb.d/docker-compose-postgresql-init-replication.sql
     networks:
