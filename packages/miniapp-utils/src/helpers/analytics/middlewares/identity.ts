@@ -8,7 +8,6 @@ function _addIdentityProperties (data: PluginTrackData): PluginTrackData {
     for (const contextPropertyName of IDENTITY_PROPERTIES) {
         const propertyValue = instance.getState(`context.${contextPropertyName}`)
         if (typeof propertyValue === 'string') {
-            console.log(contextPropertyName, propertyValue)
             data.payload.properties[contextPropertyName] = propertyValue
         }
     }
