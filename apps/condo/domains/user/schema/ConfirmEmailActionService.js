@@ -551,5 +551,3 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 module.exports = {
     ConfirmEmailActionService,
 }
-
-// https://condo.app.localhost:8003/user/confirmEmail?token=4oCLzY%252FhoIzwnYW186CAu%252BKggDpjb25kb18xOmhYU0F3TkRXN3dJQ2d4blAxVWJGNW00ZHJTaHRhR1BhY0J6aUF3QUFPcGlKZHVhREI0aDJmYmVDNlBtejI3YWQvUDNRNzViNmMwVytBMUk3Ujd4SDYzZ3F6ZHFsb25lbUtURE1odDk0WHBLOCticWVGWjExRU9ZcWE3VmdnY2x5U0YyWFNuOEE4ekFtUU1yanhlZHpJMXByQzhnRWpEWEZkb0lZcmNtM0VsZy80S25XajZCUWVubWRhOTFvaWg4eXE4VT0%253D
