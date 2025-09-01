@@ -1,0 +1,87 @@
+Condo API is a flexible tool suitable for a wide variety of scenarios beyond property management.
+Developers even use it to create their own pet projects.
+As an example, you can check out this [open-source JIRA alternative](https://habr.com/ru/articles/891366/) built using our API.
+
+When you use the Condo API as a backend for your web application,
+your server must act as a proxy between the frontend and our API.
+This is necessary to bypass browser [CORS security policies](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS),
+which prevent frontend applications from making direct requests to an API on a different domain.
+
+This proxying opens up opportunities for customization and integration, but it also creates a technical challenge:
+how to preserve the user's original IP address?
+
+## The IP Address Problem in Proxying
+
+By default, when your server forwards a request to the Condo API, our API only "sees" your server's IP address,
+not the end user's IP address. This leads to several problems:
+
+*   **Incorrect Rate Limiting**: Flood protection and rate-limiting systems in the Condo API work based on user IDs and their IP addresses.
+If all requests come from your single proxy server IP, the limits can be quickly exhausted, affecting all your users.
+*   **Reduced Security**: The IP address is an important element for security analysis and incident investigation. Losing this information complicates monitoring and protection.
+
+## Solution: Passing the IP Address via Headers
+
+To solve this problem, the Condo API supports a special mechanism for passing the user's original IP address through HTTP headers.
+For this, your proxy server must add a group of special headers to each request to our API.
+
+<Alert type='warning'>
+To use this mechanism, you first need to contact the Condo team to get a proxy ID (`x-proxy-id`) and a secret key for signing requests.
+</Alert>
+
+### Required Headers
+
+To correctly pass the IP address, you need to add the following headers to the request:
+
+| Header Name         | Description                                                          |
+|---------------------|----------------------------------------------------------------------|
+| `x-proxy-id`        | A unique identifier for your proxy server, issued by the Condo team. |
+| `x-proxy-ip`        | The real IP address of the end user.                                 |
+| `x-proxy-timestamp` | The current time in Unix Timestamp format (in milliseconds).         |
+| `x-proxy-signature` | The request signature to ensure security.                            |
+
+### Generating the `x-proxy-signature`
+
+The `x-proxy-signature` is a [JSON Web Token (JWT)](https://jwt.io/) generated using the secret key we provide you.
+
+The token must contain the following payload:
+
+```json
+{
+  "x-proxy-id": "your-identifier",
+  "x-proxy-ip": "user-ip-address",
+  "x-proxy-timestamp": "current-timestamp",
+  "method": "HTTP-method-of-original-request",
+  "url": "request-path"
+}
+```
+
+<Alert type='info'>
+The signature is valid for **5 seconds** from the moment specified in `x-proxy-timestamp`. This protects against replay attacks.
+</Alert>
+
+#### Example
+
+Suppose you have been issued `x-proxy-id: my-proxy-123`, and a user with IP `1.2.3.4` makes a `POST` request to `/admin/api`.
+
+1.  **Form the `payload` for the JWT:**
+    ```json
+    {
+      "x-proxy-id": "my-proxy-123",
+      "x-proxy-ip": "1.2.3.4",
+      "x-proxy-timestamp": "1756633489141",
+      "method": "POST",
+      "url": "/admin/api"
+    }
+    ```
+2.  **Sign the `payload`** with your secret key using the **HS256** algorithm to get the JWT token (this will be the value of `x-proxy-signature`).
+3.  **Send the request** to the Condo API with all the necessary headers added.
+
+## Using @open-condo/miniapp-utils to Generate Headers
+
+If your proxy is written in Javascript, you can use our ready-made NPM package
+[@open-condo/miniapp-utils](https://www.npmjs.com/package/@open-condo/miniapp-utils),
+which has a ready-made implementation of the algorithm described above:
+```typescript
+import { getProxyHeadersForIp } from '@open-condo/miniapp-utils/helpers/proxying'
+
+const headers = getProxyHeadersForIp('POST', '/admin/api', '1.2.3.4', 'jwt-secret')
