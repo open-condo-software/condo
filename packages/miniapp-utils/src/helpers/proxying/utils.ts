@@ -89,7 +89,7 @@ export function getRequestIp (req: IncomingMessage, trustProxyFn: TrustProxyFunc
     try {
         // NOTE: config is passed from outside, where its obtained from .env, so its not hard-coded
         // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
-        const jwtPayload = jwt.verify(xProxySignature, proxyConfig.secret)
+        const jwtPayload = jwt.verify(xProxySignature, proxyConfig.secret, { algorithms: ['HS256'] })
         const expectedPayloadSchema = z.object({
             [X_PROXY_TIMESTAMP_HEADER]: z.literal(xProxyTimestamp),
             [X_PROXY_IP_HEADER]: z.literal(xProxyIp),
@@ -120,6 +120,7 @@ export function getProxyHeadersForIp (method: string, url: string, ip: string, p
             url,
         }, secret, {
             expiresIn: Math.round(DEFAULT_PROXY_TIMEOUT_IN_MS / 1000),
+            algorithm: 'HS256',
         }),
     }
 }
