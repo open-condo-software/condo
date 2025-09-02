@@ -193,7 +193,7 @@ async function changeUserEmail (context, data) {
         query: CHANGE_USER_EMAIL_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to changeUserEmail',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -206,7 +206,7 @@ async function verifyUserEmail (context, data) {
         query: VERIFY_USER_EMAIL_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to verifyUserEmail',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
