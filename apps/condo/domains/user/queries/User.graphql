@@ -16,6 +16,7 @@ query authenticatedUser {
         locale
         showGlobalHints
         hasMarketingConsent
+        isEmailVerified
     }
 }
 

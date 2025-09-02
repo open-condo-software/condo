@@ -17,8 +17,10 @@ const {
     WRONG_FORMAT,
     WRONG_EMAIL_VALUE,
 } = require('@condo/domains/common/constants/errors')
+const { base64UrlEncode } = require('@condo/domains/common/utils/base64.utils')
+const { encryptionManager } = require('@condo/domains/common/utils/encryption')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { EMAIL_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { EMAIL_VERIFY_CODE_MESSAGE_TYPE, VERIFY_USER_EMAIL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const {
     CONFIRM_EMAIL_ACTION_EXPIRY,
@@ -28,6 +30,7 @@ const {
     MAX_EMAIL_FOR_IP_BY_DAY: DEFAULT_MAX_EMAIL_FOR_IP_BY_DAY,
     MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY: DEFAULT_MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY,
 } = require('@condo/domains/user/constants/common')
+const { CONFIRM_EMAIL_ACTION_MESSAGE_TYPES } = require('@condo/domains/user/constants/confirmEmailAction')
 const {
     CAPTCHA_CHECK_FAILED,
     UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION,
@@ -120,12 +123,13 @@ const ERRORS = {
     },
 }
 
-
 const DAY_IN_SEC = 60 * 60 * 24
 const MAX_EMAIL_FOR_IP_BY_DAY = Number(conf['MAX_EMAIL_FOR_IP_BY_DAY']) || DEFAULT_MAX_EMAIL_FOR_IP_BY_DAY
 const MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY = Number(conf['MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY']) || DEFAULT_MAX_EMAIL_FOR_EMAIL_ADDRESS_BY_DAY
 const EMAIL_WHITE_LIST = Object.keys(conf.EMAIL_WHITE_LIST ? JSON.parse(conf.EMAIL_WHITE_LIST) : {})
 const IP_WHITE_LIST = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
+const VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED = conf.VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED === 'true'
+const SERVER_URL = conf.SERVER_URL
 
 const redisGuard = new RedisGuard()
 
@@ -169,7 +173,11 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
         },
         {
             access: true,
-            type: 'input StartConfirmEmailActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, email: String! }',
+            type: `enum ConfirmEmailActionMessageType { ${CONFIRM_EMAIL_ACTION_MESSAGE_TYPES.join(' ')} }`,
+        },
+        {
+            access: true,
+            type: 'input StartConfirmEmailActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, email: String!, messageType: ConfirmEmailActionMessageType }',
         },
         {
             access: true,
@@ -261,7 +269,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { email, sender, captcha } = data
+                const { email, sender, captcha, messageType = EMAIL_VERIFY_CODE_MESSAGE_TYPE } = data
 
                 const ip = context.req.ip
 
@@ -294,8 +302,8 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 
                 const secretCode = generateSecureCode(4)
                 const now = extra.extraNow || Date.now()
-                const requestedAt = new Date(now).toISOString()
-                const expiresAt = new Date(now + CONFIRM_EMAIL_ACTION_EXPIRY * 1000).toISOString()
+                const confirmActionRequestedAt = new Date(now).toISOString()
+                const confirmActionExpiresAt = new Date(now + CONFIRM_EMAIL_ACTION_EXPIRY * 1000).toISOString()
                 const secretCodeRequestedAt = new Date(now).toISOString()
                 const secretCodeExpiresAt = new Date(now + EMAIL_CODE_TTL * 1000).toISOString()
 
@@ -307,22 +315,54 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     token,
                     secretCodeRequestedAt,
                     secretCodeExpiresAt,
-                    requestedAt,
-                    expiresAt,
+                    requestedAt: confirmActionRequestedAt,
+                    expiresAt: confirmActionExpiresAt,
                 }
 
                 const isInvalidData = await redisGuard.isLocked(captcha, 'validation-failed')
                 if (isInvalidData) return { token }
 
-                await ConfirmEmailAction.create(context, payload)
+                const confirmAction = await ConfirmEmailAction.create(context, payload, 'id')
+
+                let meta = {}
+
+                if (messageType === VERIFY_USER_EMAIL_MESSAGE_TYPE) {
+                    const tokenPayload = {
+                        messageType,
+                        secretCode,
+                        token,
+                    }
+                    const tokenInString = JSON.stringify(tokenPayload)
+                    const encodedToken = encryptionManager.encrypt(tokenInString)
+                    const encodedTokenInBase64 = base64UrlEncode(encodedToken)
+                    const linkRaw = new URL(SERVER_URL)
+                    linkRaw.pathname = '/user/confirm-email'
+                    linkRaw.searchParams.set('token', encodedTokenInBase64)
+                    const link = linkRaw.href
+
+                    meta = {
+                        dv: 1,
+                        link,
+                        withMarketingConsent: VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED,
+                    }
+
+                    // NOTE: The user may open the link from the email later than one minute later
+                    await ConfirmEmailAction.update(context, confirmAction.id, {
+                        dv: 1,
+                        sender,
+                        secretCodeExpiresAt: confirmActionExpiresAt,
+                    })
+                } else {
+                    meta = {
+                        dv: 1,
+                        secretCode,
+                    }
+                }
 
                 await sendMessage(context,  {
                     to: { email: normalizedEmail },
-                    type: EMAIL_VERIFY_CODE_MESSAGE_TYPE,
-                    meta: {
-                        dv: 1,
-                        secretCode,
-                    },
+                    type: messageType,
+                    meta,
                     sender,
                 })
 

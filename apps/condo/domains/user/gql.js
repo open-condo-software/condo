@@ -249,6 +249,18 @@ const CHANGE_USER_PASSWORD_MUTATION = gql`
     }
 `
 
+const CHANGE_USER_EMAIL_MUTATION = gql`
+    mutation changeUserEmail ($data: ChangeUserEmailInput!) {
+        result: changeUserEmail(data: $data) { status }
+    }
+`
+
+const VERIFY_USER_EMAIL_MUTATION = gql`
+    mutation verifyUserEmail ($data: VerifyUserEmailInput!) {
+        result: verifyUserEmail(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -291,5 +303,7 @@ module.exports = {
     COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION,
     AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION,
     CHANGE_USER_PASSWORD_MUTATION,
+    CHANGE_USER_EMAIL_MUTATION,
+    VERIFY_USER_EMAIL_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
