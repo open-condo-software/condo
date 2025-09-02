@@ -7668,6 +7668,7 @@ export const AuthenticatedUserDocument = gql`
     locale
     showGlobalHints
     hasMarketingConsent
+    isEmailVerified
   }
 }
     `;
@@ -7769,3 +7770,36 @@ export function useUpdateUserMutation(baseOptions?: Apollo.MutationHookOptions<T
 export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>;
 export type UpdateUserMutationResult = Apollo.MutationResult<Types.UpdateUserMutation>;
 export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<Types.UpdateUserMutation, Types.UpdateUserMutationVariables>;
+export const VerifyUserEmailDocument = gql`
+    mutation verifyUserEmail($data: VerifyUserEmailInput!) {
+  result: verifyUserEmail(data: $data) {
+    status
+  }
+}
+    `;
+export type VerifyUserEmailMutationFn = Apollo.MutationFunction<Types.VerifyUserEmailMutation, Types.VerifyUserEmailMutationVariables>;
+
+/**
+ * __useVerifyUserEmailMutation__
+ *
+ * To run a mutation, you first call `useVerifyUserEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVerifyUserEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [verifyUserEmailMutation, { data, loading, error }] = useVerifyUserEmailMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useVerifyUserEmailMutation(baseOptions?: Apollo.MutationHookOptions<Types.VerifyUserEmailMutation, Types.VerifyUserEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.VerifyUserEmailMutation, Types.VerifyUserEmailMutationVariables>(VerifyUserEmailDocument, options);
+      }
+export type VerifyUserEmailMutationHookResult = ReturnType<typeof useVerifyUserEmailMutation>;
+export type VerifyUserEmailMutationResult = Apollo.MutationResult<Types.VerifyUserEmailMutation>;
+export type VerifyUserEmailMutationOptions = Apollo.BaseMutationOptions<Types.VerifyUserEmailMutation, Types.VerifyUserEmailMutationVariables>;

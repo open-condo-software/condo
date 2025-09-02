@@ -1,5 +1,6 @@
 const crypto = require('crypto')
 
+
 /**
  * Converts value to MD5 hash. Do not ise this for hashing sensitive data!
  * @param value
