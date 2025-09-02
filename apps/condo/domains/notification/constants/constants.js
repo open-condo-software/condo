@@ -923,6 +923,12 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [EMAIL_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
+    [VERIFY_USER_EMAIL_MESSAGE_TYPE]: {
+        priority: MESSAGE_DELIVERY_FAST_PRIORITY,
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
     [BANK_ACCOUNT_CREATION_REQUEST_TYPE]: {
         allowedTransports: [EMAIL_TRANSPORT],
         defaultTransports: [EMAIL_TRANSPORT],
