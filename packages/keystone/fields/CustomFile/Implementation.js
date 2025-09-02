@@ -15,7 +15,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
     }
 
     getFileUploadType () {
-        return 'FileUpload'
+        return 'FileMeta'
     }
 
     getGqlAuxTypes () {

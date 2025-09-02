@@ -17,7 +17,7 @@ const FileRecord = new GQLListSchema('FileRecord', {
             extendGraphQLTypes: [
                 'type FileSender { dv: Int!, fingerprint: String! }',
                 'type FileRecordUserMeta { dv: Int!, sender: FileSender!, authedItemId: ID!, appId: String!, modelNames: [String!]!, sourceAppId: String }',
-                'type FileRecordMeta { id: ID, fileAdapter: String, recordId: ID, path: String, filename: String!, originalFilename: String, mimetype: String!, encoding: String!, meta: FileRecordUserMeta! }',
+                'type FileRecordMeta { id: ID!, fileAdapter: String!, recordId: ID, path: String, filename: String!, originalFilename: String, mimetype: String!, encoding: String!, meta: FileRecordUserMeta! }',
             ],
         },
         user: {
@@ -61,7 +61,7 @@ const FileRecordScalarSchema = new GQLCustomSchema('FileRecordScalar', {
     types: [
         {
             access: true,
-            type: 'scalar FileUpload',
+            type: 'scalar FileMeta',
         },
     ],
 })

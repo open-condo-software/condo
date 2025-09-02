@@ -5,15 +5,17 @@ const Upload = require('graphql-upload/Upload.js')
 const { _patchResolverWithGQLContext } = require('../utils/resolvers')
 
 
-const CustomFileScalar = new GraphQLScalarType({
-    name: 'FileUpload',
+const FileMetaScalar = new GraphQLScalarType({
+    name: 'FileMeta',
     description: 'File, that could be loaded through new file server or by legacy way',
     parseValue (value) {
+        // NOTE: legacy way to upload file
         if (value instanceof Upload) return value.promise
         if (typeof value === 'string') return value
         return value
     },
     parseLiteral (node) {
+        // NOTE: legacy error style as well
         throw new GraphQLError('Upload literal unsupported.', { nodes: node })
     },
     serialize () {
@@ -26,7 +28,7 @@ class Keystone extends DefaultKeystone {
     getResolvers ({ schemaName }) {
         const originalResolvers = super.getResolvers({ schemaName })
 
-        return _patchResolverWithGQLContext({ ...originalResolvers, FileUpload: CustomFileScalar })
+        return _patchResolverWithGQLContext({ ...originalResolvers, FileMeta: FileMetaScalar })
     }
 }
 
