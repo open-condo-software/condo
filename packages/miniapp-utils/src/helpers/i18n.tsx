@@ -6,7 +6,7 @@ import { isSSR } from './environment'
 import { useEffectOnce } from '../hooks/useEffectOnce'
 
 import type { IncomingMessage, ServerResponse } from 'http'
-import type { Context, PropsWithChildren, FC } from 'react'
+import type { Context, PropsWithChildren, FC, ComponentType as ReactComponentType } from 'react'
 
 
 type Optional<T> = T | undefined
@@ -56,6 +56,20 @@ type SSRResultWithI18N<
         [I18N_MESSAGES_PROP_NAME]?: MessagesShape
     }
 }
+
+type AppInitialProps<PropsType extends Record<string, unknown>> = { pageProps: PropsType }
+
+type AppContext = {
+    ctx: {
+        req: Optional<IncomingMessage>
+        res: Optional<ServerResponse>
+    }
+}
+
+type AppType<PropsType extends Record<string, unknown>, ComponentType, RouterType> =
+    ReactComponentType<{ pageProps: PropsType, Component: ComponentType, router: RouterType }> & {
+        getInitialProps?: (context: AppContext) => Promise<AppInitialProps<PropsType>> | AppInitialProps<PropsType>
+    }
 
 type TranslationsContextType<
     AvailableLocale extends string,
@@ -242,6 +256,7 @@ export class TranslationsHelper<
         this.selectSupportedLocale = this.selectSupportedLocale.bind(this)
         this.getTranslations = this.getTranslations.bind(this)
         this.prefetchTranslations = this.prefetchTranslations.bind(this)
+        this.getHOC = this.getHOC.bind(this)
     }
 
     /**
@@ -402,7 +417,7 @@ export class TranslationsHelper<
      * Obtains locale preference from query parameter (if specified), cookie, request.headers['accept-language'] or window.navigator.languages
      * and then selects supported locale using selectSupportedLocale method
      */
-    getPreferredLocale (req: Optional<IncomingMessage>, res: Optional<ServerResponse>): LocaleSelection<AvailableLocale> {
+    getPreferredLocale (req?: Optional<IncomingMessage>, res?: Optional<ServerResponse>): LocaleSelection<AvailableLocale> {
         // Step 1: Query must be resolved before any cookies, since it's more explicit
         if (this.localeQueryParam) {
             let paramValue: string | null = null
@@ -517,6 +532,7 @@ export class TranslationsHelper<
         const localeCookieName = this.localeCookieName
         const getTranslations = this.getTranslations
         const translationsObj = this._translations
+        const getPreferredLocale = this.getPreferredLocale
 
         return function TranslationsProvider ({
             initialSelectedLocale,
@@ -529,8 +545,13 @@ export class TranslationsHelper<
             const [messages, setMessages] = useState(initialMessages)
 
             useEffectOnce(() => {
-                if (!isSSR() && initialMessages) {
+                if (!isSSR() && initialSelectedLocale && initialMessages) {
                     translationsObj[initialSelectedLocale] = initialMessages
+                } else if (!isSSR() && (!initialSelectedLocale || !initialFullLocale || !initialMessages)) {
+                    const localeSelection = getPreferredLocale()
+                    setSelectedLocale(localeSelection.selectedLocale)
+                    setFullLocale(localeSelection.fullLocale)
+                    getTranslations(localeSelection.selectedLocale).then(setMessages)
                 }
             })
 
@@ -578,6 +599,48 @@ export class TranslationsHelper<
 
         return function useTranslations () {
             return useContext(context)
+        }
+    }
+
+    getHOC () {
+        const useTranslationsExtractor = this.getUseTranslationsExtractorHook()
+        const TranslationsProvider = this.getTranslationsProvider()
+        const prefetchTranslations = this.prefetchTranslations
+        const extractI18NInfo = this.extractI18NInfo
+
+        return function withTranslations<
+            PropsType extends Record<string, unknown>,
+            ComponentType,
+            RouterType,
+        > (App: AppType<PropsType, ComponentType, RouterType>): AppType<PropsType, ComponentType, RouterType> {
+            const WithTranslations: AppType<PropsType, ComponentType, RouterType> = (props) => {
+                const { pageProps } = props
+                const { initialSelectedLocale, initialFullLocale, initialMessages } = useTranslationsExtractor(pageProps)
+
+                return (
+                    <TranslationsProvider
+                        initialSelectedLocale={initialSelectedLocale}
+                        initialFullLocale={initialFullLocale}
+                        initialMessages={initialMessages}
+                    >
+                        <App {...props} />
+                    </TranslationsProvider>
+                )
+            }
+
+            const appGetInitialProps = App.getInitialProps
+            if (appGetInitialProps) {
+                WithTranslations.getInitialProps = async function (context) {
+                    const appProps = await appGetInitialProps(context)
+                    const { ctx } = context
+                    const translationsData = await prefetchTranslations(ctx.req, ctx.res)
+                    const { props } = extractI18NInfo(translationsData, { props: appProps.pageProps })
+
+                    return { ...appProps, pageProps: props }
+                }
+            }
+
+            return WithTranslations
         }
     }
 }
