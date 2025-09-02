@@ -10,18 +10,18 @@ async function changeOrVerifyUserEmailGuard (context, newEmail = null) {
     const userEmail = context?.authedItem?.email
 
     const guards = [{
-        key: ['changeOrVerifyUserPassword', 'daily', 'ip', ip].join(':'),
+        key: ['changeOrVerifyUserEmail', 'daily', 'ip', ip].join(':'),
         windowLimit: 10,
         windowSizeInSec: DAY_IN_SEC,
     }, {
-        key: ['changeOrVerifyUserPassword', 'daily', 'userId', userId].join(':'),
+        key: ['changeOrVerifyUserEmail', 'daily', 'userId', userId].join(':'),
         windowLimit: 10,
         windowSizeInSec: DAY_IN_SEC,
     }]
 
     if (userEmail) {
         guards.push({
-            key: ['changeOrVerifyUserPassword', 'daily', 'email', userEmail].join(':'),
+            key: ['changeOrVerifyUserEmail', 'daily', 'email', userEmail].join(':'),
             windowLimit: 10,
             windowSizeInSec: DAY_IN_SEC,
         })
@@ -29,7 +29,7 @@ async function changeOrVerifyUserEmailGuard (context, newEmail = null) {
 
     if (newEmail) {
         guards.push({
-            key: ['changeOrVerifyUserPassword', 'daily', 'email', newEmail].join(':'),
+            key: ['changeOrVerifyUserEmail', 'daily', 'email', newEmail].join(':'),
             windowLimit: 10,
             windowSizeInSec: DAY_IN_SEC,
         })
