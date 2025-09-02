@@ -6,7 +6,7 @@ import { isSSR } from './environment'
 import { useEffectOnce } from '../hooks/useEffectOnce'
 
 import type { IncomingMessage, ServerResponse } from 'http'
-import type { Context, PropsWithChildren, FC, ComponentType } from 'react'
+import type { Context, PropsWithChildren, FC, ComponentType as ReactComponentType } from 'react'
 
 
 type Optional<T> = T | undefined
@@ -65,9 +65,11 @@ type AppContext = {
         res: Optional<ServerResponse>
     }
 }
-type AppType<PropsType extends Record<string, unknown>> = ComponentType<AppInitialProps<PropsType>> & {
-    getInitialProps?: (ctx: AppContext) => Promise<AppInitialProps<PropsType>> | AppInitialProps<PropsType>
-}
+
+type AppType<PropsType extends Record<string, unknown>, ComponentType, RouterType> =
+    ReactComponentType<{ pageProps: PropsType, Component: ComponentType, router: RouterType }> & {
+        getInitialProps?: (context: AppContext) => Promise<AppInitialProps<PropsType>> | AppInitialProps<PropsType>
+    }
 
 type TranslationsContextType<
     AvailableLocale extends string,
@@ -606,10 +608,12 @@ export class TranslationsHelper<
         const prefetchTranslations = this.prefetchTranslations
         const extractI18NInfo = this.extractI18NInfo
 
-        return function withTranslations<PropsType extends Record<string, unknown>> (App: AppType<PropsType>): AppType<PropsType> {
-            const WithTranslations: AppType<PropsType> = (
-                props: AppInitialProps<PropsType>
-            ) => {
+        return function withTranslations<
+            PropsType extends Record<string, unknown>,
+            ComponentType,
+            RouterType,
+        > (App: AppType<PropsType, ComponentType, RouterType>): AppType<PropsType, ComponentType, RouterType> {
+            const WithTranslations: AppType<PropsType, ComponentType, RouterType> = (props) => {
                 const { pageProps } = props
                 const { initialSelectedLocale, initialFullLocale, initialMessages } = useTranslationsExtractor(pageProps)
 
@@ -626,7 +630,7 @@ export class TranslationsHelper<
 
             const appGetInitialProps = App.getInitialProps
             if (appGetInitialProps) {
-                WithTranslations.getInitialProps = async function getInitialPropsWithTranslations (context) {
+                WithTranslations.getInitialProps = async function (context) {
                     const appProps = await appGetInitialProps(context)
                     const { ctx } = context
                     const translationsData = await prefetchTranslations(ctx.req, ctx.res)
