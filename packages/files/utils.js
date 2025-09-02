@@ -17,7 +17,6 @@ const { ERRORS } = require('./errors')
 
 const DEFAULT_USER_HOUR_QUOTA = 100
 const DEFAULT_IP_HOUR_QUOTA = 100
-const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
 const fileMetaSymbol = Symbol('fileMeta')
 
 const AppClientSchema = z.object({
@@ -102,8 +101,8 @@ function parseAndValidateMeta (raw, req, next, onError) {
 
     const result = MetaSchema.safeParse(candidate)
     if (!result.success) {
-
-        return onError(() => next(new GQLError(ERRORS.INVALID_META, { req }, [result.error])))
+        const extraErrors = [new Error(z.prettifyError(result.error))]
+        return onError(() => next(new GQLError(ERRORS.INVALID_META, { req }, extraErrors)))
     }
 
     const meta = result.data
