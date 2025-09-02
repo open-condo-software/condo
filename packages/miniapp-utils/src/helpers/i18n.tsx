@@ -417,7 +417,7 @@ export class TranslationsHelper<
      * Obtains locale preference from query parameter (if specified), cookie, request.headers['accept-language'] or window.navigator.languages
      * and then selects supported locale using selectSupportedLocale method
      */
-    getPreferredLocale (req: Optional<IncomingMessage>, res: Optional<ServerResponse>): LocaleSelection<AvailableLocale> {
+    getPreferredLocale (req?: Optional<IncomingMessage>, res?: Optional<ServerResponse>): LocaleSelection<AvailableLocale> {
         // Step 1: Query must be resolved before any cookies, since it's more explicit
         if (this.localeQueryParam) {
             let paramValue: string | null = null
@@ -548,7 +548,7 @@ export class TranslationsHelper<
                 if (!isSSR() && initialSelectedLocale && initialMessages) {
                     translationsObj[initialSelectedLocale] = initialMessages
                 } else if (!isSSR() && (!initialSelectedLocale || !initialFullLocale || !initialMessages)) {
-                    const localeSelection = getPreferredLocale(undefined, undefined)
+                    const localeSelection = getPreferredLocale()
                     setSelectedLocale(localeSelection.selectedLocale)
                     setFullLocale(localeSelection.fullLocale)
                     getTranslations(localeSelection.selectedLocale).then(setMessages)
