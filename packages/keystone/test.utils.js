@@ -17,8 +17,8 @@ const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
 const conf = require('@open-condo/config')
-const { getTranslations } = require('@open-condo/locales/loader')
 const { disconnectKvClient } = require('@open-condo/keystone/kv')
+const { getTranslations } = require('@open-condo/locales/loader')
 
 const { GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')

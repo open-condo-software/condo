@@ -1,6 +1,8 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const {
     WebhookSubscription,
@@ -18,6 +20,67 @@ const STABLE_CALLS = []
 let ODD_COUNTER = 0
 const ODD_URL = faker.internet.url()
 const ODD_CALLS = []
+
+const logger = getLogger('webhooks:tasks:sendWebhook')
+
+function getKnexClientAndPool (keystone) {
+    const ad = keystone.adapter || (keystone.adapters && Object.values(keystone.adapters)[0])
+    if (!ad || !ad.knex) return {}
+    const knex = ad.knex
+    const client = knex.client
+    const pool = client && client.pool
+    return { knex, client, pool }
+}
+
+function readPoolValue (pool, candidates) {
+    for (const name of candidates) {
+        if (!pool || !(name in pool)) continue
+        const v = pool[name]
+        if (typeof v === 'function') {
+            try { return v.call(pool) } catch { /* ignore */ }
+        } else if (Array.isArray(v)) {
+            return v.length
+        } else if (typeof v === 'number') {
+            return v
+        }
+    }
+    return undefined
+}
+
+function logPool (keystone, where) {
+    const { pool } = getKnexClientAndPool(keystone)
+    if (!pool) {
+        logger.info({ msg: `[pool:${where}] (no pool)` })
+        return
+    }
+    // Try both the “array fields” style and the “numX()”/numeric style
+    const stats = {
+        used:            readPoolValue(pool, ['used', 'numUsed', '_using', '_inUseObjects']),
+        free:            readPoolValue(pool, ['free', 'numFree', '_available', '_availableObjects']),
+        pendingAcquires: readPoolValue(pool, ['pendingAcquires', 'numPendingAcquires', '_pendingAcquires']),
+        pendingCreates:  readPoolValue(pool, ['pendingCreates', 'numPendingCreates', '_factoryCreateOperations']),
+        size:            readPoolValue(pool, ['size', '_count']),
+        available:       readPoolValue(pool, ['available']),
+        min:             readPoolValue(pool, ['min']),
+        max:             readPoolValue(pool, ['max']),
+    }
+    logger.info({ msg: `[pool:${where}]`, data: stats })
+}
+
+
+async function dumpPgActivity (keystone, where) {
+    const ad = keystone.adapter || Object.values(keystone.adapters)[0]
+    const { rows } = await ad.knex.raw(`
+    select pid, state, wait_event_type, wait_event, backend_type,
+           xact_start, state_change, left(regexp_replace(query, '\\s+', ' ', 'g'), 200) as query
+    from pg_stat_activity
+    where datname = current_database()
+    order by xact_start nulls last, state_change desc
+    limit 10;
+  `)
+    logger.info({ msg: `[pool:${where}]`, data: rows })
+}
+
 
 jest.spyOn(utils, 'trySendData').mockImplementation((url, objs) => {
     if (url === STABLE_URL) {
@@ -42,6 +105,7 @@ const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer, entryPointPath) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {
         const appEntryPoint = require(entryPointPath)
+        let keystone
         setFakeClientMode(appEntryPoint, { excludeApps: ['OIDCMiddleware'] })
 
         let sendWebhook
@@ -56,6 +120,8 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             deletedUser = await userDestroyer(actors.admin, secondUser)
             lastUser = await userCreator()
             sendWebhook = getWebhookTasks()['sendWebhook']
+            const { keystone: context } = getSchemaCtx('WebhookSubscription')
+            keystone = context
         })
         it('Must correctly send requests and update subscription state', async () => {
             const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
@@ -65,7 +131,10 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             })
             expect(subscription).toHaveProperty('syncedAt')
             const initialSyncTime = dayjs(subscription.syncedAt)
+            logPool(keystone, 'before sendWebhook')
             await sendWebhook.delay.fn(subscription.id)
+            logPool(keystone, 'after sendWebhook')
+            await dumpPgActivity(keystone, 'after sendWebhook')
 
             const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
             expect(updated).toHaveProperty('syncedAt')
