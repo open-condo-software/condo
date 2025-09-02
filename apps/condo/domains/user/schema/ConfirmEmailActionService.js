@@ -302,8 +302,8 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 
                 const secretCode = generateSecureCode(4)
                 const now = extra.extraNow || Date.now()
-                const requestedAt = new Date(now).toISOString()
-                const expiresAt = new Date(now + CONFIRM_EMAIL_ACTION_EXPIRY * 1000).toISOString()
+                const confirmActionRequestedAt = new Date(now).toISOString()
+                const confirmActionExpiresAt = new Date(now + CONFIRM_EMAIL_ACTION_EXPIRY * 1000).toISOString()
                 const secretCodeRequestedAt = new Date(now).toISOString()
                 const secretCodeExpiresAt = new Date(now + EMAIL_CODE_TTL * 1000).toISOString()
 
@@ -315,8 +315,8 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     token,
                     secretCodeRequestedAt,
                     secretCodeExpiresAt,
-                    requestedAt,
-                    expiresAt,
+                    requestedAt: confirmActionRequestedAt,
+                    expiresAt: confirmActionExpiresAt,
                 }
 
                 const isInvalidData = await redisGuard.isLocked(captcha, 'validation-failed')
@@ -350,7 +350,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     await ConfirmEmailAction.update(context, confirmAction.id, {
                         dv: 1,
                         sender,
-                        secretCodeExpiresAt: expiresAt,
+                        secretCodeExpiresAt: confirmActionExpiresAt,
                     })
                 } else {
                     meta = {
