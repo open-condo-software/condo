@@ -337,7 +337,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     const encodedToken = encryptionManager.encrypt(tokenInString)
                     const encodedTokenInBase64 = base64UrlEncode(encodedToken)
                     const linkRaw = new URL(SERVER_URL)
-                    linkRaw.pathname = '/user/confirmEmail'
+                    linkRaw.pathname = '/user/confirm-email'
                     linkRaw.searchParams.set('token', encodedTokenInBase64)
                     const link = linkRaw.href
 

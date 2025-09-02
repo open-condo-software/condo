@@ -77,7 +77,7 @@ const ConfirmEmailPage: PageComponentType<ConfirmEmailPageProps> = ({ messageTyp
             if (!res.errors && res?.data?.result?.status === 'ok') {
                 if (messageType === ConfirmEmailActionMessageType.VerifyUserEmail) {
                     await updateQuery(router, {
-                        newRoute: '/user/verifyEmail',
+                        newRoute: '/user/verify-email',
                         newParameters: {
                             token,
                         },
