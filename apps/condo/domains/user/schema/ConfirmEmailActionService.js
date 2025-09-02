@@ -17,6 +17,7 @@ const {
     WRONG_FORMAT,
     WRONG_EMAIL_VALUE,
 } = require('@condo/domains/common/constants/errors')
+const { base64UrlEncode } = require('@condo/domains/common/utils/base64.utils')
 const { encryptionManager } = require('@condo/domains/common/utils/encryption')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { EMAIL_VERIFY_CODE_MESSAGE_TYPE, VERIFY_USER_EMAIL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -46,8 +47,6 @@ const {
 const { getGuardKey } = require('@condo/domains/user/utils/serverSchema/confirmEmailAction')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const { generateTokenSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
-
-const { base64UrlEncode } = require('../../common/utils/base64.utils')
 
 
 /**
