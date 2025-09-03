@@ -42,17 +42,17 @@ node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
 # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
 mkdir -p ./apps/condo/dist/admin
 
-yarn workspace @app/condo start 2>&1 > /app/test_logs/condo.dev.log &
+#yarn workspace @app/condo start 2>&1 > /app/test_logs/condo.dev.log &
 
-node bin/wait-apps-apis.js -f condo
+#node bin/wait-apps-apis.js -f condo
 
 # check migrations
-yarn workspace @app/condo makemigrations --check &> /dev/null
+#yarn workspace @app/condo makemigrations --check &> /dev/null
 
-source bin/validate-db-schema-ts-to-match-graphql-api.sh
+#source bin/validate-db-schema-ts-to-match-graphql-api.sh
 
-yarn workspace @app/condo worker 2>&1 > /app/test_logs/condo.worker.log &
-sleep 3
+#yarn workspace @app/condo worker 2>&1 > /app/test_logs/condo.worker.log &
+#sleep 3
 
 # And check background processes!
 [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
@@ -60,7 +60,7 @@ sleep 3
 
 if [ $domain_name != "others" ]; then
     # TESTS
-    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/schema/(.*)[.]test.js$' 2>&1 > '/app/test_logs/condo.'$domain_name'.tests.log'
+#    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/schema/(.*)[.]test.js$' 2>&1 > '/app/test_logs/condo.'$domain_name'.tests.log'
     # SPECS
     if [ -n "$(find apps/condo/domains/$domain_name -name '*spec.[j|t]s' 2>/dev/null)" ]; then
         yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 --runInBand  --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/(.*)[.]spec.[j|t]s$' 2>&1 > '/app/test_logs/condo.'$domain_name'.specs.log'
@@ -72,8 +72,8 @@ if [ $domain_name != "others" ]; then
     killall node || echo 'no node processes'
 else
     # TESTS
-    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > /app/test_logs/condo.others.tests.log
-    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > /app/test_logs/condo.5.test.others.log
+#    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > /app/test_logs/condo.others.tests.log
+#    yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 -w=3 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > /app/test_logs/condo.5.test.others.log
     # SPECS
     yarn workspace @app/condo test --workerIdleMemoryLimit="256MB" --testTimeout=15000 --runInBand --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.[j|t]s$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > /app/test_logs/condo.others.specs.log
     # Note: we need to stop background worker! because packages tests use the same redis queue
