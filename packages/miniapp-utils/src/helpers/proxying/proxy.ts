@@ -1,6 +1,6 @@
 import httpProxy from 'http-proxy'
 
-import { getProxyHeadersForIp, getRequestIp } from './utils'
+import { getProxyHeadersForIp, getRequestIp, replaceUpstreamEndpoint } from './utils'
 
 import type { KnownProxies } from './utils'
 import type { IncomingMessage, ServerResponse } from 'http'
@@ -14,17 +14,20 @@ type IpProxyingOptions = {
     knownProxies?: KnownProxies
 }
 
+type RelativeOrAbsoluteEndpoint = string
+
 export type ProxyOptions = {
     /** Name of the proxy. Primarily used to set "via" header */
     name: string
     /** Proxy prefix which will be removed from request url  */
     proxyPrefix: string
     /** Upstream host to proxy requests to */
-    upstreamHost: string
+    upstreamOrigin: string
     /** Upstream prefix to add to request url */
     upstreamPrefix: string
     /** IP proxying options, if specified, IP will be passed used signed x-proxy-id, x-proxy-ip, x-proxy-timestamp, x-proxy-signature headers */
     ipProxying?: IpProxyingOptions
+    locationRewrites?: Record<RelativeOrAbsoluteEndpoint, RelativeOrAbsoluteEndpoint>
 }
 
 type ProxyHandler = (req: IncomingMessage, res: ServerResponse) => void
@@ -33,12 +36,14 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
     const {
         name,
         proxyPrefix,
-        upstreamHost,
+        upstreamOrigin,
         upstreamPrefix,
         ipProxying,
+        locationRewrites,
     } = options
+
     const proxy = httpProxy.createProxy({
-        target: upstreamHost,
+        target: upstreamOrigin,
         changeOrigin: true,
     })
 
@@ -54,6 +59,17 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
             for (const [headerName, headerValue] of Object.entries(headers)) {
                 proxyReq.setHeader(headerName, headerValue)
             }
+        }
+    })
+    proxy.on('proxyRes', (proxyRes, _req, res) => {
+        if (proxyRes.headers.location) {
+            res.setHeader('location', replaceUpstreamEndpoint({
+                endpoint: proxyRes.headers.location,
+                proxyPrefix,
+                upstreamPrefix,
+                upstreamOrigin,
+                rewrites: locationRewrites,
+            }))
         }
     })
 
