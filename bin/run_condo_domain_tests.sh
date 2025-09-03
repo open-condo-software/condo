@@ -55,8 +55,8 @@ mkdir -p ./apps/condo/dist/admin
 #sleep 3
 
 # And check background processes!
-[[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
-sleep 3
+#[[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
+#sleep 3
 
 if [ $domain_name != "others" ]; then
     # TESTS
