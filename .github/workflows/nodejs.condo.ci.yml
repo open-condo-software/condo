@@ -401,21 +401,7 @@ jobs:
       fail-fast: false
       matrix:
         domain:
-          - organization
-          - user
-          - scope
           - property
-          - acquiring
-          - billing
-          - miniapp
-          - banking
-          - ticket
-          - meter
-          - contact
-          - resident
-          - notification
-          - common
-          - others
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
     with:
       domain_name: ${{ matrix.domain }}

@@ -51,7 +51,23 @@ function getAdapter (databaseUrl) {
     if (databaseUrl.startsWith('mongodb')) {
         return new MongooseAdapter({ mongoUri: databaseUrl })
     } else if (databaseUrl.startsWith('postgres')) {
-        return new KnexAdapter({ knexOptions: { connection: databaseUrl, pool: { min: 0, max: 3 } } })
+        return new KnexAdapter({ knexOptions: {
+            connection: databaseUrl,
+            pool: {
+                min: 0,
+                max: 2,
+                acquireTimeoutMillis: 1500,
+                idleTimeoutMillis: 2000,
+                reapIntervalMillis: 400,
+                afterCreate: (conn, done) => {
+                // Easier for pg_stat_activity debugging
+                    conn.query(`set application_name = 'jest:${process.env.JEST_WORKER_ID || '0'}:${process.env.JEST_TEST_NAME || ''}';`)
+                    // Auto-kill sessions that get stuck "idle in transaction"
+                    conn.query('set idle_in_transaction_session_timeout = \'5s\';')
+                    done(null, conn)
+                },
+            },
+        } })
     } else if (databaseUrl.startsWith('undefined')) {
         // NOTE: case for build time!
         return new FakeDatabaseAdapter()

@@ -17,6 +17,7 @@ const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
 const conf = require('@open-condo/config')
+const { disconnectKvClient } = require('@open-condo/keystone/kv')
 const { getTranslations } = require('@open-condo/locales/loader')
 
 const { GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
@@ -141,6 +142,8 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
         afterAll(async () => {
             if (__expressServer) __expressServer.close()
             if (__keystone) await __keystone.disconnect()
+            disconnectKvClient()
+
             __keystone = null
             __expressApp = null
             __expressServer = null
