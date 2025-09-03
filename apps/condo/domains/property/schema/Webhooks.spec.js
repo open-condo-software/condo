@@ -2,9 +2,10 @@
  * @jest-environment node
  */
 
+const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const { SendWebhookTests } = require('@open-condo/webhooks/tasks/sendWebhook.spec')
 
 const { makeClientWithNewRegisteredAndLoggedInUser, updateTestUser } = require('@condo/domains/user/utils/testSchema')
@@ -32,5 +33,6 @@ async function userDeleter (client, user) {
 // NOTE 2: Passing init function for actors, since their creation may differ from app to app
 // NOTE 3: Passing creator / deleter for testing sending objects with deletedAt
 describe('External webhook specifications', () => {
+    setFakeClientMode('@app/condo/index', { excludeApps: ['OIDCMiddleware'] })
     SendWebhookTests('Condo', initializeActors, userCreator, userDeleter, '@app/condo/index')
 })

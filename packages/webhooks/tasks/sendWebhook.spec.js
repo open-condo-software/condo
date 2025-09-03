@@ -104,9 +104,8 @@ const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer, entryPointPath) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {
-        const appEntryPoint = require(entryPointPath)
         let keystone
-        setFakeClientMode(appEntryPoint, { excludeApps: ['OIDCMiddleware'] })
+        // setFakeClientMode(appEntryPoint, { excludeApps: ['OIDCMiddleware'] })
 
         let sendWebhook
         let actors
