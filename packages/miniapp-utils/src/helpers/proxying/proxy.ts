@@ -28,6 +28,7 @@ export type ProxyOptions = {
     /** IP proxying options, if specified, IP will be passed used signed x-proxy-id, x-proxy-ip, x-proxy-timestamp, x-proxy-signature headers */
     ipProxying?: IpProxyingOptions
     locationRewrites?: Record<RelativeOrAbsoluteEndpoint, RelativeOrAbsoluteEndpoint>
+    cookiePathRewrites?: Record<RelativeOrAbsoluteEndpoint, RelativeOrAbsoluteEndpoint>
 }
 
 type ProxyHandler = (req: IncomingMessage, res: ServerResponse) => void
@@ -40,6 +41,7 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
         upstreamPrefix,
         ipProxying,
         locationRewrites,
+        cookiePathRewrites,
     } = options
 
     const proxy = httpProxy.createProxy({
@@ -61,15 +63,32 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
             }
         }
     })
-    proxy.on('proxyRes', (proxyRes, _req, res) => {
+    proxy.on('proxyRes', (proxyRes, _req, _res) => {
         if (proxyRes.headers.location) {
-            res.setHeader('location', replaceUpstreamEndpoint({
+            proxyRes.headers.location = replaceUpstreamEndpoint({
                 endpoint: proxyRes.headers.location,
                 proxyPrefix,
                 upstreamPrefix,
                 upstreamOrigin,
                 rewrites: locationRewrites,
-            }))
+            })
+        }
+
+        // Handle Set-Cookie headers to rewrite cookie paths
+        const setCookieHeaders = proxyRes.headers['set-cookie']
+        if (setCookieHeaders) {
+            proxyRes.headers['set-cookie'] = setCookieHeaders.map(cookieString => {
+                return cookieString.replace(/;\s*Path=([^;]+)/i, (match, pathValue) => {
+                    const rewrittenPath = replaceUpstreamEndpoint({
+                        endpoint: pathValue,
+                        proxyPrefix,
+                        upstreamPrefix,
+                        upstreamOrigin,
+                        rewrites: cookiePathRewrites,
+                    })
+                    return match.replace(pathValue, rewrittenPath)
+                })
+            })
         }
     })
 
