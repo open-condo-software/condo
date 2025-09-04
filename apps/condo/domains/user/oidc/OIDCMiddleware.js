@@ -94,18 +94,9 @@ class OIDCMiddleware {
                     clientId,
                 })
                 grant.addOIDCScope('openid')
-                const grantId = await grant.save()
-
-                const result = {
-                    login: {
-                        accountId,
-                    },
-                    consent: {
-                        grantId,
-                    },
-                }
 
                 const { prompt: { details } } = interactionDetails
+                
                 if (details.missingOIDCScope) {
                     logger.warn({
                         msg: 'add OIDC scope',
@@ -134,6 +125,16 @@ class OIDCMiddleware {
 
                         grant.addResourceScope(indicator, scopes.join(' '))
                     }
+                }
+
+                const grantId = await grant.save()
+                const result = {
+                    login: {
+                        accountId,
+                    },
+                    consent: {
+                        grantId,
+                    },
                 }
 
                 logger.info({ msg: 'interaction finished', data: { data: interactionDetails, result } })
