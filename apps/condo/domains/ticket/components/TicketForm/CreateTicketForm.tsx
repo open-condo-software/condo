@@ -199,7 +199,11 @@ export const CreateTicketForm: React.FC = () => {
 
     const getPaymentLink = useInvoicePaymentLink()
 
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
     const createAction = useCallback(async ({ attachCallRecord, ...variables }) => {
+        setIsSubmitting(true)
+
         let deadline = variables?.deadline
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
@@ -292,9 +296,10 @@ export const CreateTicketForm: React.FC = () => {
                 organization={organization}
                 autoAssign
                 OnCompletedMsg={null}
+                afterActionCompleted={() => setIsSubmitting(false)}
                 isExisted={false}
             >
-                {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
+                {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isSubmitting || isLoading} form={form} />}
             </BaseTicketForm>
         </Tour.Provider>
     ), [createAction, initialValues, organization])
