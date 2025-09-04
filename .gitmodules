@@ -72,4 +72,4 @@
 	url = git@github.com:open-condo-software/condo-ticket-importer.git
 [submodule "apps/property-ai-assistant"]
 	path = apps/property-ai-assistant
-	url = git@github.com:open-condo-software/condo.git
+	url = git@github.com:open-condo-software/condo-property-ai-assistant.git
