@@ -183,8 +183,14 @@ async function getMeterReadingsForSearchingDuplicates (readings, meters, propert
     const readingsWithValidDates = readings.filter(reading => isDateStrValid(reading.date))
     const plainMeterReadings = await find(readingModel, {
         meter: { id_in: meters.map(meter => meter.id) },
-        // date_in: uniq(readingsWithValidDates.map(reading => tryToISO(reading.date))),
-        OR: readingsWithValidDates.map((reading) => ({ AND: [getValues(reading)] })),
+        OR: readingsWithValidDates.map((reading) => {
+            const values = getValues(reading)
+            const sanitizedValues = Object.keys(values).reduce((acc, key) => {
+                if (isNil(values[key])) return acc
+                return { ...acc, [key]: values[key] }
+            }, {})
+            return { AND: [sanitizedValues] }
+        }),
         deletedAt: null,
     })
 
@@ -205,7 +211,6 @@ async function getMeterReadingsForSearchingDuplicates (readings, meters, propert
         meter: metersWithPropertyByIdMap[reading.meter],
     }))
     return meterReadings.reduce((acc, meterReading) => {
-        // const key = `${reading.meter.id}-${dayjs(reading.date).startOf('day').toISOString()}`
         const key = createMeterReadingKey(meterReading.meter.id, getSortedValues(meterReading))
 
         acc[key] = meterReading
@@ -287,7 +292,7 @@ function getValues (reading, errorValues) {
 
         const normalizedValue = normalizeMeterValue(value)
 
-        if (!!errorValues && !validateMeterValue(normalizedValue)) {
+        if (!validateMeterValue(normalizedValue)) {
             set(errorValues, currentValue, value)
             return result
         }
