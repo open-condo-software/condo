@@ -22,6 +22,7 @@ import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutation
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
+import { useSudoToken } from '@condo/domains/user/components/SudoTokenProvider'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
 
@@ -65,6 +66,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const { executeCaptcha } = useHCaptcha()
     const { identifier, identifierType, token } = useRegisterContext()
     const { refetch } = useAuth()
+    const { getSudoTokenForce } = useSudoToken()
 
     const [form] = Form.useForm()
 
@@ -232,7 +234,21 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                         await startConfirmEmailAction(userData.email)
                     }
                 }
+
                 await refetch()
+
+                if (userData.password) {
+                    await getSudoTokenForce({
+                        user: {
+                            ...(identifierType === 'email' ? { email: identifier } : null),
+                            ...(identifierType === 'phone' ? { phone: identifier } : null),
+                        },
+                        authFactors: {
+                            password: userData.password,
+                        },
+                    })
+                }
+
                 await onFinish()
                 return
             }
@@ -242,7 +258,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         } finally {
             setIsLoading(false)
         }
-    }, [authOrRegisterUserWithTokenMutation, form, executeCaptcha, isLoading, onFinish, refetch, token, visibleFields, userExistenceResult])
+    }, [authOrRegisterUserWithTokenMutation, form, executeCaptcha, isLoading, onFinish, refetch, token, visibleFields, userExistenceResult, identifierType, identifier, getSudoTokenForce])
 
     useEffect(() => {
         if (step !== 'checkUser') return
