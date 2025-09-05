@@ -11,7 +11,7 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { HCaptchaProvider, useHCaptcha } from '@condo/domains/common/components/HCaptcha'
+import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { PageComponentType } from '@condo/domains/common/types'
@@ -148,9 +148,7 @@ ConfirmEmailPage.requiredAccess = AuthRequired
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
-        <HCaptchaProvider>
-            {children}
-        </HCaptchaProvider>
+        <>{children}</>
     )
 }
 ConfirmEmailPage.container = Layout
