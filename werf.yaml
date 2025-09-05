@@ -1211,11 +1211,8 @@ docker:
   ENV:
     LANG: C.UTF-8
 
-docker:
-  ENV:
-    LANG: C.UTF-8
 ---
-image: property-ai-assistant
+image: property_ai_assistant
 fromImage: base
 fromCacheVersion: "3"
 git:
@@ -1260,3 +1257,7 @@ shell:
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
     - "rm -rf /app/apps/property-ai-assistant/.env"
+
+docker:
+  ENV:
+    LANG: C.UTF-8
