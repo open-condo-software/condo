@@ -9,6 +9,7 @@ const {
     createAxiosClientWithCookie, getRandomString, makeLoggedInAdminClient, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     createTestOidcClient,
@@ -911,7 +912,7 @@ describe('OIDC', () => {
                 'isAdmin': false,
                 'isSupport': false,
                 'name': client.user.name,
-                'phone': client.user.phone,
+                'phone': client.userAttrs.phone,
                 'isPhoneVerified': client.user.isPhoneVerified,
             })
             
@@ -992,7 +993,7 @@ describe('OIDC', () => {
                 'isAdmin': false,
                 'isSupport': false,
                 'name': client.user.name,
-                'email': client.user.email,
+                'email': normalizeEmail(client.userAttrs.email),
                 'isEmailVerified': client.user.isEmailVerified,
             })
             
@@ -1073,9 +1074,9 @@ describe('OIDC', () => {
                 'isAdmin': false,
                 'isSupport': false,
                 'name': client.user.name,
-                'phone': client.user.phone,
+                'phone': client.userAttrs.phone,
                 'isPhoneVerified': client.user.isPhoneVerified,
-                'email': client.user.email,
+                'email': normalizeEmail(client.userAttrs.email),
                 'isEmailVerified': client.user.isEmailVerified,
             })
             

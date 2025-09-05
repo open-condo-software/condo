@@ -88,12 +88,13 @@ class OIDCMiddleware {
 
                 const accountId = req.user.id
                 const clientId = interactionDetails.params.client_id
+                const requestedScopes = interactionDetails.params.scope || 'openid'
 
                 const grant = new provider.Grant({
                     accountId,
                     clientId,
                 })
-                grant.addOIDCScope('openid')
+                grant.addOIDCScope(requestedScopes)
 
                 const { prompt: { details } } = interactionDetails
                 
