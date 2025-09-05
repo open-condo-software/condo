@@ -3,11 +3,11 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { useCountdown } from 'usehooks-ts'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Modal, Button } from '@open-condo/ui'
 import type { ModalProps } from '@open-condo/ui'
 
 import { useMutationErrorHandler, ErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { CONFIRM_EMAIL_ACTION_TTL_IN_SEC } from '@dev-portal-api/domains/user/constants'
 import { INVALID_EMAIL, ACTION_NOT_FOUND, INVALID_CODE, CONDO_USER_ALREADY_EXISTS } from '@dev-portal-api/domains/user/constants/errors'
 

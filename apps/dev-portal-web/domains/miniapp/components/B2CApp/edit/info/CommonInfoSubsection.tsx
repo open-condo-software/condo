@@ -3,11 +3,11 @@ import get from 'lodash/get'
 import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Input, Button } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
 
 import type { RowProps } from 'antd'

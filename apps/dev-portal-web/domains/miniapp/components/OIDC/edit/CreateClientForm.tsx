@@ -2,11 +2,11 @@ import { Form, notification } from 'antd'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Input, Modal } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { EmptySubSectionView } from '@/domains/miniapp/components/EmptySubSectionView'
 import { DEV_REDIRECT_URI_EXAMPLE, PROD_REDIRECT_URI_EXAMPLE, OIDC_DOCS_LINK } from '@/domains/miniapp/constants/common'
 

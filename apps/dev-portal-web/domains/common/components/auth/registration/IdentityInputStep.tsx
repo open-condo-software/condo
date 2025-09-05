@@ -3,11 +3,11 @@ import getConfig from 'next/config'
 import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Input } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { USER_ALREADY_EXISTS, PASSWORD_TOO_SIMPLE } from '@dev-portal-api/domains/user/constants/errors'
 
 import styles from './IdentityInputStep.module.css'

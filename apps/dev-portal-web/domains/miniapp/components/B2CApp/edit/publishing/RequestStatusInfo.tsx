@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react'
 import { useIntl, FormattedMessage } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Alert, Space, Typography, Button, Checkbox } from '@open-condo/ui'
 
 import { Spin } from '@/domains/common/components/Spin'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 
 import styles from './RequestStatusInfo.module.css'
 

@@ -3,12 +3,12 @@ import { useRouter } from 'next/router'
 import React, { createContext, CSSProperties, useCallback, useContext, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Modal, RadioGroup, Radio, Space, Input, Button } from '@open-condo/ui'
 import type { RadioGroupProps } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 
 import type { RowProps } from 'antd'
 

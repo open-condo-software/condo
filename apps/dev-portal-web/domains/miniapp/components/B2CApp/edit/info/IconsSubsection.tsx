@@ -3,11 +3,11 @@ import get from 'lodash/get'
 import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Typography, Alert } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { UploadText } from '@/domains/miniapp/components/UploadText'
 import {
     DEFAULT_B2C_LOGO_URL,

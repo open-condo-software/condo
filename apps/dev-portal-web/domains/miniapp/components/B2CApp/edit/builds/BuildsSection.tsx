@@ -5,12 +5,12 @@ import { useIntl } from 'react-intl'
 
 import { PlusCircle } from '@open-condo/icons'
 import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Modal, Input, Alert, Typography } from '@open-condo/ui'
 
 import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
 import { UploadText } from '@/domains/miniapp/components/UploadText'
 import {
