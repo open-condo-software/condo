@@ -114,6 +114,7 @@ const TourPageContent = () => {
     const organizationId = organization?.id || null
     const { activeTourStep, setActiveTourStep, updateStepIfNotCompleted, syncLoading } = useTourContext()
     const handleBackClick = useCallback(() => setActiveTourStep(null), [setActiveTourStep])
+    const isCardVideoAutoplayEnabled = Boolean(Number(router?.query?.autoplay))
 
     const {
         data: tourStepsData,
@@ -274,6 +275,7 @@ const TourPageContent = () => {
                                         src={videoUrl}
                                         title={CardVideoTitle}
                                         description={CardVideoDescription}
+                                        autoplay={isCardVideoAutoplayEnabled}
                                     />
                                 )
                             }
