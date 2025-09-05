@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Typography } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } from '@condo/domains/resident/gql'
 
 

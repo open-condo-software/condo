@@ -4,7 +4,7 @@ import { ItemId, AddNewItem } from '@open-keystone/app-admin-ui/components'
 import React, { useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 
 
 const SIGNIN_AS_USER_MUTATION = gql`

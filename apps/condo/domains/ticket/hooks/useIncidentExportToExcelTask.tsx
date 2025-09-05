@@ -7,11 +7,11 @@ import {
 } from '@app/condo/schema'
 import React, { useCallback, useMemo } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { useIncidentExportTaskUIInterface } from '@condo/domains/ticket/hooks/useIncidentExportTaskUIInterface'
 
 

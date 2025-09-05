@@ -6,9 +6,9 @@
 // @ts-nocheck
 import { useMemo } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useMutation } from '@open-condo/next/apollo'
 
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { REGISTER_NEW_ORGANIZATION_MUTATION, INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION } from '@condo/domains/organization/gql'
 
 import * as Organization from './Organization'

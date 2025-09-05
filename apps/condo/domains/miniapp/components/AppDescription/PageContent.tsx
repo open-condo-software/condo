@@ -3,13 +3,13 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Markdown, Carousel, Typography } from '@open-condo/ui'
 
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql'
 
 import { DeveloperCard } from './DeveloperCard'

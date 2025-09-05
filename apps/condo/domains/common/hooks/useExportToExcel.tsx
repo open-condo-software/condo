@@ -3,11 +3,11 @@ import { DocumentNode } from 'graphql'
 import { get } from 'lodash'
 import React, { useCallback } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 
 export type UseExportToExcelInputType = {
