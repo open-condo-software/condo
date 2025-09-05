@@ -25,11 +25,13 @@ const {
     getValues, getMeterDates, getMeterFields, getReadingFields,
     getFieldsToUpdate,
     getValuesList,
-    getMeterReadingByDate,
+    getMeterReadingsForSearchingDuplicates,
+    createMeterReadingKey,
     tryToISO,
     getDateStrValidationError,
     transformToPlainObject,
     getAddressesKeys, getResolvedAddresses,
+    getSortedValues,
 } = require('@condo/domains/meter/utils/serverSchema/registerHelpers')
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
@@ -142,7 +144,7 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
                     deletedAt: null,
                 })
 
-                const meterReadingByDate = await getMeterReadingByDate(readings, meters, properties, 'PropertyMeterReading')
+                const meterReadingForSearchingDuplicates = await getMeterReadingsForSearchingDuplicates(readings, meters, properties, 'PropertyMeterReading')
 
                 for (const reading of readings) {
                     const meterNumber = reading.meterNumber.trim()
@@ -235,8 +237,8 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
 
                     try {
                         // NOTE: we look for duplicates with the same date, disregarding the time of day
-                        const key = `${meterId}-${startOfDayISO}`
-                        const duplicateReading = meterReadingByDate[key]
+                        const key = createMeterReadingKey(meterId, getSortedValues(reading))
+                        const duplicateReading = meterReadingForSearchingDuplicates[key]
 
                         if (!duplicateReading) {
                             const propertyMeterReadingFieldsGetter = getReadingFields(true)
@@ -246,7 +248,7 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
                                 ...propertyMeterReadingFieldsGetter(meterId, readingSource, reading, values),
                             }, 'id meter { id number property { id address addressKey } }')
 
-                            meterReadingByDate[key] = createdMeterReading
+                            meterReadingForSearchingDuplicates[key] = createdMeterReading
                             resultRows.push(meterReadingAsResult(createdMeterReading))
                         } else {
                             resultRows.push(meterReadingAsResult(duplicateReading))
