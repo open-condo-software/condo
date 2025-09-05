@@ -304,6 +304,7 @@ const MESSAGE_META = {
         dv: { defaultValue: '', required: true },
         link: { defaultValue: '', required: true },
         withMarketingConsent: { defaultValue: false, required: false },
+        userEmail: { defaultValue: '', required: true },
     },
     [DEVELOPER_IMPORTANT_NOTE_TYPE]: {
         dv: { defaultValue: '', required: true },

@@ -344,6 +344,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                         dv: 1,
                         link,
                         withMarketingConsent: VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED,
+                        userEmail: normalizedEmail,
                     }
 
                     // NOTE: The user may open the link from the email later than one minute later
