@@ -9,7 +9,7 @@ import { Col, Form, Row } from 'antd'
 import Router, { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState, useRef } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Input, Typography } from '@open-condo/ui'

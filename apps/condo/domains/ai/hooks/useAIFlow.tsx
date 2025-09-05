@@ -5,8 +5,8 @@ import {
 import getConfig from 'next/config'
 import { useState, useCallback } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 
 

@@ -29,7 +29,7 @@ import { DefaultOptionType } from 'rc-select/lib/Select'
 import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Space, Radio, RadioGroup } from '@open-condo/ui'
