@@ -298,7 +298,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     const fingerprint = cookies['userId'] || cuid()
                     res.cookie('sender', JSON.stringify({ fingerprint, dv: 1 }), { maxAge: INFINITY_MAX_AGE_COOKIE })
                     res.cookie('dv', 1, { maxAge: INFINITY_MAX_AGE_COOKIE })
-                    res.cookie('userId', fingerprint, { maxAge: INFINITY_MAX_AGE_COOKIE })
+                    res.cookie('fingerprint', fingerprint, { maxAge: INFINITY_MAX_AGE_COOKIE })
                 }
                 next()
             })
