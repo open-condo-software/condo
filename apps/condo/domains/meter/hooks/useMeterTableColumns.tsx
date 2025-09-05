@@ -1,5 +1,5 @@
 import { css } from '@emotion/react'
-import { InputNumber } from 'antd'
+import { Col, InputNumber, Row, type RowProps  } from 'antd'
 import dayjs from 'dayjs'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
@@ -7,7 +7,6 @@ import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Tooltip, Tour } from '@open-condo/ui'
 
@@ -41,8 +40,7 @@ const FULL_WIDTH_STYLE: CSSProperties = { width: '100%' }
 const inputMeterReadingFormatter = value => value.toString().replace(',', '.')
 const PARSER_METER_READING_REGEX = /[,.]+/g
 const inputMeterReadingParser = input => input.replace(PARSER_METER_READING_REGEX, '.')
-const TOOLTIP_CONTAINER_STYLE: CSSProperties = { display: 'flex', alignItems: 'flex-start', gap: 8, justifyContent: 'space-between' }
-const CURSOR_POINTER_STYLE: CSSProperties = { cursor: 'pointer' }
+const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 8]
 const METER_READING_INPUT_ADDON_STYLE: CSSProperties = {
     position: 'absolute',
     top: '50%',
@@ -134,7 +132,7 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
 
     const isInputDisabled =  dayjs(nextVerificationDate).isBefore(dayjs(), 'day') && true
 
-    const [isTooltipOpen, setIsTooltipOpen] = useState(false)
+    const [isTipShown, setIsTipShown] = useState(false)
     const debounceTimer = useRef(null)
 
     const updateMeterReadingsValue = useCallback((oldMeterReadings, newTariffValue) => {
@@ -148,15 +146,15 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
     const meterReadingValueChangeHandler = useCallback((value) => {
         const newTariffValue = value ? String(value) : ''
         setNewMeterReadings(oldMeterReadings => updateMeterReadingsValue(oldMeterReadings, newTariffValue))
-        setIsTooltipOpen(false)
+        setIsTipShown(false)
         if (debounceTimer.current) clearTimeout(debounceTimer.current)
 
         debounceTimer.current = setTimeout(() => {
             const numericVal = Number(value)
             if (value && !isNaN(numericVal) && lastReading && numericVal < lastReading) {
-                setIsTooltipOpen(true)
+                setIsTipShown(true)
             } else {
-                setIsTooltipOpen(false)
+                setIsTipShown(false)
             }
         }, 1500)
     }, [lastReading, setNewMeterReadings, updateMeterReadingsValue])
@@ -185,66 +183,56 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
         min: 0,
     }), [AddMeterReadingPlaceholderMessage, inputValue, meterReadingValueChangeHandler])
 
-    const ToolTipTitleComponent = useMemo(() => {
-        return <div style={TOOLTIP_CONTAINER_STYLE}>
-            <span>{MeterReadingIsLessThatPreviousTooltip}</span>
-            <div style={CURSOR_POINTER_STYLE}>
-                <Close size='small' 
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        setIsTooltipOpen(false)
-                    }}
-                />
-            </div>
-        </div>
-    }, [MeterReadingIsLessThatPreviousTooltip])
-
     if (index === 0) {
         return (
             <Tour.TourStep step={2} title={MeterReadingTourStepTitle}>
-                <div {...wrapperProps}>
-                    {isInputDisabled ? (
-                        <Tooltip title={MissedVerificationTooltip}>
-                            <span>
-                                <InputNumber
-                                    {...inputProps}
-                                    autoFocus
-                                    disabled={isInputDisabled}
-                                />
-                            </span>
-                        </Tooltip>
-                    ) : (
-                        <Tooltip title={ToolTipTitleComponent} open={isTooltipOpen}>
-                            <span>
-                                <InputNumber
-                                    {...inputProps}
-                                    autoFocus
-                                    disabled={isInputDisabled}
-                                />
-                            </span>
-                        </Tooltip>
-                    )}
-                    <div style={METER_READING_INPUT_ADDON_STYLE}>
-                        {meterResourceMeasure}
-                    </div>
-                </div>
+                <Row gutter={SMALL_VERTICAL_GUTTER}>
+                    <Col {...wrapperProps} span={24}>
+                        {isInputDisabled ? (
+                            <Tooltip title={MissedVerificationTooltip}>
+                                <span>
+                                    <InputNumber
+                                        {...inputProps}
+                                        autoFocus
+                                        disabled={isInputDisabled}
+                                    />
+                                </span>
+                            </Tooltip>
+                        ) : (
+                            <div>
+                                <span>
+                                    <InputNumber
+                                        {...inputProps}
+                                        autoFocus
+                                        disabled={isInputDisabled}
+                                    />
+                                </span>
+                            </div>
+                        )}
+                        <div style={METER_READING_INPUT_ADDON_STYLE}>
+                            {meterResourceMeasure}
+                        </div>
+                    </Col>
+                    {isTipShown && <Col span={24}>{MeterReadingIsLessThatPreviousTooltip}</Col>}
+                </Row>
+
             </Tour.TourStep>
         )
     }
 
     return (
-        <div {...wrapperProps}>
-            {isInputDisabled ? (
-                <Tooltip title={MissedVerificationTooltip}>
-                    <span>
-                        <InputNumber
-                            {...inputProps}
-                            disabled={isInputDisabled}
-                        />
-                    </span>
-                </Tooltip>
-            ) : (
-                <Tooltip title={ToolTipTitleComponent} open={isTooltipOpen}>
+        <Row gutter={SMALL_VERTICAL_GUTTER}>
+            <Col {...wrapperProps} span={24}>
+                {isInputDisabled ? (
+                    <Tooltip title={MissedVerificationTooltip}>
+                        <span>
+                            <InputNumber
+                                {...inputProps}
+                                disabled={isInputDisabled}
+                            />
+                        </span>
+                    </Tooltip>
+                ) : (
                     <span>
                         <InputNumber
                             {...inputProps}
@@ -252,12 +240,14 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
                             disabled={isInputDisabled}
                         />
                     </span>
-                </Tooltip>
-            )}
-            <div style={METER_READING_INPUT_ADDON_STYLE}>
-                {meterResourceMeasure}
-            </div>
-        </div>
+                )}
+                <div style={METER_READING_INPUT_ADDON_STYLE}>
+                    {meterResourceMeasure}
+                </div>
+            </Col>
+            {isTipShown && <Col span={24}>{MeterReadingIsLessThatPreviousTooltip}</Col>}
+        </Row>
+
     )
 }
 

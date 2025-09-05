@@ -228,7 +228,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                 setChosenMeterReadingId(get(record, 'id'))
             },
         }
-    }, [])
+    }, [meter])
 
     const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meterReading}`), [router])
     const handleCloseUpdateReadingModal = useCallback(() => setIsShowUpdateReadingModal(false), [])
