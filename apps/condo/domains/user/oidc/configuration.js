@@ -38,7 +38,9 @@ module.exports = function createConfiguration (context, conf) {
             return {
                 accountId: id,
                 async claims (use, scope) {
-                    return {
+                    const scopes = scope.split(' ')
+
+                    const claims = {
                         sub: id,
                         v: user.v,
                         dv: user.dv,
@@ -47,6 +49,18 @@ module.exports = function createConfiguration (context, conf) {
                         isSupport: user.isSupport,
                         isAdmin: user.isAdmin,
                     }
+
+                    if (scopes.includes('phone')) {
+                        claims.phone = user.phone
+                        claims.isPhoneVerified = user.isPhoneVerified
+                    }
+
+                    if (scopes.includes('email')) {
+                        claims.email = user.email
+                        claims.isEmailVerified = user.isEmailVerified
+                    }
+
+                    return claims
                 },
             }
         },
@@ -106,8 +120,9 @@ module.exports = function createConfiguration (context, conf) {
             },
         },
         claims: {
-            // TODO(pahaz): SCOPES think about it!
-            openid: ['sub', 'v', 'dv', 'type', 'name', 'isAdmin', 'isSupport'],
+            openid: ['sub', 'v', 'dv', 'type', 'name', 'isAdmin', 'isSupport', 'phone', 'isPhoneVerified', 'email', 'isEmailVerified'],
+            phone: ['phone', 'isPhoneVerified'],
+            email: ['email', 'isEmailVerified'],
         },
         features: {
             // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#featuresclientcredentials - Enables grant_type=client_credentials to be used on the token endpoint

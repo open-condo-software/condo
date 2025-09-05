@@ -9,6 +9,7 @@ const {
     createAxiosClientWithCookie, getRandomString, makeLoggedInAdminClient, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     createTestOidcClient,
@@ -765,6 +766,438 @@ describe('OIDC', () => {
             const params = issuerClient.callbackParams(res1.url)
             const tokenSet = await issuerClient.callback(uri, { code: params.code }, { nonce: checks.nonce })
             expect(tokenSet.access_token).toBeTruthy()
+        })
+    })
+
+    describe('Phone and Email Scopes', () => {
+        test('openid scope should not include phone/email fields', async () => {
+            const uri = OIDC_REDIRECT_URI
+            const clientId = getRandomString()
+            const clientSecret = getRandomString()
+            const admin = await makeLoggedInAdminClient()
+
+            await createTestOidcClient(admin, {
+                payload: {
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    redirect_uris: [uri],
+                    response_types: ['code id_token', 'code', 'id_token'],
+                    grant_types: ['implicit', 'authorization_code', 'refresh_token'],
+                    token_endpoint_auth_method: 'client_secret_basic',
+                },
+            })
+
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            expectCookieKeys(client.getCookie(), ['keystone.sid'])
+
+            // 1) server side ( create oidc client and prepare oidcAuthUrl )
+            const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
+            const serverSideOidcClient = new oidcIssuer.Client({
+                client_id: clientId,
+                client_secret: clientSecret,
+                redirect_uris: [uri],
+                response_types: ['code id_token'],
+                token_endpoint_auth_method: 'client_secret_basic',
+            })
+
+            const nonce = generators.nonce()
+            const url = new URL(serverSideOidcClient.authorizationUrl({ 
+                nonce,
+                scope: 'openid', // Only request openid scope
+            }))
+            const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
+
+            // 2) client side ( open oidcAuthUrl )
+            const res1 = await request(oidcAuthUrl, client.getCookie())
+            expect(res1.status).toBe(303)
+            expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
+
+            const res2 = await request(`${client.serverUrl}${res1.headers.location}`, res1.cookie)
+            expect(res2.status).toBe(303)
+            expect(res2.headers.location.startsWith(`${client.serverUrl}/oidc/auth/`)).toBeTruthy()
+
+            const res3 = await request(res2.headers.location, res2.cookie)
+            expect(res3.status).toBe(303)
+            expect(res3.headers.location.startsWith(`${uri}#code`)).toBeTruthy()
+
+            // 3) callback to server side
+            const params = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
+            const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+
+            // 4) check userinfo - should NOT include phone/email fields
+            const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
+            expect(userinfo).toEqual({
+                'sub': client.user.id,
+                'type': 'staff',
+                'v': 1,
+                'dv': 1,
+                'isAdmin': false,
+                'isSupport': false,
+                'name': client.user.name,
+            })
+            
+            // Verify phone/email fields are NOT present
+            expect(userinfo).not.toHaveProperty('phone')
+            expect(userinfo).not.toHaveProperty('isPhoneVerified')
+            expect(userinfo).not.toHaveProperty('email')
+            expect(userinfo).not.toHaveProperty('isEmailVerified')
+
+            // 5) check access token scope
+            expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
+                'scope': 'openid',
+            })
+        })
+
+        test('phone scope should include phone fields', async () => {
+            const uri = OIDC_REDIRECT_URI
+            const clientId = getRandomString()
+            const clientSecret = getRandomString()
+            const admin = await makeLoggedInAdminClient()
+
+            await createTestOidcClient(admin, {
+                payload: {
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    redirect_uris: [uri],
+                    response_types: ['code id_token', 'code', 'id_token'],
+                    grant_types: ['implicit', 'authorization_code', 'refresh_token'],
+                    token_endpoint_auth_method: 'client_secret_basic',
+                },
+            })
+
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            expectCookieKeys(client.getCookie(), ['keystone.sid'])
+
+            // 1) server side ( create oidc client and prepare oidcAuthUrl )
+            const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
+            const serverSideOidcClient = new oidcIssuer.Client({
+                client_id: clientId,
+                client_secret: clientSecret,
+                redirect_uris: [uri],
+                response_types: ['code id_token'],
+                token_endpoint_auth_method: 'client_secret_basic',
+            })
+
+            const nonce = generators.nonce()
+            const url = new URL(serverSideOidcClient.authorizationUrl({ 
+                nonce,
+                scope: 'openid phone', // Request openid + phone scopes
+            }))
+            const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
+
+            // 2) client side ( open oidcAuthUrl )
+            const res1 = await request(oidcAuthUrl, client.getCookie())
+            expect(res1.status).toBe(303)
+            expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
+
+            const res2 = await request(`${client.serverUrl}${res1.headers.location}`, res1.cookie)
+            expect(res2.status).toBe(303)
+            expect(res2.headers.location.startsWith(`${client.serverUrl}/oidc/auth/`)).toBeTruthy()
+
+            const res3 = await request(res2.headers.location, res2.cookie)
+            expect(res3.status).toBe(303)
+            expect(res3.headers.location.startsWith(`${uri}#code`)).toBeTruthy()
+
+            // 3) callback to server side
+            const params = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
+            const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+
+            // 4) check userinfo - should include phone fields
+            const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
+            expect(userinfo).toEqual({
+                'sub': client.user.id,
+                'type': 'staff',
+                'v': 1,
+                'dv': 1,
+                'isAdmin': false,
+                'isSupport': false,
+                'name': client.user.name,
+                'phone': client.userAttrs.phone,
+                'isPhoneVerified': client.user.isPhoneVerified,
+            })
+            
+            // Verify phone fields are present
+            expect(userinfo).toHaveProperty('phone')
+            expect(userinfo).toHaveProperty('isPhoneVerified')
+            // Verify email fields are NOT present (not requested)
+            expect(userinfo).not.toHaveProperty('email')
+            expect(userinfo).not.toHaveProperty('isEmailVerified')
+
+            // 5) check access token scope
+            expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
+                'scope': 'openid phone',
+            })
+        })
+
+        test('email scope should include email fields', async () => {
+            const uri = OIDC_REDIRECT_URI
+            const clientId = getRandomString()
+            const clientSecret = getRandomString()
+            const admin = await makeLoggedInAdminClient()
+
+            await createTestOidcClient(admin, {
+                payload: {
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    redirect_uris: [uri],
+                    response_types: ['code id_token', 'code', 'id_token'],
+                    grant_types: ['implicit', 'authorization_code', 'refresh_token'],
+                    token_endpoint_auth_method: 'client_secret_basic',
+                },
+            })
+
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            expectCookieKeys(client.getCookie(), ['keystone.sid'])
+
+            // 1) server side ( create oidc client and prepare oidcAuthUrl )
+            const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
+            const serverSideOidcClient = new oidcIssuer.Client({
+                client_id: clientId,
+                client_secret: clientSecret,
+                redirect_uris: [uri],
+                response_types: ['code id_token'],
+                token_endpoint_auth_method: 'client_secret_basic',
+            })
+
+            const nonce = generators.nonce()
+            const url = new URL(serverSideOidcClient.authorizationUrl({ 
+                nonce,
+                scope: 'openid email', // Request openid + email scopes
+            }))
+            const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
+
+            // 2) client side ( open oidcAuthUrl )
+            const res1 = await request(oidcAuthUrl, client.getCookie())
+            expect(res1.status).toBe(303)
+            expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
+
+            const res2 = await request(`${client.serverUrl}${res1.headers.location}`, res1.cookie)
+            expect(res2.status).toBe(303)
+            expect(res2.headers.location.startsWith(`${client.serverUrl}/oidc/auth/`)).toBeTruthy()
+
+            const res3 = await request(res2.headers.location, res2.cookie)
+            expect(res3.status).toBe(303)
+            expect(res3.headers.location.startsWith(`${uri}#code`)).toBeTruthy()
+
+            // 3) callback to server side
+            const params = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
+            const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+
+            // 4) check userinfo - should include email fields
+            const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
+            expect(userinfo).toEqual({
+                'sub': client.user.id,
+                'type': 'staff',
+                'v': 1,
+                'dv': 1,
+                'isAdmin': false,
+                'isSupport': false,
+                'name': client.user.name,
+                'email': normalizeEmail(client.userAttrs.email),
+                'isEmailVerified': client.user.isEmailVerified,
+            })
+            
+            // Verify email fields are present
+            expect(userinfo).toHaveProperty('email')
+            expect(userinfo).toHaveProperty('isEmailVerified')
+            // Verify phone fields are NOT present (not requested)
+            expect(userinfo).not.toHaveProperty('phone')
+            expect(userinfo).not.toHaveProperty('isPhoneVerified')
+
+            // 5) check access token scope
+            expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
+                'scope': 'openid email',
+            })
+        })
+
+        test('phone and email scopes should include both phone and email fields', async () => {
+            const uri = OIDC_REDIRECT_URI
+            const clientId = getRandomString()
+            const clientSecret = getRandomString()
+            const admin = await makeLoggedInAdminClient()
+
+            await createTestOidcClient(admin, {
+                payload: {
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    redirect_uris: [uri],
+                    response_types: ['code id_token', 'code', 'id_token'],
+                    grant_types: ['implicit', 'authorization_code', 'refresh_token'],
+                    token_endpoint_auth_method: 'client_secret_basic',
+                },
+            })
+
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            expectCookieKeys(client.getCookie(), ['keystone.sid'])
+
+            // 1) server side ( create oidc client and prepare oidcAuthUrl )
+            const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
+            const serverSideOidcClient = new oidcIssuer.Client({
+                client_id: clientId,
+                client_secret: clientSecret,
+                redirect_uris: [uri],
+                response_types: ['code id_token'],
+                token_endpoint_auth_method: 'client_secret_basic',
+            })
+
+            const nonce = generators.nonce()
+            const url = new URL(serverSideOidcClient.authorizationUrl({ 
+                nonce,
+                scope: 'openid phone email', // Request all scopes
+            }))
+            const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
+
+            // 2) client side ( open oidcAuthUrl )
+            const res1 = await request(oidcAuthUrl, client.getCookie())
+            expect(res1.status).toBe(303)
+            expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
+
+            const res2 = await request(`${client.serverUrl}${res1.headers.location}`, res1.cookie)
+            expect(res2.status).toBe(303)
+            expect(res2.headers.location.startsWith(`${client.serverUrl}/oidc/auth/`)).toBeTruthy()
+
+            const res3 = await request(res2.headers.location, res2.cookie)
+            expect(res3.status).toBe(303)
+            expect(res3.headers.location.startsWith(`${uri}#code`)).toBeTruthy()
+
+            // 3) callback to server side
+            const params = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
+            const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+
+            // 4) check userinfo - should include both phone and email fields
+            const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
+            expect(userinfo).toEqual({
+                'sub': client.user.id,
+                'type': 'staff',
+                'v': 1,
+                'dv': 1,
+                'isAdmin': false,
+                'isSupport': false,
+                'name': client.user.name,
+                'phone': client.userAttrs.phone,
+                'isPhoneVerified': client.user.isPhoneVerified,
+                'email': normalizeEmail(client.userAttrs.email),
+                'isEmailVerified': client.user.isEmailVerified,
+            })
+            
+            // Verify both phone and email fields are present
+            expect(userinfo).toHaveProperty('phone')
+            expect(userinfo).toHaveProperty('isPhoneVerified')
+            expect(userinfo).toHaveProperty('email')
+            expect(userinfo).toHaveProperty('isEmailVerified')
+
+            // 5) check access token scope
+            expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
+                'scope': 'openid phone email',
+            })
+        })
+
+        test('scope validation: requesting phone scope when only openid is granted should trigger new interaction', async () => {
+            const uri = OIDC_REDIRECT_URI
+            const clientId = getRandomString()
+            const clientSecret = getRandomString()
+            const admin = await makeLoggedInAdminClient()
+
+            await createTestOidcClient(admin, {
+                payload: {
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    redirect_uris: [uri],
+                    response_types: ['code id_token', 'code', 'id_token'],
+                    grant_types: ['implicit', 'authorization_code', 'refresh_token'],
+                    token_endpoint_auth_method: 'client_secret_basic',
+                },
+            })
+
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            expectCookieKeys(client.getCookie(), ['keystone.sid'])
+
+            const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
+            const serverSideOidcClient = new oidcIssuer.Client({
+                client_id: clientId,
+                client_secret: clientSecret,
+                redirect_uris: [uri],
+                response_types: ['code id_token'],
+                token_endpoint_auth_method: 'client_secret_basic',
+            })
+
+            // STEP 1: First authorization with only openid scope
+            const nonce1 = generators.nonce()
+            const url1 = new URL(serverSideOidcClient.authorizationUrl({ 
+                nonce: nonce1,
+                scope: 'openid', // Only request openid scope initially
+            }))
+            const oidcAuthUrl1 = `${client.serverUrl}${url1.pathname}${url1.search}`
+
+            // Complete first authorization flow
+            const res1 = await request(oidcAuthUrl1, client.getCookie())
+            expect(res1.status).toBe(303)
+            expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
+
+            const res2 = await request(`${client.serverUrl}${res1.headers.location}`, res1.cookie)
+            expect(res2.status).toBe(303)
+
+            const res3 = await request(res2.headers.location, res2.cookie)
+            expect(res3.status).toBe(303)
+            expect(res3.headers.location.startsWith(`${uri}#code`)).toBeTruthy()
+
+            // Get first token set with only openid scope
+            const params1 = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
+            const tokenSet1 = await serverSideOidcClient.callback(uri, { code: params1.code }, { nonce: nonce1 })
+
+            // Verify first token only has openid scope
+            expect(await getAccessToken(tokenSet1.access_token, client)).toMatchObject({
+                'scope': 'openid',
+            })
+
+            // STEP 2: Second authorization requesting phone scope (should trigger new interaction)
+            const nonce2 = generators.nonce()
+            const url2 = new URL(serverSideOidcClient.authorizationUrl({ 
+                nonce: nonce2,
+                scope: 'openid phone', // Now request phone scope as well
+            }))
+            const oidcAuthUrl2 = `${client.serverUrl}${url2.pathname}${url2.search}`
+
+            // This should trigger a new interaction because existing grant doesn't have phone scope
+            const res4 = await request(oidcAuthUrl2, res3.cookie) // Use cookie from previous session
+            expect(res4.status).toBe(303)
+            expect(res4.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
+
+            // Complete second authorization flow
+            const res5 = await request(`${client.serverUrl}${res4.headers.location}`, res4.cookie)
+            expect(res5.status).toBe(303)
+
+            const res6 = await request(res5.headers.location, res5.cookie)
+            expect(res6.status).toBe(303)
+            expect(res6.headers.location.startsWith(`${uri}#code`)).toBeTruthy()
+
+            // Get second token set with both openid and phone scopes
+            const params2 = serverSideOidcClient.callbackParams(res6.headers.location.replace(`${uri}#`, `${uri}?`))
+            const tokenSet2 = await serverSideOidcClient.callback(uri, { code: params2.code }, { nonce: nonce2 })
+
+            // Verify second token has both scopes
+            expect(await getAccessToken(tokenSet2.access_token, client)).toMatchObject({
+                'scope': 'openid phone',
+            })
+
+            // Verify userinfo includes phone fields
+            const userinfo2 = await serverSideOidcClient.userinfo(tokenSet2.access_token)
+            expect(userinfo2).toHaveProperty('phone')
+            expect(userinfo2).toHaveProperty('isPhoneVerified')
+
+            // STEP 3: Third authorization with same scopes should reuse existing grant (no new interaction)
+            const nonce3 = generators.nonce()
+            const url3 = new URL(serverSideOidcClient.authorizationUrl({ 
+                nonce: nonce3,
+                scope: 'openid phone', // Same scopes as before
+            }))
+            const oidcAuthUrl3 = `${client.serverUrl}${url3.pathname}${url3.search}`
+
+            // This should NOT trigger interaction because existing grant has all required scopes
+            const res7 = await request(oidcAuthUrl3, res6.cookie)
+            expect(res7.status).toBe(303)
+            // Should skip interaction and go directly to callback
+            expect(res7.headers.location.startsWith(`${uri}#code`)).toBeTruthy()
         })
     })
 })
