@@ -98347,6 +98347,10 @@ type Mutation {
   		"withMarketingConsent": {
   			"defaultValue": false,
   			"required": false
+  		},
+  		"userEmail": {
+  			"defaultValue": "",
+  			"required": true
   		}
   	},
   	"DEVELOPER_IMPORTANT_NOTE_TYPE": {

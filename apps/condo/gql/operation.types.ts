@@ -1119,6 +1119,13 @@ export type AuthenticateUserWithPhoneAndPasswordMutationVariables = Types.Exact<
 
 export type AuthenticateUserWithPhoneAndPasswordMutation = { __typename?: 'Mutation', result?: { __typename?: 'AuthenticateUserWithPhoneAndPasswordOutput', item?: { __typename?: 'User', id: string } | null } | null };
 
+export type ChangeUserEmailMutationVariables = Types.Exact<{
+  data: Types.ChangeUserEmailInput;
+}>;
+
+
+export type ChangeUserEmailMutation = { __typename?: 'Mutation', result?: { __typename?: 'ChangeUserEmailOutput', status: string } | null };
+
 export type ChangeUserPasswordMutationVariables = Types.Exact<{
   data: Types.ChangeUserPasswordInput;
 }>;
