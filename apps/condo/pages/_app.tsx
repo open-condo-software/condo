@@ -39,6 +39,7 @@ import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/c
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleTagManager from '@condo/domains/common/components/containers/GoogleTagManager'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
+import { HCaptchaProvider } from '@condo/domains/common/components/HCaptcha'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
@@ -525,38 +526,40 @@ const MyApp = ({ Component, pageProps }) => {
                     <GlobalStyle/>
                     <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
                         {shouldDisplayCookieAgreement && <CookieAgreement/>}
-                        <SudoTokenProvider>
-                            <TasksProvider>
-                                <PostMessageProvider>
-                                    <TourProvider>
-                                        <SubscriptionProvider>
-                                            <GlobalAppsFeaturesProvider>
-                                                <GlobalAppsContainer/>
-                                                <TicketVisibilityContextProvider>
-                                                    <ActiveCallContextProvider>
-                                                        <ConnectedAppsWithIconsContextProvider>
-                                                            <CondoAppEventsHandler/>
-                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                <RequiredAccess>
-                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                        <Component {...pageProps} />
-                                                                        {
-                                                                            isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                <EndTrialSubscriptionReminderPopup/>
-                                                                            )
-                                                                        }
-                                                                    </FeaturesReady>
-                                                                </RequiredAccess>
-                                                            </LayoutComponent>
-                                                        </ConnectedAppsWithIconsContextProvider>
-                                                    </ActiveCallContextProvider>
-                                                </TicketVisibilityContextProvider>
-                                            </GlobalAppsFeaturesProvider>
-                                        </SubscriptionProvider>
-                                    </TourProvider>
-                                </PostMessageProvider>
-                            </TasksProvider>
-                        </SudoTokenProvider>
+                        <HCaptchaProvider>
+                            <SudoTokenProvider>
+                                <TasksProvider>
+                                    <PostMessageProvider>
+                                        <TourProvider>
+                                            <SubscriptionProvider>
+                                                <GlobalAppsFeaturesProvider>
+                                                    <GlobalAppsContainer/>
+                                                    <TicketVisibilityContextProvider>
+                                                        <ActiveCallContextProvider>
+                                                            <ConnectedAppsWithIconsContextProvider>
+                                                                <CondoAppEventsHandler/>
+                                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                    <RequiredAccess>
+                                                                        <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                            <Component {...pageProps} />
+                                                                            {
+                                                                                isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                    <EndTrialSubscriptionReminderPopup/>
+                                                                                )
+                                                                            }
+                                                                        </FeaturesReady>
+                                                                    </RequiredAccess>
+                                                                </LayoutComponent>
+                                                            </ConnectedAppsWithIconsContextProvider>
+                                                        </ActiveCallContextProvider>
+                                                    </TicketVisibilityContextProvider>
+                                                </GlobalAppsFeaturesProvider>
+                                            </SubscriptionProvider>
+                                        </TourProvider>
+                                    </PostMessageProvider>
+                                </TasksProvider>
+                            </SudoTokenProvider>
+                        </HCaptchaProvider>
                         {!isSnowfallDisabled && <Snowfall />}
                     </LayoutContextProvider>
                     {yandexMetrikaID && <YandexMetrika />}
