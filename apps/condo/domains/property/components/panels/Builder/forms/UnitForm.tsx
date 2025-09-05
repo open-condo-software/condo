@@ -262,7 +262,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                         <Button
                             onClick={applyChanges}
                             type='primary'
-                            disabled={!(floor && section && label.trim() && !isValidationErrorVisible)}
+                            disabled={!(floor && section && label?.trim() && !isValidationErrorVisible)}
                             block
                             data-cy='property-map__unit-form__submit-button'
                         >
