@@ -107,6 +107,7 @@ import {
 } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
+import { SudoTokenProvider } from '@condo/domains/user/components/SudoTokenProvider'
 import { WAS_AUTHENTICATED_COOKIE_NAME } from '@condo/domains/user/constants/auth'
 
 import Error404Page from './404'
@@ -524,36 +525,38 @@ const MyApp = ({ Component, pageProps }) => {
                     <GlobalStyle/>
                     <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
                         {shouldDisplayCookieAgreement && <CookieAgreement/>}
-                        <TasksProvider>
-                            <PostMessageProvider>
-                                <TourProvider>
-                                    <SubscriptionProvider>
-                                        <GlobalAppsFeaturesProvider>
-                                            <GlobalAppsContainer/>
-                                            <TicketVisibilityContextProvider>
-                                                <ActiveCallContextProvider>
-                                                    <ConnectedAppsWithIconsContextProvider>
-                                                        <CondoAppEventsHandler/>
-                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                            <RequiredAccess>
-                                                                <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                    <Component {...pageProps} />
-                                                                    {
-                                                                        isEndTrialSubscriptionReminderPopupVisible && (
-                                                                            <EndTrialSubscriptionReminderPopup/>
-                                                                        )
-                                                                    }
-                                                                </FeaturesReady>
-                                                            </RequiredAccess>
-                                                        </LayoutComponent>
-                                                    </ConnectedAppsWithIconsContextProvider>
-                                                </ActiveCallContextProvider>
-                                            </TicketVisibilityContextProvider>
-                                        </GlobalAppsFeaturesProvider>
-                                    </SubscriptionProvider>
-                                </TourProvider>
-                            </PostMessageProvider>
-                        </TasksProvider>
+                        <SudoTokenProvider>
+                            <TasksProvider>
+                                <PostMessageProvider>
+                                    <TourProvider>
+                                        <SubscriptionProvider>
+                                            <GlobalAppsFeaturesProvider>
+                                                <GlobalAppsContainer/>
+                                                <TicketVisibilityContextProvider>
+                                                    <ActiveCallContextProvider>
+                                                        <ConnectedAppsWithIconsContextProvider>
+                                                            <CondoAppEventsHandler/>
+                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                <RequiredAccess>
+                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                        <Component {...pageProps} />
+                                                                        {
+                                                                            isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                <EndTrialSubscriptionReminderPopup/>
+                                                                            )
+                                                                        }
+                                                                    </FeaturesReady>
+                                                                </RequiredAccess>
+                                                            </LayoutComponent>
+                                                        </ConnectedAppsWithIconsContextProvider>
+                                                    </ActiveCallContextProvider>
+                                                </TicketVisibilityContextProvider>
+                                            </GlobalAppsFeaturesProvider>
+                                        </SubscriptionProvider>
+                                    </TourProvider>
+                                </PostMessageProvider>
+                            </TasksProvider>
+                        </SudoTokenProvider>
                         {!isSnowfallDisabled && <Snowfall />}
                     </LayoutContextProvider>
                     {yandexMetrikaID && <YandexMetrika />}

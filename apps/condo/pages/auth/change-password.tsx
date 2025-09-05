@@ -26,6 +26,7 @@ import {
 } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import AuthLayout, { AuthLayoutProps } from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { useSudoToken } from '@condo/domains/user/components/SudoTokenProvider'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 import { detectTokenTypeSafely, TOKEN_TYPES } from '@condo/domains/user/utils/tokens'
@@ -67,6 +68,7 @@ const ChangePasswordPage: PageComponentType = () => {
     const { executeCaptcha } = useHCaptcha()
     const { token, tokenError, identifierType, identifier } = useRegisterContext()
     const { refetch } = useAuth()
+    const { getSudoTokenForce } = useSudoToken()
 
     const [form] = Form.useForm()
 
@@ -256,6 +258,17 @@ const ChangePasswordPage: PageComponentType = () => {
 
                 await authWithIdentifierAndPassword(identifierType, identifier, password)
                 await refetch()
+
+                await getSudoTokenForce({
+                    user: {
+                        ...(identifierType === 'email' ? { email: identifier } : null),
+                        ...(identifierType === 'phone' ? { phone: identifier } : null),
+                    },
+                    authFactors: {
+                        password,
+                    },
+                })
+
                 await Router.push(redirectUrl)
             }
         } catch (error) {
@@ -264,7 +277,7 @@ const ChangePasswordPage: PageComponentType = () => {
         } finally {
             setIsLoading(false)
         }
-    }, [authWithIdentifierAndPassword, changeUserPassword, identifier, identifierType, invalidateSudoToken, isLoading, redirectUrl, token])
+    }, [getSudoTokenForce, authWithIdentifierAndPassword, changeUserPassword, identifier, identifierType, invalidateSudoToken, isLoading, redirectUrl, token])
 
     const onResetPasswordClick = useCallback(() => Router.push(`/auth/forgot?${queryParams}`), [])
 
