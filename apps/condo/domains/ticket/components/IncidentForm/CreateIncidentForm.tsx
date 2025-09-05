@@ -2,7 +2,7 @@ import { useCreateIncidentMutation } from '@app/condo/gql'
 import Router from 'next/router'
 import React, { ComponentProps, useCallback, useMemo } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'

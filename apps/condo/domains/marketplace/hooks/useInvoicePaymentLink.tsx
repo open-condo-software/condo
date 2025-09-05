@@ -4,8 +4,9 @@ import isEmpty from 'lodash/isEmpty'
 import getConfig from 'next/config'
 import { useCallback } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+
 import { GENERATE_PAYMENT_LINK_QUERY } from '@condo/domains/acquiring/gql'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 
 const { publicRuntimeConfig: { serverUrl } } = getConfig()

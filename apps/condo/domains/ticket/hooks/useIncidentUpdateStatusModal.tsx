@@ -8,7 +8,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import isFunction from 'lodash/isFunction'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
 

@@ -535,7 +535,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    "@open-keystone/app-admin-ui": ^9.0.2
+    "@open-keystone/app-admin-ui": ^9.0.3
     "@types/jest": ^29.5.14
     "@types/node": ^22
     "@types/react": ^18.3.1
@@ -725,7 +725,7 @@ __metadata:
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@open-condo/webhooks": "workspace:^"
-    "@open-keystone/app-admin-ui": ^9.0.2
+    "@open-keystone/app-admin-ui": ^9.0.3
     "@open-keystone/app-graphql": ^7.0.2
     "@open-keystone/app-next": ^9.0.1
     "@open-keystone/server-side-graphql-client": ^2.1.3
@@ -896,7 +896,6 @@ __metadata:
     graphql: ^16.10.0
     gray-matter: 4.0.3
     http-proxy: ^1.18.1
-    js-cookie: ^2.2.1
     lodash: ^4.17.21
     next: ^15.4.6
     next-mdx-remote: 4.3.0
@@ -989,7 +988,7 @@ __metadata:
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@open-keystone/app-admin-ui": ^9.0.2
+    "@open-keystone/app-admin-ui": ^9.0.3
     "@open-keystone/app-graphql": ^7.0.2
     "@open-keystone/app-next": ^9.0.1
     "@types/node": ^22
@@ -1082,7 +1081,6 @@ __metadata:
     graphql-tag: ^2.12.6
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
-    js-cookie: ^2.2.1
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
@@ -1366,7 +1364,6 @@ __metadata:
     graphql-tag: ^2.12.6
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
-    js-cookie: ^2.2.1
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
@@ -1401,6 +1398,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@open-keystone/app-graphql": ^7.0.2
@@ -10595,13 +10593,13 @@ __metadata:
     "@graphql-typed-document-node/core": ^3.1.1
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     boxen: ^4.2.0
     chalk: 4.1.2
     dayjs: ^1.11.10
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
-    js-cookie: ^2.2.1
     lodash: ^4.17.21
     ncp: ^2.0.0
     nunjucks: ^3.2.4
@@ -10699,18 +10697,18 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/locales": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
-    "@open-keystone/adapter-knex": ^14.0.15
-    "@open-keystone/adapter-mongoose": ^13.0.9
-    "@open-keystone/adapter-prisma": ^4.0.15
-    "@open-keystone/app-admin-ui": ^9.0.2
+    "@open-keystone/adapter-knex": ^14.0.16
+    "@open-keystone/adapter-mongoose": ^13.0.10
+    "@open-keystone/adapter-prisma": ^4.0.16
+    "@open-keystone/app-admin-ui": ^9.0.3
     "@open-keystone/app-graphql": ^7.0.2
-    "@open-keystone/auth-password": ^7.0.15
-    "@open-keystone/fields": ^25.0.4
-    "@open-keystone/fields-authed-relationship": ^2.0.15
-    "@open-keystone/fields-markdown": ^7.0.4
-    "@open-keystone/fields-wysiwyg-tinymce": ^7.0.4
+    "@open-keystone/auth-password": ^7.0.16
+    "@open-keystone/fields": ^25.0.5
+    "@open-keystone/fields-authed-relationship": ^2.0.16
+    "@open-keystone/fields-markdown": ^7.0.5
+    "@open-keystone/fields-wysiwyg-tinymce": ^7.0.5
     "@open-keystone/file-adapters": ^7.1.4
-    "@open-keystone/keystone": ^19.4.15
+    "@open-keystone/keystone": ^19.4.16
     "@open-keystone/server-side-graphql-client": ^2.1.3
     "@open-keystone/utils": ^6.1.3
     "@opentelemetry/api": ^1.4.1
@@ -11001,52 +10999,52 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/adapter-knex@npm:^14.0.15":
-  version: 14.0.15
-  resolution: "@open-keystone/adapter-knex@npm:14.0.15"
+"@open-keystone/adapter-knex@npm:^14.0.16":
+  version: 14.0.16
+  resolution: "@open-keystone/adapter-knex@npm:14.0.16"
   dependencies:
-    "@open-keystone/fields-auto-increment": ^9.0.15
-    "@open-keystone/keystone": ^19.4.15
+    "@open-keystone/fields-auto-increment": ^9.0.16
+    "@open-keystone/keystone": ^19.4.16
     "@open-keystone/utils": ^6.1.3
     knex: ^3.1.0
     p-settle: ^4.1.1
     pg: ^8.6.0
-  checksum: 92161d23f06bae05a61a7e2b928a4739e8b93b027322260fb3f494ea2346fb8e3f65e12581b3b0cb35ec5ffdbbb97653758fa0d890ed1920fcc13930cb12af77
+  checksum: 461e83aca30cdcec7ee78e89003ad2cbf6c503a5c13f0c116b10291c332baabd047d05e74cd0f7c05a11e972f64524408473e07097258b162ee335e00d05d163
   languageName: node
   linkType: hard
 
-"@open-keystone/adapter-mongoose@npm:^13.0.9":
-  version: 13.0.9
-  resolution: "@open-keystone/adapter-mongoose@npm:13.0.9"
+"@open-keystone/adapter-mongoose@npm:^13.0.10":
+  version: 13.0.10
+  resolution: "@open-keystone/adapter-mongoose@npm:13.0.10"
   dependencies:
-    "@open-keystone/fields-mongoid": ^12.0.4
-    "@open-keystone/keystone": ^19.4.15
+    "@open-keystone/fields-mongoid": ^12.0.5
+    "@open-keystone/keystone": ^19.4.16
     "@open-keystone/utils": ^6.1.3
     cuid: ^2.1.8
     mongoose: ^8.16.0
     p-settle: ^4.1.1
-  checksum: c2e32741f3c6f831c3d779fe58a6ebdd252c7f796cfa9a875c421dc4939529d8c1bf39d7bb1f5cf9f3bbe8665e3bcadc9ac81710b594c596b9e513614bf40f1e
+  checksum: 06e83df14129e88ae4095239d17a114d9ab108ac2aabd9fef8957d434d10d40792bb3f9892c2561cc1c57921dd4bf3153de131b41ff33ba3bbb5283c9014e03e
   languageName: node
   linkType: hard
 
-"@open-keystone/adapter-prisma@npm:^4.0.15":
-  version: 4.0.15
-  resolution: "@open-keystone/adapter-prisma@npm:4.0.15"
+"@open-keystone/adapter-prisma@npm:^4.0.16":
+  version: 4.0.16
+  resolution: "@open-keystone/adapter-prisma@npm:4.0.16"
   dependencies:
-    "@open-keystone/fields-auto-increment": ^9.0.15
-    "@open-keystone/keystone": ^19.4.15
+    "@open-keystone/fields-auto-increment": ^9.0.16
+    "@open-keystone/keystone": ^19.4.16
     "@open-keystone/utils": ^6.1.3
     "@prisma/client": 4.16.0
     "@prisma/internals": 4.16.0
     cuid: ^2.1.8
     prisma: 4.16.0
-  checksum: 81a7a7016050e4d0bff3b1427dcbc1337e2012e9193e88dd7bdf8f20e37dc264986ccffde26aa570c2b76cf95e9d881133116e1dd84674f09499f658cf89abe2
+  checksum: 9b280bf898b3524d16eb9716e13452804fa156414c9f3c1ee069b559e7b1ce9779abfaf1dbca619b3d8bb582bd83f3c3f9a1c5021a9b044cc364ec202f35f698
   languageName: node
   linkType: hard
 
-"@open-keystone/app-admin-ui@npm:^9.0.2":
-  version: 9.0.2
-  resolution: "@open-keystone/app-admin-ui@npm:9.0.2"
+"@open-keystone/app-admin-ui@npm:^9.0.3":
+  version: 9.0.3
+  resolution: "@open-keystone/app-admin-ui@npm:9.0.3"
   dependencies:
     "@apollo/client": ^3.11.8
     "@babel/core": ^7.14.6
@@ -11119,7 +11117,7 @@ __metadata:
     webpack: ^5.99.9
     webpack-dev-middleware: ^7.4.2
     webpack-hot-middleware: ^2.26.1
-  checksum: bf385c316fdac6857c36de4021d4d7599fdfd85ebcc948ab7746a5c5817f0eb5f531c71cfeb53d865bfffd2f75992e4711b9bd365930259e7896e731218238f8
+  checksum: 7d965b063a66305e17e79bf92da21f071418569608afdd00414bbe8dbf8c7d2fcab0ae05fcd9b461d8765ee00933cbf1328a6301ca8a804bfd82681aa70a53ab
   languageName: node
   linkType: hard
 
@@ -11181,13 +11179,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/auth-password@npm:^7.0.15":
-  version: 7.0.15
-  resolution: "@open-keystone/auth-password@npm:7.0.15"
+"@open-keystone/auth-password@npm:^7.0.16":
+  version: 7.0.16
+  resolution: "@open-keystone/auth-password@npm:7.0.16"
   dependencies:
-    "@open-keystone/fields": ^25.0.4
+    "@open-keystone/fields": ^25.0.5
     "@open-keystone/session": ^8.4.0
-  checksum: c4dc2dcee092c5c7c1a4384a6857c50690d48bd7fd73028d100a1e7065601bd8fae0813d8f0d2f5afca17597fbd059d33c9e8ed7d63653faa3fe4cdeef036236
+  checksum: d453f15cd82d5a1eb31ab5ac3c63c9380a06068c72d9d0f3c5f3b2b3c2bb587ba06a28272ca6377f68106eb1b23b4eb1627b80c2dc5d8862db6e7d70ac078cfc
   languageName: node
   linkType: hard
 
@@ -11200,31 +11198,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-authed-relationship@npm:^2.0.15":
-  version: 2.0.15
-  resolution: "@open-keystone/fields-authed-relationship@npm:2.0.15"
+"@open-keystone/fields-authed-relationship@npm:^2.0.16":
+  version: 2.0.16
+  resolution: "@open-keystone/fields-authed-relationship@npm:2.0.16"
   dependencies:
     "@babel/runtime": ^7.14.6
-    "@open-keystone/fields": ^25.0.4
-  checksum: 44eb9af8360f92ecde30d73224018eb2436987a794732902f384e0d07048fce4105dbf48aae02cc119f81de30ca6e5a3cdfa8ca8b9253b1c5412fc15ad9458a6
+    "@open-keystone/fields": ^25.0.5
+  checksum: d3f38076cfe2da24f948102de269ea2fd0ed8e1fa5be7b958b071cad5627ba884490f896e6aa0811ce10739cb6a164b16ebf2ff665bd96df842a3a39d5f1fec7
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-auto-increment@npm:^9.0.15":
-  version: 9.0.15
-  resolution: "@open-keystone/fields-auto-increment@npm:9.0.15"
+"@open-keystone/fields-auto-increment@npm:^9.0.16":
+  version: 9.0.16
+  resolution: "@open-keystone/fields-auto-increment@npm:9.0.16"
   dependencies:
     "@babel/runtime": ^7.14.6
-    "@open-keystone/adapter-knex": ^14.0.15
-    "@open-keystone/adapter-prisma": ^4.0.15
-    "@open-keystone/fields": ^25.0.4
-  checksum: 4a23d309bd0cf7bcd6ceccfda1fda86aae23e2ec1a6279713f9ea310e07c1b2784d8fc3e468a63db2380d85b3b0d687a03cc46ad7dc630710f1860295ce6ac94
+    "@open-keystone/adapter-knex": ^14.0.16
+    "@open-keystone/adapter-prisma": ^4.0.16
+    "@open-keystone/fields": ^25.0.5
+  checksum: 6094bc237ed0e9d0872f70157b2cd28e196a7d11bd99cf0377087041e823d9e45bcdb6fc4e50a5ae0e515ccd3a02683f6df629813df90354ed2c34ae3723e4c4
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-markdown@npm:^7.0.4":
-  version: 7.0.4
-  resolution: "@open-keystone/fields-markdown@npm:7.0.4"
+"@open-keystone/fields-markdown@npm:^7.0.5":
+  version: 7.0.5
+  resolution: "@open-keystone/fields-markdown@npm:7.0.5"
   dependencies:
     "@babel/runtime": ^7.14.6
     "@emotion/core": ^10.1.1
@@ -11233,41 +11231,41 @@ __metadata:
     "@open-arch-ui/theme": ^1.0.0
     "@open-arch-ui/tooltip": ^1.0.0
     "@open-arch-ui/typography": ^1.0.0
-    "@open-keystone/fields": ^25.0.4
+    "@open-keystone/fields": ^25.0.5
     "@primer/octicons-react": ^11.3.0
     codemirror: ^5.62.0
     prop-types: ^15.7.2
     react: ^18.3.1
     react-codemirror2: ^7.2.1
-  checksum: 6c1bd7b6eee030286d47807a53df35b65c974521183d48b180920efedb451518721cdd8af34efb4f9f15c5c4f8e4bf35d2655238f706f2d3762505be6f96ba5a
+  checksum: 1ae44deb19b67e4e7a61f7f7c83f5b56df50bf82a03b9837302abf6f9bfbefb0c5f6e09a6877a1a1a039e4bd060f67d92bc00a70d48a2c655ab1f437301b4dd9
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-mongoid@npm:^12.0.4":
-  version: 12.0.4
-  resolution: "@open-keystone/fields-mongoid@npm:12.0.4"
+"@open-keystone/fields-mongoid@npm:^12.0.5":
+  version: 12.0.5
+  resolution: "@open-keystone/fields-mongoid@npm:12.0.5"
   dependencies:
     "@babel/runtime": ^7.14.6
     "@open-arch-ui/input": ^1.0.0
-    "@open-keystone/adapter-knex": ^14.0.15
-    "@open-keystone/adapter-mongoose": ^13.0.9
-    "@open-keystone/adapter-prisma": ^4.0.15
-    "@open-keystone/fields": ^25.0.4
+    "@open-keystone/adapter-knex": ^14.0.16
+    "@open-keystone/adapter-mongoose": ^13.0.10
+    "@open-keystone/adapter-prisma": ^4.0.16
+    "@open-keystone/fields": ^25.0.5
     react: ^18.3.1
-  checksum: ace39638a9c26bbec767e4d665542167bb1a4532ed8ce09a3fd6e3378510d9f696fefa7c136e9cab3642986822f880a6ed8e8026c51ec3b547e9a1823429d44a
+  checksum: c356d233e24190cd244688ef022d7fd2bd634fd594d22af1297140003dca1da881238fafd7e81faafab2718359e8adc14dd55e16364a385acde6a2e42a835ea9
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-wysiwyg-tinymce@npm:^7.0.4":
-  version: 7.0.4
-  resolution: "@open-keystone/fields-wysiwyg-tinymce@npm:7.0.4"
+"@open-keystone/fields-wysiwyg-tinymce@npm:^7.0.5":
+  version: 7.0.5
+  resolution: "@open-keystone/fields-wysiwyg-tinymce@npm:7.0.5"
   dependencies:
     "@babel/runtime": ^7.14.6
     "@emotion/core": ^10.1.1
     "@open-arch-ui/fields": ^4.0.0
     "@open-arch-ui/input": ^1.0.0
     "@open-arch-ui/theme": ^1.0.0
-    "@open-keystone/fields": ^25.0.4
+    "@open-keystone/fields": ^25.0.5
     "@primer/octicons-react": ^11.3.0
     "@tinymce/tinymce-react": ^3.12.6
     prop-types: ^15.7.2
@@ -11275,13 +11273,13 @@ __metadata:
     tinymce: ^5.8.1
   peerDependencies:
     express: ^4.17.1
-  checksum: 7fa74dd95b2a226e563a1b92c89a74f15f8939921ef2b0e0c7cf821459f9ad2f7ac507429751a29055005bffbdab3369fe8abd04ad6a253843e4cd4aaf8f3704
+  checksum: bee583c8708912136040550538fdbcf09b1412e32ac8d41d23f6f81e403fd5ae269f8645cfe2c66ce771a7d5e8617d6e0671e6e3f63f6a50013e35dbb545b86e
   languageName: node
   linkType: hard
 
-"@open-keystone/fields@npm:^25.0.4":
-  version: 25.0.4
-  resolution: "@open-keystone/fields@npm:25.0.4"
+"@open-keystone/fields@npm:^25.0.5":
+  version: 25.0.5
+  resolution: "@open-keystone/fields@npm:25.0.5"
   dependencies:
     "@apollo/client": ^3.11.8
     "@babel/runtime": ^7.14.6
@@ -11304,10 +11302,10 @@ __metadata:
     "@open-arch-ui/tooltip": ^1.0.0
     "@open-arch-ui/typography": ^1.0.0
     "@open-keystone/access-control": ^8.0.0
-    "@open-keystone/adapter-knex": ^14.0.15
-    "@open-keystone/adapter-mongoose": ^13.0.9
-    "@open-keystone/adapter-prisma": ^4.0.15
-    "@open-keystone/app-admin-ui": ^9.0.2
+    "@open-keystone/adapter-knex": ^14.0.16
+    "@open-keystone/adapter-mongoose": ^13.0.10
+    "@open-keystone/adapter-prisma": ^4.0.16
+    "@open-keystone/app-admin-ui": ^9.0.3
     "@open-keystone/server-side-graphql-client": ^2.1.3
     "@open-keystone/utils": ^6.1.3
     "@primer/octicons-react": ^11.3.0
@@ -11334,7 +11332,7 @@ __metadata:
     react-image: ^4.0.3
     react-select: ^3.2.0
     react-toast-notifications: ^2.4.4
-  checksum: d15404a5ca8234d42025a39bb60e3be0b51e9e2a18d5e14fe01ecf7cbddf906c89d7838ae09b7f801d2e37afbe7fe63c72619f28de23f08fbae124c0d756f511
+  checksum: a2330a780f1f1497195d3d6b6eca7b4fd572c4b5a3d49868a3ef79242b9cfe4da8c6ea924753c383157975c59c36a4462abcf2c647f499740fbe8933f95a532e
   languageName: node
   linkType: hard
 
@@ -11350,9 +11348,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/keystone@npm:^19.4.15":
-  version: 19.4.15
-  resolution: "@open-keystone/keystone@npm:19.4.15"
+"@open-keystone/keystone@npm:^19.4.16":
+  version: 19.4.16
+  resolution: "@open-keystone/keystone@npm:19.4.16"
   dependencies:
     "@graphql-tools/schema": ^8.0.0
     "@open-keystone/access-control": ^8.0.0
@@ -11388,7 +11386,7 @@ __metadata:
     terminal-link: ^2.1.1
   bin:
     keystone: bin/cli.js
-  checksum: 4e0e19313b8b6f3ae05d428694648d5f479ef52463ba51b778e7e797e4415c8c54432b787e547940452bb285f67845ab89c5ef2dda77a0c92123c718cd3a2f82
+  checksum: d6131ba28c46258baaf6f73892ba86366896c9360e29befdb4cce2cb2d3db237b84d31541ca4610aff84d605b56d2431adc7f493ab220cdfdd12c1b10789bfc7
   languageName: node
   linkType: hard
 

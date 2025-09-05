@@ -29,7 +29,6 @@
     "graphql": "^16.10.0",
     "gray-matter": "4.0.3",
     "http-proxy": "^1.18.1",
-    "js-cookie": "^2.2.1",
     "lodash": "^4.17.21",
     "next": "^15.4.6",
     "next-mdx-remote": "4.3.0",

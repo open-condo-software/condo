@@ -3,11 +3,11 @@ import get from 'lodash/get'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Select } from '@open-condo/ui'
 import type { SelectProps } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
 import {
     DEV_ENVIRONMENT,

@@ -4,13 +4,13 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, ButtonProps, Modal, Select, SelectProps, Tooltip, Typography } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } from '@condo/domains/organization/gql'
 
 

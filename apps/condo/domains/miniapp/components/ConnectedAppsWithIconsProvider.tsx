@@ -3,11 +3,11 @@ import { SortAllMiniAppsBy } from '@app/condo/schema'
 import React, { createContext, useContext, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { ALL_MENU_CATEGORIES, DEFAULT_MENU_CATEGORY } from '@condo/domains/common/constants/menuCategories'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 import type { MiniAppOutput } from '@app/condo/schema'
 

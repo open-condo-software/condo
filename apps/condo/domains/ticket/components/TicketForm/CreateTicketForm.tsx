@@ -13,7 +13,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { MUTATION_RESULT_EVENT, MutationEmitter, useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'

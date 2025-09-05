@@ -4,12 +4,12 @@ import { notification } from 'antd'
 import React, { useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 import type { MutationTuple } from '@apollo/client/react/types/types'
 

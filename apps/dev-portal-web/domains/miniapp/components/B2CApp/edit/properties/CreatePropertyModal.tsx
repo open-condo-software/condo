@@ -5,12 +5,12 @@ import getConfig from 'next/config'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Modal, Select, Button, Alert } from '@open-condo/ui'
 import type { SelectProps } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 
 import type { AppEnvironment } from '@/lib/gql'
 import type { RowProps } from 'antd'

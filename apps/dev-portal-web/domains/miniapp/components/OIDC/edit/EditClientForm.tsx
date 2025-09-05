@@ -3,11 +3,11 @@ import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { RefreshCw } from '@open-condo/icons'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Input, Space, Typography, Modal } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { useSecretContext } from '@/domains/miniapp/components/OIDC/edit/SecretProvider'
 import  { PROD_REDIRECT_URI_EXAMPLE, DEV_REDIRECT_URI_EXAMPLE } from '@/domains/miniapp/constants/common'
 import { INVALID_URL, HTTPS_ONLY } from '@dev-portal-api/domains/miniapp/constants/errors'

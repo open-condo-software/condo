@@ -5,8 +5,7 @@ import React, { useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { Download } from '@open-condo/icons'
-
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 
 const TARGET_URL_PART = 'addresses'
 

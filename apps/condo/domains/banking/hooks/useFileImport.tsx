@@ -2,7 +2,7 @@ import { BankSyncTaskCreateInput }  from '@app/condo/schema'
 import isNull from 'lodash/isNull'
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 
 import FileImportButton from '@condo/domains/banking/components/FileImportButton'

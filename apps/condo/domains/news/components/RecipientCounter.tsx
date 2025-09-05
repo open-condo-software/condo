@@ -13,6 +13,7 @@ import throttle from 'lodash/throttle'
 import uniq from 'lodash/uniq'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -25,7 +26,6 @@ import {
 } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import {
     GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
     GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY,

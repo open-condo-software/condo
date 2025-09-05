@@ -5,8 +5,8 @@ import { Col, Row, Form, FormInstance, RowProps } from 'antd'
 import isFunction from 'lodash/isFunction'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { Smile, Frown } from '@open-condo/icons'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, ButtonProps, Card, Checkbox, CheckboxProps, Modal, Typography } from '@open-condo/ui'
 

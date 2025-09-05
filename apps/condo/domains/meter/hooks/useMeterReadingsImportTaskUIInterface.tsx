@@ -7,6 +7,7 @@ import {
 import { MeterReadingsImportTaskCreateInput }  from '@app/condo/schema'
 import React from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
@@ -14,7 +15,6 @@ import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/ta
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } from '@condo/domains/common/constants/tasks'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 
 type TaskRecordType = GetMeterReadingsImportTasksQuery['tasks'][number]

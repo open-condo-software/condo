@@ -2,6 +2,7 @@ import { Row, Col } from 'antd'
 import get from 'lodash/get'
 import React, { useMemo, useState, useEffect } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Tooltip } from '@open-condo/ui'
@@ -15,7 +16,6 @@ import { CustomListView } from '@condo/domains/analytics/components/CustomListVi
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
 import { usePropertyFilter, useDateRangeFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
 import { useDetailChartView } from '@condo/domains/analytics/hooks/useDetailChartView'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 import { ResidentByPropertyDataMapper } from './dataMappers'
 

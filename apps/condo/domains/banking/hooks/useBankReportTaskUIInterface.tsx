@@ -9,6 +9,7 @@ import { notification } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 import type { ButtonProps } from '@open-condo/ui'
@@ -17,7 +18,6 @@ import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/ta
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 import type { BankAccount as BankAccountType } from '@app/condo/schema'
 

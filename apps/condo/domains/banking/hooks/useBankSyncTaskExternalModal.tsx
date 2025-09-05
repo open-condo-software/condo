@@ -2,6 +2,7 @@ import { BankSyncTaskCreateInput }  from '@app/condo/schema'
 import isNull from 'lodash/isNull'
 import React, { useCallback, useState, useMemo, useEffect } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Button, Typography, Space, Alert } from '@open-condo/ui'
@@ -10,7 +11,6 @@ import { SBBOL } from '@condo/domains/banking/constants'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 import type { BankAccount } from '@app/condo/schema'
 

@@ -2,12 +2,12 @@ import { useGetTourStepsLazyQuery, useSyncTourStepsMutation, useUpdateTourStepMu
 import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { MUTATION_RESULT_EVENT, MutationEmitter } from '@open-condo/next/_useEmitterMutation'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { IMPORT_EVENT, ImportEmitter } from '@condo/domains/common/components/Import/Index'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ACTIVE_STEPS_STORAGE_KEY, FIRST_LEVEL_STEPS, STEP_TYPES } from '@condo/domains/onboarding/constants/steps'
 import { useCompletedTourModals } from '@condo/domains/onboarding/hooks/TourContext/useCompletedTourModals'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'

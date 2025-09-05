@@ -9,7 +9,7 @@ import { Row } from 'antd'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useEffect, useState } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'

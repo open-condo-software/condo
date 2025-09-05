@@ -3,12 +3,12 @@ import getConfig from 'next/config'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Input, Button, Typography } from '@open-condo/ui'
 import type { PhoneInputProps } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { INVALID_PHONE } from '@dev-portal-api/domains/user/constants/errors'
 
 import styles from './PhoneInputStep.module.css'
