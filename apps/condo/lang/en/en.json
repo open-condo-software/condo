@@ -2215,6 +2215,7 @@
   "pages.condo.meter.MeterWithSameAccountNumberIsExist": "Such a account number already exists in another unit",
   "pages.condo.meter.MeterWithSameNumberIsExist": "Meter with same number exist in organization",
   "pages.condo.meter.MissedVerification.tip": "The verification date has been missed, it will not be possible to take readings for this meter",
+  "pages.condo.meter.SmallerThanLastReading.tip": "The value is less than the previous one. Is everything correct?",
   "pages.condo.meter.NewAccountAlert": "Check whether you entered the account number correctly.\nAfter taking the meters readings, it will be impossible to change it!",
   "pages.condo.meter.NextVerificationDate": "Date of next verification",
   "pages.condo.meter.NoAccountNumber": "There is no account number",

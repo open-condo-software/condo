@@ -2215,6 +2215,7 @@
   "pages.condo.meter.MeterWithSameAccountNumberIsExist": "Такой лицевой счет уже существует в другой квартире",
   "pages.condo.meter.MeterWithSameNumberIsExist": "Прибор учета с таким номером уже существует в организации",
   "pages.condo.meter.MissedVerification.tip": "Дата поверки пропущена, по этому счетчику не получится сдать показания",
+  "pages.condo.meter.SmallerThanLastReading.tip": "Значение меньше предыдущего. Всё правильно?",
   "pages.condo.meter.NewAccountAlert": "Проверьте корректно ли вы ввели номер лицевого счета.\nПосле сдачи показаний поменять его будет невозможно!",
   "pages.condo.meter.NextVerificationDate": "Дата следующей поверки",
   "pages.condo.meter.NoAccountNumber": "Нет номера лицевого счета",

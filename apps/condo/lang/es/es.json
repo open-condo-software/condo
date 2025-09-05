@@ -2215,6 +2215,7 @@
   "pages.condo.meter.MeterWithSameAccountNumberIsExist": "Esa cuenta corriente ya existe en otro piso",
   "pages.condo.meter.MeterWithSameNumberIsExist": "Ya existe en la organización un dispositivo de medición con este número",
   "pages.condo.meter.MissedVerification.tip": "No se ha cumplido la fecha de verificación, no será posible realizar lecturas para este contador",
+  "pages.condo.meter.SmallerThanLastReading.tip": "El valor es menor que el anterior. ¿Está bien?",
   "pages.condo.meter.NewAccountAlert": "Comprueba si has introducido correctamente su número de cuenta corriente.\n¡Después de transmitir las lecturas, será imposible cambiarlo!",
   "pages.condo.meter.NextVerificationDate": "Próxima fecha de verificación",
   "pages.condo.meter.NoAccountNumber": "No hay número de cuenta corriente",
