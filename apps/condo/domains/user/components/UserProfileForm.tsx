@@ -1,5 +1,6 @@
-import { useUpdateUserMutation, useChangeUserEmailMutation } from '@app/condo/gql'
-import { Col, Form, Row } from 'antd'
+import { useUpdateUserMutation, useChangeUserEmailMutation, useStartConfirmEmailActionMutation } from '@app/condo/gql'
+import { ConfirmEmailActionMessageType } from '@app/condo/schema'
+import { Col, Form, Row, notification } from 'antd'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -11,6 +12,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Typography, Input } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -57,10 +59,12 @@ export const UserProfileForm: React.FC = () => {
     const PromptTitle = intl.formatMessage({ id: 'form.prompt.title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'form.prompt.message' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
+    const OperationCompleted = intl.formatMessage({ id: 'OperationCompleted' })
 
     const { user } = useAuth()
 
     const { getSudoTokenWithModal, clearSudoToken } = useSudoToken()
+    const { executeCaptcha } = useHCaptcha()
 
     const [form] = Form.useForm()
     const errorHandler = useMutationErrorHandler({
@@ -89,6 +93,9 @@ export const UserProfileForm: React.FC = () => {
                 errorHandler(error)
             }
         },
+    })
+    const [startConfirmEmailActionMutation] = useStartConfirmEmailActionMutation({
+        onError: errorHandler,
     })
 
     const formAction = useCallback(async (formValues) => {
@@ -122,7 +129,7 @@ export const UserProfileForm: React.FC = () => {
                         phone: user.phone,
                     })
 
-                    return await changeUserEmailMutation({
+                    const res = await changeUserEmailMutation({
                         variables: {
                             data: {
                                 dv: 1,
@@ -132,6 +139,34 @@ export const UserProfileForm: React.FC = () => {
                             },
                         },
                     })
+
+                    try {
+                        if (newEmail && res?.data?.result?.status === 'ok') {
+                            const captcha = await executeCaptcha()
+
+                            const res = await startConfirmEmailActionMutation({
+                                variables: {
+                                    data: {
+                                        dv: 1,
+                                        sender: getClientSideSenderInfo(),
+                                        captcha,
+                                        email: newEmail,
+                                        messageType: ConfirmEmailActionMessageType.VerifyUserEmail,
+                                    },
+                                },
+                            })
+                            if (res?.data?.result?.token) {
+                                notification.success({
+                                    message: OperationCompleted,
+                                    description: intl.formatMessage({ id: 'pages.user.index.alert.verifyEmail.notification' }, { email: newEmail }),
+                                })
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Cannot start confirm email action')
+                    }
+
+                    return res
                 }
 
                 const res = await changeUserEmailWithSudoToken()

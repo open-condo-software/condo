@@ -4,7 +4,7 @@ import {
     useStartConfirmEmailActionMutation,
 } from '@app/condo/gql'
 import { ConfirmEmailActionMessageType, UserTypeType as UserType } from '@app/condo/schema'
-import { Col, Form, Row } from 'antd'
+import { Col, Form, Row, notification } from 'antd'
 import { ValidateStatus } from 'antd/lib/form/FormItem'
 import getConfig from 'next/config'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
@@ -62,6 +62,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const RegisterFailMessage = intl.formatMessage({ id: 'pages.auth.register.fail' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' }, { min: MIN_PASSWORD_LENGTH })
     const ConsentToReceiveMarketingMaterialsMessage = intl.formatMessage({ id: 'common.consentToReceiveMarketingMaterials' })
+    const OperationCompleted = intl.formatMessage({ id: 'OperationCompleted' })
 
     const { executeCaptcha } = useHCaptcha()
     const { identifier, identifierType, token } = useRegisterContext()
@@ -169,17 +170,24 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
 
-            await startConfirmEmailActionMutation({
+            const res = await startConfirmEmailActionMutation({
                 variables: {
                     data: {
                         dv: 1,
                         sender,
                         captcha,
-                        email: email,
+                        email,
                         messageType: ConfirmEmailActionMessageType.VerifyUserEmail,
                     },
                 },
             })
+
+            if (res?.data?.result?.token) {
+                notification.success({
+                    message: OperationCompleted,
+                    description: intl.formatMessage({ id: 'pages.user.index.alert.verifyEmail.notification' }, { email }),
+                })
+            }
         } catch (error) {
             console.log('Cannot start a user email verifying')
         }

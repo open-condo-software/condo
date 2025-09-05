@@ -1,15 +1,19 @@
 import { useGenerateSudoTokenMutation, GenerateSudoTokenMutationVariables } from '@app/condo/gql'
 import { UserTypeType } from '@app/condo/schema'
-import { Form } from 'antd'
+import { Form, Row, Col } from 'antd'
+import Link from 'next/link'
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
-import { Alert, Button, Input, Modal, Space, Typography } from '@open-condo/ui'
+import { useIntl } from '@open-condo/next/intl'
+import { Alert, Button, Input, Modal, Typography, type TypographyLinkProps } from '@open-condo/ui'
 
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { CREDENTIAL_VALIDATION_FAILED } from '@condo/domains/user/constants/errors'
 
+
+const RESET_PASSWORD_URL = '/auth/forgot?next=/user/update'
 
 type UserIdentifierType = Pick<GenerateSudoTokenMutationVariables['data']['user'], 'email' | 'phone'>
 type GetSudoTokenForceDataType = {
@@ -34,12 +38,22 @@ export const useSudoToken: UseSudoTokenContext = () => useContext(SudoTokenConte
 export const SudoTokenProvider: React.FC<React.PropsWithChildren> = ({
     children,
 }) => {
+    const intl = useIntl()
+    const Email = intl.formatMessage({ id: 'Email' }).toLowerCase()
+    const Phone = intl.formatMessage({ id: 'Phone' }).toLowerCase()
+    const ChangePasswordLabel = intl.formatMessage({ id: 'profile.ChangePassword' })
+    const PasswordTitle = intl.formatMessage({ id: 'component.SudoTokenProvider.modal.password.title' })
+    const ChangeEmailWidthPasswordDescription = intl.formatMessage({ id: 'component.SudoTokenProvider.modal.password.description' }, { identifier: Email })
+    const ChangePhoneWidthPasswordDescription = intl.formatMessage({ id: 'component.SudoTokenProvider.modal.password.description' }, { identifier: Phone })
+    const Done = intl.formatMessage({ id: 'component.SudoTokenProvider.modal.password.done' })
+
     const sudoTokenRef = useRef<string>(null)
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
     const resolveRef = useRef<(value: (string)) => void>(null)
-    const rejectRef = useRef<(reason?: any) => void>(null)
+    const rejectRef = useRef<(reason: Error) => void>(null)
     const currentPromiseRef = useRef<Promise<string> | null>(null)
     const userIdentifierRef = useRef<UserIdentifierType>()
+    const [passwordDescription, setPasswordDescription] = useState<string>(ChangeEmailWidthPasswordDescription)
 
     const { executeCaptcha } = useHCaptcha()
     const { requiredValidator } = useValidations()
@@ -135,6 +149,7 @@ export const SudoTokenProvider: React.FC<React.PropsWithChildren> = ({
             return Promise.resolve(sudoTokenRef.current)
         }
 
+        setPasswordDescription(userIdentifier.email ? ChangeEmailWidthPasswordDescription : ChangePhoneWidthPasswordDescription)
         currentPromiseRef.current = new Promise<string>((resolve, reject) => {
             resolveRef.current = resolve
             rejectRef.current = reject
@@ -173,6 +188,19 @@ export const SudoTokenProvider: React.FC<React.PropsWithChildren> = ({
         sudoTokenRef.current = null
     }, [])
 
+    const handleResetPassword: TypographyLinkProps['onClick'] = useCallback((event) => {
+        if (
+            event.metaKey           // Cmd (Mac)
+            || event.ctrlKey        // Ctrl (Win/Linux)
+            || event.shiftKey       // Shift + Click (new window)
+            || event.button === 1   // Middle mouse button
+        ) {
+            return
+        }
+
+        handleCancel()
+    }, [handleCancel])
+
     return (
         <SudoTokenContext.Provider
             value={{
@@ -190,33 +218,47 @@ export const SudoTokenProvider: React.FC<React.PropsWithChildren> = ({
             >
                 <Modal
                     open={isModalVisible}
-                    title='Введите пароль'
+                    title={PasswordTitle}
                     onCancel={handleCancel}
                     footer={(
                         <Button
                             type='primary'
                             onClick={form.submit}
                         >
-                            Ok
+                            {Done}
                         </Button>
                     )}
                 >
-                    <Space size={40} direction='vertical'>
-                        <Alert
-                            type='warning'
-                            showIcon
-                            description='Чтобы изменить email, введите пароль к учетной записи на платформе Doma.ai'
-                        />
-                        <Space size={24} direction='vertical'>
-                            <Form.Item
-                                name='password'
-                                rules={[requiredValidator]}
-                            >
-                                <Input.Password />
-                            </Form.Item>
-                            <Typography.Link>Сбросить пароль</Typography.Link>
-                        </Space>
-                    </Space>
+                    <Row gutter={[0, 40]}>
+                        <Col span={24}>
+                            <Alert
+                                type='warning'
+                                showIcon
+                                description={passwordDescription}
+                            />
+                        </Col>
+
+                        <Col span={24}>
+                            <Row gutter={[0, 24]}>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name='password'
+                                        rules={[requiredValidator]}
+                                    >
+                                        <Input.Password />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col span={24}>
+                                    <Link href={RESET_PASSWORD_URL} onClick={handleResetPassword}>
+                                        <Typography.Link href={RESET_PASSWORD_URL}>
+                                            {ChangePasswordLabel}
+                                        </Typography.Link>
+                                    </Link>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
                 </Modal>
             </Form>
         </SudoTokenContext.Provider>
