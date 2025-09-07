@@ -15,7 +15,7 @@ const CARD_VIDEO_WRAPPER_STYLES: CSSProperties = {
     justifyContent: 'center',
 }
 
-export const CardVideo = ({ src, title, description }) => {
+export const CardVideo = ({ src, title, description, autoplay = false }) => {
     const [loading, setLoading] = useState<boolean>(true)
 
     useEffect(() => {
@@ -29,7 +29,7 @@ export const CardVideo = ({ src, title, description }) => {
                     <iframe
                         width='100%'
                         height='100%'
-                        src={src}
+                        src={autoplay ? `${src}&autoplay=1&muted=1` : src}
                         frameBorder='0'
                         onLoad={() => setLoading(false)}
                         hidden={loading}
