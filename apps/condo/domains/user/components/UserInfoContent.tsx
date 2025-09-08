@@ -44,7 +44,7 @@ export const UserInfoContent: React.FC<UserInfoContentProps> = ({ useAllOrganiza
 
     const [startConfirmEmailActionMutation] = useStartConfirmEmailActionMutation({
         onError: errorHandler,
-        onCompleted: (asd) => {
+        onCompleted: () => {
             notification.success({
                 message: OperationCompleted,
                 description: intl.formatMessage({ id: 'pages.user.index.alert.verifyEmail.notification' }, { email }),
