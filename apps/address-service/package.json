@@ -32,7 +32,7 @@
     "graphql": "^16.10.0",
     "graphql-tag": "^2.12.6",
     "lodash": "^4.17.21",
-    "openid-client": "4.7.4",
+    "openid-client": "5.7.1",
     "react": "^18.3.1",
     "react-router-dom": "5.2.0",
     "uuid": "^8.3.0"
