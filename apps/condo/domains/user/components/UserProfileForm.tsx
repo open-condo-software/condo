@@ -88,7 +88,8 @@ export const UserProfileForm: React.FC = () => {
                 }])
                 throw error
             } else if (isExpiredToken) {
-                // get new sudo token
+                // NOTE: Case with a getting a new sudo token.
+                // This is processed in "formAction"
             } else {
                 errorHandler(error)
             }
