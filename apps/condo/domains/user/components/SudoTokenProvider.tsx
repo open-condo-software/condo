@@ -190,6 +190,7 @@ export const SudoTokenProvider: React.FC<React.PropsWithChildren> = ({
     }, [])
 
     const handleResetPassword: TypographyLinkProps['onClick'] = useCallback((event) => {
+        // NOTE: Close modal only if link opens in current tab
         if (
             event.metaKey           // Cmd (Mac)
             || event.ctrlKey        // Ctrl (Win/Linux)
