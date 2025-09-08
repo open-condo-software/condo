@@ -127,7 +127,7 @@
           <mj-button background-color="#39CE66" border-radius="8px" font-size="16px" font-weight="700" line-height="22px" href="{{ message.meta.link }}" padding-top="32px" padding-bottom="0px" css-class="letter-btn">
             Confirmar correo electrónico
           </mj-button>
-          {{% if message.meta.withMarketingConsent %}
+          {% if message.meta.withMarketingConsent %}
           <mj-text mj-class="small-text" css-class="small-text" padding-top="8px" css-class="grey" align="center" font-weight="300" font-size="12px">Al hacer clic en el enlace, aceptas recibir correos electrónicos de marketing de Doma.</mj-text>
           {% endif %}
         </mj-column>
