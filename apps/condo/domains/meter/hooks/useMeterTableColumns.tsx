@@ -8,7 +8,7 @@ import pickBy from 'lodash/pickBy'
 import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Tooltip, Tour } from '@open-condo/ui'
+import { Tooltip, Tour, Typography } from '@open-condo/ui'
 
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
@@ -40,7 +40,7 @@ const FULL_WIDTH_STYLE: CSSProperties = { width: '100%' }
 const inputMeterReadingFormatter = value => value.toString().replace(',', '.')
 const PARSER_METER_READING_REGEX = /[,.]+/g
 const inputMeterReadingParser = input => input.replace(PARSER_METER_READING_REGEX, '.')
-const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 8]
+const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 4]
 const METER_READING_INPUT_ADDON_STYLE: CSSProperties = {
     position: 'absolute',
     top: '50%',
@@ -121,7 +121,7 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
     const AddMeterReadingPlaceholderMessage = intl.formatMessage({ id: 'pages.condo.meter.create.AddMeterReadingPlaceholder' })
     const MeterReadingTourStepTitle = intl.formatMessage({ id: 'pages.condo.meter.create.meterReadingTourStepTitle' })
     const MissedVerificationTooltip = intl.formatMessage({ id: 'pages.condo.meter.MissedVerification.tip' })
-    const MeterReadingIsLessThatPreviousTooltip = intl.formatMessage({ id: 'pages.condo.meter.SmallerThanLastReading.tip' })
+    const MeterReadingIsLessThatPreviousText = intl.formatMessage({ id: 'pages.condo.meter.SmallerThanLastReading.tip' })
 
     const meterId = get(record, ['meter', 'id'])
     const tariffNumber = get(record, 'tariffNumber')
@@ -213,9 +213,12 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
                             {meterResourceMeasure}
                         </div>
                     </Col>
-                    {isTipShown && <Col span={24}>{MeterReadingIsLessThatPreviousTooltip}</Col>}
+                    {isTipShown && <Col span={24}>
+                        <Typography.Text size='small' type='secondary'>
+                            {MeterReadingIsLessThatPreviousText}
+                        </Typography.Text>
+                    </Col>}
                 </Row>
-
             </Tour.TourStep>
         )
     }
@@ -245,7 +248,11 @@ const MeterReadingInput = ({ index, record, newMeterReadings, setNewMeterReading
                     {meterResourceMeasure}
                 </div>
             </Col>
-            {isTipShown && <Col span={24}>{MeterReadingIsLessThatPreviousTooltip}</Col>}
+            {isTipShown && <Col span={24}>
+                <Typography.Text size='small' type='secondary'>
+                    {MeterReadingIsLessThatPreviousText}
+                </Typography.Text>
+            </Col>}
         </Row>
 
     )
