@@ -711,6 +711,7 @@
   "component.CookieAgreement.title": "We use Cookies.",
   "component.SudoTokenProvider.modal.password.description": "To modify {identifier}, enter the password for your Doma.ai account.",
   "component.SudoTokenProvider.modal.password.done": "Done",
+  "component.SudoTokenProvider.modal.password.error.wrongPassword": "Wrong password",
   "component.SudoTokenProvider.modal.password.title": "Enter password",
   "component.TicketWarningModal.ConfirmTitle": "Understood",
   "component.TicketWarningModal.Description": "We make sure that you do not wait for the preparation of the report for printing. Unfortunately, we cannot guarantee system performance when a large number of {selectedEntity} is selected. Therefore, please select no more than {ticketFilterRestriction} {selectedEntity} in the filter if you want to print the report and not just display the data on the screen.",

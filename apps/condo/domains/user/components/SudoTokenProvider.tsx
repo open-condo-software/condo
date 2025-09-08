@@ -46,6 +46,7 @@ export const SudoTokenProvider: React.FC<React.PropsWithChildren> = ({
     const ChangeEmailWidthPasswordDescription = intl.formatMessage({ id: 'component.SudoTokenProvider.modal.password.description' }, { identifier: Email })
     const ChangePhoneWidthPasswordDescription = intl.formatMessage({ id: 'component.SudoTokenProvider.modal.password.description' }, { identifier: Phone })
     const Done = intl.formatMessage({ id: 'component.SudoTokenProvider.modal.password.done' })
+    const WrongPasswordMessage = intl.formatMessage({ id: 'component.SudoTokenProvider.modal.password.error.wrongPassword' })
 
     const sudoTokenRef = useRef<string>(null)
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
@@ -64,7 +65,7 @@ export const SudoTokenProvider: React.FC<React.PropsWithChildren> = ({
             if (error?.graphQLErrors?.some(gqlError => gqlError.extensions?.type === CREDENTIAL_VALIDATION_FAILED)) {
                 form.setFields([{
                     name: 'password',
-                    errors: ['Неверный пароль'],
+                    errors: [WrongPasswordMessage],
                 }])
             } else {
                 const gqlError = error?.graphQLErrors?.[0]

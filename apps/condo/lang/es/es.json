@@ -711,6 +711,7 @@
   "component.CookieAgreement.title": "Utilizamos Cookie.",
   "component.SudoTokenProvider.modal.password.description": "Para cambiar {identifier}, introduce la contraseña de la cuenta en la plataforma Doma.ai",
   "component.SudoTokenProvider.modal.password.done": "Hecho",
+  "component.SudoTokenProvider.modal.password.error.wrongPassword": "Contraseña incorrecta",
   "component.SudoTokenProvider.modal.password.title": "Introduzca la contraseña",
   "component.TicketWarningModal.ConfirmTitle": "Entendido",
   "component.TicketWarningModal.Description": "Nos encargamos de que no tengas que esperar a que el informe esté listo para imprimir. Pero ten en cuenta que no podemos garantizar el rendimiento del sistema si seleccionas muchas {selectedEntity}. Por eso, no selecciones más de {ticketFilterRestriction} {selectedEntity} en el filtro si quieres imprimir el informe y no solo ver los datos en pantalla.",

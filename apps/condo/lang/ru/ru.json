@@ -711,6 +711,7 @@
   "component.CookieAgreement.title": "Мы используем файлы Cookie.",
   "component.SudoTokenProvider.modal.password.description": "Чтобы изменить {identifier}, введите пароль к учетной записи на платформе Doma.ai",
   "component.SudoTokenProvider.modal.password.done": "Готово",
+  "component.SudoTokenProvider.modal.password.error.wrongPassword": "Неверный пароль",
   "component.SudoTokenProvider.modal.password.title": "Введите пароль",
   "component.TicketWarningModal.ConfirmTitle": "Понятно",
   "component.TicketWarningModal.Description": "Мы заботимся о том, чтобы вы не ждали подготовку отчёта к печати. К сожалению, мы не можем гарантировать быстродействие системы, когда выбрано большое количество {selectedEntity}. Поэтому, выберите, пожалуйста, не более {ticketFilterRestriction} {selectedEntity} в фильтре, если вы хотите распечатать отчёт, а не только отобразить данные на экране.",
