@@ -189,10 +189,9 @@ function createMeterReadingKey (meterId, sortedValues) {
 }
 
 async function getMeterReadingsForSearchingDuplicates (readings, meters, properties, readingModel) {
-    const readingsWithValidDates = readings.filter(reading => isDateStrValid(reading.date))
     const plainMeterReadings = await find(readingModel, {
         meter: { id_in: meters.map(meter => meter.id) },
-        OR: readingsWithValidDates.map((reading) => {
+        OR: readings.map((reading) => {
             const values = getValues(reading)
             const sanitizedValues = Object.keys(values).reduce((acc, key) => {
                 if (isNil(values[key])) return acc

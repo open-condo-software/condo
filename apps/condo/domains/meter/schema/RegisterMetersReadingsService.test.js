@@ -873,7 +873,7 @@ describe('RegisterMetersReadingsService', () => {
             'archiveDate',
         ]
 
-        const emptyValues = [ null, undefined ]
+        const emptyValues = [null, undefined]
 
         const cases = zip(dateFields, emptyValues)
 
@@ -903,7 +903,7 @@ describe('RegisterMetersReadingsService', () => {
 
             // Create the first reading
             const [data] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
-    
+
             expect(data).toEqual([expect.objectContaining({
                 id: expect.stringMatching(UUID_REGEXP),
                 meter: expect.objectContaining({
@@ -919,23 +919,23 @@ describe('RegisterMetersReadingsService', () => {
                     number: readings[0].meterNumber,
                 }),
             })])
-    
+
             const meters = await Meter.getAll(adminClient, {
                 organization: { id: organization.id },
                 property: { id: property.id },
             })
             expect(meters).toHaveLength(1)
             expect(meters[0].number).toBe(readings[0].meterNumber)
-    
+
             const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
             expect(metersReadings).toHaveLength(1)
-    
+
             // Try to create duplicated reading
             const [data2] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
-    
+
             // be sure that we have the same result as for the first reading
             expect(data2).toEqual(data)
-    
+
             const metersReadings2 = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
             expect(metersReadings2).toHaveLength(1)
             expect(metersReadings[0].id).toBe(metersReadings2[0].id)
@@ -954,16 +954,17 @@ describe('RegisterMetersReadingsService', () => {
             expect(data4[0].id).not.toBe(data2[0].id)
             expect(data4[0].id).not.toBe(data3[0].id)
         })
-    
+
         test('prevent to create readings duplicates in one input', async () => {
             const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestPropertyWithMap(adminClient, organization)
             const readingData = createTestReadingData(property)
             const duplicateReadings = [readingData, readingData]
-    
+
             const [data] = await registerMetersReadingsByTestClient(adminClient, organization, duplicateReadings)
-    
+
             expect(data).toHaveLength(2)
+            // The same MeterReading model returned
             expect(data[0].id).toEqual(data[1].id)
             expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
                 id: expect.stringMatching(UUID_REGEXP),
@@ -980,26 +981,26 @@ describe('RegisterMetersReadingsService', () => {
                     number: duplicateReadings[0].meterNumber,
                 }),
             })]))
-    
+
             const meters = await Meter.getAll(adminClient, {
                 organization: { id: organization.id },
                 property: { id: property.id },
             })
             expect(meters).toHaveLength(1)
             expect(meters[0].number).toBe(duplicateReadings[0].meterNumber)
-    
+
             const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
             expect(metersReadings).toHaveLength(1)
         })
-    
+
         test('prevent to create readings duplicates if date is within the same day', async () => {
             const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestPropertyWithMap(adminClient, organization)
             const readingData = createTestReadingData(property)
             const duplicateReadings = [readingData, { ...readingData, date: dayjs(readingData.date).add('1', 's').toISOString() }]
-    
+
             const [data] = await registerMetersReadingsByTestClient(adminClient, organization, duplicateReadings)
-    
+
             expect(data).toHaveLength(2)
             expect(data[0].id).toEqual(data[1].id)
             expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
@@ -1017,14 +1018,14 @@ describe('RegisterMetersReadingsService', () => {
                     number: duplicateReadings[0].meterNumber,
                 }),
             })]))
-    
+
             const meters = await Meter.getAll(adminClient, {
                 organization: { id: organization.id },
                 property: { id: property.id },
             })
             expect(meters).toHaveLength(1)
             expect(meters[0].number).toBe(duplicateReadings[0].meterNumber)
-    
+
             const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
             expect(metersReadings).toHaveLength(1)
         })
@@ -1034,9 +1035,9 @@ describe('RegisterMetersReadingsService', () => {
             const [property] = await createTestPropertyWithMap(adminClient, organization)
             const readingData = createTestReadingData(property)
             const duplicateReadings = [readingData, { ...readingData, date: dayjs(readingData.date).subtract('1', 'd').toISOString() }]
-    
+
             const [data] = await registerMetersReadingsByTestClient(adminClient, organization, duplicateReadings)
-    
+
             expect(data).toHaveLength(2)
             expect(data[0].id).toEqual(data[1].id)
             expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
@@ -1054,16 +1055,62 @@ describe('RegisterMetersReadingsService', () => {
                     number: duplicateReadings[0].meterNumber,
                 }),
             })]))
-    
+
             const meters = await Meter.getAll(adminClient, {
                 organization: { id: organization.id },
                 property: { id: property.id },
             })
             expect(meters).toHaveLength(1)
             expect(meters[0].number).toBe(duplicateReadings[0].meterNumber)
-    
+
             const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
             expect(metersReadings).toHaveLength(1)
+        })
+
+        test('two readings with same values for different meters must not be duplicates', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            const [property1] = await createTestPropertyWithMap(adminClient, organization)
+            const reading1 = createTestReadingData(property1)
+
+            // Create the first reading
+            const [data1] = await registerMetersReadingsByTestClient(adminClient, organization, [reading1])
+            expect(data1).toHaveLength(1)
+
+            const [property2] = await createTestPropertyWithMap(adminClient, organization)
+            // Create another reading with same values but different meter
+            const reading2 = createTestReadingData(property2, {
+                value1: reading1.value1,
+                value2: reading1.value2,
+            })
+
+            const [data2] = await registerMetersReadingsByTestClient(adminClient, organization, [reading2])
+            expect(data2).toHaveLength(1)
+
+            expect(data2[0].id).not.toBe(data1[0].id)
+        })
+
+        test('two readings with different values for same meter must not be duplicates', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+
+            const [property1] = await createTestPropertyWithMap(adminClient, organization)
+            const reading1 = createTestReadingData(property1)
+
+            // Create the first reading
+            const [data1] = await registerMetersReadingsByTestClient(adminClient, organization, [reading1])
+            expect(data1).toHaveLength(1)
+
+            // Create another reading with other values
+            const reading2 = {
+                ...reading1,
+                value1: faker.random.numeric(3),
+                value2: faker.random.numeric(4),
+            }
+
+            const [data2] = await registerMetersReadingsByTestClient(adminClient, organization, [reading2])
+            expect(data2).toHaveLength(1)
+
+            expect(data2[0].id).not.toBe(data1[0].id)
         })
     })
 
