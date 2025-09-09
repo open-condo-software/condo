@@ -1,6 +1,6 @@
 import { useStartConfirmEmailActionMutation } from '@app/condo/gql'
 import { ConfirmEmailActionMessageType } from '@app/condo/schema'
-import { Col, Row } from 'antd'
+import { Col, Row, notification } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import Link from 'next/link'
 import React, { useCallback } from 'react'
@@ -32,6 +32,7 @@ export const UserInfoContent: React.FC<UserInfoContentProps> = ({ useAllOrganiza
     const VerifyEmailTitle = intl.formatMessage({ id: 'pages.user.index.alert.verifyEmail.title' })
     const VerifyEmailDescription = intl.formatMessage({ id: 'pages.user.index.alert.verifyEmail.description' })
     const SendVerifyEmailMessage = intl.formatMessage({ id: 'pages.user.index.alert.verifyEmail.send' })
+    const OperationCompleted = intl.formatMessage({ id: 'OperationCompleted' })
 
     const { user } = useAuth()
 
@@ -43,6 +44,12 @@ export const UserInfoContent: React.FC<UserInfoContentProps> = ({ useAllOrganiza
 
     const [startConfirmEmailActionMutation] = useStartConfirmEmailActionMutation({
         onError: errorHandler,
+        onCompleted: () => {
+            notification.success({
+                message: OperationCompleted,
+                description: intl.formatMessage({ id: 'pages.user.index.alert.verifyEmail.notification' }, { email }),
+            })
+        },
     })
 
     const handleStartConfirmEmailAction = useCallback(async () => {

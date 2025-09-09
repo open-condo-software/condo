@@ -20,6 +20,7 @@ import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWith
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { useSudoToken } from '@condo/domains/user/components/SudoTokenProvider'
 import { WRONG_CREDENTIALS } from '@condo/domains/user/constants/errors'
 import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 import { normalizeUserIdentifier } from '@condo/domains/user/utils/helpers'
@@ -54,6 +55,7 @@ export const SignInForm = (): React.ReactElement => {
 
     const { refetch } = useAuth()
     const { executeCaptcha } = useHCaptcha()
+    const { getSudoTokenForce } = useSudoToken()
 
     const [form] = Form.useForm()
 
@@ -119,6 +121,17 @@ export const SignInForm = (): React.ReactElement => {
 
             if (!res.errors && res.data?.result?.item?.id) {
                 await refetch()
+
+                await getSudoTokenForce({
+                    user: {
+                        ...(identifierType === 'email' ? { email: values.identifier } : null),
+                        ...(identifierType === 'phone' ? { phone: values.identifier } : null),
+                    },
+                    authFactors: {
+                        password: values.password,
+                    },
+                })
+
                 await router.push(redirectUrl)
                 return
             }
@@ -128,7 +141,7 @@ export const SignInForm = (): React.ReactElement => {
         } finally {
             setIsLoading(false)
         }
-    }, [isLoading, executeCaptcha, authenticateUserWithEmailAndPassword, authenticateUserWithPhoneAndPassword, refetch, router, redirectUrl])
+    }, [isLoading, executeCaptcha, authenticateUserWithEmailAndPassword, authenticateUserWithPhoneAndPassword, refetch, getSudoTokenForce, router, redirectUrl])
 
     return (
         <Form

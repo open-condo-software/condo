@@ -8,7 +8,7 @@ import styles from './styles.module.css'
 import { PosterLayout } from '../containers/PosterLayout'
 
 
-const ERROR_IMAGE_SRC = { main: '/dino/success@2x.png', placeholder: '/404PosterPlaceholder.jpg' }
+const ERROR_IMAGE_SRC = { main: '/dino/fail@2x.png', placeholder: '/dino/fail.png' }
 
 export const OutdatedLinkPoster = () => {
     const intl = useIntl()

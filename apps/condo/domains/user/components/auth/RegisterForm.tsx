@@ -4,7 +4,7 @@ import {
     useStartConfirmEmailActionMutation,
 } from '@app/condo/gql'
 import { ConfirmEmailActionMessageType, UserTypeType as UserType } from '@app/condo/schema'
-import { Col, Form, Row } from 'antd'
+import { Col, Form, Row, notification } from 'antd'
 import { ValidateStatus } from 'antd/lib/form/FormItem'
 import getConfig from 'next/config'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
@@ -22,6 +22,7 @@ import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutation
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
+import { useSudoToken } from '@condo/domains/user/components/SudoTokenProvider'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
 
@@ -61,10 +62,12 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const RegisterFailMessage = intl.formatMessage({ id: 'pages.auth.register.fail' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' }, { min: MIN_PASSWORD_LENGTH })
     const ConsentToReceiveMarketingMaterialsMessage = intl.formatMessage({ id: 'common.consentToReceiveMarketingMaterials' })
+    const OperationCompleted = intl.formatMessage({ id: 'OperationCompleted' })
 
     const { executeCaptcha } = useHCaptcha()
     const { identifier, identifierType, token } = useRegisterContext()
     const { refetch } = useAuth()
+    const { getSudoTokenForce } = useSudoToken()
 
     const [form] = Form.useForm()
 
@@ -167,17 +170,24 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
 
-            await startConfirmEmailActionMutation({
+            const res = await startConfirmEmailActionMutation({
                 variables: {
                     data: {
                         dv: 1,
                         sender,
                         captcha,
-                        email: email,
+                        email,
                         messageType: ConfirmEmailActionMessageType.VerifyUserEmail,
                     },
                 },
             })
+
+            if (res?.data?.result?.token) {
+                notification.success({
+                    message: OperationCompleted,
+                    description: intl.formatMessage({ id: 'pages.user.index.alert.verifyEmail.notification' }, { email }),
+                })
+            }
         } catch (error) {
             console.log('Cannot start a user email verifying')
         }
@@ -232,7 +242,21 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                         await startConfirmEmailAction(userData.email)
                     }
                 }
+
                 await refetch()
+
+                if (userData.password) {
+                    await getSudoTokenForce({
+                        user: {
+                            ...(identifierType === 'email' ? { email: identifier } : null),
+                            ...(identifierType === 'phone' ? { phone: identifier } : null),
+                        },
+                        authFactors: {
+                            password: userData.password,
+                        },
+                    })
+                }
+
                 await onFinish()
                 return
             }
@@ -242,7 +266,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         } finally {
             setIsLoading(false)
         }
-    }, [authOrRegisterUserWithTokenMutation, form, executeCaptcha, isLoading, onFinish, refetch, token, visibleFields, userExistenceResult])
+    }, [authOrRegisterUserWithTokenMutation, form, executeCaptcha, isLoading, onFinish, refetch, token, visibleFields, userExistenceResult, identifierType, identifier, getSudoTokenForce])
 
     useEffect(() => {
         if (step !== 'checkUser') return
