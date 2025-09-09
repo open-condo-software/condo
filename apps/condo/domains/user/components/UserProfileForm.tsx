@@ -125,7 +125,7 @@ export const UserProfileForm: React.FC = () => {
             const oldEmail = user?.email || null
 
             if (newEmail !== oldEmail) {
-                const changeUserEmailWithSudoToken = async () => {
+                const getSudoTokenAndChangeUserEmail = async () => {
                     const sudoToken = await getSudoTokenWithModal({
                         phone: user.phone,
                     })
@@ -170,7 +170,7 @@ export const UserProfileForm: React.FC = () => {
                     return res
                 }
 
-                const res = await changeUserEmailWithSudoToken()
+                const res = await getSudoTokenAndChangeUserEmail()
 
                 if (res.errors || res?.data?.result?.status !== 'ok') {
                     // @ts-ignore
@@ -179,8 +179,8 @@ export const UserProfileForm: React.FC = () => {
                     const isEmailChangingFailed = res?.errors?.graphQLErrors?.some((gqlError) => gqlError?.extensions?.type === 'OPERATION_FAILED')
                     if (isExpiredSudoToken || isEmailChangingFailed) {
                         clearSudoToken()
-                        const res2 = await changeUserEmailWithSudoToken()
-                        if (res2.errors) {
+                        const res2 = await getSudoTokenAndChangeUserEmail()
+                        if (res2?.errors?.length) {
                             throw new Error('cannot change email')
                         }
                     } else {
