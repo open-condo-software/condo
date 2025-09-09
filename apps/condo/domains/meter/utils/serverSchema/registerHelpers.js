@@ -155,6 +155,15 @@ function getAddressesKeys (readings, resolvedAddresses) {
     )
 }
 
+/**
+ * @typedef {Partial<{value1: string, value2: string, value3: string, value4: string}>} CondoMeterReadingLikeShape
+ */
+
+/**
+ * Returns sorted (by key) values from reading-like object
+ * @param {CondoMeterReadingLikeShape} reading
+ * @returns {string[]}
+ */
 function getSortedValues (reading) {
     const values = getValues(reading)
 
@@ -280,7 +289,7 @@ function getMeterFields (isPropertyMeter = false) {
 
 /**
  * Returns values from reading-like object
- * @param {Partial<{value1: string, value2: string, value3: string, value4: string}>} reading Meter reading like object
+ * @param {CondoMeterReadingLikeShape} reading Meter reading like object
  * @param {object} errorValues Object to store errors (will be mutated)
  * @returns {object} Object with values
  */
