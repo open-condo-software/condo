@@ -98,9 +98,7 @@ const useTicketClassifierSelectHook = ({
         setSearchClassifiers([])
     }
 
-    useEffect(() => {
-        optionsRef.current = uniqBy([...classifiers, ...searchClassifiers], 'id')
-    }, [classifiers, searchClassifiers])
+    optionsRef.current = uniqBy([...classifiers, ...searchClassifiers], 'id')
 
     const SelectComponent = useMemo(() => {
         const SelectComponentWrapper: ClassifierSelectComponent = (props) => {
