@@ -546,7 +546,7 @@ __metadata:
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     react: ^18.3.1
     react-router-dom: 5.2.0
     typescript: ^5.8.3
@@ -630,7 +630,7 @@ __metadata:
     jszip: ^3.10.1
     lodash: ^4.17.21
     next: ^15.4.6
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     pdf-lib: ^1.17.1
     phone: ^3.1.41
     pluralize: ^8.0.0
@@ -683,7 +683,7 @@ __metadata:
     lodash: ^4.17.21
     next: ^15.4.6
     next-with-less: ^3.0.1
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     react: ^18.3.1
     react-dom: ^18.3.1
     typescript: ^5.8.3
@@ -796,7 +796,7 @@ __metadata:
     node-fetch: ^2.6.7
     nunjucks: ^3.2.4
     oidc-provider: 7.14.3
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     passport: ^0.7.0
     passport-custom: ^1.1.1
     passport-github2: ^0.1.12
@@ -954,7 +954,7 @@ __metadata:
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
     node-telegram-bot-api: ^0.66.0
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
   languageName: unknown
@@ -1088,7 +1088,7 @@ __metadata:
     moment: 2.29.4
     next: ^15.4.6
     next-with-less: ^3.0.1
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     phone: ^3.1.41
     react: ^18.3.1
     react-dom: ^18.3.1
@@ -1116,7 +1116,7 @@ __metadata:
     jest: ^29.7.0
     lodash: ^4.17.21
     mkdirp: ^3.0.1
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     react: ^18.3.1
   languageName: unknown
   linkType: soft
@@ -1156,7 +1156,7 @@ __metadata:
     lodash: ^4.17.21
     next: ^15.4.6
     next-with-less: ^3.0.1
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     react: ^18.3.1
     react-dom: ^18.3.1
     typescript: ^5.8.3
@@ -1225,7 +1225,7 @@ __metadata:
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -1306,7 +1306,7 @@ __metadata:
     lodash: ^4.17.21
     next: ^15.4.6
     next-with-less: ^3.0.1
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
     react-dom: ^18.3.1
@@ -1333,7 +1333,7 @@ __metadata:
     jest: ^29.7.0
     lodash: ^4.17.21
     mkdirp: ^3.0.1
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     react: ^18.3.1
   languageName: unknown
   linkType: soft
@@ -1401,7 +1401,7 @@ __metadata:
     next: ^15.4.6
     next-with-less: ^3.0.1
     node-fetch: ^2.6.7
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     react: ^18.3.1
     react-dom: ^18.3.1
     typescript: ^5.8.3
@@ -1464,7 +1464,7 @@ __metadata:
     next-cookies: ^2.0.3
     next-with-less: ^3.0.1
     nunjucks: ^3.2.4
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     pdf-lib: ^1.17.1
     pg: ^8.11.3
     pluralize: ^8.0.0
@@ -1531,7 +1531,7 @@ __metadata:
     multer: ^1.4.5-lts.1
     next: ^15.4.6
     next-with-less: ^3.0.1
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
     react-dom: ^18.3.1
@@ -1582,7 +1582,7 @@ __metadata:
     jsonwebtoken: ^9.0.0
     lodash: ^4.17.21
     next: ^15.4.6
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     path-to-regexp: ^8.2.0
     phone: ^3.1.41
     react: ^18.3.1
@@ -1647,7 +1647,7 @@ __metadata:
     lodash: ^4.17.21
     next: ^15.4.6
     next-with-less: ^3.0.1
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     react: ^18.3.1
     react-dom: ^18.3.1
     socket.io-client: ^4.7.5
@@ -1678,7 +1678,7 @@ __metadata:
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
-    openid-client: 4.7.4
+    openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
   languageName: unknown
@@ -16406,7 +16406,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aggregate-error@npm:^3.0.0, aggregate-error@npm:^3.1.0":
+"aggregate-error@npm:^3.0.0":
   version: 3.1.0
   resolution: "aggregate-error@npm:3.1.0"
   dependencies:
@@ -26176,7 +26176,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"got@npm:^11.8.0, got@npm:^11.8.5, got@npm:^11.8.6":
+"got@npm:^11.8.5, got@npm:^11.8.6":
   version: 11.8.6
   resolution: "got@npm:11.8.6"
   dependencies:
@@ -29610,16 +29610,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jose@npm:^2.0.5":
-  version: 2.0.7
-  resolution: "jose@npm:2.0.7"
-  dependencies:
-    "@panva/asn1.js": ^1.0.0
-  checksum: a8820108c05775d0054641a9666014629ebd81a0fd0ffcfea22cca1d2836d3eb321fe1ce43f3deb4add5c9ca8f4e03a72ac95c7ed823ea3c1d131c670da585df
-  languageName: node
-  linkType: hard
-
-"jose@npm:^4.10.3, jose@npm:^4.15.4":
+"jose@npm:^4.10.3, jose@npm:^4.15.4, jose@npm:^4.15.9":
   version: 4.15.9
   resolution: "jose@npm:4.15.9"
   checksum: 41abe1c99baa3cf8a78ebbf93da8f8e50e417b7a26754c4afa21865d87527b8ac2baf66de2c5f6accc3f7d7158658dae7364043677236ea1d07895b040097f15
@@ -34569,7 +34560,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-hash@npm:^2.0.1, object-hash@npm:^2.2.0":
+"object-hash@npm:^2.2.0":
   version: 2.2.0
   resolution: "object-hash@npm:2.2.0"
   checksum: 55ba841e3adce9c4f1b9b46b41983eda40f854e0d01af2802d3ae18a7085a17168d6b81731d43fdf1d6bcbb3c9f9c56d22c8fea992203ad90a38d7d919bc28f1
@@ -34853,6 +34844,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"oidc-token-hash@npm:^5.0.3":
+  version: 5.1.1
+  resolution: "oidc-token-hash@npm:5.1.1"
+  checksum: 168f6ac0af639bc7ac4c13e68344feaaab969d48ba687d4c052d2da40b7c26ee0eadbc8ce58964dfb6dbc764b1fb04b74ba263dd25168310c9ce8d593f8c2e74
+  languageName: node
+  linkType: hard
+
 "on-exit-leak-free@npm:^2.1.0":
   version: 2.1.2
   resolution: "on-exit-leak-free@npm:2.1.2"
@@ -34940,18 +34938,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openid-client@npm:4.7.4":
-  version: 4.7.4
-  resolution: "openid-client@npm:4.7.4"
+"openid-client@npm:5.7.1":
+  version: 5.7.1
+  resolution: "openid-client@npm:5.7.1"
   dependencies:
-    aggregate-error: ^3.1.0
-    got: ^11.8.0
-    jose: ^2.0.5
+    jose: ^4.15.9
     lru-cache: ^6.0.0
-    make-error: ^1.3.6
-    object-hash: ^2.0.1
-    oidc-token-hash: ^5.0.1
-  checksum: d77507f82beaf7313387660e5eeb31b47f578851512b151db9ca6cd065f58916ca628b7a8dbefa32a8eac2e07a5335b751e887b300aa22ee07c334cf46d7dc77
+    object-hash: ^2.2.0
+    oidc-token-hash: ^5.0.3
+  checksum: 497aad2c8a022cef112ade19ed88fba6c8ca0e79607ebe5efdcf75c4095d7924ca479085c1c94f689f6dbc9442c61aab3c2443eb347bcbc6ef51df68827c7c47
   languageName: node
   linkType: hard
 

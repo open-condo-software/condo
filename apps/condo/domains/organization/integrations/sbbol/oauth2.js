@@ -1,3 +1,4 @@
+const https = require('https')
 const util = require('util')
 
 const jwtDecode = require('jwt-decode') // decode jwt without validation
@@ -35,15 +36,16 @@ class SbbolOauth2Api {
             token_endpoint_auth_method: 'client_secret_post',
             tls_client_certificate_bound_access_tokens: true,
         })
-        client[custom.http_options] = (options) => {
+
+        client[custom.http_options] = (url, options) => {
             if (SBBOL_PFX.certificate) {
                 return {
-                    ...options,
-                    https: {
+                    agent: new https.Agent({
+                        ...options,
                         pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
                         passphrase: SBBOL_PFX.passphrase,
                         ...(SBBOL_PFX.https || {}),
-                    },
+                    }),
                 }
             }
             return options

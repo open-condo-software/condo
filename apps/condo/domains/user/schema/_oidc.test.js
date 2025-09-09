@@ -325,7 +325,7 @@ describe('OIDC', () => {
                 // 3) callback to server side ( callback with code to oidc app site; server get the access and cann use it )
 
                 const params = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
-                const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+                const tokenSet = await serverSideOidcClient.callback(uri, params, { nonce })
                 expect(tokenSet.access_token).toHaveLength(43) // important to be 43!
                 expect(tokenSet.id_token.length > 10).toBeTruthy()
 
@@ -419,7 +419,7 @@ describe('OIDC', () => {
             // 3) callback to server side ( callback with code to oidc app site; server get the access and cann use it )
 
             const params = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
-            const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+            const tokenSet = await serverSideOidcClient.callback(uri, params, { nonce })
             expect(tokenSet.access_token).toHaveLength(43) // important to be 43!
             expect(tokenSet.id_token.length > 10).toBeTruthy()
 
@@ -527,8 +527,8 @@ describe('OIDC', () => {
             // 3) callback to server side ( callback with code to oidc app site; server get the access and cann use it )
 
             const params = serverSideOidcClient.callbackParams(res3.headers.location)
-            expect(new Set(Object.keys(params))).toEqual(new Set(['code']))
-            const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+            expect(new Set(Object.keys(params))).toEqual(new Set(['code', 'iss']))
+            const tokenSet = await serverSideOidcClient.callback(uri, params, { nonce })
             expect(tokenSet.access_token).toHaveLength(43) // important to be 43!
             expect(tokenSet.id_token.length > 10).toBeTruthy()
 
@@ -747,11 +747,16 @@ describe('OIDC', () => {
             const _validateJWT = issuerClient.validateJWT
             issuerClient.validateJWT = async (jwt, expectedAlg, required) => {
                 try {
-                    await _validateJWT.call(issuerClient, jwt, expectedAlg, required)
+                    return await _validateJWT.call(issuerClient, jwt, expectedAlg, required)
                 } catch (error) {
                     console.error({ message: error.message, jwt, error })
+                    // Return a mock result with the required structure when validation fails
+                    return { 
+                        protected: jwtDecode(jwt, { header: true }), 
+                        payload: jwtDecode(jwt),
+                        key: { jwk: {} }, // Mock key object to prevent undefined errors
+                    }
                 }
-                return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
             }
 
             const checks = { nonce: generators.nonce(), state: generators.state() }
@@ -764,7 +769,7 @@ describe('OIDC', () => {
             expect(res1.status).toEqual(200)
 
             const params = issuerClient.callbackParams(res1.url)
-            const tokenSet = await issuerClient.callback(uri, { code: params.code }, { nonce: checks.nonce })
+            const tokenSet = await issuerClient.callback(uri, params, { ...checks })
             expect(tokenSet.access_token).toBeTruthy()
         })
     })
@@ -822,7 +827,7 @@ describe('OIDC', () => {
 
             // 3) callback to server side
             const params = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
-            const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+            const tokenSet = await serverSideOidcClient.callback(uri, params, { nonce })
 
             // 4) check userinfo - should NOT include phone/email fields
             const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
@@ -900,7 +905,7 @@ describe('OIDC', () => {
 
             // 3) callback to server side
             const params = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
-            const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+            const tokenSet = await serverSideOidcClient.callback(uri, params, { nonce })
 
             // 4) check userinfo - should include phone fields
             const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
@@ -981,7 +986,7 @@ describe('OIDC', () => {
 
             // 3) callback to server side
             const params = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
-            const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+            const tokenSet = await serverSideOidcClient.callback(uri, params, { nonce })
 
             // 4) check userinfo - should include email fields
             const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
@@ -1062,7 +1067,7 @@ describe('OIDC', () => {
 
             // 3) callback to server side
             const params = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
-            const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+            const tokenSet = await serverSideOidcClient.callback(uri, params, { nonce })
 
             // 4) check userinfo - should include both phone and email fields
             const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
@@ -1143,7 +1148,7 @@ describe('OIDC', () => {
 
             // Get first token set with only openid scope
             const params1 = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
-            const tokenSet1 = await serverSideOidcClient.callback(uri, { code: params1.code }, { nonce: nonce1 })
+            const tokenSet1 = await serverSideOidcClient.callback(uri, params1, { nonce: nonce1 })
 
             // Verify first token only has openid scope
             expect(await getAccessToken(tokenSet1.access_token, client)).toMatchObject({
@@ -1173,7 +1178,7 @@ describe('OIDC', () => {
 
             // Get second token set with both openid and phone scopes
             const params2 = serverSideOidcClient.callbackParams(res6.headers.location.replace(`${uri}#`, `${uri}?`))
-            const tokenSet2 = await serverSideOidcClient.callback(uri, { code: params2.code }, { nonce: nonce2 })
+            const tokenSet2 = await serverSideOidcClient.callback(uri, params2, { nonce: nonce2 })
 
             // Verify second token has both scopes
             expect(await getAccessToken(tokenSet2.access_token, client)).toMatchObject({
