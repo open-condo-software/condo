@@ -334,6 +334,12 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: false,
             access: { read: access.canReadPaymentsSensitiveData },
         },
+
+        posReceiptUrl: {
+            schemaDoc: 'URL of the POS receipt',
+            type: 'Text',
+            isRequired: false,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
