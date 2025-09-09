@@ -40,12 +40,12 @@ class SbbolOauth2Api {
         client[custom.http_options] = (url, options) => {
             if (SBBOL_PFX.certificate) {
                 return {
+                    ...options,
                     agent: new https.Agent({
-                        ...options,
-                        pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
-                        passphrase: SBBOL_PFX.passphrase,
                         ...(SBBOL_PFX.https || {}),
                     }),
+                    pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
+                    passphrase: SBBOL_PFX.passphrase,
                 }
             }
             return options
