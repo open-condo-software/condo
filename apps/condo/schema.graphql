@@ -60887,6 +60887,7 @@ type PaymentHistoryRecord {
   importId: String
   frozenDistribution: JSON
   frozenSplits: JSON
+  posReceiptUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -61179,6 +61180,24 @@ input PaymentHistoryRecordWhereInput {
   frozenSplits_not: JSON
   frozenSplits_in: [JSON]
   frozenSplits_not_in: [JSON]
+  posReceiptUrl: String
+  posReceiptUrl_not: String
+  posReceiptUrl_contains: String
+  posReceiptUrl_not_contains: String
+  posReceiptUrl_starts_with: String
+  posReceiptUrl_not_starts_with: String
+  posReceiptUrl_ends_with: String
+  posReceiptUrl_not_ends_with: String
+  posReceiptUrl_i: String
+  posReceiptUrl_not_i: String
+  posReceiptUrl_contains_i: String
+  posReceiptUrl_not_contains_i: String
+  posReceiptUrl_starts_with_i: String
+  posReceiptUrl_not_starts_with_i: String
+  posReceiptUrl_ends_with_i: String
+  posReceiptUrl_not_ends_with_i: String
+  posReceiptUrl_in: [String]
+  posReceiptUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -61298,6 +61317,8 @@ enum SortPaymentHistoryRecordsBy {
   rawAddress_DESC
   importId_ASC
   importId_DESC
+  posReceiptUrl_ASC
+  posReceiptUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -61345,6 +61366,7 @@ input PaymentHistoryRecordUpdateInput {
   importId: String
   frozenDistribution: JSON
   frozenSplits: JSON
+  posReceiptUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -61393,6 +61415,7 @@ input PaymentHistoryRecordCreateInput {
   importId: String
   frozenDistribution: JSON
   frozenSplits: JSON
+  posReceiptUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -61726,6 +61749,9 @@ type Payment {
   """ Splits created from distribution. Contains data applicable in external acquiring integration 
   """
   frozenSplits: JSON
+
+  """ URL of the POS receipt """
+  posReceiptUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -61988,6 +62014,24 @@ input PaymentWhereInput {
   frozenSplits_not: JSON
   frozenSplits_in: [JSON]
   frozenSplits_not_in: [JSON]
+  posReceiptUrl: String
+  posReceiptUrl_not: String
+  posReceiptUrl_contains: String
+  posReceiptUrl_not_contains: String
+  posReceiptUrl_starts_with: String
+  posReceiptUrl_not_starts_with: String
+  posReceiptUrl_ends_with: String
+  posReceiptUrl_not_ends_with: String
+  posReceiptUrl_i: String
+  posReceiptUrl_not_i: String
+  posReceiptUrl_contains_i: String
+  posReceiptUrl_not_contains_i: String
+  posReceiptUrl_starts_with_i: String
+  posReceiptUrl_not_starts_with_i: String
+  posReceiptUrl_ends_with_i: String
+  posReceiptUrl_not_ends_with_i: String
+  posReceiptUrl_in: [String]
+  posReceiptUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -62097,6 +62141,8 @@ enum SortPaymentsBy {
   rawAddress_DESC
   importId_ASC
   importId_DESC
+  posReceiptUrl_ASC
+  posReceiptUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -62144,6 +62190,7 @@ input PaymentUpdateInput {
   importId: String
   frozenDistribution: JSON
   frozenSplits: JSON
+  posReceiptUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -62189,6 +62236,7 @@ input PaymentCreateInput {
   importId: String
   frozenDistribution: JSON
   frozenSplits: JSON
+  posReceiptUrl: String
   v: Int
   createdAt: String
   updatedAt: String
