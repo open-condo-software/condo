@@ -1277,6 +1277,10 @@ __metadata:
     "@emotion/react": ^11.11.0
     "@emotion/server": ^11.11.0
     "@emotion/styled": ^11.11.0
+    "@graphql-codegen/cli": ^5.0.2
+    "@graphql-codegen/typescript": ^4.0.9
+    "@graphql-codegen/typescript-operations": ^4.2.3
+    "@graphql-codegen/typescript-react-apollo": ^4.3.2
     "@graphql-tools/graphql-file-loader": ^7.5.17
     "@graphql-tools/load": ^8.1.0
     "@open-condo/bridge": "workspace:^"
