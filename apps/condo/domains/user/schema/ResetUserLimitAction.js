@@ -16,6 +16,7 @@ const {
     AUTH_COUNTER_LIMIT_TYPE,
     CHECK_USER_EXISTENCE_TYPE,
     CHANGE_USER_PASSWORD_TYPE,
+    CHANGE_OR_VERIFY_USER_EMAIL_TYPE,
 } = require('@condo/domains/user/constants/limits')
 const { getIdentifierType } = require('@condo/domains/user/utils/identifiers')
 const {
@@ -26,6 +27,7 @@ const {
     AuthGuardResetter,
     CheckUserExistenceResetter,
     ChangeUserPassword,
+    ChangeOrVerifyUserEmail,
 } = require('@condo/domains/user/utils/limits/resetters')
 
 
@@ -37,6 +39,7 @@ const resetters = {
     [AUTH_COUNTER_LIMIT_TYPE]: new AuthGuardResetter(),
     [CHECK_USER_EXISTENCE_TYPE]: new CheckUserExistenceResetter(),
     [CHANGE_USER_PASSWORD_TYPE]: new ChangeUserPassword(),
+    [CHANGE_OR_VERIFY_USER_EMAIL_TYPE]: new ChangeOrVerifyUserEmail(),
 }
 
 const ERRORS = {

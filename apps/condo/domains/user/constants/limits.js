@@ -5,6 +5,7 @@ const RATE_LIMIT_TYPE = 'rateLimit'
 const AUTH_COUNTER_LIMIT_TYPE = 'auth'
 const CHECK_USER_EXISTENCE_TYPE = 'checkUserExistence'
 const CHANGE_USER_PASSWORD_TYPE = 'changeUserPassword'
+const CHANGE_OR_VERIFY_USER_EMAIL_TYPE = 'changeOrVerifyUserEmail'
 
 module.exports = {
     SMS_COUNTER_LIMIT_TYPE,
@@ -14,4 +15,5 @@ module.exports = {
     AUTH_COUNTER_LIMIT_TYPE,
     CHECK_USER_EXISTENCE_TYPE,
     CHANGE_USER_PASSWORD_TYPE,
+    CHANGE_OR_VERIFY_USER_EMAIL_TYPE,
 }
