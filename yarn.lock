@@ -11833,6 +11833,7 @@ __metadata:
     "@storybook/addon-webpack5-compiler-babel": ^3.0.6
     "@storybook/cli": 9.0.17
     "@storybook/react-webpack5": 9.0.17
+    "@tanstack/react-table": ^8.1.6
     "@types/node": ^22
     "@types/react": ^18.3.1
     antd: ^4.24.12
@@ -13131,12 +13132,6 @@ __metadata:
   checksum: 47fb328cec1924559d759b48235c78574f2d71a8a6c4c03edb6de5d7074078371633b91e39bbf3f901b32aa8af9b9d8f82834856d2f5737a23475036b16817f0
   languageName: node
   linkType: hard
-
-"@pos-integration/domains@link:./domains::locator=%40app%2Fpos-integration%40workspace%3Aapps%2Fpos-integration":
-  version: 0.0.0-use.local
-  resolution: "@pos-integration/domains@link:./domains::locator=%40app%2Fpos-integration%40workspace%3Aapps%2Fpos-integration"
-  languageName: node
-  linkType: soft
 
 "@primer/octicons-react@npm:^11.3.0":
   version: 11.3.0
@@ -14690,6 +14685,25 @@ __metadata:
   dependencies:
     defer-to-connect: ^2.0.0
   checksum: c29df3bcec6fc3bdec2b17981d89d9c9fc9bd7d0c9bcfe92821dc533f4440bc890ccde79971838b4ceed1921d456973c4180d7175ee1d0023ad0562240a58d95
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-table@npm:^8.1.6":
+  version: 8.21.3
+  resolution: "@tanstack/react-table@npm:8.21.3"
+  dependencies:
+    "@tanstack/table-core": 8.21.3
+  peerDependencies:
+    react: ">=16.8"
+    react-dom: ">=16.8"
+  checksum: 1452e7bd1dd0febbfc37e656c61c2c426dc243136333a8688bfadfccfec233e87c9bbe83011d742b0e86ae52c9b3d436bdc5618be4ac675ab921f52317317780
+  languageName: node
+  linkType: hard
+
+"@tanstack/table-core@npm:8.21.3":
+  version: 8.21.3
+  resolution: "@tanstack/table-core@npm:8.21.3"
+  checksum: ce260ab981f334ba999240cf68ae942a524a28980f6853275da90d1864a8b56fa59b952bfd2266570f36ae11f66476d1c96dacc640ba5fd9d6d4e2a78cf05187
   languageName: node
   linkType: hard
 
