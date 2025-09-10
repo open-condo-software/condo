@@ -842,10 +842,10 @@ describe('OIDC', () => {
             })
             
             // Verify phone/email fields are NOT present
-            expect(userinfo).not.toHaveProperty('phone')
-            expect(userinfo).not.toHaveProperty('isPhoneVerified')
+            expect(userinfo).not.toHaveProperty('phone_number')
+            expect(userinfo).not.toHaveProperty('phone_number_verified')
             expect(userinfo).not.toHaveProperty('email')
-            expect(userinfo).not.toHaveProperty('isEmailVerified')
+            expect(userinfo).not.toHaveProperty('email_verified')
 
             // 5) check access token scope
             expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
@@ -917,16 +917,16 @@ describe('OIDC', () => {
                 'isAdmin': false,
                 'isSupport': false,
                 'name': client.user.name,
-                'phone': client.userAttrs.phone,
-                'isPhoneVerified': client.user.isPhoneVerified,
+                'phone_number': client.userAttrs.phone,
+                'phone_number_verified': client.user.isPhoneVerified,
             })
             
             // Verify phone fields are present
-            expect(userinfo).toHaveProperty('phone')
-            expect(userinfo).toHaveProperty('isPhoneVerified')
+            expect(userinfo).toHaveProperty('phone_number')
+            expect(userinfo).toHaveProperty('phone_number_verified')
             // Verify email fields are NOT present (not requested)
             expect(userinfo).not.toHaveProperty('email')
-            expect(userinfo).not.toHaveProperty('isEmailVerified')
+            expect(userinfo).not.toHaveProperty('email_verified')
 
             // 5) check access token scope
             expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
@@ -999,15 +999,15 @@ describe('OIDC', () => {
                 'isSupport': false,
                 'name': client.user.name,
                 'email': normalizeEmail(client.userAttrs.email),
-                'isEmailVerified': client.user.isEmailVerified,
+                'email_verified': client.user.isEmailVerified,
             })
             
             // Verify email fields are present
             expect(userinfo).toHaveProperty('email')
-            expect(userinfo).toHaveProperty('isEmailVerified')
+            expect(userinfo).toHaveProperty('email_verified')
             // Verify phone fields are NOT present (not requested)
-            expect(userinfo).not.toHaveProperty('phone')
-            expect(userinfo).not.toHaveProperty('isPhoneVerified')
+            expect(userinfo).not.toHaveProperty('phone_number')
+            expect(userinfo).not.toHaveProperty('phone_number_verified')
 
             // 5) check access token scope
             expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
@@ -1079,17 +1079,17 @@ describe('OIDC', () => {
                 'isAdmin': false,
                 'isSupport': false,
                 'name': client.user.name,
-                'phone': client.userAttrs.phone,
-                'isPhoneVerified': client.user.isPhoneVerified,
+                'phone_number': client.userAttrs.phone,
+                'phone_number_verified': client.user.isPhoneVerified,
                 'email': normalizeEmail(client.userAttrs.email),
-                'isEmailVerified': client.user.isEmailVerified,
+                'email_verified': client.user.isEmailVerified,
             })
             
             // Verify both phone and email fields are present
-            expect(userinfo).toHaveProperty('phone')
-            expect(userinfo).toHaveProperty('isPhoneVerified')
+            expect(userinfo).toHaveProperty('phone_number')
+            expect(userinfo).toHaveProperty('phone_number_verified')
             expect(userinfo).toHaveProperty('email')
-            expect(userinfo).toHaveProperty('isEmailVerified')
+            expect(userinfo).toHaveProperty('email_verified')
 
             // 5) check access token scope
             expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
@@ -1187,8 +1187,8 @@ describe('OIDC', () => {
 
             // Verify userinfo includes phone fields
             const userinfo2 = await serverSideOidcClient.userinfo(tokenSet2.access_token)
-            expect(userinfo2).toHaveProperty('phone')
-            expect(userinfo2).toHaveProperty('isPhoneVerified')
+            expect(userinfo2).toHaveProperty('phone_number')
+            expect(userinfo2).toHaveProperty('phone_number_verified')
 
             // STEP 3: Third authorization with same scopes should reuse existing grant (no new interaction)
             const nonce3 = generators.nonce()

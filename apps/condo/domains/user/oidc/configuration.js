@@ -51,13 +51,13 @@ module.exports = function createConfiguration (context, conf) {
                     }
 
                     if (scopes.includes('phone')) {
-                        claims.phone = user.phone
-                        claims.isPhoneVerified = user.isPhoneVerified
+                        claims.phone_number = user.phone
+                        claims.phone_number_verified = user.isPhoneVerified
                     }
 
                     if (scopes.includes('email')) {
                         claims.email = user.email
-                        claims.isEmailVerified = user.isEmailVerified
+                        claims.email_verified = user.isEmailVerified
                     }
 
                     return claims
@@ -120,9 +120,9 @@ module.exports = function createConfiguration (context, conf) {
             },
         },
         claims: {
-            openid: ['sub', 'v', 'dv', 'type', 'name', 'isAdmin', 'isSupport', 'phone', 'isPhoneVerified', 'email', 'isEmailVerified'],
-            phone: ['phone', 'isPhoneVerified'],
-            email: ['email', 'isEmailVerified'],
+            openid: ['sub', 'v', 'dv', 'type', 'name', 'isAdmin', 'isSupport'],
+            phone: ['phone_number', 'phone_number_verified'],
+            email: ['email', 'email_verified'],
         },
         features: {
             // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#featuresclientcredentials - Enables grant_type=client_credentials to be used on the token endpoint
