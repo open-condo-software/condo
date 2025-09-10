@@ -404,7 +404,7 @@ function fileShareHandler ({ keystone, appClients }) {
 
         const context = keystone.createContext({ skipAccessControl: true })
         const fileRecord = await FileRecord
-            .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, `id sourceId sourceApp fileMeta ${FILE_RECORD_META_FIELDS}`)
+            .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, `id sourceFileRecord sourceApp fileMeta ${FILE_RECORD_META_FIELDS}`)
 
         if (!fileRecord) {
             return next(new GQLError(ERRORS.FILE_NOT_FOUND, { req }))
@@ -419,9 +419,9 @@ function fileShareHandler ({ keystone, appClients }) {
         const sourceAppId = fileRecord.sourceApp === null
             ? fileRecord.fileMeta.meta.appId
             : fileRecord.sourceApp
-        const sourceId = fileRecord.sourceId === null
+        const sourceFileRecord = fileRecord.sourceFileRecord === null
             ? fileRecord.id
-            : fileRecord.sourceId
+            : fileRecord.sourceFileRecord
         // Clean original fields, replace with new one and add marker that this file was shared
         const sharedFileMeta = {
             ...fileRecord.fileMeta,
@@ -438,7 +438,7 @@ function fileShareHandler ({ keystone, appClients }) {
             fileMeta: sharedFileMeta,
             dv, sender,
             user: { connect: { id: authedItemId } },
-            sourceId: { connect: { id: sourceId } }, // point to original FileRecord
+            sourceFileRecord: { connect: { id: sourceFileRecord } }, // point to original FileRecord
             sourceApp: sourceAppId, // original appId for routing
         }, `id fileMeta ${FILE_RECORD_META_FIELDS}`)
 

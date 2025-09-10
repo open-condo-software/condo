@@ -28,7 +28,7 @@ const FileRecord = new GQLListSchema('FileRecord', {
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
-        sourceId: {
+        sourceFileRecord: {
             type: 'Relationship',
             ref: 'FileRecord',
             schemaDoc: 'Link to original FileRecord which was shared',

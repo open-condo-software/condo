@@ -85217,7 +85217,7 @@ type FileRecordHistoryRecord {
   _label_: String
   fileMeta: JSON
   user: String
-  sourceId: String
+  sourceFileRecord: String
   sourceApp: String
   fileAdapter: String
   id: ID!
@@ -85246,10 +85246,10 @@ input FileRecordHistoryRecordWhereInput {
   user_not: String
   user_in: [String]
   user_not_in: [String]
-  sourceId: String
-  sourceId_not: String
-  sourceId_in: [String]
-  sourceId_not_in: [String]
+  sourceFileRecord: String
+  sourceFileRecord_not: String
+  sourceFileRecord_in: [String]
+  sourceFileRecord_not_in: [String]
   sourceApp: String
   sourceApp_not: String
   sourceApp_contains: String
@@ -85394,7 +85394,7 @@ enum SortFileRecordHistoryRecordsBy {
 input FileRecordHistoryRecordUpdateInput {
   fileMeta: JSON
   user: String
-  sourceId: String
+  sourceFileRecord: String
   sourceApp: String
   fileAdapter: String
   v: Int
@@ -85419,7 +85419,7 @@ input FileRecordHistoryRecordsUpdateInput {
 input FileRecordHistoryRecordCreateInput {
   fileMeta: JSON
   user: String
-  sourceId: String
+  sourceFileRecord: String
   sourceApp: String
   fileAdapter: String
   v: Int
@@ -85492,7 +85492,7 @@ type FileRecord {
   user: User
 
   """ Link to original FileRecord which was shared """
-  sourceId: FileRecord
+  sourceFileRecord: FileRecord
 
   """ App id - used for final routing when original file was shared """
   sourceApp: String
@@ -85531,8 +85531,8 @@ input FileRecordWhereInput {
   fileMeta_not_in: [JSON]
   user: UserWhereInput
   user_is_null: Boolean
-  sourceId: FileRecordWhereInput
-  sourceId_is_null: Boolean
+  sourceFileRecord: FileRecordWhereInput
+  sourceFileRecord_is_null: Boolean
   sourceApp: String
   sourceApp_not: String
   sourceApp_contains: String
@@ -85634,8 +85634,8 @@ input FileRecordWhereUniqueInput {
 enum SortFileRecordsBy {
   user_ASC
   user_DESC
-  sourceId_ASC
-  sourceId_DESC
+  sourceFileRecord_ASC
+  sourceFileRecord_DESC
   sourceApp_ASC
   sourceApp_DESC
   fileAdapter_ASC
@@ -85661,7 +85661,7 @@ enum SortFileRecordsBy {
 input FileRecordUpdateInput {
   fileMeta: JSON
   user: UserRelateToOneInput
-  sourceId: FileRecordRelateToOneInput
+  sourceFileRecord: FileRecordRelateToOneInput
   sourceApp: String
   fileAdapter: String
   v: Int
@@ -85683,7 +85683,7 @@ input FileRecordsUpdateInput {
 input FileRecordCreateInput {
   fileMeta: JSON
   user: UserRelateToOneInput
-  sourceId: FileRecordRelateToOneInput
+  sourceFileRecord: FileRecordRelateToOneInput
   sourceApp: String
   fileAdapter: String
   v: Int
