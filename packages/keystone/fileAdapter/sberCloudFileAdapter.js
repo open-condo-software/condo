@@ -179,6 +179,9 @@ class SberCloudFileAdapter {
         let sign
         if ('meta' in props && props['meta']['appId']) {
             folder = props['meta']['appId']
+            if (!conf['FILE_SECRET']) {
+                throw new Error('FILE_SECRET is not configured')
+            }
             sign = jwt.sign({ id: props.id, filename, appId: props.meta.appId, user }, conf['FILE_SECRET'], { expiresIn: '1m', algorithm: 'HS256' })
         }
         if (this.shouldResolveDirectUrl) {
@@ -215,7 +218,6 @@ const obsRouterHandler = ({ keystone }) => {
     return async function (req, res, next) {
         try {
             if (!req.user) {
-                // TODO(zuch): Ask where error pages are located in keystone - 403 is probably missing
                 res.status(403)
                 return res.end()
             }

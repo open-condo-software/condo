@@ -46,6 +46,9 @@ class LocalFileAdapter extends BaseLocalFileAdapter {
             const appId = meta.sourceAppId || meta.appId
             let sign
             if (user !== null) {
+                if (!conf['FILE_SECRET']) {
+                    throw new Error('FILE_SECRET is not configured')
+                }
                 sign = jwt.sign(
                     { id: props.id, user, appId },
                     conf['FILE_SECRET'],
