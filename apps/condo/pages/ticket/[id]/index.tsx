@@ -438,6 +438,7 @@ const TicketActionBar = ({
                             disabled={disabledEditTicketButton}
                             type='primary'
                             data-cy='ticket__update-link'
+                            block
                         >
                             {UpdateMessage}
                         </Button>
