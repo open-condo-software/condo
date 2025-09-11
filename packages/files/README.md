@@ -16,10 +16,12 @@ This middleware has endpoints for uploading binaries and sharing previously uplo
 
 Set `FILE_UPLOAD_CONFIG` env var to a JSON string:
 
+
+Clients is a object of appId as a key and value is an object with payload of secret to encrypt and decrypt files 
 ```json
 {
   "clients": {
-    "some-app-internal-id": { "name": "Some app", "secret": "<HS256-signing-secret>" }
+    "some-app-internal-id": { "secret": "<HS256-signing-secret>" }
   },
   "quota": {
     "user": 100,
@@ -27,6 +29,9 @@ Set `FILE_UPLOAD_CONFIG` env var to a JSON string:
   }
 }
 ```
+
+Upload quota is 100 files per hour for user and ip by default.
+
 
 ### Uploading files
 
@@ -105,10 +110,16 @@ Create example:
 ```graphql
 mutation CreateSomeModel($data: SomeModelCreateInput!) {
   obj: createSomeModel(data: $data) {
-    id
-    file { signature }
+    file { filename mimetype publicUrl path }
   }
 }
+
+// Data example:
+data: {
+  ...otherModelFields,
+  file: { signature: 'signed-string-received-from-file-server' }
+}
+
 ```
 
 
@@ -116,7 +127,7 @@ On read, the field resolves to:
 
 ```graphql
 {
-  fileField {
+  file {
     id
     path
     filename
@@ -177,6 +188,10 @@ Successful response:
   - `maxFileSize`: 100 MiB per file
   - `maxFiles`: 2 files per request
 - Rate limiting: per-hour counters for `user` and `ip` enforced via Redis.
+
+### Receiving file from a model
+
+GET /api/files/<file_id:string>?sign=<file_signature:string>
 
 ### Error responses
 
