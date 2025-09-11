@@ -45,11 +45,17 @@ type MiddlewareOptions = {
     apiPrefix?: string
 }
 
+type OnAuthSuccessHandler<UserInfo extends Record<string, never>> = (
+    req: IncomingMessage,
+    res: ServerResponse,
+    data: OIDCCallbackData<UserInfo>
+) => void | Promise<void>
+
 type OIDCMiddlewareOptions<UserInfo extends Record<string, never>> = {
     getSession: SessionGetter
     oidcConfig: OIDCClientConfig
     redirectUri: string
-    onAuthSuccess: (data: OIDCCallbackData<UserInfo>) => void | Promise<void>
+    onAuthSuccess: OnAuthSuccessHandler<UserInfo>
     middlewareOptions?: MiddlewareOptions
     onError?: ErrorHandler
     logger?: LoggerType
@@ -68,7 +74,7 @@ export class OIDCMiddleware<UserInfo extends Record<string, never>> {
     private readonly client: Client
     private readonly logger: LoggerType
     private readonly redirectUri: string
-    private readonly onAuthSuccess: (data: OIDCCallbackData<UserInfo>) => void | Promise<void>
+    private readonly onAuthSuccess: OnAuthSuccessHandler<UserInfo>
     private readonly onError?: ErrorHandler
     private readonly middlewareOptions: MiddlewareOptions | undefined
     private readonly scope?: string
@@ -110,7 +116,7 @@ export class OIDCMiddleware<UserInfo extends Record<string, never>> {
             client_id: clientId,
             client_secret: clientSecret,
             redirect_uris: [redirectUri],
-            response_types: ['code id_token'],
+            response_types: ['code'],
             token_endpoint_auth_method: 'client_secret_basic',
             ...(clientOptions || {}),
         })
@@ -209,7 +215,7 @@ export class OIDCMiddleware<UserInfo extends Record<string, never>> {
                 delete session[OIDCMiddleware.OIDC_NEXT_URL_KEY]
                 await session.save()
 
-                await onAuthSuccess({ accessToken, refreshToken, idToken, userInfo })
+                await onAuthSuccess(req, res, { accessToken, refreshToken, idToken, userInfo })
 
                 const location = typeof nextUrl === 'string' && isSafeUrl(nextUrl) ? nextUrl : '/'
                 res.writeHead(302, { Location: location })
