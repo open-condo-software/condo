@@ -150,7 +150,7 @@ export const SudoTokenProvider: React.FC<React.PropsWithChildren> = ({
             return Promise.resolve(sudoTokenRef.current)
         }
 
-        setPasswordDescription(userIdentifier.email ? ChangeEmailWidthPasswordDescription : ChangePhoneWidthPasswordDescription)
+        setPasswordDescription(userIdentifier.phone ? ChangeEmailWidthPasswordDescription : ChangePhoneWidthPasswordDescription)
         currentPromiseRef.current = new Promise<string>((resolve, reject) => {
             resolveRef.current = resolve
             rejectRef.current = reject
