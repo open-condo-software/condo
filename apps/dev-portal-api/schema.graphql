@@ -1,5 +1,3 @@
-directive @cacheControl(maxAge: Int, scope: CacheControlScope) on FIELD_DEFINITION | OBJECT | INTERFACE
-
 enum ConfirmEmailActionHistoryRecordHistoryActionType {
   c
   u
@@ -4629,7 +4627,7 @@ input WebhookSubscriptionsCreateInput {
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
-scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+scalar JSON
 
 type _ListAccess {
   """
@@ -5655,8 +5653,3 @@ type Mutation {
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
-
-enum CacheControlScope {
-  PUBLIC
-  PRIVATE
-}
