@@ -2,7 +2,13 @@ const path = require('path')
 
 const { faker } = require('@faker-js/faker')
 
-const { prepareAppEnvLocalAdminUsers, getAppEnvValue, updateAppEnvFile, safeExec } = require('@open-condo/cli')
+const {
+    prepareCondoAppOidcConfig,
+    prepareAppEnvLocalAdminUsers,
+    getAppEnvValue,
+    updateAppEnvFile,
+    safeExec,
+} = require('@open-condo/cli')
 
 const APP_NAME = path.basename(path.resolve(__dirname, '..'))
 const BOT_RIGHTS_SET = JSON.stringify({
@@ -54,6 +60,9 @@ async function main () {
     }
     prodBotConfig.apiUrl = `${condoUrl}/admin/api`
     await updateAppEnvFile(APP_NAME, 'CONDO_PROD_BOT_CONFIG', JSON.stringify(prodBotConfig))
+
+    const oidcConf = await prepareCondoAppOidcConfig(APP_NAME)
+    await updateAppEnvFile(APP_NAME, 'OIDC_CONDO_CLIENT_CONFIG', JSON.stringify(oidcConf))
 
     const devBotOptions = JSON.stringify({ type: 'service', password: devBotConfig.password, name: '[DEV-PORTAL] Dev bot' })
     const prodBotOptions = JSON.stringify({ type: 'service', password: prodBotConfig.password, name: '[DEV-PORTAL] Prod bot' })

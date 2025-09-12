@@ -42,7 +42,7 @@ const User = new GQLListSchema('User', {
         password: {
             schemaDoc: 'User password used for authentication. Self-update only field',
             type: 'Password',
-            isRequired: true,
+            isRequired: false,
             access: access.canAccessToPasswordField,
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, existingItem, context }) => {

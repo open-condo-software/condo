@@ -26,6 +26,7 @@
     "@open-condo/keystone": "workspace:^",
     "@open-condo/locales": "workspace:^",
     "dayjs": "^1.11.10",
+    "express": "^4.17.1",
     "got": "^11.8.6",
     "graphql-tag": "^2.12.6",
     "lodash": "^4.17.21",

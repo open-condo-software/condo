@@ -25,24 +25,29 @@ const INTERNAL_SERVER_ERROR_GQL = {
     message: 'Internal server error',
 }
 
-function expressErrorHandler (err, req, res, next) {
-    if (!err) return next()
-    const gqlError = wrapWithGQLError(err, { req }, INTERNAL_SERVER_ERROR_GQL)
-    const reqId = get(req, ['id'], get(req, ['headers', 'X-Request-Id']))
-    const errId = gqlError.uid
-    logger.error({ msg: 'express-error-handler', err, req, res, reqId, errId })
+function getExpressErrorHandler (defaultError) {
+    return function expressErrorHandler (err, req, res, next) {
+        if (!err) return next()
+        const gqlError = wrapWithGQLError(err, { req }, defaultError)
+        const reqId = get(req, ['id'], get(req, ['headers', 'X-Request-Id']))
+        const errId = gqlError.uid
+        logger.error({ msg: 'express-error-handler', err, req, res, reqId, errId })
 
-    const errCode = gqlError?.extensions?.code || INTERNAL_ERROR
-    const status = HTTPStatusByGQLErrorCode[errCode] || HTTPStatusByGQLErrorCode[INTERNAL_ERROR]
+        const errCode = gqlError?.extensions?.code || INTERNAL_ERROR
+        const status = HTTPStatusByGQLErrorCode[errCode] || HTTPStatusByGQLErrorCode[INTERNAL_ERROR]
 
-    // NOTE: wrap with errors to make response look similar to GQL ones, so handlers can be reused
-    res.status(status).json({
-        errors: [
-            safeFormatError(gqlError, IS_HIDE_INTERNALS, true),
-        ],
-    })
+        // NOTE: wrap with errors to make response look similar to GQL ones, so handlers can be reused
+        res.status(status).json({
+            errors: [
+                safeFormatError(gqlError, IS_HIDE_INTERNALS, true),
+            ],
+        })
+    }
 }
 
+const expressErrorHandler = getExpressErrorHandler(INTERNAL_SERVER_ERROR_GQL)
+
 module.exports = {
+    getExpressErrorHandler,
     expressErrorHandler,
 }
