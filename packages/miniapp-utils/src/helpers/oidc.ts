@@ -27,7 +27,7 @@ type LoggerType = {
     error: (data: unknown) => void
 }
 
-type OIDCCallbackData<UserInfo extends Record<string, never>> = {
+type OIDCCallbackData<UserInfo extends Record<string, unknown> = Record<string, never>> = {
     accessToken?: string
     refreshToken?: string
     idToken?: string
@@ -45,13 +45,13 @@ type MiddlewareOptions = {
     apiPrefix?: string
 }
 
-type OnAuthSuccessHandler<UserInfo extends Record<string, never>> = (
+type OnAuthSuccessHandler<UserInfo extends Record<string, unknown> = Record<string, never>> = (
     req: IncomingMessage,
     res: ServerResponse,
     data: OIDCCallbackData<UserInfo>
 ) => void | Promise<void>
 
-type OIDCMiddlewareOptions<UserInfo extends Record<string, never>> = {
+type OIDCMiddlewareOptions<UserInfo extends Record<string, unknown> = Record<string, never>> = {
     getSession: SessionGetter
     oidcConfig: OIDCClientConfig
     redirectUri: string
@@ -65,7 +65,7 @@ type NextFunction = (err?: unknown) => void
 
 type RequestHandler = (req: IncomingMessage, res: ServerResponse, next?: NextFunction) => void | Promise<void>
 
-export class OIDCMiddleware<UserInfo extends Record<string, never>> {
+export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<string, never>> {
     static OIDC_NEXT_URL_KEY = 'oidcNextUrl'
     static OIDC_CHECKS_KEY = 'oidcChecks'
     static CHECK_SCHEMA = z.object({ nonce: z.string(), state: z.string() })
@@ -131,11 +131,13 @@ export class OIDCMiddleware<UserInfo extends Record<string, never>> {
 
     private sendError (err: unknown, req: IncomingMessage, res: ServerResponse, next?: NextFunction): void {
         if (next && this.onError) {
-            return this.onError(err, req, res, next)
+            this.onError(err, req, res, next)
+            return
         }
 
         if (next) {
-            return next(err)
+            next(err)
+            return
         }
 
         const errId = generateUUIDv4()
