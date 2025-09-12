@@ -155,14 +155,55 @@ function getAddressesKeys (readings, resolvedAddresses) {
     )
 }
 
-async function getMeterReadingByDate (readings, meters, properties, readingModel) {
-    const readingsWithValidDates = readings.filter(reading => isDateStrValid(reading.date))
+/**
+ * @typedef {Partial<{value1: string, value2: string, value3: string, value4: string}>} CondoMeterReadingLikeShape
+ */
+
+/**
+ * Returns sorted (by key) values from reading-like object
+ * @param {CondoMeterReadingLikeShape} reading
+ * @returns {string[]}
+ */
+function getSortedValues (reading) {
+    const values = getValues(reading)
+
+    const sortedValues = Object.keys(values)
+        // Sanitize
+        .filter(key => values[key] !== null && values[key] !== undefined)
+        // Sort
+        .sort()
+        // Map to values
+        .map(key => values[key])
+
+    return sortedValues
+}
+
+/**
+ * Creates a unique key for a meter reading based on meter id, and sorted values.
+ * @param {string} meterId The meter's uuid
+ * @param {any[]} sortedValues values sorted by field names (value1, value2, ...)
+ * @returns {string} The unique key
+ */
+function createMeterReadingKey (meterId, sortedValues) {
+    return `${meterId}_${sortedValues.join('_')}`
+}
+
+async function getMeterReadingsForSearchingDuplicates (readings, meters, properties, readingModel) {
+    const orConditions = readings.map((reading) => {
+        const values = getValues(reading)
+        const sanitizedValues = Object.keys(values).reduce((acc, key) => {
+            if (isNil(values[key])) return acc
+            return { ...acc, [key]: values[key] }
+        }, {})
+        return { AND: [sanitizedValues] }
+    })
+
     const plainMeterReadings = await find(readingModel, {
         meter: { id_in: meters.map(meter => meter.id) },
-        date_in: uniq(readingsWithValidDates.map(reading => tryToISO(reading.date))),
+        OR: orConditions,
         deletedAt: null,
     })
-    
+
     const propertyByIdMap = properties.reduce((acc, property) => {
         acc[property.id] = property
         return acc
@@ -179,16 +220,18 @@ async function getMeterReadingByDate (readings, meters, properties, readingModel
         ...reading,
         meter: metersWithPropertyByIdMap[reading.meter],
     }))
-    return meterReadings.reduce((acc, reading) => {
-        const key = `${reading.meter.id}-${dayjs(reading.date).startOf('day').toISOString()}`
-        acc[key] = reading
-        
+
+    return meterReadings.reduce((acc, meterReading) => {
+        const key = createMeterReadingKey(meterReading.meter.id, getSortedValues(meterReading))
+
+        acc[key] = meterReading
+
         return acc
     }, {})
 }
 
 function getFieldsToUpdate (reading, isPropertyMeter = false) {
-    
+
     return {
         ...!isPropertyMeter ? { accountNumber: reading.accountNumber.trim() } : {},
         ...!isPropertyMeter ? { place: get(reading, ['meterMeta', 'place']) || undefined } : {},
@@ -204,7 +247,7 @@ function getFieldsToUpdate (reading, isPropertyMeter = false) {
     }
 }
 
-function  getValuesList (errorValuesKeys, errorValues, locale) {
+function getValuesList (errorValuesKeys, errorValues, locale) {
     return errorValuesKeys.map((errKey) => {
         const column = i18n(`meter.import.column.${errKey}`, { locale })
         return `"${column}"="${errorValues[errKey]}"`
@@ -228,7 +271,7 @@ function getMeterFields (isPropertyMeter = false) {
         const accountNumber = reading.accountNumber?.trim()
         const unitType = get(reading, ['addressInfo', 'unitType'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitType'], '')).trim() || null
         const unitName = get(reading, ['addressInfo', 'unitName'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitName'], '')).trim() || null
-                    
+
         return {
             organization: { connect: organization },
             property: { connect: { id: property.id } },
@@ -246,9 +289,18 @@ function getMeterFields (isPropertyMeter = false) {
     }
 }
 
+/**
+ * Returns values from reading-like object
+ * @param {CondoMeterReadingLikeShape} reading Meter reading like object
+ * @param {object} errorValues Object to store errors (will be mutated)
+ * @returns {object} Object with values
+ */
 function getValues (reading, errorValues) {
     return ['value1', 'value2', 'value3', 'value4'].reduce((result, currentValue) => {
         const value = reading[currentValue]
+
+        if (isNil(value)) return result
+
         const normalizedValue = normalizeMeterValue(value)
 
         if (!validateMeterValue(normalizedValue)) {
@@ -285,11 +337,13 @@ module.exports = {
     getDateStrValidationError,
     getResolvedAddresses,
     getAddressesKeys,
-    getMeterReadingByDate,
+    getMeterReadingsForSearchingDuplicates,
     getFieldsToUpdate,
     getValuesList,
     getMeterDates,
     getMeterFields,
     getValues,
     getReadingFields,
+    createMeterReadingKey,
+    getSortedValues,
 }
