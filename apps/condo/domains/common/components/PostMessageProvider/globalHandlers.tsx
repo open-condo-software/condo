@@ -130,21 +130,32 @@ export const useModalHandler: () => [
 }
 
 export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchParams'> = () => {
+    const router = useRouter()
+    const condoMiniappContextQuery = router.query?.condoMiniappContext
     const { locale } = useIntl()
     const { user } = useAuth()
     const { organization } = useOrganization()
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
     return useCallback(() => {
+        let condoMiniappContext = {}
+        if (typeof condoMiniappContextQuery === 'string') {
+            try {
+                condoMiniappContext = JSON.parse(condoMiniappContextQuery)
+            } catch (e) {
+                console.error('Failed to parse condoMiniappContext', e)
+            }
+        }
+
         return {
             condoUserId: userId,
             condoUserType: STAFF,
             condoLocale: locale,
             condoContextEntity: 'Organization',
             condoContextEntityId: organizationId,
-
+            condoMiniappContext,
         }
-    }, [userId, organizationId, locale])
+    }, [userId, organizationId, locale, condoMiniappContextQuery])
 }
 
 export const useShowProgressBarHandler: () => RequestHandler<'CondoWebAppShowProgressBar'> = () => {

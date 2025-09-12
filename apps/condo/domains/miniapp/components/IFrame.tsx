@@ -1,4 +1,5 @@
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
@@ -72,10 +73,13 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
 
     const { user } = useAuth()
     const { organization } = useOrganization()
+    const router = useRouter()
     const { addFrame, addEventHandler, removeFrame } = usePostMessageContext()
 
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
+    const condoMiniappContextQuery = router.query?.condoMiniappContext as string
+    
     const srcWithMeta = useMemo(() => {
         const url = new URL(src)
         if (userId && (reloadScope === 'user' || reloadScope === 'organization')) {
@@ -84,9 +88,19 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         if (organizationId && reloadScope === 'organization') {
             url.searchParams.set('condoOrganizationId', organizationId)
         }
+        if (condoMiniappContextQuery) {
+            try {
+                url.searchParams.set(
+                    'condoMiniappContext', 
+                    JSON.stringify(JSON.parse(condoMiniappContextQuery))
+                )
+            } catch (e) {
+                console.error('Failed to parse condoMiniappContext', e)
+            }
+        }
 
         return url.toString()
-    }, [src, userId, organizationId, reloadScope])
+    }, [src, userId, organizationId, reloadScope, condoMiniappContextQuery])
 
     const rerenderKey = useMemo(() => {
         const params: { [key: string]: string } = { src }
