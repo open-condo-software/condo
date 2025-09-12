@@ -9,8 +9,8 @@ const { get, identity } = require('lodash')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
 
-
 const conf = require('@open-condo/config')
+const { FileRecordScalarSchema } = require('@open-condo/files/schema/models')
 const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFormatter')
 const {
     ApolloRateLimitingPlugin,
@@ -156,6 +156,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
     const globalPreprocessors = schemasPreprocessors ? schemasPreprocessors() : []
     globalPreprocessors.push(...[schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor])
     // We need to register all schemas as they will appear in admin ui
+    registerSchemas(keystone, [FileRecordScalarSchema], globalPreprocessors)
     registerSchemas(keystone, schemas(), globalPreprocessors)
 
     const defaultAuthStrategyConfigHooks = {
