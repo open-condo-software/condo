@@ -189,16 +189,18 @@ function createMeterReadingKey (meterId, sortedValues) {
 }
 
 async function getMeterReadingsForSearchingDuplicates (readings, meters, properties, readingModel) {
+    const orConditions = readings.map((reading) => {
+        const values = getValues(reading)
+        const sanitizedValues = Object.keys(values).reduce((acc, key) => {
+            if (isNil(values[key])) return acc
+            return { ...acc, [key]: values[key] }
+        }, {})
+        return { AND: [sanitizedValues] }
+    })
+
     const plainMeterReadings = await find(readingModel, {
         meter: { id_in: meters.map(meter => meter.id) },
-        OR: readings.map((reading) => {
-            const values = getValues(reading)
-            const sanitizedValues = Object.keys(values).reduce((acc, key) => {
-                if (isNil(values[key])) return acc
-                return { ...acc, [key]: values[key] }
-            }, {})
-            return { AND: [sanitizedValues] }
-        }),
+        OR: orConditions,
         deletedAt: null,
     })
 
@@ -218,6 +220,7 @@ async function getMeterReadingsForSearchingDuplicates (readings, meters, propert
         ...reading,
         meter: metersWithPropertyByIdMap[reading.meter],
     }))
+
     return meterReadings.reduce((acc, meterReading) => {
         const key = createMeterReadingKey(meterReading.meter.id, getSortedValues(meterReading))
 

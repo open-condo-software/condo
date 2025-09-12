@@ -2,139 +2,75 @@ const { getSortedValues, createMeterReadingKey } = require('./registerHelpers')
 
 describe('registerHelpers', () => {
     describe('getSortedValues', () => {
-        test('should return sorted values for reading with all meter values', () => {
-            const reading = {
-                value1: '100.5',
-                value2: '200.3',
-                value3: '300.7',
-                value4: '400.1',
-            }
+        const testCases = [
+            {
+                name: 'should return sorted values for reading with all meter values',
+                reading: { value1: '100.5', value2: '200.3', value3: '300.7', value4: '400.1' },
+                expected: ['100.5', '200.3', '300.7', '400.1'],
+            },
+            {
+                name: 'should return sorted values for reading with all unordered meter values',
+                reading: { value3: '300.7', value1: '100.5', value4: '400.1', value2: '200.3' },
+                expected: ['100.5', '200.3', '300.7', '400.1'],
+            },
+            {
+                name: 'should return sorted values excluding null values',
+                reading: { value1: '100.5', value2: null, value3: '300.7', value4: '400.1' },
+                expected: ['100.5', '300.7', '400.1'],
+            },
+            {
+                name: 'should return sorted values excluding undefined values',
+                reading: { value1: '100.5', value2: undefined, value3: '300.7', value4: '400.1' },
+                expected: ['100.5', '300.7', '400.1'],
+            },
+            {
+                name: 'should return empty array when all values are null or undefined',
+                reading: { value1: null, value2: undefined, value3: null, value4: undefined },
+                expected: [],
+            },
+            {
+                name: 'should handle reading with only one value',
+                reading: { value1: null, value2: '200.3', value3: null, value4: null },
+                expected: ['200.3'],
+            },
+            {
+                name: 'should handle reading with numeric values',
+                reading: { value1: 100.5, value2: 200.3, value3: null, value4: 400.1 },
+                expected: ['100.5', '200.3', '400.1'],
+            },
+            {
+                name: 'should handle reading with zero values',
+                reading: { value1: 0, value2: '0', value3: null, value4: '100.5' },
+                expected: ['0', '0', '100.5'],
+            },
+            {
+                name: 'should handle reading with empty string values (should be excluded)',
+                reading: { value1: '', value2: '200.3', value3: null, value4: '400.1' },
+                expected: ['200.3', '400.1'],
+            },
+            {
+                name: 'should handle reading with mixed data types',
+                reading: { value1: '100.5', value2: 200, value3: '300.7', value4: 0 },
+                expected: ['100.5', '200', '300.7', '0'],
+            },
+            {
+                name: 'should handle reading with additional non-value properties',
+                reading: {
+                    value1: '100.5',
+                    value2: '200.3',
+                    value3: null,
+                    value4: '400.1',
+                    date: '2023-01-01',
+                    meterNumber: '12345',
+                    accountNumber: 'ACC001',
+                },
+                expected: ['100.5', '200.3', '400.1'],
+            },
+        ]
 
+        test.each(testCases)('$name', ({ reading, expected }) => {
             const result = getSortedValues(reading)
-            expect(result).toEqual(['100.5', '200.3', '300.7', '400.1'])
-        })
-
-        test('should return sorted values for reading with all unordered meter values', () => {
-            const reading = {
-                value3: '300.7',
-                value1: '100.5',
-                value4: '400.1',
-                value2: '200.3',
-            }
-
-            const result = getSortedValues(reading)
-            expect(result).toEqual(['100.5', '200.3', '300.7', '400.1'])
-        })
-
-        test('should return sorted values excluding null values', () => {
-            const reading = {
-                value1: '100.5',
-                value2: null,
-                value3: '300.7',
-                value4: '400.1',
-            }
-
-            const result = getSortedValues(reading)
-            expect(result).toEqual(['100.5', '300.7', '400.1'])
-        })
-
-        test('should return sorted values excluding undefined values', () => {
-            const reading = {
-                value1: '100.5',
-                value2: undefined,
-                value3: '300.7',
-                value4: '400.1',
-            }
-
-            const result = getSortedValues(reading)
-            expect(result).toEqual(['100.5', '300.7', '400.1'])
-        })
-
-        test('should return empty array when all values are null or undefined', () => {
-            const reading = {
-                value1: null,
-                value2: undefined,
-                value3: null,
-                value4: undefined,
-            }
-
-            const result = getSortedValues(reading)
-            expect(result).toEqual([])
-        })
-
-        test('should handle reading with only one value', () => {
-            const reading = {
-                value1: null,
-                value2: '200.3',
-                value3: null,
-                value4: null,
-            }
-
-            const result = getSortedValues(reading)
-            expect(result).toEqual(['200.3'])
-        })
-
-        test('should handle reading with numeric values', () => {
-            const reading = {
-                value1: 100.5,
-                value2: 200.3,
-                value3: null,
-                value4: 400.1,
-            }
-
-            const result = getSortedValues(reading)
-            expect(result).toEqual(['100.5', '200.3', '400.1'])
-        })
-
-        test('should handle reading with zero values', () => {
-            const reading = {
-                value1: 0,
-                value2: '0',
-                value3: null,
-                value4: '100.5',
-            }
-
-            const result = getSortedValues(reading)
-            expect(result).toEqual(['0', '0', '100.5'])
-        })
-
-        test('should handle reading with empty string values (should be excluded)', () => {
-            const reading = {
-                value1: '',
-                value2: '200.3',
-                value3: null,
-                value4: '400.1',
-            }
-
-            const result = getSortedValues(reading)
-            expect(result).toEqual(['200.3', '400.1'])
-        })
-
-        test('should handle reading with mixed data types', () => {
-            const reading = {
-                value1: '100.5',
-                value2: 200,
-                value3: '300.7',
-                value4: 0,
-            }
-
-            const result = getSortedValues(reading)
-            expect(result).toEqual(['100.5', '200', '300.7', '0'])
-        })
-
-        test('should handle reading with additional non-value properties', () => {
-            const reading = {
-                value1: '100.5',
-                value2: '200.3',
-                value3: null,
-                value4: '400.1',
-                date: '2023-01-01',
-                meterNumber: '12345',
-                accountNumber: 'ACC001',
-            }
-
-            const result = getSortedValues(reading)
-            expect(result).toEqual(['100.5', '200.3', '400.1'])
+            expect(result).toEqual(expected)
         })
     })
 
