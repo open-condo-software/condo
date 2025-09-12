@@ -31,7 +31,7 @@ const apps = () => {
                 return  req.session
             },
             oidcConfig,
-            redirectUri: `${conf['SERVER_URL']}/api/oidc/callback`,
+            redirectUri: `${conf['DEV_PORTAL_WEB_DOMAIN']}/api/oidc/callback`,
             middlewareOptions: {
                 app: express(),
             },
@@ -62,6 +62,8 @@ const apps = () => {
                 const context = await keystone.createContext({ skipAccessControl: true })
                 let user = await getByCondition('User', { phone: userInfo.phone_number, deletedAt: null })
                 if (user) {
+                    // NOTE: not updatable field
+                    delete userData.phone
                     await User.update(context, user.id, userData)
                 } else if (!userData.name) {
                     throw new Error('User name is required')
