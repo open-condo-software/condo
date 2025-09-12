@@ -804,6 +804,7 @@ const MESSAGE_META = {
             vehicle: { required: true },
             vehicleBrand: { required: true },
             stateVehicleNumber: { required: true },
+            condoMiniappContext: { required: true }
         },
         telegramMeta: { required: false },
     },

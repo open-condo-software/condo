@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -88,24 +88,6 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
         }
     }, [id, shouldSendAnalytics])
 
-    // Save `b2bAppNext` for iframe and then remove it from URL.
-    // If it stays, opening the same deeplink as the current URL won’t trigger navigation in the miniapp.
-    const [b2bAppNextUrl, setB2bAppNextUrl] = useState<string | null>(null)
-    useEffect(() => {
-        const queryB2bAppNext = router.query?.b2bAppNext
-        if (typeof queryB2bAppNext === 'string') {
-            setB2bAppNextUrl(queryB2bAppNext)
-
-            const { b2bAppNext, ...rest } = router.query
-            router.replace(
-                { pathname: router.pathname, query: rest },
-                undefined,
-                { shallow: true }
-            )
-        }
-    }, [router])
-    const appUrlWithParams = b2bAppNextUrl ? `${appUrl}?next=${encodeURIComponent(b2bAppNextUrl)}` : appUrl
-
     if (contextLoading || contextError || appRoleLoading || appRoleError) {
         return <LoadingOrErrorPage error={contextError || appRoleError} loading={contextLoading || appRoleLoading} title={LoadingMessage}/>
     }
@@ -113,6 +95,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     if (isSupport || isAdmin || hasRightsSet) {
         return <LoadingOrErrorPage title={FallbackPageTitle} error={SupportNotAllowedMessage}/>
     }
+
 
     return (
         <>
@@ -127,9 +110,9 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
                     {/* NOTE: since router.push redirecting in useEffect is async
                     we need to prevent iframe loading in cases where everything is (not) loaded fine,
                     but redirect is still happening*/}
-                    {Boolean(appUrlWithParams && appRole && context) && (
+                    {Boolean(appUrl && appRole && context) && (
                         <IFrame
-                            src={appUrlWithParams}
+                            src={appUrl}
                             reloadScope='organization'
                             withLoader
                             withPrefetch
