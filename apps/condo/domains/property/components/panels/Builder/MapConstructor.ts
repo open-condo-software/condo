@@ -781,6 +781,7 @@ class MapEdit extends MapView {
             const hasNegativeFloors = Object.keys(this.sectionFloorMap).some(floorLabel => Number(floorLabel) < 0)
             const updateIndex = hasNegativeFloors ? floorIndex : nextFloorIndex
             const firstUnit = this.sections[0].floors[updateIndex].units[0]
+            // This is the very first unit with no previous units - safe to start numbering from 1
             firstUnit.label = '1'
             this.updateUnitNumbers(firstUnit)
             return
