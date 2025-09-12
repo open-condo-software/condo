@@ -791,7 +791,10 @@ const MESSAGE_META = {
     [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
         dv: { required: true },
         data: {
+            organizationId: { required: true },
             organizationName: { required: true },
+            b2bAppId: { required: true },
+            passTicketId: { required: true },
             number: { required: true },
             propertyAddress: { required: true },
             unit: { required: true },
@@ -1093,8 +1096,8 @@ const MESSAGE_DELIVERY_OPTIONS = {
         isAllowedToChangeDefaultTransport: false,
     },
     [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
-        allowedTransports: [TELEGRAM_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT],
+        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
         strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
     },
