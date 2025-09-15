@@ -1685,6 +1685,7 @@
   "notification.messages.VERIFY_USER_EMAIL.email.subject": "Верификация",
   "notification.messages.VERIFY_USER_EMAIL.email.title": "Верификация",
   "notification.messages.VOIP_INCOMING_CALL_MESSAGE.push.title": "{title}",
+  "notification.messages.PASS_TICKET_CREATED.push.title": "Новый пропуск",
   "onboarding.tourStep.tooltip.ticket.message": "Убедитесь, что информация верная, и создайте заявку",
   "onboarding.tourStep.tooltip.ticket.title": "Несколько полей заполнено автоматически",
   "organization.createOrganizationForm.cancelModal.message": "Вход на платформу будет доступен только после создания организации. Если вы уйдете с этой страницы, данные об организации не сохраняться.",

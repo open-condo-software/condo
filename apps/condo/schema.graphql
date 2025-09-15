@@ -100053,7 +100053,16 @@ type Mutation {
   			"required": true
   		},
   		"data": {
+  			"organizationId": {
+  				"required": true
+  			},
   			"organizationName": {
+  				"required": true
+  			},
+  			"b2bAppId": {
+  				"required": true
+  			},
+  			"passTicketId": {
   				"required": true
   			},
   			"number": {
@@ -100093,6 +100102,9 @@ type Mutation {
   				"required": true
   			},
   			"stateVehicleNumber": {
+  				"required": true
+  			},
+  			"condoMiniappContext": {
   				"required": true
   			}
   		},
@@ -100552,7 +100564,16 @@ type Mutation {
   			"required": true
   		},
   		"data": {
+  			"organizationId": {
+  				"required": true
+  			},
   			"organizationName": {
+  				"required": true
+  			},
+  			"b2bAppId": {
+  				"required": true
+  			},
+  			"passTicketId": {
   				"required": true
   			},
   			"number": {
@@ -100592,6 +100613,9 @@ type Mutation {
   				"required": true
   			},
   			"stateVehicleNumber": {
+  				"required": true
+  			},
+  			"condoMiniappContext": {
   				"required": true
   			}
   		},
