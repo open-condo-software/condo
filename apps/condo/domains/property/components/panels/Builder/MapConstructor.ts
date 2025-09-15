@@ -722,7 +722,7 @@ class MapEdit extends MapView {
         this.removePreviewSectionFloor()
         this.selectedFloorSectionIndex = floor.section
         const newSectionFloor = this.generateFloor(floor, true)
-        this.insertFloor(newSectionFloor, floor.section)
+        this.insertFloor(newSectionFloor, floor.section, true)
     }
 
     public getNonUniquePreviewUnitIds () {
@@ -1331,7 +1331,7 @@ class MapEdit extends MapView {
         }
     }
 
-    private insertFloor (floor: BuildingFloor, sectionIndex: number): number {
+    private insertFloor (floor: BuildingFloor, sectionIndex: number, preview = false): number {
         const modifiedSection = this.sections[sectionIndex]
         modifiedSection.floors.forEach(({ index }, dataIndex) => {
             this.sectionFloorMap[index] = dataIndex
@@ -1374,7 +1374,7 @@ class MapEdit extends MapView {
 
         modifiedSection.floors.splice(insertIndex, 0, floor)
 
-        this._previewSectionFloor = insertIndex
+        if (preview) this._previewSectionFloor = insertIndex
         return insertIndex
     }
 
