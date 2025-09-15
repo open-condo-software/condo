@@ -14,6 +14,10 @@ type IpProxyingOptions = {
     knownProxies?: KnownProxies
 }
 
+type LoggerType = {
+    error: (data: unknown) => void
+}
+
 type RelativeOrAbsoluteEndpoint = string
 
 export type ProxyOptions = {
@@ -27,8 +31,23 @@ export type ProxyOptions = {
     upstreamPrefix: string
     /** IP proxying options, if specified, IP will be passed used signed x-proxy-id, x-proxy-ip, x-proxy-timestamp, x-proxy-signature headers */
     ipProxying?: IpProxyingOptions
+    /** 
+     * Map of location header rewrites for redirects. 
+     * Key: upstream location, Value: rewritten location for client.
+     * Used to rewrite Location headers in 3xx redirect responses.
+     */
     locationRewrites?: Record<RelativeOrAbsoluteEndpoint, RelativeOrAbsoluteEndpoint>
+    /** 
+     * Map of cookie path rewrites for Set-Cookie headers.
+     * Key: upstream cookie path, Value: rewritten path for client.
+     * Used to adjust cookie scope when proxying between different path prefixes.
+     */
     cookiePathRewrites?: Record<RelativeOrAbsoluteEndpoint, RelativeOrAbsoluteEndpoint>
+    /** 
+     * Logger instance for error reporting. Defaults to console if not provided.
+     * Must implement an error method that accepts any data type.
+     */
+    logger?: LoggerType
 }
 
 type ProxyHandler = (req: IncomingMessage, res: ServerResponse) => void
@@ -42,6 +61,7 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
         ipProxying,
         locationRewrites,
         cookiePathRewrites,
+        logger = console,
     } = options
 
     const proxy = httpProxy.createProxy({
@@ -92,5 +112,18 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
         }
     })
 
-    return proxy.web.bind(proxy)
+    return function syncProxyHandler (req, res) {
+        proxy.web(req, res, {}, (err) => {
+            if (err) {
+                // TODO: Add more complex loggers and standard error handling in next iterations
+                logger.error({ msg: 'Proxy error', err })
+                if (!res.headersSent) {
+                    res.writeHead(502, { 'Content-Type': 'application/json' })
+                    res.end(JSON.stringify({ errors: [{ message: 'Proxy error' }] }))
+                } else {
+                    res.end()
+                }
+            }
+        })
+    }
 }
