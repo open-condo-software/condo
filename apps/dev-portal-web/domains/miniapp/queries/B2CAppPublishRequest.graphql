@@ -1,5 +1,5 @@
 query allB2CAppPublishRequests($appId: ID!) {
-    requests: allB2CAppPublishRequests(where: { app: { id: $appId } }, first: 1) {
+    requests: allB2CAppPublishRequests(where: { app: { id: $appId } }, first: 1, skip: 0) {
         isAppTested
         isInfoApproved
         isContractSigned

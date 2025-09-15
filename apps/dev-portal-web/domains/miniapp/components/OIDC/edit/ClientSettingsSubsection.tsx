@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
+
 import { Spin } from '@/domains/common/components/Spin'
 
 import { CreateClientForm } from './CreateClientForm'
@@ -14,6 +16,7 @@ type ClientSettingsSubsectionProps = {
 }
 
 export const ClientSettingsSubsection: React.FC<ClientSettingsSubsectionProps> = ({ id, environment }) => {
+    const { persistor } = useCachePersistor()
     const { data, loading } = useGetOidcClientQuery({
         variables: {
             data: {
@@ -21,6 +24,7 @@ export const ClientSettingsSubsection: React.FC<ClientSettingsSubsectionProps> =
                 app: { id },
             },
         },
+        skip: !persistor,
         fetchPolicy: 'cache-and-network',
     })
 

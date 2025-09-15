@@ -4229,6 +4229,7 @@ export const AllAppsDocument = gql`
     sortBy: createdAt_DESC
     where: {createdBy: $creator}
     first: $first
+    skip: 0
   ) {
     id
     name
@@ -4393,6 +4394,7 @@ export const AllB2CAppAccessRightsDocument = gql`
   rights: allB2CAppAccessRights(
     where: {app: {id: $appId}, environment: $environment}
     first: 1
+    skip: 0
   ) {
     condoUserEmail
   }
@@ -4633,7 +4635,11 @@ export type DeleteB2CAppPropertyMutationResult = Apollo.MutationResult<DeleteB2C
 export type DeleteB2CAppPropertyMutationOptions = Apollo.BaseMutationOptions<DeleteB2CAppPropertyMutation, DeleteB2CAppPropertyMutationVariables>;
 export const AllB2CAppPublishRequestsDocument = gql`
     query allB2CAppPublishRequests($appId: ID!) {
-  requests: allB2CAppPublishRequests(where: {app: {id: $appId}}, first: 1) {
+  requests: allB2CAppPublishRequests(
+    where: {app: {id: $appId}}
+    first: 1
+    skip: 0
+  ) {
     isAppTested
     isInfoApproved
     isContractSigned

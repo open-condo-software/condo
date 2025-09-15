@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { Button, Typography } from '@open-condo/ui'
 
 import { useCreateAppContext } from '@/domains/common/components/CreateAppContext'
@@ -53,6 +54,7 @@ const RecentAppsPopoverContent: React.FC<WithOnClose> = ({ onClose }) => {
     const intl = useIntl()
     const CreateAppLabel = intl.formatMessage({ id: 'global.actions.createApp' })
     const RecentlyCreatedTitle = intl.formatMessage({ id: 'global.recentAppsPopover.recentApps.title' })
+    const { persistor } = useCachePersistor()
 
     const { createApp } = useCreateAppContext()
     const { user } = useAuth()
@@ -62,6 +64,7 @@ const RecentAppsPopoverContent: React.FC<WithOnClose> = ({ onClose }) => {
             creator: { id: user?.id },
             first: MAX_APPS_SHOWN,
         },
+        skip: !persistor,
     })
 
     const apps = mergeApps(data)
