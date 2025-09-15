@@ -13,12 +13,12 @@ import { EmptyView } from '@/domains/common/components/EmptyView'
 import { initializeApollo, prepareSSRContext, extractApolloState } from '@/domains/common/utils/apollo'
 import { InlineAppCard } from '@/domains/miniapp/components/InlineAppCard'
 import { mergeApps } from '@/domains/miniapp/utils/merge'
+import { prefetchAuth, useAuth } from '@/domains/user/utils/auth'
 
 import type { AppInfo } from '@/domains/miniapp/utils/merge'
 import type { RowProps } from 'antd'
 
 import { useAllAppsQuery, AllAppsDocument, AllAppsQuery, AllAppsQueryVariables } from '@/gql'
-import { prefetchAuth, useAuth } from '@/lib/auth'
 
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]

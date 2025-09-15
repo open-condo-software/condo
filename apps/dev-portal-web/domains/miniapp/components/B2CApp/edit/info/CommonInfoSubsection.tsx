@@ -9,11 +9,11 @@ import { Input, Button } from '@open-condo/ui'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
+import { useAuth } from '@/domains/user/utils/auth'
 
 import type { RowProps } from 'antd'
 
 import { useUpdateB2CAppMutation, AllAppsDocument, GetB2CAppDocument, useGetB2CAppQuery } from '@/gql'
-import { useAuth } from '@/lib/auth'
 
 const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [32, 32]
 const FULL_COL_SPAN = 24

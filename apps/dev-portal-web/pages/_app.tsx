@@ -14,6 +14,16 @@ import { SeoProvider } from '@/domains/common/components/SeoProvider'
 import { theme } from '@/domains/common/constants/antd'
 import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 import { useApollo } from '@/domains/common/utils/apollo'
+import { AuthProvider } from '@/domains/user/utils/auth'
+
+import type { AppProps } from 'next/app'
+import type { ReactNode } from 'react'
+
+
+import 'antd/dist/reset.css'
+import '@open-condo/ui/dist/styles.min.css'
+import '@open-condo/ui/style-vars/css'
+import './global.css'
 
 const mainFont = localFont({
     src: '../public/WixMadeForDisplay.woff2',
@@ -24,16 +34,6 @@ const monoFont = Noto_Sans_Mono({
     variable: '--condo-font-fallback-mono',
     style: ['normal'],
 })
-
-import type { AppProps } from 'next/app'
-import type { ReactNode } from 'react'
-
-import { AuthProvider } from '@/lib/auth'
-
-import 'antd/dist/reset.css'
-import '@open-condo/ui/dist/styles.min.css'
-import '@open-condo/ui/style-vars/css'
-import './global.css'
 
 type AvailableLocales = typeof LOCALES[number]
 // NOTE: Combine all keys together

@@ -20,6 +20,7 @@ import { OIDCClientSection } from '@/domains/miniapp/components/OIDC/edit/OIDCCl
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 import { getCurrentSection, useB2CMenuItems } from '@/domains/miniapp/hooks/useB2CMenuItems'
 import { getCurrentPage, getEnvironment } from '@/domains/miniapp/utils/query'
+import { prefetchAuth } from '@/domains/user/utils/auth'
 
 import type { SectionType } from '@/domains/miniapp/hooks/useB2CMenuItems'
 import type { RowProps, MenuProps } from 'antd'
@@ -37,7 +38,6 @@ import {
     AllB2CAppAccessRightsQueryVariables,
     useGetB2CAppQuery,
 } from '@/gql'
-import { prefetchAuth } from '@/lib/auth'
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN = 24

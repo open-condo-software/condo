@@ -10,6 +10,7 @@ import { Button, Typography } from '@open-condo/ui'
 import { useCreateAppContext } from '@/domains/common/components/CreateAppContext'
 import { B2C_LOGO_SIZE } from '@/domains/miniapp/constants/common'
 import { mergeApps } from '@/domains/miniapp/utils/merge'
+import { useAuth } from '@/domains/user/utils/auth'
 
 import styles from './RecentAppsPopover.module.css'
 
@@ -17,7 +18,6 @@ import type { AppInfo } from '@/domains/miniapp/utils/merge'
 import type { RowProps } from 'antd'
 
 import { useAllAppsQuery } from '@/gql'
-import { useAuth } from '@/lib/auth'
 
 const BUTTON_ROW_GUTTER: RowProps['gutter'] = [20, 20]
 const APP_ROW_GUTTER: RowProps['gutter'] = [0, 0]

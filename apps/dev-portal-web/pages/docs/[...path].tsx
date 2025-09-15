@@ -28,7 +28,7 @@ import {
     getPrevArticle,
     extractLocalizedTitleParts, 
 } from '@/domains/docs/utils/routing'
-
+import { prefetchAuth } from '@/domains/user/utils/auth'
 
 import styles from './path.module.css'
 
@@ -38,7 +38,6 @@ import type { RowProps } from 'antd'
 import type { GetServerSideProps } from 'next'
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
 
-import { prefetchAuth } from '@/lib/auth'
 
 const DOCS_ROOT_ENDPOINT = '/docs'
 const CARD_PADDING = '20px 24px 20px 0'
