@@ -2,7 +2,7 @@ import httpProxy from 'http-proxy'
 
 import { getProxyHeadersForIp, getRequestIp, replaceUpstreamEndpoint } from './utils'
 
-import type { KnownProxies } from './utils'
+import type { KnownProxies, TrustProxyFunction } from './utils'
 import type { IncomingMessage, ServerResponse } from 'http'
 
 type IpProxyingOptions = {
@@ -12,6 +12,11 @@ type IpProxyingOptions = {
     proxySecret: string
     /** List of known proxies before current one from which IP can be extracted */
     knownProxies?: KnownProxies
+    /**
+     * Function to determine if a given IP address should be as x-forwarded-for header source.
+     * Defaults to () => false, which means all IP addresses are trusted
+     * */
+    trustProxyFn?: TrustProxyFunction
 }
 
 type LoggerType = {
@@ -69,6 +74,8 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
         changeOrigin: true,
     })
 
+    const trustProxyFn = ipProxying?.trustProxyFn ?? (() => false)
+
     proxy.on('proxyReq', (proxyReq, req) => {
         if (req.url?.startsWith(proxyPrefix)) {
             proxyReq.path = upstreamPrefix + req.url.slice(proxyPrefix.length)
@@ -76,8 +83,8 @@ export function createProxy (options: ProxyOptions): ProxyHandler {
         proxyReq.setHeader('via', name)
 
         if (req.url && req.method && ipProxying) {
-            const ip = getRequestIp(req, () => true, ipProxying.knownProxies)
-            const headers = getProxyHeadersForIp(req.method, req.url, ip, ipProxying.proxyId, ipProxying.proxySecret)
+            const ip = getRequestIp(req, trustProxyFn, ipProxying.knownProxies)
+            const headers = getProxyHeadersForIp(req.method, proxyReq.path, ip, ipProxying.proxyId, ipProxying.proxySecret)
             for (const [headerName, headerValue] of Object.entries(headers)) {
                 proxyReq.setHeader(headerName, headerValue)
             }
