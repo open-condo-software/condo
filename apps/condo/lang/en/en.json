@@ -3197,7 +3197,7 @@
   "ticket.problem.classifier.ACCOUNT_CLARIFICATIONS.name": "Account Clarifications",
   "ticket.problem.classifier.ADDITIONAL_HARDWARE_INSTALLATION.name": "Additional Hardware Installation",
   "ticket.problem.classifier.AIR_CONDITIONER_INSTALLATION_REPAIR.name": "Air conditioner installation/repair",
-  "ticket.problem.classifier.APARTMENT_FLOOD_REPORT.name": "Apartment flood report",
+  "ticket.problem.classifier.APARTMENT_FLOOD_REPORT.name": "Flood report",
   "ticket.problem.classifier.APARTMENT_INSURANCE.name": "Apartment insurance",
   "ticket.problem.classifier.APARTMENT_TEMPERATURE_CHECK_REPORT.name": "Apartment temperature check report",
   "ticket.problem.classifier.APPLIANCE_REPAIR.name": "Appliance Repair",
