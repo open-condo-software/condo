@@ -15,7 +15,7 @@ import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-portal-api/domains/minia
 
 import type { RowProps } from 'antd'
 
-import { AppEnvironment, useAllB2CAppAccessRightsQuery } from '@/lib/gql'
+import { AppEnvironment, useAllB2CAppAccessRightsQuery } from '@/gql'
 
 const SELECT_GUTTER: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN = 24

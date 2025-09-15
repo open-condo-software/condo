@@ -6,7 +6,7 @@ import { CreateClientForm } from './CreateClientForm'
 import { EditClientForm } from './EditClientForm'
 import { SecretContextProvider } from './SecretProvider'
 
-import { AppEnvironment, useGetOidcClientQuery } from '@/lib/gql'
+import { AppEnvironment, useGetOidcClientQuery } from '@/gql'
 
 type ClientSettingsSubsectionProps = {
     id: string

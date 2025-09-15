@@ -14,7 +14,7 @@ import { ClientSettingsSubsection } from './ClientSettingsSubsection'
 
 import type{ RowProps } from 'antd'
 
-import { AppEnvironment } from '@/lib/gql'
+import { AppEnvironment } from '@/gql'
 
 
 const SELECT_GUTTER: RowProps['gutter'] = [40, 40]

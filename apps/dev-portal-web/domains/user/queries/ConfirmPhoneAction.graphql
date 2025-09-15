@@ -1,0 +1,12 @@
+mutation startConfirmPhoneAction ($data: StartConfirmPhoneActionInput!){
+    startConfirmPhoneAction(data: $data) {
+        actionId
+        phone
+    }
+}
+
+mutation completeConfirmPhoneAction($data: CompleteConfirmPhoneActionInput!){
+    completeConfirmPhoneAction(data: $data) {
+        status
+    }
+}

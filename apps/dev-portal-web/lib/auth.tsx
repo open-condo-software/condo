@@ -7,13 +7,13 @@ import { Modal } from '@open-condo/ui'
 
 import { AuthForm } from '@/domains/common/components/auth/AuthForm'
 
-import { useApolloClient } from '@/lib/apollo'
 import {
     AuthenticatedUserDocument,
     useAuthenticatedUserQuery,
     AuthenticatedUserQuery,
     useSignOutMutation,
-} from '@/lib/gql'
+} from '@/gql'
+import { useApolloClient } from '@/lib/apollo'
 
 
 const AUTH_COOKIE_KEY = 'keystone.sid'

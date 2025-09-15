@@ -10,7 +10,7 @@ import { useValidations } from '@/domains/common/hooks/useValidations'
 import styles from '@/domains/miniapp/components/B2CApp/edit/publishing/PublishForm.module.css'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 
-import { useAllB2CAppBuildsLazyQuery } from '@/lib/gql'
+import { useAllB2CAppBuildsLazyQuery } from '@/gql'
 
 export const PublishForm: React.FC<{ id: string, isPublishing: boolean }> = ({ id, isPublishing }) => {
     const intl = useIntl()

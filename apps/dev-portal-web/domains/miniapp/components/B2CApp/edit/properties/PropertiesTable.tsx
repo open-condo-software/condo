@@ -17,10 +17,10 @@ import { getCurrentPage } from '@/domains/miniapp/utils/query'
 import { CreatePropertyModal } from './CreatePropertyModal'
 import styles from './PropertiesTable.module.css'
 
-import type { AppEnvironment } from '@/lib/gql'
+import type { AppEnvironment } from '@/gql'
 import type { RowProps } from 'antd'
 
-import { AllB2CAppPropertiesDocument, useAllB2CAppPropertiesQuery, useDeleteB2CAppPropertyMutation } from '@/lib/gql'
+import { AllB2CAppPropertiesDocument, useAllB2CAppPropertiesQuery, useDeleteB2CAppPropertyMutation } from '@/gql'
 
 
 type PropertiesTableProps = {

@@ -24,8 +24,6 @@ import type { SectionType } from '@/domains/miniapp/hooks/useB2CMenuItems'
 import type { RowProps, MenuProps } from 'antd'
 import type { GetServerSideProps } from 'next'
 
-import { extractApolloState, initializeApollo } from '@/lib/apollo'
-import { extractAuthHeadersFromRequest, prefetchAuth } from '@/lib/auth'
 import {
     GetB2CAppDocument,
     GetB2CAppQuery,
@@ -38,7 +36,9 @@ import {
     AllB2CAppAccessRightsQueryVariables,
     useGetB2CAppQuery,
 
-} from '@/lib/gql'
+} from '@/gql'
+import { extractApolloState, initializeApollo } from '@/lib/apollo'
+import { extractAuthHeadersFromRequest, prefetchAuth } from '@/lib/auth'
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN = 24

@@ -18,9 +18,9 @@ import {
 import { PublishForm } from './PublishForm'
 import { RequestStatusInfo } from './RequestStatusInfo'
 
-import type { PublishB2CAppMutationVariables } from '@/lib/gql'
+import type { PublishB2CAppMutationVariables } from '@/gql'
 
-import { usePublishB2CAppMutation, useAllB2CAppPublishRequestsLazyQuery, GetB2CAppDocument } from '@/lib/gql'
+import { usePublishB2CAppMutation, useAllB2CAppPublishRequestsLazyQuery, GetB2CAppDocument } from '@/gql'
 
 
 const DEFAULT_STAND = DEV_ENVIRONMENT

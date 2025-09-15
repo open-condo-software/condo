@@ -1,6 +1,6 @@
 import { DEFAULT_B2C_LOGO_URL } from '@/domains/miniapp/constants/common'
 
-import type { AllAppsQuery } from '@/lib/gql'
+import type { AllAppsQuery } from '@/gql'
 
 export type AppInfo = {
     id: string

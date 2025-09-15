@@ -1,0 +1,5 @@
+mutation publishB2CApp($data: PublishB2CAppInput!) {
+    publishB2CApp(data: $data) {
+        success
+    }
+}

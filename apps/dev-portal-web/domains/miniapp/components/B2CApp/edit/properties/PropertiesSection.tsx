@@ -16,7 +16,7 @@ import { PropertiesTable } from './PropertiesTable'
 
 import type { RowProps } from 'antd'
 
-import { AppEnvironment, useGetB2CAppQuery } from '@/lib/gql'
+import { AppEnvironment, useGetB2CAppQuery } from '@/gql'
 
 
 const SELECT_GUTTER: RowProps['gutter'] = [40, 40]

@@ -10,7 +10,7 @@ import { INCORRECT_PHONE_OR_PASSWORD } from '@app/dev-portal-api/domains/user/co
 
 import styles from './LoginForm.module.css'
 
-import { useSignInMutation } from '@/lib/gql'
+import { useSignInMutation } from '@/gql'
 
 const LOGIN_FORM_ERRORS_TO_FIELDS_MAP = {
     [INCORRECT_PHONE_OR_PASSWORD]: 'password',

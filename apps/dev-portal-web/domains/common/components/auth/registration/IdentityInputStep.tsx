@@ -14,7 +14,7 @@ import styles from './IdentityInputStep.module.css'
 
 import type { FormRule } from 'antd'
 
-import { useRegisterNewUserMutation, useSignInMutation } from '@/lib/gql'
+import { useRegisterNewUserMutation, useSignInMutation } from '@/gql'
 
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 

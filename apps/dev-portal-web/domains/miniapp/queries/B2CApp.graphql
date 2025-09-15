@@ -1,0 +1,25 @@
+query getB2CApp($id: ID!) {
+    app: B2CApp(where: { id: $id }) {
+        id
+        name
+        developer
+        logo {
+            publicUrl
+        }
+        developmentExportId
+        productionExportId
+    }
+}
+
+mutation createB2CApp($data: B2CAppCreateInput!) {
+    app: createB2CApp(data: $data) {
+        id
+        name
+    }
+}
+
+mutation updateB2CApp($id: ID!, $data: B2CAppUpdateInput!) {
+    app: updateB2CApp(id: $id, data: $data) {
+        id
+    }
+}

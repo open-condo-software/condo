@@ -22,7 +22,7 @@ import {
     UpdateOidcClientUrlMutation,
     useGenerateOidcClientSecretMutation,
     GenerateOidcClientSecretMutation,
-} from '@/lib/gql'
+} from '@/gql'
 
 const MASKED_PASSWORD = '*'.repeat(OIDC_SECRET_LENGTH)
 const CREDENTIALS_DIVIDER_STYLES: CSSProperties = { marginBottom: 24 }

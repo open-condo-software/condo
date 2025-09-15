@@ -15,8 +15,8 @@ import styles from './RecentAppsPopover.module.css'
 import type { AppInfo } from '@/domains/miniapp/utils/merge'
 import type { RowProps } from 'antd'
 
+import { useAllAppsQuery } from '@/gql'
 import { useAuth } from '@/lib/auth'
-import { useAllAppsQuery } from '@/lib/gql'
 
 const BUTTON_ROW_GUTTER: RowProps['gutter'] = [20, 20]
 const APP_ROW_GUTTER: RowProps['gutter'] = [0, 0]

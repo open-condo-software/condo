@@ -1,0 +1,5 @@
+mutation registerAppUserService($data: RegisterAppUserServiceInput!) {
+    condoUser: registerAppUserService(data: $data) {
+        id
+    }
+}

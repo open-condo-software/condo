@@ -4,7 +4,7 @@ import { useIntl } from 'react-intl'
 
 import { Typography, Input } from '@open-condo/ui'
 
-import { AppEnvironment } from '@/lib/gql'
+import { AppEnvironment } from '@/gql'
 
 type EditUserFormProps = {
     id: string

@@ -34,7 +34,7 @@ import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
 import {
     useCreateB2CAppBuildMutation,
     useAllB2CAppBuildsQuery,
-} from '@/lib/gql'
+} from '@/gql'
 
 
 const ROW_BUTTON_GUTTER: RowProps['gutter'] = [60, 60]

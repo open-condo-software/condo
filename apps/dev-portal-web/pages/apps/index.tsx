@@ -15,9 +15,9 @@ import { mergeApps } from '@/domains/miniapp/utils/merge'
 import type { AppInfo } from '@/domains/miniapp/utils/merge'
 import type { RowProps } from 'antd'
 
+import { useAllAppsQuery, AllAppsDocument, AllAppsQuery, AllAppsQueryVariables } from '@/gql'
 import { extractApolloState, initializeApollo } from '@/lib/apollo'
 import { extractAuthHeadersFromRequest, prefetchAuth, useAuth } from '@/lib/auth'
-import { useAllAppsQuery, AllAppsDocument, AllAppsQuery, AllAppsQueryVariables } from '@/lib/gql'
 
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]

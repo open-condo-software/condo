@@ -12,8 +12,8 @@ import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutation
 
 import type { RowProps } from 'antd'
 
+import { useUpdateB2CAppMutation, AllAppsDocument, GetB2CAppDocument, useGetB2CAppQuery } from '@/gql'
 import { useAuth } from '@/lib/auth'
-import { useUpdateB2CAppMutation, AllAppsDocument, GetB2CAppDocument, useGetB2CAppQuery } from '@/lib/gql'
 
 const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [32, 32]
 const FULL_COL_SPAN = 24

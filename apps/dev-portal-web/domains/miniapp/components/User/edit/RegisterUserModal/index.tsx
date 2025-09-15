@@ -24,7 +24,7 @@ import {
     useCompleteConfirmEmailActionMutation,
     useRegisterAppUserServiceMutation,
     AllB2CAppAccessRightsDocument,
-} from '@/lib/gql'
+} from '@/gql'
 
 // NOTE: Code is alive for 5 minutes, but we cut it on front-end side to reduce long awaiting
 const RESET_MAX_TIMEOUT_IN_SEC = 120

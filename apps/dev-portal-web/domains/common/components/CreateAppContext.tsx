@@ -12,7 +12,7 @@ import { useValidations } from '@/domains/common/hooks/useValidations'
 
 import type { RowProps } from 'antd'
 
-import { useCreateB2CAppMutation, CreateB2CAppMutation, AllAppsDocument } from '@/lib/gql'
+import { useCreateB2CAppMutation, CreateB2CAppMutation, AllAppsDocument } from '@/gql'
 
 type CreateAppContextType = {
     createApp: () => void

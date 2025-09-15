@@ -10,9 +10,3 @@ mutation completeConfirmEmailAction($data: CompleteConfirmEmailActionInput!) {
         status
     }
 }
-
-mutation registerAppUserService($data: RegisterAppUserServiceInput!) {
-    condoUser: registerAppUserService(data: $data) {
-        id
-    }
-}
