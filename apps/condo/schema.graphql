@@ -85220,6 +85220,7 @@ type FileRecordHistoryRecord {
   sourceFileRecord: String
   sourceApp: String
   fileAdapter: String
+  attachments: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -85286,6 +85287,10 @@ input FileRecordHistoryRecordWhereInput {
   fileAdapter_not_ends_with_i: String
   fileAdapter_in: [String]
   fileAdapter_not_in: [String]
+  attachments: JSON
+  attachments_not: JSON
+  attachments_in: [JSON]
+  attachments_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -85397,6 +85402,7 @@ input FileRecordHistoryRecordUpdateInput {
   sourceFileRecord: String
   sourceApp: String
   fileAdapter: String
+  attachments: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -85422,6 +85428,7 @@ input FileRecordHistoryRecordCreateInput {
   sourceFileRecord: String
   sourceApp: String
   fileAdapter: String
+  attachments: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -85448,10 +85455,10 @@ type FileSender {
 type FileRecordUserMeta {
   dv: Int!
   sender: FileSender!
-  authedItemId: ID!
-  appId: String!
+  userId: ID!
+  fileClientId: String!
   modelNames: [String!]!
-  sourceAppId: String
+  sourceFileClientId: String
 }
 
 type FileRecordMeta {
@@ -85471,6 +85478,17 @@ input FileRecordRelateToOneInput {
   connect: FileRecordWhereUniqueInput
   disconnect: FileRecordWhereUniqueInput
   disconnectAll: Boolean
+}
+
+type FileAttachment {
+  modelName: String!
+  id: ID!
+  fileClientId: String!
+  user: ID!
+}
+
+type FileAttachments {
+  attachments: [FileAttachment!]!
 }
 
 """ Stores uploaded file meta data and owner """
@@ -85499,6 +85517,10 @@ type FileRecord {
 
   """ Type of the file adapter with which binary was saved to storage """
   fileAdapter: String
+
+  """ List of objects that stores info about which model, application and object is attached this binary 
+  """
+  attachments: FileAttachments
   id: ID!
   v: Int
   createdAt: String
@@ -85569,6 +85591,10 @@ input FileRecordWhereInput {
   fileAdapter_not_ends_with_i: String
   fileAdapter_in: [String]
   fileAdapter_not_in: [String]
+  attachments: JSON
+  attachments_not: JSON
+  attachments_in: [JSON]
+  attachments_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -85664,6 +85690,7 @@ input FileRecordUpdateInput {
   sourceFileRecord: FileRecordRelateToOneInput
   sourceApp: String
   fileAdapter: String
+  attachments: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -85686,6 +85713,7 @@ input FileRecordCreateInput {
   sourceFileRecord: FileRecordRelateToOneInput
   sourceApp: String
   fileAdapter: String
+  attachments: JSON
   v: Int
   createdAt: String
   updatedAt: String

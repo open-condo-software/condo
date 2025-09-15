@@ -1,9 +1,10 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
-const FILE_RECORD_USER_META = '{ dv sender { dv fingerprint } authedItemId appId modelNames sourceAppId }'
+const FILE_RECORD_USER_META = '{ dv sender { dv fingerprint } userId fileClientId modelNames sourceFileClientId }'
 const FILE_RECORD_META_FIELDS = `{ id fileAdapter recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
 const FILE_RECORD_PUBLIC_META_FIELDS = `{ id recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
+const FILE_RECORD_ATTACHMENTS = '{ attachments { id modelName fileClientId user } }'
 
 
 const FileRecord = new GQLListSchema('FileRecord', {
@@ -16,7 +17,7 @@ const FileRecord = new GQLListSchema('FileRecord', {
             graphQLReturnType: 'FileRecordMeta',
             extendGraphQLTypes: [
                 'type FileSender { dv: Int!, fingerprint: String! }',
-                'type FileRecordUserMeta { dv: Int!, sender: FileSender!, authedItemId: ID!, appId: String!, modelNames: [String!]!, sourceAppId: String }',
+                'type FileRecordUserMeta { dv: Int!, sender: FileSender!, userId: ID!, fileClientId: String!, modelNames: [String!]!, sourceFileClientId: String }',
                 'type FileRecordMeta { id: ID!, fileAdapter: String!, recordId: ID, path: String, filename: String!, originalFilename: String, mimetype: String!, encoding: String!, meta: FileRecordUserMeta! }',
             ],
         },
@@ -46,6 +47,15 @@ const FileRecord = new GQLListSchema('FileRecord', {
             schemaDoc: 'Type of the file adapter with which binary was saved to storage',
             isRequired: false,
         },
+        attachments: {
+            type: 'Json',
+            schemaDoc: 'List of objects that stores info about which model, application and object is attached this binary',
+            graphQLReturnType: 'FileAttachments',
+            extendGraphQLTypes: [
+                'type FileAttachment { modelName: String!, id: ID!, fileClientId: String!, user: ID! }',
+                'type FileAttachments { attachments: [FileAttachment!]! }',
+            ],
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
@@ -71,4 +81,6 @@ module.exports = {
     FileRecordScalarSchema,
     FILE_RECORD_META_FIELDS,
     FILE_RECORD_PUBLIC_META_FIELDS,
+    FILE_RECORD_ATTACHMENTS,
+    FILE_RECORD_USER_META,
 }
