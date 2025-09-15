@@ -78,7 +78,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
 
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
-    const condoMiniappContextQuery = router.query?.condoMiniappContext as string
+    const condoMiniappContextQuery = router.query?.condoMiniappContext
     
     const srcWithMeta = useMemo(() => {
         const url = new URL(src)
@@ -88,7 +88,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         if (organizationId && reloadScope === 'organization') {
             url.searchParams.set('condoOrganizationId', organizationId)
         }
-        if (condoMiniappContextQuery) {
+        if (typeof condoMiniappContextQuery === 'string') {
             try {
                 url.searchParams.set(
                     'condoMiniappContext', 
