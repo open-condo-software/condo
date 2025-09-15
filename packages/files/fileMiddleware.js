@@ -11,6 +11,7 @@ const {
     fileStorageHandler,
     validateAndParseFileConfig,
     fileShareHandler,
+    fileAttachHandler,
 } = require('./utils')
 
 
@@ -78,6 +79,13 @@ class FileMiddleware {
             authHandler(),
             rateLimitHandler({ keystone, quota, guard }),
             fileShareHandler({ keystone, appClients })
+        )
+
+        // attach route
+        app.post(
+            this.apiPrefix + '/attach',
+            authHandler(),
+            fileAttachHandler({ keystone, appClients })
         )
 
         // catch gql errors, that thrown from main handler

@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken')
-const { omit, get } = require('lodash')
+const { get, omit } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { parseAndValidateFileMetaSignature } = require('@open-condo/files/utils')
+const { validateFileUploadSignature } = require('@open-condo/files/utils')
 const { GQLError } = require('@open-condo/keystone/errors')
 
 const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
@@ -12,6 +12,8 @@ class CustomFile extends FileWithUTF8Name.implementation {
         super(...arguments)
         this.graphQLOutputType = 'File'
         this._fileSecret = conf['FILE_SECRET']
+        this._fileClientId = conf['FILE_CLIENT_ID']
+        this._fileServiceUrl = conf['FILE_SERVICE_URL'] || '/api/files/attach'
     }
 
     getFileUploadType () {
@@ -74,7 +76,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
                 })
             }
 
-            const { data, success, error } = parseAndValidateFileMetaSignature(fileData)
+            const { data, success, error } = validateFileUploadSignature(fileData)
             if (!success) {
                 throw new GQLError({
                     code: 'BAD_USER_INPUT',
@@ -84,7 +86,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             fileMeta = data
 
-            if (fileMeta.meta.authedItem !== context.authedItem.id) {
+            if (fileMeta.authedItem !== context.authedItem.id) {
                 throw new GQLError({
                     code: 'FORBIDDEN',
                     type: 'ACCESS_DENIED',
@@ -93,7 +95,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
                 }, context)
             }
 
-            if (!fileMeta.meta.modelNames.includes(listKey)) {
+            if (!fileMeta.modelNames.includes(listKey)) {
                 throw new GQLError({
                     code: 'FORBIDDEN',
                     type: 'ACCESS_DENIED',
@@ -107,14 +109,15 @@ class CustomFile extends FileWithUTF8Name.implementation {
     }
 
     async resolveInput ({ resolvedData, existingItem, context, listKey }) {
-        const uploadData = resolvedData[this.path]
-        // New way to 'upload' - connect file
-        if (get(uploadData, 'signature')) {
+        const input = resolvedData[this.path]
 
-            let file
+        // === New flow (signature): don't write a file yet; just mark this request ===
+        if (get(input, 'signature')) {
+            let fileMeta
+
             try {
-                file = jwt.verify(uploadData['signature'], this._fileSecret, { algorithms: ['HS256'] })
-            } catch (e) {
+                fileMeta = jwt.verify(input.signature, this._fileSecret, { algorithms: ['HS256'] })
+            } catch (err) {
                 throw new GQLError({
                     code: 'BAD_USER_INPUT',
                     type: 'WRONG_SIGNATURE',
@@ -123,12 +126,64 @@ class CustomFile extends FileWithUTF8Name.implementation {
                 })
             }
 
-            // Clear final object before save to field
-            return omit(file, ['iat', 'exp'])
+            validateFileUploadSignature(fileMeta)
+
+            // keep per-request state so afterChange knows to run the webhook
+            if (!context._fileNewFlow) context._fileNewFlow = {}
+
+            const key = `${listKey}.${this.path}`
+            context._fileNewFlow[key] = {
+                signature: input.signature,
+                userId: context.authedItem?.id || null,
+                listKey,
+            }
+            return null // field stays null for the first write
         }
 
-        // Legacy way to upload file
-        return await super.resolveInput({ resolvedData, existingItem })
+        // === Legacy flow (Upload stream): delegate to base ===
+        return super.resolveInput({ resolvedData, existingItem })
+    }
+
+    async beforeChange ({ resolvedData, context, listKey }) {
+        const key = `${listKey}.${this.path}`
+        const marker = context._fileNewFlow && context._fileNewFlow[key]
+        if (!marker) return
+
+        const payload = {
+            id: resolvedData.id,
+            modelName: listKey,
+            signature: context._fileNewFlow[key].signature,
+            fileClientId: this._fileClientId,
+            dv: 1, sender: { dv: 1, fingerprint: 'file-attach-handler' },
+        }
+
+        let attachResult
+
+        try {
+            const res = await fetch(this._fileServiceUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+
+            if (!res.ok) {
+                return
+            }
+
+            attachResult = await res.json()
+
+            if (!get(attachResult, ['data', 'file', 'signature'], false)) {
+                return
+            }
+
+            attachResult = attachResult.data.file.signature
+
+            const data = jwt.verify(attachResult, this._fileSecret, { algorithms: ['HS256'] })
+
+            resolvedData[this.path] = omit(data, ['iat', 'exp'])
+        } catch (err) {
+            return
+        }
     }
 
     getBackingTypes () {

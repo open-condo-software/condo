@@ -6,6 +6,8 @@ const { z } = require('zod')
 const {
     FILE_RECORD_META_FIELDS,
     FILE_RECORD_PUBLIC_META_FIELDS,
+    FILE_RECORD_ATTACHMENTS,
+    FILE_RECORD_USER_META,
 } = require('@open-condo/files/schema/models')
 const { FileRecord } = require('@open-condo/files/schema/utils/serverSchema')
 const { GQLError } = require('@open-condo/keystone/errors')
@@ -50,11 +52,9 @@ function validateAndParseFileConfig (config) {
 }
 
 // ---------------------- utilities ----------------------
-
 const FINGERPRINT_RE = /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`~]{5,42}$/
 
 // ---------------------- guards ----------------------
-
 class RedisGuard {
     constructor () {
         this.counterPrefix = 'guard_counter:'
@@ -81,8 +81,8 @@ const MetaSchema = z.object({
         dv: z.literal(1),
         fingerprint: z.string().regex(FINGERPRINT_RE),
     }).strict(),
-    authedItemId: z.uuid(),
-    appId: z.string().min(1),
+    userId: z.uuid(),
+    fileClientId: z.string().min(1),
     modelNames: z.array(z.string()).min(1),
 }).strict()
 
@@ -106,12 +106,24 @@ function parseAndValidateMeta (raw, req, next, onError) {
     }
 
     const meta = result.data
-    if (meta.authedItemId !== req.user.id) {
+    if (meta.userId !== req.user.id) {
         return onError(() => next(new GQLError(ERRORS.INVALID_META, { req })))
     }
 
     return meta
 }
+
+const AttachBodyPayloadSchema = z.object({
+    modelId: z.uuid(),
+    modelName: z.string().min(1),
+    signature: z.string().min(1),
+    fileClientId: z.string().min(1),
+    dv: z.literal(1),
+    sender: z.object({
+        dv: z.literal(1),
+        fingerprint: z.string().regex(FINGERPRINT_RE),
+    }).strict(),
+}).strict()
 
 const SharePayloadSchema = z.object({
     dv: z.literal(1),
@@ -120,8 +132,8 @@ const SharePayloadSchema = z.object({
         fingerprint: z.string().regex(FINGERPRINT_RE),
     }).strict(),
     id: z.uuid(),
-    authedItemId: z.uuid(),
-    appId: z.string().min(1),
+    userId: z.uuid(),
+    fileClientId: z.string().min(1),
     modelNames: z.array(z.string()).min(1).optional(),
 }).strict()
 
@@ -139,20 +151,53 @@ const FileMetaSignatureSchema = z.object({
             dv: z.literal(1),
             fingerprint: z.string().regex(FINGERPRINT_RE),
         }).strict(),
-        authedItemId: z.uuid(),
-        appId: z.string(),
+        userId: z.uuid(),
+        fileClientId: z.string(),
         modelNames: z.array(z.string()).min(1).optional(),
-        sourceAppId: z.string().nullable(),
+        sourceFileClientId: z.string().nullable(),
     }).strict(),
     iat: z.number(),
     exp: z.number(),
 }).strict()
 
+const FileUploadMetaSchema = z.object({
+    id: z.uuid(),
+    dv: z.literal(1),
+    sender: z.object({
+        dv: z.literal(1),
+        fingerprint: z.string().regex(FINGERPRINT_RE),
+    }).strict(),
+    userId: z.uuid(),
+    fileClientId: z.string(),
+    modelNames: z.array(z.string()).min(1).optional(),
+    sourceFileClientId: z.string().nullable(),
+    iat: z.number(),
+    exp: z.number(),
+}).strict()
+
+const FileAttachSchema = z.object({
+    id: z.uuid(), // id of FileRecord
+    modelId: z.uuid(), // id of model to which file should be attached
+    modelName: z.string().min(1),
+    user: z.object({
+        id: z.uuid(),
+    }).strict(),
+    fileClientId: z.string().min(1), // Application which has rights to upload files via file service
+    dv: z.literal(1),
+    sender: z.object({
+        dv: z.literal(1),
+        fingerprint: z.string().regex(FINGERPRINT_RE),
+    }).strict(),
+}).strict()
+
+function validateFileUploadSignature (data) {
+    return z.safeParse(FileUploadMetaSchema, data)
+}
+
 function parseAndValidateFileMetaSignature (data) {
     return z.safeParse(FileMetaSignatureSchema, data)
 }
 // ---------------------- handlers ----------------------
-
 function authHandler ()  {
     return async function (req, res, next) {
         if (!req.user || req.user.deletedAt !== null) {
@@ -319,14 +364,14 @@ function parserHandler ({ processRequestOptions }) {
 function fileStorageHandler ({ keystone, appClients }) {
     return async function (req, res, next) {
         const { [fileMetaSymbol]: meta, files } = req
-        const appClient = appClients ? appClients[meta.appId] : undefined
+        const appClient = appClients ? appClients[meta.fileClientId] : undefined
 
-        if (!(meta['appId'] in (appClients || {}))) {
+        if (!(meta['fileClientId'] in (appClients || {}))) {
             const error = new GQLError(ERRORS.INVALID_APP_ID, { req })
             return next(error)
         }
 
-        const fileAdapter = new FileAdapter(meta['appId'])
+        const fileAdapter = new FileAdapter(meta['fileClientId'])
         const context = keystone.createContext({ skipAccessControl: true })
         const savedFiles = await Promise.all(
             files.map(file =>
@@ -365,14 +410,14 @@ function fileStorageHandler ({ keystone, appClients }) {
         const fileRecords = await FileRecord.updateMany(context,
             createdFiles.map(e => ({
                 id: e.id, data: { fileMeta: { ...e.fileMeta, recordId: e.id }, dv: meta.dv, sender: meta.sender },
-            })), `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
+            })), `id fileMeta { meta ${FILE_RECORD_USER_META} }`)
 
         res.json({
             data: {
                 files: fileRecords.map(file => ({
                     id: file.id,
                     signature: jwt.sign(
-                        file.fileMeta,
+                        { id: file.id, ...file.fileMeta.meta },
                         appClient.secret,
                         { expiresIn: '5m', algorithm: 'HS256' }
                     ),
@@ -394,13 +439,13 @@ function fileShareHandler ({ keystone, appClients }) {
             return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }, [error]))
         }
 
-        const { id, appId, authedItemId, modelNames, dv, sender } = data
+        const { id, fileClientId, userId, modelNames, dv, sender } = data
 
-        if (!(appId in (appClients || {}))) {
+        if (!(fileClientId in (appClients || {}))) {
             return next(new GQLError(ERRORS.INVALID_APP_ID, { req }))
         }
 
-        const appClient = appClients[appId]
+        const appClient = appClients[fileClientId]
 
         const context = keystone.createContext({ skipAccessControl: true })
         const fileRecord = await FileRecord
@@ -416,8 +461,8 @@ function fileShareHandler ({ keystone, appClients }) {
          * And then if we want to share file_2, file_3 should also point to file_1
          * That's because only original file binary can be found in storage
          */
-        const sourceAppId = fileRecord.sourceApp === null
-            ? fileRecord.fileMeta.meta.appId
+        const sourceFileClientId = fileRecord.sourceApp === null
+            ? fileRecord.fileMeta.meta.fileClientId
             : fileRecord.sourceApp
         const sourceFileRecord = fileRecord.sourceFileRecord === null
             ? fileRecord.id
@@ -427,9 +472,9 @@ function fileShareHandler ({ keystone, appClients }) {
             ...fileRecord.fileMeta,
             meta: {
                 ...fileRecord.fileMeta.meta,
-                appId,
-                authedItemId,
-                sourceAppId,
+                fileClientId,
+                userId,
+                sourceFileClientId,
                 modelNames,
             },
         }
@@ -437,22 +482,106 @@ function fileShareHandler ({ keystone, appClients }) {
         const created = await FileRecord.create(context, {
             fileMeta: sharedFileMeta,
             dv, sender,
-            user: { connect: { id: authedItemId } },
+            user: { connect: { id: userId } },
             sourceFileRecord: { connect: { id: sourceFileRecord } }, // point to original FileRecord
-            sourceApp: sourceAppId, // original appId for routing
+            sourceApp: sourceFileClientId, // original fileClientId for routing
         }, `id fileMeta ${FILE_RECORD_META_FIELDS}`)
 
         const sharedFile = await FileRecord.update(context, created.id, {
             fileMeta: { ...created.fileMeta, recordId: created.id },
             dv, sender,
-        }, `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
+        }, `id fileMeta { meta ${FILE_RECORD_USER_META} }`)
 
         res.json({
             data: {
                 file: {
                     id: sharedFile.id,
                     signature: jwt.sign(
-                        sharedFile.fileMeta,
+                        { id: sharedFile.id, ...sharedFile.fileMeta.meta },
+                        appClient.secret,
+                        { expiresIn: '5m', algorithm: 'HS256' }
+                    ),
+                },
+            },
+        })
+    }
+}
+
+function fileAttachHandler ({ keystone, appClients }) {
+    return async function (req, res, next) {
+        const {
+            success,
+            error,
+            data,
+        } = AttachBodyPayloadSchema.safeParse(req.body)
+
+        // const {
+        //     success,
+        //     error,
+        //     data,
+        // } = FileAttachSchema.safeParse(req.body)
+
+        if (!success) {
+            return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }, [error]))
+        }
+
+        const { modelName, modelId, signature, fileClientId, dv, sender } = data
+
+        if (!(fileClientId in (appClients || {}))) {
+            return next(new GQLError(ERRORS.INVALID_APP_ID, { req }))
+        }
+
+        let decryptedData
+
+        try {
+            decryptedData = await jwt.verify(signature, appClients[fileClientId].secret, { algorithm: 'HS256' })
+        } catch (e) {
+            return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }))
+        }
+
+        const user = { id: req.user.id }
+
+        const context = keystone.createContext({ skipAccessControl: true })
+        const fileRecord = await FileRecord.getOne(context, { id: decryptedData.id, user }, `id attachments ${FILE_RECORD_ATTACHMENTS} fileMeta ${FILE_RECORD_META_FIELDS}`)
+
+        if (!fileRecord) {
+            return next(new GQLError(ERRORS.FILE_NOT_FOUND, { req }))
+        }
+
+        const fileMeta = fileRecord.fileMeta
+
+        if (!fileMeta.meta.modelNames.includes(modelName)) {
+            return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }))
+        }
+
+        if (fileMeta.meta.fileClientId !== fileClientId) {
+            return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }))
+        }
+
+        const originalAttachments = fileRecord.attachments?.attachments
+
+
+        const newAttachment = {
+            modelName, id: modelId, fileClientId: fileClientId, user: user.id,
+        }
+        const resultAttachments = Array.isArray(originalAttachments)
+            ? [...originalAttachments, newAttachment]
+            : [newAttachment]
+
+        const file = await FileRecord.update(context, fileRecord.id, {
+            dv, sender,
+            attachments: {
+                attachments: resultAttachments,
+            },
+        }, `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
+        const appClient = appClients[fileClientId]
+
+        // Return full public meta for file. It's finally can save to the database at the client / application side
+        res.json({
+            data: {
+                file: {
+                    signature: jwt.sign(
+                        file.fileMeta,
                         appClient.secret,
                         { expiresIn: '5m', algorithm: 'HS256' }
                     ),
@@ -469,6 +598,7 @@ module.exports = {
     // helpers
     parseAndValidateMeta,
     parseAndValidateFileMetaSignature,
+    validateFileUploadSignature,
     RedisGuard,
 
     // handlers
@@ -477,9 +607,11 @@ module.exports = {
     parserHandler,
     fileStorageHandler,
     fileShareHandler,
+    fileAttachHandler,
 
     __test__: {
         MetaSchema,
         SharePayloadSchema,
+        FileAttachSchema,
     },
 }

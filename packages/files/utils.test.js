@@ -36,8 +36,8 @@ function onErrorRunner () {
 const baseMeta = (overrides = {}) => ({
     dv: 1,
     sender: { dv: 1, fingerprint: 'device-ABC_123' },
-    authedItemId: USER_UUID,
-    appId: 'condo',
+    userId: USER_UUID,
+    fileClientId: 'condo',
     modelNames: ['Example'],
     ...overrides,
 })
@@ -46,8 +46,8 @@ const baseShare = (overrides = {}) => ({
     dv: 1,
     sender: { dv: 1, fingerprint: 'device-ABC_123' },
     id: faker.datatype.uuid(),
-    authedItemId: USER_UUID,
-    appId: 'condo',
+    userId: USER_UUID,
+    fileClientId: 'condo',
     modelNames: ['Example'],
     ...overrides,
 })
@@ -136,14 +136,14 @@ const FileMiddlewareUtilsTests = () => {
                 expect(bad.error.issues[0].message).toMatch(/Invalid string|Invalid/)
             })
 
-            test('authedItemId must be uuid', () => {
-                const bad = MetaSchema.safeParse(baseMeta({ authedItemId: 'nope' }))
+            test('userId must be uuid', () => {
+                const bad = MetaSchema.safeParse(baseMeta({ userId: 'nope' }))
                 expect(bad.success).toBe(false)
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
             })
 
-            test('appId must be non-empty string', () => {
-                const bad = MetaSchema.safeParse(baseMeta({ appId: '' }))
+            test('fileClientId must be non-empty string', () => {
+                const bad = MetaSchema.safeParse(baseMeta({ fileClientId: '' }))
                 expect(bad.success).toBe(false)
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch('too small: expected string to have >=1 characters')
             })
@@ -185,14 +185,14 @@ const FileMiddlewareUtilsTests = () => {
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
             })
 
-            test('authedItemId must be uuid', () => {
-                const bad = SharePayloadSchema.safeParse(baseShare({ authedItemId: 'nope' }))
+            test('userId must be uuid', () => {
+                const bad = SharePayloadSchema.safeParse(baseShare({ userId: 'nope' }))
                 expect(bad.success).toBe(false)
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
             })
 
-            test('appId must be non-empty string', () => {
-                const bad = SharePayloadSchema.safeParse(baseShare({ appId: '' }))
+            test('fileClientId must be non-empty string', () => {
+                const bad = SharePayloadSchema.safeParse(baseShare({ fileClientId: '' }))
                 expect(bad.success).toBe(false)
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch('too small: expected string to have >=1 characters')
             })
@@ -264,7 +264,7 @@ const FileMiddlewareUtilsTests = () => {
                 }))
             })
 
-            test('rejects mismatch authedItemId with 403', () => {
+            test('rejects mismatch userId with 403', () => {
                 const req = { user: { id: faker.datatype.uuid(), deletedAt: null } }
                 const { next } = makeReqRes({ req })
                 const { onError, calls } = onErrorRunner()
