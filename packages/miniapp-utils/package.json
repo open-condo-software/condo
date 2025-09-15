@@ -182,6 +182,7 @@
   "devDependencies": {
     "@apollo/client": "^3.11.8",
     "@open-condo/tsconfig": "workspace:^",
+    "@types/http-proxy": "^1.17.16",
     "@types/jest": "^29.5.14",
     "@types/node": "^22",
     "@types/proxy-addr": "^2.0.3",
@@ -199,6 +200,7 @@
   "dependencies": {
     "cookie": "^0.7.0",
     "cookies-next": "^4.2.1",
+    "http-proxy": "^1.18.1",
     "jsonwebtoken": "^9.0.0",
     "openid-client": "5.7.1",
     "proxy-addr": "^2.0.7",

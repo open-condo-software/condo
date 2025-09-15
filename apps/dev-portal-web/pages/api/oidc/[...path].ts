@@ -16,9 +16,9 @@ export const config = {
 
 const proxyHandler = createProxy({
     name: proxyName,
-    proxyPrefix: '/api/graphql',
+    proxyPrefix: '/api/oidc',
     upstreamOrigin: serverUrl,
-    upstreamPrefix: '/admin/api',
+    upstreamPrefix: '/api/oidc',
 })
 
 export default proxyHandler

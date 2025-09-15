@@ -124,3 +124,69 @@ export function getProxyHeadersForIp (method: string, url: string, ip: string, p
         }),
     }
 }
+
+export function isRelativeUrl (url: string) {
+    return url.startsWith('/')
+}
+
+export function replaceUpstreamEndpoint ({
+    endpoint,
+    proxyPrefix,
+    upstreamPrefix,
+    upstreamOrigin,
+    rewrites = {},
+}: {
+    endpoint: string
+    proxyPrefix: string
+    upstreamPrefix: string
+    upstreamOrigin: string
+    rewrites?: Record<string, string>
+}) {
+    const isRelativeLocation = isRelativeUrl(endpoint)
+    const locationUrl = new URL(endpoint, 'https://_')
+
+    let targetLocation
+
+    const lookupUrl = new URL(endpoint, upstreamOrigin)
+    lookupUrl.search = ''
+    // First lookup relative location ('/some/path')
+    if (isRelativeLocation || lookupUrl.origin === upstreamOrigin) {
+        targetLocation ??= rewrites[lookupUrl.pathname]
+    }
+
+    // Then lookup absolute location ('https://upstreamhost.com/some/path')
+    targetLocation ??= rewrites[lookupUrl.toString()]
+
+    // If found lookup, perform smart replacement
+    if (targetLocation) {
+        const isRelativeTarget = isRelativeUrl(targetLocation)
+        const targetUrl = new URL(targetLocation, upstreamOrigin)
+        const targetSearchParams = new URLSearchParams(targetUrl.searchParams)
+        // Replace target search params with location search params, then apply target search params on top
+        if (!targetUrl.hash) {
+            targetUrl.hash = locationUrl.hash
+        }
+        targetUrl.search = locationUrl.search
+        for (const [name] of targetSearchParams.entries()) {
+            targetUrl.searchParams.delete(name)
+        }
+        for (const [name, value] of targetSearchParams.entries()) {
+            targetUrl.searchParams.append(name, value)
+        }
+
+        if (isRelativeTarget) {
+            return targetUrl.pathname + targetUrl.search + targetUrl.hash
+        } else {
+            return targetUrl.toString()
+        }
+    }
+
+    // If location is relative or has same as upstream domain, try to replace back upstreamPrefix with proxyPrefix
+    if ((isRelativeLocation || locationUrl.origin === upstreamOrigin) && locationUrl.pathname.startsWith(upstreamPrefix)) {
+        locationUrl.pathname = proxyPrefix + locationUrl.pathname.slice(upstreamPrefix.length)
+
+        return locationUrl.pathname + locationUrl.search + locationUrl.hash
+    }
+
+    return endpoint
+}

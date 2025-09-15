@@ -1775,11 +1775,6 @@ export type B2CAppsUpdateInput = {
     id: Scalars['ID']['input']
 }
 
-export enum CacheControlScope {
-    Private = 'PRIVATE',
-    Public = 'PUBLIC',
-}
-
 export type CompleteConfirmEmailActionInput = {
     actionId: Scalars['String']['input']
     code: Scalars['String']['input']
