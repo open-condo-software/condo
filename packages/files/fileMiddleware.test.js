@@ -5,7 +5,7 @@ const FormData = require('form-data')
 const jwt = require('jsonwebtoken')
 
 const conf = require('@open-condo/config')
-const { parseAndValidateFileMetaSignature } = require('@open-condo/files/utils')
+const { parseAndValidateFileMetaSignature, validateFileUploadSignature } = require('@open-condo/files/utils')
 const { HTTPStatusByGQLErrorCode } = require('@open-condo/keystone/errors')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getKVClient } = require('@open-condo/keystone/kv')
@@ -31,9 +31,10 @@ async function expectGQLErrorResponse (response, errorFields) {
 
 const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
     const appClients = JSON.parse(conf['FILE_UPLOAD_CONFIG']).clients
-    const appId = Object.keys(appClients)[0]
+    const fileClientId = Object.keys(appClients)[0]
     let serverUrl
     let serverShareUrl
+    let serverAttachUrl
     let admin
     let filestream
     beforeAll(async () => {
@@ -43,6 +44,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
         const client = await makeClient()
         serverUrl = client.serverUrl + '/api/files/upload'
         serverShareUrl = client.serverUrl + '/api/files/share'
+        serverAttachUrl = client.serverUrl + '/api/files/attach'
         admin = await makeLoggedInAdminClient()
         filestream = fs.readFileSync(testFile)
 
@@ -89,8 +91,8 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const form = new FormData()
                 form.append('file', filestream, 'dino.png')
                 form.append('meta', JSON.stringify({
-                    authedItemId: faker.datatype.uuid(),
-                    appId,
+                    userId: faker.datatype.uuid(),
+                    fileClientId,
                     modelNames: ['SomeModel'],
                     ...DV_AND_SENDER,
                 }))
@@ -153,7 +155,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 test('upload file without dv field should fail', async () => {
                     const form = new FormData()
                     form.append('file', filestream, 'dino.png')
-                    form.append('meta', JSON.stringify({ authedItemId: admin.user.id }))
+                    form.append('meta', JSON.stringify({ userId: admin.user.id }))
                     const result = await fetch(serverUrl, {
                         method: 'POST',
                         body: form,
@@ -169,7 +171,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 test('upload without sender meta field should fail', async () => {
                     const form = new FormData()
                     form.append('file', filestream, 'dino.png')
-                    form.append('meta', JSON.stringify({ authedItemId: admin.user.id, dv: 1 }))
+                    form.append('meta', JSON.stringify({ userId: admin.user.id, dv: 1 }))
                     const result = await fetch(serverUrl, {
                         method: 'POST',
                         body: form,
@@ -185,7 +187,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 test('upload with wrong data version number should fail', async () => {
                     let form = new FormData()
                     form.append('file', filestream, 'dino.png')
-                    form.append('meta', JSON.stringify({ authedItemId: admin.user.id, dv: 2, sender: { dv: 1, fingerprint: 'test-runner' } }))
+                    form.append('meta', JSON.stringify({ userId: admin.user.id, dv: 2, sender: { dv: 1, fingerprint: 'test-runner' } }))
                     let result = await fetch(serverUrl, {
                         method: 'POST',
                         body: form,
@@ -198,7 +200,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
                     form = new FormData()
                     form.append('file', filestream, 'dino.png')
-                    form.append('meta', JSON.stringify({ authedItemId: admin.user.id, dv: 1, sender: { dv: 2, fingerprint: 'test-runner' } }))
+                    form.append('meta', JSON.stringify({ userId: admin.user.id, dv: 1, sender: { dv: 2, fingerprint: 'test-runner' } }))
                     result = await fetch(serverUrl, {
                         method: 'POST',
                         body: form,
@@ -214,7 +216,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 test('upload with wrong meta.sender.fingerprint should fail', async () => {
                     const form = new FormData()
                     form.append('file', filestream, 'dino.png')
-                    form.append('meta', JSON.stringify({ authedItemId: admin.user.id, dv: 1, sender: { dv: 1, fingerprint: 'test' } }))
+                    form.append('meta', JSON.stringify({ userId: admin.user.id, dv: 1, sender: { dv: 1, fingerprint: 'test' } }))
                     const result = await fetch(serverUrl, {
                         method: 'POST',
                         body: form,
@@ -229,7 +231,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
                 test('upload without file should fail', async () => {
                     const form = new FormData()
-                    form.append('meta', JSON.stringify({ authedItemId: admin.user.id, appId, modelNames: ['SomeModel'], ...DV_AND_SENDER }))
+                    form.append('meta', JSON.stringify({ userId: admin.user.id, fileClientId, modelNames: ['SomeModel'], ...DV_AND_SENDER }))
                     const result = await fetch(serverUrl, {
                         method: 'POST',
                         body: form,
@@ -244,7 +246,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
                 test('upload with wrong authed item type should fail', async () => {
                     const form = new FormData()
-                    form.append('meta', JSON.stringify({ authedItemId: 123, ...DV_AND_SENDER }))
+                    form.append('meta', JSON.stringify({ userId: 123, ...DV_AND_SENDER }))
                     form.append('file', fs.readFileSync(testFile), 'dino.png')
                     const result = await fetch(serverUrl, {
                         method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
@@ -259,7 +261,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 test('upload without app id should fail', async () => {
                     const form = new FormData()
                     form.append('file', fs.readFileSync(testFile), 'dino.png')
-                    form.append('meta', JSON.stringify({ authedItemId: admin.user.id, ...DV_AND_SENDER }))
+                    form.append('meta', JSON.stringify({ userId: admin.user.id, ...DV_AND_SENDER }))
                     const result = await fetch(serverUrl, {
                         method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
                     })
@@ -270,11 +272,11 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     })
                 })
 
-                test('upload with wrong appId should fail', async () => {
-                    const appId = faker.datatype.uuid()
+                test('upload with wrong fileClientId should fail', async () => {
+                    const fileClientId = faker.datatype.uuid()
                     const form = new FormData()
                     form.append('file', filestream, 'dino.png')
-                    form.append('meta', JSON.stringify({ authedItemId: admin.user.id, appId, modelNames: ['SomeModel'], ...DV_AND_SENDER }))
+                    form.append('meta', JSON.stringify({ userId: admin.user.id, fileClientId, modelNames: ['SomeModel'], ...DV_AND_SENDER }))
                     const result = await fetch(serverUrl, {
                         method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
                     })
@@ -305,8 +307,8 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     const user2 = await createTestUser()
                     const form = new FormData()
                     const meta = {
-                        authedItemId: user1.user.id,
-                        appId, modelNames: ['SomeModel'],
+                        userId: user1.user.id,
+                        fileClientId, modelNames: ['SomeModel'],
                         ...DV_AND_SENDER,
                     }
                     form.append('file', filestream, 'dino.png')
@@ -320,14 +322,14 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     expect(uploadResult.status).toEqual(200)
                     const uploadResultJson = await uploadResult.json()
                     expect(uploadResultJson.data.files).toHaveLength(1)
-                    expect(uploadResultJson.data.files[0]).toHaveProperty('id')
+                    expect(uploadResultJson.data.files[0]).toHaveProperty('signature')
 
                     const result = await fetch(serverShareUrl, {
                         method: 'POST',
                         body: JSON.stringify({
                             id: uploadResultJson.data.files[0].id,
-                            appId: Object.keys(appClients)[1],
-                            authedItemId: user2.user.id,
+                            fileClientId: Object.keys(appClients)[1],
+                            userId: user2.user.id,
                             modelNames: ['AnotherModel'],
                             ...DV_AND_SENDER,
                         }),
@@ -346,8 +348,8 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     const user2 = await createTestUser()
                     const form = new FormData()
                     const meta = {
-                        authedItemId: user1.user.id,
-                        appId, modelNames: ['SomeModel'],
+                        userId: user1.user.id,
+                        fileClientId, modelNames: ['SomeModel'],
                         ...DV_AND_SENDER,
                     }
                     form.append('file', filestream, 'dino.png')
@@ -361,13 +363,13 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     expect(uploadResult.status).toEqual(200)
                     const uploadResultJson = await uploadResult.json()
                     expect(uploadResultJson.data.files).toHaveLength(1)
-                    expect(uploadResultJson.data.files[0]).toHaveProperty('id')
+                    expect(uploadResultJson.data.files[0]).toHaveProperty('signature')
 
                     const result1 = await fetch(serverShareUrl, {
                         method: 'POST',
                         body: JSON.stringify({
-                            appId: Object.keys(appClients)[1],
-                            authedItemId: user2.user.id,
+                            fileClientId: Object.keys(appClients)[1],
+                            userId: user2.user.id,
                             modelNames: ['AnotherModel'],
                             ...DV_AND_SENDER,
                         }),
@@ -390,8 +392,8 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const user = await createTestUser()
                 const form = new FormData()
                 const meta = {
-                    authedItemId: user.user.id,
-                    appId,
+                    userId: user.user.id,
+                    fileClientId,
                     modelNames: ['SomeModel'],
                     ...DV_AND_SENDER,
                 }
@@ -408,10 +410,9 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 expect(result.status).toEqual(200)
                 expect(json).toHaveProperty(['data', 'files'])
                 expect(json.data.files).toHaveLength(1)
-                expect(json.data.files[0]).toHaveProperty('id')
                 expect(json.data.files[0]).toHaveProperty('signature')
 
-                const secret = JSON.parse(conf['FILE_UPLOAD_CONFIG']).clients[meta.appId]['secret']
+                const secret = JSON.parse(conf['FILE_UPLOAD_CONFIG']).clients[meta.fileClientId]['secret']
                 const data = jwt.verify(json.data.files[0].signature, secret, { algorithms: ['HS256'] })
                 expect(data).not.toBeNull()
             })
@@ -422,8 +423,8 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const user = await createTestUser()
                 const form = new FormData()
                 const meta = {
-                    authedItemId: user.user.id,
-                    appId,
+                    userId: user.user.id,
+                    fileClientId,
                     modelNames: ['SomeModel'],
                     ...DV_AND_SENDER,
                 }
@@ -451,8 +452,8 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const user = await createTestUser()
                 const form = new FormData()
                 const meta = {
-                    authedItemId: user.user.id,
-                    appId,
+                    userId: user.user.id,
+                    fileClientId,
                     modelNames: ['SomeModel'],
                     ...DV_AND_SENDER,
                 }
@@ -476,18 +477,18 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 })
 
                 const decryptedData = jwt.verify(file.signature, appClients[Object.keys(appClients)[0]].secret, { algorithms: ['HS256'] })
-                const { data, success } = parseAndValidateFileMetaSignature(decryptedData)
+
+                const { success } = validateFileUploadSignature(decryptedData)
                 // Check encrypted shape has an expected shape
                 expect(success).toBeTruthy()
-                expect(data).toEqual(decryptedData)
             })
 
             test('uploading multiple files should be possible', async () => {
                 const user = await createTestUser()
                 const form = new FormData()
                 const meta = {
-                    authedItemId: user.user.id,
-                    appId,
+                    userId: user.user.id,
+                    fileClientId,
                     modelNames: ['SomeModel'],
                     ...DV_AND_SENDER,
                 }
@@ -513,8 +514,8 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 // First of all we need to upload file as user1
                 const form = new FormData()
                 const meta = {
-                    authedItemId: user1.user.id,
-                    appId,
+                    userId: user1.user.id,
+                    fileClientId,
                     modelNames: ['SomeModel'],
                     ...DV_AND_SENDER,
                 }
@@ -533,8 +534,6 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
                 const originalFile = uploadResultJson.data.files[0]
 
-                const originalFileMeta = jwt.verify(originalFile.signature, appClients[Object.keys(appClients)[0]].secret, { algorithms: ['HS256'] })
-
                 // Now create another file with same binary from owner user1
                 const shareResult = await fetch(serverShareUrl, {
                     method: 'POST',
@@ -546,9 +545,9 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     body: JSON.stringify({
                         id: originalFile.id,
                         // Took another client
-                        appId: Object.keys(appClients)[1],
+                        fileClientId: Object.keys(appClients)[1],
                         // Here we insert the id for which this file is intended
-                        authedItemId: user2.user.id,
+                        userId: user2.user.id,
                         modelNames: ['AnotherModel'],
                         ...DV_AND_SENDER,
                     }),
@@ -570,23 +569,73 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
                 expect(decryptedData).toEqual(expect.objectContaining({
                     id: decryptedData.id,
-                    encoding: '7bit',
-                    filename: `${originalFileMeta.id}-dino.png`,
-                    originalFilename: 'dino.png',
-                    mimetype: 'image/png',
-                    path: null,
                     exp: decryptedData.exp,
                     iat: decryptedData.iat,
-                    meta: {
-                        dv: 1,
-                        sender: { dv: 1, fingerprint: 'test-runner' },
-                        appId: Object.keys(appClients)[1],
-                        modelNames: ['AnotherModel'],
-                        sourceAppId: Object.keys(appClients)[0],
-                        authedItemId: user2.user.id,
-                    },
-                    recordId: sharedFile.id,
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'test-runner' },
+                    fileClientId: Object.keys(appClients)[1],
+                    modelNames: ['AnotherModel'],
+                    sourceFileClientId: Object.keys(appClients)[0],
+                    userId: user2.user.id,
                 }))
+            })
+
+            test('file attach flow', async () => {
+                const user = await createTestUser()
+                const form = new FormData()
+                const meta = {
+                    userId: user.user.id,
+                    fileClientId,
+                    modelNames: ['SomeModel'],
+                    ...DV_AND_SENDER,
+                }
+                form.append('meta', JSON.stringify(meta))
+                form.append('file', filestream, 'dino.png')
+
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: user.getCookie() },
+                })
+
+                const json = await result.json()
+
+                expect(result.status).toEqual(200)
+                expect(json.data.files).toHaveLength(1)
+                const file = json.data.files[0]
+                expect(file).toEqual({
+                    id: file.id,
+                    signature: file.signature,
+                })
+
+                const attachResult = await fetch(serverAttachUrl, {
+                    method: 'POST',
+                    headers: {
+                        Cookie: user.getCookie(),
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        signature: file.signature,
+                        modelId: faker.datatype.uuid(),
+                        modelName: 'SomeModel',
+                        fileClientId,
+                        dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
+                    }),
+                })
+
+                const attachJson = await attachResult.json()
+                expect(attachResult.status).toEqual(200)
+                expect(attachJson.data.file).toHaveProperty('signature')
+
+                // Check attach signed payload
+                const attachPayload = jwt.verify(
+                    attachJson.data.file.signature,
+                    appClients[Object.keys(appClients)[0]].secret,
+                    { algorithms: ['HS256'] }
+                )
+
+                const { success } = parseAndValidateFileMetaSignature(attachPayload)
+                expect(success).toBeTruthy()
             })
         })
     })
