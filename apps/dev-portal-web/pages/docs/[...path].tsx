@@ -150,26 +150,22 @@ const DocPage: React.FC<DocPageProps> = ({
                         <div className={styles.bottomNavContainer}>
                             <div className={styles.bottomNavLink}>
                                 {prevPage && (
-                                    <Link href={`${DOCS_ROOT_ENDPOINT}/${prevPage.route}`} legacyBehavior>
-                                        <Typography.Link size='large'>
-                                            <Space direction='horizontal' size={8} align='center'>
-                                                <ChevronLeft size='medium'/>
-                                                {PrevPageMessage}
-                                            </Space>
-                                        </Typography.Link>
-                                    </Link>
+                                    <Typography.Link size='large' component={Link} href={`${DOCS_ROOT_ENDPOINT}/${prevPage.route}`}>
+                                        <Space direction='horizontal' size={8} align='center'>
+                                            <ChevronLeft size='medium'/>
+                                            {PrevPageMessage}
+                                        </Space>
+                                    </Typography.Link>
                                 )}
                             </div>
                             <div className={`${styles.alignRight} ${styles.bottomNavLink}`}>
                                 {nextPage && (
-                                    <Link href={`${DOCS_ROOT_ENDPOINT}/${nextPage.route}`} legacyBehavior>
-                                        <Typography.Link size='large'>
-                                            <Space direction='horizontal' size={8} align='center'>
-                                                {NextPageMessage}
-                                                <ChevronRight size='medium'/>
-                                            </Space>
-                                        </Typography.Link>
-                                    </Link>
+                                    <Typography.Link size='large' component={Link} href={`${DOCS_ROOT_ENDPOINT}/${nextPage.route}`}>
+                                        <Space direction='horizontal' size={8} align='center'>
+                                            {NextPageMessage}
+                                            <ChevronRight size='medium'/>
+                                        </Space>
+                                    </Typography.Link>
                                 )}
                             </div>
                         </div>
