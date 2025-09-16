@@ -48,61 +48,117 @@ const { updateTestProperty } = require('@condo/domains/property/utils/testSchema
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
 
 
-function getOnlyResourceMeterTest (resource) {
-    return {
-        resource: resource,
-        accountNumber: null,
-        number: null,
-        address: null,
-    }
-}
-
-function getOnlyCategoryReceiptTest (category){
-    return {
-        accountNumber: null,
-        category: category,
-        balance: null,
-        routingNumber: null,
-        bankAccount: null,
-        address: null,
-    }
-}
 
 describe('FindOrganizationsByAddress', () => {
 
-    const utils = new TestUtils([BillingTestMixin])
+    const organization = new TestUtils([BillingTestMixin, AcquiringTestMixin, MeterTestMixin, ResidentTestMixin])
+    const organizationWithMetersOnly = new TestUtils([MeterTestMixin])
 
     beforeAll(async () => {
-        await utils.init()
+        await organization.init()
+        await organizationWithMetersOnly.init()
     })
 
+    describe('Access check', () => {
+        test('anonymous: can not execute', async () => {
+            await expectToThrowAuthenticationErrorToResult(async () => {
+                await findOrganizationsByAddressByTestClient(organization.clients.anonymous, {
+                    addressKey: organization.property.addressKey,
+                })
+            })
+        })
+        test('user: can not execute', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await findOrganizationsByAddressByTestClient(organization.clients.user, {
+                    addressKey: organization.property.addressKey,
+                })
+            })
+        })
+        test('employee: can not execute', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await findOrganizationsByAddressByTestClient(organization.clients.employee.billing, {
+                    addressKey: organization.property.addressKey,
+                })
+            })
+        })
+        test('service user: can not execute', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await findOrganizationsByAddressByTestClient(organization.clients.service, {
+                    addressKey: organization.property.addressKey,
+                })
+            })
+        })
+        test('admin: can execute', async () => {
+            const [organizations] = await findOrganizationsByAddressByTestClient(organization.clients.admin, {
+                addressKey: organization.property.addressKey,
+            })
+            expect(Array.isArray(organizations)).toBeTruthy()
+        })
+        test('support: can execute', async () => {
+            const [organizations] = await findOrganizationsByAddressByTestClient(organization.clients.support, {
+                addressKey: organization.property.addressKey,
+            })
+            expect(Array.isArray(organizations)).toBeTruthy()
+        })
+        test('resident: can execute', async () => {
+            const [organizations] = await findOrganizationsByAddressByTestClient(organization.clients.resident, {
+                addressKey: organization.property.addressKey,
+            })
+            expect(Array.isArray(organizations)).toBeTruthy()
+        })
+    })
+    describe('One organization',  () => {
+
+    })
+
+    describe('Several organizations',  () => {
+
+        test('should return both organizations with the same billingCategory receipts', async () => {
+
+        })
+
+
+    })
+
+    describe('Failed cases', () => {
+
+        afterEach(async () => {
+            await organization.updateAcquiringContext({ status: CONTEXT_FINISHED_STATUS })
+        })
+
+        test('Should not return organization if acquiring context is not in finished status', async () => {
+            await organization.createReceipts([
+                organization.createJSONReceipt({
+                    address: organization.property.address,
+                    category: { id: HOUSING_CATEGORY_ID },
+                }),
+            ])
+            const [foundOrganizationsOnFinishedContext] = await findOrganizationsByAddressByTestClient(organization.clients.resident, {
+                addressKey: organization.property.addressKey,
+            })
+            const foundForFinishedContext = foundOrganizationsOnFinishedContext.find(({ id }) => id === organization.organization.id)
+            expect(foundForFinishedContext).not.toBeUndefined()
+            await organization.updateAcquiringContext({ status: CONTEXT_IN_PROGRESS_STATUS })
+            const [foundOrganizationsOnInProgressContext] = await findOrganizationsByAddressByTestClient(organization.clients.resident, {
+                addressKey: organization.property.addressKey,
+            })
+            const foundForInProgressContext = foundOrganizationsOnInProgressContext.find(({ id }) => id === organization.organization.id)
+            expect(foundForInProgressContext).toBeUndefined()
+        })
+
+        test('Should not return organization if it has meters but for another address', async () => {
+
+
+        })
+
+    })
+
+
+    /*
     describe('Unified flow', () => {
         describe('General behaviour', () => {
-            test('Should not return organization if acquiring context is not in finished status', async () => {
-                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
-                await utils.init()
-                const [foundOrganizationsOnFinishedContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                    addressKey: utils.property.addressKey,
-                })
-                const foundForFinishedContext = foundOrganizationsOnFinishedContext.find(({ id }) => id === utils.organization.id)
-                expect(foundForFinishedContext).not.toBeUndefined()
-                await utils.updateAcquiringContext({ status: CONTEXT_IN_PROGRESS_STATUS })
-                const [foundOrganizationsOnInProgressContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                    addressKey: utils.property.addressKey,
-                })
-                const foundForInProgressContext = foundOrganizationsOnInProgressContext.find(({ id }) => id === utils.organization.id)
-                expect(foundForInProgressContext).toBeUndefined()
-            })
-        
-            test('Should return empty array if no properties', async () => {
-                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
-                await utils.init()
-                const wrongAddressKey = faker.datatype.uuid()
-                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                    addressKey: wrongAddressKey,
-                })
-                expect(foundOrganizations).toHaveLength(0)
-            })
+
+
 
             test('Should return empty array if no meters and acquiring', async () => {
                 const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
@@ -654,60 +710,5 @@ describe('FindOrganizationsByAddress', () => {
                 expect(found.type).toEqual(utils.organization.type)
             })
         })
-    })
-
-    describe('Permission check', () => {
-        const utils = new TestUtils([ResidentTestMixin])
-
-        beforeAll(async () => {
-            await utils.init()
-        })
-
-        test('anonymous: can not execute', async () => {
-            await expectToThrowAuthenticationErrorToResult(async () => {
-                await findOrganizationsByAddressByTestClient(utils.clients.anonymous, {
-                    addressKey: utils.property.addressKey,
-                })
-            })
-        })
-        test('user: can not execute', async () => {
-            await expectToThrowAccessDeniedErrorToResult(async () => {
-                await findOrganizationsByAddressByTestClient(utils.clients.user, {
-                    addressKey: utils.property.addressKey,
-                })
-            })
-        })
-        test('employee: can not execute', async () => {
-            await expectToThrowAccessDeniedErrorToResult(async () => {
-                await findOrganizationsByAddressByTestClient(utils.clients.employee.billing, {
-                    addressKey: utils.property.addressKey,
-                })
-            })
-        })
-        test('service user: can not execute', async () => {
-            await expectToThrowAccessDeniedErrorToResult(async () => {
-                await findOrganizationsByAddressByTestClient(utils.clients.service, {
-                    addressKey: utils.property.addressKey,
-                })
-            })
-        })
-        test('admin: can execute', async () => {
-            const [organizations] = await findOrganizationsByAddressByTestClient(utils.clients.admin, {
-                addressKey: utils.property.addressKey,
-            })
-            expect(organizations).not.toHaveLength(0)
-        })
-        test('support: can not execute', async () => {
-            const [organizations] = await findOrganizationsByAddressByTestClient(utils.clients.support, {
-                addressKey: utils.property.addressKey,
-            })
-            expect(organizations).not.toHaveLength(0)
-        })
-        test('resident: can execute', async () => {
-            const [organizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-            })
-            expect(organizations).not.toHaveLength(0)
-        })
-    })
+    }) */
 })

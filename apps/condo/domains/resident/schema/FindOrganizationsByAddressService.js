@@ -3,6 +3,7 @@
  */
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
+const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/resident/access/FindOrganizationsByAddressService')
 const {
@@ -38,7 +39,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
         },
         {
             access: true,
-            type: 'type FindOrganizationByAddressReceiptType { accountNumber: String, category: ID!, balance: String, routingNumber: String, bankAccount: String, address: String }',
+            type: 'type FindOrganizationByAddressReceiptType { accountNumber: String, category: ID!, balance: String, currencyCode: String, routingNumber: String, bankAccount: String, address: String }',
         },
         {
             access: true,
@@ -105,15 +106,15 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                  */
 
                 const fetchOrganizationData = async (organization) => {
+                    let org
                     if (tin && accountNumber) {
-                        const org = await findOrganizationByAddressKeyTinAccountNumber(organization, data, properties)
-
-                        return org.meters.length || org.receipts.length ? org : null
+                        org = await findOrganizationByAddressKeyTinAccountNumber(organization, data, properties)
                     } else if (unitName && unitType) {
-                        return findOrganizationByAddressKeyUnitNameUnitType(organization, data, context, properties)
+                        org = await findOrganizationByAddressKeyUnitNameUnitType(organization, data, context, properties)
                     } else {
-                        return findOrganizationByAddressKey(organization, data)
+                        org = await findOrganizationByAddressKey(organization, data)
                     }
+                    return org.meters.length || org.receipts.length ? org : null
                 }
 
                 const result = await Promise.all(organizations.map(fetchOrganizationData))

@@ -100,6 +100,7 @@ async function findOrganizationByAddressKeyTinAccountNumber (organization, { add
                         bankAccount: service.bankAccount.number,
                         balance: service.receipt.sum,
                         address: service.receipt.address,
+                        currencyCode: billingIntegration.currencyCode,
                     }))
                 }
             }

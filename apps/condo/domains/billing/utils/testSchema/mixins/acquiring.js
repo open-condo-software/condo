@@ -35,11 +35,11 @@ const AcquiringTestMixin = {
     },
 
     async updateAcquiringContext (updateInput) {
-        return await updateTestAcquiringIntegrationContext(this.clients.admin, this.acquiringContext.id, updateInput)
+        return updateTestAcquiringIntegrationContext(this.clients.admin, this.acquiringContext.id, updateInput)
     },
 
     async updateAcquiringIntegration (updateInput) {
-        return await updateTestAcquiringIntegration(this.clients.admin, this.acquiringIntegration.id, updateInput)
+        return updateTestAcquiringIntegration(this.clients.admin, this.acquiringIntegration.id, updateInput)
     },
 
     async payForReceipt (receiptId, consumerId, amount) {
