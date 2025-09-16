@@ -2,7 +2,7 @@ import getConfig from 'next/config'
 
 import { ListHelper, ApolloHelper } from '@open-condo/apollo'
 import type { InitCacheConfig, InitializeApollo, UseApollo } from '@open-condo/apollo'
-import { getTracingMiddleware, getProxyingMiddleware } from '@open-condo/miniapp-utils/helpers/apollo'
+import { getTracingMiddleware, getSSRProxyingMiddleware } from '@open-condo/miniapp-utils/helpers/apollo'
 import { isDebug, isSSR } from '@open-condo/miniapp-utils/helpers/environment'
 
 import type {
@@ -61,7 +61,7 @@ const apolloHelper = new ApolloHelper({
     uri: getApiUrl,
     cacheConfig,
     middlewares: [
-        getProxyingMiddleware({
+        getSSRProxyingMiddleware({
             apiUrl: API_URL_PATH,
             proxyId: ssrProxyConfig?.proxyId,
             proxySecret: ssrProxyConfig?.proxySecret,

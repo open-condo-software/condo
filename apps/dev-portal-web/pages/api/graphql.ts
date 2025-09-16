@@ -4,7 +4,7 @@ import { createProxy } from '@open-condo/miniapp-utils/helpers/proxying'
 
 const {
     publicRuntimeConfig: { serverUrl },
-    serverRuntimeConfig: { proxyName, trustedProxiesConfig },
+    serverRuntimeConfig: { proxyName, trustedProxiesConfig, apiProxyConfig },
 } = getConfig()
 
 export const config = {
@@ -19,12 +19,12 @@ const proxyHandler = createProxy({
     proxyPrefix: '/api/graphql',
     upstreamOrigin: serverUrl,
     upstreamPrefix: '/admin/api',
-    ipProxying: {
-        proxyId: '123',
-        proxySecret: '123',
+    ipProxying: apiProxyConfig ? {
+        proxyId: apiProxyConfig.proxyId,
+        proxySecret: apiProxyConfig.proxySecret,
         trustProxyFn: () => true,
         knownProxies: trustedProxiesConfig,
-    },
+    } : undefined,
 })
 
 export default proxyHandler

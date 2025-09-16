@@ -20,6 +20,7 @@ const REVISION = conf['WERF_COMMIT_HASH'] || crypto.randomUUID()
 // NOTE: 2 proxies setup ((SSR -> /api/graphql) + (/api/graphql -> backend))
 const SSR_PROXY_CONFIG = JSON.parse(conf['SSR_PROXY_CONFIG'] || '{}')
 const TRUSTED_PROXIES_CONFIG = JSON.parse(conf['TRUSTED_PROXIES_CONFIG'] || '{}')
+const API_PROXY_CONFIG = JSON.parse(conf['API_PROXY_CONFIG'] || '{}')
 
 const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
@@ -43,6 +44,7 @@ const nextConfig: NextConfig = {
     serverRuntimeConfig: {
         proxyName: GRAPHQL_PROXY_NAME,
         ssrProxyConfig: SSR_PROXY_CONFIG,
+        apiProxyConfig: API_PROXY_CONFIG,
         trustedProxiesConfig: TRUSTED_PROXIES_CONFIG,
     },
     images: {

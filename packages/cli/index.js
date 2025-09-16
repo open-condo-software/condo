@@ -359,10 +359,10 @@ async function registerAppProxy (appName, proxyName) {
 
         await updateAppEnvFile(appName, 'TRUSTED_PROXIES_CONFIG', JSON.stringify(currentProxies))
 
-        return { secret, proxyName }
+        return { proxySecret: secret, proxyId: proxyName }
     }
 
-    return { secret: currentProxies[proxyName].secret }
+    return { proxySecret: currentProxies[proxyName].secret, proxyId: proxyName }
 }
 
 module.exports = {
