@@ -17,7 +17,7 @@ const GQLErrorSchema = z.object({
 })
 
 const ConstraintErrorSchema = z.object({
-    name: z.literal('GraphQLError'),
+    name: z.literal('ApolloError'),
     extensions: z.object({
         code: z.literal('INTERNAL_SERVER_ERROR'),
     }),
