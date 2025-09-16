@@ -4,7 +4,7 @@ import { createProxy } from '@open-condo/miniapp-utils/helpers/proxying'
 
 const {
     publicRuntimeConfig: { serverUrl },
-    serverRuntimeConfig: { proxyName },
+    serverRuntimeConfig: { proxyName, apiProxyConfig },
 } = getConfig()
 
 export const config = {
@@ -19,6 +19,11 @@ const proxyHandler = createProxy({
     proxyPrefix: '/api/oidc',
     upstreamOrigin: serverUrl,
     upstreamPrefix: '/api/oidc',
+    ipProxying: apiProxyConfig ? {
+        proxyId: apiProxyConfig.proxyId,
+        proxySecret: apiProxyConfig.proxySecret,
+        trustProxyFn: () => true,
+    } : undefined,
 })
 
 export default proxyHandler

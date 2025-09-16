@@ -13,7 +13,7 @@ import { INVALID_PHONE } from '@dev-portal-api/domains/user/constants/errors'
 
 import styles from './PhoneInputStep.module.css'
 
-import { useStartConfirmPhoneActionMutation, StartConfirmPhoneActionMutation } from '@/lib/gql'
+import { useStartConfirmPhoneActionMutation, StartConfirmPhoneActionMutation } from '@/gql'
 
 const FULL_SPAN_COL = 24
 const START_CONFIRM_PHONE_ACTION_ERRORS_TO_FIELDS_MAP = {

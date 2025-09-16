@@ -4,20 +4,21 @@ import Head from 'next/head'
 import React from 'react'
 import { useIntl } from 'react-intl'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { Typography } from '@open-condo/ui'
 
 import { BaseLayout } from '@/domains/common/components/BaseLayout'
 import { useCreateAppContext } from '@/domains/common/components/CreateAppContext'
 import { EmptyView } from '@/domains/common/components/EmptyView'
+import { initializeApollo, prepareSSRContext, extractApolloState } from '@/domains/common/utils/apollo'
 import { InlineAppCard } from '@/domains/miniapp/components/InlineAppCard'
 import { mergeApps } from '@/domains/miniapp/utils/merge'
+import { prefetchAuth, useAuth } from '@/domains/user/utils/auth'
 
 import type { AppInfo } from '@/domains/miniapp/utils/merge'
 import type { RowProps } from 'antd'
 
-import { extractApolloState, initializeApollo } from '@/lib/apollo'
-import { extractAuthHeadersFromRequest, prefetchAuth, useAuth } from '@/lib/auth'
-import { useAllAppsQuery, AllAppsDocument, AllAppsQuery, AllAppsQueryVariables } from '@/lib/gql'
+import { useAllAppsQuery, AllAppsDocument, AllAppsQuery, AllAppsQueryVariables } from '@/gql'
 
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
@@ -35,12 +36,14 @@ const MyAppsPage: React.FC = () => {
     const { createApp } = useCreateAppContext()
 
     const { user } = useAuth()
+    const { persistor } = useCachePersistor()
 
     const { data } = useAllAppsQuery({
         variables: {
             creator: { id: user?.id },
             first: MAX_APPS_TO_SHOW,
         },
+        skip: !persistor,
     })
 
     const apps: Array<AppInfo> = mergeApps(data)
@@ -82,10 +85,10 @@ const MyAppsPage: React.FC = () => {
 
 export default MyAppsPage
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-    const client = initializeApollo()
-    const headers = extractAuthHeadersFromRequest(req)
-    const authedUser = await prefetchAuth(client, { headers })
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    const { headers, defaultContext } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers, defaultContext })
+    const authedUser = await prefetchAuth(client)
 
     if (!authedUser) {
         return {
@@ -102,7 +105,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
             creator: { id: authedUser.id },
             first: MAX_APPS_TO_SHOW,
         },
-        context: { headers },
     })
 
     return extractApolloState(client, {

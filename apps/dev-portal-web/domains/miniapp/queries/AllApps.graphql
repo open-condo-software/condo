@@ -1,0 +1,10 @@
+query allApps($creator: UserWhereInput!, $first: Int!) {
+    b2c: allB2CApps(sortBy: createdAt_DESC, where: { createdBy: $creator }, first: $first, skip: 0) {
+        id
+        name
+        createdAt
+        logo {
+            publicUrl
+        }
+    }
+}

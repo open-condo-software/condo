@@ -7,7 +7,7 @@ import { EmptySubSectionView } from '@/domains/miniapp/components/EmptySubSectio
 
 import { RegisterUserModal } from './RegisterUserModal'
 
-import { AppEnvironment } from '@/lib/gql'
+import { AppEnvironment } from '@/gql'
 
 type RegisterUserFormProps = {
     id: string

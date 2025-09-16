@@ -1,0 +1,5 @@
+query allB2CAppAccessRights($appId: ID!, $environment: AppEnvironment!) {
+    rights: allB2CAppAccessRights(where: { app: { id: $appId }, environment: $environment }, first: 1, skip: 0) {
+        condoUserEmail
+    }
+}

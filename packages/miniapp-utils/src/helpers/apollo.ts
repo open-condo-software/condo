@@ -1,6 +1,7 @@
 import { parse as parseCookieString, serialize as serializeCookie } from 'cookie'
 import { setCookie, getCookies } from 'cookies-next'
 
+import { getProxyHeadersForIp } from './proxying'
 import { getRequestIp } from './proxying'
 import {
     FINGERPRINT_ID_COOKIE_NAME,
@@ -33,6 +34,12 @@ export type TracingMiddlewareOptions = {
     serviceUrl: string
     codeVersion: string
     target?: string
+}
+
+export type SSRProxyingMiddlewareOptions = {
+    apiUrl: string
+    proxyId?: string
+    proxySecret?: string
 }
 
 function generateRequestId () {
@@ -75,6 +82,31 @@ export function getTracingMiddleware (options: TracingMiddlewareOptions): Reques
             return {
                 ...previousContext,
                 headers,
+            }
+        })
+
+        return forward(operation)
+    }
+}
+
+export function getSSRProxyingMiddleware ({ proxyId, proxySecret, apiUrl }: SSRProxyingMiddlewareOptions): RequestHandler {
+    return function (operation, forward) {
+        operation.setContext((previousContext: DefaultContext) => {
+            if (typeof previousContext.clientIp !== 'string' || !proxyId || !proxySecret) return previousContext
+            const proxyHeaders = getProxyHeadersForIp(
+                'POST',
+                apiUrl,
+                previousContext.clientIp,
+                proxyId,
+                proxySecret,
+            )
+
+            return {
+                ...previousContext,
+                headers: {
+                    ...previousContext.headers,
+                    ...proxyHeaders,
+                },
             }
         })
 

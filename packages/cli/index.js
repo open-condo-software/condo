@@ -346,6 +346,25 @@ async function getAllActualApps () {
     })
 }
 
+async function registerAppProxy (appName, proxyName) {
+    const currentValue = await getAppEnvValue(appName, 'TRUSTED_PROXIES_CONFIG') || '{}'
+    const currentProxies = JSON.parse(currentValue)
+    if (!currentProxies.hasOwnProperty(proxyName)) {
+        const secret = getRandomString(32)
+
+        currentProxies[proxyName] = {
+            address: '::1',
+            secret,
+        }
+
+        await updateAppEnvFile(appName, 'TRUSTED_PROXIES_CONFIG', JSON.stringify(currentProxies))
+
+        return { proxySecret: secret, proxyId: proxyName }
+    }
+
+    return { proxySecret: currentProxies[proxyName].secret, proxyId: proxyName }
+}
+
 module.exports = {
     getRandomString,
     safeExec,
@@ -365,4 +384,5 @@ module.exports = {
     copyEnv,
     fillAppEnvWithDefaultValues,
     fillGlobalEnvWithDefaultValues,
+    registerAppProxy,
 }

@@ -9,13 +9,13 @@ import { Space, Typography } from '@open-condo/ui'
 import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { RecentAppsPopover } from '@/domains/miniapp/components/RecentAppsPopover'
+import { useAuth } from '@/domains/user/utils/auth'
 
 import { AuthHeaderAction } from './auth/AuthAction'
 import styles from './Header.module.css'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { MobileMenu } from './MobileMenu'
 
-import { useAuth } from '@/lib/auth'
 
 const logoFont = Montserrat({
     subsets: ['latin', 'cyrillic'],

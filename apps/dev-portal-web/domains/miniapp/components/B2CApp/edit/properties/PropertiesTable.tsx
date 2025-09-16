@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { PlusCircle, Trash } from '@open-condo/icons'
 import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -17,10 +18,10 @@ import { getCurrentPage } from '@/domains/miniapp/utils/query'
 import { CreatePropertyModal } from './CreatePropertyModal'
 import styles from './PropertiesTable.module.css'
 
-import type { AppEnvironment } from '@/lib/gql'
+import type { AppEnvironment } from '@/gql'
 import type { RowProps } from 'antd'
 
-import { AllB2CAppPropertiesDocument, useAllB2CAppPropertiesQuery, useDeleteB2CAppPropertyMutation } from '@/lib/gql'
+import { AllB2CAppPropertiesDocument, useAllB2CAppPropertiesQuery, useDeleteB2CAppPropertyMutation } from '@/gql'
 
 
 type PropertiesTableProps = {
@@ -50,6 +51,8 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
     const hideCreatePropertyModal = useCallback(() => {
         setIsCreatePropertyModalOpen(false)
     }, [])
+
+    const { persistor } = useCachePersistor()
 
     const router = useRouter()
     const { p } = router.query
@@ -110,6 +113,7 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
                 skip:  DEFAULT_PAGE_SIZE * (page - 1),
             },
         },
+        skip: !persistor,
         fetchPolicy: 'cache-and-network',
     })
 

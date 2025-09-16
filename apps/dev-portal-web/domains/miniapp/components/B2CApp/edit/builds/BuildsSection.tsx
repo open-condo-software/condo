@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { PlusCircle } from '@open-condo/icons'
 import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -34,7 +35,7 @@ import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
 import {
     useCreateB2CAppBuildMutation,
     useAllB2CAppBuildsQuery,
-} from '@/lib/gql'
+} from '@/gql'
 
 
 const ROW_BUTTON_GUTTER: RowProps['gutter'] = [60, 60]
@@ -87,6 +88,8 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
         limit: formatFileSize(B2C_BUILD_MAX_FILE_SIZE_IN_BYTES),
     })
 
+    const { persistor } = useCachePersistor()
+
     const [isUploading, setIsUploading] = useState(false)
 
     const router = useRouter()
@@ -99,6 +102,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
             first: DEFAULT_PAGE_SIZE,
             skip: DEFAULT_PAGE_SIZE * (page - 1),
         },
+        skip: !persistor,
     })
 
     const builds = (data?.builds || []).filter(nonNull)

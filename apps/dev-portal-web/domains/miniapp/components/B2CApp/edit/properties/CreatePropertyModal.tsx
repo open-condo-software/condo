@@ -12,10 +12,10 @@ import type { SelectProps } from '@open-condo/ui'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 
-import type { AppEnvironment } from '@/lib/gql'
+import type { AppEnvironment } from '@/gql'
 import type { RowProps } from 'antd'
 
-import { useCreateB2CAppPropertyMutation, AllB2CAppPropertiesDocument } from '@/lib/gql'
+import { useCreateB2CAppPropertyMutation, AllB2CAppPropertiesDocument } from '@/gql'
 
 const { publicRuntimeConfig: { addressServiceUrl } } = getConfig()
 

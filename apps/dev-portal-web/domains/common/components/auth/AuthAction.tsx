@@ -5,9 +5,10 @@ import { useIntl } from 'react-intl'
 import { MoreVertical } from '@open-condo/icons'
 import { Button, Space, Typography } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/user/utils/auth'
+
 import styles from './AuthAction.module.css'
 
-import { useAuth } from '@/lib/auth'
 
 const MAX_NAME_LENGTH = 18
 

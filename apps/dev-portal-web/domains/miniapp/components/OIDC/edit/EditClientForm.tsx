@@ -17,12 +17,13 @@ import styles from './EditClientForm.module.css'
 
 import {
     AppEnvironment,
-    OidcClient,
+    GetOidcClientQuery,
     useUpdateOidcClientUrlMutation,
     UpdateOidcClientUrlMutation,
     useGenerateOidcClientSecretMutation,
     GenerateOidcClientSecretMutation,
-} from '@/lib/gql'
+} from '@/gql'
+
 
 const MASKED_PASSWORD = '*'.repeat(OIDC_SECRET_LENGTH)
 const CREDENTIALS_DIVIDER_STYLES: CSSProperties = { marginBottom: 24 }
@@ -35,7 +36,7 @@ const EDIT_CLIENT_FORM_ERRORS_TO_FIELDS_MAP = {
 type EditClientFormProps = {
     id: string
     environment: AppEnvironment
-    client: OidcClient
+    client: NonNullable<GetOidcClientQuery['client']>
 }
 
 type EditOIDCClientFormValues = {

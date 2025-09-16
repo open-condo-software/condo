@@ -1,4 +1,4 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
+import { useApolloClient } from '@apollo/client'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
@@ -7,18 +7,15 @@ import { Modal } from '@open-condo/ui'
 
 import { AuthForm } from '@/domains/common/components/auth/AuthForm'
 
-import { useApolloClient } from '@/lib/apollo'
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client'
+
 import {
     AuthenticatedUserDocument,
     useAuthenticatedUserQuery,
     AuthenticatedUserQuery,
     useSignOutMutation,
-} from '@/lib/gql'
+} from '@/gql'
 
-
-const AUTH_COOKIE_KEY = 'keystone.sid'
-
-type HeadersType = Record<string, string>
 
 type AuthenticatedUserType = AuthenticatedUserQuery['authenticatedUser']
 
@@ -115,49 +112,12 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
 export const useAuth = (): AuthContextType => useContext(AuthContext)
 
 /**
- * Extracts authorization token from request inside getServerSideProps
- * and generates Authorization headers to be used in data prefetching
- *
- * @param {{ cookies: Record<string, string> }} req - request object obtained from getServerSideProps
- * @example
- * ```typescript
- * async function getServerSideProps ({ req }) {
- *      const client = initializeApollo
- *      const headers = extractAuthHeadersFromRequest(req)
- *      await clint.query(PAGE_RELATED_QUERY, {
- *          context: { headers }
- *      })
- *
- *      return extractApolloState(client, {
- *         props: {
- *             myPageProp: 123
- *         }
- *     })
- * }
- * ```
- */
-export function extractAuthHeadersFromRequest (req: { cookies: Partial<Record<string, string>> }): HeadersType {
-    const ssid = get(req, ['cookies', AUTH_COOKIE_KEY], null)
-    if (!ssid) {
-        return {}
-    }
-
-    return {
-        Authorization: `Bearer ${ssid.substring(2)}`,
-    }
-}
-
-/**
  * Prefetches user auth in getServerSideProps
  * @param {ApolloClient<NormalizedCacheObject>} client - apollo client
- * @param {{ headers?: HeadersType }} opts - additional options, like headers and etc
  */
-export async function prefetchAuth (client: ApolloClient<NormalizedCacheObject>, opts: { headers?: HeadersType } = {}): Promise<AuthenticatedUserType> {
+export async function prefetchAuth (client: ApolloClient<NormalizedCacheObject>): Promise<AuthenticatedUserType> {
     const response = await client.query<AuthenticatedUserQuery>({
         query: AuthenticatedUserDocument,
-        context: {
-            headers: opts.headers,
-        },
     })
     return response.data.authenticatedUser
 }

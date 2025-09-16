@@ -16,6 +16,7 @@ import { BaseLayout } from '@/domains/common/components/BaseLayout'
 import { CollapsibleMenu } from '@/domains/common/components/CollapsibleMenu'
 import { DOCS_REPO, DOCS_ROOT_PATH, DOCS_REPO_DOCS_ROOT, DOCS_EDIT_BRANCH } from '@/domains/common/constants/buildVars'
 import { DEFAULT_LOCALE } from '@/domains/common/constants/locales'
+import { initializeApollo, prepareSSRContext, extractApolloState } from '@/domains/common/utils/apollo'
 import { ArticleMeta } from '@/domains/docs/components/ArticleMeta'
 import { MDXMapping } from '@/domains/docs/components/mdx'
 import { useMenuItems } from '@/domains/docs/hooks/useMenuItems'
@@ -27,7 +28,7 @@ import {
     getPrevArticle,
     extractLocalizedTitleParts, 
 } from '@/domains/docs/utils/routing'
-
+import { prefetchAuth } from '@/domains/user/utils/auth'
 
 import styles from './path.module.css'
 
@@ -37,8 +38,6 @@ import type { RowProps } from 'antd'
 import type { GetServerSideProps } from 'next'
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
 
-import { initializeApollo, extractApolloState } from '@/lib/apollo'
-import { prefetchAuth, extractAuthHeadersFromRequest } from '@/lib/auth'
 
 const DOCS_ROOT_ENDPOINT = '/docs'
 const CARD_PADDING = '20px 24px 20px 0'
@@ -151,26 +150,22 @@ const DocPage: React.FC<DocPageProps> = ({
                         <div className={styles.bottomNavContainer}>
                             <div className={styles.bottomNavLink}>
                                 {prevPage && (
-                                    <Link href={`${DOCS_ROOT_ENDPOINT}/${prevPage.route}`} legacyBehavior>
-                                        <Typography.Link size='large'>
-                                            <Space direction='horizontal' size={8} align='center'>
-                                                <ChevronLeft size='medium'/>
-                                                {PrevPageMessage}
-                                            </Space>
-                                        </Typography.Link>
-                                    </Link>
+                                    <Typography.Link size='large' component={Link} href={`${DOCS_ROOT_ENDPOINT}/${prevPage.route}`}>
+                                        <Space direction='horizontal' size={8} align='center'>
+                                            <ChevronLeft size='medium'/>
+                                            {PrevPageMessage}
+                                        </Space>
+                                    </Typography.Link>
                                 )}
                             </div>
                             <div className={`${styles.alignRight} ${styles.bottomNavLink}`}>
                                 {nextPage && (
-                                    <Link href={`${DOCS_ROOT_ENDPOINT}/${nextPage.route}`} legacyBehavior>
-                                        <Typography.Link size='large'>
-                                            <Space direction='horizontal' size={8} align='center'>
-                                                {NextPageMessage}
-                                                <ChevronRight size='medium'/>
-                                            </Space>
-                                        </Typography.Link>
-                                    </Link>
+                                    <Typography.Link size='large' component={Link} href={`${DOCS_ROOT_ENDPOINT}/${nextPage.route}`}>
+                                        <Space direction='horizontal' size={8} align='center'>
+                                            {NextPageMessage}
+                                            <ChevronRight size='medium'/>
+                                        </Space>
+                                    </Typography.Link>
                                 )}
                             </div>
                         </div>
@@ -183,7 +178,7 @@ const DocPage: React.FC<DocPageProps> = ({
 
 export default DocPage
 
-export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ locale = DEFAULT_LOCALE, params, req }) => {
+export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ locale = DEFAULT_LOCALE, params, req, res }) => {
     // Static props
     const navTree = getNavTree(DOCS_ROOT_PATH, locale, DOCS_ROOT_PATH)
 
@@ -214,9 +209,9 @@ export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ loc
         : null
 
     // Prefetch client queries
-    const client = initializeApollo()
-    const headers = extractAuthHeadersFromRequest(req)
-    await prefetchAuth(client, { headers })
+    const { headers, defaultContext } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers, defaultContext })
+    await prefetchAuth(client)
 
     return extractApolloState<DocPageProps>(client, {
         props: {

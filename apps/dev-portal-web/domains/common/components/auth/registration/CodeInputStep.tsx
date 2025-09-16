@@ -12,7 +12,7 @@ import { INVALID_CODE, ACTION_NOT_FOUND } from '@dev-portal-api/domains/user/con
 
 import styles from './CodeInputStep.module.css'
 
-import { useCompleteConfirmPhoneActionMutation, useStartConfirmPhoneActionMutation, StartConfirmPhoneActionMutation } from '@/lib/gql'
+import { useCompleteConfirmPhoneActionMutation, useStartConfirmPhoneActionMutation, StartConfirmPhoneActionMutation } from '@/gql'
 
 const CODE_PLACEHOLDER = [...Array(CONFIRM_PHONE_ACTION_CODE_LENGTH).keys()].map(idx => idx + 1).join('')
 const FULL_SPAN_COL = 24

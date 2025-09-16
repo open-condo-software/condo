@@ -7,10 +7,23 @@ import { Noto_Sans_Mono }  from 'next/font/google'
 import localFont from 'next/font/local'
 import { IntlProvider } from 'react-intl'
 
+import { CachePersistorContext } from '@open-condo/apollo'
+
 import { CreateAppContextProvider } from '@/domains/common/components/CreateAppContext'
 import { SeoProvider } from '@/domains/common/components/SeoProvider'
 import { theme } from '@/domains/common/constants/antd'
 import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
+import { useApollo } from '@/domains/common/utils/apollo'
+import { AuthProvider } from '@/domains/user/utils/auth'
+
+import type { AppProps } from 'next/app'
+import type { ReactNode } from 'react'
+
+
+import 'antd/dist/reset.css'
+import '@open-condo/ui/dist/styles.min.css'
+import '@open-condo/ui/style-vars/css'
+import './global.css'
 
 const mainFont = localFont({
     src: '../public/WixMadeForDisplay.woff2',
@@ -21,17 +34,6 @@ const monoFont = Noto_Sans_Mono({
     variable: '--condo-font-fallback-mono',
     style: ['normal'],
 })
-
-import type { AppProps } from 'next/app'
-import type { ReactNode } from 'react'
-
-import { useApollo } from '@/lib/apollo'
-import { AuthProvider } from '@/lib/auth'
-
-import 'antd/dist/reset.css'
-import '@open-condo/ui/dist/styles.min.css'
-import '@open-condo/ui/style-vars/css'
-import './global.css'
 
 type AvailableLocales = typeof LOCALES[number]
 // NOTE: Combine all keys together
@@ -56,21 +58,23 @@ declare global {
 
 function DevPortalApp ({ Component, pageProps, router }: AppProps): ReactNode {
     const { locale = DEFAULT_LOCALE } = router
-    const client = useApollo(pageProps)
+    const { client, cachePersistor } = useApollo(pageProps)
 
     return (
         <IntlProvider locale={locale} messages={get(MESSAGES, locale)}>
             <SeoProvider/>
             <ApolloProvider client={client}>
-                <AuthProvider>
-                    <ConfigProvider theme={theme}>
-                        <main className={`${mainFont.variable} ${monoFont.variable}`}>
-                            <CreateAppContextProvider>
-                                <Component {...pageProps}/>
-                            </CreateAppContextProvider>
-                        </main>
-                    </ConfigProvider>
-                </AuthProvider>
+                <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
+                    <AuthProvider>
+                        <ConfigProvider theme={theme}>
+                            <main className={`${mainFont.variable} ${monoFont.variable}`}>
+                                <CreateAppContextProvider>
+                                    <Component {...pageProps}/>
+                                </CreateAppContextProvider>
+                            </main>
+                        </ConfigProvider>
+                    </AuthProvider>
+                </CachePersistorContext.Provider>
             </ApolloProvider>
         </IntlProvider>
     )

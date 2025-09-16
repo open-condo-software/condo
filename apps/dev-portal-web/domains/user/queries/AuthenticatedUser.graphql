@@ -1,0 +1,16 @@
+query authenticatedUser {
+    authenticatedUser {
+        id
+        name
+        phone
+        isAdmin
+        isSupport
+    }
+}
+
+
+
+
+
+
+

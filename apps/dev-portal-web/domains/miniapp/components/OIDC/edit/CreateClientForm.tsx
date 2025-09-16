@@ -14,7 +14,7 @@ import styles from './CreateClientForm.module.css'
 import { useSecretContext } from './SecretProvider'
 
 
-import { AppEnvironment, useCreateOidcClientMutation, GetOidcClientDocument, CreateOidcClientMutation } from '@/lib/gql'
+import { AppEnvironment, useCreateOidcClientMutation, GetOidcClientDocument, CreateOidcClientMutation } from '@/gql'
 
 
 

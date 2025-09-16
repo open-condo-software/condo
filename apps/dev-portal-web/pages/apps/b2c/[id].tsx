@@ -10,6 +10,7 @@ import { Typography } from '@open-condo/ui'
 
 import { BaseLayout } from '@/domains/common/components/BaseLayout'
 import { CollapsibleMenu } from '@/domains/common/components/CollapsibleMenu'
+import { initializeApollo, prepareSSRContext, extractApolloState } from '@/domains/common/utils/apollo'
 import { BuildsSection } from '@/domains/miniapp/components/B2CApp/edit/builds/BuildsSection'
 import { InfoSection } from '@/domains/miniapp/components/B2CApp/edit/info/InfoSection'
 import { PropertiesSection } from '@/domains/miniapp/components/B2CApp/edit/properties/PropertiesSection'
@@ -19,13 +20,12 @@ import { OIDCClientSection } from '@/domains/miniapp/components/OIDC/edit/OIDCCl
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 import { getCurrentSection, useB2CMenuItems } from '@/domains/miniapp/hooks/useB2CMenuItems'
 import { getCurrentPage, getEnvironment } from '@/domains/miniapp/utils/query'
+import { prefetchAuth } from '@/domains/user/utils/auth'
 
 import type { SectionType } from '@/domains/miniapp/hooks/useB2CMenuItems'
 import type { RowProps, MenuProps } from 'antd'
 import type { GetServerSideProps } from 'next'
 
-import { extractApolloState, initializeApollo } from '@/lib/apollo'
-import { extractAuthHeadersFromRequest, prefetchAuth } from '@/lib/auth'
 import {
     GetB2CAppDocument,
     GetB2CAppQuery,
@@ -37,8 +37,7 @@ import {
     AllB2CAppAccessRightsQuery,
     AllB2CAppAccessRightsQueryVariables,
     useGetB2CAppQuery,
-
-} from '@/lib/gql'
+} from '@/gql'
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN = 24
@@ -113,7 +112,7 @@ const AppSettingsPage: React.FC = () => {
 
 export default AppSettingsPage
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res, query }) => {
     const { id, section, p, env } = query
 
     if (!id || Array.isArray(id)) {
@@ -122,9 +121,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
         }
     }
 
-    const client = initializeApollo()
-    const headers = extractAuthHeadersFromRequest(req)
-    const authedUser =  await prefetchAuth(client, { headers })
+    const { headers, defaultContext } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers, defaultContext })
+
+    const authedUser =  await prefetchAuth(client)
 
     if (!authedUser) {
         return {
@@ -141,7 +141,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
         variables: {
             id,
         },
-        context: { headers },
     })
 
     const currentSection = getCurrentSection(section)
@@ -156,7 +155,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
                 first: DEFAULT_PAGE_SIZE,
                 skip: DEFAULT_PAGE_SIZE * (currentPage - 1),
             },
-            context: { headers },
         })
     } else if (currentSection === 'service-user') {
         const environment = getEnvironment(env)
@@ -166,7 +164,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
                 appId: id,
                 environment,
             },
-            context: { headers },
         })
     }
 

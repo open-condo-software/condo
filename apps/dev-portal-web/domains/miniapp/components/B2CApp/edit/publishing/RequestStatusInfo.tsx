@@ -9,9 +9,9 @@ import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationError
 
 import styles from './RequestStatusInfo.module.css'
 
-import type { AllB2CAppPublishRequestsQuery } from '@/lib/gql'
+import type { AllB2CAppPublishRequestsQuery } from '@/gql'
 
-import { useCreateB2CAppPublishRequestMutation, AllB2CAppPublishRequestsDocument } from '@/lib/gql'
+import { useCreateB2CAppPublishRequestMutation, AllB2CAppPublishRequestsDocument } from '@/gql'
 
 
 type RequestStatusInfoProps = {
