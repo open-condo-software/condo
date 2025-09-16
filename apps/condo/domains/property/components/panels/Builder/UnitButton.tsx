@@ -12,6 +12,7 @@ type CustomButtonProps = Omit<ButtonProps, 'type'> & {
     unitType?: BuildingUnitSubType
     isDuplicated?: boolean
     type: 'unit' | 'floor' | 'section'
+    tooltipTitle?: React.ReactNode
 }
 
 export const UnitButton: React.FC<CustomButtonProps> = (props) => {
@@ -45,7 +46,7 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
         return (
             <Tooltip
                 placement='topLeft'
-                title={OriginalLabel}
+                title={props.tooltipTitle !== undefined ? props.tooltipTitle : OriginalLabel}
             >
                 <Button
                     type='secondary'

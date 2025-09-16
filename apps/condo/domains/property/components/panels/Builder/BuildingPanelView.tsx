@@ -146,6 +146,7 @@ const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsLoading,
 
 const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, contacts, contactsError }) => {
     const intl = useIntl()
+    const FieldUnitNameMessage = intl.formatMessage({ id: 'field.Name' })
     const FieldUnitTypeMessage = intl.formatMessage({ id: 'field.UnitType' })
     const UnitTypeMessage = intl.formatMessage({ id: `field.UnitType.${unit.unitType}` }).toLowerCase()
     const ResidentNameMessage = intl.formatMessage({ id: 'field.FullName.short' })
@@ -197,6 +198,7 @@ const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, contact
 
     return (
         <div style={{ minWidth: '240px' }}>
+            {`${FieldUnitNameMessage}: ${unit.label}`}<br/>
             {`${FieldUnitTypeMessage}: ${UnitTypeMessage}`}<br/>
             {contactsLines.map((line, index) => (
                 <span key={index}>
@@ -283,6 +285,7 @@ const UnitButtonWithContactInfo: React.FC<IUnitButtonWithContactInfoProps> = ({
                                     type='unit'
                                     key={unit.id}
                                     unitType={unit.unitType}
+                                    tooltipTitle={null}
                                     onClick={() => {
                                         setModalOpenedUnit(unit)
                                         getContacts({
