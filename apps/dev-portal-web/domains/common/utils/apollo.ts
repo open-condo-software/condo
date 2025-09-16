@@ -2,6 +2,7 @@ import getConfig from 'next/config'
 
 import { ListHelper, ApolloHelper } from '@open-condo/apollo'
 import type { InitCacheConfig, InitializeApollo, UseApollo } from '@open-condo/apollo'
+import { getTracingMiddleware, getProxyingMiddleware } from '@open-condo/miniapp-utils/helpers/apollo'
 import { isDebug, isSSR } from '@open-condo/miniapp-utils/helpers/environment'
 
 import type {
@@ -10,7 +11,8 @@ import type {
 } from '@apollo/client'
 
 const {
-    publicRuntimeConfig: { serviceUrl },
+    publicRuntimeConfig: { serviceUrl, revision },
+    serverRuntimeConfig: { ssrProxyConfig },
 } = getConfig()
 
 const API_URL_PATH = '/api/graphql'
@@ -58,7 +60,17 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
 const apolloHelper = new ApolloHelper({
     uri: getApiUrl,
     cacheConfig,
-    middlewares: [],
+    middlewares: [
+        getProxyingMiddleware({
+            apiUrl: API_URL_PATH,
+            proxyId: ssrProxyConfig?.proxyId,
+            proxySecret: ssrProxyConfig?.proxySecret,
+        }),
+        getTracingMiddleware({
+            serviceUrl,
+            codeVersion: revision,
+        }),
+    ],
 })
 
 // NOTE: Type casting is used for apollo type mismatch
