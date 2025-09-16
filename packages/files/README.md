@@ -6,6 +6,7 @@ This middleware has endpoints for uploading binaries and sharing previously uplo
 - **Endpoints**:
   - `POST /api/files/upload` — upload one or multiple files
   - `POST /api/files/share` — create a new file record that points to an existing binary (re-share)
+  - `POST /api/files/attach` — attach an existing uploaded file to a specific model record
 
 ### Authentication
 
@@ -181,6 +182,47 @@ Successful response:
 
 - The returned `signature` is signed with the target `appId` secret and includes `meta.sourceAppId` (original app) and `recordId` of the new file record.
 
+### Attaching a file to a model
+
+Attach an already uploaded file to a specific model record using a file client signature.
+
+- Method: `POST`
+- Content-Type: `application/json`
+- Body:
+  - `dv`: `1`
+  - `sender`: `{ dv: 1, fingerprint: string }`
+  - `modelName`: target model name (must be allowed by the file’s `meta.modelNames`)
+  - `modelId`: target model record id (UUID)
+  - `fileClientId`: client id used when the file was uploaded
+  - `signature`: file client signature received from previous step (upload/share)
+
+Example:
+
+```bash
+curl -X POST "$SERVER/api/files/attach" \
+  -H "Cookie: $COOKIE" -H "Content-Type: application/json" \
+  -d '{
+    "dv": 1,
+    "sender": { "dv": 1, "fingerprint": "test-runner" },
+    "modelName": "SomeModel",
+    "modelId": "<MODEL_UUID>",
+    "fileClientId": "some-app-internal-id",
+    "signature": "<signature-from-upload-or-share>"
+  }'
+```
+
+Successful response:
+
+```json
+{
+  "data": {
+    "file": { "signature": "<jwt>" }
+  }
+}
+```
+
+- The `signature` is HS256 for full public file meta, signed by `clients[fileClientId].secret` (expires in 5 minutes). Use it when persisting the file in your application.
+
 ### Limits and quotas
 
 - Default limits (can be overridden when instantiating the middleware):
@@ -204,5 +246,5 @@ GET /api/files/<file_id:string>?sign=<file_signature:string>
 - `BAD_USER_INPUT/MAX_FILE_UPLOAD_LIMIT_EXCEEDED`: too many files
 - `FORBIDDEN/INVALID_APP_ID`: unknown `appId`
 - `TOO_MANY_REQUESTS/RATE_LIMIT_EXCEEDED`: quota exceeded
-- `BAD_USER_INPUT/INVALID_PAYLOAD`: invalid JSON body for share
-- `BAD_USER_INPUT/FILE_NOT_FOUND`: share target not owned by the caller
+- `BAD_USER_INPUT/INVALID_PAYLOAD`: invalid JSON body for share/attach
+- `BAD_USER_INPUT/FILE_NOT_FOUND`: file not found or not owned by the caller
