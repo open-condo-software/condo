@@ -385,6 +385,200 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     })
                 })
             })
+
+            describe('attach', () => {
+                test('only authorized user can attach file', async () => {
+                    const user = await createTestUser()
+                    const form = new FormData()
+                    const meta = {
+                        userId: user.user.id,
+                        fileClientId,
+                        modelNames: ['SomeModel'],
+                        ...DV_AND_SENDER,
+                    }
+                    form.append('meta', JSON.stringify(meta))
+                    form.append('file', filestream, 'dino.png')
+
+                    const result = await fetch(serverUrl, {
+                        method: 'POST',
+                        body: form,
+                        headers: { Cookie: user.getCookie() },
+                    })
+
+                    const json = await result.json()
+
+                    expect(result.status).toEqual(200)
+                    expect(json.data.files).toHaveLength(1)
+                    const file = json.data.files[0]
+                    expect(file).toEqual({
+                        id: file.id,
+                        signature: file.signature,
+                    })
+
+                    const attachResult = await fetch(serverAttachUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            signature: file.signature,
+                            modelId: faker.datatype.uuid(),
+                            modelName: 'SomeModel',
+                            fileClientId,
+                            dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
+                        }),
+                    })
+
+                    await expectGQLErrorResponse(attachResult, {
+                        code: 'UNAUTHENTICATED',
+                        type: 'AUTHORIZATION_REQUIRED',
+                    })
+                })
+
+                test('only owner of the file can attach it to the model', async () => {
+                    const user = await createTestUser()
+                    const anotherUser = await createTestUser()
+                    const form = new FormData()
+                    const meta = {
+                        userId: user.user.id,
+                        fileClientId,
+                        modelNames: ['SomeModel'],
+                        ...DV_AND_SENDER,
+                    }
+                    form.append('meta', JSON.stringify(meta))
+                    form.append('file', filestream, 'dino.png')
+
+                    const result = await fetch(serverUrl, {
+                        method: 'POST',
+                        body: form,
+                        headers: { Cookie: user.getCookie() },
+                    })
+
+                    const json = await result.json()
+
+                    expect(result.status).toEqual(200)
+                    expect(json.data.files).toHaveLength(1)
+                    const file = json.data.files[0]
+                    expect(file).toEqual({
+                        id: file.id,
+                        signature: file.signature,
+                    })
+
+                    const attachResult = await fetch(serverAttachUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Cookie: anotherUser.getCookie(),
+                        },
+                        body: JSON.stringify({
+                            signature: file.signature,
+                            modelId: faker.datatype.uuid(),
+                            modelName: 'SomeModel',
+                            fileClientId,
+                            dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
+                        }),
+                    })
+
+                    await expectGQLErrorResponse(attachResult, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'FILE_NOT_FOUND',
+                    })
+                })
+
+                test('only allowed models should be connected', async () => {
+                    const user = await createTestUser()
+                    const form = new FormData()
+                    const meta = {
+                        userId: user.user.id,
+                        fileClientId,
+                        modelNames: ['SomeModel'],
+                        ...DV_AND_SENDER,
+                    }
+                    form.append('meta', JSON.stringify(meta))
+                    form.append('file', filestream, 'dino.png')
+
+                    const result = await fetch(serverUrl, {
+                        method: 'POST',
+                        body: form,
+                        headers: { Cookie: user.getCookie() },
+                    })
+
+                    const json = await result.json()
+
+                    expect(result.status).toEqual(200)
+                    expect(json.data.files).toHaveLength(1)
+                    const file = json.data.files[0]
+                    expect(file).toEqual({
+                        id: file.id,
+                        signature: file.signature,
+                    })
+
+                    const attachResult = await fetch(serverAttachUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Cookie: user.getCookie(),
+                        },
+                        body: JSON.stringify({
+                            signature: file.signature,
+                            modelId: faker.datatype.uuid(),
+                            modelName: 'AnotherModel',
+                            fileClientId,
+                            dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
+                        }),
+                    })
+
+                    await expectGQLErrorResponse(attachResult, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_PAYLOAD',
+                    })
+                })
+
+                test('random or broken signature should be handled', async () => {
+                    const user = await createTestUser()
+                    const attachResult = await fetch(serverAttachUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Cookie: user.getCookie(),
+                        },
+                        body: JSON.stringify({
+                            signature: faker.datatype.uuid(),
+                            modelId: faker.datatype.uuid(),
+                            modelName: 'AnotherModel',
+                            fileClientId,
+                            dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
+                        }),
+                    })
+
+                    await expectGQLErrorResponse(attachResult, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_PAYLOAD',
+                    })
+                })
+
+                test('requires specifying an identifier where the file will be attached', async () => {
+                    const user = await createTestUser()
+                    const attachResult = await fetch(serverAttachUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Cookie: user.getCookie(),
+                        },
+                        body: JSON.stringify({
+                            signature: faker.datatype.uuid(),
+                            modelName: 'AnotherModel',
+                            fileClientId,
+                            dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
+                        }),
+                    })
+
+                    await expectGQLErrorResponse(attachResult, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_PAYLOAD',
+                    })
+                })
+            })
         })
 
         describe('signature', () => {
