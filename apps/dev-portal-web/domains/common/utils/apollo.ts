@@ -39,12 +39,12 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
             Query: {
                 fields: {
                     allB2CApps: {
-                        keyArgs: ['where'],
+                        keyArgs: ['where', 'sortBy'],
                         merge: helper.mergeLists,
                         read: helper.getReadFunction('paginate'),
                     },
                     allB2CAppBuilds: {
-                        keyArgs: ['where'],
+                        keyArgs: ['where', 'sortBy'],
                         merge: helper.mergeLists,
                         read: helper.getReadFunction('paginate'),
                     },

@@ -13,6 +13,7 @@
   "dependencies": {
     "@ant-design/cssinjs": "^1.18.5",
     "@apollo/client": "^3.11.8",
+    "@open-condo/apollo": "workspace:^",
     "@open-condo/billing": "workspace:^",
     "@open-condo/cli": "workspace:^",
     "@open-condo/config": "workspace:^",

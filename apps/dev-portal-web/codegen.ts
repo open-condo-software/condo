@@ -17,7 +17,7 @@ const config: CodegenConfig = {
     generates: {
         'gql/index.ts': {
             config: {
-                preResolveType: true,
+                preResolveTypes: true,
                 onlyOperationTypes: true,
             },
             plugins: [

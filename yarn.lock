@@ -876,6 +876,7 @@ __metadata:
     "@graphql-codegen/typescript": ^4.0.9
     "@graphql-codegen/typescript-operations": ^4.2.3
     "@graphql-codegen/typescript-react-apollo": ^4.3.2
+    "@open-condo/apollo": "workspace:^"
     "@open-condo/billing": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
