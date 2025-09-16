@@ -515,12 +515,6 @@ function fileAttachHandler ({ keystone, appClients }) {
             data,
         } = AttachBodyPayloadSchema.safeParse(req.body)
 
-        // const {
-        //     success,
-        //     error,
-        //     data,
-        // } = FileAttachSchema.safeParse(req.body)
-
         if (!success) {
             return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }, [error]))
         }

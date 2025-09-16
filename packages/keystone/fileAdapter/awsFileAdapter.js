@@ -258,12 +258,7 @@ const awsRouterHandler = ({ keystone }) => {
                 }
 
                 try {
-                    const result = jwt.verify(sign, appClients[appId].secret, { algorithms: ['HS256'] })
-
-                    if (result?.user?.id !== req.user.id) {
-                        res.status(403)
-                        return res.end()
-                    }
+                    jwt.verify(sign, appClients[appId].secret, { algorithms: ['HS256'] })
                 } catch (e) {
                     res.status(410)
                     return res.end()
