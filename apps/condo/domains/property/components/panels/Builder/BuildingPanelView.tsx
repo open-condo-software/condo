@@ -285,6 +285,7 @@ const UnitButtonWithContactInfo: React.FC<IUnitButtonWithContactInfoProps> = ({
                                     type='unit'
                                     key={unit.id}
                                     unitType={unit.unitType}
+                                    tooltipTitle={null}
                                     onClick={() => {
                                         setModalOpenedUnit(unit)
                                         getContacts({

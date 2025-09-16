@@ -2,7 +2,7 @@ import { BuildingUnitSubType } from '@app/condo/schema'
 import classNames from 'classnames'
 import React, { useMemo } from 'react'
 
-import { Button, ButtonProps } from '@open-condo/ui'
+import { Button, ButtonProps, Tooltip } from '@open-condo/ui'
 
 
 type CustomButtonProps = Omit<ButtonProps, 'type'> & {
@@ -12,6 +12,7 @@ type CustomButtonProps = Omit<ButtonProps, 'type'> & {
     unitType?: BuildingUnitSubType
     isDuplicated?: boolean
     type: 'unit' | 'floor' | 'section'
+    tooltipTitle?: React.ReactNode
 }
 
 export const UnitButton: React.FC<CustomButtonProps> = (props) => {
@@ -43,14 +44,19 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
         }
 
         return (
-            <Button
-                type='secondary'
-                stateless
-                className={buttonClassName}
-                {...restProps}
+            <Tooltip
+                placement='topLeft'
+                title={props.tooltipTitle !== undefined ? props.tooltipTitle : OriginalLabel}
             >
-                {ButtonLabel}
-            </Button>
+                <Button
+                    type='secondary'
+                    stateless
+                    className={buttonClassName}
+                    {...restProps}
+                >
+                    {ButtonLabel}
+                </Button>
+            </Tooltip>
         )
     } else {
         return (
