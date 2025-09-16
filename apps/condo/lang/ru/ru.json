@@ -3197,7 +3197,7 @@
   "ticket.problem.classifier.ACCOUNT_CLARIFICATIONS.name": "Разъяснения по начислениям",
   "ticket.problem.classifier.ADDITIONAL_HARDWARE_INSTALLATION.name": "Установка дополнительного оборудования",
   "ticket.problem.classifier.AIR_CONDITIONER_INSTALLATION_REPAIR.name": "Установка/ремонт кондиционера",
-  "ticket.problem.classifier.APARTMENT_FLOOD_REPORT.name": "Акт о залитии квартиры",
+  "ticket.problem.classifier.APARTMENT_FLOOD_REPORT.name": "Акт о залитии",
   "ticket.problem.classifier.APARTMENT_INSURANCE.name": "Страхование квартиры",
   "ticket.problem.classifier.APARTMENT_TEMPERATURE_CHECK_REPORT.name": "Акт проверки температурного режима",
   "ticket.problem.classifier.APPLIANCE_REPAIR.name": "Ремонт бытовой техники",
