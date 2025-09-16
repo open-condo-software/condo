@@ -889,10 +889,8 @@ __metadata:
     "@types/react-dom": ^18.3.1
     "@types/title": 3.4.1
     antd: 5.16.4
-    apollo-upload-client: ^17.0.0
     classnames: ^2.5.1
     cookies-next: ^4.2.1
-    deepmerge: ^4.3.1
     glob: 8.1.0
     graphql: ^16.10.0
     gray-matter: 4.0.3
