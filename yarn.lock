@@ -1333,6 +1333,7 @@ __metadata:
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     express: ^4.17.1
+    graphql-tag: ^2.12.6
     jest: ^29.7.0
     lodash: ^4.17.21
     mkdirp: ^3.0.1
