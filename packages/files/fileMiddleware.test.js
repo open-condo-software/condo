@@ -422,7 +422,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         },
                         body: JSON.stringify({
                             signature: file.signature,
-                            modelId: faker.datatype.uuid(),
+                            itemId: faker.datatype.uuid(),
                             modelName: 'SomeModel',
                             fileClientId,
                             dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
@@ -472,7 +472,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         },
                         body: JSON.stringify({
                             signature: file.signature,
-                            modelId: faker.datatype.uuid(),
+                            itemId: faker.datatype.uuid(),
                             modelName: 'SomeModel',
                             fileClientId,
                             dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
@@ -521,7 +521,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         },
                         body: JSON.stringify({
                             signature: file.signature,
-                            modelId: faker.datatype.uuid(),
+                            itemId: faker.datatype.uuid(),
                             modelName: 'AnotherModel',
                             fileClientId,
                             dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
@@ -544,7 +544,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                         },
                         body: JSON.stringify({
                             signature: faker.datatype.uuid(),
-                            modelId: faker.datatype.uuid(),
+                            itemId: faker.datatype.uuid(),
                             modelName: 'AnotherModel',
                             fileClientId,
                             dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },
@@ -810,7 +810,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                     },
                     body: JSON.stringify({
                         signature: file.signature,
-                        modelId: faker.datatype.uuid(),
+                        itemId: faker.datatype.uuid(),
                         modelName: 'SomeModel',
                         fileClientId,
                         dv: 1, sender: { dv: 1, fingerprint: 'test-runner' },

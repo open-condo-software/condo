@@ -114,7 +114,7 @@ function parseAndValidateMeta (raw, req, next, onError) {
 }
 
 const AttachBodyPayloadSchema = z.object({
-    modelId: z.uuid(),
+    itemId: z.uuid(),
     modelName: z.string().min(1),
     signature: z.string().min(1),
     fileClientId: z.string().min(1),
@@ -177,7 +177,7 @@ const FileUploadMetaSchema = z.object({
 
 const FileAttachSchema = z.object({
     id: z.uuid(), // id of FileRecord
-    modelId: z.uuid(), // id of model to which file should be attached
+    itemId: z.uuid(), // id of model to which file should be attached
     modelName: z.string().min(1),
     user: z.object({
         id: z.uuid(),
@@ -519,7 +519,7 @@ function fileAttachHandler ({ keystone, appClients }) {
             return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }, [error]))
         }
 
-        const { modelName, modelId, signature, fileClientId, dv, sender } = data
+        const { modelName, itemId, signature, fileClientId, dv, sender } = data
 
         if (!(fileClientId in (appClients || {}))) {
             return next(new GQLError(ERRORS.INVALID_APP_ID, { req }))
@@ -556,7 +556,7 @@ function fileAttachHandler ({ keystone, appClients }) {
 
 
         const newAttachment = {
-            modelName, id: modelId, fileClientId: fileClientId, user: user.id,
+            modelName, id: itemId, fileClientId: fileClientId, user: user.id,
         }
         const resultAttachments = Array.isArray(originalAttachments)
             ? [...originalAttachments, newAttachment]
