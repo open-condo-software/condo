@@ -192,7 +192,7 @@ Attach an already uploaded file to a specific model record using a file client s
   - `dv`: `1`
   - `sender`: `{ dv: 1, fingerprint: string }`
   - `modelName`: target model name (must be allowed by the file’s `meta.modelNames`)
-  - `modelId`: target model record id (UUID)
+  - `itemId`: target model record id (UUID)
   - `fileClientId`: client id used when the file was uploaded
   - `signature`: file client signature received from previous step (upload/share)
 
@@ -205,7 +205,7 @@ curl -X POST "$SERVER/api/files/attach" \
     "dv": 1,
     "sender": { "dv": 1, "fingerprint": "test-runner" },
     "modelName": "SomeModel",
-    "modelId": "<MODEL_UUID>",
+    "itemId": "<MODEL_UUID>",
     "fileClientId": "some-app-internal-id",
     "signature": "<signature-from-upload-or-share>"
   }'
