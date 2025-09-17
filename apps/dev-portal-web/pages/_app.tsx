@@ -3,8 +3,10 @@ import { ConfigProvider } from 'antd'
 import en from 'lang/en.json'
 import ru from 'lang/ru.json'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import { Noto_Sans_Mono }  from 'next/font/google'
 import localFont from 'next/font/local'
+import { useMemo } from 'react'
 import { IntlProvider } from 'react-intl'
 
 import { CachePersistorContext } from '@open-condo/apollo'
@@ -35,6 +37,8 @@ const monoFont = Noto_Sans_Mono({
     style: ['normal'],
 })
 
+const { publicRuntimeConfig: { runtimeTranslations } } = getConfig()
+
 type AvailableLocales = typeof LOCALES[number]
 // NOTE: Combine all keys together
 type MessagesKeysType = keyof typeof en | keyof typeof ru
@@ -60,8 +64,12 @@ function DevPortalApp ({ Component, pageProps, router }: AppProps): ReactNode {
     const { locale = DEFAULT_LOCALE } = router
     const { client, cachePersistor } = useApollo(pageProps)
 
+    const messages = useMemo(() => {
+        return { ...get(MESSAGES, locale), ...runtimeTranslations[locale] }
+    }, [locale])
+
     return (
-        <IntlProvider locale={locale} messages={get(MESSAGES, locale)}>
+        <IntlProvider locale={locale} messages={messages}>
             <SeoProvider/>
             <ApolloProvider client={client}>
                 <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
