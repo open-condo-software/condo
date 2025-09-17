@@ -24,34 +24,39 @@ type AIInputNotificationPropsType = {
 
 type StatusPropsType = {
     result?: string
+    error?: string
     updateLoading?: boolean
 }
 
-const Status: FC<StatusPropsType> = ({ result, updateLoading }) => {
+const Status: FC<StatusPropsType> = ({ result, error, updateLoading }) => {
     const intl = useIntl()
 
     const ReadyLabel = intl.formatMessage({ id: 'ai.inputNotification.ready' })
     const FailedToGenerateLabel = intl.formatMessage({ id: 'ai.inputNotification.failedToGenerate' })
 
-    if (updateLoading) return (
-        <ProgressLoader/>
-    )
-    else if (result) return (
-        <Typography.Text type='success'>
-            <span className={styles.status}>
-                <CheckCircle size='medium'/>
-                {ReadyLabel}
-            </span>
-        </Typography.Text>
-    )
-    else return (
-        <Typography.Text type='danger'>
-            <span className={styles.status}>
-                <XCircle size='medium'/>
-                {FailedToGenerateLabel}
-            </span>
-        </Typography.Text>
-    )
+    if (!updateLoading && result) {
+        return (
+            <Typography.Text type='success'>
+                <span className={styles.status}>
+                    <CheckCircle size='medium'/>
+                    {ReadyLabel}
+                </span>
+            </Typography.Text>
+        )
+    }
+
+    if (!updateLoading && error) {
+        return (
+            <Typography.Text type='danger'>
+                <span className={styles.status}>
+                    <XCircle size='medium'/>
+                    {FailedToGenerateLabel}
+                </span>
+            </Typography.Text>
+        )
+    }
+
+    return <ProgressLoader/>
 }
 
 const AIInputNotification: FC<AIInputNotificationPropsType> = ({
@@ -91,6 +96,8 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
         return () => observer.disconnect()
     }, [])
 
+    const resultForViewing = result || tempMessage
+
     return (
         <Tooltip
             placement='top'
@@ -105,7 +112,7 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
                 position: 'relative',
                 top: '16px',
             }}
-            open={open && (!!result || !!errorMessage || updateLoading)}
+            open={open && (!!resultForViewing || !!errorMessage || updateLoading)}
             title={
                 <Space
                     size={12}
@@ -115,7 +122,8 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
                 >
                     <div className={styles.header}>
                         <Status
-                            result={result}
+                            result={resultForViewing}
+                            error={errorMessage}
                             updateLoading={updateLoading}
                         />
 
@@ -131,11 +139,11 @@ const AIInputNotification: FC<AIInputNotificationPropsType> = ({
 
                     <Typography.Paragraph size='medium'>
                         <span className={updateLoading ? styles.smoothBlinkingText : ''}>
-                            {result || errorMessage || tempMessage}
+                            {resultForViewing || errorMessage}
                         </span>
                     </Typography.Paragraph>
 
-                    {(updateLoading || result) && (
+                    {(updateLoading || resultForViewing) && (
                         <div className={styles.actions}>
                             <Button
                                 onClick={onApply}
