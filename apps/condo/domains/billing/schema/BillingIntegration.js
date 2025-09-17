@@ -17,6 +17,7 @@ const {
 } = require('@condo/domains/billing/constants/errors')
 const { LINEAR_GRADIENT_REGEXP, HEX_CODE_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { PROMO_BLOCK_TEXT_VARIANTS, PROMO_BLOCK_DARK_TEXT_VARIANT } = require('@condo/domains/miniapp/constants')
 const {
     SHORT_DESCRIPTION_FIELD,
@@ -154,6 +155,18 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             adminDoc: 'Icon is used in "Accruals and Payments" section to go with billingPageTitle in the app tab',
             schemaDoc: 'Used in billing section to go with billingPageTitle in the app tab',
             ...STATIC_FILE_FIELD,
+        },
+
+        billingPageMeta: {
+            adminDoc: 'Meta is used in "Accruals and Payments" section to store all the necessary custom text or other information',
+            schemaDoc: 'Used in billing section to store all the necessary custom text or other information',
+            type: 'Json',
+            isRequired: false,
+            hooks: {
+                validateInput: (args) => {
+                    hasValidJsonStructure(args, true, 1, {})
+                },
+            },
         },
 
         group: {

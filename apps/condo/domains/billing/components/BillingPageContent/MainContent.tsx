@@ -6,13 +6,14 @@ import React, { useCallback, useEffect, useMemo, useState, CSSProperties } from 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { RadioGroup, Tabs, Radio } from '@open-condo/ui'
+import { RadioGroup, Tabs, Radio, Tour } from '@open-condo/ui'
 import type { TabItem } from '@open-condo/ui'
 
 import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
+import styles from '@condo/domains/billing/components/BillingPageContent/MainContent.module.css'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
@@ -105,14 +106,16 @@ export const MainContent: React.FC<MainContentProps> = ({
 
     const CustomIconImage = useMemo(() => {
         return (
-            <Image
-                src={customIconUrl || FALLBACK_IMAGE_URL}
-                fallback={FALLBACK_IMAGE_URL}
-                preview={false}
-                style={IMAGE_STYLES}
-                draggable={false}
-                wrapperStyle={IMAGE_WRAPPER_STYLES}
-            />
+            <Tour.TourStep className={styles.tourStep} step={0} title='test' placement='bottom' getPopupContainer={trigger => trigger.closest('.condo-tabs') as HTMLElement}>
+                <Image
+                    src={customIconUrl || FALLBACK_IMAGE_URL}
+                    fallback={FALLBACK_IMAGE_URL}
+                    preview={false}
+                    style={IMAGE_STYLES}
+                    draggable={false}
+                    wrapperStyle={IMAGE_WRAPPER_STYLES}
+                />
+            </Tour.TourStep>
         )
     }, [customIconUrl])
 
