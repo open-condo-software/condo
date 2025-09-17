@@ -47,7 +47,7 @@ const {
     REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
     GENERATE_PAYMENT_LINK_QUERY,
 } = require('@condo/domains/acquiring/gql')
-const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL, SUM_PAYMENTS_QUERY  } = require('@condo/domains/acquiring/gql')
+const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL, SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
 const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
@@ -63,7 +63,8 @@ const {
 const { PaymentsFile: PaymentsFileGQL } = require('@condo/domains/acquiring/gql')
 const path = require("path");
 const conf = require("@open-condo/config");
-const { PAYMENTS_FILE_NEW_STATUS} = require("@condo/domains/acquiring/constants/constants");
+const { PAYMENTS_FILE_NEW_STATUS } = require("@condo/domains/acquiring/constants/constants");
+const { SET_PAYMENT_POS_RECEIPT_URL_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -82,7 +83,7 @@ const RecurrentPaymentContextLite = generateGQLTestUtils(RecurrentPaymentContext
 
 const FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')
 
-function getRandomHiddenCard() {
+function getRandomHiddenCard () {
     const prefix = Math.floor(Math.random() * 9000 + 1000)
     const suffix = Math.floor(Math.random() * 9000 + 1000)
     return `${prefix}********${suffix}`
@@ -142,7 +143,7 @@ async function createTestAcquiringIntegrationAccessRight (client, integration, u
     const attrs = {
         dv: 1,
         sender,
-        integration: { connect: {id: integration.id } },
+        integration: { connect: { id: integration.id } },
         user: { connect: { id: user.id } },
         ...extraAttrs,
     }
@@ -207,7 +208,7 @@ async function makeAcquiringContext () {
     return context
 }
 
-async function makeAcquiringContextAndIntegrationManager() {
+async function makeAcquiringContextAndIntegrationManager () {
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestAcquiringIntegration(admin)
     const [organization] = await registerNewOrganization(admin)
@@ -224,13 +225,13 @@ async function makeAcquiringContextAndIntegrationManager() {
     }
 }
 
-async function addAcquiringIntegrationAndContext(client, organization, integrationExtraAttrs = {}, contextExtraAttrs = {}) {
+async function addAcquiringIntegrationAndContext (client, organization, integrationExtraAttrs = {}, contextExtraAttrs = {}) {
     if (!organization || !organization.id) {
         throw ('No organization')
     }
 
-    const [ acquiringIntegration ] = await createTestAcquiringIntegration(client, integrationExtraAttrs)
-    const [ acquiringIntegrationContext ] = await createTestAcquiringIntegrationContext(client, organization, acquiringIntegration, contextExtraAttrs)
+    const [acquiringIntegration] = await createTestAcquiringIntegration(client, integrationExtraAttrs)
+    const [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(client, organization, acquiringIntegration, contextExtraAttrs)
 
     return {
         acquiringIntegration,
@@ -239,7 +240,7 @@ async function addAcquiringIntegrationAndContext(client, organization, integrati
     }
 }
 
-async function makeAcquiringContextAndIntegrationAccount() {
+async function makeAcquiringContextAndIntegrationAccount () {
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestAcquiringIntegration(admin)
     const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
@@ -273,7 +274,7 @@ async function createTestMultiPayment (client, payments, user, integration, extr
         serviceCategory: 'TEST DOCUMENT',
         status: MULTIPAYMENT_INIT_STATUS,
         user: { connect: { id: user.id } },
-        payments: { connect: payments.map(payment => ({id: payment.id})) },
+        payments: { connect: payments.map(payment => ({ id: payment.id })) },
         integration: { connect: { id: integration.id } },
         ...extraAttrs,
     }
@@ -296,13 +297,13 @@ async function updateTestMultiPayment (client, id, extraAttrs = {}, params = {})
     return [obj, attrs]
 }
 
-async function createTestPayment (client, organization, receipt=null, context=null, extraAttrs = {}) {
+async function createTestPayment (client, organization, receipt = null, context = null, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const amount = receipt ? receipt.toPay : String(Math.round(Math.random() * 100000) / 100 + 100)
-    const recipientBic = get(receipt,  ['recipient', 'bic'], faker.datatype.number().toString())
-    const recipientBankAccount = get(receipt,  ['recipient', 'bankAccount'], faker.datatype.number().toString())
+    const recipientBic = get(receipt, ['recipient', 'bic'], faker.datatype.number().toString())
+    const recipientBankAccount = get(receipt, ['recipient', 'bankAccount'], faker.datatype.number().toString())
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
     const implicitFee = String(Math.floor(Math.random() * 100) / 2)
     const period = dayjs().format('YYYY-MM-01')
@@ -352,7 +353,7 @@ async function updateTestPayment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerMultiPaymentByTestClient(client, groupedReceipts, extraAttrs = {}) {
+async function registerMultiPaymentByTestClient (client, groupedReceipts, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -400,7 +401,7 @@ async function updateTestPaymentsFilterTemplate (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext, extraAttrs = {}) {
+async function registerMultiPaymentForOneReceiptByTestClient (client, receipt, acquiringIntegrationContext, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -416,7 +417,7 @@ async function registerMultiPaymentForOneReceiptByTestClient(client, receipt, ac
     return [data.result, attrs]
 }
 
-async function registerMultiPaymentForVirtualReceiptByTestClient(client, receipt, acquiringIntegrationContext, extraAttrs = {}) {
+async function registerMultiPaymentForVirtualReceiptByTestClient (client, receipt, acquiringIntegrationContext, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -432,7 +433,7 @@ async function registerMultiPaymentForVirtualReceiptByTestClient(client, receipt
     return [data.result, attrs]
 }
 
-async function generatePaymentLinkByTestClient(client, receipt, receiptData, acquiringIntegrationContext, callbacks, extraAttrs = {}) {
+async function generatePaymentLinkByTestClient (client, receipt, receiptData, acquiringIntegrationContext, callbacks, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -450,7 +451,7 @@ async function generatePaymentLinkByTestClient(client, receipt, receiptData, acq
     return [data.result, attrs]
 }
 
-async function sumPaymentsByTestClient(client, args = {}) {
+async function sumPaymentsByTestClient (client, args = {}) {
     if (!client) throw new Error('no client')
 
     const { data, errors } = await client.query(SUM_PAYMENTS_QUERY, { data: args })
@@ -512,7 +513,7 @@ async function updateTestRecurrentPayment (client, id, extraAttrs = {}) {
 }
 
 
-async function createPaymentByLinkByTestClient(client, extraAttrs = {}) {
+async function createPaymentByLinkByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -526,7 +527,7 @@ async function createPaymentByLinkByTestClient(client, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
-async function registerMultiPaymentForInvoicesByTestClient(client, extraAttrs = {}) {
+async function registerMultiPaymentForInvoicesByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -540,14 +541,14 @@ async function registerMultiPaymentForInvoicesByTestClient(client, extraAttrs = 
     return [data.result, attrs]
 }
 
-async function calculateFeeForReceiptByTestClient(client, extraAttrs = {}) {
+async function calculateFeeForReceiptByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const { data, errors } = await client.query(CALCULATE_FEE_FOR_RECEIPT_QUERY, { data: extraAttrs })
     throwIfError(data, errors, { query: CALCULATE_FEE_FOR_RECEIPT_QUERY, variables: { data: extraAttrs } })
     return [data.result, extraAttrs]
 }
-async function createTestPaymentsFile (client, context,  extraAttrs = {}) {
+async function createTestPaymentsFile (client, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!context) throw new Error('Acquiring context is missing')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -587,6 +588,24 @@ async function updateTestPaymentsFile (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function setPaymentPosReceiptUrlByTestClient (client, payment, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!payment || !payment.id) throw new Error('no payment')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        payment: { id: payment.id },
+        posReceiptUrl: faker.internet.url(),
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SET_PAYMENT_POS_RECEIPT_URL_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate a bunch of entities for working with MultiPayments
@@ -599,7 +618,7 @@ async function makePayer (receiptsAmount = 1) {
 
     const [billingIntegration] = await createTestBillingIntegration(admin)
     const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
-    const [billingProperty] = await createTestBillingProperty(admin, billingContext, {address: property.address})
+    const [billingProperty] = await createTestBillingProperty(admin, billingContext, { address: property.address })
     const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty)
 
     const billingReceipts = []
@@ -619,9 +638,9 @@ async function makePayer (receiptsAmount = 1) {
         unitName: billingAccount.unitName,
         unitType: billingAccount.unitType,
     })
-    const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization , {
+    const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization, {
         accountNumber: billingAccount.number,
-        acquiringIntegrationContext: { connect: {id: acquiringContext.id} },
+        acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
         billingIntegrationContext: { connect: { id: billingContext.id } }
     })
 
@@ -643,7 +662,7 @@ async function makePayer (receiptsAmount = 1) {
     }
 }
 
-async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmount = 1) {
+async function makePayerWithMultipleConsumers (consumersAmount = 1, receiptsAmount = 1) {
     const client = await makeClientWithResidentUser()
     const admin = await makeLoggedInAdminClient()
     const result = []
@@ -652,7 +671,7 @@ async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmoun
         const [property] = await createTestProperty(admin, organization)
         const [billingIntegration] = await createTestBillingIntegration(admin)
         const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
-        const [billingProperty] = await createTestBillingProperty(admin, billingContext, {address: property.address})
+        const [billingProperty] = await createTestBillingProperty(admin, billingContext, { address: property.address })
         const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty)
         const billingReceipts = []
         for (let j = 0; j < receiptsAmount; j++) {
@@ -669,7 +688,7 @@ async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmoun
             billingReceipts
         })
     }
-    const [acquiringIntegration] = await createTestAcquiringIntegration(admin,{
+    const [acquiringIntegration] = await createTestAcquiringIntegration(admin, {
         canGroupReceipts: true
     })
     for (let i = 0; i < consumersAmount; i++) {
@@ -683,7 +702,7 @@ async function makePayerWithMultipleConsumers(consumersAmount = 1, receiptsAmoun
             unitType: billingAccount.unitType,
         })
         const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization, {
-            acquiringIntegrationContext: { connect: {id: acquiringContext.id} },
+            acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
             billingIntegrationContext: { connect: { id: billingContext.id } },
             accountNumber: billingAccount.number,
         })
@@ -732,13 +751,13 @@ async function makePayerAndPayments (receiptsAmount = 1) {
  * @param {string} targetStatus "DONE" or "WITHDRAWN" - a status, which should be set on completed payment
  * @return {Promise<{doneMultiPayment: ({data: *, errors: *}|*)}>}
  */
-async function completeTestPayment(residentClient, integrationClient, serviceConsumerId, receiptId, extra = {}, targetStatus = "DONE") {
+async function completeTestPayment (residentClient, integrationClient, serviceConsumerId, receiptId, extra = {}, targetStatus = "DONE") {
     const registerMultiPaymentPayload = {
         serviceConsumer: { id: serviceConsumerId },
-        receipts: [{id: receiptId}],
+        receipts: [{ id: receiptId }],
     }
-    const [ { multiPaymentId } ] = await registerMultiPaymentByTestClient(residentClient, registerMultiPaymentPayload)
-    const [ multiPayment ] = await MultiPayment.getAll(integrationClient, { id: multiPaymentId })
+    const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(residentClient, registerMultiPaymentPayload)
+    const [multiPayment] = await MultiPayment.getAll(integrationClient, { id: multiPaymentId })
 
     if (targetStatus === 'DONE') {
         await updateTestPayment(integrationClient, multiPayment.payments[0].id, {
@@ -755,7 +774,7 @@ async function completeTestPayment(residentClient, integrationClient, serviceCon
             transactionId: faker.datatype.uuid(),
             status: MULTIPAYMENT_DONE_STATUS,
         }
-        const [ doneMultiPayment ] = await updateTestMultiPayment(integrationClient, multiPayment.id, multiPaymentDonePayload)
+        const [doneMultiPayment] = await updateTestMultiPayment(integrationClient, multiPayment.id, multiPaymentDonePayload)
         return { doneMultiPayment }
     }
     else if (targetStatus === 'WITHDRAWN') {
@@ -772,7 +791,7 @@ async function completeTestPayment(residentClient, integrationClient, serviceCon
             advancedAt: dayjs().toISOString(),
             status: PAYMENT_WITHDRAWN_STATUS,
         })
-        const [ withdrawnMultiPayment ] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
+        const [withdrawnMultiPayment] = await updateTestMultiPayment(integrationClient, multiPayment.id, {
             withdrawnAt: dayjs().toISOString(),
             cardNumber: getRandomHiddenCard(),
             paymentWay: 'CARD',
@@ -783,19 +802,19 @@ async function completeTestPayment(residentClient, integrationClient, serviceCon
     }
 }
 
-async function createPaymentsAndGetSum(paymentsAmount = 1) {
+async function createPaymentsAndGetSum (paymentsAmount = 1) {
     const { admin, billingReceipts, acquiringContext, organization } = await makePayer(paymentsAmount)
     let totalSum = Big(0)
-    for (let i = 0; i < paymentsAmount; i++){
+    for (let i = 0; i < paymentsAmount; i++) {
         const [payment] = await createTestPayment(admin, organization, billingReceipts[i], acquiringContext)
         totalSum = totalSum.plus(Big(payment.amount))
     }
     return { client: admin, organization, sum: totalSum.toFixed(8) }
 }
 
-async function createPaymentsFilesAndGetSum(client, context, paymentsFilesAmount = 1) {
+async function createPaymentsFilesAndGetSum (client, context, paymentsFilesAmount = 1) {
     let totalSum = Big(0)
-    for (let i = 0; i < paymentsFilesAmount; i++){
+    for (let i = 0; i < paymentsFilesAmount; i++) {
         const [paymentsFile] = await createTestPaymentsFile(client, context)
         totalSum = totalSum.plus(Big(paymentsFile.amount))
     }
@@ -803,7 +822,7 @@ async function createPaymentsFilesAndGetSum(client, context, paymentsFilesAmount
 }
 
 
-async function exportPaymentsServiceByTestClient(client, where, extraAttrs = {}) {
+async function exportPaymentsServiceByTestClient (client, where, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!where) throw new Error('no where conditions')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -886,5 +905,6 @@ module.exports = {
     calculateFeeForReceiptByTestClient,
     generateQRCode,
     PaymentsFile, createTestPaymentsFile, updateTestPaymentsFile,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    setPaymentPosReceiptUrlByTestClient,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }
