@@ -1349,6 +1349,7 @@ __metadata:
     "@graphql-codegen/import-types-preset": ^3.0.0
     "@graphql-codegen/typescript-operations": ^4.2.3
     "@graphql-codegen/typescript-react-apollo": ^4.3.2
+    "@metro-fs/analytics-plugin-posthog": ^1.14.0
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
