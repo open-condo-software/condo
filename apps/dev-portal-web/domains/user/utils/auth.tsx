@@ -62,7 +62,11 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
             if (success) {
                 setUser(null)
             }
-            await refetchAuth().then(() => router.push('/', '/', { locale: router.locale }))
+            await refetchAuth().then(() => {
+                if (!router.asPath.startsWith('/docs')) {
+                    router.push('/', '/', { locale: router.locale })
+                }
+            })
         },
         onError: (error) => {
             console.error(error)

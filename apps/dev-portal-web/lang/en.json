@@ -33,7 +33,7 @@
   "global.errors.imageUpload.tooBig.description": "Image is bigger than {maxSize} pixels",
 
   "global.authForm.welcome.title": "Welcome back!",
-  "global.authForm.welcome.description": "Log in to your account to continue working with the Condo developers platform",
+  "global.authForm.welcome.description": "Sign in to your account to continue working with the Condo developers platform",
   "global.authForm.Tabs.login": "Login",
   "global.authForm.Tabs.register": "Register",
   "global.authForm.items.phone.label": "Phone",

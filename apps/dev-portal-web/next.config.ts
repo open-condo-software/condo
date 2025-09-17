@@ -23,7 +23,7 @@ const TRUSTED_PROXIES_CONFIG = JSON.parse(conf['TRUSTED_PROXIES_CONFIG'] || '{}'
 const API_PROXY_CONFIG = JSON.parse(conf['API_PROXY_CONFIG'] || '{}')
 
 // NOTE: AUTH_METHODS
-const AUTH_METHODS = JSON.parse(conf['AUTH_METHODS'] || '["condo", "password"]')
+const AUTH_METHODS = JSON.parse(conf['AUTH_METHODS'] || '["condo"]')
 
 // NOTE: RUNTIME_TRANSLATIONS
 const RUNTIME_TRANSLATIONS = JSON.parse(conf['RUNTIME_TRANSLATIONS'] || '{}')
