@@ -74634,6 +74634,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canExecuteRegisterPropertyMetersReadings: Boolean
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -74770,6 +74771,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canExecuteRegisterBillingReceipts_not: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteRegisterBillingReceiptFile_not: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteSetPaymentPosReceiptUrl_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -74935,6 +74938,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canExecuteRegisterBillingReceipts_DESC
   canExecuteRegisterBillingReceiptFile_ASC
   canExecuteRegisterBillingReceiptFile_DESC
+  canExecuteSetPaymentPosReceiptUrl_ASC
+  canExecuteSetPaymentPosReceiptUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -74996,6 +75001,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canExecuteRegisterPropertyMetersReadings: Boolean
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75058,6 +75064,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canExecuteRegisterPropertyMetersReadings: Boolean
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75161,6 +75168,7 @@ type B2BAppAccessRightSet {
   canExecuteRegisterPropertyMetersReadings: Boolean
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -75289,6 +75297,8 @@ input B2BAppAccessRightSetWhereInput {
   canExecuteRegisterBillingReceipts_not: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteRegisterBillingReceiptFile_not: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
+  canExecuteSetPaymentPosReceiptUrl_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -75436,6 +75446,8 @@ enum SortB2BAppAccessRightSetsBy {
   canExecuteRegisterBillingReceipts_DESC
   canExecuteRegisterBillingReceiptFile_ASC
   canExecuteRegisterBillingReceiptFile_DESC
+  canExecuteSetPaymentPosReceiptUrl_ASC
+  canExecuteSetPaymentPosReceiptUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -75497,6 +75509,7 @@ input B2BAppAccessRightSetUpdateInput {
   canExecuteRegisterPropertyMetersReadings: Boolean
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75556,6 +75569,7 @@ input B2BAppAccessRightSetCreateInput {
   canExecuteRegisterPropertyMetersReadings: Boolean
   canExecuteRegisterBillingReceipts: Boolean
   canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteSetPaymentPosReceiptUrl: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -86697,6 +86711,17 @@ type CalculateFeeForReceiptOutput {
   amountWithoutExplicitFee: String!
   explicitFee: String!
   explicitServiceCharge: String!
+}
+
+input SetPaymentPosReceiptUrlInput {
+  dv: Int!
+  sender: JSON!
+  payment: PaymentWhereUniqueInput!
+  posReceiptUrl: String!
+}
+
+type SetPaymentPosReceiptUrlOutput {
+  success: Boolean!
 }
 
 enum TicketReportPeriodType {
@@ -100262,6 +100287,7 @@ type Mutation {
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   registerMultiPaymentForInvoices(data: RegisterMultiPaymentForInvoicesInput!): RegisterMultiPaymentForInvoicesOutput
+  setPaymentPosReceiptUrl(data: SetPaymentPosReceiptUrlInput!): SetPaymentPosReceiptUrlOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
 
   """

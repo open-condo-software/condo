@@ -91,6 +91,14 @@ const CALCULATE_FEE_FOR_RECEIPT_QUERY = gql`
 const PAYMENTS_FILE_FIELDS = `{ number file { id originalFilename publicUrl mimetype } context { id } importId bankAccount paymentPeriodStartDate paymentPeriodEndDay loadedAt paymentsCount amount amountWithoutFees name status bankComment paymentOrder ${COMMON_FIELDS} }`
 const PaymentsFile = generateGqlQueries('PaymentsFile', PAYMENTS_FILE_FIELDS)
 
+// TODO(codegen): write return type result!
+
+const SET_PAYMENT_POS_RECEIPT_URL_MUTATION = gql`
+    mutation setPaymentPosReceiptUrl ($data: SetPaymentPosReceiptUrlInput!) {
+        result: setPaymentPosReceiptUrl(data: $data) { success }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -118,5 +126,6 @@ module.exports = {
     REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION,
     CALCULATE_FEE_FOR_RECEIPT_QUERY,
     PaymentsFile,
+    SET_PAYMENT_POS_RECEIPT_URL_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
