@@ -198,7 +198,7 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
         const onAuthSuccess = this.onAuthSuccess
 
         return async function callbackHandler (req, res, next) {
-            const session = await sessionGetter(req, res)
+            let session = await sessionGetter(req, res)
 
             try {
                 const { success, data: checks } = OIDCMiddleware.CHECK_SCHEMA.safeParse(session[OIDCMiddleware.OIDC_CHECKS_KEY])
@@ -224,6 +224,8 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
                 // Step 2. Call onAuthSuccess to sync user, start new session and so on
                 if (onAuthSuccess) {
                     await onAuthSuccess(req, res, { accessToken, refreshToken, idToken, userInfo })
+                    // NOTE: session might be regenerated in onAuthSuccess
+                    session = await sessionGetter(req, res)
                 }
 
                 // Step 3. Save tokens for later use
