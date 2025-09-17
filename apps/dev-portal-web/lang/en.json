@@ -32,10 +32,15 @@
   "global.errors.imageUpload.tooSmall.description": "Image is smaller than {minSize} pixels",
   "global.errors.imageUpload.tooBig.description": "Image is bigger than {maxSize} pixels",
 
+  "global.authForm.welcome.title": "Welcome back!",
+  "global.authForm.welcome.description": "Sign in to your account to continue working with the Condo developers platform",
   "global.authForm.Tabs.login": "Login",
   "global.authForm.Tabs.register": "Register",
   "global.authForm.items.phone.label": "Phone",
   "global.authForm.items.password.label": "Password",
+  "global.authForm.divider.text": "or",
+  "global.authForm.socials.text": "Sign in with {service}",
+  "global.authForm.socials.condo.name": "Condo",
 
   "global.registerForm.items.code.label": "SMS code",
   "global.registerForm.items.name.label": "User name",

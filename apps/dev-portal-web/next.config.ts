@@ -22,6 +22,12 @@ const SSR_PROXY_CONFIG = JSON.parse(conf['SSR_PROXY_CONFIG'] || '{}')
 const TRUSTED_PROXIES_CONFIG = JSON.parse(conf['TRUSTED_PROXIES_CONFIG'] || '{}')
 const API_PROXY_CONFIG = JSON.parse(conf['API_PROXY_CONFIG'] || '{}')
 
+// NOTE: AUTH_METHODS
+const AUTH_METHODS = JSON.parse(conf['AUTH_METHODS'] || '["condo"]')
+
+// NOTE: RUNTIME_TRANSLATIONS
+const RUNTIME_TRANSLATIONS = JSON.parse(conf['RUNTIME_TRANSLATIONS'] || '{}')
+
 const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
@@ -33,6 +39,7 @@ const nextConfig: NextConfig = {
         defaultLocale: DEFAULT_LOCALE,
     },
     publicRuntimeConfig: {
+        authMethods: AUTH_METHODS,
         serverUrl: SERVER_URL,
         serviceUrl: SERVICE_URL,
         addressServiceUrl: ADDRESS_SERVICE_URL,
@@ -40,6 +47,7 @@ const nextConfig: NextConfig = {
         termsOfUseUrl,
         privacyPolicyUrl,
         dataProcessingConsentUrl,
+        runtimeTranslations: RUNTIME_TRANSLATIONS,
     },
     serverRuntimeConfig: {
         proxyName: GRAPHQL_PROXY_NAME,

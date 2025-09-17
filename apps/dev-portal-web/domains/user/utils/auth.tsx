@@ -2,10 +2,13 @@ import { useApolloClient } from '@apollo/client'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { useIntl } from 'react-intl'
 
-import { Modal } from '@open-condo/ui'
+import { Modal, Typography, Space } from '@open-condo/ui'
 
 import { AuthForm } from '@/domains/common/components/auth/AuthForm'
+
+import styles from './AuthModal.module.css'
 
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 
@@ -38,6 +41,9 @@ const AuthContext = createContext<AuthContextType>({
 })
 
 export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+    const intl = useIntl()
+    const WelcomeTitle = intl.formatMessage({ id: 'global.authForm.welcome.title' })
+    const WelcomeDescriptionText = intl.formatMessage({ id: 'global.authForm.welcome.description' })
     const apolloClient = useApolloClient()
     const [authModalOpen, setAuthModalOpen] = useState(false)
     const { data: auth, loading: userLoading, refetch } = useAuthenticatedUserQuery()
@@ -56,7 +62,11 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
             if (success) {
                 setUser(null)
             }
-            await refetchAuth().then(() => router.push('/', '/', { locale: router.locale }))
+            await refetchAuth().then(() => {
+                if (!router.asPath.startsWith('/docs')) {
+                    router.push('/', '/', { locale: router.locale })
+                }
+            })
         },
         onError: (error) => {
             console.error(error)
@@ -99,10 +109,17 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
             {children}
             {authModalOpen && (
                 <Modal
+                    title={WelcomeTitle}
                     open={authModalOpen}
                     onCancel={handleModalClose}
+                    className={styles.condoAuthModal}
                 >
-                    <AuthForm onComplete={handleAuthComplete}/>
+                    <div className={styles.contentContainer}>
+                        <Typography.Text type='secondary' size='medium'>
+                            {WelcomeDescriptionText}
+                        </Typography.Text>
+                        <AuthForm onComplete={handleAuthComplete}/>
+                    </div>
                 </Modal>
             )}
         </AuthContext.Provider>

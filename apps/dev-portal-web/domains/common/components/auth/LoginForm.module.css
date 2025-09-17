@@ -1,3 +1,7 @@
 .submit-button-col {
-  margin-top: var(--condo-global-spacing-40);
+  margin-top: var(--condo-global-spacing-24);
+}
+
+.aligned-icon {
+  transform: translateY(-2px);
 }

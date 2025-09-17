@@ -55,7 +55,7 @@ type OIDCMiddlewareOptions<UserInfo extends Record<string, unknown> = Record<str
     getSession: SessionGetter
     oidcConfig: OIDCClientConfig
     redirectUri: string
-    onAuthSuccess: OnAuthSuccessHandler<UserInfo>
+    onAuthSuccess?: OnAuthSuccessHandler<UserInfo>
     middlewareOptions?: MiddlewareOptions
     onError?: ErrorHandler
     logger?: LoggerType
@@ -66,15 +66,18 @@ type NextFunction = (err?: unknown) => void
 type RequestHandler = (req: IncomingMessage, res: ServerResponse, next?: NextFunction) => void | Promise<void>
 
 export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<string, never>> {
-    static OIDC_NEXT_URL_KEY = 'oidcNextUrl'
-    static OIDC_CHECKS_KEY = 'oidcChecks'
-    static CHECK_SCHEMA = z.object({ nonce: z.string(), state: z.string() })
+    private static OIDC_ID_TOKEN_KEY = 'oidcIdToken' as const
+    private static OIDC_ACCESS_TOKEN_KEY = 'oidcAccessToken' as const
+    private static OIDC_REFRESH_TOKEN_KEY = 'oidcRefreshToken' as const
+    private static OIDC_NEXT_URL_KEY = 'oidcNextUrl' as const
+    private static OIDC_CHECKS_KEY = 'oidcChecks' as const
+    private static CHECK_SCHEMA = z.object({ nonce: z.string(), state: z.string() })
 
     private readonly getSession: SessionGetter
     private readonly client: Client
     private readonly logger: LoggerType
     private readonly redirectUri: string
-    private readonly onAuthSuccess: OnAuthSuccessHandler<UserInfo>
+    private readonly onAuthSuccess?: OnAuthSuccessHandler<UserInfo>
     private readonly onError?: ErrorHandler
     private readonly middlewareOptions: MiddlewareOptions | undefined
     private readonly scope?: string
@@ -195,7 +198,7 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
         const onAuthSuccess = this.onAuthSuccess
 
         return async function callbackHandler (req, res, next) {
-            const session = await sessionGetter(req, res)
+            let session = await sessionGetter(req, res)
 
             try {
                 const { success, data: checks } = OIDCMiddleware.CHECK_SCHEMA.safeParse(session[OIDCMiddleware.OIDC_CHECKS_KEY])
@@ -213,11 +216,24 @@ export class OIDCMiddleware<UserInfo extends Record<string, unknown> = Record<st
                     userInfo = await client.userinfo<UserInfo>(accessToken)
                 }
 
+                // Step 1. Remove temporary session data and save session
                 delete session[OIDCMiddleware.OIDC_CHECKS_KEY]
                 delete session[OIDCMiddleware.OIDC_NEXT_URL_KEY]
                 await session.save()
 
-                await onAuthSuccess(req, res, { accessToken, refreshToken, idToken, userInfo })
+                // Step 2. Call onAuthSuccess to sync user, start new session and so on
+                if (onAuthSuccess) {
+                    await onAuthSuccess(req, res, { accessToken, refreshToken, idToken, userInfo })
+                    // NOTE: session might be regenerated in onAuthSuccess
+                    session = await sessionGetter(req, res)
+                }
+
+                // Step 3. Save tokens for later use
+                session[OIDCMiddleware.OIDC_ID_TOKEN_KEY] = idToken
+                session[OIDCMiddleware.OIDC_ACCESS_TOKEN_KEY] = accessToken
+                session[OIDCMiddleware.OIDC_REFRESH_TOKEN_KEY] = refreshToken
+
+                await session.save()
 
                 const location = typeof nextUrl === 'string' && isSafeUrl(nextUrl) ? nextUrl : '/'
                 res.writeHead(302, { Location: location })

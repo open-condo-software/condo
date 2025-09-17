@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest --unhandled-rejections=strict",
     "prepare": "node bin/prepare.js",
-    "build:deps": "turbo build --filter=@app/dev-portal-api^...",
+    "build:deps": "turbo build --filter=@app/dev-portal-api^... --filter=!@app/condo",
     "build": "cross-env PHASE=build keystone build",
     "dev": "node --trace-warnings ./../../bin/run-keystone-app.js",
     "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",

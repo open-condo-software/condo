@@ -1,0 +1,9 @@
+:global(.condo-modal-root) :global(.condo-modal).condo-auth-modal :global(.condo-modal-body) {
+  padding-top: 0;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}

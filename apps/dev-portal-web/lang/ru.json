@@ -32,10 +32,15 @@
   "global.errors.imageUpload.tooSmall.description": "Изображение меньше {minSize} пикселей",
   "global.errors.imageUpload.tooBig.description": "Изображение больше {maxSize} пикселей",
 
+  "global.authForm.welcome.title": "Добро пожаловать!",
+  "global.authForm.welcome.description": "Войдите в свою учетную запись, чтобы продолжить работу с платформой разработчика Condo",
   "global.authForm.Tabs.login": "Вход",
   "global.authForm.Tabs.register": "Регистрация",
   "global.authForm.items.phone.label": "Телефон",
   "global.authForm.items.password.label": "Пароль",
+  "global.authForm.divider.text": "или",
+  "global.authForm.socials.text": "Войти через {service}",
+  "global.authForm.socials.condo.name": "Condo",
 
   "global.registerForm.items.code.label": "Код из SMS",
   "global.registerForm.items.name.label": "Имя пользователя",
