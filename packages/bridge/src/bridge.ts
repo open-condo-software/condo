@@ -18,6 +18,7 @@ export const IS_BROWSER_CLIENT = IS_CLIENT_SIDE
 const WEB_SPECIFIC_METHODS: Array<AnyRequestMethodName> = [
     'CondoWebAppCloseModalWindow',
     'CondoWebAppGetActiveProgressBars',
+    'CondoWebAppGetFragment',
     'CondoWebAppGetLaunchParams',
     'CondoWebAppRedirect',
     'CondoWebAppRequestAuth',
