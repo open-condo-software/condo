@@ -9,6 +9,7 @@ import type { ErrorReason, ErrorCode } from '@open-condo/bridge'
 import {
     handleNotification,
     useGetActiveProgressBarsHandler,
+    useGetFragmentHandler,
     useLaunchParamsHandler,
     useRedirectHandler,
     useModalHandler,
@@ -137,6 +138,7 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     }, [])
 
     const launchParamsHandler = useLaunchParamsHandler()
+    const getFragmentHandler = useGetFragmentHandler()
     const showProgressBarHandler = useShowProgressBarHandler()
     const getActiveProgressBarsHandler = useGetActiveProgressBarsHandler()
     const updateProgressBarHandler = useUpdateProgressBarHandler()
@@ -150,6 +152,10 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     useEffect(() => {
         addEventHandler('CondoWebAppGetActiveProgressBars', '*', getActiveProgressBarsHandler)
     }, [addEventHandler, getActiveProgressBarsHandler])
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppGetFragment', '*', getFragmentHandler)
+    }, [addEventHandler, getFragmentHandler])
 
     useEffect(() => {
         addEventHandler('CondoWebAppGetLaunchParams', '*', launchParamsHandler)
