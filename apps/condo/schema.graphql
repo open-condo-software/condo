@@ -87234,6 +87234,7 @@ input SendB2BAppPushMessageInput {
   user: UserWhereUniqueInput!
   organization: OrganizationWhereUniqueInput!
   app: B2BAppWhereUniqueInput!
+  appInitialContext: String
   type: B2BAppMessageType!
   meta: JSON!
 }
@@ -98376,9 +98377,6 @@ type Mutation {
   				"defaultValue": "",
   				"required": true
   			}
-  		},
-  		"telegramMeta": {
-  			"required": false
   		}
   	},
   	"TICKET_COMMENT_CREATED": {
@@ -98459,9 +98457,6 @@ type Mutation {
   				"defaultValue": "",
   				"required": true
   			}
-  		},
-  		"telegramMeta": {
-  			"required": false
   		}
   	},
   	"INVITE_NEW_EMPLOYEE": {
@@ -100103,13 +100098,7 @@ type Mutation {
   			},
   			"stateVehicleNumber": {
   				"required": true
-  			},
-  			"condoMiniappContext": {
-  				"required": true
   			}
-  		},
-  		"telegramMeta": {
-  			"required": false
   		}
   	},
   	"PASS_TICKET_COMMENT_CREATED": {
@@ -100614,13 +100603,7 @@ type Mutation {
   			},
   			"stateVehicleNumber": {
   				"required": true
-  			},
-  			"condoMiniappContext": {
-  				"required": true
   			}
-  		},
-  		"telegramMeta": {
-  			"required": false
   		}
   	},
   	"PASS_TICKET_COMMENT_CREATED": {
@@ -100667,6 +100650,10 @@ type Mutation {
   		}
   	}
   }`
+                      
+                      **appInitialContext** - URL parameters string that the miniapp will receive when opened via link from the Message.
+                      Format: "param1=value1&param2=value2". These parameters will be passed to the miniapp to provide initial context/state.
+                      Should not start with ? or & characters. Empty string is allowed.
                   
   
   **Errors**
@@ -100701,6 +100688,12 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
     "message": "Invalid URL: must start with server url and be safe"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_VALUE",
+    "message": "Invalid appInitialContext format: must be URL parameters string like \"param1=value1&param2=value2\""
   }`
   """
   sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput

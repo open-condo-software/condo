@@ -115,7 +115,7 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
         },
         {
             access: true,
-            type: 'input SendB2BAppPushMessageInput { dv: Int!, sender: SenderFieldInput!, user: UserWhereUniqueInput!, organization: OrganizationWhereUniqueInput!, app: B2BAppWhereUniqueInput!, appInitialContext: String!, type: B2BAppMessageType!, meta: JSON!, }',
+            type: 'input SendB2BAppPushMessageInput { dv: Int!, sender: SenderFieldInput!, user: UserWhereUniqueInput!, organization: OrganizationWhereUniqueInput!, app: B2BAppWhereUniqueInput!, appInitialContext: String, type: B2BAppMessageType!, meta: JSON!, }',
         },
         {
             access: true,
