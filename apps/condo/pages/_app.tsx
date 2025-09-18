@@ -486,6 +486,9 @@ const MyApp = ({ Component, pageProps }) => {
     const { user, isAuthenticated, isLoading: isUserLoading } = useAuth()
     const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId, isSnowfallDisabled, googleTagManagerId } } = getConfig()
 
+    const { isMobileUserAgent } = useSSRCookiesContext()
+    const detectedMobileUserAgentInSSR = isMobileUserAgent === 'true'
+
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
@@ -524,7 +527,10 @@ const MyApp = ({ Component, pageProps }) => {
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={emotionCache}>
                     <GlobalStyle/>
-                    <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
+                    <LayoutContextProvider
+                        serviceProblemsAlert={<ServiceProblemsAlert />}
+                        detectedMobileUserAgentInSSR={detectedMobileUserAgentInSSR}
+                    >
                         {shouldDisplayCookieAgreement && <CookieAgreement/>}
                         <HCaptchaProvider>
                             <SudoTokenProvider>
@@ -659,8 +665,11 @@ if (!isDisabledSsr || !isSSR()) {
             let pageProps: Record<string, any> = {
                 ...initialProps,
                 ...prefetchedData,
-            };
+            }
 
+            const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(pageContext?.req?.headers?.['user-agent'] || '')
+            setCookie('isMobileUserAgent', isMobileUserAgent, { req: pageContext?.req, res: pageContext?.res });
+                
             ({ props: pageProps } = extractVitalCookies(pageContext.req, pageContext.res, {
                 props: pageProps,
             }))

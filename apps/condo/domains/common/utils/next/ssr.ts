@@ -14,6 +14,7 @@ const COOKIE_STATE_PROP_NAME = '__SSR_COOKIE_EXTRACTOR__'
 // NOTE: put here only cookies needed in SRR (hydration)
 const VITAL_COOKIES = [
     'organizationLinkId',
+    'isMobileUserAgent',
 ] as const
 
 type SSRRequest = NextPageContext['req']
