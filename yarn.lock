@@ -1322,7 +1322,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/pos-integration@workspace:apps/pos-integration"
   dependencies:
-    "@faker-js/faker": ^8.4.1
+    "@faker-js/faker": ^7.6.0
     "@graphql-codegen/typescript": ^4.0.9
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
@@ -1330,6 +1330,7 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@pos-integration/domains": "link:./domains"
     "@types/react": ^18.3.1
+    big.js: ^6.2.2
     cross-env: ^7.0.3
     dayjs: ^1.11.10
     express: ^4.17.1
