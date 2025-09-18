@@ -156,6 +156,7 @@ export const validators: ValidatorsType = {
     CondoWebSendAnalyticsEvent: ajv.compile(CondoWebSendAnalyticsEventParamsSchema),
     CondoWebAppCloseModalWindow: ajv.compile(CondoWebAppCloseModalWindowParamsSchema),
     CondoWebAppGetActiveProgressBars: NoParamsValidator,
+    CondoWebAppGetFragment: NoParamsValidator,
     CondoWebAppGetLaunchParams: NoParamsValidator,
     CondoWebAppRequestAuth: ajv.compile(CondoWebAppRequestAuthSchema),
     CondoWebAppRedirect: ajv.compile(CondoWebAppRedirectParamsSchema),
