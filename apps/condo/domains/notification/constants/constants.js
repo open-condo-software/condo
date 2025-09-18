@@ -231,7 +231,6 @@ const MESSAGE_META = {
             organizationId: { defaultValue: '', required: true },
             organizationName: { defaultValue: '', required: true },
         },
-        telegramMeta: { required: false },
     },
     [TICKET_COMMENT_CREATED_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -255,7 +254,6 @@ const MESSAGE_META = {
             authorType: { defaultValue: '', required: true },
             authorName: { defaultValue: '', required: true },
         },
-        telegramMeta: { required: false },
     },
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -804,9 +802,7 @@ const MESSAGE_META = {
             vehicle: { required: true },
             vehicleBrand: { required: true },
             stateVehicleNumber: { required: true },
-            condoMiniappContext: { required: true },
         },
-        telegramMeta: { required: false },
     },
 }
 
