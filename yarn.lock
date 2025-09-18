@@ -1028,7 +1028,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/external-api@workspace:apps/external-api"
   dependencies:
-    "@apollo/client": ^3.11.8
     "@condo/domains": "link:../condo/domains"
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
