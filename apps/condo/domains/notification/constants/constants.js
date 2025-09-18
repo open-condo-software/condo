@@ -1075,7 +1075,6 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
         defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
-        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
     },
 }
 

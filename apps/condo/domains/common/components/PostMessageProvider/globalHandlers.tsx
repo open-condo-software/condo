@@ -247,7 +247,6 @@ export const useGetFragmentHandler: () => RequestHandler<'CondoWebAppGetFragment
             return { fragment: '' }
         }
 
-        // Get the fragment (hash) from current window location
         const fragment = window.location.hash.startsWith('#') 
             ? window.location.hash.substring(1) 
             : window.location.hash
