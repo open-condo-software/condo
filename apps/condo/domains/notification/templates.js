@@ -239,8 +239,6 @@ function telegramRenderer ({ message, env }) {
     const text = i18n(translationStringKeyForTelegramUrlMessage(type), { locale, meta: messageTranslated.meta })
     const url = meta?.data?.url
 
-    console.log('text url', text, url)
-
     if (url && text) {
         ret.inlineKeyboard = [[{ text, url }]]
     }
