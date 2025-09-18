@@ -306,5 +306,50 @@ describe('SendB2BAppPushMessageService', () => {
                 message: 'Invalid URL: must start with server url and be safe',
             })
         })
+
+        describe('appInitialContext', () => {
+            test('Successfully creates message with valid appInitialContext', async () => {
+                const appInitialContext = 'next=/pass/ticket/123&source=notification'
+
+                const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                    type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                    appInitialContext,
+                    meta: {
+                        dv: 1,
+                        data: {
+                            openAt: faker.random.word(),
+                        },
+                    },
+                })
+
+                const message = await Message.getOne(staffClient, { id: result.id })
+                const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${appInitialContext}`
+
+                expect(message.meta.data.url).toEqual(expectedUrl)
+            })
+
+            const invalidAppInitialContextCases = [
+                ['param=', 'empty value'],
+                ['=value', 'missing key'],
+                ['param=javascript:alert(1)', 'XSS attempt'],
+                [null, 'null value'],
+                ['param value', 'invalid format without ='],
+            ]
+
+            test.each(invalidAppInitialContextCases)('Throws an error for invalid appInitialContext: %p (%s)', async (appInitialContext) => {
+                await expectToThrowGQLErrorToResult(async () => {
+                    await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+                }, ERRORS.INVALID_APP_INITIAL_CONTEXT)
+            })
+        })
     })
 })

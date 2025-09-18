@@ -9,6 +9,7 @@ const { GQLError, GQLErrorCode: { FORBIDDEN, BAD_USER_INPUT } } = require('@open
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const { isSafeUrl } = require('@condo/domains/common/utils/url.utils')
 const access = require('@condo/domains/miniapp/access/SendB2BAppPushMessageService')
 const {
     CONTEXT_FINISHED_STATUS,
@@ -30,28 +31,22 @@ function isValidAppInitialContext (appInitialContext) {
     if (typeof appInitialContext !== 'string') {
         return false
     }
-
-    // Empty string is valid
-    if (appInitialContext === '') {
-        return true
-    }
-
-    // Check if it matches URL parameters format: param1=value1&param2=value2
-    // Should not start with ? or &
-    if (appInitialContext.startsWith('?') || appInitialContext.startsWith('&')) {
+    const testUrl = `${conf.SERVER_URL}#${appInitialContext}`
+    if (!isSafeUrl(testUrl)) {
         return false
     }
 
     try {
-        // Try to parse as URLSearchParams to validate format
         const params = new URLSearchParams(appInitialContext)
-        // If parsing succeeds and we can iterate over entries, it's valid
-        for (const [key] of params.entries()) {
-            // Basic validation: key should not be empty
+        for (const [key, value] of params.entries()) {
             if (!key || key.trim() === '') {
                 return false
             }
+            if (!value || value.trim() === '') {
+                return false
+            }
         }
+
         return true
     } catch (e) {
         return false
