@@ -1034,6 +1034,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     apollo-boost: 0.4.9
+    apollo-link-error: ^1.1.13
     body-parser: ^1.20.3
     dayjs: ^1.11.10
     express: ^4.17.1
@@ -16873,7 +16874,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-link-error@npm:^1.0.3":
+"apollo-link-error@npm:^1.0.3, apollo-link-error@npm:^1.1.13":
   version: 1.1.13
   resolution: "apollo-link-error@npm:1.1.13"
   dependencies:
