@@ -1,5 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { RowData } from '@tanstack/react-table'
 import React from 'react'
 
 import { GripHorizontal } from '@open-condo/icons'
@@ -7,19 +8,19 @@ import { Space, Switch, Typography } from '@open-condo/ui/src'
 
 import type { TableColumn } from '../types'
 
-interface SortableColumnItemProps {
-    column: TableColumn
+interface ReorderableColumnItemProps<TData extends RowData = RowData> {
+    column: TableColumn<TData>
     isVisible: boolean
     isLastVisibleColumn: boolean
     onToggleVisibility: (checked: boolean) => void
 }
 
-export const SortableColumnItem: React.FC<SortableColumnItemProps> = ({
+export const ReorderableColumnItem = <TData extends RowData = RowData> ({
     column,
     isVisible,
     isLastVisibleColumn,
     onToggleVisibility,
-}) => {
+}: ReorderableColumnItemProps<TData>) => {
     
     const {
         attributes,
@@ -29,7 +30,7 @@ export const SortableColumnItem: React.FC<SortableColumnItemProps> = ({
         transition,
         isDragging,
     } = useSortable({ 
-        id: column.key,
+        id: column.dataKey as string,
         disabled: false,
     })
 
