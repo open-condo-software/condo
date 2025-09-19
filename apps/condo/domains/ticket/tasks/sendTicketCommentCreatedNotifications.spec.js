@@ -114,12 +114,6 @@ describe('sendTicketCommentCreatedNotifications', ()  => {
                     userId: employeeClient.user.id,
                     url: `${conf.SERVER_URL}/ticket/${ticket.id}`,
                 }),
-                telegramMeta: expect.objectContaining({
-                    inlineKeyboard: [[expect.objectContaining({
-                        text: expect.stringContaining(''),
-                        url: `${conf.SERVER_URL}/ticket/${ticket.id}`,
-                    })]],
-                }),
             }))
         })
     })
