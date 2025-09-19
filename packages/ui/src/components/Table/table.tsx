@@ -3,8 +3,10 @@ import {
     useReactTable,
     RowData,
     CellContext,
+    AccessorFn,
+    createColumnHelper,
 } from '@tanstack/react-table'
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { TableBody } from '@open-condo/ui/src/components/Table/components/TableBody'
 import { TableHeader } from '@open-condo/ui/src/components/Table/components/TableHeader'
@@ -24,32 +26,34 @@ export function Table<TData extends RowData = RowData> ({
     loading,
     onRowClick,
 }: TableProps<TData>): React.ReactElement {
+
+    const tableData = useMemo(() => dataSource, [dataSource])
+
+    const columnHelper = createColumnHelper<TData>()
+    const tableColumns = useMemo(() => {
+        return columns.map(c => {
+            return columnHelper.accessor(c.dataKey as AccessorFn<TData, unknown>, {
+                id: c.id,
+                header: c.header,
+                cell: (info: CellContext<TData, unknown>) => c.render?.(info.getValue()) || info.getValue(),
+            })
+        })
+    }, [columns, columnHelper])
+    
     const {
         columnVisibility,
         columnOrder,
-        columnSizing,
         onColumnVisibilityChange,
         onColumnOrderChange,
-        onColumnSizingChange,
     } = useTableState<TData>({ storageKey, columns })
 
     const orderedColumns = useMemo(() => {
         if (columnOrder && columnOrder.length > 0) {
-            const columnsByKey = new Map(columns.map(c => [String(c.dataKey), c]))
-            return columnOrder.map(key => columnsByKey.get(key)).filter((c): c is TableColumn<TData> => Boolean(c))
+            const columnsById = new Map(columns.map(c => [String(c.id), c]))
+            return columnOrder.map(key => columnsById.get(key)).filter((c): c is TableColumn<TData> => Boolean(c))
         }
         return columns
     }, [columns, columnOrder])
-
-    const tableData = useMemo(() => dataSource, [dataSource])
-
-    const tableColumns = useMemo(() => {
-        return columns.map(c => ({
-            header: c.header,
-            accessorKey: c.dataKey,
-            cell: (info: CellContext<TData, unknown>) => c.render?.(info.getValue() as TData[keyof TData]) || info.getValue(),
-        }))
-    }, [columns])
 
     const table = useReactTable<TData>({
         data: tableData,
@@ -63,31 +67,6 @@ export function Table<TData extends RowData = RowData> ({
         onColumnOrderChange: onColumnOrderChange,
     })
 
-    useEffect(() => {
-        const headers = table.getFlatHeaders()
-        headers.forEach(header => {
-            const size = columnSizing[header.id]
-            const elements = document.querySelectorAll(`[data-column-id="${header.id}"]`)
-            
-            if (size && size > 0) {
-                // Устанавливаем конкретный размер
-                elements.forEach(element => {
-                    const el = element as HTMLElement
-                    el.style.width = `${size}px`
-                    el.style.minWidth = `${size}px`
-                })
-            } else {
-                // Сбрасываем к автоматическому размеру
-                elements.forEach(element => {
-                    const el = element as HTMLElement
-                    el.style.width = ''
-                    el.style.minWidth = ''
-                })
-            }
-        })
-    }, [table, columnSizing])
-
-
     return (
         <div
             className='condo-table-container'
@@ -100,7 +79,6 @@ export function Table<TData extends RowData = RowData> ({
                             headerGroup={headerGroup}
                             columns={orderedColumns}
                             table={table}
-                            onColumnSizingChange={onColumnSizingChange}
                         />
                     ))}
                 </div>

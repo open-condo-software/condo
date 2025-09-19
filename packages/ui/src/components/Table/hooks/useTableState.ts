@@ -3,7 +3,6 @@ import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useColumnOrder } from '@open-condo/ui/src/components/Table/hooks/useColumnOrder'
-import { useColumnSizing } from '@open-condo/ui/src/components/Table/hooks/useColumnSizing'
 import { useColumnVisibility } from '@open-condo/ui/src/components/Table/hooks/useColumnVisibility'
 import { TableSettings, TableColumn } from '@open-condo/ui/src/components/Table/types'
 import { getStorage, saveStorage } from '@open-condo/ui/src/components/Table/utils/storage'
@@ -39,10 +38,9 @@ export const useTableState = <TData extends RowData = RowData>({ storageKey, col
         const result: TableSettings<TData> = {} as TableSettings<TData>
         finalColumns.forEach((column, index) => {
             if (column) {
-                result[column.dataKey] = {
+                result[column.id as string] = {
                     order: index,
                     visibility: column.initialVisibility ?? true,
-                    size: 0,
                 }
             }
         })
@@ -61,11 +59,6 @@ export const useTableState = <TData extends RowData = RowData>({ storageKey, col
         debouncedSave(settings)
     }, [settings, debouncedSave])
 
-    const { columnSizing, onColumnSizingChange } = useColumnSizing<TData>({
-        settings,
-        setSettings,
-    })
-
     const { columnVisibility, onColumnVisibilityChange } = useColumnVisibility<TData>({
         settings,
         setSettings,
@@ -79,9 +72,7 @@ export const useTableState = <TData extends RowData = RowData>({ storageKey, col
     return {
         columnVisibility,
         columnOrder,
-        columnSizing,
         onColumnVisibilityChange,
         onColumnOrderChange,
-        onColumnSizingChange,
     }
 }

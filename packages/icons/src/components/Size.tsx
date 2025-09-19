@@ -17,7 +17,7 @@ export const Size: React.FC<IconProps> = ({ svgProps: props, ...restProps }) => 
                 >
                     <g
                         clipPath='url(#a)'
-                        stroke='#000'
+                        stroke='currentColor'
                         strokeWidth={2}
                         strokeLinecap='round'
                         strokeLinejoin='round'

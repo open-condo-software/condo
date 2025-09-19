@@ -1,7 +1,7 @@
 import { ColumnOrderState, RowData } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 
-import type { TableSettings } from '../types.ts'
+import type { TableSettings, TableColumn } from '../types.ts'
 
 interface UseColumnOrderProps<TData extends RowData = RowData> {
     settings: TableSettings<TData>
@@ -14,7 +14,7 @@ export const useColumnOrder = <TData extends RowData = RowData>({ settings, setS
 } => {
     const columnOrder = useMemo(() => {
         return Object.entries(settings)
-            .sort(([, a], [, b]) => (a as TableSettings<TData>[keyof TData]).order - (b as TableSettings<TData>[keyof TData]).order)
+            .sort(([, a], [, b]) => (a as TableSettings<TData>[TableColumn<TData>['id']]).order - (b as TableSettings<TData>[TableColumn<TData>['id']]).order)
             .map(([key]) => key)
     }, [settings])
 
@@ -22,7 +22,7 @@ export const useColumnOrder = <TData extends RowData = RowData>({ settings, setS
         setSettings((prevSettings: TableSettings<TData>) => {
             // Собираем текущий порядок из настроек
             const prevOrder = Object.entries(prevSettings)
-                .sort(([, a], [, b]) => (a as TableSettings<TData>[keyof TData]).order - (b as TableSettings<TData>[keyof TData]).order)
+                .sort(([, a], [, b]) => (a as TableSettings<TData>[TableColumn<TData>['id']]).order - (b as TableSettings<TData>[TableColumn<TData>['id']]).order)
                 .map(([key]) => key)
 
             const newOrder = typeof updater === 'function' ? updater(prevOrder) : updater
@@ -30,9 +30,9 @@ export const useColumnOrder = <TData extends RowData = RowData>({ settings, setS
             // Обновляем порядок в настройках
             const newSettings = { ...prevSettings }
             newOrder.forEach((key, index) => {
-                if (newSettings[key as keyof TData]) {
-                    newSettings[key as keyof TData] = {
-                        ...newSettings[key as keyof TData],
+                if (newSettings[key as TableColumn<TData>['id']]) {
+                    newSettings[key as TableColumn<TData>['id']] = {
+                        ...newSettings[key as TableColumn<TData>['id']],
                         order: index,
                     }
                 }

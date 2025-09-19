@@ -1,12 +1,11 @@
-import { RowData } from '@tanstack/react-table'
+import { RowData, AccessorFn } from '@tanstack/react-table'
 
 export type ColumnSettings = {
     visibility: boolean
-    size: number
     order: number
 }
 
-export type TableSettings<TData extends RowData = RowData> = Record<keyof TData, ColumnSettings>
+export type TableSettings<TData extends RowData = RowData> = Record<TableColumn<TData>['id'], ColumnSettings>
 
 export type TableState = {
     columnVisibility: Record<string, boolean>
@@ -15,9 +14,10 @@ export type TableState = {
 }
 
 export type TableColumn<TData extends RowData = RowData> = {
-    render?: (value: TData[keyof TData]) => React.ReactNode
+    render?: (value: any) => React.ReactNode
     header: string
-    dataKey: keyof TData
+    dataKey: AccessorFn<TData, any> | string
+    id: string
     initialVisibility?: boolean
     initialSize?: number
     initialOrder?: number
