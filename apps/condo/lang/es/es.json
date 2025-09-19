@@ -1682,7 +1682,7 @@
   "notification.messages.VERIFY_USER_EMAIL.email.subject": "Verificación",
   "notification.messages.VERIFY_USER_EMAIL.email.title": "Verificación",
   "notification.messages.VOIP_INCOMING_CALL_MESSAGE.push.title": "{title}",
-  "notification.messages.PASS_TICKET_CREATED.push.title": "Nuevo pasaporte",
+  "notification.messages.PASS_TICKET_CREATED.push.title": "Nuevo pase de acceso",
   "notification.messages.PASS_TICKET_CREATED.telegram.urlMessage": "Abrir pase",
   "notification.messages.TICKET_CREATED.telegram.urlMessage": "Abrir incidencia",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.urlMessage": "Abrir incidencia",
