@@ -1,7 +1,3 @@
-/**
- * Утилиты для работы с localStorage
- */
-
 export const getStorage = (key: string): unknown => {
     if (typeof window === 'undefined') return null
     try {
@@ -17,6 +13,6 @@ export const saveStorage = (key: string, data: unknown): void => {
     try {
         localStorage.setItem(key, JSON.stringify(data))
     } catch {
-        // Игнорируем ошибки localStorage
+        return
     }
 }
