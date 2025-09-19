@@ -108,6 +108,9 @@
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
+  contain: layout;
+  will-change: width;
+  backface-visibility: hidden;
 
   &:hover {
     background-color: #f2f4f6;
@@ -199,6 +202,9 @@
   border: none;
   border-bottom: 1px solid #d0d3e5;
   transition: all 0.2s ease;
+  contain: layout;
+  will-change: width;
+  backface-visibility: hidden;
 
   .condo-table-tr:last-child & {
     border-bottom: none;

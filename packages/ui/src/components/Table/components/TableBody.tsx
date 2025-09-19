@@ -15,7 +15,6 @@ export const TableBody = <TData extends RowData = RowData> ({ table, onRowClick 
                         <div
                             key={cell.id}
                             className='condo-table-td'
-                            data-column-id={cell.column.id}
                         >
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </div>

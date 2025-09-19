@@ -30,7 +30,7 @@ export const ReorderableColumnItem = <TData extends RowData = RowData> ({
         transition,
         isDragging,
     } = useSortable({ 
-        id: column.dataKey as string,
+        id: column.id as string,
         disabled: false,
     })
 
