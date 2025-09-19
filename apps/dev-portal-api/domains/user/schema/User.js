@@ -57,7 +57,7 @@ const User = new GQLListSchema('User', {
         phone: {
             schemaDoc: 'User phone. Required for authentication, used as main contact info',
             type: 'Text',
-            isRequired: true,
+            isRequired: false,
             access: access.canAccessToPhoneField,
             hooks: {
                 resolveInput: ({ resolvedData, fieldPath }) => {

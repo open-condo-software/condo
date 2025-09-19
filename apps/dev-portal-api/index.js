@@ -43,32 +43,33 @@ const apps = () => {
             async onAuthSuccess (req, _res, { userInfo }) {
                 if (
                     !userInfo ||
-                    typeof userInfo.phone_number !== 'string' || // only user with phones allowed
-                    !userInfo.phone_number_verified || // only verified users allowed
-                    userInfo.type !== 'staff' // only staff users allowed
+                    typeof userInfo.sub !== 'string'
                 ) {
                     throw new Error('Invalid user info')
                 }
 
-                // NOTE: we don't want to inherit condo support status, so we explicitly omitting it here
-                const userData = {
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: 'condo-oidc' },
-                    phone: userInfo.phone_number,
-                    name: userInfo.name,
-                }
-
                 const { keystone } = getSchemaCtx('User')
                 const context = await keystone.createContext({ skipAccessControl: true })
-                let user = await getByCondition('User', { phone: userInfo.phone_number, deletedAt: null })
+
+                let user = await getByCondition('User', { id: userInfo.sub, deletedAt: null })
+
                 if (user) {
-                    // NOTE: not updatable field
-                    delete userData.phone
-                    await User.update(context, user.id, userData)
-                } else if (!userData.name) {
-                    throw new Error('User name is required')
+                    if (typeof userInfo.name === 'string' && userInfo.name.trim() !== user.name) {
+                        await User.update(context, user.id, {
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: 'condo-oidc' },
+                            name: userInfo.name.trim(),
+                        })
+                    }
+                } else if (typeof userInfo.name !== 'string') {
+                    throw new Error('User name is required for user creation')
                 } else {
-                    user = await User.create(context, userData)
+                    user = await User.create(context, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'condo-oidc' },
+                        name: userInfo.name.trim(),
+                    })
+                    user = await keystone.lists['User'].adapter.update(user.id, { id: userInfo.sub })
                 }
 
                 await keystone._sessionManager.startAuthedSession(req, {
