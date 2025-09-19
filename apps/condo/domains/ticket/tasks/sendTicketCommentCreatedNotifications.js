@@ -90,7 +90,6 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
             'id place { name } category { name } problem { name }'
         )
 
-        const OpenTicketMessage = i18n(`notification.messages.${TICKET_COMMENT_CREATED_TYPE}.telegram.openTicket`, { locale: lang })
         const TicketStatusName = i18n(`ticket.status.${ticketStatus.type}.name`, { locale: lang })
         const TicketUnitType = i18n(`field.UnitType.prefix.${ticket.unitType}`, { locale: lang }).toLowerCase()
         const FilesAttachedMessage = i18n(`notification.messages.${TICKET_COMMENT_CREATED_TYPE}.filesAttached`, { locale: lang })
@@ -134,9 +133,6 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
                         url: ticketUrl,
                         authorType,
                         authorName: commentAuthor?.name,
-                    },
-                    telegramMeta: {
-                        inlineKeyboard: [[{ text: OpenTicketMessage, url: ticketUrl }]],
                     },
                 },
                 sender: { dv: 1, fingerprint: 'send-notifications' },
