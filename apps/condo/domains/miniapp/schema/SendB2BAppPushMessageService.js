@@ -23,34 +23,17 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 /**
  * Validates appInitialContext string format
- * Should be URL parameters string like "param1=value1&param2=value2"
- * @param {string} appInitialContext - URL parameters string
+ * Should be a safe string that can be used in URL fragment
+ * @param {string} appInitialContext - String to be used as URL fragment
  * @returns {boolean} - true if valid format
  */
 function isValidAppInitialContext (appInitialContext) {
     if (typeof appInitialContext !== 'string') {
         return false
     }
+
     const testUrl = `${conf.SERVER_URL}#${appInitialContext}`
-    if (!isSafeUrl(testUrl)) {
-        return false
-    }
-
-    try {
-        const params = new URLSearchParams(appInitialContext)
-        for (const [key, value] of params.entries()) {
-            if (!key || key.trim() === '') {
-                return false
-            }
-            if (!value || value.trim() === '') {
-                return false
-            }
-        }
-
-        return true
-    } catch (e) {
-        return false
-    }
+    return isSafeUrl(testUrl)
 }
 
 const redisGuard = new RedisGuard()
@@ -98,7 +81,7 @@ const ERRORS = {
         variable: ['data', 'appInitialContext'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'Invalid appInitialContext format: must be URL parameters string like "param1=value1&param2=value2"',
+        message: 'Invalid appInitialContext: must be a safe string that can be used in URL fragment',
     },
 }
 
@@ -130,9 +113,9 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                     Settings for each type of message contains in AppMessageSetting schema.
                     Each message type has specific set of required fields which are defined in the meta field: \n\n\`${JSON.stringify(pick(MESSAGE_META, B2B_APP_MESSAGE_TYPES), null, '\t')}\`
                     
-                    **appInitialContext** - URL parameters string that the miniapp will receive when opened via link from the Message.
-                    Format: "param1=value1&param2=value2". These parameters will be passed to the miniapp to provide initial context/state.
-                    Should not start with ? or & characters. Empty string is allowed.
+                    **appInitialContext** - String that the miniapp will receive when opened via link from the Message.
+                    This string will be appended after # in the URL. Can be any safe string format (e.g., "param1=value1&param2=value2" or custom format).
+                    These parameters will be passed to the miniapp to provide initial context/state. Empty string is allowed.
                 `,
                 errors: ERRORS,
             },
