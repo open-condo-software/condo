@@ -37,10 +37,10 @@ export const ColumnSettings = <TData extends RowData = RowData>({ columns, table
         const { active, over } = event
 
         if (active.id !== over?.id && table.setColumnOrder) {
-            const oldIndex = columns.findIndex(column => column.dataKey === active.id)
-            const newIndex = columns.findIndex(column => column.dataKey === over?.id)
+            const oldIndex = columns.findIndex(column => column.id === active.id)
+            const newIndex = columns.findIndex(column => column.id === over?.id)
             
-            const newOrder = arrayMove(columns, oldIndex, newIndex).map(col => col.dataKey)
+            const newOrder = arrayMove(columns, oldIndex, newIndex).map(col => col.id)
             table.setColumnOrder(newOrder as ColumnOrderState)
         }
     }, [columns, table])
@@ -55,19 +55,19 @@ export const ColumnSettings = <TData extends RowData = RowData>({ columns, table
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
         >
-            <SortableContext items={columns.map(c => c.dataKey as string)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={columns.map(c => c.id as string)} strategy={verticalListSortingStrategy}>
                 <div className='condo-table-header-dropdown condo-table-column-settings-dropdown'>
                     {columns.map((column) => {
-                        const isVisible = table.getColumn(column.dataKey as string)?.getIsVisible()
+                        const isVisible = table.getColumn(column.id as string)?.getIsVisible()
                         const isLastVisibleColumn = isVisible && table.getVisibleLeafColumns().length === 1
 
                         return (
                             <ReorderableColumnItem
-                                key={column.dataKey as string}
+                                key={column.id as string}
                                 column={column as TableColumn<TData>}
                                 isVisible={isVisible || false}
                                 isLastVisibleColumn={isLastVisibleColumn || false}
-                                onToggleVisibility={(checked: boolean) => handleToggleVisibility(column.dataKey as string, checked)}
+                                onToggleVisibility={(checked: boolean) => handleToggleVisibility(column.id as string, checked)}
                             />
                         )
                     })}
