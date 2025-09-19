@@ -296,9 +296,16 @@ describe('SendB2BAppPushMessageService', () => {
         })
 
         describe('appInitialContext', () => {
-            test('Successfully creates message with valid appInitialContext', async () => {
-                const appInitialContext = 'next=/pass/ticket/123&source=notification'
+            const validAppInitialContextCases = [
+                ['next=/pass/ticket/123&source=notification', 'path with parameters'],
+                ['filter=active&sort=date&page=1', 'query-like parameters'],
+                ['userId=123&action=view&timestamp=1640995200', 'numeric values'],
+                ['text=hello%20world&encoded=value%2Bwith%2Bplus', 'URL encoded values'],
+                ['custom-string-format-without-equals', 'custom format without equals'],
+                ['123456789', 'numeric string'],
+            ]
 
+            test.each(validAppInitialContextCases)('Successfully accepts valid appInitialContext: %p (%s)', async (appInitialContext) => {
                 const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                     type: PASS_TICKET_CREATED_MESSAGE_TYPE,
                     appInitialContext,
@@ -314,14 +321,12 @@ describe('SendB2BAppPushMessageService', () => {
                 const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${appInitialContext}`
 
                 expect(message.meta.data.url).toEqual(expectedUrl)
+                expect(result.id).toMatch(UUID_RE)
             })
 
             const invalidAppInitialContextCases = [
-                ['param=', 'empty value'],
-                ['=value', 'missing key'],
-                ['param=javascript:alert(1)', 'XSS attempt'],
+                ['javascript:alert(1)', 'javascript protocol'],
                 [null, 'null value'],
-                ['param value', 'invalid format without ='],
             ]
 
             test.each(invalidAppInitialContextCases)('Throws an error for invalid appInitialContext: %p (%s)', async (appInitialContext) => {
