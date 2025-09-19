@@ -1,28 +1,33 @@
-import React from 'react'
+import { RowData } from '@tanstack/react-table'
 
 export type ColumnSettings = {
     visibility: boolean
-    size?: number
+    size: number
     order: number
-    isPercentage?: boolean
 }
 
-export type TableSettings = Record<string, ColumnSettings>
+export type TableSettings<TData extends RowData = RowData> = Record<keyof TData, ColumnSettings>
 
 export type TableState = {
     columnVisibility: Record<string, boolean>
     columnSizing: Record<string, number>
-    columnOrder: string[]
+    columnOrder: TableColumn<RowData>['dataKey'][]
 }
 
-export type TableColumn = {
-    key: string
+export type TableColumn<TData extends RowData = RowData> = {
+    render?: (value: TData[keyof TData]) => React.ReactNode
+    header: string
+    dataKey: keyof TData
     initialVisibility?: boolean
     initialSize?: number
     initialOrder?: number
-    initialWidth?: number
-    width?: number
-    header?: string | React.ReactNode
-    cell?: (info: Record<string, unknown>) => React.ReactNode
-    size?: number
+}
+
+export interface TableProps<TData extends RowData = RowData> {
+    dataSource: Array<TData>
+    columns: Array<TableColumn<TData>>
+    storageKey?: string
+    loading?: boolean
+    id: string
+    onRowClick?: (record: TData) => void
 }
