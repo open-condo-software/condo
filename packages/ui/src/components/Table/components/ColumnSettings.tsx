@@ -13,22 +13,19 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
+import { RowData, Table, ColumnOrderState } from '@tanstack/react-table'
 import React, { useCallback } from 'react'
 
-import { SortableColumnItem } from './SortableColumnItem'
+import { ReorderableColumnItem } from './ReorderableColumnItem'
 
 import type { TableColumn } from '../types'
 
-interface ColumnSettingsProps {
-    columns: TableColumn[]
-    table: {
-        getColumn: (key: string) => { getIsVisible: () => boolean, toggleVisibility: (visible: boolean) => void } | undefined
-        getVisibleLeafColumns: () => Array<{ getIsVisible: () => boolean }>
-        setColumnOrder?: (columnOrder: string[]) => void
-    }
+interface ColumnSettingsProps<TData extends RowData = RowData> {
+    columns: TableColumn<TData>[]
+    table: Table<TData>
 }
 
-export const ColumnSettings = ({ columns, table }: ColumnSettingsProps) => {
+export const ColumnSettings = <TData extends RowData = RowData>({ columns, table }: ColumnSettingsProps<TData>) => {
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
@@ -40,11 +37,11 @@ export const ColumnSettings = ({ columns, table }: ColumnSettingsProps) => {
         const { active, over } = event
 
         if (active.id !== over?.id && table.setColumnOrder) {
-            const oldIndex = columns.findIndex(column => column.key === active.id)
-            const newIndex = columns.findIndex(column => column.key === over?.id)
+            const oldIndex = columns.findIndex(column => column.dataKey === active.id)
+            const newIndex = columns.findIndex(column => column.dataKey === over?.id)
             
-            const newOrder = arrayMove(columns, oldIndex, newIndex).map(col => col.key)
-            table.setColumnOrder(newOrder)
+            const newOrder = arrayMove(columns, oldIndex, newIndex).map(col => col.dataKey)
+            table.setColumnOrder(newOrder as ColumnOrderState)
         }
     }, [columns, table])
 
@@ -58,19 +55,19 @@ export const ColumnSettings = ({ columns, table }: ColumnSettingsProps) => {
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
         >
-            <SortableContext items={columns.map(c => c.key)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={columns.map(c => c.dataKey as string)} strategy={verticalListSortingStrategy}>
                 <div className='condo-table-header-dropdown condo-table-column-settings-dropdown'>
                     {columns.map((column) => {
-                        const isVisible = table.getColumn(column.key)?.getIsVisible()
+                        const isVisible = table.getColumn(column.dataKey as string)?.getIsVisible()
                         const isLastVisibleColumn = isVisible && table.getVisibleLeafColumns().length === 1
 
                         return (
-                            <SortableColumnItem
-                                key={column.key}
-                                column={column}
+                            <ReorderableColumnItem
+                                key={column.dataKey as string}
+                                column={column as TableColumn<TData>}
                                 isVisible={isVisible || false}
                                 isLastVisibleColumn={isLastVisibleColumn || false}
-                                onToggleVisibility={(checked) => handleToggleVisibility(column.key, checked)}
+                                onToggleVisibility={(checked: boolean) => handleToggleVisibility(column.dataKey as string, checked)}
                             />
                         )
                     })}
