@@ -97,10 +97,11 @@
     transition: all 0.2s ease;
     text-overflow: ellipsis;
     white-space: nowrap;
+    flex: 1 1 0; 
+    min-width: 60px;
     letter-spacing: -0.01em;
     line-height: 22px;
     position: relative;
-    flex-shrink: 0;
 
     &:hover {
         background-color: #F2F4F6;
@@ -214,8 +215,8 @@
     line-height: 22px;
     font-size: 14px;
     color: #1f2937;
-    flex-grow: 0;
-    flex-shrink: 0;
+    flex: 1 1 0;
+    min-width: 60px; 
 
     .condo-table-tr:last-child & {
         border-bottom: none;
