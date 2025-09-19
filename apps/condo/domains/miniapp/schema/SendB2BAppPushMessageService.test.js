@@ -261,49 +261,37 @@ describe('SendB2BAppPushMessageService', () => {
             }, ERRORS.USER_IS_NOT_AN_EMPLOYEE)
         })
 
-        test('Create message if meta.url is valid', async () => {
-            const url = `${conf.SERVER_URL}/${faker.random.word()}/${faker.random.word()}`
-
-            const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
-                type: PASS_TICKET_CREATED_MESSAGE_TYPE,
-                meta: {
-                    dv: 1,
-                    data: {
-                        url,
-                        openAt: faker.random.word(),
-                    },
-                },
-            })
-
-            const message = await Message.getOne(staffClient, { id: result.id })
-
-            expect(message.meta.data.url).toEqual(url)
-        })
-
-        const invalidUrlCases = [
-            ['javascript:alert(1)'],
-            [faker.internet.url()],
-            [`${conf.SERVER_URL}.mysite.com`],
-            [`${conf.SERVER_URL}.mysite.com/${faker.random.word()}`],
-        ]
-        test.each(invalidUrlCases)('Throws an error if meta.url is invalid: %p', async (url) => {
-            await expectToThrowGQLErrorToResult(async () => {
-                await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+        describe('URL generation', () => {
+            test('Generates URL for message types that require it (PASS_TICKET_CREATED_MESSAGE_TYPE)', async () => {
+                const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                     type: PASS_TICKET_CREATED_MESSAGE_TYPE,
                     meta: {
                         dv: 1,
                         data: {
-                            url,
                             openAt: faker.random.word(),
                         },
                     },
                 })
-            }, {
-                mutation: 'sendB2BAppPushMessage',
-                variable: ['data', 'meta', 'data', 'url'],
-                code: 'BAD_USER_INPUT',
-                type: 'WRONG_VALUE',
-                message: 'Invalid URL: must start with server url and be safe',
+
+                const message = await Message.getOne(staffClient, { id: result.id })
+                const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}`
+
+                expect(message.meta.data.url).toEqual(expectedUrl)
+            })
+
+            test('Does not generate URL for message types that do not require it (B2B_APP_MESSAGE_PUSH_TYPE)', async () => {
+                const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                    type: B2B_APP_MESSAGE_PUSH_TYPE,
+                    meta: {
+                        dv: 1,
+                        title: faker.random.word(),
+                        body: faker.random.word(),
+                    },
+                })
+
+                const message = await Message.getOne(staffClient, { id: result.id })
+
+                expect(message.meta.data?.url).toBeUndefined()
             })
         })
 
