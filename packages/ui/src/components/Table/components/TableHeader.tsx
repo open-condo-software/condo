@@ -15,7 +15,6 @@ import { colors } from '@open-condo/ui/src/colors'
 import { ColumnSettings } from './ColumnSettings'
 
 import { MIN_COLUMN_WIDTH } from '../utils/columnSizing'
-import { calculateInitialColumnSizes } from '../utils/columnSizing'
 
 import type { TableColumn } from '../types'
 
@@ -24,10 +23,9 @@ interface TableHeaderProps<TData extends RowData = RowData> {
     columns: TableColumn<TData>[]
     table: Table<TData>
     onColumnSizingChange: (updater: React.SetStateAction<ColumnSizingState>) => void
-    containerWidth: number | null
 }
 
-export const TableHeader = <TData extends RowData = RowData>({ headerGroup, columns, table, onColumnSizingChange, containerWidth }: TableHeaderProps<TData>) => {
+export const TableHeader = <TData extends RowData = RowData>({ headerGroup, columns, table, onColumnSizingChange }: TableHeaderProps<TData>) => {
     const [resizingColumnId, setResizingColumnId] = React.useState<string | null>(null)
     const renderColumnSettings = useCallback(() => (
         <ColumnSettings columns={columns} table={table} />
@@ -53,11 +51,19 @@ export const TableHeader = <TData extends RowData = RowData>({ headerGroup, colu
         { type: 'divider' as const },
         {
             label: (<span onClick={() => {
-                const newSizes = calculateInitialColumnSizes({
-                    columns: columns.filter((c): c is TableColumn<TData> => Boolean(c)),
-                    containerWidth: containerWidth!,
+                // Сбрасываем размеры всех колонок до первоначального состояния
+                const visibleHeaders = table.getVisibleLeafColumns()
+                visibleHeaders.forEach(header => {
+                    const elements = document.querySelectorAll(`[data-column-id="${header.id}"]`)
+                    elements.forEach(element => {
+                        const el = element as HTMLElement
+                        el.style.width = ''
+                        el.style.minWidth = ''
+                    })
                 })
-                onColumnSizingChange(newSizes)
+                
+                // Очищаем сохраненные размеры в состоянии
+                onColumnSizingChange({})
             }}>Автоматический размер для всех колонок</span>),
             key: '4',
             icon: <Size size='small' color={colors.gray[7]} />,
@@ -80,7 +86,7 @@ export const TableHeader = <TData extends RowData = RowData>({ headerGroup, colu
             ),
             key: '5',
         },
-    ], [renderColumnSettings, containerWidth, onColumnSizingChange, columns])
+    ], [renderColumnSettings, onColumnSizingChange, table])
 
     const createResizeHandler = (header: Header<TData, unknown>) => (e: React.MouseEvent | React.TouchEvent) => {
         e.preventDefault()
@@ -88,7 +94,6 @@ export const TableHeader = <TData extends RowData = RowData>({ headerGroup, colu
 
         const startX = 'touches' in e ? e.touches[0].clientX : e.clientX
 
-        // Получаем все видимые колонки
         const visibleHeaders = table.getVisibleLeafColumns()
         const currentIndex = visibleHeaders.findIndex(h => h.id === header.id)
         
@@ -97,7 +102,6 @@ export const TableHeader = <TData extends RowData = RowData>({ headerGroup, colu
         const currentHeader = visibleHeaders[currentIndex]
         const nextHeader = visibleHeaders[currentIndex + 1]
         
-        // Получаем текущие размеры из DOM (как в AG Grid)
         const getCurrentWidth = (headerId: string) => {
             const element = document.querySelector(`[data-column-id="${headerId}"]`) as HTMLElement
             return element ? element.offsetWidth : 150
@@ -106,27 +110,33 @@ export const TableHeader = <TData extends RowData = RowData>({ headerGroup, colu
         const startCurrentWidth = getCurrentWidth(currentHeader.id)
         const startNextWidth = getCurrentWidth(nextHeader.id)
 
-        // Устанавливаем состояние ресайза
         setResizingColumnId(header.id)
+
+        // Кэшируем элементы для производительности (как в AG Grid)
+        const currentElements = document.querySelectorAll(`[data-column-id="${currentHeader.id}"]`)
+        const nextElements = document.querySelectorAll(`[data-column-id="${nextHeader.id}"]`)
 
         const updateWidths = (deltaX: number) => {
             const newCurrentWidth = Math.max(startCurrentWidth + deltaX, MIN_COLUMN_WIDTH)
             const newNextWidth = Math.max(startNextWidth - deltaX, MIN_COLUMN_WIDTH)
             
-            // Обновляем все элементы колонки (заголовки и ячейки) как в AG Grid
-            const currentElements = document.querySelectorAll(`[data-column-id="${currentHeader.id}"]`)
-            const nextElements = document.querySelectorAll(`[data-column-id="${nextHeader.id}"]`)
-            
-            currentElements.forEach(element => {
-                const el = element as HTMLElement
-                el.style.width = `${newCurrentWidth}px`
-                el.style.minWidth = `${newCurrentWidth}px`
-            })
-            
-            nextElements.forEach(element => {
-                const el = element as HTMLElement
-                el.style.width = `${newNextWidth}px`
-                el.style.minWidth = `${newNextWidth}px`
+            // Используем requestAnimationFrame для плавности (как в AG Grid)
+            requestAnimationFrame(() => {
+                // Батчим изменения стилей
+                const currentWidthStr = `${newCurrentWidth}px`
+                const nextWidthStr = `${newNextWidth}px`
+                
+                currentElements.forEach(element => {
+                    const el = element as HTMLElement
+                    el.style.width = currentWidthStr
+                    el.style.minWidth = currentWidthStr
+                })
+                
+                nextElements.forEach(element => {
+                    const el = element as HTMLElement
+                    el.style.width = nextWidthStr
+                    el.style.minWidth = nextWidthStr
+                })
             })
         }
 
@@ -137,10 +147,8 @@ export const TableHeader = <TData extends RowData = RowData>({ headerGroup, colu
         }
 
         const handleMouseUp = () => {
-            // Сбрасываем состояние ресайза
             setResizingColumnId(null)
             
-            // Собираем финальные размеры всех колонок из DOM (как в AG Grid)
             const finalSizes: Record<string, number> = {}
             visibleHeaders.forEach(h => {
                 const element = document.querySelector(`[data-column-id="${h.id}"]`) as HTMLElement
@@ -170,7 +178,6 @@ export const TableHeader = <TData extends RowData = RowData>({ headerGroup, colu
                         key={header.id}
                         className='condo-table-th'
                         data-column-id={header.id}
-                        style={{ width: '150px', minWidth: '40px' }}
                     >
                         <div className='condo-table-th-content'>
                             <div className='condo-table-th-title-content'>

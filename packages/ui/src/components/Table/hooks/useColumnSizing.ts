@@ -27,12 +27,26 @@ export const useColumnSizing = <TData extends RowData = RowData>({ settings, set
 
             // Сохраняем в пикселях
             const newSettings = { ...prevSettings }
-            for (const key in newSize) {
-                if (newSize[key] && newSettings[key as keyof TData]) {
-                    const existing = newSettings[key as keyof TData]
-                    newSettings[key as keyof TData] = {
-                        ...existing,
-                        size: newSize[key],
+            
+            // Если передан пустой объект, очищаем все размеры
+            if (Object.keys(newSize).length === 0) {
+                for (const key in newSettings) {
+                    if (newSettings[key as keyof TData]) {
+                        newSettings[key as keyof TData] = {
+                            ...newSettings[key as keyof TData],
+                            size: 0, // Очищаем размер
+                        }
+                    }
+                }
+            } else {
+                // Обновляем только переданные размеры
+                for (const key in newSize) {
+                    if (newSize[key] && newSettings[key as keyof TData]) {
+                        const existing = newSettings[key as keyof TData]
+                        newSettings[key as keyof TData] = {
+                            ...existing,
+                            size: newSize[key],
+                        }
                     }
                 }
             }
