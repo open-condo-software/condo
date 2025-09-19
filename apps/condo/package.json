@@ -153,7 +153,7 @@
     "@types/node": "^22",
     "@types/react": "^18.3.1",
     "bad-words-next": "^1.6.7",
-    "commander": "^11.0.0",
+    "commander": "14.0.1",
     "cross-env": "^7.0.3",
     "form-data": "^4.0.4",
     "jest": "^29.7.0",
