@@ -4,8 +4,16 @@ import { ScreenMap, useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
 
+
 interface ILayoutContext {
+    /**
+     * A static value based on "userAgent". Work for CSR only
+     */
     isMobile?: boolean
+    /**
+     * A dynamic value based on "userAgent" (for SSR) and "breakpoints" (for CSR)
+     */
+    isMobileView?: boolean
     shouldTableScroll?: boolean
     breakpoints?: ScreenMap
     isCollapsed?: boolean
@@ -28,11 +36,24 @@ export const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>
 type LayoutContextProviderProps = {
     children: React.ReactNode
     serviceProblemsAlert?: React.ReactNode
+    detectedMobileUserAgentInSSR?: boolean
 }
 
 export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (props) => {
+    const { detectedMobileUserAgentInSSR = false } = props
     const breakpoints = useBreakpoints()
-    const [isCollapsed, setIsCollapsed] = useState(false)
+    const [isCollapsed, setIsCollapsed] = useState(detectedMobileUserAgentInSSR)
+
+    // NOTE: On the first render, the breakpoint returns default values, which may be incorrect.
+    const [breakpointsReady, setBreakpointsReady] = useState(false)
+    const [isMobileView, setIsMobileView] = useState(detectedMobileUserAgentInSSR)
+    useEffect(() => {
+        if (!breakpointsReady) {
+            setBreakpointsReady(true)
+            return
+        }
+        setIsMobileView(!breakpoints?.TABLET_LARGE)
+    }, [breakpoints?.TABLET_LARGE, breakpointsReady])
 
     const {
         TopNotificationComponent,
@@ -48,6 +69,9 @@ export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (prop
     const shouldTableScroll = !breakpoints.DESKTOP_LARGE
 
     useEffect(() => {
+        if (detectedMobileUserAgentInSSR) {
+            localStorage.setItem('isCollapsed', 'true')
+        }
         const isCollapsed = localStorage.getItem('isCollapsed') === 'true'
 
         setIsCollapsed(isCollapsed)
@@ -56,6 +80,7 @@ export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (prop
     return (
         <LayoutContext.Provider value={{
             isMobile: isMobileUserAgent(),
+            isMobileView,
             shouldTableScroll,
             breakpoints,
             isCollapsed,
