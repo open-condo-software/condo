@@ -4,7 +4,7 @@ import {
     RowData,
     CellContext,
 } from '@tanstack/react-table'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
 import { TableBody } from '@open-condo/ui/src/components/Table/components/TableBody'
 import { TableHeader } from '@open-condo/ui/src/components/Table/components/TableHeader'
@@ -24,26 +24,6 @@ export function Table<TData extends RowData = RowData> ({
     loading,
     onRowClick,
 }: TableProps<TData>): React.ReactElement {
-    const containerRef = React.useRef<HTMLDivElement | null>(null)
-    const [containerWidth, setContainerWidth] = useState<number | null>(null)
-
-    useEffect(() => {
-        if (!containerRef.current) return
-        const element = containerRef.current
-        const observer = new ResizeObserver((entries) => {
-            const entry = entries[0]
-            if (entry) {
-                const width = Math.floor(entry.contentRect.width)
-                if (width !== containerWidth) {
-                    setContainerWidth(width)
-                }
-            }
-        })
-        observer.observe(element)
-        return () => observer.disconnect()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
     const {
         columnVisibility,
         columnOrder,
@@ -51,7 +31,7 @@ export function Table<TData extends RowData = RowData> ({
         onColumnVisibilityChange,
         onColumnOrderChange,
         onColumnSizingChange,
-    } = useTableState<TData>({ storageKey, columns, containerWidth })
+    } = useTableState<TData>({ storageKey, columns })
 
     const orderedColumns = useMemo(() => {
         if (columnOrder && columnOrder.length > 0) {
@@ -67,7 +47,6 @@ export function Table<TData extends RowData = RowData> ({
         return columns.map(c => ({
             header: c.header,
             accessorKey: c.dataKey,
-            enableResizing: true, // Включаем ресайз для каждой колонки
             cell: (info: CellContext<TData, unknown>) => c.render?.(info.getValue() as TData[keyof TData]) || info.getValue(),
         }))
     }, [columns])
@@ -82,32 +61,35 @@ export function Table<TData extends RowData = RowData> ({
         },
         onColumnVisibilityChange: onColumnVisibilityChange,
         onColumnOrderChange: onColumnOrderChange,
-        enableColumnResizing: false, // Отключаем встроенный ресайз
     })
 
-    // Применяем начальные размеры колонок из columnSizing (доступны после второго рендера)
     useEffect(() => {
-        if (Object.keys(columnSizing).length > 0) {
-            const headers = table.getFlatHeaders()
-            headers.forEach(header => {
-                const size = columnSizing[header.id]
-                if (size) {
-                    // Применяем размеры к DOM элементам напрямую (как в AG Grid)
-                    const elements = document.querySelectorAll(`[data-column-id="${header.id}"]`)
-                    elements.forEach(element => {
-                        const el = element as HTMLElement
-                        el.style.width = `${size}px`
-                        el.style.minWidth = `${size}px`
-                    })
-                }
-            })
-        }
+        const headers = table.getFlatHeaders()
+        headers.forEach(header => {
+            const size = columnSizing[header.id]
+            const elements = document.querySelectorAll(`[data-column-id="${header.id}"]`)
+            
+            if (size && size > 0) {
+                // Устанавливаем конкретный размер
+                elements.forEach(element => {
+                    const el = element as HTMLElement
+                    el.style.width = `${size}px`
+                    el.style.minWidth = `${size}px`
+                })
+            } else {
+                // Сбрасываем к автоматическому размеру
+                elements.forEach(element => {
+                    const el = element as HTMLElement
+                    el.style.width = ''
+                    el.style.minWidth = ''
+                })
+            }
+        })
     }, [table, columnSizing])
 
 
     return (
         <div
-            ref={containerRef}
             className='condo-table-container'
         >
             <div className='condo-table'>
@@ -119,7 +101,6 @@ export function Table<TData extends RowData = RowData> ({
                             columns={orderedColumns}
                             table={table}
                             onColumnSizingChange={onColumnSizingChange}
-                            containerWidth={containerWidth}
                         />
                     ))}
                 </div>
