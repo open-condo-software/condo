@@ -119,6 +119,11 @@
 
   "apps.b2c.sections.info.title": "Info",
   "apps.b2c.sections.info.commonInfo.subtitle": "Common info",
+  "apps.b2c.sections.info.environmentInfo.subtitle": "Environment info",
+  "apps.b2c.sections.info.environmentInfo.form.items.stand.label": "Select the environment",
+  "apps.b2c.sections.info.environmentInfo.form.items.appId.label": "App ID on the selected environment",
+  "apps.b2c.sections.info.environmentInfo.form.items.appId.placeholder": "Will appear after publishing",
+  "apps.b2c.sections.info.environmentInfo.form.items.environmentUri.label": "Environment URI",
   "apps.b2c.sections.info.icons.subtitle": "App icons",
   "apps.b2c.sections.info.icons.actions.uploadImage": "Upload image",
   "apps.b2c.sections.info.icons.items.main.title": "Main application icon",

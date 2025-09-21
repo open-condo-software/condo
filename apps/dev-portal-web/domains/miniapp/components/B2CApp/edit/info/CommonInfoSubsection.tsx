@@ -9,7 +9,6 @@ import { Input, Button } from '@open-condo/ui'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
-import { useAuth } from '@/domains/user/utils/auth'
 
 import type { RowProps } from 'antd'
 
@@ -32,8 +31,7 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
 
     const [form] = Form.useForm()
 
-    const { user } = useAuth()
-    const variables = { id, creator: { id: user?.id } }
+    const variables = { id }
 
     const { data } = useGetB2CAppQuery({ variables })
 

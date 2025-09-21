@@ -28,6 +28,8 @@ const AUTH_METHODS = JSON.parse(conf['AUTH_METHODS'] || '["condo"]')
 // NOTE: RUNTIME_TRANSLATIONS
 const RUNTIME_TRANSLATIONS = JSON.parse(conf['RUNTIME_TRANSLATIONS'] || '{}')
 
+const ENVIRONMENTS_URIS = JSON.parse(conf['ENVIRONMENTS_URIS'] || '{}')
+
 const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
@@ -39,6 +41,7 @@ const nextConfig: NextConfig = {
         defaultLocale: DEFAULT_LOCALE,
     },
     publicRuntimeConfig: {
+        environmentsUris: ENVIRONMENTS_URIS,
         authMethods: AUTH_METHODS,
         serverUrl: SERVER_URL,
         serviceUrl: SERVICE_URL,

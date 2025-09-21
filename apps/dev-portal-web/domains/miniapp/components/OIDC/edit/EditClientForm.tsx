@@ -6,6 +6,7 @@ import { RefreshCw } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Input, Space, Typography, Modal } from '@open-condo/ui'
 
+import { CopyableInput } from '@/domains/common/components/CopyableInput'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import { useSecretContext } from '@/domains/miniapp/components/OIDC/edit/SecretProvider'
@@ -148,7 +149,7 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
                     name='clientId'
                     label={ClientIDLabel}
                 >
-                    <Input readOnly/>
+                    <CopyableInput/>
                 </Form.Item>
                 <div>
                     <Form.Item
