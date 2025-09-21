@@ -1,0 +1,9 @@
+.copyable-input:global(.condo-input-with-suffix.condo-input-affix-wrapper) > :global(.condo-input-suffix) {
+  padding: 8px;
+  color: var(--condo-global-color-black);
+  background-color: var(--condo-global-color-white);
+}
+
+.copy-icon {
+  cursor: pointer;
+}

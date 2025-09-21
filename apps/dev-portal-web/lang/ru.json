@@ -119,6 +119,11 @@
 
   "apps.b2c.sections.info.title": "Информация",
   "apps.b2c.sections.info.commonInfo.subtitle": "Общая информация",
+  "apps.b2c.sections.info.environmentInfo.subtitle": "Информация об окружениях",
+  "apps.b2c.sections.info.environmentInfo.form.items.stand.label": "Выберите окружение",
+  "apps.b2c.sections.info.environmentInfo.form.items.appId.label": "ID приложения на выбранном стенде",
+  "apps.b2c.sections.info.environmentInfo.form.items.appId.placeholder": "Появится после публикации",
+  "apps.b2c.sections.info.environmentInfo.form.items.environmentUri.label": "Адрес стенда",
   "apps.b2c.sections.info.icons.subtitle": "Иконки приложения",
   "apps.b2c.sections.info.icons.actions.uploadImage": "Загрузить изображение",
   "apps.b2c.sections.info.icons.items.main.title": "Главная иконка приложения",
