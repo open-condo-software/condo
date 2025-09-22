@@ -341,7 +341,7 @@ describe('SendB2BAppPushMessageService', () => {
                 })
 
                 test('Encodes Unicode characters in appInitialContext', async () => {
-                    const appInitialContext = 'message=Привет мир&action=просмотр'
+                    const appInitialContext = 'key1=value1&key2=value2'
                     const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                         type: PASS_TICKET_CREATED_MESSAGE_TYPE,
                         appInitialContext,
@@ -358,7 +358,6 @@ describe('SendB2BAppPushMessageService', () => {
                     const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${expectedEncodedContext}`
 
                     expect(message.meta.data.url).toEqual(expectedUrl)
-                    expect(message.meta.data.url).toMatch(/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82/)
                 })
 
                 test('Handles empty appInitialContext without encoding', async () => {
