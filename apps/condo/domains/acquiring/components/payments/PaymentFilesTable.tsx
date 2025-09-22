@@ -60,7 +60,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const CancelSelectedRegistryMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const DownloadRegistriesMessage = intl.formatMessage({ id: 'Download' })
 
-    const { acquiringContext, billingContexts } = useBillingAndAcquiringContexts()
+    const { acquiringContexts, billingContexts } = useBillingAndAcquiringContexts()
     const { persistor } = useCachePersistor()
 
     const { breakpoints } = useLayoutContext()
@@ -90,7 +90,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const searchPaymentsFilesQuery: Record<string, unknown> = {
         ...filtersToWhere({ loadedAt: dateFilter, ...filters }),
-        context: { id: acquiringContext.id },
+        context: { id_in: acquiringContexts.map(({ id }) => id) },
     }
     const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
 
@@ -105,7 +105,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
             first: DEFAULT_PAGE_SIZE,
             skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
         },
-        skip: !acquiringContext?.id || !persistor,
+        skip: !acquiringContexts.length || !persistor,
         fetchPolicy: 'network-only', // TODO(@abshnko): remove when sorters work with cache
     })
 
