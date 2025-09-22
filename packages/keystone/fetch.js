@@ -1,5 +1,4 @@
 const { pickBy } = require('lodash')
-const { fetch: undiciFetch } = require('undici')
 
 const conf = require('@open-condo/config')
 
@@ -91,7 +90,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
     try {
         logger.info({ msg: 'request start', ...requestLogCommonData })
 
-        const response = await undiciFetch(url, options)
+        const response = await fetch(url, options)
 
         const headers = (response.headers && typeof response.headers == 'object') ? Object.fromEntries(response.headers) : {}
 
