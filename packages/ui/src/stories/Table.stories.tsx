@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/react-webpack5'
 import React from 'react'
 
 import { Table, renderTextWithTooltip } from '@open-condo/ui/src'
-import type { TableProps, TableColumn } from '@open-condo/ui/src'
+import type { TableProps, TableColumn, TableColumnMenuLabels } from '@open-condo/ui/src'
 
 export default {
     title: 'Components/Table',
@@ -70,6 +70,12 @@ const columns: TableColumn<TableData>[] = [
     },
 ]
 
+const columnMenuLabels: TableColumnMenuLabels = {
+    sortLabel: 'Sort',
+    filterLabel: 'Filter',
+    settingsLabel: 'Settings',
+}
+
 const tableId = '1'
 
 const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<TableData>) => {
@@ -80,6 +86,7 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
             dataSource={dataSource}
             columns={columns}
             id={id}
+            columnMenuLabels={columnMenuLabels}
             storageKey='storybook-table'
             loading={loading}
             onRowClick={onRowClick}

@@ -52,7 +52,7 @@ export {
     Table,
     renderTextWithTooltip,
 } from './components/Table'
-export type { TableProps, TableColumn } from './components/Table'
+export type { TableProps, TableColumn, TableColumnMenuLabels } from './components/Table'
 
 export { Tabs } from './components/Tabs'
 export type { TabsProps, TabItem } from './components/Tabs'

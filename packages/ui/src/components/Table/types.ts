@@ -7,6 +7,12 @@ export type ColumnSettings = {
 
 export type TableSettings<TData extends RowData = RowData> = Record<TableColumn<TData>['id'], ColumnSettings>
 
+export type TableColumnMenuLabels = {
+    sortLabel?: string
+    filterLabel?: string
+    settingsLabel?: string
+}
+
 export type TableState = {
     columnVisibility: Record<string, boolean>
     columnSizing: Record<string, number>
@@ -29,5 +35,6 @@ export interface TableProps<TData extends RowData = RowData> {
     storageKey?: string
     loading?: boolean
     id: string
+    columnMenuLabels?: TableColumnMenuLabels
     onRowClick?: (record: TData) => void
 }
