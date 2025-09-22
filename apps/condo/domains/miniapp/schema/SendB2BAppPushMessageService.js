@@ -214,15 +214,16 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                 let finalMeta = meta
                 const isUrlNeeded = MESSAGE_TYPES_REQUIRING_URL.includes(type)
                 if (isUrlNeeded) {
-                    const baseUrl = `${conf.SERVER_URL}/miniapps/${b2bAppFilter.id}`
-                    const urlWithContext = appInitialContext 
-                        ? `${baseUrl}#${encodeURIComponent(appInitialContext)}` 
+                    const base = new URL(conf.SERVER_URL)
+                    const baseUrl = new URL(`/miniapps/${b2bAppFilter.id}`, base).toString()
+                    const urlWithContext = appInitialContext && appInitialContext.length > 0
+                        ? `${baseUrl}#${encodeURIComponent(appInitialContext)}`
                         : baseUrl
                         
                     finalMeta = {
                         ...meta,
                         data: {
-                            ...meta.data,
+                            ...(meta?.data || {}),
                             url: urlWithContext,
                         },
                     }
