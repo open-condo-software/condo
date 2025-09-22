@@ -37,7 +37,7 @@ interface IHeaderProps {
 
 export const Header: React.FC<IHeaderProps> = (props) => {
     const client = useApolloClient()
-    const { breakpoints, toggleCollapsed } = useLayoutContext()
+    const { toggleCollapsed, isMobileView } = useLayoutContext()
     const router = useRouter()
 
     const { isAuthenticated } = useAuth()
@@ -77,7 +77,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
         <UserMessagesListContextProvider organizationIdsToFilter={organizationIdsToFilterMessages}>
             {ChooseEmployeeRoleModal}
             {
-                !breakpoints.TABLET_LARGE
+                isMobileView
                     ? (
                         <>
                             <div id='tasks-container' className='tasks-container' />
