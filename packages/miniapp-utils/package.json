@@ -72,9 +72,6 @@
       "helpers/uuid": [
         "dist/helpers/uuid.d.ts"
       ],
-      "helpers/urls": [
-        "dist/helpers/urls.d.ts"
-      ],
       "helpers/webpack": [
         "dist/helpers/webpack.d.ts"
       ],
@@ -151,11 +148,6 @@
       "types": "./dist/helpers/uuid.d.ts",
       "require": "./dist/helpers/uuid.js",
       "import": "./dist/helpers/uuid.mjs"
-    },
-    "./helpers/urls": {
-      "types": "./dist/helpers/urls.d.ts",
-      "require": "./dist/helpers/urls.js",
-      "import": "./dist/helpers/urls.mjs"
     },
     "./helpers/webpack": {
       "types": "./dist/helpers/webpack.d.ts",
