@@ -7,19 +7,25 @@ const pick = require('lodash/pick')
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { FORBIDDEN, BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
+const { isSafeUrl } = require('@open-condo/miniapp-utils/helpers/urls')
 
 const { NOT_FOUND, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
-const { isSafeUrl } = require('@condo/domains/common/utils/url.utils')
 const access = require('@condo/domains/miniapp/access/SendB2BAppPushMessageService')
 const {
     CONTEXT_FINISHED_STATUS,
     DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
 } = require('@condo/domains/miniapp/constants')
-const { B2B_APP_MESSAGE_TYPES, MESSAGE_META } = require('@condo/domains/notification/constants/constants')
+const { B2B_APP_MESSAGE_TYPES, MESSAGE_META, PASS_TICKET_CREATED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
+/**
+ * Message types that require automatic URL generation in meta.data.url
+ */
+const MESSAGE_TYPES_REQUIRING_URL = [
+    PASS_TICKET_CREATED_MESSAGE_TYPE,
+]
 
 /**
  * Validates appInitialContext string format
@@ -205,13 +211,14 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                     throw new GQLError(ERRORS.NO_B2B_APP_ROLE_FOR_EMPLOYEE_ROLE_AND_B2B_APP, context)
                 }
 
-                const messageMetaForType = MESSAGE_META[type]
-                const isUrlNeeded = messageMetaForType && messageMetaForType.data && messageMetaForType.data.url
                 let finalMeta = meta
+                const isUrlNeeded = MESSAGE_TYPES_REQUIRING_URL.includes(type)
                 if (isUrlNeeded) {
                     const baseUrl = `${conf.SERVER_URL}/miniapps/${b2bAppFilter.id}`
-                    const urlWithContext = appInitialContext ? `${baseUrl}#${appInitialContext}` : baseUrl
-                    
+                    const urlWithContext = appInitialContext 
+                        ? `${baseUrl}#${encodeURIComponent(appInitialContext)}` 
+                        : baseUrl
+                        
                     finalMeta = {
                         ...meta,
                         data: {
@@ -244,4 +251,5 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
 module.exports = {
     SendB2BAppPushMessageService,
     ERRORS,
+    MESSAGE_TYPES_REQUIRING_URL,
 }
