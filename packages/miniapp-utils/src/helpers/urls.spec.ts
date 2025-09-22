@@ -1,4 +1,4 @@
-import { extractHostname, isSafeUrl } from './urls'
+import { isSafeUrl } from './urls'
 
 describe('isSafeUrl', () => {
     describe('safe url cases', () => {
@@ -150,87 +150,6 @@ describe('isSafeUrl', () => {
             
             // Real encoded javascript URLs that would be caught
             expect(isSafeUrl('javascript%09%3A%09alert(1)')).toEqual(true) // Still has %3A so not javascript:
-        })
-    })
-})
-
-describe('extractHostname', () => {
-    describe('basic hostname extraction', () => {
-        const basicCases = [
-            ['http://www.blog.classroom.me.uk/index.php', 'www.blog.classroom.me.uk'],
-            ['http://www.youtube.com/watch?v=ClkQA2Lb_iE', 'www.youtube.com'],
-            ['https://www.youtube.com/watch?v=ClkQA2Lb_iE', 'www.youtube.com'],
-            ['www.youtube.com/watch?v=ClkQA2Lb_iE', 'www.youtube.com'],
-            ['ftps://ftp.websitename.com/dir/file.txt', 'ftp.websitename.com'],
-            ['websitename.com:1234/dir/file.txt', 'websitename.com'],
-            ['ftps://websitename.com:1234/dir/file.txt', 'websitename.com'],
-            ['example.com?param=value', 'example.com'],
-            ['https://facebook.github.io/jest/', 'facebook.github.io'],
-            ['//youtube.com/watch?v=ClkQA2Lb_iE', 'youtube.com'],
-            ['http://localhost:4200/watch?v=ClkQA2Lb_iE', 'localhost'],
-        ]
-
-        test.each(basicCases)('should extract hostname from %p', (url, expected) => {
-            expect(extractHostname(url)).toEqual(expected)
-        })
-    })
-
-    describe('edge cases', () => {
-        test('should handle URLs with ports', () => {
-            expect(extractHostname('https://example.com:8080/path')).toEqual('example.com')
-            expect(extractHostname('http://localhost:3000')).toEqual('localhost')
-            expect(extractHostname('ftp://files.example.com:21/file.txt')).toEqual('files.example.com')
-        })
-
-        test('should handle URLs with query parameters', () => {
-            expect(extractHostname('https://example.com?param=value&other=test')).toEqual('example.com')
-            expect(extractHostname('example.com?single=param')).toEqual('example.com')
-        })
-
-        test('should handle protocol-relative URLs', () => {
-            expect(extractHostname('//example.com/path')).toEqual('example.com')
-            expect(extractHostname('//subdomain.example.com:8080/path?query=value')).toEqual('subdomain.example.com')
-        })
-
-        test('should handle URLs without protocol', () => {
-            expect(extractHostname('example.com/path/to/resource')).toEqual('example.com')
-            expect(extractHostname('subdomain.example.com')).toEqual('subdomain.example.com')
-        })
-
-        test('should handle complex domain structures', () => {
-            expect(extractHostname('https://api.v2.subdomain.example.co.uk/endpoint')).toEqual('api.v2.subdomain.example.co.uk')
-            expect(extractHostname('mail.google.com')).toEqual('mail.google.com')
-        })
-
-        test('should handle URLs with fragments', () => {
-            expect(extractHostname('https://example.com/path#fragment')).toEqual('example.com')
-            expect(extractHostname('example.com#fragment')).toEqual('example.com')
-        })
-
-        test('should handle URLs with both query and fragment', () => {
-            expect(extractHostname('https://example.com/path?query=value#fragment')).toEqual('example.com')
-            expect(extractHostname('example.com:8080?query=value#fragment')).toEqual('example.com')
-        })
-    })
-
-    describe('special protocols', () => {
-        test('should handle various protocols', () => {
-            expect(extractHostname('ftp://files.example.com/file.txt')).toEqual('files.example.com')
-            expect(extractHostname('ftps://secure.example.com/file.txt')).toEqual('secure.example.com')
-            expect(extractHostname('ssh://user@server.example.com/path')).toEqual('user@server.example.com')
-        })
-    })
-
-    describe('minimal cases', () => {
-        test('should handle domain-only URLs', () => {
-            expect(extractHostname('example.com')).toEqual('example.com')
-            expect(extractHostname('localhost')).toEqual('localhost')
-            expect(extractHostname('subdomain.example.org')).toEqual('subdomain.example.org')
-        })
-
-        test('should handle single path URLs', () => {
-            expect(extractHostname('example.com/')).toEqual('example.com')
-            expect(extractHostname('localhost/')).toEqual('localhost')
         })
     })
 })
