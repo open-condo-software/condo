@@ -23,6 +23,7 @@ export function Table<TData extends RowData = RowData> ({
     columns,
     id,
     storageKey = `table-state-${id}`,
+    columnMenuLabels = {},
     loading,
     onRowClick,
 }: TableProps<TData>): React.ReactElement {
@@ -78,6 +79,7 @@ export function Table<TData extends RowData = RowData> ({
                             key={headerGroup.id}
                             headerGroup={headerGroup}
                             columns={orderedColumns}
+                            columnMenuLabels={columnMenuLabels}
                             table={table}
                         />
                     ))}
