@@ -1,5 +1,5 @@
 const { pickBy } = require('lodash')
-const nodeFetch = require('node-fetch')
+const { fetch: undiciFetch } = require('undici')
 
 const conf = require('@open-condo/config')
 
@@ -91,7 +91,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
     try {
         logger.info({ msg: 'request start', ...requestLogCommonData })
 
-        const response = await nodeFetch(url, options)
+        const response = await undiciFetch(url, options)
 
         const headers = (response.headers && typeof response.headers == 'object') ? Object.fromEntries(response.headers) : {}
 
@@ -149,22 +149,15 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
     do {
         try {
             const controller = new AbortController()
-            const signal = controller.signal
-            let timeout
+            const timeout = setTimeout(() => controller.abort(), abortRequestTimeout)
 
-            const response = await Promise.race([
-                fetchWithLogger(url, { ... fetchOptions, signal }, { skipTracingHeaders, skipXTargetHeader }),
-                new Promise((_, reject) =>
-                    timeout = setTimeout(() => {
-                        controller.abort()
-                        reject(new Error('Abort request by timeout'))
-                    }, abortRequestTimeout)
-                ),
-            ])
+            const response = await fetchWithLogger(
+                url,
+                { ...fetchOptions, signal: controller.signal },
+                { skipTracingHeaders, skipXTargetHeader }
+            )
 
-            if (timeout) {
-                clearTimeout(timeout)
-            }
+            clearTimeout(timeout)
 
             if (response && response.ok) {
                 return response
