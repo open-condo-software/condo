@@ -247,9 +247,15 @@ export const useGetFragmentHandler: () => RequestHandler<'CondoWebAppGetFragment
             return { fragment: '' }
         }
 
-        const fragment = window.location.hash.startsWith('#') 
+        let fragment = window.location.hash.startsWith('#') 
             ? window.location.hash.substring(1) 
             : window.location.hash
+
+        try {
+            fragment = decodeURIComponent(fragment)
+        } catch (error) {
+            console.warn('Failed to decode URI fragment:', fragment, error)
+        }
 
         return { fragment }
     }, [])

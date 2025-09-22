@@ -15,7 +15,7 @@ const { Message, syncRemoteClientWithPushTokenByTestClient } = require('@condo/d
 const { createTestOrganizationEmployeeRole, registerNewOrganization, inviteNewOrganizationEmployee, acceptOrRejectOrganizationInviteById } = require('@condo/domains/organization/utils/testSchema')
 const { User, updateTestUser, makeClientWithServiceUser, makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { ERRORS } = require('./SendB2BAppPushMessageService')
+const { ERRORS, MESSAGE_TYPES_REQUIRING_URL } = require('./SendB2BAppPushMessageService')
 
 describe('SendB2BAppPushMessageService', () => {
     let serviceUser,
@@ -262,7 +262,7 @@ describe('SendB2BAppPushMessageService', () => {
         })
 
         describe('URL generation', () => {
-            test('Generates URL for message types that require it (PASS_TICKET_CREATED_MESSAGE_TYPE)', async () => {
+            test('Generates URL for message types in MESSAGE_TYPES_REQUIRING_URL (PASS_TICKET_CREATED_MESSAGE_TYPE)', async () => {
                 const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                     type: PASS_TICKET_CREATED_MESSAGE_TYPE,
                     meta: {
@@ -277,9 +277,10 @@ describe('SendB2BAppPushMessageService', () => {
                 const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}`
 
                 expect(message.meta.data.url).toEqual(expectedUrl)
+                expect(MESSAGE_TYPES_REQUIRING_URL).toContain(PASS_TICKET_CREATED_MESSAGE_TYPE)
             })
 
-            test('Does not generate URL for message types that do not require it (B2B_APP_MESSAGE_PUSH_TYPE)', async () => {
+            test('Does not generate URL for message types not in MESSAGE_TYPES_REQUIRING_URL (B2B_APP_MESSAGE_PUSH_TYPE)', async () => {
                 const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                     type: B2B_APP_MESSAGE_PUSH_TYPE,
                     meta: {
@@ -292,6 +293,133 @@ describe('SendB2BAppPushMessageService', () => {
                 const message = await Message.getOne(staffClient, { id: result.id })
 
                 expect(message.meta.data?.url).toBeUndefined()
+                expect(MESSAGE_TYPES_REQUIRING_URL).not.toContain(B2B_APP_MESSAGE_PUSH_TYPE)
+            })
+
+            describe('URL encoding with appInitialContext', () => {
+                test('Encodes special characters in appInitialContext using encodeURIComponent', async () => {
+                    const appInitialContext = 'next=/pass/ticket/123&source=notification with spaces'
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedEncodedContext = encodeURIComponent(appInitialContext)
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${expectedEncodedContext}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                    expect(message.meta.data.url).toContain('notification%20with%20spaces')
+                })
+
+                test('Encodes ampersands and equals signs in appInitialContext', async () => {
+                    const appInitialContext = 'param1=value1&param2=value with & and = signs'
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedEncodedContext = encodeURIComponent(appInitialContext)
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${expectedEncodedContext}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                    expect(message.meta.data.url).toContain('%26') // encoded &
+                    expect(message.meta.data.url).toContain('%3D') // encoded =
+                })
+
+                test('Encodes Unicode characters in appInitialContext', async () => {
+                    const appInitialContext = 'message=Привет мир&action=просмотр'
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedEncodedContext = encodeURIComponent(appInitialContext)
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${expectedEncodedContext}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                    expect(message.meta.data.url).toMatch(/%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82/)
+                })
+
+                test('Handles empty appInitialContext without encoding', async () => {
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext: '',
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                    expect(message.meta.data.url).not.toContain('#')
+                })
+
+                test('Handles undefined appInitialContext without encoding', async () => {
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                    expect(message.meta.data.url).not.toContain('#')
+                })
+
+                test('Encodes complex URL paths and query parameters', async () => {
+                    const appInitialContext = 'next=/pass/ticket/123?status=active&filter=urgent'
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedEncodedContext = encodeURIComponent(appInitialContext)
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${expectedEncodedContext}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                    expect(message.meta.data.url).toContain('%2F') // encoded /
+                    expect(message.meta.data.url).toContain('%3F') // encoded ?
+                    expect(message.meta.data.url).toContain('%26') // encoded &
+                })
             })
         })
 
@@ -318,7 +446,7 @@ describe('SendB2BAppPushMessageService', () => {
                 })
 
                 const message = await Message.getOne(staffClient, { id: result.id })
-                const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${appInitialContext}`
+                const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${encodeURIComponent(appInitialContext)}`
 
                 expect(message.meta.data.url).toEqual(expectedUrl)
                 expect(result.id).toMatch(UUID_RE)
