@@ -1,7 +1,7 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
-const FILE_RECORD_USER_META = '{ dv sender { dv fingerprint } userId fileClientId modelNames sourceFileClientId }'
+const FILE_RECORD_USER_META = '{ dv sender { dv fingerprint } user { id } fileClientId modelNames sourceFileClientId }'
 const FILE_RECORD_META_FIELDS = `{ id fileAdapter recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
 const FILE_RECORD_PUBLIC_META_FIELDS = `{ id recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
 const FILE_RECORD_ATTACHMENTS = '{ attachments { id modelName fileClientId user } }'
@@ -16,8 +16,9 @@ const FileRecord = new GQLListSchema('FileRecord', {
             schemaDoc: 'Information about file including its encoding, mime type, filename and user related metadata',
             graphQLReturnType: 'FileRecordMeta',
             extendGraphQLTypes: [
+                'type FileRecordMetaUser { id: ID! }',
                 'type FileSender { dv: Int!, fingerprint: String! }',
-                'type FileRecordUserMeta { dv: Int!, sender: FileSender!, userId: ID!, fileClientId: String!, modelNames: [String!]!, sourceFileClientId: String }',
+                'type FileRecordUserMeta { dv: Int!, sender: FileSender!, user: FileRecordMetaUser!, fileClientId: String!, modelNames: [String!]!, sourceFileClientId: String }',
                 'type FileRecordMeta { id: ID!, fileAdapter: String!, recordId: ID, path: String, filename: String!, originalFilename: String, mimetype: String!, encoding: String!, meta: FileRecordUserMeta! }',
             ],
         },
@@ -28,6 +29,13 @@ const FileRecord = new GQLListSchema('FileRecord', {
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+        },
+        organization: {
+            type: 'Relationship',
+            ref: 'Organization',
+            schemaDoc: 'Organization of the user who uploaded the file',
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         sourceFileRecord: {
             type: 'Relationship',
