@@ -4976,6 +4976,7 @@ type OIDCClient {
   id: String!
   clientId: String!
   redirectUri: String!
+  isEnabled: Boolean!
 }
 
 input CreateOIDCClientInput {

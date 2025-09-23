@@ -4132,7 +4132,7 @@ export type GetOidcClientQueryVariables = Exact<{
 }>;
 
 
-export type GetOidcClientQuery = { __typename?: 'Query', client?: { __typename?: 'OIDCClient', id: string, clientId: string, redirectUri: string } | null };
+export type GetOidcClientQuery = { __typename?: 'Query', client?: { __typename?: 'OIDCClient', id: string, clientId: string, redirectUri: string, isEnabled: boolean } | null };
 
 export type CreateOidcClientMutationVariables = Exact<{
   data: CreateOidcClientInput;
@@ -4719,6 +4719,7 @@ export const GetOidcClientDocument = gql`
     id
     clientId
     redirectUri
+    isEnabled
   }
 }
     `;
