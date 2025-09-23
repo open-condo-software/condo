@@ -46,14 +46,9 @@ class AddressFromStringParser {
      */
     parse (rawString = '') {
         if (UUID_REGEXP.test(rawString)) {
-            const address = rawString
-            const { unitName, unitType } = this.parseUnit(rawString)
-            return {
-                address,
-                unitType,
-                unitName,
-            }
+            rawString = `${rawString},`
         }
+        
         const { housePart: address, unitPart } = this.splitToUnitAndAddress(rawString)
         const { unitName, unitType } = this.parseUnit(unitPart)
         return {
