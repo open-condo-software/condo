@@ -10,7 +10,7 @@ let prompts
 try {
     // eslint-disable-next-line import/no-extraneous-dependencies
     prompts = require('prompts')
-} catch (e) {
+} catch (e) { // NOSONAR
     console.error('\n❌ Dependencies are not installed. Please install them first:')
     console.error('   yarn install\n')
     process.exit(1)
@@ -56,6 +56,7 @@ function getAvailableApps () {
         }
     } catch (e) {
         // Optional; ignore if missing or unreadable
+        console.log(`Skip reading .gitmodules. ${e.message}`)
     }
 
     // 3) Merge and de-duplicate
@@ -82,6 +83,8 @@ function loadState () {
         const raw = fs.readFileSync(STATE_FILE, 'utf8')
         return JSON.parse(raw)
     } catch (e) {
+        // Non-fatal
+        console.log(`State not found. ${e.message}`)
         return null
     }
 }
@@ -92,6 +95,7 @@ function saveState (state) {
         fs.writeFileSync(STATE_FILE, JSON.stringify({ ...state, savedAt: new Date().toISOString() }, null, 2))
     } catch (e) {
         // Non-fatal
+        console.log(`Skip saving state. ${e.message}`)
     }
 }
 
@@ -197,4 +201,3 @@ main().catch(error => {
     console.error('Unexpected error:', error)
     process.exit(1)
 })
-
