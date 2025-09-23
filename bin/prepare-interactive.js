@@ -78,6 +78,8 @@ function getAvailableApps () {
                 .filter(name => !excludedDirs.includes(name) && !name.startsWith('.'))
 
             return appNames.map(appName => {
+                // NOTE: controlled environment
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const preparePath = path.join(appsDir, appName, 'bin', 'prepare.js')
                 const hasPrepareBin = fs.existsSync(preparePath)
 
@@ -199,7 +201,7 @@ async function main () {
     console.log(`Running: ${displayCmd}\n`)
 
     try {
-        execFileSync('node', ['bin/prepare.js', ...args], {
+        execFileSync('node', ['bin/prepare.js', ...args], { // NOSONAR
             stdio: 'inherit',
             cwd: path.join(__dirname, '..'),
             timeout: 15 * 60_000,

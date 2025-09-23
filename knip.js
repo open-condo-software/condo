@@ -122,6 +122,7 @@ async function config () {
     /** @type import('knip').KnipConfig['workspaces'] */
     const staticWorkspaces = {
         '.': {
+            entry: ['bin/**/*.js'],
             ignoreDependencies: [/commitlint/],
         },
         'apps/insurance': {
