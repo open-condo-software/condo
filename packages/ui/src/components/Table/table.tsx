@@ -13,10 +13,6 @@ import { TableHeader } from '@open-condo/ui/src/components/Table/components/Tabl
 import { useTableState } from '@open-condo/ui/src/components/Table/hooks/useTableState'
 import type { TableColumn, TableProps } from '@open-condo/ui/src/components/Table/types'
 
-const MemoizedTableBody = React.memo(
-    TableBody,
-    (prev, next) => prev.table.options.data === next.table.options.data
-) as typeof TableBody
 
 export function Table<TData extends RowData = RowData> ({
     dataSource,
@@ -89,11 +85,7 @@ export function Table<TData extends RowData = RowData> ({
                         <div className='condo-table-loading' />
                     </div>
                 ) : (
-                    table.getState().columnSizingInfo.isResizingColumn ? (
-                        <MemoizedTableBody<TData> table={table} onRowClick={onRowClick} />
-                    ) : (
-                        <TableBody<TData> table={table} onRowClick={onRowClick} />
-                    ) 
+                    <TableBody<TData> table={table} onRowClick={onRowClick} />
                 )}
             </div>
         </div>
