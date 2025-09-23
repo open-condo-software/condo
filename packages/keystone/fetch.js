@@ -29,6 +29,17 @@ function wrapResponse (response) {
             console.warn('response.buffer() is deprecated. Use response.arrayBuffer() instead.')
             return Buffer.from(await response.arrayBuffer())
         },
+        headers: Object.assign(response.headers, {
+            raw () {
+                console.warn('response.headers.raw() is deprecated. Use response.headers instead.')
+                const raw = {}
+                response.headers.forEach((value, name) => {
+                    raw[name] ||= []
+                    raw[name].push(value)
+                })
+                return raw
+            },
+        }),
     })
 }
 
