@@ -22,78 +22,58 @@ const STATE_FILE = path.join(STATE_DIR, 'prepare.json')
 
 // Get all apps from .gitmodules file
 function getAvailableApps () {
-    const gitmodulesPath = path.join(__dirname, '..', '.gitmodules')
+    const appsDir = path.join(__dirname, '..', 'apps')
+    const excludedDirs = new Set(['node_modules', '.git', '.DS_Store', 'dist', 'build', 'coverage'])
 
+    // 1) Scan apps directory
+    let dirApps
     try {
-        const gitmodulesContent = fs.readFileSync(gitmodulesPath, 'utf8')
-        const apps = []
+        dirApps = fs.readdirSync(appsDir, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name)
+            .filter(name => !excludedDirs.has(name) && !name.startsWith('.'))
+    } catch (e) {
+        console.error('Error reading apps directory:', e.message)
+        process.exit(1)
+    }
 
-        // Parse .gitmodules file to extract app paths
+    // 2) Optionally read .gitmodules
+    let gitApps = []
+    try {
+        const gitmodulesPath = path.join(__dirname, '..', '.gitmodules')
+        const gitmodulesContent = fs.readFileSync(gitmodulesPath, 'utf8')
         const lines = gitmodulesContent.split('\n')
         let currentSubmodule = null
 
         for (const line of lines) {
             const trimmedLine = line.trim()
-
-            // Check if this is a submodule section
-            if (trimmedLine.startsWith('[submodule ')) {
-                currentSubmodule = {}
-            }
-
-            // Extract path for apps/* submodules
+            if (trimmedLine.startsWith('[submodule ')) currentSubmodule = {}
             if (trimmedLine.startsWith('path = apps/') && currentSubmodule !== null) {
                 const appPath = trimmedLine.replace('path = apps/', '')
-                if (appPath && !appPath.includes('/')) { // Only direct apps, not nested paths
-                    apps.push(appPath)
-                }
+                if (appPath && !appPath.includes('/')) gitApps.push(appPath)
                 currentSubmodule = null
             }
         }
-
-        // Check which apps have bin/prepare.js and return app objects with status
-        return apps.map(appName => {
-            // NOTE: controlled environment
-            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-            const preparePath = path.join(__dirname, '..', 'apps', appName, 'bin', 'prepare.js')
-            const hasPrepareBin = fs.existsSync(preparePath)
-
-            return {
-                name: appName,
-                available: hasPrepareBin,
-                reason: hasPrepareBin ? null : 'Missing bin/prepare.js',
-            }
-        }).sort((a, b) => a.name.localeCompare(b.name))
-    } catch (error) {
-        console.error('Error reading .gitmodules file:', error.message)
-        console.log('Falling back to directory scanning...')
-
-        // Fallback to directory scanning if .gitmodules is not available
-        const appsDir = path.join(__dirname, '..', 'apps')
-        const excludedDirs = new Set(['node_modules', '.git', '.DS_Store', 'dist', 'build', 'coverage'])
-
-        try {
-            const appNames = fs.readdirSync(appsDir, { withFileTypes: true })
-                .filter(dirent => dirent.isDirectory())
-                .map(dirent => dirent.name)
-                .filter(name => !excludedDirs.has(name) && !name.startsWith('.'))
-
-            return appNames.map(appName => {
-                // NOTE: controlled environment
-                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-                const preparePath = path.join(appsDir, appName, 'bin', 'prepare.js')
-                const hasPrepareBin = fs.existsSync(preparePath)
-
-                return {
-                    name: appName,
-                    available: hasPrepareBin,
-                    reason: hasPrepareBin ? null : 'Missing bin/prepare.js',
-                }
-            }).sort((a, b) => a.name.localeCompare(b.name))
-        } catch (fallbackError) {
-            console.error('Error reading apps directory:', fallbackError.message)
-            process.exit(1)
-        }
+    } catch (e) {
+        // Optional; ignore if missing or unreadable
     }
+
+    // 3) Merge and de-duplicate
+    const allAppNames = Array.from(new Set([...dirApps, ...gitApps]))
+
+    // 4) Build availability objects
+    return allAppNames.map(appName => {
+        // NOTE: controlled environment
+        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+        const preparePath = path.join(appsDir, appName, 'bin', 'prepare.js')
+        const hasPrepareBin = fs.existsSync(preparePath)
+
+        return {
+            name: appName,
+            available: hasPrepareBin,
+            reason: hasPrepareBin ? null : 'Missing bin/prepare.js',
+        }
+    }).sort((a, b) => a.name.localeCompare(b.name))
 }
 
 function loadState () {
