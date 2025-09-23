@@ -81,9 +81,10 @@ const MetaSchema = z.object({
         dv: z.literal(1),
         fingerprint: z.string().regex(FINGERPRINT_RE),
     }).strict(),
-    userId: z.uuid(),
+    user: z.object({ id: z.uuid() }).strict(),
     fileClientId: z.string().min(1),
     modelNames: z.array(z.string()).min(1),
+    organization: z.object({ id: z.uuid() }).strict().optional(),
 }).strict()
 
 function parseAndValidateMeta (raw, req, next, onError) {
@@ -106,7 +107,7 @@ function parseAndValidateMeta (raw, req, next, onError) {
     }
 
     const meta = result.data
-    if (meta.userId !== req.user.id) {
+    if (meta.user.id !== req.user.id) {
         return onError(() => next(new GQLError(ERRORS.INVALID_META, { req })))
     }
 
@@ -132,7 +133,7 @@ const SharePayloadSchema = z.object({
         fingerprint: z.string().regex(FINGERPRINT_RE),
     }).strict(),
     id: z.uuid(),
-    userId: z.uuid(),
+    user: z.object({ id: z.uuid() }).strict(),
     fileClientId: z.string().min(1),
     modelNames: z.array(z.string()).min(1).optional(),
 }).strict()
@@ -151,7 +152,9 @@ const FileMetaSignatureSchema = z.object({
             dv: z.literal(1),
             fingerprint: z.string().regex(FINGERPRINT_RE),
         }).strict(),
-        userId: z.uuid(),
+        user: z.object({
+            id: z.uuid(),
+        }).strict(),
         fileClientId: z.string(),
         modelNames: z.array(z.string()).min(1).optional(),
         sourceFileClientId: z.string().nullable(),
@@ -167,7 +170,9 @@ const FileUploadMetaSchema = z.object({
         dv: z.literal(1),
         fingerprint: z.string().regex(FINGERPRINT_RE),
     }).strict(),
-    userId: z.uuid(),
+    user: z.object({
+        id: z.uuid(),
+    }).strict(),
     fileClientId: z.string(),
     modelNames: z.array(z.string()).min(1).optional(),
     sourceFileClientId: z.string().nullable(),
@@ -387,6 +392,8 @@ function fileStorageHandler ({ keystone, appClients }) {
             )
         )
 
+        const organizationId = meta?.organization?.id
+
         const createdFiles = await FileRecord.createMany(
             context,
             savedFiles.map((data, index) => ({
@@ -402,6 +409,7 @@ function fileStorageHandler ({ keystone, appClients }) {
                     dv: meta.dv,
                     sender: meta.sender,
                     user: { connect: { id: req.user.id } },
+                    ...(organizationId && { organization: { connect: { id: organizationId } } }),
                     fileAdapter: FileAdapter.type(),
                 },
             })),
@@ -439,7 +447,7 @@ function fileShareHandler ({ keystone, appClients }) {
             return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }, [error]))
         }
 
-        const { id, fileClientId, userId, modelNames, dv, sender } = data
+        const { id, fileClientId, user, modelNames, dv, sender } = data
 
         if (!(fileClientId in (appClients || {}))) {
             return next(new GQLError(ERRORS.INVALID_APP_ID, { req }))
@@ -473,7 +481,7 @@ function fileShareHandler ({ keystone, appClients }) {
             meta: {
                 ...fileRecord.fileMeta.meta,
                 fileClientId,
-                userId,
+                user: { id: user.id },
                 sourceFileClientId,
                 modelNames,
             },
@@ -482,7 +490,7 @@ function fileShareHandler ({ keystone, appClients }) {
         const created = await FileRecord.create(context, {
             fileMeta: sharedFileMeta,
             dv, sender,
-            user: { connect: { id: userId } },
+            user: { connect: { id: user.id } },
             sourceFileRecord: { connect: { id: sourceFileRecord } }, // point to original FileRecord
             sourceApp: sourceFileClientId, // original fileClientId for routing
         }, `id fileMeta ${FILE_RECORD_META_FIELDS}`)
@@ -556,7 +564,7 @@ function fileAttachHandler ({ keystone, appClients }) {
 
 
         const newAttachment = {
-            modelName, id: itemId, fileClientId: fileClientId, user: user.id,
+            modelName, id: itemId, fileClientId: fileClientId, user: { id: user.id },
         }
         const resultAttachments = Array.isArray(originalAttachments)
             ? [...originalAttachments, newAttachment]

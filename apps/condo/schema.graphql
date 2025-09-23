@@ -85217,6 +85217,7 @@ type FileRecordHistoryRecord {
   _label_: String
   fileMeta: JSON
   user: String
+  organization: String
   sourceFileRecord: String
   sourceApp: String
   fileAdapter: String
@@ -85247,6 +85248,10 @@ input FileRecordHistoryRecordWhereInput {
   user_not: String
   user_in: [String]
   user_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
   sourceFileRecord: String
   sourceFileRecord_not: String
   sourceFileRecord_in: [String]
@@ -85399,6 +85404,7 @@ enum SortFileRecordHistoryRecordsBy {
 input FileRecordHistoryRecordUpdateInput {
   fileMeta: JSON
   user: String
+  organization: String
   sourceFileRecord: String
   sourceApp: String
   fileAdapter: String
@@ -85425,6 +85431,7 @@ input FileRecordHistoryRecordsUpdateInput {
 input FileRecordHistoryRecordCreateInput {
   fileMeta: JSON
   user: String
+  organization: String
   sourceFileRecord: String
   sourceApp: String
   fileAdapter: String
@@ -85447,6 +85454,10 @@ input FileRecordHistoryRecordsCreateInput {
   data: FileRecordHistoryRecordCreateInput
 }
 
+type FileRecordMetaUser {
+  id: ID!
+}
+
 type FileSender {
   dv: Int!
   fingerprint: String!
@@ -85455,7 +85466,7 @@ type FileSender {
 type FileRecordUserMeta {
   dv: Int!
   sender: FileSender!
-  userId: ID!
+  user: FileRecordMetaUser!
   fileClientId: String!
   modelNames: [String!]!
   sourceFileClientId: String
@@ -85509,6 +85520,9 @@ type FileRecord {
   """ User who uploaded the file """
   user: User
 
+  """ Organization of the user who uploaded the file """
+  organization: Organization
+
   """ Link to original FileRecord which was shared """
   sourceFileRecord: FileRecord
 
@@ -85553,6 +85567,8 @@ input FileRecordWhereInput {
   fileMeta_not_in: [JSON]
   user: UserWhereInput
   user_is_null: Boolean
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
   sourceFileRecord: FileRecordWhereInput
   sourceFileRecord_is_null: Boolean
   sourceApp: String
@@ -85660,6 +85676,8 @@ input FileRecordWhereUniqueInput {
 enum SortFileRecordsBy {
   user_ASC
   user_DESC
+  organization_ASC
+  organization_DESC
   sourceFileRecord_ASC
   sourceFileRecord_DESC
   sourceApp_ASC
@@ -85687,6 +85705,7 @@ enum SortFileRecordsBy {
 input FileRecordUpdateInput {
   fileMeta: JSON
   user: UserRelateToOneInput
+  organization: OrganizationRelateToOneInput
   sourceFileRecord: FileRecordRelateToOneInput
   sourceApp: String
   fileAdapter: String
@@ -85710,6 +85729,7 @@ input FileRecordsUpdateInput {
 input FileRecordCreateInput {
   fileMeta: JSON
   user: UserRelateToOneInput
+  organization: OrganizationRelateToOneInput
   sourceFileRecord: FileRecordRelateToOneInput
   sourceApp: String
   fileAdapter: String
