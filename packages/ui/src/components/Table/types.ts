@@ -13,16 +13,10 @@ export type TableColumnMenuLabels = {
     settingsLabel?: string
 }
 
-export type TableState = {
-    columnVisibility: Record<string, boolean>
-    columnSizing: Record<string, number>
-    columnOrder: TableColumn<RowData>['dataKey'][]
-}
-
 export type TableColumn<TData extends RowData = RowData> = {
-    render?: (value: any) => React.ReactNode
+    render?: (value: unknown) => React.ReactNode
     header: string
-    dataKey: AccessorFn<TData, any> | string
+    dataKey: AccessorFn<TData> | string
     id: string
     initialVisibility?: boolean
     initialSize?: number
@@ -31,6 +25,7 @@ export type TableColumn<TData extends RowData = RowData> = {
 
 export interface TableProps<TData extends RowData = RowData> {
     dataSource: Array<TData>
+    locale?: string
     columns: Array<TableColumn<TData>>
     storageKey?: string
     loading?: boolean

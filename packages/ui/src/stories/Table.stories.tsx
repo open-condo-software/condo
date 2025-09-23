@@ -37,7 +37,7 @@ const columns: TableColumn<TableData>[] = [
         id: 'firstName',
         initialOrder: 2,
         initialVisibility: true,
-        render: renderTextWithTooltip<TableData[keyof TableData]>(),
+        render: renderTextWithTooltip(),
     },
     {
         dataKey: 'lastName',
@@ -57,16 +57,16 @@ const columns: TableColumn<TableData>[] = [
         render: (value) => <span>{value ? 'Active' : 'Inactive'}</span>,
     },
     {
-        dataKey: (row: TableData) => row.organization?.name,
+        dataKey: (row) => row.organization?.name,
         header: 'Organization Name',
         id: 'organization.name',
-        render: (value) => <span>{value ? value : '—'}</span>,
+        render: (value) => <span>{value ? String(value) : '—'}</span>,
     },
     {
-        dataKey: (row: TableData) => row.organization?.id,
+        dataKey: (row) => row.organization?.id,
         header: 'Organization ID',
         id: 'organization.id',
-        render: (value) => <span>{value ? value : '—'}</span>,
+        render: (value) => <span>{value ? String(value) : '—'}</span>,
     },
 ]
 

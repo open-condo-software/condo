@@ -1,7 +1,7 @@
 import { ColumnOrderState, RowData } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 
-import type { TableSettings, TableColumn } from '../types.ts'
+import type { TableSettings, TableColumn } from '../types'
 
 interface UseColumnOrderProps<TData extends RowData = RowData> {
     settings: TableSettings<TData>
@@ -20,14 +20,12 @@ export const useColumnOrder = <TData extends RowData = RowData>({ settings, setS
 
     const onColumnOrderChange = useCallback((updater: React.SetStateAction<ColumnOrderState>) => {
         setSettings((prevSettings: TableSettings<TData>) => {
-            // Собираем текущий порядок из настроек
             const prevOrder = Object.entries(prevSettings)
                 .sort(([, a], [, b]) => (a as TableSettings<TData>[TableColumn<TData>['id']]).order - (b as TableSettings<TData>[TableColumn<TData>['id']]).order)
                 .map(([key]) => key)
 
             const newOrder = typeof updater === 'function' ? updater(prevOrder) : updater
 
-            // Обновляем порядок в настройках
             const newSettings = { ...prevSettings }
             newOrder.forEach((key, index) => {
                 if (newSettings[key as TableColumn<TData>['id']]) {

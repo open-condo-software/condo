@@ -8,7 +8,7 @@ import {
     SortDesc, 
     Filter, 
 } from '@open-condo/icons'
-import { Space, Dropdown } from '@open-condo/ui/src'
+import { Dropdown, Space } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
 import { ColumnSettings } from './ColumnSettings'
@@ -28,42 +28,58 @@ export const TableHeader = <TData extends RowData = RowData>({ headerGroup, colu
         <ColumnSettings columns={columns} table={table} />
     ), [columns, table])
 
-    const columnContextMenu = useMemo(() => [
-        columnMenuLabels?.sortLabel && {
-            label: (<span>{columnMenuLabels.sortLabel}</span>),
-            key: '1',
-            icon: <SortDesc size='small' color={colors.gray[7]} />,
-        },
-        columnMenuLabels?.sortLabel && {
-            label: (<span>{columnMenuLabels.sortLabel}</span>),
-            key: '2',
-            icon: <SortAsc size='small' color={colors.gray[7]} />,
-        },
-        columnMenuLabels?.sortLabel && { type: 'divider' as const },
-        columnMenuLabels?.filterLabel && {
-            label: (<span>{columnMenuLabels.filterLabel}</span>),
-            key: '3',
-            icon: <Filter size='small' color={colors.gray[7]} />,
-        },
-        columnMenuLabels?.filterLabel && { type: 'divider' as const },
-        columnMenuLabels?.settingsLabel && {
-            label: (
-                <Dropdown
-                    align={{
-                        points: ['cl', 'cr'],
-                        offset: [8, 0],
-                    }}
-                    dropdownRender={renderColumnSettings}
-                >
-                    <Space size={8}>
-                        <span>{columnMenuLabels.settingsLabel}</span>
-                    </Space>
-                </Dropdown>
-            ),
-            key: '4',
-            icon: <GripHorizontal size='small' color={colors.gray[7]} />,
-        },
-    ].filter(Boolean), [renderColumnSettings, columnMenuLabels])
+    const columnMenu = useMemo(() => {
+        const items = []
+        
+        if (columnMenuLabels?.sortLabel) {
+            items.push(
+                {
+                    label: <span>{columnMenuLabels.sortLabel}</span>,
+                    key: '1',
+                    icon: <SortDesc size='small' color={colors.gray[7]} />,
+                },
+                {
+                    label: <span>{columnMenuLabels.sortLabel}</span>,
+                    key: '2',
+                    icon: <SortAsc size='small' color={colors.gray[7]} />,
+                },
+                { type: 'divider' as const }
+            )
+        }
+        
+        if (columnMenuLabels?.filterLabel) {
+            items.push(
+                {
+                    label: <span>{columnMenuLabels.filterLabel}</span>,
+                    key: '3',
+                    icon: <Filter size='small' color={colors.gray[7]} />,
+                },
+                { type: 'divider' as const }
+            )
+        }
+        
+        if (columnMenuLabels?.settingsLabel) {
+            items.push({
+                label: (
+                    <Dropdown
+                        align={{
+                            points: ['cl', 'cr'],
+                            offset: [8, 0],
+                        }}
+                        dropdownRender={renderColumnSettings}
+                    >
+                        <Space size={8}>
+                            <GripHorizontal size='small' color={colors.gray[7]} />
+                            <span>{columnMenuLabels.settingsLabel}</span>
+                        </Space>
+                    </Dropdown>
+                ),
+                key: '4',
+            })
+        }
+        
+        return items
+    }, [renderColumnSettings, columnMenuLabels])
 
     return (
         <div key={headerGroup.id} className='condo-table-thead-row'>
@@ -79,11 +95,10 @@ export const TableHeader = <TData extends RowData = RowData>({ headerGroup, colu
                                 {flexRender(header.column.columnDef.header, header.getContext())}
                             </div>
                             {
-                                columnContextMenu.length > 0 && (<Dropdown
+                                columnMenu.length > 0 && (<Dropdown
                                     menu={{ 
-                                        items: columnContextMenu,
+                                        items: columnMenu,
                                     }}
-                                    overlayClassName='condo-table-header-dropdown'
                                 >
                                     <div className='condo-table-th-more-icon'>
                                         <MoreVertical size='small' />
