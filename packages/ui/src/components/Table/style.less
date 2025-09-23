@@ -82,12 +82,12 @@
   background-color: #fff;
   border: none;
   border-bottom: 1px solid #d0d3e5;
+  backface-visibility: hidden;
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
-  contain: layout;
   will-change: width;
-  backface-visibility: hidden;
+  contain: layout;
 
   &:hover {
     background-color: #f2f4f6;
@@ -144,10 +144,10 @@
   text-overflow: ellipsis;
   border: none;
   border-bottom: 1px solid #d0d3e5;
-  transition: all 0.2s ease;
-  contain: layout;
-  will-change: width;
   backface-visibility: hidden;
+  transition: all 0.2s ease;
+  will-change: width;
+  contain: layout;
 
   .condo-table-tr:last-child & {
     border-bottom: none;
@@ -157,6 +157,7 @@
 .condo-table-tr {
   display: flex;
   transition: background-color 0.2s ease;
+  outline: none;
 
   &:last-child {
     border-bottom: none;
@@ -173,16 +174,29 @@
       background-color: #f8f9fa;
     }
   }
+
+  &:focus {
+    outline: 2px solid var(--condo-color-primary);
+    outline-offset: -2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &[role="button"] {
+    cursor: pointer;
+  }
 }
 
 .condo-table-column-settings-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 16px;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 14px #e6e8f1;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 
 .condo-table-column-settings-dropdown:has(.condo-table-column-settings-item.is-dragging) {
@@ -212,6 +226,7 @@
   background-color: transparent;
   border-radius: 4px;
   transition: all 0.2s ease;
+  outline: none;
 
   &:hover {
     cursor: grab;
@@ -220,8 +235,33 @@
   &:active {
     cursor: grabbing;
   }
+
+  &:focus {
+    outline: 2px solid var(--condo-color-primary);
+    outline-offset: 2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
 }
 
 .condo-table-switch-container {
   display: block;
+  cursor: pointer;
+  outline: none;
+  
+  &:focus {
+    outline: 2px solid var(--condo-color-primary);
+    outline-offset: 2px;
+  }
+  
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+  
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 }
