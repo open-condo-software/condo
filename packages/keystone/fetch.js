@@ -13,6 +13,7 @@ const logger = getLogger('fetch')
 const FETCH_COUNT_METRIC_NAME = 'fetch.count'
 const FETCH_TIME_METRIC_NAME = 'fetch.time'
 
+
 /**
  * Should be: { [hostname: str]:[x-target: str] }
  *
@@ -21,6 +22,15 @@ const FETCH_TIME_METRIC_NAME = 'fetch.time'
  * All requests will have X-Target=group0. Requests to v1.condo.ai will have X-Target=group1
  */
 const FETCH_X_TARGET_CONFIG = JSON.parse(conf.FETCH_X_TARGET_CONFIG || '{}')
+
+function wrapResponse (response) {
+    return Object.assign(response, {
+        buffer: async () => {
+            console.warn('response.buffer() is deprecated. Use response.arrayBuffer() instead.')
+            return Buffer.from(await response.arrayBuffer())
+        },
+    })
+}
 
 async function fetchWithLogger (url, options, extraAttrs) {
 
@@ -90,7 +100,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
     try {
         logger.info({ msg: 'request start', ...requestLogCommonData })
 
-        const response = await fetch(url, options)
+        const response = wrapResponse(await fetch(url, options))
 
         const headers = (response.headers && typeof response.headers == 'object') ? Object.fromEntries(response.headers) : {}
 
@@ -147,11 +157,9 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
     // At least one request on maxRetries = 0
     do {
         try {
-            const signal = AbortSignal.timeout(abortRequestTimeout)
-
             const response = await fetchWithLogger(
                 url,
-                { ...fetchOptions, signal },
+                { ...fetchOptions, signal: AbortSignal.timeout(abortRequestTimeout) },
                 { skipTracingHeaders, skipXTargetHeader }
             )
 
