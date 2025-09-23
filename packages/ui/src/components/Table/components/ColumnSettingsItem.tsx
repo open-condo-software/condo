@@ -8,19 +8,19 @@ import { Space, Switch, Typography } from '@open-condo/ui/src'
 
 import type { TableColumn } from '../types'
 
-interface ReorderableColumnItemProps<TData extends RowData = RowData> {
+interface ColumnSettingsItemProps<TData extends RowData = RowData> {
     column: TableColumn<TData>
     isVisible: boolean
     isLastVisibleColumn: boolean
     onToggleVisibility: (checked: boolean) => void
 }
 
-export const ReorderableColumnItem = <TData extends RowData = RowData> ({
+export const ColumnSettingsItem = <TData extends RowData = RowData> ({
     column,
     isVisible,
     isLastVisibleColumn,
     onToggleVisibility,
-}: ReorderableColumnItemProps<TData>) => {
+}: ColumnSettingsItemProps<TData>) => {
     
     const {
         attributes,
@@ -30,7 +30,7 @@ export const ReorderableColumnItem = <TData extends RowData = RowData> ({
         transition,
         isDragging,
     } = useSortable({ 
-        id: column.id as string,
+        id: column.id,
         disabled: false,
     })
 
@@ -39,19 +39,12 @@ export const ReorderableColumnItem = <TData extends RowData = RowData> ({
         transition,
     }
 
-    const handleDragStart = (e: React.DragEvent) => {
-        const img = new Image()
-        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-        e.dataTransfer.setDragImage(img, 0, 0)
-    }
-
     return (
         <div
             ref={setNodeRef}
-            className={`condo-table-sortable-column-item ${isDragging ? 'is-dragging' : ''}`}
+            className={`condo-table-column-settings-item ${isDragging ? 'is-dragging' : ''}`}
             style={style}
             {...attributes}
-            onDragStart={handleDragStart}
         >
             <Space size={12}>
                 <div
@@ -73,7 +66,7 @@ export const ReorderableColumnItem = <TData extends RowData = RowData> ({
                     <GripHorizontal size='small'/>
                 </div>
                 <Typography.Text type='primary' size='medium'>
-                    {column.header as string}
+                    {column.header}
                 </Typography.Text>
             </Space>
         </div>
