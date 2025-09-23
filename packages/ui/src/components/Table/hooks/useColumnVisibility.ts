@@ -1,7 +1,7 @@
 import { VisibilityState, RowData } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 
-import type { TableSettings, TableColumn } from '../types'
+import type { TableSettings } from '../types'
 
 interface UseColumnVisibilityProps<TData extends RowData = RowData> {
     settings: TableSettings<TData>
@@ -28,7 +28,7 @@ export const useColumnVisibility = <TData extends RowData = RowData>({ settings,
             const prevVisibility: Record<string, boolean> = {}
             
             for (const key in prevSettings) {
-                const columnSettings = prevSettings[key as TableColumn<TData>['id']]
+                const columnSettings = prevSettings[key]
                 if (columnSettings) {
                     prevVisibility[key] = columnSettings.visibility
                 }
@@ -38,9 +38,9 @@ export const useColumnVisibility = <TData extends RowData = RowData>({ settings,
     
             const newSettings = { ...prevSettings }
             for (const key in newVisibility) {
-                if (newSettings[key as TableColumn<TData>['id']]) {
-                    newSettings[key as TableColumn<TData>['id']] = {
-                        ...newSettings[key as TableColumn<TData>['id']],
+                if (newSettings[key]) {
+                    newSettings[key] = {
+                        ...newSettings[key],
                         visibility: newVisibility[key],
                     }
                 }
