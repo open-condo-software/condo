@@ -14,6 +14,27 @@ const FETCH_COUNT_METRIC_NAME = 'fetch.count'
 const FETCH_TIME_METRIC_NAME = 'fetch.time'
 
 
+function wrapResponse (rawResponse) {
+    return Object.assign(
+        Object.create(Object.getPrototypeOf(rawResponse)),
+        rawResponse,
+        {
+            buffer: async () => Buffer.from(await rawResponse.arrayBuffer()),
+
+            // New helper method — do NOT overwrite .headers
+            rawHeaders: () => {
+                const raw = {}
+                // Undici headers is iterable
+                for (const [name, value] of rawResponse.headers) {
+                    if (!raw[name]) raw[name] = []
+                    raw[name].push(value)
+                }
+                return raw
+            },
+        }
+    )
+}
+
 /**
  * Should be: { [hostname: str]:[x-target: str] }
  *
@@ -23,25 +44,6 @@ const FETCH_TIME_METRIC_NAME = 'fetch.time'
  */
 const FETCH_X_TARGET_CONFIG = JSON.parse(conf.FETCH_X_TARGET_CONFIG || '{}')
 
-function wrapResponse (response) {
-    return Object.assign(response, {
-        buffer: async () => {
-            console.warn('response.buffer() is deprecated. Use response.arrayBuffer() instead.')
-            return Buffer.from(await response.arrayBuffer())
-        },
-        headers: Object.assign(response.headers, {
-            raw () {
-                console.warn('response.headers.raw() is deprecated. Use response.headers instead.')
-                const raw = {}
-                response.headers.forEach((value, name) => {
-                    raw[name] ||= []
-                    raw[name].push(value)
-                })
-                return raw
-            },
-        }),
-    })
-}
 
 async function fetchWithLogger (url, options, extraAttrs) {
 
@@ -113,6 +115,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
 
         const response = wrapResponse(await fetch(url, options))
 
+
         const headers = (response.headers && typeof response.headers == 'object') ? Object.fromEntries(response.headers) : {}
 
         const endTime = Date.now()
@@ -145,6 +148,7 @@ const sleep = (timeout) => new Promise(resolve => setTimeout(resolve, timeout))
  * Default behavior is similar to fetchWithLogger only limits the time for request to be completed in 1 minute
  * @param {string} url - The URL to fetch data from.
  * @param {Object} [options] - Optional parameters for configuring the fetch request.
+ * @param {RequestInit} [options] - Standard fetch options (method, headers, body, etc.).
  * @param {number} [options.maxRetries=0] - Maximum number of retries before giving up.
  * @param {number} [options.abortRequestTimeout=60000] - Time in milliseconds to wait before aborting a request.
  * @param {number} [options.timeoutBetweenRequests=0] - Time in milliseconds to wait between retry attempts. Will be multiplied by the attempt number
