@@ -147,16 +147,13 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
     // At least one request on maxRetries = 0
     do {
         try {
-            const controller = new AbortController()
-            const timeout = setTimeout(() => controller.abort(), abortRequestTimeout)
+            const signal = AbortSignal.timeout(abortRequestTimeout)
 
             const response = await fetchWithLogger(
                 url,
-                { ...fetchOptions, signal: controller.signal },
+                { ...fetchOptions, signal },
                 { skipTracingHeaders, skipXTargetHeader }
             )
-
-            clearTimeout(timeout)
 
             if (response && response.ok) {
                 return response

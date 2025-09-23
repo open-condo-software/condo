@@ -50,9 +50,8 @@ async function expectToGetAuthenticatedUser (url, expectedUser, headers = {}) {
         body: JSON.stringify({ 'operationName': null, 'variables': {}, 'query': '{ authenticatedUser { id name } }' }),
         headers: { 'Content-Type': 'application/json', ...headers },
     })
-
     expect(data1.status).toBe(200)
-    expect(data1.headers.raw()['set-cookie']).toBeFalsy()
+    expect(data1.headers['set-cookie']).toBeFalsy()
     expect(await data1.json()).toMatchObject({
         'data': {
             'authenticatedUser': expectedUser,

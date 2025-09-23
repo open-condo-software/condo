@@ -72,7 +72,7 @@ describe('Fetch with retries', () => {
         const options = getOptions({ maxRetries: 0, abortRequestTimeout: 500, timeoutBetweenRequests: 0 })
 
         await catchErrorFrom(async () => await fetch(URL, options), (err) => {
-            expect(err.toString()).toBe('Error: AbortError: This operation was aborted')
+            expect(err.toString()).toBe('Error: TimeoutError: The operation was aborted due to timeout')
         })
 
         expect(handler).toHaveBeenCalledTimes(1)
