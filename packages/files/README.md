@@ -18,7 +18,7 @@ This middleware has endpoints for uploading binaries and sharing previously uplo
 Set `FILE_UPLOAD_CONFIG` env var to a JSON string:
 
 
-Clients is a object of appId as a key and value is an object with payload of secret to encrypt and decrypt files 
+Clients is a object of fileClientId as a key and value is an object with payload of secret to encrypt and decrypt files 
 ```json
 {
   "clients": {
@@ -43,8 +43,8 @@ Upload quota is 100 files per hour for user and ip by default.
   - `meta`: JSON string with:
     - `dv`: `1`
     - `sender`: `{ dv: 1, fingerprint: string }`
-    - `authedItemId`: UUID of the current user; must equal the authenticated user id
-    - `appId`: one of keys from `clients`
+    - `userId`: UUID of the current user; must equal the authenticated user id
+    - `fileClientId`: one of keys from `clients`
     - `modelNames`: non-empty array of Models to which this file should be connected
 
 Example (curl):
@@ -53,7 +53,7 @@ Example (curl):
 curl -X POST "$SERVER/api/files/upload" \
   -H "Cookie: $COOKIE" \
   -F "file=@/path/to/dino.png" \
-  -F 'meta={"dv":1,"sender":{"dv":1,"fingerprint":"test-runner"},"authedItemId":"<USER_ID>","appId":"app-frontend","modelNames":["SomeModel"]}'
+  -F 'meta={"dv":1,"sender":{"dv":1,"fingerprint":"test-runner"},"userId":"<USER_ID>","fileClientId":"app-frontend","modelNames":["SomeModel"]}'
 ```
 
 Successful response:
@@ -69,7 +69,7 @@ Successful response:
 ```
 
 - Multiple `file` parts are supported; response returns matching number of items.
-- `signature` is an HS256 JWT (expires in 5 minutes) signed with `clients[appId].secret`. Payload contains file meta, including `recordId`, original filename, mimetype, encoding, and `meta` with app/user info.
+- `signature` is an HS256 JWT (expires in 5 minutes) signed with `clients[fileClientId].secret`. Payload contains file meta, including `recordId`, original filename, mimetype, encoding, and `meta` with app/user info.
 
 ### FileRecord model and signature payload
 
@@ -87,10 +87,10 @@ The signed payload corresponds to the public meta of `FileRecord`:
   "meta": {
     "dv": 1,
     "sender": { "dv": 1, "fingerprint": "<string>" },
-    "authedItemId": "<uuid>",
-    "appId": "<string>",
+    "userId": "<uuid>",
+    "fileClientId": "<string>",
     "modelNames": ["<string>", "..."],
-    "sourceAppId": "<string|null>"
+    "sourcefileClientId": "<string|null>"
   },
   "iat": <number>,
   "exp": <number>
@@ -102,7 +102,7 @@ The signed payload corresponds to the public meta of `FileRecord`:
 After you receive a file `signature` from the upload/share endpoint, pass it into a mutation for a model that has a file field. The field expects an input of type `FileMeta` with a `signature` property.
 
 - Requirements:
-  - The current user must be the owner indicated by `authedItemId`.
+  - The current user must be the owner indicated by `userId`.
   - The model’s list key must be present in `meta.modelNames`.
   - Use the signature before it expires.
 
@@ -151,8 +151,8 @@ Creates a new file record that points to the original binary; useful to “reass
   - `dv`: `1`
   - `sender`: `{ dv: 1, fingerprint: string }`
   - `id`: UUID of existing file record (must belong to the authenticated user)
-  - `authedItemId`: UUID of the target user (new owner)
-  - `appId`: target app id (must exist in `clients`)
+  - `userId`: UUID of the target user (new owner)
+  - `fileClientId`: target app id (must exist in `clients`)
   - `modelNames` (optional): array of strings
 
 Example:
@@ -164,8 +164,8 @@ curl -X POST "$SERVER/api/files/share" \
     "dv":1,
     "sender":{"dv":1,"fingerprint":"test-runner"},
     "id":"<EXISTING_FILE_ID>",
-    "authedItemId":"<TARGET_USER_ID>",
-    "appId":"another-app",
+    "userId":"<TARGET_USER_ID>",
+    "fileClientId":"another-app",
     "modelNames":["AnotherModel"]
   }'
 ```
@@ -180,7 +180,7 @@ Successful response:
 }
 ```
 
-- The returned `signature` is signed with the target `appId` secret and includes `meta.sourceAppId` (original app) and `recordId` of the new file record.
+- The returned `signature` is signed with the target `fileClientId` secret and includes `meta.sourcefileClientId` (original app) and `recordId` of the new file record.
 
 ### Attaching a file to a model
 
@@ -240,11 +240,11 @@ GET /api/files/<file_id:string>?sign=<file_signature:string>
 - `UNAUTHENTICATED/AUTHORIZATION_REQUIRED`: user not logged in or deleted
 - `BAD_USER_INPUT/WRONG_REQUEST_METHOD_TYPE`: content type not `multipart/form-data` (upload)
 - `BAD_USER_INPUT/MISSING_META`: `meta` field not provided (upload)
-- `BAD_USER_INPUT/INVALID_META`: `meta` shape invalid or `authedItemId` mismatch
+- `BAD_USER_INPUT/INVALID_META`: `meta` shape invalid or `userId` mismatch
 - `BAD_USER_INPUT/MISSING_ATTACHED_FILES`: no `file` parts
 - `BAD_USER_INPUT/PAYLOAD_TOO_LARGE`: field/file limit exceeded
 - `BAD_USER_INPUT/MAX_FILE_UPLOAD_LIMIT_EXCEEDED`: too many files
-- `FORBIDDEN/INVALID_APP_ID`: unknown `appId`
+- `FORBIDDEN/INVALID_APP_ID`: unknown `fileClientId`
 - `TOO_MANY_REQUESTS/RATE_LIMIT_EXCEEDED`: quota exceeded
 - `BAD_USER_INPUT/INVALID_PAYLOAD`: invalid JSON body for share/attach
 - `BAD_USER_INPUT/FILE_NOT_FOUND`: file not found or not owned by the caller

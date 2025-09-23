@@ -14,6 +14,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         this._fileSecret = conf['FILE_SECRET']
         this._fileClientId = conf['FILE_CLIENT_ID']
         this._fileServiceUrl = conf['FILE_SERVICE_URL'] || '/api/files/attach'
+        this._strictMode = conf['FILE_UPLOAD_STRICT_MODE'] || false
     }
 
     getFileUploadType () {
@@ -138,6 +139,15 @@ class CustomFile extends FileWithUTF8Name.implementation {
                 listKey,
             }
             return null // field stays null for the first write
+        }
+
+        if (this._strictMode) {
+            throw new GQLError({
+                code: 'BAD_USER_INPUT',
+                type: 'LEGACY_FLOW_RESTRICTED',
+                variable: [this.path],
+                message: 'You are unable to use graphql upload flow',
+            })
         }
 
         // === Legacy flow (Upload stream): delegate to base ===
