@@ -13,10 +13,10 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { RowData, Table, ColumnOrderState } from '@tanstack/react-table'
+import { RowData, Table } from '@tanstack/react-table'
 import React, { useCallback } from 'react'
 
-import { ReorderableColumnItem } from './ReorderableColumnItem'
+import { ColumnSettingsItem } from './ColumnSettingsItem'
 
 import type { TableColumn } from '../types'
 
@@ -41,7 +41,7 @@ export const ColumnSettings = <TData extends RowData = RowData>({ columns, table
             const newIndex = columns.findIndex(column => column.id === over?.id)
             
             const newOrder = arrayMove(columns, oldIndex, newIndex).map(col => col.id)
-            table.setColumnOrder(newOrder as ColumnOrderState)
+            table.setColumnOrder(newOrder)
         }
     }, [columns, table])
 
@@ -55,19 +55,19 @@ export const ColumnSettings = <TData extends RowData = RowData>({ columns, table
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
         >
-            <SortableContext items={columns.map(c => c.id as string)} strategy={verticalListSortingStrategy}>
-                <div className='condo-table-header-dropdown condo-table-column-settings-dropdown'>
+            <SortableContext items={columns.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                <div className='condo-table-column-settings-dropdown'>
                     {columns.map((column) => {
-                        const isVisible = table.getColumn(column.id as string)?.getIsVisible()
+                        const isVisible = table.getColumn(column.id)?.getIsVisible()
                         const isLastVisibleColumn = isVisible && table.getVisibleLeafColumns().length === 1
 
                         return (
-                            <ReorderableColumnItem
-                                key={column.id as string}
-                                column={column as TableColumn<TData>}
+                            <ColumnSettingsItem
+                                key={column.id}
+                                column={column}
                                 isVisible={isVisible || false}
                                 isLastVisibleColumn={isLastVisibleColumn || false}
-                                onToggleVisibility={(checked: boolean) => handleToggleVisibility(column.id as string, checked)}
+                                onToggleVisibility={(checked: boolean) => handleToggleVisibility(column.id, checked)}
                             />
                         )
                     })}
