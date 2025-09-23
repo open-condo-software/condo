@@ -51,6 +51,19 @@ export const ColumnSettingsItem = <TData extends RowData = RowData> ({
                     className='condo-table-switch-container'
                     onMouseDown={(e) => e.stopPropagation()}
                     onTouchStart={(e) => e.stopPropagation()}
+                    role='button'
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            if (!isLastVisibleColumn) {
+                                onToggleVisibility(!isVisible)
+                            }
+                        }
+                    }}
+                    aria-label={`${isVisible ? 'Hide' : 'Show'} column ${column.header}`}
+                    aria-disabled={isLastVisibleColumn}
                 >
                     <Switch
                         checked={isVisible}
@@ -62,6 +75,15 @@ export const ColumnSettingsItem = <TData extends RowData = RowData> ({
                 <div 
                     className='condo-table-grip-container'
                     {...listeners}
+                    role='button'
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            e.stopPropagation()
+                        }
+                    }}
+                    aria-label={`Drag column ${column.header}`}
                 >
                     <GripHorizontal size='small'/>
                 </div>

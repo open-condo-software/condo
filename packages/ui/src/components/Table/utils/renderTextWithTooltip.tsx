@@ -1,31 +1,23 @@
-import isBoolean from 'lodash/isBoolean'
-import isNull from 'lodash/isNull'
-import isString from 'lodash/isString'
 import React from 'react'
 
 import { Typography, TooltipProps, Tooltip } from '@open-condo/ui/src'
 
 const ELLIPSIS_SETTINGS = { rows: 3, expandable: false }
 
+type EllipsisProp = boolean | NonNullable<React.ComponentProps<typeof Typography.Paragraph>['ellipsis']>
 type RenderTextWithTooltipProps = {
-    ellipsis?: boolean
+    ellipsis?: EllipsisProp
     postfix?: string
-    extraTitle?: string
+    extraTitle?: string | null
     extraTooltipProps?: TooltipProps
 }
 
-const getTitleMessage = ({ text, extraTitle, postfix }: { text?: unknown, extraTitle?: string, postfix?: string }) => {
-    if (extraTitle || isNull(extraTitle)) {
-        return extraTitle
+const getTitleMessage = ({ text, extraTitle, postfix }: { text?: unknown, extraTitle?: string | null, postfix?: string }) => {
+    if (extraTitle !== undefined) return extraTitle
+    if (text != null) {
+        const base = String(text)
+        return postfix ? `${base} ${postfix}` : base
     }
-
-    if (text) {
-        if (postfix && isString(postfix)) {
-            return `${text} ${postfix}`
-        }
-        return `${text}`
-    }
-
     return null
 }
 
@@ -37,7 +29,9 @@ export const renderTextWithTooltip = <TData = unknown>({
 }: RenderTextWithTooltipProps = {}) => {
     const RenderTextWithTooltipComponent = (text: TData) => {
         const title = getTitleMessage({ text, extraTitle, postfix })
-        const ellipsisConfig = isBoolean(ellipsis) ? ELLIPSIS_SETTINGS : ellipsis
+        const ellipsisConfig = typeof ellipsis === 'boolean'
+            ? (ellipsis ? ELLIPSIS_SETTINGS : false)
+            : ellipsis
 
         return (
             <Tooltip 

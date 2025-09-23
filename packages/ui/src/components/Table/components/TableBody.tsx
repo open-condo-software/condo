@@ -9,7 +9,16 @@ export const TableBody = <TData extends RowData = RowData> ({ table, onRowClick 
                 <div
                     key={row.id}
                     className='condo-table-tr'
-                    onClick={() => onRowClick && onRowClick(row.original)}
+                    onClick={() => onRowClick?.(row.original)}
+                    role={onRowClick ? 'button' : 'row'}
+                    tabIndex={onRowClick ? 0 : undefined}
+                    onKeyDown={(e) => {
+                        if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                            e.preventDefault()
+                            onRowClick(row.original)
+                        }
+                    }}
+                    aria-label={onRowClick ? `Select row ${row.id}` : undefined}
                 >
                     {row.getVisibleCells().map(cell => (
                         <div
