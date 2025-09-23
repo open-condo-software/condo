@@ -784,7 +784,6 @@ class MapEdit extends MapView {
             // This is the very first unit with no previous units - safe to start numbering from 1
             firstUnit.label = '1'
             this.updateUnitNumbers(firstUnit)
-            return
         }
 
         const previousUnit = last(this.sections[floor.section].floors[nextFloorIndex].units)
@@ -794,6 +793,7 @@ class MapEdit extends MapView {
 
         this._previewSectionFloor = null
         this.notifyUpdater()
+        this.editMode = null
     }
 
     public addPreviewCopySection (sectionId: string): void {
