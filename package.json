@@ -46,6 +46,7 @@
     "glob": "^11.0.1",
     "husky": "7.0.4",
     "knip": "^4",
+    "prompts": "^2.4.2",
     "mono-pub": "^2.0.0",
     "node-fetch": "^2.6.7",
     "prometheus-remote-write": "^0.5.0",
