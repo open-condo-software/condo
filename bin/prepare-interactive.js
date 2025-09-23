@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process')
+const { execFileSync } = require('child_process')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
@@ -54,7 +54,7 @@ function getAvailableApps () {
         return apps.map(appName => {
             const preparePath = path.join(__dirname, '..', 'apps', appName, 'bin', 'prepare.js')
             const hasPrepareBin = fs.existsSync(preparePath)
-            
+
             return {
                 name: appName,
                 available: hasPrepareBin,
@@ -74,11 +74,11 @@ function getAvailableApps () {
                 .filter(dirent => dirent.isDirectory())
                 .map(dirent => dirent.name)
                 .filter(name => !excludedDirs.includes(name) && !name.startsWith('.'))
-            
+
             return appNames.map(appName => {
                 const preparePath = path.join(appsDir, appName, 'bin', 'prepare.js')
                 const hasPrepareBin = fs.existsSync(preparePath)
-                
+
                 return {
                     name: appName,
                     available: hasPrepareBin,
@@ -193,13 +193,14 @@ async function main () {
     const args = []
     if (https) args.push('--https')
     args.push('-f', ...selectedApps)
-    const command = `node bin/prepare.js ${args.join(' ')}`
-    console.log(`Running: ${command}\n`)
+    const displayCmd = `node bin/prepare.js ${args.map(a => (/\s/.test(a) ? `"${a}"` : a)).join(' ')}`
+    console.log(`Running: ${displayCmd}\n`)
 
     try {
-        execSync(command, {
+        execFileSync('node', ['bin/prepare.js', ...args], {
             stdio: 'inherit',
             cwd: path.join(__dirname, '..'),
+            timeout: 15 * 60_000,
         })
         console.log('\n✅ Apps prepared successfully!')
     } catch (error) {
