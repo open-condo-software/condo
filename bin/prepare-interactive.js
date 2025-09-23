@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const { execFileSync } = require('child_process')
-const fs = require('fs')
-const os = require('os')
-const path = require('path')
+const { execFileSync } = require('node:child_process')
+const fs = require('node:fs')
+const os = require('node:os')
+const path = require('node:path')
 
 // Lightweight, modern prompts like create-next-app
 let prompts
@@ -69,13 +69,13 @@ function getAvailableApps () {
 
         // Fallback to directory scanning if .gitmodules is not available
         const appsDir = path.join(__dirname, '..', 'apps')
-        const excludedDirs = ['node_modules', '.git', '.DS_Store', 'dist', 'build', 'coverage']
+        const excludedDirs = new Set(['node_modules', '.git', '.DS_Store', 'dist', 'build', 'coverage'])
 
         try {
             const appNames = fs.readdirSync(appsDir, { withFileTypes: true })
                 .filter(dirent => dirent.isDirectory())
                 .map(dirent => dirent.name)
-                .filter(name => !excludedDirs.includes(name) && !name.startsWith('.'))
+                .filter(name => !excludedDirs.has(name) && !name.startsWith('.'))
 
             return appNames.map(appName => {
                 // NOTE: controlled environment
