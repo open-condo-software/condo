@@ -156,8 +156,8 @@
 
 .condo-table-tr {
   display: flex;
-  transition: background-color 0.2s ease;
   outline: none;
+  transition: background-color 0.2s ease;
 
   &:last-child {
     border-bottom: none;
@@ -225,8 +225,8 @@
   color: @condo-global-color-gray-5;
   background-color: transparent;
   border-radius: 4px;
-  transition: all 0.2s ease;
   outline: none;
+  transition: all 0.2s ease;
 
   &:hover {
     cursor: grab;
@@ -248,18 +248,18 @@
 
 .condo-table-switch-container {
   display: block;
-  cursor: pointer;
   outline: none;
-  
+  cursor: pointer;
+
   &:focus {
     outline: 2px solid var(--condo-color-primary);
     outline-offset: 2px;
   }
-  
+
   &:focus:not(:focus-visible) {
     outline: none;
   }
-  
+
   &[aria-disabled="true"] {
     cursor: not-allowed;
     opacity: 0.6;
