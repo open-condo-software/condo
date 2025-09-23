@@ -1,28 +1,5 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 
-.condo-table-title {
-  margin-bottom: 16px;
-}
-
-.condo-table-column-visibility-controls {
-  margin-bottom: 16px;
-  padding: 12px;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-}
-
-.condo-table-column-visibility-inner {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-}
-
-.condo-table-column-visibility-label {
-  font-weight: bold;
-  font-size: 14px;
-}
-
 .condo-table-container {
   position: relative;
   width: 100%;
@@ -153,40 +130,6 @@
   text-overflow: ellipsis;
 }
 
-.condo-table-sort-icon {
-  color: #707695;
-  font-size: 12px;
-}
-
-.condo-table-header-dropdown {
-  .ant-dropdown-menu {
-    padding: 4px;
-    border-radius: 8px;
-    box-shadow: 0 4px 14px #e6e8f1;
-  }
-
-  .ant-dropdown-menu-item {
-    padding: 8px 12px;
-    border-radius: 6px;
-  }
-
-  .ant-dropdown-menu-item-divider {
-    margin: 4px 0;
-    background-color: #e1e5ed;
-  }
-}
-
-.condo-table-column-settings-dropdown {
-  padding: 16px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 14px #e6e8f1;
-
-  .ant-menu-item:not(:last-child) {
-    margin-bottom: 16px;
-  }
-}
-
 .condo-table-td {
   flex: 1 1 0;
   box-sizing: border-box;
@@ -232,60 +175,31 @@
   }
 }
 
-.condo-table-resizer {
-  position: absolute;
-  top: 0;
-  z-index: 10;
-  width: 7px;
-  height: 100%;
-  color: @condo-global-color-gray-7;
-  cursor: col-resize;
-  user-select: none;
-  touch-action: none;
+.condo-table-column-settings-dropdown {
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px #e6e8f1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-  &::after {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: block;
-    width: 3px;
-    height: 100%;
-    background-color: #d0d3e5;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    transition: all 0.2s ease;
-    content: "";
-  }
-
-  &.is-resizing::after,
-  &:hover::after {
-    background-color: @condo-global-color-green-5;
-    opacity: 1;
-  }
-
-  // Правый ресайзер (по умолчанию)
-  &.condo-table-resizer-right {
-    right: -3.5px;
+.condo-table-column-settings-dropdown:has(.condo-table-column-settings-item.is-dragging) {
+  * {
+    cursor: grabbing !important;
   }
 }
 
-.condo-table-sortable-column-item {
+.condo-table-column-settings-item {
   position: relative;
   height: auto;
-  padding: 8px 12px;
   background-color: transparent;
   border-radius: 4px;
   transition: background-color 0.2s ease;
 
   &.is-dragging {
     opacity: 0.3 !important;
-  }
-}
-
-// Принудительно устанавливаем grabbing курсор для всего контейнера во время перетаскивания
-.condo-table-column-settings-dropdown:has(.condo-table-sortable-column-item.is-dragging) {
-  * {
-    cursor: grabbing !important;
   }
 }
 
@@ -309,6 +223,5 @@
 }
 
 .condo-table-switch-container {
-  // Контейнер для Switch, чтобы предотвратить перехват drag & drop событий
   display: block;
 }

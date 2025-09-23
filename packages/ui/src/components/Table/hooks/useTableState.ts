@@ -38,7 +38,7 @@ export const useTableState = <TData extends RowData = RowData>({ storageKey, col
         const result: TableSettings<TData> = {} as TableSettings<TData>
         finalColumns.forEach((column, index) => {
             if (column) {
-                result[column.id as string] = {
+                result[column.id] = {
                     order: index,
                     visibility: column.initialVisibility ?? true,
                 }
