@@ -3,6 +3,7 @@ query getOIDCClient($data: GetOIDCClientInput!) {
         id
         clientId
         redirectUri
+        isEnabled
     }
 }
 

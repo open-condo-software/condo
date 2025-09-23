@@ -1,10 +1,11 @@
 import { Divider, Form, notification } from 'antd'
+import Link from 'next/link'
 import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { RefreshCw } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
-import { Button, Input, Space, Typography, Modal } from '@open-condo/ui'
+import { Button, Input, Space, Typography, Modal, Alert } from '@open-condo/ui'
 
 import { CopyableInput } from '@/domains/common/components/CopyableInput'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
@@ -60,6 +61,12 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
     const ModalText = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.modal.text' })
     const SuccessGenerationTitle = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.notifications.successGeneration.title' })
     const SuccessGenerationMessage = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.notifications.successGeneration.description' })
+    const NotEnabledClientAlertTitle = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.title' })
+    const NotEnabledClientPublishLink = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.publishLink.text' })
+    const NotEnabledClientAlertDescription = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.description' }, {
+        publishLink: <Typography.Link component={Link} href={`/apps/b2c/${id}?section=publishing`}>{NotEnabledClientPublishLink}</Typography.Link>,
+    })
+
 
     const [modalOpen, setModalOpen] = useState(false)
     const openModal = useCallback(() => setModalOpen(true), [])
@@ -170,6 +177,16 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
                         </Space>
                     </Typography.Link>
                 </div>
+                {!client.isEnabled && (
+                    <div className={styles.notEnabledClientAlertContainer}>
+                        <Alert
+                            type='error'
+                            showIcon
+                            message={NotEnabledClientAlertTitle}
+                            description={NotEnabledClientAlertDescription}
+                        />
+                    </div>
+                )}
                 <Divider orientation='left' orientationMargin={0} style={SETTINGS_DIVIDER_STYLES}>
                     <Typography.Title level={4}>
                         {SettingsLabel}
