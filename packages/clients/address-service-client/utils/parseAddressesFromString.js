@@ -8,6 +8,7 @@ const KEYWORDS = {
 
 const HOUSE_IDENTIFIERS = 'д|уч|дом|участок|двлд'
 const SPLIT_SYMBOL = '%'
+const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 class AddressFromStringParser {
 
@@ -44,6 +45,10 @@ class AddressFromStringParser {
      * @returns {{address: string, unitType: string, unitName: string}}
      */
     parse (rawString = '') {
+        if (UUID_REGEXP.test(rawString)) {
+            rawString = `${rawString},`
+        }
+        
         const { housePart: address, unitPart } = this.splitToUnitAndAddress(rawString)
         const { unitName, unitType } = this.parseUnit(unitPart)
         return {

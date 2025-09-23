@@ -80,6 +80,33 @@ describe('Provider detector', () => {
         })
     })
 
+    describe('detects correct search provider from POST body', () => {
+        const cases = [
+            // [<provider name in req.body>, <provider's class>]
+            [DADATA_PROVIDER, DadataSearchProvider],
+            [GOOGLE_PROVIDER, GoogleSearchProvider],
+            [PULLENTI_PROVIDER, PullentiSearchProvider],
+        ]
+
+        test.each(cases)('when req.body.provider is %p', (providerNameInBody, expected) => {
+            // Ensure all required configs for providers are present regardless of env PROVIDER
+            process.env = {
+                ...process.env,
+                ...providersEligibleConfigs[DADATA_PROVIDER],
+                ...providersEligibleConfigs[GOOGLE_PROVIDER],
+                ...providersEligibleConfigs[PULLENTI_PROVIDER],
+            }
+
+            const req = {
+                id: 'some-uuid',
+                query: {},
+                body: { provider: providerNameInBody },
+            }
+
+            expect(getSearchProvider({ req })).toBeInstanceOf(expected)
+        })
+    })
+
     describe('detects correct suggest provider', () => {
         const cases = [
             // [<provider name in .env>, <provider name in query>, <provider's class>]
