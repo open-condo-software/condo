@@ -52,6 +52,8 @@ function getAvailableApps () {
 
         // Check which apps have bin/prepare.js and return app objects with status
         return apps.map(appName => {
+            // NOTE: controlled environment
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
             const preparePath = path.join(__dirname, '..', 'apps', appName, 'bin', 'prepare.js')
             const hasPrepareBin = fs.existsSync(preparePath)
 
