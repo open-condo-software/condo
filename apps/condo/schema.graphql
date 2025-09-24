@@ -100048,6 +100048,9 @@ type Mutation {
   			"required": true
   		},
   		"data": {
+  			"userId": {
+  				"required": true
+  			},
   			"organizationId": {
   				"required": true
   			},
@@ -100553,6 +100556,9 @@ type Mutation {
   			"required": true
   		},
   		"data": {
+  			"userId": {
+  				"required": true
+  			},
   			"organizationId": {
   				"required": true
   			},
