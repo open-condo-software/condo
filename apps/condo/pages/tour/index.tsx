@@ -15,6 +15,7 @@ import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { ArrowLeft } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Typography } from '@open-condo/ui'
@@ -109,6 +110,7 @@ const TourPageContent = () => {
 
     const router = useRouter()
     const { locale } = useIntl()
+    const { user } = useAuth()
     const { organization, isLoading } = useOrganization()
     const { persistor } = useCachePersistor()
     const organizationId = organization?.id || null
@@ -127,7 +129,7 @@ const TourPageContent = () => {
             },
             sortBy: [SortTourStepsBy.OrderAsc],
         },
-        skip: !organizationId || !persistor || isLoading || syncLoading,
+        skip: !user || !organizationId || !persistor || isLoading || syncLoading,
     })
     const tourSteps = useMemo(() => tourStepsData?.tourSteps.filter(Boolean) || [], [tourStepsData?.tourSteps])
 

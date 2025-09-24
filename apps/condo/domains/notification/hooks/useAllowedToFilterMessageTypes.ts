@@ -2,6 +2,7 @@ import { useGetB2BAppsWithMessageSettingsQuery, useGetEmployeeB2BAppRolesForSpec
 import { useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import {
@@ -19,7 +20,8 @@ type UseAllowedToFilterMessageTypesType = () => UseAllowedToFilterMessageTypesRe
 
 export const useAllowedToFilterMessageTypes: UseAllowedToFilterMessageTypesType = () => {
     const { persistor } = useCachePersistor()
-    const { role } = useOrganization()
+    const { user } = useAuth()
+    const { role, organization } = useOrganization()
 
     const roleId = useMemo(() => role?.id, [role?.id])
     // Spread B2B_APP_MESSAGE_TYPES to make array mutable (need for getB2BAppsWithMessageSettings query variable)
@@ -32,7 +34,7 @@ export const useAllowedToFilterMessageTypes: UseAllowedToFilterMessageTypesType 
         variables: {
             messageTypes: messageTypesToFilter,
         },
-        skip: !persistor,
+        skip: !persistor || !user || !organization,
     })
     const b2bAppToMessageType = useMemo(
         () => appMessageSettingsData?.settings?.filter(Boolean)?.reduce((result, setting) => {

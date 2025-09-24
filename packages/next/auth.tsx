@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import { NextPage } from 'next'
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { isSSR } from '@open-condo/miniapp-utils'
 
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
@@ -296,6 +297,31 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
         },
     })
 
+    const authChannel = useMemo(() => {
+        if (typeof window === 'undefined') return null
+        return new BroadcastChannel('auth')
+    }, [])
+
+    // Handle sign out from other tabs
+    useEffect(() => {
+        if (!authChannel) return
+
+        const handleAuthMessage = (event: MessageEvent<{ type: string }>) => {
+            if (event.data.type === 'SIGN_OUT') {
+                apolloClient.cache.writeQuery({
+                    query: USER_QUERY,
+                    data: { authenticatedUser: null },
+                })
+            }
+        }
+
+        authChannel.addEventListener('message', handleAuthMessage)
+        return () => {
+            authChannel.removeEventListener('message', handleAuthMessage)
+            authChannel.close()
+        }
+    }, [authChannel, apolloClient])
+
     const [signOutMutation, { loading: signOutLoading }] = useMutation(SIGNOUT_MUTATION, {
         onCompleted: async () => {
             await refetch()
@@ -307,6 +333,9 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
                     authenticatedUser: null,
                 },
             })
+            if (authChannel) {
+                authChannel.postMessage({ type: 'SIGN_OUT' })
+            }
             setIsAuthLoading(false)
         },
         onError: (error) => {
