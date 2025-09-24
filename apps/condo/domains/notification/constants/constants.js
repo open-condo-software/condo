@@ -789,6 +789,7 @@ const MESSAGE_META = {
     [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
         dv: { required: true },
         data: {
+            userId: { required: true },
             organizationId: { required: true },
             organizationName: { required: true },
             b2bAppId: { required: true },
