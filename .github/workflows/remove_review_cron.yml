@@ -18,6 +18,7 @@ jobs:
       TEST_CLUSTER_DB_CREDENTIALS: ${{ secrets.TEST_CLUSTER_DB_CREDENTIALS }}
       RETENTION_DAYS: "21"
       NS_PREFIX: "review-"
+      IGNORE_NAMESPACES: ${{ vars.IGNORE_NAMESPACES }}
 
     steps:
       - name: Compute cutoff timestamp
@@ -32,17 +33,52 @@ jobs:
         id: list_old
         shell: bash
         run: |
+          set -euo pipefail
+
+          # Build ignore list from Actions Variable (supports commas or newlines)
+          printf '%s\n' "${IGNORE_NAMESPACES:-}" \
+            | tr ',' '\n' \
+            | sed -E 's/^[[:space:]]+|[[:space:]]+$//g' \
+            | sed '/^[[:space:]]*$/d' \
+            | sort -u > ignore_ns.txt || true
+
+          echo "Exact ignore entries:"
+          if [[ -s ignore_ns.txt ]]; then cat ignore_ns.txt; else echo "(none)"; fi
+          echo
+
+          # Gather candidates older than cutoff
           kubectl --kubeconfig <(echo "$KUBE_CONFIG_BASE64_DATA" | base64 --decode) \
             get ns -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.metadata.creationTimestamp}{"\n"}{end}' \
           | awk -v prefix="$NS_PREFIX" -v cutoff="$CUTOFF_TS" '
               $1 ~ ("^" prefix) && $2 < cutoff { print $1 }
-            ' | sort -u > namespaces_to_delete.txt || true
+            ' \
+          | sort -u > candidates.txt || true
+
+          echo "Candidates before ignores:"
+          if [[ -s candidates.txt ]]; then cat candidates.txt; else echo "(none)"; fi
+          echo
+
+          # Drop exact matches from candidates
+          : > ignored_exact.txt
+          if [[ -s ignore_ns.txt && -s candidates.txt ]]; then
+            comm -12 <(sort -u candidates.txt) <(sort -u ignore_ns.txt) > ignored_exact.txt || true
+            grep -F -x -v -f ignore_ns.txt candidates.txt > tmp.txt || true
+            mv tmp.txt candidates.txt || true
+          fi
+
+          echo "Ignored (exact matches):"
+          if [[ -s ignored_exact.txt ]]; then cat ignored_exact.txt; else echo "(none)"; fi
+          echo
+
+          # Final list to delete
+          mv candidates.txt namespaces_to_delete.txt || true
 
           echo "Namespaces to delete:"
           if [[ -s namespaces_to_delete.txt ]]; then cat namespaces_to_delete.txt; else echo "(none)"; fi
 
           NS_LIST=$(paste -sd, namespaces_to_delete.txt 2>/dev/null || true)
           echo "ns_list=$NS_LIST" >> "$GITHUB_OUTPUT"
+
 
       - name: Delete old namespaces
         if: steps.list_old.outputs.ns_list != ''
