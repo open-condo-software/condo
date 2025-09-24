@@ -1,5 +1,7 @@
-const busboy = require('busboy')
-const { WriteStream } = require('fs-capacitor')
+const fs = require('fs')
+const path = require('path')
+
+const { formidable } = require('formidable')
 const jwt = require('jsonwebtoken')
 const { z } = require('zod')
 
@@ -19,7 +21,7 @@ const { ERRORS } = require('./errors')
 
 const DEFAULT_USER_HOUR_QUOTA = 100
 const DEFAULT_IP_HOUR_QUOTA = 100
-const fileMetaSymbol = Symbol('fileMeta')
+const fileMetaSymbol = Symbol.for('fileMeta')
 
 const AppClientSchema = z.object({
     name: z.string().min(3).optional(),
@@ -236,133 +238,57 @@ function rateLimitHandler ({ quota, guard }) {
     }
 }
 
-function parserHandler ({ processRequestOptions }) {
-    // That's originally took from graphql-upload/processRequest.js
-    return async function (req, res, next) {
+function parserHandler ({ processRequestOptions } = {}) {
+    return function (req, res, next) {
         if (!req.is('multipart/form-data')) {
-            const error = new GQLError(ERRORS.WRONG_REQUEST_METHOD_TYPE, { req })
-            return next(error)
+            return next(new GQLError(ERRORS.WRONG_REQUEST_METHOD_TYPE, { req }))
         }
 
-        let exitError
-        let released = false
-        let meta
-
-        const requestEnd = new Promise(resolve => req.on('end', resolve))
-        const { send } = res
-        res.send = (...args) => {
-            requestEnd.then(() => {
-                res.send = send
-                res.send(...args)
-            })
-        }
-
-        const parser = busboy({
-            headers: req.headers,
-            limits: {
-                fieldSize: processRequestOptions.maxFieldSize,
-                fields: 2,
-                fileSize: processRequestOptions.maxFileSize,
-                files: processRequestOptions.maxFiles,
-            },
+        const form = formidable({
+            // limits
+            maxFiles: processRequestOptions?.maxFiles ?? 1,
+            maxFileSize: processRequestOptions?.maxFileSize ?? 20 * 1024 ** 2,
+            maxFields: 1, // we only expect "meta"
+            maxFieldsSize: processRequestOptions?.maxFieldSize ?? 1_000_000,
+            multiples: true,
+            allowEmptyFiles: false,
+            keepExtensions: true,
+            filter: ({ originalFilename }) => Boolean(originalFilename),
         })
 
-        const exit = (withError) => {
-            if (exitError) return
-            exitError = withError
-            parser.destroy()
-            req.unpipe(parser)
-            setImmediate(() => req.resume())
-            withError()
-        }
-
-        parser.on('error', () => {
-            exit(() => next(new GQLError(ERRORS.UNABLE_TO_PARSE_FILE_CONTENT, { req })))
-        })
-
-        parser.on('file', (fieldName, stream, { filename, encoding, mimeType: mimetype }) => {
-            let fileError
-            const capacitor = new WriteStream()
-
-            capacitor.on('error', () => {
-                stream.unpipe()
-                stream.resume()
-            })
-
-            stream.on('limit', () => {
-                stream.unpipe()
-                capacitor.destroy(fileError)
-                return next(new GQLError(ERRORS.PAYLOAD_TOO_LARGE, { req }))
-            })
-
-            stream.on('error', (error) => {
-                fileError = error
-                stream.unpipe()
-                capacitor.destroy(fileError)
-            })
-
-            const file = {
-                filename,
-                mimetype,
-                encoding,
-                stream,
-                createReadStream (options) {
-                    const error = fileError || (released ? exitError : null)
-                    if (error) throw error
-                    return capacitor.createReadStream(options)
-                },
-                capacitor,
+        form.parse(req, (err, fields, files) => {
+            if (err) {
+                if (err.code === 'ETOOBIG') return next(new GQLError(ERRORS.PAYLOAD_TOO_LARGE, { req }))
+                return next(new GQLError(ERRORS.UNABLE_TO_PARSE_FILE_CONTENT, { req }, [err]))
             }
 
-            Object.defineProperty(file, 'capacitor', {
-                enumerable: false,
-                configurable: false,
-                writable: false,
+            // meta can be string or string[]
+            let rawMeta = fields?.meta
+            if (Array.isArray(rawMeta)) rawMeta = rawMeta[0]
+            if (!rawMeta) return next(new GQLError(ERRORS.MISSING_META, { req }))
+
+            const meta = parseAndValidateMeta(rawMeta, req, next, (invoke) => invoke())
+            if (!meta) return // validator already called next() with an error
+
+            // Flatten formidable’s files object: { fieldName: File | File[] }
+            const fileList = Object.values(files || {}).flat().filter(Boolean)
+            if (!fileList.length) return next(new GQLError(ERRORS.MISSING_ATTACHED_FILES, { req }))
+
+            // Wrap into your expected shape
+            req.files = fileList.map((f) => {
+                const safeName = f.originalFilename ? path.basename(f.originalFilename) : path.basename(f.filepath)
+                return {
+                    filename: safeName,
+                    mimetype: f.mimetype || 'application/octet-stream',
+                    encoding: 'binary',
+                    createReadStream: () => fs.createReadStream(f.filepath),
+                    _tmpPath: f.filepath,
+                }
             })
-
-            stream.pipe(capacitor)
-            if (!Array.isArray(req.files)) req.files = [file]
-            else req.files.push(file)
-        })
-
-        parser.once('filesLimit', () =>
-            exit(() => next(new GQLError(ERRORS.MAX_FILE_UPLOAD_LIMIT_EXCEEDED, { req })))
-        )
-
-        parser.on('field', (fieldName, value, { valueTruncated }) => {
-            if (valueTruncated) {
-                return exit(() => next(new GQLError(ERRORS.PAYLOAD_TOO_LARGE, { req })))
-            }
-
-            if (fieldName === 'meta') {
-                meta = parseAndValidateMeta(value, req, next, exit)
-            }
 
             req[fileMetaSymbol] = meta
-
-        })
-
-        parser.once('finish', () => {
-            req.unpipe(parser)
-            req.resume()
-
-            if (!Array.isArray(req.files)) {
-                return exit(() => next(new GQLError(ERRORS.MISSING_ATTACHED_FILES, { req })))
-            }
-            if (!meta) {
-                return exit(() => next(new GQLError(ERRORS.MISSING_META, { req })))
-            }
             next()
         })
-
-        req.once('close', () => {
-            if (!req.readableEnded) {
-                exit(() => next(new GQLError(ERRORS.REQUEST_DISCONNECTED, { req })))
-            }
-        })
-
-        res.once('close', () => { released = true })
-        req.pipe(parser)
     }
 }
 
