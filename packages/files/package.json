@@ -19,9 +19,8 @@
   "dependencies": {
     "@open-condo/config": "workspace:^",
     "@open-condo/miniapp-utils": "workspace:^",
-    "busboy": "^1.6.0",
     "express": "^4.21.2",
-    "fs-capacitor": "^6.2.0",
+    "formidable": "^3.5.4",
     "jsonwebtoken": "^9.0.0",
     "zod": "^4.0.8"
   },
