@@ -10,6 +10,7 @@ const {
 const { MetaSchema, SharePayloadSchema } = __test__
 
 const USER_UUID = faker.datatype.uuid()
+const ORGANIZATION_UUID = faker.datatype.uuid()
 
 function makeReqRes (overrides = {}) {
     const req = {
@@ -36,7 +37,8 @@ function onErrorRunner () {
 const baseMeta = (overrides = {}) => ({
     dv: 1,
     sender: { dv: 1, fingerprint: 'device-ABC_123' },
-    userId: USER_UUID,
+    user: { id: USER_UUID },
+    organization: { id: ORGANIZATION_UUID },
     fileClientId: 'condo',
     modelNames: ['Example'],
     ...overrides,
@@ -46,7 +48,7 @@ const baseShare = (overrides = {}) => ({
     dv: 1,
     sender: { dv: 1, fingerprint: 'device-ABC_123' },
     id: faker.datatype.uuid(),
-    userId: USER_UUID,
+    user: { id: USER_UUID },
     fileClientId: 'condo',
     modelNames: ['Example'],
     ...overrides,
@@ -137,7 +139,7 @@ const FileMiddlewareUtilsTests = () => {
             })
 
             test('userId must be uuid', () => {
-                const bad = MetaSchema.safeParse(baseMeta({ userId: 'nope' }))
+                const bad = MetaSchema.safeParse(baseMeta({ user: { id: 'nope' } }))
                 expect(bad.success).toBe(false)
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
             })
@@ -185,8 +187,8 @@ const FileMiddlewareUtilsTests = () => {
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
             })
 
-            test('userId must be uuid', () => {
-                const bad = SharePayloadSchema.safeParse(baseShare({ userId: 'nope' }))
+            test('user id must be uuid', () => {
+                const bad = SharePayloadSchema.safeParse(baseShare({ user: { id: 'nope' } }))
                 expect(bad.success).toBe(false)
                 expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
             })
@@ -264,7 +266,7 @@ const FileMiddlewareUtilsTests = () => {
                 }))
             })
 
-            test('rejects mismatch userId with 403', () => {
+            test('rejects mismatch user id with 403', () => {
                 const req = { user: { id: faker.datatype.uuid(), deletedAt: null } }
                 const { next } = makeReqRes({ req })
                 const { onError, calls } = onErrorRunner()
