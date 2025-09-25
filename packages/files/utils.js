@@ -244,16 +244,13 @@ function parserHandler ({ processRequestOptions } = {}) {
             return next(new GQLError(ERRORS.WRONG_REQUEST_METHOD_TYPE, { req }))
         }
 
-        const form = formidable({
+        const form = formidable({ // NOSONAR - folder used for temp step of the upload and not used for file distribution
             // limits
             maxFiles: processRequestOptions?.maxFiles ?? 1,
             maxFileSize: processRequestOptions?.maxFileSize ?? 20 * 1024 ** 2,
             maxFields: 1, // we only expect "meta"
-            maxFieldsSize: processRequestOptions?.maxFieldSize ?? 1_000_000,
+            maxFieldsSize: processRequestOptions?.maxFieldSize ?? 20 * 1024 * 1024, // default is 20 mb for meta field
             multiples: true,
-            allowEmptyFiles: false,
-            keepExtensions: true,
-            filter: ({ originalFilename }) => Boolean(originalFilename),
         })
 
         form.parse(req, (err, fields, files) => {
@@ -274,7 +271,6 @@ function parserHandler ({ processRequestOptions } = {}) {
             const fileList = Object.values(files || {}).flat().filter(Boolean)
             if (!fileList.length) return next(new GQLError(ERRORS.MISSING_ATTACHED_FILES, { req }))
 
-            // Wrap into your expected shape
             req.files = fileList.map((f) => {
                 const safeName = f.originalFilename ? path.basename(f.originalFilename) : path.basename(f.filepath)
                 return {
@@ -282,7 +278,8 @@ function parserHandler ({ processRequestOptions } = {}) {
                     mimetype: f.mimetype || 'application/octet-stream',
                     encoding: 'binary',
                     createReadStream: () => fs.createReadStream(f.filepath),
-                    _tmpPath: f.filepath,
+                    filepath: f.filepath,
+                    originalFilename: f.originalFilename,
                 }
             })
 
@@ -317,6 +314,13 @@ function fileStorageHandler ({ keystone, appClients }) {
                 })
             )
         )
+
+        // clean tmp files
+        files.map(file => {
+            if (file.filepath) {
+                fs.promises.unlink(file.filepath).catch(() => {})
+            }
+        })
 
         const organizationId = meta?.organization?.id
 
