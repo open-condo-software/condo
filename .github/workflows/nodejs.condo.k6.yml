@@ -42,7 +42,7 @@ jobs:
 
       - name: install packages
         run: |
-          npm i -g turbo webpack
+          npm i -g turbo
           yarn install --immutable
           sudo gpg -k
           sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
@@ -53,7 +53,14 @@ jobs:
 
       - name: run k6 tests
         run: |
-          yarn --cwd ./apps/condo/k6 webpack
+          yarn dlx \
+          --package webpack-cli \
+          --package webpack    \
+          --package @babel/core \
+          --package babel-loader \
+          --package @babel/preset-typescript \
+          --package typescript \
+          webpack --config ./apps/condo/k6/webpack.config.js
           
           export K6_BROWSER_HEADLESS=true
           export K6_PROMETHEUS_RW_SERVER_URL=${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }} 
