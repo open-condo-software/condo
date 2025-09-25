@@ -142,7 +142,6 @@ export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchP
             condoLocale: locale,
             condoContextEntity: 'Organization',
             condoContextEntityId: organizationId,
-
         }
     }, [userId, organizationId, locale])
 }
@@ -240,6 +239,26 @@ export const useUpdateProgressBarHandler: () => RequestHandler<'CondoWebAppUpdat
         return { updated: true }
         // TODO(DOMA-5171): Adding miniAppTaskUIInterface in deps causing rerender hell!
     }, [userId])
+}
+
+export const useGetFragmentHandler: () => RequestHandler<'CondoWebAppGetFragment'> = () => {
+    return useCallback(() => {
+        if (typeof window === 'undefined') {
+            return { fragment: '' }
+        }
+
+        let fragment = window.location.hash.startsWith('#') 
+            ? window.location.hash.substring(1) 
+            : window.location.hash
+
+        try {
+            fragment = decodeURIComponent(fragment)
+        } catch (error) {
+            console.warn('Failed to decode URI fragment:', fragment, error)
+        }
+
+        return { fragment }
+    }, [])
 }
 
 export const useRedirectHandler: () => RequestHandler<'CondoWebAppRedirect'> = () => {

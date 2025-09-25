@@ -44,14 +44,14 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
                 {({ name: userName, postfix }) => {
                     if (nameLink) {
                         return (
-                            <Link href={nameLink}>
+                            <Typography.Link href={nameLink} component={Link}>
                                 <a>
                                     {userName}
                                     {postfix && (
                                         <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
                                     )}
                                 </a>
-                            </Link>
+                            </Typography.Link>
                         )
                     }
                     return (
