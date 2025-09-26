@@ -50,6 +50,7 @@ git:
 shell:
   install:
     - "cd /app"
+    - npm install -g turbo
     - "yarn --version && node -v"
     - "yarn install --immutable"
 docker:
