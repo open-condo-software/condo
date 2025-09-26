@@ -2,7 +2,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const FILE_RECORD_USER_META = '{ dv sender { dv fingerprint } user { id } fileClientId modelNames sourceFileClientId }'
-const FILE_RECORD_META_FIELDS = `{ id fileAdapter recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
+const FILE_RECORD_META_FIELDS = `{ id fileAdapter recordId path filename originalFilename mimetype size encoding meta ${FILE_RECORD_USER_META} }`
 const FILE_RECORD_PUBLIC_META_FIELDS = `{ id recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
 const FILE_RECORD_ATTACHMENTS = '{ attachments { id modelName fileClientId user } }'
 
@@ -10,6 +10,16 @@ const FILE_RECORD_ATTACHMENTS = '{ attachments { id modelName fileClientId user 
 const FileRecord = new GQLListSchema('FileRecord', {
     schemaDoc: 'Stores uploaded file meta data and owner',
     fields: {
+        fileSize: {
+            type: 'Text',
+            isRequired: true,
+            schemaDoc: 'The size of the uploaded file. Measured in bytes',
+        },
+        fileMimeType: {
+            type: 'Text',
+            isRequired: true,
+            schemaDoc: 'Mime type of the uploaded file',
+        },
         fileMeta: {
             type: 'Json',
             isRequired: true,

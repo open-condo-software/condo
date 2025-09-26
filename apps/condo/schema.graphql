@@ -85215,6 +85215,8 @@ type FileRecordHistoryRecord {
    4. As an alias to the 'id' field on the FileRecordHistoryRecord List.
   """
   _label_: String
+  fileSize: String
+  fileMimeType: String
   fileMeta: JSON
   user: String
   organization: String
@@ -85240,6 +85242,42 @@ type FileRecordHistoryRecord {
 input FileRecordHistoryRecordWhereInput {
   AND: [FileRecordHistoryRecordWhereInput]
   OR: [FileRecordHistoryRecordWhereInput]
+  fileSize: String
+  fileSize_not: String
+  fileSize_contains: String
+  fileSize_not_contains: String
+  fileSize_starts_with: String
+  fileSize_not_starts_with: String
+  fileSize_ends_with: String
+  fileSize_not_ends_with: String
+  fileSize_i: String
+  fileSize_not_i: String
+  fileSize_contains_i: String
+  fileSize_not_contains_i: String
+  fileSize_starts_with_i: String
+  fileSize_not_starts_with_i: String
+  fileSize_ends_with_i: String
+  fileSize_not_ends_with_i: String
+  fileSize_in: [String]
+  fileSize_not_in: [String]
+  fileMimeType: String
+  fileMimeType_not: String
+  fileMimeType_contains: String
+  fileMimeType_not_contains: String
+  fileMimeType_starts_with: String
+  fileMimeType_not_starts_with: String
+  fileMimeType_ends_with: String
+  fileMimeType_not_ends_with: String
+  fileMimeType_i: String
+  fileMimeType_not_i: String
+  fileMimeType_contains_i: String
+  fileMimeType_not_contains_i: String
+  fileMimeType_starts_with_i: String
+  fileMimeType_not_starts_with_i: String
+  fileMimeType_ends_with_i: String
+  fileMimeType_not_ends_with_i: String
+  fileMimeType_in: [String]
+  fileMimeType_not_in: [String]
   fileMeta: JSON
   fileMeta_not: JSON
   fileMeta_in: [JSON]
@@ -85379,6 +85417,10 @@ input FileRecordHistoryRecordWhereUniqueInput {
 }
 
 enum SortFileRecordHistoryRecordsBy {
+  fileSize_ASC
+  fileSize_DESC
+  fileMimeType_ASC
+  fileMimeType_DESC
   sourceApp_ASC
   sourceApp_DESC
   fileAdapter_ASC
@@ -85402,6 +85444,8 @@ enum SortFileRecordHistoryRecordsBy {
 }
 
 input FileRecordHistoryRecordUpdateInput {
+  fileSize: String
+  fileMimeType: String
   fileMeta: JSON
   user: String
   organization: String
@@ -85429,6 +85473,8 @@ input FileRecordHistoryRecordsUpdateInput {
 }
 
 input FileRecordHistoryRecordCreateInput {
+  fileSize: String
+  fileMimeType: String
   fileMeta: JSON
   user: String
   organization: String
@@ -85513,6 +85559,12 @@ type FileRecord {
   """
   _label_: String
 
+  """ The size of the uploaded file. Measured in bytes """
+  fileSize: String
+
+  """ Mime type of the uploaded file """
+  fileMimeType: String
+
   """ Information about file including its encoding, mime type, filename and user related metadata 
   """
   fileMeta: FileRecordMeta
@@ -85561,6 +85613,42 @@ type FileRecord {
 input FileRecordWhereInput {
   AND: [FileRecordWhereInput]
   OR: [FileRecordWhereInput]
+  fileSize: String
+  fileSize_not: String
+  fileSize_contains: String
+  fileSize_not_contains: String
+  fileSize_starts_with: String
+  fileSize_not_starts_with: String
+  fileSize_ends_with: String
+  fileSize_not_ends_with: String
+  fileSize_i: String
+  fileSize_not_i: String
+  fileSize_contains_i: String
+  fileSize_not_contains_i: String
+  fileSize_starts_with_i: String
+  fileSize_not_starts_with_i: String
+  fileSize_ends_with_i: String
+  fileSize_not_ends_with_i: String
+  fileSize_in: [String]
+  fileSize_not_in: [String]
+  fileMimeType: String
+  fileMimeType_not: String
+  fileMimeType_contains: String
+  fileMimeType_not_contains: String
+  fileMimeType_starts_with: String
+  fileMimeType_not_starts_with: String
+  fileMimeType_ends_with: String
+  fileMimeType_not_ends_with: String
+  fileMimeType_i: String
+  fileMimeType_not_i: String
+  fileMimeType_contains_i: String
+  fileMimeType_not_contains_i: String
+  fileMimeType_starts_with_i: String
+  fileMimeType_not_starts_with_i: String
+  fileMimeType_ends_with_i: String
+  fileMimeType_not_ends_with_i: String
+  fileMimeType_in: [String]
+  fileMimeType_not_in: [String]
   fileMeta: JSON
   fileMeta_not: JSON
   fileMeta_in: [JSON]
@@ -85674,6 +85762,10 @@ input FileRecordWhereUniqueInput {
 }
 
 enum SortFileRecordsBy {
+  fileSize_ASC
+  fileSize_DESC
+  fileMimeType_ASC
+  fileMimeType_DESC
   user_ASC
   user_DESC
   organization_ASC
@@ -85703,6 +85795,8 @@ enum SortFileRecordsBy {
 }
 
 input FileRecordUpdateInput {
+  fileSize: String
+  fileMimeType: String
   fileMeta: JSON
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -85727,6 +85821,8 @@ input FileRecordsUpdateInput {
 }
 
 input FileRecordCreateInput {
+  fileSize: String
+  fileMimeType: String
   fileMeta: JSON
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput

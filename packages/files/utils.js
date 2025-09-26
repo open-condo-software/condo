@@ -274,6 +274,7 @@ function parserHandler ({ processRequestOptions } = {}) {
             req.files = fileList.map((f) => {
                 const safeName = f.originalFilename ? path.basename(f.originalFilename) : path.basename(f.filepath)
                 return {
+                    size: f.size ?? 0,
                     filename: safeName,
                     mimetype: f.mimetype || 'application/octet-stream',
                     encoding: 'binary',
@@ -332,6 +333,7 @@ function fileStorageHandler ({ keystone, appClients }) {
                         ...data,
                         originalFilename: files[index].filename,
                         mimetype: files[index].mimetype,
+                        size: String(files[index].size),
                         encoding: files[index].encoding,
                         fileAdapter: FileAdapter.type(),
                         meta,
@@ -341,6 +343,8 @@ function fileStorageHandler ({ keystone, appClients }) {
                     user: { connect: { id: req.user.id } },
                     ...(organizationId && { organization: { connect: { id: organizationId } } }),
                     fileAdapter: FileAdapter.type(),
+                    fileSize: String(files[index].size),
+                    fileMimeType: files[index].mimetype,
                 },
             })),
             `id fileMeta ${FILE_RECORD_META_FIELDS}`
@@ -387,7 +391,7 @@ function fileShareHandler ({ keystone, appClients }) {
 
         const context = keystone.createContext({ skipAccessControl: true })
         const fileRecord = await FileRecord
-            .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, `id sourceFileRecord sourceApp fileMeta ${FILE_RECORD_META_FIELDS}`)
+            .getOne(context, { id, user: { id: req.user.id }, deletedAt: null }, `id fileMimeType fileSize sourceFileRecord sourceApp fileMeta ${FILE_RECORD_META_FIELDS}`)
 
         if (!fileRecord) {
             return next(new GQLError(ERRORS.FILE_NOT_FOUND, { req }))
@@ -423,6 +427,8 @@ function fileShareHandler ({ keystone, appClients }) {
             user: { connect: { id: user.id } },
             sourceFileRecord: { connect: { id: sourceFileRecord } }, // point to original FileRecord
             sourceApp: sourceFileClientId, // original fileClientId for routing
+            fileMimeType: fileRecord.fileMimeType,
+            fileSize: fileRecord.fileSize,
         }, `id fileMeta ${FILE_RECORD_META_FIELDS}`)
 
         const sharedFile = await FileRecord.update(context, created.id, {
