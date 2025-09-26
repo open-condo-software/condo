@@ -22,6 +22,7 @@ export type MessageCardProps = {
 
 const MESSAGE_ICON: Record<MessageTypeAllowedToFilterType, string> = {
     PASS_TICKET_CREATED: '🔑',
+    PASS_TICKET_COMMENT_CREATED: '✏️',
     TICKET_COMMENT_CREATED: '✏️',
     TICKET_CREATED: '📬',
 }
