@@ -60,7 +60,7 @@ docker:
 ---
 image: condo
 fromImage: deps
-fromCacheVersion: "4"
+fromCacheVersion: "3"
 git:
 - add: /
   to: /app
@@ -104,7 +104,7 @@ docker:
 ---
 image: callcenter
 fromImage: deps
-fromCacheVersion: "4"
+fromCacheVersion: "3"
 git:
   - add: /
     to: /app
@@ -147,7 +147,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: eps
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -159,7 +159,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/eps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -171,10 +171,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -194,7 +190,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: rb
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -206,7 +202,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/rb/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -218,10 +214,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -241,7 +233,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: insurance
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -253,7 +245,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/insurance/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -265,10 +257,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -288,7 +276,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: registry_importer
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -300,7 +288,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/registry-importer/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -312,10 +300,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -337,7 +321,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: miniapp
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -349,7 +333,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/miniapp/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -361,10 +345,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -402,7 +382,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: property_importer
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -414,7 +394,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/property-importer/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -426,10 +406,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -485,7 +461,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: address_service
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -497,7 +473,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/address-service/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -509,10 +485,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -532,7 +504,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: telephony
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -544,7 +516,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/telephony/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -556,10 +528,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -579,7 +547,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: dev_portal_web
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -591,7 +559,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/dev-portal-web/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -603,10 +571,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     #NOTE: Next.js is picking .env only from package-level envs during build time
@@ -625,7 +589,7 @@ docker:
 ---
 image: pass
 fromImage: deps
-fromCacheVersion: "4"
+fromCacheVersion: "3"
 git:
   - add: /
     to: /app
@@ -667,7 +631,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: documents
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -679,7 +643,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/documents/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -691,10 +655,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -714,7 +674,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: dev_portal_api
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -726,7 +686,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/dev-portal-api/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -738,10 +698,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -760,7 +716,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: employee_bot
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -772,7 +728,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/employee-bot/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -784,10 +740,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -806,7 +758,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: ticket_importer
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -818,7 +770,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/ticket-importer/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -830,10 +782,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -848,7 +796,7 @@ shell:
     - "rm -rf /app/.config"
 ---
 image: external_api
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -866,14 +814,9 @@ git:
       - werf-giterminism.yaml
     owner: app
     group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "yarn install --immutable"
 ---
 image: resident_app
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -885,7 +828,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/resident-app/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -897,10 +840,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "yarn workspace @app/resident-app next telemetry disable"
@@ -909,7 +848,7 @@ shell:
     - "rm -rf /app/.config"
 ---
 image: announcements
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -921,7 +860,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/announcements/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -933,10 +872,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -952,7 +887,7 @@ shell:
     - "rm -rf /app/.config"
 ---
 image: news_greenhouse
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -964,7 +899,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/news-greenhouse"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -976,10 +911,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -997,7 +928,7 @@ shell:
 ---
 image: meter_importer
 fromImage: deps
-fromCacheVersion: "4"
+fromCacheVersion: "3"
 git:
   - add: /
     to: /app
@@ -1039,7 +970,7 @@ docker:
 
 ---
 image: news_telegram_api
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -1051,7 +982,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/news-telegram-api/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -1063,10 +994,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -1085,7 +1012,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: news_telegram_web
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -1097,7 +1024,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/news-telegram-web/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -1109,10 +1036,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -1135,7 +1058,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: billing_connector
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -1147,7 +1070,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/billing-connector/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -1159,10 +1082,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -1183,7 +1102,7 @@ docker:
 
 ---
 image: pos_integration
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -1195,7 +1114,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/pos-integration/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -1207,10 +1126,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -1230,7 +1145,7 @@ docker:
 
 ---
 image: property_ai_assistant
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -1242,7 +1157,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/property-ai-assistant/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -1254,10 +1169,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
