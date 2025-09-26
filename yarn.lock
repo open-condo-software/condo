@@ -1074,6 +1074,7 @@ __metadata:
     antd: ^4.24.12
     apollo-server-errors: ^3.1.0
     cross-env: ^7.0.3
+    dayjs: ^1.11.10
     express: ^4.17.1
     graphql: ^16.10.0
     graphql-request: ^6.1.0
