@@ -215,11 +215,17 @@ async function prepareCondoAppOidcConfig (appName, { redirectUrl, postLogoutRedi
     return { serverUrl, clientId, clientSecret }
 }
 
-async function prepareCondoAppB2BAppConfig (appName, b2bAppName, withLaunchRoute) {
+async function prepareCondoAppB2BAppConfig (appName, b2bAppName, options = {}) {
+    const {
+        withLaunchRoute = false,
+        serviceUserEmail = null,
+        serviceUserAccessRightSetData = null,
+    } = options
     let appUrl = await getAppServerUrl(appName)
     appUrl = withLaunchRoute ? (appUrl + '/launch') : appUrl
     const opts = JSON.stringify({ appUrl, displayPriority: 2 })
-    await safeExec(`yarn workspace @app/condo node ./bin/create-b2bapp.js ${b2bAppName} ${JSON.stringify(opts)} ${appName}`)
+    const accessRight = JSON.stringify({ serviceUserEmail, serviceUserAccessRightSetData })
+    await safeExec(`yarn workspace @app/condo node ./bin/create-b2bapp.js ${b2bAppName} ${JSON.stringify(opts)} ${appName} ${JSON.stringify(accessRight)}`)
     return { appUrl }
 }
 
