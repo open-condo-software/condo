@@ -71,7 +71,7 @@ git:
     - "**/yarn.lock"
     - "**/package.json"
     setup:
-    - "apps/condo/**"
+    - "apps/**"
     - "packages/**"
     - "bin/**/*"
   excludePaths:
@@ -115,7 +115,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/callcenter/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -159,7 +159,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/eps/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -202,7 +202,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/rb/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -245,7 +245,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/insurance/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -288,7 +288,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/registry-importer/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -333,7 +333,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/miniapp/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -394,7 +394,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/property-importer/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -473,7 +473,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/address-service/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -516,7 +516,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/telephony/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -559,7 +559,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/dev-portal-web/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -600,7 +600,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/pass/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -643,7 +643,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/documents/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -686,7 +686,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/dev-portal-api/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -728,7 +728,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/employee-bot/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -770,7 +770,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/ticket-importer/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -828,7 +828,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/resident-app/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -860,7 +860,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/announcements/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -899,7 +899,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/news-greenhouse"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -939,7 +939,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/meter-importer/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -982,7 +982,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/news-telegram-api/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -1024,7 +1024,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/news-telegram-web/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -1070,7 +1070,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/billing-connector/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -1114,7 +1114,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/pos-integration/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -1157,7 +1157,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/property-ai-assistant/**"
+        - "apps/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
