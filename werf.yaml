@@ -24,10 +24,42 @@ shell:
 docker:
   ENV:
     LANG: C.UTF-8
+    TURBO_TELEMETRY_DISABLED: "1"
+    NEXT_TELEMETRY_DISABLED: "1"
+    NODE_ENV: production
+---
+image: deps
+fromImage: base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "package.json"
+        - "yarn.lock"
+        - "**/package.json"
+        - "**/yarn.lock"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+shell:
+  install:
+    - "cd /app"
+    - "yarn --version && node -v"
+    - "yarn install --immutable"
+docker:
+  ENV:
+    YARN_ENABLE_GLOBAL_CACHE: "true"
+    YARN_CACHE_FOLDER: "/app/.yarn/cache"
 ---
 image: condo
-fromImage: base
-fromCacheVersion: "3"
+fromImage: deps
+fromCacheVersion: "4"
 git:
 - add: /
   to: /app
@@ -38,7 +70,7 @@ git:
     - "**/yarn.lock"
     - "**/package.json"
     setup:
-    - "apps/**"
+    - "apps/condo/**"
     - "packages/**"
     - "bin/**/*"
   excludePaths:
@@ -50,10 +82,6 @@ git:
   group: app
 
 shell:
-  install:
-  - "cd /app"
-  - "npm i -g turbo"
-  - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
