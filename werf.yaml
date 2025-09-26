@@ -102,8 +102,8 @@ docker:
     LANG: C.UTF-8
 ---
 image: callcenter
-fromImage: base
-fromCacheVersion: "3"
+fromImage: deps
+fromCacheVersion: "4"
 git:
   - add: /
     to: /app
@@ -114,7 +114,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/callcenter/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -126,10 +126,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -627,8 +623,8 @@ docker:
     LANG: C.UTF-8
 ---
 image: pass
-fromImage: base
-fromCacheVersion: "3"
+fromImage: deps
+fromCacheVersion: "4"
 git:
   - add: /
     to: /app
@@ -639,7 +635,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/pass/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -651,10 +647,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -1003,8 +995,8 @@ shell:
 
 ---
 image: meter_importer
-fromImage: base
-fromCacheVersion: "3"
+fromImage: deps
+fromCacheVersion: "4"
 git:
   - add: /
     to: /app
@@ -1015,7 +1007,7 @@ git:
         - "**/yarn.lock"
         - "**/package.json"
       setup:
-        - "apps/**"
+        - "apps/meter-importer/**"
         - "packages/**"
         - "bin/**/*"
     excludePaths:
@@ -1027,10 +1019,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
