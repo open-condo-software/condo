@@ -86064,6 +86064,7 @@ enum MessageType {
   SEND_DAILY_STATISTICS
   B2B_APP_MESSAGE_PUSH
   PASS_TICKET_CREATED
+  PASS_TICKET_COMMENT_CREATED
 }
 
 input SendMessageInput {
@@ -87045,6 +87046,7 @@ type SendB2CAppPushMessageOutput {
 enum B2BAppMessageType {
   B2B_APP_MESSAGE_PUSH
   PASS_TICKET_CREATED
+  PASS_TICKET_COMMENT_CREATED
 }
 
 input SendB2BAppPushMessageInput {
@@ -99906,6 +99908,33 @@ type Mutation {
   		"telegramMeta": {
   			"required": false
   		}
+  	},
+  	"PASS_TICKET_COMMENT_CREATED": {
+  		"dv": {
+  			"required": true
+  		},
+  		"data": {
+  			"passTicketNumber": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"userId": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"commentId": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"organizationId": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"passTicketId": {
+  				"defaultValue": "",
+  				"required": true
+  			}
+  		}
   	}
   }`
   
@@ -100361,6 +100390,33 @@ type Mutation {
   		},
   		"telegramMeta": {
   			"required": false
+  		}
+  	},
+  	"PASS_TICKET_COMMENT_CREATED": {
+  		"dv": {
+  			"required": true
+  		},
+  		"data": {
+  			"passTicketNumber": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"userId": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"commentId": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"organizationId": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"passTicketId": {
+  				"defaultValue": "",
+  				"required": true
+  			}
   		}
   	}
   }`
