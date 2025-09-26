@@ -813,6 +813,7 @@ const MESSAGE_META = {
         data: {
             passTicketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
+            senderName: { defaultValue: '', required: true },
             commentId: { defaultValue: '', required: true },
             organizationId: { defaultValue: '', required: true },
             passTicketId: { defaultValue: '', required: true },
