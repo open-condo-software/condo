@@ -96,12 +96,12 @@ const ERRORS = {
     INVALID_UNIT: {
         code: BAD_USER_INPUT,
         type: INVALID_UNIT,
-        message: 'Provided combination of unitName and unitType is invalid, check that provided unit belongs to the provided objectId',
+        message: 'Provided combination of unitName and unitType is invalid, check that provided unit belongs to the provided itemId',
     },
     INVALID_ADDRESS_KEY: {
         code: BAD_USER_INPUT,
         type: INVALID_ADDRESS_KEY,
-        message: 'Provided addressKey is wrong, check that provided addressKey belongs to the provided objectId',
+        message: 'Provided addressKey is wrong, check that provided addressKey belongs to the provided itemId',
     },
     INVALID_CUSTOM_FIELD: {
         code: BAD_USER_INPUT,
@@ -121,7 +121,7 @@ const ERRORS = {
     ALREADY_EXISTS_OBJECT_ID: {
         code: BAD_USER_INPUT,
         type: ALREADY_EXISTS_OBJECT_ID,
-        message: 'Another object linked to provided customField already exists with this objectId. Get this object and update it, instead of creating a new one',
+        message: 'Another object linked to provided customField already exists with this itemId. Get this object and update it, instead of creating a new one',
     },
 }
 
@@ -143,8 +143,8 @@ const CustomValue = new GQLListSchema('CustomValue', {
             isRequired: true,
         },
 
-        objectId: {
-            schemaDoc: 'What instance of CustomField.schemaName this customValue relates to?',
+        itemId: {
+            schemaDoc: 'What instance of CustomField.modelName this customValue relates to?',
             type: 'Text',
             isRequired: true,
         },
@@ -240,7 +240,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
 
             const customFieldValidationRules = customField.validationRules
 
-            const customFieldSchemaName = customField.schemaName
+            const customFieldSchemaName = customField.modelName
             const customFieldSchemaConfig = ALLOWED_SCHEMAS[customFieldSchemaName]
 
             const customFieldType = customField.type
@@ -250,7 +250,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
             if (customFieldIsUniquePerObject) {
                 const existingCustomValues = await itemsQuery('CustomValue', {
                     where: {
-                        objectId: resultObject.objectId,
+                        itemId: resultObject.itemId,
                         organization: { id: resultObject.organization },
                         customField: { id: resultObject.customField },
                         deletedAt: null,
@@ -274,28 +274,28 @@ const CustomValue = new GQLListSchema('CustomValue', {
                 }
             }
 
-            if (resolvedData.objectId || resolvedData.organization) {
-                const objectId = resultObject.objectId
+            if (resolvedData.itemId || resolvedData.organization) {
+                const itemId = resultObject.itemId
                 const organizationId = resultObject.organization
 
-                // ObjectId should belong to the same organization as this CustomValue
+                // itemId should belong to the same organization as this CustomValue
                 const pathToOrganizationId = get(customFieldSchemaConfig, 'pathToOrganizationId', ['organization', 'id'])
 
-                if (!UUID_REGEXP.test(objectId)) {
+                if (!UUID_REGEXP.test(itemId)) {
                     throw new GQLError(ERRORS.INVALID_OBJECT_ID, context)
                 }
 
                 try {
-                    const object = await getById(customFieldSchemaName, objectId)
+                    const object = await getById(customFieldSchemaName, itemId)
                     if (!object || object.deletedAt) {
-                        throw new Error('ObjectId is not valid: It may have been deleted')
+                        throw new Error('itemId is not valid: It may have been deleted')
                     }
 
                     let objectOrganizationId = null
 
                     // Example: [id] / [orgId]
                     if (pathToOrganizationId.length === 1) {
-                        objectOrganizationId = objectId
+                        objectOrganizationId = itemId
                     }
 
                     // Example: ['organization', 'id'] / ['residentOrganization', 'id']
@@ -308,7 +308,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
                         const [objectOrganization] = await execGqlWithoutAccess(context, {
                             query: generateGqlQueryToOrganizationId(customFieldSchemaName, pathToOrganizationId.slice(1)),
                             variables: {
-                                where: { id: objectId },
+                                where: { id: itemId },
                                 first: 1,
                             },
                             dataPath: 'objs',
@@ -317,7 +317,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
                     }
 
                     if (!objectOrganizationId || objectOrganizationId !== organizationId) {
-                        throw new Error('ObjectId is not valid: organizations do not match')
+                        throw new Error('itemId is not valid: organizations do not match')
                     }
                 } catch (err) {
                     throw new GQLError(ERRORS.INVALID_OBJECT_ID, context)
@@ -365,8 +365,8 @@ const CustomValue = new GQLListSchema('CustomValue', {
             },
             {
                 type: 'models.UniqueConstraint',
-                fields: ['organization', 'customField', 'objectId'],
-                name: 'unique_organization_customField_objectId',
+                fields: ['organization', 'customField', 'itemId'],
+                name: 'unique_organization_customField_itemId',
                 condition: 'Q(deletedAt__isnull=True) & Q(isUniquePerObject=True)',
             },
         ],

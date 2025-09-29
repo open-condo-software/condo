@@ -73,7 +73,7 @@ describe('CustomField', () => {
 
                 expectValuesOfCommonFields(obj, attrs, admin)
                 expect(obj.type).toEqual(attrs.type)
-                expect(obj.schemaName).toEqual(attrs.schemaName)
+                expect(obj.modelName).toEqual(attrs.modelName)
                 expect(obj.name).toEqual(attrs.name)
                 expect(obj.priority).toBeDefined()
                 expect(obj.locale).toBeDefined()
@@ -86,7 +86,7 @@ describe('CustomField', () => {
 
                 expectValuesOfCommonFields(obj, attrs, support)
                 expect(obj.type).toEqual(attrs.type)
-                expect(obj.schemaName).toEqual(attrs.schemaName)
+                expect(obj.modelName).toEqual(attrs.modelName)
                 expect(obj.name).toEqual(attrs.name)
                 expect(obj.priority).toBeDefined()
                 expect(obj.locale).toBeDefined()

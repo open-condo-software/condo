@@ -48,7 +48,7 @@ describe('CustomValue', () => {
         const [b2bAppObj] = await createTestB2BApp(admin)
         b2bApp = b2bAppObj
 
-        const [customFieldObj] = await createTestCustomField(admin, { schemaName: 'Property', isUniquePerObject: false })
+        const [customFieldObj] = await createTestCustomField(admin, { modelName: 'Property', isUniquePerObject: false })
         customField = customFieldObj
     })
 
@@ -67,7 +67,7 @@ describe('CustomValue', () => {
         describe('create', () => {
             test('admin can', async () => {
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 }
@@ -76,7 +76,7 @@ describe('CustomValue', () => {
 
                 expectValuesOfCommonFields(obj, attrs, admin)
                 expect(obj.data).toEqual(attrs.data)
-                expect(obj.objectId).toEqual(attrs.objectId)
+                expect(obj.itemId).toEqual(attrs.itemId)
                 expect(obj.sourceType).toEqual(attrs.sourceType)
                 expect(obj.sourceId).toEqual(attrs.sourceId)
                 expect(obj.unitName).toEqual(attrs.unitName)
@@ -87,7 +87,7 @@ describe('CustomValue', () => {
 
             test('support can', async () => {
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 }
@@ -96,7 +96,7 @@ describe('CustomValue', () => {
 
                 expectValuesOfCommonFields(obj, attrs, support)
                 expect(obj.data).toEqual(attrs.data)
-                expect(obj.objectId).toEqual(attrs.objectId)
+                expect(obj.itemId).toEqual(attrs.itemId)
                 expect(obj.sourceType).toEqual(attrs.sourceType)
                 expect(obj.sourceId).toEqual(attrs.sourceId)
                 expect(obj.unitName).toEqual(attrs.unitName)
@@ -108,7 +108,7 @@ describe('CustomValue', () => {
             test('anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     const payload = {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp.id,
                     }
@@ -121,7 +121,7 @@ describe('CustomValue', () => {
         describe('update', () => {
             test('admin can', async () => {
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                     data: '1',
@@ -137,7 +137,7 @@ describe('CustomValue', () => {
 
             test('support can', async () => {
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                     data: '1',
@@ -153,7 +153,7 @@ describe('CustomValue', () => {
 
             test('anonymous can\'t', async () => {
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                     data: '1',
@@ -174,7 +174,7 @@ describe('CustomValue', () => {
             beforeAll(async () => {
                 const [property] = await createTestProperty(admin, organization)
 
-                payload.objectId = property.id
+                payload.itemId = property.id
                 payload.sourceType = B2B_APP_SOURCE_TYPE
                 payload.sourceId = b2bApp.id
 
@@ -210,7 +210,7 @@ describe('CustomValue', () => {
         describe('read', () => {
             test('admin can', async () => {
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 }
@@ -219,7 +219,7 @@ describe('CustomValue', () => {
 
                 expectValuesOfCommonFields(obj, attrs, admin)
                 expect(obj.data).toEqual(attrs.data)
-                expect(obj.objectId).toEqual(attrs.objectId)
+                expect(obj.itemId).toEqual(attrs.itemId)
                 expect(obj.sourceType).toEqual(attrs.sourceType)
                 expect(obj.sourceId).toEqual(attrs.sourceId)
                 expect(obj.unitName).toEqual(attrs.unitName)
@@ -230,7 +230,7 @@ describe('CustomValue', () => {
 
             test('support can', async () =>{
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 }
@@ -239,7 +239,7 @@ describe('CustomValue', () => {
 
                 expectValuesOfCommonFields(obj, attrs, support)
                 expect(obj.data).toEqual(attrs.data)
-                expect(obj.objectId).toEqual(attrs.objectId)
+                expect(obj.itemId).toEqual(attrs.itemId)
                 expect(obj.sourceType).toEqual(attrs.sourceType)
                 expect(obj.sourceId).toEqual(attrs.sourceId)
                 expect(obj.unitName).toEqual(attrs.unitName)
@@ -250,7 +250,7 @@ describe('CustomValue', () => {
 
             test('anonymous can\'t', async () => {
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 }
@@ -294,7 +294,7 @@ describe('CustomValue', () => {
                 })
 
                 const [customValue, attrs] = await createTestCustomValue(b2bAppServiceUserClient, customField, organization, {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 })
@@ -327,7 +327,7 @@ describe('CustomValue', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestCustomValue(b2bAppServiceUserClient, customField, organization, {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp.id,
                     })
@@ -339,7 +339,7 @@ describe('CustomValue', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestCustomValue(b2bAppServiceUserClient, customField, organization, {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp.id,
                     })
@@ -356,7 +356,7 @@ describe('CustomValue', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestCustomValue(b2bAppServiceUserClient, customField, organization, {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp.id,
                     })
@@ -368,7 +368,7 @@ describe('CustomValue', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestCustomValue(b2bAppServiceUserClient, customField, organization, {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp.id,
                     })
@@ -381,7 +381,7 @@ describe('CustomValue', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestCustomValue(b2bAppServiceUserClient, customField, organization, {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp.id,
                     })
@@ -409,12 +409,12 @@ describe('CustomValue', () => {
 
             test('Can read if customField.staffCanRead is true', async () => {
                 const [customField] = await createTestCustomField(support, {
-                    schemaName: 'Property',
+                    modelName: 'Property',
                     staffCanRead: true,
                 })
 
                 const [customValue] = await createTestCustomValue(support, customField, organization, {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 })
@@ -431,12 +431,12 @@ describe('CustomValue', () => {
 
             test('Can not create or update customValues', async () => {
                 const [customField] = await createTestCustomField(support, {
-                    schemaName: 'Property',
+                    modelName: 'Property',
                     staffCanRead: true,
                 })
 
                 const validPayload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 }
@@ -464,26 +464,26 @@ describe('CustomValue', () => {
 
             beforeAll(async () => {
                 const [stringCustomFieldObj] = await createTestCustomField(support, {
-                    schemaName: 'Property',
+                    modelName: 'Property',
                     type: 'String',
                 })
                 CUSTOM_FIELDS.string = stringCustomFieldObj
 
                 const [stringWithValidationsCustomFieldObj] = await createTestCustomField(support, {
-                    schemaName: 'Property',
+                    modelName: 'Property',
                     type: 'String',
                     validationRules: { type: 'string', minLength: 2, maxLength: 5, pattern: '^[a-zA-Z]+$' },
                 })
                 CUSTOM_FIELDS.stringWithValidations = stringWithValidationsCustomFieldObj
 
                 const [jsonCustomFieldObj] = await createTestCustomField(support, {
-                    schemaName: 'Property',
+                    modelName: 'Property',
                     type: 'Json',
                 })
                 CUSTOM_FIELDS.json = jsonCustomFieldObj
 
                 const [jsonCustomFieldWithValidationsObj] = await createTestCustomField(support, {
-                    schemaName: 'Property',
+                    modelName: 'Property',
                     type: 'Json',
                     validationRules: {
                         type: 'object',
@@ -510,7 +510,7 @@ describe('CustomValue', () => {
                 property = propertyObj
 
                 commonPayload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 }
@@ -569,7 +569,7 @@ describe('CustomValue', () => {
             })
         })
 
-        describe('objectId', () => {
+        describe('itemId', () => {
             let propertyCustomField
             let organizationCustomField
 
@@ -589,68 +589,68 @@ describe('CustomValue', () => {
                 fakeOrganization = fakeOrganizationObj
 
                 const [propertyCustomFieldObj] = await createTestCustomField(support, {
-                    schemaName: 'Property',
+                    modelName: 'Property',
                     type: 'String',
                 })
                 propertyCustomField = propertyCustomFieldObj
 
                 const [organizationCustomFieldObj] = await createTestCustomField(support, {
-                    schemaName: 'Organization',
+                    modelName: 'Organization',
                     type: 'String',
                 })
                 organizationCustomField = organizationCustomFieldObj
             })
 
-            test('fails if provided objectId is deleted', async () => {
+            test('fails if provided itemId is deleted', async () => {
                 const [property] = await createTestProperty(support, organization)
 
                 await updateTestProperty(support, property.id, { deletedAt: 'true' })
 
                 await expectToThrowGQLError(async () => {
                     await createTestCustomValue(support, propertyCustomField, organization, {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp.id,
                     })
                 }, { code: ERRORS.INVALID_OBJECT_ID.code, type: ERRORS.INVALID_OBJECT_ID.type })
             })
 
-            test('fails if provided objectId is not uuid', async () => {
+            test('fails if provided itemId is not uuid', async () => {
                 const [property] = await createTestProperty(support, organization)
 
                 await updateTestProperty(support, property.id, { deletedAt: 'true' })
 
                 await expectToThrowGQLError(async () => {
                     await createTestCustomValue(support, propertyCustomField, organization, {
-                        objectId: 'yoink',
+                        itemId: 'yoink',
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp.id,
                     })
                 }, { code: ERRORS.INVALID_OBJECT_ID.code, type: ERRORS.INVALID_OBJECT_ID.type })
             })
 
-            test('property: fails if provided objectId is not in this organization', async () => {
+            test('property: fails if provided itemId is not in this organization', async () => {
                 const [property] = await createTestProperty(support, fakeOrganization)
 
                 await updateTestProperty(support, property.id, { deletedAt: 'true' })
 
                 await expectToThrowGQLError(async () => {
                     await createTestCustomValue(support, propertyCustomField, organization, {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp.id,
                     })
                 }, { code: ERRORS.INVALID_OBJECT_ID.code, type: ERRORS.INVALID_OBJECT_ID.type })
             })
 
-            test('organization: fails if provided objectId is not in this organization', async () => {
+            test('organization: fails if provided itemId is not in this organization', async () => {
 
                 const [property] = await createTestProperty(support, organization)
                 await updateTestProperty(support, property.id, { deletedAt: 'true' })
 
                 await expectToThrowGQLError(async () => {
                     await createTestCustomValue(support, organizationCustomField, organization, {
-                        objectId: fakeOrganization.id,
+                        itemId: fakeOrganization.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp.id,
                     })
@@ -672,7 +672,7 @@ describe('CustomValue', () => {
                 organization = organizationObj
 
                 const [propertyCustomFieldObj] = await createTestCustomField(support, {
-                    schemaName: 'Property',
+                    modelName: 'Property',
                     type: 'String',
                     isUniquePerObject: false,
                 })
@@ -700,7 +700,7 @@ describe('CustomValue', () => {
             test('B2BApp: fails if source id is not id', async () => {
                 await expectToThrowGQLError(async () => {
                     await createTestCustomValue(support, propertyCustomField, organization, {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: 'yoink',
                     })
@@ -710,7 +710,7 @@ describe('CustomValue', () => {
             test('B2BApp: fails if source id is not B2BApp', async () => {
                 await expectToThrowGQLError(async () => {
                     await createTestCustomValue(support, propertyCustomField, organization, {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: property.id,
                     })
@@ -732,7 +732,7 @@ describe('CustomValue', () => {
 
                 await expectToThrowGQLError(async () => {
                     await createTestCustomValue(b2bApp2serviceUserClient, propertyCustomField, organization, {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp.id,
                     })
@@ -740,7 +740,7 @@ describe('CustomValue', () => {
 
                 await expectToThrowGQLError(async () => {
                     await createTestCustomValue(b2bAppServiceUserClient, propertyCustomField, organization, {
-                        objectId: property.id,
+                        itemId: property.id,
                         sourceType: B2B_APP_SOURCE_TYPE,
                         sourceId: b2bApp2.id,
                     })
@@ -762,7 +762,7 @@ describe('CustomValue', () => {
                 organization = organizationObj
 
                 const [customFieldObj] = await createTestCustomField(support, {
-                    schemaName: 'Property',
+                    modelName: 'Property',
                     type: 'String',
                     isUniquePerObject: false,
                 })
@@ -789,7 +789,7 @@ describe('CustomValue', () => {
             test('Can\'t create two customValues with same uniqKey', async () => {
                 const uniqKey = faker.random.alphaNumeric(64)
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                     uniqKey,
@@ -808,7 +808,7 @@ describe('CustomValue', () => {
 
             test('Can create two customValues if uniqKey is not specified', async () => {
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 }
@@ -826,7 +826,7 @@ describe('CustomValue', () => {
 
             test('Can create two customValues if uniqKey is different', async () => {
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 }
@@ -843,7 +843,7 @@ describe('CustomValue', () => {
             })
         })
 
-        describe('uniqKeyObjectId', () => {
+        describe('uniqKeyItemId', () => {
             let property
             let organization
             let b2bApp
@@ -859,11 +859,11 @@ describe('CustomValue', () => {
                 b2bApp = b2bAppObj
             })
 
-            test('Can\'t create two customValues with same objectId, if CustomField.isUniquePerObject set to true', async () => {
+            test('Can\'t create two customValues with same itemId, if CustomField.isUniquePerObject set to true', async () => {
                 const [customField] = await createTestCustomField(support, { isUniquePerObject: true })
 
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 }
@@ -879,11 +879,11 @@ describe('CustomValue', () => {
                 }, { code: ERRORS.ALREADY_EXISTS_OBJECT_ID.code, message: ERRORS.ALREADY_EXISTS_OBJECT_ID.message, type: ERRORS.ALREADY_EXISTS_OBJECT_ID.type })
             })
 
-            test('Can create two customValues with same objectId, if CustomField.isUniquePerObject set to false', async () => {
+            test('Can create two customValues with same itemId, if CustomField.isUniquePerObject set to false', async () => {
                 const [customField] = await createTestCustomField(support, { isUniquePerObject: false })
 
                 const payload = {
-                    objectId: property.id,
+                    itemId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
                 }
@@ -904,7 +904,7 @@ describe('CustomValue', () => {
 
             // 1. Support creates custom field with specific validations for b2b integrations to use
             const [customField] = await createTestCustomField(support, {
-                schemaName: 'Property',
+                modelName: 'Property',
                 name: 'Special building id',
                 type: 'String',
                 validationRules: {
@@ -939,7 +939,7 @@ describe('CustomValue', () => {
             // 3. B2B Integration service user creates custom values to custom fields created on step 1
 
             await createTestCustomValue(b2bApp1serviceUserClient, customField, organization, {
-                objectId: property1.id,
+                itemId: property1.id,
                 sourceType: B2B_APP_SOURCE_TYPE,
                 sourceId: b2bApp1.id,
                 data: '123',
@@ -949,7 +949,7 @@ describe('CustomValue', () => {
             })
 
             await createTestCustomValue(b2bApp1serviceUserClient, customField, organization, {
-                objectId: property2.id,
+                itemId: property2.id,
                 sourceType: B2B_APP_SOURCE_TYPE,
                 sourceId: b2bApp1.id,
                 data: '12',
@@ -960,7 +960,7 @@ describe('CustomValue', () => {
             })
 
             await createTestCustomValue(b2bApp1serviceUserClient, customField, organization, {
-                objectId: property1.id,
+                itemId: property1.id,
                 sourceType: B2B_APP_SOURCE_TYPE,
                 sourceId: b2bApp1.id,
                 data: '123',
@@ -971,7 +971,7 @@ describe('CustomValue', () => {
             })
 
             await createTestCustomValue(b2bApp1serviceUserClient, customField, organization, {
-                objectId: property1.id,
+                itemId: property1.id,
                 sourceType: B2B_APP_SOURCE_TYPE,
                 sourceId: b2bApp1.id,
                 data: '1234',
@@ -981,7 +981,7 @@ describe('CustomValue', () => {
             })
 
             await createTestCustomValue(b2bApp1serviceUserClient, customField, organization, {
-                objectId: property2.id,
+                itemId: property2.id,
                 sourceType: B2B_APP_SOURCE_TYPE,
                 sourceId: b2bApp1.id,
                 data: 'abc',

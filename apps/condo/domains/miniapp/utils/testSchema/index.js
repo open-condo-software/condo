@@ -590,7 +590,7 @@ async function createTestCustomField (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         name: faker.random.alphaNumeric(8) ,
-        schemaName: 'Property',
+        modelName: 'Property',
         type: 'String',
         validationRules: null,
         sender,

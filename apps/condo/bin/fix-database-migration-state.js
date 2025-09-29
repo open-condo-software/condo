@@ -243,6 +243,15 @@ ALTER TABLE "TicketChange" DROP COLUMN "lastCommentWithResidentTypeCreatedByUser
 ALTER TABLE "TicketChange" DROP COLUMN "lastCommentWithResidentTypeCreatedByUserTypeTo" CASCADE;
 COMMIT;
 
+--
+-- 20250929211751-0483_remove_customvalue_unique_organization_customfield_objectid_and_more.js Rename columns in CustomField and CustomValue 
+--
+
+ALTER TABLE "CustomField" DROP COLUMN "schemaName";
+ALTER TABLE "CustomFieldHistoryRecord" DROP COLUMN "schemaName";
+ALTER TABLE "CustomValue" DROP COLUMN "objectId";
+ALTER TABLE "CustomValueHistoryRecord" DROP COLUMN "objectId";
+COMMIT;
     `))
 }
 

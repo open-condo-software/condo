@@ -1,6 +1,6 @@
-query getCustomValuesForObject ($schemaName: CustomFieldSchemaNameType! $objectId: String!) {
+query getCustomValuesForObject ($modelName: CustomFieldModelNameType! $itemId: String!) {
     customValues: allCustomValues(
-        where: { customField: { schemaName: $schemaName }, objectId: $objectId }
+        where: { customField: { modelName: $modelName }, itemId: $itemId }
     ) {
         id
         data
