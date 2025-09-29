@@ -35,7 +35,7 @@ const columns: TableColumn<TableData>[] = [
         dataKey: 'firstName',
         header: 'First Name',
         id: 'firstName',
-        initialOrder: 2,
+        initialOrder: 4,
         initialVisibility: true,
         render: renderTextWithTooltip(),
     },
@@ -49,11 +49,13 @@ const columns: TableColumn<TableData>[] = [
         dataKey: 'age',
         header: 'Age',
         id: 'age',
+        initialOrder: 1,
     },
     {
         dataKey: 'status',
         header: 'Status',
         id: 'status',
+        initialVisibility: false,
         render: (value) => <span>{value ? 'Active' : 'Inactive'}</span>,
     },
     {
@@ -79,7 +81,7 @@ const columnMenuLabels: TableColumnMenuLabels = {
 const tableId = '1'
 
 const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<TableData>) => {
-    const { dataSource, columns, id, loading, onRowClick } = args
+    const { dataSource, columns, id, loading, columnMenuLabels, storageKey, onRowClick } = args
 
     return (
         <Table<TableData>
@@ -87,7 +89,7 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
             columns={columns}
             id={id}
             columnMenuLabels={columnMenuLabels}
-            storageKey='storybook-table'
+            storageKey={storageKey}
             loading={loading}
             onRowClick={onRowClick}
         />
@@ -101,6 +103,8 @@ export const Default: StoryObj<TableProps<TableData>> = {
         columns,
         id: tableId,
         loading: false,
+        columnMenuLabels, 
+        storageKey: 'storybook-table',
         onRowClick: (record: TableData) => console.log('Row clicked:', record),
     },
 }
