@@ -10,7 +10,7 @@ import { getStorage, saveStorage } from '@open-condo/ui/src/components/Table/uti
 
 interface UsePersistentTableStateProps<TData extends RowData = RowData> {
     storageKey: string
-    columns: Array<TableColumn<TData>>
+    columns: TableColumn<TData>[]
 }
 
 export const useTableState = <TData extends RowData = RowData>({ storageKey, columns }: UsePersistentTableStateProps<TData>) => {
@@ -33,19 +33,15 @@ export const useTableState = <TData extends RowData = RowData>({ storageKey, col
             }
         }
 
-        const finalColumns = orderedColumns.map((c) => (c || unorderedColumns.shift())!)
+        const resultColumns = orderedColumns.map(c => (c || unorderedColumns.shift())).filter(Boolean) as (TableColumn<TData>)[]
 
-        const result: TableSettings<TData> = {} as TableSettings<TData>
-        finalColumns.forEach((column, index) => {
-            if (column) {
-                result[column.id] = {
-                    order: index,
-                    visibility: column.initialVisibility ?? true,
-                }
+        return resultColumns.reduce((result, column, index) => {
+            result[column.id] = {
+                order: index,
+                visibility: column.initialVisibility ?? true,
             }
-        })
-
-        return result
+            return result
+        }, {} as TableSettings<TData>)
     }, [columns, storageKey])
 
     const [settings, setSettings] = useState<TableSettings<TData>>(getInitialState)

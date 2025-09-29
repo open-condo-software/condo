@@ -1,8 +1,15 @@
 import { Table, flexRender, RowData } from '@tanstack/react-table'
-import React from 'react'
+import React, { useCallback } from 'react'
 
 
 export const TableBody = <TData extends RowData = RowData> ({ table, onRowClick }: { table: Table<TData>, onRowClick?: (record: TData) => void }) => {
+    const createKeyDownHandler = useCallback((row: { original: TData }) => (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault()
+            onRowClick(row.original)
+        }
+    }, [onRowClick])
+    
     return (
         <div className='condo-table-tbody'>
             {table.getRowModel().rows.map(row => (
@@ -12,12 +19,7 @@ export const TableBody = <TData extends RowData = RowData> ({ table, onRowClick 
                     onClick={() => onRowClick?.(row.original)}
                     role={onRowClick ? 'button' : 'row'}
                     tabIndex={onRowClick ? 0 : undefined}
-                    onKeyDown={(e) => {
-                        if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
-                            e.preventDefault()
-                            onRowClick(row.original)
-                        }
-                    }}
+                    onKeyDown={createKeyDownHandler(row)}
                     aria-label={onRowClick ? `Select row ${row.id}` : undefined}
                 >
                     {row.getVisibleCells().map(cell => (
