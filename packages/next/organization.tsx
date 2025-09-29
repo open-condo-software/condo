@@ -7,6 +7,7 @@ import { NextPage } from 'next'
 import nextCookie from 'next-cookies'
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { isSSR } from '@open-condo/miniapp-utils'
 
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
@@ -386,10 +387,11 @@ const OrganizationProvider: React.FC<React.PropsWithChildren<OrganizationProvide
     useEffect(() => {
         if (userLoading) return
         if (!user && activeEmployee !== null) {
-            setActiveEmployee(null)
+            setCookieEmployeeId('')
             setActiveEmployeeId(null)
+            setActiveEmployee(null)
         }
-    }, [user])
+    }, [user, userLoading, activeEmployee])
 
     if (DEBUG_RERENDERS) console.log('OrganizationProvider()', activeEmployee, 'loading', employeeLoading, 'skip', (userLoading || !user || !activeEmployeeId))
 

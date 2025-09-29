@@ -28,6 +28,7 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
     const activeEmployeeId = getCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context?.req, res: context?.res }) || null
 
     if (activeEmployeeId) {
+        console.log('prefetchOrganizationEmployee call with employee id')
         const response = await apolloClient.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
             query: GetActiveOrganizationEmployeeDocument,
             variables: {
@@ -43,6 +44,7 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
         }
     }
 
+    console.log('prefetchOrganizationEmployee call without employee id')
     const response = await apolloClient.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
         query: GetActiveOrganizationEmployeeDocument,
         variables: {

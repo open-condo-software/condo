@@ -163,7 +163,7 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
             },
         },
         invalidationPolicies: {
-            timeToLive: 60 * 1000, // 15 minutes in milliseconds
+            timeToLive: 15 * 60 * 1000, // 15 minutes in milliseconds
             types: {
                 _QueryMeta: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds

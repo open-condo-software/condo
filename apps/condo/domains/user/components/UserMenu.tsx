@@ -2,7 +2,8 @@ import { Dropdown } from 'antd'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import qs from 'qs'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 
 import { MoreVertical } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -41,14 +42,41 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         router.push('/user')
     }, [router])
 
+    const authChannel = useMemo(() => {
+        if (typeof window === 'undefined') return null
+        return new BroadcastChannel('auth')
+    }, [])
+
+    useEffect(() => {
+        return () => {
+            authChannel?.close()
+        }
+    }, [authChannel])
+
     const handleSignOutClick = useCallback(async () => {
+        if (authChannel) {
+            authChannel.postMessage({ type: 'SIGN_OUT' })
+        }
+
         await auth.signOut()
         if (isFunction(goToAfterLogout)) {
             await goToAfterLogout()
-        } else {
-            await router.push('/auth/signin')
         }
-    }, [auth, goToAfterLogout])
+    }, [auth, authChannel, goToAfterLogout])
+    
+    useEffect(() => {
+        if (!authChannel) return
+        const handleAuthMessage = async (event: MessageEvent<{ type: string }>) => {
+            if (event.data.type === 'SIGN_OUT') {
+                await router.push('/auth/signin?' + qs.stringify({ next: router.asPath }))
+            }
+        }
+    
+        authChannel.addEventListener('message', handleAuthMessage)
+        return () => {
+            authChannel.removeEventListener('message', handleAuthMessage)
+        }
+    }, [authChannel, router])
 
     const menu = useMemo<DropdownProps['menu']>(() => {
         return {

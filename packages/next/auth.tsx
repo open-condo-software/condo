@@ -263,21 +263,28 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
  */
 const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const apolloClient = useApolloClient()
+    const cachedUser = apolloClient.cache.readQuery<{ authenticatedUser: UserType }>({
+        query: USER_QUERY,
+    })?.authenticatedUser ?? null
 
+    const [user, setUser] = useState<UserType | null>(cachedUser)
     const [isAuthLoading, setIsAuthLoading] = useState<boolean>(false)
 
     const { data, loading: userLoading, refetch } = useQuery(USER_QUERY, {
-        onCompleted: () => setIsAuthLoading(false),
+        onCompleted: (data) => {
+            setUser(data.authenticatedUser)
+            setIsAuthLoading(false)
+        },
         onError: (error) => {
             console.error(error)
+            setUser(null)
             setIsAuthLoading(false)
         },
     })
 
-    const user = useMemo(() => get(data, 'authenticatedUser') || null, [data])
-
     const refetchAuth = useCallback(async () => {
-        await refetch()
+        const { data } = await refetch()
+        setUser(data?.authenticatedUser || null)
     }, [refetch])
 
     const [signInMutation, { loading: signInLoading }] = useMutation(SIGNIN_MUTATION, {
@@ -287,45 +294,20 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
             if (DEBUG_RERENDERS) console.log('AuthProviderLegacy() signIn()')
 
             if (item) {
+                setUser(item)
                 await apolloClient.clearStore()
             }
             setIsAuthLoading(false)
         },
         onError: (error) => {
             console.error(error)
+            setUser(null)
             setIsAuthLoading(false)
         },
     })
 
-    const authChannel = useMemo(() => {
-        if (typeof window === 'undefined') return null
-        return new BroadcastChannel('auth')
-    }, [])
-
-    // Handle sign out from other tabs
-    useEffect(() => {
-        if (!authChannel) return
-
-        const handleAuthMessage = (event: MessageEvent<{ type: string }>) => {
-            if (event.data.type === 'SIGN_OUT') {
-                apolloClient.cache.writeQuery({
-                    query: USER_QUERY,
-                    data: { authenticatedUser: null },
-                })
-            }
-        }
-
-        authChannel.addEventListener('message', handleAuthMessage)
-        return () => {
-            authChannel.removeEventListener('message', handleAuthMessage)
-            authChannel.close()
-        }
-    }, [authChannel, apolloClient])
-
     const [signOutMutation, { loading: signOutLoading }] = useMutation(SIGNOUT_MUTATION, {
         onCompleted: async () => {
-            await refetch()
-            removeCookieEmployeeId()
             await apolloClient.cache.reset()
             apolloClient.cache.writeQuery({
                 query: USER_QUERY,
@@ -333,13 +315,12 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
                     authenticatedUser: null,
                 },
             })
-            if (authChannel) {
-                authChannel.postMessage({ type: 'SIGN_OUT' })
-            }
+            setUser(null)
             setIsAuthLoading(false)
         },
         onError: (error) => {
             console.error(error)
+            setUser(null)
             setIsAuthLoading(false)
         },
     })
@@ -350,9 +331,12 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
         }
     }, [userLoading, signOutLoading, signInLoading])
 
+    // const user = useMemo(() => get(data, 'authenticatedUser') || null, [data])
+
     return (
         <AuthContext.Provider
             value={{
+                // isLoading: userLoading || signOutLoading || signInLoading,
                 isLoading: isAuthLoading,
                 isAuthenticated: !!user,
                 user,

@@ -407,7 +407,8 @@ const MenuItems: React.FC = () => {
 }
 
 const TasksProvider = ({ children }) => {
-    const { user, isLoading } = useAuth()
+    const { user, isLoading: userLoading, isAuthenticated } = useAuth()
+    const { organization, isLoading: organizationIsLoading } = useOrganization()
     const { persistor } = useCachePersistor()
 
     // Use UI interfaces for all tasks, that are supposed to be tracked
@@ -426,11 +427,11 @@ const TasksProvider = ({ children }) => {
     // Load all tasks with 'processing' status
     const { data, loading: isProcessingTasksLoading } = useGetProcessingTasksQuery({
         variables: { userId: user?.id || null, createdAtGte: dayjs().startOf('day').toISOString() },
-        skip: !user?.id || isLoading || !persistor,
+        skip: !isAuthenticated || userLoading || organizationIsLoading || !organization || !persistor,
     })
 
     const { records: miniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(
-        { status: 'processing', today: true }, user
+        { status: 'processing', today: true }, !userLoading && user,
     )
     // ... another task records should be loaded here
 
@@ -586,7 +587,6 @@ type NextAppContext = (AppContext & NextPageContext) & {
 if (!isDisabledSsr || !isSSR()) {
     MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps: Record<string, any> }> => {
         try {
-
             const pageContext = appContext?.ctx
             const apolloClient = appContext.apolloClient
 
@@ -606,6 +606,7 @@ if (!isDisabledSsr || !isSSR()) {
             let redirectToAuth: GetPrefetchedDataReturnRedirect
             let user: Parameters<PageComponentType['getPrefetchedData']>[0]['user'] = null
             if (!skipUserPrefetch) {
+                console.log('App getInitialProps() prefetchUser');
                 ({ redirectToAuth, user } = await prefetchAuthOrRedirect(apolloClient, pageContext, '/auth'))
 
                 const skipRedirectToAuth = appContext.Component.skipRedirectToAuth || false
@@ -614,6 +615,7 @@ if (!isDisabledSsr || !isSSR()) {
 
             let activeEmployee: Parameters<PageComponentType['getPrefetchedData']>[0]['activeEmployee'] = null
             if (user) {
+                console.log('App getInitialProps() prefetchOrganizationEmployee');
                 ({ activeEmployee } = await prefetchOrganizationEmployee({
                     apolloClient,
                     context: pageContext,

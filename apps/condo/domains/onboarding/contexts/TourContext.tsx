@@ -1,4 +1,4 @@
-import { useGetTourStepsLazyQuery, useSyncTourStepsMutation, useUpdateTourStepMutation } from '@app/condo/gql'
+import { GetTourStepsDocument, useGetTourStepsQuery, useSyncTourStepsMutation, useUpdateTourStepMutation } from '@app/condo/gql'
 import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -42,25 +42,16 @@ const getActiveTourStepFromStorage = (): ActiveTourStepType => {
 }
 
 export const TourProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-    const { user, isLoading: userIsLoading } = useAuth()
-    const { organization, isLoading: organizationIsLoading } = useOrganization()
+    const { isAuthenticated, isLoading: userIsLoading } = useAuth()
+    const { organization } = useOrganization()
     const organizationId = organization?.id || null
     const organizationType = organization?.type || null
 
-    const [getTourSteps, {
-        refetch: refetchSteps,
-    }] = useGetTourStepsLazyQuery({
-        variables: {
-            where: {
-                organization: {
-                    id: organizationId,
-                },
-            },
-        },
-    })
-
+    const { refetch: refetchSteps } = useGetTourStepsQuery({ skip: true })
     const [updateTourStep] = useUpdateTourStepMutation({
-        onCompleted: async () => await refetchSteps(),
+        refetchQueries: [
+            { query: GetTourStepsDocument, variables: { where: { organization: { id: organizationId } } } },
+        ],
     })
 
     const [syncTourStepMutation, { loading: syncLoading }] = useSyncTourStepsMutation({
@@ -71,18 +62,16 @@ export const TourProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
                 sender: getClientSideSenderInfo(),
             },
         },
-        onCompleted: async () => {
-            if (organizationId) {
-                await refetchSteps()
-            }
-        },
+        refetchQueries: [
+            { query: GetTourStepsDocument, variables: { where: { organization: { id: organizationId } } } },
+        ],
     })
 
     useEffect(() => {
-        if (!organizationId || !user || userIsLoading || organizationIsLoading) return
+        if (!organizationId || !isAuthenticated) return
 
         syncTourStepMutation()
-    }, [organizationId, organizationIsLoading, syncTourStepMutation, user, userIsLoading])
+    }, [organizationId, syncTourStepMutation, isAuthenticated])
 
     const [activeStep, setActiveStep] = useState<ActiveTourStepType>(getActiveTourStepFromStorage())
 
@@ -113,15 +102,14 @@ export const TourProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
         if (organizationType !== MANAGING_COMPANY_TYPE) return
+        if (!isAuthenticated || userIsLoading) return
 
         const {
             data: tourStepData,
-        } = await getTourSteps({
-            variables: {
-                where: {
-                    organization: { id: organizationId },
-                    type,
-                },
+        } = await refetchSteps({
+            where: {
+                organization: { id: organizationId },
+                type,
             },
         })
         const tourStep = tourStepData?.tourSteps.filter(Boolean)[0] || null
@@ -149,7 +137,7 @@ export const TourProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         } else {
             updateCompletedStepModalData(type, nextRoute)
         }
-    }, [organizationId, organizationType, getTourSteps, updateCompletedStepModalData, updateTourStep])
+    }, [organizationType, isAuthenticated, userIsLoading, refetchSteps, organizationId, updateTourStep, updateCompletedStepModalData])
 
     useEffect(() => {
         const mutationHandler = async ({ data, name }) => {
