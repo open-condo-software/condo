@@ -25,7 +25,6 @@ export type TableColumn<TData extends RowData = RowData> = {
 
 export interface TableProps<TData extends RowData = RowData> {
     dataSource: Array<TData>
-    locale?: string
     columns: Array<TableColumn<TData>>
     storageKey?: string
     loading?: boolean

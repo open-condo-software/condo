@@ -4,8 +4,8 @@
   position: relative;
   width: 100%;
   overflow-x: auto;
-  background-color: #fff;
-  border: 1px solid #d0d3e5;
+  background-color: @condo-global-color-white;
+  border: 1px solid @condo-global-color-gray-5;
   border-radius: 12px;
 }
 
@@ -29,7 +29,7 @@
   &::after {
     width: 24px;
     height: 24px;
-    border: 3px solid #f3f3f3;
+    border: 3px solid @condo-global-color-gray-1;
     border-top: 3px solid @condo-global-color-green-5;
     border-radius: 50%;
     animation: condo-table-loading-spin 1s linear infinite;
@@ -52,18 +52,14 @@
   top: 0;
   z-index: 10;
   width: 100%;
-}
-
-.condo-table-thead-row {
   display: flex;
-  align-items: center;
 }
 
 .condo-table-th-more-icon {
   display: flex;
   align-items: center;
   opacity: 0;
-  transition: all 0.2s ease;
+  transition: all @condo-global-transition-duration-default ease;
 }
 
 .condo-table-th {
@@ -72,25 +68,25 @@
   box-sizing: border-box;
   min-width: 60px;
   padding: 16px 12px;
-  color: #707695;
+  color: @condo-global-color-gray-7;
   font-weight: 600;
   font-size: 12px;
   line-height: 22px;
   letter-spacing: -0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
-  background-color: #fff;
+  background-color: @condo-global-color-white;
   border: none;
-  border-bottom: 1px solid #d0d3e5;
+  border-bottom: 1px solid @condo-global-color-gray-5;
   backface-visibility: hidden;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all @condo-global-transition-duration-default ease;
   user-select: none;
   will-change: width;
   contain: layout;
 
   &:hover {
-    background-color: #f2f4f6;
+    background-color: @condo-global-color-gray-1;
 
     .condo-table-th-more-icon {
       color: @condo-global-color-gray-7;
@@ -136,16 +132,16 @@
   min-width: 60px;
   padding: 16px 12px;
   overflow: hidden;
-  color: #1f2937;
+  color: @condo-global-color-black;
   font-size: 14px;
   line-height: 22px;
   letter-spacing: -0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
   border: none;
-  border-bottom: 1px solid #d0d3e5;
+  border-bottom: 1px solid @condo-global-color-gray-5;
   backface-visibility: hidden;
-  transition: all 0.2s ease;
+  transition: all @condo-global-transition-duration-default ease;
   will-change: width;
   contain: layout;
 
@@ -157,7 +153,7 @@
 .condo-table-tr {
   display: flex;
   outline: none;
-  transition: background-color 0.2s ease;
+  transition: background-color @condo-global-transition-duration-default ease;
 
   &:last-child {
     border-bottom: none;
@@ -168,15 +164,15 @@
   }
 
   &:hover {
-    background-color: #f8f9fa;
+    background-color: @condo-global-color-gray-1;
 
     .condo-table-td {
-      background-color: #f8f9fa;
+      background-color: @condo-global-color-gray-1;
     }
   }
 
   &:focus {
-    outline: 2px solid var(--condo-color-primary);
+    outline: 2px solid @condo-global-color-green-5;
     outline-offset: -2px;
   }
 
@@ -194,9 +190,9 @@
   flex-direction: column;
   gap: 16px;
   padding: 16px;
-  background-color: #fff;
+  background-color: @condo-global-color-white;
   border-radius: 8px;
-  box-shadow: 0 4px 14px #e6e8f1;
+  box-shadow: 0 4px 14px @condo-global-color-gray-3;
 }
 
 .condo-table-column-settings-dropdown:has(.condo-table-column-settings-item.is-dragging) {
@@ -210,7 +206,7 @@
   height: auto;
   background-color: transparent;
   border-radius: 4px;
-  transition: background-color 0.2s ease;
+  transition: background-color @condo-global-transition-duration-default ease;
 
   &.is-dragging {
     opacity: 0.3 !important;
@@ -226,7 +222,7 @@
   background-color: transparent;
   border-radius: 4px;
   outline: none;
-  transition: all 0.2s ease;
+  transition: all @condo-global-transition-duration-default ease;
 
   &:hover {
     cursor: grab;
@@ -237,7 +233,7 @@
   }
 
   &:focus {
-    outline: 2px solid var(--condo-color-primary);
+    outline: 2px solid @condo-global-color-green-5;
     outline-offset: 2px;
   }
 
@@ -252,7 +248,7 @@
   cursor: pointer;
 
   &:focus {
-    outline: 2px solid var(--condo-color-primary);
+    outline: 2px solid @condo-global-color-green-5;
     outline-offset: 2px;
   }
 

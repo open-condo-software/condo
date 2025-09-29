@@ -46,8 +46,8 @@ export function Table<TData extends RowData = RowData> ({
 
     const orderedColumns = useMemo(() => {
         if (columnOrder && columnOrder.length > 0) {
-            const columnsById = new Map(columns.map(c => [String(c.id), c]))
-            return columnOrder.map(key => columnsById.get(key)).filter((c): c is TableColumn<TData> => Boolean(c))
+            const columnsById = new Map(columns.map(c => [c.id, c]))
+            return columnOrder.map(key => columnsById.get(key)).filter(Boolean) as TableColumn<TData>[] 
         }
         return columns
     }, [columns, columnOrder])
@@ -69,17 +69,15 @@ export function Table<TData extends RowData = RowData> ({
             className='condo-table-container'
         >
             <div className='condo-table'>
-                <div className='condo-table-thead'>
-                    {table.getHeaderGroups().map(headerGroup => (
-                        <TableHeader<TData>
-                            key={headerGroup.id}
-                            headerGroup={headerGroup}
-                            columns={orderedColumns}
-                            columnMenuLabels={columnMenuLabels}
-                            table={table}
-                        />
-                    ))}
-                </div>
+                {table.getHeaderGroups().map(headerGroup => (
+                    <TableHeader<TData>
+                        key={headerGroup.id}
+                        headerGroup={headerGroup}
+                        columns={orderedColumns}
+                        columnMenuLabels={columnMenuLabels}
+                        table={table}
+                    />
+                ))}
                 {loading ? (
                     <div className='condo-table-tbody'>
                         <div className='condo-table-loading' />
