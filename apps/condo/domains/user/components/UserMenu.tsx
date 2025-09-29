@@ -53,17 +53,6 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         }
     }, [authChannel])
 
-    const handleSignOutClick = useCallback(async () => {
-        if (authChannel) {
-            authChannel.postMessage({ type: 'SIGN_OUT' })
-        }
-
-        await auth.signOut()
-        if (isFunction(goToAfterLogout)) {
-            await goToAfterLogout()
-        }
-    }, [auth, authChannel, goToAfterLogout])
-    
     useEffect(() => {
         if (!authChannel) return
         const handleAuthMessage = async (event: MessageEvent<{ type: string }>) => {
@@ -77,6 +66,17 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             authChannel.removeEventListener('message', handleAuthMessage)
         }
     }, [authChannel, router])
+
+    const handleSignOutClick = useCallback(async () => {
+        if (authChannel) {
+            authChannel.postMessage({ type: 'SIGN_OUT' })
+        }
+
+        await auth.signOut()
+        if (isFunction(goToAfterLogout)) {
+            await goToAfterLogout()
+        }
+    }, [auth, authChannel, goToAfterLogout])
 
     const menu = useMemo<DropdownProps['menu']>(() => {
         return {

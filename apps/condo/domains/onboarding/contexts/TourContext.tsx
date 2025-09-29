@@ -1,4 +1,4 @@
-import { GetTourStepsDocument, useGetTourStepsQuery, useSyncTourStepsMutation, useUpdateTourStepMutation } from '@app/condo/gql'
+import { useGetTourStepsQuery, useSyncTourStepsMutation, useUpdateTourStepMutation } from '@app/condo/gql'
 import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 

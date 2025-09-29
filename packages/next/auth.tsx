@@ -2,9 +2,8 @@ import { DocumentNode } from 'graphql'
 import { gql } from 'graphql-tag'
 import get from 'lodash/get'
 import { NextPage } from 'next'
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 
-import { useCachePersistor } from '@open-condo/apollo'
 import { isSSR } from '@open-condo/miniapp-utils'
 
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'

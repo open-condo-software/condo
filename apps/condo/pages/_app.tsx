@@ -606,7 +606,6 @@ if (!isDisabledSsr || !isSSR()) {
             let redirectToAuth: GetPrefetchedDataReturnRedirect
             let user: Parameters<PageComponentType['getPrefetchedData']>[0]['user'] = null
             if (!skipUserPrefetch) {
-                console.log('App getInitialProps() prefetchUser');
                 ({ redirectToAuth, user } = await prefetchAuthOrRedirect(apolloClient, pageContext, '/auth'))
 
                 const skipRedirectToAuth = appContext.Component.skipRedirectToAuth || false
@@ -615,7 +614,6 @@ if (!isDisabledSsr || !isSSR()) {
 
             let activeEmployee: Parameters<PageComponentType['getPrefetchedData']>[0]['activeEmployee'] = null
             if (user) {
-                console.log('App getInitialProps() prefetchOrganizationEmployee');
                 ({ activeEmployee } = await prefetchOrganizationEmployee({
                     apolloClient,
                     context: pageContext,

@@ -129,7 +129,7 @@ async function authGuards (userIdentity, context) {
         })
     }
 
-    // await redisGuard.checkMultipleCustomLimitCounters(guards, context)
+    await redisGuard.checkMultipleCustomLimitCounters(guards, context)
 }
 
 /**
