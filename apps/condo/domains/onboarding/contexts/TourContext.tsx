@@ -49,9 +49,7 @@ export const TourProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
     const { refetch: refetchSteps } = useGetTourStepsQuery({ skip: true })
     const [updateTourStep] = useUpdateTourStepMutation({
-        refetchQueries: [
-            { query: GetTourStepsDocument, variables: { where: { organization: { id: organizationId } } } },
-        ],
+        onCompleted: async () => await refetchSteps({ where:{ organization: { id: organizationId } } }),
     })
 
     const [syncTourStepMutation, { loading: syncLoading }] = useSyncTourStepsMutation({
@@ -62,9 +60,7 @@ export const TourProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
                 sender: getClientSideSenderInfo(),
             },
         },
-        refetchQueries: [
-            { query: GetTourStepsDocument, variables: { where: { organization: { id: organizationId } } } },
-        ],
+        onCompleted: async () => await refetchSteps({ where: { organization: { id: organizationId } } }),
     })
 
     useEffect(() => {

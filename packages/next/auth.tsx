@@ -270,7 +270,7 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const [user, setUser] = useState<UserType | null>(cachedUser)
     const [isAuthLoading, setIsAuthLoading] = useState<boolean>(false)
 
-    const { data, loading: userLoading, refetch } = useQuery(USER_QUERY, {
+    const { loading: userLoading, refetch } = useQuery(USER_QUERY, {
         onCompleted: (data) => {
             setUser(data.authenticatedUser)
             setIsAuthLoading(false)
@@ -331,12 +331,9 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
         }
     }, [userLoading, signOutLoading, signInLoading])
 
-    // const user = useMemo(() => get(data, 'authenticatedUser') || null, [data])
-
     return (
         <AuthContext.Provider
             value={{
-                // isLoading: userLoading || signOutLoading || signInLoading,
                 isLoading: isAuthLoading,
                 isAuthenticated: !!user,
                 user,
