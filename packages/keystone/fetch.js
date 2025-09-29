@@ -1,5 +1,4 @@
 const { pickBy } = require('lodash')
-const nodeFetch = require('node-fetch')
 
 const conf = require('@open-condo/config')
 
@@ -14,6 +13,28 @@ const logger = getLogger('fetch')
 const FETCH_COUNT_METRIC_NAME = 'fetch.count'
 const FETCH_TIME_METRIC_NAME = 'fetch.time'
 
+
+function wrapResponse (rawResponse) {
+    return Object.assign(
+        Object.create(Object.getPrototypeOf(rawResponse)),
+        rawResponse,
+        {
+            buffer: async () => Buffer.from(await rawResponse.arrayBuffer()),
+
+            // New helper method — do NOT overwrite .headers
+            rawHeaders: () => {
+                const raw = {}
+                // Undici headers is iterable
+                for (const [name, value] of rawResponse.headers) {
+                    if (!raw[name]) raw[name] = []
+                    raw[name].push(value)
+                }
+                return raw
+            },
+        }
+    )
+}
+
 /**
  * Should be: { [hostname: str]:[x-target: str] }
  *
@@ -22,6 +43,7 @@ const FETCH_TIME_METRIC_NAME = 'fetch.time'
  * All requests will have X-Target=group0. Requests to v1.condo.ai will have X-Target=group1
  */
 const FETCH_X_TARGET_CONFIG = JSON.parse(conf.FETCH_X_TARGET_CONFIG || '{}')
+
 
 async function fetchWithLogger (url, options, extraAttrs) {
 
@@ -91,7 +113,8 @@ async function fetchWithLogger (url, options, extraAttrs) {
     try {
         logger.info({ msg: 'request start', ...requestLogCommonData })
 
-        const response = await nodeFetch(url, options)
+        const response = wrapResponse(await fetch(url, options))
+
 
         const headers = (response.headers && typeof response.headers == 'object') ? Object.fromEntries(response.headers) : {}
 
@@ -125,6 +148,7 @@ const sleep = (timeout) => new Promise(resolve => setTimeout(resolve, timeout))
  * Default behavior is similar to fetchWithLogger only limits the time for request to be completed in 1 minute
  * @param {string} url - The URL to fetch data from.
  * @param {Object} [options] - Optional parameters for configuring the fetch request.
+ * @param {RequestInit} [options] - Standard fetch options (method, headers, body, etc.).
  * @param {number} [options.maxRetries=0] - Maximum number of retries before giving up.
  * @param {number} [options.abortRequestTimeout=60000] - Time in milliseconds to wait before aborting a request.
  * @param {number} [options.timeoutBetweenRequests=0] - Time in milliseconds to wait between retry attempts. Will be multiplied by the attempt number
@@ -148,23 +172,11 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
     // At least one request on maxRetries = 0
     do {
         try {
-            const controller = new AbortController()
-            const signal = controller.signal
-            let timeout
-
-            const response = await Promise.race([
-                fetchWithLogger(url, { ... fetchOptions, signal }, { skipTracingHeaders, skipXTargetHeader }),
-                new Promise((_, reject) =>
-                    timeout = setTimeout(() => {
-                        controller.abort()
-                        reject(new Error('Abort request by timeout'))
-                    }, abortRequestTimeout)
-                ),
-            ])
-
-            if (timeout) {
-                clearTimeout(timeout)
-            }
+            const response = await fetchWithLogger(
+                url,
+                { ...fetchOptions, signal: AbortSignal.timeout(abortRequestTimeout) },
+                { skipTracingHeaders, skipXTargetHeader }
+            )
 
             if (response && response.ok) {
                 return response
