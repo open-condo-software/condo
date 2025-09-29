@@ -24,9 +24,42 @@ shell:
 docker:
   ENV:
     LANG: C.UTF-8
+    TURBO_TELEMETRY_DISABLED: "1"
+    NEXT_TELEMETRY_DISABLED: "1"
+    NODE_ENV: production
+---
+image: deps
+fromImage: base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "package.json"
+        - "yarn.lock"
+        - "**/package.json"
+        - "**/yarn.lock"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+shell:
+  install:
+    - "cd /app"
+    - npm install -g turbo
+    - "yarn --version && node -v"
+    - "yarn install --immutable"
+docker:
+  ENV:
+    YARN_ENABLE_GLOBAL_CACHE: "true"
+    YARN_CACHE_FOLDER: "/app/.yarn/cache"
 ---
 image: condo
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
 - add: /
@@ -50,10 +83,6 @@ git:
   group: app
 
 shell:
-  install:
-  - "cd /app"
-  - "npm i -g turbo"
-  - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -74,7 +103,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: callcenter
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -98,10 +127,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -122,7 +147,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: eps
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -146,10 +171,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -169,7 +190,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: rb
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -193,10 +214,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -216,7 +233,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: insurance
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -240,10 +257,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -263,7 +276,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: registry_importer
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -287,10 +300,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -312,7 +321,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: miniapp
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -336,10 +345,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -377,7 +382,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: property_importer
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -401,10 +406,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -460,7 +461,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: address_service
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -484,10 +485,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -507,7 +504,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: telephony
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -531,10 +528,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -554,7 +547,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: dev_portal_web
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -578,10 +571,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     #NOTE: Next.js is picking .env only from package-level envs during build time
@@ -599,7 +588,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: pass
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -623,10 +612,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -646,7 +631,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: documents
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -670,10 +655,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -693,7 +674,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: dev_portal_api
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -717,10 +698,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
   - "cd /app"
   - "echo '# Build time .env config!' >> /app/.env"
@@ -739,7 +716,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: employee_bot
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -763,10 +740,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -785,7 +758,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: ticket_importer
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -809,10 +782,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -827,7 +796,7 @@ shell:
     - "rm -rf /app/.config"
 ---
 image: external_api
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -845,14 +814,9 @@ git:
       - werf-giterminism.yaml
     owner: app
     group: app
-
-shell:
-  install:
-    - "cd /app"
-    - "yarn install --immutable"
 ---
 image: resident_app
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -876,10 +840,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "yarn workspace @app/resident-app next telemetry disable"
@@ -888,7 +848,7 @@ shell:
     - "rm -rf /app/.config"
 ---
 image: announcements
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -912,10 +872,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -931,7 +887,7 @@ shell:
     - "rm -rf /app/.config"
 ---
 image: news_greenhouse
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -955,10 +911,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -975,7 +927,7 @@ shell:
 
 ---
 image: meter_importer
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -999,10 +951,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -1022,7 +970,7 @@ docker:
 
 ---
 image: news_telegram_api
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -1046,10 +994,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -1068,7 +1012,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: news_telegram_web
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -1092,10 +1036,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -1118,7 +1058,7 @@ docker:
     LANG: C.UTF-8
 ---
 image: billing_connector
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -1142,10 +1082,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -1166,7 +1102,7 @@ docker:
 
 ---
 image: pos_integration
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -1190,10 +1126,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
@@ -1213,7 +1145,7 @@ docker:
 
 ---
 image: property_ai_assistant
-fromImage: base
+fromImage: deps
 fromCacheVersion: "3"
 git:
   - add: /
@@ -1237,10 +1169,6 @@ git:
     group: app
 
 shell:
-  install:
-    - "cd /app"
-    - "npm i -g turbo"
-    - "yarn install --immutable"
   setup:
     - "cd /app"
     - "echo '# Build time .env config!' >> /app/.env"
