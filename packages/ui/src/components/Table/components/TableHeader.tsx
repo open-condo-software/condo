@@ -29,37 +29,25 @@ export const TableHeader = <TData extends RowData = RowData>({ headerGroup, colu
     ), [columns, table])
 
     const columnMenu = useMemo(() => {
-        const items = []
-        
-        if (columnMenuLabels?.sortLabel) {
-            items.push(
-                {
-                    label: <span>{columnMenuLabels.sortLabel}</span>,
-                    key: '1',
-                    icon: <SortDesc size='small' color={colors.gray[7]} />,
-                },
-                {
-                    label: <span>{columnMenuLabels.sortLabel}</span>,
-                    key: '2',
-                    icon: <SortAsc size='small' color={colors.gray[7]} />,
-                },
-                { type: 'divider' as const }
-            )
-        }
-        
-        if (columnMenuLabels?.filterLabel) {
-            items.push(
-                {
-                    label: <span>{columnMenuLabels.filterLabel}</span>,
-                    key: '3',
-                    icon: <Filter size='small' color={colors.gray[7]} />,
-                },
-                { type: 'divider' as const }
-            )
-        }
-        
-        if (columnMenuLabels?.settingsLabel) {
-            items.push({
+        return [
+            {
+                label: <span>{columnMenuLabels?.sortLabel}</span>,
+                key: 'sort-desc',
+                icon: <SortDesc size='small' color={colors.gray[7]} />,
+            },
+            {
+                label: <span>{columnMenuLabels?.sortLabel}</span>,
+                key: 'sort-asc',
+                icon: <SortAsc size='small' color={colors.gray[7]} />,
+            },
+            { type: 'divider' as const },
+            {
+                label: <span>{columnMenuLabels?.filterLabel}</span>,
+                key: 'filter',
+                icon: <Filter size='small' color={colors.gray[7]} />,
+            },
+            { type: 'divider' as const },
+            {
                 label: (
                     <Dropdown
                         align={{
@@ -74,15 +62,13 @@ export const TableHeader = <TData extends RowData = RowData>({ headerGroup, colu
                         </Space>
                     </Dropdown>
                 ),
-                key: '4',
-            })
-        }
-        
-        return items
+                key: 'settings',
+            },
+        ]
     }, [renderColumnSettings, columnMenuLabels])
 
     return (
-        <div key={headerGroup.id} className='condo-table-thead-row'>
+        <div key={headerGroup.id} className='condo-table-thead'>
             {headerGroup.headers.map((header) => {
 
                 return (

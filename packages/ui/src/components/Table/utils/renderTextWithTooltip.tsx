@@ -26,28 +26,24 @@ export const renderTextWithTooltip = <TData = unknown>({
     postfix = '',
     extraTitle,
     extraTooltipProps,
-}: RenderTextWithTooltipProps = {}) => {
-    const RenderTextWithTooltipComponent = (text: TData) => {
-        const title = getTitleMessage({ text, extraTitle, postfix })
-        const ellipsisConfig = typeof ellipsis === 'boolean'
-            ? (ellipsis ? ELLIPSIS_SETTINGS : false)
-            : ellipsis
+}: RenderTextWithTooltipProps = {}) => function RenderTextWithTooltipComponent (text: TData) {
+    const title = getTitleMessage({ text, extraTitle, postfix })
+    const ellipsisConfig = typeof ellipsis === 'boolean'
+        ? (ellipsis ? ELLIPSIS_SETTINGS : false)
+        : ellipsis
 
-        return (
-            <Tooltip 
-                title={title} 
-                placement='topLeft' 
-                destroyTooltipOnHide
-                {...extraTooltipProps}
-            >
-                <span>
-                    <Typography.Paragraph ellipsis={ellipsisConfig} size='medium'>
-                        {String(text)}
-                    </Typography.Paragraph>
-                </span>
-            </Tooltip>
-        )
-    }
-    
-    return RenderTextWithTooltipComponent
+    return (
+        <Tooltip 
+            title={title} 
+            placement='topLeft' 
+            destroyTooltipOnHide
+            {...extraTooltipProps}
+        >
+            <span>
+                <Typography.Paragraph ellipsis={ellipsisConfig} size='medium'>
+                    {String(text)}
+                </Typography.Paragraph>
+            </span>
+        </Tooltip>
+    )
 }
