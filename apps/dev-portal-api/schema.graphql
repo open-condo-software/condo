@@ -5315,7 +5315,7 @@ type Query {
   """ Retrieve the meta-data for all lists. """
   _ksListsMeta(where: _ksListsMetaInput): [_ListMeta]
   allB2CAppProperties(data: AllB2CAppPropertiesInput!): AllB2CAppPropertiesOutput
-  GetB2CAppInfo(data: GetB2CAppInfoInput!): GetB2CAppInfoOutput
+  getB2CAppInfo(data: GetB2CAppInfoInput!): GetB2CAppInfoOutput
   OIDCClient(data: GetOIDCClientInput!): OIDCClient
 
   """The version of the Keystone application serving this API."""

@@ -29,7 +29,7 @@ const GetB2CAppInfoService = new GQLCustomSchema('GetB2CAppInfoService', {
     queries: [
         {
             access: access.canGetB2CAppInfo,
-            schema: 'GetB2CAppInfo (data: GetB2CAppInfoInput!): GetB2CAppInfoOutput',
+            schema: 'getB2CAppInfo (data: GetB2CAppInfoInput!): GetB2CAppInfoOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { app: { id }, environment } } = args
 

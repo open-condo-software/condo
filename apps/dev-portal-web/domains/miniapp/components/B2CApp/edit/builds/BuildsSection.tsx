@@ -13,6 +13,7 @@ import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
+import { CurrentBuildsInfo } from '@/domains/miniapp/components/B2CApp/edit/builds/CurrentBuildsInfo'
 import { UploadText } from '@/domains/miniapp/components/UploadText'
 import {
     B2C_BUILD_ALLOWED_MIMETYPES,
@@ -39,6 +40,7 @@ import {
 
 
 const ROW_BUTTON_GUTTER: RowProps['gutter'] = [60, 60]
+const ROW_BUILDS_GUTTER: RowProps['gutter'] = [40, 40]
 const ROW_FORM_GUTTER: RowProps['gutter'] = [0, 0]
 const FULL_COL_SPAN = 24
 const PAGINATION_POSITION = ['bottomLeft' as const]
@@ -187,29 +189,36 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     return (
         <Section>
             <SubSection title={BuildsTitle}>
-                <Row gutter={ROW_BUTTON_GUTTER}>
+                <Row gutter={ROW_BUILDS_GUTTER}>
                     <Col span={FULL_COL_SPAN}>
-                        <Table
-                            columns={columns}
-                            bordered
-                            dataSource={builds}
-                            pagination={{
-                                pageSize: DEFAULT_PAGE_SIZE,
-                                position: PAGINATION_POSITION,
-                                showSizeChanger: false,
-                                total: data?.meta?.count || 0,
-                                simple: true,
-                                current: page,
-                                onChange: handlePaginationChange,
-                            }}
-                            rowKey='version'
-                            locale={{ emptyText: <EmptyTableFiller message={EmptyTableMessage}/> }}
-                        />
+                        <CurrentBuildsInfo id={id}/>
                     </Col>
                     <Col span={FULL_COL_SPAN}>
-                        <Button type='primary' icon={<PlusCircle size='medium'/>} onClick={handleOpenModal}>
-                            {AddBuildLabel}
-                        </Button>
+                        <Row gutter={ROW_BUTTON_GUTTER}>
+                            <Col span={FULL_COL_SPAN}>
+                                <Table
+                                    columns={columns}
+                                    bordered
+                                    dataSource={builds}
+                                    pagination={{
+                                        pageSize: DEFAULT_PAGE_SIZE,
+                                        position: PAGINATION_POSITION,
+                                        showSizeChanger: false,
+                                        total: data?.meta?.count || 0,
+                                        simple: true,
+                                        current: page,
+                                        onChange: handlePaginationChange,
+                                    }}
+                                    rowKey='version'
+                                    locale={{ emptyText: <EmptyTableFiller message={EmptyTableMessage}/> }}
+                                />
+                            </Col>
+                            <Col span={FULL_COL_SPAN}>
+                                <Button type='primary' icon={<PlusCircle size='medium'/>} onClick={handleOpenModal}>
+                                    {AddBuildLabel}
+                                </Button>
+                            </Col>
+                        </Row>
                     </Col>
                 </Row>
                 {uploadModalOpen && (
