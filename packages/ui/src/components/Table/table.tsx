@@ -32,7 +32,7 @@ export function Table<TData extends RowData = RowData> ({
             return columnHelper.accessor(c.dataKey as AccessorFn<TData, unknown>, {
                 id: c.id,
                 header: c.header,
-                cell: (info: CellContext<TData, unknown>) => c.render?.(info.getValue()) || info.getValue(),
+                cell: (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original) || info.getValue(),
             })
         })
     }, [columns, columnHelper])
