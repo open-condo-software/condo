@@ -1,0 +1,10 @@
+query getB2CAppInfo($data: GetB2CAppInfoInput!) {
+    info: getB2CAppInfo(data: $data) {
+        id
+        environment
+        currentBuild {
+            id
+            version
+        }
+    }
+}

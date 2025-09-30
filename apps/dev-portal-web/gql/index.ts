@@ -2237,6 +2237,11 @@ export type GenerateOidcClientSecretInput = {
   sender: SenderFieldInput;
 };
 
+export type GetB2CAppInfoInput = {
+  app: B2CAppWhereUniqueInput;
+  environment: AppEnvironment;
+};
+
 export type GetOidcClientInput = {
   app: AppWhereUniqueInput;
   environment: AppEnvironment;
@@ -4127,6 +4132,13 @@ export type CreateB2CAppPublishRequestMutationVariables = Exact<{
 
 export type CreateB2CAppPublishRequestMutation = { __typename?: 'Mutation', request?: { __typename?: 'B2CAppPublishRequest', id: string } | null };
 
+export type GetB2CAppInfoQueryVariables = Exact<{
+  data: GetB2CAppInfoInput;
+}>;
+
+
+export type GetB2CAppInfoQuery = { __typename?: 'Query', info?: { __typename?: 'GetB2CAppInfoOutput', id: string, environment: AppEnvironment, currentBuild?: { __typename?: 'B2CAppCurrentBuild', id: string, version: string } | null } | null };
+
 export type GetOidcClientQueryVariables = Exact<{
   data: GetOidcClientInput;
 }>;
@@ -4713,6 +4725,51 @@ export function useCreateB2CAppPublishRequestMutation(baseOptions?: Apollo.Mutat
 export type CreateB2CAppPublishRequestMutationHookResult = ReturnType<typeof useCreateB2CAppPublishRequestMutation>;
 export type CreateB2CAppPublishRequestMutationResult = Apollo.MutationResult<CreateB2CAppPublishRequestMutation>;
 export type CreateB2CAppPublishRequestMutationOptions = Apollo.BaseMutationOptions<CreateB2CAppPublishRequestMutation, CreateB2CAppPublishRequestMutationVariables>;
+export const GetB2CAppInfoDocument = gql`
+    query getB2CAppInfo($data: GetB2CAppInfoInput!) {
+  info: getB2CAppInfo(data: $data) {
+    id
+    environment
+    currentBuild {
+      id
+      version
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetB2CAppInfoQuery__
+ *
+ * To run a query within a React component, call `useGetB2CAppInfoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2CAppInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2CAppInfoQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetB2CAppInfoQuery(baseOptions: Apollo.QueryHookOptions<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables> & ({ variables: GetB2CAppInfoQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>(GetB2CAppInfoDocument, options);
+      }
+export function useGetB2CAppInfoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>(GetB2CAppInfoDocument, options);
+        }
+export function useGetB2CAppInfoSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>(GetB2CAppInfoDocument, options);
+        }
+export type GetB2CAppInfoQueryHookResult = ReturnType<typeof useGetB2CAppInfoQuery>;
+export type GetB2CAppInfoLazyQueryHookResult = ReturnType<typeof useGetB2CAppInfoLazyQuery>;
+export type GetB2CAppInfoSuspenseQueryHookResult = ReturnType<typeof useGetB2CAppInfoSuspenseQuery>;
+export type GetB2CAppInfoQueryResult = Apollo.QueryResult<GetB2CAppInfoQuery, GetB2CAppInfoQueryVariables>;
 export const GetOidcClientDocument = gql`
     query getOIDCClient($data: GetOIDCClientInput!) {
   client: OIDCClient(data: $data) {

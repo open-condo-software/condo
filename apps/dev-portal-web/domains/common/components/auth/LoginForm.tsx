@@ -60,7 +60,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onComplete }) => {
     }, [signInMutation])
 
     const onSignInWithCondoClick = useCallback(() => {
-        const search = new URLSearchParams({ next: router.asPath })
+        const localePrefix = router.locale === router.defaultLocale ? '' : `/${router.locale}`
+        const next = localePrefix + router.asPath
+        const search = new URLSearchParams({ next })
         router.push(`/api/oidc/auth?${search.toString()}`)
     }, [router])
 
