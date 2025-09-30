@@ -57743,6 +57743,7 @@ type AcquiringIntegrationHistoryRecord {
   name: String
   setupUrl: String
   isHidden: Boolean
+  type: String
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
@@ -57807,6 +57808,24 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   setupUrl_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
   canGroupReceipts: Boolean
   canGroupReceipts_not: Boolean
   hostUrl: String
@@ -57990,6 +58009,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   setupUrl_DESC
   isHidden_ASC
   isHidden_DESC
+  type_ASC
+  type_DESC
   canGroupReceipts_ASC
   canGroupReceipts_DESC
   hostUrl_ASC
@@ -58026,6 +58047,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   name: String
   setupUrl: String
   isHidden: Boolean
+  type: String
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
@@ -58057,6 +58079,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   name: String
   setupUrl: String
   isHidden: Boolean
+  type: String
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
@@ -58081,6 +58104,11 @@ input AcquiringIntegrationHistoryRecordCreateInput {
 
 input AcquiringIntegrationHistoryRecordsCreateInput {
   data: AcquiringIntegrationHistoryRecordCreateInput
+}
+
+enum AcquiringIntegrationTypeType {
+  ONLINE_PROCESSING
+  EXTERNAL_IMPORT
 }
 
 input AcquiringIntegrationAccessRightRelateToManyInput {
@@ -58134,6 +58162,10 @@ type AcquiringIntegration {
   """ Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM 
   """
   isHidden: Boolean
+
+  """ Defines the integration type. ONLINE_PROCESSING: used for processing and accepting payments. EXTERNAL_IMPORT: used for storing information about payments completed through other channels 
+  """
+  type: AcquiringIntegrationTypeType
   accessRights(where: AcquiringIntegrationAccessRightWhereInput, search: String, sortBy: [SortAcquiringIntegrationAccessRightsBy!], orderBy: String, first: Int, skip: Int): [AcquiringIntegrationAccessRight!]!
   _accessRightsMeta(where: AcquiringIntegrationAccessRightWhereInput, search: String, sortBy: [SortAcquiringIntegrationAccessRightsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
@@ -58228,6 +58260,10 @@ input AcquiringIntegrationWhereInput {
   setupUrl_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
+  type: AcquiringIntegrationTypeType
+  type_not: AcquiringIntegrationTypeType
+  type_in: [AcquiringIntegrationTypeType]
+  type_not_in: [AcquiringIntegrationTypeType]
 
   """ condition must be true for all nodes """
   accessRights_every: AcquiringIntegrationAccessRightWhereInput
@@ -58386,6 +58422,8 @@ enum SortAcquiringIntegrationsBy {
   setupUrl_DESC
   isHidden_ASC
   isHidden_DESC
+  type_ASC
+  type_DESC
   accessRights_ASC
   accessRights_DESC
   canGroupReceipts_ASC
@@ -58424,6 +58462,7 @@ input AcquiringIntegrationUpdateInput {
   name: String
   setupUrl: String
   isHidden: Boolean
+  type: AcquiringIntegrationTypeType
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
   canGroupReceipts: Boolean
   hostUrl: String
@@ -58453,6 +58492,7 @@ input AcquiringIntegrationCreateInput {
   name: String
   setupUrl: String
   isHidden: Boolean
+  type: AcquiringIntegrationTypeType
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
   canGroupReceipts: Boolean
   hostUrl: String

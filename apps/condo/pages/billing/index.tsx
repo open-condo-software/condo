@@ -31,7 +31,7 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
             organization: { id: orgId },
         },
     })
-    const { obj: acquiringCtx, loading: acquiringLoading, error: acquiringError, refetch: refetchAcquiring } = AcquiringContext.useObject({
+    const { objs: acquiringContexts, loading: acquiringLoading, error: acquiringError, refetch: refetchAcquiring } = AcquiringContext.useObjects({
         where: {
             status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS],
             organization: { id: orgId },
@@ -52,15 +52,15 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
         )
     }
 
-    if (billingContexts.length && acquiringCtx && get(acquiringCtx, 'status') === CONTEXT_FINISHED_STATUS) {
+    if (billingContexts.length && acquiringContexts.length && acquiringContexts.find(({ status }) => status === CONTEXT_FINISHED_STATUS )) {
         return (
-            <BillingAndAcquiringContext.Provider value={{ billingContexts: billingContexts, acquiringContext: acquiringCtx, refetchBilling }}>
+            <BillingAndAcquiringContext.Provider value={{ billingContexts: billingContexts, acquiringContexts: acquiringContexts, refetchBilling }}>
                 <BillingPageContent/>
             </BillingAndAcquiringContext.Provider>
         )
     }
 
-    const withVerification = (acquiringCtx && acquiringCtx.status === CONTEXT_VERIFICATION_STATUS) ||
+    const withVerification = (acquiringContexts.length && !!acquiringContexts.find(({ status }) => status === CONTEXT_VERIFICATION_STATUS)) ||
         orgType === SERVICE_PROVIDER_TYPE
 
     return (
