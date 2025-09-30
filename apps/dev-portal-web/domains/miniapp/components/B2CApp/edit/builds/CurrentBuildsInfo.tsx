@@ -61,7 +61,9 @@ const CurrentBuildsInfo: React.FC<{ id: string }> = React.memo(({ id }) => {
         <Flex vertical gap={ALERT_GAP}>
             <List
                 dataSource={[
+                    // @ts-expect-error TS2322: Type string | Element is not assignable to type string
                     { label: ProdBuildVersionLabel, value: prodValue },
+                    // @ts-expect-error TS2322: Type string | Element is not assignable to type string
                     { label: DevBuildVersionLabel, value: devValue },
                 ]}
             />
