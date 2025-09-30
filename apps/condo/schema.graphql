@@ -84698,6 +84698,7 @@ enum WebhookSubscriptionModelType {
   AcquiringIntegrationContext
   B2BApp
   B2BAppContext
+  B2CApp
   Invoice
 }
 
