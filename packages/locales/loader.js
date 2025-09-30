@@ -90,7 +90,7 @@ const getLocalized = (lang, key) => {
  * // => "Hello, World!"
  */
 const i18n = (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) => {
-    const { locale, meta } = options
+    const { locale = conf.DEFAULT_LOCALE, meta } = options
 
     maybeLoadTranslations()
 
