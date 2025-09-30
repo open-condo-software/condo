@@ -58,6 +58,12 @@ const DELETE_B2C_APP_PROPERTY_MUTATION = gql`
     }
 `
 
+const GET_B2C_APP_INFO_QUERY = gql`
+    query getGetB2CAppInfoById ($data: GetB2CAppInfoInput!) {
+        result: GetB2CAppInfo(data: $data) { id environment currentBuild { id version } }
+    }
+`
+
 const GET_OIDC_CLIENT_QUERY = gql`
     query getGetOIDCClient ($data: GetOIDCClientInput!) {
         result: OIDCClient(data: $data) { id clientId redirectUri }
@@ -101,6 +107,7 @@ module.exports = {
     ALL_B2C_APP_PROPERTIES_QUERY,
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
+    GET_B2C_APP_INFO_QUERY,
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,

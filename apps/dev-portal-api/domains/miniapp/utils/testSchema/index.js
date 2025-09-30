@@ -20,6 +20,7 @@ const {
     ALL_B2C_APP_PROPERTIES_QUERY,
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
+    GET_B2C_APP_INFO_QUERY,
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
@@ -337,6 +338,18 @@ async function deleteB2CAppPropertyByTestClient(client, id, environment) {
     return [data.result, attrs]
 }
 
+
+async function getB2CAppInfoByTestClient(client, app, environment = DEV_ENVIRONMENT) {
+    if (!client) throw new Error('no client')
+    const attrs = {
+        app: { id: app.id },
+        environment,
+    }
+    const { data, errors } = await client.mutate(GET_B2C_APP_INFO_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 async function getOIDCClientByTestClient(client, app, environment = DEV_ENVIRONMENT) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app')
@@ -461,7 +474,7 @@ module.exports = {
     CondoB2CAppProperty, createCondoB2CAppProperties,
     CondoB2CAppAccessRight, createCondoB2CAppAccessRight,
     CondoOIDCClient,
-    B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps,
+    B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps, getB2CAppInfoByTestClient,
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild, generateBuildVersion,
     B2CAppPublishRequest, createTestB2CAppPublishRequest, updateTestB2CAppPublishRequest,
