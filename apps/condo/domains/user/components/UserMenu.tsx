@@ -3,7 +3,7 @@ import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import { useRouter } from 'next/router'
 import qs from 'qs'
-import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { MoreVertical } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -12,9 +12,12 @@ import { Space, Typography } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 
 import type { DropdownProps } from 'antd'
 
+
+const SIGN_OUT_BROADCAST_CHANNEL = 'signOut'
 
 function formatUserName (name) {
     const splittedName = name.split(' ')
@@ -42,41 +45,23 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         router.push('/user')
     }, [router])
 
-    const authChannel = useMemo(() => {
-        if (typeof window === 'undefined' || typeof window.BroadcastChannel === 'undefined') return null
-        return new BroadcastChannel('auth')
-    }, [])
-
-    useEffect(() => {
-        return () => {
-            authChannel?.close()
+    const { 
+        sendMessageToBroadcastChannel: sendSignOutToBroadcast,
+    } = useBroadcastChannel(
+        SIGN_OUT_BROADCAST_CHANNEL,
+        async () => {
+            await router.push('/auth/signin?' + qs.stringify({ next: router.asPath }))
         }
-    }, [authChannel])
-
-    useEffect(() => {
-        if (!authChannel) return
-        const handleAuthMessage = async (event: MessageEvent<{ type: string }>) => {
-            if (event.data.type === 'SIGN_OUT') {
-                await router.push('/auth/signin?' + qs.stringify({ next: router.asPath }))
-            }
-        }
-    
-        authChannel.addEventListener('message', handleAuthMessage)
-        return () => {
-            authChannel.removeEventListener('message', handleAuthMessage)
-        }
-    }, [authChannel, router])
+    )
 
     const handleSignOutClick = useCallback(async () => {
-        if (authChannel) {
-            authChannel.postMessage({ type: 'SIGN_OUT' })
-        }
+        sendSignOutToBroadcast()
 
         await auth.signOut()
         if (isFunction(goToAfterLogout)) {
             await goToAfterLogout()
         }
-    }, [auth, authChannel, goToAfterLogout])
+    }, [auth, sendSignOutToBroadcast, goToAfterLogout])
 
     const menu = useMemo<DropdownProps['menu']>(() => {
         return {
