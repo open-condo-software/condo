@@ -56,19 +56,19 @@ const columns: TableColumn<TableData>[] = [
         header: 'Status',
         id: 'status',
         initialVisibility: false,
-        render: (value) => <span>{value ? 'Active' : 'Inactive'}</span>,
+        render: (status, _) => <span>{status ? 'Active' : 'Inactive'}</span>,
     },
     {
         dataKey: (row) => row.organization?.name,
         header: 'Organization Name',
         id: 'organization.name',
-        render: (value) => <span>{value ? String(value) : '—'}</span>,
+        render: (_, record) => <span>{record.organization?.name ? String(record.organization.name) : '—'}</span>,
     },
     {
         dataKey: (row) => row.organization?.id,
         header: 'Organization ID',
         id: 'organization.id',
-        render: (value) => <span>{value ? String(value) : '—'}</span>,
+        render: (_, record) => <span>{record.organization?.id ? String(record.organization.id) : '—'}</span>,
     },
 ]
 
