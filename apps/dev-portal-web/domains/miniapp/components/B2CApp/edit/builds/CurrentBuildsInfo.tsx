@@ -19,6 +19,7 @@ const CurrentBuildsInfo: React.FC<{ id: string }> = React.memo(({ id }) => {
     const DevBuildVersionLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.currentBuildsList.items.development.label' })
     const ProdBuildVersionLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.currentBuildsList.items.production.label' })
     const NoBuildText = intl.formatMessage({ id: 'apps.b2c.sections.builds.currentBuildsList.noBuild.text' })
+    const BuildLoadingErrorText = intl.formatMessage({ id: 'apps.b2c.sections.builds.currentBuildsList.buildLoadingError.text' })
     const PublishSectionText = intl.formatMessage({ id: 'apps.b2c.sections.publishing.title' })
     const PublishAlertDescription = intl.formatMessage({ id: 'apps.b2c.sections.builds.currentBuildsList.publishAlert.description' }, {
         section: (
@@ -30,13 +31,13 @@ const CurrentBuildsInfo: React.FC<{ id: string }> = React.memo(({ id }) => {
 
     const { persistor } = useCachePersistor()
     
-    const { data: devData, loading: devLoading } = useGetB2CAppInfoQuery({
+    const { data: devData, loading: devLoading, error: devError } = useGetB2CAppInfoQuery({
         variables: { data: { app: { id }, environment: AppEnvironment.Development } },
         skip: !persistor,
         fetchPolicy: 'cache-and-network',
     })
 
-    const { data: prodData, loading: prodLoading } = useGetB2CAppInfoQuery({
+    const { data: prodData, loading: prodLoading, error: prodError } = useGetB2CAppInfoQuery({
         variables: { data: { app: { id }, environment: AppEnvironment.Production } },
         skip: !persistor,
         fetchPolicy: 'cache-and-network',
@@ -44,14 +45,16 @@ const CurrentBuildsInfo: React.FC<{ id: string }> = React.memo(({ id }) => {
 
     const devValue = useMemo(() => {
         if (devLoading) return <LoadingVersionSkeleton />
+        if (devError) return BuildLoadingErrorText
 
         return devData?.info?.currentBuild?.version || NoBuildText
-    }, [NoBuildText, devData?.info?.currentBuild?.version, devLoading])
+    }, [BuildLoadingErrorText, NoBuildText, devData?.info?.currentBuild?.version, devError, devLoading])
 
     const prodValue = useMemo(() => {
         if (prodLoading) return <LoadingVersionSkeleton />
+        if (prodError) return BuildLoadingErrorText
         return prodData?.info?.currentBuild?.version || NoBuildText
-    }, [NoBuildText, prodData?.info?.currentBuild?.version, prodLoading])
+    }, [BuildLoadingErrorText, NoBuildText, prodData?.info?.currentBuild?.version, prodError, prodLoading])
 
 
     return (

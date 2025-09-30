@@ -137,6 +137,7 @@
   "apps.b2c.sections.builds.currentBuildsList.items.production.label": "Current production build",
   "apps.b2c.sections.builds.currentBuildsList.items.development.label": "Current test build",
   "apps.b2c.sections.builds.currentBuildsList.noBuild.text": "none",
+  "apps.b2c.sections.builds.currentBuildsList.buildLoadingError.text": "error",
   "apps.b2c.sections.builds.currentBuildsList.publishAlert.description": "You can publish your builds in \"{section}\" section",
   "apps.b2c.sections.builds.table.columns.version.title": "Version",
   "apps.b2c.sections.builds.table.columns.createdAt.title": "Upload date",

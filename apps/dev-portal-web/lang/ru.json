@@ -137,6 +137,7 @@
   "apps.b2c.sections.builds.currentBuildsList.items.production.label": "Текущая продуктовая сборка",
   "apps.b2c.sections.builds.currentBuildsList.items.development.label": "Текущая тестовая сборка",
   "apps.b2c.sections.builds.currentBuildsList.noBuild.text": "нет",
+  "apps.b2c.sections.builds.currentBuildsList.buildLoadingError.text": "ошибка",
   "apps.b2c.sections.builds.currentBuildsList.publishAlert.description": "Опубликовать сборку на стенд можно в разделе «{section}»",
   "apps.b2c.sections.builds.table.columns.version.title": "Версия сборки",
   "apps.b2c.sections.builds.table.columns.createdAt.title": "Дата загрузки",
