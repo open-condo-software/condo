@@ -341,11 +341,12 @@ async function deleteB2CAppPropertyByTestClient(client, id, environment) {
 
 async function getB2CAppInfoByTestClient(client, app, environment = DEV_ENVIRONMENT) {
     if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
     const attrs = {
         app: { id: app.id },
         environment,
     }
-    const { data, errors } = await client.mutate(GET_B2C_APP_INFO_QUERY, { data: attrs })
+    const { data, errors } = await client.query(GET_B2C_APP_INFO_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
