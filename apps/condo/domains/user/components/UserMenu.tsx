@@ -43,7 +43,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     }, [router])
 
     const authChannel = useMemo(() => {
-        if (typeof window === 'undefined') return null
+        if (typeof window === 'undefined' || typeof window.BroadcastChannel === 'undefined') return null
         return new BroadcastChannel('auth')
     }, [])
 

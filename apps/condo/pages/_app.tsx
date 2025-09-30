@@ -431,7 +431,8 @@ const TasksProvider = ({ children }) => {
     })
 
     const { records: miniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(
-        { status: 'processing', today: true }, !userLoading && user,
+        { status: 'processing', today: true }, 
+        userLoading ? null : user,
     )
     // ... another task records should be loaded here
 
