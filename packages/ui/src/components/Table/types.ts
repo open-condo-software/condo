@@ -14,7 +14,7 @@ export type TableColumnMenuLabels = {
 }
 
 export type TableColumn<TData extends RowData = RowData> = {
-    render?: (value: unknown) => React.ReactNode
+    render?: (value: unknown, record: TData) => React.ReactNode
     header: string
     dataKey: AccessorFn<TData> | string
     id: string
