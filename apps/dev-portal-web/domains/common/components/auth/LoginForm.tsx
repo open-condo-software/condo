@@ -68,8 +68,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onComplete }) => {
         }
     }, [router])
 
-    console.log(router.defaultLocale, router.locale)
-
     return (
         <>
             {authMethods.includes(CONDO_AUTH_METHOD) && (

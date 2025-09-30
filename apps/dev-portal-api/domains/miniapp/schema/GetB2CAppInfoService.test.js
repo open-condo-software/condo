@@ -67,7 +67,7 @@ describe('GetB2CAppInfoService', () => {
                 })
             })
         })
-        test('Anonymous cannot get any OIDC client', async () => {
+        test('Anonymous cannot get any app  info', async () => {
             await expectToThrowAuthenticationErrorToResult(async () => {
                 await getB2CAppInfoByTestClient(anonymous, b2cApp)
             })
