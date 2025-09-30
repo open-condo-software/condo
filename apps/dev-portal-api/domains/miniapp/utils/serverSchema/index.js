@@ -13,6 +13,7 @@ const {
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
     ALL_B2C_APP_PROPERTIES_QUERY,
+    GET_B2C_APP_INFO_QUERY,
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
@@ -86,6 +87,17 @@ async function deleteB2CAppProperty (context, data) {
         query: DELETE_B2C_APP_PROPERTY_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to deleteB2CAppProperty',
+        dataPath: 'obj',
+    })
+}
+
+async function getB2CAppInfo (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    return await execGqlWithoutAccess(context, {
+        query: GET_B2C_APP_INFO_QUERY,
+        variables: { data },
+        errorMessage: '[error] Unable to getB2CAppInfo',
         dataPath: 'obj',
     })
 }
@@ -165,6 +177,7 @@ module.exports = {
     allB2CAppProperties,
     createB2CAppProperty,
     deleteB2CAppProperty,
+    getB2CAppInfo,
     getOIDCClient,
     createOIDCClient,
     generateOIDCClientSecret,
