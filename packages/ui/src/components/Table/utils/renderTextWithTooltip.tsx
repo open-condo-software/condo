@@ -21,12 +21,12 @@ const getTitleMessage = ({ text, extraTitle, postfix }: { text?: unknown, extraT
     return null
 }
 
-export const renderTextWithTooltip = <TData = unknown>({
+export const renderTextWithTooltip = <TValue = unknown>({
     ellipsis = false,
     postfix = '',
     extraTitle,
     extraTooltipProps,
-}: RenderTextWithTooltipProps = {}) => function RenderTextWithTooltipComponent (text: TData) {
+}: RenderTextWithTooltipProps = {}) => function RenderTextWithTooltipComponent (text: TValue) {
     const title = getTitleMessage({ text, extraTitle, postfix })
     const ellipsisConfig = typeof ellipsis === 'boolean'
         ? (ellipsis ? ELLIPSIS_SETTINGS : false)
