@@ -50,7 +50,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
         },
         {
             access: true,
-            type: 'input SendMessageToSupportInput { dv: Int!, sender: SenderFieldInput!, text: String!, emailFrom: String, attachments: [Upload], os: String!, appVersion: String!, lang: SendMessageToSupportLang!, meta: JSON! }',
+            type: 'input SendMessageToSupportInput { dv: Int!, sender: SenderFieldInput!, text: String!, emailFrom: String, attachments: [Upload], os: String!, app: String, appVersion: String!, platform: String, userAgent: String, lang: SendMessageToSupportLang!, meta: JSON }',
         },
         {
             access: true,
@@ -68,7 +68,12 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, text, emailFrom, attachments = [], os, appVersion, lang } = data
+                const { dv, sender, text, emailFrom, attachments = [], os, app, appVersion, platform, lang } = data
+                const userAgent = (data.userAgent && data.userAgent.trim())
+                    ? data.userAgent
+                    : (Array.isArray(context.req.headers['user-agent'])
+                        ? context.req.headers['user-agent'][0]
+                        : context.req.headers['user-agent']) || null
 
                 if (!SUPPORT_EMAIL_MOBILE) throw new Error('Wrong server side support email configuration!')
 
@@ -157,7 +162,10 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                         text,
                         residentsExtraInfo,
                         os,
+                        app,
                         appVersion,
+                        platform,
+                        userAgent,
                         attachments: files,
                         appealNumber,
                     },

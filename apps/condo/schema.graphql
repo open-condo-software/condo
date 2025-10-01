@@ -85331,9 +85331,12 @@ input SendMessageToSupportInput {
   emailFrom: String
   attachments: [Upload]
   os: String!
+  app: String
   appVersion: String!
+  platform: String
+  userAgent: String
   lang: SendMessageToSupportLang!
-  meta: JSON!
+  meta: JSON
 }
 
 type SendMessageToSupportOutput {
@@ -98474,9 +98477,21 @@ type Mutation {
   			"defaultValue": null,
   			"required": true
   		},
+  		"app": {
+  			"defaultValue": null,
+  			"required": false
+  		},
   		"appVersion": {
   			"defaultValue": null,
   			"required": true
+  		},
+  		"platform": {
+  			"defaultValue": null,
+  			"required": false
+  		},
+  		"userAgent": {
+  			"defaultValue": null,
+  			"required": false
   		},
   		"attachments": {
   			"defaultValue": [],
