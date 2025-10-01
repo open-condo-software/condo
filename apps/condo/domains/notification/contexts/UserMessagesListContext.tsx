@@ -144,7 +144,9 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
             userMessagesSettingsStorage.setReadUserMessagesAt(newestMessageCreatedAt)
             sendReadUserMessagesAtToBroadcast(newestMessageCreatedAt)
 
-            markEmailConfirmationMessageAsRead()
+            if (typeof markEmailConfirmationMessageAsRead === 'function') {
+                markEmailConfirmationMessageAsRead()
+            }
         }
     }, [
         readUserMessagesAt,
