@@ -13,7 +13,11 @@ const FEATURE_TOGGLE_CONFIG = (conf.FEATURE_TOGGLE_CONFIG) ? JSON.parse(conf.FEA
 
 const REDIS_FEATURES_KEY = 'features'
 const REDIS_UPDATE_FEATURES_KEY = 'features-update'
+const REDIS_FEATURES_RECENTLY_ERROR_FLAG_KEY = 'features-recently-error'
 const FEATURES_EXPIRED_IN_SECONDS = 60
+const FEATURES_RECENTLY_ERROR_FLAG_EXPIRE_IN_SECONDS = 60 * 30 // 30 minutes
+
+const FEATURES_REQUEST_TIMEOUT_IN_MS = 5 * 1000 // 5 seconds
 
 class FeatureToggleManager {
     get redis () {
@@ -36,23 +40,29 @@ class FeatureToggleManager {
         }
         this._redisKey = REDIS_FEATURES_KEY
         this._redisUpdateKey = REDIS_UPDATE_FEATURES_KEY
+        this._redisRecentlyErrorFlagKey = REDIS_FEATURES_RECENTLY_ERROR_FLAG_KEY
         this._redisExpires = FEATURES_EXPIRED_IN_SECONDS
+        this._redisRecentlyErrorFlagExpires = FEATURES_RECENTLY_ERROR_FLAG_EXPIRE_IN_SECONDS
     }
 
     async fetchFeatures () {
         try {
             if (this._url) {
                 const wasUpdatedRecently = await this.redis.get(this._redisUpdateKey)
-                if (wasUpdatedRecently) {
+                const wasRecentlyError = await this.redis.get(this._redisRecentlyErrorFlagKey)
+                if (wasUpdatedRecently || wasRecentlyError) {
                     return this._getFeaturesFromCache()
                 }
-                const result = await fetch(this._url)
+
+                const result = await fetch(this._url, {
+                    abortRequestTimeout: FEATURES_REQUEST_TIMEOUT_IN_MS,
+                })
                 const parsedResult = await result.json()
                 const features = parsedResult.features
                 await this.redis.set(this._redisKey, JSON.stringify(features))
                 await this.redis.set(this._redisUpdateKey, 'true', 'EX', this._redisExpires)
-                return features
 
+                return features
             } else if (this._static) {
                 return JSON.parse(JSON.stringify(this._static))
             }
@@ -60,6 +70,8 @@ class FeatureToggleManager {
             throw new Error('FeatureToggleManager config error!')
         } catch (err) {
             logger.error({ msg: 'fetchFeatures error', err })
+            await this.redis.set(this._redisRecentlyErrorFlagKey, 'true', 'EX', this._redisRecentlyErrorFlagExpires)
+
             if (this._url) {
                 return this._getFeaturesFromCache()
             }
