@@ -59,13 +59,20 @@
   "global.registerForm.info.personalDataProcessing.consent": "согласие на обработку персональных данных",
   "global.registerForm.validations.passwordsDontMatch.message": "Пароли не совпадают",
 
-  "global.newAppForm.title": "Новое мини-приложение",
-  "global.newAppForm.items.type.b2bApp.label": "B2B приложение для УК",
-  "global.newAppForm.items.type.b2сApp.label": "B2C приложение для жителей",
-  "global.newAppForm.items.name.label": "Название приложения",
-  "global.newAppForm.items.developer.label": "Разработчик",
-  "global.newAppForm.items.developer.placeholder": "Название компании",
-  "global.newAppForm.actions.create": "Создать",
+  "global.createAppForm.steps.selectAppType.title": "Какое приложение создадим сегодня?",
+  "global.createAppForm.steps.enterAppName.title": "Как назовём новое приложение?",
+  "global.createAppForm.items.type.b2bWebApp.label": "B2B-приложение для УК",
+  "global.createAppForm.items.type.b2bWebApp.description": "Веб-приложение для управляющих компаний, встроенное в iframe",
+  "global.createAppForm.items.type.b2cNativeApp.label": "Нативное B2C-приложение",
+  "global.createAppForm.items.type.b2cNativeApp.description": "Мобильное мини-приложение для жителей с использованием Cordova",
+  "global.createAppForm.items.name.placeholder.option.1": "Моё первое приложение",
+  "global.createAppForm.items.name.placeholder.option.2": "Видеокамеры",
+  "global.createAppForm.items.name.placeholder.option.3": "Магазин на диване",
+  "global.createAppForm.items.name.placeholder.option.4": "Умный подъезд",
+  "global.createAppForm.actions.continue": "Продолжить",
+  "global.createAppForm.actions.back": "Назад",
+  "global.createAppForm.actions.create": "Создать",
+
 
   "global.recentAppsPopover.recentApps.title": "Недавно созданные",
 
@@ -119,6 +126,9 @@
 
   "apps.b2c.sections.info.title": "Информация",
   "apps.b2c.sections.info.commonInfo.subtitle": "Общая информация",
+  "apps.b2c.sections.info.commonInfo.form.items.name.label": "Название приложения",
+  "apps.b2c.sections.info.commonInfo.form.items.developer.label": "Разработчик",
+  "apps.b2c.sections.info.commonInfo.form.items.developer.placeholder": "Название компании",
   "apps.b2c.sections.info.environmentInfo.subtitle": "Информация об окружениях",
   "apps.b2c.sections.info.environmentInfo.form.items.stand.label": "Выберите окружение",
   "apps.b2c.sections.info.environmentInfo.form.items.appId.label": "ID приложения на выбранном стенде",
