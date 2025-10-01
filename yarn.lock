@@ -1588,7 +1588,7 @@ __metadata:
     graphql-tag: ^2.12.6
     http-proxy: ^1.18.1
     jsonwebtoken: ^9.0.0
-    locale-currency: ^1.0.0
+    locale-currency: 1.0.0
     lodash: ^4.17.21
     next: ^15.4.6
     openid-client: 5.7.1
@@ -30788,7 +30788,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"locale-currency@npm:^1.0.0":
+"locale-currency@npm:1.0.0":
   version: 1.0.0
   resolution: "locale-currency@npm:1.0.0"
   checksum: ba71b5e9429e3f77885b192811a417e5414e53db8bf2e1c15bc4c52d14d336db3f439d0a4290bc311a8683d234cfbcd8bd9c61f143505329839c65c8723deb9e
