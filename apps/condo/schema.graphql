@@ -98417,7 +98417,7 @@ type Mutation {
   		},
   		"userAgent": {
   			"defaultValue": null,
-  			"required": true
+  			"required": false
   		},
   		"attachments": {
   			"defaultValue": [],
