@@ -45,12 +45,12 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
                     if (nameLink) {
                         return (
                             <Link href={nameLink}>
-                                <a>
+                                <>
                                     {userName}
                                     {postfix && (
                                         <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
                                     )}
-                                </a>
+                                </>
                             </Link>
                         )
                     }

@@ -9,10 +9,10 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const EXECUTION_AIFLOW_TASK_FIELDS = `{ flowType context cleanContext status result errorMessage error meta locale user { id } ${COMMON_FIELDS} }`
+const EXECUTION_AIFLOW_TASK_FIELDS = `{ flowType context cleanContext status result errorMessage error meta locale user { id } organization { id } modelName itemId ${COMMON_FIELDS} }`
 const ExecutionAIFlowTask = generateGqlQueries('ExecutionAIFlowTask', EXECUTION_AIFLOW_TASK_FIELDS)
 
-const EXECUTION_AIFLOW_TASK_FIELDS_FOR_USER = `{ flowType context status result errorMessage locale user { id } ${COMMON_FIELDS} }`
+const EXECUTION_AIFLOW_TASK_FIELDS_FOR_USER = `{ flowType context status result errorMessage locale user { id } organization { id } modelName itemId ${COMMON_FIELDS} }`
 const ExecutionAIFlowTaskForUser = generateGqlQueries('ExecutionAIFlowTask', EXECUTION_AIFLOW_TASK_FIELDS_FOR_USER)
 
 /* AUTOGENERATE MARKER <CONST> */

@@ -1121,7 +1121,7 @@ const TicketsPage: PageComponentType = () => {
                                             {
                                                 isCallRecordsExists && (
                                                     <Link href='/callRecord'>
-                                                        <Typography.Link size='large'>
+                                                        <Typography.Link component={Link} size='large'>
                                                             <Space size={8}>
                                                                 <Phone size='medium'/>
                                                                 {CallRecordsLogMessage}

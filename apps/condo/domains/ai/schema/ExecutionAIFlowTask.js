@@ -230,12 +230,22 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
             schemaDoc: 'Name of the model that was changed via this task. Used for analytics',
             type: 'Text',
             isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
         },
 
         itemId: {
             schemaDoc: 'ID of the item that was changed via this task. Used for analytics',
             type: 'Text',
             isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
