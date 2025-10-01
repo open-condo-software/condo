@@ -22,7 +22,7 @@ const USER_MESSAGE_TYPES_FILTER_ON_CLIENT = [
 export type MessageTypeAllowedToFilterType = typeof USER_MESSAGE_TYPES_FILTER_ON_CLIENT[number]
 
 /**
- * Custom messages, generated in frontend and shown in UserMessagesList with a specific logic
+ * Custom messages are generated in the frontend and displayed in the UserMessagesList with specific logic
  */
 export const EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE_TYPE = 'EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE'
 export type CustomClientMessageTypes = typeof EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE_TYPE
