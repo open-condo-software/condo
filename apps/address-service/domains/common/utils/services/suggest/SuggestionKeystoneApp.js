@@ -57,6 +57,8 @@ class SuggestionKeystoneApp {
         }
 
         const processRequest = async (req, res, next) => {
+            const godContext = await params.keystone.createContext({ skipAccessControl: true })
+
             /**
              * User's search string
              * @type {?string}
@@ -102,6 +104,14 @@ class SuggestionKeystoneApp {
              */
             const helpers = getReqJson(req, 'helpers', {})
 
+            /**
+             * Whether the suggestion provider should include addresses from the local DB
+             * in addition to the address suggestions (if supported by the provider).
+             * Default: false
+             * @type {boolean}
+             */
+            const includeDbAddress = getReqParam(req, 'include_db_address', 'false') === 'true'
+
             if (!s) {
                 this.logger.warn({ msg: 'No string to search suggestions', reqId: req.id })
                 res.sendStatus(400)
@@ -122,6 +132,8 @@ class SuggestionKeystoneApp {
                     language,
                     count,
                     helpers,
+                    includeDbAddress,
+                    godContext,
                 })
 
                 // TODO(DOMA-7276): Think about splitting the address string to tokens, compile 2nd variant of address and pass to suggestion provider
@@ -132,7 +144,7 @@ class SuggestionKeystoneApp {
             // 3. Inject some data not presented in provider
             if (!bypass) {
                 const injectionsSeeker = new InjectionsSeeker(s)
-                const denormalizedInjections = await injectionsSeeker.getInjections(await params.keystone.createContext({ skipAccessControl: true }))
+                const denormalizedInjections = await injectionsSeeker.getInjections(godContext)
 
                 suggestions.unshift(...injectionsSeeker.normalize(denormalizedInjections))
                 suggestions.sort((a, b) => {
