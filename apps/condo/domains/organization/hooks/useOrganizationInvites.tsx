@@ -25,7 +25,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
     const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
-    const { user, isAuthenticated } = useAuth()
+    const { user, isAuthenticated, isLoading: authLoading } = useAuth()
     const userId = user?.id || null
     const { selectEmployee } = useOrganization()
     const { persistor } = useCachePersistor()
@@ -39,8 +39,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
             userId,
             organizationType: organizationTypes,
         },
-        fetchPolicy: 'cache-and-network',
-        skip: !userId || !organizationTypes || organizationTypes.length < 1 || !persistor,
+        skip: authLoading || !isAuthenticated || !organizationTypes || organizationTypes.length < 1 || !persistor,
     })
     const userInvites = useMemo(() => userInvitationsData?.invitations?.filter(Boolean) || [], [userInvitationsData?.invitations])
 
@@ -68,7 +67,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
 
         await refetch()
     }
-    if (isAuthenticated && userInvites) {
+    if (!authLoading && isAuthenticated && userInvites) {
         userInvites.forEach(invite => {
             addNotification({
                 actions: [

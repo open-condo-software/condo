@@ -157,7 +157,7 @@ export const useOrganizationEmployeeRequests = () => {
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
 
     const { persistor } = useCachePersistor()
-    const { user } = useAuth()
+    const { user, isAuthenticated, isLoading: userIsLoading } = useAuth()
     const userId = useMemo(() => user?.id, [user?.id])
     const { employee } = useOrganization()
     const { addNotification } = useLayoutContext()
@@ -172,7 +172,7 @@ export const useOrganizationEmployeeRequests = () => {
         loading: isEmployeesLoading,
     } = useGetActualOrganizationEmployeesQuery({
         variables: { userId },
-        skip: !userId || !persistor || isOrganizationRequestsHidden,
+        skip: !isAuthenticated || userIsLoading || !persistor || isOrganizationRequestsHidden,
     })
     const actualEmployees = useMemo(() => actualEmployeesData?.actualEmployees?.filter(Boolean) || [], [actualEmployeesData?.actualEmployees])
     const userOrganizationIds = useMemo(() => actualEmployees
@@ -189,7 +189,7 @@ export const useOrganizationEmployeeRequests = () => {
             userOrganizationIds,
         },
         onError,
-        skip: !user || !employee || isEmployeesLoading || isOrganizationRequestsHidden || !userOrganizationIds.length,
+        skip: !persistor || isEmployeesLoading || userIsLoading || !isAuthenticated || !employee || isOrganizationRequestsHidden || !userOrganizationIds.length,
     })
     const [acceptOrRejectRequest] = useAcceptOrRejectOrganizationEmployeeRequestMutation({
         onError,

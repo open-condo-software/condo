@@ -386,10 +386,11 @@ const OrganizationProvider: React.FC<React.PropsWithChildren<OrganizationProvide
     useEffect(() => {
         if (userLoading) return
         if (!user && activeEmployee !== null) {
-            setActiveEmployee(null)
+            setCookieEmployeeId('')
             setActiveEmployeeId(null)
+            setActiveEmployee(null)
         }
-    }, [user])
+    }, [user, userLoading, activeEmployee])
 
     if (DEBUG_RERENDERS) console.log('OrganizationProvider()', activeEmployee, 'loading', employeeLoading, 'skip', (userLoading || !user || !activeEmployeeId))
 

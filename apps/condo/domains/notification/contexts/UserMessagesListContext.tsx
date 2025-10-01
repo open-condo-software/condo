@@ -73,8 +73,8 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
     const [excludedMessageTypes, setExcludedMessageTypes] = useState<Array<MessageTypeAllowedToFilterType>>([])
     const [isNotificationSoundEnabled, setIsNotificationSoundEnabled] = useState<boolean>()
 
-    const { user } = useAuth()
-    const { organization } = useOrganization()
+    const { user, isAuthenticated, isLoading: userIsLoading } = useAuth()
+    const { organization, isLoading: organizationIsLoading } = useOrganization()
 
     const userId = useMemo(() => user?.id, [user?.id])
     const organizationId = useMemo(() => organization?.id, [organization?.id])
@@ -95,9 +95,9 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         isDropdownOpen,
         messageTypesToFilter,
         organizationIdsToFilter,
-        skipQueryMessagesCondition:
-            !userId || !organizationId || allowedMessageTypesLoading || !readUserMessagesAt ||
-            messageTypesToFilter.length === 0 || organizationIdsToFilter.length === 0,
+        skipQueryMessagesCondition: userIsLoading || organizationIsLoading || !isAuthenticated || 
+        !organizationId || allowedMessageTypesLoading || !readUserMessagesAt || 
+        messageTypesToFilter.length === 0 || organizationIdsToFilter.length === 0,
     })
 
     // Set initial settings to state
