@@ -30,7 +30,6 @@ const fileAdapter = new FileAdapter('forwarded-emails-attachments')
 const kv = getKVClient()
 
 const APPEAL_NUMBER_KEY = 'send_message_to_support:appeal_number'
-const NO_USER_AGENT = 'NO_USER_AGENT'
 
 const ERRORS = {
     WRONG_EMAIL_FORMAT: {
@@ -74,7 +73,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                     ? data.userAgent
                     : (Array.isArray(context.req.headers['user-agent'])
                         ? context.req.headers['user-agent'][0]
-                        : context.req.headers['user-agent']) || NO_USER_AGENT
+                        : context.req.headers['user-agent']) || null
 
                 if (!SUPPORT_EMAIL_MOBILE) throw new Error('Wrong server side support email configuration!')
 

@@ -1,8 +1,8 @@
 System: {{ message.meta.os }}
-User agent: {{ message.meta.userAgent }}
 Platform: {% if message.meta.platform %}{{ message.meta.platform | safe }}{% else %}N/A{% endif %}
 App name: {% if message.meta.app %}{{ message.meta.app | safe }}{% else %}N/A{% endif %}
 App version: {{ message.meta.appVersion }}
+User agent: {% if message.meta.userAgent %}{{ message.meta.userAgent | safe }}{% else %}N/A{% endif %}
 Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}N/A{% endif %}
 Resident info:
 {%- if message.meta.residentsExtraInfo.length == 0 -%}

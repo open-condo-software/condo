@@ -324,7 +324,7 @@ const MESSAGE_META = {
         app: { defaultValue: null, required: false },
         appVersion: { defaultValue: null, required: true },
         platform: { defaultValue: null, required: false },
-        userAgent: { defaultValue: null, required: true },
+        userAgent: { defaultValue: null, required: false },
         attachments: { defaultValue: [], isRequired: false },
         appealNumber: { defaultValue: 1, isRequired: true },
     },
