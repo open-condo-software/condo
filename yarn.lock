@@ -824,7 +824,7 @@ __metadata:
     redlock: ^5.0.0-beta.2
     slugify: ^1.6.6
     supertest: ^7.1.3
-    swr: ^1.3.0
+    swr: ^2.3.6
     ts-jest: ^29.4.0
     typescript: ^5.8.3
     uuid: ^8.3.0
@@ -1597,6 +1597,7 @@ __metadata:
     react-dom: ^18.3.1
     react-intl: ^7.1.11
     serwist: ^9.0.0
+    swr: ^2.3.6
     telegraf: ^4.16.3
     telegraf-i18n: ^6.6.0
     ts-node: ^10.9.2
@@ -22178,7 +22179,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dequal@npm:^2.0.0":
+"dequal@npm:^2.0.0, dequal@npm:^2.0.3":
   version: 2.0.3
   resolution: "dequal@npm:2.0.3"
   checksum: 8679b850e1a3d0ebbc46ee780d5df7b478c23f335887464023a631d1b9af051ad4a6595a44220f9ff8ff95a8ddccf019b5ad778a976fd7bbf77383d36f412f90
@@ -44243,12 +44244,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swr@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "swr@npm:1.3.0"
+"swr@npm:^2.3.6":
+  version: 2.3.6
+  resolution: "swr@npm:2.3.6"
+  dependencies:
+    dequal: ^2.0.3
+    use-sync-external-store: ^1.4.0
   peerDependencies:
-    react: ^16.11.0 || ^17.0.0 || ^18.0.0
-  checksum: e7a184f0d560e9c8be85c023cc8e65e56a88a6ed46f9394b301b07f838edca23d2e303685319a4fcd620b81d447a7bcb489c7fa0a752c259f91764903c690cdb
+    react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: c7cc7dfb73d2437a16951b7217f7a1e1b103cc19c85456a1da2cd07cefcb300fbd5a9a2df5abbbb608c92af8f77777c0c93e9c80e907f145cacf0bd8176360cb
   languageName: node
   linkType: hard
 
@@ -46788,6 +46792,15 @@ __metadata:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
   checksum: a4135446ed1c022f89c8ed21bc98aad96db823489cd9ca8a7c69b99e0bbd81d804adec5ab4418cddc6512e6f2fa974541da54acb1f93af5579cd19457de2ea7c
+  languageName: node
+  linkType: hard
+
+"use-sync-external-store@npm:^1.4.0":
+  version: 1.5.0
+  resolution: "use-sync-external-store@npm:1.5.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 5e639c9273200adb6985b512c96a3a02c458bc8ca1a72e91da9cdc6426144fc6538dca434b0f99b28fb1baabc82e1c383ba7900b25ccdcb43758fb058dc66c34
   languageName: node
   linkType: hard
 
