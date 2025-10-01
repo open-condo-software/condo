@@ -69219,6 +69219,7 @@ enum B2BAppIconType {
   Menu
   Meters
   MinusCircle
+  Monitor
   MoreHorizontal
   MoreVertical
   NewAppeal

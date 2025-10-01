@@ -24,9 +24,9 @@ type CommonInfoFormValues = {
 
 export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const AppNameLabel = intl.formatMessage({ id: 'global.newAppForm.items.name.label' })
-    const DeveloperNameLabel = intl.formatMessage({ id: 'global.newAppForm.items.developer.label' })
-    const DeveloperNamePlaceholder = intl.formatMessage({ id: 'global.newAppForm.items.developer.placeholder' })
+    const AppNameLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.commonInfo.form.items.name.label' })
+    const DeveloperNameLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.commonInfo.form.items.developer.label' })
+    const DeveloperNamePlaceholder = intl.formatMessage({ id: 'apps.b2c.sections.info.commonInfo.form.items.developer.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'global.actions.save' })
 
     const [form] = Form.useForm()
