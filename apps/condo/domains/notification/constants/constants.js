@@ -822,6 +822,7 @@ const MESSAGE_META = {
             commentCreatedAt: { required: true },
             passTicketStatus: { required: true },
             passTicketAddress: { required: true },
+            comment: { required: true },
         },
     },
 }
