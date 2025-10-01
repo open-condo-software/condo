@@ -811,12 +811,17 @@ const MESSAGE_META = {
     [PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE]: {
         dv: { required: true },
         data: {
-            passTicketNumber: { defaultValue: '', required: true },
-            userId: { defaultValue: '', required: true },
-            senderName: { defaultValue: '', required: true },
-            commentId: { defaultValue: '', required: true },
-            organizationId: { defaultValue: '', required: true },
-            passTicketId: { defaultValue: '', required: true },
+            b2bAppId: { required: true },
+            passTicketNumber: { required: true },
+            userId: { required: true },
+            senderName: { required: true },
+            commentId: { required: true },
+            organizationId: { required: true },
+            passTicketId: { required: true },
+            organizationName: { required: true },
+            commentCreatedAt: { required: true },
+            passTicketStatus: { required: true },
+            passTicketAddress: { required: true },
         },
     },
 }
@@ -1093,10 +1098,9 @@ const MESSAGE_DELIVERY_OPTIONS = {
         strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
     },
     [PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE]: {
-        allowedTransports: [TELEGRAM_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT],
+        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
-        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
     },
 }
 
