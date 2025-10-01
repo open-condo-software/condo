@@ -4963,6 +4963,22 @@ type DeleteB2CAppPropertyOutput {
   address: String!
 }
 
+input GetB2CAppInfoInput {
+  app: B2CAppWhereUniqueInput!
+  environment: AppEnvironment!
+}
+
+type B2CAppCurrentBuild {
+  id: String!
+  version: String!
+}
+
+type GetB2CAppInfoOutput {
+  id: String!
+  environment: AppEnvironment!
+  currentBuild: B2CAppCurrentBuild
+}
+
 input AppWhereUniqueInput {
   id: ID!
 }
@@ -4976,6 +4992,7 @@ type OIDCClient {
   id: String!
   clientId: String!
   redirectUri: String!
+  isEnabled: Boolean!
 }
 
 input CreateOIDCClientInput {
@@ -5298,6 +5315,7 @@ type Query {
   """ Retrieve the meta-data for all lists. """
   _ksListsMeta(where: _ksListsMetaInput): [_ListMeta]
   allB2CAppProperties(data: AllB2CAppPropertiesInput!): AllB2CAppPropertiesOutput
+  getB2CAppInfo(data: GetB2CAppInfoInput!): GetB2CAppInfoOutput
   OIDCClient(data: GetOIDCClientInput!): OIDCClient
 
   """The version of the Keystone application serving this API."""

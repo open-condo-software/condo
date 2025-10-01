@@ -3,6 +3,7 @@ import getConfig from 'next/config'
 import React, { useCallback, useState, useEffect, useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { Select, Input } from '@open-condo/ui'
 import type { SelectProps } from '@open-condo/ui'
 
@@ -12,7 +13,7 @@ import {
     PROD_ENVIRONMENT,
 } from '@dev-portal-api/domains/miniapp/constants/publishing'
 
-import { AppEnvironment, useGetB2CAppQuery } from '@/gql'
+import { AppEnvironment, useGetB2CAppQuery, useGetB2CAppInfoQuery } from '@/gql'
 
 const { publicRuntimeConfig: { environmentsUris } } = getConfig()
 
@@ -26,15 +27,27 @@ export const EnvironmentInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const AppIdLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.form.items.appId.label' })
     const AppIdPlaceholder = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.form.items.appId.placeholder' })
     const EnvironmentUriLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.form.items.environmentUri.label' })
+    const CurrentBuildLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.form.items.currentBuild.label' })
+    const CurrentBuildPlaceholder = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.form.items.currentBuild.placeholder' })
 
     const [form] = Form.useForm()
     const [environment, setEnvironment] = useState<AppEnvironment>(DEFAULT_STAND as AppEnvironment)
+
+    const { persistor } = useCachePersistor()
 
     const handleEnvironmentChange = useCallback<Required<SelectProps>['onChange']>((value) => {
         setEnvironment(value as AppEnvironment)
     }, [])
 
     const { data } = useGetB2CAppQuery({ variables: { id } })
+
+    const { data: infoData, loading } = useGetB2CAppInfoQuery({
+        variables: { data: { app: { id }, environment } },
+        skip: !persistor,
+        fetchPolicy: 'cache-and-network',
+    })
+
+    const currentBuild = infoData?.info?.currentBuild?.version
 
     const appId = useMemo(() => {
         return data?.app?.[`${environment}ExportId`]
@@ -85,7 +98,17 @@ export const EnvironmentInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
                         : <Input readOnly disabled placeholder={AppIdPlaceholder} value={AppIdPlaceholder}/>
                 }
             </Form.Item>
-            {/*  TODO: Add information about current build / entrypoint here later  */}
+            <Form.Item
+                name='currentBuild'
+                label={CurrentBuildLabel}
+                valuePropName='data-value'
+            >
+                {
+                    currentBuild
+                        ? <CopyableInput value={currentBuild}/>
+                        : <Input readOnly disabled placeholder={CurrentBuildPlaceholder} value={CurrentBuildPlaceholder}/>
+                }
+            </Form.Item>
         </Form>
     )
 }

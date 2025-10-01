@@ -199,7 +199,7 @@ const isEmployeeCanReadTicket = ({
 }
 
 const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-    const { user, isLoading } = useAuth()
+    const { user, isLoading: userIsLoading, isAuthenticated } = useAuth()
     const userId = user?.id || null
 
     const { isLoading: userOrganizationLoading, organization: userOrganization, employee } = useOrganization()
@@ -213,7 +213,7 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
         variables: {
             employeeId,
         },
-        skip: !employeeId || !persistor,
+        skip: userIsLoading || userOrganizationLoading || !isAuthenticated || !employeeId || !persistor,
     })
     const propertyScopeEmployees = useMemo(() =>
         propertyScopeEmployeesData?.propertyScopeOrganizationEmployees.filter(Boolean) || [],
@@ -228,7 +228,7 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
             organizationId,
             propertyScopeIds,
         },
-        skip: !organizationId || !persistor,
+        skip: userIsLoading || userOrganizationLoading || !isAuthenticated || !organizationId || !persistor,
     })
     const propertyScopes = useMemo(() =>
         propertyScopesData?.propertyScope.filter(Boolean) || [],
@@ -238,7 +238,7 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
         variables: {
             propertyScopeIds: propertyScopes.map(scope => scope.id),
         },
-        skip: propertyScopes.length === 0 || !persistor,
+        skip: userIsLoading || userOrganizationLoading || !isAuthenticated || propertyScopes.length === 0 || !persistor,
     })
     const propertyScopeProperties = useMemo(() =>
         propertyScopePropertiesData?.propertyScopeProperty.filter(Boolean) || [],
@@ -248,7 +248,7 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
         variables: {
             employeeId,
         },
-        skip: !employeeId || !persistor,
+        skip: userIsLoading || userOrganizationLoading || !isAuthenticated || !employeeId || !persistor,
     })
     const employeeSpecializations = useMemo(() =>
         organizationEmployeeSpecializationsData?.organizationEmployeeSpecializations.filter(Boolean) || [],
@@ -271,7 +271,7 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
         employee,
     })
 
-    const ticketFilterQueryLoading = isLoading || userOrganizationLoading || employeesLoading ||
+    const ticketFilterQueryLoading = userIsLoading || userOrganizationLoading || employeesLoading ||
         propertyScopeLoading || propertiesLoading || specializationsLoading
 
     const canEmployeeReadTicket = useCallback((ticket) => isEmployeeCanReadTicket({

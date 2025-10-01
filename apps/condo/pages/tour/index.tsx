@@ -15,6 +15,7 @@ import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { ArrowLeft } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Typography } from '@open-condo/ui'
@@ -109,7 +110,8 @@ const TourPageContent = () => {
 
     const router = useRouter()
     const { locale } = useIntl()
-    const { organization, isLoading } = useOrganization()
+    const { isAuthenticated, isLoading: userIsLoading } = useAuth()
+    const { organization, isLoading: organizationIsLoading } = useOrganization()
     const { persistor } = useCachePersistor()
     const organizationId = organization?.id || null
     const { activeTourStep, setActiveTourStep, updateStepIfNotCompleted, syncLoading } = useTourContext()
@@ -127,7 +129,7 @@ const TourPageContent = () => {
             },
             sortBy: [SortTourStepsBy.OrderAsc],
         },
-        skip: !organizationId || !persistor || isLoading || syncLoading,
+        skip: !isAuthenticated || !organizationId || !persistor || userIsLoading || organizationIsLoading || syncLoading,
     })
     const tourSteps = useMemo(() => tourStepsData?.tourSteps.filter(Boolean) || [], [tourStepsData?.tourSteps])
 
@@ -137,7 +139,7 @@ const TourPageContent = () => {
         variables: {
             organizationId,
         },
-        skip: !organizationId || !persistor || isLoading || syncLoading,
+        skip: !isAuthenticated || !organizationId || !persistor || userIsLoading || organizationIsLoading  || syncLoading,
     })
     const lastCreatedProperty = useMemo(() => propertyData?.properties.filter(Boolean)?.[0] || null, [propertyData?.properties])
 
@@ -204,7 +206,7 @@ const TourPageContent = () => {
 
     const videoUrl = useMemo(() => tourVideoUrl?.[locale]?.[activeStepWithDefault], [activeStepWithDefault, locale])
 
-    if (isLoading || stepsLoading || syncLoading) {
+    if (userIsLoading || organizationIsLoading || stepsLoading || syncLoading) {
         return <Loader size='large'/>
     }
 

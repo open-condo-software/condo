@@ -407,7 +407,8 @@ const MenuItems: React.FC = () => {
 }
 
 const TasksProvider = ({ children }) => {
-    const { user, isLoading } = useAuth()
+    const { user, isLoading: userLoading, isAuthenticated } = useAuth()
+    const { organization, isLoading: organizationIsLoading } = useOrganization()
     const { persistor } = useCachePersistor()
 
     // Use UI interfaces for all tasks, that are supposed to be tracked
@@ -426,11 +427,12 @@ const TasksProvider = ({ children }) => {
     // Load all tasks with 'processing' status
     const { data, loading: isProcessingTasksLoading } = useGetProcessingTasksQuery({
         variables: { userId: user?.id || null, createdAtGte: dayjs().startOf('day').toISOString() },
-        skip: !user?.id || isLoading || !persistor,
+        skip: !isAuthenticated || userLoading || organizationIsLoading || !organization || !persistor,
     })
 
     const { records: miniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(
-        { status: 'processing', today: true }, user
+        { status: 'processing', today: true }, 
+        userLoading ? null : user,
     )
     // ... another task records should be loaded here
 
@@ -586,7 +588,6 @@ type NextAppContext = (AppContext & NextPageContext) & {
 if (!isDisabledSsr || !isSSR()) {
     MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps: Record<string, any> }> => {
         try {
-
             const pageContext = appContext?.ctx
             const apolloClient = appContext.apolloClient
 

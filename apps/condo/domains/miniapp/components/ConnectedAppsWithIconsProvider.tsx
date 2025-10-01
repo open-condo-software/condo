@@ -28,7 +28,7 @@ export const ConnectedWithIconsContext = createContext<IConnectedAppsWithIconsCo
 
 export const ConnectedAppsWithIconsContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const { isAuthenticated, isLoading: isUserLoading } = useAuth()
-    const { organization } = useOrganization()
+    const { organization, isLoading: organizationLoading } = useOrganization()
     const orgId = organization?.id || null
     const [appsByCategories, setAppsByCategories] = useState<AppsByCategories>({})
     const [connectedApps, setConnectedApps] = useState<Array<string>>([])
@@ -48,7 +48,7 @@ export const ConnectedAppsWithIconsContextProvider: React.FC<React.PropsWithChil
                 sortBy: SortAllMiniAppsBy.ConnectedAtAsc,
             },
         },
-        skip: isUserLoading || !isAuthenticated || !orgId || !persistor,
+        skip: isUserLoading || organizationLoading || !isAuthenticated || !orgId || !persistor,
         onCompleted: (allMiniAppsData) => {
             const apps = allMiniAppsData?.allMiniApps.filter(Boolean) || []
             const appsByCategories: AppsByCategories = Object.assign({}, ...ALL_MENU_CATEGORIES.map(category =>({ [category]: [] })))
