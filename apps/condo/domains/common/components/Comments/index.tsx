@@ -120,6 +120,8 @@ const Comments: React.FC<CommentsPropsType> = ({
         data: generateCommentData,
     }] = useAIFlow<{ answer: string }>({
         flowType: FLOW_TYPES.TICKET_REWRITE_COMMENT_FLOW_TYPE,
+        modelName: 'Ticket',
+        itemId: ticketId,
         defaultContext: {
             ticketId: ticketId,
             ticketDetails: ticket.details ?? '-',
@@ -337,6 +339,8 @@ const Comments: React.FC<CommentsPropsType> = ({
         data: rewriteTextData,
     }] = useAIFlow<{ answer: string }>({
         flowType: FLOW_TYPES.REWRITE_TEXT_FLOW_TYPE,
+        modelName: 'Ticket',
+        itemId: ticketId,
     })
 
     useEffect(() => {

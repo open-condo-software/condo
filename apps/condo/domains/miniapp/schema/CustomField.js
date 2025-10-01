@@ -97,7 +97,7 @@ const CustomField = new GQLListSchema('CustomField', {
             },
         },
 
-        schemaName: {
+        modelName: {
             schemaDoc: 'Condo schema that this field relates to.',
             type: 'Select',
             options: Object.keys(ALLOWED_SCHEMAS),

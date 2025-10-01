@@ -2334,9 +2334,9 @@ export type GetEmployeeB2BAppRolesLazyQueryHookResult = ReturnType<typeof useGet
 export type GetEmployeeB2BAppRolesSuspenseQueryHookResult = ReturnType<typeof useGetEmployeeB2BAppRolesSuspenseQuery>;
 export type GetEmployeeB2BAppRolesQueryResult = Apollo.QueryResult<Types.GetEmployeeB2BAppRolesQuery, Types.GetEmployeeB2BAppRolesQueryVariables>;
 export const GetCustomValuesForObjectDocument = gql`
-    query getCustomValuesForObject($schemaName: CustomFieldSchemaNameType!, $objectId: String!) {
+    query getCustomValuesForObject($modelName: CustomFieldModelNameType!, $itemId: String!) {
   customValues: allCustomValues(
-    where: {customField: {schemaName: $schemaName}, objectId: $objectId}
+    where: {customField: {modelName: $modelName}, itemId: $itemId}
   ) {
     id
     data
@@ -2362,8 +2362,8 @@ export const GetCustomValuesForObjectDocument = gql`
  * @example
  * const { data, loading, error } = useGetCustomValuesForObjectQuery({
  *   variables: {
- *      schemaName: // value for 'schemaName'
- *      objectId: // value for 'objectId'
+ *      modelName: // value for 'modelName'
+ *      itemId: // value for 'itemId'
  *   },
  * });
  */

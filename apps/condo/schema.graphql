@@ -77229,7 +77229,7 @@ type CustomFieldHistoryRecord {
   isVisible: Boolean
   name: String
   priority: Int
-  schemaName: String
+  modelName: String
   type: String
   isUniquePerObject: Boolean
   validationRules: JSON
@@ -77298,24 +77298,24 @@ input CustomFieldHistoryRecordWhereInput {
   priority_gte: Int
   priority_in: [Int]
   priority_not_in: [Int]
-  schemaName: String
-  schemaName_not: String
-  schemaName_contains: String
-  schemaName_not_contains: String
-  schemaName_starts_with: String
-  schemaName_not_starts_with: String
-  schemaName_ends_with: String
-  schemaName_not_ends_with: String
-  schemaName_i: String
-  schemaName_not_i: String
-  schemaName_contains_i: String
-  schemaName_not_contains_i: String
-  schemaName_starts_with_i: String
-  schemaName_not_starts_with_i: String
-  schemaName_ends_with_i: String
-  schemaName_not_ends_with_i: String
-  schemaName_in: [String]
-  schemaName_not_in: [String]
+  modelName: String
+  modelName_not: String
+  modelName_contains: String
+  modelName_not_contains: String
+  modelName_starts_with: String
+  modelName_not_starts_with: String
+  modelName_ends_with: String
+  modelName_not_ends_with: String
+  modelName_i: String
+  modelName_not_i: String
+  modelName_contains_i: String
+  modelName_not_contains_i: String
+  modelName_starts_with_i: String
+  modelName_not_starts_with_i: String
+  modelName_ends_with_i: String
+  modelName_not_ends_with_i: String
+  modelName_in: [String]
+  modelName_not_in: [String]
   type: String
   type_not: String
   type_contains: String
@@ -77433,8 +77433,8 @@ enum SortCustomFieldHistoryRecordsBy {
   name_DESC
   priority_ASC
   priority_DESC
-  schemaName_ASC
-  schemaName_DESC
+  modelName_ASC
+  modelName_DESC
   type_ASC
   type_DESC
   isUniquePerObject_ASC
@@ -77464,7 +77464,7 @@ input CustomFieldHistoryRecordUpdateInput {
   isVisible: Boolean
   name: String
   priority: Int
-  schemaName: String
+  modelName: String
   type: String
   isUniquePerObject: Boolean
   validationRules: JSON
@@ -77493,7 +77493,7 @@ input CustomFieldHistoryRecordCreateInput {
   isVisible: Boolean
   name: String
   priority: Int
-  schemaName: String
+  modelName: String
   type: String
   isUniquePerObject: Boolean
   validationRules: JSON
@@ -77516,7 +77516,7 @@ input CustomFieldHistoryRecordsCreateInput {
   data: CustomFieldHistoryRecordCreateInput
 }
 
-enum CustomFieldSchemaNameType {
+enum CustomFieldModelNameType {
   Contact
   Resident
   Property
@@ -77555,7 +77555,7 @@ type CustomField {
   priority: Int
 
   """ Condo schema that this field relates to. """
-  schemaName: CustomFieldSchemaNameType
+  modelName: CustomFieldModelNameType
 
   """ Type of that field """
   type: CustomFieldTypeType
@@ -77642,10 +77642,10 @@ input CustomFieldWhereInput {
   priority_gte: Int
   priority_in: [Int]
   priority_not_in: [Int]
-  schemaName: CustomFieldSchemaNameType
-  schemaName_not: CustomFieldSchemaNameType
-  schemaName_in: [CustomFieldSchemaNameType]
-  schemaName_not_in: [CustomFieldSchemaNameType]
+  modelName: CustomFieldModelNameType
+  modelName_not: CustomFieldModelNameType
+  modelName_in: [CustomFieldModelNameType]
+  modelName_not_in: [CustomFieldModelNameType]
   type: CustomFieldTypeType
   type_not: CustomFieldTypeType
   type_in: [CustomFieldTypeType]
@@ -77729,8 +77729,8 @@ enum SortCustomFieldsBy {
   name_DESC
   priority_ASC
   priority_DESC
-  schemaName_ASC
-  schemaName_DESC
+  modelName_ASC
+  modelName_DESC
   type_ASC
   type_DESC
   isUniquePerObject_ASC
@@ -77760,7 +77760,7 @@ input CustomFieldUpdateInput {
   isVisible: Boolean
   name: String
   priority: Int
-  schemaName: CustomFieldSchemaNameType
+  modelName: CustomFieldModelNameType
   type: CustomFieldTypeType
   isUniquePerObject: Boolean
   validationRules: JSON
@@ -77786,7 +77786,7 @@ input CustomFieldCreateInput {
   isVisible: Boolean
   name: String
   priority: Int
-  schemaName: CustomFieldSchemaNameType
+  modelName: CustomFieldModelNameType
   type: CustomFieldTypeType
   isUniquePerObject: Boolean
   validationRules: JSON
@@ -77824,7 +77824,7 @@ type CustomValueHistoryRecord {
   _label_: String
   customField: String
   data: JSON
-  objectId: String
+  itemId: String
   filterDataString: String
   sourceType: String
   sourceId: String
@@ -77860,24 +77860,24 @@ input CustomValueHistoryRecordWhereInput {
   data_not: JSON
   data_in: [JSON]
   data_not_in: [JSON]
-  objectId: String
-  objectId_not: String
-  objectId_contains: String
-  objectId_not_contains: String
-  objectId_starts_with: String
-  objectId_not_starts_with: String
-  objectId_ends_with: String
-  objectId_not_ends_with: String
-  objectId_i: String
-  objectId_not_i: String
-  objectId_contains_i: String
-  objectId_not_contains_i: String
-  objectId_starts_with_i: String
-  objectId_not_starts_with_i: String
-  objectId_ends_with_i: String
-  objectId_not_ends_with_i: String
-  objectId_in: [String]
-  objectId_not_in: [String]
+  itemId: String
+  itemId_not: String
+  itemId_contains: String
+  itemId_not_contains: String
+  itemId_starts_with: String
+  itemId_not_starts_with: String
+  itemId_ends_with: String
+  itemId_not_ends_with: String
+  itemId_i: String
+  itemId_not_i: String
+  itemId_contains_i: String
+  itemId_not_contains_i: String
+  itemId_starts_with_i: String
+  itemId_not_starts_with_i: String
+  itemId_ends_with_i: String
+  itemId_not_ends_with_i: String
+  itemId_in: [String]
+  itemId_not_in: [String]
   filterDataString: String
   filterDataString_not: String
   filterDataString_contains: String
@@ -78093,8 +78093,8 @@ input CustomValueHistoryRecordWhereUniqueInput {
 }
 
 enum SortCustomValueHistoryRecordsBy {
-  objectId_ASC
-  objectId_DESC
+  itemId_ASC
+  itemId_DESC
   filterDataString_ASC
   filterDataString_DESC
   sourceType_ASC
@@ -78132,7 +78132,7 @@ enum SortCustomValueHistoryRecordsBy {
 input CustomValueHistoryRecordUpdateInput {
   customField: String
   data: JSON
-  objectId: String
+  itemId: String
   filterDataString: String
   sourceType: String
   sourceId: String
@@ -78164,7 +78164,7 @@ input CustomValueHistoryRecordsUpdateInput {
 input CustomValueHistoryRecordCreateInput {
   customField: String
   data: JSON
-  objectId: String
+  itemId: String
   filterDataString: String
   sourceType: String
   sourceId: String
@@ -78228,8 +78228,8 @@ type CustomValue {
   """ Data of this customValue """
   data: JSON
 
-  """ What instance of CustomField.schemaName this customValue relates to? """
-  objectId: String
+  """ What instance of CustomField.modelName this customValue relates to? """
+  itemId: String
 
   """ String representation of data. Actual logic is controlled by type field in customValue. Use it for filtering 
   """
@@ -78293,24 +78293,24 @@ input CustomValueWhereInput {
   data_not: JSON
   data_in: [JSON]
   data_not_in: [JSON]
-  objectId: String
-  objectId_not: String
-  objectId_contains: String
-  objectId_not_contains: String
-  objectId_starts_with: String
-  objectId_not_starts_with: String
-  objectId_ends_with: String
-  objectId_not_ends_with: String
-  objectId_i: String
-  objectId_not_i: String
-  objectId_contains_i: String
-  objectId_not_contains_i: String
-  objectId_starts_with_i: String
-  objectId_not_starts_with_i: String
-  objectId_ends_with_i: String
-  objectId_not_ends_with_i: String
-  objectId_in: [String]
-  objectId_not_in: [String]
+  itemId: String
+  itemId_not: String
+  itemId_contains: String
+  itemId_not_contains: String
+  itemId_starts_with: String
+  itemId_not_starts_with: String
+  itemId_ends_with: String
+  itemId_not_ends_with: String
+  itemId_i: String
+  itemId_not_i: String
+  itemId_contains_i: String
+  itemId_not_contains_i: String
+  itemId_starts_with_i: String
+  itemId_not_starts_with_i: String
+  itemId_ends_with_i: String
+  itemId_not_ends_with_i: String
+  itemId_in: [String]
+  itemId_not_in: [String]
   filterDataString: String
   filterDataString_not: String
   filterDataString_contains: String
@@ -78478,8 +78478,8 @@ input CustomValueWhereUniqueInput {
 enum SortCustomValuesBy {
   customField_ASC
   customField_DESC
-  objectId_ASC
-  objectId_DESC
+  itemId_ASC
+  itemId_DESC
   filterDataString_ASC
   filterDataString_DESC
   sourceType_ASC
@@ -78519,7 +78519,7 @@ enum SortCustomValuesBy {
 input CustomValueUpdateInput {
   customField: CustomFieldRelateToOneInput
   data: JSON
-  objectId: String
+  itemId: String
   filterDataString: String
   sourceType: CustomValueSourceTypeType
   sourceId: String
@@ -78548,7 +78548,7 @@ input CustomValuesUpdateInput {
 input CustomValueCreateInput {
   customField: CustomFieldRelateToOneInput
   data: JSON
-  objectId: String
+  itemId: String
   filterDataString: String
   sourceType: CustomValueSourceTypeType
   sourceId: String
@@ -83305,6 +83305,9 @@ type ExecutionAIFlowTaskHistoryRecord {
   meta: JSON
   locale: String
   user: String
+  organization: String
+  modelName: String
+  itemId: String
   id: ID!
   v: Int
   createdAt: String
@@ -83419,6 +83422,46 @@ input ExecutionAIFlowTaskHistoryRecordWhereInput {
   user_not: String
   user_in: [String]
   user_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  modelName: String
+  modelName_not: String
+  modelName_contains: String
+  modelName_not_contains: String
+  modelName_starts_with: String
+  modelName_not_starts_with: String
+  modelName_ends_with: String
+  modelName_not_ends_with: String
+  modelName_i: String
+  modelName_not_i: String
+  modelName_contains_i: String
+  modelName_not_contains_i: String
+  modelName_starts_with_i: String
+  modelName_not_starts_with_i: String
+  modelName_ends_with_i: String
+  modelName_not_ends_with_i: String
+  modelName_in: [String]
+  modelName_not_in: [String]
+  itemId: String
+  itemId_not: String
+  itemId_contains: String
+  itemId_not_contains: String
+  itemId_starts_with: String
+  itemId_not_starts_with: String
+  itemId_ends_with: String
+  itemId_not_ends_with: String
+  itemId_i: String
+  itemId_not_i: String
+  itemId_contains_i: String
+  itemId_not_contains_i: String
+  itemId_starts_with_i: String
+  itemId_not_starts_with_i: String
+  itemId_ends_with_i: String
+  itemId_not_ends_with_i: String
+  itemId_in: [String]
+  itemId_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -83510,6 +83553,10 @@ enum SortExecutionAIFlowTaskHistoryRecordsBy {
   errorMessage_DESC
   locale_ASC
   locale_DESC
+  modelName_ASC
+  modelName_DESC
+  itemId_ASC
+  itemId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -83539,6 +83586,9 @@ input ExecutionAIFlowTaskHistoryRecordUpdateInput {
   meta: JSON
   locale: String
   user: String
+  organization: String
+  modelName: String
+  itemId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -83569,6 +83619,9 @@ input ExecutionAIFlowTaskHistoryRecordCreateInput {
   meta: JSON
   locale: String
   user: String
+  organization: String
+  modelName: String
+  itemId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -83647,6 +83700,15 @@ type ExecutionAIFlowTask {
 
   """ User that requested this operation. """
   user: User
+
+  """ Organization on which behalf this operation was requested. """
+  organization: Organization
+
+  """ Name of the model that was changed via this task. Used for analytics """
+  modelName: String
+
+  """ ID of the item that was changed via this task. Used for analytics """
+  itemId: String
   id: ID!
   v: Int
   createdAt: String
@@ -83739,6 +83801,44 @@ input ExecutionAIFlowTaskWhereInput {
   locale_not_in: [ExecutionAIFlowTaskLocaleType]
   user: UserWhereInput
   user_is_null: Boolean
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  modelName: String
+  modelName_not: String
+  modelName_contains: String
+  modelName_not_contains: String
+  modelName_starts_with: String
+  modelName_not_starts_with: String
+  modelName_ends_with: String
+  modelName_not_ends_with: String
+  modelName_i: String
+  modelName_not_i: String
+  modelName_contains_i: String
+  modelName_not_contains_i: String
+  modelName_starts_with_i: String
+  modelName_not_starts_with_i: String
+  modelName_ends_with_i: String
+  modelName_not_ends_with_i: String
+  modelName_in: [String]
+  modelName_not_in: [String]
+  itemId: String
+  itemId_not: String
+  itemId_contains: String
+  itemId_not_contains: String
+  itemId_starts_with: String
+  itemId_not_starts_with: String
+  itemId_ends_with: String
+  itemId_not_ends_with: String
+  itemId_i: String
+  itemId_not_i: String
+  itemId_contains_i: String
+  itemId_not_contains_i: String
+  itemId_starts_with_i: String
+  itemId_not_starts_with_i: String
+  itemId_ends_with_i: String
+  itemId_not_ends_with_i: String
+  itemId_in: [String]
+  itemId_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -83812,6 +83912,12 @@ enum SortExecutionAIFlowTasksBy {
   locale_DESC
   user_ASC
   user_DESC
+  organization_ASC
+  organization_DESC
+  modelName_ASC
+  modelName_DESC
+  itemId_ASC
+  itemId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -83841,6 +83947,9 @@ input ExecutionAIFlowTaskUpdateInput {
   meta: JSON
   locale: ExecutionAIFlowTaskLocaleType
   user: UserRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  modelName: String
+  itemId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -83868,6 +83977,9 @@ input ExecutionAIFlowTaskCreateInput {
   meta: JSON
   locale: ExecutionAIFlowTaskLocaleType
   user: UserRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  modelName: String
+  itemId: String
   v: Int
   createdAt: String
   updatedAt: String

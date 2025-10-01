@@ -83,7 +83,6 @@ const ajv = new Ajv()
 const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
     schemaDoc: 'Allows you to run a deferred task to execute a request to AI. Saves information about the request, as well as about the process of executing the request itself.',
     fields: {
-
         flowType: {
             schemaDoc: `The type of AI flow to be called.
              \nThe value can be one of the list (${FLOW_TYPES_LIST.map(flowType => `"${flowType}"`).join('.')}), or some allowed custom value.`,
@@ -214,6 +213,40 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
             },
         },
 
+        organization: {
+            schemaDoc: 'Organization on which behalf this operation was requested.',
+            type: 'Relationship',
+            ref: 'Organization',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        modelName: {
+            schemaDoc: 'Name of the model that was changed via this task. Used for analytics',
+            type: 'Text',
+            isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        itemId: {
+            schemaDoc: 'ID of the item that was changed via this task. Used for analytics',
+            type: 'Text',
+            isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

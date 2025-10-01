@@ -353,8 +353,8 @@ export type GetEmployeeB2BAppRolesQueryVariables = Types.Exact<{
 export type GetEmployeeB2BAppRolesQuery = { __typename?: 'Query', b2bRoles?: Array<{ __typename?: 'B2BAppRole', id: string, app?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
 
 export type GetCustomValuesForObjectQueryVariables = Types.Exact<{
-  schemaName: Types.CustomFieldSchemaNameType;
-  objectId: Types.Scalars['String']['input'];
+  modelName: Types.CustomFieldModelNameType;
+  itemId: Types.Scalars['String']['input'];
 }>;
 
 

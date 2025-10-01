@@ -8,7 +8,7 @@ import { useState, useCallback } from 'react'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
-
+import { useOrganization } from '@open-condo/next/organization'
 
 import { FLOW_TYPES_LIST, TASK_STATUSES } from '../constants.js'
 
@@ -16,6 +16,8 @@ type FlowType = typeof FLOW_TYPES_LIST[number]
 
 type UseAIFlowPropsType<T> = {
     flowType: FlowType
+    itemId?: string
+    modelName?: string
     defaultContext?: object
     timeout?: number
 }
@@ -35,10 +37,14 @@ const TASK_POLLING_INTERVAL_MS = 1000
 
 export function useAIFlow<T = object> ({
     flowType,
+    modelName,
+    itemId,
     defaultContext = {},
     timeout = DEFAULT_TIMEOUT_MS,
 }: UseAIFlowPropsType<T>): UseAIFlowResultType<T> {
     const { user } = useAuth()
+    const { organization } = useOrganization()
+
     const [createExecutionAIFlowMutation] = useCreateExecutionAiFlowTaskMutation()
     const [getExecutionAiFlowTaskById] = useGetExecutionAiFlowTaskByIdLazyQuery()
 
@@ -66,6 +72,9 @@ export function useAIFlow<T = object> ({
                         dv: 1,
                         sender: getClientSideSenderInfo(),
                         flowType,
+                        modelName,
+                        itemId,
+                        organization: { connect: { id: organization.id } },
                         context: fullContext,
                         user: { connect: { id: user.id } },
                     },
