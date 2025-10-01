@@ -1,0 +1,263 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+.condo-table-container {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  background-color: @condo-global-color-white;
+  border: 1px solid @condo-global-color-gray-5;
+  border-radius: 12px;
+}
+
+.condo-table {
+  width: 100%;
+  font-family: @condo-global-font-family-default;
+  border: none;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.condo-table-loading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100px;
+  border: none;
+
+  &::after {
+    width: 24px;
+    height: 24px;
+    border: 3px solid @condo-global-color-gray-1;
+    border-top: 3px solid @condo-global-color-green-5;
+    border-radius: 50%;
+    animation: condo-table-loading-spin 1s linear infinite;
+    content: "";
+  }
+}
+
+@keyframes condo-table-loading-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.condo-table-tbody {
+  display: flex;
+  flex-direction: column;
+}
+
+.condo-table-thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  width: 100%;
+}
+
+.condo-table-th-more-icon {
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: all @condo-global-transition-duration-default ease;
+}
+
+.condo-table-th {
+  position: relative;
+  flex: 1 1 0;
+  box-sizing: border-box;
+  min-width: 60px;
+  padding: 16px 12px;
+  color: @condo-global-color-gray-7;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 22px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background-color: @condo-global-color-white;
+  border: none;
+  border-bottom: 1px solid @condo-global-color-gray-5;
+  backface-visibility: hidden;
+  cursor: pointer;
+  transition: all @condo-global-transition-duration-default ease;
+  user-select: none;
+  will-change: width;
+  contain: layout;
+
+  &:hover {
+    background-color: @condo-global-color-gray-1;
+
+    .condo-table-th-more-icon {
+      color: @condo-global-color-gray-7;
+      opacity: 1;
+    }
+
+    .condo-table-th-more-icon:hover {
+      color: @condo-global-color-green-5;
+      opacity: 1;
+    }
+  }
+
+  &:first-child {
+    border-top-left-radius: 12px;
+  }
+
+  &:last-child {
+    border-right: none;
+    border-top-right-radius: 12px;
+  }
+
+  &.non-sortable {
+    cursor: default;
+  }
+}
+
+.condo-table-th-content {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.condo-table-th-title-content {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.condo-table-td {
+  flex: 1 1 0;
+  box-sizing: border-box;
+  min-width: 60px;
+  padding: 16px 12px;
+  overflow: hidden;
+  color: @condo-global-color-black;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border: none;
+  border-bottom: 1px solid @condo-global-color-gray-5;
+  backface-visibility: hidden;
+  transition: all @condo-global-transition-duration-default ease;
+  will-change: width;
+  contain: layout;
+
+  .condo-table-tr:last-child & {
+    border-bottom: none;
+  }
+}
+
+.condo-table-tr {
+  display: flex;
+  outline: none;
+  transition: background-color @condo-global-transition-duration-default ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.hoverable {
+    cursor: pointer;
+  }
+
+  &:hover {
+    background-color: @condo-global-color-gray-1;
+
+    .condo-table-td {
+      background-color: @condo-global-color-gray-1;
+    }
+  }
+
+  &:focus {
+    outline: 2px solid @condo-global-color-green-5;
+    outline-offset: -2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &[role="button"] {
+    cursor: pointer;
+  }
+}
+
+.condo-table-column-settings-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background-color: @condo-global-color-white;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px @condo-global-color-gray-3;
+}
+
+.condo-table-column-settings-dropdown:has(.condo-table-column-settings-item.is-dragging) {
+  * {
+    cursor: grabbing !important;
+  }
+}
+
+.condo-table-column-settings-item {
+  position: relative;
+  height: auto;
+  background-color: transparent;
+  border-radius: 4px;
+  transition: background-color @condo-global-transition-duration-default ease;
+
+  &.is-dragging {
+    opacity: 0.3 !important;
+  }
+}
+
+.condo-table-grip-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  color: @condo-global-color-gray-5;
+  background-color: transparent;
+  border-radius: 4px;
+  outline: none;
+  transition: all @condo-global-transition-duration-default ease;
+
+  &:hover {
+    cursor: grab;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &:focus {
+    outline: 2px solid @condo-global-color-green-5;
+    outline-offset: 2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+.condo-table-switch-container {
+  display: block;
+  outline: none;
+  cursor: pointer;
+
+  &:focus {
+    outline: 2px solid @condo-global-color-green-5;
+    outline-offset: 2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
