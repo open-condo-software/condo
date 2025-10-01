@@ -79,7 +79,7 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
                 {renderPostfix}
             </Typography.Paragraph>
             <Link href={`/property/${get(ticket, ['property', 'id'])}`}>
-                <Typography.Link style={TICKET_CARD_LINK_STYLE}>
+                <Typography.Link component={Link} style={TICKET_CARD_LINK_STYLE}>
                     {streetPart}
                 </Typography.Link>
             </Link>

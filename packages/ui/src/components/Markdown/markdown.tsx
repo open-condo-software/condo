@@ -1,6 +1,6 @@
 import omit from 'lodash/omit'
 import React from 'react'
-import ReactMarkdown from 'react-markdown'
+import ReactMarkdown, { ReactMarkdownOptions } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 import { CodeWrapper } from './codeWrapper'
@@ -13,11 +13,12 @@ const REMARK_PLUGINS: Array<any> = [
 
 export type MarkdownProps = {
     children: string
+    components?: Pick<ReactMarkdownOptions, 'components'>
 }
 
 const MARKDOWN_CLASS_PREFIX = 'condo-markdown'
 
-export const Markdown: React.FC<MarkdownProps> = ({ children }) => {
+export const Markdown: React.FC<MarkdownProps> = ({ children, components }) => {
     return (
         <ReactMarkdown
             className={MARKDOWN_CLASS_PREFIX}
@@ -34,6 +35,7 @@ export const Markdown: React.FC<MarkdownProps> = ({ children }) => {
                 a: (props: any) => <Typography.Link {...omit(props, 'ref')} target='_blank'/>,
                 li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
                 pre: (props: any) => <CodeWrapper {...props}/>,
+                ...components,
             }}
         >
             {children}
