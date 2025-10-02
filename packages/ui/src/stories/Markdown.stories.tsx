@@ -1,6 +1,7 @@
 import { Markdown as Component } from '@open-condo/ui/src'
 
 import type { Meta, StoryObj } from '@storybook/react-webpack5'
+import {useState} from "react";
 
 const TS_CODE_EXAMPLE = `
 \`\`\`typescript
@@ -145,6 +146,17 @@ Right aligned columns
 | ext    | extension to be used for dest files. |
 `
 
+const MD_EDITABLE_CHECKBOXES_EXAMPLE = `
+
+## Interactive checkboxes playground
+- [ ] Non-checked checkbox
+- [x] Checked checkbox
+- [ ] Another unchecked checkbox
+
+> Tip: Open up console to see console.logs in action
+
+`
+
 export default {
     title: 'Components/Markdown',
     component: Component,
@@ -152,5 +164,28 @@ export default {
         children: MD_EXAMPLE,
     },
 } as Meta<typeof Component>
+
+const MarkdownWithInteractiveComponents = ({ props }) => {
+
+    const markdownContent = props.children
+
+    const [markdownState, setMarkdownState] = useState(markdownContent)
+
+    return <>
+        <h1>Markdown:</h1>
+        <Component children={markdownState} onCheckboxChange={setMarkdownState}/>
+        <h2>State:</h2>
+        <pre>markdownState</pre>
+    </>
+}
+
+export const MarkdownWithInteractiveCheckboxes = {
+    title: 'Components/MarkdownWithInteractiveCheckboxes',
+    component: MarkdownWithInteractiveComponents,
+    args: {
+        children: MD_EDITABLE_CHECKBOXES_EXAMPLE,
+        onCheckboxChange: console.info
+    },
+}
 
 export const Markdown: StoryObj<typeof Component> = {}
