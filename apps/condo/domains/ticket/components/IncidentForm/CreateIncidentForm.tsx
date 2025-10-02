@@ -1,11 +1,14 @@
 import { useCreateIncidentMutation } from '@app/condo/gql'
+import { Form } from 'antd'
 import Router from 'next/router'
 import React, { ComponentProps, useCallback, useMemo } from 'react'
 
+import { QuestionCircle } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Space, Switch, Tooltip, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
@@ -25,7 +28,36 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
                     children={SaveLabel}
                     onClick={handleSave}
                     disabled={isLoading}
+                    loading={isLoading}
                 />,
+                <label
+                    key='generateNews'
+                >
+                    <Space size={4}>
+                        <Space size={8}>
+                            <Form.Item
+                                name='generateNews'
+                                valuePropName='checked'
+                                initialValue={true}
+                            >
+                                <Switch
+                                    id='generateNews'
+                                    size='small'
+                                />
+                            </Form.Item>
+                            <Typography.Text>
+                                Сгенерировать новость для жителей
+                            </Typography.Text>
+                        </Space>
+                        <Tooltip
+                            title='Сгенерировать новость для жителей'
+                        >
+                            <div style={{ display: 'flex' }}>
+                                <QuestionCircle size='small' color={colors.gray[7]}/>
+                            </div>
+                        </Tooltip>
+                    </Space>
+                </label>,
             ]}
         />
     )

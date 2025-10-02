@@ -13,6 +13,7 @@ const CUSTOM_FLOW_TYPE = 'custom_flow'
 const TICKET_REWRITE_COMMENT_FLOW_TYPE = 'ticket_rewrite_comment_flow'
 const REWRITE_TEXT_FLOW_TYPE = 'rewrite_text_flow'
 const NEWS_REWRITE_TEXT_FLOW_TYPE = 'news_rewrite_text_flow'
+const GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE = 'generate_news_by_incident_flow'
 
 /**
  * list of hardcoded flow types
@@ -21,9 +22,10 @@ const NEWS_REWRITE_TEXT_FLOW_TYPE = 'news_rewrite_text_flow'
  * EXAMPLE: 'example'
  */
 const FLOW_TYPES = {
-    TICKET_REWRITE_COMMENT_FLOW_TYPE: TICKET_REWRITE_COMMENT_FLOW_TYPE,
-    REWRITE_TEXT_FLOW_TYPE: REWRITE_TEXT_FLOW_TYPE,
-    NEWS_REWRITE_TEXT_FLOW_TYPE: NEWS_REWRITE_TEXT_FLOW_TYPE,
+    TICKET_REWRITE_COMMENT: TICKET_REWRITE_COMMENT_FLOW_TYPE,
+    REWRITE_TEXT: REWRITE_TEXT_FLOW_TYPE,
+    NEWS_REWRITE_TEXT: NEWS_REWRITE_TEXT_FLOW_TYPE,
+    GENERATE_NEWS_BY_INCIDENT: GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE,
 }
 const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
 
@@ -57,7 +59,7 @@ const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
  *     },
  */
 const FLOW_META_SCHEMAS = {
-    [TICKET_REWRITE_COMMENT_FLOW_TYPE]: {
+    [FLOW_TYPES.TICKET_REWRITE_COMMENT]: {
         input: {
             type: 'object',
             properties: {
@@ -96,7 +98,7 @@ const FLOW_META_SCHEMAS = {
             },
         },
     },
-    REWRITE_TEXT_FLOW_TYPE: {
+    [FLOW_TYPES.REWRITE_TEXT]: {
         input: {
             type: 'object',
             properties: {
@@ -110,7 +112,7 @@ const FLOW_META_SCHEMAS = {
             },
         },
     },
-    [NEWS_REWRITE_TEXT_FLOW_TYPE]: {
+    [FLOW_TYPES.NEWS_REWRITE_TEXT]: {
         input: {
             type: 'object',
             properties: {
@@ -124,6 +126,39 @@ const FLOW_META_SCHEMAS = {
             properties: {
                 answer: { type: 'string' },
             },
+        },
+    },
+    [FLOW_TYPES.GENERATE_NEWS_BY_INCIDENT]: {
+        input: {
+            type: 'object',
+            properties: {
+                selectedClassifiers: {
+                    items: {
+                        type: 'object',
+                        properties: {
+                            category: { type: 'string' },
+                            problem: { type: 'string' },
+                        },
+                    },
+                    type: 'array',
+                    minItems: 0,
+                },
+                details: { type: 'string' },
+                textForResident: { type: 'string' },
+                workFinish: { type: 'string' },
+                workStart: { type: 'string' },
+                workType: { type: 'string' },
+                isFinished: { type: 'boolean' },
+            },
+        },
+        output: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                body: { type: 'string' },
+            },
+            additionalProperties: false,
+            required: ['title', 'body'],
         },
     },
     [CUSTOM_FLOW_TYPE]: {

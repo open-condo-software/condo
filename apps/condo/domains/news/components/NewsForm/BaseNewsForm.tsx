@@ -126,6 +126,7 @@ export type BaseNewsFormProps = {
     autoFocusBody?: boolean
     sharingAppContexts: IB2BAppContext[]
     createNewsItemSharingAction?: (values: INewsItemSharingCreateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
+    initialPropertiesFromQuery?: Array<string>
 }
 
 type CondoFormValues = {
@@ -343,6 +344,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     actionName,
     totalProperties,
     autoFocusBody,
+    initialPropertiesFromQuery,
 }) => {
     const intl = useIntl()
     const MobileAppLabel = intl.formatMessage({ id: 'MobileAppName' })
@@ -395,8 +397,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const initialPropertyIds: string[] = useMemo(() => {
         if (initialHasAllProperties) return []
 
+        if (initialPropertiesFromQuery) {
+            return initialPropertiesFromQuery
+        }
         return uniq(initialNewsItemScopes.map(item => item.property.id))
-    }, [initialHasAllProperties, initialNewsItemScopes])
+    }, [initialHasAllProperties, initialNewsItemScopes, initialPropertiesFromQuery])
     const initialSectionKeys = useMemo(() => {
         if (initialHasAllProperties) return []
         if (initialProperties.length !== 1) return []
