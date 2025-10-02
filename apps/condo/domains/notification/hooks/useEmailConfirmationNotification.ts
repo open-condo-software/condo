@@ -44,7 +44,8 @@ export const useEmailConfirmationNotification = (): EmailConfirmationNotificatio
 
     const markAsRead = useCallback(() => {
         if (!readEmailConfirmationMessageAt) {
-            storage?.setItem(READ_EMAIL_CONFIRMATION_MESSAGE_AT_KEY, { [user?.id]: createdAt })
+            const oldValue = storage?.getItem(READ_EMAIL_CONFIRMATION_MESSAGE_AT_KEY) || {}
+            storage?.setItem(READ_EMAIL_CONFIRMATION_MESSAGE_AT_KEY, { ...oldValue, [user?.id]: createdAt })
         }
     }, [createdAt, readEmailConfirmationMessageAt, storage, user?.id])
 
