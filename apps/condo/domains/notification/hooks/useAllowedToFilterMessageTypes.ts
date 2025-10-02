@@ -38,7 +38,11 @@ export const useAllowedToFilterMessageTypes: UseAllowedToFilterMessageTypesType 
     })
     const b2bAppToMessageType = useMemo(
         () => appMessageSettingsData?.settings?.filter(Boolean)?.reduce((result, setting) => {
-            result[setting.b2bApp.id] = setting.type
+            if (result[setting.b2bApp.id] === undefined)
+                result[setting.b2bApp.id] = [setting.type]
+            else {
+                result[setting.b2bApp.id] = [...result[setting.b2bApp.id], setting.type]
+            }
             return result
         }, {}) || {},
         [appMessageSettingsData?.settings])
@@ -59,7 +63,11 @@ export const useAllowedToFilterMessageTypes: UseAllowedToFilterMessageTypesType 
     const b2bAppsWithEmployeeRoles = useMemo(() => userB2bRolesData?.b2bRoles?.filter(Boolean)?.map(role => role?.app?.id) || [],
         [userB2bRolesData?.b2bRoles])
     const availableB2BAppMessageTypes = useMemo(
-        () => b2bAppsWithEmployeeRoles.map(b2bAppId => b2bAppToMessageType[b2bAppId]).filter(Boolean) || [],
+        () => {
+            const result = b2bAppsWithEmployeeRoles.map(b2bAppId => b2bAppToMessageType[b2bAppId]).filter(Boolean) || []
+
+            return result.reduce((acc, val) => [...acc, ...val], [])
+        },
         [b2bAppToMessageType, b2bAppsWithEmployeeRoles])
     const b2bAppMessageTypesToFilter = useMemo(() => B2B_APP_MESSAGE_TYPES.filter(type => availableB2BAppMessageTypes.includes(type)),
         [availableB2BAppMessageTypes])

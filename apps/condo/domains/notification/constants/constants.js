@@ -1099,8 +1099,9 @@ const MESSAGE_DELIVERY_OPTIONS = {
         strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
     },
     [PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE]: {
-        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        // TODO DOMA-12361 Add push transport
+        allowedTransports: [TELEGRAM_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
 }
