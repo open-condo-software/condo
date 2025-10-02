@@ -1553,6 +1553,8 @@
   "notification.UserMessagesList.message.PASS_TICKET_CREATED.label": "Оформлен пропуск",
   "notification.UserMessagesList.message.TICKET_COMMENT_CREATED.label": "Новый комментарий",
   "notification.UserMessagesList.message.TICKET_CREATED.label": "Новая заявка",
+  "notification.UserMessagesList.message.EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE.label": "Подтвердите email",
+  "notification.UserMessagesList.message.EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE.content": "Проверьте почту и прочитайте письмо от Doma.ai",
   "notification.UserMessagesList.newMessagePageTitle": "Новое уведомление",
   "notification.UserMessagesList.title": "Уведомления",
   "notification.UserMessagesList.viewed": "Просмотренные",

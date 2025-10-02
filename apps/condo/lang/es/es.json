@@ -1553,6 +1553,8 @@
   "notification.UserMessagesList.message.PASS_TICKET_CREATED.label": "Nuevo pase de entrada",
   "notification.UserMessagesList.message.TICKET_COMMENT_CREATED.label": "Nuevo comentario en la incidencia",
   "notification.UserMessagesList.message.TICKET_CREATED.label": "Nueva incidencia",
+  "notification.UserMessagesList.message.EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE.label": "Verificar correo electrónico",
+  "notification.UserMessagesList.message.EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE.content": "Comprueba tu correo electrónico y lee el mensaje de servicio",
   "notification.UserMessagesList.newMessagePageTitle": "Nueva notificación",
   "notification.UserMessagesList.title": "Notificaciones",
   "notification.UserMessagesList.viewed": "Visto",

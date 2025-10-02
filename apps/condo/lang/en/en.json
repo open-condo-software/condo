@@ -1553,6 +1553,8 @@
   "notification.UserMessagesList.message.PASS_TICKET_CREATED.label": "New pass ticket",
   "notification.UserMessagesList.message.TICKET_COMMENT_CREATED.label": "New ticket comment",
   "notification.UserMessagesList.message.TICKET_CREATED.label": "New ticket",
+  "notification.UserMessagesList.message.EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE.label": "Verify email",
+  "notification.UserMessagesList.message.EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE.content": "Check your email and read the message from service",
   "notification.UserMessagesList.newMessagePageTitle": "New notification",
   "notification.UserMessagesList.title": "Notifications",
   "notification.UserMessagesList.viewed": "Viewed",

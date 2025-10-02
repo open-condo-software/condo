@@ -1,4 +1,3 @@
-import isEqual from 'lodash/isEqual'
 import React, {
     createContext,
     Dispatch, ReactNode,
@@ -16,6 +15,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hooks/useAllowedToFilterMessageTypes'
+import { useEmailConfirmationNotification } from '@condo/domains/notification/hooks/useEmailConfirmationNotification'
 import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessages'
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 import {
@@ -100,6 +100,19 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         messageTypesToFilter.length === 0 || organizationIdsToFilter.length === 0,
     })
 
+    const {
+        message: emailConfirmationMessage,
+        markAsRead: markEmailConfirmationMessageAsRead,
+    } = useEmailConfirmationNotification()
+
+    const userMessagesWithCustomMessages = useMemo(() => [
+        emailConfirmationMessage,
+        ...(userMessages || []),
+    ]
+        .filter(Boolean)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    , [userMessages, emailConfirmationMessage])
+
     // Set initial settings to state
     useEffect(() => {
         let lastReadUserMessagesAt = userMessagesSettingsStorage.getReadUserMessagesAt()
@@ -124,14 +137,24 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
     )
 
     const updateReadUserMessagesAt = useCallback(() => {
-        const newestMessageCreatedAt = userMessages?.[0]?.createdAt
+        const newestMessageCreatedAt = userMessagesWithCustomMessages?.[0]?.createdAt
 
         if (new Date(newestMessageCreatedAt) > new Date(readUserMessagesAt)) {
             setReadUserMessagesAt(newestMessageCreatedAt)
             userMessagesSettingsStorage.setReadUserMessagesAt(newestMessageCreatedAt)
             sendReadUserMessagesAtToBroadcast(newestMessageCreatedAt)
+
+            if (typeof markEmailConfirmationMessageAsRead === 'function') {
+                markEmailConfirmationMessageAsRead()
+            }
         }
-    }, [readUserMessagesAt, sendReadUserMessagesAtToBroadcast, userMessages, userMessagesSettingsStorage])
+    }, [
+        readUserMessagesAt,
+        sendReadUserMessagesAtToBroadcast,
+        userMessagesWithCustomMessages,
+        userMessagesSettingsStorage,
+        markEmailConfirmationMessageAsRead,
+    ])
 
     const handleDropdownOpenChange = useCallback((isOpen: boolean) => {
         setIsDropdownOpen(isOpen)
@@ -160,7 +183,7 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         <UserMessageListContext.Provider
             value={{
                 messagesListRef,
-                userMessages,
+                userMessages: userMessagesWithCustomMessages,
                 readUserMessagesAt,
                 updateReadUserMessagesAt,
                 newMessagesLoading,
