@@ -1577,6 +1577,7 @@ __metadata:
     analytics: ^0.8.16
     antd: 5.16.4
     big.js: ^6.2.2
+    bowser: ^2.12.1
     classnames: ^2.5.1
     cookies-next: ^4.2.1
     cross-fetch: 4.0.0
@@ -18654,6 +18655,13 @@ __metadata:
   dependencies:
     hoek: 6.x.x
   checksum: 86d22bef321d3907a5a8f9188e3004efd1bf9e4aff21e358e3a2a8061a8ff5e442843cf5c43041ae5324496fc881562070c65040a59b7265ee84130fb1a8eae3
+  languageName: node
+  linkType: hard
+
+"bowser@npm:^2.12.1":
+  version: 2.12.1
+  resolution: "bowser@npm:2.12.1"
+  checksum: 994a3da9e9b628892e0fbc4fd5afeec672003a9a72300ec8ac832f6707ba6ce68d137d50316f08e6197f9e0cca5c486aa4b9ce9db50013061225cab4e432f8a0
   languageName: node
   linkType: hard
 
