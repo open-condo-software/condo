@@ -188,6 +188,16 @@ async function createTestB2CApp (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function updateTestB2BApps (client, attrsArray) {
+    if (!client) throw new Error('no client')
+    if (!Array.isArray(attrsArray)) throw new Error('payload is not an array')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const data = attrsArray.map(item => ({ id: item.id, data: { ...item.data, dv: 1, sender } }))
+    const objs = await B2BApp.updateMany(client, data)
+
+    return [objs, data]
+}
+
 async function updateTestB2CApp (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -510,7 +520,7 @@ module.exports = {
     CondoB2CAppAccessRight, createCondoB2CAppAccessRight,
     CondoOIDCClient,
 
-    B2BApp, createTestB2BApp, updateTestB2BApp,
+    B2BApp, createTestB2BApp, updateTestB2BApp, updateTestB2BApps,
 
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps, getB2CAppInfoByTestClient,
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
