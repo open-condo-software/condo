@@ -12,6 +12,10 @@ const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/cons
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const EXPORT_FIELDS = AVAILABLE_ENVIRONMENTS.map(environment => `${environment}ExportId`).join(' ')
 
+const B2B_APP_FIELDS = `{ name ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
+const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
+
+
 const B2C_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
@@ -98,6 +102,9 @@ const REGISTER_APP_USER_SERVICE_MUTATION = gql`
 
 module.exports = {
     EXPORT_FIELDS,
+
+    B2BApp,
+
     B2CApp,
     B2CAppAccessRight,
     B2CAppBuild,
@@ -108,6 +115,7 @@ module.exports = {
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
     GET_B2C_APP_INFO_QUERY,
+
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,

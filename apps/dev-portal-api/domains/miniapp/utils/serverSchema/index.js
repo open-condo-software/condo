@@ -22,6 +22,8 @@ const {
 } = require('@dev-portal-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
+const B2BApp = generateServerUtils('B2BApp')
+
 const B2CApp = generateServerUtils('B2CApp')
 const B2CAppAccessRight = generateServerUtils('B2CAppAccessRight')
 const B2CAppBuild = generateServerUtils('B2CAppBuild')
@@ -168,6 +170,8 @@ async function registerAppUserService (context, data) {
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
+    B2BApp,
+
     B2CApp,
     B2CAppAccessRight,
     B2CAppBuild,
@@ -178,6 +182,7 @@ module.exports = {
     createB2CAppProperty,
     deleteB2CAppProperty,
     getB2CAppInfo,
+
     getOIDCClient,
     createOIDCClient,
     generateOIDCClientSecret,
