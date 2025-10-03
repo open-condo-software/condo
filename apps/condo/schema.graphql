@@ -100043,24 +100043,40 @@ type Mutation {
   			"required": true
   		},
   		"data": {
+  			"b2bAppId": {
+  				"required": true
+  			},
   			"passTicketNumber": {
-  				"defaultValue": "",
   				"required": true
   			},
   			"userId": {
-  				"defaultValue": "",
+  				"required": true
+  			},
+  			"senderName": {
   				"required": true
   			},
   			"commentId": {
-  				"defaultValue": "",
   				"required": true
   			},
   			"organizationId": {
-  				"defaultValue": "",
   				"required": true
   			},
   			"passTicketId": {
-  				"defaultValue": "",
+  				"required": true
+  			},
+  			"organizationName": {
+  				"required": true
+  			},
+  			"commentCreatedAt": {
+  				"required": true
+  			},
+  			"passTicketStatus": {
+  				"required": true
+  			},
+  			"passTicketAddress": {
+  				"required": true
+  			},
+  			"comment": {
   				"required": true
   			}
   		}
@@ -100526,24 +100542,40 @@ type Mutation {
   			"required": true
   		},
   		"data": {
+  			"b2bAppId": {
+  				"required": true
+  			},
   			"passTicketNumber": {
-  				"defaultValue": "",
   				"required": true
   			},
   			"userId": {
-  				"defaultValue": "",
+  				"required": true
+  			},
+  			"senderName": {
   				"required": true
   			},
   			"commentId": {
-  				"defaultValue": "",
   				"required": true
   			},
   			"organizationId": {
-  				"defaultValue": "",
   				"required": true
   			},
   			"passTicketId": {
-  				"defaultValue": "",
+  				"required": true
+  			},
+  			"organizationName": {
+  				"required": true
+  			},
+  			"commentCreatedAt": {
+  				"required": true
+  			},
+  			"passTicketStatus": {
+  				"required": true
+  			},
+  			"passTicketAddress": {
+  				"required": true
+  			},
+  			"comment": {
   				"required": true
   			}
   		}
