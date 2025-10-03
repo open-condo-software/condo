@@ -97,6 +97,8 @@ export type InitialValuesType =  Partial<INewsItem> & Partial<{
     hasAllProperties: boolean
     sendPeriod: SendPeriodType
     properties?: Array<IProperty>
+    type?: string
+    validBefore?: Dayjs
 }>
 
 export type TemplatesType = {
@@ -126,6 +128,7 @@ export type BaseNewsFormProps = {
     autoFocusBody?: boolean
     sharingAppContexts: IB2BAppContext[]
     createNewsItemSharingAction?: (values: INewsItemSharingCreateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
+    initialPropertiesFromQuery?: Array<string>
 }
 
 type CondoFormValues = {
@@ -343,6 +346,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     actionName,
     totalProperties,
     autoFocusBody,
+    initialPropertiesFromQuery,
 }) => {
     const intl = useIntl()
     const MobileAppLabel = intl.formatMessage({ id: 'MobileAppName' })
@@ -395,8 +399,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const initialPropertyIds: string[] = useMemo(() => {
         if (initialHasAllProperties) return []
 
+        if (initialPropertiesFromQuery) {
+            return initialPropertiesFromQuery
+        }
         return uniq(initialNewsItemScopes.map(item => item.property.id))
-    }, [initialHasAllProperties, initialNewsItemScopes])
+    }, [initialHasAllProperties, initialNewsItemScopes, initialPropertiesFromQuery])
     const initialSectionKeys = useMemo(() => {
         if (initialHasAllProperties) return []
         if (initialProperties.length !== 1) return []
@@ -442,7 +449,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
     const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
-    const [selectedValidBefore, setSelectedValidBefore] = useState<Dayjs>(dayjs(initialValidBefore, DATE_FORMAT))
+    const [selectedValidBefore, setSelectedValidBefore] = useState<Dayjs>(dayjs(initialValidBefore))
 
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))
@@ -1085,6 +1092,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         body={selectedBody}
                                                         appName={MobileAppLabel}
                                                         icon={DOMA_APP_ICON_URL}
+                                                        validBefore={selectedValidBefore}
+                                                        type={selectedType}
                                                     />
                                                     {getSelectedAndNotSkippedSharingApps().map(ctxId => {
 
@@ -1102,6 +1111,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 body={body}
                                                                 appName={sharingAppName}
                                                                 icon={sharingAppIcon}
+                                                                validBefore={selectedValidBefore}
+                                                                type={selectedType}
                                                             />
                                                         )
                                                     })}

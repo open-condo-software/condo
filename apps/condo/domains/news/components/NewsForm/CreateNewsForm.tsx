@@ -5,6 +5,7 @@ import { ArgsProps as NotificationApiProps } from 'antd/es/notification'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import getConfig from 'next/config'
+import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
@@ -122,12 +123,23 @@ export const getCompletedNotification = (intl: IntlShape, action: () => void, ke
     }
 }
 
+function tryJSONParse (value) {
+    try {
+        return JSON.parse(value)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 export const CreateNewsForm: React.FC = () => {
     const intl: IntlShape = useIntl()
     const EmptyTemplateTitle = intl.formatMessage({ id: 'news.fields.emptyTemplate.title' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const InitialOrganizationNewsItemTitle = intl.formatMessage({ id: 'news.initialOrganizationNewsItem.title' })
     const InitialOrganizationNewsItemBody = intl.formatMessage({ id: 'news.initialOrganizationNewsItem.body' })
+
+    const { query } = useRouter()
+    const initialValueFromQuery = query?.initialValue && typeof query?.initialValue === 'string' ? tryJSONParse(query?.initialValue) : undefined
 
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
@@ -218,10 +230,26 @@ export const CreateNewsForm: React.FC = () => {
     const error = useMemo(() => newsItemTemplatesError || allNewsError || totalPropertiesError || sharingAppContextsError, [allNewsError, newsItemTemplatesError, totalPropertiesError, sharingAppContextsError])
     const loading = isNewsFetching || isNewsItemTemplatesFetching || totalPropertiesLoading || organizationNewsCountLoading || isSharingAppContextsFetching
 
-    const initialValues = useMemo(() => organizationNewsCount === 0 && ({
-        title: InitialOrganizationNewsItemTitle,
-        body: InitialOrganizationNewsItemBody,
-    }), [InitialOrganizationNewsItemBody, InitialOrganizationNewsItemTitle, organizationNewsCount])
+    const initialValues = useMemo(() => {
+        if (initialValueFromQuery) {
+            return {
+                title: initialValueFromQuery.title,
+                body: initialValueFromQuery.body,
+                hasAllProperties: initialValueFromQuery.hasAllProperties,
+                type: initialValueFromQuery.type,
+                validBefore: initialValueFromQuery.validBefore,
+            }
+        }
+
+        if (organizationNewsCount === 0) {
+            return {
+                title: InitialOrganizationNewsItemTitle,
+                body: InitialOrganizationNewsItemBody,
+            }
+        }
+
+        return {}
+    }, [InitialOrganizationNewsItemBody, InitialOrganizationNewsItemTitle, initialValueFromQuery, organizationNewsCount])
 
     if (loading || error) {
         return (
@@ -246,6 +274,7 @@ export const CreateNewsForm: React.FC = () => {
             allNews={allNews}
             actionName='create'
             totalProperties={totalProperties}
+            initialPropertiesFromQuery={initialValueFromQuery?.propertyIds}
         />
     )
 }

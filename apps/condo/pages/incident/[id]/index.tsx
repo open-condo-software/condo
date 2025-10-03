@@ -1,16 +1,16 @@
 import {
+    GetFullIncidentPropertiesByIncidentIdQuery,
+    GetIncidentByIdQuery,
+    GetIncidentChangesByIncidentIdQuery,
+    GetIncidentClassifierIncidentByIncidentIdQuery,
+    useGetFullIncidentPropertiesByIncidentIdQuery,
     useGetIncidentByIdQuery,
     useGetIncidentChangesByIncidentIdQuery,
     useGetIncidentClassifierIncidentByIncidentIdQuery,
-    useGetFullIncidentPropertiesByIncidentIdQuery,
-    GetIncidentByIdQuery,
-    GetIncidentChangesByIncidentIdQuery,
 } from '@app/condo/gql'
-import {
-    IncidentStatusType,
-} from '@app/condo/schema'
-import { Col, Row, RowProps } from 'antd'
-import dayjs  from 'dayjs'
+import { IncidentStatusType, IncidentWorkTypeType } from '@app/condo/schema'
+import { Col, notification, Row, RowProps } from 'antd'
+import dayjs from 'dayjs'
 import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -21,13 +21,16 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tag, Typography } from '@open-condo/ui'
 
+import { FLOW_TYPES } from '@condo/domains/ai/constants'
+import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
-import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { PageComponentType } from '@condo/domains/common/types'
 import { getTimeLeftMessage, getTimeLeftMessageType } from '@condo/domains/common/utils/date.utils'
+import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import {
     INCIDENT_STATUS_COLORS,
@@ -35,7 +38,10 @@ import {
     INCIDENT_WORK_TYPE_SCHEDULED,
 } from '@condo/domains/ticket/constants/incident'
 import { useIncidentChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useIncidentChangedFieldMessagesOf'
-import { useIncidentUpdateStatusModal } from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
+import {
+    useIncidentUpdateStatusModal,
+    UseIncidentUpdateStatusModalType,
+} from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
@@ -359,6 +365,7 @@ const IncidentContent: React.FC<IncidentContentProps> = (props) => {
 const HEADER_CONTENT_GUTTER: RowProps['gutter'] = [0, 24]
 const PAGE_CONTENT_GUTTER: RowProps['gutter'] = [0, 60]
 const PAGE_HEADER_STYLE: React.CSSProperties = { padding: '0 0 20px 0 !important' }
+const DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
 
 export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
     const intl = useIntl()
@@ -371,6 +378,8 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const ChangeToActualLabel = intl.formatMessage({ id: 'incident.id.makeActual.label' })
     const ChangeToNotActualLabel = intl.formatMessage({ id: 'incident.id.makeNotActual.label' })
     const ChangeHistoryTitle = intl.formatMessage({ id: 'incident.id.changeHistory.title' })
+    const GenerateNewsLabel = intl.formatMessage({ id: 'incident.id.generateNews.button.label' })
+    const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
 
     const { incident, refetchIncident, incidentLoading, withOrganization } = props
 
@@ -379,6 +388,39 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const { persistor } = useCachePersistor()
     const isActual = incident.status === IncidentStatusType.Actual
     const canManageIncidents = useMemo(() => employee?.role?.canManageIncidents || false, [employee])
+    const canManageNewsItems = useMemo(() => employee?.role?.canManageNewsItems || false, [employee])
+
+    const { enabled: aiEnabled, features: { generateNewsByIncident: generateNewsByIncidentEnabled } } = useAIConfig()
+
+    const [runGenerateNewsAIFlow, {
+        loading: generateNewsLoading,
+    }] = useAIFlow<{ title: string, body: string }>({
+        flowType: FLOW_TYPES.GENERATE_NEWS_BY_INCIDENT,
+        modelName: 'Incident',
+        itemId: incident?.id || null,
+    })
+
+    const {
+        data: incidentClassifierIncidentsData,
+        loading: incidentClassifierIncidentLoading,
+    } = useGetIncidentClassifierIncidentByIncidentIdQuery({
+        variables: {
+            incidentId: incident.id,
+        },
+        skip: !incident.id || !persistor,
+    })
+    const incidentClassifiers = useMemo(() => incidentClassifierIncidentsData?.incidentClassifierIncident?.filter(Boolean) || [], [incidentClassifierIncidentsData?.incidentClassifierIncident])
+
+    const {
+        data: incidentPropertiesData,
+        loading: incidentPropertiesLoading,
+    } = useGetFullIncidentPropertiesByIncidentIdQuery({
+        variables: {
+            incidentId: incident.id,
+        },
+        skip: !incident.id || !persistor,
+    })
+    const incidentProperties = useMemo(() => incidentPropertiesData?.incidentProperties?.filter(Boolean) || [], [incidentPropertiesData?.incidentProperties])
 
     const {
         data: incidentChangesData,
@@ -392,12 +434,59 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     })
     const incidentChanges = useMemo(() => incidentChangesData?.incidentChanges?.filter(Boolean) || [], [incidentChangesData?.incidentChanges])
 
-    const afterStatusUpdate = useCallback(async () => {
-        await refetchIncident()
-        await refetchIncidentChanges()
-    }, [refetchIncident, refetchIncidentChanges])
+    const generateNewsItem = useCallback(async (
+        incident: GetIncidentByIdQuery['incident'],
+        incidentClassifiers: GetIncidentClassifierIncidentByIncidentIdQuery['incidentClassifierIncident'],
+        incidentProperties: GetFullIncidentPropertiesByIncidentIdQuery['incidentProperties']
+    ) => {
+        const context = {
+            selectedClassifiers: incidentClassifiers.map(incidentClassifier => ({
+                problem: incidentClassifier?.classifier?.problem?.name,
+                category: incidentClassifier?.classifier?.category?.name,
+            })),
+            details: incident.details,
+            textForResident: incident.textForResident || '',
+            workFinish: incident.workFinish ? dayjs(incident.workFinish).format(DATE_FORMAT) : '',
+            workStart: incident.workStart ? dayjs(incident.workStart).format(DATE_FORMAT) : dayjs().format(DATE_FORMAT),
+            workType: incident.workType || INCIDENT_WORK_TYPE_SCHEDULED,
+            isFinished: incident.status === IncidentStatusType.NotActual,
+        }
+
+        const result = await runGenerateNewsAIFlow({ context })
+
+        if (result.error) {
+            notification.error({ message: result.localizedErrorText || GenericErrorMessage })
+            return
+        }
+
+        const initialValue = {
+            title: result?.data?.title,
+            body: result?.data?.body,
+            propertyIds: incidentProperties
+                .map(incidentProperty => incidentProperty.property.id)
+                .filter((id) => Boolean(id)),
+            hasAllProperties: incident.hasAllProperties,
+            type: incident.workType === IncidentWorkTypeType.Emergency ? NEWS_TYPE_EMERGENCY : NEWS_TYPE_COMMON,
+            ...(incident.workFinish ? { validBefore: dayjs(incident.workFinish).toISOString() } : undefined),
+        }
+
+        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}`, '_blank')
+    }, [GenericErrorMessage, runGenerateNewsAIFlow])
+
+    const afterStatusUpdate: Parameters<UseIncidentUpdateStatusModalType>[0]['afterUpdate'] = useCallback(async (incident, generateNews) => {
+        if (aiEnabled && generateNewsByIncidentEnabled && generateNews) {
+            await generateNewsItem(incident, incidentClassifiers, incidentProperties)
+        }
+
+        refetchIncident()
+        refetchIncidentChanges()
+    }, [generateNewsItem, refetchIncident, refetchIncidentChanges, incidentClassifiers, incidentProperties, aiEnabled, generateNewsByIncidentEnabled])
 
     const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, afterUpdate: afterStatusUpdate })
+
+    const handleGenerateNews = useCallback(async () => {
+        await generateNewsItem(incident, incidentClassifiers, incidentProperties)
+    }, [generateNewsItem, incident, incidentClassifiers, incidentProperties])
 
     const handleEditIncident = useCallback(async () => {
         await router.push(`/incident/${incident.id}/update`)
@@ -464,7 +553,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                     canManageIncidents && (
                                         <Button
                                             key='changeStatus'
-                                            disabled={incidentLoading}
+                                            disabled={incidentLoading || incidentClassifierIncidentLoading || incidentPropertiesLoading}
                                             type='primary'
                                             children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
                                             onClick={handleOpen}
@@ -479,6 +568,17 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                             children={EditLabel}
                                             onClick={handleEditIncident}
                                             id='editIncident'
+                                        />
+                                    ),
+                                    (aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems) && (
+                                        <Button
+                                            key='generateNews'
+                                            disabled={generateNewsLoading || incidentClassifierIncidentLoading || incidentPropertiesLoading}
+                                            loading={generateNewsLoading}
+                                            type='secondary'
+                                            children={GenerateNewsLabel}
+                                            onClick={handleGenerateNews}
+                                            id='generateNews'
                                         />
                                     ),
                                 ]}

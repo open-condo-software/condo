@@ -8,10 +8,14 @@ import dayjs, { Dayjs } from 'dayjs'
 import isFunction from 'lodash/isFunction'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
+import { QuestionCircle } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Modal, Typography } from '@open-condo/ui'
+import { useOrganization } from '@open-condo/next/organization'
+import { Button, Modal, Space, Switch, Tooltip, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
+import { useAIConfig } from '@condo/domains/ai/hooks/useAIFlow'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -26,9 +30,9 @@ const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
 const ITEM_LABEL_COL: ColProps = { span: 24 }
 const MODAL_GUTTER: RowProps['gutter'] = [0, 16]
 
-type UseIncidentUpdateStatusModalType = (props: {
+export type UseIncidentUpdateStatusModalType = (props: {
     incident: GetIncidentByIdQuery['incident']
-    afterUpdate?: (date: Dayjs) => void
+    afterUpdate?: (incident: GetIncidentByIdQuery['incident'], generateNews: boolean) => Promise<void>
 }) => {
     handleOpen: () => void
     IncidentUpdateStatusModal: JSX.Element
@@ -60,9 +64,16 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
     const ToNotActualBeforeWorkFinishMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toActualStatus.beforeWorkFinish.descriptions' })
     const ToNotActualAfterWorkFinishMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toActualStatus.afterWorkFinish.descriptions' })
     const ToActualMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toNotActualStatus.descriptions' })
+    const GenerateNewsSwitchLabel = intl.formatMessage({ id: 'incident.generateNews.switch.label' })
+    const GenerateNewsSwitchHint = intl.formatMessage({ id: 'incident.generateNews.switch.hint' })
 
     const formRef = useRef<FormInstance>(null)
     const [open, setOpen] = useState<boolean>(false)
+
+    const { employee } = useOrganization()
+    const canManageNewsItems = useMemo(() => employee?.role?.canManageNewsItems || false, [employee])
+
+    const { enabled: aiEnabled, features: { generateNewsByIncident: generateNewsByIncidentEnabled } } = useAIConfig()
 
     const { requiredValidator } = useValidations()
 
@@ -96,15 +107,16 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
     }, [])
 
     const handleUpdate = useCallback(async (values) => {
-        const { workFinish } = values
+        const { generateNews, workFinish } = values
 
+        const newStatus = isActual
+            ? IncidentStatusType.NotActual
+            : IncidentStatusType.Actual
         await updateIncident({
             variables: {
                 id: incident.id,
                 data: {
-                    status: isActual
-                        ? IncidentStatusType.NotActual
-                        : IncidentStatusType.Actual,
+                    status: newStatus,
                     workFinish,
                     sender: getClientSideSenderInfo(),
                     dv: 1,
@@ -115,11 +127,16 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
 
         analytics.track('incident_status_update', { newStatus: isActual ? 'notActual' : 'actual' })
 
-        handleClose()
         if (isFunction(afterUpdate)) {
-            await afterUpdate(workFinish)
+            await afterUpdate({
+                ...incident,
+                status: newStatus,
+                workFinish,
+            }, (aiEnabled && generateNewsByIncidentEnabled && generateNews))
         }
-    }, [afterUpdate, handleClose, incident, isActual, updateIncident])
+
+        handleClose()
+    }, [afterUpdate, handleClose, incident, isActual, updateIncident, aiEnabled, generateNewsByIncidentEnabled])
 
     const descriptionText = useMemo(() => {
         if (!isActual) {
@@ -153,12 +170,44 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                                     : ToActualStatusTitle
                             }
                             footer={(
-                                <Button
-                                    type='primary'
-                                    children={SaveLabel}
-                                    onClick={handleSave}
-                                    disabled={isLoading}
-                                />
+                                <Space size={8} direction='horizontal'>
+                                    {
+                                        (aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems && isActual) && (
+                                            <label
+                                                key='generateNews'
+                                            >
+                                                <Space size={4}>
+                                                    <Space size={8}>
+                                                        <Form.Item
+                                                            initialValue={true}
+                                                            valuePropName='checked'
+                                                            name='generateNews'
+                                                        >
+                                                            <Switch
+                                                                size='small'
+                                                                id='generateNews'
+                                                            />
+                                                        </Form.Item>
+                                                        <Typography.Text>
+                                                            {GenerateNewsSwitchLabel}
+                                                        </Typography.Text>
+                                                    </Space>
+                                                    <Tooltip title={GenerateNewsSwitchHint}>
+                                                        <div style={{ display: 'flex' }}>
+                                                            <QuestionCircle color={colors.gray[7]} size='small' />
+                                                        </div>
+                                                    </Tooltip>
+                                                </Space>
+                                            </label>
+                                        )
+                                    }
+                                    <Button
+                                        type='primary'
+                                        children={SaveLabel}
+                                        onClick={handleSave}
+                                        disabled={isLoading}
+                                    />
+                                </Space>
                             )}
                         >
                             <Row gutter={MODAL_GUTTER}>

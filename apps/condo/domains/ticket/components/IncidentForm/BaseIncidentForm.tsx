@@ -16,8 +16,7 @@ import {
     IncidentStatusType,
     IncidentClassifier as IIncidentClassifier,
 } from '@app/condo/schema'
-import styled from '@emotion/styled'
-import { Col, Form, FormInstance, Row, RowProps, Typography } from 'antd'
+import { Col, Form, FormInstance, Row, RowProps, Typography, notification, InputRef } from 'antd'
 import { FormProps } from 'antd/lib/form/Form'
 import { ColProps } from 'antd/lib/grid/col'
 import dayjs from 'dayjs'
@@ -26,15 +25,18 @@ import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import uniq from 'lodash/uniq'
 import { DefaultOptionType } from 'rc-select/lib/Select'
-import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
+import { CheckCircle, Copy, Sparkles } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Space, Radio, RadioGroup } from '@open-condo/ui'
+import { Alert, Space, Radio, RadioGroup, Input, Button, Tooltip } from '@open-condo/ui'
 
-import Input from '@condo/domains/common/components/antd/Input'
+import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
+import { FLOW_TYPES } from '@condo/domains/ai/constants'
+import { useAIFlow, useAIConfig } from '@condo/domains/ai/hooks/useAIFlow'
 import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { renderDeletedOption } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -46,12 +48,15 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { Loader } from '@condo/domains/common/components/Loader'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { analytics } from '@condo/domains/common/utils/analytics'
+import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY } from '@condo/domains/ticket/constants/incident'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { IncidentClassifiersQueryLocal, Option } from '@condo/domains/ticket/utils/clientSchema/incidentClassifierSearch'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+
+import styles from './BaseIncidentForm.module.css'
 
 import type { FormRule as Rule } from 'antd'
 
@@ -74,6 +79,7 @@ export type BaseIncidentFormProps = {
     }
     organizationId: string
     action: (values: IIncidentCreateInput | IIncidentUpdateInput) => Promise<Awaited<ReturnType<CreateIncidentMutationFn | UpdateIncidentMutationFn>>>
+    afterAction?: () => Promise<void>
     showOrganization?: boolean
 }
 
@@ -101,12 +107,6 @@ export const FORM_ITEM_WRAPPER_COL: ColProps = {
     lg: 8,
     xl: 7,
 }
-
-export const TextArea = styled(Input.TextArea)`
-  &.ant-input {
-    min-height: 120px;
-  }
-`
 
 type OptionType = Required<Pick<DefaultOptionType, 'label' | 'value'>>
 type FilterAvailableItemsType = (props: {
@@ -281,6 +281,210 @@ const getPropertyKey = (incidentProperty: GetIncidentPropertiesByIncidentIdQuery
 
 const INITIAL_VALUES = {} as BaseIncidentFormProps['initialValues']
 
+const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
+
+type TextForResidentInputProps = {
+    incidentForm: FormInstance
+    incidentId?: string
+}
+export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ incidentForm, incidentId }) => {
+    const intl = useIntl()
+
+    const TextForResidentLabel = intl.formatMessage({ id: 'incident.fields.textForResident.label' })
+    const TextForResidentPlaceholderMessage = intl.formatMessage({ id: 'incident.fields.textForResident.placeholder' })
+    const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
+    const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
+    const UpdateTextMessage = intl.formatMessage({ id: 'ai.improveText' })
+    const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+
+    const textAreaRef = useRef<InputRef>()
+    const [rewriteText, setRewriteText] = useState<string>('')
+    const [copied, setCopied] = useState<boolean>()
+    const [aiNotificationShow, setAiNotificationShow] = useState<boolean>(false)
+    const [errorMessage, setErrorMessage] = useState('')
+
+    const [runRewriteTextAIFlow, {
+        loading: rewriteTextLoading,
+        data: rewriteTextData,
+    }] = useAIFlow<{ answer: string }>({
+        flowType: FLOW_TYPES.INCIDENT_REWRITE_TEXT_FOR_RESIDENT,
+        modelName: 'Incident',
+        itemId: incidentId || null,
+    })
+
+    const { enabled: aiEnabled, features: {
+        rewriteIncidentTextForResident: rewriteIncidentTextForResidentEnabled,
+    } } = useAIConfig()
+
+    useEffect(() => {
+        setRewriteText(rewriteTextData?.answer)
+    }, [rewriteTextData?.answer])
+
+    useEffect(() => {
+        if (( errorMessage || rewriteText)) {
+            setAiNotificationShow(true)
+        }
+    }, [errorMessage, rewriteText])
+
+    const handleRewriteNewsTextClick = useCallback(async () => {
+        const context = {
+            userInput: incidentForm.getFieldValue('textForResident') || '',
+        }
+
+        const id = incidentId || 'newIncident'
+        analytics.track('click', {
+            value: `incidentId: ${id}`,
+            location: window.location.href,
+            component: 'Button',
+            type: 'rewrite_text',
+        })
+
+        const result = await runRewriteTextAIFlow({ context })
+
+        if (result.error) {
+            setErrorMessage(result.localizedErrorText || GenericErrorMessage)
+            notification.error({ message: result.localizedErrorText || GenericErrorMessage })
+        }
+    }, [GenericErrorMessage, incidentForm, runRewriteTextAIFlow])
+
+    const closeAINotification = () => {
+        setAiNotificationShow(false)
+        setTimeout(()=> {
+            setErrorMessage('')
+            setRewriteText('')
+        }, 200)
+    }
+
+    const handleApplyGeneratedMessage = () => {
+        const id = incidentId || 'newIncident'
+        analytics.track('click', {
+            value: `incidentId: ${id}`,
+            type: 'apply-generated_message',
+            location: window.location.href,
+            component: 'Button',
+        })
+
+        textAreaRef.current.focus()
+
+        closeAINotification()
+        if (!errorMessage) incidentForm.setFieldsValue({ textForResident: rewriteText })
+    }
+
+    const handleRegenerateMessage = () => {
+        const id = incidentId || 'newIncident'
+        analytics.track('click', {
+            value: `incidentId: ${id}`,
+            type: 'regenerate_message',
+            location: window.location.href,
+            component: 'Button',
+        })
+
+        if (rewriteText) handleRewriteNewsTextClick()
+    }
+
+    const handleCloseAINotification = () => {
+        const id = incidentId || 'newIncident'
+        analytics.track('click', {
+            value: `incidentId: ${id}`,
+            type: 'close_ai_notification',
+            location: window.location.href,
+            component: 'Button',
+        })
+
+        closeAINotification()
+    }
+
+    const handleCopyClick = useCallback(async () => {
+        if (copied) return
+
+        try {
+            const value = incidentForm.getFieldValue('textForResident')
+            await navigator.clipboard.writeText(value)
+            setCopied(true)
+
+            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
+        } catch (e) {
+            console.error('Unable to copy to clipboard', e)
+        }
+    }, [copied])
+
+    return (
+        <Form.Item
+            label={TextForResidentLabel}
+            shouldUpdate
+        >
+            {
+                ({ getFieldValue }) => {
+                    const value = getFieldValue('textForResident')
+
+                    return (
+                        <AIInputNotification
+                            onApply={handleApplyGeneratedMessage}
+                            onClose={handleCloseAINotification}
+                            onUpdate={handleRegenerateMessage}
+                            result={rewriteText}
+                            open={aiNotificationShow}
+                            errorMessage={errorMessage}
+                            updateLoading={rewriteTextLoading}
+                        >
+                            <Form.Item
+                                name='textForResident'
+                                noStyle
+                            >
+                                <Input.TextArea
+                                    ref={textAreaRef}
+                                    placeholder={TextForResidentPlaceholderMessage}
+                                    name='textForResident'
+                                    disabled={rewriteTextLoading}
+                                    maxLength={1000}
+                                    autoSize={{ minRows: 2, maxRows: 5 }}
+                                    className={styles.textAreaWithoutSubmit}
+                                    bottomPanelUtils={[
+                                        <Tooltip
+                                            title={copied ? CopiedTooltipText : CopyTooltipText }
+                                            placement='top'
+                                            key='copyButton'
+                                        >
+                                            <Button
+                                                minimal
+                                                compact
+                                                type='secondary'
+                                                size='medium'
+                                                disabled={!value || rewriteTextLoading}
+                                                onClick={handleCopyClick}
+                                                icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
+                                            />
+                                        </Tooltip>,
+                                        ...(
+                                            aiEnabled && rewriteIncidentTextForResidentEnabled ? [
+                                                <Button
+                                                    key='improveButton'
+                                                    compact
+                                                    minimal
+                                                    type='secondary'
+                                                    size='medium'
+                                                    disabled={!value || rewriteTextLoading}
+                                                    loading={rewriteTextLoading}
+                                                    icon={<Sparkles size='small' />}
+                                                    onClick={handleRewriteNewsTextClick}
+                                                >
+                                                    {UpdateTextMessage}
+                                                </Button>,
+                                            ] : []
+                                        ),
+                                    ]}
+                                />
+                            </Form.Item>
+                        </AIInputNotification>
+                    )
+                }
+            }
+        </Form.Item>
+    )
+}
+
+const DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
+
 export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const intl = useIntl()
     const CheckAllLabel = intl.formatMessage({ id: 'incident.fields.properties.checkAll.label' })
@@ -295,16 +499,17 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const DetailsLabel = intl.formatMessage({ id: 'incident.fields.details.label' })
     const DetailsPlaceholderMessage = intl.formatMessage({ id: 'incident.fields.details.placeholder' })
     const DetailsErrorMessage = intl.formatMessage({ id: 'incident.fields.details.error.length' })
-    const TextForResidentLabel = intl.formatMessage({ id: 'incident.fields.textForResident.label' })
-    const TextForResidentPlaceholderMessage = intl.formatMessage({ id: 'incident.fields.textForResident.placeholder' })
     const NotActualWorkFinishAlertTitle = intl.formatMessage({ id: 'incident.form.alert.notActualWorkFinish.title' })
     const NotActualWorkFinishAlertMessage = intl.formatMessage({ id: 'incident.form.alert.notActualWorkFinish.description' })
     const PromptTitle = intl.formatMessage({ id: 'incident.form.prompt.exit.title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'incident.form.prompt.exit.message' })
     const notAvailableMessage = intl.formatMessage({ id: 'global.notAvailable' })
     const SelectPlaceholder = intl.formatMessage({ id: 'Select' })
+    const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+
     const {
         action: createOrUpdateIncident,
+        afterAction,
         ActionBar,
         initialValues = INITIAL_VALUES,
         loading,
@@ -312,11 +517,11 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         showOrganization = false,
     } = props
 
+    const [incidentForm] = Form.useForm()
+
     const { breakpoints } = useLayoutContext()
     const isSmallWindow = !breakpoints.TABLET_LARGE
     const { requiredValidator } = useValidations()
-    const Details = useInputWithCounter(TextArea, 1500)
-    const TextForResident = useInputWithCounter(TextArea, 500)
 
     const [createIncidentProperty] = useCreateIncidentPropertyMutation()
     const [updateIncidentProperty] = useUpdateIncidentPropertyMutation()
@@ -333,8 +538,14 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const initialPropertyIdsWithDeleted = useMemo(() => initialIncidentProperties.map(item => getPropertyKey(item)), [initialIncidentProperties])
     const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => item?.classifier?.id || null), [initialIncidentClassifiers])
 
+    const [runGenerateNewsAIFlow] = useAIFlow<{ title: string, body: string }>({
+        flowType: FLOW_TYPES.GENERATE_NEWS_BY_INCIDENT,
+        modelName: 'Incident',
+        itemId: props?.initialValues?.id || null,
+    })
+
     const handleFormSubmit = useCallback(async (values) => {
-        const { properties, allClassifiers, categoryClassifiers, problemClassifiers, ...incidentValues } = values
+        const { properties, allClassifiers, categoryClassifiers, problemClassifiers, generateNews, ...incidentValues } = values
 
         const {
             data: incidentData,
@@ -383,7 +594,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
             uniq(selectedClassifiersByCategoryAndProblem.map(classifier => classifier?.category?.id))
         )
         const selectedClassifiersWithoutProblem = allClassifiers
-            .filter((classifier) => 
+            .filter((classifier) =>
                 !classifier?.problem?.id && selectedCategoryWithoutSelectedProblemIds.includes(classifier?.category?.id)
             )
         const selectedClassifierIds = [...selectedClassifiersByCategoryAndProblem, ...selectedClassifiersWithoutProblem]
@@ -427,7 +638,51 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                 fetchPolicy: 'network-only',
             })
         }
-    }, [createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers])
+
+        if (generateNews) {
+            try {
+                const selectedClassifiers = allClassifiers
+                    .filter(classifier => selectedClassifierIds.includes(classifier.id))
+                    .map(classifier => ({
+                        category: classifier?.category?.name || '',
+                        problem: classifier?.problem?.name || '',
+                    }))
+
+                const context = {
+                    selectedClassifiers,
+                    details: incidentValues.details,
+                    textForResident: incidentValues.textForResident || '',
+                    workFinish: incidentValues.workFinish ? dayjs(incidentValues.workFinish).format(DATE_FORMAT) : '',
+                    workStart: incidentValues.workStart ? dayjs(incidentValues.workStart).format(DATE_FORMAT) : dayjs().format(DATE_FORMAT),
+                    workType: incidentValues.workType || INCIDENT_WORK_TYPE_SCHEDULED,
+                    isFinished: false,
+                }
+
+                const result = await runGenerateNewsAIFlow({ context })
+
+                if (result.error) {
+                    notification.error({ message: result.localizedErrorText || GenericErrorMessage })
+                    return
+                }
+
+                const initialValue = {
+                    title: result?.data?.title,
+                    body: result?.data?.body,
+                    propertyIds: properties,
+                    hasAllProperties: incidentValues.hasAllProperties,
+                    type: incidentValues.workType === INCIDENT_WORK_TYPE_EMERGENCY ? NEWS_TYPE_EMERGENCY : NEWS_TYPE_COMMON,
+                    ...(incidentValues.workFinish ? { validBefore: dayjs(incidentValues.workFinish).toISOString() } : undefined),
+                }
+                window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}`, '_blank')
+            } catch (error) {
+                notification.error({ message: GenericErrorMessage })
+            }
+        }
+
+        if (afterAction) {
+            await afterAction()
+        }
+    }, [runGenerateNewsAIFlow, createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers])
 
     const renderPropertyOptions: InputWithCheckAllProps['selectProps']['renderOptions'] = useCallback((options, renderOption) => {
         const deletedPropertyOptions = initialIncidentProperties.map((incidentProperty) => {
@@ -503,6 +758,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         <Row gutter={VERTICAL_GUTTER}>
             <Col span={24} lg={24} xl={22}>
                 <FormWithAction
+                    formInstance={incidentForm}
                     initialValues={initialFormValues}
                     action={handleFormSubmit}
                     colon={false}
@@ -606,36 +862,26 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Row justify='end'>
-                                        <Col span={24}>
-                                            <Form.Item
-                                                label={DetailsLabel}
-                                                name='details'
-                                                required
-                                                rules={detailsRules}
-                                            >
-                                                <Details.InputWithCounter rows={4} placeholder={DetailsPlaceholderMessage} />
-                                            </Form.Item>
-                                        </Col>
-                                        <Col>
-                                            <Details.Counter />
-                                        </Col>
-                                    </Row>
+                                    <Form.Item
+                                        label={DetailsLabel}
+                                        name='details'
+                                        required
+                                        rules={detailsRules}
+                                    >
+                                        <Input.TextArea
+                                            placeholder={DetailsPlaceholderMessage}
+                                            name='details'
+                                            maxLength={1500}
+                                            autoSize={{ minRows: 2, maxRows: 5 }}
+                                            className={styles.textAreaWithoutSubmit}
+                                        />
+                                    </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Row justify='end'>
-                                        <Col span={24}>
-                                            <Form.Item
-                                                label={TextForResidentLabel}
-                                                name='textForResident'
-                                            >
-                                                <TextForResident.InputWithCounter rows={4} placeholder={TextForResidentPlaceholderMessage} />
-                                            </Form.Item>
-                                        </Col>
-                                        <Col>
-                                            <TextForResident.Counter />
-                                        </Col>
-                                    </Row>
+                                    <TextForResidentInput
+                                        incidentForm={incidentForm}
+                                        incidentId={initialValues?.id || null}
+                                    />
                                 </Col>
                                 {
                                     isFunction(ActionBar)

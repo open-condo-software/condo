@@ -110,7 +110,6 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
     const incidentClassifiers = useMemo(() => incidentClassifiersData?.incidentClassifierIncident?.filter(Boolean) || [], [incidentClassifiersData?.incidentClassifierIncident])
 
     const [updateIncident] = useUpdateIncidentMutation({
-        onCompleted: async () => await push(`/incident/${[incidentId]}`),
         refetchQueries: [
             { query: GetIncidentByIdDocument, variables: { incidentId } },
             { query: GetIncidentPropertiesByIncidentIdDocument, variables: { incidentId } },
@@ -165,6 +164,9 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         <BaseIncidentForm
             organizationId={organizationId}
             action={action}
+            afterAction={async () => {
+                await push(`/incident/${incidentId}`)
+            }}
             ActionBar={UpdateIncidentActionBar}
             initialValues={initialValues}
             loading={loading}

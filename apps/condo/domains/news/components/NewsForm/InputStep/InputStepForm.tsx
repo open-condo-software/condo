@@ -107,7 +107,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
         data: rewriteNewsTextData,
         error: rewriteNewsTextError,
     }] = useAIFlow<{ answer: string }>({
-        flowType: FLOW_TYPES.NEWS_REWRITE_TEXT_FLOW_TYPE,
+        flowType: FLOW_TYPES.NEWS_REWRITE_TEXT,
     })
 
     const hasNewsText = useMemo(() => value.length > 0, [value])
