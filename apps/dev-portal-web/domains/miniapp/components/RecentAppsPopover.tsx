@@ -53,7 +53,7 @@ const RecentAppCard: React.FC<AppInfo & WithOnClose> = ({ name, type, id, onClos
 const RecentAppsPopoverContent: React.FC<WithOnClose> = ({ onClose }) => {
     const intl = useIntl()
     const CreateAppLabel = intl.formatMessage({ id: 'global.actions.createApp' })
-    const RecentlyCreatedTitle = intl.formatMessage({ id: 'global.recentAppsPopover.recentApps.title' })
+    const RecentlyCreatedTitle = intl.formatMessage({ id: 'components.miniapp.recentAppsPopover.recentApps.title' })
     const { persistor } = useCachePersistor()
 
     const { createApp } = useCreateAppContext()

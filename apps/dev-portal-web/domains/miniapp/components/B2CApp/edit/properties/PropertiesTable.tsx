@@ -40,9 +40,9 @@ const PAGINATION_POSITION = ['bottomLeft' as const]
 
 export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environment }) => {
     const intl = useIntl()
-    const AddressColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.properties.table.columns.address.title' })
-    const EmptyTableMessage = intl.formatMessage({ id: 'apps.b2c.sections.properties.table.empty.message' })
-    const AddAddressLabel = intl.formatMessage({ id: 'apps.b2c.sections.properties.actions.addProperty' })
+    const AddressColumnTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.table.columns.address.title' })
+    const EmptyTableMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.table.empty.message' })
+    const AddAddressLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.actions.addProperty' })
 
     const [isCreatePropertyModalOpen, setIsCreatePropertyModalOpen] = useState(false)
     const showCreatePropertyModal = useCallback(() => {
@@ -63,8 +63,8 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
         onError,
         onCompleted (deletedProperty) {
             notification.success({
-                message: intl.formatMessage({ id: 'apps.b2c.sections.properties.notifications.successDeletion.title' }),
-                description: intl.formatMessage({ id: 'apps.b2c.sections.properties.notifications.successDeletion.description' }, {
+                message: intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.notifications.successDeletion.title' }),
+                description: intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.notifications.successDeletion.description' }, {
                     address: deletedProperty.property?.address,
                 }),
             })

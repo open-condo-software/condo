@@ -17,9 +17,9 @@ export const SplitResultCard: React.FC<SplitResultCardProps> = (props) => {
 
     const intl = useIntl()
 
-    const TinTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitResult.fields.tin.label' })
-    const AmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitResult.fields.amount.label' })
-    const FeeTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitResult.fields.fee.label' })
+    const TinTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.splitResult.fields.tin.label' })
+    const AmountTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.splitResult.fields.amount.label' })
+    const FeeTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.splitResult.fields.fee.label' })
 
     return (
         <Row gutter={GUTTER_ROW}>

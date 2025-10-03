@@ -16,12 +16,12 @@ const LoadingVersionSkeleton: React.FC = () => {
 
 const CurrentBuildsInfo: React.FC<{ id: string }> = React.memo(({ id }) => {
     const intl = useIntl()
-    const DevBuildVersionLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.currentBuildsList.items.development.label' })
-    const ProdBuildVersionLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.currentBuildsList.items.production.label' })
-    const NoBuildText = intl.formatMessage({ id: 'apps.b2c.sections.builds.currentBuildsList.noBuild.text' })
-    const BuildLoadingErrorText = intl.formatMessage({ id: 'apps.b2c.sections.builds.currentBuildsList.buildLoadingError.text' })
-    const PublishSectionText = intl.formatMessage({ id: 'apps.b2c.sections.publishing.title' })
-    const PublishAlertDescription = intl.formatMessage({ id: 'apps.b2c.sections.builds.currentBuildsList.publishAlert.description' }, {
+    const DevBuildVersionLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.currentBuildsList.items.development.label' })
+    const ProdBuildVersionLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.currentBuildsList.items.production.label' })
+    const NoBuildText = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.currentBuildsList.noBuild.text' })
+    const BuildLoadingErrorText = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.currentBuildsList.buildLoadingError.text' })
+    const PublishSectionText = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.title' })
+    const PublishAlertDescription = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.currentBuildsList.publishAlert.description' }, {
         section: (
             <Typography.Link component={Link} href={`/apps/b2c/${id}?section=publishing`}>
                 {PublishSectionText}

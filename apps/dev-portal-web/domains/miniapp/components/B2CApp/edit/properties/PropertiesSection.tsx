@@ -24,11 +24,11 @@ const FULL_COL_SPAN = 24
 
 export const PropertiesSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const PropertiesTitle = intl.formatMessage({ id: 'apps.b2c.sections.properties.title' })
-    const DevStandLabel = intl.formatMessage({ id: 'apps.environments.development.label' })
-    const ProdStandLabel = intl.formatMessage({ id: 'apps.environments.production.label' })
-    const ManagementNotAvailableTitle = intl.formatMessage({ id: 'apps.b2c.sections.properties.waitingView.title' })
-    const ManagementNotAvailableText = intl.formatMessage({ id: 'apps.b2c.sections.properties.waitingView.text' })
+    const PropertiesTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.title' })
+    const DevStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.development.label' })
+    const ProdStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
+    const ManagementNotAvailableTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.waitingView.title' })
+    const ManagementNotAvailableText = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.waitingView.text' })
 
     const router = useRouter()
 

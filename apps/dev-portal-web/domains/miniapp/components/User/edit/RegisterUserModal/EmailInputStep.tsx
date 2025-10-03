@@ -18,9 +18,9 @@ export type EmailInputStepProps = {
 
 export const EmailInputStep: React.FC<EmailInputStepProps> = ({ form, onFinish, errorMsg }) => {
     const intl = useIntl()
-    const EmailLabel = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.items.email.label' })
-    const EmailPlaceholder = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.items.email.placeholder' })
-    const EmailHintMessage = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.items.email.hint' })
+    const EmailLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.items.email.label' })
+    const EmailPlaceholder = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.items.email.placeholder' })
+    const EmailHintMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.items.email.hint' })
 
     const { emailValidator, requiredFieldValidator } = useValidations()
 

@@ -42,8 +42,8 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
     const intl = useIntl()
-    const WelcomeTitle = intl.formatMessage({ id: 'global.authForm.welcome.title' })
-    const WelcomeDescriptionText = intl.formatMessage({ id: 'global.authForm.welcome.description' })
+    const WelcomeTitle = intl.formatMessage({ id: 'components.common.authForm.welcome.title' })
+    const WelcomeDescriptionText = intl.formatMessage({ id: 'components.common.authForm.welcome.description' })
     const apolloClient = useApolloClient()
     const [authModalOpen, setAuthModalOpen] = useState(false)
     const { data: auth, loading: userLoading, refetch } = useAuthenticatedUserQuery()

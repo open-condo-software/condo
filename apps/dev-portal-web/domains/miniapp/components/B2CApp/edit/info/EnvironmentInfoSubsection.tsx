@@ -21,14 +21,14 @@ const DEFAULT_STAND = DEV_ENVIRONMENT
 
 export const EnvironmentInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const DevStandLabel = intl.formatMessage({ id: 'apps.environments.development.label' })
-    const ProdStandLabel = intl.formatMessage({ id: 'apps.environments.production.label' })
-    const SelectStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.form.items.stand.label' })
-    const AppIdLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.form.items.appId.label' })
-    const AppIdPlaceholder = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.form.items.appId.placeholder' })
-    const EnvironmentUriLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.form.items.environmentUri.label' })
-    const CurrentBuildLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.form.items.currentBuild.label' })
-    const CurrentBuildPlaceholder = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.form.items.currentBuild.placeholder' })
+    const DevStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.development.label' })
+    const ProdStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
+    const SelectStandLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.environmentInfo.form.items.stand.label' })
+    const AppIdLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.environmentInfo.form.items.appId.label' })
+    const AppIdPlaceholder = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.environmentInfo.form.items.appId.placeholder' })
+    const EnvironmentUriLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.environmentInfo.form.items.environmentUri.label' })
+    const CurrentBuildLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.environmentInfo.form.items.currentBuild.label' })
+    const CurrentBuildPlaceholder = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.environmentInfo.form.items.currentBuild.placeholder' })
 
     const [form] = Form.useForm()
     const [environment, setEnvironment] = useState<AppEnvironment>(DEFAULT_STAND as AppEnvironment)

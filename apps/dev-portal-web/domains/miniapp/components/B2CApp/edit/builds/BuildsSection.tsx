@@ -63,30 +63,30 @@ type BuildFormValues = {
 export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     const formatFileSize = useFileSizeFormatter()
     const intl = useIntl()
-    const BuildsTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.title' })
-    const VersionColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.columns.version.title' })
-    const CreatedAtColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.columns.createdAt.title' })
-    const AddBuildLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.actions.addBuild' })
-    const NewBuildModalTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.title' })
-    const VersionFormLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.label' })
-    const UploadBuildMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.uploadBuild.label' })
-    const UploadActionLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.actions.upload' })
-    const NonSemanticVersionErrorMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.validations.nonSemantic.message' })
-    const NonUniqueVersionErrorMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.validations.nonUnique.message' })
-    const BuildLimitationsTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.title' })
-    const EmptyTableMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.empty.message' })
-    const SemVerFragment = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.semVerCorrect.fragment' })
-    const VersionLimitationsMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.message' }, {
+    const BuildsTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.title' })
+    const VersionColumnTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.table.columns.version.title' })
+    const CreatedAtColumnTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.table.columns.createdAt.title' })
+    const AddBuildLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.actions.addBuild' })
+    const NewBuildModalTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.title' })
+    const VersionFormLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.items.version.label' })
+    const UploadBuildMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.items.uploadBuild.label' })
+    const UploadActionLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.actions.upload' })
+    const NonSemanticVersionErrorMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.items.version.validations.nonSemantic.message' })
+    const NonUniqueVersionErrorMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.items.version.validations.nonUnique.message' })
+    const BuildLimitationsTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.info.limitations.title' })
+    const EmptyTableMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.table.empty.message' })
+    const SemVerFragment = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.info.limitations.version.semVerCorrect.fragment' })
+    const VersionLimitationsMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.info.limitations.version.message' }, {
         semVerCorrect: (
             <Typography.Link target='_blank' href={SEMVER_RULES_LINK}>
                 {SemVerFragment}
             </Typography.Link>
         ),
     })
-    const FormatLimitationsMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.format.message' }, {
+    const FormatLimitationsMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.info.limitations.format.message' }, {
         format: '.zip',
     })
-    const SizeLimitationsMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.size.message' }, {
+    const SizeLimitationsMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.builds.newBuildModal.form.info.limitations.size.message' }, {
         limit: formatFileSize(B2C_BUILD_MAX_FILE_SIZE_IN_BYTES),
     })
 

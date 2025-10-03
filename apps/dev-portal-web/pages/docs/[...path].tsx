@@ -66,12 +66,12 @@ const DocPage: React.FC<DocPageProps> = ({
     editUrl,
 }) => {
     const intl = useIntl()
-    const MenuTitle = intl.formatMessage({ id: 'docs.menu.title' })
-    const EditPageMessage = intl.formatMessage({ id: 'docs.actions.editArticle' })
-    const NextPageMessage = intl.formatMessage({ id: 'docs.actions.nextArticle' }, {
+    const MenuTitle = intl.formatMessage({ id: 'pages.docs.path.menu.title' })
+    const EditPageMessage = intl.formatMessage({ id: 'pages.docs.path.actions.editArticle' })
+    const NextPageMessage = intl.formatMessage({ id: 'pages.docs.path.actions.nextArticle' }, {
         title: nextPage ? nextPage.label : '',
     })
-    const PrevPageMessage = intl.formatMessage({ id: 'docs.actions.prevArticle' }, {
+    const PrevPageMessage = intl.formatMessage({ id: 'pages.docs.path.actions.prevArticle' }, {
         title: prevPage ? prevPage.label : '',
     })
     const ServiceTitleMessage = intl.formatMessage({ id: 'global.service.name' })

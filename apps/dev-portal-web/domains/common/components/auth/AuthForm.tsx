@@ -17,8 +17,8 @@ type AuthFormProps =  {
 
 export const AuthForm: React.FC<AuthFormProps> = ({ onComplete }) => {
     const intl = useIntl()
-    const LoginTabLabel = intl.formatMessage({ id: 'global.authForm.Tabs.login' })
-    const RegisterTabLabel = intl.formatMessage({ id: 'global.authForm.Tabs.register' })
+    const LoginTabLabel = intl.formatMessage({ id: 'components.common.authForm.Tabs.login' })
+    const RegisterTabLabel = intl.formatMessage({ id: 'components.common.authForm.Tabs.register' })
 
     return  useMemo(() => {
         if (authMethods.includes(PASSWORD_AUTH_METHOD)) {

@@ -54,7 +54,7 @@ const AppSettingsPage: React.FC = () => {
     const intl = useIntl()
     const ServiceTitleMessage = intl.formatMessage({ id: 'global.service.name' })
     const MyAppsTitle = intl.formatMessage({ id: 'global.service.sections.apps' })
-    const MenuTitle = intl.formatMessage({ id: 'apps.id.menu.title' })
+    const MenuTitle = intl.formatMessage({ id: 'pages.apps.any.id.menu.title' })
 
     const router = useRouter()
     const { id } = router.query
