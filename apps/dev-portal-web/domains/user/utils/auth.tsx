@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
-import { Modal, Typography, Space } from '@open-condo/ui'
+import { Modal, Typography } from '@open-condo/ui'
 
 import { AuthForm } from '@/domains/common/components/auth/AuthForm'
 
@@ -20,7 +20,7 @@ import {
 } from '@/gql'
 
 
-type AuthenticatedUserType = AuthenticatedUserQuery['authenticatedUser']
+export type AuthenticatedUserType = AuthenticatedUserQuery['authenticatedUser']
 
 type AuthContextType = {
     isAuthenticated: boolean

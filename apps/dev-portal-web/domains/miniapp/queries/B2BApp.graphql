@@ -1,0 +1,7 @@
+mutation createB2BApp($data: B2BAppCreateInput!) {
+    app: createB2BApp(data: $data) {
+        id
+        name
+        __typename
+    }
+}

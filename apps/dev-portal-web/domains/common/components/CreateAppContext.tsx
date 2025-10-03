@@ -10,12 +10,19 @@ import { useContainerSize } from '@open-condo/ui/hooks'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
+import { AuthenticatedUserType, useAuth } from '@/domains/user/utils/auth'
 
 import { AppCard } from './AppCard'
 
 import type { RowProps } from 'antd'
 
-import { useCreateB2CAppMutation, CreateB2CAppMutation, AllAppsDocument } from '@/gql'
+import {
+    useCreateB2BAppMutation,
+    CreateB2BAppMutation,
+    useCreateB2CAppMutation,
+    CreateB2CAppMutation,
+    AllAppsDocument,
+} from '@/gql'
 
 type CreateAppContextType = {
     createApp: () => void
@@ -43,7 +50,7 @@ const APP_TYPES = [
         key: B2B_WEB_APP_VALUE,
         icon: <Monitor size='medium'/>,
         value: B2B_WEB_APP_VALUE,
-        disabled: true,
+        disabled: (user: AuthenticatedUserType) => !(user?.isSupport || user?.isAdmin),
         span: 12,
     },
 ]
@@ -62,6 +69,7 @@ type AppTypeSelectorProps = {
 
 const AppTypeSelector: React.FC<AppTypeSelectorProps> = ({ onChange, value }) => {
     const [{ width }, setRef] = useContainerSize()
+    const { user } = useAuth()
 
     return (
         <Row gutter={APP_CARDS_ROW_GUTTER} ref={setRef}>
@@ -77,7 +85,7 @@ const AppTypeSelector: React.FC<AppTypeSelectorProps> = ({ onChange, value }) =>
                         )}
                         checked={value === appType.value}
                         onClick={() => onChange(appType.value)}
-                        disabled={appType.disabled}
+                        disabled={appType.disabled?.(user)}
                     />
                 </Col>
             ))}
@@ -116,17 +124,23 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     }, [clearFormState])
 
     const onError = useMutationErrorHandler()
-    const onB2CCompleted = useCallback((data: CreateB2CAppMutation) => {
+    const onCompleted = useCallback((data: CreateB2CAppMutation | CreateB2BAppMutation) => {
         handleModalClose()
         const id = data.app?.id
+        const appType = data.app?.__typename === 'B2CApp' ? 'b2c' : 'b2b'
         if (id) {
-            const url = `/apps/b2c/${id}`
+            const url = `/apps/${appType}/${id}`
             router.push(url, url, { locale: router.locale })
         }
     }, [handleModalClose, router])
     const [createB2CAppMutation] = useCreateB2CAppMutation({
         onError,
-        onCompleted: onB2CCompleted,
+        onCompleted,
+        refetchQueries: [AllAppsDocument],
+    })
+    const [createB2BAppMutation] = useCreateB2BAppMutation({
+        onError,
+        onCompleted,
         refetchQueries: [AllAppsDocument],
     })
 
@@ -144,8 +158,16 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
                     name: values.name,
                 },
             } })
+        } else {
+            createB2BAppMutation({ variables: {
+                data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    name: values.name,
+                },
+            } })
         }
-    }, [createB2CAppMutation])
+    }, [createB2BAppMutation, createB2CAppMutation])
 
     const ModalTitle = useMemo(() => {
         if (!isAppTypeSelected) {
