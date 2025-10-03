@@ -15,6 +15,7 @@ mutation createB2CApp($data: B2CAppCreateInput!) {
     app: createB2CApp(data: $data) {
         id
         name
+        __typename
     }
 }
 

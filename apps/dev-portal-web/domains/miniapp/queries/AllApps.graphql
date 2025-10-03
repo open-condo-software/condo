@@ -1,10 +1,27 @@
-query allApps($creator: UserWhereInput!, $first: Int!) {
-    b2c: allB2CApps(sortBy: createdAt_DESC, where: { createdBy: $creator }, first: $first, skip: 0) {
+query allB2BApps($creator: UserWhereInput!, $first: Int!, $skip: Int! = 0) {
+    b2b: allB2BApps(sortBy: createdAt_DESC, where: { createdBy: $creator }, first: $first, skip: $skip) {
         id
         name
         createdAt
         logo {
             publicUrl
         }
+    }
+    b2bMeta: _allB2BAppsMeta(where: { createdBy: $creator }) {
+        count
+    }
+}
+
+query allB2CApps($creator: UserWhereInput!, $first: Int!, $skip: Int! = 0) {
+    b2c: allB2CApps(sortBy: createdAt_DESC, where: { createdBy: $creator }, first: $first, skip: $skip) {
+        id
+        name
+        createdAt
+        logo {
+            publicUrl
+        }
+    }
+    b2cMeta: _allB2CAppsMeta(where: { createdBy: $creator }) {
+        count
     }
 }
