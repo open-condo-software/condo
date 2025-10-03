@@ -5,6 +5,7 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { getSharedConstraintsValidator } = require('@dev-portal-api/domains/common/serverSchema/constraints')
 const {
     getFileMetaAfterChange,
     FileAdapter,
@@ -40,6 +41,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
         },
     },
     hooks: {
+        validateInput: getSharedConstraintsValidator(['B2BApp']),
         afterChange: LOGO_META_AFTER_CHANGE,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical()],
