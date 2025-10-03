@@ -165,7 +165,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
             organizationId={organizationId}
             action={action}
             afterAction={async () => {
-                await push(`/incident/${[incidentId]}`)
+                await push(`/incident/${incidentId}`)
             }}
             ActionBar={UpdateIncidentActionBar}
             initialValues={initialValues}
