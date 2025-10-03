@@ -16,9 +16,9 @@ type RegisterUserFormProps = {
 
 export const RegisterUserForm: React.FC<RegisterUserFormProps> = ({ id, environment }) => {
     const intl = useIntl()
-    const NoUserMessage = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.emptyView.message' })
-    const NoUserDescription = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.emptyView.description' })
-    const RegisterUserActionLabel = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.emptyView.actions.register' })
+    const NoUserMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.message' })
+    const NoUserDescription = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.description' })
+    const RegisterUserActionLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.emptyView.actions.register' })
 
     const [registerUserModalOpen, setRegisterUserModalOpen] = useState(false)
 

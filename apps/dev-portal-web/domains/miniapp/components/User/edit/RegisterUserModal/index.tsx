@@ -52,10 +52,10 @@ const CODE_FORM_ERRORS_TO_FIELDS_MAP = {
 
 export const RegisterUserModal: React.FC<RegisterUserModalProps> = ({ onClose, open, id, environment }) => {
     const intl = useIntl()
-    const ModalTitle = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.modal.title' })
-    const ContinueActionLabel = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.actions.continue' })
-    const SuccessNotificationTitle = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.title' })
-    const SuccessNotificationDescription = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.description' })
+    const ModalTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.modal.title' })
+    const ContinueActionLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.actions.continue' })
+    const SuccessNotificationTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.title' })
+    const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.notifications.success.description' })
 
     const [form] = Form.useForm()
 

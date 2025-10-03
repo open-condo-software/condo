@@ -42,8 +42,8 @@ const MyAppsPage: React.FC = () => {
     const intl = useIntl()
     const ServiceTitleMessage = intl.formatMessage({ id: 'global.service.name' })
     const PageTitle = intl.formatMessage({ id: 'global.service.sections.apps' })
-    const NoAppsTitle = intl.formatMessage({ id: 'apps.emptyView.title' })
-    const NoAppsDescription = intl.formatMessage({ id: 'apps.emptyView.description' })
+    const NoAppsTitle = intl.formatMessage({ id: 'pages.apps.index.emptyView.title' })
+    const NoAppsDescription = intl.formatMessage({ id: 'pages.apps.index.emptyView.description' })
     const CreateAppLabel = intl.formatMessage({ id: 'global.actions.createApp' })
     const { createApp } = useCreateAppContext()
 

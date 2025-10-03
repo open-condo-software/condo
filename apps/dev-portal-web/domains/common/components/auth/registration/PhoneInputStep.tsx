@@ -32,11 +32,11 @@ export type PhoneInputStepProps = {
 
 export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) => {
     const intl = useIntl()
-    const PhoneLabel = intl.formatMessage({ id: 'global.authForm.items.phone.label' })
+    const PhoneLabel = intl.formatMessage({ id: 'components.common.authForm.items.phone.label' })
     const SignUpButtonLabel = intl.formatMessage({ id: 'global.actions.signUp' })
-    const PrivacyPolicyText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.privacyPolicy' })
-    const UserAgreementText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.userAgreement' })
-    const ConsentText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.consent' })
+    const PrivacyPolicyText = intl.formatMessage({ id: 'components.common.registerForm.info.personalDataProcessing.privacyPolicy' })
+    const UserAgreementText = intl.formatMessage({ id: 'components.common.registerForm.info.personalDataProcessing.userAgreement' })
+    const ConsentText = intl.formatMessage({ id: 'components.common.registerForm.info.personalDataProcessing.consent' })
     
     const [formattedPhone, setFormattedPhone] = useState<string | undefined>(undefined)
     const { phoneFormatValidator } = useValidations()
@@ -92,7 +92,7 @@ export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) =>
                     <Col span={FULL_SPAN_COL}>
                         <Typography.Paragraph type='secondary' size='small'>
                             {
-                                intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.message' }, {
+                                intl.formatMessage({ id: 'components.common.registerForm.info.personalDataProcessing.message' }, {
                                     signUpButton: SignUpButtonLabel,
                                     userAgreementLink: (
                                         <Typography.Link href={termsOfUseUrl} target='_blank'>{UserAgreementText}</Typography.Link>

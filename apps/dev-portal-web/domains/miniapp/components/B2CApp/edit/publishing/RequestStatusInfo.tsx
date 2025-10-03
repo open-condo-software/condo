@@ -28,15 +28,15 @@ const fieldsToCheck = [
 
 export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, request, loading }) => {
     const intl = useIntl()
-    const VerificationRequiredTitle = intl.formatMessage({ id: 'apps.id.verification.verificationRequiredAlert.title' })
-    const VerificationRequiredDetailsAboutText = intl.formatMessage({ id: 'apps.id.verification.verificationRequiredAlert.details.aboutVerification' })
-    const RequestVerificationLabel = intl.formatMessage({ id: 'apps.id.verification.verificationRequiredAlert.actions.requestVerification' })
-    const VerificationRequiredDetailsNextStepsText = intl.formatMessage({ id: 'apps.id.verification.verificationRequiredAlert.details.nextSteps' }, {
+    const VerificationRequiredTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.title' })
+    const VerificationRequiredDetailsAboutText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.aboutVerification' })
+    const RequestVerificationLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.actions.requestVerification' })
+    const VerificationRequiredDetailsNextStepsText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.nextSteps' }, {
         action: RequestVerificationLabel,
     })
-    const VerificationStatusTitle = intl.formatMessage({ id: 'apps.id.verification.activeVerificationAlert.title' })
-    const StandLabel = intl.formatMessage({ id: 'apps.environments.production.label' })
-    const VerificationDetailsText = intl.formatMessage({ id: 'apps.id.verification.activeVerificationAlert.details.text' }, {
+    const VerificationStatusTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.title' })
+    const StandLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
+    const VerificationDetailsText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.details.text' }, {
         stand: StandLabel.toLowerCase(),
     })
 
@@ -99,7 +99,7 @@ export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, req
                     <Space size={8} direction='vertical' className={styles.checkboxList}>
                         {fieldsToCheck.map((field) => (
                             <Checkbox key={field} disabled checked={request[field] || false}>
-                                <Typography.Text size='medium' type='secondary'><FormattedMessage id={`apps.id.verification.activeVerificationAlert.checkboxes.${field}.label`}/></Typography.Text>
+                                <Typography.Text size='medium' type='secondary'><FormattedMessage id={`pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.checkboxes.${field}.label`}/></Typography.Text>
                             </Checkbox>
                         ))}
                     </Space>

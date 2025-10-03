@@ -24,11 +24,11 @@ type CommonInfoFormValues = {
 
 export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const AppNameLabel = intl.formatMessage({ id: 'apps.b2b.sections.info.commonInfo.form.items.name.label' })
-    const DeveloperNameLabel = intl.formatMessage({ id: 'apps.b2b.sections.info.commonInfo.form.items.developer.label' })
-    const DeveloperNamePlaceholder = intl.formatMessage({ id: 'apps.b2b.sections.info.commonInfo.form.items.developer.placeholder' })
-    const DeveloperUrlLabel = intl.formatMessage({ id: 'apps.b2b.sections.info.commonInfo.form.items.developerUrl.label' })
-    const DeveloperUrlPlaceholder = intl.formatMessage({ id: 'apps.b2b.sections.info.commonInfo.form.items.developerUrl.placeholder' })
+    const AppNameLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.name.label' })
+    const DeveloperNameLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.developer.label' })
+    const DeveloperNamePlaceholder = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.developer.placeholder' })
+    const DeveloperUrlLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.label' })
+    const DeveloperUrlPlaceholder = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'global.actions.save' })
 
     const [form] = Form.useForm()

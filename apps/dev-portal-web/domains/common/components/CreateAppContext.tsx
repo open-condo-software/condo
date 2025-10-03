@@ -78,10 +78,10 @@ const AppTypeSelector: React.FC<AppTypeSelectorProps> = ({ onChange, value }) =>
                     <AppCard
                         icon={appType.icon}
                         title={(
-                            <FormattedMessage id={`global.createAppForm.items.type.${appType.value}.label`} />
+                            <FormattedMessage id={`components.common.createAppContext.createAppForm.items.type.${appType.value}.label`} />
                         )}
                         subtitle={(
-                            <FormattedMessage id={`global.createAppForm.items.type.${appType.value}.description`} />
+                            <FormattedMessage id={`components.common.createAppContext.createAppForm.items.type.${appType.value}.description`} />
                         )}
                         checked={value === appType.value}
                         onClick={() => onChange(appType.value)}
@@ -95,9 +95,9 @@ const AppTypeSelector: React.FC<AppTypeSelectorProps> = ({ onChange, value }) =>
 
 export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
     const intl = useIntl()
-    const ContinueLabel = intl.formatMessage({ id: 'global.createAppForm.actions.continue' })
-    const BackLabel = intl.formatMessage({ id: 'global.createAppForm.actions.back' })
-    const CreateLabel = intl.formatMessage({ id: 'global.createAppForm.actions.create' })
+    const ContinueLabel = intl.formatMessage({ id: 'components.common.createAppContext.createAppForm.actions.continue' })
+    const BackLabel = intl.formatMessage({ id: 'components.common.createAppContext.createAppForm.actions.back' })
+    const CreateLabel = intl.formatMessage({ id: 'components.common.createAppContext.createAppForm.actions.create' })
 
     const client = useApolloClient()
 
@@ -180,10 +180,10 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
 
     const ModalTitle = useMemo(() => {
         if (!isAppTypeSelected) {
-            return <FormattedMessage id='global.createAppForm.steps.selectAppType.title' />
+            return <FormattedMessage id='components.common.createAppContext.createAppForm.steps.selectAppType.title' />
         }
 
-        return <FormattedMessage id='global.createAppForm.steps.enterAppName.title' />
+        return <FormattedMessage id='components.common.createAppContext.createAppForm.steps.enterAppName.title' />
     }, [isAppTypeSelected])
 
     const ModalFooter = useMemo(() => {
@@ -211,7 +211,7 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
 
         const placeholderIndex = Math.floor(Math.random() * MAX_RANDOM_NAMES + 1)
         // @ts-expect-error Type ... is not assignable to type MessagesKeysType | undefined
-        const randomPlaceHolder = intl.formatMessage({ id: `global.createAppForm.items.name.placeholder.option.${placeholderIndex}` })
+        const randomPlaceHolder = intl.formatMessage({ id: `components.common.createAppContext.createAppForm.items.name.placeholder.option.${placeholderIndex}` })
 
         return (
             <Form.Item name='name' rules={[trimValidator]} style={BOTTOM_FORM_ITEM_STYLES}>

@@ -37,13 +37,13 @@ type IdentityInputStepProps = {
 
 export const IdentityInputStep: React.FC<IdentityInputStepProps> = ({ phone, actionId, onComplete }) => {
     const intl = useIntl()
-    const NameFieldLabel = intl.formatMessage({ id: 'global.registerForm.items.name.label' })
-    const NameFieldPlaceholder = intl.formatMessage({ id: 'global.registerForm.items.name.placeholder' })
-    const PhoneFieldLabel = intl.formatMessage({ id: 'global.authForm.items.phone.label' })
-    const PasswordFieldLabel = intl.formatMessage({ id: 'global.authForm.items.password.label' })
-    const ConfirmPasswordFieldLabel = intl.formatMessage({ id: 'global.registerForm.items.confirmPassword.label' })
-    const FinishRegistrationButtonLabel = intl.formatMessage({ id: 'global.registerForm.actions.completeRegistration' })
-    const PasswordsDontMatchErrorMessage = intl.formatMessage({ id: 'global.registerForm.validations.passwordsDontMatch.message' })
+    const NameFieldLabel = intl.formatMessage({ id: 'components.common.registerForm.items.name.label' })
+    const NameFieldPlaceholder = intl.formatMessage({ id: 'components.common.registerForm.items.name.placeholder' })
+    const PhoneFieldLabel = intl.formatMessage({ id: 'components.common.authForm.items.phone.label' })
+    const PasswordFieldLabel = intl.formatMessage({ id: 'components.common.authForm.items.password.label' })
+    const ConfirmPasswordFieldLabel = intl.formatMessage({ id: 'components.common.registerForm.items.confirmPassword.label' })
+    const FinishRegistrationButtonLabel = intl.formatMessage({ id: 'components.common.registerForm.actions.completeRegistration' })
+    const PasswordsDontMatchErrorMessage = intl.formatMessage({ id: 'components.common.registerForm.validations.passwordsDontMatch.message' })
 
     const [form] = Form.useForm()
     const { trimValidator, passwordValidator } = useValidations()

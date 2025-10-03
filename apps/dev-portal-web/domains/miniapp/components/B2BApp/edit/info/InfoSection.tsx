@@ -6,7 +6,7 @@ import { CommonInfoSubsection } from '@/domains/miniapp/components/B2BApp/edit/i
 
 export const InfoSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const CommonInfoSubtitle = intl.formatMessage({ id: 'apps.b2b.sections.info.commonInfo.subtitle' })
+    const CommonInfoSubtitle = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.subtitle' })
 
     return (
         <Section>

@@ -9,9 +9,9 @@ import { IconsSubsection } from './IconsSubsection'
 
 export const InfoSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const CommonInfoSubtitle = intl.formatMessage({ id: 'apps.b2c.sections.info.commonInfo.subtitle' })
-    const EnvironmentInfoSubtitle = intl.formatMessage({ id: 'apps.b2c.sections.info.environmentInfo.subtitle' })
-    const AppIconsSubtitle = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.subtitle' })
+    const CommonInfoSubtitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.commonInfo.subtitle' })
+    const EnvironmentInfoSubtitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.environmentInfo.subtitle' })
+    const AppIconsSubtitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.subtitle' })
 
     return (
         <Section>
