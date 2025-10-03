@@ -30,7 +30,7 @@ export const TicketDetailsField: React.FC<TicketDetailsFieldProps> = ({ ticket }
                 {ticket?.details}
             </PageFieldRow>
             <PageFieldRow title={TicketDetailsMessage} ellipsis>
-                <Markdown onCheckboxChange = {setMarkdownState} components={MARKDOWN_COMPONENT_OVERRIDES}>
+                <Markdown onCheckboxChange = {setMarkdownState}>
                     {markdownState}
                 </Markdown>
             </PageFieldRow>
