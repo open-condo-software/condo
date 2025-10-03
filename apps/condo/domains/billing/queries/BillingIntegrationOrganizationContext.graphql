@@ -11,6 +11,20 @@ query getBillingIntegrationOrganizationContexts ($integration: BillingIntegratio
     }
 }
 
+query getBillingIntegrationOrganizationContextsWithLastReport ($organization: OrganizationWhereInput!) {
+    contexts: allBillingIntegrationOrganizationContexts(
+        where: {
+            organization: $organization,
+            lastReport_not: null,
+        },
+        first: 1,
+    ) {
+        id
+        lastReport
+    }
+}
+
+
 query hasBillingIntegrations ($organization: OrganizationWhereInput!) {
     integrations: allBillingIntegrationOrganizationContexts(
         where: { organization: $organization, status: "Finished" }

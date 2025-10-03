@@ -594,6 +594,50 @@ export type GetBillingIntegrationOrganizationContextsQueryHookResult = ReturnTyp
 export type GetBillingIntegrationOrganizationContextsLazyQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsLazyQuery>;
 export type GetBillingIntegrationOrganizationContextsSuspenseQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsSuspenseQuery>;
 export type GetBillingIntegrationOrganizationContextsQueryResult = Apollo.QueryResult<Types.GetBillingIntegrationOrganizationContextsQuery, Types.GetBillingIntegrationOrganizationContextsQueryVariables>;
+export const GetBillingIntegrationOrganizationContextsWithLastReportDocument = gql`
+    query getBillingIntegrationOrganizationContextsWithLastReport($organization: OrganizationWhereInput!) {
+  contexts: allBillingIntegrationOrganizationContexts(
+    where: {organization: $organization, lastReport_not: null}
+    first: 1
+  ) {
+    id
+    lastReport
+  }
+}
+    `;
+
+/**
+ * __useGetBillingIntegrationOrganizationContextsWithLastReportQuery__
+ *
+ * To run a query within a React component, call `useGetBillingIntegrationOrganizationContextsWithLastReportQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillingIntegrationOrganizationContextsWithLastReportQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillingIntegrationOrganizationContextsWithLastReportQuery({
+ *   variables: {
+ *      organization: // value for 'organization'
+ *   },
+ * });
+ */
+export function useGetBillingIntegrationOrganizationContextsWithLastReportQuery(baseOptions: Apollo.QueryHookOptions<Types.GetBillingIntegrationOrganizationContextsWithLastReportQuery, Types.GetBillingIntegrationOrganizationContextsWithLastReportQueryVariables> & ({ variables: Types.GetBillingIntegrationOrganizationContextsWithLastReportQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetBillingIntegrationOrganizationContextsWithLastReportQuery, Types.GetBillingIntegrationOrganizationContextsWithLastReportQueryVariables>(GetBillingIntegrationOrganizationContextsWithLastReportDocument, options);
+      }
+export function useGetBillingIntegrationOrganizationContextsWithLastReportLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetBillingIntegrationOrganizationContextsWithLastReportQuery, Types.GetBillingIntegrationOrganizationContextsWithLastReportQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetBillingIntegrationOrganizationContextsWithLastReportQuery, Types.GetBillingIntegrationOrganizationContextsWithLastReportQueryVariables>(GetBillingIntegrationOrganizationContextsWithLastReportDocument, options);
+        }
+export function useGetBillingIntegrationOrganizationContextsWithLastReportSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetBillingIntegrationOrganizationContextsWithLastReportQuery, Types.GetBillingIntegrationOrganizationContextsWithLastReportQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetBillingIntegrationOrganizationContextsWithLastReportQuery, Types.GetBillingIntegrationOrganizationContextsWithLastReportQueryVariables>(GetBillingIntegrationOrganizationContextsWithLastReportDocument, options);
+        }
+export type GetBillingIntegrationOrganizationContextsWithLastReportQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsWithLastReportQuery>;
+export type GetBillingIntegrationOrganizationContextsWithLastReportLazyQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsWithLastReportLazyQuery>;
+export type GetBillingIntegrationOrganizationContextsWithLastReportSuspenseQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsWithLastReportSuspenseQuery>;
+export type GetBillingIntegrationOrganizationContextsWithLastReportQueryResult = Apollo.QueryResult<Types.GetBillingIntegrationOrganizationContextsWithLastReportQuery, Types.GetBillingIntegrationOrganizationContextsWithLastReportQueryVariables>;
 export const HasBillingIntegrationsDocument = gql`
     query hasBillingIntegrations($organization: OrganizationWhereInput!) {
   integrations: allBillingIntegrationOrganizationContexts(
