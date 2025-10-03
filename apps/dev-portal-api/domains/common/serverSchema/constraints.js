@@ -15,7 +15,7 @@ function getSharedConstraintsValidator (sharedModelNames) {
         if (!id) return
         const objs = await Promise.all(sharedModelNames
             .map(modelName => getByCondition(modelName, { id, deletedAt: null })))
-        const hasShared = objs.some(obj => obj)
+        const hasShared = objs.some(Boolean)
         if (hasShared) {
             throw new GQLError(SHARED_ID_CONSTRAINT_ERROR, context)
         }
