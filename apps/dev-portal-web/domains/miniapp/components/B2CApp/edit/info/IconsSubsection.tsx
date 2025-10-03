@@ -26,7 +26,7 @@ import styles from './IconsSubsection.module.css'
 import type { RowProps } from 'antd'
 import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
 
-import { AllAppsDocument, GetB2CAppDocument, useGetB2CAppQuery, useUpdateB2CAppMutation } from '@/gql'
+import { GetB2CAppDocument, useGetB2CAppQuery, useUpdateB2CAppMutation } from '@/gql'
 
 const ROW_ICONS_CONTENT_GUTTER: RowProps['gutter'] = [12, 12]
 const ICON_WARNING_ROW_GUTTER: RowProps['gutter'] = [0, 0]
@@ -88,7 +88,6 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
     }, [form, onCompletedInform])
     const [updateB2CAppMutation] = useUpdateB2CAppMutation({
         refetchQueries: [
-            AllAppsDocument,
             {
                 query: GetB2CAppDocument,
                 variables: { id },

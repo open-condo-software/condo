@@ -4631,12 +4631,29 @@ export type AllB2CAppsQueryVariables = Exact<{
 
 export type AllB2CAppsQuery = { __typename?: 'Query', b2c?: Array<{ __typename?: 'B2CApp', id: string, name?: string | null, createdAt?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null> | null, b2cMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
+export type B2BAppFragmentFragment = { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null };
+
+export type GetB2BAppQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetB2BAppQuery = { __typename?: 'Query', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+
 export type CreateB2BAppMutationVariables = Exact<{
   data: B2BAppCreateInput;
 }>;
 
 
-export type CreateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null } | null };
+export type CreateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+
+export type UpdateB2BAppMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  data: B2BAppUpdateInput;
+}>;
+
+
+export type UpdateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type GetB2CAppQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -4821,7 +4838,20 @@ export type SignOutMutationVariables = Exact<{ [key: string]: never; }>;
 
 export type SignOutMutation = { __typename?: 'Mutation', unauthenticateUser?: { __typename?: 'unauthenticateUserOutput', success?: boolean | null } | null };
 
-
+export const B2BAppFragmentFragmentDoc = gql`
+    fragment B2BAppFragment on B2BApp {
+  __typename
+  id
+  name
+  developer
+  developerUrl
+  logo {
+    publicUrl
+  }
+  developmentExportId
+  productionExportId
+}
+    `;
 export const AllB2BAppsDocument = gql`
     query allB2BApps($creator: UserWhereInput!, $first: Int!, $skip: Int! = 0) {
   b2b: allB2BApps(
@@ -4932,15 +4962,53 @@ export type AllB2CAppsQueryHookResult = ReturnType<typeof useAllB2CAppsQuery>;
 export type AllB2CAppsLazyQueryHookResult = ReturnType<typeof useAllB2CAppsLazyQuery>;
 export type AllB2CAppsSuspenseQueryHookResult = ReturnType<typeof useAllB2CAppsSuspenseQuery>;
 export type AllB2CAppsQueryResult = Apollo.QueryResult<AllB2CAppsQuery, AllB2CAppsQueryVariables>;
+export const GetB2BAppDocument = gql`
+    query getB2BApp($id: ID!) {
+  app: B2BApp(where: {id: $id}) {
+    ...B2BAppFragment
+  }
+}
+    ${B2BAppFragmentFragmentDoc}`;
+
+/**
+ * __useGetB2BAppQuery__
+ *
+ * To run a query within a React component, call `useGetB2BAppQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2BAppQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2BAppQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetB2BAppQuery(baseOptions: Apollo.QueryHookOptions<GetB2BAppQuery, GetB2BAppQueryVariables> & ({ variables: GetB2BAppQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetB2BAppQuery, GetB2BAppQueryVariables>(GetB2BAppDocument, options);
+      }
+export function useGetB2BAppLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetB2BAppQuery, GetB2BAppQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetB2BAppQuery, GetB2BAppQueryVariables>(GetB2BAppDocument, options);
+        }
+export function useGetB2BAppSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetB2BAppQuery, GetB2BAppQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetB2BAppQuery, GetB2BAppQueryVariables>(GetB2BAppDocument, options);
+        }
+export type GetB2BAppQueryHookResult = ReturnType<typeof useGetB2BAppQuery>;
+export type GetB2BAppLazyQueryHookResult = ReturnType<typeof useGetB2BAppLazyQuery>;
+export type GetB2BAppSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppSuspenseQuery>;
+export type GetB2BAppQueryResult = Apollo.QueryResult<GetB2BAppQuery, GetB2BAppQueryVariables>;
 export const CreateB2BAppDocument = gql`
     mutation createB2BApp($data: B2BAppCreateInput!) {
   app: createB2BApp(data: $data) {
-    id
-    name
-    __typename
+    ...B2BAppFragment
   }
 }
-    `;
+    ${B2BAppFragmentFragmentDoc}`;
 export type CreateB2BAppMutationFn = Apollo.MutationFunction<CreateB2BAppMutation, CreateB2BAppMutationVariables>;
 
 /**
@@ -4967,6 +5035,40 @@ export function useCreateB2BAppMutation(baseOptions?: Apollo.MutationHookOptions
 export type CreateB2BAppMutationHookResult = ReturnType<typeof useCreateB2BAppMutation>;
 export type CreateB2BAppMutationResult = Apollo.MutationResult<CreateB2BAppMutation>;
 export type CreateB2BAppMutationOptions = Apollo.BaseMutationOptions<CreateB2BAppMutation, CreateB2BAppMutationVariables>;
+export const UpdateB2BAppDocument = gql`
+    mutation updateB2BApp($id: ID!, $data: B2BAppUpdateInput!) {
+  app: updateB2BApp(id: $id, data: $data) {
+    ...B2BAppFragment
+  }
+}
+    ${B2BAppFragmentFragmentDoc}`;
+export type UpdateB2BAppMutationFn = Apollo.MutationFunction<UpdateB2BAppMutation, UpdateB2BAppMutationVariables>;
+
+/**
+ * __useUpdateB2BAppMutation__
+ *
+ * To run a mutation, you first call `useUpdateB2BAppMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateB2BAppMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateB2BAppMutation, { data, loading, error }] = useUpdateB2BAppMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateB2BAppMutation(baseOptions?: Apollo.MutationHookOptions<UpdateB2BAppMutation, UpdateB2BAppMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateB2BAppMutation, UpdateB2BAppMutationVariables>(UpdateB2BAppDocument, options);
+      }
+export type UpdateB2BAppMutationHookResult = ReturnType<typeof useUpdateB2BAppMutation>;
+export type UpdateB2BAppMutationResult = Apollo.MutationResult<UpdateB2BAppMutation>;
+export type UpdateB2BAppMutationOptions = Apollo.BaseMutationOptions<UpdateB2BAppMutation, UpdateB2BAppMutationVariables>;
 export const GetB2CAppDocument = gql`
     query getB2CApp($id: ID!) {
   app: B2CApp(where: {id: $id}) {

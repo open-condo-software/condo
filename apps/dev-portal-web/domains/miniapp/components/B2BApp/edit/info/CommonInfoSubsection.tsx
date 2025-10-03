@@ -1,5 +1,5 @@
 import { Form, Row, Col } from 'antd'
-import get from 'lodash/get'
+import pick from 'lodash/pick'
 import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
@@ -12,7 +12,7 @@ import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutation
 
 import type { RowProps } from 'antd'
 
-import { useUpdateB2CAppMutation, GetB2CAppDocument, useGetB2CAppQuery } from '@/gql'
+import { useGetB2BAppQuery, useUpdateB2BAppMutation } from '@/gql'
 
 const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [32, 32]
 const FULL_COL_SPAN = 24
@@ -24,37 +24,30 @@ type CommonInfoFormValues = {
 
 export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const AppNameLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.commonInfo.form.items.name.label' })
-    const DeveloperNameLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.commonInfo.form.items.developer.label' })
-    const DeveloperNamePlaceholder = intl.formatMessage({ id: 'apps.b2c.sections.info.commonInfo.form.items.developer.placeholder' })
+    const AppNameLabel = intl.formatMessage({ id: 'apps.b2b.sections.info.commonInfo.form.items.name.label' })
+    const DeveloperNameLabel = intl.formatMessage({ id: 'apps.b2b.sections.info.commonInfo.form.items.developer.label' })
+    const DeveloperNamePlaceholder = intl.formatMessage({ id: 'apps.b2b.sections.info.commonInfo.form.items.developer.placeholder' })
+    const DeveloperUrlLabel = intl.formatMessage({ id: 'apps.b2b.sections.info.commonInfo.form.items.developerUrl.label' })
+    const DeveloperUrlPlaceholder = intl.formatMessage({ id: 'apps.b2b.sections.info.commonInfo.form.items.developerUrl.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'global.actions.save' })
 
     const [form] = Form.useForm()
 
     const variables = { id }
 
-    const { data } = useGetB2CAppQuery({ variables })
+    const { data } = useGetB2BAppQuery({ variables })
 
     const onCompleted = useMutationCompletedHandler()
     const onError = useMutationErrorHandler()
-    const [updateB2CAppMutation] = useUpdateB2CAppMutation({
-        refetchQueries: [
-            {
-                query: GetB2CAppDocument,
-                variables,
-            },
-        ],
+    const [updateB2BAppMutation] = useUpdateB2BAppMutation({
         onError,
         onCompleted,
     })
 
-    const { trimValidator } = useValidations()
-
-    const appName = get(data, ['app', 'name'])
-    const appDeveloper = get(data, ['app', 'developer'])
+    const { trimValidator, urlValidator } = useValidations()
 
     const handleSubmit = useCallback((values: CommonInfoFormValues) => {
-        updateB2CAppMutation({
+        updateB2BAppMutation({
             variables: {
                 id,
                 data: {
@@ -64,7 +57,7 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
                 },
             },
         })
-    }, [id, updateB2CAppMutation])
+    }, [id, updateB2BAppMutation])
 
     return (
         <Form
@@ -72,7 +65,7 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
             layout='vertical'
             form={form}
             onFinish={handleSubmit}
-            initialValues={{ name: appName, developer: appDeveloper }}
+            initialValues={pick(data?.app, ['name', 'developer', 'developerUrl'])}
         >
             <Row gutter={FORM_BUTTON_ROW_GUTTER}>
                 <Col span={FULL_COL_SPAN}>
@@ -81,6 +74,9 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
                     </Form.Item>
                     <Form.Item name='developer' label={DeveloperNameLabel}>
                         <Input placeholder={DeveloperNamePlaceholder}/>
+                    </Form.Item>
+                    <Form.Item name='developerUrl' label={DeveloperUrlLabel} rules={[urlValidator]}>
+                        <Input placeholder={DeveloperUrlPlaceholder}/>
                     </Form.Item>
                 </Col>
                 <Col span={FULL_COL_SPAN}>
