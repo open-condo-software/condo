@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client'
 import { Form, Row, Col } from 'antd'
 import { useRouter } from 'next/router'
 import React, { createContext, CSSProperties, useCallback, useContext, useMemo, useState } from 'react'
@@ -21,7 +22,6 @@ import {
     CreateB2BAppMutation,
     useCreateB2CAppMutation,
     CreateB2CAppMutation,
-    AllAppsDocument,
 } from '@/gql'
 
 type CreateAppContextType = {
@@ -99,6 +99,8 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     const BackLabel = intl.formatMessage({ id: 'global.createAppForm.actions.back' })
     const CreateLabel = intl.formatMessage({ id: 'global.createAppForm.actions.create' })
 
+    const client = useApolloClient()
+
     const [openModal, setOpenModal] = useState(false)
     const [form] = Form.useForm()
     const { trimValidator } = useValidations()
@@ -123,25 +125,32 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
         setOpenModal(false)
     }, [clearFormState])
 
+    const clearAppsCache = useCallback(() => {
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allB2BApps' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allB2CApps' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allB2BAppsMeta' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allB2CAppsMeta' })
+    }, [client])
+
     const onError = useMutationErrorHandler()
     const onCompleted = useCallback((data: CreateB2CAppMutation | CreateB2BAppMutation) => {
         handleModalClose()
+        clearAppsCache()
         const id = data.app?.id
         const appType = data.app?.__typename === 'B2CApp' ? 'b2c' : 'b2b'
         if (id) {
             const url = `/apps/${appType}/${id}`
             router.push(url, url, { locale: router.locale })
         }
-    }, [handleModalClose, router])
+    }, [clearAppsCache, handleModalClose, router])
+
     const [createB2CAppMutation] = useCreateB2CAppMutation({
         onError,
         onCompleted,
-        refetchQueries: [AllAppsDocument],
     })
     const [createB2BAppMutation] = useCreateB2BAppMutation({
         onError,
         onCompleted,
-        refetchQueries: [AllAppsDocument],
     })
 
     const handleAppTypeChange = useCallback((value: AppType) => {

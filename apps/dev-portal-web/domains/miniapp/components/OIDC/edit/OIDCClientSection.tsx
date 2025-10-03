@@ -22,7 +22,7 @@ const FULL_COL_SPAN = 24
 
 export const OIDCClientSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const OIDCClientSettingsTitle = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.subtitle' })
+    const OIDCClientSettingsTitle = intl.formatMessage({ id: 'apps.id.sections.oidc.clientSettings.subtitle' })
     const DevStandLabel = intl.formatMessage({ id: 'apps.environments.development.label' })
     const ProdStandLabel = intl.formatMessage({ id: 'apps.environments.production.label' })
 
