@@ -90,6 +90,7 @@ const BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE = 'BODY_IS_REQUIRED_FOR_C
 const SEND_DAILY_STATISTICS_MESSAGE_TYPE = 'SEND_DAILY_STATISTICS'
 const B2B_APP_MESSAGE_PUSH_TYPE = 'B2B_APP_MESSAGE_PUSH'
 const PASS_TICKET_CREATED_MESSAGE_TYPE = 'PASS_TICKET_CREATED'
+const PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE = 'PASS_TICKET_COMMENT_CREATED'
 
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -807,11 +808,28 @@ const MESSAGE_META = {
         },
         telegramMeta: { required: false },
     },
+    [PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE]: {
+        dv: { required: true },
+        data: {
+            b2bAppId: { required: true },
+            passTicketNumber: { required: true },
+            userId: { required: true },
+            senderName: { required: true },
+            commentId: { required: true },
+            organizationId: { required: true },
+            passTicketId: { required: true },
+            organizationName: { required: true },
+            commentCreatedAt: { required: true },
+            passTicketStatus: { required: true },
+            passTicketAddress: { required: true },
+            comment: { required: true },
+        },
+    },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
 const MESSAGE_TYPES = Object.keys(MESSAGE_META)
-const B2B_APP_MESSAGE_TYPES = [B2B_APP_MESSAGE_PUSH_TYPE, PASS_TICKET_CREATED_MESSAGE_TYPE]
+const B2B_APP_MESSAGE_TYPES = [B2B_APP_MESSAGE_PUSH_TYPE, PASS_TICKET_CREATED_MESSAGE_TYPE, PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE]
 
 const MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT = 'atLeastOneTransport'
 const MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS = 'allTransports'
@@ -1080,6 +1098,12 @@ const MESSAGE_DELIVERY_OPTIONS = {
         isAllowedToChangeDefaultTransport: false,
         strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
     },
+    [PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE]: {
+        // TODO DOMA-12361 Add push transport
+        allowedTransports: [TELEGRAM_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
 }
 
 
@@ -1230,6 +1254,7 @@ module.exports = {
     PUSH_TRANSPORT_REDSTORE,
     B2B_APP_MESSAGE_PUSH_TYPE,
     PASS_TICKET_CREATED_MESSAGE_TYPE,
+    PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
     B2B_APP_MESSAGE_TYPES,
     VERIFY_USER_EMAIL_MESSAGE_TYPE,
 }

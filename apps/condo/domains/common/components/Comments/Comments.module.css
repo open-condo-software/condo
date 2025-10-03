@@ -162,7 +162,7 @@
 .comment :global(.ant-comment-content-author) {
   display: flex;
   flex-direction: column;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .comment :global(.comment-content-detail > div) {

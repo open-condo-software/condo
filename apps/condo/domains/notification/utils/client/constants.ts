@@ -9,6 +9,7 @@ export const CONDO_MESSAGE_TYPES = [
 
 export const B2B_APP_MESSAGE_TYPES = [
     MessageType.PassTicketCreated,
+    MessageType.PassTicketCommentCreated,
 ] as const
 
 /**

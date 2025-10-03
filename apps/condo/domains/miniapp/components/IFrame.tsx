@@ -186,6 +186,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
                 ref={handleRefChange}
                 height={frameHeight}
                 allowFullScreen={allowFullscreen}
+                allow='clipboard-write'
                 // NOTE: Deprecated, but overflow: hidden still not works in Chrome :)
                 scrolling='no'
             />
