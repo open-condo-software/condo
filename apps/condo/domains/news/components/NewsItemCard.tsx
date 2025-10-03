@@ -32,7 +32,7 @@ export const NewsItemCard: React.FC<NewsItemCardProps> = ({ icon, appName, title
     }, [type, EmergencyTypeLabel, CommonTypeLabel])
 
     const validBeforeFormatted = useMemo(() => {
-        if (!dayjs(validBefore).isValid()) {
+        if (!validBefore || !dayjs(validBefore).isValid()) {
             return '—'
         }
         return dayjs(validBefore).format('DD.MM.YYYY')

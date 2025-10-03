@@ -461,7 +461,9 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
         const initialValue = {
             title: result?.data?.title,
             body: result?.data?.body,
-            propertyIds: incidentProperties.map(incidentProperty => incidentProperty.property.id),
+            propertyIds: incidentProperties
+                .map(incidentProperty => incidentProperty.property.id)
+                .filter((id) => Boolean(id)),
             hasAllProperties: incident.hasAllProperties,
             type: incident.workType === IncidentWorkTypeType.Emergency ? NEWS_TYPE_EMERGENCY : NEWS_TYPE_COMMON,
             ...(incident.workFinish ? { validBefore: dayjs(incident.workFinish).toISOString() } : undefined),
