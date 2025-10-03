@@ -483,6 +483,8 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
     )
 }
 
+const DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
+
 export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const intl = useIntl()
     const CheckAllLabel = intl.formatMessage({ id: 'incident.fields.properties.checkAll.label' })
@@ -650,8 +652,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                     selectedClassifiers,
                     details: incidentValues.details,
                     textForResident: incidentValues.textForResident || '',
-                    workFinish: incidentValues.workFinish ? dayjs(incidentValues.workFinish).format('DD.MM.YYYY, HH:mm') : '',
-                    workStart: incidentValues.workStart ? dayjs(incidentValues.workStart).format('DD.MM.YYYY, HH:mm') : dayjs().format('DD.MM.YYYY, HH:mm'),
+                    workFinish: incidentValues.workFinish ? dayjs(incidentValues.workFinish).format(DATE_FORMAT) : '',
+                    workStart: incidentValues.workStart ? dayjs(incidentValues.workStart).format(DATE_FORMAT) : dayjs().format(DATE_FORMAT),
                     workType: incidentValues.workType || INCIDENT_WORK_TYPE_SCHEDULED,
                     isFinished: false,
                 }

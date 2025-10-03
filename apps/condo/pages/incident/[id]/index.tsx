@@ -365,6 +365,7 @@ const IncidentContent: React.FC<IncidentContentProps> = (props) => {
 const HEADER_CONTENT_GUTTER: RowProps['gutter'] = [0, 24]
 const PAGE_CONTENT_GUTTER: RowProps['gutter'] = [0, 60]
 const PAGE_HEADER_STYLE: React.CSSProperties = { padding: '0 0 20px 0 !important' }
+const DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
 
 export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
     const intl = useIntl()
@@ -445,10 +446,10 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
             })),
             details: incident.details,
             textForResident: incident.textForResident || '',
-            workFinish: incident.workFinish ? dayjs(incident.workFinish).format('DD.MM.YYYY, HH:mm') : '',
-            workStart: incident.workStart ? dayjs(incident.workStart).format('DD.MM.YYYY, HH:mm') : dayjs().format('DD.MM.YYYY, HH:mm'),
+            workFinish: incident.workFinish ? dayjs(incident.workFinish).format(DATE_FORMAT) : '',
+            workStart: incident.workStart ? dayjs(incident.workStart).format(DATE_FORMAT) : dayjs().format(DATE_FORMAT),
             workType: incident.workType || INCIDENT_WORK_TYPE_SCHEDULED,
-            isFinished: incident.status === 'not_actual',
+            isFinished: incident.status === IncidentStatusType.NotActual,
         }
 
         const result = await runGenerateNewsAIFlow({ context })

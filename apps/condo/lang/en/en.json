@@ -1314,7 +1314,7 @@
   "incident.form.prompt.exit.message": "Record will not be saved if you leave the page",
   "incident.form.prompt.exit.title": "Don't save the record?",
   "incident.form.save.label": "Save",
-  "incident.generateNews.switch.hint": "A draft news story will open in a new tab, the text of which is generated based on information about this outage",
+  "incident.generateNews.switch.hint": "Draft of news item based on this outage will be generated in a new tab",
   "incident.generateNews.switch.label": "Generate news for residents",
   "incident.hints.more.label": "More details",
   "incident.id.author": "Author",
