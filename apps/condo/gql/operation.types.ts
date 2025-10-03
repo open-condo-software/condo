@@ -94,6 +94,13 @@ export type GetBillingIntegrationOrganizationContextsQueryVariables = Types.Exac
 
 export type GetBillingIntegrationOrganizationContextsQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'BillingIntegrationOrganizationContext', id: string, lastReport?: any | null } | null> | null };
 
+export type GetBillingIntegrationOrganizationContextsWithLastReportQueryVariables = Types.Exact<{
+  organization: Types.OrganizationWhereInput;
+}>;
+
+
+export type GetBillingIntegrationOrganizationContextsWithLastReportQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'BillingIntegrationOrganizationContext', id: string, lastReport?: any | null } | null> | null };
+
 export type HasBillingIntegrationsQueryVariables = Types.Exact<{
   organization: Types.OrganizationWhereInput;
 }>;

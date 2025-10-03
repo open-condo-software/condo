@@ -2,7 +2,7 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import {
     AuthenticatedUserDocument,
     GetActiveOrganizationEmployeeDocument,
-    useGetBillingIntegrationOrganizationContextsQuery,
+    useGetBillingIntegrationOrganizationContextsQuery, useGetBillingIntegrationOrganizationContextsWithLastReportQuery,
     useGetProcessingTasksQuery,
 } from '@app/condo/gql'
 import createCache from '@emotion/cache'
@@ -172,12 +172,11 @@ const MenuItems: React.FC = () => {
     const sppBillingId = sppConfig?.BillingIntegrationId || null
     const {
         data,
-    } = useGetBillingIntegrationOrganizationContextsQuery({
+    } = useGetBillingIntegrationOrganizationContextsWithLastReportQuery({
         variables: {
-            integration: { id: sppBillingId },
             organization: { id: orgId },
         },
-        skip: !isAuthenticated || isLoading || !orgId || !sppBillingId || !persistor,
+        skip: !isAuthenticated || isLoading || !orgId || !persistor,
     })
     const billingCtx = useMemo(() => data?.contexts?.filter(Boolean)[0] || null, [data?.contexts])
     const anyReceiptsLoaded = Boolean(billingCtx?.lastReport || null)
