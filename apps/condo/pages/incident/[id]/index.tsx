@@ -395,6 +395,8 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
         loading: generateNewsLoading,
     }] = useAIFlow<{ title: string, body: string }>({
         flowType: FLOW_TYPES.GENERATE_NEWS_BY_INCIDENT,
+        modelName: 'Incident',
+        itemId: incident?.id || null,
     })
 
     const {

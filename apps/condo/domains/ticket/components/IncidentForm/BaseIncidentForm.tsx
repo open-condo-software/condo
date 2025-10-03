@@ -307,7 +307,9 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
         loading: rewriteTextLoading,
         data: rewriteTextData,
     }] = useAIFlow<{ answer: string }>({
-        flowType: FLOW_TYPES.REWRITE_TEXT,
+        flowType: FLOW_TYPES.INCIDENT_REWRITE_TEXT_FOR_RESIDENT,
+        modelName: 'Incident',
+        itemId: incidentId || null,
     })
 
     const { enabled: aiEnabled, features: {
@@ -536,6 +538,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
 
     const [runGenerateNewsAIFlow] = useAIFlow<{ title: string, body: string }>({
         flowType: FLOW_TYPES.GENERATE_NEWS_BY_INCIDENT,
+        modelName: 'Incident',
+        itemId: props?.initialValues?.id || null,
     })
 
     const handleFormSubmit = useCallback(async (values) => {
