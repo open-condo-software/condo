@@ -33,6 +33,20 @@ async function canExecuteB2CAppMutationAsOwner (params) {
     return Boolean(app && app.createdBy === user.id)
 }
 
+async function canExecuteB2BAppMutationAsOwner (params) {
+    const { authentication: { item: user }, args } = params
+
+    const app = await getByCondition('B2BApp', { id: args.data.app.id, deletedAt: null })
+    return Boolean(app && app.createdBy === user.id)
+}
+
+async function canExecuteAppMutationAsOwner (args) {
+    return await Promise.all([
+        canExecuteB2CAppMutationAsOwner(args),
+        canExecuteB2BAppMutationAsOwner(args),
+    ]).then(results => results.some(Boolean))
+}
+
 async function canReadAppSchemas ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -71,4 +85,6 @@ module.exports = {
     canCreateB2CAppLinkedModelAsOwner,
     canReadAppLinkedModelAsOwner,
     canExecuteB2CAppMutationAsOwner,
+    canExecuteB2BAppMutationAsOwner,
+    canExecuteAppMutationAsOwner,
 }
