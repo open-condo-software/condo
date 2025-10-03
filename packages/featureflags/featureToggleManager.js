@@ -11,14 +11,17 @@ const logger = getLogger('feature-toggle-manager')
 
 const FEATURE_TOGGLE_CONFIG = (conf.FEATURE_TOGGLE_CONFIG) ? JSON.parse(conf.FEATURE_TOGGLE_CONFIG) : {}
 
-const REDIS_FEATURES_KEY = 'features'
-const REDIS_UPDATE_FEATURES_KEY = 'features-update'
-const FEATURES_EXPIRED_IN_SECONDS = 60
+const KV_FEATURES_KEY = 'features'
+const KV_FEATURES_UPDATE_KEY = 'features-update'
+const KV_FEATURES_RECENTLY_ERROR_FLAG_KEY = 'features-recently-error'
+const FEATURES_EXPIRED_IN_SECONDS = 60 * 5 // 5 minutes
+const FEATURES_RECENTLY_ERROR_FLAG_EXPIRE_IN_SECONDS = 60 * 30 // 30 minutes
+const FEATURES_REQUEST_TIMEOUT_IN_MS = 1000 * 5 // 5 seconds
 
 class FeatureToggleManager {
-    get redis () {
-        if (!this._redis) this._redis = getKVClient('features')
-        return this._redis
+    get kvStorage () {
+        if (!this._kv) this._kv = getKVClient('features')
+        return this._kv
     }
 
     constructor () {
@@ -34,25 +37,36 @@ class FeatureToggleManager {
             this._static = {}
             logger.warn('No FEATURE_TOGGLE_CONFIG! Every features and values will be false!')
         }
-        this._redisKey = REDIS_FEATURES_KEY
-        this._redisUpdateKey = REDIS_UPDATE_FEATURES_KEY
-        this._redisExpires = FEATURES_EXPIRED_IN_SECONDS
+        this._kvFeaturesKey = KV_FEATURES_KEY
+        this._kvRecentlyUpdatedFeaturesKey = KV_FEATURES_UPDATE_KEY
+        this._kvRecentlyErrorKey = KV_FEATURES_RECENTLY_ERROR_FLAG_KEY
+        this._kvFeaturesExpires = FEATURES_EXPIRED_IN_SECONDS
+        this._kvRecentlyErrorExpires = FEATURES_RECENTLY_ERROR_FLAG_EXPIRE_IN_SECONDS
     }
 
     async fetchFeatures () {
         try {
             if (this._url) {
-                const wasUpdatedRecently = await this.redis.get(this._redisUpdateKey)
-                if (wasUpdatedRecently) {
+                const wasUpdatedRecently = await this.kvStorage.get(this._kvRecentlyUpdatedFeaturesKey)
+                const wasErrorRecently = await this.kvStorage.get(this._kvRecentlyErrorKey)
+                if (wasUpdatedRecently || wasErrorRecently) {
                     return this._getFeaturesFromCache()
                 }
-                const result = await fetch(this._url)
+
+                const result = await fetch(this._url, {
+                    abortRequestTimeout: FEATURES_REQUEST_TIMEOUT_IN_MS,
+                })
+                if (!result.ok) {
+                    throw new Error(`HTTP error ${result.status}`)
+                }
+
                 const parsedResult = await result.json()
                 const features = parsedResult.features
-                await this.redis.set(this._redisKey, JSON.stringify(features))
-                await this.redis.set(this._redisUpdateKey, 'true', 'EX', this._redisExpires)
-                return features
 
+                await this.kvStorage.set(this._kvFeaturesKey, JSON.stringify(features))
+                await this.kvStorage.set(this._kvRecentlyUpdatedFeaturesKey, 'true', 'EX', this._kvFeaturesExpires)
+
+                return features
             } else if (this._static) {
                 return JSON.parse(JSON.stringify(this._static))
             }
@@ -60,6 +74,8 @@ class FeatureToggleManager {
             throw new Error('FeatureToggleManager config error!')
         } catch (err) {
             logger.error({ msg: 'fetchFeatures error', err })
+            await this.kvStorage.set(this._kvRecentlyErrorKey, 'true', 'EX', this._kvRecentlyErrorExpires)
+
             if (this._url) {
                 return this._getFeaturesFromCache()
             }
@@ -109,7 +125,7 @@ class FeatureToggleManager {
     }
 
     async _getFeaturesFromCache () {
-        const cachedFeatureFlags = await this.redis.get(this._redisKey)
+        const cachedFeatureFlags = await this.kvStorage.get(this._kvFeaturesKey)
         if (cachedFeatureFlags) {
             try {
                 return JSON.parse(cachedFeatureFlags)
@@ -125,5 +141,6 @@ class FeatureToggleManager {
 const featureToggleManager = new FeatureToggleManager()
 
 module.exports = {
+    _FeatureToggleManagerClass: FeatureToggleManager,
     featureToggleManager,
 }
