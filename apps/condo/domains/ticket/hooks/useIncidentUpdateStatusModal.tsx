@@ -64,8 +64,8 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
     const ToNotActualBeforeWorkFinishMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toActualStatus.beforeWorkFinish.descriptions' })
     const ToNotActualAfterWorkFinishMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toActualStatus.afterWorkFinish.descriptions' })
     const ToActualMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toNotActualStatus.descriptions' })
-    const GenerateNewsLabel = intl.formatMessage({ id: 'incident.generateNews.switch.label' })
-    const GenerateNewsHint = intl.formatMessage({ id: 'incident.generateNews.switch.hint' })
+    const GenerateNewsSwitchLabel = intl.formatMessage({ id: 'incident.generateNews.switch.label' })
+    const GenerateNewsSwitchHint = intl.formatMessage({ id: 'incident.generateNews.switch.hint' })
 
     const formRef = useRef<FormInstance>(null)
     const [open, setOpen] = useState<boolean>(false)
@@ -179,24 +179,22 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                                                 <Space size={4}>
                                                     <Space size={8}>
                                                         <Form.Item
-                                                            name='generateNews'
-                                                            valuePropName='checked'
                                                             initialValue={true}
+                                                            valuePropName='checked'
+                                                            name='generateNews'
                                                         >
                                                             <Switch
-                                                                id='generateNews'
                                                                 size='small'
+                                                                id='generateNews'
                                                             />
                                                         </Form.Item>
                                                         <Typography.Text>
-                                                            {GenerateNewsLabel}
+                                                            {GenerateNewsSwitchLabel}
                                                         </Typography.Text>
                                                     </Space>
-                                                    <Tooltip
-                                                        title={GenerateNewsHint}
-                                                    >
+                                                    <Tooltip title={GenerateNewsSwitchHint}>
                                                         <div style={{ display: 'flex' }}>
-                                                            <QuestionCircle size='small' color={colors.gray[7]}/>
+                                                            <QuestionCircle color={colors.gray[7]} size='small' />
                                                         </div>
                                                     </Tooltip>
                                                 </Space>
