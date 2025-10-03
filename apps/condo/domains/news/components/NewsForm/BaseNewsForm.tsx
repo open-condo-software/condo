@@ -97,6 +97,8 @@ export type InitialValuesType =  Partial<INewsItem> & Partial<{
     hasAllProperties: boolean
     sendPeriod: SendPeriodType
     properties?: Array<IProperty>
+    type?: string
+    validBefore?: Dayjs
 }>
 
 export type TemplatesType = {
@@ -447,7 +449,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
     const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
-    const [selectedValidBefore, setSelectedValidBefore] = useState<Dayjs>(dayjs(initialValidBefore, DATE_FORMAT))
+    const [selectedValidBefore, setSelectedValidBefore] = useState<Dayjs>(dayjs(initialValidBefore))
 
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))
@@ -1090,6 +1092,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         body={selectedBody}
                                                         appName={MobileAppLabel}
                                                         icon={DOMA_APP_ICON_URL}
+                                                        validBefore={selectedValidBefore}
+                                                        type={selectedType}
                                                     />
                                                     {getSelectedAndNotSkippedSharingApps().map(ctxId => {
 
@@ -1107,6 +1111,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 body={body}
                                                                 appName={sharingAppName}
                                                                 icon={sharingAppIcon}
+                                                                validBefore={selectedValidBefore}
+                                                                type={selectedType}
                                                             />
                                                         )
                                                     })}

@@ -13,6 +13,7 @@ const CUSTOM_FLOW_TYPE = 'custom_flow'
 const TICKET_REWRITE_COMMENT_FLOW_TYPE = 'ticket_rewrite_comment_flow'
 const REWRITE_TEXT_FLOW_TYPE = 'rewrite_text_flow'
 const NEWS_REWRITE_TEXT_FLOW_TYPE = 'news_rewrite_text_flow'
+const INCIDENT_REWRITE_TEXT_FOR_RESIDENT_FLOW_TYPE = 'incident_rewrite_text_for_resident_flow'
 const GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE = 'generate_news_by_incident_flow'
 
 /**
@@ -25,6 +26,7 @@ const FLOW_TYPES = {
     TICKET_REWRITE_COMMENT: TICKET_REWRITE_COMMENT_FLOW_TYPE,
     REWRITE_TEXT: REWRITE_TEXT_FLOW_TYPE,
     NEWS_REWRITE_TEXT: NEWS_REWRITE_TEXT_FLOW_TYPE,
+    INCIDENT_REWRITE_TEXT_FOR_RESIDENT: INCIDENT_REWRITE_TEXT_FOR_RESIDENT_FLOW_TYPE,
     GENERATE_NEWS_BY_INCIDENT: GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE,
 }
 const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
@@ -159,6 +161,20 @@ const FLOW_META_SCHEMAS = {
             },
             additionalProperties: false,
             required: ['title', 'body'],
+        },
+    },
+    [FLOW_TYPES.INCIDENT_REWRITE_TEXT_FOR_RESIDENT]: {
+        input: {
+            type: 'object',
+            properties: {
+                userInput: { type: 'string' },
+            },
+        },
+        output: {
+            type: 'object',
+            properties: {
+                answer: { type: 'string' },
+            },
         },
     },
     [CUSTOM_FLOW_TYPE]: {

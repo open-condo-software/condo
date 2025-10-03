@@ -10,7 +10,16 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sende
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { FLOW_TYPES_LIST, TASK_STATUSES } from '../constants.js'
+import {
+    UI_AI_GENERATE_NEWS_BY_INCIDENT,
+    UI_AI_REWRITE_NEWS_TEXT,
+    UI_AI_REWRITE_TEXT,
+    UI_AI_REWRITE_TICKET_COMMENT,
+    UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT,
+} from '@condo/domains/common/constants/featureflags'
+
+import { FLOW_TYPES_LIST, TASK_STATUSES } from '../constants'
+
 
 type FlowType = typeof FLOW_TYPES_LIST[number]
 
@@ -133,9 +142,11 @@ export function useAIConfig () {
     const { publicRuntimeConfig: { aiEnabled } } = getConfig()
     const { useFlag } = useFeatureFlags()
 
-    const rewriteTicketComment = useFlag('ui-ai-ticket-rewrite-comment')
-    const rewriteText = useFlag('ui-ai-rewrite-text')
-    const rewriteNewsText = useFlag('ui-ai-news-rewrite-text')
+    const rewriteTicketComment = useFlag(UI_AI_REWRITE_TICKET_COMMENT)
+    const rewriteText = useFlag(UI_AI_REWRITE_TEXT)
+    const rewriteNewsText = useFlag(UI_AI_REWRITE_NEWS_TEXT)
+    const generateNewsByIncident = useFlag(UI_AI_GENERATE_NEWS_BY_INCIDENT)
+    const rewriteIncidentTextForResident = useFlag(UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT)
 
     return {
         enabled: aiEnabled,
@@ -143,6 +154,8 @@ export function useAIConfig () {
             rewriteTicketComment,
             rewriteText,
             rewriteNewsText,
+            rewriteIncidentTextForResident,
+            generateNewsByIncident,
         },
     }
 }

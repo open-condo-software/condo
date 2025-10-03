@@ -36,7 +36,7 @@ import { Alert, Space, Radio, RadioGroup, Input, Button, Tooltip } from '@open-c
 
 import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
 import { FLOW_TYPES } from '@condo/domains/ai/constants'
-import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
+import { useAIFlow, useAIConfig } from '@condo/domains/ai/hooks/useAIFlow'
 import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { renderDeletedOption } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -50,6 +50,7 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
+import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY } from '@condo/domains/ticket/constants/incident'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { IncidentClassifiersQueryLocal, Option } from '@condo/domains/ticket/utils/clientSchema/incidentClassifierSearch'
@@ -78,6 +79,7 @@ export type BaseIncidentFormProps = {
     }
     organizationId: string
     action: (values: IIncidentCreateInput | IIncidentUpdateInput) => Promise<Awaited<ReturnType<CreateIncidentMutationFn | UpdateIncidentMutationFn>>>
+    afterAction?: () => Promise<void>
     showOrganization?: boolean
 }
 
@@ -285,7 +287,7 @@ type TextForResidentInputProps = {
     incidentForm: FormInstance
     incidentId?: string
 }
-const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ incidentForm, incidentId }) => {
+export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ incidentForm, incidentId }) => {
     const intl = useIntl()
 
     const TextForResidentLabel = intl.formatMessage({ id: 'incident.fields.textForResident.label' })
@@ -307,6 +309,10 @@ const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ incidentFor
     }] = useAIFlow<{ answer: string }>({
         flowType: FLOW_TYPES.REWRITE_TEXT,
     })
+
+    const { enabled: aiEnabled, features: {
+        rewriteIncidentTextForResident: rewriteIncidentTextForResidentEnabled,
+    } } = useAIConfig()
 
     useEffect(() => {
         setRewriteText(rewriteTextData?.answer)
@@ -447,19 +453,23 @@ const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ incidentFor
                                                 icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
                                             />
                                         </Tooltip>,
-                                        <Button
-                                            key='improveButton'
-                                            compact
-                                            minimal
-                                            type='secondary'
-                                            size='medium'
-                                            disabled={!value || rewriteTextLoading}
-                                            loading={rewriteTextLoading}
-                                            icon={<Sparkles size='small' />}
-                                            onClick={handleRewriteNewsTextClick}
-                                        >
-                                            {UpdateTextMessage}
-                                        </Button>,
+                                        ...(
+                                            aiEnabled && rewriteIncidentTextForResidentEnabled ? [
+                                                <Button
+                                                    key='improveButton'
+                                                    compact
+                                                    minimal
+                                                    type='secondary'
+                                                    size='medium'
+                                                    disabled={!value || rewriteTextLoading}
+                                                    loading={rewriteTextLoading}
+                                                    icon={<Sparkles size='small' />}
+                                                    onClick={handleRewriteNewsTextClick}
+                                                >
+                                                    {UpdateTextMessage}
+                                                </Button>,
+                                            ] : []
+                                        ),
                                     ]}
                                 />
                             </Form.Item>
@@ -495,6 +505,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
 
     const {
         action: createOrUpdateIncident,
+        afterAction,
         ActionBar,
         initialValues = INITIAL_VALUES,
         loading,
@@ -653,12 +664,17 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                     body: result?.data?.body,
                     propertyIds: properties,
                     hasAllProperties: incidentValues.hasAllProperties,
+                    type: incidentValues.workType === INCIDENT_WORK_TYPE_EMERGENCY ? NEWS_TYPE_EMERGENCY : NEWS_TYPE_COMMON,
+                    ...(incidentValues.workFinish ? { validBefore: dayjs(incidentValues.workFinish).toISOString() } : undefined),
                 }
                 window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}`, '_blank')
             } catch (error) {
                 notification.error({ message: GenericErrorMessage })
             }
+        }
 
+        if (afterAction) {
+            await afterAction()
         }
     }, [runGenerateNewsAIFlow, createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers])
 
@@ -840,24 +856,20 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Row justify='end'>
-                                        <Col span={24}>
-                                            <Form.Item
-                                                label={DetailsLabel}
-                                                name='details'
-                                                required
-                                                rules={detailsRules}
-                                            >
-                                                <Input.TextArea
-                                                    placeholder={DetailsPlaceholderMessage}
-                                                    name='details'
-                                                    maxLength={1500}
-                                                    autoSize={{ minRows: 2, maxRows: 5 }}
-                                                    className={styles.textAreaWithoutSubmit}
-                                                />
-                                            </Form.Item>
-                                        </Col>
-                                    </Row>
+                                    <Form.Item
+                                        label={DetailsLabel}
+                                        name='details'
+                                        required
+                                        rules={detailsRules}
+                                    >
+                                        <Input.TextArea
+                                            placeholder={DetailsPlaceholderMessage}
+                                            name='details'
+                                            maxLength={1500}
+                                            autoSize={{ minRows: 2, maxRows: 5 }}
+                                            className={styles.textAreaWithoutSubmit}
+                                        />
+                                    </Form.Item>
                                 </Col>
                                 <Col span={24}>
                                     <TextForResidentInput

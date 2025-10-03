@@ -236,6 +236,8 @@ export const CreateNewsForm: React.FC = () => {
                 title: initialValueFromQuery.title,
                 body: initialValueFromQuery.body,
                 hasAllProperties: initialValueFromQuery.hasAllProperties,
+                type: initialValueFromQuery.type,
+                validBefore: initialValueFromQuery.validBefore,
             }
         }
 
