@@ -11,8 +11,8 @@ const { find, getById } = require('@open-condo/keystone/schema')
 const { canReadBillingEntity, checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
 const { STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canReadBillingRecipients ({ authentication }) {
-    return await canReadBillingEntity(authentication)
+async function canReadBillingRecipients (args) {
+    return await canReadBillingEntity(args)
 }
 
 // TODO(dkovyazin): Remove STAFF access to create or update BillingRecipient

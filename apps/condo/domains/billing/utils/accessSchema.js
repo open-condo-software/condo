@@ -4,8 +4,9 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById, find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
+const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { canExecuteServiceAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/server.utils')
-const { SERVICE } = require('@condo/domains/user/constants/common')
+const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 
 
 async function checkBillingIntegrationsAccessRights (userId, integrationIds) {
@@ -48,19 +49,44 @@ async function checkB2BAccessRightsToBillingContext (args, context) {
  * 1. By admin or support
  * 2. By integration account
  * 3. By integration organization manager
+ * 3. By B2BApp
  */
-async function canReadBillingEntity (authentication) {
-    const { item: user } = authentication
+async function canReadBillingEntity (args) {
+    const user = args?.authentication?.item
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    return {
-        OR: [
-            { context: { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, deletedAt: null, isBlocked: false } } } },
-            { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
-        ],
+    if (user.type === SERVICE) {
+        const canReadAsB2BAppServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
+        return {
+            OR: [
+                canReadAsB2BAppServiceUser,
+                { 
+                    context: {
+                        integration: {
+                            accessRights_some: { user: { id: user.id }, deletedAt: null },
+                        },
+                    }, 
+                },
+            ].filter(Boolean),
+        }
     }
+    if (user.type === STAFF) {
+        return { 
+            context: { 
+                organization: { 
+                    employees_some: { 
+                        user: { id: user.id }, 
+                        role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, 
+                        deletedAt: null, 
+                        isBlocked: false, 
+                    }, 
+                }, 
+            }, 
+        }
+    }
+    return false
 }
 
 /**
