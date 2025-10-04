@@ -49,26 +49,42 @@ async function checkB2BAccessRightsToBillingContext (args, context) {
  * 1. By admin or support
  * 2. By integration account
  * 3. By integration organization manager
+ * 3. By B2BApp
  */
 async function canReadBillingEntity (args) {
-    const { authentication: { item: user } } = args
+    const user = args?.authentication?.item
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === SERVICE) {
         const canReadAsB2BAppServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
-        const conditions = []
-        if (canReadAsB2BAppServiceUser) {
-            conditions.push(canReadAsB2BAppServiceUser)
-        }
-        conditions.push({ context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } })
         return {
-            OR: conditions,
+            OR: [
+                canReadAsB2BAppServiceUser,
+                { 
+                    context: {
+                        integration: {
+                            accessRights_some: { user: { id: user.id }, deletedAt: null },
+                        },
+                    }, 
+                },
+            ].filter(Boolean),
         }
     }
     if (user.type === STAFF) {
-        return { context: { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, deletedAt: null, isBlocked: false } } } }
+        return { 
+            context: { 
+                organization: { 
+                    employees_some: { 
+                        user: { id: user.id }, 
+                        role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, 
+                        deletedAt: null, 
+                        isBlocked: false, 
+                    }, 
+                }, 
+            }, 
+        }
     }
     return false
 }

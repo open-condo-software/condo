@@ -1539,12 +1539,11 @@ describe('B2BApp permissions for service user', () => {
             const receiptWithoutRights = await BillingReceipt.getOne(serviceUser, { id: receiptCreated.id })
             expect(receiptWithoutRights).not.toBeDefined()
 
-            await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canReadBillingReceipts: true, canReadBillingProperty: true, canReadBillingAccount: true })
-            // With rights
+            await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canReadBillingReceipts: true, canReadBillingProperties: true, canReadBillingAccounts: true })            // With rights
             const receipt = await BillingReceipt.getOne(serviceUser, { id: receiptCreated.id })
             expect(receipt).toBeDefined()
-            expect(receipt.account).not.toBeNull()
-            expect(receipt.property).not.toBeNull()
+            expect(receipt.account).toBeDefined()
+            expect(receipt.property).toBeDefined()
         })
 
     })
