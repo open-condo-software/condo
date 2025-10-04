@@ -1532,6 +1532,21 @@ describe('B2BApp permissions for service user', () => {
             expect(receipt.property).toBeNull()
         })
 
+        test('can read BillingProperty and BillingAccount', async () => {
+            const [receiptCreated] = await createTestBillingReceipt(admin, context, property, account)
+
+            // Without rights
+            const receiptWithoutRights = await BillingReceipt.getOne(serviceUser, { id: receiptCreated.id })
+            expect(receiptWithoutRights).not.toBeDefined()
+
+            await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canReadBillingReceipts: true, canReadBillingProperty: true, canReadBillingAccount: true })
+            // With rights
+            const receipt = await BillingReceipt.getOne(serviceUser, { id: receiptCreated.id })
+            expect(receipt).toBeDefined()
+            expect(receipt.account).not.toBeNull()
+            expect(receipt.property).not.toBeNull()
+        })
+
     })
 
     describe('B2BAccessTokens model', () => {
