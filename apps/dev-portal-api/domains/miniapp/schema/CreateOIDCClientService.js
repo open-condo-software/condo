@@ -42,8 +42,13 @@ const CreateOIDCClientService = new GQLCustomSchema('CreateOIDCClientService', {
             resolver: async (parent, args, context) => {
                 const { data: { dv, sender, app, environment, redirectUri } } = args
 
-                const b2cApp = await getByCondition('B2CApp', { id: app.id, deletedAt: null })
-                if (!b2cApp) {
+                const [b2bApp, b2cApp] = await Promise.all(['B2BApp', 'B2CApp'].map(modelName =>
+                    getByCondition(modelName, { id: app.id, deletedAt: null })
+                ))
+                const foundApp = b2bApp || b2cApp
+                const appType = b2bApp ? 'B2B' : 'B2C'
+
+                if (!foundApp) {
                     throw new GQLError(ERRORS.APP_NOT_FOUND, context)
                 }
 
@@ -58,7 +63,7 @@ const CreateOIDCClientService = new GQLCustomSchema('CreateOIDCClientService', {
                         sender,
                         clientId: app.id,
                         payload: generatePayload(app.id, redirectUri),
-                        name: b2cApp.name,
+                        name: `[${appType}] ${foundApp.name}`,
                         isEnabled: false,
                         importId: app.id,
                         importRemoteSystem: REMOTE_SYSTEM,

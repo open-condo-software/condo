@@ -11,6 +11,7 @@ const { OIDC_SECRET_LENGTH, OIDC_SECRET_CHAR_POOL } = require('@dev-portal-api/d
 const {
     generateOIDCClientSecretByTestClient,
     createTestB2CApp,
+    createTestB2BApp,
     createOIDCClientByTestClient,
     CondoOIDCClient,
 } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
@@ -27,10 +28,12 @@ describe('GenerateOIDCClientSecretService', () => {
     let b2cUser
     let b2cApp
     let b2bUser
+    let b2bApp
     let anonymous
     let condoAdmin
-    let oidcClient
-    let initialCondoOidcClient
+    let b2bOIDCClient
+    let b2cOIDCClient
+    let initialCondoB2COidcClient
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeLoggedInSupportClient()
@@ -40,8 +43,11 @@ describe('GenerateOIDCClientSecretService', () => {
         condoAdmin = await makeLoggedInCondoAdminClient();
 
         [b2cApp] = await createTestB2CApp(b2cUser);
-        [oidcClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
-        initialCondoOidcClient = await CondoOIDCClient.getOne(condoAdmin, { id: oidcClient.id })
+        [b2cOIDCClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
+        initialCondoB2COidcClient = await CondoOIDCClient.getOne(condoAdmin, { id: b2cOIDCClient.id });
+
+        [b2bApp] = await createTestB2BApp(b2bUser);
+        [b2bOIDCClient] = await createOIDCClientByTestClient(b2bUser, b2bApp)
     })
     describe('Access tests', () => {
         test('Admin can generate secrets for any app', async () => {
@@ -50,19 +56,29 @@ describe('GenerateOIDCClientSecretService', () => {
             expect(updatedClient).toHaveProperty('clientSecret')
         })
         test('Support can generate secrets for any app', async () => {
-            const [updatedClient] = await generateOIDCClientSecretByTestClient(support, b2cApp)
+            const [updatedClient] = await generateOIDCClientSecretByTestClient(support, b2bApp)
             expect(updatedClient).toHaveProperty('id')
             expect(updatedClient).toHaveProperty('clientSecret')
         })
         describe('User', () => {
-            test('Can generate secrets for app he created', async () => {
-                const [updatedClient] = await generateOIDCClientSecretByTestClient(b2cUser, b2cApp)
-                expect(updatedClient).toHaveProperty('id')
-                expect(updatedClient).toHaveProperty('clientSecret')
+            describe('Can generate secrets for app he created', () => {
+                test('For B2BApp', async () => {
+                    const [updatedClient] = await generateOIDCClientSecretByTestClient(b2bUser, b2bApp)
+                    expect(updatedClient).toHaveProperty('id')
+                    expect(updatedClient).toHaveProperty('clientSecret')
+                })
+                test('For B2CApp', async () => {
+                    const [updatedClient] = await generateOIDCClientSecretByTestClient(b2cUser, b2cApp)
+                    expect(updatedClient).toHaveProperty('id')
+                    expect(updatedClient).toHaveProperty('clientSecret')
+                })
             })
             test('Cannot generate secrets for other apps', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await generateOIDCClientSecretByTestClient(b2bUser, b2cApp)
+                })
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await generateOIDCClientSecretByTestClient(b2cUser, b2bApp)
                 })
             })
         })
@@ -75,14 +91,14 @@ describe('GenerateOIDCClientSecretService', () => {
     describe('Logic tests', () => {
         test('Must change payload field properly', async () => {
             const [updatedClient] = await generateOIDCClientSecretByTestClient(b2cUser, b2cApp)
-            expect(updatedClient).toHaveProperty('id', initialCondoOidcClient.id)
-            expect(updatedClient).toHaveProperty('clientId', initialCondoOidcClient.clientId)
-            expect(updatedClient).toHaveProperty('redirectUri', initialCondoOidcClient.payload.redirect_uris[0])
+            expect(updatedClient).toHaveProperty('id', initialCondoB2COidcClient.id)
+            expect(updatedClient).toHaveProperty('clientId', initialCondoB2COidcClient.clientId)
+            expect(updatedClient).toHaveProperty('redirectUri', initialCondoB2COidcClient.payload.redirect_uris[0])
             expect(updatedClient).toHaveProperty('clientSecret')
-            expect(updatedClient.clientSecret).not.toEqual(initialCondoOidcClient.payload.client_secret)
+            expect(updatedClient.clientSecret).not.toEqual(initialCondoB2COidcClient.payload.client_secret)
 
             const updatedCondoClient = await CondoOIDCClient.getOne(condoAdmin, { id: updatedClient.id })
-            const initialPayload = omit(initialCondoOidcClient.payload, 'client_secret')
+            const initialPayload = omit(initialCondoB2COidcClient.payload, 'client_secret')
             const updatedPayload = omit(updatedCondoClient.payload, 'client_secret')
             expect(initialPayload).toEqual(updatedPayload)
             expect(updatedCondoClient).toHaveProperty(['payload', 'client_secret'], updatedClient.clientSecret)
@@ -91,13 +107,13 @@ describe('GenerateOIDCClientSecretService', () => {
             const [updatedClient] = await generateOIDCClientSecretByTestClient(b2cUser, b2cApp)
             const updatedCondoClient = await CondoOIDCClient.getOne(condoAdmin, { id: updatedClient.id })
             expect(updatedClient).toHaveProperty('clientSecret', updatedCondoClient.payload.client_secret)
-            expect(updatedClient.clientSecret).not.toEqual(initialCondoOidcClient.payload.client_secret)
+            expect(updatedClient.clientSecret).not.toEqual(initialCondoB2COidcClient.payload.client_secret)
             expect(updatedClient.clientSecret).toMatch(new RegExp(`^[${OIDC_SECRET_CHAR_POOL}]{${OIDC_SECRET_LENGTH}}$`))
         })
         test('Must not change other fields', async () => {
             const [updatedClient] = await generateOIDCClientSecretByTestClient(b2cUser, b2cApp)
             const updatedCondoClient = await CondoOIDCClient.getOne(condoAdmin, { id: updatedClient.id })
-            const initialState = omit(initialCondoOidcClient, 'payload')
+            const initialState = omit(initialCondoB2COidcClient, 'payload')
             const updatedState = omit(updatedCondoClient, 'payload')
 
             expect(initialState).toEqual(updatedState)

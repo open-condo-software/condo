@@ -11,7 +11,12 @@ const {
 
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
 const { OIDC_SECRET_CHAR_POOL, OIDC_SECRET_LENGTH, OIDC_CLIENT_DEFAULT_PAYLOAD } = require('@dev-portal-api/domains/miniapp/constants/oidc')
-const { CondoOIDCClient, createOIDCClientByTestClient, createTestB2CApp } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
+const {
+    CondoOIDCClient,
+    createOIDCClientByTestClient,
+    createTestB2BApp,
+    createTestB2CApp,
+} = require('@dev-portal-api/domains/miniapp/utils/testSchema')
 const {
     makeLoggedInAdminClient,
     makeLoggedInSupportClient,
@@ -25,6 +30,7 @@ describe('CreateOIDCClientService', () => {
     let b2cUser
     let b2cApp
     let b2bUser
+    let b2bApp
     let anonymous
     let condoAdmin
     let oidcClient
@@ -36,7 +42,8 @@ describe('CreateOIDCClientService', () => {
         anonymous = await makeClient()
         condoAdmin = await makeLoggedInCondoAdminClient();
 
-        [b2cApp] = await createTestB2CApp(b2cUser)
+        [b2cApp] = await createTestB2CApp(b2cUser);
+        [b2bApp] = await createTestB2BApp(b2bUser)
     })
     afterEach(async () => {
         if (oidcClient) {
@@ -50,17 +57,26 @@ describe('CreateOIDCClientService', () => {
             expect(oidcClient).toHaveProperty('id')
         })
         test('Support can create OIDC client for any app', async () => {
-            [oidcClient] = await createOIDCClientByTestClient(support, b2cApp)
+            [oidcClient] = await createOIDCClientByTestClient(support, b2bApp)
             expect(oidcClient).toHaveProperty('id')
         })
         describe('User', () => {
-            test('Can create OIDC client for app he created', async () => {
-                [oidcClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
-                expect(oidcClient).toHaveProperty('id')
+            describe('Can create OIDC client for B2C / B2B app he created', () => {
+                test('B2CApp', async () => {
+                    [oidcClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
+                    expect(oidcClient).toHaveProperty('id')
+                })
+                test('B2BApp', async () => {
+                    [oidcClient] = await createOIDCClientByTestClient(b2bUser, b2bApp)
+                    expect(oidcClient).toHaveProperty('id')
+                })
             })
             test('Cannot create OIDC client for other apps', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await createOIDCClientByTestClient(b2bUser, b2cApp)
+                })
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await createOIDCClientByTestClient(b2cUser, b2bApp)
                 })
             })
         })
@@ -80,27 +96,53 @@ describe('CreateOIDCClientService', () => {
             expect(oidcClient.clientSecret).toMatch(new RegExp(`^[${OIDC_SECRET_CHAR_POOL}]{${OIDC_SECRET_LENGTH}}$`))
             expect(oidcClient).toHaveProperty('redirectUri', attrs.redirectUri)
         })
-        test('Created condo OIDC client must have correct fields', async () => {
-            [oidcClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
-            const condoOIDCClient = await CondoOIDCClient.getOne(condoAdmin, { id: oidcClient.id })
-            expect(condoOIDCClient).toHaveProperty('isEnabled', false)
-            expect(condoOIDCClient).toHaveProperty('name', b2cApp.name)
-            expect(condoOIDCClient).toHaveProperty('clientId', b2cApp.id)
-            expect(condoOIDCClient).toHaveProperty('payload', {
-                ...OIDC_CLIENT_DEFAULT_PAYLOAD,
-                redirect_uris: [oidcClient.redirectUri],
-                client_id: oidcClient.clientId,
-                client_secret: oidcClient.clientSecret,
+        describe('Created condo OIDC client must have correct fields',  () => {
+            test('For B2BApp', async () => {
+                [oidcClient] = await createOIDCClientByTestClient(b2bUser, b2bApp)
+                const condoOIDCClient = await CondoOIDCClient.getOne(condoAdmin, { id: oidcClient.id })
+                expect(condoOIDCClient).toHaveProperty('isEnabled', false)
+                expect(condoOIDCClient).toHaveProperty('name', `[B2B] ${b2bApp.name}`)
+                expect(condoOIDCClient).toHaveProperty('clientId', b2bApp.id)
+                expect(condoOIDCClient).toHaveProperty('payload', {
+                    ...OIDC_CLIENT_DEFAULT_PAYLOAD,
+                    redirect_uris: [oidcClient.redirectUri],
+                    client_id: oidcClient.clientId,
+                    client_secret: oidcClient.clientSecret,
+                })
+                expect(condoOIDCClient).toHaveProperty('importId', b2bApp.id)
+                expect(condoOIDCClient).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
             })
-            expect(condoOIDCClient).toHaveProperty('importId', b2cApp.id)
-            expect(condoOIDCClient).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
+            test('For B2CApp', async () => {
+                [oidcClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
+                const condoOIDCClient = await CondoOIDCClient.getOne(condoAdmin, { id: oidcClient.id })
+                expect(condoOIDCClient).toHaveProperty('isEnabled', false)
+                expect(condoOIDCClient).toHaveProperty('name', `[B2C] ${b2cApp.name}`)
+                expect(condoOIDCClient).toHaveProperty('clientId', b2cApp.id)
+                expect(condoOIDCClient).toHaveProperty('payload', {
+                    ...OIDC_CLIENT_DEFAULT_PAYLOAD,
+                    redirect_uris: [oidcClient.redirectUri],
+                    client_id: oidcClient.clientId,
+                    client_secret: oidcClient.clientSecret,
+                })
+                expect(condoOIDCClient).toHaveProperty('importId', b2cApp.id)
+                expect(condoOIDCClient).toHaveProperty('importRemoteSystem', REMOTE_SYSTEM)
+            })
         })
-        test('Cannot create multiple OIDC clients for a single app', async () => {
-            [oidcClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
-            expect(oidcClient).toHaveProperty('id')
-            await expectToThrowUniqueConstraintViolationError(async () => {
-                await createOIDCClientByTestClient(b2cUser, b2cApp)
-            }, 'oidc_client_unique_clientId')
+        describe('Cannot create multiple OIDC clients for a single app', () => {
+            test('For B2BApp', async () => {
+                [oidcClient] = await createOIDCClientByTestClient(b2bUser, b2bApp)
+                expect(oidcClient).toHaveProperty('id')
+                await expectToThrowUniqueConstraintViolationError(async () => {
+                    await createOIDCClientByTestClient(b2bUser, b2bApp)
+                }, 'oidc_client_unique_clientId')
+            })
+            test('For B2CApp', async () => {
+                [oidcClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
+                expect(oidcClient).toHaveProperty('id')
+                await expectToThrowUniqueConstraintViolationError(async () => {
+                    await createOIDCClientByTestClient(b2cUser, b2cApp)
+                }, 'oidc_client_unique_clientId')
+            })
         })
     })
 })

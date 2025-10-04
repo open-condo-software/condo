@@ -1,5 +1,6 @@
 import { Divider, Form, notification } from 'antd'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
@@ -63,10 +64,14 @@ export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment,
     const SuccessGenerationMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notifications.successGeneration.description' })
     const NotEnabledClientAlertTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.title' })
     const NotEnabledClientPublishLink = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.publishLink.text' })
-    const NotEnabledClientAlertDescription = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.description' }, {
-        publishLink: <Typography.Link component={Link} href={`/apps/b2c/${id}?section=publishing`}>{NotEnabledClientPublishLink}</Typography.Link>,
-    })
 
+    const router = useRouter()
+    // /apps/b2c/[id] -> ['', 'apps', 'b2c', '[id]'] -> ['apps', 'b2c', '[id]']
+    const appType = router.pathname.split('/').filter(Boolean)[1]
+
+    const NotEnabledClientAlertDescription = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.description' }, {
+        publishLink: <Typography.Link component={Link} href={`/apps/${appType}/${id}?section=publishing`}>{NotEnabledClientPublishLink}</Typography.Link>,
+    })
 
     const [modalOpen, setModalOpen] = useState(false)
     const openModal = useCallback(() => setModalOpen(true), [])

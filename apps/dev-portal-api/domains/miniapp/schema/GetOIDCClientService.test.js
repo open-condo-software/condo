@@ -5,7 +5,12 @@
 const { makeClient } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
-const { getOIDCClientByTestClient, createTestB2CApp, createOIDCClientByTestClient } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
+const {
+    getOIDCClientByTestClient,
+    createTestB2CApp,
+    createTestB2BApp,
+    createOIDCClientByTestClient,
+} = require('@dev-portal-api/domains/miniapp/utils/testSchema')
 const {
     makeLoggedInAdminClient,
     makeLoggedInSupportClient,
@@ -18,8 +23,10 @@ describe('GetOIDCClientService', () => {
     let b2cUser
     let b2cApp
     let b2bUser
+    let b2bApp
     let anonymous
-    let oidcClient
+    let b2cOIDCClient
+    let b2bOIDCClient
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeLoggedInSupportClient()
@@ -28,31 +35,45 @@ describe('GetOIDCClientService', () => {
         anonymous = await makeClient();
 
         [b2cApp] = await createTestB2CApp(b2cUser);
-        [oidcClient] = await createOIDCClientByTestClient(b2cUser, b2cApp)
+        [b2cOIDCClient] = await createOIDCClientByTestClient(b2cUser, b2cApp);
+
+        [b2bApp] = await createTestB2BApp(b2bUser);
+        [b2bOIDCClient] = await createOIDCClientByTestClient(b2bUser, b2bApp)
     })
     describe('Access tests', () => {
         test('Admin can get OIDC client of any app', async () => {
             const [readClient] = await getOIDCClientByTestClient(admin, b2cApp)
-            expect(readClient).toHaveProperty('id', oidcClient.id)
-            expect(readClient).toHaveProperty('clientId', oidcClient.clientId)
-            expect(readClient).toHaveProperty('redirectUri', oidcClient.redirectUri)
+            expect(readClient).toHaveProperty('id', b2cOIDCClient.id)
+            expect(readClient).toHaveProperty('clientId', b2cOIDCClient.clientId)
+            expect(readClient).toHaveProperty('redirectUri', b2cOIDCClient.redirectUri)
         })
         test('Support can get OIDC client of any app', async () => {
-            const [readClient] = await getOIDCClientByTestClient(support, b2cApp)
-            expect(readClient).toHaveProperty('id', oidcClient.id)
-            expect(readClient).toHaveProperty('clientId', oidcClient.clientId)
-            expect(readClient).toHaveProperty('redirectUri', oidcClient.redirectUri)
+            const [readClient] = await getOIDCClientByTestClient(support, b2bApp)
+            expect(readClient).toHaveProperty('id', b2bOIDCClient.id)
+            expect(readClient).toHaveProperty('clientId', b2bOIDCClient.clientId)
+            expect(readClient).toHaveProperty('redirectUri', b2bOIDCClient.redirectUri)
         })
         describe('User', () => {
-            test('Can get OIDC client of app he created', async () => {
-                const [readClient] = await getOIDCClientByTestClient(b2cUser, b2cApp)
-                expect(readClient).toHaveProperty('id', oidcClient.id)
-                expect(readClient).toHaveProperty('clientId', oidcClient.clientId)
-                expect(readClient).toHaveProperty('redirectUri', oidcClient.redirectUri)
+            describe('Can get OIDC client of app he created',  () => {
+                test('For B2BApp', async () => {
+                    const [readClient] = await getOIDCClientByTestClient(b2bUser, b2bApp)
+                    expect(readClient).toHaveProperty('id', b2bOIDCClient.id)
+                    expect(readClient).toHaveProperty('clientId', b2bOIDCClient.clientId)
+                    expect(readClient).toHaveProperty('redirectUri', b2bOIDCClient.redirectUri)
+                })
+                test('For B2CApp', async () => {
+                    const [readClient] = await getOIDCClientByTestClient(b2cUser, b2cApp)
+                    expect(readClient).toHaveProperty('id', b2cOIDCClient.id)
+                    expect(readClient).toHaveProperty('clientId', b2cOIDCClient.clientId)
+                    expect(readClient).toHaveProperty('redirectUri', b2cOIDCClient.redirectUri)
+                })
             })
             test('Cannot for other apps', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await getOIDCClientByTestClient(b2bUser, b2cApp)
+                })
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await getOIDCClientByTestClient(b2cUser, b2bApp)
                 })
             })
         })
@@ -66,9 +87,9 @@ describe('GetOIDCClientService', () => {
         test('Must not contain extra fields such as clientSecret', async () => {
             const [readClient] = await getOIDCClientByTestClient(b2cUser, b2cApp)
             expect(readClient).toEqual({
-                id: oidcClient.id,
-                clientId: oidcClient.clientId,
-                redirectUri: oidcClient.redirectUri,
+                id: b2cOIDCClient.id,
+                clientId: b2cOIDCClient.clientId,
+                redirectUri: b2cOIDCClient.redirectUri,
             })
         })
     })
