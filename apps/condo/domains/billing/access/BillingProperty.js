@@ -3,8 +3,8 @@
  */
 const { canManageBillingEntityWithContext, canReadBillingEntity } = require('@condo/domains/billing/utils/accessSchema')
 
-async function canReadBillingProperties ({ authentication }) {
-    return await canReadBillingEntity(authentication)
+async function canReadBillingProperties (args) {
+    return await canReadBillingEntity(args)
 }
 
 async function canManageBillingProperties (args) {

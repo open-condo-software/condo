@@ -1,7 +1,7 @@
 const { canReadBillingEntity, canManageBillingEntityWithContext } = require('../utils/accessSchema')
 
-async function canReadBillingIntegrationProblems ({ authentication }) {
-    return await canReadBillingEntity(authentication)
+async function canReadBillingIntegrationProblems (args) {
+    return await canReadBillingEntity(args)
 }
 
 async function canManageBillingIntegrationProblems (args) {

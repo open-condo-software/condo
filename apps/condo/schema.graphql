@@ -74602,6 +74602,10 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
+  canReadBillingAccounts: Boolean
+  canManageBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+  canManageBillingProperties: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean
@@ -74706,6 +74710,14 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadBillingReceipts_not: Boolean
   canManageBillingReceipts: Boolean
   canManageBillingReceipts_not: Boolean
+  canReadBillingAccounts: Boolean
+  canReadBillingAccounts_not: Boolean
+  canManageBillingAccounts: Boolean
+  canManageBillingAccounts_not: Boolean
+  canReadBillingProperties: Boolean
+  canReadBillingProperties_not: Boolean
+  canManageBillingProperties: Boolean
+  canManageBillingProperties_not: Boolean
   canReadContacts: Boolean
   canReadContacts_not: Boolean
   canManageContacts: Boolean
@@ -74873,6 +74885,14 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadBillingReceipts_DESC
   canManageBillingReceipts_ASC
   canManageBillingReceipts_DESC
+  canReadBillingAccounts_ASC
+  canReadBillingAccounts_DESC
+  canManageBillingAccounts_ASC
+  canManageBillingAccounts_DESC
+  canReadBillingProperties_ASC
+  canReadBillingProperties_DESC
+  canManageBillingProperties_ASC
+  canManageBillingProperties_DESC
   canReadContacts_ASC
   canReadContacts_DESC
   canManageContacts_ASC
@@ -74969,6 +74989,10 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
+  canReadBillingAccounts: Boolean
+  canManageBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+  canManageBillingProperties: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean
@@ -75032,6 +75056,10 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
+  canReadBillingAccounts: Boolean
+  canManageBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+  canManageBillingProperties: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean
@@ -75124,6 +75152,16 @@ type B2BAppAccessRightSet {
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
   """
   canManageBillingReceipts: Boolean
+  canReadBillingAccounts: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageBillingProperties: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean
@@ -75232,6 +75270,14 @@ input B2BAppAccessRightSetWhereInput {
   canReadBillingReceipts_not: Boolean
   canManageBillingReceipts: Boolean
   canManageBillingReceipts_not: Boolean
+  canReadBillingAccounts: Boolean
+  canReadBillingAccounts_not: Boolean
+  canManageBillingAccounts: Boolean
+  canManageBillingAccounts_not: Boolean
+  canReadBillingProperties: Boolean
+  canReadBillingProperties_not: Boolean
+  canManageBillingProperties: Boolean
+  canManageBillingProperties_not: Boolean
   canReadContacts: Boolean
   canReadContacts_not: Boolean
   canManageContacts: Boolean
@@ -75381,6 +75427,14 @@ enum SortB2BAppAccessRightSetsBy {
   canReadBillingReceipts_DESC
   canManageBillingReceipts_ASC
   canManageBillingReceipts_DESC
+  canReadBillingAccounts_ASC
+  canReadBillingAccounts_DESC
+  canManageBillingAccounts_ASC
+  canManageBillingAccounts_DESC
+  canReadBillingProperties_ASC
+  canReadBillingProperties_DESC
+  canManageBillingProperties_ASC
+  canManageBillingProperties_DESC
   canReadContacts_ASC
   canReadContacts_DESC
   canManageContacts_ASC
@@ -75477,6 +75531,10 @@ input B2BAppAccessRightSetUpdateInput {
   canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
+  canReadBillingAccounts: Boolean
+  canManageBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+  canManageBillingProperties: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean
@@ -75537,6 +75595,10 @@ input B2BAppAccessRightSetCreateInput {
   canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
+  canReadBillingAccounts: Boolean
+  canManageBillingAccounts: Boolean
+  canReadBillingProperties: Boolean
+  canManageBillingProperties: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean

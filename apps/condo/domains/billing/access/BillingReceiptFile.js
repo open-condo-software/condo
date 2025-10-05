@@ -13,7 +13,8 @@ const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/comm
 const { canReadBillingReceipts } = require('./BillingReceipt')
 
 
-async function canReadBillingReceiptFiles ({ authentication, context }) {
+async function canReadBillingReceiptFiles (args) {
+    const { authentication, context } = args
     const user = authentication.item
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -34,7 +35,7 @@ async function canReadBillingReceiptFiles ({ authentication, context }) {
 
     if (user.type === RESIDENT) {
         // We allow access to those residents, who has access to related BillingReceipt
-        const condition = await canReadBillingReceipts({ authentication })
+        const condition = await canReadBillingReceipts(args)
         if (!condition) {
             return false
         }
@@ -43,7 +44,7 @@ async function canReadBillingReceiptFiles ({ authentication, context }) {
         }
     }
 
-    return await canReadBillingEntity(authentication)
+    return await canReadBillingEntity(args)
 }
 
 async function canManageBillingReceiptFiles (args) {
