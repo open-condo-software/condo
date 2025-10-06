@@ -1,0 +1,73 @@
+Данный метод позволяет мини-приложению получить фрагмент URL (часть после символа #) из URL родительского приложения. 
+Особенно полезен для обработки диплинков и начального состояния навигации при открытии мини-приложения по URL с фрагментом.
+
+## Платформы
+- B2B-Web
+
+## Возвращаемое значение
+
+При успешном выполнении возвращается JSON-объект следующего типа:
+<Tabs labels={['Тип возвращаемого значения', 'Пример ответа']}>
+    ```typescript
+    type GetFragmentData = {
+        fragment: string  // Фрагмент URL без начального символа #
+    }
+    ```
+    ```json
+    {
+      "fragment": "next=/ticket/123&source=notification"
+    }
+    ```
+</Tabs>
+
+## Как это работает
+
+Когда мини-приложение открывается по URL, содержащему фрагмент (например, `https://condo.d.doma.ai/miniapps/your-app-id#page=/ticket/123`), этот метод позволяет получить часть после символа # (`page=/ticket/123`).
+
+### Типичные сценарии использования:
+- Диплинки на конкретные экраны внутри мини-приложения
+- Передача начального состояния навигации или параметров
+- Сохранение состояния приложения при перезагрузке страницы
+
+## Пример использования
+
+```typescript jsx
+import '@/styles/globals.css'
+import { cookies } from 'next/headers'
+import React, { useEffect } from 'react'
+
+import bridge from '@open-condo/bridge'
+
+import type { AppProps } from 'next/app'
+
+export default function App ({ Component, pageProps }: AppProps): React.ReactNode {
+    const [nextPath, setNextPath] = useState('')
+
+    useEffect(() => {
+        bridge.send('CondoWebAppGetFragment').then(data => {
+            const params = new URLSearchParams(data.fragment)
+            // Например, url https://condo.d.doma.ai/miniapps/your-app-id#next=/ticket/123. 
+            // Тогда nextPath будет '/ticket/123'
+            const nextPath = params.get('next')
+            setNextPath(nextPath)
+        }).catch((error) => {
+            console.error(error)
+        })
+    }, [])
+
+    return (
+        <Component {...pageProps} />
+    )
+}
+```
+
+## Примечания
+
+- Фрагмент автоматически декодируется при получении
+- Если в URL нет фрагмента, возвращается пустая строка
+- Фрагмент сохраняется при перезагрузке мини-приложения
+
+## Вопросы безопасности
+
+- Рекомендуется реализовать дополнительную валидацию для чувствительных операций, основанных на параметрах фрагмента
+- Будьте осторожны при использовании фрагмента для навигации, чтобы избежать уязвимостей открытого перенаправления
