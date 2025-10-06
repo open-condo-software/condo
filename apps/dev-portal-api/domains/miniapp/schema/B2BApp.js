@@ -55,15 +55,13 @@ const B2BApp = new GQLListSchema('B2BApp', {
             type: 'Markdown',
             isRequired: false,
         },
-        ...Object.fromEntries(AVAILABLE_ENVIRONMENTS.map(environment => {
-            return [
-                [`${environment}Entrypoint`, {
-                    schemaDoc: `App entrypoint URL for ${environment} environment`,
-                    type: 'Text',
-                    isRequired: false,
-                }],
-            ]
-        })),
+        ...Object.fromEntries(AVAILABLE_ENVIRONMENTS.map(environment => [
+            `${environment}AppUrl`, {
+                schemaDoc: `Web app entrypoint URL for ${environment} environment, which is used to open app in WebView or IFrame`,
+                type: 'Text',
+                isRequired: false,
+            },
+        ])),
     },
     hooks: {
         afterChange: LOGO_META_AFTER_CHANGE,

@@ -1560,6 +1560,8 @@ type B2BAppHistoryRecord {
   logo: JSON
   shortDescription: String
   detailedDescription: JSON
+  developmentAppUrl: String
+  productionAppUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -1660,6 +1662,42 @@ input B2BAppHistoryRecordWhereInput {
   detailedDescription_not: JSON
   detailedDescription_in: [JSON]
   detailedDescription_not_in: [JSON]
+  developmentAppUrl: String
+  developmentAppUrl_not: String
+  developmentAppUrl_contains: String
+  developmentAppUrl_not_contains: String
+  developmentAppUrl_starts_with: String
+  developmentAppUrl_not_starts_with: String
+  developmentAppUrl_ends_with: String
+  developmentAppUrl_not_ends_with: String
+  developmentAppUrl_i: String
+  developmentAppUrl_not_i: String
+  developmentAppUrl_contains_i: String
+  developmentAppUrl_not_contains_i: String
+  developmentAppUrl_starts_with_i: String
+  developmentAppUrl_not_starts_with_i: String
+  developmentAppUrl_ends_with_i: String
+  developmentAppUrl_not_ends_with_i: String
+  developmentAppUrl_in: [String]
+  developmentAppUrl_not_in: [String]
+  productionAppUrl: String
+  productionAppUrl_not: String
+  productionAppUrl_contains: String
+  productionAppUrl_not_contains: String
+  productionAppUrl_starts_with: String
+  productionAppUrl_not_starts_with: String
+  productionAppUrl_ends_with: String
+  productionAppUrl_not_ends_with: String
+  productionAppUrl_i: String
+  productionAppUrl_not_i: String
+  productionAppUrl_contains_i: String
+  productionAppUrl_not_contains_i: String
+  productionAppUrl_starts_with_i: String
+  productionAppUrl_not_starts_with_i: String
+  productionAppUrl_ends_with_i: String
+  productionAppUrl_not_ends_with_i: String
+  productionAppUrl_in: [String]
+  productionAppUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -1787,6 +1825,10 @@ enum SortB2BAppHistoryRecordsBy {
   developerUrl_DESC
   shortDescription_ASC
   shortDescription_DESC
+  developmentAppUrl_ASC
+  developmentAppUrl_DESC
+  productionAppUrl_ASC
+  productionAppUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -1816,6 +1858,8 @@ input B2BAppHistoryRecordUpdateInput {
   logo: JSON
   shortDescription: String
   detailedDescription: JSON
+  developmentAppUrl: String
+  productionAppUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -1844,6 +1888,8 @@ input B2BAppHistoryRecordCreateInput {
   logo: JSON
   shortDescription: String
   detailedDescription: JSON
+  developmentAppUrl: String
+  productionAppUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -1903,6 +1949,14 @@ type B2BApp {
   """ Detailed markdown description of application shown on its page. Used to describe apps functionality, pricing, etc 
   """
   detailedDescription: String
+
+  """ Web app entrypoint URL for development environment, which is used to open app in WebView or IFrame 
+  """
+  developmentAppUrl: String
+
+  """ Web app entrypoint URL for production environment, which is used to open app in WebView or IFrame 
+  """
+  productionAppUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -2031,6 +2085,42 @@ input B2BAppWhereInput {
   detailedDescription_not_ends_with_i: String
   detailedDescription_in: [String]
   detailedDescription_not_in: [String]
+  developmentAppUrl: String
+  developmentAppUrl_not: String
+  developmentAppUrl_contains: String
+  developmentAppUrl_not_contains: String
+  developmentAppUrl_starts_with: String
+  developmentAppUrl_not_starts_with: String
+  developmentAppUrl_ends_with: String
+  developmentAppUrl_not_ends_with: String
+  developmentAppUrl_i: String
+  developmentAppUrl_not_i: String
+  developmentAppUrl_contains_i: String
+  developmentAppUrl_not_contains_i: String
+  developmentAppUrl_starts_with_i: String
+  developmentAppUrl_not_starts_with_i: String
+  developmentAppUrl_ends_with_i: String
+  developmentAppUrl_not_ends_with_i: String
+  developmentAppUrl_in: [String]
+  developmentAppUrl_not_in: [String]
+  productionAppUrl: String
+  productionAppUrl_not: String
+  productionAppUrl_contains: String
+  productionAppUrl_not_contains: String
+  productionAppUrl_starts_with: String
+  productionAppUrl_not_starts_with: String
+  productionAppUrl_ends_with: String
+  productionAppUrl_not_ends_with: String
+  productionAppUrl_i: String
+  productionAppUrl_not_i: String
+  productionAppUrl_contains_i: String
+  productionAppUrl_not_contains_i: String
+  productionAppUrl_starts_with_i: String
+  productionAppUrl_not_starts_with_i: String
+  productionAppUrl_ends_with_i: String
+  productionAppUrl_not_ends_with_i: String
+  productionAppUrl_in: [String]
+  productionAppUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -2140,6 +2230,10 @@ enum SortB2BAppsBy {
   shortDescription_DESC
   detailedDescription_ASC
   detailedDescription_DESC
+  developmentAppUrl_ASC
+  developmentAppUrl_DESC
+  productionAppUrl_ASC
+  productionAppUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -2169,6 +2263,8 @@ input B2BAppUpdateInput {
   logo: Upload
   shortDescription: String
   detailedDescription: String
+  developmentAppUrl: String
+  productionAppUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -2194,6 +2290,8 @@ input B2BAppCreateInput {
   logo: Upload
   shortDescription: String
   detailedDescription: String
+  developmentAppUrl: String
+  productionAppUrl: String
   v: Int
   createdAt: String
   updatedAt: String
