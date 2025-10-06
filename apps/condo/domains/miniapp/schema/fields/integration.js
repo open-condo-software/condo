@@ -37,7 +37,7 @@ const MENU_CATEGORY_FIELD = {
     options: ALL_MENU_CATEGORIES,
 }
 
-const PARTNER_URL_FIELD = {
+const DEVELOPER_URL_FIELD = {
     schemaDoc: 'Link to the website of the developer company, where the user can find out detailed information about the partner',
     type: 'Text',
     isRequired: false,
@@ -111,7 +111,7 @@ const PRICE_FIELD = {
 module.exports = {
     DEVELOPER_FIELD,
     LOGO_FIELD,
-    PARTNER_URL_FIELD,
+    DEVELOPER_URL_FIELD,
     APP_IMAGE_FIELD,
     SHORT_DESCRIPTION_FIELD,
     APP_DETAILS_FIELD,

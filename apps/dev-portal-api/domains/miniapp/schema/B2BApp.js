@@ -7,6 +7,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { getSharedConstraintsValidator } = require('@dev-portal-api/domains/common/serverSchema/constraints')
 const { FileAdapter, getFileMetaAfterChange, getMimeTypesValidator } = require('@dev-portal-api/domains/common/utils/files')
+const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
 const { canReadAppSchemas, canManageAppSchemas } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
 
@@ -54,6 +55,15 @@ const B2BApp = new GQLListSchema('B2BApp', {
             type: 'Markdown',
             isRequired: false,
         },
+        ...Object.fromEntries(AVAILABLE_ENVIRONMENTS.map(environment => {
+            return [
+                [`${environment}Entrypoint`, {
+                    schemaDoc: `App entrypoint URL for ${environment} environment`,
+                    type: 'Text',
+                    isRequired: false,
+                }],
+            ]
+        })),
     },
     hooks: {
         afterChange: LOGO_META_AFTER_CHANGE,

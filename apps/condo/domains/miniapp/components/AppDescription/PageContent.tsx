@@ -43,7 +43,7 @@ type PageContentProps = {
     price?: string
     developer: string
     publishedAt: string
-    partnerUrl?: string
+    developerUrl?: string
     gallery?: Array<string>
     contextStatus: string | null
     accessible: boolean
@@ -70,7 +70,7 @@ const PageContent: React.FC<PageContentProps> = ({
     price,
     developer,
     publishedAt,
-    partnerUrl,
+    developerUrl,
     gallery,
     contextStatus,
     appUrl,
@@ -157,7 +157,7 @@ const PageContent: React.FC<PageContentProps> = ({
                         <DeveloperCard
                             developer={developer}
                             publishedAt={publishedAt}
-                            partnerUrl={partnerUrl}
+                            developerUrl={developerUrl}
                             display={isDevCardWide ? 'row' : 'col'}
                         />
                     </Col>
