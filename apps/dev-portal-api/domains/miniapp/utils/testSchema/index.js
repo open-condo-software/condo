@@ -11,6 +11,8 @@ const { buildFakeAddressAndMeta } = require('@app/condo/domains/property/utils/t
 const { registerNewServiceUserByTestClient } = require('@app/condo/domains/user/utils/testSchema')
 
 const {
+    B2BApp: B2BAppGQL,
+
     B2CApp: B2CAppGQL,
     B2CAppAccessRight: B2CAppAccessRightGQL,
     B2CAppBuild: B2CAppBuildGQL,
@@ -21,6 +23,7 @@ const {
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
     GET_B2C_APP_INFO_QUERY,
+
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
@@ -32,6 +35,8 @@ const { DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/p
 const { generateGqlQueries } = require("@open-condo/codegen/generate.gql")
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-portal-api/domains/miniapp/constants/b2c")
 /* AUTOGENERATE MARKER <IMPORT> */
+
+const B2BApp = generateGQLTestUtils(B2BAppGQL)
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
 const B2CAppAccessRight = generateGQLTestUtils(B2CAppAccessRightGQL)
@@ -139,6 +144,35 @@ async function createCondoB2CAppAccessRight(client, condoApp, condoUser = null) 
     return [obj, attrs]
 }
 
+async function createTestB2BApp (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const name = faker.commerce.product()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        name,
+        ...extraAttrs,
+    }
+    const obj = await B2BApp.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BApp (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BApp.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 async function createTestB2CApp (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -152,6 +186,16 @@ async function createTestB2CApp (client, extraAttrs = {}) {
     }
     const obj = await B2CApp.create(client, attrs)
     return [obj, attrs]
+}
+
+async function updateTestB2BApps (client, attrsArray) {
+    if (!client) throw new Error('no client')
+    if (!Array.isArray(attrsArray)) throw new Error('payload is not an array')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const data = attrsArray.map(item => ({ id: item.id, data: { ...item.data, dv: 1, sender } }))
+    const objs = await B2BApp.updateMany(client, data)
+
+    return [objs, data]
 }
 
 async function updateTestB2CApp (client, id, extraAttrs = {}) {
@@ -475,6 +519,9 @@ module.exports = {
     CondoB2CAppProperty, createCondoB2CAppProperties,
     CondoB2CAppAccessRight, createCondoB2CAppAccessRight,
     CondoOIDCClient,
+
+    B2BApp, createTestB2BApp, updateTestB2BApp, updateTestB2BApps,
+
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps, getB2CAppInfoByTestClient,
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild, generateBuildVersion,
@@ -482,6 +529,7 @@ module.exports = {
     publishB2CAppByTestClient,
     importB2CAppByTestClient,
     allB2CAppPropertiesByTestClient, createB2CAppPropertyByTestClient, deleteB2CAppPropertyByTestClient,
+
     getOIDCClientByTestClient, createOIDCClientByTestClient, generateOIDCClientSecretByTestClient, updateOIDCClientUrlByTestClient,
     registerAppUserServiceByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */

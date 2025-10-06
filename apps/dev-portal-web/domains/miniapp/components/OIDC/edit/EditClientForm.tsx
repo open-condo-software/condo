@@ -1,5 +1,6 @@
 import { Divider, Form, notification } from 'antd'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
@@ -47,26 +48,30 @@ type EditOIDCClientFormValues = {
 
 export const EditClientForm: React.FC<EditClientFormProps> = ({ id, environment, client }) => {
     const intl = useIntl()
-    const CredentialsLabel = intl.formatMessage({ id:'apps.b2c.sections.oidc.clientSettings.editClientForm.subsection.credentials.label' })
-    const SettingsLabel = intl.formatMessage({ id:'apps.b2c.sections.oidc.clientSettings.editClientForm.subsection.settings.label' })
-    const ClientIDLabel = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.items.clientId.label' })
-    const ClientSecretLabel = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.items.clientSecret.label' })
-    const RedirectURILabel = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.items.redirectURI.label' })
-    const RegenerateSecretLabel = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.actions.regenerateSecret' })
+    const CredentialsLabel = intl.formatMessage({ id:'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.subsection.credentials.label' })
+    const SettingsLabel = intl.formatMessage({ id:'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.subsection.settings.label' })
+    const ClientIDLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.items.clientId.label' })
+    const ClientSecretLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.items.clientSecret.label' })
+    const RedirectURILabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.items.redirectURI.label' })
+    const RegenerateSecretLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.actions.regenerateSecret' })
     const SaveLabel = intl.formatMessage({ id: 'global.actions.save' })
-    const SuccessUpdateMessage = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.notifications.successUpdate.title' })
+    const SuccessUpdateMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notifications.successUpdate.title' })
     const CancelLabel = intl.formatMessage({ id: 'global.actions.cancel' })
     const ConfirmLabel = intl.formatMessage({ id: 'global.actions.confirm' })
-    const ModalTitle = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.modal.title' })
-    const ModalText = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.modal.text' })
-    const SuccessGenerationTitle = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.notifications.successGeneration.title' })
-    const SuccessGenerationMessage = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.notifications.successGeneration.description' })
-    const NotEnabledClientAlertTitle = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.title' })
-    const NotEnabledClientPublishLink = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.publishLink.text' })
-    const NotEnabledClientAlertDescription = intl.formatMessage({ id: 'apps.b2c.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.description' }, {
-        publishLink: <Typography.Link component={Link} href={`/apps/b2c/${id}?section=publishing`}>{NotEnabledClientPublishLink}</Typography.Link>,
-    })
+    const ModalTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.modal.title' })
+    const ModalText = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.modal.text' })
+    const SuccessGenerationTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notifications.successGeneration.title' })
+    const SuccessGenerationMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notifications.successGeneration.description' })
+    const NotEnabledClientAlertTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.title' })
+    const NotEnabledClientPublishLink = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.publishLink.text' })
 
+    const router = useRouter()
+    // /apps/b2c/[id] -> ['', 'apps', 'b2c', '[id]'] -> ['apps', 'b2c', '[id]']
+    const appType = router.pathname.split('/').filter(Boolean)[1]
+
+    const NotEnabledClientAlertDescription = intl.formatMessage({ id: 'pages.apps.any.id.sections.oidc.clientSettings.editClientForm.notEnabledClientAlert.description' }, {
+        publishLink: <Typography.Link component={Link} href={`/apps/${appType}/${id}?section=publishing`}>{NotEnabledClientPublishLink}</Typography.Link>,
+    })
 
     const [modalOpen, setModalOpen] = useState(false)
     const openModal = useCallback(() => setModalOpen(true), [])

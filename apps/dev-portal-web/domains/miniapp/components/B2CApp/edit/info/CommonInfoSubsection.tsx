@@ -12,7 +12,7 @@ import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutation
 
 import type { RowProps } from 'antd'
 
-import { useUpdateB2CAppMutation, AllAppsDocument, GetB2CAppDocument, useGetB2CAppQuery } from '@/gql'
+import { useUpdateB2CAppMutation, GetB2CAppDocument, useGetB2CAppQuery } from '@/gql'
 
 const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [32, 32]
 const FULL_COL_SPAN = 24
@@ -24,9 +24,9 @@ type CommonInfoFormValues = {
 
 export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const AppNameLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.commonInfo.form.items.name.label' })
-    const DeveloperNameLabel = intl.formatMessage({ id: 'apps.b2c.sections.info.commonInfo.form.items.developer.label' })
-    const DeveloperNamePlaceholder = intl.formatMessage({ id: 'apps.b2c.sections.info.commonInfo.form.items.developer.placeholder' })
+    const AppNameLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.commonInfo.form.items.name.label' })
+    const DeveloperNameLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.commonInfo.form.items.developer.label' })
+    const DeveloperNamePlaceholder = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.commonInfo.form.items.developer.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'global.actions.save' })
 
     const [form] = Form.useForm()
@@ -39,7 +39,6 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const onError = useMutationErrorHandler()
     const [updateB2CAppMutation] = useUpdateB2CAppMutation({
         refetchQueries: [
-            AllAppsDocument,
             {
                 query: GetB2CAppDocument,
                 variables,

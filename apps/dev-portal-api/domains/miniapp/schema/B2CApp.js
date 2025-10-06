@@ -5,13 +5,14 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { getSharedConstraintsValidator } = require('@dev-portal-api/domains/common/serverSchema/constraints')
 const {
     getFileMetaAfterChange,
     FileAdapter,
     getMimeTypesValidator,
 } = require('@dev-portal-api/domains/common/utils/files')
-const access = require('@dev-portal-api/domains/miniapp/access/B2CApp')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
+const { canReadAppSchemas, canManageAppSchemas } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
 
 const LOGO_FILE_ADAPTER = new FileAdapter('B2CApps/logos', true)
 const LOGO_META_AFTER_CHANGE = getFileMetaAfterChange(LOGO_FILE_ADAPTER, 'logo')
@@ -40,13 +41,14 @@ const B2CApp = new GQLListSchema('B2CApp', {
         },
     },
     hooks: {
+        validateInput: getSharedConstraintsValidator(['B2BApp']),
         afterChange: LOGO_META_AFTER_CHANGE,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical()],
     access: {
-        read: access.canReadB2CApps,
-        create: access.canManageB2CApps,
-        update: access.canManageB2CApps,
+        read: canReadAppSchemas,
+        create: canManageAppSchemas,
+        update: canManageAppSchemas,
         delete: false,
         auth: true,
     },

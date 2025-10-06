@@ -81,11 +81,11 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
     onComplete,
 }) => {
     const intl = useIntl()
-    const HidePhoneMessage = intl.formatMessage({ id: 'global.registerForm.actions.phone.hide' })
-    const ShowPhoneMessage = intl.formatMessage({ id: 'global.registerForm.actions.phone.show' })
-    const SMSCodeFieldLabel = intl.formatMessage({ id: 'global.registerForm.items.code.label' })
-    const ChangePhoneNumberMessage = intl.formatMessage({ id: 'global.registerForm.actions.changePhone' })
-    const ResendCodeMessage = intl.formatMessage({ id: 'global.registerForm.actions.resendSMS' })
+    const HidePhoneMessage = intl.formatMessage({ id: 'components.common.registerForm.actions.phone.hide' })
+    const ShowPhoneMessage = intl.formatMessage({ id: 'components.common.registerForm.actions.phone.show' })
+    const SMSCodeFieldLabel = intl.formatMessage({ id: 'components.common.registerForm.items.code.label' })
+    const ChangePhoneNumberMessage = intl.formatMessage({ id: 'components.common.registerForm.actions.changePhone' })
+    const ResendCodeMessage = intl.formatMessage({ id: 'components.common.registerForm.actions.resendSMS' })
     const [isPhoneHidden, setIsPhoneHidden] = useState(true)
 
     const [form] = Form.useForm()
@@ -157,7 +157,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                 <Col span={FULL_SPAN_COL}>
                     <Typography.Paragraph size='medium'>
                         <FormattedMessage
-                            id='global.registerForm.info.SMS.sent.message'
+                            id='components.common.registerForm.info.SMS.sent.message'
                             values={{ phone: isPhoneHidden
                                 ? hidePhone(formattedPhone || phone)
                                 : formattedPhone || phone,
@@ -186,7 +186,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                     {actionTTL > 0 ? (
                         <Typography.Text size='medium'>
                             <FormattedMessage
-                                id='global.registerForm.info.SMS.alive.message'
+                                id='components.common.registerForm.info.SMS.alive.message'
                                 values={{ ttl: formatCountDown(actionTTL) }}
                             />
                         </Typography.Text>

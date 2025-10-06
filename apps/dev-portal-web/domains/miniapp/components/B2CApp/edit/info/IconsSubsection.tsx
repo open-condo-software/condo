@@ -26,7 +26,7 @@ import styles from './IconsSubsection.module.css'
 import type { RowProps } from 'antd'
 import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
 
-import { AllAppsDocument, GetB2CAppDocument, useGetB2CAppQuery, useUpdateB2CAppMutation } from '@/gql'
+import { GetB2CAppDocument, useGetB2CAppQuery, useUpdateB2CAppMutation } from '@/gql'
 
 const ROW_ICONS_CONTENT_GUTTER: RowProps['gutter'] = [12, 12]
 const ICON_WARNING_ROW_GUTTER: RowProps['gutter'] = [0, 0]
@@ -44,7 +44,7 @@ type IconsFormValues = {
 
 const ColorSpan: React.FC<{ children: string, color: string, bg: string }> = ({ color, children, bg })=> {
     const intl = useIntl()
-    const ColorCopiedMessage = intl.formatMessage({ id: 'apps.id.notifications.colorCopied.title' })
+    const ColorCopiedMessage = intl.formatMessage({ id: 'pages.apps.any.id.notifications.colorCopied.title' })
 
     const handleClick = useCallback(() => {
         if (typeof navigator !== 'undefined') {
@@ -59,19 +59,19 @@ const ColorSpan: React.FC<{ children: string, color: string, bg: string }> = ({ 
 export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
     const SaveButtonLabel = intl.formatMessage({ id: 'global.actions.save' })
-    const MainIconTitle = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.items.main.title' })
-    const MainIconDescription = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.items.main.description' }, {
+    const MainIconTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.items.main.title' })
+    const MainIconDescription = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.items.main.description' }, {
         format: <Typography.Text size='medium' strong>png</Typography.Text>,
         size: <Typography.Text size='medium' strong>{B2C_LOGO_SIZE}×{B2C_LOGO_SIZE}</Typography.Text>,
         mainColor: <ColorSpan color={colors.white} bg={B2C_LOGO_MAIN_COLOR}>{B2C_LOGO_MAIN_COLOR}</ColorSpan>,
         secondaryColor: <ColorSpan color={colors.black} bg={B2C_LOGO_SECONDARY_COLOR}>{B2C_LOGO_SECONDARY_COLOR}</ColorSpan>,
     })
-    const IconGuideLinkText = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.items.main.guide.link' })
-    const IconGuideText = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.items.main.guide.text' }, {
+    const IconGuideLinkText = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.items.main.guide.link' })
+    const IconGuideText = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.items.main.guide.text' }, {
         link: <Typography.Link href={ICONS_STYLE_GUIDE_LINK} target='_blank'>{IconGuideLinkText}</Typography.Link>,
     })
-    const RulesWarningText = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.warning.description' })
-    const UploadImageMessage = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.actions.uploadImage' })
+    const RulesWarningText = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.warning.description' })
+    const UploadImageMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.info.icons.actions.uploadImage' })
 
     const { data } = useGetB2CAppQuery({ variables: { id } })
 
@@ -88,7 +88,6 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
     }, [form, onCompletedInform])
     const [updateB2CAppMutation] = useUpdateB2CAppMutation({
         refetchQueries: [
-            AllAppsDocument,
             {
                 query: GetB2CAppDocument,
                 variables: { id },

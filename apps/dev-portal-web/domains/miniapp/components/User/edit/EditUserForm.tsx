@@ -16,8 +16,8 @@ const CREDENTIALS_DIVIDER_STYLES: CSSProperties = { marginBottom: 24 }
 
 export const EditUserForm: React.FC<EditUserFormProps> = ({ email, environment, id }) => {
     const intl = useIntl()
-    const CredentialsLabel = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.editUserForm.subsection.credentials.label' })
-    const EmailFieldLabel = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.editUserForm.items.email.label' })
+    const CredentialsLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.editUserForm.subsection.credentials.label' })
+    const EmailFieldLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.editUserForm.items.email.label' })
 
     return (
         <Form

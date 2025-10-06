@@ -44,14 +44,14 @@ export const AmountDistributionCalculator = (): React.ReactElement => {
     const [currentTab, setCurrentTab] = useState<string>()
     const [{ width }, setRef] = useContainerSize()
 
-    const PaymentTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentSettings.title' })
-    const PaymentAmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentSettings.amount.title' })
-    const PaymentFeeTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentSettings.fee.title' })
-    const RecipientsTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.recipients.title' })
-    const OptionsTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitOptions.title' })
-    const DecimalPlacesTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.options.decimalPlaces' })
-    const AmountDistributionValueTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.amountDistributionFieldValue.title' })
-    const SplitResultTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitResultCard.title' })
+    const PaymentTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.paymentSettings.title' })
+    const PaymentAmountTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.paymentSettings.amount.title' })
+    const PaymentFeeTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.paymentSettings.fee.title' })
+    const RecipientsTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.recipients.title' })
+    const OptionsTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.splitOptions.title' })
+    const DecimalPlacesTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.options.decimalPlaces' })
+    const AmountDistributionValueTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.amountDistributionFieldValue.title' })
+    const SplitResultTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.splitResultCard.title' })
 
     useEffect(() => {
         if (distributions.length === 0) {

@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client'
 import { Form, Row, Col } from 'antd'
 import { useRouter } from 'next/router'
 import React, { createContext, CSSProperties, useCallback, useContext, useMemo, useState } from 'react'
@@ -10,12 +11,18 @@ import { useContainerSize } from '@open-condo/ui/hooks'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
+import { AuthenticatedUserType, useAuth } from '@/domains/user/utils/auth'
 
 import { AppCard } from './AppCard'
 
 import type { RowProps } from 'antd'
 
-import { useCreateB2CAppMutation, CreateB2CAppMutation, AllAppsDocument } from '@/gql'
+import {
+    useCreateB2BAppMutation,
+    CreateB2BAppMutation,
+    useCreateB2CAppMutation,
+    CreateB2CAppMutation,
+} from '@/gql'
 
 type CreateAppContextType = {
     createApp: () => void
@@ -43,7 +50,7 @@ const APP_TYPES = [
         key: B2B_WEB_APP_VALUE,
         icon: <Monitor size='medium'/>,
         value: B2B_WEB_APP_VALUE,
-        disabled: true,
+        disabled: (user: AuthenticatedUserType) => !(user?.isSupport || user?.isAdmin),
         span: 12,
     },
 ]
@@ -62,6 +69,7 @@ type AppTypeSelectorProps = {
 
 const AppTypeSelector: React.FC<AppTypeSelectorProps> = ({ onChange, value }) => {
     const [{ width }, setRef] = useContainerSize()
+    const { user } = useAuth()
 
     return (
         <Row gutter={APP_CARDS_ROW_GUTTER} ref={setRef}>
@@ -70,14 +78,14 @@ const AppTypeSelector: React.FC<AppTypeSelectorProps> = ({ onChange, value }) =>
                     <AppCard
                         icon={appType.icon}
                         title={(
-                            <FormattedMessage id={`global.createAppForm.items.type.${appType.value}.label`} />
+                            <FormattedMessage id={`components.common.createAppContext.createAppForm.items.type.${appType.value}.label`} />
                         )}
                         subtitle={(
-                            <FormattedMessage id={`global.createAppForm.items.type.${appType.value}.description`} />
+                            <FormattedMessage id={`components.common.createAppContext.createAppForm.items.type.${appType.value}.description`} />
                         )}
                         checked={value === appType.value}
                         onClick={() => onChange(appType.value)}
-                        disabled={appType.disabled}
+                        disabled={appType.disabled?.(user)}
                     />
                 </Col>
             ))}
@@ -87,9 +95,11 @@ const AppTypeSelector: React.FC<AppTypeSelectorProps> = ({ onChange, value }) =>
 
 export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
     const intl = useIntl()
-    const ContinueLabel = intl.formatMessage({ id: 'global.createAppForm.actions.continue' })
-    const BackLabel = intl.formatMessage({ id: 'global.createAppForm.actions.back' })
-    const CreateLabel = intl.formatMessage({ id: 'global.createAppForm.actions.create' })
+    const ContinueLabel = intl.formatMessage({ id: 'components.common.createAppContext.createAppForm.actions.continue' })
+    const BackLabel = intl.formatMessage({ id: 'components.common.createAppContext.createAppForm.actions.back' })
+    const CreateLabel = intl.formatMessage({ id: 'components.common.createAppContext.createAppForm.actions.create' })
+
+    const client = useApolloClient()
 
     const [openModal, setOpenModal] = useState(false)
     const [form] = Form.useForm()
@@ -115,19 +125,32 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
         setOpenModal(false)
     }, [clearFormState])
 
+    const clearAppsCache = useCallback(() => {
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allB2BApps' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allB2CApps' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allB2BAppsMeta' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allB2CAppsMeta' })
+    }, [client])
+
     const onError = useMutationErrorHandler()
-    const onB2CCompleted = useCallback((data: CreateB2CAppMutation) => {
+    const onCompleted = useCallback((data: CreateB2CAppMutation | CreateB2BAppMutation) => {
         handleModalClose()
+        clearAppsCache()
         const id = data.app?.id
+        const appType = data.app?.__typename === 'B2CApp' ? 'b2c' : 'b2b'
         if (id) {
-            const url = `/apps/b2c/${id}`
+            const url = `/apps/${appType}/${id}`
             router.push(url, url, { locale: router.locale })
         }
-    }, [handleModalClose, router])
+    }, [clearAppsCache, handleModalClose, router])
+
     const [createB2CAppMutation] = useCreateB2CAppMutation({
         onError,
-        onCompleted: onB2CCompleted,
-        refetchQueries: [AllAppsDocument],
+        onCompleted,
+    })
+    const [createB2BAppMutation] = useCreateB2BAppMutation({
+        onError,
+        onCompleted,
     })
 
     const handleAppTypeChange = useCallback((value: AppType) => {
@@ -144,15 +167,23 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
                     name: values.name,
                 },
             } })
+        } else {
+            createB2BAppMutation({ variables: {
+                data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    name: values.name,
+                },
+            } })
         }
-    }, [createB2CAppMutation])
+    }, [createB2BAppMutation, createB2CAppMutation])
 
     const ModalTitle = useMemo(() => {
         if (!isAppTypeSelected) {
-            return <FormattedMessage id='global.createAppForm.steps.selectAppType.title' />
+            return <FormattedMessage id='components.common.createAppContext.createAppForm.steps.selectAppType.title' />
         }
 
-        return <FormattedMessage id='global.createAppForm.steps.enterAppName.title' />
+        return <FormattedMessage id='components.common.createAppContext.createAppForm.steps.enterAppName.title' />
     }, [isAppTypeSelected])
 
     const ModalFooter = useMemo(() => {
@@ -180,7 +211,7 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
 
         const placeholderIndex = Math.floor(Math.random() * MAX_RANDOM_NAMES + 1)
         // @ts-expect-error Type ... is not assignable to type MessagesKeysType | undefined
-        const randomPlaceHolder = intl.formatMessage({ id: `global.createAppForm.items.name.placeholder.option.${placeholderIndex}` })
+        const randomPlaceHolder = intl.formatMessage({ id: `components.common.createAppContext.createAppForm.items.name.placeholder.option.${placeholderIndex}` })
 
         return (
             <Form.Item name='name' rules={[trimValidator]} style={BOTTOM_FORM_ITEM_STYLES}>

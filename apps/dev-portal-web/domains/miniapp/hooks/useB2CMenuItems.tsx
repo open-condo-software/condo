@@ -50,7 +50,7 @@ export function useB2CMenuItems (): [SectionType, Array<MenuItem>] {
                 label: (
                     <Typography.Title level={4} ellipsis type={textType}>
                         <FormattedMessage
-                            id={`apps.b2c.sections.${_camelize(section)}.title`}
+                            id={`pages.apps.b2c.id.sections.${_camelize(section)}.title`}
                         />
                     </Typography.Title>
                 ),

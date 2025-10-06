@@ -1,7 +1,7 @@
 import { Popover, Row, Col } from 'antd'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -17,7 +17,7 @@ import styles from './RecentAppsPopover.module.css'
 import type { AppInfo } from '@/domains/miniapp/utils/merge'
 import type { RowProps } from 'antd'
 
-import { useAllAppsQuery } from '@/gql'
+import { useAllB2BAppsQuery, useAllB2CAppsQuery } from '@/gql'
 
 const BUTTON_ROW_GUTTER: RowProps['gutter'] = [20, 20]
 const APP_ROW_GUTTER: RowProps['gutter'] = [0, 0]
@@ -53,13 +53,13 @@ const RecentAppCard: React.FC<AppInfo & WithOnClose> = ({ name, type, id, onClos
 const RecentAppsPopoverContent: React.FC<WithOnClose> = ({ onClose }) => {
     const intl = useIntl()
     const CreateAppLabel = intl.formatMessage({ id: 'global.actions.createApp' })
-    const RecentlyCreatedTitle = intl.formatMessage({ id: 'global.recentAppsPopover.recentApps.title' })
+    const RecentlyCreatedTitle = intl.formatMessage({ id: 'components.miniapp.recentAppsPopover.recentApps.title' })
     const { persistor } = useCachePersistor()
 
     const { createApp } = useCreateAppContext()
     const { user } = useAuth()
 
-    const { data } = useAllAppsQuery({
+    const { data: b2bData } = useAllB2BAppsQuery({
         variables: {
             creator: { id: user?.id },
             first: MAX_APPS_SHOWN,
@@ -67,7 +67,18 @@ const RecentAppsPopoverContent: React.FC<WithOnClose> = ({ onClose }) => {
         skip: !persistor,
     })
 
-    const apps = mergeApps(data)
+    const { data: b2cData } = useAllB2CAppsQuery({
+        variables: {
+            creator: { id: user?.id },
+            first: MAX_APPS_SHOWN,
+        },
+        skip: !persistor,
+    })
+
+    const apps = useMemo(() =>
+        mergeApps(b2bData?.b2b, b2cData?.b2c)
+            .filter((_, idx) => idx < MAX_APPS_SHOWN),
+    [b2bData, b2cData])
 
     const handleCreateAppClick = useCallback(() => {
         onClose()

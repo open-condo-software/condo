@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
-import { Modal, Typography, Space } from '@open-condo/ui'
+import { Modal, Typography } from '@open-condo/ui'
 
 import { AuthForm } from '@/domains/common/components/auth/AuthForm'
 
@@ -20,7 +20,7 @@ import {
 } from '@/gql'
 
 
-type AuthenticatedUserType = AuthenticatedUserQuery['authenticatedUser']
+export type AuthenticatedUserType = AuthenticatedUserQuery['authenticatedUser']
 
 type AuthContextType = {
     isAuthenticated: boolean
@@ -42,8 +42,8 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
     const intl = useIntl()
-    const WelcomeTitle = intl.formatMessage({ id: 'global.authForm.welcome.title' })
-    const WelcomeDescriptionText = intl.formatMessage({ id: 'global.authForm.welcome.description' })
+    const WelcomeTitle = intl.formatMessage({ id: 'components.common.authForm.welcome.title' })
+    const WelcomeDescriptionText = intl.formatMessage({ id: 'components.common.authForm.welcome.description' })
     const apolloClient = useApolloClient()
     const [authModalOpen, setAuthModalOpen] = useState(false)
     const { data: auth, loading: userLoading, refetch } = useAuthenticatedUserQuery()

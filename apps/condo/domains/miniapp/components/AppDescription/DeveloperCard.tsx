@@ -30,7 +30,7 @@ type SectionProps = {
 type DeveloperCardProps = {
     developer: string
     publishedAt: string
-    partnerUrl?: string
+    developerUrl?: string
     display: 'row' | 'col'
 }
 
@@ -43,7 +43,7 @@ const Section: React.FC<SectionProps> = ({ label, value }) => {
     )
 }
 
-export const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer, publishedAt, partnerUrl, display }) => {
+export const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer, publishedAt, developerUrl, display }) => {
     const intl = useIntl()
     const DeveloperLabel = intl.formatMessage({ id: 'miniapps.developerCard.developer' })
     const PublishedLabel = intl.formatMessage({ id: 'miniapps.developerCard.publishedAt' })
@@ -57,8 +57,8 @@ export const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer, publish
             <Space {...spaceProps}>
                 <Section label={DeveloperLabel} value={developer}/>
                 <Section label={PublishedLabel} value={PublishDate}/>
-                {Boolean(partnerUrl) && (
-                    <Typography.Link href={partnerUrl} target='_blank'>{PartnerLabel}</Typography.Link>
+                {Boolean(developerUrl) && (
+                    <Typography.Link href={developerUrl} target='_blank'>{PartnerLabel}</Typography.Link>
                 )}
             </Space>
         </Card>

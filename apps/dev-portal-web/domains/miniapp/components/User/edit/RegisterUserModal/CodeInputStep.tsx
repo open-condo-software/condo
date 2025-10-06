@@ -58,11 +58,11 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
     onFinish,
 }) => {
     const intl = useIntl()
-    const HideEmailMessage = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.actions.email.hide' })
-    const ShowEmailMessage = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.actions.email.show' })
-    const ChangeEmailMessage = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.actions.changeEmail' })
-    const EmailCodeFieldLabel = intl.formatMessage({ id:'apps.id.sections.serviceUser.userSettings.registerUserForm.items.code.label' })
-    const ResendCodeMessage = intl.formatMessage({ id: 'apps.id.sections.serviceUser.userSettings.registerUserForm.actions.resendCode' })
+    const HideEmailMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.actions.email.hide' })
+    const ShowEmailMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.actions.email.show' })
+    const ChangeEmailMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.actions.changeEmail' })
+    const EmailCodeFieldLabel = intl.formatMessage({ id:'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.items.code.label' })
+    const ResendCodeMessage = intl.formatMessage({ id: 'pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.actions.resendCode' })
 
     const [isEmailHidden, setIsEmailHidden] = useState(true)
 
@@ -102,7 +102,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                 <Col span={FULL_SPAN_COL}>
                     <Typography.Paragraph size='medium'>
                         <FormattedMessage
-                            id='apps.id.sections.serviceUser.userSettings.registerUserForm.info.email.sent.message'
+                            id='pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.info.email.sent.message'
                             values={{
                                 email: isEmailHidden ? hideEmail(email) : email,
                             }}
@@ -131,7 +131,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                     {actionTTL > 0 ? (
                         <Typography.Text size='medium'>
                             <FormattedMessage
-                                id='apps.id.sections.serviceUser.userSettings.registerUserForm.info.email.alive.message'
+                                id='pages.apps.any.id.sections.serviceUser.userSettings.registerUserForm.info.email.alive.message'
                                 values={{ ttl: formatCountDown(actionTTL) }}
                             />
                         </Typography.Text>

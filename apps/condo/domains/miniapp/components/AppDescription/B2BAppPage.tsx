@@ -92,7 +92,7 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                         detailedDescription={app.detailedDescription}
                         developer={app.developer}
                         publishedAt={app.createdAt}
-                        partnerUrl={app.partnerUrl}
+                        developerUrl={app.developerUrl}
                         price={app.price}
                         gallery={app.gallery}
                         contextStatus={get(context, 'status', null)}

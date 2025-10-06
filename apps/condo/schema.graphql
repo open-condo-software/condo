@@ -68671,7 +68671,7 @@ type B2BAppHistoryRecord {
   logo: JSON
   shortDescription: String
   developer: String
-  partnerUrl: String
+  developerUrl: String
   detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
@@ -68764,24 +68764,24 @@ input B2BAppHistoryRecordWhereInput {
   developer_not_ends_with_i: String
   developer_in: [String]
   developer_not_in: [String]
-  partnerUrl: String
-  partnerUrl_not: String
-  partnerUrl_contains: String
-  partnerUrl_not_contains: String
-  partnerUrl_starts_with: String
-  partnerUrl_not_starts_with: String
-  partnerUrl_ends_with: String
-  partnerUrl_not_ends_with: String
-  partnerUrl_i: String
-  partnerUrl_not_i: String
-  partnerUrl_contains_i: String
-  partnerUrl_not_contains_i: String
-  partnerUrl_starts_with_i: String
-  partnerUrl_not_starts_with_i: String
-  partnerUrl_ends_with_i: String
-  partnerUrl_not_ends_with_i: String
-  partnerUrl_in: [String]
-  partnerUrl_not_in: [String]
+  developerUrl: String
+  developerUrl_not: String
+  developerUrl_contains: String
+  developerUrl_not_contains: String
+  developerUrl_starts_with: String
+  developerUrl_not_starts_with: String
+  developerUrl_ends_with: String
+  developerUrl_not_ends_with: String
+  developerUrl_i: String
+  developerUrl_not_i: String
+  developerUrl_contains_i: String
+  developerUrl_not_contains_i: String
+  developerUrl_starts_with_i: String
+  developerUrl_not_starts_with_i: String
+  developerUrl_ends_with_i: String
+  developerUrl_not_ends_with_i: String
+  developerUrl_in: [String]
+  developerUrl_not_in: [String]
   detailedDescription: JSON
   detailedDescription_not: JSON
   detailedDescription_in: [JSON]
@@ -69029,8 +69029,8 @@ enum SortB2BAppHistoryRecordsBy {
   shortDescription_DESC
   developer_ASC
   developer_DESC
-  partnerUrl_ASC
-  partnerUrl_DESC
+  developerUrl_ASC
+  developerUrl_DESC
   appUrl_ASC
   appUrl_DESC
   isHidden_ASC
@@ -69078,7 +69078,7 @@ input B2BAppHistoryRecordUpdateInput {
   logo: JSON
   shortDescription: String
   developer: String
-  partnerUrl: String
+  developerUrl: String
   detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
@@ -69119,7 +69119,7 @@ input B2BAppHistoryRecordCreateInput {
   logo: JSON
   shortDescription: String
   developer: String
-  partnerUrl: String
+  developerUrl: String
   detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
@@ -69349,7 +69349,7 @@ type B2BApp {
 
   """ Link to the website of the developer company, where the user can find out detailed information about the partner 
   """
-  partnerUrl: String
+  developerUrl: String
 
   """ Text describing app functionality, connection process and pricing in full detail. Written in markdown without html tags. Will be shown on app's page 
   """
@@ -69503,24 +69503,24 @@ input B2BAppWhereInput {
   developer_not_ends_with_i: String
   developer_in: [String]
   developer_not_in: [String]
-  partnerUrl: String
-  partnerUrl_not: String
-  partnerUrl_contains: String
-  partnerUrl_not_contains: String
-  partnerUrl_starts_with: String
-  partnerUrl_not_starts_with: String
-  partnerUrl_ends_with: String
-  partnerUrl_not_ends_with: String
-  partnerUrl_i: String
-  partnerUrl_not_i: String
-  partnerUrl_contains_i: String
-  partnerUrl_not_contains_i: String
-  partnerUrl_starts_with_i: String
-  partnerUrl_not_starts_with_i: String
-  partnerUrl_ends_with_i: String
-  partnerUrl_not_ends_with_i: String
-  partnerUrl_in: [String]
-  partnerUrl_not_in: [String]
+  developerUrl: String
+  developerUrl_not: String
+  developerUrl_contains: String
+  developerUrl_not_contains: String
+  developerUrl_starts_with: String
+  developerUrl_not_starts_with: String
+  developerUrl_ends_with: String
+  developerUrl_not_ends_with: String
+  developerUrl_i: String
+  developerUrl_not_i: String
+  developerUrl_contains_i: String
+  developerUrl_not_contains_i: String
+  developerUrl_starts_with_i: String
+  developerUrl_not_starts_with_i: String
+  developerUrl_ends_with_i: String
+  developerUrl_not_ends_with_i: String
+  developerUrl_in: [String]
+  developerUrl_not_in: [String]
   detailedDescription: String
   detailedDescription_not: String
   detailedDescription_contains: String
@@ -69699,8 +69699,8 @@ enum SortB2BAppsBy {
   shortDescription_DESC
   developer_ASC
   developer_DESC
-  partnerUrl_ASC
-  partnerUrl_DESC
+  developerUrl_ASC
+  developerUrl_DESC
   detailedDescription_ASC
   detailedDescription_DESC
   appUrl_ASC
@@ -69754,7 +69754,7 @@ input B2BAppUpdateInput {
   logo: Upload
   shortDescription: String
   developer: String
-  partnerUrl: String
+  developerUrl: String
   detailedDescription: String
   appUrl: String
   isHidden: Boolean
@@ -69793,7 +69793,7 @@ input B2BAppCreateInput {
   logo: Upload
   shortDescription: String
   developer: String
-  partnerUrl: String
+  developerUrl: String
   detailedDescription: String
   appUrl: String
   isHidden: Boolean

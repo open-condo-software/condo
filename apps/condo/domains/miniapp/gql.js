@@ -32,7 +32,7 @@ const SEND_B2C_APP_PUSH_MESSAGE_MUTATION = gql`
 const B2B_APP_NEWS_SHARING_CONFIG_FIELDS = `{ publishUrl previewUrl pushNotificationSettings customFormUrl getRecipientsUrl getRecipientsCountersUrl icon { publicUrl } previewPicture { publicUrl } name ${COMMON_FIELDS} }`
 const B2BAppNewsSharingConfig = generateGqlQueries('B2BAppNewsSharingConfig', B2B_APP_NEWS_SHARING_CONFIG_FIELDS)
 
-const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} developer partnerUrl appUrl category label gallery price features ${COMMON_FIELDS} }`
+const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} developer developerUrl appUrl category label gallery price features ${COMMON_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
 const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl icon menuCategory hasDynamicTitle newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} } organization { id } status ${COMMON_FIELDS} }`

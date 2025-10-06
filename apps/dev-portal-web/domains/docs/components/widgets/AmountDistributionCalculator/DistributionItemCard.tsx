@@ -20,12 +20,12 @@ export const DistributionItemCard: React.FC<DistributionItemCardProps> = (props)
 
     const intl = useIntl()
 
-    const TinTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.tin.prefix' })
-    const AmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.amount.prefix' })
-    const OrderTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.order.prefix' })
-    const FeePayerTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.isFeePayer.prefix' })
-    const VORTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.vor.prefix' })
-    const OverpaymentTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.overpaymentPart.prefix' })
+    const TinTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.tin.prefix' })
+    const AmountTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.amount.prefix' })
+    const OrderTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.order.prefix' })
+    const FeePayerTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.isFeePayer.prefix' })
+    const VORTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.vor.prefix' })
+    const OverpaymentTitle = intl.formatMessage({ id: 'components.docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.overpaymentPart.prefix' })
 
     const [tin, setTin] = useState<string>(item.recipient.tin)
     const [bic] = useState<string>(item.recipient.bic)
