@@ -1,6 +1,6 @@
 import { Col, type MenuProps, Row, RowProps } from 'antd'
 import get from 'lodash/get'
-import Error from 'next/error'
+import NextError from 'next/error'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
@@ -60,7 +60,7 @@ const AppSettingsPage: React.FC = () => {
     const Section = useMemo(() => SECTIONS[section], [section])
 
     if (!id || Array.isArray(id)) {
-        return <Error statusCode={404}/>
+        return <NextError statusCode={404}/>
     }
 
     const appName = get(data, ['app', 'name'], id)

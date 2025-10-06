@@ -108,7 +108,7 @@ const MyAppsPage: React.FC = () => {
                     variables: {
                         creator: { id: user?.id },
                         first: MAX_APPS_TO_SHOW,
-                        skip: b2cApps.length,
+                        skip: b2bApps.length,
                     },
                 }).then((data) => setB2BApps((prev) => [...prev, ...(data.data?.b2b || [])]))
             )
