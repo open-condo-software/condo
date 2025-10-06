@@ -1094,8 +1094,8 @@ const MESSAGE_DELIVERY_OPTIONS = {
         isAllowedToChangeDefaultTransport: false,
     },
     [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
-        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        allowedTransports: [TELEGRAM_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
     [PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE]: {
