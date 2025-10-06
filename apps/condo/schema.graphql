@@ -87234,6 +87234,7 @@ input SendB2BAppPushMessageInput {
   user: UserWhereUniqueInput!
   organization: OrganizationWhereUniqueInput!
   app: B2BAppWhereUniqueInput!
+  appInitialContext: String
   type: B2BAppMessageType!
   meta: JSON!
 }
@@ -98376,9 +98377,6 @@ type Mutation {
   				"defaultValue": "",
   				"required": true
   			}
-  		},
-  		"telegramMeta": {
-  			"required": false
   		}
   	},
   	"TICKET_COMMENT_CREATED": {
@@ -98459,9 +98457,6 @@ type Mutation {
   				"defaultValue": "",
   				"required": true
   			}
-  		},
-  		"telegramMeta": {
-  			"required": false
   		}
   	},
   	"INVITE_NEW_EMPLOYEE": {
@@ -100053,7 +100048,19 @@ type Mutation {
   			"required": true
   		},
   		"data": {
+  			"userId": {
+  				"required": true
+  			},
+  			"organizationId": {
+  				"required": true
+  			},
   			"organizationName": {
+  				"required": true
+  			},
+  			"b2bAppId": {
+  				"required": true
+  			},
+  			"passTicketId": {
   				"required": true
   			},
   			"number": {
@@ -100095,9 +100102,6 @@ type Mutation {
   			"stateVehicleNumber": {
   				"required": true
   			}
-  		},
-  		"telegramMeta": {
-  			"required": false
   		}
   	},
   	"PASS_TICKET_COMMENT_CREATED": {
@@ -100139,6 +100143,9 @@ type Mutation {
   				"required": true
   			},
   			"comment": {
+  				"required": true
+  			},
+  			"url": {
   				"required": true
   			}
   		}
@@ -100552,7 +100559,19 @@ type Mutation {
   			"required": true
   		},
   		"data": {
+  			"userId": {
+  				"required": true
+  			},
+  			"organizationId": {
+  				"required": true
+  			},
   			"organizationName": {
+  				"required": true
+  			},
+  			"b2bAppId": {
+  				"required": true
+  			},
+  			"passTicketId": {
   				"required": true
   			},
   			"number": {
@@ -100594,9 +100613,6 @@ type Mutation {
   			"stateVehicleNumber": {
   				"required": true
   			}
-  		},
-  		"telegramMeta": {
-  			"required": false
   		}
   	},
   	"PASS_TICKET_COMMENT_CREATED": {
@@ -100639,10 +100655,17 @@ type Mutation {
   			},
   			"comment": {
   				"required": true
+  			},
+  			"url": {
+  				"required": true
   			}
   		}
   	}
   }`
+                      
+                      **appInitialContext** - String that the miniapp will receive when opened via link from the Message.
+                      This string will be appended after # in the URL. Can be any safe string format (e.g., "param1=value1&param2=value2" or custom format).
+                      These parameters will be passed to the miniapp to provide initial context/state. Empty string is allowed.
                   
   
   **Errors**
@@ -100677,6 +100700,12 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
     "message": "Invalid URL: must start with server url and be safe"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_VALUE",
+    "message": "Invalid appInitialContext: must be a safe string that can be used in URL fragment"
   }`
   """
   sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput

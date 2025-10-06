@@ -232,7 +232,6 @@ const MESSAGE_META = {
             organizationId: { defaultValue: '', required: true },
             organizationName: { defaultValue: '', required: true },
         },
-        telegramMeta: { required: false },
     },
     [TICKET_COMMENT_CREATED_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -256,7 +255,6 @@ const MESSAGE_META = {
             authorType: { defaultValue: '', required: true },
             authorName: { defaultValue: '', required: true },
         },
-        telegramMeta: { required: false },
     },
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -791,7 +789,11 @@ const MESSAGE_META = {
     [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
         dv: { required: true },
         data: {
+            userId: { required: true },
+            organizationId: { required: true },
             organizationName: { required: true },
+            b2bAppId: { required: true },
+            passTicketId: { required: true },
             number: { required: true },
             propertyAddress: { required: true },
             unit: { required: true },
@@ -806,7 +808,6 @@ const MESSAGE_META = {
             vehicleBrand: { required: true },
             stateVehicleNumber: { required: true },
         },
-        telegramMeta: { required: false },
     },
     [PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE]: {
         dv: { required: true },
@@ -823,6 +824,7 @@ const MESSAGE_META = {
             passTicketStatus: { required: true },
             passTicketAddress: { required: true },
             comment: { required: true },
+            url: { required: true },
         },
     },
 }
@@ -1096,7 +1098,6 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [TELEGRAM_TRANSPORT],
         defaultTransports: [TELEGRAM_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
-        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
     },
     [PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE]: {
         // TODO DOMA-12361 Add push transport

@@ -15,7 +15,7 @@ const { Message, syncRemoteClientWithPushTokenByTestClient } = require('@condo/d
 const { createTestOrganizationEmployeeRole, registerNewOrganization, inviteNewOrganizationEmployee, acceptOrRejectOrganizationInviteById } = require('@condo/domains/organization/utils/testSchema')
 const { User, updateTestUser, makeClientWithServiceUser, makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { ERRORS } = require('./SendB2BAppPushMessageService')
+const { ERRORS, MESSAGE_TYPES_REQUIRING_URL } = require('./SendB2BAppPushMessageService')
 
 describe('SendB2BAppPushMessageService', () => {
     let serviceUser,
@@ -261,49 +261,214 @@ describe('SendB2BAppPushMessageService', () => {
             }, ERRORS.USER_IS_NOT_AN_EMPLOYEE)
         })
 
-        test('Create message if meta.url is valid', async () => {
-            const url = `${conf.SERVER_URL}/${faker.random.word()}/${faker.random.word()}`
-
-            const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
-                type: PASS_TICKET_CREATED_MESSAGE_TYPE,
-                meta: {
-                    dv: 1,
-                    data: {
-                        url,
-                        openAt: faker.random.word(),
-                    },
-                },
-            })
-
-            const message = await Message.getOne(staffClient, { id: result.id })
-
-            expect(message.meta.data.url).toEqual(url)
-        })
-
-        const invalidUrlCases = [
-            ['javascript:alert(1)'],
-            [faker.internet.url()],
-            [`${conf.SERVER_URL}.mysite.com`],
-            [`${conf.SERVER_URL}.mysite.com/${faker.random.word()}`],
-        ]
-        test.each(invalidUrlCases)('Throws an error if meta.url is invalid: %p', async (url) => {
-            await expectToThrowGQLErrorToResult(async () => {
-                await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+        describe('URL generation', () => {
+            test('Generates URL for message types in MESSAGE_TYPES_REQUIRING_URL (PASS_TICKET_CREATED_MESSAGE_TYPE)', async () => {
+                const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                     type: PASS_TICKET_CREATED_MESSAGE_TYPE,
                     meta: {
                         dv: 1,
                         data: {
-                            url,
                             openAt: faker.random.word(),
                         },
                     },
                 })
-            }, {
-                mutation: 'sendB2BAppPushMessage',
-                variable: ['data', 'meta', 'data', 'url'],
-                code: 'BAD_USER_INPUT',
-                type: 'WRONG_VALUE',
-                message: 'Invalid URL: must start with server url and be safe',
+
+                const message = await Message.getOne(staffClient, { id: result.id })
+                const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}`
+
+                expect(message.meta.data.url).toEqual(expectedUrl)
+                expect(MESSAGE_TYPES_REQUIRING_URL).toContain(PASS_TICKET_CREATED_MESSAGE_TYPE)
+            })
+
+            test('Does not generate URL for message types not in MESSAGE_TYPES_REQUIRING_URL (B2B_APP_MESSAGE_PUSH_TYPE)', async () => {
+                const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                    type: B2B_APP_MESSAGE_PUSH_TYPE,
+                    meta: {
+                        dv: 1,
+                        title: faker.random.word(),
+                        body: faker.random.word(),
+                    },
+                })
+
+                const message = await Message.getOne(staffClient, { id: result.id })
+
+                expect(message.meta.data?.url).toBeUndefined()
+                expect(MESSAGE_TYPES_REQUIRING_URL).not.toContain(B2B_APP_MESSAGE_PUSH_TYPE)
+            })
+
+            describe('URL encoding with appInitialContext', () => {
+                test('Encodes special characters in appInitialContext using encodeURIComponent', async () => {
+                    const appInitialContext = 'next=/pass/ticket/123&source=notification with spaces'
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedEncodedContext = encodeURIComponent(appInitialContext)
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${expectedEncodedContext}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                    expect(message.meta.data.url).toContain('notification%20with%20spaces')
+                })
+
+                test('Encodes ampersands and equals signs in appInitialContext', async () => {
+                    const appInitialContext = 'param1=value1&param2=value with & and = signs'
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedEncodedContext = encodeURIComponent(appInitialContext)
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${expectedEncodedContext}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                    expect(message.meta.data.url).toContain('%26') // encoded &
+                    expect(message.meta.data.url).toContain('%3D') // encoded =
+                })
+
+                test('Encodes Unicode characters in appInitialContext', async () => {
+                    const appInitialContext = 'key1=значение1&key2=テスト'
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedEncodedContext = encodeURIComponent(appInitialContext)
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${expectedEncodedContext}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                })
+
+                test('Handles empty appInitialContext without encoding', async () => {
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext: '',
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                    expect(message.meta.data.url).not.toContain('#')
+                })
+
+                test('Handles undefined appInitialContext without encoding', async () => {
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                    expect(message.meta.data.url).not.toContain('#')
+                })
+
+                test('Encodes complex URL paths and query parameters', async () => {
+                    const appInitialContext = 'next=/pass/ticket/123?status=active&filter=urgent'
+                    const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+
+                    const message = await Message.getOne(staffClient, { id: result.id })
+                    const expectedEncodedContext = encodeURIComponent(appInitialContext)
+                    const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${expectedEncodedContext}`
+
+                    expect(message.meta.data.url).toEqual(expectedUrl)
+                    expect(message.meta.data.url).toContain('%2F') // encoded /
+                    expect(message.meta.data.url).toContain('%3F') // encoded ?
+                    expect(message.meta.data.url).toContain('%26') // encoded &
+                })
+            })
+        })
+
+        describe('appInitialContext', () => {
+            const validAppInitialContextCases = [
+                ['next=/pass/ticket/123&source=notification', 'path with parameters'],
+                ['filter=active&sort=date&page=1', 'query-like parameters'],
+                ['userId=123&action=view&timestamp=1640995200', 'numeric values'],
+                ['text=hello%20world&encoded=value%2Bwith%2Bplus', 'URL encoded values'],
+                ['custom-string-format-without-equals', 'custom format without equals'],
+                ['123456789', 'numeric string'],
+            ]
+
+            test.each(validAppInitialContextCases)('Successfully accepts valid appInitialContext: %p (%s)', async (appInitialContext) => {
+                const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                    type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                    appInitialContext,
+                    meta: {
+                        dv: 1,
+                        data: {
+                            openAt: faker.random.word(),
+                        },
+                    },
+                })
+
+                const message = await Message.getOne(staffClient, { id: result.id })
+                const expectedUrl = `${conf.SERVER_URL}/miniapps/${b2bApp.id}#${encodeURIComponent(appInitialContext)}`
+
+                expect(message.meta.data.url).toEqual(expectedUrl)
+                expect(result.id).toMatch(UUID_RE)
+            })
+
+            const invalidAppInitialContextCases = [
+                ['javascript:alert(1)', 'javascript protocol'],
+                [null, 'null value'],
+            ]
+
+            test.each(invalidAppInitialContextCases)('Throws an error for invalid appInitialContext: %p (%s)', async (appInitialContext) => {
+                await expectToThrowGQLErrorToResult(async () => {
+                    await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                        type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                        appInitialContext,
+                        meta: {
+                            dv: 1,
+                            data: {
+                                openAt: faker.random.word(),
+                            },
+                        },
+                    })
+                }, ERRORS.INVALID_APP_INITIAL_CONTEXT)
             })
         })
     })

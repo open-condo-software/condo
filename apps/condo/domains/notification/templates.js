@@ -174,6 +174,14 @@ function translationStringKeyForPushTitle (messageType) {
     return `notification.messages.${messageType}.${PUSH_TRANSPORT}.title`
 }
 
+/**
+ * @param {string} messageType
+ * @returns {string}
+ */
+function translationStringKeyForTelegramUrlMessage (messageType) {
+    return `notification.messages.${messageType}.${TELEGRAM_TRANSPORT}.urlMessage`
+}
+
 function normalizeSMSText (text) {
     return unescape(text).replace(SMS_FORBIDDEN_SYMBOLS_REGEXP, '*')
 }
@@ -216,7 +224,6 @@ function translateObjectItems (obj, locale) {
  */
 function telegramRenderer ({ message, env }) {
     const { lang: locale, type, meta } = message
-    const inlineKeyboard = get(meta, 'telegramMeta.inlineKeyboard')
     const { templatePathText, templatePathHtml } = getTelegramTemplate(locale, type)
     const messageTranslated = substituteTranslations(message, locale)
     const ret = {}
@@ -229,8 +236,11 @@ function telegramRenderer ({ message, env }) {
         ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
     }
 
-    if (inlineKeyboard) {
-        ret.inlineKeyboard = inlineKeyboard
+    const text = i18n(translationStringKeyForTelegramUrlMessage(type), { locale, meta: messageTranslated.meta })
+    const url = meta?.data?.url
+
+    if (url && text) {
+        ret.inlineKeyboard = [[{ text, url }]]
     }
 
     return ret

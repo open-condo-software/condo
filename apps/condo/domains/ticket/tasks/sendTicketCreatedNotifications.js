@@ -36,7 +36,6 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
 
         const ticketStatusName = i18n(`ticket.status.${ticketStatus.type}.name`, { locale: lang })
         const ticketUnitType = i18n(`field.UnitType.prefix.${createdTicket.unitType}`, { locale: lang }).toLowerCase()
-        const OpenTicketMessage = i18n(`notification.messages.${TICKET_CREATED_TYPE}.telegram.openTicket`, { locale: lang })
 
         const ticketClassifier = buildFullClassifierName(classifier)
 
@@ -70,9 +69,6 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
                         ticketDetails: createdTicket.details,
                         userId: employeeUserId,
                         url: ticketUrl,
-                    },
-                    telegramMeta: {
-                        inlineKeyboard: [[{ text: OpenTicketMessage, url: ticketUrl }]],
                     },
                 },
                 sender: { dv: 1, fingerprint: 'send-notifications' },
