@@ -16,7 +16,7 @@ const {
     DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
 } = require('@condo/domains/miniapp/constants')
-const { B2B_APP_MESSAGE_TYPES, MESSAGE_META, PASS_TICKET_CREATED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { B2B_APP_MESSAGE_TYPES, MESSAGE_META, PASS_TICKET_CREATED_MESSAGE_TYPE, PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
@@ -25,6 +25,7 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
  */
 const MESSAGE_TYPES_REQUIRING_URL = [
     PASS_TICKET_CREATED_MESSAGE_TYPE,
+    PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
 ]
 
 /**

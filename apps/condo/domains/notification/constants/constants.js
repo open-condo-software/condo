@@ -824,6 +824,7 @@ const MESSAGE_META = {
             passTicketStatus: { required: true },
             passTicketAddress: { required: true },
             comment: { required: true },
+            url: { required: true },
         },
     },
 }

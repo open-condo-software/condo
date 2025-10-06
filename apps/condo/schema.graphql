@@ -100144,6 +100144,9 @@ type Mutation {
   			},
   			"comment": {
   				"required": true
+  			},
+  			"url": {
+  				"required": true
   			}
   		}
   	}
@@ -100651,6 +100654,9 @@ type Mutation {
   				"required": true
   			},
   			"comment": {
+  				"required": true
+  			},
+  			"url": {
   				"required": true
   			}
   		}

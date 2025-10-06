@@ -341,7 +341,7 @@ describe('SendB2BAppPushMessageService', () => {
                 })
 
                 test('Encodes Unicode characters in appInitialContext', async () => {
-                    const appInitialContext = 'key1=value1&key2=value2'
+                    const appInitialContext = 'key1=значение1&key2=テスト'
                     const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                         type: PASS_TICKET_CREATED_MESSAGE_TYPE,
                         appInitialContext,
