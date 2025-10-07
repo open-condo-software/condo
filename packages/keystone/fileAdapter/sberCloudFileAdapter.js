@@ -16,10 +16,7 @@ const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC UR
 const SAFE_INLINE_MIMETYPES = [
     'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/bmp', 'image/x-icon',
     'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
-    'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/webm',
-    'application/pdf',
-    'text/plain',
-]  
+]
 
 class SberCloudObsAcl {
     constructor (config) {
@@ -67,7 +64,6 @@ class SberCloudObsAcl {
      * @returns {string}
      */
     generateUrl ({ filename, ttl = 300, originalFilename, mimetype }) { // obs default
-        console.log('generateUrl mimetype', mimetype)
         const isSafeInline = SAFE_INLINE_MIMETYPES.includes(mimetype)
         const extraParams = (!isSafeInline && originalFilename) ? {
             QueryParams: {
@@ -214,8 +210,6 @@ const obsRouterHandler = ({ keystone }) => {
                 return res.end()
             }
             const meta = await Acl.getMeta(req.params.file)
-
-            console.log('obsRouterHandler meta', meta)
 
             if (isEmpty(meta)) {
                 res.status(404)
