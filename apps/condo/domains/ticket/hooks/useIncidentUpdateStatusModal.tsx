@@ -8,15 +8,14 @@ import dayjs, { Dayjs } from 'dayjs'
 import isFunction from 'lodash/isFunction'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
-import { QuestionCircle } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Modal, Space, Switch, Tooltip, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { Button, Modal, Space, Switch, Typography } from '@open-condo/ui'
 
 import { useAIConfig } from '@condo/domains/ai/hooks/useAIFlow'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { LabeledField } from '@condo/domains/common/components/LabeledField'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
@@ -170,35 +169,29 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                                     : ToActualStatusTitle
                             }
                             footer={(
-                                <Space size={8} direction='horizontal'>
+                                <Space size={16} direction='horizontal'>
                                     {
                                         (aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems && isActual) && (
-                                            <label
+                                            <LabeledField
                                                 key='generateNews'
+                                                hint={GenerateNewsSwitchHint}
                                             >
-                                                <Space size={4}>
-                                                    <Space size={8}>
-                                                        <Form.Item
-                                                            initialValue={true}
-                                                            valuePropName='checked'
-                                                            name='generateNews'
-                                                        >
-                                                            <Switch
-                                                                size='small'
-                                                                id='generateNews'
-                                                            />
-                                                        </Form.Item>
-                                                        <Typography.Text>
-                                                            {GenerateNewsSwitchLabel}
-                                                        </Typography.Text>
-                                                    </Space>
-                                                    <Tooltip title={GenerateNewsSwitchHint}>
-                                                        <div style={{ display: 'flex' }}>
-                                                            <QuestionCircle color={colors.gray[7]} size='small' />
-                                                        </div>
-                                                    </Tooltip>
+                                                <Space size={8}>
+                                                    <Form.Item
+                                                        initialValue={true}
+                                                        valuePropName='checked'
+                                                        name='generateNews'
+                                                    >
+                                                        <Switch
+                                                            size='small'
+                                                            id='generateNews'
+                                                        />
+                                                    </Form.Item>
+                                                    <Typography.Text>
+                                                        {GenerateNewsSwitchLabel}
+                                                    </Typography.Text>
                                                 </Space>
-                                            </label>
+                                            </LabeledField>
                                         )
                                     }
                                     <Button
