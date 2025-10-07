@@ -104,8 +104,8 @@ export const FORM_LAYOUT_PROPS: FormLayoutProps = {
 }
 
 export const FORM_ITEM_WRAPPER_COL: ColProps = {
-    lg: 8,
-    xl: 7,
+    lg: 14,
+    xl: 14,
 }
 
 type OptionType = Required<Pick<DefaultOptionType, 'label' | 'value'>>
@@ -412,6 +412,7 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
         <Form.Item
             label={TextForResidentLabel}
             shouldUpdate
+            wrapperCol={FORM_ITEM_WRAPPER_COL}
         >
             {
                 ({ getFieldValue }) => {
@@ -722,6 +723,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         required: true,
         name: 'properties',
         validateFirst: true,
+        wrapperCol: FORM_ITEM_WRAPPER_COL,
     }), [PropertiesLabel])
 
     const initialFormValues = useMemo(() => ({
@@ -777,21 +779,24 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                 </Typography.Paragraph>
                             </Prompt>
                             <Row gutter={VERTICAL_GUTTER}>
-                                { showNotActualWorkFinishAlert && (
-                                    <Col span={24} lg={20} xl={16}>
-                                        <Alert
-                                            type='warning'
-                                            message={NotActualWorkFinishAlertTitle}
-                                            description={NotActualWorkFinishAlertMessage}
-                                            showIcon
-                                        />
-                                    </Col>
-                                )}
+                                {
+                                    showNotActualWorkFinishAlert && (
+                                        <Col span={24} lg={20}>
+                                            <Alert
+                                                type='warning'
+                                                message={NotActualWorkFinishAlertTitle}
+                                                description={NotActualWorkFinishAlertMessage}
+                                                showIcon
+                                            />
+                                        </Col>
+                                    )
+                                }
                                 {
                                     showOrganization && initialIncidentOrganization && (
                                         <Col span={24}>
                                             <Form.Item
                                                 label={OrganizationLabel}
+                                                wrapperCol={FORM_ITEM_WRAPPER_COL}
                                             >
                                                 {initialIncidentOrganization}
                                             </Form.Item>
@@ -867,6 +872,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                         name='details'
                                         required
                                         rules={detailsRules}
+                                        wrapperCol={FORM_ITEM_WRAPPER_COL}
                                     >
                                         <Input.TextArea
                                             placeholder={DetailsPlaceholderMessage}
