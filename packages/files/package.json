@@ -1,0 +1,31 @@
+{
+  "name": "@open-condo/files",
+  "version": "0.0.0-development",
+  "author": {
+    "name": "Ivan Sitnikov",
+    "email": "isitnikov@doma.ai",
+    "url": "https://github.com/sitozzz"
+  },
+  "license": "MIT",
+  "exports": {
+    "./schema": "./schema/index.js",
+    "./schema/models": "./schema/models/index.js",
+    "./schema/utils/serverSchema": "./schema/utils/serverSchema.js",
+    "./fileMiddleware": "./fileMiddleware.js",
+    "./fileMiddleware.test": "./fileMiddleware.test.js",
+    "./utils": "./utils.js",
+    "./utils.test": "./utils.test.js"
+  },
+  "dependencies": {
+    "@open-condo/config": "workspace:^",
+    "@open-condo/miniapp-utils": "workspace:^",
+    "express": "^4.21.2",
+    "formidable": "^3.5.4",
+    "jsonwebtoken": "^9.0.0",
+    "zod": "^4.0.8"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "form-data": "^4.0.4"
+  }
+}

@@ -3,8 +3,10 @@ const path = require('path')
 const { getItem, getItems } = require('@open-keystone/server-side-graphql-client')
 const AWS = require('aws-sdk')
 const express = require('express')
+const jwt = require('jsonwebtoken')
 const { get, isEmpty, isString, isNil } = require('lodash')
 
+const conf = require('@open-condo/config')
 const { SERVER_URL, AWS_CONFIG } = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
@@ -51,7 +53,7 @@ class AwsS3Acl {
             return false
         }
     }
-    
+
     generateUrl ({ filename, ttl = 300, originalFilename }) {
         const params = {
             Bucket: this.bucket,
@@ -118,18 +120,38 @@ class AwsFileAdapter {
         return `${id}${path.extname(originalFilename).replace(forbiddenCharacters, '')}`
     }
 
-    publicUrl ({ filename, originalFilename }) {
+    publicUrl ({ filename, originalFilename, ...props }, user) {
+        let folder = this.folder
+        let sign
+        if ('meta' in props && props['meta']['appId']) {
+            folder = props['meta']['appId']
+            if (!conf['FILE_SECRET']) {
+                throw new Error('FILE_SECRET is not configured')
+            }
+            sign = jwt.sign({ id: props.id, filename, appId: props.meta.appId, user }, conf['FILE_SECRET'], { expiresIn: '1m', algorithm: 'HS256' })
+        }
+
         if (this.shouldResolveDirectUrl) {
             return this.acl.generateUrl({
-                filename: `${this.folder}/${filename}`,
+                filename: `${folder}/${filename}`,
                 ttl: PUBLIC_URL_TTL,
                 originalFilename,
             })
         }
-        const qs = isNil(originalFilename) || NO_SET_CONTENT_DISPOSITION_FOLDERS.includes(this.folder)
-            ? ''
-            : `?original_filename=${encodeURIComponent(originalFilename)}`
-        return `${SERVER_URL}/api/files/${this.folder}/${filename}${qs}`
+        let qs = ''
+
+        const searchParams = new URLSearchParams({
+        // propagate original filename for an indirect url
+            ...((isNil(originalFilename) || NO_SET_CONTENT_DISPOSITION_FOLDERS.includes(folder))
+          && { original_filename: encodeURIComponent(originalFilename) }),
+            ...(sign && { sign }),
+        }).toString()
+
+        if (searchParams) {
+            qs = `?${searchParams}`
+        }
+
+        return `${SERVER_URL}/api/files/${folder}/${filename}${qs}`
     }
 
     uploadParams ({ meta = {} }) {
@@ -140,6 +162,8 @@ class AwsFileAdapter {
 const awsRouterHandler = ({ keystone }) => {
     const s3Config = AWS_CONFIG ? JSON.parse(AWS_CONFIG) : {}
     const acl = new AwsS3Acl(s3Config)
+
+    const appClients = conf['FILE_APP_CLIENTS'] ? JSON.parse(conf['FILE_APP_CLIENTS']) : {}
 
     return async function (req, res, next) {
         if (!req.user) {
@@ -152,73 +176,106 @@ const awsRouterHandler = ({ keystone }) => {
                 res.status(404).end()
                 return
             }
-            const {
-                id: itemId,
-                ids: stringItemIds,
-                listkey: listKey,
-                propertyquery: encodedPropertyQuery,
-                propertyvalue: encodedPropertyValue,
-            } = meta
-            const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
-            const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
 
-            if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
-                res.status(404).end()
-                return
-            }
+            const hasSign = typeof req.query?.sign === 'string' && req.query.sign.length > 0
 
-            const context = await keystone.createContext({ authentication: { item: req.user, listKey: 'User' } })
-            let hasAccessToReadFile
+            if (!hasSign) {
+                const {
+                    id: itemId,
+                    ids: stringItemIds,
+                    listkey: listKey,
+                    propertyquery: encodedPropertyQuery,
+                    propertyvalue: encodedPropertyValue,
+                } = meta
+                const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
+                const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
 
-            if (!isEmpty(stringItemIds) && isString(stringItemIds)) {
-                const itemIds = stringItemIds.split(',').filter(id => UUID_REGEXP.test(id))
-                const items = await getItems({
-                    keystone,
-                    listKey,
-                    itemId,
-                    context,
-                    where: { id_in: itemIds, deletedAt: null },
-                })
-                hasAccessToReadFile = items.length > 0
-            }
-
-            if (itemId && !hasAccessToReadFile) {
-                let returnFields = 'id'
-                if (isString(propertyQuery)) {
-                    returnFields += `, ${propertyQuery}`
+                if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
+                    res.status(404).end()
+                    return
                 }
-                const item = await getItem({
-                    keystone,
-                    listKey,
-                    itemId,
-                    context,
-                    returnFields,
-                })
-                hasAccessToReadFile = !isNil(item)
-                if (hasAccessToReadFile && isString(propertyQuery) && !isNil(propertyValue)) {
-                    const propertyPath = propertyQuery
-                        .replaceAll('}', '')
-                        .split('{')
-                        .map(path => path.trim())
-                        .join('.')
-                    hasAccessToReadFile = get(item, propertyPath) == propertyValue
+
+                const context = await keystone.createContext({ authentication: { item: req.user, listKey: 'User' } })
+                let hasAccessToReadFile
+
+                if (!isEmpty(stringItemIds) && isString(stringItemIds)) {
+                    const itemIds = stringItemIds.split(',').filter(id => UUID_REGEXP.test(id))
+                    const items = await getItems({
+                        keystone,
+                        listKey,
+                        itemId,
+                        context,
+                        where: { id_in: itemIds, deletedAt: null },
+                    })
+                    hasAccessToReadFile = items.length > 0
                 }
-            }
 
-            if (!hasAccessToReadFile) {
-                res.status(403).end()
-                return
-            }
-            const url = acl.generateUrl({
-                filename: req.params.file,
-                originalFilename: req.query.original_filename,
-            })
-            if (req.get('shallow-redirect')) {
-                res.status(200).json({ redirectUrl: url })
-                return
-            }
+                if (itemId && !hasAccessToReadFile) {
+                    let returnFields = 'id'
+                    if (isString(propertyQuery)) {
+                        returnFields += `, ${propertyQuery}`
+                    }
+                    const item = await getItem({
+                        keystone,
+                        listKey,
+                        itemId,
+                        context,
+                        returnFields,
+                    })
+                    hasAccessToReadFile = !isNil(item)
+                    if (hasAccessToReadFile && isString(propertyQuery) && !isNil(propertyValue)) {
+                        const propertyPath = propertyQuery
+                            .replaceAll('}', '')
+                            .split('{')
+                            .map(path => path.trim())
+                            .join('.')
+                        hasAccessToReadFile = get(item, propertyPath) == propertyValue
+                    }
+                }
 
-            return res.redirect(url)
+                if (!hasAccessToReadFile) {
+                    res.status(403).end()
+                    return
+                }
+                const url = acl.generateUrl({
+                    filename: req.params.file,
+                    originalFilename: req.query.original_filename,
+                })
+                if (req.get('shallow-redirect')) {
+                    res.status(200).json({ redirectUrl: url })
+                    return
+                }
+
+                return res.redirect(url)
+            } else {
+                const pathArgs = req.path.split('/')
+                const appId = pathArgs[pathArgs.length - 2]
+                const { sign } = req.query
+
+                if (!(appId in appClients)) {
+                    res.status(404)
+                    return res.end()
+                }
+
+                try {
+                    jwt.verify(sign, appClients[appId].secret, { algorithms: ['HS256'] })
+                } catch (e) {
+                    res.status(410)
+                    return res.end()
+                }
+
+                const url = this.acl.generateUrl({
+                    filename: req.params.file,
+                    originalFilename: req.query.original_filename,
+                })
+
+                if (req.get('shallow-redirect')) {
+                    res.status(200)
+                    return res.json({ redirectUrl: url })
+                }
+
+                return res.redirect(url)
+            }
         } catch (err) {
             logger.error({ msg: 's3 route handler error', err })
             res.status(500)
