@@ -17,7 +17,7 @@ import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
 export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['ActionBar']>> = (props) => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'incident.form.save.label' })
+    const CreateLabel = intl.formatMessage({ id: 'incident.form.create.label' })
     const GenerateNewsLabel = intl.formatMessage({ id: 'incident.generateNews.switch.label' })
     const GenerateNewsHint = intl.formatMessage({ id: 'incident.generateNews.switch.hint' })
 
@@ -34,7 +34,7 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
                 <Button
                     key='submit'
                     type='primary'
-                    children={SaveLabel}
+                    children={CreateLabel}
                     onClick={handleSave}
                     disabled={isLoading}
                     loading={isLoading}
