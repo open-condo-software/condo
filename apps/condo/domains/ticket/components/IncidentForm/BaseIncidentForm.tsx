@@ -781,7 +781,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                             <Row gutter={VERTICAL_GUTTER}>
                                 {
                                     showNotActualWorkFinishAlert && (
-                                        <Col span={24} lg={20} xl={16}>
+                                        <Col span={24} lg={20}>
                                             <Alert
                                                 type='warning'
                                                 message={NotActualWorkFinishAlertTitle}
