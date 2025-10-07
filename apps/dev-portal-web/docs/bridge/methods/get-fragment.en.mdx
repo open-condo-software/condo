@@ -1,5 +1,14 @@
-This method allows a miniapp to retrieve the URL fragment (part after #) from the parent application's URL. 
-This is particularly useful for handling deeplinks and initial navigation states when a miniapp is opened via a URL with a fragment.
+Sometimes a miniapp can receive additional context as an arbitrary string.
+For example, when opening a miniapp from a push notification using `sendB2BAppPushMessage` with `appInitialContext`.
+
+This context string can contain information about:
+- The starting page of the miniapp
+- The source of the launch (notification, email, etc.)
+- Additional parameters
+- Any other useful information
+
+This context is stored as a URL fragment (hash) in the parent window. The miniapp can retrieve it using the `CondoWebAppGetFragment` method.
+For example, when a miniapp is opened with a URL like `https://condo.d.doma.ai/miniapps/your-app-id#next=/ticket/123`, the part after `#` is the fragment (`next=/ticket/123`).
 
 ## Platforms
 - B2B-Web
@@ -19,15 +28,6 @@ If successful, you will receive a JSON object of the following type:
     }
     ```
 </Tabs>
-
-## How it works
-
-When a miniapp is opened with a URL that contains a fragment (e.g., `https://condo.d.doma.ai/miniapps/your-app-id#next=/ticket/123`), this method allows you to access the fragment part (`next=/ticket/123`).
-
-### Common use cases:
-- Deeplinks to specific screens within a miniapp
-- Passing initial navigation state or parameters
-- Preserving app state across page reloads
 
 ## Usage example
 
@@ -61,13 +61,8 @@ export default function App ({ Component, pageProps }: AppProps): React.ReactNod
 }
 ```
 
-## Notes
+## Important
 
+- Always validate the fragment content before using it - make sure it matches your expectations
 - The fragment is automatically URL-decoded when retrieved
 - If there is no fragment in the URL, an empty string is returned
-- The fragment is preserved when the miniapp is reloaded
-
-## Security considerations
-
-- Always validate and sanitize the fragment content before using it
-- Be cautious when using the fragment for navigation to prevent open redirect vulnerabilities
