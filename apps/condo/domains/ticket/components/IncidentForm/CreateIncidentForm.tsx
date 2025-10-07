@@ -3,21 +3,20 @@ import { Form } from 'antd'
 import Router from 'next/router'
 import React, { ComponentProps, useCallback, useMemo } from 'react'
 
-import { QuestionCircle } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Space, Switch, Tooltip, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { ActionBar, Button, Space, Switch, Typography } from '@open-condo/ui'
 
 import { useAIConfig } from '@condo/domains/ai/hooks/useAIFlow'
+import { LabeledField } from '@condo/domains/common/components/LabeledField'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
 
 export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['ActionBar']>> = (props) => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'incident.form.save.label' })
+    const CreateLabel = intl.formatMessage({ id: 'incident.form.create.label' })
     const GenerateNewsLabel = intl.formatMessage({ id: 'incident.generateNews.switch.label' })
     const GenerateNewsHint = intl.formatMessage({ id: 'incident.generateNews.switch.hint' })
 
@@ -34,41 +33,33 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
                 <Button
                     key='submit'
                     type='primary'
-                    children={SaveLabel}
+                    children={CreateLabel}
                     onClick={handleSave}
                     disabled={isLoading}
                     loading={isLoading}
                 />,
                 ...((aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems)
                     ? [
-                        <label
+                        <LabeledField
                             key='generateNews'
+                            hint={GenerateNewsHint}
                         >
-                            <Space size={4}>
-                                <Space size={8}>
-                                    <Form.Item
-                                        name='generateNews'
-                                        valuePropName='checked'
-                                        initialValue={true}
-                                    >
-                                        <Switch
-                                            id='generateNews'
-                                            size='small'
-                                        />
-                                    </Form.Item>
-                                    <Typography.Text>
-                                        {GenerateNewsLabel}
-                                    </Typography.Text>
-                                </Space>
-                                <Tooltip
-                                    title={GenerateNewsHint}
+                            <Space size={8}>
+                                <Form.Item
+                                    name='generateNews'
+                                    valuePropName='checked'
+                                    initialValue={true}
                                 >
-                                    <div style={{ display: 'flex' }}>
-                                        <QuestionCircle size='small' color={colors.gray[7]}/>
-                                    </div>
-                                </Tooltip>
+                                    <Switch
+                                        id='generateNews'
+                                        size='small'
+                                    />
+                                </Form.Item>
+                                <Typography.Text>
+                                    {GenerateNewsLabel}
+                                </Typography.Text>
                             </Space>
-                        </label>,
+                        </LabeledField>,
                     ] 
                     : []
                 ),
