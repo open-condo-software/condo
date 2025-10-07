@@ -791,15 +791,18 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                         </Col>
                                     )
                                 }
-                                <Col span={24}>
-                                    <Form.Item
-                                        label={OrganizationLabel}
-                                        wrapperCol={FORM_ITEM_WRAPPER_COL}
-                                    >
-                                                akj dhaks dklasj dkljaskdl aksld jklas jdklasj dlkaj dlkasjkl dajsl djlas
-                                        {initialIncidentOrganization}
-                                    </Form.Item>
-                                </Col>
+                                {
+                                    showOrganization && initialIncidentOrganization && (
+                                        <Col span={24}>
+                                            <Form.Item
+                                                label={OrganizationLabel}
+                                                wrapperCol={FORM_ITEM_WRAPPER_COL}
+                                            >
+                                                {initialIncidentOrganization}
+                                            </Form.Item>
+                                        </Col>
+                                    )
+                                }
                                 <Col span={24}>
                                     <GraphQlSearchInputWithCheckAll
                                         checkAllFieldName='hasAllProperties'
