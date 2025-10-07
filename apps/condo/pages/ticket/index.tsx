@@ -1120,14 +1120,12 @@ const TicketsPage: PageComponentType = () => {
                                         <Space size={20} direction={breakpoints.TABLET_SMALL ? 'horizontal' : 'vertical'}>
                                             {
                                                 isCallRecordsExists && (
-                                                    <Link href='/callRecord'>
-                                                        <Typography.Link component={Link} size='large'>
-                                                            <Space size={8}>
-                                                                <Phone size='medium'/>
-                                                                {CallRecordsLogMessage}
-                                                            </Space>
-                                                        </Typography.Link>
-                                                    </Link>
+                                                    <Typography.Link component={Link} href='/callRecord' size='large'>
+                                                        <Space size={8}>
+                                                            <Phone size='medium'/>
+                                                            {CallRecordsLogMessage}
+                                                        </Space>
+                                                    </Typography.Link>
                                                 )
                                             }
                                             {
