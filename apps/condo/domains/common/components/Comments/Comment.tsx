@@ -46,12 +46,15 @@ const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
         const mimetype = get(file, 'mimetype')
         const url = get(file, 'publicUrl')
         const TextWrapComponent = mimetype.startsWith('image') ? Typography.Paragraph : Typography.Link
-        const extraProps = { href: url }
 
         return (
             <TextWrapComponent
                 key={index}
-                {...extraProps}
+                onClick={() => {
+                    if (!mimetype.startsWith('image')) {
+                        window.open(url, '_blank')
+                    }
+                }}
             >
                 <div className={styles.textWrapComponent}>
                     {getFilePreviewByMimetype(mimetype, url)}

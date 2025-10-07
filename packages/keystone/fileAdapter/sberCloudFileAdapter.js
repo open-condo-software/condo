@@ -12,8 +12,11 @@ const { UUID_REGEXP } = require('./constants')
 
 const logger = getLogger('cloud-ru-file-adapter')
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
-const NO_SET_CONTENT_DISPOSITION_FOLDERS = ['marketitemfile'] // files to be opened in a new window by clicking on a link
 
+const SAFE_INLINE_MIMETYPES = [
+    'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/bmp', 'image/x-icon',
+    'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
+]
 
 class SberCloudObsAcl {
     constructor (config) {
@@ -32,7 +35,10 @@ class SberCloudObsAcl {
             Key: filename,
         })
         if (result.CommonMsg.Status < 300) {
-            return result.InterfaceResult.Metadata
+            return {
+                ...(result?.InterfaceResult?.Metadata || {}),
+                mimetype: result?.InterfaceResult?.ContentType,
+            }
         } else {
             return {}
         }
@@ -54,12 +60,17 @@ class SberCloudObsAcl {
      * @param {string} filename should starts from the folder if exists (`${adapter.folder}/${filename}`)
      * @param {number} ttl
      * @param {string} originalFilename filename going to be appeared for end user
+     * @param {string} mimetype file mimetype
      * @returns {string}
      */
-    generateUrl ({ filename, ttl = 300, originalFilename }) { // obs default
-        const extraParams = isNil(originalFilename) ? {} : {
-            QueryParams: { 'response-content-disposition': `attachment; filename="${encodeURIComponent(originalFilename)}"` },
-        }
+    generateUrl ({ filename, ttl = 300, originalFilename, mimetype }) { // obs default
+        const isSafeInline = SAFE_INLINE_MIMETYPES.includes(mimetype)
+        const extraParams = (!isSafeInline && originalFilename) ? {
+            QueryParams: {
+                'response-content-disposition': `attachment; filename="${encodeURIComponent(originalFilename)}"`,
+            },
+        } : {}
+    
         const { SignedUrl } = this.s3.createSignedUrlSync({
             Method: 'GET',
             Bucket: this.bucket,
@@ -170,8 +181,7 @@ class SberCloudFileAdapter {
         }
 
         // propagate original filename for an indirect url
-        const qs = isNil(originalFilename) || NO_SET_CONTENT_DISPOSITION_FOLDERS.includes(this.folder) ?
-            '' : `?original_filename=${encodeURIComponent(originalFilename)}`
+        const qs = isNil(originalFilename) ? '' : `?original_filename=${encodeURIComponent(originalFilename)}`
         return `${SERVER_URL}/api/files/${this.folder}/${filename}${qs}`
     }
 
@@ -211,6 +221,7 @@ const obsRouterHandler = ({ keystone }) => {
                 listkey: listKey,
                 propertyquery: encodedPropertyQuery,
                 propertyvalue: encodedPropertyValue,
+                mimetype,
             } = meta
             const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
             const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
@@ -275,6 +286,7 @@ const obsRouterHandler = ({ keystone }) => {
             const url = Acl.generateUrl({
                 filename: req.params.file,
                 originalFilename: req.query.original_filename,
+                mimetype,
             })
 
             /*
