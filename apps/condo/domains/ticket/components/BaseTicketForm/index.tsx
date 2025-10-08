@@ -33,11 +33,12 @@ import {
     Space,
     Tooltip,
     Checkbox,
+    Input,
 } from '@open-condo/ui'
 
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
-import Input from '@condo/domains/common/components/antd/Input'
+// import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import {
     FormWithAction,
@@ -417,7 +418,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
         predictTicketClassifier,
     } = useTicketThreeLevelsClassifierHook({ initialValues, afterUpdateRuleId })
 
-    const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, MAX_DETAILS_LENGTH)
+    // const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, MAX_DETAILS_LENGTH)
     const handleInputBlur = useCallback(e => predictTicketClassifier(e.target.value), [predictTicketClassifier])
 
     const createdAt = get(initialValues, 'createdAt', null)
@@ -462,15 +463,15 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                             <Row>
                                 <Col span={24}>
                                     <TicketFormItem name='details' rules={validations.details}>
-                                        <InputWithCounter
+                                        <Input.TextArea
                                             onBlur={handleInputBlur}
                                             placeholder={DescriptionPlaceholder}
-                                            style={INPUT_WITH_COUNTER_STYLE}
+                                            // style={INPUT_WITH_COUNTER_STYLE}
                                             data-cy='ticket__description-input'
                                             autoSize={{ minRows: 4 }}
+                                            enableRichText
                                         />
                                     </TicketFormItem>
-                                    <Counter style={COUNTER_STYLES} />
                                 </Col>
                                 <Col span={24} style={UPLOAD_COMPONENT_WRAPPER_STYLES}>
                                     <TicketFormItem>

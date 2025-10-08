@@ -4,6 +4,9 @@ import { createEditor, Descendant, Editor, Transforms, Element as SlateElement, 
 import { withHistory, HistoryEditor } from 'slate-history'
 import { Slate, Editable, withReact, ReactEditor, useSlateStatic, RenderElementProps, RenderLeafProps } from 'slate-react'
 
+import { CheckSquare, List } from '@open-condo/icons'
+
+import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
 
 export interface RichTextAreaProps {
@@ -19,6 +22,7 @@ export interface RichTextAreaProps {
 export interface RichTextAreaRef {
     focus: () => void
     blur: () => void
+    editor?: BaseEditor & ReactEditor & HistoryEditor
 }
 
 type CustomElement = 
@@ -122,7 +126,7 @@ const withMarkdownShortcuts = (editor: CustomEditor) => {
     return editor
 }
 
-const serializeToString = (nodes: Descendant[]): string => {
+const serializeToMarkdown = (nodes: Descendant[]): string => {
     return nodes
         .map(node => {
             if (SlateElement.isElement(node)) {
@@ -150,7 +154,7 @@ const serializeToString = (nodes: Descendant[]): string => {
         .join('\n')
 }
 
-const deserializeFromString = (text: string): Descendant[] => {
+const deserializeFromMarkdown = (text: string): Descendant[] => {
     if (!text) {
         return [{ type: 'paragraph', children: [{ text: '' }] }]
     }
@@ -192,12 +196,11 @@ const RichTextArea = forwardRef<RichTextAreaRef, RichTextAreaProps>((props, ref)
     } = props
 
     const editor = useMemo(() => withMarkdownShortcuts(withHistory(withReact(createEditor()))), [])
-    const [slateValue, setSlateValue] = useState<Descendant[]>(() => deserializeFromString(value))
+    const [slateValue, setSlateValue] = useState<Descendant[]>(() => deserializeFromMarkdown(value))
 
     useImperativeHandle(ref, () => ({
         focus: () => {
             try {
-                // @ts-expect-error - ReactEditor types issue
                 ReactEditor.focus(editor)
             } catch (e) {
                 // Editor might not be mounted yet
@@ -205,18 +208,18 @@ const RichTextArea = forwardRef<RichTextAreaRef, RichTextAreaProps>((props, ref)
         },
         blur: () => {
             try {
-                // @ts-expect-error - ReactEditor types issue
                 ReactEditor.blur(editor)
             } catch (e) {
                 // Editor might not be mounted yet
             }
         },
+        editor,
     }))
 
     const handleChange = useCallback((newValue: Descendant[]) => {
         setSlateValue(newValue)
         if (onChange) {
-            const stringValue = serializeToString(newValue)
+            const stringValue = serializeToMarkdown(newValue)
             onChange(stringValue)
         }
     }, [onChange])
@@ -261,7 +264,6 @@ const CheckboxElement = ({ attributes, children, element }: RenderElementProps) 
     const checked = (element as Extract<CustomElement, { type: 'checkbox-item' }>).checked
 
     const handleCheckboxChange = (checked: boolean) => {
-        // @ts-expect-error - ReactEditor types issue
         const path = ReactEditor.findPath(editor, element)
         Transforms.setNodes(
             editor,
@@ -310,5 +312,57 @@ const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
 }
 
 RichTextArea.displayName = 'RichTextArea'
+
+// Helper functions to create toolbar buttons for use in bottomPanelUtils
+export const createCheckboxButton = (editor: BaseEditor & ReactEditor & HistoryEditor, disabled?: boolean) => {
+    const insertCheckbox = () => {
+        const checkbox: CustomElement = {
+            type: 'checkbox-item',
+            checked: false,
+            children: [{ text: '' }],
+        }
+        Transforms.insertNodes(editor, checkbox)
+        Transforms.move(editor)
+    }
+
+    return (
+        <Button
+            minimal
+            compact
+            key='checkbox'
+            type='secondary'
+            size='medium'
+            icon={<CheckSquare size='small' />}
+            onClick={insertCheckbox}
+            disabled={disabled}
+            title='Добавить чекбокс (или введите - [ ])'
+        />
+    )
+}
+
+export const createListButton = (editor: BaseEditor & ReactEditor & HistoryEditor, disabled?: boolean) => {
+    const insertList = () => {
+        const listItem: CustomElement = {
+            type: 'list-item',
+            children: [{ text: '' }],
+        }
+        Transforms.insertNodes(editor, listItem)
+        Transforms.move(editor)
+    }
+
+    return (
+        <Button
+            minimal
+            compact
+            key='list'
+            type='secondary'
+            size='medium'
+            icon={<List size='small' />}
+            onClick={insertList}
+            disabled={disabled}
+            title='Добавить список (или введите - )'
+        />
+    )
+}
 
 export { RichTextArea }
