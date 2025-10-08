@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm'
 
 import { CodeWrapper } from './codeWrapper'
 
+import { Checkbox } from '../Checkbox'
 import { Typography } from '../Typography'
 
 const REMARK_PLUGINS: Array<any> = [
@@ -34,6 +35,17 @@ export const Markdown: React.FC<MarkdownProps> = ({ children }) => {
                 a: (props: any) => <Typography.Link {...omit(props, 'ref')} target='_blank'/>,
                 li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
                 pre: (props: any) => <CodeWrapper {...props}/>,
+                // Render checkboxes from GFM task lists
+                input: (props: any) => {
+                    if (props.type === 'checkbox') {
+                        return (
+                            <span style={{ marginRight: '8px' }}>
+                                <Checkbox checked={props.checked} disabled />
+                            </span>
+                        )
+                    }
+                    return <input {...props} />
+                },
             }}
         >
             {children}

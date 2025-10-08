@@ -5,7 +5,7 @@ import React, { forwardRef, useState, useEffect, TextareaHTMLAttributes, useRef,
 
 import { ArrowUp } from '@open-condo/icons'
 
-import { RichTextArea, RichTextAreaRef } from './richTextArea'
+import { RichTextArea, RichTextAreaRef, createCheckboxButton, createListButton } from './richTextArea'
 import './richTextArea.less'
 
 import { Button } from '../Button'
@@ -136,6 +136,16 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
 
 
     if (enableRichText) {
+        // Add rich text buttons to bottomPanelUtils
+        const editor = richTextRef.current?.editor
+        const richTextButtons = editor ? [
+            createCheckboxButton(editor, disabled),
+            createListButton(editor, disabled),
+        ] : []
+        
+        const enhancedBottomPanelUtils = [...richTextButtons, ...bottomPanelUtils]
+        const hasEnhancedUtils = enhancedBottomPanelUtils.length > 0
+
         return (
             <div className={textAreaWrapperClassName}>
                 <RichTextArea
@@ -151,9 +161,9 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
 
                 {showBottomPanel && (
                     <span className={`${TEXTAREA_CLASS_PREFIX}-bottom-panel`}>
-                        {hasBottomPanelUtils && (
+                        {hasEnhancedUtils && (
                             <span className={`${TEXTAREA_CLASS_PREFIX}-utils`}>
-                                {bottomPanelUtils.map((util, index) => (
+                                {enhancedBottomPanelUtils.map((util, index) => (
                                     <React.Fragment key={index}>
                                         {React.cloneElement(util, { disabled: util.props.disabled || disabled })}
                                     </React.Fragment>
