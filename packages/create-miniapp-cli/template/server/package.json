@@ -14,7 +14,9 @@
     "migrate": "./../../bin/kmigrator.py migrate",
     "migrate:down": "./../../bin/kmigrator.py down",
     "migrate:unlock": "./../../bin/kmigrator.py unlock",
-    "maketypes": "mkdirp dist/admin && node ./../../bin/create-graphql-schema.js && ./../../node_modules/.bin/graphql-codegen -c codegen.yaml",
+    "maketypes:condo": "node ./bin/generate-condo-schema && ./../../node_modules/.bin/graphql-codegen -c condoCodegen.yaml",
+    "maketypes:local": "mkdirp dist/admin && node ./../../bin/create-graphql-schema.js && ./../../node_modules/.bin/graphql-codegen -c codegen.yaml",
+    "maketypes": "yarn maketypes:local && yarn maketypes:condo",
     "createschema": "./../../bin/createschema",
     "createservice": "node ./../../bin/createservice",
     "worker": "cross-env PHASE=worker DISABLE_NEXT_APP=true node worker.js"
