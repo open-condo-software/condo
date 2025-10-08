@@ -45,15 +45,31 @@ const runScript = async ({
     }
 }
 
+const handleFailureWithMigrator = async (
+    failedScript: ScriptConfig,
+    fallbackScript: ScriptConfig,
+) => {
+    await runScript(fallbackScript)
+    await runScript(failedScript)
+}
+
 export const prepareApp = async ({ pkgManager, appName, projectDir }: PrepareAppProps) => {
     const SCRIPTS = {
         GLOBAL_PREPARE: {
             name: 'global-prepare',
             command: 'node',
-            args: ['../../bin/prepare.js', '--https', '-f', 'test'],
+            args: ['../../bin/prepare.js', '--https', '-f', appName],
             successMessage: 'Successfully finished global prepare.js script!',
             errorMessage: 'Global prepare.js script failed, but it is okay on the first run:',
             ignoreFailure: true,
+        },
+        LOCAL_PREPARE: {
+            name: 'local-prepare',
+            command: 'node',
+            args: ['./bin/prepare.js'],
+            cwd: projectDir,
+            successMessage: 'Successfully finished local prepare.js script!',
+            errorMessage: 'Local prepare.js script failed:',
         },
         MAKE_MIGRATIONS: {
             name: 'make-migrations',
@@ -63,6 +79,14 @@ export const prepareApp = async ({ pkgManager, appName, projectDir }: PrepareApp
             successMessage: `${pkgManager} makemigrations script finished successfully!`,
             errorMessage: `${pkgManager} makemigrations script failed:`,
         },
+        MAKE_TYPES: {
+            name: 'make-types',
+            command: pkgManager,
+            args: ['maketypes'],
+            cwd: projectDir,
+            successMessage: `${pkgManager} maketypes script finished successfully!`,
+            errorMessage: `${pkgManager} maketypes script failed:`,
+        },
         BUILD_DEPS: {
             name: 'build-deps',
             command: pkgManager,
@@ -70,6 +94,14 @@ export const prepareApp = async ({ pkgManager, appName, projectDir }: PrepareApp
             cwd: projectDir,
             successMessage: `${pkgManager} build:deps script finished successfully!`,
             errorMessage: `${pkgManager} build:deps script failed:`,
+        },
+        BUILD: {
+            name: 'build',
+            command: pkgManager,
+            args: ['build'],
+            cwd: projectDir,
+            successMessage: `${pkgManager} build script finished successfully!`,
+            errorMessage: `${pkgManager} build script failed:`,
         },
         FALLBACK_MIGRATOR: {
             name: 'fallback-migrator',
@@ -92,9 +124,14 @@ export const prepareApp = async ({ pkgManager, appName, projectDir }: PrepareApp
 
         const success = await runScript(script)
 
-        // If build-deps fails, run fallback migrator
-        if (script.name === 'build-deps' && !success) {
-            await runScript(SCRIPTS.FALLBACK_MIGRATOR)
+        const retryableScripts = [
+            SCRIPTS.BUILD_DEPS.name,
+            SCRIPTS.BUILD.name,
+            SCRIPTS.MAKE_TYPES.name,
+        ]
+
+        if (retryableScripts.includes(script.name) && !success) {
+            await handleFailureWithMigrator(script, SCRIPTS.FALLBACK_MIGRATOR)
         }
     }
 }
