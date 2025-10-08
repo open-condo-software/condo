@@ -46,14 +46,11 @@ const main = async () => {
         appType,
     })
 
-    console.log('projectDir: ', projectDir)
-
     // Write name to package.json
     const pkgJson = fs.readJSONSync(
         path.join(projectDir, 'package.json'),
     ) as PackageJson
     pkgJson.name = `@app/${scopedAppName}`
-    console.log('pkgJson: ', pkgJson)
 
 
     // ? Bun doesn't support this field (yet)
