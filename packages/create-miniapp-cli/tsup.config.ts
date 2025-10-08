@@ -7,5 +7,5 @@ export default defineConfig({
     minify: true,
     target: 'esnext',
     outDir: 'dist',
-    onSuccess: 'node dist/index.js',
+    onSuccess: 'node dist/index.js', // TODO: remove for prod
 })
