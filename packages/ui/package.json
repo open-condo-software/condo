@@ -125,11 +125,17 @@
   },
   "dependencies": {
     "@open-condo/icons": "workspace:^",
+    "@types/slate": "^0.47.16",
+    "@types/slate-react": "^0.50.1",
     "antd": "^4.24.12",
     "classnames": "^2.5.1",
     "react-markdown": "^6",
     "react-phone-input-2": "^2.15.1",
     "remark-gfm": "^1",
+    "slate": "^0.118.1",
+    "slate-dom": "^0.117.0",
+    "slate-history": "^0.113.1",
+    "slate-react": "^0.117.4",
     "zod": "^4.0.8"
   }
 }

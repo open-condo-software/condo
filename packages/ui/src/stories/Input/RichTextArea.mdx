@@ -1,0 +1,131 @@
+import { Meta, Canvas, Story, Controls } from '@storybook/blocks'
+import * as RichTextAreaStories from './RichTextArea.stories'
+
+<Meta of={RichTextAreaStories} />
+
+# RichTextArea
+
+WYSIWYG редактор с поддержкой markdown-подобного синтаксиса на базе Slate.js.
+
+## Основные возможности
+
+- ✅ **Чекбоксы**: `- [ ]` → интерактивный чекбокс
+- ✅ **Списки**: `- ` или `* ` → маркированный список
+- ✅ **Автопреобразование**: при вводе синтаксиса и нажатии пробела
+- ✅ **Обратное преобразование**: Backspace в начале строки
+- ✅ **Сохранение в markdown**: значение хранится как текст
+
+## Использование
+
+```tsx
+import { Input } from '@open-condo/ui'
+
+function MyComponent() {
+    const [value, setValue] = useState('')
+    
+    return (
+        <Input.TextArea
+            enableRichText={true}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Введите текст..."
+        />
+    )
+}
+```
+
+## Примеры
+
+### Базовый пример
+
+<Canvas of={RichTextAreaStories.Basic} />
+
+### С предзаполненным контентом
+
+<Canvas of={RichTextAreaStories.WithContent} />
+
+### С кнопкой отправки
+
+<Canvas of={RichTextAreaStories.WithSubmit} />
+
+### Список задач
+
+<Canvas of={RichTextAreaStories.TaskList} />
+
+### Комментарии с утилитами
+
+<Canvas of={RichTextAreaStories.CommentBox} />
+
+### Сравнение режимов
+
+<Canvas of={RichTextAreaStories.Comparison} />
+
+### Примеры синтаксиса
+
+<Canvas of={RichTextAreaStories.SyntaxExamples} />
+
+## Props
+
+<Controls />
+
+## Поддерживаемый синтаксис
+
+### Чекбоксы
+
+| Ввод | Результат |
+|------|-----------|
+| `- [ ]` + пробел | ☐ Невыполненная задача |
+| `- [x]` + пробел | ☑ Выполненная задача |
+
+### Списки
+
+| Ввод | Результат |
+|------|-----------|
+| `- ` + пробел | • Элемент списка |
+| `* ` + пробел | • Элемент списка |
+
+### Управление
+
+| Действие | Результат |
+|----------|-----------|
+| Backspace в начале строки | Преобразование обратно в параграф |
+| Клик по чекбоксу | Переключение состояния |
+
+## Технические детали
+
+- **Библиотека**: Slate.js v0.118+
+- **История**: Поддержка undo/redo
+- **Формат данных**: Markdown-строка
+- **Чекбоксы**: Компоненты из @open-condo/ui
+
+## Интеграция с существующим кодом
+
+RichTextArea полностью совместим с обычным TextArea. Просто добавьте `enableRichText={true}`:
+
+```tsx
+// Было
+<Input.TextArea
+    value={value}
+    onChange={onChange}
+/>
+
+// Стало
+<Input.TextArea
+    enableRichText={true}
+    value={value}
+    onChange={onChange}
+/>
+```
+
+## Когда использовать
+
+**Используйте RichTextArea когда:**
+- Нужны чекбоксы для списков задач
+- Требуется структурированный ввод
+- Пользователи знакомы с markdown
+- Нужно сохранять форматирование
+
+**Используйте обычный TextArea когда:**
+- Нужен простой текстовый ввод
+- Форматирование не требуется
+- Важна максимальная производительность

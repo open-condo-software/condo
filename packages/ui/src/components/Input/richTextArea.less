@@ -1,0 +1,102 @@
+@import '~antd/lib/style/themes/default.less';
+
+.condo-rich-textarea {
+  position: relative;
+  min-height: 100px;
+  padding: 8px 12px;
+  border: 1px solid @border-color-base;
+  border-radius: @border-radius-base;
+  background-color: @component-background;
+  transition: all 0.3s;
+
+  &:hover {
+    border-color: @primary-color;
+  }
+
+  &:focus-within {
+    border-color: @primary-color;
+    box-shadow: 0 0 0 2px fade(@primary-color, 20%);
+    outline: 0;
+  }
+
+  &-disabled {
+    background-color: @input-disabled-bg;
+    cursor: not-allowed;
+    opacity: 0.6;
+
+    .condo-rich-textarea-editable {
+      cursor: not-allowed;
+    }
+  }
+
+  &-editable {
+    min-height: 80px;
+    outline: none;
+    font-size: @font-size-base;
+    line-height: @line-height-base;
+    color: @text-color;
+
+    p {
+      margin: 0;
+      padding: 4px 0;
+    }
+  }
+
+  &-checkbox-item {
+    display: flex;
+    align-items: flex-start;
+    margin: 4px 0;
+    padding: 4px 0;
+  }
+
+  &-checkbox-wrapper {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 8px;
+    user-select: none;
+  }
+
+  &-checkbox-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &-list-item {
+    display: flex;
+    align-items: flex-start;
+    margin: 4px 0;
+    padding: 4px 0;
+  }
+
+  &-bullet {
+    display: inline-block;
+    width: 20px;
+    margin-right: 8px;
+    color: @text-color-secondary;
+    user-select: none;
+  }
+
+  &-list-content {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// Markdown-like formatting
+.condo-rich-textarea-editable {
+  strong {
+    font-weight: 600;
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  code {
+    padding: 2px 6px;
+    font-family: @code-family;
+    font-size: 85%;
+    background-color: fade(@black, 5%);
+    border-radius: 3px;
+  }
+}
