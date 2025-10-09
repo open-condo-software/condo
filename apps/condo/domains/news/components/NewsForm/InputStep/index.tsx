@@ -172,7 +172,6 @@ export const InputStep: React.FC<InputStepProps> = ({
 
     const [sharingAppFormValues, setSharingAppFormValues] = useState<SharingAppValuesType>(processedInitialValues)
 
-
     const countPropertiesAvailableToSelect = useRef(null)
 
     const isOnlyOnePropertySelected: boolean = useMemo(() => (scope.selectedPropertiesId.length === 1), [scope.selectedPropertiesId.length])
@@ -390,8 +389,6 @@ export const InputStep: React.FC<InputStepProps> = ({
                     />
                 </Col>
             )}
-        </Row>)
+        </Row>
+    )
 }
-
-
-

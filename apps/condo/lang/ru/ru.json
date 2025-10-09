@@ -1486,23 +1486,14 @@
   "news.ConfirmSendTitle": "Вы точно хотите отправить новость?",
   "news.DeprecateTitle": "Сделать неактуальной",
   "news.component.RecipientCounter.error.loading": "Не удалось загрузить количество получателей",
-  "news.component.RecipientCounter.label.properties": "{count, plural, one {дом} other {дома}}",
-  "news.component.RecipientCounter.mailing": "Рассылка",
-  "news.component.RecipientCounter.toResidentsInAllProperties": " по всем адресам",
-  "news.component.RecipientCounter.toResidentsInProperties": " по адресам: {addressList}{andMore}",
-  "news.component.RecipientCounter.toResidentsInProperties.andMore": " и ещё {count, plural, one {# адрес} few {# адреса} other {# адресов}}",
-  "news.component.RecipientCounter.toResidentsInProperty": " по адресу: {address}",
-  "news.component.RecipientCounter.toResidentsInPropertySection": " по подъезду {section} по адресу {address}",
-  "news.component.RecipientCounter.toResidentsInPropertySections": " по подъездам {sections}{andMore} по адресу {address}",
-  "news.component.RecipientCounter.toResidentsInPropertySections.andMore": " и ещё {count, plural, one {# подъезд} few {# подъезда} other {# подъездов}}",
-  "news.component.RecipientCounter.toResidentsInPropertyUnits": " по помещениям {unitNames}{andMore} по адресу {address}",
-  "news.component.RecipientCounter.toResidentsInPropertyUnits.andMore": " и ещё {count, plural, one {# помещение} few {# помещения} other {# помещений}}",
+  "news.component.RecipientCounter.label.properties": "выбрано \nдомов",
+  "news.component.RecipientCounter.statistics": "Статистика",
   "news.component.RecipientCounter.willNotReceive.hint": "В {count, plural, one {# помещении} other {# помещениях}} помещениях нет пользователей  мобильного приложения Doma. Скачайте  список, чтобы узнать, в каких помещениях есть пользователи.",
   "news.component.RecipientCounter.willNotReceive.hintZero": "В помещениях нет пользователей мобильного приложения Doma. Скачайте список, чтобы узнать, в каких помещениях есть пользователи.",
-  "news.component.RecipientCounter.willNotReceive.label": "не получат",
+  "news.component.RecipientCounter.willNotReceive.label": "не получат \nпомещений",
   "news.component.RecipientCounter.willReceive.hint": "В {count, plural, one {# помещении} other {# помещениях}} есть  пользователи мобильного  приложения Doma — они получат  новость.",
   "news.component.RecipientCounter.willReceive.hintZero": "Нет помещений, где есть пользователи мобильного приложения Doma.",
-  "news.component.RecipientCounter.willReceive.label": "получат",
+  "news.component.RecipientCounter.willReceive.label": "получат \nпомещений",
   "news.create.title": "Новая новость",
   "news.createNews": "Добавить новость",
   "news.fields.address.label": "Выберите адресатов",

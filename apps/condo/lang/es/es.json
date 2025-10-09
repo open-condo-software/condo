@@ -1486,23 +1486,14 @@
   "news.ConfirmSendTitle": "¿Seguro que quieres enviar la noticia?",
   "news.DeprecateTitle": "Hacer irrelevante",
   "news.component.RecipientCounter.error.loading": "Error al cargar los datos del contador",
-  "news.component.RecipientCounter.label.properties": "{count, plural, one {comunidad} other {comunidades}}",
-  "news.component.RecipientCounter.mailing": "Envío",
-  "news.component.RecipientCounter.toResidentsInAllProperties": " a todas las direcciones",
-  "news.component.RecipientCounter.toResidentsInProperties": " a las direcciones: {addressList}{andMore}",
-  "news.component.RecipientCounter.toResidentsInProperties.andMore": " y también {count, plural, one {# dirección} algunas {# direcciones} otras {# direcciones}}",
-  "news.component.RecipientCounter.toResidentsInProperty": " a la dirección: {address}",
-  "news.component.RecipientCounter.toResidentsInPropertySection": " por portal {section} por dirección {address}",
-  "news.component.RecipientCounter.toResidentsInPropertySections": " por portales {sections}{andMore} por dirección {address}",
-  "news.component.RecipientCounter.toResidentsInPropertySections.andMore": " y también {count, plural, one {# portal} few {# portales} other {# portales}}",
-  "news.component.RecipientCounter.toResidentsInPropertyUnits": " por unidades {unitNames}{andMore} por dirección {address}",
-  "news.component.RecipientCounter.toResidentsInPropertyUnits.andMore": " y también {count, plural, one {# unidad} few {# unidades} other {# unidades}}",
+  "news.component.RecipientCounter.label.properties": "comunidades \nseleccionadas",
+  "news.component.RecipientCounter.statistics": "Estadística",
   "news.component.RecipientCounter.willNotReceive.hint": "En {count, plural, one {# unidad} other {# unidades}} unidades no hay usuarios  de aplicación móvil Doma. Descarga  una lista para saber que unidades tienen usuarios.",
   "news.component.RecipientCounter.willNotReceive.hintZero": "No hay usuarios de la aplicación móvil Doma en las comunidades. Descarga la lista para saber qué comunidades tienen usuarios.",
-  "news.component.RecipientCounter.willNotReceive.label": "no recibirán",
+  "news.component.RecipientCounter.willNotReceive.label": "no recibirá \nlocales",
   "news.component.RecipientCounter.willReceive.hint": "En {count, plural, one {# unidad} other {# unidades}} hay  usuarios de aplicación  móvil Doma — recibirán  noticia.",
   "news.component.RecipientCounter.willReceive.hintZero": "No hay unidades que tengan usuarios de la aplicación móvil Doma.",
-  "news.component.RecipientCounter.willReceive.label": "recibirán",
+  "news.component.RecipientCounter.willReceive.label": "recibirá \nlocales",
   "news.create.title": "Nueva noticia",
   "news.createNews": "Añadir noticia",
   "news.fields.address.label": "Seleccionar destinatarios",
