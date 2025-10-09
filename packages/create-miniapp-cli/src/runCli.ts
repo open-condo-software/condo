@@ -14,6 +14,8 @@ interface CliFlags {
     importAlias: string
     appType: AppType
     eslint: boolean
+    wantReview: boolean
+    appUrl?: string
 }
 
 interface CliResults {
@@ -30,6 +32,7 @@ const defaultOptions: CliResults = {
         importAlias: '~/',
         eslint: false,
         appType: APP_TYPES.server,
+        wantReview: false,
     },
 }
 
@@ -89,13 +92,12 @@ export const runCli = async (): Promise<CliResults> => {
                     initialValue: 'server',
                 })
             },
-            // linter: () => {
-            //     return p.confirm({
-            //         message:
-            // 'Would you like to use ESLint and Prettier for linting and formatting?',
-            //         initialValue: defaultOptions.flags.eslint,
-            //     })
-            // },
+            wantReview: () => {
+                return p.confirm({
+                    message: 'We will setup helm templates for the new miniapp. Would you also like to have a review namespace?',
+                    initialValue: defaultOptions.flags.wantReview,
+                })
+            },
             ...(!cliResults.flags.noInstall && {
                 install: () => {
                     return p.confirm({
@@ -136,6 +138,7 @@ export const runCli = async (): Promise<CliResults> => {
             noInstall: !project.install || cliResults.flags.noInstall,
             importAlias: project.importAlias ?? cliResults.flags.importAlias,
             appType: project.appType ?? cliResults.flags.appType,
+            wantReview: project.wantReview ?? cliResults.flags.wantReview,
         },
     }
 }
