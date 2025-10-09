@@ -206,6 +206,9 @@ class OIDCMiddleware {
             // At this point we have request from web resident-app, so we should redirect request to it, where correct auth cookie is stored
             const userType = req?.user?.type
             if (userType !== RESIDENT) {
+                // Since this is part of cross-origin redirect,
+                // it's not handled by CORS env so we should set ACAO-header explicitly to "null"
+                res.set('Access-Control-Allow-Origin', originHeader)
                 // /api/auth/oidc/auth?client_id=...
                 return res.redirect(`${RESIDENT_APP_DOMAIN}/api/auth${req.originalUrl}`)
             }
