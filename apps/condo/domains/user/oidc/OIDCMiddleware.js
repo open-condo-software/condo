@@ -208,6 +208,8 @@ class OIDCMiddleware {
             if (userType !== RESIDENT) {
                 // Since this is part of cross-origin redirect,
                 // it's not handled by CORS env so we should set ACAO-header explicitly to "null"
+                // NOTE: originHeader value is checked to null above
+                // nosemgrep: javascript.express.security.cors-misconfiguration.cors-misconfiguration
                 res.set('Access-Control-Allow-Origin', originHeader)
                 // /api/auth/oidc/auth?client_id=...
                 return res.redirect(`${RESIDENT_APP_DOMAIN}/api/auth${req.originalUrl}`)
