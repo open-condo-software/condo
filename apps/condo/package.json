@@ -77,7 +77,7 @@
     "esdk-obs-nodejs": "3.21.6",
     "eventemitter3": "^4.0.7",
     "express": "^4.17.1",
-    "firebase-admin": "^12.4.0",
+    "firebase-admin": "^13.5.0",
     "generate-password": "^1.6.0",
     "graphql": "^16.10.0",
     "graphql-tag": "^2.12.6",
