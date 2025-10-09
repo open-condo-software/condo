@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const distPath = path.dirname(__filename)
 export const PKG_ROOT = path.join(distPath, '../')
-console.log('PKG_ROOT: ', PKG_ROOT)
+export const CONDO_ROOT = path.resolve(PKG_ROOT, '../../')
 export const DEFAULT_APP_NAME = 'my-condo-miniapp'
 
 export const APP_TYPES = {
