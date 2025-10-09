@@ -1,7 +1,6 @@
 import { AppType } from '@cli/consts.js'
 import { PackageManager } from '@cli/utils/getUserPkgManager.js'
 
-import { dynamicEslintInstaller } from './eslint.js'
 
 export const availablePackages = ['eslint'] as const
 export type AvailablePackages = (typeof availablePackages)[number]
@@ -34,12 +33,3 @@ AvailablePackages,
     installer: Installer
 }
 >
-
-export const buildPkgInstallerMap = (
-    packages: AvailablePackages[],
-): PkgInstallerMap => ({
-    eslint: {
-        inUse: packages.includes('eslint'),
-        installer: dynamicEslintInstaller,
-    },
-})
