@@ -1,5 +1,14 @@
+import path from 'path'
+
+import { CONDO_ROOT } from '@cli/consts'
+
+export const HELM_DIR = path.resolve(CONDO_ROOT, './.helm')
+export const TEMPLATES_DIR = path.join(HELM_DIR, 'templates')
+export const REVIEW_DIR = path.join(TEMPLATES_DIR, 'review')
+export const SERVICES_URLS = path.join(TEMPLATES_DIR, '000-services-urls.yaml')
+
 // @ts-nocheck
-// This entire file will now be ignored by TypeScript's type checker.
+// This entire block will now be ignored by TypeScript's type checker.
 export const HELM_TEMPLATES = {
     app: `\${REVIEW_NE_WRAPPER_START}
 ---

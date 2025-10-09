@@ -10,7 +10,7 @@ import { createProject } from './helpers/createProject.js'
 import { installDependencies } from './helpers/installDependencies.js'
 import { logNextSteps } from './helpers/logNextSteps.js'
 import { setImportAlias } from './helpers/setImportAlias.js'
-import { setupHelm } from './installers/helm/helm.js'
+import { setupHelm } from './installers/helm'
 import { buildPkgInstallerMap } from './installers/index.js'
 import { prepareApp } from './installers/prepare.js'
 import { getUserPkgManager } from './utils/getUserPkgManager.js'
@@ -79,9 +79,10 @@ const main = async () => {
         // })
     }
 
-    // run prepare and yarn scripts
+    // run prepare and yarn scripts to make app ready for development
     await prepareApp({ appName, pkgManager, projectDir })
 
+    // configure helm templates and values/secret-values
     await setupHelm({ appName, wantReview })
 
     await logNextSteps({
