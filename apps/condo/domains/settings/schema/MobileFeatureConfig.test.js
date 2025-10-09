@@ -361,6 +361,74 @@ describe('MobileFeatureConfig', () => {
                         message: 'Wrong phone number format',
                     })
             })
+
+            describe('contentConfiguration field validation', () => {
+                test('should accept valid contentConfiguration with marketplace', async () => {
+                    const [organization] = await createTestOrganization(admin)
+
+                    const [obj] = await createTestMobileFeatureConfig(admin, organization, {
+                        contentConfiguration: {
+                            marketplace: {
+                                appId: '1234-1234-1234-1234',
+                            },
+                        },
+                    })
+
+                    expect(obj.contentConfiguration).toEqual({
+                        marketplace: {
+                            appId: '1234-1234-1234-1234',
+                        },
+                    })
+                })
+
+                test('should accept empty contentConfiguration', async () => {
+                    const [organization] = await createTestOrganization(admin)
+
+                    const [obj] = await createTestMobileFeatureConfig(admin, organization, {
+                        contentConfiguration: {},
+                    })
+
+                    expect(obj.contentConfiguration).toEqual({ marketplace: null })
+                })
+
+                test('should reject contentConfiguration with invalid marketplace appId type', async () => {
+                    const [organization] = await createTestOrganization(admin)
+
+                    await expectToThrowGQLError(
+                        async () => await createTestMobileFeatureConfig(admin, organization, {
+                            contentConfiguration: {
+                                marketplace: {
+                                    appId: 12345,
+                                },
+                            },
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'CONTENT_CONFIGURATION_INVALID',
+                            message: '"contentConfiguration" field validation error. JSON was not in the correct format',
+                        }
+                    )
+                })
+
+                test('should update with valid contentConfiguration', async () => {
+                    const [organization] = await createTestOrganization(admin)
+                    const [objCreated] = await createTestMobileFeatureConfig(admin, organization)
+
+                    const [objUpdated] = await updateTestMobileFeatureConfig(admin, objCreated.id, {
+                        contentConfiguration: {
+                            marketplace: {
+                                appId: 'com.updated.app',
+                            },
+                        },
+                    })
+
+                    expect(objUpdated.contentConfiguration).toEqual({
+                        marketplace: {
+                            appId: 'com.updated.app',
+                        },
+                    })
+                })
+            })
         })
     })
 })

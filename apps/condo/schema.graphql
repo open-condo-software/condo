@@ -78656,6 +78656,7 @@ type MobileFeatureConfigHistoryRecord {
   commonPhone: String
   ticketSubmittingIsDisabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  contentConfiguration: JSON
   meta: JSON
   id: ID!
   v: Int
@@ -78701,6 +78702,10 @@ input MobileFeatureConfigHistoryRecordWhereInput {
   ticketSubmittingIsDisabled_not: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled_not: Boolean
+  contentConfiguration: JSON
+  contentConfiguration_not: JSON
+  contentConfiguration_in: [JSON]
+  contentConfiguration_not_in: [JSON]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -78817,6 +78822,7 @@ input MobileFeatureConfigHistoryRecordUpdateInput {
   commonPhone: String
   ticketSubmittingIsDisabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  contentConfiguration: JSON
   meta: JSON
   v: Int
   createdAt: String
@@ -78842,6 +78848,7 @@ input MobileFeatureConfigHistoryRecordCreateInput {
   commonPhone: String
   ticketSubmittingIsDisabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  contentConfiguration: JSON
   meta: JSON
   v: Int
   createdAt: String
@@ -78859,6 +78866,14 @@ input MobileFeatureConfigHistoryRecordCreateInput {
 
 input MobileFeatureConfigHistoryRecordsCreateInput {
   data: MobileFeatureConfigHistoryRecordCreateInput
+}
+
+type ContentConfiguration {
+  marketplace: MarketplaceContentConfigurationType
+}
+
+type MarketplaceContentConfigurationType {
+  appId: String!
 }
 
 """ Manages availability of some features in mobile application, stores data required in disabled state of a feature. 
@@ -78887,6 +78902,9 @@ type MobileFeatureConfig {
   """ Restricts residents to submit only meter readings, that are greater than previous. Restrictions apply to mobile phones only. 
   """
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+
+  """ Desired mobile app content configuration for this organization """
+  contentConfiguration: ContentConfiguration
 
   """ Can be used to store some meta information for mobile applications. """
   meta: JSON
@@ -78940,6 +78958,10 @@ input MobileFeatureConfigWhereInput {
   ticketSubmittingIsDisabled_not: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled_not: Boolean
+  contentConfiguration: JSON
+  contentConfiguration_not: JSON
+  contentConfiguration_in: [JSON]
+  contentConfiguration_not_in: [JSON]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -79038,6 +79060,7 @@ input MobileFeatureConfigUpdateInput {
   commonPhone: String
   ticketSubmittingIsDisabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  contentConfiguration: JSON
   meta: JSON
   v: Int
   createdAt: String
@@ -79060,6 +79083,7 @@ input MobileFeatureConfigCreateInput {
   commonPhone: String
   ticketSubmittingIsDisabled: Boolean
   onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  contentConfiguration: JSON
   meta: JSON
   v: Int
   createdAt: String
