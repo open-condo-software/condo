@@ -10,7 +10,7 @@ import { createProject } from './helpers/createProject.js'
 import { installDependencies } from './helpers/installDependencies.js'
 import { logNextSteps } from './helpers/logNextSteps.js'
 import { setImportAlias } from './helpers/setImportAlias.js'
-import { setupHelm } from './installers/helm.js'
+import { setupHelm } from './installers/helm/helm.js'
 import { buildPkgInstallerMap } from './installers/index.js'
 import { prepareApp } from './installers/prepare.js'
 import { getUserPkgManager } from './utils/getUserPkgManager.js'
@@ -26,7 +26,7 @@ const main = async () => {
     const {
         appName,
         packages,
-        flags: { noInstall, importAlias, appType },
+        flags: { noInstall, importAlias, appType, wantReview },
     } = await runCli()
 
 
@@ -82,9 +82,7 @@ const main = async () => {
     // run prepare and yarn scripts
     await prepareApp({ appName, pkgManager, projectDir })
 
-    // TODO: take 'wantReview' flag from CLI
-    await setupHelm({ appName, wantReview: true })
-
+    await setupHelm({ appName, wantReview })
 
     await logNextSteps({
         projectName: appDir,
