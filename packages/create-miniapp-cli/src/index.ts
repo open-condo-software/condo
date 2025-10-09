@@ -2,7 +2,6 @@
 import * as path from 'path'
 
 import { runCli } from '@cli/runCli.js'
-import { execa } from 'execa'
 import fs from 'fs-extra'
 import { type PackageJson } from 'type-fest'
 
@@ -11,7 +10,6 @@ import { installDependencies } from './helpers/installDependencies.js'
 import { logNextSteps } from './helpers/logNextSteps.js'
 import { setImportAlias } from './helpers/setImportAlias.js'
 import { setupHelm } from './installers/helm'
-import { buildPkgInstallerMap } from './installers/index.js'
 import { prepareApp } from './installers/prepare.js'
 import { getUserPkgManager } from './utils/getUserPkgManager.js'
 import { logger } from './utils/logger.js'
@@ -25,15 +23,8 @@ const main = async () => {
 
     const {
         appName,
-        packages,
         flags: { noInstall, importAlias, appType, wantReview },
     } = await runCli()
-
-
-    let usePackages
-    if (packages) {
-        usePackages = buildPkgInstallerMap(packages)
-    }
 
     // e.g. dir/@mono/app returns ["@mono/app", "dir/app"]
     const [scopedAppName, appDir] = parseNameAndPath(appName)
@@ -41,7 +32,6 @@ const main = async () => {
     const projectDir = await createProject({
         projectName: appDir,
         scopedAppName,
-        packages: usePackages,
         importAlias,
         noInstall,
         appType,
@@ -53,15 +43,6 @@ const main = async () => {
     ) as PackageJson
     pkgJson.name = `@app/${scopedAppName}`
 
-
-    // ? Bun doesn't support this field (yet)
-    if (pkgManager !== 'bun') {
-        const { stdout } = await execa(pkgManager, ['-v'], {
-            cwd: projectDir,
-        })
-        pkgJson.packageManager = `${pkgManager}@${stdout.trim()}`
-    }
-
     fs.writeJSONSync(path.join(projectDir, 'package.json'), pkgJson, {
         spaces: 2,
     })
@@ -72,11 +53,6 @@ const main = async () => {
 
     if (!noInstall) {
         await installDependencies({ projectDir })
-
-        // await formatProject({
-        //     pkgManager,
-        //     projectDir,
-        // })
     }
 
     // run prepare and yarn scripts to make app ready for development
@@ -100,7 +76,7 @@ main().catch((err) => {
         logger.error(err)
     } else {
         logger.error(
-            'An unknown error has occurred. Please open an issue on github with the below:',
+            'An unknown error has occurred. Please open an issue on github with the below error:',
         )
         console.log(err)
     }
