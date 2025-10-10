@@ -80,6 +80,7 @@ jobs:
           WERF_SET_CI_NEWS_TELEGRAM_API_URL: "global.ci_news_telegram_api_url=news-telegram-api.doma.ai"
           WERF_SET_CI_BILLING_CONNECTOR_URL: "global.ci_billing_connector_url=billing-connector.doma.ai"
           WERF_SET_CI_POS_INTEGRATION_URL: "global.ci_pos_integration_url=pos-integration.doma.ai"
+          WERF_SET_CI_ACCRUALS_GATEWAY_URL: "global.ci_accruals_gateway_url=accruals-gateway.doma.ai"
           WERF_SET_CI_PROPERTY_AI_ASSISTANT_URL: "global.ci_property_ai_assistant_url=property-ai-assistant.doma.ai"
           WERF_SET_CI_NAMESPACE: "global.ci_namespace=production"
           WERF_NAMESPACE: "production"
