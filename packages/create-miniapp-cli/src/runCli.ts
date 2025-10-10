@@ -117,7 +117,7 @@ export const runCli = async (): Promise<CliResults> => {
             },
             hasReview: () => {
                 return p.confirm({
-                    message: 'We will setup helm templates for the new miniapp. Would you also like to have a review namespace?',
+                    message: 'Will you need review environment?',
                     initialValue: defaultOptions.flags.hasReview,
                 })
             },
