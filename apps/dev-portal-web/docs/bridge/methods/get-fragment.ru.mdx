@@ -1,0 +1,67 @@
+Иногда в мини-приложение может быть передан дополнительный контекст в виде произвольной строки. 
+Например, при открытии мини-приложения из уведомления, отправленного через `sendB2BAppPushMessage` с переданным `appInitialContext`.
+
+В эту строку может быть записана информация о:
+- Стартовой странице мини-приложения
+- Источнике запуска (уведомление, письмо и т.д.)
+- Дополнительных параметрах
+- Любой другой полезной информации
+
+Этот контекст хранится в виде фрагмента URL (хэша) в родительском окне. Мини-приложение может его получить, вызвав метод `CondoWebAppGetFragment`.
+Например, когда мини-приложение открывается по URL вида `https://condo.d.doma.ai/miniapps/your-app-id#next=/ticket/123`, часть после символа `#` — это фрагмент (`next=/ticket/123`).
+
+## Платформы
+
+- B2B-Web
+
+## Возвращаемое значение
+
+При успешном выполнении возвращается JSON-объект следующего типа:
+<Tabs labels={['Тип возвращаемого значения', 'Пример ответа']}>
+    ```typescript
+    type GetFragmentData = {
+        fragment: string  // Фрагмент URL без начального символа #
+    }
+    ```
+    ```json
+    {
+      "fragment": "next=/ticket/123&source=notification"
+    }
+    ```
+</Tabs>
+
+## Пример использования
+
+```typescript jsx
+import React, { useEffect, useState } from 'react'
+
+import bridge from '@open-condo/bridge'
+
+import type { AppProps } from 'next/app'
+
+export default function App ({ Component, pageProps }: AppProps): React.ReactNode {
+    const [nextPath, setNextPath] = useState('')
+
+    useEffect(() => {
+        bridge.send('CondoWebAppGetFragment').then(data => {
+            const params = new URLSearchParams(data.fragment)
+            // Например, url https://condo.d.doma.ai/miniapps/your-app-id#next=/ticket/123. 
+            // Тогда nextPath будет '/ticket/123'
+            const nextPath = params.get('next') ?? ''
+            setNextPath(nextPath)
+        }).catch((error) => {
+            console.error(error)
+        })
+    }, [])
+
+    return (
+        <Component {...pageProps} />
+    )
+}
+```
+
+## Важно
+
+- Всегда проверяйте содержимое фрагмента перед использованием — убедитесь, что оно соответствует вашим ожиданиям
+- Фрагмент автоматически декодируется при получении
+- Если в URL нет фрагмента, возвращается пустая строка

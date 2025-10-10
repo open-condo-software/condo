@@ -1,5 +1,6 @@
 {
   "get-launch-params": "CondoWebAppGetLaunchParams",
+  "get-fragment": "CondoWebAppGetFragment",
   "resize-window": "CondoWebAppResizeWindow",
   "redirect": "CondoWebAppRedirect",
   "notifications": "Notifications",

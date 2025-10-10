@@ -1,0 +1,67 @@
+Sometimes a miniapp can receive additional context as an arbitrary string.
+For example, when opening a miniapp from a push notification using `sendB2BAppPushMessage` with `appInitialContext`.
+
+This context string can contain information about:
+- The starting page of the miniapp
+- The source of the launch (notification, email, etc.)
+- Additional parameters
+- Any other useful information
+
+This context is stored as a URL fragment (hash) in the parent window. The miniapp can retrieve it using the `CondoWebAppGetFragment` method.
+For example, when a miniapp is opened with a URL like `https://condo.d.doma.ai/miniapps/your-app-id#next=/ticket/123`, the part after `#` is the fragment (`next=/ticket/123`).
+
+## Platforms
+
+- B2B-Web
+
+## Return value
+
+If successful, you will receive a JSON object of the following type:
+<Tabs labels={['Return type', 'Return example']}>
+    ```typescript
+    type GetFragmentData = {
+        fragment: string  // URL fragment without the leading #
+    }
+    ```
+    ```json
+    {
+      "fragment": "next=/ticket/123&source=notification"
+    }
+    ```
+</Tabs>
+
+## Usage example
+
+```typescript jsx
+import React, { useEffect, useState } from 'react'
+
+import bridge from '@open-condo/bridge'
+
+import type { AppProps } from 'next/app'
+
+export default function App ({ Component, pageProps }: AppProps): React.ReactNode {
+    const [nextPath, setNextPath] = useState('')
+
+    useEffect(() => {
+        bridge.send('CondoWebAppGetFragment').then(data => {
+            const params = new URLSearchParams(data.fragment)
+            // For example, url https://condo.d.doma.ai/miniapps/your-app-id#next=/ticket/123. 
+            // Then nextPath will be '/ticket/123'
+            const nextPath = params.get('next') ?? ''
+            setNextPath(nextPath)
+        }).catch((error) => {
+            console.error(error)
+        })
+    }, [])
+
+    return (
+        <Component {...pageProps} />
+    )
+}
+```
+
+## Important
+
+- Always validate the fragment content before using it - make sure it matches your expectations
+- The fragment is automatically URL-decoded when retrieved
+- If there is no fragment in the URL, an empty string is returned
