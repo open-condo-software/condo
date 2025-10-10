@@ -11,6 +11,7 @@ This context is stored as a URL fragment (hash) in the parent window. The miniap
 For example, when a miniapp is opened with a URL like `https://condo.d.doma.ai/miniapps/your-app-id#next=/ticket/123`, the part after `#` is the fragment (`next=/ticket/123`).
 
 ## Platforms
+
 - B2B-Web
 
 ## Return value
@@ -32,8 +33,6 @@ If successful, you will receive a JSON object of the following type:
 ## Usage example
 
 ```typescript jsx
-import '@/styles/globals.css'
-import { cookies } from 'next/headers'
 import React, { useEffect, useState } from 'react'
 
 import bridge from '@open-condo/bridge'
@@ -48,7 +47,7 @@ export default function App ({ Component, pageProps }: AppProps): React.ReactNod
             const params = new URLSearchParams(data.fragment)
             // For example, url https://condo.d.doma.ai/miniapps/your-app-id#next=/ticket/123. 
             // Then nextPath will be '/ticket/123'
-            const nextPath = params.get('next')
+            const nextPath = params.get('next') ?? ''
             setNextPath(nextPath)
         }).catch((error) => {
             console.error(error)

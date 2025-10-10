@@ -11,6 +11,7 @@
 Например, когда мини-приложение открывается по URL вида `https://condo.d.doma.ai/miniapps/your-app-id#next=/ticket/123`, часть после символа `#` — это фрагмент (`next=/ticket/123`).
 
 ## Платформы
+
 - B2B-Web
 
 ## Возвращаемое значение
@@ -32,8 +33,6 @@
 ## Пример использования
 
 ```typescript jsx
-import '@/styles/globals.css'
-import { cookies } from 'next/headers'
 import React, { useEffect, useState } from 'react'
 
 import bridge from '@open-condo/bridge'
@@ -48,7 +47,7 @@ export default function App ({ Component, pageProps }: AppProps): React.ReactNod
             const params = new URLSearchParams(data.fragment)
             // Например, url https://condo.d.doma.ai/miniapps/your-app-id#next=/ticket/123. 
             // Тогда nextPath будет '/ticket/123'
-            const nextPath = params.get('next')
+            const nextPath = params.get('next') ?? ''
             setNextPath(nextPath)
         }).catch((error) => {
             console.error(error)
