@@ -6,7 +6,7 @@ const { userIsAdmin, userIsAdminOrIsThisItem, userIsAdminOrIsSupport, userIsThis
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const access = require('@pos-integration/domains/user/access/User')
+const access = require('~/domains/user/access/User')
 
 const User = new GQLListSchema('User', {
     labelField: 'id',
