@@ -21,9 +21,9 @@ const utilButtons = [
     <DemoButton icon={<Copy size='small'/>} key='copy' />,
 ]
 
-const meta: Meta<typeof Component.RichTextArea> = {
-    title: 'Components/Input/RichTextArea',
-    component: Component.RichTextArea,
+const meta: Meta<typeof Component.TextArea> = {
+    title: 'Components/Input/TextArea',
+    component: Component.TextArea,
     args: {
         placeholder: 'Попробуйте ввести: - [ ] для чекбокса или - для списка',
         bottomPanelUtils: utilButtons,
@@ -43,16 +43,17 @@ const meta: Meta<typeof Component.RichTextArea> = {
 
 export default meta
 
-type Story = StoryObj<typeof Component.RichTextArea>
+type Story = StoryObj<typeof Component.TextArea>
 
-// Базовый пример
+// Базовый пример plainText
 const BasicComponent = (args: typeof meta.args) => {
     const [value, setValue] = useState('')
     return (
-        <Component.RichTextArea
+        <Component.TextArea
             {...args}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+            mode='plainText'
         />
     )
 }
@@ -61,16 +62,17 @@ export const Basic: Story = {
     render: BasicComponent,
 }
 
-// С предзаполненным контентом
+// С markdown mode и контентом
 const WithContentComponent = (args: typeof meta.args) => {
     const [value, setValue] = useState(
         '- [ ] Купить молоко\n- [x] Сделать зарядку\n- [ ] Написать отчет\n\n- Обычный список\n- Еще один пункт'
     )
     return (
-        <Component.RichTextArea
+        <Component.TextArea
             {...args}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+            mode='markdown'
         />
     )
 }
@@ -79,7 +81,7 @@ export const WithContent: Story = {
     render: WithContentComponent,
 }
 
-// С кнопкой отправки
+// С кнопкой отправки и markdown
 const WithSubmitComponent = (args: typeof meta.args) => {
     const [value, setValue] = useState('')
     const handleSubmit = (val: string) => {
@@ -87,12 +89,13 @@ const WithSubmitComponent = (args: typeof meta.args) => {
         setValue('')
     }
     return (
-        <Component.RichTextArea
+        <Component.TextArea
             {...args}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
             onSubmit={handleSubmit}
             isSubmitDisabled={!value.trim()}
+            mode='markdown'
         />
     )
 }
@@ -101,7 +104,7 @@ export const WithSubmit: Story = {
     render: WithSubmitComponent,
 }
 
-// С кнопкой отправки и дополнительными утилитами
+// С markdown mode и дополнительными утилитами
 const WithUtilsComponent = (args: typeof meta.args) => {
     const [value, setValue] = useState('')
     const handleSubmit = (val: string) => {
@@ -109,13 +112,14 @@ const WithUtilsComponent = (args: typeof meta.args) => {
         setValue('')
     }
     return (
-        <Component.RichTextArea
+        <Component.TextArea
             {...args}
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
             onSubmit={handleSubmit}
             isSubmitDisabled={!value.trim()}
-            placeholder='Напишите комментарий... Кнопки чекбокса и списка добавлены автоматически'
+            placeholder='Напишите комментарий... Кнопки чекбокса и списка добавлены автоматически в markdown mode'
+            mode='markdown'
             bottomPanelUtils={[
                 <DemoButton icon={<Paperclip size='small'/>} key='attach' />,
                 <DemoButton icon={<Copy size='small'/>} key='copy' />,
