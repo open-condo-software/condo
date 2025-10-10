@@ -1,12 +1,9 @@
-# RichTextArea - WYSIWYG редактор с поддержкой Markdown
+# RichTextArea Component
 
-## Описание
+## Overview
+RichTextArea теперь доступен как `Input.RichTextArea` - это обёртка над `TextArea` с автоматическим добавлением кнопок для чекбоксов и списков.
 
-RichTextArea - это компонент текстового редактора с поддержкой WYSIWYG (What You See Is What You Get) на базе Slate.js. Он автоматически преобразует markdown-подобный синтаксис в форматированные элементы.
-
-## Использование
-
-### Базовый пример
+## Базовое использование
 
 ```tsx
 import { Input } from '@open-condo/ui'
@@ -15,135 +12,149 @@ function MyComponent() {
     const [value, setValue] = useState('')
     
     return (
-        <Input.TextArea
-            enableRichText
+        <Input.RichTextArea
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder="Введите текст..."
+            showCount={true}
+            maxLength={1000}
         />
     )
 }
 ```
 
-### В CommentForm
+## Архитектура
+
+### Три уровня компонентов:
+
+1. **RichTextArea** (базовый) - чистый Slate.js редактор
+   - Принимает стандартный `onChange` с `ChangeEvent`
+   - Не знает про кнопки и панели
+
+2. **TextArea** (обёртка) - универсальный компонент
+   - Принимает проп `component` для кастомного редактора
+   - Управляет bottom panel, счётчиком, кнопкой отправки
+   - Агностичен к типу редактора
+
+3. **Input.RichTextArea** (удобство) - готовая обёртка
+   - Автоматически добавляет кнопки чекбокса и списка
+   - Использует `TextArea` с `component={RichTextArea}`
+
+## Использование с кастомным компонентом
+
+Вы можете использовать `TextArea` с любым кастомным компонентом:
 
 ```tsx
-<Input.TextArea
-    ref={commentTextAreaRef}
-    value={commentValue}
-    onChange={(event) => setCommentValue(event.target.value)}
-    placeholder={PlaceholderMessage}
-    enableRichText={true}  // Включить WYSIWYG режим
-    isSubmitDisabled={!canSendMessage}
-    autoSize={{ minRows: 1, maxRows: 5 }}
-    disabled={isInputDisable}
-    onSubmit={()=>handelSendMessage(commentForm)}
-    bottomPanelUtils={[...]}
+import { TextArea, RichTextArea } from '@open-condo/ui'
+
+// Напрямую с RichTextArea (без автоматических кнопок)
+<TextArea
+    component={RichTextArea}
+    value={value}
+    onChange={onChange}
+/>
+
+// Или с Input.RichTextArea (с автоматическими кнопками)
+<Input.RichTextArea
+    value={value}
+    onChange={onChange}
 />
 ```
 
-## Поддерживаемый синтаксис
+## Создание кастомного редактора
 
-### Чекбоксы
+Любой компонент, соответствующий `TextAreaComponentProps`, будет работать:
 
-**Способ 1:** Нажмите кнопку с иконкой чекбокса в toolbar  
-**Способ 2:** Введите `- [ ]` и нажмите пробел
+```tsx
+import { TextAreaComponentProps } from '@open-condo/ui'
 
-- `- [ ]` → ☐ Невыполненная задача
-- `- [x]` → ☑ Выполненная задача
+const MyCustomEditor: React.FC<TextAreaComponentProps> = ({
+    value,
+    onChange,
+    placeholder,
+    disabled,
+    className,
+    autoFocus,
+    maxLength,
+}) => {
+    return (
+        <div className={className}>
+            <textarea
+                value={value}
+                onChange={onChange}
+                placeholder={placeholder}
+                disabled={disabled}
+                autoFocus={autoFocus}
+                maxLength={maxLength}
+            />
+        </div>
+    )
+}
 
-### Списки
+// Использование
+<TextArea
+    component={MyCustomEditor}
+    value={value}
+    onChange={onChange}
+    bottomPanelUtils={[...]} // Ваши кнопки
+/>
+```
 
-**Способ 1:** Нажмите кнопку с иконкой списка в toolbar  
-**Способ 2:** Введите `- ` или `* ` и нажмите пробел
+## Markdown Shortcuts
 
-- `- ` → • Элемент списка
-- `* ` → • Элемент списка
-
-### Форматирование текста (планируется)
-
-- `**текст**` → **жирный текст**
-- `*текст*` → *курсив*
-- `` `код` `` → `код`
+- `- [ ]` + Space → Невыполненная задача
+- `- [x]` + Space → Выполненная задача
+- `- ` + Space → Элемент списка
+- `* ` + Space → Элемент списка
 
 ## Props
 
-| Prop | Тип | По умолчанию | Описание |
-|------|-----|--------------|----------|
-| `enableRichText` | `boolean` | `false` | Включить WYSIWYG режим с поддержкой markdown |
-| `value` | `string` | - | Значение текста |
-| `onChange` | `(e: ChangeEvent) => void` | - | Обработчик изменения |
-| `placeholder` | `string` | - | Placeholder текст |
-| `disabled` | `boolean` | `false` | Отключить редактор |
-| `autoFocus` | `boolean` | `false` | Автофокус при монтировании |
-| `maxLength` | `number` | `1000` | Максимальная длина текста |
-| `showToolbar` | `boolean` | `true` | Показать toolbar с кнопками |
+Все пропсы от `TextArea`:
 
-## Особенности
+| Prop | Тип | Описание |
+|------|-----|----------|
+| `value` | `string` | Значение текста |
+| `onChange` | `(e: ChangeEvent) => void` | Обработчик изменения |
+| `onSubmit` | `(value: string) => void` | Обработчик отправки |
+| `placeholder` | `string` | Placeholder текст |
+| `disabled` | `boolean` | Отключить редактор |
+| `showCount` | `boolean` | Показать счётчик символов |
+| `maxLength` | `number` | Максимальная длина текста |
+| `bottomPanelUtils` | `React.ReactElement[]` | Дополнительные кнопки |
 
-1. **Toolbar с кнопками**: Быстрая вставка чекбоксов и списков одним кликом
+## Преимущества архитектуры
 
-2. **Автоматическое преобразование**: При вводе markdown-синтаксиса и нажатии пробела текст автоматически преобразуется в форматированный элемент
+1. **Разделение ответственности**: TextArea не знает про RichTextArea
+2. **Расширяемость**: Легко добавить любой кастомный редактор
+3. **Переиспользование**: TextArea работает с любым компонентом
+4. **Чистота кода**: Нет дублирования логики
 
-3. **Интерактивные чекбоксы**: Чекбоксы можно кликать для изменения состояния
+## Миграция
 
-4. **Обратное преобразование**: При нажатии Backspace в начале строки элемент преобразуется обратно в обычный параграф
-
-5. **Markdown сериализация**: Значение сохраняется в виде markdown-строки, что удобно для хранения в БД и совместимости с другими системами
-
-## Примеры использования
-
-### Простой редактор задач
-
+### Было (enableRichText):
 ```tsx
-function TaskEditor() {
-    const [tasks, setTasks] = useState('- [ ] Купить молоко\n- [x] Сделать зарядку\n- [ ] Написать отчет')
-    
-    return (
-        <Input.TextArea
-            enableRichText
-            value={tasks}
-            onChange={(e) => setTasks(e.target.value)}
-            placeholder="Добавьте задачи..."
-            autoSize={{ minRows: 3, maxRows: 10 }}
-        />
-    )
-}
+<Input.TextArea
+    enableRichText={true}
+    value={value}
+    onChange={onChange}
+/>
 ```
 
-### С кнопкой отправки
-
+### Стало:
 ```tsx
-function CommentBox() {
-    const [comment, setComment] = useState('')
-    
-    const handleSubmit = (value: string) => {
-        console.log('Отправка:', value)
-        setComment('')
-    }
-    
-    return (
-        <Input.TextArea
-            enableRichText
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            onSubmit={handleSubmit}
-            isSubmitDisabled={!comment.trim()}
-            placeholder="Напишите комментарий..."
-        />
-    )
-}
+<Input.RichTextArea
+    value={value}
+    onChange={onChange}
+/>
 ```
 
-## Технические детали
+## Формат данных
 
-- **Библиотека**: Slate.js v0.118+
-- **История**: Поддержка undo/redo через slate-history
-- **Чекбоксы**: Используются компоненты из @open-condo/ui
-- **Сериализация**: Автоматическое преобразование между Slate nodes и markdown строками
+Markdown-подобный формат:
 
-## Ограничения
-
-- Форматирование bold/italic/code пока в разработке
-- Не поддерживаются вложенные списки
-- Максимальная длина ограничена maxLength prop
+```markdown
+- [ ] Невыполненная задача
+- [x] Выполненная задача
+- Элемент списка
+Обычный параграф
+```

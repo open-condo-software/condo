@@ -1,58 +1,77 @@
-@import '~antd/lib/style/themes/default.less';
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 
 .condo-rich-textarea {
   position: relative;
-  min-height: 100px;
-  border: 1px solid @border-color-base;
-  border-radius: @border-radius-base;
-  background-color: @component-background;
-  transition: all 0.3s;
+  width: 100%;
+  height: auto;
+  padding: 0;
+  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
+  border-radius: @condo-global-border-radius-medium;
+  background-color: @condo-global-color-white;
+  box-sizing: border-box;
 
   &:hover {
-    border-color: @primary-color;
+    border-color: @condo-global-color-gray-7;
   }
 
   &:focus-within {
-    border-color: @primary-color;
-    box-shadow: 0 0 0 2px fade(@primary-color, 20%);
+    border-color: @condo-global-color-gray-7;
+    box-shadow: none;
     outline: 0;
   }
 
   &-disabled {
-    background-color: @input-disabled-bg;
+    background-color: @condo-global-color-white;
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: @condo-global-opacity-disabled;
 
     .condo-rich-textarea-editable {
       cursor: not-allowed;
     }
+
+    &:hover {
+      border-color: @condo-global-color-gray-5;
+    }
   }
   
   &-editable {
-    min-height: 80px;
-    padding: 8px 12px;
+    min-height: @condo-global-typography-text-l-line-height;
+    padding: @condo-global-spacing-12;
     outline: none;
-    font-size: @font-size-base;
-    line-height: @line-height-base;
-    color: @text-color;
+    color: @condo-global-color-black;
+    .condo-typography-text-large();
+
+    // Slate placeholder styling
+    [data-slate-placeholder] {
+      color: @condo-global-color-gray-7 !important;
+      opacity: 1 !important;
+      top: @condo-global-spacing-12 !important;
+      left: @condo-global-spacing-12 !important;
+      pointer-events: none;
+      user-select: none;
+      position: absolute;
+    }
 
     p {
       margin: 0;
-      padding: 4px 0;
+      padding: 0;
+      line-height: @condo-global-typography-text-l-line-height;
     }
   }
 
   &-checkbox-item {
     display: flex;
     align-items: flex-start;
-    margin: 4px 0;
-    padding: 4px 0;
+    margin: 0;
+    padding: 0;
+    line-height: @condo-global-typography-text-l-line-height;
   }
 
   &-checkbox-wrapper {
     display: inline-flex;
     align-items: center;
-    margin-right: 8px;
+    margin-right: @condo-global-spacing-8;
     user-select: none;
   }
 
@@ -64,15 +83,16 @@
   &-list-item {
     display: flex;
     align-items: flex-start;
-    margin: 4px 0;
-    padding: 4px 0;
+    margin: 0;
+    padding: 0;
+    line-height: @condo-global-typography-text-l-line-height;
   }
 
   &-bullet {
     display: inline-block;
     width: 20px;
-    margin-right: 8px;
-    color: @text-color-secondary;
+    margin-right: @condo-global-spacing-8;
+    color: @condo-global-color-gray-7;
     user-select: none;
   }
 

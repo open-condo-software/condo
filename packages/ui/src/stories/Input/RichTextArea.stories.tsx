@@ -21,23 +21,17 @@ const utilButtons = [
     <DemoButton icon={<Copy size='small'/>} key='copy' />,
 ]
 
-const meta: Meta<typeof Component.TextArea> = {
+const meta: Meta<typeof Component.RichTextArea> = {
     title: 'Components/Input/RichTextArea',
-    component: Component.TextArea,
+    component: Component.RichTextArea,
     args: {
-        enableRichText: true,
         placeholder: 'Попробуйте ввести: - [ ] для чекбокса или - для списка',
         bottomPanelUtils: utilButtons,
-        autoSize: { minRows: 3, maxRows: 10 },
         disabled: false,
         showCount: true,
         maxLength: 1000,
     },
     argTypes: {
-        enableRichText: {
-            control: 'boolean',
-            description: 'Включить WYSIWYG режим с поддержкой markdown',
-        },
         onSubmit: {
             control: false,
         },
@@ -49,13 +43,13 @@ const meta: Meta<typeof Component.TextArea> = {
 
 export default meta
 
-type Story = StoryObj<typeof Component.TextArea>
+type Story = StoryObj<typeof Component.RichTextArea>
 
 // Базовый пример
 const BasicComponent = (args: typeof meta.args) => {
     const [value, setValue] = useState('')
     return (
-        <Component.TextArea
+        <Component.RichTextArea
             {...args}
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -73,7 +67,7 @@ const WithContentComponent = (args: typeof meta.args) => {
         '- [ ] Купить молоко\n- [x] Сделать зарядку\n- [ ] Написать отчет\n\n- Обычный список\n- Еще один пункт'
     )
     return (
-        <Component.TextArea
+        <Component.RichTextArea
             {...args}
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -93,7 +87,7 @@ const WithSubmitComponent = (args: typeof meta.args) => {
         setValue('')
     }
     return (
-        <Component.TextArea
+        <Component.RichTextArea
             {...args}
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -115,7 +109,7 @@ const WithUtilsComponent = (args: typeof meta.args) => {
         setValue('')
     }
     return (
-        <Component.TextArea
+        <Component.RichTextArea
             {...args}
             value={value}
             onChange={(e) => setValue(e.target.value)}

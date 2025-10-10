@@ -18,14 +18,23 @@ export type { CardProps, CardCheckboxProps, CardButtonProps, CardHeaderProps, Ca
 export { Carousel } from './components/Carousel'
 export type { CarouselProps, CarouselRef } from './components/Carousel'
 
-export { Checkbox } from './components/Checkbox'
 export type { CheckboxProps } from './components/Checkbox'
 
 export { Dropdown } from './components/Dropdown'
 export type { DropdownProps } from './components/Dropdown'
 
-export { Input } from './components/Input'
-export type { InputType, BaseInputProps, InputProps, PasswordInputProps, PhoneInputProps } from './components/Input'
+export { Input, RichTextCheckboxButton, RichTextListButton } from './components/Input'
+export type { 
+    InputType, 
+    BaseInputProps, 
+    InputProps, 
+    PasswordInputProps, 
+    PhoneInputProps, 
+    TextAreaProps, 
+    RichTextAreaWithPanelProps, 
+    RichTextAreaRef, 
+    RichTextButtonProps,
+} from './components/Input'
 
 export { List } from './components/List'
 export type { ListProps } from './components/List'

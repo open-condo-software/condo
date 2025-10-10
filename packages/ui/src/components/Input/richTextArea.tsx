@@ -1,17 +1,21 @@
 import classNames from 'classnames'
-import React, { useCallback, useMemo, useState, forwardRef, useImperativeHandle } from 'react'
+import React, { useCallback, useMemo, useState, forwardRef, useImperativeHandle, useEffect, useRef, TextareaHTMLAttributes } from 'react'
 import { createEditor, Descendant, Editor, Transforms, Element as SlateElement, Range, Point, BaseEditor } from 'slate'
 import { withHistory, HistoryEditor } from 'slate-history'
 import { Slate, Editable, withReact, ReactEditor, useSlateStatic, RenderElementProps, RenderLeafProps } from 'slate-react'
 
-import { CheckSquare, List } from '@open-condo/icons'
+import { CheckSquare, List, ArrowUp } from '@open-condo/icons'
 
 import { Button } from '../Button'
 import { Checkbox } from '../Checkbox'
 
+import type { InputRef } from 'antd'
+
+import './richTextArea.less'
+
 export interface RichTextAreaProps {
     value?: string
-    onChange?: (value: string) => void
+    onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
     placeholder?: string
     disabled?: boolean
     className?: string
@@ -22,6 +26,9 @@ export interface RichTextAreaProps {
 export interface RichTextAreaRef {
     focus: () => void
     blur: () => void
+}
+
+export interface RichTextAreaRefInternal extends RichTextAreaRef {
     editor?: BaseEditor & ReactEditor & HistoryEditor
 }
 
@@ -55,7 +62,7 @@ const SHORTCUTS: Record<string, string> = {
 }
 
 const withMarkdownShortcuts = (editor: CustomEditor) => {
-    const { insertText, deleteBackward } = editor
+    const { insertText, deleteBackward, deleteFragment } = editor
 
     editor.insertText = (text: string) => {
         const { selection } = editor
@@ -94,6 +101,23 @@ const withMarkdownShortcuts = (editor: CustomEditor) => {
         }
 
         insertText(text)
+    }
+
+    editor.deleteFragment = (...args: Parameters<typeof deleteFragment>) => {
+        deleteFragment(...args)
+        
+        // After deleting selection, ensure we have at least one paragraph
+        const nodes = Array.from(Editor.nodes(editor, {
+            at: [],
+            match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+        }))
+        
+        if (nodes.length === 1) {
+            const [node] = nodes[0]
+            if (SlateElement.isElement(node) && (node.type === 'checkbox-item' || node.type === 'list-item')) {
+                Transforms.setNodes(editor, { type: 'paragraph' } as Partial<CustomElement>)
+            }
+        }
     }
 
     editor.deleteBackward = (...args: Parameters<typeof deleteBackward>) => {
@@ -185,7 +209,7 @@ const deserializeFromMarkdown = (text: string): Descendant[] => {
     })
 }
 
-const RichTextArea = forwardRef<RichTextAreaRef, RichTextAreaProps>((props, ref) => {
+const RichTextArea = forwardRef<RichTextAreaRefInternal, RichTextAreaProps>((props, ref) => {
     const {
         value = '',
         onChange,
@@ -214,13 +238,16 @@ const RichTextArea = forwardRef<RichTextAreaRef, RichTextAreaProps>((props, ref)
             }
         },
         editor,
-    }))
+    }), [editor])
 
     const handleChange = useCallback((newValue: Descendant[]) => {
         setSlateValue(newValue)
         if (onChange) {
             const stringValue = serializeToMarkdown(newValue)
-            onChange(stringValue)
+            const syntheticEvent = {
+                target: { value: stringValue },
+            } as React.ChangeEvent<HTMLTextAreaElement>
+            onChange(syntheticEvent)
         }
     }, [onChange])
 
@@ -313,16 +340,73 @@ const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
 
 RichTextArea.displayName = 'RichTextArea'
 
-// Helper functions to create toolbar buttons for use in bottomPanelUtils
-export const createCheckboxButton = (editor: BaseEditor & ReactEditor & HistoryEditor, disabled?: boolean) => {
+// Internal helper type for button creation
+type EditorInstance = BaseEditor & ReactEditor & HistoryEditor
+
+/**
+ * Ready-to-use button components for RichTextArea toolbar
+ * These can be used directly without any Slate knowledge
+ */
+
+// Props for ready-made buttons
+export interface RichTextButtonProps {
+    disabled?: boolean
+}
+
+/**
+ * Ready-made Checkbox button component
+ * Usage: <RichTextCheckboxButton editor={ref.current?.editor} />
+ */
+export const RichTextCheckboxButton: React.FC<{ editor?: EditorInstance, disabled?: boolean }> = ({ editor, disabled }) => {
+    if (!editor) return null
+    return createCheckboxButton(editor, disabled)
+}
+
+/**
+ * Ready-made List button component
+ * Usage: <RichTextListButton editor={ref.current?.editor} />
+ */
+export const RichTextListButton: React.FC<{ editor?: EditorInstance, disabled?: boolean }> = ({ editor, disabled }) => {
+    if (!editor) return null
+    return createListButton(editor, disabled)
+}
+
+// Internal helper functions for use with editor instance (for advanced users)
+// These require Slate knowledge and direct editor access
+const createCheckboxButton = (editor: EditorInstance, disabled?: boolean) => {
     const insertCheckbox = () => {
-        const checkbox: CustomElement = {
-            type: 'checkbox-item',
-            checked: false,
-            children: [{ text: '' }],
+        const { selection } = editor
+        if (!selection) return
+
+        const match = Editor.above(editor, {
+            match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+        })
+        
+        if (!match) return
+        const [currentNode, currentPath] = match
+        
+        if (!SlateElement.isElement(currentNode)) return
+        
+        const blockText = Editor.string(editor, currentPath)
+        const isEmptyBlock = blockText === ''
+
+        if (isEmptyBlock) {
+            // Convert current empty block to checkbox
+            Transforms.setNodes(
+                editor,
+                { type: 'checkbox-item', checked: false } as Partial<CustomElement>,
+                { at: currentPath }
+            )
+        } else {
+            // Move to end of current block and insert new checkbox
+            Transforms.select(editor, Editor.end(editor, currentPath))
+            const checkbox: CustomElement = {
+                type: 'checkbox-item',
+                checked: false,
+                children: [{ text: '' }],
+            }
+            Transforms.insertNodes(editor, checkbox)
         }
-        Transforms.insertNodes(editor, checkbox)
-        Transforms.move(editor)
     }
 
     return (
@@ -340,14 +424,39 @@ export const createCheckboxButton = (editor: BaseEditor & ReactEditor & HistoryE
     )
 }
 
-export const createListButton = (editor: BaseEditor & ReactEditor & HistoryEditor, disabled?: boolean) => {
+const createListButton = (editor: EditorInstance, disabled?: boolean) => {
     const insertList = () => {
-        const listItem: CustomElement = {
-            type: 'list-item',
-            children: [{ text: '' }],
+        const { selection } = editor
+        if (!selection) return
+
+        const match = Editor.above(editor, {
+            match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+        })
+        
+        if (!match) return
+        const [currentNode, currentPath] = match
+        
+        if (!SlateElement.isElement(currentNode)) return
+        
+        const blockText = Editor.string(editor, currentPath)
+        const isEmptyBlock = blockText === ''
+
+        if (isEmptyBlock) {
+            // Convert current empty block to list item
+            Transforms.setNodes(
+                editor,
+                { type: 'list-item' } as Partial<CustomElement>,
+                { at: currentPath }
+            )
+        } else {
+            // Move to end of current block and insert new list item
+            Transforms.select(editor, Editor.end(editor, currentPath))
+            const listItem: CustomElement = {
+                type: 'list-item',
+                children: [{ text: '' }],
+            }
+            Transforms.insertNodes(editor, listItem)
         }
-        Transforms.insertNodes(editor, listItem)
-        Transforms.move(editor)
     }
 
     return (
@@ -365,4 +474,140 @@ export const createListButton = (editor: BaseEditor & ReactEditor & HistoryEdito
     )
 }
 
-export { RichTextArea }
+// RichTextArea with bottom panel - full-featured component
+const TEXTAREA_CLASS_PREFIX = 'condo-input'
+
+export type RichTextAreaWithPanelProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'style' | 'size' | 'onResize'> & {
+    value?: string
+    isSubmitDisabled?: boolean
+    showCount?: boolean
+    onSubmit?: (value: string) => void
+    bottomPanelUtils?: React.ReactElement[]
+    maxLength?: number
+}
+
+const RichTextAreaWithPanel = forwardRef<InputRef, RichTextAreaWithPanelProps>((props, ref) => {
+    const {
+        className,
+        disabled,
+        onSubmit,
+        autoFocus,
+        maxLength = 1000,
+        showCount = true,
+        isSubmitDisabled,
+        value: propsValue,
+        bottomPanelUtils = [],
+        onChange: propsOnChange,
+        placeholder,
+    } = props
+
+    const [internalValue, setInternalValue] = useState('')
+    const editorRef = useRef<RichTextAreaRefInternal>(null)
+
+    // Forward ref to editor
+    useImperativeHandle(ref, () => editorRef.current as InputRef, [])
+
+    useEffect(() => {
+        if (propsValue !== undefined) {
+            setInternalValue(propsValue)
+        }
+    }, [propsValue])
+
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const newValue = e.target.value
+
+        if (propsValue === undefined) {
+            setInternalValue(newValue)
+        }
+
+        if (propsOnChange) {
+            propsOnChange(e)
+        }
+    }
+
+    const currentValue = propsValue !== undefined ? propsValue : internalValue
+    const characterCount = `${currentValue.length}/${maxLength}`
+
+    // Add rich text buttons
+    const editor = editorRef.current?.editor
+    const richTextButtons = [
+        <RichTextCheckboxButton key='checkbox' editor={editor} disabled={disabled} />,
+        <RichTextListButton key='list' editor={editor} disabled={disabled} />,
+    ]
+    const allBottomPanelUtils = [...richTextButtons, ...bottomPanelUtils]
+    
+    const hasBottomPanelUtils = allBottomPanelUtils.length > 0
+    const shouldShowRightPanel = showCount || onSubmit
+    const showBottomPanel = hasBottomPanelUtils || shouldShowRightPanel
+
+    const textareaClassName = classNames(
+        `${TEXTAREA_CLASS_PREFIX}-textarea`,
+        {
+            [`${TEXTAREA_CLASS_PREFIX}-disabled`]: disabled,
+            [`${TEXTAREA_CLASS_PREFIX}-show-bottom-panel`]: showBottomPanel,
+            [`${TEXTAREA_CLASS_PREFIX}-focused`]: autoFocus,
+        },
+        className,
+    )
+
+    const textAreaWrapperClassName = classNames(
+        `${TEXTAREA_CLASS_PREFIX} ${TEXTAREA_CLASS_PREFIX}-textarea-wrapper`,
+        {
+            [`${TEXTAREA_CLASS_PREFIX}-disabled`]: disabled,
+        },
+    )
+
+    return (
+        <div className={textAreaWrapperClassName}>
+            <RichTextArea
+                ref={editorRef}
+                value={currentValue}
+                onChange={handleChange}
+                placeholder={placeholder}
+                disabled={disabled}
+                className={textareaClassName}
+                autoFocus={autoFocus}
+                maxLength={maxLength}
+            />
+
+            {showBottomPanel && (
+                <span className={`${TEXTAREA_CLASS_PREFIX}-bottom-panel`}>
+                    {hasBottomPanelUtils && (
+                        <span className={`${TEXTAREA_CLASS_PREFIX}-utils`}>
+                            {allBottomPanelUtils.map((util, index) => (
+                                <React.Fragment key={index}>
+                                    {React.cloneElement(util, { disabled: util.props.disabled || disabled })}
+                                </React.Fragment>
+                            ))}
+                        </span>
+                    )}
+
+                    {shouldShowRightPanel && (
+                        <span className={`${TEXTAREA_CLASS_PREFIX}-bottom-panel-right`}>
+                            {showCount && (
+                                <span className={`${TEXTAREA_CLASS_PREFIX}-count`}>
+                                    {characterCount}
+                                </span>
+                            )}
+
+                            {
+                                onSubmit &&
+                                <Button
+                                    disabled={disabled || isSubmitDisabled}
+                                    type='accent'
+                                    size='medium'
+                                    onClick={() => onSubmit(currentValue)}
+                                    icon={<ArrowUp size='small' />}
+                                />
+                            }
+                        </span>
+                    )}
+                </span>
+            )}
+        </div>
+    )
+})
+
+RichTextAreaWithPanel.displayName = 'RichTextAreaWithPanel'
+
+export { RichTextArea, RichTextAreaWithPanel }
