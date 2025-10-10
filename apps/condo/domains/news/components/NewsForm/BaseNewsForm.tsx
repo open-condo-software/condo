@@ -34,7 +34,7 @@ import isNull from 'lodash/isNull'
 import keyBy from 'lodash/keyBy'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
-import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
+import React, { ComponentProps, useCallback, useMemo, useState, useEffect } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
@@ -129,6 +129,7 @@ export type BaseNewsFormProps = {
     sharingAppContexts: IB2BAppContext[]
     createNewsItemSharingAction?: (values: INewsItemSharingCreateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
     initialPropertiesFromQuery?: Array<string>
+    initialStep?: 0 | 1
 }
 
 type CondoFormValues = {
@@ -347,6 +348,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     totalProperties,
     autoFocusBody,
     initialPropertiesFromQuery,
+    initialStep = 0,
 }) => {
     const intl = useIntl()
     const MobileAppLabel = intl.formatMessage({ id: 'MobileAppName' })
@@ -385,6 +387,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const timeZone = useMemo(() => parts.find((part) => part.type === 'timeZoneName')?.value, [parts])
 
     const router = useRouter()
+
+    const [newsItemsForm] = Form.useForm()
 
     const { breakpoints } = useLayoutContext()
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
@@ -936,6 +940,20 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const isSharingAppStep = getStepTypeByStep(currentStep) === 'sharingApp'
     const isFormStep = getStepTypeByStep(currentStep) === 'condoApp' || isSharingAppStep
 
+    useEffect(() => {
+        // NOTE:    We skip steps using "useEffect"
+        //          because each step (even a skipped one) may contain some important logic
+        //          that is only triggered when moving to the next step.
+
+        if (!initialStep) return
+        if (initialStep >= 2) return
+
+        const stepsForSkip = initialStep - currentStep
+        for (let i = 0; i < stepsForSkip; i++) {
+            handleNextStep({ form: newsItemsForm })
+        }
+    }, [])
+
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
@@ -951,6 +969,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 </Row>
 
                 <FormWithAction
+                    formInstance={newsItemsForm}
                     initialValues={initialFormValues}
                     colon={false}
                     action={handleFormSubmit}

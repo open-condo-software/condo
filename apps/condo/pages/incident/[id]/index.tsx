@@ -459,6 +459,13 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
             return
         }
 
+        let validBefore: string | undefined
+        if (incident.workFinish) {
+            validBefore = dayjs(incident.workFinish).toISOString()
+        } else if (incident.workType === IncidentWorkTypeType.Emergency) {
+            validBefore = dayjs().add(7, 'days').toISOString()
+        }
+
         const initialValue = {
             title: result?.data?.title,
             body: result?.data?.body,
@@ -467,10 +474,10 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                 .filter((id) => Boolean(id)),
             hasAllProperties: incident.hasAllProperties,
             type: incident.workType === IncidentWorkTypeType.Emergency ? NEWS_TYPE_EMERGENCY : NEWS_TYPE_COMMON,
-            ...(incident.workFinish ? { validBefore: dayjs(incident.workFinish).toISOString() } : undefined),
+            ...(validBefore ? { validBefore } : undefined),
         }
 
-        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}`, '_blank')
+        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}`, '_blank')
     }, [GenericErrorMessage, runGenerateNewsAIFlow])
 
     const afterStatusUpdate: Parameters<UseIncidentUpdateStatusModalType>[0]['afterUpdate'] = useCallback(async (incident, generateNews) => {

@@ -140,6 +140,7 @@ export const CreateNewsForm: React.FC = () => {
 
     const { query } = useRouter()
     const initialValueFromQuery = query?.initialValue && typeof query?.initialValue === 'string' ? tryJSONParse(query?.initialValue) : undefined
+    const initialStepFromQuery = query?.initialStep && typeof query?.initialStep === 'string' ? tryJSONParse(query?.initialStep) : undefined
 
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
@@ -275,6 +276,7 @@ export const CreateNewsForm: React.FC = () => {
             actionName='create'
             totalProperties={totalProperties}
             initialPropertiesFromQuery={initialValueFromQuery?.propertyIds}
+            initialStep={initialStepFromQuery}
         />
     )
 }
