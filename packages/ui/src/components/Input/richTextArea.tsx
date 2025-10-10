@@ -1,7 +1,6 @@
 import classNames from 'classnames'
 import React, { useCallback, useMemo, useState, forwardRef, useImperativeHandle, useEffect, useRef, TextareaHTMLAttributes } from 'react'
 import { createEditor, Descendant, Editor, Transforms, Element as SlateElement, Range, Point, BaseEditor } from 'slate'
-import { withHistory, HistoryEditor } from 'slate-history'
 import { Slate, Editable, withReact, ReactEditor, useSlateStatic, RenderElementProps, RenderLeafProps } from 'slate-react'
 
 import { CheckSquare, List, ArrowUp } from '@open-condo/icons'
@@ -29,7 +28,7 @@ export interface RichTextAreaRef {
 }
 
 export interface RichTextAreaRefInternal extends RichTextAreaRef {
-    editor?: BaseEditor & ReactEditor & HistoryEditor
+    editor?: BaseEditor & ReactEditor
 }
 
 type CustomElement = 
@@ -44,7 +43,7 @@ type CustomText = {
     code?: boolean
 }
 
-type CustomEditor = BaseEditor & ReactEditor & HistoryEditor
+type CustomEditor = BaseEditor & ReactEditor
 
 declare module 'slate' {
     interface CustomTypes {
@@ -54,101 +53,75 @@ declare module 'slate' {
     }
 }
 
-const SHORTCUTS: Record<string, string> = {
-    '- [ ]': 'checkbox-item',
-    '- [x]': 'checkbox-item-checked',
-    '- ': 'list-item',
-    '* ': 'list-item',
-}
+// const SHORTCUTS: Record<string, string> = {
+//     '- [ ]': 'checkbox-item',
+//     '- [x]': 'checkbox-item-checked',
+//     '- ': 'list-item',
+//     '* ': 'list-item',
+// }
 
-const withMarkdownShortcuts = (editor: CustomEditor) => {
-    const { insertText, deleteBackward, deleteFragment } = editor
+// const withMarkdownShortcuts = (editor: CustomEditor) => {
+//     const { insertText, deleteFragment } = editor
 
-    editor.insertText = (text: string) => {
-        const { selection } = editor
+//     // editor.insertText = (text: string) => {
+//     //     const { selection } = editor
 
-        if (text === ' ' && selection && Range.isCollapsed(selection)) {
-            const { anchor } = selection
-            const block = Editor.above(editor, {
-                match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
-            })
-            const path = block ? block[1] : []
-            const start = Editor.start(editor, path)
-            const range = { anchor, focus: start }
-            const beforeText = Editor.string(editor, range)
+//     //     if (text === ' ' && selection && Range.isCollapsed(selection)) {
+//     //         const { anchor } = selection
+//     //         const block = Editor.above(editor, {
+//     //             match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+//     //         })
+//     //         const path = block ? block[1] : []
+//     //         const start = Editor.start(editor, path)
+//     //         const range = { anchor, focus: start }
+//     //         const beforeText = Editor.string(editor, range)
 
-            const shortcut = SHORTCUTS[beforeText]
+//     //         const shortcut = SHORTCUTS[beforeText]
             
-            if (shortcut) {
-                Transforms.select(editor, range)
-                Transforms.delete(editor)
+//     //         if (shortcut) {
+//     //             Transforms.select(editor, range)
+//     //             Transforms.delete(editor)
                 
-                if (shortcut === 'checkbox-item' || shortcut === 'checkbox-item-checked') {
-                    Transforms.setNodes(
-                        editor,
-                        { type: 'checkbox-item', checked: shortcut === 'checkbox-item-checked' } as Partial<CustomElement>,
-                        { match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n) }
-                    )
-                } else if (shortcut === 'list-item') {
-                    Transforms.setNodes(
-                        editor,
-                        { type: 'list-item' } as Partial<CustomElement>,
-                        { match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n) }
-                    )
-                }
-                return
-            }
-        }
+//     //             if (shortcut === 'checkbox-item' || shortcut === 'checkbox-item-checked') {
+//     //                 Transforms.setNodes(
+//     //                     editor,
+//     //                     { type: 'checkbox-item', checked: shortcut === 'checkbox-item-checked' } as Partial<CustomElement>,
+//     //                     { match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n) }
+//     //                 )
+//     //             } else if (shortcut === 'list-item') {
+//     //                 Transforms.setNodes(
+//     //                     editor,
+//     //                     { type: 'list-item' } as Partial<CustomElement>,
+//     //                     { match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n) }
+//     //                 )
+//     //             }
+//     //             return
+//     //         }
+//     //     }
 
-        insertText(text)
-    }
+//     //     insertText(text)
+//     // }
 
-    editor.deleteFragment = (...args: Parameters<typeof deleteFragment>) => {
-        deleteFragment(...args)
+//     // editor.deleteFragment = (...args: Parameters<typeof deleteFragment>) => {
+//     //     deleteFragment(...args)
         
-        // After deleting selection, ensure we have at least one paragraph
-        const nodes = Array.from(Editor.nodes(editor, {
-            at: [],
-            match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
-        }))
+//     //     // After deleting selection, ensure we have at least one paragraph
+//     //     const nodes = Array.from(Editor.nodes(editor, {
+//     //         at: [],
+//     //         match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+//     //     }))
         
-        if (nodes.length === 1) {
-            const [node] = nodes[0]
-            if (SlateElement.isElement(node) && (node.type === 'checkbox-item' || node.type === 'list-item')) {
-                Transforms.setNodes(editor, { type: 'paragraph' } as Partial<CustomElement>)
-            }
-        }
-    }
+//     //     if (nodes.length === 1) {
+//     //         const [node] = nodes[0]
+//     //         console.log('node', node)
+//     //         if (SlateElement.isElement(node) && (node.type === 'checkbox-item' || node.type === 'list-item')) {
+//     //             Transforms.setNodes(editor, { type: 'paragraph' } as Partial<CustomElement>)
+//     //         }
+//     //     }
+//     // }
 
-    editor.deleteBackward = (...args: Parameters<typeof deleteBackward>) => {
-        const { selection } = editor
-
-        if (selection && Range.isCollapsed(selection)) {
-            const match = Editor.above(editor, {
-                match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
-            })
-
-            if (match) {
-                const [block, path] = match
-                const start = Editor.start(editor, path)
-
-                if (
-                    !Editor.isEditor(block) &&
-                    SlateElement.isElement(block) &&
-                    (block.type === 'checkbox-item' || block.type === 'list-item') &&
-                    Point.equals(selection.anchor, start)
-                ) {
-                    Transforms.setNodes(editor, { type: 'paragraph' } as Partial<CustomElement>)
-                    return
-                }
-            }
-        }
-
-        deleteBackward(...args)
-    }
-
-    return editor
-}
+//     return editor
+// }
 
 const serializeToMarkdown = (nodes: Descendant[]): string => {
     return nodes
@@ -209,6 +182,89 @@ const deserializeFromMarkdown = (text: string): Descendant[] => {
     })
 }
 
+// Plugin для обработки Enter и Backspace на чекбоксах и списках
+const withListBehavior = (editor: CustomEditor) => {
+    const { insertBreak, deleteBackward, deleteFragment } = editor
+
+    editor.insertBreak = () => {
+        const { selection } = editor
+        if (!selection) {
+            insertBreak()
+            return
+        }
+
+        const match = Editor.above(editor, {
+            match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+        })
+
+        if (match) {
+            const [block, path] = match
+            if (SlateElement.isElement(block) && (block.type === 'checkbox-item' || block.type === 'list-item')) {
+                const blockText = Editor.string(editor, path)
+                
+                // Если блок пустой, превращаем в параграф
+                if (blockText === '') {
+                    Transforms.setNodes(editor, { type: 'paragraph' } as Partial<CustomElement>)
+                    return
+                }
+            }
+        }
+
+        insertBreak()
+    }
+
+    editor.deleteBackward = (...args) => {
+        const { selection } = editor
+
+        if (selection && Range.isCollapsed(selection)) {
+            const match = Editor.above(editor, {
+                match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+            })
+
+            if (match) {
+                const [block, path] = match
+                const start = Editor.start(editor, path)
+
+                if (
+                    SlateElement.isElement(block) &&
+                    (block.type === 'checkbox-item' || block.type === 'list-item') &&
+                    Point.equals(selection.anchor, start)
+                ) {
+                    // Если курсор в начале чекбокса/списка, превращаем в параграф
+                    Transforms.setNodes(editor, { type: 'paragraph' } as Partial<CustomElement>)
+                    return
+                }
+            }
+        }
+
+        deleteBackward(...args)
+    }
+
+    editor.deleteFragment = (...args) => {
+        deleteFragment(...args)
+        
+        // После удаления выделенного фрагмента проверяем оставшиеся блоки
+        const nodes = Array.from(Editor.nodes(editor, {
+            at: [],
+            match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+        }))
+        
+        // Если остался только один блок и он чекбокс/список, превращаем в параграф
+        if (nodes.length === 1) {
+            const [node] = nodes[0]
+            if (SlateElement.isElement(node) && (node.type === 'checkbox-item' || node.type === 'list-item')) {
+                const text = Editor.string(editor, [])
+                // Превращаем в параграф только если блок пустой
+                if (text === '') {
+                    Transforms.setNodes(editor, { type: 'paragraph' } as Partial<CustomElement>)
+                }
+            }
+        }
+    }
+
+    return editor
+}
+
 const RichTextArea = forwardRef<RichTextAreaRefInternal, RichTextAreaProps>((props, ref) => {
     const {
         value = '',
@@ -219,7 +275,7 @@ const RichTextArea = forwardRef<RichTextAreaRefInternal, RichTextAreaProps>((pro
         autoFocus,
     } = props
 
-    const editor = useMemo(() => withMarkdownShortcuts(withHistory(withReact(createEditor()))), [])
+    const editor = useMemo(() => withListBehavior(withReact(createEditor())), [])
     const [slateValue, setSlateValue] = useState<Descendant[]>(() => deserializeFromMarkdown(value))
 
     useImperativeHandle(ref, () => ({
@@ -266,6 +322,32 @@ const RichTextArea = forwardRef<RichTextAreaRefInternal, RichTextAreaProps>((pro
         return <Leaf {...props} />
     }, [])
 
+    // Проверяем, есть ли реальный контент (не только пустые блоки)
+    const hasContent = useMemo(() => {
+        // Проверяем весь текст во всех блоках
+        const allText = slateValue
+            .map(node => {
+                if (SlateElement.isElement(node)) {
+                    return node.children.map(child => 'text' in child ? child.text : '').join('')
+                }
+                return ''
+            })
+            .join('')
+        
+        // Если есть текст - контент есть
+        if (allText.length > 0) return true
+        
+        // Если нет текста, но есть чекбоксы или списки - тоже считаем что контент есть
+        const hasSpecialBlocks = slateValue.some(node => {
+            if (SlateElement.isElement(node)) {
+                return node.type === 'checkbox-item' || node.type === 'list-item'
+            }
+            return false
+        })
+        
+        return hasSpecialBlocks
+    }, [slateValue])
+
     const wrapperClassName = classNames('condo-rich-textarea', className, {
         'condo-rich-textarea-disabled': disabled,
     })
@@ -276,7 +358,7 @@ const RichTextArea = forwardRef<RichTextAreaRefInternal, RichTextAreaProps>((pro
                 <Editable
                     renderElement={renderElement}
                     renderLeaf={renderLeaf}
-                    placeholder={placeholder}
+                    placeholder={hasContent ? undefined : placeholder}
                     readOnly={disabled}
                     autoFocus={autoFocus}
                     className='condo-rich-textarea-editable'
@@ -341,7 +423,7 @@ const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
 RichTextArea.displayName = 'RichTextArea'
 
 // Internal helper type for button creation
-type EditorInstance = BaseEditor & ReactEditor & HistoryEditor
+type EditorInstance = BaseEditor & ReactEditor
 
 /**
  * Ready-to-use button components for RichTextArea toolbar
@@ -397,6 +479,8 @@ const createCheckboxButton = (editor: EditorInstance, disabled?: boolean) => {
                 { type: 'checkbox-item', checked: false } as Partial<CustomElement>,
                 { at: currentPath }
             )
+            // Фокус на начало блока
+            Transforms.select(editor, Editor.start(editor, currentPath))
         } else {
             // Move to end of current block and insert new checkbox
             Transforms.select(editor, Editor.end(editor, currentPath))
@@ -406,7 +490,10 @@ const createCheckboxButton = (editor: EditorInstance, disabled?: boolean) => {
                 children: [{ text: '' }],
             }
             Transforms.insertNodes(editor, checkbox)
+            // Фокус переместится автоматически на новый блок
         }
+        
+        ReactEditor.focus(editor)
     }
 
     return (
@@ -448,6 +535,8 @@ const createListButton = (editor: EditorInstance, disabled?: boolean) => {
                 { type: 'list-item' } as Partial<CustomElement>,
                 { at: currentPath }
             )
+            // Фокус на начало блока
+            Transforms.select(editor, Editor.start(editor, currentPath))
         } else {
             // Move to end of current block and insert new list item
             Transforms.select(editor, Editor.end(editor, currentPath))
@@ -456,7 +545,10 @@ const createListButton = (editor: EditorInstance, disabled?: boolean) => {
                 children: [{ text: '' }],
             }
             Transforms.insertNodes(editor, listItem)
+            // Фокус переместится автоматически на новый блок
         }
+        
+        ReactEditor.focus(editor)
     }
 
     return (

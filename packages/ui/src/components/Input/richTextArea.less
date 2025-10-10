@@ -66,6 +66,11 @@
     margin: 0;
     padding: 0;
     line-height: @condo-global-typography-text-l-line-height;
+    
+    // Добавляем отступ между чекбоксами
+    & + & {
+      margin-top: @condo-global-spacing-8;
+    }
   }
 
   &-checkbox-wrapper {
@@ -86,6 +91,11 @@
     margin: 0;
     padding: 0;
     line-height: @condo-global-typography-text-l-line-height;
+    
+    // Добавляем отступ между элементами списка
+    & + & {
+      margin-top: @condo-global-spacing-8;
+    }
   }
 
   &-bullet {
