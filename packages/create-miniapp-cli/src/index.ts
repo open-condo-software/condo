@@ -8,7 +8,7 @@ import { type PackageJson } from 'type-fest'
 import { createProject } from './helpers/createProject.js'
 import { installDependencies } from './helpers/installDependencies.js'
 import { logNextSteps } from './helpers/logNextSteps.js'
-import { setImportAlias } from './helpers/setImportAlias.js'
+import { replaceTextInFiles, setImportAlias } from './helpers/setImportAlias.js'
 import { setupHelm } from './installers/helm'
 import { prepareApp } from './installers/prepare.js'
 import { getUserPkgManager } from './utils/getUserPkgManager.js'
@@ -23,7 +23,16 @@ const main = async () => {
 
     const {
         appName,
-        flags: { noInstall, importAlias, appType, wantReview },
+        flags: {
+            noInstall,
+            importAlias,
+            appType,
+            hasReview,
+            hasWorker,
+            appResources,
+            workerResources,
+            maxOldSpace,
+        },
     } = await runCli()
 
     // e.g. dir/@mono/app returns ["@mono/app", "dir/app"]
@@ -42,6 +51,7 @@ const main = async () => {
         path.join(projectDir, 'package.json'),
     ) as PackageJson
     pkgJson.name = `@app/${scopedAppName}`
+    replaceTextInFiles(projectDir, '@app/template', `@app/${scopedAppName}`)
 
     fs.writeJSONSync(path.join(projectDir, 'package.json'), pkgJson, {
         spaces: 2,
@@ -49,6 +59,8 @@ const main = async () => {
     // update import alias in any generated files if not using the default
     if (importAlias !== '~/') {
         setImportAlias(projectDir, importAlias, appName)
+    } else {
+        replaceTextInFiles(projectDir, '@app/~/', `@app/${scopedAppName}`)
     }
 
     if (!noInstall) {
@@ -59,7 +71,7 @@ const main = async () => {
     await prepareApp({ appName, pkgManager, projectDir })
 
     // configure helm templates and values/secret-values
-    await setupHelm({ appName, wantReview })
+    await setupHelm({ appName, hasReview, appResources, hasWorker, maxOldSpace, workerResources })
 
     await logNextSteps({
         projectName: appDir,
