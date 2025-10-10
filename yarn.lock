@@ -1588,6 +1588,7 @@ __metadata:
     "@graphql-codegen/typescript-react-apollo": ^4.3.2
     "@metro-fs/analytics-plugin-posthog": ^1.14.0
     "@open-condo/apollo": "workspace:^"
+    "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
