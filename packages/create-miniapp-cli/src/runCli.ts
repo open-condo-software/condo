@@ -4,7 +4,9 @@ import { getUserPkgManager } from '@cli/utils/getUserPkgManager.js'
 import { validateAppName } from '@cli/utils/validateAppName.js'
 import { Command } from 'commander'
 
-import { APP_TYPES, AppType, TITLE_TEXT } from './consts.js'
+import { APP_TYPES, AppType, DEFAULT_APP_RESOURCES, DEFAULT_MAX_OLD_SPACE, TITLE_TEXT } from './consts.js'
+import { askForResources, validateNumber } from './installers/helm/utils.js'
+import { MaxOldSpace, ResourceSettings } from './installers/helm/values.js'
 import { isAppType } from './utils/isAppType.js'
 import { validateImportAlias } from './utils/validateImportAlias.js'
 
@@ -14,8 +16,11 @@ interface CliFlags {
     importAlias: string
     appType: AppType
     eslint: boolean
-    wantReview: boolean
-    appUrl?: string
+    hasReview: boolean
+    hasWorker: boolean
+    appResources: ResourceSettings
+    maxOldSpace: MaxOldSpace
+    workerResources?: ResourceSettings
 }
 
 interface CliResults {
@@ -25,14 +30,17 @@ interface CliResults {
 }
 
 const defaultOptions: CliResults = {
-    appName: 'Condo-miniapp',
+    appName: 'condo-miniapp',
     flags: {
         noInstall: false,
         default: false,
         importAlias: '~/',
         eslint: false,
         appType: APP_TYPES.server,
-        wantReview: false,
+        hasReview: false,
+        hasWorker: false,
+        appResources: DEFAULT_APP_RESOURCES,
+        maxOldSpace: DEFAULT_MAX_OLD_SPACE,
     },
 }
 
@@ -42,10 +50,7 @@ export const runCli = async (): Promise<CliResults> => {
     const program = new Command()
         .name(TITLE_TEXT)
         .description('A CLI for creating web applications compatible with Condo')
-        .argument(
-            '[dir]',
-            'The name of the application, as well as the name of the directory to create',
-        )
+        .argument('[dir]', 'The name of the application, as well as the name of the directory to create')
         .option(
             '--noInstall',
             'Explicitly tell the CLI to not run the package manager\'s install command',
@@ -92,12 +97,6 @@ export const runCli = async (): Promise<CliResults> => {
                     initialValue: 'server',
                 })
             },
-            wantReview: () => {
-                return p.confirm({
-                    message: 'We will setup helm templates for the new miniapp. Would you also like to have a review namespace?',
-                    initialValue: defaultOptions.flags.wantReview,
-                })
-            },
             ...(!cliResults.flags.noInstall && {
                 install: () => {
                     return p.confirm({
@@ -108,13 +107,82 @@ export const runCli = async (): Promise<CliResults> => {
                     })
                 },
             }),
-            importAlias: () => {
+            importAlias: ({ results }) => {
                 return p.text({
                     message: 'What import alias would you like to use?',
-                    defaultValue: defaultOptions.flags.importAlias,
-                    placeholder: defaultOptions.flags.importAlias,
+                    defaultValue: (results.name ? `@${results.name}` : `@${cliProvidedName}`) || defaultOptions.flags.importAlias,
+                    placeholder: (results.name ? `@${results.name}` : `@${cliProvidedName}`) || defaultOptions.flags.importAlias,
                     validate: validateImportAlias,
                 })
+            },
+            hasReview: () => {
+                return p.confirm({
+                    message: 'We will setup helm templates for the new miniapp. Would you also like to have a review namespace?',
+                    initialValue: defaultOptions.flags.hasReview,
+                })
+            },
+            hasWorker: () => {
+                return p.confirm({
+                    message: 'Will you need a worker?',
+                    initialValue: defaultOptions.flags.hasWorker,
+                })
+            },
+            appResources: ({ results }) => askForResources({
+                label: 'app',
+                wantReview: Boolean(results.hasReview),
+                defaults: DEFAULT_APP_RESOURCES,
+            }),
+
+            workerResources: async ({ results }) => {
+                if (!results.hasWorker) return undefined
+                return askForResources({
+                    label: 'worker',
+                    wantReview: Boolean(results.hasReview),
+                    defaults: DEFAULT_APP_RESOURCES,
+                })
+            },
+
+            maxOldSpace: async ({ results }) => {
+                const wantReview = results.hasReview
+                const envCount = wantReview ? 4 : 3
+                const envLabels = wantReview
+                    ? 'default,review,development,production'
+                    : 'default,development,production'
+
+                const defaultValue =  wantReview
+                    ? `${DEFAULT_MAX_OLD_SPACE.default},${DEFAULT_MAX_OLD_SPACE.default},${DEFAULT_MAX_OLD_SPACE.development},${DEFAULT_MAX_OLD_SPACE.production}`
+                    : `${DEFAULT_MAX_OLD_SPACE.default},${DEFAULT_MAX_OLD_SPACE.development},${DEFAULT_MAX_OLD_SPACE.production}`
+
+                const input = await p.text({
+                    message: `Enter max_old_space_size (${envLabels}) or hit Enter to accept default values:`,
+                    defaultValue,
+                    placeholder: defaultValue,
+                    validate: (v) => {
+                        if (v){
+                            const parts = v.split(',').map((s) => s.trim())
+                            if (parts.length !== envCount)
+                                return `Please provide ${envCount} comma-separated numbers`
+                            for (const pVal of parts) {
+                                const res = validateNumber(pVal)
+                                if (res !== true) return res
+                            }
+                        }
+                        return
+                    },
+                }) as string
+
+                const parts = input.split(',').map((s) => Number(s.trim()))
+                const base: Record<'default' | 'review' | 'development' | 'production', number | undefined> = {
+                    default: parts[0],
+                    review: undefined,
+                    development: undefined,
+                    production: undefined,
+                }
+                let i = 1
+                if (wantReview) base['review'] = parts[i++]
+                base['development'] = parts[i]
+                base['production'] = parts[i + 1]
+                return base as MaxOldSpace
             },
         },
         {
@@ -125,7 +193,6 @@ export const runCli = async (): Promise<CliResults> => {
     )
 
     const packages: AvailablePackages[] = []
-    // if (project.linter) packages.push('eslint')
     if (!isAppType(project.appType)) {
         throw new Error(`Invalid app type: ${project.appType}`)
     }
@@ -136,9 +203,13 @@ export const runCli = async (): Promise<CliResults> => {
         flags: {
             ...cliResults.flags,
             noInstall: !project.install || cliResults.flags.noInstall,
-            importAlias: project.importAlias ?? cliResults.flags.importAlias,
+            importAlias: project.importAlias as string ?? cliResults.flags.importAlias,
             appType: project.appType ?? cliResults.flags.appType,
-            wantReview: project.wantReview ?? cliResults.flags.wantReview,
+            hasReview: project.hasReview ?? cliResults.flags.hasReview,
+            hasWorker: project.hasWorker ?? cliResults.flags.hasWorker,
+            appResources: project.appResources as ResourceSettings ?? cliResults.flags.appResources,
+            workerResources: project.workerResources as ResourceSettings ?? cliResults.flags.workerResources,
+            maxOldSpace: project.maxOldSpace as MaxOldSpace ?? cliResults.flags.maxOldSpace,
         },
     }
 }
