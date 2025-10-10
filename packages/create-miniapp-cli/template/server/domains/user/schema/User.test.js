@@ -19,7 +19,7 @@ const {
     updateTestUser,
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
-} = require('@pos-integration/domains/user/utils/testSchema')
+} = require('~/domains/user/utils/testSchema')
 
 describe('User', () => {
     let adminClient, supportClient, userClient, anonymousClient
