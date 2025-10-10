@@ -541,8 +541,6 @@ __metadata:
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    "@types/jest": ^29.5.14
-    "@types/node": ^22
     "@types/react": ^18.3.1
     big.js: ^6.2.2
     cross-env: ^7.0.3
@@ -550,12 +548,10 @@ __metadata:
     express: ^4.17.1
     graphql-tag: ^2.12.6
     jest: ^29.7.0
-    jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
     mkdirp: ^3.0.1
     openid-client: 5.7.1
     react: ^18.3.1
-    typescript: ^5.8.3
     zod: ^4.0.8
   languageName: unknown
   linkType: soft
