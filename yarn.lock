@@ -5,6 +5,12 @@ __metadata:
   version: 6
   cacheKey: 8
 
+"@accruals-gateway/domains@link:./domains::locator=%40app%2Faccruals-gateway%40workspace%3Aapps%2Faccruals-gateway":
+  version: 0.0.0-use.local
+  resolution: "@accruals-gateway/domains@link:./domains::locator=%40app%2Faccruals-gateway%40workspace%3Aapps%2Faccruals-gateway"
+  languageName: node
+  linkType: soft
+
 "@address-service/domains@link:./domains::locator=%40app%2Faddress-service%40workspace%3Aapps%2Faddress-service":
   version: 0.0.0-use.local
   resolution: "@address-service/domains@link:./domains::locator=%40app%2Faddress-service%40workspace%3Aapps%2Faddress-service"
@@ -523,6 +529,36 @@ __metadata:
   checksum: ac75c4c063f0d45adcb75968510c8e5c12e43c8a2aa4b3d376a74c37f25a917ff9de115b45467f2b4c879db47aafca178a1da3ed85771ebb3c02347a3364fa2d
   languageName: node
   linkType: hard
+
+"@app/accruals-gateway@workspace:apps/accruals-gateway":
+  version: 0.0.0-use.local
+  resolution: "@app/accruals-gateway@workspace:apps/accruals-gateway"
+  dependencies:
+    "@accruals-gateway/domains": "link:./domains"
+    "@faker-js/faker": ^7.6.0
+    "@graphql-codegen/typescript": ^4.0.9
+    "@open-condo/apollo-server-client": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@types/jest": ^29.5.14
+    "@types/node": ^22
+    "@types/react": ^18.3.1
+    big.js: ^6.2.2
+    cross-env: ^7.0.3
+    dayjs: ^1.11.10
+    express: ^4.17.1
+    graphql-tag: ^2.12.6
+    jest: ^29.7.0
+    jest-jasmine2: ^29.7.0
+    lodash: ^4.17.21
+    mkdirp: ^3.0.1
+    openid-client: 5.7.1
+    react: ^18.3.1
+    typescript: ^5.8.3
+    zod: ^4.0.8
+  languageName: unknown
+  linkType: soft
 
 "@app/address-service@workspace:apps/address-service":
   version: 0.0.0-use.local

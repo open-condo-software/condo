@@ -73,3 +73,6 @@
 [submodule "apps/ticket-importer"]
 	path = apps/ticket-importer
 	url = git@github.com:open-condo-software/condo-ticket-importer.git
+[submodule "apps/accruals-gateway"]
+	path = apps/accruals-gateway
+	url = git@github.com:open-condo-software/condo-accruals-gateway.git
