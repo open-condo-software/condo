@@ -941,6 +941,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const isFormStep = getStepTypeByStep(currentStep) === 'condoApp' || isSharingAppStep
 
     useEffect(() => {
+        // NOTE:    We skip steps using "useEffect"
+        //          because each step (even a skipped one) may contain some important logic
+        //          that is only triggered when moving to the next step.
+
         if (!initialStep) return
         if (initialStep >= 2) return
 
