@@ -81,6 +81,7 @@ export type BaseIncidentFormProps = {
     action: (values: IIncidentCreateInput | IIncidentUpdateInput) => Promise<Awaited<ReturnType<CreateIncidentMutationFn | UpdateIncidentMutationFn>>>
     afterAction?: () => Promise<void>
     showOrganization?: boolean
+    onCompletedMessage?: (incident, newsInitialValue) => any
 }
 
 type FormLayoutProps = Pick<FormProps, 'labelCol' | 'wrapperCol' | 'layout' | 'labelAlign'>
@@ -516,6 +517,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         loading,
         organizationId,
         showOrganization = false,
+        onCompletedMessage,
     } = props
 
     const [incidentForm] = Form.useForm()
@@ -640,6 +642,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
             })
         }
 
+        let newsInitialValue
         if (generateNews) {
             try {
                 const selectedClassifiers = allClassifiers
@@ -663,27 +666,32 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
 
                 if (result.error) {
                     notification.error({ message: result.localizedErrorText || GenericErrorMessage })
-                    return
-                }
+                } else {
+                    const initialValue = {
+                        title: result?.data?.title,
+                        body: result?.data?.body,
+                        propertyIds: properties,
+                        hasAllProperties: incidentValues.hasAllProperties,
+                        type: incidentValues.workType === INCIDENT_WORK_TYPE_EMERGENCY ? NEWS_TYPE_EMERGENCY : NEWS_TYPE_COMMON,
+                        ...(incidentValues.workFinish ? { validBefore: dayjs(incidentValues.workFinish).toISOString() } : undefined),
+                    }
+                    newsInitialValue = initialValue
 
-                const initialValue = {
-                    title: result?.data?.title,
-                    body: result?.data?.body,
-                    propertyIds: properties,
-                    hasAllProperties: incidentValues.hasAllProperties,
-                    type: incidentValues.workType === INCIDENT_WORK_TYPE_EMERGENCY ? NEWS_TYPE_EMERGENCY : NEWS_TYPE_COMMON,
-                    ...(incidentValues.workFinish ? { validBefore: dayjs(incidentValues.workFinish).toISOString() } : undefined),
+                    window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}`, '_blank')
                 }
-                window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}`, '_blank')
             } catch (error) {
                 notification.error({ message: GenericErrorMessage })
             }
         }
 
+        if (onCompletedMessage) {
+            notification.success(onCompletedMessage(incidentData?.incident, newsInitialValue))
+        }
+
         if (afterAction) {
             await afterAction()
         }
-    }, [runGenerateNewsAIFlow, createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers])
+    }, [createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, onCompletedMessage, afterAction, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers, runGenerateNewsAIFlow, GenericErrorMessage])
 
     const renderPropertyOptions: InputWithCheckAllProps['selectProps']['renderOptions'] = useCallback((options, renderOption) => {
         const deletedPropertyOptions = initialIncidentProperties.map((incidentProperty) => {
@@ -766,6 +774,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                     colon={false}
                     scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
                     validateTrigger={FORM_VALIDATE_TRIGGER}
+                    OnCompletedMsg={onCompletedMessage ? null : undefined}
                     {...FORM_LAYOUT_PROPS}
                     children={({ handleSave, isLoading, form }) => (
                         <>

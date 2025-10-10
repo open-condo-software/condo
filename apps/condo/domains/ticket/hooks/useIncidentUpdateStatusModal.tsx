@@ -156,7 +156,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
 
     const IncidentUpdateStatusModal = useMemo(() => {
         return (
-            <FormWithAction initialValues={initialState} action={handleUpdate}>
+            <FormWithAction initialValues={initialState} action={handleUpdate} OnCompletedMsg={null}>
                 {({ isLoading, handleSave, form }) => {
                     formRef.current = form
                     return (
