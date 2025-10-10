@@ -137,13 +137,11 @@ export const prepareApp = async ({ pkgManager, appName, projectDir }: PrepareApp
         SCRIPTS.GLOBAL_PREPARE, // base env vars
         SCRIPTS.MAKE_MIGRATIONS,
         SCRIPTS.GLOBAL_PREPARE, // migrate and run local prepare
-        SCRIPTS.BUILD_DEPS,
         SCRIPTS.MAKE_TYPES,
     ]
 
     const retryableScripts = [
-        SCRIPTS.BUILD_DEPS.name,
-        SCRIPTS.BUILD.name,
+        SCRIPTS.GLOBAL_PREPARE.name,
         SCRIPTS.MAKE_TYPES.name,
     ]
 
