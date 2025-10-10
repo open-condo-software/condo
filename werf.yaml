@@ -1168,6 +1168,28 @@ git:
     owner: app
     group: app
 
+shell:
+  setup:
+    - "cd /app"
+    - "echo '# Build time .env config!' >> /app/.env"
+    - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+    - "echo 'DATABASE_URL=undefined' >> /app/.env"
+    - "echo 'REDIS_URL=undefined' >> /app/.env"
+    - "echo 'NODE_ENV=production' >> /app/.env"
+    - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+    - "echo '# Build time .env config!' >> /app/apps/property-ai-assistant/.env"
+    - "echo 'NODE_ENV=production' >> /app/apps/property-ai-assistant/.env"
+    - "yarn workspace @app/property-ai-assistant next telemetry disable"
+    - "yarn workspace @app/property-ai-assistant build:deps"
+    - "yarn workspace @app/property-ai-assistant build"
+    - "rm -rf /app/.env"
+    - "rm -rf /app/.config"
+    - "rm -rf /app/apps/property-ai-assistant/.env"
+
+docker:
+  ENV:
+    LANG: C.UTF-8
+
 ---
 image: accruals_gateway
 fromImage: deps
@@ -1210,26 +1232,4 @@ shell:
 docker:
   ENV:
     LANG: C.UTF-8
-
-
-shell:
-  setup:
-    - "cd /app"
-    - "echo '# Build time .env config!' >> /app/.env"
-    - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
-    - "echo 'DATABASE_URL=undefined' >> /app/.env"
-    - "echo 'REDIS_URL=undefined' >> /app/.env"
-    - "echo 'NODE_ENV=production' >> /app/.env"
-    - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "echo '# Build time .env config!' >> /app/apps/property-ai-assistant/.env"
-    - "echo 'NODE_ENV=production' >> /app/apps/property-ai-assistant/.env"
-    - "yarn workspace @app/property-ai-assistant next telemetry disable"
-    - "yarn workspace @app/property-ai-assistant build:deps"
-    - "yarn workspace @app/property-ai-assistant build"
-    - "rm -rf /app/.env"
-    - "rm -rf /app/.config"
-    - "rm -rf /app/apps/property-ai-assistant/.env"
-
-docker:
-  ENV:
-    LANG: C.UTF-8
+    
