@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-function replaceTextInFiles (
+export function replaceTextInFiles (
     directoryPath: string,
     search: string,
     replacement: string,

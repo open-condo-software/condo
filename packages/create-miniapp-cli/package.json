@@ -37,7 +37,8 @@
     "fs-extra": "^11.2.0",
     "gradient-string": "^2.0.2",
     "js-yaml": "^4.1.0",
-    "ora": "6.3.1"
+    "ora": "6.3.1",
+    "yaml": "^2.8.1"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
