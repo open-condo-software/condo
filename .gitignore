@@ -66,3 +66,4 @@ semgrep_results/*
 
 # Backup artifacts
 backups
+venv
