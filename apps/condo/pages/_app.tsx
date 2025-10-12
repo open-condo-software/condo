@@ -238,34 +238,34 @@ const MenuItems: React.FC = () => {
                     label: 'global.section.controlRoom',
                     access: isManagingCompany && hasAccessToTickets,
                 },
-                {
-                    id: 'menu-item-incident',
-                    path: 'incident',
-                    icon: AllIcons['OnOff'],
-                    label: 'global.section.incidents',
-                    access: isManagingCompany && hasAccessToIncidents,
-                },
-                {
-                    id: 'menu-item-news',
-                    path: 'news',
-                    icon: AllIcons['Newspaper'],
-                    label: 'global.section.newsItems',
-                    access: hasAccessToNewsItems,
-                },
+                // {
+                //     id: 'menu-item-incident',
+                //     path: 'incident',
+                //     icon: AllIcons['OnOff'],
+                //     label: 'global.section.incidents',
+                //     access: isManagingCompany && hasAccessToIncidents,
+                // },
+                // {
+                //     id: 'menu-item-news',
+                //     path: 'news',
+                //     icon: AllIcons['Newspaper'],
+                //     label: 'global.section.newsItems',
+                //     access: hasAccessToNewsItems,
+                // },
             ].filter(checkItemAccess),
         },
-        {
-            key: PROPERTIES_CATEGORY,
-            items: [
-                {
-                    id: 'menu-item-property',
-                    path: 'property',
-                    icon: AllIcons['Building'],
-                    label: 'global.section.properties',
-                    access: hasAccessToProperties,
-                },
-            ].filter(checkItemAccess),
-        },
+        // {
+        //     key: PROPERTIES_CATEGORY,
+        //     items: [
+        //         {
+        //             id: 'menu-item-property',
+        //             path: 'property',
+        //             icon: AllIcons['Building'],
+        //             label: 'global.section.properties',
+        //             access: hasAccessToProperties,
+        //         },
+        //     ].filter(checkItemAccess),
+        // },
         {
             key: RESIDENTS_CATEGORY,
             items: [
@@ -290,52 +290,52 @@ const MenuItems: React.FC = () => {
                 },
             ].filter(checkItemAccess),
         },
-        {
-            key: MARKET_CATEGORY,
-            items: [
-                {
-                    id: 'menu-item-marketplace',
-                    path: 'marketplace',
-                    icon: AllIcons['Market'],
-                    label: 'global.section.marketplace',
-                    access: hasAccessToMarketplace && isNoServiceProviderOrganization,
-                },
-            ].filter(checkItemAccess),
-        },
-        {
-            key: BILLING_CATEGORY,
-            items: [
-                {
-                    id: 'menu-item-billing',
-                    path: 'billing',
-                    icon: AllIcons['Wallet'],
-                    label: 'global.section.accrualsAndPayments',
-                    // NOTE: For SPP users billing is available after first receipts-load finished
-                    access: isSPPOrg
-                        ? hasAccessToBilling && anyReceiptsLoaded
-                        : hasAccessToBilling,
-                },
-                {
-                    id: 'menu-item-service-provider-profile',
-                    path: 'service-provider-profile',
-                    icon: AllIcons['Sber'],
-                    label: 'global.section.SPP',
-                    access: hasAccessToBilling && sppBillingId && isSPPOrg,
-                },
-            ].filter(checkItemAccess),
-        },
-        {
-            key: METERS_CATEGORY,
-            items: [
-                {
-                    id: 'menu-item-meter',
-                    path: 'meter',
-                    icon: AllIcons['Meters'],
-                    label: 'global.section.meters',
-                    access: hasAccessToMeters,
-                },
-            ].filter(checkItemAccess),
-        },
+        // {
+        //     key: MARKET_CATEGORY,
+        //     items: [
+        //         {
+        //             id: 'menu-item-marketplace',
+        //             path: 'marketplace',
+        //             icon: AllIcons['Market'],
+        //             label: 'global.section.marketplace',
+        //             access: hasAccessToMarketplace && isNoServiceProviderOrganization,
+        //         },
+        //     ].filter(checkItemAccess),
+        // },
+        // {
+        //     key: BILLING_CATEGORY,
+        //     items: [
+        //         {
+        //             id: 'menu-item-billing',
+        //             path: 'billing',
+        //             icon: AllIcons['Wallet'],
+        //             label: 'global.section.accrualsAndPayments',
+        //             // NOTE: For SPP users billing is available after first receipts-load finished
+        //             access: isSPPOrg
+        //                 ? hasAccessToBilling && anyReceiptsLoaded
+        //                 : hasAccessToBilling,
+        //         },
+        //         {
+        //             id: 'menu-item-service-provider-profile',
+        //             path: 'service-provider-profile',
+        //             icon: AllIcons['Sber'],
+        //             label: 'global.section.SPP',
+        //             access: hasAccessToBilling && sppBillingId && isSPPOrg,
+        //         },
+        //     ].filter(checkItemAccess),
+        // },
+        // {
+        //     key: METERS_CATEGORY,
+        //     items: [
+        //         {
+        //             id: 'menu-item-meter',
+        //             path: 'meter',
+        //             icon: AllIcons['Meters'],
+        //             label: 'global.section.meters',
+        //             access: hasAccessToMeters,
+        //         },
+        //     ].filter(checkItemAccess),
+        // },
         {
             key: MINIAPPS_CATEGORY,
             items: [
