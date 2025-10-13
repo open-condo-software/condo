@@ -15,6 +15,7 @@ import {
     IncidentUpdateInput as IIncidentUpdateInput,
     IncidentStatusType,
     IncidentClassifier as IIncidentClassifier,
+    IncidentWorkTypeType,
 } from '@app/condo/schema'
 import { Col, Form, FormInstance, Row, RowProps, Typography, notification, InputRef } from 'antd'
 import { FormProps } from 'antd/lib/form/Form'
@@ -666,15 +667,22 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                     return
                 }
 
+                let validBefore: string | undefined
+                if (incidentValues.workFinish) {
+                    validBefore = dayjs(incidentValues.workFinish).toISOString()
+                } else if (incidentValues.workType === IncidentWorkTypeType.Emergency) {
+                    validBefore = dayjs().add(7, 'days').toISOString()
+                }
+
                 const initialValue = {
                     title: result?.data?.title,
                     body: result?.data?.body,
                     propertyIds: properties,
                     hasAllProperties: incidentValues.hasAllProperties,
                     type: incidentValues.workType === INCIDENT_WORK_TYPE_EMERGENCY ? NEWS_TYPE_EMERGENCY : NEWS_TYPE_COMMON,
-                    ...(incidentValues.workFinish ? { validBefore: dayjs(incidentValues.workFinish).toISOString() } : undefined),
+                    ...(validBefore ? { validBefore } : undefined),
                 }
-                window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}`, '_blank')
+                window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}`, '_blank')
             } catch (error) {
                 notification.error({ message: GenericErrorMessage })
             }
