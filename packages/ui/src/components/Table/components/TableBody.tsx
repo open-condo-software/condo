@@ -1,18 +1,39 @@
 import { Table, flexRender, RowData } from '@tanstack/react-table'
 import React, { useCallback } from 'react'
 
-
-export const TableBody = <TData extends RowData = RowData> ({ table, onRowClick }: { table: Table<TData>, onRowClick?: (record: TData) => void }) => {
+export function TableBody <TData extends RowData = RowData> ({ 
+    table, 
+    onRowClick, 
+    showSkeleton,
+}: {
+    table: Table<TData>
+    onRowClick?: (record: TData) => void
+    showSkeleton?: boolean
+}) {
     const createKeyDownHandler = useCallback((row: { original: TData }) => (e: React.KeyboardEvent<HTMLDivElement>) => {
         if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
             e.preventDefault()
             onRowClick(row.original)
         }
     }, [onRowClick])
+
+    const rows = table.getRowModel().rows
+
+    if (!showSkeleton && rows.length === 0) {
+        return (
+            <div className='condo-table-tbody'>
+                <div className='condo-table-empty'>
+                    <div className='condo-table-empty-content'>
+                        Нет данных
+                    </div>
+                </div>
+            </div>
+        )
+    }
     
     return (
         <div className='condo-table-tbody'>
-            {table.getRowModel().rows.map(row => (
+            {rows.map(row => (
                 <div
                     key={row.id}
                     className='condo-table-tr'
@@ -26,8 +47,9 @@ export const TableBody = <TData extends RowData = RowData> ({ table, onRowClick 
                         <div
                             key={cell.id}
                             className='condo-table-td'
+                            style={{ width: cell.column.getSize() }}
                         >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            {showSkeleton ? <div className='condo-table-cell-skeleton' /> : flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </div>
                     ))}
                 </div>

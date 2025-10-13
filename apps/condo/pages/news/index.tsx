@@ -8,7 +8,7 @@ import React, { useCallback, useMemo } from 'react'
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, ActionBarProps, Button, Typography } from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button, Typography, Table as OpenTable } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -26,7 +26,7 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
-import { useTableColumns } from '@condo/domains/news/hooks/useTableColumns'
+import { useOpenTableColumns, useTableColumns } from '@condo/domains/news/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/news/hooks/useTableFilters'
 import { NewsItem } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -109,6 +109,92 @@ const NewsTableContainer = ({
                 )
             }
         </Row>
+    )
+}
+
+const OpenTableContainer = ({
+    filterMetas,
+    sortBy,
+    searchNewsQuery,
+    loading, 
+}) => {
+    // const intl = useIntl()
+    // const CreateNewsLabel = intl.formatMessage({ id: 'news.createNews' })
+    const router = useRouter()
+    // const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE), [offset])
+    const columns = useOpenTableColumns(filterMetas)
+
+    const { count: total, refetch } = NewsItem.useObjects({})
+
+    const mapSortModelToSortBy = useCallback((sortModel) => {
+        if (!sortModel?.length) return sortBy
+        return sortModel.map(({ id, desc }) => `${id}_${desc ? 'DESC' : 'ASC'}`)
+    }, [sortBy])
+
+    const mapFilterModelToWhere = useCallback((filterModel) => {
+        const filters = Object.entries(filterModel).map(([id, value]) => ({
+            [`${id}_in`]: value,
+        }))
+
+        console.log('filters', filters)
+
+        return {
+            ...searchNewsQuery,
+            AND: [
+                ...filters,    
+            ],
+        }
+    }, [searchNewsQuery])
+
+    const dataSource = useCallback(async ({ request, success, fail }) => {
+        try {
+            console.log('request', request)
+            const nextSortBy = mapSortModelToSortBy(request.sortModel)
+            const nextFilterModel = mapFilterModelToWhere(request.filterModel)
+            console.log('nextFilterModel', nextFilterModel)
+            const { data } = await refetch({
+                sortBy: nextSortBy,
+                where: nextFilterModel,
+                first: DEFAULT_PAGE_SIZE,
+                skip: request.endRow - DEFAULT_PAGE_SIZE,
+            })
+
+            success({ rowData: data?.objs ?? [], rowCount: data?.meta?.count })
+        } catch (e) {
+            fail()
+        }
+    }, [refetch, mapSortModelToSortBy, mapFilterModelToWhere])
+
+    const columnMenuLabels = {
+        sortLabel: 'Сортировать',
+        filterLabel: 'Фильтровать',
+        settingsLabel: 'Настроить колонки',
+        sortedLabel: 'Отсортированно',
+        filteredLabel: 'Отфильтрованно',
+        settedLabel: 'Настроены колонки',
+    }
+
+    const handleRowAction = useCallback(async (record) => {
+        await router.push(`/news/${record.id}`)
+    }, [router])
+
+    return (
+        <Col span={24}>
+            <OpenTable
+                dataSource={dataSource}
+                // @ts-ignore
+                columns={columns}
+                totalRows={total}
+                pageSize={DEFAULT_PAGE_SIZE}
+                syncUrlConfig={{
+                    hasSyncUrl: true,
+                }}
+                columnMenuLabels={columnMenuLabels}
+                id='open-table'
+                loading={loading}
+                onRowClick={handleRowAction}
+            />
+        </Col>
     )
 }
 
@@ -200,11 +286,17 @@ const NewsPageContent = ({
                     />
                 </TableFiltersContainer>
             </Col>
-            <NewsTableContainer
+            {/* <NewsTableContainer
                 searchNewsQuery={searchNewsQuery}
                 sortBy={sortBy}
                 filterMetas={filterMetas}
                 loading={loading}
+            /> */}
+            <OpenTableContainer
+                searchNewsQuery={searchNewsQuery}
+                sortBy={sortBy}
+                filterMetas={filterMetas}
+                loading={loading}   
             />
         </Row>
     )
