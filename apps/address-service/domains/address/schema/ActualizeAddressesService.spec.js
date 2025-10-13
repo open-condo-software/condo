@@ -26,10 +26,8 @@ const { createOrUpdateAddressWithSource } = require('@address-service/domains/co
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 const { makeClientWithSupportUser } = require('@address-service/domains/user/utils/testSchema')
 
-const { keystone } = index
 
 describe('ActualizeAddressesService', () => {
-    let context
     let adminClient, supportClient, userClient, anonymousClient
     let dvSender
     let mockedCallToDadata
@@ -37,8 +35,6 @@ describe('ActualizeAddressesService', () => {
     setFakeClientMode(index)
 
     beforeAll(async () => {
-        context = await keystone.createContext({ skipAccessControl: true })
-
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
         userClient = await makeLoggedInClient()
@@ -223,6 +219,8 @@ describe('ActualizeAddressesService', () => {
                         const cityDistrict = faker.lorem.word(12)
                         const data = {
                             ...initialData,
+                            // Change house_fias_id to simulate address change (e.g., building was re-registered)
+                            house_fias_id: faker.datatype.uuid(),
                             city_district_fias_id: faker.datatype.uuid(),
                             city_district_with_type: `${cityDistrictType} ${cityDistrict}`,
                             city_district_type: cityDistrictType,
@@ -271,8 +269,11 @@ describe('ActualizeAddressesService', () => {
 
                     const cityDistrictType = faker.lorem.word(2)
                     const cityDistrict = faker.lorem.word(12)
+                    // Generate a new house_fias_id to simulate address change (e.g., building was re-registered)
+                    const newHouseFiasId = faker.datatype.uuid()
                     const changedSuggestionItem = generateDadataSuggestionItem({}, {
                         ...initialData,
+                        house_fias_id: newHouseFiasId,
                         city_district_fias_id: faker.datatype.uuid(),
                         city_district_with_type: `${cityDistrictType} ${cityDistrict}`,
                         city_district_type: cityDistrictType,
@@ -296,7 +297,12 @@ describe('ActualizeAddressesService', () => {
                     const createdAddress2 = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData2, s2, dvSender)
                     const sources2 = await AddressSource.getAll(supportClient, { address: { id: createdAddress2.id } })
 
-                    expect(createdAddress1.meta.data.house_fias_id).toBe(createdAddress2.meta.data.house_fias_id)
+                    // Addresses should have different house_fias_id since we're simulating a building re-registration
+                    expect(createdAddress1.meta.data.house_fias_id).toBe(initialData.house_fias_id)
+                    expect(createdAddress2.meta.data.house_fias_id).toBe(newHouseFiasId)
+                    expect(createdAddress1.meta.data.house_fias_id).not.toBe(createdAddress2.meta.data.house_fias_id)
+                    // Address keys should be different due to different FIAS IDs
+                    expect(addressKey1).not.toBe(addressKey2)
 
                     mockedCallToDadata.mockImplementationOnce(() => {
                         return { suggestions: [changedSuggestionItem] }

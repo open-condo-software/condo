@@ -1,4 +1,5 @@
-const { generateAddressKey, JOINER, SPACE_REPLACER } = require('@address-service/domains/common/utils/addressKeyUtils')
+const { GOOGLE_PROVIDER, FIAS_PROVIDERS } = require('@address-service/domains/common/constants/providers')
+const { generateAddressKey, generateAddressKeyFromFiasId, JOINER, SPACE_REPLACER } = require('@address-service/domains/common/utils/addressKeyUtils')
 
 describe('Address key utils', () => {
     describe('will generate the correct address key', () => {
@@ -69,6 +70,155 @@ describe('Address key utils', () => {
                 unrestricted_value: '',
             })
             expect(t).toBe(expected)
+        })
+    })
+
+    describe('generateAddressKeyFromFiasId', () => {
+        it('should return FIAS-based key when house_fias_id is present', () => {
+            const normalizedBuilding = {
+                data: {
+                    house_fias_id: '12345678-1234-1234-1234-123456789abc',
+                    country: 'Russia',
+                    city: 'Moscow',
+                },
+                value: 'some address',
+                unrestricted_value: '',
+            }
+
+            const result = generateAddressKeyFromFiasId(normalizedBuilding)
+
+            expect(result).toBe('fias:12345678-1234-1234-1234-123456789abc')
+        })
+
+        it('should return null when house_fias_id is not present', () => {
+            const normalizedBuilding = {
+                data: {
+                    country: 'Russia',
+                    city: 'Moscow',
+                },
+                value: 'some address',
+                unrestricted_value: '',
+            }
+
+            const result = generateAddressKeyFromFiasId(normalizedBuilding)
+
+            expect(result).toBeNull()
+        })
+
+        it('should return null when house_fias_id is empty string', () => {
+            const normalizedBuilding = {
+                data: {
+                    house_fias_id: '',
+                    country: 'Russia',
+                    city: 'Moscow',
+                },
+                value: 'some address',
+                unrestricted_value: '',
+            }
+
+            const result = generateAddressKeyFromFiasId(normalizedBuilding)
+
+            expect(result).toBeNull()
+        })
+
+        it('should return null when house_fias_id is null', () => {
+            const normalizedBuilding = {
+                data: {
+                    house_fias_id: null,
+                    country: 'Russia',
+                    city: 'Moscow',
+                },
+                value: 'some address',
+                unrestricted_value: '',
+            }
+
+            const result = generateAddressKeyFromFiasId(normalizedBuilding)
+
+            expect(result).toBeNull()
+        })
+    })
+
+    describe('generateAddressKey with FIAS providers', () => {
+        describe('should use FIAS key when house_fias_id is present', () => {
+            test.each(FIAS_PROVIDERS)('for %s provider', (providerName) => {
+                const normalizedBuilding = {
+                    data: {
+                        house_fias_id: 'abc-123-def-456',
+                        country: 'Russia',
+                        city: 'Moscow',
+                        street: 'Tverskaya',
+                        house: '1',
+                    },
+                    provider: {
+                        name: providerName,
+                    },
+                    value: 'some address',
+                    unrestricted_value: '',
+                }
+
+                const result = generateAddressKey(normalizedBuilding)
+
+                expect(result).toBe('fias:abc-123-def-456')
+            })
+        })
+
+        describe('should fallback to standard key generation when house_fias_id is missing', () => {
+            test.each(FIAS_PROVIDERS)('for %s provider', (providerName) => {
+                const normalizedBuilding = {
+                    data: {
+                        country: 'Russia',
+                        city: 'Moscow',
+                        street: 'Tverskaya',
+                        house: '1',
+                    },
+                    provider: {
+                        name: providerName,
+                    },
+                    value: 'some address',
+                    unrestricted_value: '',
+                }
+
+                const result = generateAddressKey(normalizedBuilding)
+
+                expect(result).toBe('russia~moscow~tverskaya~1')
+            })
+        })
+
+        it('should use standard key generation for non-FIAS providers', () => {
+            const normalizedBuilding = {
+                data: {
+                    country: 'USA',
+                    city: 'New York',
+                    street: 'Broadway',
+                    house: '42',
+                },
+                provider: {
+                    name: GOOGLE_PROVIDER,
+                },
+                value: 'some address',
+                unrestricted_value: '',
+            }
+
+            const result = generateAddressKey(normalizedBuilding)
+
+            expect(result).toBe('usa~new_york~broadway~42')
+        })
+
+        it('should use standard key generation when provider is not specified', () => {
+            const normalizedBuilding = {
+                data: {
+                    country: 'Germany',
+                    city: 'Berlin',
+                    street: 'Unter den Linden',
+                    house: '5',
+                },
+                value: 'some address',
+                unrestricted_value: '',
+            }
+
+            const result = generateAddressKey(normalizedBuilding)
+
+            expect(result).toBe('germany~berlin~unter_den_linden~5')
         })
     })
 })
