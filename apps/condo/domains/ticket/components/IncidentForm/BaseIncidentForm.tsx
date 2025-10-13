@@ -9,6 +9,8 @@ import {
     useUpdateIncidentClassifierIncidentMutation,
     useUpdateIncidentPropertyMutation,
     useGetIncidentClassifierIncidentByIncidentIdLazyQuery,
+    CreateIncidentMutation,
+    UpdateIncidentMutation,
 } from '@app/condo/gql'
 import {
     IncidentCreateInput as IIncidentCreateInput,
@@ -60,6 +62,7 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 import styles from './BaseIncidentForm.module.css'
 
 import type { FormRule as Rule } from 'antd'
+import type { ArgsProps } from 'antd/lib/notification'
 
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
@@ -69,6 +72,15 @@ type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoadin
 type incidentInitialValue = Omit<GetIncidentByIdQuery['incident'], 'workStart' | 'workFinish'> & {
     workStart?: dayjs.Dayjs | null
     workFinish?: dayjs.Dayjs | null
+}
+
+type NewsInitialValue = {
+    title: string
+    body: string
+    propertyIds: string[]
+    hasAllProperties: boolean
+    type: string
+    validBefore?: string
 }
 
 export type BaseIncidentFormProps = {
@@ -82,7 +94,7 @@ export type BaseIncidentFormProps = {
     action: (values: IIncidentCreateInput | IIncidentUpdateInput) => Promise<Awaited<ReturnType<CreateIncidentMutationFn | UpdateIncidentMutationFn>>>
     afterAction?: () => Promise<void>
     showOrganization?: boolean
-    onCompletedMessage?: (incident, newsInitialValue) => any
+    onCompletedMessage?: (incident: CreateIncidentMutation['incident'] | UpdateIncidentMutation['incident'], newsInitialValue: NewsInitialValue) => ArgsProps
 }
 
 type FormLayoutProps = Pick<FormProps, 'labelCol' | 'wrapperCol' | 'layout' | 'labelAlign'>
