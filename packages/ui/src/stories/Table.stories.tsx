@@ -1,8 +1,12 @@
 import { Meta, StoryObj } from '@storybook/react-webpack5'
 import React from 'react'
 
-import { Table, renderTextWithTooltip } from '@open-condo/ui/src'
-import type { TableProps, TableColumn, TableColumnMenuLabels } from '@open-condo/ui/src'
+import { Select, Table, Input, renderTextWithTooltip } from '@open-condo/ui/src'
+import type {
+    TableProps,
+    TableColumn,
+    TableColumnMenuLabels,
+} from '@open-condo/ui/src'
 
 export default {
     title: 'Components/Table',
@@ -50,6 +54,28 @@ const columns: TableColumn<TableData>[] = [
         header: 'Age',
         id: 'age',
         initialOrder: 1,
+        enableSorting: true,
+        meta: {
+            filterComponent: ({ setFilterValue, filterValue }) => (
+                <Input
+                    onChange={(event) => {
+                        const value = Number(event.target.value)
+                        // @ts-ignore
+                        setFilterValue(value)
+                        console.log('filterValue', filterValue)
+                    }} 
+                    placeholder='Filter by age'
+                    value={filterValue as string || ''}
+                />
+            ),
+            filterFn: (row, columnId, filterValue) => {
+                const cellValue = row.getValue(columnId) as number
+                if (filterValue === undefined || filterValue === '') return true
+                const filterNum = Number(filterValue)
+                if (isNaN(filterNum)) return true
+                return cellValue.toString().includes(filterNum.toString())
+            },
+        },
     },
     {
         dataKey: 'status',
@@ -57,6 +83,22 @@ const columns: TableColumn<TableData>[] = [
         id: 'status',
         initialVisibility: false,
         render: (status, _) => <span>{status ? 'Active' : 'Inactive'}</span>,
+        meta: {
+            filterComponent: ({ setFilterValue, filterValue }) => (
+                <Select 
+                    options={[
+                        { label: 'Active', value: true },
+                        { label: 'Inactive', value: false },
+                    ]} 
+                    onChange={(value) => {
+                        // @ts-ignore
+                        setFilterValue(value)
+                    }} 
+                    allowClear
+                    value={filterValue as string}
+                />
+            ),
+        },
     },
     {
         dataKey: (row) => row.organization?.name,
@@ -73,15 +115,18 @@ const columns: TableColumn<TableData>[] = [
 ]
 
 const columnMenuLabels: TableColumnMenuLabels = {
-    sortLabel: 'Sort',
-    filterLabel: 'Filter',
-    settingsLabel: 'Settings',
+    sortLabel: 'Сортировать',
+    filterLabel: 'Фильтровать',
+    settingsLabel: 'Настроить колонки',
+    sortedLabel: 'Отсортированно',
+    filteredLabel: 'Отфильтрованно',
+    settedLabel: 'Настроены колонки',
 }
 
 const tableId = '1'
 
 const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<TableData>) => {
-    const { dataSource, columns, id, loading, columnMenuLabels, storageKey, onRowClick } = args
+    const { dataSource, columns, id, loading, columnMenuLabels, storageKey, defaultColumn, onRowClick } = args
 
     return (
         <Table<TableData>
@@ -90,7 +135,11 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
             id={id}
             columnMenuLabels={columnMenuLabels}
             storageKey={storageKey}
+            defaultColumn={defaultColumn}
             loading={loading}
+            syncUrlConfig={{
+                hasSyncUrl: true,
+            }}
             onRowClick={onRowClick}
         />
     )

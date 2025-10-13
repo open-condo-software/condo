@@ -3,17 +3,19 @@ import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useColumnOrder } from '@open-condo/ui/src/components/Table/hooks/useColumnOrder'
+import { useColumnSizing } from '@open-condo/ui/src/components/Table/hooks/useColumnSizing'
 import { useColumnVisibility } from '@open-condo/ui/src/components/Table/hooks/useColumnVisibility'
-import { TableSettings, TableColumn } from '@open-condo/ui/src/components/Table/types'
+import { TableSettings, TableColumn, DefaultColumn } from '@open-condo/ui/src/components/Table/types'
 import { getStorage, saveStorage } from '@open-condo/ui/src/components/Table/utils/storage'
 
 
 interface UsePersistentTableStateProps<TData extends RowData = RowData> {
     storageKey: string
     columns: TableColumn<TData>[]
+    defaultColumn?: DefaultColumn
 }
 
-export const useTableState = <TData extends RowData = RowData>({ storageKey, columns }: UsePersistentTableStateProps<TData>) => {
+export const useTableState = <TData extends RowData = RowData>({ storageKey, columns, defaultColumn }: UsePersistentTableStateProps<TData>) => {
     const getInitialState = useCallback((): TableSettings<TData> => {
         
         const savedState = getStorage(storageKey)
@@ -38,11 +40,12 @@ export const useTableState = <TData extends RowData = RowData>({ storageKey, col
         return resultColumns.reduce((result, column, index) => {
             result[column.id] = {
                 order: index,
-                visibility: column.initialVisibility ?? true,
+                visibility: column.initialVisibility !== undefined ? column.initialVisibility : (defaultColumn?.initialVisibility ?? true),
+                size: column.initialSize !== undefined ? parseInt(column.initialSize) : (defaultColumn?.initialSize ? parseInt(defaultColumn.initialSize) : undefined),
             }
             return result
         }, {} as TableSettings<TData>)
-    }, [columns, storageKey])
+    }, [columns, storageKey, defaultColumn])
 
     const [settings, setSettings] = useState<TableSettings<TData>>(getInitialState)
 
@@ -65,10 +68,17 @@ export const useTableState = <TData extends RowData = RowData>({ storageKey, col
         setSettings,
     })
 
+    const { columnSizing, onColumnSizingChange } = useColumnSizing<TData>({
+        settings,
+        setSettings,
+    })
+
     return {
         columnVisibility,
         columnOrder,
+        columnSizing,
         onColumnVisibilityChange,
         onColumnOrderChange,
+        onColumnSizingChange,
     }
 }
