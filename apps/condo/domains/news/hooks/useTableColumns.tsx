@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Select } from '@open-condo/ui'
 
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
@@ -38,7 +39,7 @@ export const useTableColumns = (filterMetas: UseNewsTableFiltersReturnType) => {
     
     const renderResendNews = useCallback((_, newsItem) => {
         const isSentAt = get(newsItem, 'sentAt', null)
-        if (!isSentAt || !canManage) return
+        if (!isSentAt || !canManage) return 
 
         return (
             <ResendNewsButton
@@ -110,4 +111,111 @@ export const useTableColumns = (filterMetas: UseNewsTableFiltersReturnType) => {
             },
         ]
     }, [renderResendNews, NumberMessage, TypeMessage, renderType, filterMetas, TitleMessage, renderTitle, BodyMessage, renderBody, AddressesMessage, renderProperties, DateMessage, renderNewsDate])
+}
+
+export const useOpenTableColumns = (filterMetas: UseNewsTableFiltersReturnType) => {
+    const intl = useIntl()
+    const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
+    const TypeMessage = intl.formatMessage({ id: 'global.type' })
+    const TitleMessage = intl.formatMessage({ id: 'Title' })
+    const BodyMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.body' })
+    const AddressesMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.addresses' })
+    const DateMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.date' })
+
+    const router = useRouter()
+    const { canManage } = useNewsItemsAccess()
+    const { filters } = parseQuery(router.query)
+    const search = getFilteredValue(filters, 'search')
+    
+    const renderResendNews = useCallback((_, newsItem) => {
+        const isSentAt = get(newsItem, 'sentAt', null)
+        if (!isSentAt || !canManage) return <></>
+
+        return (
+            <ResendNewsButton
+                intl={intl}
+                newsItem={newsItem}
+            />
+        )
+    }, [canManage, intl])
+
+    const renderType = useMemo(() => getTypeRender(intl, search), [intl, search])
+    const renderTitle = useMemo(() => getRenderTitle(search), [search])
+    const renderBody = useMemo(() => getRenderBody(search), [search])
+    const renderProperties = useMemo(() => getRenderProperties(intl, search), [intl, search])
+    const renderNewsDate = useMemo(() => getRenderNewsDate(intl, search), [intl, search])
+
+    return useMemo(() => {
+        return [
+            {
+                header: '',
+                dataKey: 'resend',
+                id: 'resend',
+                // width: COLUMNS_WIDTH.resend,
+                render: renderResendNews,
+            },
+            {
+                header: NumberMessage,
+                dataKey: 'number',
+                id: 'number',
+                enableSorting: true,
+                // width: COLUMNS_WIDTH.number,
+            },
+            {
+                header: TypeMessage,
+                dataKey: 'type',
+                id: 'type',
+                // width: COLUMNS_WIDTH.type,
+                render: renderType,
+                meta: {
+                    filterComponent: ({ setFilterValue, filterValue }) => (
+                        <Select 
+                            options={[
+                                { label: 'Плановый', value: 'common' },
+                                { label: 'Аварийный', value: 'emergency' },
+                            ]} 
+                            onChange={(value) => {
+                                // @ts-ignore
+                                setFilterValue(value)
+                            }} 
+                            allowClear
+                            value={filterValue as string}
+                        />
+                    ),
+                },
+            },
+            {
+                header: TitleMessage,
+                dataKey: 'title',
+                id: 'title',
+                // width: COLUMNS_WIDTH.title,
+                render: renderTitle,
+            },
+            {
+                header: BodyMessage,
+                dataKey: 'body',
+                id: 'body',
+                // width: COLUMNS_WIDTH.body,
+                render: renderBody,
+            },
+            {
+                header: AddressesMessage,
+                dataKey: 'compactScopes',
+                id: 'compactScopes',
+                // width: COLUMNS_WIDTH.compactScopes,
+                render: renderProperties,
+            },
+            {
+                header: DateMessage,
+                dataKey: 'createdAt',
+                id: 'createdAt',
+                // width: COLUMNS_WIDTH.createdAt,
+                enableSorting: true,
+                render: renderNewsDate,
+                meta: {
+                    filterComponent: getFilterDropdownByKey(filterMetas, 'createdAt'),
+                },
+            },
+        ]
+    }, [renderResendNews, NumberMessage, TypeMessage, renderType, TitleMessage, renderTitle, BodyMessage, renderBody, AddressesMessage, renderProperties, DateMessage, renderNewsDate])
 }
