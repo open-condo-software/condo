@@ -7350,13 +7350,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fastify/busboy@npm:^2.0.0":
-  version: 2.1.1
-  resolution: "@fastify/busboy@npm:2.1.1"
-  checksum: 42c32ef75e906c9a4809c1e1930a5ca6d4ddc8d138e1a8c8ba5ea07f997db32210617d23b2e4a85fe376316a41a1a0439fc6ff2dedf5126d96f45a9d80754fb2
-  languageName: node
-  linkType: hard
-
 "@fastify/busboy@npm:^3.0.0, @fastify/busboy@npm:^3.1.1":
   version: 3.1.1
   resolution: "@fastify/busboy@npm:3.1.1"
@@ -8887,6 +8880,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@grpc/grpc-js@npm:^1.11.1":
+  version: 1.14.0
+  resolution: "@grpc/grpc-js@npm:1.14.0"
+  dependencies:
+    "@grpc/proto-loader": ^0.8.0
+    "@js-sdsl/ordered-map": ^4.4.2
+  checksum: 34533b238bfd275b33ab25c8557766e0b8a94b70808a242d24c4bacd374ae197e18198777228dbb0d821b1e4554b448674da096e5126fa43bb26e5b1398a152d
+  languageName: node
+  linkType: hard
+
 "@grpc/grpc-js@npm:^1.7.1":
   version: 1.9.0
   resolution: "@grpc/grpc-js@npm:1.9.0"
@@ -8923,6 +8926,20 @@ __metadata:
   bin:
     proto-loader-gen-types: build/bin/proto-loader-gen-types.js
   checksum: 9f19f4c611a17cd33aec0d6e3686a76696495f40593f7c284933c4b7877f58dfa5a225ddc20705860a632311f4dc0d143cb6a0da7b51b6f5ffd7de26938df308
+  languageName: node
+  linkType: hard
+
+"@grpc/proto-loader@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "@grpc/proto-loader@npm:0.8.0"
+  dependencies:
+    lodash.camelcase: ^4.3.0
+    long: ^5.0.0
+    protobufjs: ^7.5.3
+    yargs: ^17.7.2
+  bin:
+    proto-loader-gen-types: build/bin/proto-loader-gen-types.js
+  checksum: 97570e2e8c29a35b999fa929acad506765e6752d3219764825fecc0ab632492b1ac2e4dd4c0a96cc2e01754d99bfa838dff0729c6608a02f7b027fd19bc1d1e4
   languageName: node
   linkType: hard
 
@@ -11208,7 +11225,7 @@ __metadata:
     ioredis: ^4.28.5
     jest: ^29.7.0
     prompts: ^2.4.2
-    testcontainers: ^10.18.0
+    testcontainers: ^11.7.0
     tmp: ^0.2.3
     ts-jest: ^29.4.0
     tsup: ^8.3.6
@@ -14565,14 +14582,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dockerode@npm:^3.3.29":
-  version: 3.3.34
-  resolution: "@types/dockerode@npm:3.3.34"
+"@types/dockerode@npm:^3.3.44":
+  version: 3.3.44
+  resolution: "@types/dockerode@npm:3.3.44"
   dependencies:
     "@types/docker-modem": "*"
     "@types/node": "*"
     "@types/ssh2": "*"
-  checksum: 0cb35276fc76ee8ae9d6db7054198e23370f753894d06aa56efbf232032009c6f63a3bfce9d71e6272f3240040d9da2d2a56671d24f34e598ff2000df946ecbd
+  checksum: ec3638142112bc9e9743803b0b86ffef01996f82175b1fde571f1b6dba8582dfb7c62f4aec1d445a8136764e9f5858f3da5d7592dc357993f013217927059fc6
   languageName: node
   linkType: hard
 
@@ -22209,35 +22226,39 @@ __metadata:
   languageName: node
   linkType: hard
 
-"docker-compose@npm:^0.24.8":
-  version: 0.24.8
-  resolution: "docker-compose@npm:0.24.8"
+"docker-compose@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "docker-compose@npm:1.3.0"
   dependencies:
     yaml: ^2.2.2
-  checksum: 48f3564c46490f1f51899a144deb546b61450a76bffddb378379ac7702aa34b055e0237e0dc77507df94d7ad6f1f7daeeac27730230bce9aafe2e35efeda6b45
+  checksum: b71b10fa0e019902984e862505b76d89cc3d430d01ea8be46b505d629dec73f9aed02aad1cc4f86b4547ad27eab96fb23de980c852ab209a8d8f1ba3b8f48d3c
   languageName: node
   linkType: hard
 
-"docker-modem@npm:^3.0.0":
-  version: 3.0.8
-  resolution: "docker-modem@npm:3.0.8"
+"docker-modem@npm:^5.0.6":
+  version: 5.0.6
+  resolution: "docker-modem@npm:5.0.6"
   dependencies:
     debug: ^4.1.1
     readable-stream: ^3.5.0
     split-ca: ^1.0.1
-    ssh2: ^1.11.0
-  checksum: e3675c9b1ad800be8fb1cb9c5621fbef20a75bfedcd6e01b69808eadd7f0165681e4e30d1700897b788a67dbf4769964fcccd19c3d66f6d2499bb7aede6b34df
+    ssh2: ^1.15.0
+  checksum: 111b69a99b5eff10cc2a67b08c0de08bbd3ad7e351419a0b9716a72c23febca50f5cff03a93347f8c0386d7687af097b0a5bb9c33fbeab76e90b70068d1d5c49
   languageName: node
   linkType: hard
 
-"dockerode@npm:^3.3.5":
-  version: 3.3.5
-  resolution: "dockerode@npm:3.3.5"
+"dockerode@npm:^4.0.8":
+  version: 4.0.9
+  resolution: "dockerode@npm:4.0.9"
   dependencies:
     "@balena/dockerignore": ^1.0.2
-    docker-modem: ^3.0.0
-    tar-fs: ~2.0.1
-  checksum: 7f6650422b07fa7ea9d5801f04b1a432634446b5fe37b995b8302b953b64e93abf1bb4596c2fb574ba47aafee685ef2ab959cc86c9654add5a26d09541bbbcc6
+    "@grpc/grpc-js": ^1.11.1
+    "@grpc/proto-loader": ^0.7.13
+    docker-modem: ^5.0.6
+    protobufjs: ^7.3.2
+    tar-fs: ^2.1.4
+    uuid: ^10.0.0
+  checksum: 1a0ba1e02fbc85754254c102a1af4c0ced5469b5bb185d0036bef11ceeee3facb827a0ceb1eea5faf135a9be66b1cb81f79e54ae11f6e6342c731e93a76588dc
   languageName: node
   linkType: hard
 
@@ -25671,6 +25692,13 @@ __metadata:
   version: 6.1.2
   resolution: "get-port@npm:6.1.2"
   checksum: e3c3d591492a11393455ef220f24c812a28f7da56ec3e4a2512d931a1f196d42850b50ac6138349a44622eda6dc3c0ccd8495cd91376d968e2d9e6f6f849e0a9
+  languageName: node
+  linkType: hard
+
+"get-port@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "get-port@npm:7.1.0"
+  checksum: f4d23b43026124007663a899578cc87ff37bfcf645c5c72651e9810ebafc759857784e409fb8e0ada9b90e5c5db089b0ae2f5f6b49fba1ce2e0aff86094ab17d
   languageName: node
   linkType: hard
 
@@ -33694,6 +33722,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nan@npm:^2.23.0":
+  version: 2.23.0
+  resolution: "nan@npm:2.23.0"
+  dependencies:
+    node-gyp: latest
+  checksum: 2d1fd612d69d4cf4dd63c8ce61ee6aa36ace2caf5363c98b3232833fc24ab761fb96742682997716dea5fb9abf57e2fe7e94e76e0c4c302ed1fcde5b908f3e8f
+  languageName: node
+  linkType: hard
+
 "nanoassert@npm:^2.0.0":
   version: 2.0.0
   resolution: "nanoassert@npm:2.0.0"
@@ -37694,6 +37731,26 @@ __metadata:
     "@types/node": ">=13.7.0"
     long: ^5.0.0
   checksum: 8a8842338c9bf586f11e1c179fc01f0b65adc22114bb2626daf62d66439c7b4227c182ef375184d24d2a16378716bab8dc5000940287610c8b8742972e4b0a2f
+  languageName: node
+  linkType: hard
+
+"protobufjs@npm:^7.5.3":
+  version: 7.5.4
+  resolution: "protobufjs@npm:7.5.4"
+  dependencies:
+    "@protobufjs/aspromise": ^1.1.2
+    "@protobufjs/base64": ^1.1.2
+    "@protobufjs/codegen": ^2.0.4
+    "@protobufjs/eventemitter": ^1.1.0
+    "@protobufjs/fetch": ^1.1.0
+    "@protobufjs/float": ^1.0.2
+    "@protobufjs/inquire": ^1.1.0
+    "@protobufjs/path": ^1.1.2
+    "@protobufjs/pool": ^1.1.0
+    "@protobufjs/utf8": ^1.1.0
+    "@types/node": ">=13.7.0"
+    long: ^5.0.0
+  checksum: 53bf83b9a726b05d43da35bb990dba7536759787dccea9a67b8f31be9df470ba17f1f1b982ca19956cfc7726f3ec7e0e883ca4ad93b5ec753cc025a637fc704f
   languageName: node
   linkType: hard
 
@@ -42951,7 +43008,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ssh2@npm:^1.11.0, ssh2@npm:^1.12.0, ssh2@npm:^1.4.0":
+"ssh2@npm:^1.12.0, ssh2@npm:^1.4.0":
   version: 1.16.0
   resolution: "ssh2@npm:1.16.0"
   dependencies:
@@ -42965,6 +43022,23 @@ __metadata:
     nan:
       optional: true
   checksum: c024c4a432aae2457852037f31c0d9bec323fb062ace3a31e4a6dd6c55842246c80e7d20ff93ffed22dde1e523250d8438bc2f7d4a1450cf4fa4887818176f0e
+  languageName: node
+  linkType: hard
+
+"ssh2@npm:^1.15.0":
+  version: 1.17.0
+  resolution: "ssh2@npm:1.17.0"
+  dependencies:
+    asn1: ^0.2.6
+    bcrypt-pbkdf: ^1.0.2
+    cpu-features: ~0.0.10
+    nan: ^2.23.0
+  dependenciesMeta:
+    cpu-features:
+      optional: true
+    nan:
+      optional: true
+  checksum: 1661b020e367e358603187a1efbb7628cb9b2f75543f60e354ede67be1216d331f2b99a73c57fb01a04be050a1e06fc97d04760d1396ea658ca816ddf80df9a9
   languageName: node
   linkType: hard
 
@@ -44170,9 +44244,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar-fs@npm:^3.0.6":
-  version: 3.0.8
-  resolution: "tar-fs@npm:3.0.8"
+"tar-fs@npm:^2.1.4":
+  version: 2.1.4
+  resolution: "tar-fs@npm:2.1.4"
+  dependencies:
+    chownr: ^1.1.1
+    mkdirp-classic: ^0.5.2
+    pump: ^3.0.0
+    tar-stream: ^2.1.4
+  checksum: a9e18e2e6114b8ac2568d7c2b42d006b1fe30d83957e4e75ba2361a889c2fc54e54236476782d06494e081358a393feacdf19311df12b3056c8a64dc1f7ed309
+  languageName: node
+  linkType: hard
+
+"tar-fs@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "tar-fs@npm:3.1.1"
   dependencies:
     bare-fs: ^4.0.1
     bare-path: ^3.0.0
@@ -44183,23 +44269,11 @@ __metadata:
       optional: true
     bare-path:
       optional: true
-  checksum: 5bebadd68e7a10cc3aa9c30b579c295e158cef7b1f42a73ee1bb1992925027aa8ef6cbcdb0d03e202e7f3850799391de30adf2585f7f240b606faa65df1a6b68
+  checksum: eaae4c5410897e00bd03c44bcaf9bad43f793d1dd8fa2fe0ba808c809c8b169d6f40c093eab0ce20e12e9b6b8bf63f11438b2a6a8695c1dfc441fa71a5013896
   languageName: node
   linkType: hard
 
-"tar-fs@npm:~2.0.1":
-  version: 2.0.1
-  resolution: "tar-fs@npm:2.0.1"
-  dependencies:
-    chownr: ^1.1.1
-    mkdirp-classic: ^0.5.2
-    pump: ^3.0.0
-    tar-stream: ^2.0.0
-  checksum: 26cd297ed2421bc8038ce1a4ca442296b53739f409847d495d46086e5713d8db27f2c03ba2f461d0f5ddbc790045628188a8544f8ae32cbb6238b279b68d0247
-  languageName: node
-  linkType: hard
-
-"tar-stream@npm:^2.0.0, tar-stream@npm:^2.2.0":
+"tar-stream@npm:^2.1.4, tar-stream@npm:^2.2.0":
   version: 2.2.0
   resolution: "tar-stream@npm:2.2.0"
   dependencies:
@@ -44465,26 +44539,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"testcontainers@npm:^10.18.0":
-  version: 10.18.0
-  resolution: "testcontainers@npm:10.18.0"
+"testcontainers@npm:^11.7.0":
+  version: 11.7.1
+  resolution: "testcontainers@npm:11.7.1"
   dependencies:
     "@balena/dockerignore": ^1.0.2
-    "@types/dockerode": ^3.3.29
+    "@types/dockerode": ^3.3.44
     archiver: ^7.0.1
     async-lock: ^1.4.1
     byline: ^5.0.0
-    debug: ^4.3.5
-    docker-compose: ^0.24.8
-    dockerode: ^3.3.5
-    get-port: ^5.1.1
+    debug: ^4.4.3
+    docker-compose: ^1.3.0
+    dockerode: ^4.0.8
+    get-port: ^7.1.0
     proper-lockfile: ^4.1.2
     properties-reader: ^2.3.0
     ssh-remote-port-forward: ^1.0.4
-    tar-fs: ^3.0.6
-    tmp: ^0.2.3
-    undici: ^5.28.5
-  checksum: 41f27a01ac7d0e639d2fd026df49ffc8ad74da2ebed5f87644c7b29ecd2c383537ec13c8b5143f09c64c904741131be56c195595e32e2b463763c279fa377020
+    tar-fs: ^3.1.1
+    tmp: ^0.2.5
+    undici: ^7.16.0
+  checksum: 9ce9fd83afaf6bf743b9b61e5ec0c5d96b799bf4af460b68b3639e92d9b82279f198355a39334a97bfcc0b3fcaefae3488ddbe887bcc8481bf31d42157a19370
   languageName: node
   linkType: hard
 
@@ -44824,6 +44898,13 @@ __metadata:
   version: 0.2.3
   resolution: "tmp@npm:0.2.3"
   checksum: 73b5c96b6e52da7e104d9d44afb5d106bb1e16d9fa7d00dbeb9e6522e61b571fbdb165c756c62164be9a3bbe192b9b268c236d370a2a0955c7689cd2ae377b95
+  languageName: node
+  linkType: hard
+
+"tmp@npm:^0.2.5":
+  version: 0.2.5
+  resolution: "tmp@npm:0.2.5"
+  checksum: 9d18e58060114154939930457b9e198b34f9495bcc05a343bc0a0a29aa546d2c1c2b343dae05b87b17c8fde0af93ab7d8fe8574a8f6dc2cd8fd3f2ca1ad0d8e1
   languageName: node
   linkType: hard
 
@@ -45916,15 +45997,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:^5.28.5":
-  version: 5.28.5
-  resolution: "undici@npm:5.28.5"
-  dependencies:
-    "@fastify/busboy": ^2.0.0
-  checksum: a402d699a602a8feee1c0f78267467c8ffcbd7682267fec7a1307fd11554a32976a2307bf1cc8bf6ef7a667654336592fbd66d675df20ce28357536fb55a3a7d
-  languageName: node
-  linkType: hard
-
 "undici@npm:^5.8.0":
   version: 5.9.1
   resolution: "undici@npm:5.9.1"
@@ -45936,6 +46008,13 @@ __metadata:
   version: 7.13.0
   resolution: "undici@npm:7.13.0"
   checksum: 9faf96fa20f17974970d9a33571f76cb6a5c9a157180a161faeda28e58213f553370952dbc84954b682fb4836b8d2b986a2a2b86faca0cf0d7d7b519b8395958
+  languageName: node
+  linkType: hard
+
+"undici@npm:^7.16.0":
+  version: 7.16.0
+  resolution: "undici@npm:7.16.0"
+  checksum: dca60e323e44c2d408e0d1f5eb540632ad4e75631d5b6fcd7791876bab54e0e263a66e5606eaa717d436b2db5988c2f4af912dfa221ce53e3fc7fcb7d224c9cd
   languageName: node
   linkType: hard
 
@@ -46734,6 +46813,15 @@ __metadata:
   bin:
     uuid: dist/bin/uuid
   checksum: 8dd2c83c43ddc7e1c71e36b60aea40030a6505139af6bee0f382ebcd1a56f6cd3028f7f06ffb07f8cf6ced320b76aea275284b224b002b289f89fe89c389b028
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "uuid@npm:10.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 4b81611ade2885d2313ddd8dc865d93d8dccc13ddf901745edca8f86d99bc46d7a330d678e7532e7ebf93ce616679fb19b2e3568873ac0c14c999032acb25869
   languageName: node
   linkType: hard
 
