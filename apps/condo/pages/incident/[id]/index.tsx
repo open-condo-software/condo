@@ -380,6 +380,11 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const ChangeHistoryTitle = intl.formatMessage({ id: 'incident.id.changeHistory.title' })
     const GenerateNewsLabel = intl.formatMessage({ id: 'incident.id.generateNews.button.label' })
     const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+    const GoToNewsMessage = intl.formatMessage({ id: 'incident.notification.button.goToNews' })
+    const ReadyMessage = intl.formatMessage({ id: 'Ready' })
+    const ChangesSavedMessage = intl.formatMessage({ id: 'ChangesSaved' })
+    const AlsoCreateNewsMessage = intl.formatMessage({ id: 'incident.notification.description.alsoCreateNews' })
+    const CreateNewsMessage = intl.formatMessage({ id: 'incident.notification.description.createNews' })
 
     const { incident, refetchIncident, incidentLoading, withOrganization } = props
 
@@ -434,6 +439,36 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     })
     const incidentChanges = useMemo(() => incidentChangesData?.incidentChanges?.filter(Boolean) || [], [incidentChangesData?.incidentChanges])
 
+    const getSuccessMessage = useCallback((description, newsInitialValue) => {
+        return {
+            message: (
+                <Typography.Text strong>{ReadyMessage}</Typography.Text>
+            ),
+            description: (
+                <Row gutter={[0, 16]}>
+                    <Col span={24}>
+                        <Typography.Text size='medium' type='secondary'>{description}</Typography.Text>
+                    </Col>
+                    {
+                        newsInitialValue && (
+                            <Col span={24}>
+                                <Button
+                                    type='primary'
+                                    onClick={() => {
+                                        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(newsInitialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}`, '_blank')
+                                        notification.destroy()
+                                    }}>
+                                    {GoToNewsMessage}
+                                </Button>
+                            </Col>
+                        )
+                    }
+                </Row>
+            ),
+            duration: 10,
+        }
+    }, [GoToNewsMessage, ReadyMessage])
+
     const generateNewsItem = useCallback(async (
         incident: GetIncidentByIdQuery['incident'],
         incidentClassifiers: GetIncidentClassifierIncidentByIncidentIdQuery['incidentClassifierIncident'],
@@ -478,22 +513,34 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
         }
 
         window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}`, '_blank')
+
+        return initialValue
     }, [GenericErrorMessage, runGenerateNewsAIFlow])
 
     const afterStatusUpdate: Parameters<UseIncidentUpdateStatusModalType>[0]['afterUpdate'] = useCallback(async (incident, generateNews) => {
+        let initialNewsItemValue
         if (aiEnabled && generateNewsByIncidentEnabled && generateNews) {
-            await generateNewsItem(incident, incidentClassifiers, incidentProperties)
+            initialNewsItemValue = await generateNewsItem(incident, incidentClassifiers, incidentProperties)
         }
+
+        let notificationDescription = ChangesSavedMessage
+        if (initialNewsItemValue) {
+            notificationDescription += ` ${AlsoCreateNewsMessage}`
+        }
+        notification.success(getSuccessMessage(notificationDescription, initialNewsItemValue))
 
         refetchIncident()
         refetchIncidentChanges()
-    }, [generateNewsItem, refetchIncident, refetchIncidentChanges, incidentClassifiers, incidentProperties, aiEnabled, generateNewsByIncidentEnabled])
+    }, [getSuccessMessage, ChangesSavedMessage, AlsoCreateNewsMessage, generateNewsItem, refetchIncident, refetchIncidentChanges, incidentClassifiers, incidentProperties, aiEnabled, generateNewsByIncidentEnabled])
 
     const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, afterUpdate: afterStatusUpdate })
 
     const handleGenerateNews = useCallback(async () => {
-        await generateNewsItem(incident, incidentClassifiers, incidentProperties)
-    }, [generateNewsItem, incident, incidentClassifiers, incidentProperties])
+        const initialNewsItemValue = await generateNewsItem(incident, incidentClassifiers, incidentProperties)
+        if (initialNewsItemValue) {
+            notification.success(getSuccessMessage(CreateNewsMessage, initialNewsItemValue))
+        }
+    }, [getSuccessMessage, CreateNewsMessage, generateNewsItem, incident, incidentClassifiers, incidentProperties])
 
     const handleEditIncident = useCallback(async () => {
         await router.push(`/incident/${incident.id}/update`)
@@ -608,7 +655,7 @@ const IncidentIdPage: PageComponentType = () => {
 
     const incidentId = typeof query?.id === 'string' ? query?.id : null
 
-    const { 
+    const {
         data: incidentData,
         loading: incidentLoading,
         error: incidentError,
