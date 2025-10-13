@@ -3,8 +3,8 @@ import React from 'react'
 
 import type { ComponentProps } from 'react'
 
-const DefaultChechboxGroup = DefaultCheckbox.Group
-type DefaultCheckboxGroupProps = ComponentProps<typeof DefaultChechboxGroup>
+const DefaultCheckboxGroup = DefaultCheckbox.Group
+type DefaultCheckboxGroupProps = ComponentProps<typeof DefaultCheckboxGroup>
 
 export type CheckboxGroupProps = Pick<DefaultCheckboxGroupProps,
 'children'
@@ -17,7 +17,7 @@ export type CheckboxGroupProps = Pick<DefaultCheckboxGroupProps,
 | 'value'>
 
 const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>((props, ref) => {
-    return <DefaultChechboxGroup ref={ref} {...props}>{props.children}</DefaultChechboxGroup>
+    return <DefaultCheckboxGroup ref={ref} {...props}>{props.children}</DefaultCheckboxGroup>
 })
 
 CheckboxGroup.displayName = 'CheckboxGroup'
