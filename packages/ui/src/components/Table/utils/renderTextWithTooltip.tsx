@@ -35,8 +35,7 @@ export const renderTextWithTooltip = <TValue = unknown>({
     return (
         <Tooltip 
             title={title} 
-            placement='topLeft' 
-            destroyTooltipOnHide
+            placement='topLeft'
             {...extraTooltipProps}
         >
             <span>
