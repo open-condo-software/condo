@@ -28,7 +28,7 @@ export type CheckboxProps = Pick<DefaultCheckboxProps,
 | 'tabIndex'
 | 'value'> & CondoCheckboxProps
 
-const Checkbox: React.FC<CheckboxProps> & { Group: typeof DefaultCheckbox['Group'] } = (props) => {
+const Checkbox: React.FC<CheckboxProps> = (props) => {
     const {
         label,
         labelProps,
@@ -66,8 +66,6 @@ const Checkbox: React.FC<CheckboxProps> & { Group: typeof DefaultCheckbox['Group
         </DefaultCheckbox>
     )
 }
-
-Checkbox.Group = DefaultCheckbox.Group
 
 export {
     Checkbox,
