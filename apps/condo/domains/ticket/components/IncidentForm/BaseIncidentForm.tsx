@@ -62,7 +62,7 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 import styles from './BaseIncidentForm.module.css'
 
 import type { FormRule as Rule } from 'antd'
-import type { ArgsProps } from 'antd/lib/notification'
+import type { ArgsProps as NotificationProps } from 'antd/lib/notification'
 
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
@@ -94,7 +94,7 @@ export type BaseIncidentFormProps = {
     action: (values: IIncidentCreateInput | IIncidentUpdateInput) => Promise<Awaited<ReturnType<CreateIncidentMutationFn | UpdateIncidentMutationFn>>>
     afterAction?: () => Promise<void>
     showOrganization?: boolean
-    onCompletedMessage?: (incident: CreateIncidentMutation['incident'] | UpdateIncidentMutation['incident'], newsInitialValue: NewsInitialValue) => ArgsProps
+    onCompletedMessage?: (incident: CreateIncidentMutation['incident'] | UpdateIncidentMutation['incident'], newsInitialValue: NewsInitialValue) => NotificationProps
 }
 
 type FormLayoutProps = Pick<FormProps, 'labelCol' | 'wrapperCol' | 'layout' | 'labelAlign'>
