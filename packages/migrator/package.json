@@ -46,7 +46,7 @@
     "@types/tmp": "^0.2.6",
     "execa": "^5.0.0",
     "jest": "^29.7.0",
-    "testcontainers": "^10.18.0",
+    "testcontainers": "^11.7.0",
     "tmp": "^0.2.3",
     "ts-jest": "^29.4.0",
     "tsup": "^8.3.6",
