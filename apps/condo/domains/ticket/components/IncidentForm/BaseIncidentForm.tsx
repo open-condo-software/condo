@@ -54,6 +54,7 @@ import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
+import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
 import { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY } from '@condo/domains/ticket/constants/incident'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { IncidentClassifiersQueryLocal, Option } from '@condo/domains/ticket/utils/clientSchema/incidentClassifierSearch'
@@ -98,6 +99,7 @@ export type BaseIncidentFormProps = {
     afterAction?: () => Promise<void>
     showOrganization?: boolean
     onCompletedMessage?: (incident: CreateIncidentMutation['incident'] | UpdateIncidentMutation['incident'], newsInitialValue: NewsInitialValue) => NotificationProps
+    formType: 'create' | 'update'
 }
 
 type FormLayoutProps = Pick<FormProps, 'labelCol' | 'wrapperCol' | 'layout' | 'labelAlign'>
@@ -535,6 +537,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         organizationId,
         showOrganization = false,
         onCompletedMessage,
+        formType = 'create',
     } = props
 
     const [incidentForm] = Form.useForm()
@@ -660,7 +663,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         }
 
         let newsInitialValue
-        if (withNewsGeneration && generateNews) {
+        if (formType === 'create' && withNewsGeneration && generateNews) {
             try {
                 const selectedClassifiers = allClassifiers
                     .filter(classifier => selectedClassifierIds.includes(classifier.id))
@@ -701,7 +704,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                     }
                     newsInitialValue = initialValue
 
-                    window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}`, '_blank')
+                    window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}&source=${AnalyticalNewsSources.INCIDENT_CREATE_AUTO}`, '_blank')
                 }
             } catch (error) {
                 notification.error({ message: GenericErrorMessage })
@@ -715,7 +718,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         if (afterAction) {
             await afterAction()
         }
-    }, [withNewsGeneration, createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, onCompletedMessage, afterAction, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers, runGenerateNewsAIFlow, GenericErrorMessage])
+    }, [formType, withNewsGeneration, createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, onCompletedMessage, afterAction, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers, runGenerateNewsAIFlow, GenericErrorMessage])
 
     const renderPropertyOptions: InputWithCheckAllProps['selectProps']['renderOptions'] = useCallback((options, renderOption) => {
         const deletedPropertyOptions = initialIncidentProperties.map((incidentProperty) => {
