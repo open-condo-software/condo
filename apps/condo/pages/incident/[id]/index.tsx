@@ -56,6 +56,7 @@ type IncidentIdPageContentProps = {
     refetchIncident
     incidentLoading: boolean
     withOrganization?: boolean
+    withNewsGeneration?: boolean
 }
 
 type IncidentFieldProps = {
@@ -386,7 +387,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const AlsoCreateNewsMessage = intl.formatMessage({ id: 'incident.notification.description.alsoCreateNews' })
     const CreateNewsMessage = intl.formatMessage({ id: 'incident.notification.description.createNews' })
 
-    const { incident, refetchIncident, incidentLoading, withOrganization } = props
+    const { incident, refetchIncident, incidentLoading, withOrganization, withNewsGeneration } = props
 
     const router = useRouter()
     const { employee } = useOrganization()
@@ -519,7 +520,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
 
     const afterStatusUpdate: Parameters<UseIncidentUpdateStatusModalType>[0]['afterUpdate'] = useCallback(async (incident, generateNews) => {
         let initialNewsItemValue
-        if (aiEnabled && generateNewsByIncidentEnabled && generateNews) {
+        if (withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && generateNews) {
             initialNewsItemValue = await generateNewsItem(incident, incidentClassifiers, incidentProperties)
         }
 
@@ -531,9 +532,9 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
 
         refetchIncident()
         refetchIncidentChanges()
-    }, [getSuccessMessage, ChangesSavedMessage, AlsoCreateNewsMessage, generateNewsItem, refetchIncident, refetchIncidentChanges, incidentClassifiers, incidentProperties, aiEnabled, generateNewsByIncidentEnabled])
+    }, [withNewsGeneration, getSuccessMessage, ChangesSavedMessage, AlsoCreateNewsMessage, generateNewsItem, refetchIncident, refetchIncidentChanges, incidentClassifiers, incidentProperties, aiEnabled, generateNewsByIncidentEnabled])
 
-    const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, afterUpdate: afterStatusUpdate })
+    const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, afterUpdate: afterStatusUpdate, withNewsGeneration })
 
     const handleGenerateNews = useCallback(async () => {
         const initialNewsItemValue = await generateNewsItem(incident, incidentClassifiers, incidentProperties)
@@ -624,7 +625,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                             id='editIncident'
                                         />
                                     ),
-                                    (aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems) && (
+                                    (withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems) && (
                                         <Button
                                             key='generateNews'
                                             disabled={generateNewsLoading || incidentClassifierIncidentLoading || incidentPropertiesLoading}
@@ -683,6 +684,7 @@ const IncidentIdPage: PageComponentType = () => {
             incident={incident}
             refetchIncident={fetchIncidents}
             incidentLoading={incidentLoading}
+            withNewsGeneration
         />
     )
 }
