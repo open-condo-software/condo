@@ -67,7 +67,9 @@ import type { ArgsProps as NotificationProps } from 'antd/lib/notification'
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
 
-type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoading' | 'form'>
+type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoading' | 'form'> & {
+    withNewsGeneration?: boolean
+}
 
 type incidentInitialValue = Omit<GetIncidentByIdQuery['incident'], 'workStart' | 'workFinish'> & {
     workStart?: dayjs.Dayjs | null
@@ -84,6 +86,7 @@ type NewsInitialValue = {
 }
 
 export type BaseIncidentFormProps = {
+    withNewsGeneration?: boolean
     loading?: boolean
     ActionBar?: React.FC<ActionBarProps>
     initialValues?: incidentInitialValue & {
@@ -523,6 +526,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
 
     const {
+        withNewsGeneration,
         action: createOrUpdateIncident,
         afterAction,
         ActionBar,
@@ -656,7 +660,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         }
 
         let newsInitialValue
-        if (generateNews) {
+        if (withNewsGeneration && generateNews) {
             try {
                 const selectedClassifiers = allClassifiers
                     .filter(classifier => selectedClassifierIds.includes(classifier.id))
@@ -699,8 +703,6 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
 
                     window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}`, '_blank')
                 }
-
-
             } catch (error) {
                 notification.error({ message: GenericErrorMessage })
             }
@@ -713,7 +715,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         if (afterAction) {
             await afterAction()
         }
-    }, [createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, onCompletedMessage, afterAction, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers, runGenerateNewsAIFlow, GenericErrorMessage])
+    }, [withNewsGeneration, createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, onCompletedMessage, afterAction, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers, runGenerateNewsAIFlow, GenericErrorMessage])
 
     const renderPropertyOptions: InputWithCheckAllProps['selectProps']['renderOptions'] = useCallback((options, renderOption) => {
         const deletedPropertyOptions = initialIncidentProperties.map((incidentProperty) => {
@@ -925,6 +927,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                     && (
                                         <Col span={24}>
                                             <ActionBar
+                                                withNewsGeneration={withNewsGeneration}
                                                 handleSave={handleSave}
                                                 isLoading={isLoading}
                                                 form={form}

@@ -20,7 +20,7 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
     const GenerateNewsLabel = intl.formatMessage({ id: 'incident.generateNews.switch.label' })
     const GenerateNewsHint = intl.formatMessage({ id: 'incident.generateNews.switch.hint' })
 
-    const { handleSave, isLoading } = props
+    const { handleSave, isLoading, withNewsGeneration } = props
 
     const { employee } = useOrganization()
     const canManageNewsItems = useMemo(() => employee?.role?.canManageNewsItems || false, [employee])
@@ -38,7 +38,7 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
                     disabled={isLoading}
                     loading={isLoading}
                 />,
-                ...((aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems)
+                ...((withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems)
                     ? [
                         <LabeledField
                             key='generateNews'
@@ -128,6 +128,7 @@ export const CreateIncidentForm: React.FC = () => {
 
     return (
         <BaseIncidentForm
+            withNewsGeneration
             action={action}
             afterAction={async () => {
                 await Router.push('/incident')
