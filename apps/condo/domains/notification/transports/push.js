@@ -9,6 +9,7 @@ const { AppleAdapter } = require('@condo/domains/notification/adapters/appleAdap
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
 const HCMAdapter = require('@condo/domains/notification/adapters/hcmAdapter')
 const { RedStoreAdapter } = require('@condo/domains/notification/adapters/redStoreAdapter')
+const { WebhookAdapter } = require('@condo/domains/notification/adapters/webhookAdapter')
 const {
     PUSH_TRANSPORT,
     PUSH_TRANSPORT_TYPES,
@@ -16,6 +17,7 @@ const {
     PUSH_TRANSPORT_APPLE,
     PUSH_TRANSPORT_HUAWEI,
     PUSH_TRANSPORT_REDSTORE,
+    PUSH_TRANSPORT_WEBHOOK,
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
@@ -28,6 +30,7 @@ const ADAPTERS = {
     [PUSH_TRANSPORT_REDSTORE]: new RedStoreAdapter(),
     [PUSH_TRANSPORT_HUAWEI]: new HCMAdapter(),
     [PUSH_TRANSPORT_APPLE]: new AppleAdapter(),
+    [PUSH_TRANSPORT_WEBHOOK]: new WebhookAdapter(),
 }
 
 /**
@@ -73,6 +76,7 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
         [PUSH_TRANSPORT_REDSTORE]: [],
         [PUSH_TRANSPORT_HUAWEI]: [],
         [PUSH_TRANSPORT_APPLE]: [],
+        [PUSH_TRANSPORT_WEBHOOK]: [],
     }
     const pushTypes = {}
     const appIds = {}
