@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import { type PackageManager } from '@cli/utils/getUserPkgManager.js'
 import { logger } from '@cli/utils/logger'
 import { execa } from 'execa'
+import ora from 'ora'
 
 interface PrepareAppProps {
     pkgManager: PackageManager
@@ -19,6 +20,8 @@ interface ScriptConfig {
     errorMessage: string
     cwd?: string
     ignoreFailure?: boolean
+    showSubprocessLogs?: boolean
+    allowInput?: boolean
 }
 
 const __filename = fileURLToPath(import.meta.url)
@@ -32,21 +35,40 @@ const runScript = async ({
     successMessage,
     errorMessage,
     ignoreFailure = false,
-}: {
-    command: string
-    args: string[]
-    cwd?: string
-    successMessage: string
-    errorMessage: string
-    ignoreFailure?: boolean
-}) => {
+    showSubprocessLogs = false,
+    allowInput = false,
+}: ScriptConfig) => {
+    // If script needs user input or full logs — don’t show spinner
+    const spinner = allowInput
+        ? null
+        : ora(`Running ${command} ${args.join(' ')} ...`).start()
+
     try {
-        logger.info(`Running ${command} ${args} ...`)
-        await execa(command, args, { cwd, stdio: 'inherit' })
-        logger.success(successMessage)
+        const stdio = showSubprocessLogs || allowInput ? 'inherit' : 'pipe'
+
+        // 👇 Increase buffer size so logs aren’t truncated
+        await execa(command, args, {
+            cwd,
+            stdio,
+            maxBuffer: Infinity,
+        })
+
+        if (spinner) spinner.succeed(successMessage)
+        else logger.success(successMessage)
+
         return true
     } catch (err: any) {
-        logger.error(errorMessage, err.message)
+        if (spinner) spinner.fail(errorMessage)
+        else logger.error(errorMessage)
+
+        // Show captured logs only if subprocess logs were hidden
+        if (!showSubprocessLogs && !allowInput) {
+            if (err.stdout) logger.error(`\n[stdout]\n${err.stdout}`)
+            if (err.stderr) logger.error(`\n[stderr]\n${err.stderr}`)
+        }
+
+        logger.error(`\n[error]\n${err.message}`)
+
         if (!ignoreFailure) throw err
         return false
     }
@@ -127,8 +149,10 @@ export const prepareApp = async ({ pkgManager, appName, projectDir }: PrepareApp
             command: 'npx',
             args: ['@open-condo/migrator', 'add-apps-kv-prefixes'],
             cwd: projectDir,
-            successMessage: 'Ran migrator successfully after build failure!',
-            errorMessage: 'Migrator failed to run after build failure:',
+            successMessage: 'Ran migrator successfully after prepare failure!',
+            errorMessage: 'Migrator failed to run after prepare failure:',
+            showSubprocessLogs: true,
+            allowInput: true,
         },
     } satisfies Record<string, ScriptConfig>
 
