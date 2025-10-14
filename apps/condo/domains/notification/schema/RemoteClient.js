@@ -46,6 +46,7 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
             },
         },
 
+        // webhook-token
         pushToken: {
             schemaDoc: 'Used by transport services (FireBase, Apple, Huawei, etc.) to transfer push notifications to devices.',
             type: 'Text',
