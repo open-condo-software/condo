@@ -32,6 +32,7 @@ const MODAL_GUTTER: RowProps['gutter'] = [0, 16]
 export type UseIncidentUpdateStatusModalType = (props: {
     incident: GetIncidentByIdQuery['incident']
     afterUpdate?: (incident: GetIncidentByIdQuery['incident'], generateNews: boolean) => Promise<void>
+    withNewsGeneration?: boolean
 }) => {
     handleOpen: () => void
     IncidentUpdateStatusModal: JSX.Element
@@ -53,7 +54,7 @@ export const getFinishWorkRules: (incident, error: string) => Rule[] = (incident
     }
 }]
 
-export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({ incident, afterUpdate }) => {
+export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({ incident, afterUpdate, withNewsGeneration }) => {
     const intl = useIntl()
     const WorkFinishFieldMessage = intl.formatMessage({ id: 'incident.fields.workFinish.label' })
     const WorkFinishErrorMessage = intl.formatMessage({ id: 'incident.fields.workFinish.error.lessThenWorkStart' })
@@ -131,11 +132,11 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                 ...incident,
                 status: newStatus,
                 workFinish,
-            }, (aiEnabled && generateNewsByIncidentEnabled && generateNews))
+            }, (withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && generateNews))
         }
 
         handleClose()
-    }, [afterUpdate, handleClose, incident, isActual, updateIncident, aiEnabled, generateNewsByIncidentEnabled])
+    }, [withNewsGeneration, afterUpdate, handleClose, incident, isActual, updateIncident, aiEnabled, generateNewsByIncidentEnabled])
 
     const descriptionText = useMemo(() => {
         if (!isActual) {
@@ -171,7 +172,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                             footer={(
                                 <Space size={16} direction='horizontal'>
                                     {
-                                        (aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems && isActual) && (
+                                        (withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems && isActual) && (
                                             <LabeledField
                                                 key='generateNews'
                                                 hint={GenerateNewsSwitchHint}
