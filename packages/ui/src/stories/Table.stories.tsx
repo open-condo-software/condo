@@ -60,7 +60,6 @@ const columns: TableColumn<TableData>[] = [
                 <Input
                     onChange={(event) => {
                         const value = Number(event.target.value)
-                        // @ts-ignore
                         setFilterValue(value)
                         console.log('filterValue', filterValue)
                     }} 
@@ -87,11 +86,12 @@ const columns: TableColumn<TableData>[] = [
             filterComponent: ({ setFilterValue, filterValue }) => (
                 <Select 
                     options={[
-                        { label: 'Active', value: true },
+                        // @ts-ignore
+                        { label: 'Active', value: true }, 
+                        // @ts-ignore
                         { label: 'Inactive', value: false },
                     ]} 
                     onChange={(value) => {
-                        // @ts-ignore
                         setFilterValue(value)
                     }} 
                     allowClear

@@ -19,7 +19,7 @@ import { TableHeader } from '@open-condo/ui/src/components/Table/components/Tabl
 import { TablePagination } from '@open-condo/ui/src/components/Table/components/TablePagination'
 import { useTableState } from '@open-condo/ui/src/components/Table/hooks/useTableState'
 import type { TableColumn, TableProps, FilterModel } from '@open-condo/ui/src/components/Table/types'
-import { renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderTextWithTooltip'
+import { renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderCellUtils'
 import { parseTableQuery, getPageIndexFromStartRow, getStartEndRows, convertSortingToUrlFormat, updateUrl } from '@open-condo/ui/src/components/Table/utils/urlQuery'
 
 
@@ -33,6 +33,7 @@ export function Table<TData extends RowData = RowData> ({
     syncUrlConfig = {
         hasSyncUrl: false,
     },
+    filterFns,
     loading,
     onRowClick,
     totalRows,
@@ -40,13 +41,13 @@ export function Table<TData extends RowData = RowData> ({
 }: TableProps<TData>): React.ReactElement {
 
     const isClientTableData = useMemo(() => Array.isArray(dataSource), [dataSource])
+    const [tableData, setTableData] = useState<TData[]>(isClientTableData ? (dataSource as TData[]) : [])
 
     const { filters, startRow, sorters } = useMemo(() => {
         if (!syncUrlConfig?.hasSyncUrl) return { filters: {}, startRow: 0, sorters: [] }
         return parseTableQuery()
     }, [syncUrlConfig?.hasSyncUrl])
 
-    const [tableData, setTableData] = useState<TData[]>(isClientTableData ? (dataSource as TData[]) : [])
     const [sorting, setSorting] = useState<SortingState>(() => {
         if (!syncUrlConfig?.hasSyncUrl || !sorters.length) return []
         return sorters.map(sorter => ({
@@ -55,67 +56,28 @@ export function Table<TData extends RowData = RowData> ({
         }))
     })
 
-    // Версия с фильтрами из URL
-    // const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(() => {
-    //     if (!syncUrlConfig?.hasSyncUrl) return []
-    //     return filters.map(filter => ({
-    //         id: filter.id,
-    //         value: filter.value,
-    //     }))
-    // })
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(() => {
+        if (!syncUrlConfig?.hasSyncUrl || !Object.keys(filters).length) return []
+        return Object.entries(filters).map(([id, value]) => ({
+            id: id,
+            value: value,
+        }))
+    })
+
     const [pagination, setPagination] = useState<PaginationState>(() => {
         if (!syncUrlConfig?.hasSyncUrl) return { pageIndex: 0, pageSize: pageSize }
         const currentPageIndex = getPageIndexFromStartRow(startRow, pageSize)
         return {
-            pageIndex: currentPageIndex - 1, // TanStack Table использует 0-based индексы
+            pageIndex: currentPageIndex - 1,
             pageSize: pageSize,
         }
     })
     const [internalLoading, setInternalLoading] = useState<boolean>(false)
 
     useEffect(() => {
-        if (Array.isArray(dataSource)) {
+        if (isClientTableData) {
             setTableData(dataSource as TData[])
-        }
-    }, [dataSource])
-
-    useEffect(() => {
-        setPagination(prev => ({ ...prev, pageIndex: 0 }))
-    }, [sorting, columnFilters])
-
-    // Синхронизируем состояние таблицы с URL
-    useEffect(() => {
-        if (!syncUrlConfig?.hasSyncUrl) return
-
-        const newUrlParams: Record<string, unknown> = {}
-
-        // Обновляем startRow и endRow на основе пагинации
-        const { startRow: newStartRow, endRow: newEndRow } = getStartEndRows(
-            pagination.pageIndex, 
-            pagination.pageSize
-        )
-        newUrlParams.startRow = newStartRow
-        newUrlParams.endRow = newEndRow
-
-        // Обновляем сортировку в новом формате (массив)
-        if (sorting && sorting.length > 0) {
-            newUrlParams.sort = convertSortingToUrlFormat(sorting)
-        } else {
-            newUrlParams.sort = []
-        }
-
-        // Обновляем фильтры (пока оставляем как есть из URL)
-        if (filters && Object.keys(filters).length > 0) {
-            newUrlParams.filters = JSON.stringify(filters)
-        }
-
-        // Обновляем URL
-        updateUrl(newUrlParams, { resetOldParameters: false, shallow: true })
-    }, [syncUrlConfig?.hasSyncUrl, pagination, sorting, filters])
-
-    useEffect(() => {
-        if (!isClientTableData && typeof dataSource === 'function') {
+        } else if (!isClientTableData && typeof dataSource === 'function') {
             setInternalLoading(true)
             const startRow = pagination.pageIndex * pagination.pageSize
             const endRow = startRow + pagination.pageSize
@@ -142,6 +104,35 @@ export function Table<TData extends RowData = RowData> ({
             })
         }
     }, [isClientTableData, dataSource, sorting, pagination, columnFilters])
+
+    useEffect(() => {
+        setPagination(prev => ({ ...prev, pageIndex: 0 }))
+    }, [sorting, columnFilters])
+
+    useEffect(() => {
+        if (!syncUrlConfig?.hasSyncUrl) return
+
+        const newUrlParams: Record<string, unknown> = {}
+
+        const { startRow: newStartRow, endRow: newEndRow } = getStartEndRows(
+            pagination.pageIndex, 
+            pagination.pageSize
+        )
+        newUrlParams.startRow = newStartRow
+        newUrlParams.endRow = newEndRow
+
+        if (sorting && sorting.length > 0) {
+            newUrlParams.sort = convertSortingToUrlFormat(sorting)
+        } else {
+            newUrlParams.sort = []
+        }
+
+        if (filters && Object.keys(filters).length > 0) {
+            newUrlParams.filters = JSON.stringify(filters)
+        }
+
+        updateUrl(newUrlParams, { resetOldParameters: false, shallow: true })
+    }, [syncUrlConfig?.hasSyncUrl, pagination, sorting, filters])
     
     const columnHelper = createColumnHelper<TData>()
     const tableColumns = useMemo(() => {
@@ -187,9 +178,9 @@ export function Table<TData extends RowData = RowData> ({
         onSortingChange: setSorting,
         onPaginationChange: setPagination,
         onColumnFiltersChange: setColumnFilters,
-        filterFns: {
-        },
+        filterFns,
         manualSorting: !isClientTableData,
+        manualFiltering: !isClientTableData,
         manualPagination: !isClientTableData,
         state: {
             sorting,
@@ -208,7 +199,6 @@ export function Table<TData extends RowData = RowData> ({
         onColumnSizingChange: onColumnSizingChange,
         defaultColumn: {
             minSize: 10,
-            size: 150,
         },
     })
 
