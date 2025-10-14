@@ -9,7 +9,6 @@ type DefaultCheckboxGroupProps = ComponentProps<typeof DefaultCheckboxGroup>
 export type CheckboxGroupProps = Pick<DefaultCheckboxGroupProps,
 'children'
 | 'className'
-| 'key'
 | 'name'
 | 'disabled'
 | 'onChange'
