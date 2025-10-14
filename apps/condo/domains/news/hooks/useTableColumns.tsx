@@ -175,7 +175,6 @@ export const useOpenTableColumns = (filterMetas: UseNewsTableFiltersReturnType) 
                                 { label: 'Аварийный', value: 'emergency' },
                             ]} 
                             onChange={(value) => {
-                                // @ts-ignore
                                 setFilterValue(value)
                             }} 
                             allowClear
@@ -217,5 +216,5 @@ export const useOpenTableColumns = (filterMetas: UseNewsTableFiltersReturnType) 
                 },
             },
         ]
-    }, [renderResendNews, NumberMessage, TypeMessage, renderType, TitleMessage, renderTitle, BodyMessage, renderBody, AddressesMessage, renderProperties, DateMessage, renderNewsDate])
+    }, [renderResendNews, NumberMessage, TypeMessage, renderType, TitleMessage, renderTitle, BodyMessage, renderBody, AddressesMessage, renderProperties, DateMessage, renderNewsDate, filterMetas])
 }

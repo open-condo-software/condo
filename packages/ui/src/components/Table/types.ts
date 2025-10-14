@@ -1,4 +1,4 @@
-import { RowData, AccessorFn, SortingState, ColumnMeta } from '@tanstack/react-table'
+import { RowData, AccessorFn, SortingState, ColumnMeta, FilterFn } from '@tanstack/react-table'
 
 export type ColumnSettings = {
     visibility: boolean
@@ -22,7 +22,6 @@ export type DefaultColumn = {
     enableFilter?: boolean
     initialVisibility?: boolean
     initialSize?: string  // '150px'
-    minSize?: string  // '10px'
 }
 
 export type FilterDropdownProps = {
@@ -45,7 +44,6 @@ export type TableColumn<TData extends RowData = RowData> = {
     initialVisibility?: boolean
     initialSize?: string  // '150px'
     initialOrder?: number
-    minSize?: string  // '10px'
 }
 
 export interface TableProps<TData extends RowData = RowData> {
@@ -57,7 +55,7 @@ export interface TableProps<TData extends RowData = RowData> {
     syncUrlConfig?: {
         hasSyncUrl: boolean
     }
-    filterFns?: Record<string, (row: TData, columnId: string, filterValue: unknown) => boolean>
+    filterFns?: Record<string, FilterFn<TData>>
     storageKey?: string
     loading?: boolean
     columnMenuLabels?: TableColumnMenuLabels
@@ -68,23 +66,15 @@ export interface TableProps<TData extends RowData = RowData> {
 export type GetData<TData> = (tableParams: TableParams<TData>) => void
 
 type TableParams<TData> = {
-    // Details for the request. A simple object that can be converted to JSON.
     request: TableParamsRequest
-    // Success callback, pass the rows back to the grid that were requested.
     success(params: LoadSuccessParams<TData>): void
-    // Fail callback, tell the grid the call failed so it can adjust it's state.
     fail(): void
 }
 
 type TableParamsRequest = {
-    // First row requested or undefined for all rows. 
     startRow: number  |  undefined
-    // Index after the last row required row or undefined for all rows. 
     endRow: number  |  undefined
-
-    // filterModel: FilterModel  |  AdvancedFilterModel  |  null; - Пока что думаю...
     filterModel: FilterModel
-    // If sorting, what the sort model is.  
     sortModel: SortingState
 }
 
@@ -93,9 +83,7 @@ export type FilterModel = {
 }
 
 type LoadSuccessParams<TData extends RowData = RowData> = {
-    // Data retrieved from the server as requested by the grid.
     rowData: TData[]
-    // The last row, if known, to help Infinite Scroll.
     rowCount?: number
 }
 
