@@ -1,8 +1,9 @@
-const { FIREBASE_CONFIG_ENV, HCM_CONFIG_ENV, APPLE_CONFIG_ENV } = require('@condo/domains/notification/constants/constants')
+const { FIREBASE_CONFIG_ENV, HCM_CONFIG_ENV, APPLE_CONFIG_ENV, WEBHOOK_CONFIG_ENV } = require('@condo/domains/notification/constants/constants')
 
 const EMPTY_FIREBASE_CONFIG_ERROR = `Valid ${FIREBASE_CONFIG_ENV} should be provided within .helm (.env), and can be retrieved from https://console.firebase.google.com/project/__PROJECT_ID__/settings/serviceaccounts/adminsdk`
 const EMPTY_HCM_CONFIG_ERROR = `Valid ${HCM_CONFIG_ENV} should be provided within .helm (.env), and can be retrieved from ...`
 const EMPTY_APPLE_CONFIG_ERROR = `Valid ${APPLE_CONFIG_ENV} should be provided within .helm (.env), and should contain "kid": String(10), "iss": String(10), "privateKey": String(200?)`
+const EMPTY_WEBHOOK_CONFIG_ERROR = `Valid ${WEBHOOK_CONFIG_ENV} should be provided within .env`
 const HCM_UNSUPPORTED_APP_ID_ERROR = 'Unsupported appId provided via RemoteClient'
 const INVALID_HCM_CONFIG_ERROR = 'Structure of provided HCM config is invalid'
 const EMPTY_NOTIFICATION_TITLE_BODY_ERROR = 'Missing notification.title or notification.body'
@@ -23,6 +24,7 @@ module.exports = {
     EMPTY_FIREBASE_CONFIG_ERROR,
     EMPTY_HCM_CONFIG_ERROR,
     EMPTY_APPLE_CONFIG_ERROR,
+    EMPTY_WEBHOOK_CONFIG_ERROR,
     HCM_UNSUPPORTED_APP_ID_ERROR,
     INVALID_HCM_CONFIG_ERROR,
     EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
