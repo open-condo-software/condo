@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react-webpack5'
 import React from 'react'
 
-import { Select, Table, Input, renderTextWithTooltip } from '@open-condo/ui/src'
+import { Select, Table, Input, renderTextWithTooltip, defaultUpdateUrlCallback, defaultParseUrlQuery } from '@open-condo/ui/src'
 import type {
     TableProps,
     TableColumn,
@@ -18,7 +18,7 @@ interface TableData {
     firstName: string
     lastName: string
     age: number
-    status: boolean
+    status: 'Inactive' | 'Active'
     organization?: {
         id: string
         name: string
@@ -26,12 +26,19 @@ interface TableData {
 }
 
 const data: TableData[] = [
-    { id: '1', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '2', firstName: 'derek', lastName: 'perkins', age: 40, status: false },
-    { id: '3', firstName: 'joe', lastName: 'quarry', age: 50, status: true },
-    { id: '4', firstName: 'sarah', lastName: 'day', age: 28, status: true },
-    { id: '5', firstName: 'sandy', lastName: 'shore', age: 35, status: true },
-    { id: '6', firstName: 'mike', lastName: 'drop', age: 42, status: false },
+    { id: '1', firstName: 'tanner', lastName: 'linsley', age: 33, status: 'Active', organization: { id: '1', name: 'Organization 1' } },
+    { id: '2', firstName: 'derek', lastName: 'perkins', age: 40, status: 'Inactive' },
+    { id: '3', firstName: 'joe', lastName: 'quarry', age: 50, status: 'Active' },
+    { id: '4', firstName: 'sarah', lastName: 'day', age: 28, status: 'Active' },
+    { id: '5', firstName: 'sandy', lastName: 'shore', age: 35, status: 'Active' },
+    { id: '6', firstName: 'mike', lastName: 'drop', age: 42, status: 'Inactive' },
+    { id: '7', firstName: 'tanner', lastName: 'linsley', age: 33, status: 'Active', organization: { id: '1', name: 'Organization 1' } },
+    { id: '8', firstName: 'derek', lastName: 'perkins', age: 40, status: 'Inactive' },
+    { id: '9', firstName: 'joe', lastName: 'quarry', age: 50, status: 'Active' },
+    { id: '10', firstName: 'sarah', lastName: 'day', age: 28, status: 'Active' },
+    { id: '11', firstName: 'sandy', lastName: 'shore', age: 35, status: 'Active' },
+    { id: '12', firstName: 'mike', lastName: 'drop', age: 42, status: 'Inactive' },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: 'Active', organization: { id: '1', name: 'Organization 1' } },
 ]
 
 const columns: TableColumn<TableData>[] = [
@@ -81,15 +88,13 @@ const columns: TableColumn<TableData>[] = [
         header: 'Status',
         id: 'status',
         initialVisibility: false,
-        render: (status, _) => <span>{status ? 'Active' : 'Inactive'}</span>,
+        render: (status, _) => <span>{status === 'Active' ? 'Active' : 'Inactive'}</span>,
         meta: {
             filterComponent: ({ setFilterValue, filterValue }) => (
                 <Select 
                     options={[
-                        // @ts-ignore
-                        { label: 'Active', value: true }, 
-                        // @ts-ignore
-                        { label: 'Inactive', value: false },
+                        { label: 'Active', value: 'Active' }, 
+                        { label: 'Inactive', value: 'Inactive' },
                     ]} 
                     onChange={(value) => {
                         setFilterValue(value)
@@ -115,18 +120,34 @@ const columns: TableColumn<TableData>[] = [
 ]
 
 const columnMenuLabels: TableColumnMenuLabels = {
-    sortLabel: 'Сортировать',
-    filterLabel: 'Фильтровать',
-    settingsLabel: 'Настроить колонки',
-    sortedLabel: 'Отсортированно',
-    filteredLabel: 'Отфильтрованно',
-    settedLabel: 'Настроены колонки',
+    sortLabel: 'Sort',
+    filterLabel: 'Filter',
+    settingsLabel: 'Settings',
+    sortedLabel: 'Sorted',
+    filteredLabel: 'Filtered',
+    settedLabel: 'Setted',
+}
+
+const syncUrlConfig = {
+    parseUrlCallback: defaultParseUrlQuery,
+    updateUrlCallback: defaultUpdateUrlCallback,
 }
 
 const tableId = '1'
 
 const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<TableData>) => {
-    const { dataSource, columns, id, loading, columnMenuLabels, storageKey, defaultColumn, onRowClick } = args
+    const { 
+        dataSource, 
+        columns, 
+        id, 
+        loading, 
+        columnMenuLabels, 
+        storageKey, 
+        defaultColumn, 
+        onRowClick, 
+        totalRows, 
+        pageSize,
+    } = args
 
     return (
         <Table<TableData>
@@ -137,10 +158,10 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
             storageKey={storageKey}
             defaultColumn={defaultColumn}
             loading={loading}
-            syncUrlConfig={{
-                hasSyncUrl: true,
-            }}
+            syncUrlConfig={syncUrlConfig}
             onRowClick={onRowClick}
+            totalRows={totalRows}
+            pageSize={pageSize}
         />
     )
 }
@@ -155,5 +176,7 @@ export const Default: StoryObj<TableProps<TableData>> = {
         columnMenuLabels, 
         storageKey: 'storybook-table',
         onRowClick: (record: TableData) => console.log('Row clicked:', record),
+        totalRows: data.length,
+        pageSize: 10,
     },
 }

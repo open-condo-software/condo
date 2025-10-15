@@ -119,7 +119,8 @@ const OpenTableContainer = ({
                         totalRows={total}
                         pageSize={DEFAULT_PAGE_SIZE}
                         syncUrlConfig={{
-                            hasSyncUrl: true,
+                            parseUrlCallback: () => ({ filterModel: {}, startRow: 0, sortModel: [], endRow: 0 }),
+                            updateUrlCallback: (params) => console.log('params', params),
                         }}
                         columnMenuLabels={columnMenuLabels}
                         id='open-table'
