@@ -51,8 +51,10 @@ export type { StepsProps, StepItem } from './components/Steps'
 export { 
     Table,
     renderTextWithTooltip,
+    defaultUpdateUrlCallback,
+    defaultParseUrlQuery,
 } from './components/Table'
-export type { TableProps, TableColumn, TableColumnMenuLabels, GetData } from './components/Table'
+export type { TableProps, TableColumn, TableColumnMenuLabels, GetData, TableParamsRequest } from './components/Table'
 
 export { Tabs } from './components/Tabs'
 export type { TabsProps, TabItem } from './components/Tabs'
