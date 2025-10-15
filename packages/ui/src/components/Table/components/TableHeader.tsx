@@ -114,7 +114,6 @@ export function TableHeader <TData extends RowData = RowData> ({
         <div key={headerGroup.id} className='condo-table-thead'>
             {headerGroup.headers.map((header) => {
                 const isResizing = header.column.getIsResizing()
-                console.log('table.getState().columnSizingInfo.deltaOffset', table.getState().columnSizingInfo.deltaOffset)
                 return (
                     <div
                         key={header.id}

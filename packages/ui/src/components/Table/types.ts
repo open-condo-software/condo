@@ -1,4 +1,4 @@
-import { RowData, AccessorFn, SortingState, ColumnMeta, FilterFn } from '@tanstack/react-table'
+import { RowData, AccessorFn, SortingState, ColumnMeta, FilterFnOption, FilterFn } from '@tanstack/react-table'
 
 export type ColumnSettings = {
     visibility: boolean
@@ -31,7 +31,7 @@ export type FilterDropdownProps = {
 
 export type TableColumnMeta<TData extends RowData = RowData> = ColumnMeta<TData, unknown> & {
     filterComponent?: ((props: FilterDropdownProps) => React.ReactNode)
-    filterFn?: string | ((row: { getValue: (columnId: string) => unknown }, columnId: string, filterValue: unknown) => boolean | string)
+    filterFn?: FilterFnOption<TData>
 }
 
 export type TableColumn<TData extends RowData = RowData> = {
@@ -53,7 +53,8 @@ export interface TableProps<TData extends RowData = RowData> {
     totalRows?: number
     pageSize?: number
     syncUrlConfig?: {
-        hasSyncUrl: boolean
+        parseUrlCallback: (pageSize: number) => TableParamsRequest
+        updateUrlCallback: (params: TableParamsRequest) => void
     }
     filterFns?: Record<string, FilterFn<TData>>
     storageKey?: string
@@ -71,7 +72,7 @@ type TableParams<TData> = {
     fail(): void
 }
 
-type TableParamsRequest = {
+export type TableParamsRequest = {
     startRow: number  |  undefined
     endRow: number  |  undefined
     filterModel: FilterModel
