@@ -107,6 +107,7 @@ export const detectTargetedSections = (newsItemScopes: NewsItemScope[], property
 interface RecipientCounterProps {
     newsItemScopes: NewsItemScopeNoInstanceType[]
     withTitle?: boolean
+    withCardWrapper?: boolean
 }
 
 const processNewsItemScopes = (newsItemScopes: NewsItemScopeNoInstanceType[]) => {
@@ -124,15 +125,19 @@ const processNewsItemScopes = (newsItemScopes: NewsItemScopeNoInstanceType[]) =>
     }, [])
 }
 
-export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScopes, withTitle = true }) => {
+export const RecipientCounter: React.FC<RecipientCounterProps> = ({
+    newsItemScopes,
+    withTitle = true,
+    withCardWrapper = true,
+}) => {
     const intl = useIntl()
     const StatisticsMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.statistics' })
-    const formatPropertiesLabelMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.label.properties' }, { count })
+    const formatPropertiesLabelMessage = useCallback((count) => intl.formatMessage({ id: 'news.component.RecipientCounter.label.properties' }, { count }), [intl])
     const WillReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.label' })
     const WillNotReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.label' })
-    const formatWillNotReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hint' }, { count })
+    const formatWillNotReceiveHintMessage = useCallback((count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hint' }, { count }), [intl])
     const WillZeroNotReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hintZero' })
-    const formatWillReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hint' }, { count })
+    const formatWillReceiveHintMessage = useCallback((count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hint' }, { count }), [intl])
     const WillZeroReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hintZero' })
     const ErrorLoadingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.error.loading' })
 
@@ -201,10 +206,8 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
 
     const isLoadingCounters = isCountersLoading || !counters
 
-    return (
-        <RecipientCounterContainer
-            title={withTitle ? StatisticsMessage : ''}
-        >
+    const content = useMemo(() => (
+        <>
             <Col>
                 <Counter
                     label={formatPropertiesLabelMessage(propertiesCount)}
@@ -232,11 +235,32 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                     isLoading={isLoadingCounters}
                 />
             </Col>
-        </RecipientCounterContainer>
+        </>
+    ), [NewsItemRecipientsExportToXlsxButton, WillNotReceiveLabelMessage, WillReceiveLabelMessage, WillZeroNotReceiveHintMessage, WillZeroReceiveHintMessage, formatPropertiesLabelMessage, formatWillNotReceiveHintMessage, formatWillReceiveHintMessage, isLoadingCounters, propertiesCount, receiversCount, unitsCount, willNotReceiveUnitsCount])
+
+    if (withCardWrapper) {
+        return (
+            <RecipientCounterContainer
+                title={withTitle ? StatisticsMessage : ''}
+            >
+                {content}
+            </RecipientCounterContainer>
+        )
+    }
+
+    return (
+        <Row align='top' justify='space-evenly' gutter={[16, 16]}>
+            {content}
+        </Row>
     )
 }
 
-const NewsSharingRecipientCounter: React.FC<{ contextId: string, newsItemScopes: NewsItemScopeNoInstanceType[], withTitle?: boolean }> = ({ contextId, newsItemScopes, withTitle = true }) => {
+const NewsSharingRecipientCounter: React.FC<{ contextId: string, newsItemScopes: NewsItemScopeNoInstanceType[], withTitle?: boolean, withCardWrapper?: boolean }> = ({
+    contextId,
+    newsItemScopes,
+    withTitle = true,
+    withCardWrapper = true,
+}) => {
     const intl = useIntl()
     const StatisticsMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.statistics' })
     const WillReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.label' })
@@ -281,12 +305,30 @@ const NewsSharingRecipientCounter: React.FC<{ contextId: string, newsItemScopes:
     // if typeof counter !== number is used here instead of just if !counter because bool(0) => false
     const isLoadingCounter = isCounterLoading || typeof counter !== 'number'
 
+    const content = useMemo(() => (
+        <Col>
+            <Counter
+                label={WillReceiveLabelMessage}
+                value={counter}
+                isLoading={isLoadingCounter}
+            />
+        </Col>
+    ), [WillReceiveLabelMessage, counter, isLoadingCounter])
+
+    if (withCardWrapper) {
+        return (
+            <RecipientCounterContainer
+                title={withTitle ? StatisticsMessage : ''}
+            >
+                {content}
+            </RecipientCounterContainer>
+        )
+    }
+
     return (
-        <RecipientCounterContainer title={withTitle ? StatisticsMessage : ''}>
-            <Col>
-                <Counter label={WillReceiveLabelMessage} value={counter} isLoading={isLoadingCounter}/>
-            </Col>
-        </RecipientCounterContainer>
+        <Row align='top' justify='space-evenly' gutter={[16, 16]}>
+            {content}
+        </Row>
     )
 }
 

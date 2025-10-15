@@ -40,7 +40,7 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     const formFieldsColSpan = isMediumWindow ? 24 : 14
     const formInfoColSpan = 24 - formFieldsColSpan
 
-    const parsedNewsSharingScope = useMemo(()=>newsSharingScope?.map(scope =>
+    const parsedNewsSharingScope = useMemo(() => newsSharingScope?.map(scope =>
         typeof scope === 'string' ? JSON.parse(scope)?.value : scope) || [],
     [newsSharingScope]
     )
@@ -48,7 +48,7 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
         parsedNewsSharingScope?.filter(scope=> !!scope.id),
     [parsedNewsSharingScope]
     )
-    const receiversCount = useMemo(()=> filteredNewsSharingScope.reduce((acc, scope) => {
+    const receiversCount = useMemo(() => filteredNewsSharingScope.reduce((acc, scope) => {
         const count = Number(scope?.receiversCount) || 0
         return acc + count
     }, 0) || 0, [filteredNewsSharingScope])
