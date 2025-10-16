@@ -18,11 +18,7 @@ type CondoRadioProps = {
 export type RadioProps = Pick<DefaultRadioProps, 'autoFocus' | 'defaultChecked' | 'disabled' | 'onChange' | 'checked' | 'value' | 'children' | 'id'>
 & CondoRadioProps
 
-export interface IRadio {
-    (props: RadioProps): React.ReactElement
-}
-
-const Radio: IRadio = (props) => {
+const Radio: React.FC<RadioProps> = (props) => {
     const { label, icon, labelProps, disabled, onChange, children, id, ...rest } = props
 
     const handleChange = useCallback((event: RadioChangeEvent) => {
