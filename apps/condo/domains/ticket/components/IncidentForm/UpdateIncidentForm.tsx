@@ -171,6 +171,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
             initialValues={initialValues}
             loading={loading}
             showOrganization={showOrganization}
+            formType='update'
         />
     )
 }

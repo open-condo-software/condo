@@ -31,6 +31,7 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { PageComponentType } from '@condo/domains/common/types'
 import { getTimeLeftMessage, getTimeLeftMessageType } from '@condo/domains/common/utils/date.utils'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
+import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
 import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import {
     INCIDENT_STATUS_COLORS,
@@ -440,7 +441,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     })
     const incidentChanges = useMemo(() => incidentChangesData?.incidentChanges?.filter(Boolean) || [], [incidentChangesData?.incidentChanges])
 
-    const getSuccessMessage = useCallback((description, newsInitialValue) => {
+    const getSuccessMessage = useCallback((description, newsInitialValue, source) => {
         return {
             message: (
                 <Typography.Text strong>{ReadyMessage}</Typography.Text>
@@ -456,7 +457,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                 <Button
                                     type='primary'
                                     onClick={() => {
-                                        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(newsInitialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}`, '_blank')
+                                        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(newsInitialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}&source=${source}`, '_blank')
                                         notification.destroy()
                                     }}>
                                     {GoToNewsMessage}
@@ -473,7 +474,8 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const generateNewsItem = useCallback(async (
         incident: GetIncidentByIdQuery['incident'],
         incidentClassifiers: GetIncidentClassifierIncidentByIncidentIdQuery['incidentClassifierIncident'],
-        incidentProperties: GetFullIncidentPropertiesByIncidentIdQuery['incidentProperties']
+        incidentProperties: GetFullIncidentPropertiesByIncidentIdQuery['incidentProperties'],
+        source: AnalyticalNewsSources,
     ) => {
         const context = {
             selectedClassifiers: incidentClassifiers.map(incidentClassifier => ({
@@ -513,7 +515,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
             ...(validBefore ? { validBefore } : undefined),
         }
 
-        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}`, '_blank')
+        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(initialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}&source=${source}`, '_blank')
 
         return initialValue
     }, [GenericErrorMessage, runGenerateNewsAIFlow])
@@ -521,14 +523,14 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const afterStatusUpdate: Parameters<UseIncidentUpdateStatusModalType>[0]['afterUpdate'] = useCallback(async (incident, generateNews) => {
         let initialNewsItemValue
         if (withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && generateNews) {
-            initialNewsItemValue = await generateNewsItem(incident, incidentClassifiers, incidentProperties)
+            initialNewsItemValue = await generateNewsItem(incident, incidentClassifiers, incidentProperties, AnalyticalNewsSources.INCIDENT_STATUS_AUTO)
         }
 
         let notificationDescription = ChangesSavedMessage
         if (initialNewsItemValue) {
             notificationDescription += ` ${AlsoCreateNewsMessage}`
         }
-        notification.success(getSuccessMessage(notificationDescription, initialNewsItemValue))
+        notification.success(getSuccessMessage(notificationDescription, initialNewsItemValue, AnalyticalNewsSources.INCIDENT_STATUS_NOTIFY))
 
         refetchIncident()
         refetchIncidentChanges()
@@ -537,9 +539,9 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, afterUpdate: afterStatusUpdate, withNewsGeneration })
 
     const handleGenerateNews = useCallback(async () => {
-        const initialNewsItemValue = await generateNewsItem(incident, incidentClassifiers, incidentProperties)
+        const initialNewsItemValue = await generateNewsItem(incident, incidentClassifiers, incidentProperties, AnalyticalNewsSources.INCIDENT_CARD_AUTO)
         if (initialNewsItemValue) {
-            notification.success(getSuccessMessage(CreateNewsMessage, initialNewsItemValue))
+            notification.success(getSuccessMessage(CreateNewsMessage, initialNewsItemValue, AnalyticalNewsSources.INCIDENT_CARD_NOTIFY))
         }
     }, [getSuccessMessage, CreateNewsMessage, generateNewsItem, incident, incidentClassifiers, incidentProperties])
 

@@ -10,6 +10,7 @@ import { ActionBar, Button, Space, Switch, Typography } from '@open-condo/ui'
 
 import { useAIConfig } from '@condo/domains/ai/hooks/useAIFlow'
 import { LabeledField } from '@condo/domains/common/components/LabeledField'
+import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
@@ -100,7 +101,7 @@ export const CreateIncidentForm: React.FC = () => {
                                 <Button
                                     type='primary'
                                     onClick={() => {
-                                        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(newsInitialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}`, '_blank')
+                                        window.open(`/news/create?initialValue=${encodeURIComponent(JSON.stringify(newsInitialValue))}&initialStep=${encodeURIComponent(JSON.stringify(1))}&source=${AnalyticalNewsSources.INCIDENT_CREATE_NOTIFY}`, '_blank')
                                         notification.destroy()
                                     }}>
                                     {GoToNewsMessage}
@@ -136,6 +137,7 @@ export const CreateIncidentForm: React.FC = () => {
             organizationId={organizationId}
             ActionBar={CreateIncidentActionBar}
             onCompletedMessage={onCompletedMessage}
+            formType='create'
         />
     )
 }
