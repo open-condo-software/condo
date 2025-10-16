@@ -48,7 +48,7 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
 import SelectSharingAppControl from '@condo/domains/news/components/NewsForm/SelectSharingAppControl'
-import { NewsItemCard } from '@condo/domains/news/components/NewsItemCard'
+import { CondoNewsItemCard, SharingNewsItemCard } from '@condo/domains/news/components/NewsItemCard'
 import {
     detectTargetedSections,
 } from '@condo/domains/news/components/RecipientCounter'
@@ -63,7 +63,9 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { InputStep, SharingAppValuesType } from './InputStep'
 
+import type { NewsItemScopeNoInstanceType } from '../types'
 import type { FormRule as Rule } from 'antd'
+
 
 dayjs.extend(isSameOrAfter)
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
@@ -481,6 +483,62 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
         where: { id_in: scope.selectedPropertiesId },
     }, { fetchPolicy: 'cache-first' })
+    
+    const newsItemScopesNoInstance = useMemo<Array<NewsItemScopeNoInstanceType>>(() => {
+        if (scope.isAllPropertiesChecked) {
+            return [{
+                property: null,
+                unitType: null,
+                unitName: null,
+            }]
+        }
+
+        if (selectedPropertiesLoading || scope.selectedPropertiesId.length === 0) {
+            return []
+        }
+
+        if (scope.selectedPropertiesId.length === 1) {
+            if (!isEmpty(scope.selectedUnitNameKeys)) {
+                return scope.selectedUnitNameKeys.map((unitKey) => {
+                    const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
+                    return {
+                        property: selectedProperties[0],
+                        unitType: unitType,
+                        unitName: unitName,
+                    }
+                })
+            }
+            if (!isEmpty(scope.selectedSectionKeys)) {
+                const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(selectedProperties[0], scope.selectedSectionKeys)
+                return unitNames.map((unitName, i) => {
+                    return {
+                        property: selectedProperties[0],
+                        unitType: unitTypes[i],
+                        unitName: unitName,
+                    }
+                })
+            }
+            if (isEmpty(scope.selectedUnitNameKeys) && isEmpty(scope.selectedSectionKeys)) {
+                return [{
+                    property: selectedProperties[0],
+                    unitType: null,
+                    unitName: null,
+                }]
+            }
+
+            return []
+        } else if (!isEmpty(selectedProperties)) {
+            return selectedProperties.map(property => {
+                return {
+                    property: property,
+                    unitType: null,
+                    unitName: null,
+                }
+            })
+        }
+
+        return []
+    }, [scope, selectedProperties, selectedPropertiesLoading])
 
     const softDeleteNewsItemScope = NewsItemScope.useSoftDeleteMany()
     const createNewsItemScope = NewsItemScope.useCreateMany({})
@@ -1106,25 +1164,28 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
                                             <Col span={24} style={MARGIN_BOTTOM_38_STYLE}>
                                                 <NewsCardGrid>
-                                                    <NewsItemCard
+                                                    <CondoNewsItemCard
                                                         title={selectedTitle}
                                                         body={selectedBody}
                                                         appName={MobileAppLabel}
                                                         icon={DOMA_APP_ICON_URL}
                                                         validBefore={selectedValidBefore}
                                                         type={selectedType}
+                                                        newsItemScopesNoInstance={newsItemScopesNoInstance}
                                                     />
                                                     {getSelectedAndNotSkippedSharingApps().map(ctxId => {
-
                                                         const ctx = sharingAppContextsIndex[ctxId]
 
-                                                        const sharingAppName = get(ctx, ['app', 'newsSharingConfig', 'name'], '').replaceAll(' ', ' ')
-                                                        const sharingAppIcon = get(ctx, ['app', 'newsSharingConfig', 'icon', 'publicUrl'], SHARING_APP_FALLBACK_ICON)
-                                                        const title = get(sharingAppsFormValues, [ctxId, 'preview', 'renderedTitle'])
-                                                        const body = get(sharingAppsFormValues, [ctxId, 'preview', 'renderedBody'])
+                                                        const sharingAppId = ctx?.app?.id || null
+                                                        const sharingAppConfig = ctx?.app?.newsSharingConfig || null
+                                                        const sharingAppName = (ctx?.app?.newsSharingConfig?.name || '').replaceAll(' ', ' ')
+                                                        const sharingAppIcon = ctx?.app?.newsSharingConfig?.icon?.publicUrl || SHARING_APP_FALLBACK_ICON
+                                                        const title = sharingAppsFormValues?.[ctxId]?.preview?.renderedTitle
+                                                        const body = sharingAppsFormValues?.[ctxId]?.preview?.renderedBody
+                                                        const newsSharingScope = sharingAppsFormValues?.[ctxId]?.scope
 
                                                         return (
-                                                            <NewsItemCard
+                                                            <SharingNewsItemCard
                                                                 key={ctx.id}
                                                                 title={title}
                                                                 body={body}
@@ -1132,6 +1193,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 icon={sharingAppIcon}
                                                                 validBefore={selectedValidBefore}
                                                                 type={selectedType}
+                                                                sharingAppId={sharingAppId}
+                                                                newsSharingScope={newsSharingScope}
+                                                                newsSharingConfig={sharingAppConfig}
+                                                                newsItemScopesNoInstance={newsItemScopesNoInstance}
                                                             />
                                                         )
                                                     })}
