@@ -130,6 +130,15 @@ const extendExpressApp = (app) => {
     app.get('/.well-known/change-password', function (req, res) {
         res.redirect('/auth/forgot')
     })
+
+    const sleep = (ms) => {
+        return new Promise(resolve => setTimeout(resolve, ms))
+    }
+
+    app.get('/.well-known/sleep', async (req, res) => {
+        await sleep(5000)
+        res.json({ 'status': 'ok' })
+    })
 }
 
 const authStrategyOpts = {
