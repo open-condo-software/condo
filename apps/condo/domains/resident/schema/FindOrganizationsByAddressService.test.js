@@ -27,6 +27,7 @@ const {
     createTestBillingIntegration,
     updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/testSchema')
 const {
     TestUtils,
     BillingTestMixin,
@@ -66,6 +67,21 @@ function getOnlyCategoryReceiptTest (category){
         bankAccount: null,
         address: null,
     }
+}
+
+async function initBillingTestMixin (utils) {
+    await utils.createEmployee('billing', {
+        canManageIntegrations: true,
+        canReadBillingReceipts: true,
+        canReadPayments: true,
+    })
+    const [billingIntegration] = await createTestBillingIntegration(utils.clients.admin)
+    const [billingContext] = await createTestBillingIntegrationOrganizationContext(utils.clients.admin, utils.organization, billingIntegration, {
+        status: CONTEXT_FINISHED_STATUS,
+    })
+    await createTestBillingIntegrationAccessRight(utils.clients.admin, billingIntegration, utils.clients.service.user)
+    utils.billingIntegration = billingIntegration
+    utils.billingContext = billingContext
 }
 
 describe('FindOrganizationsByAddress', () => {
@@ -133,20 +149,35 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return organization and receipt category', async () => {
-                const utils = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin, MeterTestMixin])
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                const utilsWithAnotherBillingContext = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
+                await utilsWithAnotherBillingContext.init()
+                utilsWithAnotherBillingContext.organization = utils.organization
+                await initBillingTestMixin(utilsWithAnotherBillingContext)
                 await utils.createReceipts([
                     utils.createJSONReceipt({
                         address: utils.property.address,
                         category: { id: HOUSING_CATEGORY_ID },
                     }),
                 ])
+                await utilsWithAnotherBillingContext.createReceipts([
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        category: { id: REPAIR_CATEGORY_ID },
+                    }),
+                ])
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found).toBeDefined()
                 expect(found.meters).toHaveLength(0)
-                expect(found.receipts).toContainEqual(getOnlyCategoryReceiptTest(HOUSING_CATEGORY_ID))
+                expect(found.receipts).toHaveLength(2)
+                expect(found.receipts).toEqual(expect.arrayContaining([
+                    expect.objectContaining(getOnlyCategoryReceiptTest(HOUSING_CATEGORY_ID)),
+                    expect.objectContaining(getOnlyCategoryReceiptTest(REPAIR_CATEGORY_ID)),
+                ]))
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
                 expect(found.tin).toEqual(utils.organization.tin)
@@ -279,6 +310,67 @@ describe('FindOrganizationsByAddress', () => {
                     bankAccount: expect.any(String),
                     address: utils.property.address,
                 })
+            })
+
+            test('Should return receipts from all billing contexts if unitName and unitType matches', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                const utilsWithAnotherBillingContext = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                await utilsWithAnotherBillingContext.init()
+                utilsWithAnotherBillingContext.organization = utils.organization
+                await initBillingTestMixin(utilsWithAnotherBillingContext)
+
+                const unitName = faker.random.alphaNumeric(16)
+                const unitType = 'flat'
+                const accountNumber = faker.random.alphaNumeric(16)
+                const anotherAccountNumber = faker.random.alphaNumeric(16)
+                const toPay = '1000'
+
+                // NOTE(YEgorLu): if receipts have same category, they will be squashed into one receipt
+                await utils.createReceipts([
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        accountNumber,
+                        addressMeta: { unitName, unitType },
+                        category: { id: HOUSING_CATEGORY_ID },
+                        toPay,
+                    }),
+                ])
+                await utilsWithAnotherBillingContext.createReceipts([
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        accountNumber: anotherAccountNumber,
+                        category: { id: REPAIR_CATEGORY_ID },
+                        addressMeta: { unitName, unitType },
+                        toPay,
+                    }),
+                ])
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    unitName,
+                    unitType,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found).toBeDefined()
+                expect(found.receipts).toHaveLength(2)
+                expect(found.receipts).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        accountNumber: expect.stringMatching(accountNumber),
+                        category: expect.any(String),
+                        balance: expect.stringMatching(Big(toPay).toFixed(8)),
+                        routingNumber: expect.any(String),
+                        bankAccount: expect.any(String),
+                        address: utils.property.address,
+                    }),
+                    expect.objectContaining({
+                        accountNumber: expect.stringMatching(anotherAccountNumber),
+                        category: expect.any(String),
+                        balance: expect.stringMatching(Big(toPay).toFixed(8)),
+                        routingNumber: expect.any(String),
+                        bankAccount: expect.any(String),
+                        address: utils.property.address,
+                    }),
+                ]))
             })
 
             test('Should return meter if unitName and unitType matches', async () => {
@@ -653,6 +745,102 @@ describe('FindOrganizationsByAddress', () => {
                 expect(found.tin).toEqual(utils.organization.tin)
                 expect(found.type).toEqual(utils.organization.type)
             })
+
+            test('Should return organization and two receipts from different billing contexts', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                const utilsWithAnotherBillingContext = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                await utilsWithAnotherBillingContext.init()
+                utilsWithAnotherBillingContext.organization = utils.organization
+                await initBillingTestMixin(utilsWithAnotherBillingContext)
+
+                const accountNumber1 = faker.random.alphaNumeric(16)
+                const accountNumber2 =  faker.random.alphaNumeric(16)
+                const accountNumber3 =  faker.random.alphaNumeric(16)
+                const toPay1 = '1000'
+                const toPay2 = '2000'
+                const unitName = faker.random.alphaNumeric(16)
+                const unitType = 'flat'
+                await utils.createReceipts([
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        addressMeta: { unitName, unitType },
+                        category: { id: HOUSING_CATEGORY_ID },
+                        accountNumber: accountNumber1,
+                        toPay: toPay1,
+                    }),
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        addressMeta: { unitName, unitType },
+                        category: { id: HOUSING_CATEGORY_ID },
+                        accountNumber: accountNumber2,
+                        toPay: toPay1,
+                    }),
+                ])
+
+                await utilsWithAnotherBillingContext.createReceipts([
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        addressMeta: { unitName, unitType },
+                        category: { id: REPAIR_CATEGORY_ID },
+                        accountNumber: accountNumber1,
+                        toPay: toPay2,
+                    }),
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        addressMeta: { unitName, unitType },
+                        category: { id: HOUSING_CATEGORY_ID },
+                        accountNumber: accountNumber3,
+                        toPay: toPay1,
+                    }),
+                ])
+
+                // Finding receipts with same accountNumber from different billing contexts
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    accountNumber: accountNumber1,
+                    tin: utils.organization.tin,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found).toBeDefined()
+                expect(found.meters).toHaveLength(0)
+                expect(found.receipts).toHaveLength(2) // should be "2"
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
+
+                // Finding receipt from older billing context (was default behaviour before)
+                const [foundOrganizationsForAccountNumber2] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    accountNumber: accountNumber2,
+                    tin: utils.organization.tin,
+                })
+                const found2 = foundOrganizationsForAccountNumber2.find(({ id }) => id === utils.organization.id)
+                expect(found2).toBeDefined()
+                expect(found2.meters).toHaveLength(0)
+                expect(found2.receipts).toHaveLength(1)
+                expect(found2.id).toEqual(utils.organization.id)
+                expect(found2.name).toEqual(utils.organization.name)
+                expect(found2.tin).toEqual(utils.organization.tin)
+                expect(found2.type).toEqual(utils.organization.type)
+
+                // Finding receipt from newer billing context (was impossible before)
+                const [foundOrganizationsForAccountNumber3] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    accountNumber: accountNumber3,
+                    tin: utils.organization.tin,
+                })
+                const found3 = foundOrganizationsForAccountNumber3.find(({ id }) => id === utils.organization.id)
+                expect(found3).toBeDefined()
+                expect(found3.meters).toHaveLength(0)
+                expect(found3.receipts).toHaveLength(1)
+                expect(found3.id).toEqual(utils.organization.id)
+                expect(found3.name).toEqual(utils.organization.name)
+                expect(found3.tin).toEqual(utils.organization.tin)
+                expect(found3.type).toEqual(utils.organization.type)
+            })
+
         })
     })
 
