@@ -85,7 +85,6 @@ async function discoverServiceConsumersCronTask () {
                             retryNumber,
                         },
                         err,
-
                     })
                 }
                 // Try to process every chunk a number of times
