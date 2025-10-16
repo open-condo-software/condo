@@ -283,6 +283,37 @@ describe('FindOrganizationsByAddress', () => {
 
             test('Should return receipt if unitName and unitType matches', async () => {
                 const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const unitName = faker.random.alphaNumeric(16)
+                const unitType = 'flat'
+                const accountNumber = faker.random.alphaNumeric(16)
+                const toPay = '1000'
+                await utils.createReceipts([
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        accountNumber,
+                        addressMeta: { unitName, unitType },
+                        toPay,
+                    }),
+                ])
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    unitName,
+                    unitType,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.receipts[0]).toMatchObject({
+                    accountNumber: expect.stringMatching(accountNumber),
+                    category: expect.any(String),
+                    balance: expect.stringMatching(Big(toPay).toFixed(8)),
+                    routingNumber: expect.any(String),
+                    bankAccount: expect.any(String),
+                    address: utils.property.address,
+                })
+            })
+
+            test('Should return receipts from all billing contexts if unitName and unitType matches', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 const utilsWithAnotherBillingContext = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
                 await utilsWithAnotherBillingContext.init()
@@ -340,10 +371,6 @@ describe('FindOrganizationsByAddress', () => {
                         address: utils.property.address,
                     }),
                 ]))
-            })
-
-            test('Should return receipts from all billing contexts if unitName and unitType matches', async () => {
-
             })
 
             test('Should return meter if unitName and unitType matches', async () => {
