@@ -15,12 +15,14 @@ const { B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT } = require('@dev-portal-api/dom
 const { INVALID_BUILD_VERSION } = require('@dev-portal-api/domains/miniapp/constants/errors')
 const { exportable } = require('@dev-portal-api/domains/miniapp/plugins/exportable')
 
-const SEM_VER_REGEX = /^\d{1,10}.\d{1,10}.\d{1,10}(?:-\w{1,64})?$/
+// NOTE: taken from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+const B2C_BUILD_VERSION_REGEXP = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+
 const ERRORS = {
     INVALID_BUILD_VERSION: {
         code: BAD_USER_INPUT,
         type: INVALID_BUILD_VERSION,
-        message: 'The build version must be semantically correct and be in X.Y.Z format',
+        message: 'The build version must follow semantic versioning (semver) format: MAJOR.MINOR.PATCH with optional pre-release and build metadata',
         messageForUser: 'api.miniapp.B2CAppBuild.INVALID_BUILD_VERSION',
     },
 }
@@ -47,12 +49,12 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
         version: {
-            schemaDoc: 'Version of build which used to control builds inside B2CApp model. Must follow sem-ver notation format: <MAJOR>.<MINOR>.<PATCH> (E.g. 1.0.27, 3.6.0)',
+            schemaDoc: 'Version of build which used to control builds inside B2CApp model. Must follow semantic versioning (semver) format: <MAJOR>.<MINOR>.<PATCH> with optional pre-release and build metadata (E.g. 1.0.27, 3.6.0, 1.2.3-alpha.1, 1.0.0+20130313144700)',
             type: 'Text',
             isRequired: true,
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, context }) => {
-                    if (!SEM_VER_REGEX.test(resolvedData[fieldPath])) {
+                    if (!B2C_BUILD_VERSION_REGEXP.test(resolvedData[fieldPath])) {
                         throw new GQLError(ERRORS.INVALID_BUILD_VERSION, context)
                     }
                 },
