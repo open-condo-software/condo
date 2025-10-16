@@ -92,7 +92,7 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
             <Card
                 title={(
                     <>
-                        <img src={icon} style={{ marginBottom: '5px', width: '24px', height: '24px' }}  alt='App icon'/>
+                        <img src={icon} className={styles.newsItemCardIcon} alt='App icon'/>
                         <Typography.Title level={3}>{appName}</Typography.Title>
                     </>
                 )}

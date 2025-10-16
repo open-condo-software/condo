@@ -3,6 +3,12 @@
   height: 100%;
 }
 
+.news-item-card-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 5px;
+}
+
 .news-item-card-modal-footer {
   margin-top: 16px;
 }
