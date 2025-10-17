@@ -89,7 +89,7 @@ try {
     logger.warn({ msg: 'load certs error', err })
 }
 
-function setupGracefulShutdown ({ app, keystone, httpServer, httpsServer, tracer }) {
+function setupGracefulShutdown ({ app, keystone, httpServer, httpsServer }) {
     const servers = [httpServer, httpsServer].filter(Boolean)
     const sockets = new Set()
     const state = app.locals._grace || (app.locals._grace = { draining: false, inflight: 0 })
@@ -154,11 +154,6 @@ function setupGracefulShutdown ({ app, keystone, httpServer, httpsServer, tracer
             if (keystone?.disconnect) await Promise.race([keystone.disconnect(), sleep(3000)])
         } catch (err) {
             logger.error({ msg: 'keystone-disconnect-error', err })
-        }
-        try {
-            if (tracer?.shutdown) await Promise.race([tracer.shutdown(), sleep(2000)])
-        } catch {
-            // ignore error
         }
         logger.info({ msg: 'graceful-shutdown:done' })
         process.exit(0)
