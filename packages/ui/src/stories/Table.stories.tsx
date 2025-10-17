@@ -1,16 +1,19 @@
 import { Meta, StoryObj } from '@storybook/react-webpack5'
 import React from 'react'
 
-import { Select, Table, Input, renderTextWithTooltip, defaultUpdateUrlCallback, defaultParseUrlQuery } from '@open-condo/ui/src'
+import { Select, Table, Input, renderTextWithTooltip } from '@open-condo/ui/src'
 import type {
     TableProps,
     TableColumn,
     TableColumnMenuLabels,
+    TableState,
+    GetTableData,
 } from '@open-condo/ui/src'
 
 export default {
     title: 'Components/Table',
     component: Table,
+    tags: ['autodocs'],
 } as Meta
 
 interface TableData {
@@ -62,26 +65,17 @@ const columns: TableColumn<TableData>[] = [
         id: 'age',
         initialOrder: 1,
         enableSorting: true,
-        meta: {
-            filterComponent: ({ setFilterValue, filterValue }) => (
-                <Input
-                    onChange={(event) => {
-                        const value = Number(event.target.value)
-                        setFilterValue(value)
-                        console.log('filterValue', filterValue)
-                    }} 
-                    placeholder='Filter by age'
-                    value={filterValue as string || ''}
-                />
-            ),
-            filterFn: (row, columnId, filterValue) => {
-                const cellValue = row.getValue(columnId) as number
-                if (filterValue === undefined || filterValue === '') return true
-                const filterNum = Number(filterValue)
-                if (isNaN(filterNum)) return true
-                return cellValue.toString().includes(filterNum.toString())
-            },
-        },
+        filterComponent: ({ setFilterValue, filterValue }) => (
+            <Input
+                onChange={(event) => {
+                    const value = Number(event.target.value)
+                    setFilterValue(value)
+                    console.log('filterValue', filterValue)
+                }} 
+                placeholder='Filter by age'
+                value={filterValue as string || ''}
+            />
+        ),
     },
     {
         dataKey: 'status',
@@ -89,21 +83,19 @@ const columns: TableColumn<TableData>[] = [
         id: 'status',
         initialVisibility: false,
         render: (status, _) => <span>{status === 'Active' ? 'Active' : 'Inactive'}</span>,
-        meta: {
-            filterComponent: ({ setFilterValue, filterValue }) => (
-                <Select 
-                    options={[
-                        { label: 'Active', value: 'Active' }, 
-                        { label: 'Inactive', value: 'Inactive' },
-                    ]} 
-                    onChange={(value) => {
-                        setFilterValue(value)
-                    }} 
-                    allowClear
-                    value={filterValue as string}
-                />
-            ),
-        },
+        filterComponent: ({ setFilterValue, filterValue }) => (
+            <Select 
+                options={[
+                    { label: 'Active', value: 'Active' }, 
+                    { label: 'Inactive', value: 'Inactive' },
+                ]} 
+                onChange={(value) => {
+                    setFilterValue(value)
+                }} 
+                allowClear
+                value={filterValue as string}
+            />
+        ),
     },
     {
         dataKey: (row) => row.organization?.name,
@@ -119,64 +111,101 @@ const columns: TableColumn<TableData>[] = [
     },
 ]
 
+const getTableData: GetTableData<TableData> = (tableState) => {
+    return new Promise<TableData[]>((resolve) => {
+        setTimeout(() => {
+            
+            resolve(data)
+        }, 1000)
+    })
+}
+
 const columnMenuLabels: TableColumnMenuLabels = {
-    sortLabel: 'Sort',
+    sortDescLabel: 'Sort',
+    sortAscLabel: 'Sort',
     filterLabel: 'Filter',
     settingsLabel: 'Settings',
-    sortedLabel: 'Sorted',
+    sortedDescLabel: 'Sorted',
+    sortedAscLabel: 'Sorted',
     filteredLabel: 'Filtered',
     settedLabel: 'Setted',
 }
-
-const syncUrlConfig = {
-    parseUrlCallback: defaultParseUrlQuery,
-    updateUrlCallback: defaultUpdateUrlCallback,
-}
-
 const tableId = '1'
 
 const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<TableData>) => {
     const { 
+        id, 
         dataSource, 
         columns, 
-        id, 
-        loading, 
-        columnMenuLabels, 
-        storageKey, 
-        defaultColumn, 
-        onRowClick, 
+        defaultColumn,
         totalRows, 
         pageSize,
+        onTableStateChange,
+        initialTableState,
+        storageKey,  
+        columnMenuLabels, 
+        onRowClick, 
     } = args
 
     return (
         <Table<TableData>
+            id={id}
             dataSource={dataSource}
             columns={columns}
-            id={id}
-            columnMenuLabels={columnMenuLabels}
-            storageKey={storageKey}
             defaultColumn={defaultColumn}
-            loading={loading}
-            syncUrlConfig={syncUrlConfig}
-            onRowClick={onRowClick}
             totalRows={totalRows}
             pageSize={pageSize}
+            onTableStateChange={onTableStateChange}
+            initialTableState={initialTableState}
+            columnMenuLabels={columnMenuLabels}
+            storageKey={storageKey}
+            onRowClick={onRowClick}
         />
     )
+}
+
+const onTableStateChange = (tableState: TableState) => {
+    try {    
+        localStorage.setItem('tableState', JSON.stringify(tableState))
+    } catch (error) {
+        console.error('Error saving table state', error)
+    }
+}
+
+const initialTableState = () => {
+    try {
+        const tableState = localStorage.getItem('tableState')
+        return tableState ? JSON.parse(tableState) : undefined
+    } catch (error) {
+        console.error('Error getting table state', error)
+    }
 }
 
 export const Default: StoryObj<TableProps<TableData>> = {
     render: Template,
     args: {
-        dataSource: data,
+        dataSource: getTableData,
         columns,
         id: tableId,
-        loading: false,
         columnMenuLabels, 
         storageKey: 'storybook-table',
         onRowClick: (record: TableData) => console.log('Row clicked:', record),
         totalRows: data.length,
         pageSize: 10,
+    },
+}
+
+export const WithInitialTableState: StoryObj<TableProps<TableData>> = {
+    render: Template,
+    args: {
+        id: tableId,
+        dataSource: getTableData,
+        columns,
+        totalRows: data.length,
+        pageSize: 10,
+        columnMenuLabels,
+        storageKey: 'storybook-table',
+        onTableStateChange: onTableStateChange,
+        initialTableState: initialTableState(),
     },
 }

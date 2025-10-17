@@ -54,7 +54,7 @@ export {
     defaultUpdateUrlCallback,
     defaultParseUrlQuery,
 } from './components/Table'
-export type { TableProps, TableColumn, TableColumnMenuLabels, GetData, TableParamsRequest } from './components/Table'
+export type { TableProps, TableColumn, TableColumnMenuLabels, GetTableData, TableState } from './components/Table'
 
 export { Tabs } from './components/Tabs'
 export type { TabsProps, TabItem } from './components/Tabs'

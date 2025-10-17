@@ -3,7 +3,7 @@ import { renderTextWithTooltip } from './utils/renderCellUtils'
 import { defaultUpdateUrlCallback, defaultParseUrlQuery } from './utils/urlQuery'
 import './style.less'
 
-export type { TableProps, TableColumn, TableColumnMenuLabels, GetData, TableParamsRequest } from './types'
+export type { TableProps, TableColumn, TableColumnMenuLabels, GetTableData, TableState } from './types'
 export { 
     Table,
     renderTextWithTooltip,
