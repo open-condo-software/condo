@@ -115,6 +115,7 @@ const OpenTableContainer = ({
                 <Col span={24}>
                     <OpenTable
                         dataSource={dataSource}
+                        // @ts-ignore
                         columns={columns}
                         totalRows={total}
                         pageSize={DEFAULT_PAGE_SIZE}
