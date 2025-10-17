@@ -15,7 +15,7 @@ interface UsePersistentTableStateProps<TData extends RowData = RowData> {
     defaultColumn?: DefaultColumn
 }
 
-export const useTableState = <TData extends RowData = RowData>({ storageKey, columns, defaultColumn }: UsePersistentTableStateProps<TData>) => {
+export const useTableSetting = <TData extends RowData = RowData>({ storageKey, columns, defaultColumn }: UsePersistentTableStateProps<TData>) => {
     const getInitialState = useCallback((): TableSettings<TData> => {
         
         const savedState = getStorage(storageKey)

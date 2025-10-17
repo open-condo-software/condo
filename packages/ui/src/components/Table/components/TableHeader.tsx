@@ -114,6 +114,8 @@ export function TableHeader <TData extends RowData = RowData> ({
         <div key={headerGroup.id} className='condo-table-thead'>
             {headerGroup.headers.map((header) => {
                 const isResizing = header.column.getIsResizing()
+                const deltaOffset = table.getState().columnSizingInfo.deltaOffset ?? 0
+                
                 return (
                     <div
                         key={header.id}
@@ -121,8 +123,11 @@ export function TableHeader <TData extends RowData = RowData> ({
                             header.column.getIsSorted() || header.column.getIsFiltered() 
                                 ? 'condo-table-th-active' 
                                 : ''
-                        } ${isResizing ? 'condo-table-th-resizing' : ''}`} // Хз зачем
-                        style={{ width: header.getSize() }}
+                        } ${isResizing ? 'condo-table-th-resizing' : ''}`}
+                        style={{ 
+                            width: header.getSize(),
+                            transform: isResizing ? `translateX(${deltaOffset}px)` : '',
+                        }}
                     >
                         <div className='condo-table-th-content'>
                             <div className='condo-table-th-title-content'>
@@ -146,9 +151,6 @@ export function TableHeader <TData extends RowData = RowData> ({
                             onMouseDown={header.getResizeHandler()}
                             onTouchStart={header.getResizeHandler()}
                             onDoubleClick={() => header.column.resetSize()}
-                            style={{
-                                transform: isResizing ? `translateX(${1 * (table.getState().columnSizingInfo.deltaOffset ?? 0)}px)` : '',
-                            }}
                         />
                     </div>
                 )

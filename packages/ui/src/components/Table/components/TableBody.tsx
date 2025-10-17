@@ -43,15 +43,23 @@ export function TableBody <TData extends RowData = RowData> ({
                     onKeyDown={createKeyDownHandler(row)}
                     aria-label={onRowClick ? `Select row ${row.id}` : undefined}
                 >
-                    {row.getVisibleCells().map(cell => (
-                        <div
-                            key={cell.id}
-                            className='condo-table-td'
-                            style={{ width: cell.column.getSize() }}
-                        >
-                            {showSkeleton ? <div className='condo-table-cell-skeleton' /> : flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </div>
-                    ))}
+                    {row.getVisibleCells().map(cell => {
+                        const isResizing = cell.column.getIsResizing()
+                        const deltaOffset = table.getState().columnSizingInfo.deltaOffset ?? 0
+                        
+                        return (
+                            <div
+                                key={cell.id}
+                                className='condo-table-td'
+                                style={{ 
+                                    width: cell.column.getSize(),
+                                    transform: isResizing ? `translateX(${deltaOffset}px)` : '',
+                                }}
+                            >
+                                {showSkeleton ? <div className='condo-table-cell-skeleton' /> : flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </div>
+                        )
+                    })}
                 </div>
             ))}
         </div>
