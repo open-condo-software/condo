@@ -7,13 +7,13 @@
 }
 
 .condo-table {
+  box-sizing: border-box;
   width: 100%;
   background-color: @condo-global-color-white;
   border: 1px solid @condo-global-color-gray-5;
   border-radius: @condo-global-border-radius-large;
   border-collapse: separate;
   border-spacing: 0;
-  box-sizing: border-box;
 }
 
 .condo-table-loading {
@@ -137,11 +137,11 @@
   position: absolute;
   top: 0;
   right: 0;
+  z-index: 1000;
   width: 4px;
   height: 100%;
-  cursor: col-resize;
-  z-index: 1000;
   overflow: visible;
+  cursor: col-resize;
 
   &:hover {
     background-color: @condo-global-color-green-5;
@@ -177,11 +177,17 @@
 }
 
 .condo-table-cell-skeleton {
-  height: 16px;
   width: 100%;
-  border-radius: 6px;
-  background: linear-gradient(90deg, @condo-global-color-gray-3 25%, @condo-global-color-gray-5 37%, @condo-global-color-gray-3 63%);
+  height: 16px;
+  background:
+    linear-gradient(
+      90deg,
+      @condo-global-color-gray-3 25%,
+      @condo-global-color-gray-5 37%,
+      @condo-global-color-gray-3 63%
+    );
   background-size: 400% 100%;
+  border-radius: 6px;
   animation: condo-skeleton-loading 1.4s ease infinite;
 }
 
@@ -189,6 +195,7 @@
   0% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0 50%;
   }
@@ -308,19 +315,18 @@
 
 .condo-dropdown-menu-item-active {
   color: @condo-global-color-green-5;
-
 }
 
 .condo-dropdown-menu-item-inner {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
 .condo-table-pagination {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 16px 0;
 }
 
@@ -331,65 +337,65 @@
 
 .condo-table-pagination-center {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
 }
 
 .condo-table-pagination-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: @condo-global-font-family-default;
   min-width: 32px;
   height: 32px;
   padding: 0 8px;
-  border: 1px solid @condo-global-color-gray-5;
-  background: @condo-global-color-white;
   color: @condo-global-color-black;
+  font-size: 14px;
+  font-family: @condo-global-font-family-default;
+  background: @condo-global-color-white;
+  border: 1px solid @condo-global-color-gray-5;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 14px;
-  
-  &:hover:not(:disabled) {
-    border-color: @condo-global-color-green-5;
-    color: @condo-global-color-green-5;
-  }
-  
+
   &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
     border: 1px solid @condo-global-color-gray-5;
-    
+    cursor: not-allowed;
+    opacity: 0.5;
+
     svg {
       color: @condo-global-color-gray-5;
     }
   }
-  
-  &.condo-table-pagination-btn-active {
-    background: @condo-global-color-green-1;
+
+  &:hover:not(:disabled) {
+    color: @condo-global-color-green-5;
     border-color: @condo-global-color-green-5;
+  }
+
+  &.condo-table-pagination-btn-active {
     color: @condo-global-color-green-5;
     font-weight: 500;
+    background: @condo-global-color-green-1;
+    border-color: @condo-global-color-green-5;
   }
 }
 
 .condo-table-pagination-size-selector {
   padding: 4px 8px;
-  border: 1px solid @condo-global-color-green-5;
-  border-radius: 6px;
-  background: @condo-global-color-white;
   color: @condo-global-color-black;
   font-size: 14px;
+  background: @condo-global-color-white;
+  border: 1px solid @condo-global-color-green-5;
+  border-radius: 6px;
   cursor: pointer;
-  
+
   &:hover {
     border-color: @condo-global-color-green-5;
   }
-  
+
   &:focus {
-    outline: none;
     border-color: @condo-global-color-green-5;
+    outline: none;
     box-shadow: 0 0 0 2px @condo-global-color-green-1;
   }
 }
@@ -400,29 +406,29 @@
   justify-content: center;
   min-height: 200px;
   padding: 40px 20px;
-  border-radius: @condo-global-border-radius-large;
   background: @condo-global-color-white;
+  border-radius: @condo-global-border-radius-large;
 }
 
 .condo-table-empty-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 12px;
+  align-items: center;
   color: @condo-global-color-gray-7;
   font-size: 14px;
   text-align: center;
-  
+
   &::before {
-    content: '';
-    width: 48px;
-    height: 48px;
-    background: @condo-global-color-gray-3;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    width: 48px;
+    height: 48px;
     color: @condo-global-color-gray-5;
+    font-size: 24px;
+    background: @condo-global-color-gray-3;
+    border-radius: 50%;
+    content: "";
   }
 }
