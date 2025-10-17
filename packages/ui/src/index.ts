@@ -48,6 +48,14 @@ export type { SpaceProps } from './components/Space'
 export { Steps } from './components/Steps'
 export type { StepsProps, StepItem } from './components/Steps'
 
+export { 
+    Table,
+    renderTextWithTooltip,
+    defaultUpdateUrlCallback,
+    defaultParseUrlQuery,
+} from './components/Table'
+export type { TableProps, TableColumn, TableColumnMenuLabels, GetTableData, TableState } from './components/Table'
+
 export { Tabs } from './components/Tabs'
 export type { TabsProps, TabItem } from './components/Tabs'
 
