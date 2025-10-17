@@ -5,9 +5,6 @@ import {
     CellContext,
     AccessorFn,
     createColumnHelper,
-    getSortedRowModel,
-    getPaginationRowModel,
-    getFilteredRowModel,
     SortingState,
     PaginationState,
     ColumnFiltersState,
@@ -17,118 +14,78 @@ import React, { useMemo, useState, useEffect } from 'react'
 import { TableBody } from '@open-condo/ui/src/components/Table/components/TableBody'
 import { TableHeader } from '@open-condo/ui/src/components/Table/components/TableHeader'
 import { TablePagination } from '@open-condo/ui/src/components/Table/components/TablePagination'
-import { useTableState } from '@open-condo/ui/src/components/Table/hooks/useTableState'
-import type { TableColumn, TableProps, FilterModel } from '@open-condo/ui/src/components/Table/types'
+import { DEFAULT_PAGE_SIZE } from '@open-condo/ui/src/components/Table/constans'
+import { useTableSetting } from '@open-condo/ui/src/components/Table/hooks/useTableSetting'
+import type { TableColumn, TableProps, FilterState, TableState } from '@open-condo/ui/src/components/Table/types'
 import { renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderCellUtils'
 import { getPageIndexFromStartRow } from '@open-condo/ui/src/components/Table/utils/urlQuery'
 
 
 export function Table<TData extends RowData = RowData> ({
+    id,
     dataSource,
     columns,
-    id,
+    defaultColumn,
+    totalRows,
+    pageSize = DEFAULT_PAGE_SIZE,
+    onTableStateChange,
+    initialTableState = { filterState: {}, startRow: 0, endRow: pageSize, sortState: [] },
     storageKey = `table-state-${id}`,
     columnMenuLabels = {},
-    defaultColumn,
-    syncUrlConfig,
-    filterFns,
-    loading,
     onRowClick,
-    totalRows,
-    pageSize = 30,
 }: TableProps<TData>): React.ReactElement {
 
-    const isClientTableData = useMemo(() => Array.isArray(dataSource), [dataSource])
-    const [tableData, setTableData] = useState<TData[]>(isClientTableData ? (dataSource as TData[]) : [])
-
-    const { filterModel: filters, startRow, sortModel: sorters } = useMemo(() => {
-        if (!syncUrlConfig?.parseUrlCallback) return { filterModel: {}, startRow: 0, sortModel: [] }
-        return syncUrlConfig.parseUrlCallback(pageSize)
-    }, [syncUrlConfig, pageSize])
-
-    const [sorting, setSorting] = useState<SortingState>(() => {
-        if (!sorters.length) return []
-        return sorters.map(sorter => ({
-            id: sorter.id,
-            desc: sorter.desc,
-        }))
-    })
-
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(() => {
-        if (!Object.keys(filters).length) return []
-        return Object.entries(filters).map(([id, value]) => ({
-            id: id,
-            value: value,
-        }))
-    })
-
-    const [pagination, setPagination] = useState<PaginationState>(() => {
-        if (!startRow) return { pageIndex: 0, pageSize: pageSize }
-        const currentPageIndex = getPageIndexFromStartRow(startRow, pageSize)
-        const pageIndex = currentPageIndex - 1
-        return {
-            pageIndex: pageIndex,
-            pageSize: pageSize,
-        }
-    })
-    const [internalLoading, setInternalLoading] = useState<boolean>(false)
+    const [sorting, setSorting] = useState<SortingState>(initialTableState.sortState)
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(Object.entries(initialTableState.filterState).map(([key, value]) => ({ id: key, value: value })))
+    const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
+    const [tableData, setTableData] = useState<TData[]>([])
+    const [internalLoading, setInternalLoading] = useState<boolean>(true)
 
     useEffect(() => {
-        if (isClientTableData) {
-            setTableData(dataSource as TData[])
-        } else if (!isClientTableData && typeof dataSource === 'function') {
+
+        const fetchData = async () => {
             setInternalLoading(true)
             const startRow = pagination.pageIndex * pagination.pageSize
             const endRow = startRow + pagination.pageSize
-            const filterModel = columnFilters.reduce((acc, filter) => {
+            const filterState = columnFilters.reduce((acc, filter) => {
                 acc[filter.id] = filter.value
                 return acc
-            }, {} as FilterModel)
+            }, {} as FilterState)
             
-            dataSource({
-                request: {
+            try {
+                const tableData = await dataSource({
                     startRow,
                     endRow,
-                    filterModel: filterModel,
-                    sortModel: sorting,
-                },
-                success: ({ rowData }) => {
-                    setTableData(rowData as TData[])
-                    setInternalLoading(false)
-                },
-                fail: () => {
-                    setTableData([])
-                    setInternalLoading(false)
-                },
-            })
+                    filterState,
+                    sortState: sorting,
+                })
+                if (onTableStateChange) {
+                    await onTableStateChange({
+                        startRow,
+                        endRow,
+                        filterState,
+                        sortState: sorting,
+                    })
+                }
+                setTableData(tableData)
+            } catch (error) {
+                setTableData([])
+            } finally {
+                setInternalLoading(false)
+            }
         }
-    }, [isClientTableData, dataSource, sorting, pagination, columnFilters])
-
-    useEffect(() => {
-        if (!syncUrlConfig?.updateUrlCallback) return
-
-        const startRow = pagination.pageIndex * pagination.pageSize
-        console.log('startRow', startRow)
-        const endRow = startRow + pagination.pageSize
-        const filterModel = columnFilters.reduce((acc, filter) => {
-            acc[filter.id] = filter.value
-            return acc
-        }, {} as FilterModel)
-
-        syncUrlConfig.updateUrlCallback({
-            startRow: startRow,
-            endRow: endRow,
-            filterModel: filterModel,
-            sortModel: sorting,
-        })
-    }, [syncUrlConfig, pagination, sorting, columnFilters])
+        
+        fetchData()
+    }, [dataSource, sorting, pagination, columnFilters, onTableStateChange])
     
     const columnHelper = createColumnHelper<TData>()
     const tableColumns = useMemo(() => {
         return columns.map(c => {
             const enableSorting = c.enableSorting !== undefined ? c.enableSorting : (defaultColumn?.enableSorting ?? false)
-            const enableFilter = c.meta?.filterComponent !== undefined ? true : false
-            const filterFn = c.meta?.filterFn !== undefined ? c.meta?.filterFn : undefined
+            const enableFilter = c.enableFilter !== undefined ? c.enableFilter : (defaultColumn?.enableFilter ?? false) || c.filterComponent !== undefined ? true : false
+            const meta = {
+                filterComponent: c.filterComponent,
+            }
 
             return columnHelper.accessor(c.dataKey as AccessorFn<TData, unknown>, {
                 id: c.id,
@@ -136,8 +93,7 @@ export function Table<TData extends RowData = RowData> ({
                 enableSorting,
                 enableColumnFilter: enableFilter,
                 cell: (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index) || renderTextWithTooltip()(info.getValue()),
-                meta: c.meta,
-                filterFn,
+                meta: meta,
             })
         })
     }, [columns, columnHelper, defaultColumn])
@@ -149,7 +105,7 @@ export function Table<TData extends RowData = RowData> ({
         onColumnVisibilityChange,
         onColumnOrderChange,
         onColumnSizingChange,
-    } = useTableState<TData>({ storageKey, columns, defaultColumn })
+    } = useTableSetting<TData>({ storageKey, columns, defaultColumn })
 
     const orderedColumns = useMemo(() => {
         if (columnOrder && columnOrder.length > 0) {
@@ -163,16 +119,12 @@ export function Table<TData extends RowData = RowData> ({
         data: tableData,
         columns: tableColumns,
         getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
         onSortingChange: setSorting,
         onPaginationChange: setPagination,
         onColumnFiltersChange: setColumnFilters,
-        filterFns,
-        manualSorting: !isClientTableData,
-        manualFiltering: !isClientTableData,
-        manualPagination: !isClientTableData,
+        manualSorting: true,
+        manualFiltering: true,
+        manualPagination: true,
         state: {
             sorting,
             pagination,
@@ -205,18 +157,8 @@ export function Table<TData extends RowData = RowData> ({
                         table={table}
                     />
                 ))}
-                {(loading || (internalLoading && tableData.length > 0)) ? (
-                    <div className='condo-table-tbody'>
-                        {tableData.length > 0 ? (
-                            <TableBody<TData>
-                                table={table}
-                                onRowClick={onRowClick}
-                                showSkeleton
-                            />
-                        ) : (
-                            <div className='condo-table-loading' />
-                        )}
-                    </div>
+                {internalLoading ? (
+                    <div className='condo-table-loading' />
                 ) : (
                     <TableBody<TData> 
                         table={table} 

@@ -96,7 +96,7 @@ export const getSortersFromQuery = (query: Record<string, string | string[]>): S
 
 
 export const getPageIndexFromStartRow = (startRow: number, pageSize: number): number => {
-    return Math.floor(startRow / pageSize) + 1
+    return Math.floor(startRow / pageSize)
 }
 
 export const defaultParseUrlQuery = (pageSize: number): TableParamsRequest => {
@@ -181,6 +181,7 @@ export const defaultUpdateUrlCallback = (params: TableParamsRequest) => {
         newSorters = null
     }
 
+    // @ts-ignore
     const newParameters = getFiltersQueryData(newFilters, newSorters, newOffset)
 
     return updateUrl(newParameters, { resetOldParameters: false, shallow: true })
