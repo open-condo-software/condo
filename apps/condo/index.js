@@ -127,17 +127,16 @@ const apps = () => {
 
 /** @type {(app: import('express').Application) => void} */
 const extendExpressApp = (app) => {
-    app.get('/.well-known/change-password', function (req, res) {
-        res.redirect('/auth/forgot')
+    // shared state visible to the helper
+    app.locals._grace = app.locals._grace || { draining: false, inflight: 0 }
+
+    app.get('/.well-known/apollo/server-health', (req, res, next) => {
+        if (req.app.locals._grace.draining) return res.status(503).json({ status: 'shutting_down' })
+        next()
     })
 
-    const sleep = (ms) => {
-        return new Promise(resolve => setTimeout(resolve, ms))
-    }
-
-    app.get('/.well-known/sleep', async (req, res) => {
-        await sleep(5000)
-        res.json({ 'status': 'ok' })
+    app.get('/.well-known/change-password', function (req, res) {
+        res.redirect('/auth/forgot')
     })
 }
 
