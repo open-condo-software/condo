@@ -21,7 +21,7 @@ export const TicketDeadlineSettingsAbout: React.FC = () => {
         {
             link: (
                 <Link href='/ticket/create'>
-                    <Typography.Link style={LINK_STYLE} underline href='/ticket/create' target='_blank'>
+                    <Typography.Link component={Link} style={LINK_STYLE} underline href='/ticket/create' target='_blank'>
                         {LinkMessage}
                     </Typography.Link>
                 </Link>
