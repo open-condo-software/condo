@@ -29,7 +29,7 @@ const logger = getLogger('worker')
 const QUEUES = new Map()
 
 let KEEP_JOB_TTL = 60 * 60 * 24 * 14 // default is 14 days
-if (conf['KEEP_JOB_TTL']) {
+if (conf['KEEP_WORKER_JOB_SECONDS']) {
     KEEP_JOB_TTL = parseInt(conf['KEEP_WORKER_JOB_SECONDS'])
 }
 
