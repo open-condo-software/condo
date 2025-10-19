@@ -7,6 +7,7 @@ query getCustomValuesForObject ($modelName: CustomFieldModelNameType! $itemId: S
         customField {
           priority
           name
+          type
         }
         sourceType
         sourceId
