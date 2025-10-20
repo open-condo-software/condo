@@ -56,7 +56,7 @@ describe('CalculateFeeForReceiptService', () => {
                     { 'recipient':'organization', 'percent':'0.29', 'category': HOUSING_CATEGORY_ID }],
             })
 
-            const [[receipt]] = await utils.createReceipts([utils.createJSONReceipt({ category: { id: REPAIR_CATEGORY_ID } })])
+            const [[receipt]] = await utils.createReceipts([utils.createJSONReceipt({ category: { id: HOUSING_CATEGORY_ID } })])
             const amount = '300'
             const [result] = await calculateFeeForReceiptByTestClient(utils.clients.resident, { receipt: { id: receipt.id }, amount })
             expect(result.amountWithoutExplicitFee).toBe(amount)
