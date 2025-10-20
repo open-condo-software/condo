@@ -9,6 +9,7 @@ const { expectToThrowGQLError, expectToThrowGQLErrorToResult } = require('@open-
 
 const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const { calculateFeeForReceiptByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
+const { HOUSING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 
 describe('CalculateFeeForReceiptService', () => {
@@ -46,7 +47,24 @@ describe('CalculateFeeForReceiptService', () => {
             expect(result.explicitFee).toBe('0')
             expect(result.explicitServiceCharge).toBe('0')
         })
+
+        test('Check the calculations for implicit fees with category', async () => {
+            await utils.updateAcquiringContext({
+                implicitFeeDistributionSchema: [
+                    { 'recipient':'acquiring', 'percent':'0', 'category': HOUSING_CATEGORY_ID },
+                    { 'recipient':'commission', 'percent':'0.29', 'category': HOUSING_CATEGORY_ID },
+                    { 'recipient':'organization', 'percent':'0.29', 'category': HOUSING_CATEGORY_ID }],
+            })
+
+            const [[receipt]] = await utils.createReceipts()
+            const amount = '300'
+            const [result] = await calculateFeeForReceiptByTestClient(utils.clients.resident, { receipt: { id: receipt.id }, amount })
+            expect(result.amountWithoutExplicitFee).toBe(amount)
+            expect(result.explicitFee).toBe('0')
+            expect(result.explicitServiceCharge).toBe('0')
+        })
     })
+
     describe('Check receipt', () => {
         test('Receipt must exist', async () => {
             const missingReceiptId = faker.datatype.uuid()
