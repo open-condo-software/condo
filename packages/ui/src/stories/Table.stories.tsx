@@ -8,9 +8,15 @@ import type {
     TableColumnMenuLabels,
     TableState,
     GetTableData,
+    DefaultColumn,
 } from '@open-condo/ui/src'
 
 export default {
+    parameters: {
+        docs: {
+            codePanel: true,
+        },
+    },
     title: 'Components/Table',
     component: Table,
     tags: ['autodocs'],
@@ -21,7 +27,7 @@ interface TableData {
     firstName: string
     lastName: string
     age: number
-    status: 'Inactive' | 'Active'
+    status: false | true
     organization?: {
         id: string
         name: string
@@ -29,22 +35,30 @@ interface TableData {
 }
 
 const data: TableData[] = [
-    { id: '1', firstName: 'tanner', lastName: 'linsley', age: 33, status: 'Active', organization: { id: '1', name: 'Organization 1' } },
-    { id: '2', firstName: 'derek', lastName: 'perkins', age: 40, status: 'Inactive' },
-    { id: '3', firstName: 'joe', lastName: 'quarry', age: 50, status: 'Active' },
-    { id: '4', firstName: 'sarah', lastName: 'day', age: 28, status: 'Active' },
-    { id: '5', firstName: 'sandy', lastName: 'shore', age: 35, status: 'Active' },
-    { id: '6', firstName: 'mike', lastName: 'drop', age: 42, status: 'Inactive' },
-    { id: '7', firstName: 'tanner', lastName: 'linsley', age: 33, status: 'Active', organization: { id: '1', name: 'Organization 1' } },
-    { id: '8', firstName: 'derek', lastName: 'perkins', age: 40, status: 'Inactive' },
-    { id: '9', firstName: 'joe', lastName: 'quarry', age: 50, status: 'Active' },
-    { id: '10', firstName: 'sarah', lastName: 'day', age: 28, status: 'Active' },
-    { id: '11', firstName: 'sandy', lastName: 'shore', age: 35, status: 'Active' },
-    { id: '12', firstName: 'mike', lastName: 'drop', age: 42, status: 'Inactive' },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: 'Active', organization: { id: '1', name: 'Organization 1' } },
+    { id: '1', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '2', firstName: 'derek', lastName: 'perkins', age: 40, status: false },
+    { id: '3', firstName: 'joe', lastName: 'quarry', age: 50, status: true },
+    { id: '4', firstName: 'sarah', lastName: 'day', age: 28, status: true },
+    { id: '5', firstName: 'sandy', lastName: 'shore', age: 35, status: true },
+    { id: '6', firstName: 'mike', lastName: 'drop', age: 42, status: false },
+    { id: '7', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '8', firstName: 'derek', lastName: 'perkins', age: 40, status: false },
+    { id: '9', firstName: 'joe', lastName: 'quarry', age: 50, status: true },
+    { id: '10', firstName: 'sarah', lastName: 'day', age: 28, status: true },
+    { id: '11', firstName: 'sandy', lastName: 'shore', age: 35, status: true },
+    { id: '12', firstName: 'mike', lastName: 'drop', age: 42, status: false },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
 ]
 
 const columns: TableColumn<TableData>[] = [
+    {
+        id: 'White column',
+        dataKey: '',
+        header: '',
+        enableColumnSettings: false,
+        enableSorting: false,
+        render: () => <span></span>,
+    },
     {
         dataKey: 'firstName',
         header: 'First Name',
@@ -52,6 +66,16 @@ const columns: TableColumn<TableData>[] = [
         initialOrder: 4,
         initialVisibility: true,
         render: renderTextWithTooltip(),
+        filterComponent: ({ setFilterValue, filterValue }) => (
+            <Input
+                onChange={(event) => {
+                    const value = event.target.value
+                    setFilterValue(value)
+                }} 
+                placeholder='Filter by first name'
+                value={filterValue?.toString()}
+            />
+        ),
     },
     {
         dataKey: 'lastName',
@@ -65,39 +89,42 @@ const columns: TableColumn<TableData>[] = [
         id: 'age',
         initialOrder: 1,
         enableSorting: true,
-        filterComponent: ({ setFilterValue, filterValue }) => (
-            <Input
-                onChange={(event) => {
-                    const value = Number(event.target.value)
-                    setFilterValue(value)
-                    console.log('filterValue', filterValue)
-                }} 
-                placeholder='Filter by age'
-                value={filterValue as string || ''}
-            />
-        ),
+        filterComponent: ({ setFilterValue, filterValue }) => {
+            // We have trouble with number in filter. Table state is not updated
+            return (
+                <Input
+                    onChange={(event) => {
+                        const value = +event.target.value
+                        setFilterValue(value)
+                    }} 
+                    placeholder='Filter by age'
+                    value={filterValue?.toString()}
+                />
+            )
+        },
     },
     {
         dataKey: 'status',
         header: 'Status',
         id: 'status',
         initialVisibility: false,
-        render: (status, _) => <span>{status === 'Active' ? 'Active' : 'Inactive'}</span>,
+        render: (status, _) => <span>{status === true ? 'Active' : 'Inactive'}</span>,
         filterComponent: ({ setFilterValue, filterValue }) => (
             <Select 
                 options={[
-                    { label: 'Active', value: 'Active' }, 
-                    { label: 'Inactive', value: 'Inactive' },
+                    { label: 'Active', value: true as any }, 
+                    { label: 'Inactive', value: false as any },
                 ]} 
                 onChange={(value) => {
                     setFilterValue(value)
                 }} 
                 allowClear
-                value={filterValue as string}
+                value={filterValue?.toString()}
             />
         ),
     },
     {
+        // How we can add sorting for this column? 
         dataKey: (row) => row.organization?.name,
         header: 'Organization Name',
         id: 'organization.name',
@@ -114,8 +141,52 @@ const columns: TableColumn<TableData>[] = [
 const getTableData: GetTableData<TableData> = (tableState) => {
     return new Promise<TableData[]>((resolve) => {
         setTimeout(() => {
-            
-            resolve(data)
+            const resultData: TableData[] = []
+        
+            if (Object.keys(tableState.filterState).length > 0) {
+                data.forEach(item => {
+                    for (const [key, value] of Object.entries(tableState.filterState)) {
+                        if (item[key as keyof TableData] === value) {
+                            resultData.push(item)
+                        }
+                    }
+                })
+            } else {
+                data.forEach(item => {
+                    resultData.push(item)
+                })
+            }
+
+            if (tableState.sortState.length > 0) {
+                const sortDesc = tableState.sortState[0].desc
+                const sortId = tableState.sortState[0].id as keyof TableData
+                console.log(sortId)
+                resultData.sort((a, b) => {
+                    if (!sortDesc) {
+                        switch (typeof a[sortId]) {
+                            case 'number':
+                                return a[sortId] - (b[sortId] as number)
+                            case 'string':
+                                if (a[sortId] === undefined || null) return  1
+                                if (b[sortId] === undefined || null) return  -1
+                                return a[sortId].localeCompare(b[sortId] as string)
+                            default:
+                                return 0
+                        }
+                    }
+                    switch (typeof b[sortId]) {
+                        case 'number':
+                            return b[sortId] - (a[sortId] as number)
+                        case 'string':
+                            if (a[sortId] === undefined || null) return  1
+                            if (b[sortId] === undefined || null) return  -1
+                            return (b[sortId]).localeCompare(a[sortId] as string)
+                        default:
+                            return 0
+                    }
+                })
+            }
+            resolve(resultData.slice(tableState.startRow, tableState.endRow))
         }, 1000)
     })
 }
@@ -181,17 +252,22 @@ const initialTableState = () => {
     }
 }
 
+const defaultColumn: DefaultColumn = {
+    enableSorting: true,
+    enableColumnSettings: true,
+    initialVisibility: true,
+    initialSize: '150px',
+}
+
+// How I can visible function in story? 
 export const Default: StoryObj<TableProps<TableData>> = {
     render: Template,
     args: {
+        id: tableId,
         dataSource: getTableData,
         columns,
-        id: tableId,
         columnMenuLabels, 
-        storageKey: 'storybook-table',
-        onRowClick: (record: TableData) => console.log('Row clicked:', record),
-        totalRows: data.length,
-        pageSize: 10,
+        storageKey: 'table-default',
     },
 }
 
@@ -204,8 +280,23 @@ export const WithInitialTableState: StoryObj<TableProps<TableData>> = {
         totalRows: data.length,
         pageSize: 10,
         columnMenuLabels,
-        storageKey: 'storybook-table',
+        storageKey: 'table-with-initial-state',
         onTableStateChange: onTableStateChange,
         initialTableState: initialTableState(),
+    },
+}
+
+
+export const DefaultColumnState: StoryObj<TableProps<TableData>> = {
+    render: Template,
+    args: {
+        id: tableId,
+        dataSource: getTableData,
+        columns,
+        defaultColumn: defaultColumn,
+        totalRows: data.length,
+        pageSize: 10,
+        columnMenuLabels,
+        storageKey: 'table-with-initial-state',
     },
 }
