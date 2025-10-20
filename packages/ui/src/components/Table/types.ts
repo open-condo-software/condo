@@ -6,6 +6,7 @@ export type ColumnSettings = {
     size: number
 }
 
+// How we store table settings in iframe?
 export type TableSettings<TData extends RowData = RowData> = Record<TableColumn<TData>['id'], ColumnSettings>
 
 export type TableColumnMenuLabels = {
@@ -22,7 +23,6 @@ export type TableColumnMenuLabels = {
 
 export type DefaultColumn = {
     enableSorting?: boolean
-    enableFilter?: boolean
     enableColumnSettings?: boolean
     initialVisibility?: boolean
     initialSize?: string  // '150px' or '15%'?
@@ -31,6 +31,14 @@ export type DefaultColumn = {
 export type FilterDropdownProps = {
     setFilterValue: (old: unknown) => void
     filterValue: unknown
+}   
+
+type FilterComponent = (props: FilterDropdownProps) => React.ReactNode
+
+export type TableColumnMeta = {
+    filterComponent?: FilterComponent
+    enableColumnSettings?: boolean
+    enableColumnOptions?: boolean
 }
 
 export type TableColumn<TData extends RowData = RowData> = {
@@ -38,9 +46,8 @@ export type TableColumn<TData extends RowData = RowData> = {
     header: string
     dataKey: AccessorFn<TData> | string
     render?: (value: unknown, record: TData, index: number) => React.ReactNode
-    filterComponent?: ((props: FilterDropdownProps) => React.ReactNode)
+    filterComponent?: FilterComponent
     enableSorting?: boolean
-    enableFilter?: boolean
     enableColumnSettings?: boolean
     initialVisibility?: boolean
     initialSize?: string  // '150px' or '15%'?
@@ -49,7 +56,7 @@ export type TableColumn<TData extends RowData = RowData> = {
 
 export type TableState = {
     startRow: number
-    endRow: number
+    endRow?: number
     filterState: FilterState
     sortState: SortingState
 }
@@ -70,10 +77,8 @@ export interface TableProps<TData extends RowData = RowData> {
     onTableStateChange?: (tableState: TableState) => Promise<void> | void
     initialTableState?: TableState
     storageKey?: string
-    // loading?: boolean We don't need it, if we have dataSource prop
+    // loading?: boolean - We don't need it, if we have dataSource prop
     columnMenuLabels?: TableColumnMenuLabels
     onRowClick?: (record: TData) => void
     // Add prop for refresh table data
 }
-
-// Как лучше в localhoste хранить?

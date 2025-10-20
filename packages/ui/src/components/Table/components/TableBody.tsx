@@ -1,6 +1,9 @@
 import { Table, flexRender, RowData } from '@tanstack/react-table'
 import React, { useCallback } from 'react'
 
+import { Inbox } from '@open-condo/icons'
+import { colors } from '@open-condo/ui/colors'
+
 export function TableBody <TData extends RowData = RowData> ({ 
     table, 
     onRowClick, 
@@ -19,12 +22,21 @@ export function TableBody <TData extends RowData = RowData> ({
 
     const rows = table.getRowModel().rows
 
+    if (showSkeleton && rows.length === 0) {
+        return (
+            <div className='condo-table-tbody'>
+                <div className='condo-table-loading' />
+            </div>
+        )
+    }
+
     if (!showSkeleton && rows.length === 0) {
         return (
             <div className='condo-table-tbody'>
                 <div className='condo-table-empty'>
+                    <Inbox color={colors.gray[7]} />
                     <div className='condo-table-empty-content'>
-                        Нет данных
+                        No data
                     </div>
                 </div>
             </div>
