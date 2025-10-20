@@ -39,14 +39,14 @@ export function TableHeader <TData extends RowData = RowData> ({
         const sortingColumnMenuItems = [
             {
                 className: header.column.getIsSorted() === 'desc' && 'condo-dropdown-menu-item-active',
-                label: header.column.getIsSorted() === 'desc' ? <div className='condo-dropdown-menu-item-inner'>{columnMenuLabels?.sortedLabel} <Close size='small' /></div> : <div>{columnMenuLabels?.sortLabel}</div>,
+                label: header.column.getIsSorted() === 'desc' ? <div className='condo-dropdown-menu-item-inner'>{columnMenuLabels?.sortedDescLabel} <Close size='small' /></div> : <div>{columnMenuLabels?.sortDescLabel}</div>,
                 key: 'sort-desc',
                 icon: <SortDesc size='small' />,
                 onClick: () => (header.column.getIsSorted() === 'desc' ? header.column.clearSorting() : header.column.toggleSorting(true, true)),
             },
             {
                 className: header.column.getIsSorted() === 'asc' && 'condo-dropdown-menu-item-active',
-                label: header.column.getIsSorted() === 'asc' ? <div className='condo-dropdown-menu-item-inner'>{columnMenuLabels?.sortedLabel} <Close size='small' /></div>  : <div>{columnMenuLabels?.sortLabel}</div>,
+                label: header.column.getIsSorted() === 'asc' ? <div className='condo-dropdown-menu-item-inner'>{columnMenuLabels?.sortedAscLabel} <Close size='small' /></div>  : <div>{columnMenuLabels?.sortAscLabel}</div>,
                 key: 'sort-asc',
                 icon: <SortAsc size='small' />,
                 onClick: () => (header.column.getIsSorted() === 'asc' ? header.column.clearSorting() : header.column.toggleSorting(false, true)),
@@ -54,7 +54,7 @@ export function TableHeader <TData extends RowData = RowData> ({
             { type: 'divider' as const },
         ]
 
-        const filterComponent = (header.column.columnDef.meta as TableColumnMeta<TData>)?.filterComponent
+        const filterComponent = (header.column.columnDef.meta as TableColumnMeta)?.filterComponent
 
         const filterColumnMenuItems = [
             {
@@ -65,7 +65,10 @@ export function TableHeader <TData extends RowData = RowData> ({
                             points: ['cl', 'cr'],
                             offset: [8, 0],
                         }}
-                        dropdownRender={filterComponent ? () => filterComponent({ setFilterValue: header.column.setFilterValue, filterValue: header.column.getFilterValue() }) : undefined}
+                        dropdownRender={filterComponent ? () => filterComponent({ 
+                            setFilterValue: header.column.setFilterValue, 
+                            filterValue: header.column.getFilterValue(),
+                        }) : undefined}
                     >
                         <Space size={8}>
                             <Filter size='small' />
@@ -104,8 +107,10 @@ export function TableHeader <TData extends RowData = RowData> ({
         if (header.column.getCanFilter()) {
             columnMenu.push(...filterColumnMenuItems)
         }
-        
-        columnMenu.push(settingColumnMenuItem)
+
+        if ((header.column.columnDef.meta as TableColumnMeta)?.enableColumnSettings) {
+            columnMenu.push(settingColumnMenuItem)
+        }
 
         return columnMenu
     }, [renderColumnSettings, columnMenuLabels])
@@ -136,15 +141,17 @@ export function TableHeader <TData extends RowData = RowData> ({
                             {header.column.getIsSorted() === 'asc' && <SortAsc size='small' color={colors.green[5]} /> }
                             {header.column.getIsSorted() === 'desc' && <SortDesc size='small' color={colors.green[5]} />}
                             {header.column.getIsFiltered() && <Filter size='small' color={colors.green[5]} />}
-                            <Dropdown
-                                menu={{ 
-                                    items: getColumnMenu(header),
-                                }}
-                            >
-                                <div className='condo-table-th-more-icon'>
-                                    <MoreVertical size='small' />
-                                </div>
-                            </Dropdown>
+                            {((header.column.columnDef.meta as TableColumnMeta)?.enableColumnOptions) && (
+                                <Dropdown
+                                    menu={{ 
+                                        items: getColumnMenu(header),
+                                    }}
+                                >
+                                    <div className='condo-table-th-more-icon'>
+                                        <MoreVertical size='small' />
+                                    </div>
+                                </Dropdown>
+                            )}
                         </div>
                         <div
                             className='condo-table-th-resize-handle'

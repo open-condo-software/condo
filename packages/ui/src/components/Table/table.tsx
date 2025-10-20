@@ -16,21 +16,22 @@ import { TableHeader } from '@open-condo/ui/src/components/Table/components/Tabl
 import { TablePagination } from '@open-condo/ui/src/components/Table/components/TablePagination'
 import { DEFAULT_PAGE_SIZE } from '@open-condo/ui/src/components/Table/constans'
 import { useTableSetting } from '@open-condo/ui/src/components/Table/hooks/useTableSetting'
-import type { TableColumn, TableProps, FilterState, TableState } from '@open-condo/ui/src/components/Table/types'
+import type { TableColumn, TableProps, FilterState } from '@open-condo/ui/src/components/Table/types'
 import { renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderCellUtils'
 import { getPageIndexFromStartRow } from '@open-condo/ui/src/components/Table/utils/urlQuery'
 
-
+// Need add resize columns
+// Need add select columns
 export function Table<TData extends RowData = RowData> ({
     id,
     dataSource,
     columns,
     defaultColumn,
-    totalRows,
+    totalRows = 0,
     pageSize = DEFAULT_PAGE_SIZE,
     onTableStateChange,
-    initialTableState = { filterState: {}, startRow: 0, endRow: pageSize, sortState: [] },
-    storageKey = `table-state-${id}`,
+    initialTableState = { filterState: {}, startRow: 0, endRow: totalRows !== undefined && totalRows > pageSize ? pageSize : totalRows, sortState: [] },
+    storageKey = `table-settings-${id}`,
     columnMenuLabels = {},
     onRowClick,
 }: TableProps<TData>): React.ReactElement {
@@ -39,6 +40,7 @@ export function Table<TData extends RowData = RowData> ({
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(Object.entries(initialTableState.filterState).map(([key, value]) => ({ id: key, value: value })))
     const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
     const [tableData, setTableData] = useState<TData[]>([])
+    const [rowCount, setRowCount] = useState<number>(0)
     const [internalLoading, setInternalLoading] = useState<boolean>(true)
 
     useEffect(() => {
@@ -51,7 +53,7 @@ export function Table<TData extends RowData = RowData> ({
                 acc[filter.id] = filter.value
                 return acc
             }, {} as FilterState)
-            
+
             try {
                 const tableData = await dataSource({
                     startRow,
@@ -68,30 +70,37 @@ export function Table<TData extends RowData = RowData> ({
                     })
                 }
                 setTableData(tableData)
+                setRowCount(columnFilters.length > 0 ? tableData.length : totalRows)
             } catch (error) {
+                // Show error if fetch is down
                 setTableData([])
+                setRowCount(0)
             } finally {
                 setInternalLoading(false)
             }
         }
         
         fetchData()
-    }, [dataSource, sorting, pagination, columnFilters, onTableStateChange])
+    }, [dataSource, sorting, pagination, columnFilters, onTableStateChange, totalRows])
     
     const columnHelper = createColumnHelper<TData>()
     const tableColumns = useMemo(() => {
         return columns.map(c => {
             const enableSorting = c.enableSorting !== undefined ? c.enableSorting : (defaultColumn?.enableSorting ?? false)
-            const enableFilter = c.enableFilter !== undefined ? c.enableFilter : (defaultColumn?.enableFilter ?? false) || c.filterComponent !== undefined ? true : false
+            const enableColumnFilter = c.filterComponent !== undefined ? true : false
+            const enableColumnSettings = c.enableColumnSettings !== undefined ? c.enableColumnSettings : (defaultColumn?.enableColumnSettings ?? true)
+            const enableColumnOptions = enableSorting || enableColumnFilter || enableColumnSettings
             const meta = {
                 filterComponent: c.filterComponent,
+                enableColumnSettings: enableColumnSettings,
+                enableColumnOptions: enableColumnOptions,
             }
 
             return columnHelper.accessor(c.dataKey as AccessorFn<TData, unknown>, {
                 id: c.id,
                 header: c.header,
                 enableSorting,
-                enableColumnFilter: enableFilter,
+                enableColumnFilter,
                 cell: (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index) || renderTextWithTooltip()(info.getValue()),
                 meta: meta,
             })
@@ -119,11 +128,22 @@ export function Table<TData extends RowData = RowData> ({
         data: tableData,
         columns: tableColumns,
         getCoreRowModel: getCoreRowModel(),
-        onSortingChange: setSorting,
+        onSortingChange: (updaterOrValue) => {
+            if (pagination.pageIndex !== 0) {
+                setPagination({ pageIndex: 0, pageSize: pagination.pageSize })
+            }
+            setSorting(typeof updaterOrValue === 'function' ? updaterOrValue(sorting) : updaterOrValue)
+        },
         onPaginationChange: setPagination,
-        onColumnFiltersChange: setColumnFilters,
+        onColumnFiltersChange: (updaterOrValue) => {
+            if (pagination.pageIndex !== 0) {
+                setPagination({ pageIndex: 0, pageSize: pagination.pageSize })
+            }
+            const newFilters = typeof updaterOrValue === 'function' ? updaterOrValue(columnFilters) : updaterOrValue
+            setColumnFilters(newFilters)
+        },
         manualSorting: true,
-        manualFiltering: true,
+        manualFiltering: false,
         manualPagination: true,
         state: {
             sorting,
@@ -133,7 +153,7 @@ export function Table<TData extends RowData = RowData> ({
             columnOrder,
             columnSizing,
         },
-        rowCount: totalRows,
+        rowCount: rowCount,
         enableMultiSort: false,
         enableColumnResizing: true,
         columnResizeMode: 'onEnd',
@@ -157,14 +177,15 @@ export function Table<TData extends RowData = RowData> ({
                         table={table}
                     />
                 ))}
-                {internalLoading ? (
-                    <div className='condo-table-loading' />
-                ) : (
+                {
+                    // We need external loading props? 
+                    // loading ? (<div className='condo-table-loading' />) : 
                     <TableBody<TData> 
                         table={table} 
                         onRowClick={onRowClick} 
+                        showSkeleton={internalLoading}
                     />
-                )}
+                }
             </div>
             {table.getPageCount() > 0 && (
                 <TablePagination<TData> table={table} />
