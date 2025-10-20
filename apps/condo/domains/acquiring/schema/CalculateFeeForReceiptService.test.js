@@ -9,7 +9,7 @@ const { expectToThrowGQLError, expectToThrowGQLErrorToResult } = require('@open-
 
 const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const { calculateFeeForReceiptByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
-const { HOUSING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
+const { HOUSING_CATEGORY_ID, REPAIR_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 
 describe('CalculateFeeForReceiptService', () => {
@@ -56,7 +56,7 @@ describe('CalculateFeeForReceiptService', () => {
                     { 'recipient':'organization', 'percent':'0.29', 'category': HOUSING_CATEGORY_ID }],
             })
 
-            const [[receipt]] = await utils.createReceipts()
+            const [[receipt]] = await utils.createReceipts([utils.createJSONReceipt({ category: { id: REPAIR_CATEGORY_ID } })])
             const amount = '300'
             const [result] = await calculateFeeForReceiptByTestClient(utils.clients.resident, { receipt: { id: receipt.id }, amount })
             expect(result.amountWithoutExplicitFee).toBe(amount)
