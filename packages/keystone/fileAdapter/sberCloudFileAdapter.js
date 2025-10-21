@@ -193,7 +193,15 @@ class SberCloudFileAdapter {
         }
 
         // propagate original filename for an indirect url
-        const qs = isNil(originalFilename) ? '' : `?original_filename=${encodeURIComponent(originalFilename)}`
+        let qs = ''
+        const searchParams = new URLSearchParams({
+            ...(isNil(originalFilename) && { original_filename: encodeURIComponent(originalFilename) }),
+            ...(sign && { sign }),
+        }).toString()
+
+        if (searchParams) {
+            qs = `?${searchParams}`
+        }
         return `${SERVER_URL}/api/files/${this.folder}/${filename}${qs}`
     }
 
@@ -238,7 +246,7 @@ const obsRouterHandler = ({ keystone }) => {
                     listkey: listKey,
                     propertyquery: encodedPropertyQuery,
                     propertyvalue: encodedPropertyValue,
-                mimetype,} = meta
+                    mimetype } = meta
                 const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
                 const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
 
@@ -302,8 +310,8 @@ const obsRouterHandler = ({ keystone }) => {
                 const url = Acl.generateUrl({
                     filename: req.params.file,
                     originalFilename: req.query.original_filename,
-                mimetype,
-            })
+                    mimetype,
+                })
 
                 /*
                 * NOTE
