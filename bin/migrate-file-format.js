@@ -212,6 +212,8 @@ function compileRegex (rx) {
     const s = String(rx)
     if (!s) return null
     try {
+        // CLI-provided discovery filters are intentionally compiled at runtime.
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         return new RegExp(s, 'i')
     } catch {
         return null
