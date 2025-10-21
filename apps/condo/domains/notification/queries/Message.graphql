@@ -7,7 +7,6 @@ query getUserMessages ($userId: ID, $organizationIds: [ID], $types: [MessageType
         },
         first: 10,
         skip: $skip,
-        sortBy: [createdAt_DESC],
     ) {
         id
         type

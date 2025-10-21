@@ -2642,7 +2642,6 @@ export const GetUserMessagesDocument = gql`
     where: {user: {id: $userId}, organization: {id_in: $organizationIds}, type_in: $types}
     first: 10
     skip: $skip
-    sortBy: [createdAt_DESC]
   ) {
     id
     type
