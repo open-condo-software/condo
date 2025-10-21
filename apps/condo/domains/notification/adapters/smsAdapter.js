@@ -20,7 +20,12 @@ class SMSAdapter {
 
     constructor (type = conf.SMS_PROVIDER || 'SMS') {
         this.whitelist = conf['SMS_WHITE_LIST'] ? JSON.parse(conf['SMS_WHITE_LIST']) : {}
-        this.allowedPhonePrefixes = conf['SMS_ALLOWED_PHONE_PREFIXES'] ? conf['SMS_ALLOWED_PHONE_PREFIXES'].split(',') : ['*']
+        this.allowedPhonePrefixes = conf['SMS_ALLOWED_PHONE_PREFIXES']
+            ? conf['SMS_ALLOWED_PHONE_PREFIXES']
+                .split(',')
+                .map(p => p.trim())
+                .filter(p => p.length > 0)
+            : ['*']
         this.adapter = null
         switch (type) {
             case 'SMS':
