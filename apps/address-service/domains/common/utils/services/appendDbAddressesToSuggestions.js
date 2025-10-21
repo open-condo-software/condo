@@ -13,7 +13,7 @@ const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/const
  * @returns {Promise<Array<object>>} A new array containing both original and augmented suggestions.
  */
 
-async function getAugmentedSuggestions (context, suggestions) {
+async function appendDbAddressesToSuggestions (context, suggestions) {
     if (!suggestions) return []
     if (!context) return suggestions
 
@@ -67,15 +67,9 @@ async function getAugmentedSuggestions (context, suggestions) {
 
     const combinedSuggestions = [...suggestions, ...newSuggestionsToAdd]
 
-    return combinedSuggestions.sort((a, b) => {
-        if (a.value < b.value) {
-            return -1
-        }
-
-        return 1
-    })
+    return combinedSuggestions.sort((a, b) => a.value - b.value)
 }
 
 module.exports = {
-    getAugmentedSuggestions,
+    appendDbAddressesToSuggestions,
 }

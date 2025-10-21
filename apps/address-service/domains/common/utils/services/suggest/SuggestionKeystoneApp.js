@@ -4,7 +4,7 @@ const get = require('lodash/get')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
-const { getAugmentedSuggestions } = require('@address-service/domains/common/utils/services/augmentAddressSuggestions')
+const { appendDbAddressesToSuggestions } = require('@address-service/domains/common/utils/services/appendDbAddressesToSuggestions')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 
@@ -106,8 +106,8 @@ class SuggestionKeystoneApp {
             const helpers = getReqJson(req, 'helpers', {})
 
             /**
-             * Whether the suggestion provider should include addresses from the local DB
-             * in addition to the address suggestions (if supported by the provider).
+             * Whether the suggestion provider should include addresses from the DB
+             * in addition to the address suggestions.
              * Default: false
              * @type {boolean}
              */
@@ -167,7 +167,7 @@ class SuggestionKeystoneApp {
 
             // 4. Augment suggestions with DB addresses the provider did not return
             if (includeDbAddress) {
-                suggestions = await getAugmentedSuggestions(godContext, suggestions)
+                suggestions = await appendDbAddressesToSuggestions(godContext, suggestions)
             }
 
             res.json(suggestions)

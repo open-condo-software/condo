@@ -9,7 +9,7 @@ const {
     updateTestAddressSource,
 } = require('@address-service/domains/address/utils/testSchema')
 
-const { getAugmentedSuggestions } = require('./augmentAddressSuggestions')
+const { appendDbAddressesToSuggestions } = require('./appendDbAddressesToSuggestions')
 
 const { keystone } = index
 
@@ -300,7 +300,7 @@ describe('Augmented address suggestions', () => {
         })
 
         test('With addresses from db (Lagos de coronas)', async () => {
-            const augmentedSuggestions = await getAugmentedSuggestions(
+            const augmentedSuggestions = await appendDbAddressesToSuggestions(
                 godContext,
                 [{ value: 'España, Zaragoza, Calle de los Lagos de Coronas' }]
             )
@@ -310,15 +310,15 @@ describe('Augmented address suggestions', () => {
             expect(augmentedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas')
             expect(augmentedSuggestions[0].isAugmentedAddress).toBeUndefined()
 
-            expect(augmentedSuggestions[1].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23')
+            expect(augmentedSuggestions[1].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 9')
             expect(augmentedSuggestions[1].isAugmentedAddress).toBeTruthy()
 
-            expect(augmentedSuggestions[2].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 9')
+            expect(augmentedSuggestions[2].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23')
             expect(augmentedSuggestions[2].isAugmentedAddress).toBeTruthy()
         })
 
         test('With addresses from db 2 (Lagos de coronas 2)', async () => {
-            const augmentedSuggestions = await getAugmentedSuggestions(
+            const augmentedSuggestions = await appendDbAddressesToSuggestions(
                 godContext,
                 [{ value: 'España, Zaragoza, Calle de los Lagos de Coronas, 2' }]
             )
@@ -333,7 +333,7 @@ describe('Augmented address suggestions', () => {
         })
 
         test('With addresses from db 3 (Lagos de coronas 9)', async () => {
-            const augmentedSuggestions = await getAugmentedSuggestions(
+            const augmentedSuggestions = await appendDbAddressesToSuggestions(
                 godContext,
                 [{ value: 'España, Zaragoza, Calle de los Lagos de Coronas, 9' }]
             )
@@ -345,7 +345,7 @@ describe('Augmented address suggestions', () => {
         })
 
         test('With addresses from db 4 (Lagos de coronas 42)', async () => {
-            const augmentedSuggestions = await getAugmentedSuggestions(
+            const augmentedSuggestions = await appendDbAddressesToSuggestions(
                 godContext,
                 [{ value: 'España, Zaragoza, Calle de los Lagos de Coronas, 42' }]
             )
