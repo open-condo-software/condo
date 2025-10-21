@@ -6,6 +6,9 @@ const { AddressSource } = require('@address-service/domains/address/utils/server
 const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
 
 const { GOOGLE_PROVIDER } = require('../../constants/providers')
+
+const AUGMENTATION_DB_LIMIT = 3
+
 /**
  * Augments the suggestions list with data from AddressSource.
  * * This function takes an initial list of address suggestions (e.g., from Google Places API)
@@ -37,7 +40,7 @@ async function appendDbAddressesToSuggestions (context, suggestions) {
             context,
             { source_starts_with: query, deletedAt: null },
             'source address { id key address meta }',
-            { first: 3 }
+            { first: AUGMENTATION_DB_LIMIT }
         )
     )
 
