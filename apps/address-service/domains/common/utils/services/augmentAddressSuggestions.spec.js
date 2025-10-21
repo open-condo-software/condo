@@ -2,16 +2,15 @@ const index = require('@app/address-service/index')
 
 const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
-const { 
-    createTestAddress, 
-    updateTestAddress, 
-    createTestAddressSource, 
-    updateTestAddressSource, 
+const {
+    createTestAddress,
+    updateTestAddress,
+    createTestAddressSource,
+    updateTestAddressSource,
 } = require('@address-service/domains/address/utils/testSchema')
 
-const { GoogleSuggestionProvider } = require('./GoogleSuggestionProvider')
+const { getAugmentedSuggestions } = require('./augmentAddressSuggestions')
 
-const googleSuggestionProvider = new GoogleSuggestionProvider()
 const { keystone } = index
 
 const LAGOS_DE_CORONAS_ADDRESSES = [
@@ -252,11 +251,8 @@ const LAGOS_DE_CORONAS_ADDRESSES = [
     },
 ]
 
-describe.skip('GoogleSuggestionProvider with augmented addresses', () => {
+describe('Augmented address suggestions', () => {
     setFakeClientMode(index)
-
-    const session = 'GoogleSuggestionProvider'
-    const language = 'es'
 
     let adminClient
     let godContext
@@ -272,7 +268,7 @@ describe.skip('GoogleSuggestionProvider with augmented addresses', () => {
         beforeAll(async () => {
             for (const address of LAGOS_DE_CORONAS_ADDRESSES) {
                 const [createdAddress] = await createTestAddress(adminClient, { ...address.AddressSchema })
-                
+
                 const addressSources = []
 
                 for (const source of address.AddressSourceSchema) {
@@ -302,114 +298,62 @@ describe.skip('GoogleSuggestionProvider with augmented addresses', () => {
                 }
             }
         })
-        
+
         test('With addresses from db (Lagos de coronas)', async () => {
-            const query = 'Lagos de coronas'
-
-            const denormalizedSuggestions = await googleSuggestionProvider.get({
-                query,
-                session,
-                language,
-                context: adminClient,
+            const augmentedSuggestions = await getAugmentedSuggestions(
                 godContext,
-                includeDbAddress: true,
-            })
+                [{ value: 'España, Zaragoza, Calle de los Lagos de Coronas' }]
+            )
 
-            const normalizedSuggestions = googleSuggestionProvider.normalize(denormalizedSuggestions)
+            expect(augmentedSuggestions).toHaveLength(3)
 
-            expect(normalizedSuggestions).toHaveLength(3)
+            expect(augmentedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas')
+            expect(augmentedSuggestions[0].isAugmentedAddress).toBeUndefined()
 
-            expect(normalizedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23')
-            expect(normalizedSuggestions[0].isAugmentedAddress).toBeTruthy()
+            expect(augmentedSuggestions[1].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23')
+            expect(augmentedSuggestions[1].isAugmentedAddress).toBeTruthy()
 
-            expect(normalizedSuggestions[1].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 9')
-            expect(normalizedSuggestions[1].isAugmentedAddress).toBeTruthy()
-
-            expect(normalizedSuggestions[2].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas')
-            expect(normalizedSuggestions[2].isAugmentedAddress).toBeUndefined()
+            expect(augmentedSuggestions[2].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 9')
+            expect(augmentedSuggestions[2].isAugmentedAddress).toBeTruthy()
         })
 
         test('With addresses from db 2 (Lagos de coronas 2)', async () => {
-            const query = 'Lagos de coronas 2'
-
-            const denormalizedSuggestions = await googleSuggestionProvider.get({
-                query,
-                session,
-                language,
-                context: adminClient,
+            const augmentedSuggestions = await getAugmentedSuggestions(
                 godContext,
-                includeDbAddress: true,
-            })
+                [{ value: 'España, Zaragoza, Calle de los Lagos de Coronas, 2' }]
+            )
 
-            const normalizedSuggestions = googleSuggestionProvider.normalize(denormalizedSuggestions)
+            expect(augmentedSuggestions).toHaveLength(2)
 
-            expect(normalizedSuggestions).toHaveLength(2)
+            expect(augmentedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas, 2')
+            expect(augmentedSuggestions[0].isAugmentedAddress).toBeUndefined()
 
-            expect(normalizedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23')
-            expect(normalizedSuggestions[0].isAugmentedAddress).toBeTruthy()
-
-            expect(normalizedSuggestions[1].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas, 2')
-            expect(normalizedSuggestions[1].isAugmentedAddress).toBeUndefined()
+            expect(augmentedSuggestions[1].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23')
+            expect(augmentedSuggestions[1].isAugmentedAddress).toBeTruthy()
         })
 
         test('With addresses from db 3 (Lagos de coronas 9)', async () => {
-            const query = 'Lagos de coronas 9'
-
-            const denormalizedSuggestions = await googleSuggestionProvider.get({
-                query,
-                session,
-                language,
-                context: adminClient,
+            const augmentedSuggestions = await getAugmentedSuggestions(
                 godContext,
-                includeDbAddress: true,
-            })
+                [{ value: 'España, Zaragoza, Calle de los Lagos de Coronas, 9' }]
+            )
 
-            const normalizedSuggestions = googleSuggestionProvider.normalize(denormalizedSuggestions)
+            expect(augmentedSuggestions).toHaveLength(1)
 
-            expect(normalizedSuggestions).toHaveLength(1)
-
-            expect(normalizedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas, 9')
-            expect(normalizedSuggestions[0].isAugmentedAddress).toBeUndefined()
+            expect(augmentedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas, 9')
+            expect(augmentedSuggestions[0].isAugmentedAddress).toBeUndefined()
         })
 
         test('With addresses from db 4 (Lagos de coronas 42)', async () => {
-            const query = 'Lagos de coronas 42'
-
-            const denormalizedSuggestions = await googleSuggestionProvider.get({
-                query,
-                session,
-                language,
-                context: adminClient,
+            const augmentedSuggestions = await getAugmentedSuggestions(
                 godContext,
-                includeDbAddress: true,
-            })
+                [{ value: 'España, Zaragoza, Calle de los Lagos de Coronas, 42' }]
+            )
 
-            const normalizedSuggestions = googleSuggestionProvider.normalize(denormalizedSuggestions)
+            expect(augmentedSuggestions).toHaveLength(1)
 
-            expect(normalizedSuggestions).toHaveLength(1)
-
-            expect(normalizedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas, 42')
-            expect(normalizedSuggestions[0].isAugmentedAddress).toBeUndefined()
-        })
-
-        test('Without addresses from db (Lagos de coronas)', async () => {
-            const query = 'Lagos de coronas'
-
-            const denormalizedSuggestions = await googleSuggestionProvider.get({
-                query,
-                session,
-                language,
-                context: adminClient,
-                godContext,
-                includeDbAddress: false,
-            })
-
-            const normalizedSuggestions = googleSuggestionProvider.normalize(denormalizedSuggestions)
-
-            expect(normalizedSuggestions).toHaveLength(1)
-
-            expect(normalizedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas')
-            expect(normalizedSuggestions[0].isAugmentedAddress).toBeUndefined()
+            expect(augmentedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas, 42')
+            expect(augmentedSuggestions[0].isAugmentedAddress).toBeUndefined()
         })
     })
 })
