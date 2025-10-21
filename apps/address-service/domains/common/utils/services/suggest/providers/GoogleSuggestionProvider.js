@@ -4,7 +4,6 @@ const { v4: uuid } = require('uuid')
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 
-const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
 const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
@@ -44,76 +43,6 @@ function normalizedGoogleAddressValue (item) {
     return `${parts1.join(', ')}, ${main_text}`
 }
 
-/**
- * Augments the suggestions list with data from AddressSource.
- * * This function takes an initial list of address suggestions (e.g., from Google Places API)
- * and enriches it with matching addresses found in the local AddressSource.
- * It's designed to solve the issue of missing custom-added addresses in the search results.
- *
- * @see https://github.com/open-condo-software/condo/issues/6485
- * @param {object} context - The context required to execute Keystone queries.
- * @param {Array<GooglePredictionObject>} suggestions - The initial array of suggestions from Google.
- * @returns {Promise<Array<object>>} A new array containing both original and augmented suggestions.
- */
-
-async function getAugmentedSuggestions (context, suggestions) {
-    if (!suggestions) return []
-    if (!context) return suggestions
-
-    const uniqueNormalizedSuggestions = new Set(
-        suggestions
-            .map(suggestion => normalizedGoogleAddressValue(suggestion)?.toLowerCase())
-            .filter(Boolean)
-    )
-
-    if (uniqueNormalizedSuggestions.size === 0) {
-        return suggestions
-    }
-
-    const searchPromises = Array.from(uniqueNormalizedSuggestions).map(query =>
-        AddressSource.getAll(
-            context,
-            { source_starts_with: query, deletedAt: null },
-            'source address { id key address meta }',
-            { first: 3 }
-        )
-    )
-
-    const resultsFromDB = await Promise.all(searchPromises)
-
-    const allFoundSources = resultsFromDB.flat()
-    const newSuggestionsToAdd = []
-
-    for (const source of allFoundSources) {
-        if (!source?.source || !source?.address?.meta) {
-            continue
-        }
-
-        const normalizedSource = source.source.toLowerCase()
-
-        if (!uniqueNormalizedSuggestions.has(normalizedSource)) {
-            const capitalizedAddressValue = normalizedSource
-                .split(',')
-                .map(word => word.trim().charAt(0).toUpperCase() + word.trim().slice(1))
-                .join(', ')
-
-            newSuggestionsToAdd.push({
-                ...source.address.meta,
-                isAugmentedAddress: true,
-                value: capitalizedAddressValue,
-            })
-
-            uniqueNormalizedSuggestions.add(normalizedSource)
-        }
-    }
-
-    const combinedSuggestions = [...suggestions, ...newSuggestionsToAdd]
-
-    return combinedSuggestions.sort((a, b) => {
-        return a.value.localeCompare(b.value)
-    })
-}
-
 class GoogleSuggestionProvider extends AbstractSuggestionProvider {
 
     /**
@@ -137,7 +66,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
     /**
      * @returns {Promise<GooglePredictionObject[]>}
      */
-    async get ({ query, session = '', context = '', language = '', count = 20, helpers = {}, includeDbAddress, godContext }) {
+    async get ({ query, session = '', context = '', language = '', count = 20, helpers = {} }) {
         const sessionToken = session || uuid()
         const params = new URLSearchParams({
             input: query,
@@ -150,7 +79,6 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
         const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?${params.toString()}`
         this.logger.info({ msg: 'request autocomplete googleapis', url })
 
-        let suggestions = []
         try {
             const autocompleteResults = await fetch(url)
 
@@ -172,7 +100,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
                  * Maybe we need to call GoogleSearchProvider.getByPlaceId() to get full info
                  */
                 if (result.status === 'OK') {
-                    suggestions = result.predictions
+                    return result.predictions
                 } else if (result.status === 'ZERO_RESULTS') {
                     return []
                 }
@@ -184,11 +112,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
             this.logger.error({ msg: 'googleapis autocomplete error', url, err })
         }
 
-        if (includeDbAddress) {
-            return await getAugmentedSuggestions(godContext, suggestions)
-        }
-
-        return suggestions
+        return []
     }
 
     /**
@@ -197,12 +121,6 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
      */
     normalize (data) {
         return data.map((item) => {
-            if (item.isAugmentedAddress) {
-                return {
-                    ...item,
-                    type: BUILDING_ADDRESS_TYPE,
-                }
-            }
             const types = get(item, 'types', [])
             return {
                 value: normalizedGoogleAddressValue(item),

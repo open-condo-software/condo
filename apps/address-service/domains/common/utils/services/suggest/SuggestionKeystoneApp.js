@@ -4,6 +4,7 @@ const get = require('lodash/get')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { getAugmentedSuggestions } = require('@address-service/domains/common/utils/services/augmentAddressSuggestions')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 
@@ -132,8 +133,6 @@ class SuggestionKeystoneApp {
                     language,
                     count,
                     helpers,
-                    includeDbAddress,
-                    godContext,
                 })
 
                 // TODO(DOMA-7276): Think about splitting the address string to tokens, compile 2nd variant of address and pass to suggestion provider
@@ -164,6 +163,11 @@ class SuggestionKeystoneApp {
 
                     return 0
                 })
+            }
+
+            // 4. Augment suggestions with DB addresses the provider did not return
+            if (includeDbAddress) {
+                suggestions = await getAugmentedSuggestions(godContext, suggestions)
             }
 
             res.json(suggestions)
