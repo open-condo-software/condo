@@ -63,15 +63,18 @@
 }
 
 .condo-table-th {
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
   position: relative;
-  flex: 1 1 0;
+  flex: 1 1 auto;
   box-sizing: border-box;
   min-width: 60px;
   padding: 16px 12px;
   color: @condo-global-color-gray-7;
   font-weight: 600;
   font-size: 12px;
-  line-height: 22px;
+  line-height: 24px;
   letter-spacing: -0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -123,15 +126,24 @@
 
 .condo-table-th-content {
   display: flex;
-  gap: 4px;
+  gap: 8px;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: space-between;
 }
 
 .condo-table-th-title-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.condo-table-th-icons {
+  display: flex;
+  gap: 8px;
 }
 
 .condo-table-th-resize-handle {
@@ -158,10 +170,12 @@
   box-sizing: border-box;
   min-width: 60px;
   padding: 16px 12px;
+  display: flex;
+  align-items: center;
   overflow: hidden;
   color: @condo-global-color-black;
   font-size: 14px;
-  line-height: 22px;
+  line-height: 24px;
   letter-spacing: -0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -179,7 +193,7 @@
 
 .condo-table-cell-skeleton {
   width: 100%;
-  height: 22px;
+  height: 24px;
   background:
     linear-gradient(
       90deg,

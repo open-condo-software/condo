@@ -138,20 +138,22 @@ export function TableHeader <TData extends RowData = RowData> ({
                             <div className='condo-table-th-title-content'>
                                 {flexRender(header.column.columnDef.header, header.getContext())}
                             </div>
-                            {header.column.getIsSorted() === 'asc' && <SortAsc size='small' color={colors.green[5]} /> }
-                            {header.column.getIsSorted() === 'desc' && <SortDesc size='small' color={colors.green[5]} />}
-                            {header.column.getIsFiltered() && <Filter size='small' color={colors.green[5]} />}
-                            {((header.column.columnDef.meta as TableColumnMeta)?.enableColumnOptions) && (
-                                <Dropdown
-                                    menu={{ 
-                                        items: getColumnMenu(header),
-                                    }}
-                                >
-                                    <div className='condo-table-th-more-icon'>
-                                        <MoreVertical size='small' />
-                                    </div>
-                                </Dropdown>
-                            )}
+                            <div className='condo-table-th-icons'>
+                                {header.column.getIsSorted() === 'asc' && <SortAsc size='small' color={colors.green[5]} /> }
+                                {header.column.getIsSorted() === 'desc' && <SortDesc size='small' color={colors.green[5]} />}
+                                {header.column.getIsFiltered() && <Filter size='small' color={colors.green[5]} />}
+                                {((header.column.columnDef.meta as TableColumnMeta)?.enableColumnOptions) && (
+                                    <Dropdown
+                                        menu={{ 
+                                            items: getColumnMenu(header),
+                                        }}
+                                    >
+                                        <div className='condo-table-th-more-icon'>
+                                            <MoreVertical size='small' />
+                                        </div>
+                                    </Dropdown>
+                                )}
+                            </div>
                         </div>
                         <div
                             className='condo-table-th-resize-handle'
