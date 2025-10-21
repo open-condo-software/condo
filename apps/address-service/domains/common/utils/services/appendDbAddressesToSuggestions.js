@@ -1,6 +1,11 @@
+const get = require('lodash/get')
+
+const conf = require('@open-condo/config')
+
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
 
+const { GOOGLE_PROVIDER } = require('../../constants/providers')
 /**
  * Augments the suggestions list with data from AddressSource.
  * * This function takes an initial list of address suggestions (e.g., from Google Places API)
@@ -49,6 +54,9 @@ async function appendDbAddressesToSuggestions (context, suggestions) {
         const normalizedSource = source.source.toLowerCase()
 
         if (!uniqueNormalizedSuggestions.has(normalizedSource)) {
+            const provider = get(conf, 'PROVIDER')
+            const isGoogleProvider = provider === GOOGLE_PROVIDER
+
             const capitalizedAddressValue = normalizedSource
                 .split(',')
                 .map(word => word.trim().charAt(0).toUpperCase() + word.trim().slice(1))
@@ -57,7 +65,7 @@ async function appendDbAddressesToSuggestions (context, suggestions) {
             newSuggestionsToAdd.push({
                 ...source.address.meta,
                 isAugmentedAddress: true,
-                value: capitalizedAddressValue,
+                value: isGoogleProvider ? capitalizedAddressValue : normalizedSource,
                 type: BUILDING_ADDRESS_TYPE,
             })
 

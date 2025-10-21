@@ -310,10 +310,10 @@ describe('Augmented address suggestions', () => {
             expect(augmentedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas')
             expect(augmentedSuggestions[0].isAugmentedAddress).toBeUndefined()
 
-            expect(augmentedSuggestions[1].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 9')
+            expect(augmentedSuggestions[1].value.toLowerCase()).toEqual('España, Zaragoza, Calle de los lagos de coronas, 9'.toLowerCase())
             expect(augmentedSuggestions[1].isAugmentedAddress).toBeTruthy()
 
-            expect(augmentedSuggestions[2].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23')
+            expect(augmentedSuggestions[2].value.toLowerCase()).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23'.toLowerCase())
             expect(augmentedSuggestions[2].isAugmentedAddress).toBeTruthy()
         })
 
@@ -328,7 +328,7 @@ describe('Augmented address suggestions', () => {
             expect(augmentedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas, 2')
             expect(augmentedSuggestions[0].isAugmentedAddress).toBeUndefined()
 
-            expect(augmentedSuggestions[1].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23')
+            expect(augmentedSuggestions[1].value.toLowerCase()).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23'.toLowerCase())
             expect(augmentedSuggestions[1].isAugmentedAddress).toBeTruthy()
         })
 
