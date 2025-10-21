@@ -1,4 +1,4 @@
-import { RowData, AccessorFn, SortingState } from '@tanstack/react-table'
+import { RowData, AccessorFn, SortingState, RowSelectionState, HeaderContext } from '@tanstack/react-table'
 
 export type ColumnSettings = {
     visibility: boolean
@@ -28,6 +28,10 @@ export type DefaultColumn = {
     initialSize?: string  // '150px' or '15%'?
 }
 
+export type RowSelection<TData> = {
+    getRowId: (row: TData) => string
+}
+
 export type FilterDropdownProps = {
     setFilterValue: (old: unknown) => void
     filterValue: unknown
@@ -43,7 +47,7 @@ export type TableColumnMeta = {
 
 export type TableColumn<TData extends RowData = RowData> = {
     id: string
-    header: string
+    header: string | ((headerContext: HeaderContext<TData, unknown>) => React.ReactNode)
     dataKey: AccessorFn<TData> | string
     render?: (value: unknown, record: TData, index: number) => React.ReactNode
     filterComponent?: FilterComponent
@@ -65,6 +69,10 @@ export type FilterState = {
     [colId: string]: unknown
 }
 
+export type FullTableState = TableState & {
+    rowSelection: RowSelectionState
+}
+
 export type GetTableData<TData extends RowData = RowData> = (tableState: TableState) => Promise<TData[]>
 
 export interface TableProps<TData extends RowData = RowData> {
@@ -74,11 +82,12 @@ export interface TableProps<TData extends RowData = RowData> {
     defaultColumn?: DefaultColumn
     totalRows?: number
     pageSize?: number
-    onTableStateChange?: (tableState: TableState) => Promise<void> | void
-    initialTableState?: TableState
+    onTableStateChange?: (tableState: FullTableState) => void
+    initialTableState?: FullTableState
     storageKey?: string
     // loading?: boolean - We don't need it, if we have dataSource prop
     columnMenuLabels?: TableColumnMenuLabels
     onRowClick?: (record: TData) => void
+    rowSelectionOptions?: RowSelection<TData>
     // Add prop for refresh table data
 }

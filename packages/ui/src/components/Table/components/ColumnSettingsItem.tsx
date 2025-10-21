@@ -10,6 +10,7 @@ import type { TableColumn } from '../types'
 
 interface ColumnSettingsItemProps<TData extends RowData = RowData> {
     column: TableColumn<TData>
+    table,
     isVisible: boolean
     isLastVisibleColumn: boolean
     onToggleVisibility: (checked: boolean) => void
@@ -17,6 +18,7 @@ interface ColumnSettingsItemProps<TData extends RowData = RowData> {
 
 export const ColumnSettingsItem = <TData extends RowData = RowData> ({
     column,
+    table,
     isVisible,
     isLastVisibleColumn,
     onToggleVisibility,
@@ -88,7 +90,7 @@ export const ColumnSettingsItem = <TData extends RowData = RowData> ({
                     <GripHorizontal size='small'/>
                 </div>
                 <Typography.Text type='primary' size='medium'>
-                    {column.header}
+                    {typeof column.header === 'string' ? column.header : typeof column.header === 'function' ? column.header({ table }) : ''}
                 </Typography.Text>
             </Space>
         </div>

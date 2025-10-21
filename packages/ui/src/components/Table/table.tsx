@@ -8,9 +8,12 @@ import {
     SortingState,
     PaginationState,
     ColumnFiltersState,
+    RowSelectionState,
+    HeaderContext,
 } from '@tanstack/react-table'
 import React, { useMemo, useState, useEffect } from 'react'
 
+import { Checkbox } from '@open-condo/ui'
 import { TableBody } from '@open-condo/ui/src/components/Table/components/TableBody'
 import { TableHeader } from '@open-condo/ui/src/components/Table/components/TableHeader'
 import { TablePagination } from '@open-condo/ui/src/components/Table/components/TablePagination'
@@ -19,6 +22,8 @@ import { useTableSetting } from '@open-condo/ui/src/components/Table/hooks/useTa
 import type { TableColumn, TableProps, FilterState } from '@open-condo/ui/src/components/Table/types'
 import { renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderCellUtils'
 import { getPageIndexFromStartRow } from '@open-condo/ui/src/components/Table/utils/urlQuery'
+
+const COLUMN_ID_SELECTION = 'selection'
 
 // Need add resize columns
 // Need add select columns
@@ -30,10 +35,12 @@ export function Table<TData extends RowData = RowData> ({
     totalRows = 0,
     pageSize = DEFAULT_PAGE_SIZE,
     onTableStateChange,
-    initialTableState = { filterState: {}, startRow: 0, endRow: totalRows !== undefined && totalRows > pageSize ? pageSize : totalRows, sortState: [] },
+    initialTableState = { filterState: {}, startRow: 0, endRow: totalRows !== undefined && totalRows > pageSize ? pageSize : totalRows, sortState: [], rowSelection: {} },
     storageKey = `table-settings-${id}`,
     columnMenuLabels = {},
     onRowClick,
+    rowSelectionOptions,
+    // shouldHidePaginationOnSinglePage?: boolean
 }: TableProps<TData>): React.ReactElement {
 
     const [sorting, setSorting] = useState<SortingState>(initialTableState.sortState)
@@ -41,10 +48,10 @@ export function Table<TData extends RowData = RowData> ({
     const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
     const [tableData, setTableData] = useState<TData[]>([])
     const [rowCount, setRowCount] = useState<number>(0)
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>(initialTableState.rowSelection)
     const [internalLoading, setInternalLoading] = useState<boolean>(true)
 
     useEffect(() => {
-
         const fetchData = async () => {
             setInternalLoading(true)
             const startRow = pagination.pageIndex * pagination.pageSize
@@ -61,14 +68,6 @@ export function Table<TData extends RowData = RowData> ({
                     filterState,
                     sortState: sorting,
                 })
-                if (onTableStateChange) {
-                    await onTableStateChange({
-                        startRow,
-                        endRow,
-                        filterState,
-                        sortState: sorting,
-                    })
-                }
                 setTableData(tableData)
                 setRowCount(columnFilters.length > 0 ? tableData.length : totalRows)
             } catch (error) {
@@ -82,12 +81,59 @@ export function Table<TData extends RowData = RowData> ({
         
         fetchData()
     }, [dataSource, sorting, pagination, columnFilters, onTableStateChange, totalRows])
+
+    useEffect(() => {
+        const handleTableStateChange = async () => {
+            if (onTableStateChange) {
+                const startRow = pagination.pageIndex * pagination.pageSize
+                const endRow = startRow + pagination.pageSize
+                const filterState = columnFilters.reduce((acc, filter) => {
+                    acc[filter.id] = filter.value
+                    return acc
+                }, {} as FilterState)
+    
+                onTableStateChange({
+                    startRow,
+                    endRow,
+                    filterState,
+                    sortState: sorting,
+                    rowSelection,
+                })
+            }
+        }
+        
+        handleTableStateChange()
+    }, [sorting, pagination, columnFilters, onTableStateChange, totalRows, rowSelection])
     
     const columnHelper = createColumnHelper<TData>()
     const tableColumns = useMemo(() => {
-        return columns.map(c => {
+        const resultColumns = []
+        if (rowSelectionOptions) {
+            resultColumns.push(columnHelper.accessor(rowSelectionOptions.getRowId, {
+                id: COLUMN_ID_SELECTION,
+                header: ({ table }) => (
+                    <Checkbox
+                        checked={table.getIsAllRowsSelected()}
+                        indeterminate={table.getIsSomeRowsSelected()}
+                        onChange={table.getToggleAllRowsSelectedHandler()} //or getToggleAllPageRowsSelectedHandler
+                    />
+                ),
+                cell: ({ row }) => (
+                    <Checkbox
+                        checked={row.getIsSelected()}
+                        disabled={!row.getCanSelect()}
+                        onChange={row.getToggleSelectedHandler()}
+                    />
+                ),
+                meta: {
+                    enableColumnSettings: false,
+                },
+            }))
+        }
+
+        columns.forEach(c => {
             const enableSorting = c.enableSorting !== undefined ? c.enableSorting : (defaultColumn?.enableSorting ?? false)
-            const enableColumnFilter = c.filterComponent !== undefined ? true : false
+            const enableColumnFilter = c.filterComponent !== undefined
             const enableColumnSettings = c.enableColumnSettings !== undefined ? c.enableColumnSettings : (defaultColumn?.enableColumnSettings ?? true)
             const enableColumnOptions = enableSorting || enableColumnFilter || enableColumnSettings
             const meta = {
@@ -96,16 +142,45 @@ export function Table<TData extends RowData = RowData> ({
                 enableColumnOptions: enableColumnOptions,
             }
 
-            return columnHelper.accessor(c.dataKey as AccessorFn<TData, unknown>, {
+            resultColumns.push(columnHelper.accessor(c.dataKey as AccessorFn<TData, unknown>, {
                 id: c.id,
-                header: c.header,
+                header: typeof c.header === 'string' ? c.header : (info: HeaderContext<TData, unknown>) => {
+                    if (typeof c.header === 'function') {
+                        return c.header(info)
+                    }
+                    return c.header
+                },
                 enableSorting,
                 enableColumnFilter,
                 cell: (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index) || renderTextWithTooltip()(info.getValue()),
                 meta: meta,
-            })
+            }))
         })
-    }, [columns, columnHelper, defaultColumn])
+
+        return resultColumns
+    }, [columns, columnHelper, defaultColumn, rowSelectionOptions])
+
+    const internalColumns = useMemo(() => {
+        const resultColumns: TableColumn<TData>[] = []
+        
+        if (rowSelectionOptions) {
+            resultColumns.push({
+                id: COLUMN_ID_SELECTION,
+                dataKey: COLUMN_ID_SELECTION,
+                header: ({ table }) => (
+                    <Checkbox
+                        checked={table.getIsAllRowsSelected()}
+                        indeterminate={table.getIsSomeRowsSelected()}
+                        onChange={table.getToggleAllRowsSelectedHandler()} //or getToggleAllPageRowsSelectedHandler
+                    />
+                ),
+                initialOrder: 0,
+            })
+        }
+
+        resultColumns.push(...columns)
+        return resultColumns
+    }, [columns, rowSelectionOptions])
     
     const {
         columnVisibility,
@@ -114,15 +189,15 @@ export function Table<TData extends RowData = RowData> ({
         onColumnVisibilityChange,
         onColumnOrderChange,
         onColumnSizingChange,
-    } = useTableSetting<TData>({ storageKey, columns, defaultColumn })
+    } = useTableSetting<TData>({ storageKey, columns: internalColumns, defaultColumn })
 
     const orderedColumns = useMemo(() => {
         if (columnOrder && columnOrder.length > 0) {
-            const columnsById = new Map(columns.map(c => [c.id, c]))
+            const columnsById = new Map(internalColumns.map(c => [c.id, c]))
             return columnOrder.map(key => columnsById.get(key)).filter(Boolean) as TableColumn<TData>[] 
         }
-        return columns
-    }, [columns, columnOrder])
+        return internalColumns
+    }, [internalColumns, columnOrder])
 
     const table = useReactTable<TData>({
         data: tableData,
@@ -152,6 +227,7 @@ export function Table<TData extends RowData = RowData> ({
             columnVisibility,
             columnOrder,
             columnSizing,
+            rowSelection,
         },
         rowCount: rowCount,
         enableMultiSort: false,
@@ -160,6 +236,9 @@ export function Table<TData extends RowData = RowData> ({
         onColumnVisibilityChange: onColumnVisibilityChange,
         onColumnOrderChange: onColumnOrderChange,
         onColumnSizingChange: onColumnSizingChange,
+        onRowSelectionChange: setRowSelection,
+        enableRowSelection: true,
+        getRowId: rowSelectionOptions?.getRowId,
         defaultColumn: {
             minSize: 10,
         },
