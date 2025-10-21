@@ -20,6 +20,12 @@ class SMSAdapter {
 
     constructor (type = conf.SMS_PROVIDER || 'SMS') {
         this.whitelist = conf['SMS_WHITE_LIST'] ? JSON.parse(conf['SMS_WHITE_LIST']) : {}
+        this.allowedPhonePrefixes = conf['SMS_ALLOWED_PHONE_PREFIXES']
+            ? conf['SMS_ALLOWED_PHONE_PREFIXES']
+                .split(',')
+                .map(p => p.trim())
+                .filter(p => p.length > 0)
+            : ['*']
         this.adapter = null
         switch (type) {
             case 'SMS':
@@ -47,6 +53,20 @@ class SMSAdapter {
         return await this.adapter.checkIsAvailable()
     }
 
+    isPhoneAllowedByPrefix (phone) {
+        const allowedPhonePrefixes = this.allowedPhonePrefixes
+
+        if (!Array.isArray(allowedPhonePrefixes) || allowedPhonePrefixes.length === 0) {
+            return false
+        }
+
+        if (allowedPhonePrefixes.includes('*')) return true
+
+        if (allowedPhonePrefixes.some(prefix => phone.startsWith(prefix.trim()))) return true
+
+        return false
+    }
+
     isPhoneSupported (phone) {
         return this.adapter.isPhoneSupported(phone)
     }
@@ -55,6 +75,11 @@ class SMSAdapter {
         if (!this.isPhoneSupported(phone)) {
             throw new Error(`Unsupported phone number ${phone}`)
         }
+
+        if (!this.isPhoneAllowedByPrefix(phone)) {
+            return [false, { error: 'phone number is not allowed by prefix' }]
+        }
+
         // don't send real sms for white list phones - for developers
         if (has(this.whitelist, phone)) {
             return [true, {}]
