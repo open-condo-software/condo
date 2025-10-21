@@ -18,7 +18,7 @@ import React, { useCallback } from 'react'
 
 import { ColumnSettingsItem } from './ColumnSettingsItem'
 
-import type { TableColumn } from '../types'
+import type { TableColumn, TableColumnMeta } from '../types'
 
 interface ColumnSettingsProps<TData extends RowData = RowData> {
     columns: TableColumn<TData>[]
@@ -58,6 +58,7 @@ export const ColumnSettings = <TData extends RowData = RowData>({ columns, table
             <SortableContext items={columns.map(c => c.id)} strategy={verticalListSortingStrategy}>
                 <div className='condo-table-column-settings-dropdown'>
                     {columns.map((column) => {
+                        if (!(table.getColumn(column.id)?.columnDef?.meta as TableColumnMeta)?.enableColumnSettings) return 
                         const isVisible = table.getColumn(column.id)?.getIsVisible()
                         const isLastVisibleColumn = isVisible && table.getVisibleLeafColumns().length === 1
 
@@ -65,6 +66,7 @@ export const ColumnSettings = <TData extends RowData = RowData>({ columns, table
                             <ColumnSettingsItem
                                 key={column.id}
                                 column={column}
+                                table={table}
                                 isVisible={isVisible || false}
                                 isLastVisibleColumn={isLastVisibleColumn || false}
                                 onToggleVisibility={(checked: boolean) => handleToggleVisibility(column.id, checked)}

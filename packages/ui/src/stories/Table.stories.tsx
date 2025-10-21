@@ -9,6 +9,7 @@ import type {
     TableState,
     GetTableData,
     DefaultColumn,
+    RowSelection,
 } from '@open-condo/ui/src'
 
 export default {
@@ -160,7 +161,7 @@ const getTableData: GetTableData<TableData> = (tableState) => {
             if (tableState.sortState.length > 0) {
                 const sortDesc = tableState.sortState[0].desc
                 const sortId = tableState.sortState[0].id as keyof TableData
-                console.log(sortId)
+
                 resultData.sort((a, b) => {
                     if (!sortDesc) {
                         switch (typeof a[sortId]) {
@@ -213,9 +214,9 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
         pageSize,
         onTableStateChange,
         initialTableState,
-        storageKey,  
-        columnMenuLabels, 
+        storageKey,
         onRowClick, 
+        rowSelectionOptions,
     } = args
 
     return (
@@ -231,6 +232,7 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
             columnMenuLabels={columnMenuLabels}
             storageKey={storageKey}
             onRowClick={onRowClick}
+            rowSelectionOptions={rowSelectionOptions}
         />
     )
 }
@@ -257,6 +259,10 @@ const defaultColumn: DefaultColumn = {
     enableColumnSettings: true,
     initialVisibility: true,
     initialSize: '150px',
+}
+
+const rowSelection: RowSelection<{ id: string }>  = {
+    getRowId: (row) => row.id,
 }
 
 // How I can visible function in story? 
@@ -298,5 +304,16 @@ export const DefaultColumnState: StoryObj<TableProps<TableData>> = {
         pageSize: 10,
         columnMenuLabels,
         storageKey: 'table-with-initial-state',
+    },
+}
+
+export const RowSelectionState: StoryObj<TableProps<TableData>> = {
+    render: Template,
+    args: {
+        id: tableId,
+        dataSource: getTableData,
+        columns,
+        defaultColumn: defaultColumn,
+        rowSelectionOptions: rowSelection,
     },
 }

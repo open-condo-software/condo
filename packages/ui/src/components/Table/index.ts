@@ -2,7 +2,15 @@ import { Table } from './table'
 import { renderTextWithTooltip } from './utils/renderCellUtils'
 import './style.less'
 
-export type { TableProps, TableColumn, TableColumnMenuLabels, GetTableData, TableState, DefaultColumn } from './types'
+export type { 
+    TableProps, 
+    TableColumn, 
+    TableColumnMenuLabels, 
+    GetTableData, 
+    TableState, 
+    DefaultColumn,
+    RowSelection,
+} from './types'
 export { 
     Table,
     renderTextWithTooltip,
