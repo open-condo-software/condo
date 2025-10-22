@@ -10,6 +10,7 @@ export type {
     TableState, 
     DefaultColumn,
     RowSelection,
+    TableRef,
 } from './types'
 export { 
     Table,

@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react-webpack5'
-import React from 'react'
+import React, { useRef } from 'react'
 
 import { Select, Table, Input, renderTextWithTooltip } from '@open-condo/ui/src'
 import type {
@@ -10,6 +10,7 @@ import type {
     GetTableData,
     DefaultColumn,
     RowSelection,
+    TableRef,
 } from '@open-condo/ui/src'
 
 export default {
@@ -140,7 +141,7 @@ const columns: TableColumn<TableData>[] = [
 ]
 
 const getTableData: GetTableData<TableData> = (tableState) => {
-    return new Promise<TableData[]>((resolve) => {
+    return new Promise<{ rowData: TableData[], rowCount: number }>((resolve) => {
         setTimeout(() => {
             const resultData: TableData[] = []
         
@@ -187,7 +188,7 @@ const getTableData: GetTableData<TableData> = (tableState) => {
                     }
                 })
             }
-            resolve(resultData.slice(tableState.startRow, tableState.endRow))
+            resolve({ rowData: resultData.slice(tableState.startRow, tableState.endRow), rowCount: resultData.length })
         }, 1000)
     })
 }
@@ -210,30 +211,37 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
         dataSource, 
         columns, 
         defaultColumn,
-        totalRows, 
         pageSize,
-        onTableStateChange,
+        onTableStateChange: onTableStateChangeCallback,
         initialTableState,
         storageKey,
         onRowClick, 
         rowSelectionOptions,
     } = args
 
+    const tableRef = useRef<TableRef>(null)
+
     return (
-        <Table<TableData>
-            id={id}
-            dataSource={dataSource}
-            columns={columns}
-            defaultColumn={defaultColumn}
-            totalRows={totalRows}
-            pageSize={pageSize}
-            onTableStateChange={onTableStateChange}
-            initialTableState={initialTableState}
-            columnMenuLabels={columnMenuLabels}
-            storageKey={storageKey}
-            onRowClick={onRowClick}
-            rowSelectionOptions={rowSelectionOptions}
-        />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <Input type='text' placeholder='Search' onChange={(e) => {
+                tableRef.current!.api.setColumnFilter('firstName', e.target.value)
+            }} />
+            <Table
+                ref={tableRef}
+                id={id}
+                dataSource={dataSource}
+                columns={columns}
+                defaultColumn={defaultColumn}
+                pageSize={pageSize}
+                onTableStateChange={onTableStateChangeCallback}
+                initialTableState={initialTableState}
+                columnMenuLabels={columnMenuLabels}
+                storageKey={storageKey}
+                onRowClick={onRowClick}
+                rowSelectionOptions={rowSelectionOptions}
+            />
+        </div>
+        
     )
 }
 
@@ -283,7 +291,6 @@ export const WithInitialTableState: StoryObj<TableProps<TableData>> = {
         id: tableId,
         dataSource: getTableData,
         columns,
-        totalRows: data.length,
         pageSize: 10,
         columnMenuLabels,
         storageKey: 'table-with-initial-state',
@@ -300,7 +307,6 @@ export const DefaultColumnState: StoryObj<TableProps<TableData>> = {
         dataSource: getTableData,
         columns,
         defaultColumn: defaultColumn,
-        totalRows: data.length,
         pageSize: 10,
         columnMenuLabels,
         storageKey: 'table-with-initial-state',
