@@ -419,9 +419,7 @@ jobs:
           - resident
           - notification
           - common
-          - miniapp
           - news
-          - scope
           - others
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
     with:
