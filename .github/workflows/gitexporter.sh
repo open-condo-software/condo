@@ -49,6 +49,7 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     "apps/miniapp/*",
     "apps/address-service/*",
     "apps/dev-portal-web/*",
+    "apps/dev-portal-api/*",
     "packages/*",
     "bin/*",
     "docs/*",
