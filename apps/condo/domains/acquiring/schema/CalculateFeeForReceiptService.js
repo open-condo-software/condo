@@ -101,7 +101,7 @@ const CalculateFeeForReceiptService = new GQLCustomSchema('CalculateFeeForReceip
                 const acquiringIntegration = await  getById('AcquiringIntegration', acquiringContext.integration)
 
                 const formula = await getAcquiringIntegrationContextFormula(context, acquiringContext.id)
-                const feeCalculator = new FeeDistribution(formula)
+                const feeCalculator = new FeeDistribution(formula, billingReceipt.category)
 
                 const { type, explicitFee = '0' } = feeCalculator.calculate(amount)
                 const explicitFees = type === 'service'
