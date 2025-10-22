@@ -420,6 +420,9 @@ jobs:
           - notification
           - common
           - news
+          - marketplace
+          - analytics
+          - ai
           - others
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
     with:
