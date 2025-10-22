@@ -65,10 +65,14 @@ export function TableHeader <TData extends RowData = RowData> ({
                             points: ['cl', 'cr'],
                             offset: [8, 0],
                         }}
-                        dropdownRender={filterComponent ? () => filterComponent({ 
-                            setFilterValue: header.column.setFilterValue, 
-                            filterValue: header.column.getFilterValue(),
-                        }) : undefined}
+                        dropdownRender={filterComponent ? (originNode) => (
+                            <div onClick={(e) => e.stopPropagation()}>
+                                {filterComponent({ 
+                                    setFilterValue: header.column.setFilterValue, 
+                                    filterValue: header.column.getFilterValue(),
+                                })}
+                            </div>
+                        ) : undefined}
                     >
                         <Space size={8}>
                             <Filter size='small' />
@@ -89,7 +93,11 @@ export function TableHeader <TData extends RowData = RowData> ({
                         points: ['cl', 'cr'],
                         offset: [8, 0],
                     }}
-                    dropdownRender={renderColumnSettings}
+                    dropdownRender={(originNode) => (
+                        <div onClick={(e) => e.stopPropagation()}>
+                            {renderColumnSettings()}
+                        </div>
+                    )}
                 >
                     <Space size={8}>
                         <GripHorizontal size='small' color={colors.gray[7]} />
@@ -147,6 +155,7 @@ export function TableHeader <TData extends RowData = RowData> ({
                                         menu={{ 
                                             items: getColumnMenu(header),
                                         }}
+                                        trigger={['hover']}
                                     >
                                         <div className='condo-table-th-more-icon'>
                                             <MoreVertical size='small' />

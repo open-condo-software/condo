@@ -60,6 +60,7 @@ export type {
     TableState, 
     DefaultColumn,
     RowSelection,
+    TableRef,
 } from './components/Table'
 
 export { Tabs } from './components/Tabs'
