@@ -73,14 +73,25 @@ export type FullTableState = TableState & {
     rowSelection: RowSelectionState
 }
 
-export type GetTableData<TData extends RowData = RowData> = (tableState: TableState) => Promise<TData[]>
+export type TableApi = {
+    setFilterState: (filterState: FilterState) => void
+    setColumnFilter: (columnId: string, value: unknown) => void
+    getColumnFilter: (columnId: string) => unknown
+    getFilterState: () => FilterState
+    refresh: () => void
+    setSorting: (sorting: SortingState) => void
+    getSorting: () => SortingState
+}
+
+export type TableRef = { api: TableApi }
+
+export type GetTableData<TData extends RowData = RowData> = (tableState: TableState) => Promise<{ rowData: TData[], rowCount: number }>
 
 export interface TableProps<TData extends RowData = RowData> {
     id: string
     dataSource: GetTableData<TData>
     columns: TableColumn<TData>[]
     defaultColumn?: DefaultColumn
-    totalRows?: number
     pageSize?: number
     onTableStateChange?: (tableState: FullTableState) => void
     initialTableState?: FullTableState
