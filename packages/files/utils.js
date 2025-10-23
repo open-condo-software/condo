@@ -20,7 +20,6 @@ const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 const { ERRORS } = require('./errors')
 
 const DEFAULT_USER_HOUR_QUOTA = 100
-const DEFAULT_IP_HOUR_QUOTA = 100
 const fileMetaSymbol = Symbol.for('fileMeta')
 
 const AppClientSchema = z.object({
@@ -37,10 +36,8 @@ const AppConfigSchema = z.object({
     clients: AppClientsSchema,
     quota: z.object({
         user: z.number().optional().default(DEFAULT_USER_HOUR_QUOTA),
-        ip: z.number().optional().default(DEFAULT_IP_HOUR_QUOTA),
     }).optional().default({
         user: DEFAULT_USER_HOUR_QUOTA,
-        ip: DEFAULT_IP_HOUR_QUOTA,
     }),
 })
 
@@ -218,18 +215,11 @@ function authHandler ()  {
 
 function rateLimitHandler ({ quota, guard }) {
     return async function (req, res, next) {
-        const requestIp = req.ip
         const userId = req.user.id
 
         const idCounter = await guard.incrementHourCounter(`file:${userId}`)
         if (idCounter > quota.user) {
 
-            const error = new GQLError(ERRORS.RATE_LIMIT_EXCEEDED, { req })
-            return next(error)
-        }
-
-        const ipCounter = await guard.incrementHourCounter(`file:${requestIp}`)
-        if (ipCounter > quota.ip) {
             const error = new GQLError(ERRORS.RATE_LIMIT_EXCEEDED, { req })
             return next(error)
         }

@@ -25,14 +25,12 @@ Clients is a object of fileClientId as a key and value is an object with payload
     "some-app-internal-id": { "secret": "<HS256-signing-secret>" }
   },
   "quota": {
-    "user": 100,
-    "ip": 100
+    "user": 100
   }
 }
 ```
 
-Upload quota is 100 files per hour for user and ip by default.
-
+Upload quota is 100 files per hour for user by default.
 
 ### Uploading files
 
@@ -230,7 +228,7 @@ Successful response:
   - `maxFieldSize`: 1 MiB (size of non-file fields like `meta`)
   - `maxFileSize`: 100 MiB per file
   - `maxFiles`: 2 files per request
-- Rate limiting: per-hour counters for `user` and `ip` enforced via Redis.
+- Rate limiting: per-hour counters for `user` enforced via Redis.
 
 ### Receiving file from a model
 

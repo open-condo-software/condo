@@ -62,7 +62,7 @@ const FileMiddlewareUtilsTests = () => {
                     clients: {
                         condo: { name: 'condo-app', secret: 'some-secret-string' },
                     },
-                    quota: { user: 100, ip: 100 },
+                    quota: { user: 100 },
                 }
                 const out = validateAndParseFileConfig(data)
                 expect(out).toEqual(data)
@@ -73,7 +73,7 @@ const FileMiddlewareUtilsTests = () => {
                     clients: {
                         'condo app': { name: 'condo-app', secret: 'some-secret-string' },
                     },
-                    quota: { user: 100, ip: 100 },
+                    quota: { user: 100 },
                 }
                 const result = validateAndParseFileConfig(data)
                 expect(result).toMatchObject({})
@@ -92,15 +92,6 @@ const FileMiddlewareUtilsTests = () => {
 
                 expect(defaultQuota).toHaveProperty(['clients', 'condo', 'secret'])
                 expect(defaultQuota).toHaveProperty(['quota', 'user'], 100)
-                expect(defaultQuota).toHaveProperty(['quota', 'ip'], 100)
-
-                const ipQuota = validateAndParseFileConfig({
-                    clients: { condo: { secret: 'some-secret-string' } },
-                    quota: { ip: 2 },
-                })
-                expect(ipQuota).toHaveProperty(['clients', 'condo', 'secret'])
-                expect(ipQuota).toHaveProperty(['quota', 'user'], 100)
-                expect(ipQuota).toHaveProperty(['quota', 'ip'], 2)
 
                 const userQuota = validateAndParseFileConfig({
                     clients: { condo: { secret: 'some-secret-string' } },
@@ -109,7 +100,6 @@ const FileMiddlewareUtilsTests = () => {
 
                 expect(userQuota).toHaveProperty(['clients', 'condo', 'secret'])
                 expect(userQuota).toHaveProperty(['quota', 'user'], 5)
-                expect(userQuota).toHaveProperty(['quota', 'ip'], 100)
             })
         })
 
@@ -346,36 +336,14 @@ const FileMiddlewareUtilsTests = () => {
             test('allows under quota', async () => {
                 const guard = { incrementHourCounter: jest.fn().mockResolvedValue(1) }
                 const { req, res, next } = makeReqRes()
-                await rateLimitHandler({ quota: { user: 10, ip: 10 }, guard })(req, res, next)
+                await rateLimitHandler({ quota: { user: 10 }, guard })(req, res, next)
                 expect(next).toHaveBeenCalled()
             })
 
             test('blocks when user over quota', async () => {
-                const guard = { incrementHourCounter: jest.fn()
-                    .mockResolvedValueOnce(11) // user
-                    .mockResolvedValueOnce(1),  // ip (won't be reached)
-                }
+                const guard = { incrementHourCounter: jest.fn().mockResolvedValueOnce(11) }
                 const { req, res, next } = makeReqRes()
-                await rateLimitHandler({ quota: { user: 10, ip: 10 }, guard })(req, res, next)
-                const lastCall = next.mock.calls[0]
-
-                expect(lastCall).toHaveLength(1)
-                expect(lastCall[0]).toEqual(expect.objectContaining({
-                    name: 'GQLError',
-                    extensions: expect.objectContaining({
-                        code: 'TOO_MANY_REQUESTS',
-                        type: 'RATE_LIMIT_EXCEEDED',
-                    }),
-                }))
-            })
-
-            test('blocks when ip over quota', async () => {
-                const guard = { incrementHourCounter: jest.fn()
-                    .mockResolvedValueOnce(1)   // user
-                    .mockResolvedValueOnce(999), // ip
-                }
-                const { req, res, next } = makeReqRes()
-                await rateLimitHandler({ quota: { user: 10, ip: 10 }, guard })(req, res, next)
+                await rateLimitHandler({ quota: { user: 10 }, guard })(req, res, next)
                 const lastCall = next.mock.calls[0]
 
                 expect(lastCall).toHaveLength(1)
