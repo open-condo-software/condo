@@ -76,6 +76,16 @@ class RedisGuard {
 }
 
 // ---------------------- validation ----------------------
+const InlineAttachPayloadSchema = z.object({
+    itemId: z.uuid(),
+    modelName: z.string().min(1),
+    dv: z.literal(1),
+    sender: z.object({
+        dv: z.literal(1),
+        fingerprint: z.string().regex(FINGERPRINT_RE),
+    }).strict(),
+}).strict()
+
 const MetaSchema = z.object({
     dv: z.literal(1),
     sender: z.object({
@@ -241,12 +251,11 @@ function parserHandler ({ processRequestOptions } = {}) {
             return next(new GQLError(ERRORS.WRONG_REQUEST_METHOD_TYPE, { req }))
         }
 
-        const form = formidable({ // NOSONAR - folder used for temp step of the upload and not used for file distribution
-            // limits
+        const form = formidable({
             maxFiles: processRequestOptions?.maxFiles ?? 1,
             maxFileSize: processRequestOptions?.maxFileSize ?? 20 * 1024 ** 2,
-            maxFields: 1, // we only expect "meta"
-            maxFieldsSize: processRequestOptions?.maxFieldSize ?? 20 * 1024 * 1024, // default is 20 mb for meta field
+            maxFields: 2, // meta + optional attach
+            maxFieldsSize: processRequestOptions?.maxFieldSize ?? 20 * 1024 * 1024,
             multiples: true,
         })
 
@@ -256,15 +265,39 @@ function parserHandler ({ processRequestOptions } = {}) {
                 return next(new GQLError(ERRORS.UNABLE_TO_PARSE_FILE_CONTENT, { req }, [err]))
             }
 
-            // meta can be string or string[]
+            // ---------- meta (required) ----------
             let rawMeta = fields?.meta
             if (Array.isArray(rawMeta)) rawMeta = rawMeta[0]
             if (!rawMeta) return next(new GQLError(ERRORS.MISSING_META, { req }))
 
             const meta = parseAndValidateMeta(rawMeta, req, next, (invoke) => invoke())
-            if (!meta) return // validator already called next() with an error
+            if (!meta) return
 
-            // Flatten formidable’s files object: { fieldName: File | File[] }
+            // ---------- optional attach ----------
+            let rawAttach = fields?.attach
+            if (Array.isArray(rawAttach)) rawAttach = rawAttach[0]
+            let inlineAttach = undefined
+            if (rawAttach !== undefined) {
+                let candidate = rawAttach
+                if (typeof rawAttach === 'string') {
+                    try {
+                        candidate = JSON.parse(rawAttach)
+                    } catch {
+                        return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }))
+                    }
+                } else if (typeof rawAttach !== 'object' || rawAttach === null) {
+                    return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }))
+                }
+
+                const parsed = InlineAttachPayloadSchema.safeParse(candidate)
+                if (!parsed.success) {
+                    const extraErrors = [new Error(z.prettifyError(parsed.error))]
+                    return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }, extraErrors))
+                }
+                inlineAttach = parsed.data
+            }
+
+            // ---------- files ----------
             const fileList = Object.values(files || {}).flat().filter(Boolean)
             if (!fileList.length) return next(new GQLError(ERRORS.MISSING_ATTACHED_FILES, { req }))
 
@@ -282,6 +315,7 @@ function parserHandler ({ processRequestOptions } = {}) {
             })
 
             req[fileMetaSymbol] = meta
+            req.inlineAttach = inlineAttach // << NEW
             next()
         })
     }
@@ -289,7 +323,7 @@ function parserHandler ({ processRequestOptions } = {}) {
 
 function fileStorageHandler ({ keystone, appClients }) {
     return async function (req, res, next) {
-        const { [fileMetaSymbol]: meta, files } = req
+        const { [fileMetaSymbol]: meta, files, inlineAttach } = req
         const appClient = appClients ? appClients[meta.fileClientId] : undefined
 
         if (!(meta['fileClientId'] in (appClients || {}))) {
@@ -351,18 +385,63 @@ function fileStorageHandler ({ keystone, appClients }) {
                 id: e.id, data: { fileMeta: { ...e.fileMeta, recordId: e.id }, dv: meta.dv, sender: meta.sender },
             })), `id fileMeta { meta ${FILE_RECORD_USER_META} }`)
 
-        res.json({
-            data: {
-                files: fileRecords.map(file => ({
-                    id: file.id,
+        // --- NEW: optionally attach inline ---
+        let result = []
+        if (!inlineAttach) {
+            // classic behavior
+            result = fileRecords.map(file => ({
+                id: file.id,
+                signature: jwt.sign(
+                    { id: file.id, ...file.fileMeta.meta },
+                    appClient.secret,
+                    { expiresIn: '5m', algorithm: 'HS256' }
+                ),
+            }))
+        } else {
+            // validate modelName against meta.modelNames
+            if (!Array.isArray(meta.modelNames) || !meta.modelNames.includes(inlineAttach.modelName)) {
+                return next(new GQLError(ERRORS.INVALID_PAYLOAD, { req }))
+            }
+
+            // Attach all uploaded files to the same item/model
+            result = await Promise.all(fileRecords.map(async (fileRecord) => {
+                const fileMeta = fileRecord.fileMeta
+                const originalAttachments = fileRecord.attachments?.attachments
+
+                const newAttachment = {
+                    modelName: inlineAttach.modelName,
+                    id: inlineAttach.itemId,
+                    fileClientId: meta.fileClientId,
+                    user: { id: req.user.id },
+                }
+                const resultAttachments = Array.isArray(originalAttachments)
+                    ? [...originalAttachments, newAttachment]
+                    : [newAttachment]
+
+                const updated = await FileRecord.update(context, fileRecord.id, {
+                    dv: inlineAttach.dv,
+                    sender: inlineAttach.sender,
+                    attachments: { attachments: resultAttachments },
+                }, `id fileMeta ${FILE_RECORD_PUBLIC_META_FIELDS}`)
+
+                return {
+                    id: updated.id,
                     signature: jwt.sign(
-                        { id: file.id, ...file.fileMeta.meta },
+                        { id: updated.id, ...fileMeta.meta },
                         appClient.secret,
                         { expiresIn: '5m', algorithm: 'HS256' }
                     ),
-                })),
-            },
-        })
+                    attached: true,
+                    publicSignature: jwt.sign(
+                        updated.fileMeta,
+                        appClient.secret,
+                        { expiresIn: '5m', algorithm: 'HS256' }
+                    ),
+                }
+            }))
+        }
+
+        res.json({ data: { files: result } })
     }
 }
 
@@ -548,5 +627,6 @@ module.exports = {
         MetaSchema,
         SharePayloadSchema,
         FileAttachSchema,
+        InlineAttachPayloadSchema,
     },
 }

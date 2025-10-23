@@ -157,6 +157,53 @@ const FileMiddlewareUtilsTests = () => {
             })
         })
 
+        describe('InlineAttachPayloadSchema (direct)', () => {
+            const { InlineAttachPayloadSchema } = __test__
+
+            const base = () => ({
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'device-ABC_123' },
+                itemId: faker.datatype.uuid(),
+                modelName: 'ExampleModel',
+            })
+
+            test('valid payload passes', () => {
+                const ok = InlineAttachPayloadSchema.safeParse(base())
+                expect(ok.success).toBe(true)
+            })
+
+            test('dv must equal 1', () => {
+                const bad = InlineAttachPayloadSchema.safeParse({ ...base(), dv: 2 })
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message).toMatch('Invalid input: expected 1')
+            })
+
+            test('sender.dv must equal 1', () => {
+                const bad = InlineAttachPayloadSchema.safeParse({ ...base(), sender: { dv: 2, fingerprint: 'device-ABC_123' } })
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message).toMatch('Invalid input: expected 1')
+            })
+
+            test('fingerprint must match regex', () => {
+                const bad = InlineAttachPayloadSchema.safeParse({ ...base(), sender: { dv: 1, fingerprint: 'bad space' } })
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message).toMatch(/Invalid string|Invalid/)
+            })
+
+            test('itemId must be uuid', () => {
+                const bad = InlineAttachPayloadSchema.safeParse({ ...base(), itemId: 'nope' })
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message.toLowerCase()).toMatch(/invalid uuid/)
+            })
+
+            test('modelName must be non-empty string', () => {
+                const bad = InlineAttachPayloadSchema.safeParse({ ...base(), modelName: '' })
+                expect(bad.success).toBe(false)
+                expect(bad.error.issues[0].message.toLowerCase()).toMatch('too small: expected string to have >=1 characters')
+            })
+        })
+
+
         describe('SharePayloadSchema (direct)', () => {
             test('valid payload passes', () => {
                 const ok = SharePayloadSchema.safeParse(baseShare())

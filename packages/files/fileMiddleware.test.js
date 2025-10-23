@@ -288,6 +288,91 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                         type: 'INVALID_APP_ID',
                     })
                 })
+
+                test('upload with malformed attach should fail (non-JSON string)', async () => {
+                    const user = await createTestUser()
+                    const form = new FormData()
+                    const meta = {
+                        user: { id: user.user.id },
+                        fileClientId,
+                        modelNames: ['SomeModel'],
+                        ...DV_AND_SENDER,
+                    }
+                    form.append('file', filestream, 'dino.png')
+                    form.append('meta', JSON.stringify(meta))
+                    form.append('attach', 'not a json') // malformed
+
+                    const result = await fetch(serverUrl, {
+                        method: 'POST',
+                        body: form,
+                        headers: { Cookie: user.getCookie() },
+                    })
+
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_PAYLOAD',
+                    })
+                })
+
+                test('upload with invalid attach payload shape should fail', async () => {
+                    const user = await createTestUser()
+                    const form = new FormData()
+                    const meta = {
+                        user: { id: user.user.id },
+                        fileClientId,
+                        modelNames: ['SomeModel'],
+                        ...DV_AND_SENDER,
+                    }
+                    form.append('file', filestream, 'dino.png')
+                    form.append('meta', JSON.stringify(meta))
+                    // missing itemId; wrong dv on sender
+                    form.append('attach', JSON.stringify({
+                        modelName: 'SomeModel',
+                        dv: 1,
+                        sender: { dv: 2, fingerprint: 'test-runner' },
+                    }))
+
+                    const result = await fetch(serverUrl, {
+                        method: 'POST',
+                        body: form,
+                        headers: { Cookie: user.getCookie() },
+                    })
+
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_PAYLOAD',
+                    })
+                })
+
+                test('upload with attach where modelName is not allowed should fail', async () => {
+                    const user = await createTestUser()
+                    const form = new FormData()
+                    const meta = {
+                        user: { id: user.user.id },
+                        fileClientId,
+                        modelNames: ['SomeModel'], // "AnotherModel" is NOT allowed
+                        ...DV_AND_SENDER,
+                    }
+                    form.append('file', filestream, 'dino.png')
+                    form.append('meta', JSON.stringify(meta))
+                    form.append('attach', JSON.stringify({
+                        itemId: faker.datatype.uuid(),
+                        modelName: 'AnotherModel',
+                        ...DV_AND_SENDER,
+                    }))
+
+                    const result = await fetch(serverUrl, {
+                        method: 'POST',
+                        body: form,
+                        headers: { Cookie: user.getCookie() },
+                    })
+
+                    await expectGQLErrorResponse(result, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_PAYLOAD',
+                    })
+                })
+
             })
 
             describe('share', () => {
@@ -834,6 +919,99 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                 const { success } = parseAndValidateFileMetaSignature(attachPayload)
                 expect(success).toBeTruthy()
             })
+
+            test('upload with inline attach should immediately attach and return publicSignature', async () => {
+                const user = await createTestUser()
+                const modelName = 'SomeModel'
+                const itemId = faker.datatype.uuid()
+                const form = new FormData()
+                const meta = {
+                    user: { id: user.user.id },
+                    fileClientId,
+                    modelNames: [modelName],
+                    ...DV_AND_SENDER,
+                }
+                form.append('meta', JSON.stringify(meta))
+                form.append('attach', JSON.stringify({
+                    itemId,
+                    modelName,
+                    ...DV_AND_SENDER,
+                }))
+                form.append('file', filestream, 'dino.png')
+
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: user.getCookie() },
+                })
+
+                const json = await result.json()
+                expect(result.status).toEqual(200)
+                expect(json.data.files).toHaveLength(1)
+
+                const file = json.data.files[0]
+                // legacy fields preserved
+                expect(file).toEqual(expect.objectContaining({
+                    id: file.id,
+                    signature: file.signature,
+                }))
+                // new fields for inline attach
+                expect(file).toEqual(expect.objectContaining({
+                    attached: true,
+                    publicSignature: expect.any(String),
+                }))
+
+                // Validate that publicSignature contains file meta (same as /attach returns)
+                const secret = appClients[fileClientId].secret
+                const publicPayload = jwt.verify(file.publicSignature, secret, { algorithms: ['HS256'] })
+                const { success } = parseAndValidateFileMetaSignature(publicPayload)
+                expect(success).toBeTruthy()
+            })
+
+            test('upload with inline attach for multiple files should attach all and return publicSignature per file', async () => {
+                const user = await createTestUser()
+                const modelName = 'SomeModel'
+                const itemId = faker.datatype.uuid()
+                const form = new FormData()
+                const meta = {
+                    user: { id: user.user.id },
+                    fileClientId,
+                    modelNames: [modelName],
+                    ...DV_AND_SENDER,
+                }
+                form.append('meta', JSON.stringify(meta))
+                form.append('attach', JSON.stringify({
+                    itemId,
+                    modelName,
+                    ...DV_AND_SENDER,
+                }))
+                form.append('file', filestream, 'dino.png')
+                form.append('file', filestream, 'dino2.png')
+
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: user.getCookie() },
+                })
+
+                const json = await result.json()
+                expect(result.status).toEqual(200)
+                expect(json.data.files).toHaveLength(2)
+
+                const secret = appClients[fileClientId].secret
+                for (const f of json.data.files) {
+                    expect(f).toEqual(expect.objectContaining({
+                        id: f.id,
+                        signature: f.signature,
+                        attached: true,
+                        publicSignature: expect.any(String),
+                    }))
+                    const payload = jwt.verify(f.publicSignature, secret, { algorithms: ['HS256'] })
+                    const { success } = parseAndValidateFileMetaSignature(payload)
+                    expect(success).toBeTruthy()
+                }
+            })
+
         })
     })
 }
