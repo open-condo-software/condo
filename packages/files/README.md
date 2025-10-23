@@ -25,7 +25,9 @@ Clients is a object of fileClientId as a key and value is an object with payload
     "some-app-internal-id": { "secret": "<HS256-signing-secret>" }
   },
   "quota": {
-    "user": 100
+    "default": 100,
+    "whitelist": ["<uuid:uuid_to_completely_ignore>"],
+    "overrides": { "<uuid:user_uuid_to_override>": 150 }
   }
 }
 ```

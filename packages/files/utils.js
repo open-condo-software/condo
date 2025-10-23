@@ -32,13 +32,15 @@ const AppClientsSchema = z.record(
     AppClientSchema
 )
 
+const QuotaSchema = z.object({
+    default: z.number().optional().default(DEFAULT_USER_HOUR_QUOTA),
+    whitelist: z.array(z.uuid()).optional().default([]),
+    overrides: z.record(z.uuid(), z.number().int().nonnegative()).optional().default({}),
+})
+
 const AppConfigSchema = z.object({
     clients: AppClientsSchema,
-    quota: z.object({
-        user: z.number().optional().default(DEFAULT_USER_HOUR_QUOTA),
-    }).optional().default({
-        user: DEFAULT_USER_HOUR_QUOTA,
-    }),
+    quota: QuotaSchema.optional().default({ default: DEFAULT_USER_HOUR_QUOTA, whitelist: [], overrides: {} }),
 })
 
 function validateAndParseFileConfig (config) {
@@ -217,16 +219,21 @@ function rateLimitHandler ({ quota, guard }) {
     return async function (req, res, next) {
         const userId = req.user.id
 
-        const idCounter = await guard.incrementHourCounter(`file:${userId}`)
-        if (idCounter > quota.user) {
+        if (quota?.whitelist?.includes(userId)) {
+            return next()
+        }
 
-            const error = new GQLError(ERRORS.RATE_LIMIT_EXCEEDED, { req })
-            return next(error)
+        const userLimit = quota?.overrides?.[userId] ?? quota?.default ?? DEFAULT_USER_HOUR_QUOTA
+        const idCounter = await guard.incrementHourCounter(`file:${userId}`)
+
+        if (idCounter > userLimit) {
+            return next(new GQLError(ERRORS.RATE_LIMIT_EXCEEDED, { req }))
         }
 
         next()
     }
 }
+
 
 function parserHandler ({ processRequestOptions } = {}) {
     return function (req, res, next) {
