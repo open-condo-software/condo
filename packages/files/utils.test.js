@@ -62,7 +62,7 @@ const FileMiddlewareUtilsTests = () => {
                     clients: {
                         condo: { name: 'condo-app', secret: 'some-secret-string' },
                     },
-                    quota: { user: 100 },
+                    quota: { default: 100, whitelist: [], overrides: {} },
                 }
                 const out = validateAndParseFileConfig(data)
                 expect(out).toEqual(data)
@@ -73,7 +73,7 @@ const FileMiddlewareUtilsTests = () => {
                     clients: {
                         'condo app': { name: 'condo-app', secret: 'some-secret-string' },
                     },
-                    quota: { user: 100 },
+                    quota: { default: 100 },
                 }
                 const result = validateAndParseFileConfig(data)
                 expect(result).toMatchObject({})
@@ -85,21 +85,31 @@ const FileMiddlewareUtilsTests = () => {
                 expect(result).toMatchObject({})
             })
 
-            test('should set defaults for quota props', () => {
-                const defaultQuota = validateAndParseFileConfig({
+            test('should set defaults for quota props when quota omitted', () => {
+                const out = validateAndParseFileConfig({
                     clients: { condo: { secret: 'some-secret-string' } },
                 })
 
-                expect(defaultQuota).toHaveProperty(['clients', 'condo', 'secret'])
-                expect(defaultQuota).toHaveProperty(['quota', 'user'], 100)
+                expect(out).toHaveProperty(['clients', 'condo', 'secret'], 'some-secret-string')
 
-                const userQuota = validateAndParseFileConfig({
+                expect(out).toHaveProperty(['quota', 'default'], 100)
+                expect(out).toHaveProperty(['quota', 'whitelist'])
+                expect(out.quota.whitelist).toEqual([])
+                expect(out).toHaveProperty(['quota', 'overrides'])
+                expect(out.quota.overrides).toEqual({})
+            })
+
+            test('should honor provided quota.default', () => {
+                const out = validateAndParseFileConfig({
                     clients: { condo: { secret: 'some-secret-string' } },
-                    quota: { user: 5 },
+                    quota: { default: 5 },
                 })
 
-                expect(userQuota).toHaveProperty(['clients', 'condo', 'secret'])
-                expect(userQuota).toHaveProperty(['quota', 'user'], 5)
+                expect(out).toHaveProperty(['clients', 'condo', 'secret'])
+                expect(out).toHaveProperty(['quota', 'default'], 5)
+                // missing props still defaulted
+                expect(out.quota.whitelist).toEqual([])
+                expect(out.quota.overrides).toEqual({})
             })
         })
 
@@ -199,8 +209,6 @@ const FileMiddlewareUtilsTests = () => {
             })
         })
 
-
-
         describe('parseAndValidateMeta (via middleware helper)', () => {
             test('accepts valid meta object', () => {
                 const { req, res } = makeReqRes()
@@ -256,7 +264,7 @@ const FileMiddlewareUtilsTests = () => {
                 }))
             })
 
-            test('rejects mismatch user id with 403', () => {
+            test('rejects mismatch user id with 400', () => {
                 const req = { user: { id: faker.datatype.uuid(), deletedAt: null } }
                 const { next } = makeReqRes({ req })
                 const { onError, calls } = onErrorRunner()
@@ -333,17 +341,50 @@ const FileMiddlewareUtilsTests = () => {
         })
 
         describe('rateLimitHandler', () => {
-            test('allows under quota', async () => {
+            test('allows under quota (using default)', async () => {
                 const guard = { incrementHourCounter: jest.fn().mockResolvedValue(1) }
                 const { req, res, next } = makeReqRes()
-                await rateLimitHandler({ quota: { user: 10 }, guard })(req, res, next)
+                await rateLimitHandler({ quota: { default: 10 }, guard })(req, res, next)
                 expect(next).toHaveBeenCalled()
             })
 
-            test('blocks when user over quota', async () => {
+            test('blocks when user over default quota', async () => {
                 const guard = { incrementHourCounter: jest.fn().mockResolvedValueOnce(11) }
                 const { req, res, next } = makeReqRes()
-                await rateLimitHandler({ quota: { user: 10 }, guard })(req, res, next)
+                await rateLimitHandler({ quota: { default: 10 }, guard })(req, res, next)
+                const lastCall = next.mock.calls[0]
+
+                expect(lastCall).toHaveLength(1)
+                expect(lastCall[0]).toEqual(expect.objectContaining({
+                    name: 'GQLError',
+                    extensions: expect.objectContaining({
+                        code: 'TOO_MANY_REQUESTS',
+                        type: 'RATE_LIMIT_EXCEEDED',
+                    }),
+                }))
+            })
+
+            test('whitelisted user bypasses limiter and counter is not incremented', async () => {
+                const guard = { incrementHourCounter: jest.fn() }
+                const { req, res, next } = makeReqRes()
+                await rateLimitHandler({ quota: { default: 1, whitelist: [USER_UUID], overrides: {} }, guard })(req, res, next)
+                expect(guard.incrementHourCounter).not.toHaveBeenCalled()
+                expect(next).toHaveBeenCalled()
+            })
+
+            test('per-user override is applied instead of default (allow at limit)', async () => {
+                const guard = { incrementHourCounter: jest.fn().mockResolvedValue(5) }
+                const { req, res, next } = makeReqRes()
+                const overrides = { [USER_UUID]: 5 }
+                await rateLimitHandler({ quota: { default: 2, overrides }, guard })(req, res, next)
+                expect(next).toHaveBeenCalled()
+            })
+
+            test('per-user override blocks when exceeded', async () => {
+                const guard = { incrementHourCounter: jest.fn().mockResolvedValue(6) }
+                const { req, res, next } = makeReqRes()
+                const overrides = { [USER_UUID]: 5 }
+                await rateLimitHandler({ quota: { default: 100, overrides }, guard })(req, res, next)
                 const lastCall = next.mock.calls[0]
 
                 expect(lastCall).toHaveLength(1)
