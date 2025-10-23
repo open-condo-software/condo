@@ -1,24 +1,27 @@
-### Files API
+# Files API
 
 This middleware has endpoints for uploading binaries and sharing previously uploaded files between apps/users.
 
-- **Base path**: `/api/files`
-- **Endpoints**:
-  - `POST /api/files/upload` — upload one or multiple files
-  - `POST /api/files/share` — create a new file record that points to an existing binary (re-share)
-  - `POST /api/files/attach` — attach an existing uploaded file to a specific model record
+* **Base path**: `/api/files`
+* **Endpoints**:
 
-### Authentication
+  * `POST /api/files/upload` — upload one or multiple files (can also **attach** in the same call)
+  * `POST /api/files/share` — create a new file record that points to an existing binary (re-share)
+  * `POST /api/files/attach` — attach an existing uploaded file to a specific model record
 
-- Only authenticated, non-deleted users can call the endpoints. Auth is taken from the app session cookie (same as other Keystone-secured endpoints).
-- Unauthorized or deleted users receive `UNAUTHENTICATED/AUTHORIZATION_REQUIRED`.
+## Authentication
 
-### Configuration
+* Only authenticated, non-deleted users can call the endpoints. Auth is taken from the app session cookie (same as other Keystone-secured endpoints).
+* Unauthorized or deleted users receive `UNAUTHENTICATED/AUTHORIZATION_REQUIRED`.
+
+---
+
+## Configuration
 
 Set `FILE_UPLOAD_CONFIG` env var to a JSON string:
 
+`clients` is a map whose keys are `fileClientId` and values contain the HS256 secret used to sign/verify tokens.
 
-Clients is a object of fileClientId as a key and value is an object with payload of secret to encrypt and decrypt files 
 ```json
 {
   "clients": {
@@ -26,38 +29,56 @@ Clients is a object of fileClientId as a key and value is an object with payload
   },
   "quota": {
     "default": 100,
-    "whitelist": ["<uuid:uuid_to_completely_ignore>"],
-    "overrides": { "<uuid:user_uuid_to_override>": 150 }
+    "whitelist": ["<uuid:skip-rate-limit>"],
+    "overrides": { "<uuid:user-id>": 150 }
   }
 }
 ```
 
-Upload quota is 100 files per hour for user by default.
+* `quota.default` — default hourly upload limit per user (files/hour).
+* `quota.whitelist` — array of user UUIDs that **bypass** rate limits (not counted and never blocked).
+* `quota.overrides` — per-user hourly limits that **override** `default`.
 
-### Uploading files
+If `quota` is omitted entirely, it defaults to:
 
-- Method: `POST`
-- Content-Type: `multipart/form-data`
-- Fields:
-  - `file`: one or multiple file binaries
-  - `meta`: JSON string with:
-    - `dv`: `1`
-    - `sender`: `{ dv: 1, fingerprint: string }`
-    - `user`: `{ id: "<USER_ID>" }` Object with id key, that should contain UUID of the current user; must equal the authenticated user id
-    - `fileClientId`: one of keys from `clients`
-    - `modelNames`: non-empty array of Models to which this file should be connected
-    - `organization`: `{id: "<ORGANIZATION_ID"}` Optional - object with id key, that should contain id of user organization
+```json
+{ "default": 100, "whitelist": [], "overrides": {} }
+```
 
-Example (curl):
+---
+
+## Uploading files
+
+* **Method**: `POST`
+* **Content-Type**: `multipart/form-data`
+* **Fields**:
+
+  * `file` — one or multiple file binaries
+  * `meta` — **required** JSON string/object with:
+
+    * `dv`: `1`
+    * `sender`: `{ dv: 1, fingerprint: string }`
+    * `user`: `{ id: "<USER_ID>" }` — must equal the authenticated user id
+    * `fileClientId`: one of keys from `clients`
+    * `modelNames`: non-empty array of allowed model names to which this file may be connected
+    * `organization` (optional): `{ id: "<ORGANIZATION_ID>" }`
+  * `attach` — **optional** JSON string/object to **attach inline** during upload:
+
+    * `dv`: `1`
+    * `sender`: `{ dv: 1, fingerprint: string }`
+    * `modelName`: a single target model name (must be in `meta.modelNames`)
+    * `itemId`: UUID of the target record
+
+### Example — classic upload
 
 ```bash
 curl -X POST "$SERVER/api/files/upload" \
   -H "Cookie: $COOKIE" \
   -F "file=@/path/to/dino.png" \
-  -F 'meta={"dv":1,"sender":{"dv":1,"fingerprint":"test-runner"},"user": {"id":"<USER_ID>"},"fileClientId":"app-frontend","modelNames":["SomeModel"], "organization": {"id": "<USER_ORGANIZATION_ID>"}}'
+  -F 'meta={"dv":1,"sender":{"dv":1,"fingerprint":"test-runner"},"user":{"id":"<USER_ID>"},"fileClientId":"app-frontend","modelNames":["SomeModel"],"organization":{"id":"<ORG_ID>"}}'
 ```
 
-Successful response:
+**Successful response (classic):**
 
 ```json
 {
@@ -69,12 +90,54 @@ Successful response:
 }
 ```
 
-- Multiple `file` parts are supported; response returns matching number of items.
-- `signature` is an HS256 JWT (expires in 5 minutes) signed with `clients[fileClientId].secret`. Payload contains file meta, including `recordId`, original filename, mimetype, encoding, and `meta` with app/user info.
+### Example — upload **with inline attach** (single request)
 
-### FileRecord model and signature payload
+```bash
+curl -X POST "$SERVER/api/files/upload" \
+  -H "Cookie: $COOKIE" \
+  -F "file=@/path/to/dino.png" \
+  -F 'meta={
+    "dv":1,"sender":{"dv":1,"fingerprint":"test-runner"},
+    "user":{"id":"<USER_ID>"},
+    "fileClientId":"app-frontend",
+    "modelNames":["SomeModel"]
+  }' \
+  -F 'attach={
+    "dv":1,"sender":{"dv":1,"fingerprint":"test-runner"},
+    "modelName":"SomeModel",
+    "itemId":"<MODEL_UUID>"
+  }'
+```
 
-The signed payload corresponds to the public meta of `FileRecord`:
+**Successful response (inline attach):**
+
+```json
+{
+  "data": {
+    "files": [
+      {
+        "id": "<uuid>",
+        "signature": "<jwt>",
+        "attached": true,
+        "publicSignature": "<jwt>"
+      }
+    ]
+  }
+}
+```
+
+* `signature` — HS256 JWT (5 min TTL) signed with `clients[fileClientId].secret`. Payload contains file meta needed to call `/attach` later (if you didn’t use inline attach).
+* `publicSignature` — HS256 JWT (5 min TTL) of the **public file meta** (same payload you get from `/attach`). Use this directly to persist the file in your app, just like with `graphql-upload`.
+
+> Multiple `file` parts are supported. If `attach` is provided, **all** uploaded files are attached to the same `itemId`/`modelName` and each gets its own `publicSignature`.
+
+---
+
+## FileRecord meta & signature payloads
+
+### Upload/Share signatures (`signature`)
+
+Correspond to the **upload token** (used to authorize `/attach` later):
 
 ```json
 {
@@ -88,26 +151,33 @@ The signed payload corresponds to the public meta of `FileRecord`:
   "meta": {
     "dv": 1,
     "sender": { "dv": 1, "fingerprint": "<string>" },
-    "user": "<uuid>",
+    "user": { "id": "<uuid>" },
     "fileClientId": "<string>",
     "modelNames": ["<string>", "..."],
-    "sourcefileClientId": "<string|null>"
+    "sourceFileClientId": "<string|null>"
   },
   "iat": <number>,
   "exp": <number>
 }
 ```
 
-### Connect a file to a GraphQL model
+### Public meta signature (`publicSignature` or `/attach` response)
 
-After you receive a file `signature` from the upload/share endpoint, pass it into a mutation for a model that has a file field. The field expects an input of type `FileMeta` with a `signature` property.
+This is the **full public file meta** signed for application storage. Shape matches your `FileRecord` public meta (`FILE_RECORD_PUBLIC_META_FIELDS`).
 
-- Requirements:
-  - The current user must be the owner indicated by `user`.
-  - The model’s list key must be present in `meta.modelNames`.
-  - Use the signature before it expires.
+---
 
-Create example:
+## Connect a file to a GraphQL model
+
+If you **did not** use inline attach:
+
+1. Call `/upload` → receive `signature`.
+2. Call `/api/files/attach` (see below) → receive signed public meta.
+3. Persist that meta in your app (same as GraphQL Upload’s `FileMeta`).
+
+If you **did** use inline attach: you already have `publicSignature` from `/upload` and can persist it directly.
+
+Example mutation (unchanged):
 
 ```graphql
 mutation CreateSomeModel($data: SomeModelCreateInput!) {
@@ -115,63 +185,26 @@ mutation CreateSomeModel($data: SomeModelCreateInput!) {
     file { filename mimetype publicUrl path }
   }
 }
-
-// Data example:
-data: {
-  ...otherModelFields,
-  file: { signature: 'signed-string-received-from-file-server' }
-}
-
 ```
 
+---
 
-On read, the field resolves to:
-
-```graphql
-{
-  file {
-    id
-    path
-    filename
-    originalFilename
-    mimetype
-    encoding
-    publicUrl
-    meta
-  }
-}
-```
-
-### Sharing a file
+## Sharing a file
 
 Creates a new file record that points to the original binary; useful to “reassign” an uploaded file to another app/user/model.
 
-- Method: `POST`
-- Content-Type: `application/json`
-- Body:
-  - `dv`: `1`
-  - `sender`: `{ dv: 1, fingerprint: string }`
-  - `id`: UUID of existing file record (must belong to the authenticated user)
-  - `user`: `{ id: "uuid" }` UUID of the target user (new owner)
-  - `fileClientId`: target app id (must exist in `clients`)
-  - `modelNames` (optional): array of strings
+* **Method**: `POST`
+* **Content-Type**: `application/json`
+* **Body**:
 
-Example:
+  * `dv`: `1`
+  * `sender`: `{ dv: 1, fingerprint: string }`
+  * `id`: UUID of existing file record (must belong to the authenticated user)
+  * `user`: `{ id: "uuid" }` — new owner
+  * `fileClientId`: target app id (must exist in `clients`)
+  * `modelNames` (optional): array of strings
 
-```bash
-curl -X POST "$SERVER/api/files/share" \
-  -H "Cookie: $COOKIE" -H "Content-Type: application/json" \
-  -d '{
-    "dv":1,
-    "sender":{"dv":1,"fingerprint":"test-runner"},
-    "id":"<EXISTING_FILE_ID>",
-    "user":{"id": "<TARGET_USER_ID>"},
-    "fileClientId":"another-app",
-    "modelNames":["AnotherModel"]
-  }'
-```
-
-Successful response:
+**Successful response:**
 
 ```json
 {
@@ -181,38 +214,26 @@ Successful response:
 }
 ```
 
-- The returned `signature` is signed with the target `fileClientId` secret and includes `meta.sourcefileClientId` (original app) and `recordId` of the new file record.
+The returned `signature` is signed with the **target** `fileClientId` secret and includes `meta.sourceFileClientId` (original app) and the new `recordId`.
 
-### Attaching a file to a model
+---
 
-Attach an already uploaded file to a specific model record using a file client signature.
+## Attaching a file to a model (separate call)
 
-- Method: `POST`
-- Content-Type: `application/json`
-- Body:
-  - `dv`: `1`
-  - `sender`: `{ dv: 1, fingerprint: string }`
-  - `modelName`: target model name (must be allowed by the file’s `meta.modelNames`)
-  - `itemId`: target model record id (UUID)
-  - `fileClientId`: client id used when the file was uploaded
-  - `signature`: file client signature received from previous step (upload/share)
+Use when you didn’t inline-attach in `/upload`.
 
-Example:
+* **Method**: `POST`
+* **Content-Type**: `application/json`
+* **Body**:
 
-```bash
-curl -X POST "$SERVER/api/files/attach" \
-  -H "Cookie: $COOKIE" -H "Content-Type: application/json" \
-  -d '{
-    "dv": 1,
-    "sender": { "dv": 1, "fingerprint": "test-runner" },
-    "modelName": "SomeModel",
-    "itemId": "<MODEL_UUID>",
-    "fileClientId": "some-app-internal-id",
-    "signature": "<signature-from-upload-or-share>"
-  }'
-```
+  * `dv`: `1`
+  * `sender`: `{ dv: 1, fingerprint: string }`
+  * `modelName`: target model name (must be in the file’s `meta.modelNames`)
+  * `itemId`: target model record id (UUID)
+  * `fileClientId`: the client id used when uploading
+  * `signature`: upload/share signature
 
-Successful response:
+**Successful response:**
 
 ```json
 {
@@ -222,30 +243,43 @@ Successful response:
 }
 ```
 
-- The `signature` is HS256 for full public file meta, signed by `clients[fileClientId].secret` (expires in 5 minutes). Use it when persisting the file in your application.
+* This `signature` is the same **public file meta** you now also get as `publicSignature` when using inline attach.
 
-### Limits and quotas
+---
 
-- Default limits (can be overridden when instantiating the middleware):
-  - `maxFieldSize`: 1 MiB (size of non-file fields like `meta`)
-  - `maxFileSize`: 100 MiB per file
-  - `maxFiles`: 2 files per request
-- Rate limiting: per-hour counters for `user` enforced via Redis.
+## Limits and quotas
 
-### Receiving file from a model
+* **Per-request upload limits** (set when constructing middleware; defaults shown):
 
+  * `maxFieldSize`: 1 MiB (for `meta`/`attach`)
+  * `maxFileSize`: 100 MiB per file
+  * `maxFiles`: 2 files per request
+* **Rate limiting** (per user, per hour) via Redis:
+
+  * Default limit = `quota.default` (100 if omitted)
+  * If user is in `quota.whitelist`, limits are bypassed
+  * If user has `quota.overrides[userId]`, it takes precedence over `default`
+
+---
+
+## Receiving file from a model
+
+```
 GET /api/files/<file_id:string>?sign=<file_signature:string>
+```
 
-### Error responses
+---
 
-- `UNAUTHENTICATED/AUTHORIZATION_REQUIRED`: user not logged in or deleted
-- `BAD_USER_INPUT/WRONG_REQUEST_METHOD_TYPE`: content type not `multipart/form-data` (upload)
-- `BAD_USER_INPUT/MISSING_META`: `meta` field not provided (upload)
-- `BAD_USER_INPUT/INVALID_META`: `meta` shape invalid or `user` mismatch
-- `BAD_USER_INPUT/MISSING_ATTACHED_FILES`: no `file` parts
-- `BAD_USER_INPUT/PAYLOAD_TOO_LARGE`: field/file limit exceeded
-- `BAD_USER_INPUT/MAX_FILE_UPLOAD_LIMIT_EXCEEDED`: too many files
-- `FORBIDDEN/INVALID_APP_ID`: unknown `fileClientId`
-- `TOO_MANY_REQUESTS/RATE_LIMIT_EXCEEDED`: quota exceeded
-- `BAD_USER_INPUT/INVALID_PAYLOAD`: invalid JSON body for share/attach
-- `BAD_USER_INPUT/FILE_NOT_FOUND`: file not found or not owned by the caller
+## Error responses
+
+* `UNAUTHENTICATED/AUTHORIZATION_REQUIRED`: user not logged in or deleted
+* `BAD_USER_INPUT/WRONG_REQUEST_METHOD_TYPE`: content type not `multipart/form-data` (upload)
+* `BAD_USER_INPUT/MISSING_META`: `meta` field not provided (upload)
+* `BAD_USER_INPUT/INVALID_META`: `meta` shape invalid or `user` mismatch
+* `BAD_USER_INPUT/MISSING_ATTACHED_FILES`: no `file` parts
+* `BAD_USER_INPUT/PAYLOAD_TOO_LARGE`: field/file limit exceeded
+* `BAD_USER_INPUT/MAX_FILE_UPLOAD_LIMIT_EXCEEDED`: too many files
+* `FORBIDDEN/INVALID_APP_ID`: unknown `fileClientId`
+* `TOO_MANY_REQUESTS/RATE_LIMIT_EXCEEDED`: quota exceeded
+* `BAD_USER_INPUT/INVALID_PAYLOAD`: invalid JSON for `/share`, `/attach`, or the **`attach`** field on `/upload`
+* `BAD_USER_INPUT/FILE_NOT_FOUND`: file not found or not owned by the caller
