@@ -11060,6 +11060,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@open-condo/files@workspace:packages/files":
+  version: 0.0.0-use.local
+  resolution: "@open-condo/files@workspace:packages/files"
+  dependencies:
+    "@faker-js/faker": ^7.6.0
+    "@open-condo/config": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
+    express: ^4.21.2
+    form-data: ^4.0.4
+    formidable: ^3.5.4
+    jsonwebtoken: ^9.0.0
+    zod: ^4.0.8
+  languageName: unknown
+  linkType: soft
+
 "@open-condo/icons@workspace:^, @open-condo/icons@workspace:packages/icons":
   version: 0.0.0-use.local
   resolution: "@open-condo/icons@workspace:packages/icons"
@@ -11170,6 +11185,7 @@ __metadata:
     ioredis: ^4.28.5
     jest: ^29.7.0
     jschardet: ^3.0.0
+    jsonwebtoken: ^9.0.0
     knex: ^3.1.0
     lodash: ^4.17.21
     lru-cache: ^7.18.3
@@ -24333,7 +24349,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:^4.17.3, express@npm:^4.18.2":
+"express@npm:^4.17.3, express@npm:^4.18.2, express@npm:^4.21.2":
   version: 4.21.2
   resolution: "express@npm:4.21.2"
   dependencies:
