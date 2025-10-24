@@ -3,7 +3,7 @@ const { get, omit } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { validateFileUploadSignature } = require('@open-condo/files/utils')
-const { GQLError, GQLErrorCode: { INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { INTERNAL_ERROR, BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 
 const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
 
@@ -12,6 +12,21 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: 'FAILED_TO_ATTACH_FILE',
         message: 'File service returned unexpected error during file verification process',
+    },
+    WRONG_SIGNATURE: {
+        code: BAD_USER_INPUT,
+        type: 'WRONG_SIGNATURE',
+        message: 'Signature is wrong or expired',
+    },
+    ACCESS_DENIED: {
+        code: FORBIDDEN,
+        type: 'ACCESS_DENIED',
+        message: 'You are not own this file',
+    },
+    LEGACY_FLOW_RESTRICTED: {
+        code: BAD_USER_INPUT,
+        type: 'LEGACY_FLOW_RESTRICTED',
+        message: 'You are unable to use graphql upload flow',
     },
 }
 
@@ -78,37 +93,23 @@ class CustomFile extends FileWithUTF8Name.implementation {
             try {
                 fileMeta = jwt.verify(fileData['signature'], this._fileSecret, { algorithms: ['HS256'] })
             } catch (err) {
-                throw new GQLError({
-                    code: 'BAD_USER_INPUT',
-                    type: 'WRONG_SIGNATURE',
-                    variable: [this.path],
-                    message: 'Signature is wrong or expired',
-                })
+                throw new GQLError({ ...ERRORS.WRONG_SIGNATURE, variable: [this.path] }, context)
             }
 
             const { data, success, error } = validateFileUploadSignature(fileData)
             if (!success) {
-                throw new GQLError({
-                    code: 'BAD_USER_INPUT',
-                    type: 'WRONG_SIGNATURE',
-                }, context, error)
+                throw new GQLError(ERRORS.WRONG_SIGNATURE, context, error)
             }
 
             fileMeta = data
 
             if (fileMeta.authedItem !== context.authedItem.id) {
-                throw new GQLError({
-                    code: 'FORBIDDEN',
-                    type: 'ACCESS_DENIED',
-                    variable: [this.path],
-                    message: 'You are not own this file',
-                }, context)
+                throw new GQLError({ ...ERRORS.ACCESS_DENIED, variable: [this.path] }, context)
             }
 
             if (!fileMeta.modelNames.includes(listKey)) {
                 throw new GQLError({
-                    code: 'FORBIDDEN',
-                    type: 'ACCESS_DENIED',
+                    ...ERRORS.ACCESS_DENIED,
                     variable: [this.path],
                     message: 'Owner of this file restrict connection to this model',
                 }, context)
@@ -128,21 +129,13 @@ class CustomFile extends FileWithUTF8Name.implementation {
             try {
                 fileMeta = jwt.verify(input.signature, this._fileSecret, { algorithms: ['HS256'] })
             } catch (err) {
-                throw new GQLError({
-                    code: 'BAD_USER_INPUT',
-                    type: 'WRONG_SIGNATURE',
-                    variable: [this.path],
-                    message: 'Signature is wrong or expired',
-                })
+                throw new GQLError({ ...ERRORS.WRONG_SIGNATURE, variable: [this.path] }, context)
             }
 
             const { success, error } = validateFileUploadSignature(fileMeta)
 
             if (!success) {
-                throw new GQLError({
-                    code: 'BAD_USER_INPUT',
-                    type: 'WRONG_SIGNATURE',
-                }, context, error)
+                throw new GQLError(ERRORS.WRONG_SIGNATURE, context, error)
             }
 
             // keep per-request state so afterChange knows to run the webhook
@@ -159,11 +152,9 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
         if (this._strictMode) {
             throw new GQLError({
-                code: 'BAD_USER_INPUT',
-                type: 'LEGACY_FLOW_RESTRICTED',
+                ...ERRORS.LEGACY_FLOW_RESTRICTED,
                 variable: [this.path],
-                message: 'You are unable to use graphql upload flow',
-            })
+            }, context)
         }
 
         // === Legacy flow (Upload stream): delegate to base ===
