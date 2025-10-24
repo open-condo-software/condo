@@ -251,7 +251,7 @@ function parserHandler ({ processRequestOptions } = {}) {
             return next(new GQLError(ERRORS.WRONG_REQUEST_METHOD_TYPE, { req }))
         }
 
-        const form = formidable({
+        const form = formidable({ // NOSONAR - folder used for temp step of the upload and not used for file distribution
             maxFiles: processRequestOptions?.maxFiles ?? 1,
             maxFileSize: processRequestOptions?.maxFileSize ?? 20 * 1024 ** 2,
             maxFields: 2, // meta + optional attach
