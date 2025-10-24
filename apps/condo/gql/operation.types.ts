@@ -365,7 +365,7 @@ export type GetCustomValuesForObjectQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetCustomValuesForObjectQuery = { __typename?: 'Query', customValues?: Array<{ __typename?: 'CustomValue', id: string, data?: any | null, sourceType?: Types.CustomValueSourceTypeType | null, sourceId?: string | null, customField?: { __typename?: 'CustomField', priority?: number | null, name?: string | null } | null } | null> | null };
+export type GetCustomValuesForObjectQuery = { __typename?: 'Query', customValues?: Array<{ __typename?: 'CustomValue', id: string, data?: any | null, sourceType?: Types.CustomValueSourceTypeType | null, sourceId?: string | null, customField?: { __typename?: 'CustomField', priority?: number | null, name?: string | null, type?: Types.CustomFieldTypeType | null } | null } | null> | null };
 
 export type GetNewsItemsRecipientsCountersQueryVariables = Types.Exact<{
   data: Types.GetNewsItemsRecipientsCountersInput;

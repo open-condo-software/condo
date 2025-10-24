@@ -2387,6 +2387,7 @@ export const GetCustomValuesForObjectDocument = gql`
     customField {
       priority
       name
+      type
     }
     sourceType
     sourceId
