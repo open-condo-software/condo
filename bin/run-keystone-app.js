@@ -89,6 +89,86 @@ try {
     logger.warn({ msg: 'load certs error', err })
 }
 
+function setupGracefulShutdown ({ app, keystone, httpServer, httpsServer }) {
+    const servers = [httpServer, httpsServer].filter(Boolean)
+    const sockets = new Set()
+    const state = app.locals._grace || (app.locals._grace = { draining: false, inflight: 0 })
+
+    const FORCE_TIMEOUT_MS = parseInt(process.env.GRACEFUL_SHUTDOWN_TIMEOUT || '15000')
+    const DRAIN_WAIT_MS = parseInt(process.env.DRAIN_WAIT_MS || '5000')
+
+    for (const s of servers) {
+        s.on('connection', (socket) => {
+            sockets.add(socket)
+            socket.on('close', () => sockets.delete(socket))
+        })
+        s.on('request', (_req, res) => {
+            if (state.draining) {
+                try {
+                    res.setHeader('Connection', 'close')
+                }
+                catch {
+                    // ignore error
+                }
+            }
+            state.inflight++
+            const done = () => {
+                res.removeListener('finish', done)
+                res.removeListener('close', done)
+                state.inflight = Math.max(0, state.inflight - 1)
+            }
+            res.on('finish', done); res.on('close', done)
+        })
+    }
+
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms))
+
+    function markNotReady (reason) {
+        if (state.draining) return false
+        state.draining = true
+        logger.info({ msg: 'graceful-shutdown:begin', data: { reason } })
+        return true
+    }
+
+    async function closeServersAndWait () {
+        for (const s of servers) {
+            try {
+                s.close()
+            } catch (e) {
+                logger.warn({ msg: 'server-close-failed', err: e })
+            }
+        }
+
+        const deadline = Date.now() + FORCE_TIMEOUT_MS
+        while (state.inflight > 0 && Date.now() < deadline) await sleep(250)
+
+        if (sockets.size) sockets.forEach(sock => {
+            try {
+                sock.destroy()
+            } catch {
+                // ignore error
+            }
+        })
+
+        try {
+            if (keystone?.disconnect) await Promise.race([keystone.disconnect(), sleep(3000)])
+        } catch (err) {
+            logger.error({ msg: 'keystone-disconnect-error', err })
+        }
+        logger.info({ msg: 'graceful-shutdown:done' })
+        process.exit(0)
+    }
+
+    async function onSignal (sig) {
+        const first = markNotReady(sig)
+        if (first && DRAIN_WAIT_MS > 0) await sleep(DRAIN_WAIT_MS)
+        await closeServersAndWait()
+    }
+
+    ['SIGTERM', 'SIGINT', 'SIGQUIT'].forEach(sig => process.on(sig, () => onSignal(sig)))
+}
+
+
 async function main () {
     const index = path.resolve('./index.js')
     const { keystone, app } = await prepareKeystoneExpressApp(index)
@@ -123,6 +203,8 @@ async function main () {
     } else if (IS_PRODUCTION) {
         logger.info({ msg: 'start', data: { PORT, SPORT, SERVER_URL } })
     }
+
+    setupGracefulShutdown({ app, keystone, httpServer, httpsServer })
 
     return { keystone, app, httpServer, httpsServer }
 }
