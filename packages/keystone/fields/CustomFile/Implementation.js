@@ -3,9 +3,18 @@ const { get, omit } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { validateFileUploadSignature } = require('@open-condo/files/utils')
-const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 
 const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
+
+const ERRORS = {
+    INTERNAL_ERROR: {
+        code: INTERNAL_ERROR,
+        type: 'FAILED_TO_ATTACH_FILE',
+        message: 'File service returned unexpected error during file verification process',
+    },
+}
+
 
 class CustomFile extends FileWithUTF8Name.implementation {
     constructor () {
@@ -13,7 +22,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         this.graphQLOutputType = 'File'
         this._fileSecret = conf['FILE_SECRET']
         this._fileClientId = conf['FILE_CLIENT_ID']
-        this._fileServiceUrl = conf['FILE_SERVICE_URL'] || '/api/files/attach'
+        this._fileServiceUrl = conf['FILE_SERVICE_URL'] || conf['SERVER_URL'] + '/api/files/attach'
         this._strictMode = conf['FILE_UPLOAD_STRICT_MODE'] || false
     }
 
@@ -163,15 +172,15 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
     async beforeChange ({ resolvedData, context, listKey }) {
         const key = `${listKey}.${this.path}`
-        const marker = context._fileNewFlow && context._fileNewFlow[key]
-        if (!marker) return
+        const hasFileInRequest = context._fileNewFlow && context._fileNewFlow[key]
+        if (!hasFileInRequest) return
 
         const payload = {
             id: resolvedData.id,
             modelName: listKey,
             signature: context._fileNewFlow[key].signature,
             fileClientId: this._fileClientId,
-            dv: 1, sender: { dv: 1, fingerprint: 'file-attach-handler' },
+            dv: 1, sender: resolvedData.sender,
         }
 
         let attachResult
@@ -183,14 +192,18 @@ class CustomFile extends FileWithUTF8Name.implementation {
                 body: JSON.stringify(payload),
             })
 
-            if (!res.ok) {
-                return
-            }
-
             attachResult = await res.json()
 
-            if (!get(attachResult, ['data', 'file', 'signature'], false)) {
-                return
+            if (!res.ok) {
+                if (attachResult?.errors && attachResult?.errors?.length > 0) {
+                    throw new GQLError({
+                        message: attachResult.errors[0].message,
+                        code: res.statusCode,
+                        type: attachResult.errors[0].extensions.type,
+                    }, context)
+                }
+
+                throw new GQLError(ERRORS.INTERNAL_ERROR, context)
             }
 
             attachResult = attachResult.data.file.signature
@@ -199,7 +212,11 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             resolvedData[this.path] = omit(data, ['iat', 'exp'])
         } catch (err) {
-            return
+            if (err instanceof GQLError) {
+                throw err
+            }
+
+            throw new GQLError(ERRORS.INTERNAL_ERROR, context)
         }
     }
 
