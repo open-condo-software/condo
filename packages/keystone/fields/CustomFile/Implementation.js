@@ -127,7 +127,14 @@ class CustomFile extends FileWithUTF8Name.implementation {
                 })
             }
 
-            validateFileUploadSignature(fileMeta)
+            const { success, error } = validateFileUploadSignature(fileMeta)
+
+            if (!success) {
+                throw new GQLError({
+                    code: 'BAD_USER_INPUT',
+                    type: 'WRONG_SIGNATURE',
+                }, context, error)
+            }
 
             // keep per-request state so afterChange knows to run the webhook
             if (!context._fileNewFlow) context._fileNewFlow = {}
