@@ -3,7 +3,7 @@ import {
     useUpdateContactMutation,
     GetContactByIdQuery,
 } from '@app/condo/gql'
-import { BuildingUnitSubType, Organization } from '@app/condo/schema'
+import { BuildingUnitSubType, Organization, CustomFieldModelNameType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -25,6 +25,7 @@ import { TicketCardList } from '@condo/domains/common/components/TicketCard/Tick
 import { PageComponentType } from '@condo/domains/common/types'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { prefetchContact } from '@condo/domains/contact/utils/next/Contact'
+import { useCustomValues } from '@condo/domains/miniapp/hooks/useCustomFields'
 
 
 const VALUE_FIELD_WRAPPER_STYLE = { width: '100%' }
@@ -47,6 +48,17 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     organizationPhonePrefix?: Organization['phoneNumberPrefix']
 }) => {
     const intl = useIntl()
+    
+    const {
+        loading: customValuesLoading,
+        error: customValuesError,
+        customValues,
+    } = useCustomValues({
+        modelName: CustomFieldModelNameType.Contact,
+        objectId: contact?.id || '',
+        skip: !contact?.id,
+    })
+    
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
@@ -131,8 +143,27 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                             fieldValue={hasResident ? ResidentRegistred : ResidentUnregistred}
                                         />
                                     }
+                                    {customValues && customValues.length > 0 && (
+                                        <>
+                                            {customValues
+                                                .sort((a, b) => (b.customField?.priority || 0) - (a.customField?.priority || 0))
+                                                .map((customValue) => (
+                                                    <FieldPairRow
+                                                        key={customValue.id}
+                                                        fieldTitle={customValue.customField?.name || ''}
+                                                        fieldValue={
+                                                            customValue.customField?.type === 'Json' 
+                                                                ? JSON.stringify(customValue.data)
+                                                                : String(customValue.data || '')
+                                                        }
+                                                    />
+                                                ))
+                                            }
+                                        </>
+                                    )}
                                 </Row>
                             </FrontLayerContainer>
+                            
                             {isContactEditable && breakpoints.DESKTOP_SMALL && (
                                 <Col span={16}>
                                     <ActionBar
