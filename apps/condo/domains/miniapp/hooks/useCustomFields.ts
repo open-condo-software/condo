@@ -26,7 +26,7 @@ export function useCustomValues ({
         skip: skip || !objectId,
     })
 
-	const customValues = data?.customValues || []
+    const customValues = data?.customValues || []
 
     return {
         loading,
