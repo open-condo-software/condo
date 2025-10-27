@@ -228,6 +228,7 @@ export const UserSettingsContent: React.FC = () => {
                                                         key='close'
                                                         type='primary'
                                                         size='large'
+                                                        id='spp-disable-user-request'
                                                         onClick={sendDisableSppRequest}
                                                     >
                                                         {SendDisableSPPRequestConfirmButtonText}
