@@ -6,6 +6,10 @@
   font-family: @condo-global-font-family-default;
 }
 
+// .condo-table-wrapper {
+
+// }
+
 .condo-table {
   box-sizing: border-box;
   width: 100%;
@@ -15,6 +19,19 @@
   border-collapse: separate;
   border-spacing: 0;
   overflow: auto;
+}
+
+.condo-table-thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  width: 100%;
+}
+
+.condo-table-tbody {
+  display: flex;
+  flex-direction: column;
 }
 
 .condo-table-loading {
@@ -42,19 +59,6 @@
   100% { transform: rotate(360deg); }
 }
 
-.condo-table-tbody {
-  display: flex;
-  flex-direction: column;
-}
-
-.condo-table-thead {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  width: 100%;
-}
-
 .condo-table-th-more-icon {
   display: flex;
   align-items: center;
@@ -67,7 +71,6 @@
   align-items: center;
   justify-content: stretch;
   position: relative;
-  flex: 1 1 auto;
   box-sizing: border-box;
   min-width: 60px;
   padding: 16px 12px;
@@ -75,18 +78,14 @@
   font-weight: 600;
   font-size: 12px;
   line-height: 24px;
-  letter-spacing: -0.01em;
   white-space: nowrap;
   text-overflow: ellipsis;
   background-color: @condo-global-color-white;
   border: none;
   border-bottom: 1px solid @condo-global-color-gray-5;
-  backface-visibility: hidden;
   cursor: pointer;
-  transition: all @condo-global-transition-duration-default ease;
   user-select: none;
-  will-change: width;
-  contain: layout;
+  overflow: auto;
 
   &:hover {
     background-color: @condo-global-color-gray-1;
@@ -108,10 +107,6 @@
 
   &.condo-table-th-active {
     background: @condo-global-color-gray-1;
-  }
-
-  &.condo-table-th-resizing {
-    transition: none; // Отключаем transition во время ресайза
   }
 
   &:first-child {
@@ -148,25 +143,39 @@
 
 .condo-table-th-resize-handle {
   position: absolute;
+  z-index: 100;
   top: 0;
   right: 0;
-  z-index: 1000;
   width: 4px;
   height: 100%;
-  overflow: visible;
   cursor: col-resize;
 
-  &:hover {
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    z-index: 1000;
+    right: 0;
+    width: 4px;
+    height: 100vh;
     background-color: @condo-global-color-green-5;
   }
 
-  &:active {
-    background-color: @condo-global-color-green-5;
-  }
+}
+
+// // Класс для активного состояния ресайза
+.condo-table-th-resizing .condo-table-th-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: var(--resize-line-position, 0);
+  width: 4px;
+  height: 100vh;
+  pointer-events: none;
+  background-color: @condo-global-color-green-5;
 }
 
 .condo-table-td {
-  flex: 1 1 0;
   box-sizing: border-box;
   min-width: 60px;
   padding: 16px 12px;
@@ -181,10 +190,6 @@
   text-overflow: ellipsis;
   border: none;
   border-bottom: 1px solid @condo-global-color-gray-5;
-  backface-visibility: hidden;
-  transition: all @condo-global-transition-duration-default ease;
-  will-change: width;
-  contain: layout;
 
   .condo-table-tr:last-child & {
     border-bottom: none;
