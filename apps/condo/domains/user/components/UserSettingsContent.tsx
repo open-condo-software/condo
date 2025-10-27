@@ -58,6 +58,7 @@ export const UserSettingsContent: React.FC = () => {
     const [showGlobalHints, setShowGlobalHints] = useState<boolean>(false)
     const [hasMarketingConsent, setMarketingConsent] = useState<boolean>(false)
     const [disableSPPConfirmModalShown, setDisableSPPConfirmModalShown] = useState<boolean>(false)
+    const [isSendingDisableSPPRequest, setIsSendingDisableSPPRequest] = useState<boolean>(false)
     const sppBillingId = sppConfig?.BillingIntegrationId || null
     const { organization } = useOrganization()
 
@@ -74,14 +75,26 @@ export const UserSettingsContent: React.FC = () => {
     }, { skip: !organization || !isSPPOrg || !sppBillingId })
 
     const createUserHelpRequestAction = UserHelpRequest.useCreate({
-        organization: { connect: { id: organization?.id } },
-        billingIntegration: { connect: { id: sppBillingId } },
         type: UserHelpRequestTypeType.IntegrationSetup,
     }, () => userHelpRequestRefetch())
 
     const sendDisableSppRequest = useCallback(async () => {
         if (!organization?.id || !user?.phone || !sppBillingId) return
-        await createUserHelpRequestAction({ phone: user.phone, email: user?.email ?? null })
+        setIsSendingDisableSPPRequest(true)
+        const createInput = {
+            organization: { connect: { id: organization?.id } },
+            billingIntegration: { connect: { id: sppBillingId } },
+            phone: user.phone,
+            email: user?.email ?? null,
+        }
+        try {
+            await createUserHelpRequestAction(createInput)
+            setDisableSPPConfirmModalShown(false)
+        } catch (e) {
+            console.error('Failed to send disable SPP request', e)
+        } finally {
+            setIsSendingDisableSPPRequest(false)
+        }
         setDisableSPPConfirmModalShown(false)
     }, [organization?.id, user.phone, user?.email, sppBillingId, createUserHelpRequestAction])
 
@@ -226,6 +239,8 @@ export const UserSettingsContent: React.FC = () => {
                                                         size='large'
                                                         id='spp-disable-user-request'
                                                         onClick={sendDisableSppRequest}
+                                                        loading={isSendingDisableSPPRequest}
+                                                        disabled={isSendingDisableSPPRequest}
                                                     >
                                                         {SendDisableSPPRequestConfirmButtonText}
                                                     </Button>,
