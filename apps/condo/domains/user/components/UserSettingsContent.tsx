@@ -1,4 +1,5 @@
 import { useUpdateUserMutation } from '@app/condo/gql'
+import { UserHelpRequestTypeType } from '@app/condo/schema'
 import { Col, Row, Switch } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { SwitchChangeEventHandler } from 'antd/lib/switch'
@@ -7,11 +8,18 @@ import isBoolean from 'lodash/isBoolean'
 import getConfig from 'next/config'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Info } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
-import { Select, Tooltip, Typography } from '@open-condo/ui'
+import { useOrganization } from '@open-condo/next/organization'
+import { Button, Modal, Select, Tooltip, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/colors'
+
+import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
+import { UserHelpRequest } from '@condo/domains/onboarding/utils/clientSchema'
 
 
 const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
@@ -21,6 +29,7 @@ const ROW_GUTTER_SMALL: [Gutter, Gutter] = [0, 24]
 const {
     publicRuntimeConfig: {
         telegramEmployeeBotName,
+        sppConfig,
     },
 } = getConfig()
 
@@ -36,6 +45,12 @@ export const UserSettingsContent: React.FC = () => {
     const CompanyName = intl.formatMessage({ id: 'CompanyName' })
     const HasMarketingConsentTitle = intl.formatMessage({ id: 'pages.condo.profile.hasMarketingConsent' }, { company: CompanyName })
     const DisabledHasMarketingConsentTooltip = intl.formatMessage({ id: 'pages.condo.profile.hasMarketingConsent.disabled.tooltip' })
+    const DisableSppTitle = intl.formatMessage({ id: 'pages.condo.profile.disableSppTitle' })
+    const DisableSPPRequestSentTitle = intl.formatMessage({ id: 'pages.condo.profile.disableSPPRequestSentTitle' })
+    const SendDisableSPPRequestTitle = intl.formatMessage({ id: 'pages.condo.profile.sendDisableSPPRequestTitle' })
+    const SendDisableSPPRequestModalTitle = intl.formatMessage({ id: 'pages.condo.profile.sendDisableSPPRequestModalTitle' })
+    const SendDisableSPPRequestModalMessage = intl.formatMessage({ id: 'pages.condo.profile.sendDisableSPPRequestModalMessage' })
+    const SendDisableSPPRequestConfirmButtonText = intl.formatMessage({ id: 'pages.condo.profile.sendDisableSPPRequestConfirmButtonText' })
 
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
@@ -43,8 +58,36 @@ export const UserSettingsContent: React.FC = () => {
 
     const [showGlobalHints, setShowGlobalHints] = useState<boolean>(false)
     const [hasMarketingConsent, setMarketingConsent] = useState<boolean>(false)
+    const [disableSPPConfirmModalShown, setDisableSPPConfirmModalShown] = useState<boolean>(false)
+    const sppBillingId = sppConfig?.BillingIntegrationId || null
+    const { organization } = useOrganization()
 
     const { user, refetch } = useAuth()
+    const { useFlag } = useFeatureFlags()
+    const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
+    const { objs: userHelpRequests, refetch: userHelpRequestRefetch, loading: userHelpRequestsLoading } = UserHelpRequest.useObjects({
+        where: {
+            organization: { id: organization.id },
+            billingIntegration: { id: sppBillingId },
+            type: UserHelpRequestTypeType.IntegrationSetup,
+        },
+        first: 1,
+    }, { skip: !organization || !isSPPOrg || !sppBillingId })
+
+    const createUserHelpRequestAction = UserHelpRequest.useCreate({
+        organization: { connect: { id: organization.id } },
+        billingIntegration: { connect: { id: sppBillingId } },
+        type: UserHelpRequestTypeType.IntegrationSetup,
+    }, () => userHelpRequestRefetch())
+
+    const sendDisableSppRequest = useCallback(async () => {
+        const createInput = { phone: user.phone, email: null }
+        if (user.email) {
+            createInput.email = user.email
+        }
+        await createUserHelpRequestAction(createInput)
+        setDisableSPPConfirmModalShown(false)
+    }, [createUserHelpRequestAction, setDisableSPPConfirmModalShown, user])
 
     const [updateUser] = useUpdateUserMutation()
 
@@ -156,7 +199,48 @@ export const UserSettingsContent: React.FC = () => {
                                             </Col>
                                         </Row>
                                     </Col>
-
+                                    { isSPPOrg && !userHelpRequestsLoading
+                                        ? <>
+                                            <Col span={24}>
+                                                <Row gutter={ROW_GUTTER_MID} align='middle'>
+                                                    <Col lg={5} xs={10}>
+                                                        <Typography.Text type='secondary'>
+                                                            {DisableSppTitle}
+                                                        </Typography.Text>
+                                                    </Col>
+                                                    <Col lg={5} offset={1}>
+                                                        {
+                                                            userHelpRequests.length
+                                                                ? <Typography.Text type='warning'>{DisableSPPRequestSentTitle}</Typography.Text>
+                                                                : <Typography.Link onClick={() => setDisableSPPConfirmModalShown(true)}>
+                                                                    {SendDisableSPPRequestTitle}
+                                                                </Typography.Link>
+                                                        }
+                                                    </Col>
+                                                </Row>
+                                            </Col>
+                                            <Modal
+                                                open={disableSPPConfirmModalShown}
+                                                onCancel={() => setDisableSPPConfirmModalShown(false)}
+                                                title={SendDisableSPPRequestModalTitle}
+                                                footer={[
+                                                    <Button
+                                                        key='close'
+                                                        type='primary'
+                                                        size='large'
+                                                        onClick={sendDisableSppRequest}
+                                                    >
+                                                        {SendDisableSPPRequestConfirmButtonText}
+                                                    </Button>,
+                                                ]}
+                                            >
+                                                <Typography.Paragraph type='secondary'>
+                                                    {SendDisableSPPRequestModalMessage}
+                                                </Typography.Paragraph>
+                                            </Modal>
+                                        </>
+                                        : null
+                                    }
                                     <Col span={24}>
                                         <Row gutter={ROW_GUTTER_SMALL} align='middle'>
                                             <Col lg={5} xs={10}>
