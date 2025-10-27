@@ -16,7 +16,6 @@ import { useAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Select, Tooltip, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/colors'
 
 import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
 import { UserHelpRequest } from '@condo/domains/onboarding/utils/clientSchema'
