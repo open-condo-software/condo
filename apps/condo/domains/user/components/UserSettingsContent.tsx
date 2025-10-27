@@ -95,8 +95,7 @@ export const UserSettingsContent: React.FC = () => {
         } finally {
             setIsSendingDisableSPPRequest(false)
         }
-        setDisableSPPConfirmModalShown(false)
-    }, [organization?.id, user.phone, user?.email, sppBillingId, createUserHelpRequestAction])
+    }, [organization?.id, user?.phone, user?.email, sppBillingId, createUserHelpRequestAction])
 
     const [updateUser] = useUpdateUserMutation()
 
