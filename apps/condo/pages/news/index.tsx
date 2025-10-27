@@ -9,7 +9,15 @@ import { useCallback, useMemo } from 'react'
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, ActionBarProps, Button, Typography, Table as OpenTable } from '@open-condo/ui'
+import { 
+    ActionBar, 
+    ActionBarProps, 
+    Button, 
+    Typography, 
+    Table as OpenTable, 
+    TableState, 
+    TableColumnMenuLabels,
+} from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -56,7 +64,7 @@ const OpenTableContainer = ({
 
     const { canManage } = useNewsItemsAccess()
 
-    const { count: total, refetch } = NewsItem.useObjects({})
+    const { refetch } = NewsItem.useObjects({})
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
 
@@ -66,28 +74,34 @@ const OpenTableContainer = ({
         }, 3000)
     }, [refetch])
 
-    const dataSource = useCallback(async ({ request, success, fail }) => {
+    const dataSource = useCallback(async ({ filterState, sortState, startRow, endRow }: TableState) => {
+        const querySorts = sortState.map((column) => ({
+            columnKey: column.id,
+            order: column.desc ? 'descend' : 'ascend' as 'descend' | 'ascend',
+        }))
         try {
-            const sortBy = sortersToSortBy(request.sortModel, NEWS_DEFAULT_SORT_BY)
-            const where = filtersToWhere({ ...request.filterModel, search, ...baseNewsQuery })
+            const sortBy = sortersToSortBy(querySorts, NEWS_DEFAULT_SORT_BY)
+            const where = filtersToWhere({ ...filterState, search, ...baseNewsQuery })
             const { data } = await debouncedRefetch({
                 sortBy,
                 where,
-                first: DEFAULT_PAGE_SIZE,
-                skip: request.endRow - DEFAULT_PAGE_SIZE,
+                first: endRow - startRow,
+                skip: endRow,
             })
 
-            success({ rowData: data?.objs ?? [], rowCount: data?.meta?.count })
+            return { rowData: data?.objs ?? [], rowCount: data?.meta?.count }
         } catch (e) {
-            fail()
+            return { rowData: [], rowCount: 0 }
         }
     }, [sortersToSortBy, filtersToWhere, search, debouncedRefetch, baseNewsQuery])
 
-    const columnMenuLabels = {
-        sortLabel: SortLabel,
+    const columnMenuLabels: TableColumnMenuLabels = {
+        sortDescLabel: SortLabel,
+        sortAscLabel: SortLabel,
         filterLabel: FilterLabel,
         settingsLabel: SettingsLabel,
-        sortedLabel: SortedLabel,
+        sortedDescLabel: SortedLabel,
+        sortedAscLabel: SortedLabel,
         filteredLabel: FilteredLabel,
         settedLabel: SettedLabel,
     }
@@ -115,17 +129,19 @@ const OpenTableContainer = ({
                 <Col span={24}>
                     <OpenTable
                         dataSource={dataSource}
-                        // @ts-ignore
                         columns={columns}
-                        totalRows={total}
                         pageSize={DEFAULT_PAGE_SIZE}
-                        syncUrlConfig={{
-                            parseUrlCallback: () => ({ filterModel: {}, startRow: 0, sortModel: [], endRow: 0 }),
-                            updateUrlCallback: (params) => console.log('params', params),
+                        onTableStateChange={(tableState) => {
+                            console.log('tableState', tableState)
+                        }}
+                        initialTableState={{
+                            filterState: {}, 
+                            startRow: 0, 
+                            sortState: [], 
+                            endRow: 0,
                         }}
                         columnMenuLabels={columnMenuLabels}
                         id='open-table'
-                        loading={loading}
                         onRowClick={handleRowAction}
                     />
                 </Col>

@@ -2,7 +2,7 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 
-import { TableParamsRequest } from '../types'
+import { TableState } from '@open-condo/ui/src/components/Table/types'
 
 export type QueryArgType = string | Array<string>
 export type FiltersFromQueryType = { [key: string]: QueryArgType }
@@ -99,7 +99,7 @@ export const getPageIndexFromStartRow = (startRow: number, pageSize: number): nu
     return Math.floor(startRow / pageSize)
 }
 
-export const defaultParseUrlQuery = (pageSize: number): TableParamsRequest => {
+export const defaultParseUrlQuery = (pageSize: number): TableState => {
     const query = parseUrlQuery()
     
     const filters = getFiltersFromQuery(query)
@@ -111,8 +111,8 @@ export const defaultParseUrlQuery = (pageSize: number): TableParamsRequest => {
     const newStartRow = pageIndex * pageSize
 
     return { 
-        filterModel: filters, 
-        sortModel: sorters.map(sorter => ({
+        filterState: filters, 
+        sortState: sorters.map(sorter => ({
             id: sorter.columnKey,
             desc: sorter.order === 'descend',
         })), 
@@ -153,8 +153,8 @@ export const updateUrl = (
     }
 }
 
-export const defaultUpdateUrlCallback = (params: TableParamsRequest) => {
-    const { startRow, filterModel, sortModel } = params
+export const defaultUpdateUrlCallback = (params: TableState) => {
+    const { startRow, filterState, sortState } = params
 
     let newOffset
     if (startRow !== undefined && startRow > 0) {
@@ -164,15 +164,15 @@ export const defaultUpdateUrlCallback = (params: TableParamsRequest) => {
     }
 
     let newFilters
-    if (filterModel && Object.keys(filterModel).length > 0) {
-        newFilters = { ...filterModel }
+    if (filterState && Object.keys(filterState).length > 0) {
+        newFilters = { ...filterState }
     } else {
         newFilters = null
     }
 
     let newSorters
-    if (sortModel && sortModel.length > 0) {
-        const sorter = sortModel[0]
+    if (sortState && sortState.length > 0) {
+        const sorter = sortState[0]
         if (sorter) {
             const order = sorter.desc ? 'descend' : 'ascend'
             newSorters = `${sorter.id}_${FULL_TO_SHORT_ORDERS_MAP[order]}`

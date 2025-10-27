@@ -65,7 +65,7 @@ export function TableHeader <TData extends RowData = RowData> ({
                             points: ['cl', 'cr'],
                             offset: [8, 0],
                         }}
-                        dropdownRender={filterComponent ? (originNode) => (
+                        dropdownRender={filterComponent ? () => (
                             <div onClick={(e) => e.stopPropagation()}>
                                 {filterComponent({ 
                                     setFilterValue: header.column.setFilterValue, 
@@ -93,7 +93,7 @@ export function TableHeader <TData extends RowData = RowData> ({
                         points: ['cl', 'cr'],
                         offset: [8, 0],
                     }}
-                    dropdownRender={(originNode) => (
+                    dropdownRender={() => (
                         <div onClick={(e) => e.stopPropagation()}>
                             {renderColumnSettings()}
                         </div>
@@ -126,7 +126,7 @@ export function TableHeader <TData extends RowData = RowData> ({
     // В TableHeader компоненте
     useEffect(() => {
         const syncWidths = () => {
-            headerGroup.headers.forEach((header, index) => {
+            headerGroup.headers.forEach((header) => {
                 const thElement = document.querySelector(`[data-header-id="${header.id}"]`)
                 if (thElement) {
                     const actualWidth = (thElement as HTMLElement).getBoundingClientRect().width as number

@@ -128,7 +128,7 @@ const columns: TableColumn<TableData>[] = [
     {
         // How we can add sorting for this column? 
         dataKey: (row) => row.organization?.name,
-        header: 'Organization Name',
+        header: (table) => <span>{table.getColumn('organization.name')?.columnDef?.id}</span>,
         id: 'organization.name',
         render: (_, record) => <span>{record.organization?.name ? String(record.organization.name) : '—'}</span>,
     },

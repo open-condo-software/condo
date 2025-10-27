@@ -13,7 +13,7 @@ import {
 } from '@tanstack/react-table'
 import React, { forwardRef, useImperativeHandle, useMemo, useState, useEffect } from 'react'
 
-import { Checkbox } from '@open-condo/ui'
+import { Checkbox } from '@open-condo/ui/src'
 import { TableBody } from '@open-condo/ui/src/components/Table/components/TableBody'
 import { TableHeader } from '@open-condo/ui/src/components/Table/components/TableHeader'
 import { TablePagination } from '@open-condo/ui/src/components/Table/components/TablePagination'
@@ -52,7 +52,7 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
     const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
     const [tableData, setTableData] = useState<TData[]>([])
     const [rowCount, setRowCount] = useState<number>(0)
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>(initialTableState.rowSelection)
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>(initialTableState.rowSelection || {})
     const [internalLoading, setInternalLoading] = useState<boolean>(true)
 
     useImperativeHandle(ref, () => {
@@ -213,7 +213,7 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
                 id: c.id,
                 header: typeof c.header === 'string' ? c.header : (info: HeaderContext<TData, unknown>) => {
                     if (typeof c.header === 'function') {
-                        return c.header(info)
+                        return c.header(info.table)
                     }
                     return c.header
                 },
@@ -234,7 +234,7 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
             resultColumns.push({
                 id: COLUMN_ID_SELECTION,
                 dataKey: COLUMN_ID_SELECTION,
-                header: ({ table }) => (
+                header: (table) => (
                     <Checkbox
                         checked={table.getIsAllRowsSelected()}
                         indeterminate={table.getIsSomeRowsSelected()}

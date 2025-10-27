@@ -2,7 +2,7 @@ import { Table, flexRender, RowData } from '@tanstack/react-table'
 import React, { useCallback } from 'react'
 
 import { Inbox } from '@open-condo/icons'
-import { colors } from '@open-condo/ui/colors'
+import { colors } from '@open-condo/ui/src/colors'
 
 export function TableBody <TData extends RowData = RowData> ({ 
     table, 
