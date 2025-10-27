@@ -13,12 +13,12 @@
 .condo-table {
   box-sizing: border-box;
   width: 100%;
+  overflow: auto;
   background-color: @condo-global-color-white;
   border: 1px solid @condo-global-color-gray-5;
   border-radius: @condo-global-border-radius-large;
   border-collapse: separate;
   border-spacing: 0;
-  overflow: auto;
 }
 
 .condo-table-thead {
@@ -67,13 +67,14 @@
 }
 
 .condo-table-th {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: stretch;
-  position: relative;
   box-sizing: border-box;
   min-width: 60px;
   padding: 16px 12px;
+  overflow: auto;
   color: @condo-global-color-gray-7;
   font-weight: 600;
   font-size: 12px;
@@ -85,7 +86,6 @@
   border-bottom: 1px solid @condo-global-color-gray-5;
   cursor: pointer;
   user-select: none;
-  overflow: auto;
 
   &:hover {
     background-color: @condo-global-color-gray-1;
@@ -121,8 +121,8 @@
 
 .condo-table-th-content {
   display: flex;
-  gap: 8px;
   flex: 1 1 auto;
+  gap: 8px;
   align-items: center;
   justify-content: space-between;
 }
@@ -143,44 +143,46 @@
 
 .condo-table-th-resize-handle {
   position: absolute;
-  z-index: 100;
   top: 0;
   right: 0;
+  z-index: 100;
   width: 4px;
   height: 100%;
   cursor: col-resize;
 
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    z-index: 1000;
-    right: 0;
-    width: 4px;
-    height: 100vh;
+  &:hover {
     background-color: @condo-global-color-green-5;
   }
 
+  &::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1000;
+    width: 4px;
+    height: 100vh;
+    content: "";
+  }
 }
 
 // // Класс для активного состояния ресайза
 .condo-table-th-resizing .condo-table-th-resize-handle::after {
-  content: '';
   position: absolute;
   top: 0;
   right: var(--resize-line-position, 0);
   width: 4px;
   height: 100vh;
-  pointer-events: none;
   background-color: @condo-global-color-green-5;
+  content: "";
+  pointer-events: none;
 }
 
 .condo-table-td {
+  display: flex;
+  align-items: center;
   box-sizing: border-box;
   min-width: 60px;
   padding: 16px 12px;
-  display: flex;
-  align-items: center;
   overflow: hidden;
   color: @condo-global-color-black;
   font-size: 14px;
