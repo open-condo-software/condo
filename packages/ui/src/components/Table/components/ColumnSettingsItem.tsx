@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { RowData } from '@tanstack/react-table'
+import { RowData, Table } from '@tanstack/react-table'
 import React from 'react'
 
 import { GripHorizontal } from '@open-condo/icons'
@@ -10,7 +10,7 @@ import type { TableColumn } from '../types'
 
 interface ColumnSettingsItemProps<TData extends RowData = RowData> {
     column: TableColumn<TData>
-    table,
+    table: Table<TData>
     isVisible: boolean
     isLastVisibleColumn: boolean
     onToggleVisibility: (checked: boolean) => void
@@ -90,7 +90,7 @@ export const ColumnSettingsItem = <TData extends RowData = RowData> ({
                     <GripHorizontal size='small'/>
                 </div>
                 <Typography.Text type='primary' size='medium'>
-                    {typeof column.header === 'string' ? column.header : typeof column.header === 'function' ? column.header({ table }) : ''}
+                    {typeof column.header === 'string' ? column.header : typeof column.header === 'function' ? column.header(table) : ''}
                 </Typography.Text>
             </Space>
         </div>

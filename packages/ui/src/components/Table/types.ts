@@ -1,9 +1,9 @@
-import { RowData, AccessorFn, SortingState, RowSelectionState, HeaderContext } from '@tanstack/react-table'
+import { RowData, AccessorFn, SortingState, RowSelectionState, Table } from '@tanstack/react-table'
 
 export type ColumnSettings = {
     visibility: boolean
     order: number
-    size: number
+    size?: number
 }
 
 // How we store table settings in iframe?
@@ -14,7 +14,6 @@ export type TableColumnMenuLabels = {
     sortAscLabel?: string
     filterLabel?: string
     settingsLabel?: string
-    sortedLabel?: string
     sortedDescLabel?: string
     sortedAscLabel?: string
     filteredLabel?: string
@@ -47,8 +46,8 @@ export type TableColumnMeta = {
 
 export type TableColumn<TData extends RowData = RowData> = {
     id: string
-    header: string | ((headerContext: HeaderContext<TData, unknown>) => React.ReactNode)
-    dataKey: AccessorFn<TData> | string
+    header: string | ((table: Table<TData>) => React.ReactNode)
+    dataKey: string | AccessorFn<TData>
     render?: (value: unknown, record: TData, index: number) => React.ReactNode
     filterComponent?: FilterComponent
     enableSorting?: boolean
@@ -70,7 +69,7 @@ export type FilterState = {
 }
 
 export type FullTableState = TableState & {
-    rowSelection: RowSelectionState
+    rowSelection?: RowSelectionState
 }
 
 export type TableApi = {
