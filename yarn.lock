@@ -5,6 +5,12 @@ __metadata:
   version: 6
   cacheKey: 8
 
+"@accruals-gateway/domains@link:./domains::locator=%40app%2Faccruals-gateway%40workspace%3Aapps%2Faccruals-gateway":
+  version: 0.0.0-use.local
+  resolution: "@accruals-gateway/domains@link:./domains::locator=%40app%2Faccruals-gateway%40workspace%3Aapps%2Faccruals-gateway"
+  languageName: node
+  linkType: soft
+
 "@address-service/domains@link:./domains::locator=%40app%2Faddress-service%40workspace%3Aapps%2Faddress-service":
   version: 0.0.0-use.local
   resolution: "@address-service/domains@link:./domains::locator=%40app%2Faddress-service%40workspace%3Aapps%2Faddress-service"
