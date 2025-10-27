@@ -315,7 +315,7 @@ function parserHandler ({ processRequestOptions } = {}) {
             })
 
             req[fileMetaSymbol] = meta
-            req.inlineAttach = inlineAttach // << NEW
+            req.inlineAttach = inlineAttach
             next()
         })
     }
