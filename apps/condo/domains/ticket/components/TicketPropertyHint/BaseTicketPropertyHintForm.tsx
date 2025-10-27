@@ -141,7 +141,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
 
     const [editorValue, setEditorValue] = useState(initialContent)
     const [editorLoading, setEditorLoading] = useState(true)
-    const [editorFailed, setEditorFailed] = useState(false)
+    const [editorFailed, setEditorFailed] = useState(!TinyMceApiKey)
     const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     const { objs: organizationTicketPropertyHintProperties, loading: organizationTicketPropertyHintPropertiesLoading } =
@@ -201,6 +201,11 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
     }, [])
 
     useEffect(() => {
+        if (!TinyMceApiKey) {
+            setEditorLoading(false)
+            return
+        }
+
         timeoutRef.current = setTimeout(() => {
             setEditorFailed(true)
             setEditorLoading(false)
