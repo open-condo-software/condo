@@ -1,13 +1,14 @@
 import { Editor } from '@tinymce/tinymce-react'
-import { Alert, Col, Form, Input, Row, Typography } from 'antd'
+import { Alert, Col, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get, isEmpty } from 'lodash'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import qs from 'qs'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Input } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -140,6 +141,8 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
 
     const [editorValue, setEditorValue] = useState(initialContent)
     const [editorLoading, setEditorLoading] = useState(true)
+    const [editorFailed, setEditorFailed] = useState(!TinyMceApiKey)
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     const { objs: organizationTicketPropertyHintProperties, loading: organizationTicketPropertyHintPropertiesLoading } =
         TicketPropertyHintProperty.useAllObjects({
@@ -180,7 +183,40 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
         form.setFieldsValue({ content: newValue })
     }, [])
 
-    const handleEditorLoad = useCallback(() => setEditorLoading(false), [])
+    const handleEditorLoad = useCallback(() => {
+        setEditorLoading(false)
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current)
+            timeoutRef.current = null
+        }
+    }, [])
+
+    const handleEditorError = useCallback(() => {
+        setEditorFailed(true)
+        setEditorLoading(false)
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current)
+            timeoutRef.current = null
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!TinyMceApiKey) {
+            setEditorLoading(false)
+            return
+        }
+
+        timeoutRef.current = setTimeout(() => {
+            setEditorFailed(true)
+            setEditorLoading(false)
+        }, 10 * 1000)
+
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current)
+            }
+        }
+    }, [])
 
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, ...otherValues } = values
@@ -294,16 +330,38 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                         />
                                     </Col>
                                     <Col span={14}>
-                                        {editorLoading && <Loader />}
-                                        <Editor
-                                            onLoadContent={handleEditorLoad}
-                                            apiKey={TinyMceApiKey}
-                                            disabled={!organizationId}
-                                            value={editorValue}
-                                            onEditorChange={(newValue) => handleEditorChange(newValue, form)}
-                                            initialValue={initialContent}
-                                            init={editorInitValues}
-                                        />
+                                        {editorLoading && !editorFailed && <Loader />}
+                                        {editorFailed ? (
+                                            <Form.Item
+                                                name='content'
+                                                noStyle
+                                            >
+                                                <Input.TextArea
+                                                    disabled={!organizationId}
+                                                    value={editorValue}
+                                                    onChange={(e) => handleEditorChange(e.target.value, form)}
+                                                    placeholder={HintMessage}
+                                                    showCount={false}
+                                                />
+                                            </Form.Item>
+                                        ) : (
+                                            <Editor
+                                                onLoadContent={handleEditorLoad}
+                                                onInit={() => {
+                                                    try {
+                                                        handleEditorLoad()
+                                                    } catch (error) {
+                                                        handleEditorError()
+                                                    }
+                                                }}
+                                                apiKey={TinyMceApiKey}
+                                                disabled={!organizationId}
+                                                value={editorValue}
+                                                onEditorChange={(newValue) => handleEditorChange(newValue, form)}
+                                                initialValue={initialContent}
+                                                init={editorInitValues}
+                                            />
+                                        )}
                                     </Col>
                                 </Row>
                             </Col>
