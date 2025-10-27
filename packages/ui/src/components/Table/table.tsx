@@ -67,20 +67,8 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
                     return null
                 }).filter(Boolean)] as ColumnFiltersState)
             },
-            // setColumnFilter: (columnId: string, value: unknown) => {
-            //     console.log('columnId', columnId)
-            //     console.log('value', value)
-            //     setColumnFilters((prev) => {
-            //         console.log('prev', prev)
-            //         console.log('123', prev.map(filter => filter.id === columnId ? value === '' ? undefined : { id: filter.id, value: value } : filter))
-            //         return prev.map(filter => filter.id === columnId ? value === '' ? undefined : { id: filter.id, value: value } : filter) as ColumnFiltersState
-            //     })
-            // },
             setColumnFilter: (columnId: string, value: unknown) => {
-                console.log('columnId', columnId)
-                console.log('value', value)
                 setColumnFilters((prev) => {
-                    console.log('prev', prev)
                     // Если значение пустое, удаляем фильтр, иначе обновляем/добавляем
                     if (value === '' || value === null || value === undefined) {
                         return prev.filter(filter => filter.id !== columnId)
@@ -331,29 +319,32 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
 
     return (
         <div className='condo-table-container'>
-            <div className='condo-table'>
-                {table.getHeaderGroups().map(headerGroup => (
-                    <TableHeader<TData>
-                        key={headerGroup.id}
-                        headerGroup={headerGroup}
-                        columns={orderedColumns}
-                        columnMenuLabels={columnMenuLabels}
-                        table={table}
-                    />
-                ))}
-                {
-                    // We need external loading props? 
-                    // loading ? (<div className='condo-table-loading' />) : 
-                    <TableBody<TData> 
-                        table={table} 
-                        onRowClick={onRowClick} 
-                        showSkeleton={internalLoading}
-                    />
-                }
+            <div className='condo-table-wrapper'>
+                <div className='condo-table'>
+                    {table.getHeaderGroups().map(headerGroup => (
+                        <TableHeader<TData>
+                            key={headerGroup.id}
+                            headerGroup={headerGroup}
+                            columns={orderedColumns}
+                            columnMenuLabels={columnMenuLabels}
+                            table={table}
+                        />
+                    ))}
+                    {
+                        // We need external loading props? 
+                        // loading ? (<div className='condo-table-loading' />) : 
+                        <TableBody<TData> 
+                            table={table} 
+                            onRowClick={onRowClick} 
+                            showSkeleton={internalLoading}
+                        />
+                    }
+                </div>
+                {table.getPageCount() > 0 && (
+                    <TablePagination<TData> table={table} />
+                )}
             </div>
-            {table.getPageCount() > 0 && (
-                <TablePagination<TData> table={table} />
-            )}
         </div>
+        
     )
 })
