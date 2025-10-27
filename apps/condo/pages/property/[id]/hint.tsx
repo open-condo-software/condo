@@ -1,4 +1,4 @@
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import Head from 'next/head'
@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'

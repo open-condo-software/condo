@@ -13,7 +13,7 @@ import {
     TicketAutoAssignmentUpdateInput as ITicketAutoAssignmentUpdateInput,
     TicketClassifier as ITicketClassifier,
 } from '@app/condo/schema'
-import { Button, Col, Form, Popconfirm, Row, Select, Table, Typography, notification } from 'antd'
+import { Button, Col, Form, Popconfirm, Row, Select, Table, notification } from 'antd'
 import { FormItemProps } from 'antd/lib/form/FormItem'
 import { gql } from 'graphql-tag'
 import chunk from 'lodash/chunk'
@@ -27,6 +27,7 @@ import { useQuery, useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Typography } from '@open-condo/ui'
 
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'

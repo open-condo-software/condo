@@ -9,7 +9,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button, RadioGroup, RadioGroupProps, Tabs, Radio } from '@open-condo/ui'
+import { Button, RadioGroupProps, Radio } from '@open-condo/ui'
 
 import { CardVideo } from '@condo/domains/common/components/CardVideo'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
@@ -273,28 +273,24 @@ export const BuildingViewModeSelect: React.FC<RadioGroupProps> = (props) => {
     const ResidentialBuildingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.residentialBuilding' })
 
     return (
-        <Tabs
-            tabBarExtraContent={
-                <RadioGroup 
-                    optionType='button' 
-                    value={value} 
-                    onChange={onChange} 
-                    defaultValue={MapViewMode.section}
-                    disabled={disabled}
-                >
-                    <Radio
-                        key={MapViewMode.section}
-                        value={MapViewMode.section}
-                        label={ResidentialBuildingLabel}
-                    />
-                    <Radio
-                        key={MapViewMode.parking}
-                        value={MapViewMode.parking}
-                        label={ParkingBuildingLabel}
-                    />
-                </RadioGroup>
-            }
-        />
+        <Radio.Group 
+            optionType='button' 
+            value={value} 
+            onChange={onChange} 
+            defaultValue={MapViewMode.section}
+            disabled={disabled}
+        >
+            <Radio
+                key={MapViewMode.section}
+                value={MapViewMode.section}
+                label={ResidentialBuildingLabel}
+            />
+            <Radio
+                key={MapViewMode.parking}
+                value={MapViewMode.parking}
+                label={ParkingBuildingLabel}
+            />
+        </Radio.Group>
     )
 }
 

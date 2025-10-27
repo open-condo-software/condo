@@ -1,15 +1,19 @@
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { 
+    ActionBar, 
+    Button,
+    Typography,
+} from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import {
@@ -35,7 +39,6 @@ import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Rende
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
-const PARAGRAPH_STYLES: CSSProperties = { margin: 0 }
 
 const PropertyScopeIdPage: PageComponentType = () => {
     const intl = useIntl()
@@ -101,10 +104,7 @@ const PropertyScopeIdPage: PageComponentType = () => {
             const propertyMessage = getAddressRender(property, null, DeletedMessage)
 
             return (
-                <Typography.Paragraph
-                    key={property.id}
-                    style={PARAGRAPH_STYLES}
-                >
+                <Typography.Paragraph key={property.id}>
                     {
                         isDeleted ? (
                             <>
@@ -132,10 +132,7 @@ const PropertyScopeIdPage: PageComponentType = () => {
             const { SpecializationsMessage } = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
 
             return (
-                <Typography.Paragraph
-                    key={employee.id}
-                    style={PARAGRAPH_STYLES}
-                >
+                <Typography.Paragraph key={employee.id}>
                     <Typography.Link
                         href={`/employee/${get(employee, 'id')}`}
                     >

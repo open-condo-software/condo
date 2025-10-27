@@ -1,4 +1,5 @@
 /* Side-menu */
+
 .menu.desktop-menu {
   position: fixed;
   z-index: 10;
@@ -77,6 +78,21 @@
 }
 
 /* Header */
+
+.desktop-header {
+  z-index: 9;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 1600px;
+  height: 84px;
+  padding: 24px 40px 12px;
+  line-height: 1.5;
+  background: var(--condo-global-color-white);
+}
+
+
 .desktop-header .top-menu-items {
   margin-left: auto;
 }
@@ -115,6 +131,12 @@
 }
 
 .organization-dropdown.ant-dropdown-open .arrow-icon {
+  transform: rotate(180deg);
+  overflow-y: auto;
+}
+
+.organization-dropdown-overlay .ant-dropdown-menu {
+  max-height: 360px;
   overflow-y: auto;
 }
 
@@ -148,6 +170,7 @@
 }
 
 /* Appeals special button */
+
 .mobile-header .organization-user-block .organization-selector .condo-typography {
   max-width: 100px;
 }
@@ -155,11 +178,13 @@
 /* Notifications */
 
 /* Note: all notifications must be below modal */
+
 .ant-notification {
   z-index: 999;
 }
 
 /* Button */
+
 .condo-btn.condo-btn-sbbol {
   border-color: var(--condo-global-color-teal-5);
 }
@@ -185,8 +210,53 @@
 }
 
 /* Property map */
+
 .add-element-dropdown > .condo-dropdown-menu {
   max-height: 100vh;
+}
+
+.add-element-dropdown > .condo-dropdown-menu .condo-dropdown-menu-title-content > .condo-space {
+  align-items: center;
+}
+
+.map-edit-address-container .condo-select > .condo-select-selector {
+  background-color: transparent;
+}
+
+.property-map-container {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.property-map-scroll-holder {
+  position: static;
+  padding-bottom: 10px;
+  white-space: nowrap;
+}
+
+.property-map-scroll-container {
+  width: 100%;
+  padding-bottom: 20px;
+  overflow-y: hidden;
+}
+
+.unit-button-tooltip-wrapper {
+  display: inline-flex;
+  margin-right: 8px;
+}
+
+.property-map-floor-container {
+  display: block;
+}
+
+.property-map-unit-type-row {
+  padding-left: 8px;
+}
+
+.property-map-fullscreen-header {
+  align-items: center;
+  margin-bottom: 28px;
 }
 
 .unit-name-error .condo-input-affix-wrapper,
@@ -200,6 +270,13 @@
 }
 
 .map-unit-button {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  margin-top: 8px;
+  margin-right: 8px;
+  padding: 0 8px;
+  color: var(--condo-global-color-black);
   background-color: var(--condo-global-color-white);
   border: 1px solid var(--condo-global-color-gray-1);
   transition: var(--condo-global-transition-duration-default);
@@ -240,6 +317,14 @@
 }
 
 .map-unit-button.map-unit-button-floor {
+  display: block;
+  background-color: transparent;
+  border: none;
+  font-size: 14px;
+}
+
+.condo-btn.map-unit-button.map-unit-button-section > .condo-btn-text,
+.condo-btn.map-unit-button.map-unit-button-floor > .condo-btn-text {
   font-size: 14px;
 }
 
@@ -260,6 +345,32 @@
 }
 
 .map-preview-unit-button {
+  opacity: 0.5;
+}
+
+.condo-btn.map-unit-button.map-duplicate-unit-button {
+  background-color: var(--condo-global-color-red-5);
+}
+
+.map-unit-button.map-flat-unit-button,
+.map-unit-button.map-flat-unit-button:hover,
+.map-unit-button.map-parking-unit-button,
+.map-unit-button.map-parking-unit-button:hover {
+  background-color: var(--condo-global-color-white);
+}
+
+.map-unit-button.map-apartment-unit-button,
+.map-unit-button.map-apartment-unit-button:hover {
+  background-color: #cbe2f6;
+}
+
+.map-unit-button.map-warehouse-unit-button,
+.map-unit-button.map-warehouse-unit-button:hover {
+  background-color: #f086334d;
+}
+
+.map-unit-button.map-commercial-unit-button,
+.map-unit-button.map-commercial-unit-button:hover {
   background-color: #eb34684d;
 }
 
@@ -268,6 +379,10 @@
 }
 
 .condo-input-utils > span > .ant-upload-list.ant-upload-list-text {
+  position: absolute;
+  top: 52px;
+  left: -12px;
+  width: calc(100% + 24px);
   margin-bottom: 10px;
   overflow-y: scroll;
 }

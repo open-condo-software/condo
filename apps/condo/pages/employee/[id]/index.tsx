@@ -33,6 +33,8 @@ import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
+import styles from './index.module.css'
+
 type EmployeePageContent = {
     employee: OrganizationEmployeeType
     isEmployeeEditable: boolean
@@ -58,10 +60,10 @@ const ReInviteActionAlert = ({ employee }) => {
 
     return (
         <Alert showIcon type='warning' message={
-            <>
+            <div className={styles.employeeInviteRetryButtonContainer}>
                 {EmployeeDidntEnteredMessage}&nbsp;
                 <EmployeeInviteRetryButton employee={employee}/>
-            </>
+            </div>
         } />
     )
 }
