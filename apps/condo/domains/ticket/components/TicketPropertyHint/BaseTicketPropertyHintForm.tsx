@@ -1,7 +1,6 @@
 import { Editor } from '@tinymce/tinymce-react'
-import { Alert, Col, Form, Input, Row, Typography } from 'antd'
+import { Alert, Col, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import TextArea from 'antd/lib/input/TextArea'
 import { get, isEmpty } from 'lodash'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
@@ -9,6 +8,7 @@ import qs from 'qs'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Input } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -200,19 +200,17 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
         }
     }, [])
 
-    // Set timeout for editor loading (10 seconds)
     useEffect(() => {
         timeoutRef.current = setTimeout(() => {
             setEditorFailed(true)
             setEditorLoading(false)
-        }, 10000)
+        }, 10 * 1000)
 
         return () => {
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current)
             }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleFormSubmit = useCallback(async (values) => {
@@ -333,18 +331,18 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                                 name='content'
                                                 noStyle
                                             >
-                                                <TextArea
+                                                <Input.TextArea
                                                     disabled={!organizationId}
                                                     value={editorValue}
                                                     onChange={(e) => handleEditorChange(e.target.value, form)}
-                                                    rows={10}
                                                     placeholder={HintMessage}
+                                                    showCount={false}
                                                 />
                                             </Form.Item>
                                         ) : (
                                             <Editor
                                                 onLoadContent={handleEditorLoad}
-                                                onInit={(evt, editor) => {
+                                                onInit={() => {
                                                     try {
                                                         handleEditorLoad()
                                                     } catch (error) {
