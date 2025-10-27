@@ -75,9 +75,9 @@ export type FullTableState = TableState & {
 
 export type TableApi = {
     setFilterState: (filterState: FilterState) => void
+    getFilterState: () => FilterState
     setColumnFilter: (columnId: string, value: unknown) => void
     getColumnFilter: (columnId: string) => unknown
-    getFilterState: () => FilterState
     refresh: () => void
     setSorting: (sorting: SortingState) => void
     getSorting: () => SortingState

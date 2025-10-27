@@ -56,22 +56,19 @@ export function TableBody <TData extends RowData = RowData> ({
                     aria-label={onRowClick ? `Select row ${row.id}` : undefined}
                 >
                     {row.getVisibleCells().map(cell => {
-                        const isResizing = cell.column.getIsResizing()
-                        const deltaOffset = table.getState().columnSizingInfo.deltaOffset ?? 0
-                        
+                        // Добавить логирование для отладки
+                        console.log('Cell size:', cell.column.getSize())
                         return (
                             <div
                                 key={cell.id}
                                 className='condo-table-td'
                                 style={{ 
                                     width: cell.column.getSize(),
-                                    transform: isResizing ? `translateX(${deltaOffset}px)` : '',
                                 }}
                             >
                                 {showSkeleton ? <div className='condo-table-cell-skeleton' /> : flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </div>
-                        )
-                    })}
+                        )})}
                 </div>
             ))}
         </div>

@@ -241,7 +241,6 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
                 rowSelectionOptions={rowSelectionOptions}
             />
         </div>
-        
     )
 }
 
