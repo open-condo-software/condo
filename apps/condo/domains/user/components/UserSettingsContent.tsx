@@ -45,7 +45,7 @@ export const UserSettingsContent: React.FC = () => {
     const CompanyName = intl.formatMessage({ id: 'CompanyName' })
     const HasMarketingConsentTitle = intl.formatMessage({ id: 'pages.condo.profile.hasMarketingConsent' }, { company: CompanyName })
     const DisabledHasMarketingConsentTooltip = intl.formatMessage({ id: 'pages.condo.profile.hasMarketingConsent.disabled.tooltip' })
-    const DisableSppTitle = intl.formatMessage({ id: 'pages.condo.profile.disableSppTitle' })
+    const DisableSPPTitle = intl.formatMessage({ id: 'pages.condo.profile.disableSPPTitle' })
     const DisableSPPRequestSentTitle = intl.formatMessage({ id: 'pages.condo.profile.disableSPPRequestSentTitle' })
     const SendDisableSPPRequestTitle = intl.formatMessage({ id: 'pages.condo.profile.sendDisableSPPRequestTitle' })
     const SendDisableSPPRequestModalTitle = intl.formatMessage({ id: 'pages.condo.profile.sendDisableSPPRequestModalTitle' })
@@ -67,7 +67,7 @@ export const UserSettingsContent: React.FC = () => {
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const { objs: userHelpRequests, refetch: userHelpRequestRefetch, loading: userHelpRequestsLoading } = UserHelpRequest.useObjects({
         where: {
-            organization: { id: organization.id },
+            organization: { id: organization?.id },
             billingIntegration: { id: sppBillingId },
             type: UserHelpRequestTypeType.IntegrationSetup,
         },
@@ -75,19 +75,16 @@ export const UserSettingsContent: React.FC = () => {
     }, { skip: !organization || !isSPPOrg || !sppBillingId })
 
     const createUserHelpRequestAction = UserHelpRequest.useCreate({
-        organization: { connect: { id: organization.id } },
+        organization: { connect: { id: organization?.id } },
         billingIntegration: { connect: { id: sppBillingId } },
         type: UserHelpRequestTypeType.IntegrationSetup,
     }, () => userHelpRequestRefetch())
 
     const sendDisableSppRequest = useCallback(async () => {
-        const createInput = { phone: user.phone, email: null }
-        if (user.email) {
-            createInput.email = user.email
-        }
-        await createUserHelpRequestAction(createInput)
+        if (!organization?.id || !user?.phone || !sppBillingId) return
+        await createUserHelpRequestAction({ phone: user.phone, email: user?.email ?? null })
         setDisableSPPConfirmModalShown(false)
-    }, [createUserHelpRequestAction, setDisableSPPConfirmModalShown, user])
+    }, [organization?.id, user.phone, user?.email, sppBillingId, createUserHelpRequestAction])
 
     const [updateUser] = useUpdateUserMutation()
 
@@ -113,7 +110,7 @@ export const UserSettingsContent: React.FC = () => {
             },
         })
         setLocale(newLocale)
-    }, [updateUser, user.id])
+    }, [updateUser, user?.id])
 
     const updateUserInfo = useMemo(() => debounce(async (checked: boolean, fieldName: 'showGlobalHints' | 'hasMarketingConsent') => {
         try {
@@ -132,7 +129,7 @@ export const UserSettingsContent: React.FC = () => {
         } catch (e) {
             console.error(`Failed to update field "${fieldName}"`)
         }
-    }, 400), [refetch, updateUser, user.id])
+    }, 400), [refetch, updateUser, user?.id])
 
     const handleGlobalHintsChange: SwitchChangeEventHandler = useCallback(async (checked) => {
         setShowGlobalHints(checked)
@@ -154,7 +151,7 @@ export const UserSettingsContent: React.FC = () => {
         if (isBoolean(initialMarketingConsent)) {
             setMarketingConsent(initialMarketingConsent)
         }
-    }, [initialShowGlobalHints])
+    }, [initialMarketingConsent])
 
     return (
         <Row gutter={ROW_GUTTER_BIG}>
@@ -199,18 +196,18 @@ export const UserSettingsContent: React.FC = () => {
                                             </Col>
                                         </Row>
                                     </Col>
-                                    { isSPPOrg && !userHelpRequestsLoading
+                                    { isSPPOrg && !!organization && !!sppBillingId && !userHelpRequestsLoading
                                         ? <>
                                             <Col span={24}>
                                                 <Row gutter={ROW_GUTTER_MID} align='middle'>
                                                     <Col lg={5} xs={10}>
                                                         <Typography.Text type='secondary'>
-                                                            {DisableSppTitle}
+                                                            {DisableSPPTitle}
                                                         </Typography.Text>
                                                     </Col>
                                                     <Col lg={5} offset={1}>
                                                         {
-                                                            userHelpRequests.length
+                                                            (userHelpRequests?.length ?? 0)
                                                                 ? <Typography.Text type='warning'>{DisableSPPRequestSentTitle}</Typography.Text>
                                                                 : <Typography.Link onClick={() => setDisableSPPConfirmModalShown(true)}>
                                                                     {SendDisableSPPRequestTitle}

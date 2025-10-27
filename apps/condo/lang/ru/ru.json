@@ -2376,7 +2376,7 @@
   "pages.condo.profile.hasMarketingConsent": "Согласен получать материалы об управлении домами, скидках и новостях платформы {company}",
   "pages.condo.profile.hasMarketingConsent.disabled.tooltip": "Чтобы мы могли присылать вам полезные материалы, укажите email. Для этого во вкладке «Информация» нажмите «Редактировать» и добавьте адрес электронной почты.",
   "pages.condo.profile.interfaceLanguage": "Язык интерфейса",
-  "pages.condo.profile.disableSppTitle": "Загружать начисления через СберБизнес",
+  "pages.condo.profile.disableSPPTitle": "Загружать начисления через СберБизнес",
   "pages.condo.profile.disableSPPRequestSentTitle": "Заявка отправлена",
   "pages.condo.profile.sendDisableSPPRequestTitle": "Отправить заявку",
   "pages.condo.profile.sendDisableSPPRequestModalTitle": "Хотите загружать начисления через СберБизнес?",
