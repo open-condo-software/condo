@@ -477,6 +477,7 @@ type File {
   mimetype: String
   encoding: String
   publicUrl: String
+  meta: JSON
 }
 
 enum UserLocaleType {
@@ -934,7 +935,7 @@ input UserUpdateInput {
   isExternalEmailVerified: Boolean
   externalSystemName: String
   hasMarketingConsent: Boolean
-  avatar: Upload
+  avatar: FileMeta
   meta: JSON
   locale: UserLocaleType
   customAccess: CustomAccessInput
@@ -972,7 +973,7 @@ input UserCreateInput {
   isExternalEmailVerified: Boolean
   externalSystemName: String
   hasMarketingConsent: Boolean
-  avatar: Upload
+  avatar: FileMeta
   meta: JSON
   locale: UserLocaleType
   customAccess: CustomAccessInput
@@ -6472,7 +6473,7 @@ input OrganizationUpdateInput {
   type: OrganizationTypeType
   tin: String
   description: String
-  avatar: Upload
+  avatar: FileMeta
   meta: JSON
   phone: String
   phoneNumberPrefix: String
@@ -6504,7 +6505,7 @@ input OrganizationCreateInput {
   type: OrganizationTypeType
   tin: String
   description: String
-  avatar: Upload
+  avatar: FileMeta
   meta: JSON
   phone: String
   phoneNumberPrefix: String
@@ -12799,12 +12800,12 @@ enum SortBillingIntegrationsBy {
 
 input BillingIntegrationUpdateInput {
   name: String
-  logo: Upload
+  logo: FileMeta
   shortDescription: String
   targetDescription: String
   bannerTextColor: BillingIntegrationBannerTextColorType
   bannerColor: String
-  bannerPromoImage: Upload
+  bannerPromoImage: FileMeta
   receiptsLoadingTime: String
   detailedDescription: String
   setupUrl: String
@@ -12815,7 +12816,7 @@ input BillingIntegrationUpdateInput {
   appUrl: String
   extendsBillingPage: Boolean
   billingPageTitle: String
-  billingPageIcon: Upload
+  billingPageIcon: FileMeta
   group: String
   connectedMessage: String
   connectedUrl: String
@@ -12847,12 +12848,12 @@ input BillingIntegrationsUpdateInput {
 
 input BillingIntegrationCreateInput {
   name: String
-  logo: Upload
+  logo: FileMeta
   shortDescription: String
   targetDescription: String
   bannerTextColor: BillingIntegrationBannerTextColorType
   bannerColor: String
-  bannerPromoImage: Upload
+  bannerPromoImage: FileMeta
   receiptsLoadingTime: String
   detailedDescription: String
   setupUrl: String
@@ -12863,7 +12864,7 @@ input BillingIntegrationCreateInput {
   appUrl: String
   extendsBillingPage: Boolean
   billingPageTitle: String
-  billingPageIcon: Upload
+  billingPageIcon: FileMeta
   group: String
   connectedMessage: String
   connectedUrl: String
@@ -18165,8 +18166,8 @@ enum SortBillingReceiptFilesBy {
 }
 
 input BillingReceiptFileUpdateInput {
-  sensitiveDataFile: Upload
-  publicDataFile: Upload
+  sensitiveDataFile: FileMeta
+  publicDataFile: FileMeta
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String
@@ -18188,8 +18189,8 @@ input BillingReceiptFilesUpdateInput {
 }
 
 input BillingReceiptFileCreateInput {
-  sensitiveDataFile: Upload
-  publicDataFile: Upload
+  sensitiveDataFile: FileMeta
+  publicDataFile: FileMeta
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String
@@ -23701,7 +23702,7 @@ input BankSyncTaskUpdateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   status: BankSyncTaskStatusType
-  file: Upload
+  file: FileMeta
   totalCount: Int
   processedCount: Int
   user: UserRelateToOneInput
@@ -23729,7 +23730,7 @@ input BankSyncTaskCreateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   status: BankSyncTaskStatusType
-  file: Upload
+  file: FileMeta
   totalCount: Int
   processedCount: Int
   user: UserRelateToOneInput
@@ -28697,7 +28698,7 @@ enum SortTicketFilesBy {
 }
 
 input TicketFileUpdateInput {
-  file: Upload
+  file: FileMeta
   ticket: TicketRelateToOneInput
   organization: OrganizationRelateToOneInput
   v: Int
@@ -28717,7 +28718,7 @@ input TicketFilesUpdateInput {
 }
 
 input TicketFileCreateInput {
-  file: Upload
+  file: FileMeta
   ticket: TicketRelateToOneInput
   organization: OrganizationRelateToOneInput
   v: Int
@@ -33793,7 +33794,7 @@ enum SortTicketCommentFilesBy {
 }
 
 input TicketCommentFileUpdateInput {
-  file: Upload
+  file: FileMeta
   ticket: TicketRelateToOneInput
   ticketComment: TicketCommentRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -33814,7 +33815,7 @@ input TicketCommentFilesUpdateInput {
 }
 
 input TicketCommentFileCreateInput {
-  file: Upload
+  file: FileMeta
   ticket: TicketRelateToOneInput
   ticketComment: TicketCommentRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -35714,7 +35715,7 @@ input TicketExportTaskUpdateInput {
   format: TicketExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileMeta
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -35743,7 +35744,7 @@ input TicketExportTaskCreateInput {
   format: TicketExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileMeta
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -39458,7 +39459,7 @@ input IncidentExportTaskUpdateInput {
   format: IncidentExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileMeta
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -39486,7 +39487,7 @@ input IncidentExportTaskCreateInput {
   format: IncidentExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileMeta
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -40033,7 +40034,7 @@ enum SortCallRecordsBy {
 
 input CallRecordUpdateInput {
   organization: OrganizationRelateToOneInput
-  file: Upload
+  file: FileMeta
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
@@ -40058,7 +40059,7 @@ input CallRecordsUpdateInput {
 
 input CallRecordCreateInput {
   organization: OrganizationRelateToOneInput
-  file: Upload
+  file: FileMeta
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
@@ -41422,7 +41423,7 @@ input TicketDocumentGenerationTaskUpdateInput {
   progress: Int
   user: UserRelateToOneInput
   timeZone: String
-  file: Upload
+  file: FileMeta
   documentType: TicketDocumentGenerationTaskDocumentTypeType
   meta: JSON
   v: Int
@@ -41448,7 +41449,7 @@ input TicketDocumentGenerationTaskCreateInput {
   progress: Int
   user: UserRelateToOneInput
   timeZone: String
-  file: Upload
+  file: FileMeta
   documentType: TicketDocumentGenerationTaskDocumentTypeType
   meta: JSON
   v: Int
@@ -47645,7 +47646,7 @@ input ContactExportTaskUpdateInput {
   format: ContactExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileMeta
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -47673,7 +47674,7 @@ input ContactExportTaskCreateInput {
   format: ContactExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileMeta
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -50193,7 +50194,7 @@ enum SortUserHelpRequestFilesBy {
 
 input UserHelpRequestFileUpdateInput {
   userHelpRequest: UserHelpRequestRelateToOneInput
-  file: Upload
+  file: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -50212,7 +50213,7 @@ input UserHelpRequestFilesUpdateInput {
 
 input UserHelpRequestFileCreateInput {
   userHelpRequest: UserHelpRequestRelateToOneInput
-  file: Upload
+  file: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -56047,8 +56048,8 @@ input MeterReadingsImportTaskUpdateInput {
   importedRecordsCount: Int
   processedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
-  errorFile: Upload
+  file: FileMeta
+  errorFile: FileMeta
   errorMessage: String
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -56077,8 +56078,8 @@ input MeterReadingsImportTaskCreateInput {
   importedRecordsCount: Int
   processedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
-  errorFile: Upload
+  file: FileMeta
+  errorFile: FileMeta
   errorMessage: String
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -56683,7 +56684,7 @@ input MeterReadingExportTaskUpdateInput {
   format: MeterReadingExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileMeta
   meta: JSON
   where: MeterReadingWhereInput
   sortBy: [SortMeterReadingsBy]
@@ -56711,7 +56712,7 @@ input MeterReadingExportTaskCreateInput {
   format: MeterReadingExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: Upload
+  file: FileMeta
   meta: JSON
   where: MeterReadingWhereInput
   sortBy: [SortMeterReadingsBy]
@@ -64435,7 +64436,7 @@ input PaymentsFileUpdateInput {
   context: AcquiringIntegrationContextRelateToOneInput
   number: String
   paymentOrder: String
-  file: Upload
+  file: FileMeta
   bankAccount: String
   paymentPeriodStartDate: String
   paymentPeriodEndDay: String
@@ -64467,7 +64468,7 @@ input PaymentsFileCreateInput {
   context: AcquiringIntegrationContextRelateToOneInput
   number: String
   paymentOrder: String
-  file: Upload
+  file: FileMeta
   bankAccount: String
   paymentPeriodStartDate: String
   paymentPeriodEndDay: String
@@ -68126,7 +68127,7 @@ input NewsItemRecipientsExportTaskUpdateInput {
   organization: OrganizationRelateToOneInput
   scopes: JSON
   status: NewsItemRecipientsExportTaskStatusType
-  file: Upload
+  file: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -68148,7 +68149,7 @@ input NewsItemRecipientsExportTaskCreateInput {
   organization: OrganizationRelateToOneInput
   scopes: JSON
   status: NewsItemRecipientsExportTaskStatusType
-  file: Upload
+  file: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -69751,7 +69752,7 @@ enum SortB2BAppsBy {
 
 input B2BAppUpdateInput {
   name: String
-  logo: Upload
+  logo: FileMeta
   shortDescription: String
   developer: String
   developerUrl: String
@@ -69790,7 +69791,7 @@ input B2BAppsUpdateInput {
 
 input B2BAppCreateInput {
   name: String
-  logo: Upload
+  logo: FileMeta
   shortDescription: String
   developer: String
   developerUrl: String
@@ -71246,7 +71247,7 @@ enum SortB2CAppsBy {
 
 input B2CAppUpdateInput {
   name: String
-  logo: Upload
+  logo: FileMeta
   shortDescription: String
   developer: String
   isHidden: Boolean
@@ -71273,7 +71274,7 @@ input B2CAppsUpdateInput {
 
 input B2CAppCreateInput {
   name: String
-  logo: Upload
+  logo: FileMeta
   shortDescription: String
   developer: String
   isHidden: Boolean
@@ -72210,7 +72211,7 @@ enum SortB2CAppBuildsBy {
 input B2CAppBuildUpdateInput {
   app: B2CAppRelateToOneInput
   version: String
-  data: Upload
+  data: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -72232,7 +72233,7 @@ input B2CAppBuildsUpdateInput {
 input B2CAppBuildCreateInput {
   app: B2CAppRelateToOneInput
   version: String
-  data: Upload
+  data: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -73297,7 +73298,7 @@ input B2BAppPromoBlockUpdateInput {
   subtitle: String
   textVariant: B2BAppPromoBlockTextVariantType
   backgroundColor: String
-  backgroundImage: Upload
+  backgroundImage: FileMeta
   targetUrl: String
   external: Boolean
   priority: Int
@@ -73322,7 +73323,7 @@ input B2BAppPromoBlockCreateInput {
   subtitle: String
   textVariant: B2BAppPromoBlockTextVariantType
   backgroundColor: String
-  backgroundImage: Upload
+  backgroundImage: FileMeta
   targetUrl: String
   external: Boolean
   priority: Int
@@ -76290,8 +76291,8 @@ enum SortB2BAppNewsSharingConfigsBy {
 
 input B2BAppNewsSharingConfigUpdateInput {
   name: String
-  icon: Upload
-  previewPicture: Upload
+  icon: FileMeta
+  previewPicture: FileMeta
   pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
   publishUrl: String
   previewUrl: String
@@ -76316,8 +76317,8 @@ input B2BAppNewsSharingConfigsUpdateInput {
 
 input B2BAppNewsSharingConfigCreateInput {
   name: String
-  icon: Upload
-  previewPicture: Upload
+  icon: FileMeta
+  previewPicture: FileMeta
   pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
   publishUrl: String
   previewUrl: String
@@ -79527,7 +79528,7 @@ enum SortMarketCategoriesBy {
 
 input MarketCategoryUpdateInput {
   name: String
-  image: Upload
+  image: FileMeta
   mobileSettings: MarketCategoryMobileSettingsSchemaField
   parentCategory: MarketCategoryRelateToOneInput
   order: Int
@@ -79549,7 +79550,7 @@ input MarketCategoriesUpdateInput {
 
 input MarketCategoryCreateInput {
   name: String
-  image: Upload
+  image: FileMeta
   mobileSettings: MarketCategoryMobileSettingsSchemaField
   parentCategory: MarketCategoryRelateToOneInput
   order: Int
@@ -81338,7 +81339,7 @@ enum SortMarketItemFilesBy {
 
 input MarketItemFileUpdateInput {
   marketItem: MarketItemRelateToOneInput
-  file: Upload
+  file: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -81357,7 +81358,7 @@ input MarketItemFilesUpdateInput {
 
 input MarketItemFileCreateInput {
   marketItem: MarketItemRelateToOneInput
-  file: Upload
+  file: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -83324,7 +83325,7 @@ input DocumentUpdateInput {
   property: PropertyRelateToOneInput
   category: DocumentCategoryRelateToOneInput
   name: String
-  file: Upload
+  file: FileMeta
   canReadByResident: Boolean
   meta: JSON
   v: Int
@@ -83348,7 +83349,7 @@ input DocumentCreateInput {
   property: PropertyRelateToOneInput
   category: DocumentCategoryRelateToOneInput
   name: String
-  file: Upload
+  file: FileMeta
   canReadByResident: Boolean
   meta: JSON
   v: Int
@@ -85198,6 +85199,652 @@ input WebhookSubscriptionsCreateInput {
   data: WebhookSubscriptionCreateInput
 }
 
+enum FileRecordHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type FileRecordHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the FileRecordHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the FileRecordHistoryRecord List config, or
+   3. As an alias to a 'name' field on the FileRecordHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the FileRecordHistoryRecord List.
+  """
+  _label_: String
+  fileSize: String
+  fileMimeType: String
+  fileMeta: JSON
+  user: String
+  organization: String
+  sourceFileRecord: String
+  sourceApp: String
+  fileAdapter: String
+  attachments: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: FileRecordHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input FileRecordHistoryRecordWhereInput {
+  AND: [FileRecordHistoryRecordWhereInput]
+  OR: [FileRecordHistoryRecordWhereInput]
+  fileSize: String
+  fileSize_not: String
+  fileSize_contains: String
+  fileSize_not_contains: String
+  fileSize_starts_with: String
+  fileSize_not_starts_with: String
+  fileSize_ends_with: String
+  fileSize_not_ends_with: String
+  fileSize_i: String
+  fileSize_not_i: String
+  fileSize_contains_i: String
+  fileSize_not_contains_i: String
+  fileSize_starts_with_i: String
+  fileSize_not_starts_with_i: String
+  fileSize_ends_with_i: String
+  fileSize_not_ends_with_i: String
+  fileSize_in: [String]
+  fileSize_not_in: [String]
+  fileMimeType: String
+  fileMimeType_not: String
+  fileMimeType_contains: String
+  fileMimeType_not_contains: String
+  fileMimeType_starts_with: String
+  fileMimeType_not_starts_with: String
+  fileMimeType_ends_with: String
+  fileMimeType_not_ends_with: String
+  fileMimeType_i: String
+  fileMimeType_not_i: String
+  fileMimeType_contains_i: String
+  fileMimeType_not_contains_i: String
+  fileMimeType_starts_with_i: String
+  fileMimeType_not_starts_with_i: String
+  fileMimeType_ends_with_i: String
+  fileMimeType_not_ends_with_i: String
+  fileMimeType_in: [String]
+  fileMimeType_not_in: [String]
+  fileMeta: JSON
+  fileMeta_not: JSON
+  fileMeta_in: [JSON]
+  fileMeta_not_in: [JSON]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  sourceFileRecord: String
+  sourceFileRecord_not: String
+  sourceFileRecord_in: [String]
+  sourceFileRecord_not_in: [String]
+  sourceApp: String
+  sourceApp_not: String
+  sourceApp_contains: String
+  sourceApp_not_contains: String
+  sourceApp_starts_with: String
+  sourceApp_not_starts_with: String
+  sourceApp_ends_with: String
+  sourceApp_not_ends_with: String
+  sourceApp_i: String
+  sourceApp_not_i: String
+  sourceApp_contains_i: String
+  sourceApp_not_contains_i: String
+  sourceApp_starts_with_i: String
+  sourceApp_not_starts_with_i: String
+  sourceApp_ends_with_i: String
+  sourceApp_not_ends_with_i: String
+  sourceApp_in: [String]
+  sourceApp_not_in: [String]
+  fileAdapter: String
+  fileAdapter_not: String
+  fileAdapter_contains: String
+  fileAdapter_not_contains: String
+  fileAdapter_starts_with: String
+  fileAdapter_not_starts_with: String
+  fileAdapter_ends_with: String
+  fileAdapter_not_ends_with: String
+  fileAdapter_i: String
+  fileAdapter_not_i: String
+  fileAdapter_contains_i: String
+  fileAdapter_not_contains_i: String
+  fileAdapter_starts_with_i: String
+  fileAdapter_not_starts_with_i: String
+  fileAdapter_ends_with_i: String
+  fileAdapter_not_ends_with_i: String
+  fileAdapter_in: [String]
+  fileAdapter_not_in: [String]
+  attachments: JSON
+  attachments_not: JSON
+  attachments_in: [JSON]
+  attachments_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: FileRecordHistoryRecordHistoryActionType
+  history_action_not: FileRecordHistoryRecordHistoryActionType
+  history_action_in: [FileRecordHistoryRecordHistoryActionType]
+  history_action_not_in: [FileRecordHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input FileRecordHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortFileRecordHistoryRecordsBy {
+  fileSize_ASC
+  fileSize_DESC
+  fileMimeType_ASC
+  fileMimeType_DESC
+  sourceApp_ASC
+  sourceApp_DESC
+  fileAdapter_ASC
+  fileAdapter_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input FileRecordHistoryRecordUpdateInput {
+  fileSize: String
+  fileMimeType: String
+  fileMeta: JSON
+  user: String
+  organization: String
+  sourceFileRecord: String
+  sourceApp: String
+  fileAdapter: String
+  attachments: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: FileRecordHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input FileRecordHistoryRecordsUpdateInput {
+  id: ID!
+  data: FileRecordHistoryRecordUpdateInput
+}
+
+input FileRecordHistoryRecordCreateInput {
+  fileSize: String
+  fileMimeType: String
+  fileMeta: JSON
+  user: String
+  organization: String
+  sourceFileRecord: String
+  sourceApp: String
+  fileAdapter: String
+  attachments: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: FileRecordHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input FileRecordHistoryRecordsCreateInput {
+  data: FileRecordHistoryRecordCreateInput
+}
+
+type FileRecordMetaUser {
+  id: ID!
+}
+
+type FileSender {
+  dv: Int!
+  fingerprint: String!
+}
+
+type FileRecordUserMeta {
+  dv: Int!
+  sender: FileSender!
+  user: FileRecordMetaUser!
+  fileClientId: String!
+  modelNames: [String!]!
+  sourceFileClientId: String
+}
+
+type FileRecordMeta {
+  id: ID!
+  fileAdapter: String!
+  recordId: ID
+  path: String
+  filename: String!
+  originalFilename: String
+  mimetype: String!
+  encoding: String!
+  meta: FileRecordUserMeta!
+}
+
+input FileRecordRelateToOneInput {
+  create: FileRecordCreateInput
+  connect: FileRecordWhereUniqueInput
+  disconnect: FileRecordWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+type FileAttachment {
+  modelName: String!
+  id: ID!
+  fileClientId: String!
+  user: ID!
+}
+
+type FileAttachments {
+  attachments: [FileAttachment!]!
+}
+
+""" Stores uploaded file meta data and owner """
+type FileRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the FileRecord List config, or
+   2. As an alias to the field set on 'labelField' in the FileRecord List config, or
+   3. As an alias to a 'name' field on the FileRecord List (if one exists), or
+   4. As an alias to the 'id' field on the FileRecord List.
+  """
+  _label_: String
+
+  """ The size of the uploaded file. Measured in bytes """
+  fileSize: String
+
+  """ Mime type of the uploaded file """
+  fileMimeType: String
+
+  """ Information about file including its encoding, mime type, filename and user related metadata 
+  """
+  fileMeta: FileRecordMeta
+
+  """ User who uploaded the file """
+  user: User
+
+  """ Organization of the user who uploaded the file """
+  organization: Organization
+
+  """ Link to original FileRecord which was shared """
+  sourceFileRecord: FileRecord
+
+  """ App id - used for final routing when original file was shared """
+  sourceApp: String
+
+  """ Type of the file adapter with which binary was saved to storage """
+  fileAdapter: String
+
+  """ List of objects that stores info about which model, application and object is attached this binary 
+  """
+  attachments: FileAttachments
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input FileRecordWhereInput {
+  AND: [FileRecordWhereInput]
+  OR: [FileRecordWhereInput]
+  fileSize: String
+  fileSize_not: String
+  fileSize_contains: String
+  fileSize_not_contains: String
+  fileSize_starts_with: String
+  fileSize_not_starts_with: String
+  fileSize_ends_with: String
+  fileSize_not_ends_with: String
+  fileSize_i: String
+  fileSize_not_i: String
+  fileSize_contains_i: String
+  fileSize_not_contains_i: String
+  fileSize_starts_with_i: String
+  fileSize_not_starts_with_i: String
+  fileSize_ends_with_i: String
+  fileSize_not_ends_with_i: String
+  fileSize_in: [String]
+  fileSize_not_in: [String]
+  fileMimeType: String
+  fileMimeType_not: String
+  fileMimeType_contains: String
+  fileMimeType_not_contains: String
+  fileMimeType_starts_with: String
+  fileMimeType_not_starts_with: String
+  fileMimeType_ends_with: String
+  fileMimeType_not_ends_with: String
+  fileMimeType_i: String
+  fileMimeType_not_i: String
+  fileMimeType_contains_i: String
+  fileMimeType_not_contains_i: String
+  fileMimeType_starts_with_i: String
+  fileMimeType_not_starts_with_i: String
+  fileMimeType_ends_with_i: String
+  fileMimeType_not_ends_with_i: String
+  fileMimeType_in: [String]
+  fileMimeType_not_in: [String]
+  fileMeta: JSON
+  fileMeta_not: JSON
+  fileMeta_in: [JSON]
+  fileMeta_not_in: [JSON]
+  user: UserWhereInput
+  user_is_null: Boolean
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  sourceFileRecord: FileRecordWhereInput
+  sourceFileRecord_is_null: Boolean
+  sourceApp: String
+  sourceApp_not: String
+  sourceApp_contains: String
+  sourceApp_not_contains: String
+  sourceApp_starts_with: String
+  sourceApp_not_starts_with: String
+  sourceApp_ends_with: String
+  sourceApp_not_ends_with: String
+  sourceApp_i: String
+  sourceApp_not_i: String
+  sourceApp_contains_i: String
+  sourceApp_not_contains_i: String
+  sourceApp_starts_with_i: String
+  sourceApp_not_starts_with_i: String
+  sourceApp_ends_with_i: String
+  sourceApp_not_ends_with_i: String
+  sourceApp_in: [String]
+  sourceApp_not_in: [String]
+  fileAdapter: String
+  fileAdapter_not: String
+  fileAdapter_contains: String
+  fileAdapter_not_contains: String
+  fileAdapter_starts_with: String
+  fileAdapter_not_starts_with: String
+  fileAdapter_ends_with: String
+  fileAdapter_not_ends_with: String
+  fileAdapter_i: String
+  fileAdapter_not_i: String
+  fileAdapter_contains_i: String
+  fileAdapter_not_contains_i: String
+  fileAdapter_starts_with_i: String
+  fileAdapter_not_starts_with_i: String
+  fileAdapter_ends_with_i: String
+  fileAdapter_not_ends_with_i: String
+  fileAdapter_in: [String]
+  fileAdapter_not_in: [String]
+  attachments: JSON
+  attachments_not: JSON
+  attachments_in: [JSON]
+  attachments_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input FileRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortFileRecordsBy {
+  fileSize_ASC
+  fileSize_DESC
+  fileMimeType_ASC
+  fileMimeType_DESC
+  user_ASC
+  user_DESC
+  organization_ASC
+  organization_DESC
+  sourceFileRecord_ASC
+  sourceFileRecord_DESC
+  sourceApp_ASC
+  sourceApp_DESC
+  fileAdapter_ASC
+  fileAdapter_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input FileRecordUpdateInput {
+  fileSize: String
+  fileMimeType: String
+  fileMeta: JSON
+  user: UserRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  sourceFileRecord: FileRecordRelateToOneInput
+  sourceApp: String
+  fileAdapter: String
+  attachments: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input FileRecordsUpdateInput {
+  id: ID!
+  data: FileRecordUpdateInput
+}
+
+input FileRecordCreateInput {
+  fileSize: String
+  fileMimeType: String
+  fileMeta: JSON
+  user: UserRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  sourceFileRecord: FileRecordRelateToOneInput
+  sourceApp: String
+  fileAdapter: String
+  attachments: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input FileRecordsCreateInput {
+  data: FileRecordCreateInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -85377,6 +86024,9 @@ input _ksListsMetaInput {
 input _ListSchemaFieldsInput {
   type: String
 }
+
+"""File, that could be loaded through new file server or by legacy way"""
+scalar FileMeta
 
 input _internalScheduleTaskByNameInput {
   dv: Int!
@@ -91338,6 +91988,33 @@ type Query {
   """ Retrieve the meta-data for the WebhookSubscription list. """
   _WebhookSubscriptionsMeta: _ListMeta
 
+  """ Search for all FileRecordHistoryRecord items which match the where clause. 
+  """
+  allFileRecordHistoryRecords(where: FileRecordHistoryRecordWhereInput, search: String, sortBy: [SortFileRecordHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [FileRecordHistoryRecord]
+
+  """ Search for the FileRecordHistoryRecord item with the matching ID. """
+  FileRecordHistoryRecord(where: FileRecordHistoryRecordWhereUniqueInput!): FileRecordHistoryRecord
+
+  """ Perform a meta-query on all FileRecordHistoryRecord items which match the where clause. 
+  """
+  _allFileRecordHistoryRecordsMeta(where: FileRecordHistoryRecordWhereInput, search: String, sortBy: [SortFileRecordHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the FileRecordHistoryRecord list. """
+  _FileRecordHistoryRecordsMeta: _ListMeta
+
+  """ Search for all FileRecord items which match the where clause. """
+  allFileRecords(where: FileRecordWhereInput, search: String, sortBy: [SortFileRecordsBy!], orderBy: String, first: Int, skip: Int): [FileRecord]
+
+  """ Search for the FileRecord item with the matching ID. """
+  FileRecord(where: FileRecordWhereUniqueInput!): FileRecord
+
+  """ Perform a meta-query on all FileRecord items which match the where clause. 
+  """
+  _allFileRecordsMeta(where: FileRecordWhereInput, search: String, sortBy: [SortFileRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the FileRecord list. """
+  _FileRecordsMeta: _ListMeta
+
   """ Retrieve the meta-data for all lists. """
   _ksListsMeta(where: _ksListsMetaInput): [_ListMeta]
 
@@ -96836,6 +97513,42 @@ type Mutation {
 
   """ Delete multiple WebhookSubscription items by ID. """
   deleteWebhookSubscriptions(ids: [ID!]): [WebhookSubscription]
+
+  """ Create a single FileRecordHistoryRecord item. """
+  createFileRecordHistoryRecord(data: FileRecordHistoryRecordCreateInput): FileRecordHistoryRecord
+
+  """ Create multiple FileRecordHistoryRecord items. """
+  createFileRecordHistoryRecords(data: [FileRecordHistoryRecordsCreateInput]): [FileRecordHistoryRecord]
+
+  """ Update a single FileRecordHistoryRecord item by ID. """
+  updateFileRecordHistoryRecord(id: ID!, data: FileRecordHistoryRecordUpdateInput): FileRecordHistoryRecord
+
+  """ Update multiple FileRecordHistoryRecord items by ID. """
+  updateFileRecordHistoryRecords(data: [FileRecordHistoryRecordsUpdateInput]): [FileRecordHistoryRecord]
+
+  """ Delete a single FileRecordHistoryRecord item by ID. """
+  deleteFileRecordHistoryRecord(id: ID!): FileRecordHistoryRecord
+
+  """ Delete multiple FileRecordHistoryRecord items by ID. """
+  deleteFileRecordHistoryRecords(ids: [ID!]): [FileRecordHistoryRecord]
+
+  """ Create a single FileRecord item. """
+  createFileRecord(data: FileRecordCreateInput): FileRecord
+
+  """ Create multiple FileRecord items. """
+  createFileRecords(data: [FileRecordsCreateInput]): [FileRecord]
+
+  """ Update a single FileRecord item by ID. """
+  updateFileRecord(id: ID!, data: FileRecordUpdateInput): FileRecord
+
+  """ Update multiple FileRecord items by ID. """
+  updateFileRecords(data: [FileRecordsUpdateInput]): [FileRecord]
+
+  """ Delete a single FileRecord item by ID. """
+  deleteFileRecord(id: ID!): FileRecord
+
+  """ Delete multiple FileRecord items by ID. """
+  deleteFileRecords(ids: [ID!]): [FileRecord]
   _internalScheduleTaskByName(data: _internalScheduleTaskByNameInput!): _internalScheduleTaskByNameOutput
 
   """

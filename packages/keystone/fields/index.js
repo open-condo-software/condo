@@ -1,5 +1,6 @@
 const AddressPartWithType = require('./AddressPartWithType')
 const AutoIncrementInteger = require('./AutoIncrementInteger')
+const CustomFile = require('./CustomFile')
 const DateInterval = require('./DateInterval')
 const EncryptedText = require('./EncryptedText')
 const FileWithUTF8Name = require('./FileWithUTF8Name')
@@ -22,4 +23,5 @@ module.exports = {
     FileWithUTF8Name,
     Text,
     EncryptedText,
+    CustomFile,
 }
