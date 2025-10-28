@@ -6,10 +6,11 @@ const { get, isEmpty, isUndefined, isNull } = require('lodash')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
+const { ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE } = require('@condo/domains/acquiring/constants/constants')
 const {
     CONTEXT_FINISHED_STATUS,
     CONTEXT_VERIFICATION_STATUS,
@@ -24,7 +25,6 @@ const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquirin
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
-const { AcquiringIntegrationContext: ContextServerSchema } = require('@condo/domains/acquiring/utils/serverSchema')
 const { PERCENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
@@ -225,8 +225,12 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                 && !resolvedData['deletedAt']
             ) {
                 const newItem = { ...existingItem, ...resolvedData }
-                const activeContextsCount = await ContextServerSchema.count(context, {
+                const activeContexts = await find('AcquiringIntegrationContext', {
                     organization: { id: newItem['organization'] },
+                    integration: {
+                        type: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
+                        deletedAt: null,
+                    },
                     OR: [
                         { status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
                         { invoiceStatus_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
@@ -234,7 +238,9 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                     deletedAt: null,
                     id_not: newItem['id'],
                 })
-                if (activeContextsCount) {
+                const acquiringIntegrationId = existingItem?.integration || resolvedData?.integration
+                const acquiringIntegration = getById('AcquiringIntegration', acquiringIntegrationId)
+                if (acquiringIntegration.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE &&  activeContexts.length > 0) {
                     addValidationError(CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
                 }
             }
