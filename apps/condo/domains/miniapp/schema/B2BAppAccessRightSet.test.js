@@ -20,6 +20,9 @@ const {
     createTestBillingIntegrationOrganizationContext, createTestBillingProperty,
     createTestBillingAccount, createTestBillingReceipt, BillingReceipt,
     BillingIntegrationOrganizationContext,
+    createTestBillingRecipient,
+    updateTestBillingRecipient,
+    BillingRecipient,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestContact, Contact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
@@ -1501,6 +1504,43 @@ describe('B2BApp permissions for service user', () => {
             const billingContext = await BillingIntegrationOrganizationContext.getOne(serviceUser, { id: context.id })
             expect(billingContext).toBeDefined()
             expect(billingContext.organization).toBeNull()
+        })
+
+        test('cannot create BillingRecipient', async () => {
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canManageBillingRecipients: true })
+            }, 'Field "canManageBillingRecipients" is not defined')
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestBillingRecipient(serviceUser, context)
+            })
+        })
+
+        test('cannot update BillingRecipient', async () => {
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canManageBillingRecipients: true })
+            }, 'Field "canManageBillingRecipients" is not defined')
+
+            const [recipient] = await createTestBillingRecipient(admin, context)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestBillingRecipient(serviceUser, recipient.id)
+            })
+        })
+
+        test('can read BillingRecipient with rights', async () => {
+            const [recipientCreated] = await createTestBillingRecipient(admin, context)
+
+            // Cannot without rights
+            const recipientWithoutRights = await BillingRecipient.getOne(serviceUser, { id: recipientCreated.id })
+            expect(recipientWithoutRights).toBeUndefined()
+
+            // Can with rights
+            await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canReadBillingRecipients: true })
+
+            const recipient = await BillingRecipient.getOne(serviceUser, { id: recipientCreated.id })
+
+            expect(recipient).toBeDefined()
         })
 
         test('cannot create BillingReceipt', async () => {
