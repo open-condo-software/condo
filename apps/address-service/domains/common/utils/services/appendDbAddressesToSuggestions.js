@@ -60,7 +60,9 @@ async function appendDbAddressesToSuggestions (context, suggestions) {
             const provider = get(conf, 'PROVIDER')
             const isGoogleProvider = provider === GOOGLE_PROVIDER
 
-            const capitalizedAddressValue = normalizedSource
+            const defaultAddressValue = source.address.address
+
+            const capitalizedAddressSourceValue = normalizedSource
                 .split(',')
                 .map(word => word.trim().charAt(0).toUpperCase() + word.trim().slice(1))
                 .join(', ')
@@ -68,7 +70,7 @@ async function appendDbAddressesToSuggestions (context, suggestions) {
             newSuggestionsToAdd.push({
                 ...source.address.meta,
                 isAugmentedAddress: true,
-                value: isGoogleProvider ? capitalizedAddressValue : normalizedSource,
+                value: isGoogleProvider ? capitalizedAddressSourceValue : defaultAddressValue,
                 type: BUILDING_ADDRESS_TYPE,
             })
 

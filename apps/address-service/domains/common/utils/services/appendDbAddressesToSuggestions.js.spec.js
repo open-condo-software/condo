@@ -1,5 +1,7 @@
 const index = require('@app/address-service/index')
+const get = require('lodash/get')
 
+const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -11,7 +13,11 @@ const {
 
 const { appendDbAddressesToSuggestions } = require('./appendDbAddressesToSuggestions')
 
+const { GOOGLE_PROVIDER } = require('../../constants/providers')
+
 const { keystone } = index
+
+const ADDRESS_PROVIDER = get(conf, 'PROVIDER')
 
 const LAGOS_DE_CORONAS_ADDRESSES = [
     {
@@ -256,10 +262,13 @@ describe('Augmented address suggestions', () => {
 
     let adminClient
     let godContext
+    let isGoogleProvider
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         godContext = await keystone.createContext({ skipAccessControl: true })
+
+        isGoogleProvider = ADDRESS_PROVIDER === GOOGLE_PROVIDER
     })
 
     describe('Lagos de coronas', () => {
@@ -310,11 +319,19 @@ describe('Augmented address suggestions', () => {
             expect(augmentedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas')
             expect(augmentedSuggestions[0].isAugmentedAddress).toBeUndefined()
 
-            expect(augmentedSuggestions[1].value.toLowerCase()).toEqual('España, Zaragoza, Calle de los lagos de coronas, 9'.toLowerCase())
-            expect(augmentedSuggestions[1].isAugmentedAddress).toBeTruthy()
+            if (isGoogleProvider) {
+                expect(augmentedSuggestions[1].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 9')
+                expect(augmentedSuggestions[1].isAugmentedAddress).toBeTruthy()
 
-            expect(augmentedSuggestions[2].value.toLowerCase()).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23'.toLowerCase())
-            expect(augmentedSuggestions[2].isAugmentedAddress).toBeTruthy()
+                expect(augmentedSuggestions[2].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23')
+                expect(augmentedSuggestions[2].isAugmentedAddress).toBeTruthy()
+            } else {
+                expect(augmentedSuggestions[1].value).toEqual('C. de los Lagos de Coronas, 9, 50011 Zaragoza, España')
+                expect(augmentedSuggestions[1].isAugmentedAddress).toBeTruthy()
+
+                expect(augmentedSuggestions[2].value).toEqual('C. de los Lagos de Coronas, 23, 50011 Zaragoza, España')
+                expect(augmentedSuggestions[2].isAugmentedAddress).toBeTruthy()
+            }
         })
 
         test('With addresses from db 2 (Lagos de coronas 2)', async () => {
@@ -328,8 +345,13 @@ describe('Augmented address suggestions', () => {
             expect(augmentedSuggestions[0].value).toEqual('España, Zaragoza, Calle de los Lagos de Coronas, 2')
             expect(augmentedSuggestions[0].isAugmentedAddress).toBeUndefined()
 
-            expect(augmentedSuggestions[1].value.toLowerCase()).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23'.toLowerCase())
-            expect(augmentedSuggestions[1].isAugmentedAddress).toBeTruthy()
+            if (isGoogleProvider) {
+                expect(augmentedSuggestions[1].value).toEqual('España, Zaragoza, Calle de los lagos de coronas, 23')
+                expect(augmentedSuggestions[1].isAugmentedAddress).toBeTruthy()
+            } else {
+                expect(augmentedSuggestions[1].value).toEqual('C. de los Lagos de Coronas, 23, 50011 Zaragoza, España')
+                expect(augmentedSuggestions[1].isAugmentedAddress).toBeTruthy()
+            }
         })
 
         test('With addresses from db 3 (Lagos de coronas 9)', async () => {
