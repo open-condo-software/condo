@@ -2,19 +2,18 @@ import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
 import { BuildingUnitSubType, B2BAppGlobalFeature } from '@app/condo/schema'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Col, Row, Typography, RowProps, Radio, RadioProps } from 'antd'
+import { Col, Row, Typography, RowProps } from 'antd'
 import debounce from 'lodash/debounce'
-import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button } from '@open-condo/ui'
+import { Button, RadioGroupProps, Radio } from '@open-condo/ui'
 
 import { CardVideo } from '@condo/domains/common/components/CardVideo'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { fontSizes, colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
+import { fontSizes, colors, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 
@@ -141,8 +140,8 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
         debouncedGenerateRequest()
     }, [debouncedGenerateRequest])
 
-    const locale = useMemo(() => get(intl, 'locale'), [intl])
-    const videoUrl = get(createMapVideoUrl, locale)
+    const locale = useMemo(() => intl?.locale, [intl])
+    const videoUrl = createMapVideoUrl?.[locale]
 
     if (mode === 'edit' && videoUrl) {
         return (
@@ -267,64 +266,30 @@ export const BuildingChooseSections: React.FC<React.PropsWithChildren<IBuildingC
     )
 }
 
-const BuildingViewModeSelectCss = css`
-  padding: 4px;
-  background-color: ${colors.backgroundWhiteSecondary};
-  height: 48px;
-  border-radius: 8px;
-  white-space: nowrap;
-
-  & label.ant-radio-button-wrapper {
-    background-color: ${colors.backgroundWhiteSecondary};
-    height: 40px;
-    border: none;
-    border-radius: 4px;
-    box-shadow: none;
-    line-height: 40px;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  & label.ant-radio-button-wrapper.ant-radio-button-wrapper-checked {
-    background-color: ${colors.white};
-    color: ${colors.black};
-    border-color: transparent;
-  }
-  & .ant-radio-button-wrapper-checked::before,
-  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before {
-    background-color: ${colors.backgroundWhiteSecondary};
-  }
-  & .ant-radio-button-wrapper:hover {
-    color: ${gradients.mainGradientPressed};
-  }
-  & .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
-    background-color: ${colors.white};
-    border-color: transparent;
-    color: ${colors.black}
-  }
-  & .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-disabled):not(.ant-radio-button-wrapper-checked):hover span:not(.ant-radio-button) {
-    background: ${gradients.mainGradientPressed};
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  & .ant-radio-button-wrapper.ant-radio-button-wrapper-disabled:not(.ant-radio-button-wrapper-checked) {
-    color: ${colors.textSecondary};
-  }
-`
-
-export const BuildingViewModeSelect: React.FC<RadioProps> = (props) => {
+export const BuildingViewModeSelect: React.FC<RadioGroupProps> = (props) => {
+    const { value, onChange, disabled } = props
     const intl = useIntl()
     const ParkingBuildingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
     const ResidentialBuildingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.residentialBuilding' })
 
     return (
-        <Radio.Group
-            {...props}
-            optionType='button'
-            buttonStyle='solid'
-            css={BuildingViewModeSelectCss}
+        <Radio.Group 
+            optionType='button' 
+            value={value} 
+            onChange={onChange} 
+            defaultValue={MapViewMode.section}
+            disabled={disabled}
         >
-            <Radio.Button value={MapViewMode.section}>{ResidentialBuildingLabel}</Radio.Button>
-            <Radio.Button value={MapViewMode.parking}>{ParkingBuildingLabel}</Radio.Button>
+            <Radio
+                key={MapViewMode.section}
+                value={MapViewMode.section}
+                label={ResidentialBuildingLabel}
+            />
+            <Radio
+                key={MapViewMode.parking}
+                value={MapViewMode.parking}
+                label={ParkingBuildingLabel}
+            />
         </Radio.Group>
     )
 }

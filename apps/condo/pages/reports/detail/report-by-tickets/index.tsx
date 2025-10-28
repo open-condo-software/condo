@@ -1,6 +1,6 @@
 import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
 import { css } from '@emotion/react'
-import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs, Typography } from 'antd'
+import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import get from 'lodash/get'
@@ -15,7 +15,11 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { 
+    ActionBar, 
+    Button,
+    Typography,
+} from '@open-condo/ui'
 
 import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'

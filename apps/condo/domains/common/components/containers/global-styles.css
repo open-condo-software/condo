@@ -78,6 +78,7 @@
 }
 
 /* Header */
+
 .desktop-header {
   z-index: 9;
   display: flex;
@@ -129,6 +130,7 @@
 }
 
 .organization-dropdown.ant-dropdown-open .arrow-icon {
+  overflow-y: auto;
   transform: rotate(180deg);
 }
 
@@ -175,6 +177,7 @@
 /* Notifications */
 
 /* Note: all notifications must be below modal */
+
 .ant-notification {
   z-index: 999;
 }
@@ -206,6 +209,7 @@
 }
 
 /* Property map */
+
 .add-element-dropdown > .condo-dropdown-menu {
   max-height: 100vh;
 }
@@ -313,6 +317,7 @@
 
 .map-unit-button.map-unit-button-floor {
   display: block;
+  font-size: 14px;
   background-color: transparent;
   border: none;
 }

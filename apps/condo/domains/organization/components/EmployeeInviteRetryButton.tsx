@@ -1,5 +1,4 @@
 import { OrganizationEmployee } from '@app/condo/schema'
-import { Typography } from 'antd'
 import get from 'lodash/get'
 import React, { useCallback } from 'react'
 
@@ -7,8 +6,8 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sende
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Button } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { REINVITE_ORGANIZATION_EMPLOYEE_MUTATION } from '@condo/domains/organization/gql'
@@ -50,21 +49,22 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
         <CountDownTimer action={reInviteEmployee} id='RESET_EMPLOYEE_INVITE'>
             {({ countdown, runAction, loading }) => {
                 const isCountDownActive = countdown > 0
+                const buttonText = isCountDownActive 
+                    ? `${RetryInviteMessage} (${countdown} ${Seconds})`
+                    : RetryInviteMessage
 
                 return (
                     <Button
-                        type='inlineLink'
+                        type='accent'
+                        size='medium'
+                        minimal
+                        compact
+                        stateless
                         loading={loading}
                         disabled={isCountDownActive}
                         onClick={runAction}
                     >
-                        {RetryInviteMessage}
-                        {isCountDownActive && (
-                            <Typography.Text type='secondary'>
-                                &nbsp;
-                                ({ countdown } {Seconds})
-                            </Typography.Text>
-                        )}
+                        {buttonText}
                     </Button>
                 )
             }}
