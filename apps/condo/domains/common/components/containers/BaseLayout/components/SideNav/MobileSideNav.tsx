@@ -18,7 +18,7 @@ interface ISideNavProps {
 export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
     const { menuData } = props
     const { link } = useOrganization()
-    const { toggleCollapsed, isCollapsed } = useLayoutContext()
+    const { toggleCollapsed, isCollapsed, isMobileView } = useLayoutContext()
     const router = useRouter()
 
     const hideSideNav = useCallback(() => {
@@ -28,12 +28,14 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
     }, [isCollapsed])
 
     useEffect(() => {
+        if (!isMobileView) return
+
         router.events.on('routeChangeComplete', hideSideNav)
 
         return () => {
             router.events.off('routeChangeComplete', hideSideNav)
         }
-    }, [router])
+    }, [router, isMobileView, hideSideNav])
 
 
     if (get(link, 'isBlocked', false)) {
