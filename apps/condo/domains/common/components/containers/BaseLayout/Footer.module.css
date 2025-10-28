@@ -5,7 +5,6 @@
   background: var(--condo-global-color-white) !important;
 }
 
-/* Use media query instead of JS breakpoints to prevent layout shift */
 @media (max-width: 767px) {
   .footer {
     padding: 10px 20px !important;

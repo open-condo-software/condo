@@ -44,7 +44,6 @@ type LayoutContextProviderProps = {
 export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (props) => {
     const { detectedMobileUserAgentInSSR = false, initialIsCollapsed } = props
     const breakpoints = useBreakpoints()
-    // Use initialIsCollapsed from cookie if available, otherwise use detectedMobileUserAgentInSSR
     const [isCollapsed, setIsCollapsed] = useState(initialIsCollapsed ?? detectedMobileUserAgentInSSR)
 
     // NOTE: On the first render, the breakpoint returns default values, which may be incorrect.
@@ -66,7 +65,6 @@ export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (prop
 
     const toggleCollapsed = () => {
         const newValue = !isCollapsed
-        // Save to cookie only
         setCookie('isCollapsed', String(newValue), { maxAge: 60 * 60 * 24 * 365 }) // 1 year
         setIsCollapsed(newValue)
     }
@@ -74,7 +72,6 @@ export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (prop
     const shouldTableScroll = !breakpoints.DESKTOP_LARGE
 
     useLayoutEffect(() => {
-        // Set cookie if initialIsCollapsed was not provided (no cookie on SSR)
         if (initialIsCollapsed === undefined && detectedMobileUserAgentInSSR) {
             setCookie('isCollapsed', 'true', { maxAge: 60 * 60 * 24 * 365 })
             setIsCollapsed(true)

@@ -4,7 +4,7 @@
   flex-direction: row;
   align-items: stretch;
   min-height: 100vh !important;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-x: hidden;
 }
 
 .sub-layout {
@@ -15,7 +15,6 @@
   background-color: var(--condo-global-color-white) !important;
 }
 
-/* Apply margin based on isCollapsed state - works on SSR */
 @media (min-width: 768px) {
   .sub-layout-expanded {
     margin-left: 256px;
@@ -44,7 +43,6 @@
   padding: 20px 40px 0;
 }
 
-/* Use media query instead of JS breakpoints to prevent layout shift */
 @media (max-width: 767px) {
   .page-wrapper {
     padding: 24px 20px 0;

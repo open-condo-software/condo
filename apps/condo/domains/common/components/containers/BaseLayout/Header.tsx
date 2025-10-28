@@ -62,7 +62,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
         },
     })
 
-    useOrganizationInvites(ORGANIZATION_TYPES, acceptOrReject as any)
+    useOrganizationInvites(ORGANIZATION_TYPES, acceptOrReject)
     const { ChooseEmployeeRoleModal } = useOrganizationEmployeeRequests()
 
     const handleLogoClick = useCallback(() => {
