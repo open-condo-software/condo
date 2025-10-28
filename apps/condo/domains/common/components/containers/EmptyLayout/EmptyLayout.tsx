@@ -1,10 +1,8 @@
 import { Layout } from 'antd'
+import classnames from 'classnames'
 import React, { CSSProperties } from 'react'
 
-import {
-    EMPTY_SUB_LAYOUT_CSS,
-    LAYOUT_CSS,
-} from '@condo/domains/common/components/containers/BaseLayout/components/styles'
+import styles from '@condo/domains/common/components/containers/BaseLayout/BaseLayout.module.css'
 
 interface IBaseLayoutProps {
     style?: CSSProperties
@@ -19,8 +17,8 @@ const EmptyLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props)
     } = props
 
     return (
-        <Layout className={className} style={style} css={LAYOUT_CSS}>
-            <Layout css={EMPTY_SUB_LAYOUT_CSS}>
+        <Layout className={classnames(styles.layout, className)} style={style}>
+            <Layout className={styles.emptySubLayout}>
                 {children}
             </Layout>
         </Layout>

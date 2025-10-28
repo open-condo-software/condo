@@ -15,6 +15,7 @@ const COOKIE_STATE_PROP_NAME = '__SSR_COOKIE_EXTRACTOR__'
 const VITAL_COOKIES = [
     'organizationLinkId',
     'isMobileUserAgent',
+    'isCollapsed',
 ] as const
 
 type SSRRequest = NextPageContext['req']

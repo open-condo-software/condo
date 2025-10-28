@@ -8,10 +8,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
-import {
-    MobileMenuItemsContainer,
-    MobileSideNavHeader,
-} from '../styles'
+import styles from '../../BaseLayout.module.css'
 
 
 interface ISideNavProps {
@@ -51,12 +48,12 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
             width='100%'
             collapsedWidth={0}
         >
-            <MobileSideNavHeader>
+            <div className={styles.mobileSideNavHeader}>
                 <Close size='medium' onClick={toggleCollapsed}/>
-            </MobileSideNavHeader>
-            <MobileMenuItemsContainer>
+            </div>
+            <div className={styles.mobileMenuItemsContainer}>
                 {menuData}
-            </MobileMenuItemsContainer>
+            </div>
         </Layout.Sider>
     )
 }

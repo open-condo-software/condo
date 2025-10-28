@@ -14,7 +14,7 @@ import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/compon
 import {
     SIDE_MENU_WIDTH,
     COLLAPSED_SIDE_MENU_WIDTH,
-} from '../styles'
+} from '../constants'
 
 interface ISideNavProps {
     onLogoClick: (...args) => void
@@ -27,16 +27,11 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
 
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
 
-    const { breakpoints, toggleCollapsed, isCollapsed } = useLayoutContext()
+    const { toggleCollapsed, isCollapsed } = useLayoutContext()
 
     const isEmployeeBlocked = get(link, 'isBlocked', false)
 
     if (isEmployeeBlocked) {
-        return null
-    }
-
-    // TODO: (Dimitreee) implement mobile nav later
-    if (!breakpoints.TABLET_LARGE) {
         return null
     }
 
@@ -65,12 +60,6 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
                 </div>
                 <ServiceSubscriptionIndicator/>
             </Layout.Sider>
-            <Layout.Sider
-                className='desktop-sider'
-                collapsed={isCollapsed}
-                width={SIDE_MENU_WIDTH}
-                collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}
-            />
         </>
     )
 }

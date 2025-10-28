@@ -1,13 +1,13 @@
 .footer {
   width: 100%;
   max-width: 1600px;
+  padding: 10px 40px 20px !important;
   background: var(--condo-global-color-white) !important;
 }
 
-.mobile-footer {
-  padding: 10px 20px !important;
-}
-
-.desktop-footer {
-  padding: 10px 40px 20px !important;
+/* Use media query instead of JS breakpoints to prevent layout shift */
+@media (max-width: 767px) {
+  .footer {
+    padding: 10px 20px !important;
+  }
 }
