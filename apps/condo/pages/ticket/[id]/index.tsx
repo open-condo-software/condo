@@ -253,16 +253,18 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                         {
                                             statusUpdatedAt && (
                                                 <Col id='ticket__update-info'>
-                                                    <Col>
-                                                        <Typography.Text size='small'>
-                                                            {ChangedMessage}: {formattedStatusUpdatedAt}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col style={{ textAlign: 'end' }}>
-                                                        <Typography.Text type='secondary' size='small'>
-                                                            {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
-                                                        </Typography.Text>
-                                                    </Col>
+                                                    <Row justify='end'>
+                                                        <Col offset={4}>
+                                                            <Typography.Text size='small'>
+                                                                {ChangedMessage}: {formattedStatusUpdatedAt}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                        <Col>
+                                                            <Typography.Text type='secondary' size='small'>
+                                                                {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                    </Row>
                                                 </Col>
                                             )
                                         }
@@ -281,16 +283,18 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                         {
                                             statusUpdatedAt && (
                                                 <Col id='ticket__update-info'>
-                                                    <Col>
-                                                        <Typography.Text size='small'>
-                                                            {ChangedMessage}: {formattedStatusUpdatedAt}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col style={{ textAlign: 'end' }}>
-                                                        <Typography.Text type='secondary' size='small'>
-                                                            {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
-                                                        </Typography.Text>
-                                                    </Col>
+                                                    <Row justify='end'>
+                                                        <Col offset={4}>
+                                                            <Typography.Text size='small'>
+                                                                {ChangedMessage}: {formattedStatusUpdatedAt}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                        <Col>
+                                                            <Typography.Text type='secondary' size='small'>
+                                                                {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                    </Row>
                                                 </Col>
                                             )
                                         }

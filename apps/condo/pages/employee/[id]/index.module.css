@@ -1,5 +1,5 @@
 .employee-invite-retry-button-container {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
 }

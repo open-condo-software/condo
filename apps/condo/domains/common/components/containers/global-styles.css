@@ -92,7 +92,6 @@
   background: var(--condo-global-color-white);
 }
 
-
 .desktop-header .top-menu-items {
   margin-left: auto;
 }
@@ -131,8 +130,8 @@
 }
 
 .organization-dropdown.ant-dropdown-open .arrow-icon {
-  transform: rotate(180deg);
   overflow-y: auto;
+  transform: rotate(180deg);
 }
 
 .organization-dropdown-overlay .ant-dropdown-menu {
@@ -318,9 +317,9 @@
 
 .map-unit-button.map-unit-button-floor {
   display: block;
+  font-size: 14px;
   background-color: transparent;
   border: none;
-  font-size: 14px;
 }
 
 .condo-btn.map-unit-button.map-unit-button-section > .condo-btn-text,
