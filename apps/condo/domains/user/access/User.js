@@ -65,6 +65,12 @@ const canAccessToEmailField = {
     update: access.userIsAdmin,
 }
 
+const canAccessIsTwoFactorAuthenticationEnabledField = {
+    read: userIsAdminOrIsThisItemOrCanDirectlyReadField,
+    create: access.userIsAdmin,
+    update: access.userIsAdmin,
+}
+
 const canAccessToPhoneField = {
     read: userIsAdminOrIsThisItemOrCanDirectlyReadField,
     create: access.userIsAdmin,
@@ -217,4 +223,5 @@ module.exports = {
     canReadUserNameField,
     canAccessMarketingConsent,
     canAccessRightsSet,
+    canAccessIsTwoFactorAuthenticationEnabledField,
 }
