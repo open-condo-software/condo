@@ -10,7 +10,7 @@ type SenderInfo = {
 /** Name of the cookie in which the fingerprint will be stored */
 export const FINGERPRINT_ID_COOKIE_NAME = 'fingerprint'
 /** Default fingerprint length */
-export const FINGERPRINT_ID_LENGTH = 12
+export const FINGERPRINT_ID_LENGTH = 32
 
 function makeId (length: number): string {
     const croppedLength = Math.min(length, 32)
