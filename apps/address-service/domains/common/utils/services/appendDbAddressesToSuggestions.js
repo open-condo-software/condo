@@ -49,6 +49,9 @@ async function appendDbAddressesToSuggestions (context, suggestions) {
     const allFoundSources = resultsFromDB.flat()
     const newSuggestionsToAdd = []
 
+    const provider = get(conf, 'PROVIDER')
+    const isGoogleProvider = provider === GOOGLE_PROVIDER
+
     for (const source of allFoundSources) {
         if (!source?.source || !source?.address?.meta) {
             continue
@@ -57,9 +60,6 @@ async function appendDbAddressesToSuggestions (context, suggestions) {
         const normalizedSource = source.source.toLowerCase()
 
         if (!uniqueNormalizedSuggestions.has(normalizedSource)) {
-            const provider = get(conf, 'PROVIDER')
-            const isGoogleProvider = provider === GOOGLE_PROVIDER
-
             const defaultAddressValue = source.address.address
 
             const capitalizedAddressSourceValue = normalizedSource
