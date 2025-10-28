@@ -35,6 +35,7 @@ type UserHistoryRecord {
   customAccess: JSON
   showGlobalHints: Boolean
   rightsSet: String
+  isTwoFactorAuthenticationEnabled: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -247,6 +248,8 @@ input UserHistoryRecordWhereInput {
   rightsSet_not: String
   rightsSet_in: [String]
   rightsSet_not_in: [String]
+  isTwoFactorAuthenticationEnabled: Boolean
+  isTwoFactorAuthenticationEnabled_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -364,6 +367,8 @@ enum SortUserHistoryRecordsBy {
   locale_DESC
   showGlobalHints_ASC
   showGlobalHints_DESC
+  isTwoFactorAuthenticationEnabled_ASC
+  isTwoFactorAuthenticationEnabled_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -404,6 +409,7 @@ input UserHistoryRecordUpdateInput {
   customAccess: JSON
   showGlobalHints: Boolean
   rightsSet: String
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -445,6 +451,7 @@ input UserHistoryRecordCreateInput {
   customAccess: JSON
   showGlobalHints: Boolean
   rightsSet: String
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -631,6 +638,10 @@ type User {
   """ A set of permissions that allow the user to directly read or manage certain schemas as well as run certain mutations. 
   """
   rightsSet: UserRightsSet
+
+  """ Two-factor authentication is enabled or disabled. Read-only field. The value can only be changed via the "changeTwoFactorAuthentication" mutation. 
+  """
+  isTwoFactorAuthenticationEnabled: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -804,6 +815,8 @@ input UserWhereInput {
   showGlobalHints_not: Boolean
   rightsSet: UserRightsSetWhereInput
   rightsSet_is_null: Boolean
+  isTwoFactorAuthenticationEnabled: Boolean
+  isTwoFactorAuthenticationEnabled_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -901,6 +914,8 @@ enum SortUsersBy {
   showGlobalHints_DESC
   rightsSet_ASC
   rightsSet_DESC
+  isTwoFactorAuthenticationEnabled_ASC
+  isTwoFactorAuthenticationEnabled_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -941,6 +956,7 @@ input UserUpdateInput {
   customAccess: CustomAccessInput
   showGlobalHints: Boolean
   rightsSet: UserRightsSetRelateToOneInput
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -979,6 +995,7 @@ input UserCreateInput {
   customAccess: CustomAccessInput
   showGlobalHints: Boolean
   rightsSet: UserRightsSetRelateToOneInput
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
