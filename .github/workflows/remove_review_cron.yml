@@ -117,16 +117,8 @@ jobs:
             fi
 
             echo "-- From namespace: $ns  -> prefix: $sanitized" >> "$TMP_SQL"
-cat >> "$TMP_SQL" <<EOF
-WITH to_drop AS (
-  SELECT datname
-  FROM pg_database
-  WHERE datname LIKE '${sanitized}%'
-    AND datname NOT IN ('postgres','template0','template1')
-)
-SELECT 'DROP DATABASE ' || quote_ident(datname) || ' WITH (FORCE);'
-FROM to_drop;
-EOF
+
+            echo "WITH to_drop AS (SELECT datname FROM pg_database WHERE datname LIKE '${sanitized}%' AND datname NOT IN ('postgres','template0','template1')) SELECT 'DROP DATABASE ' || quote_ident(datname) || ' WITH (FORCE);' FROM to_drop;" >> "$TMP_SQL"
           done < namespaces_to_delete.txt
 
           echo "Planned DROP statements:"
