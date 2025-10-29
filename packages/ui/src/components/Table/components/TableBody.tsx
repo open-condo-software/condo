@@ -4,6 +4,7 @@ import React, { useCallback } from 'react'
 import { Inbox } from '@open-condo/icons'
 import { colors } from '@open-condo/ui/src/colors'
 
+
 export function TableBody <TData extends RowData = RowData> ({ 
     table, 
     onRowClick, 
@@ -56,8 +57,7 @@ export function TableBody <TData extends RowData = RowData> ({
                     aria-label={onRowClick ? `Select row ${row.id}` : undefined}
                 >
                     {row.getVisibleCells().map(cell => {
-                        // Добавить логирование для отладки
-                        console.log('Cell size:', cell.column.getSize())
+                        console.log('777', cell.column.getSize())
                         return (
                             <div
                                 key={cell.id}
@@ -68,7 +68,8 @@ export function TableBody <TData extends RowData = RowData> ({
                             >
                                 {showSkeleton ? <div className='condo-table-cell-skeleton' /> : flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </div>
-                        )})}
+                        )
+                    })}
                 </div>
             ))}
         </div>

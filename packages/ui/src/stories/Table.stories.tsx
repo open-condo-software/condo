@@ -60,6 +60,7 @@ const columns: TableColumn<TableData>[] = [
         enableColumnSettings: false,
         enableSorting: false,
         render: () => <span></span>,
+        initialSize: 50,
     },
     {
         dataKey: 'firstName',
@@ -67,7 +68,8 @@ const columns: TableColumn<TableData>[] = [
         id: 'firstName',
         initialOrder: 4,
         initialVisibility: true,
-        render: renderTextWithTooltip(),
+        initialSize: '10%',
+        render: renderTextWithTooltip({ ellipsis: true }),
         filterComponent: ({ setFilterValue, filterValue }) => (
             <Input
                 onChange={(event) => {
@@ -318,7 +320,6 @@ export const RowSelectionState: StoryObj<TableProps<TableData>> = {
         id: tableId,
         dataSource: getTableData,
         columns,
-        defaultColumn: defaultColumn,
         rowSelectionOptions: rowSelection,
     },
 }
