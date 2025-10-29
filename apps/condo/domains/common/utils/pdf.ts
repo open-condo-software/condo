@@ -6,12 +6,12 @@ interface ICreatePdfOptions {
     fileName: string
 }
 
-interface ICreatePdfWithPageBreaks {
+interface ICreatePdf {
     (options: ICreatePdfOptions): Promise<void>
 }
 
 
-export const createWrappedPdf: ICreatePdfWithPageBreaks = async (options) => {
+export const createWrappedPdf: ICreatePdf = async (options) => {
     if (typeof window === 'undefined') {
         console.warn('createWrappedPdf can only be called on client side')
         return
@@ -20,13 +20,17 @@ export const createWrappedPdf: ICreatePdfWithPageBreaks = async (options) => {
     const { element, fileName } = options
     
     try {
-        const pdfWidth = element.clientWidth
-        const pdfHeight = element.clientHeight
+        const pixelWidth = element.clientWidth
+        const pixelHeight = element.clientHeight
+        const pdfWidth = pixelWidth * 0.75
+        const pdfHeight = pixelHeight * 0.75
+
         const canvas = await html2canvas(element, {
-            windowWidth: pdfWidth,
-            windowHeight: pdfHeight,
+            windowWidth: pixelWidth,
+            windowHeight: pixelHeight,
         })
         const imageData = canvas.toDataURL('image/png')
+        
         
         const docDefinition = {
             pageSize: {
@@ -42,7 +46,6 @@ export const createWrappedPdf: ICreatePdfWithPageBreaks = async (options) => {
                 },
             ],
         }
-        
         const pdfDocGenerator = pdfMake.createPdf(docDefinition)
         pdfDocGenerator.download(fileName)
     } catch (error) {

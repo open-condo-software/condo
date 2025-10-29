@@ -148,6 +148,11 @@ const nextConfig: NextConfig = {
                 destination: '/reports/:path*',
                 permanent: false,
             },
+            {
+                source: '/reports/detail/report-by-tickets/:path*',
+                destination: '/reports/:path*',
+                permanent: false,
+            },
         ]
     },
     webpack: (config) => {
