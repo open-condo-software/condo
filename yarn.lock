@@ -738,6 +738,7 @@ __metadata:
     "@graphql-codegen/typescript-react-apollo": ^4.3.2
     "@hcaptcha/react-hcaptcha": ^1.10.1
     "@metro-fs/analytics-plugin-posthog": ^1.14.0
+    "@next/bundle-analyzer": ^15.4.6
     "@open-condo/apollo": "workspace:^"
     "@open-condo/billing": "workspace:^"
     "@open-condo/bridge": "workspace:^"
@@ -775,6 +776,7 @@ __metadata:
     antd: ^4.24.12
     aws-sdk: ^2.1692.0
     axios: ^0.26.0
+    babel-plugin-react-compiler: ^1.0.0
     bad-words-next: ^1.6.7
     big.js: ^6.2.2
     carbone: 3.2.3
@@ -837,6 +839,7 @@ __metadata:
     rc-picker: ^4.2.0
     rc-upload: ~4.3.0
     react: ^18.3.1
+    react-compiler-runtime: ^1.0.0
     react-dom: ^18.3.1
     react-hotkeys-hook: 3.4.6
     react-indiana-drag-scroll: ^2.0.1
@@ -10051,6 +10054,15 @@ __metadata:
   resolution: "@news-telegram-api/domains@link:./domains::locator=%40app%2Fnews-telegram-api%40workspace%3Aapps%2Fnews-telegram-api"
   languageName: node
   linkType: soft
+
+"@next/bundle-analyzer@npm:^15.4.6":
+  version: 15.5.6
+  resolution: "@next/bundle-analyzer@npm:15.5.6"
+  dependencies:
+    webpack-bundle-analyzer: 4.10.1
+  checksum: 44d2450479afdd2ce48ef331ce22a8e0648ca0022d783882a74dde5c39b4c7a0043fc1b7c4d558ab61fcdafcfe0861bbaa45dabb0d7f30fea9245669c5e0dd37
+  languageName: node
+  linkType: hard
 
 "@next/env@npm:15.4.6":
   version: 15.4.6
@@ -39235,6 +39247,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-compiler-runtime@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "react-compiler-runtime@npm:1.0.0"
+  peerDependencies:
+    react: ^17.0.0 || ^18.0.0 || ^19.0.0 || ^0.0.0-experimental
+  checksum: 78333ac1b06fe1209aa912986959b8c3017f681f98f07b8ad7927f73be6d6ce3516edffa182990840f3afd371be631ed78954d2404acce1258d62adc06f14255
+  languageName: node
+  linkType: hard
+
 "react-copy-to-clipboard@npm:^5.0.1":
   version: 5.1.0
   resolution: "react-copy-to-clipboard@npm:5.1.0"
@@ -47218,7 +47239,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-bundle-analyzer@npm:^4":
+"webpack-bundle-analyzer@npm:4.10.1, webpack-bundle-analyzer@npm:^4":
   version: 4.10.1
   resolution: "webpack-bundle-analyzer@npm:4.10.1"
   dependencies:

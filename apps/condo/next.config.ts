@@ -1,3 +1,4 @@
+import withBundleAnalyzer from '@next/bundle-analyzer'
 import withLess from 'next-with-less'
 
 import conf from '@open-condo/config'
@@ -9,6 +10,10 @@ import { getCurrentVersion } from '@condo/domains/common/utils/VersioningMiddlew
 import { name } from './package.json'
 
 import type { NextConfig } from 'next'
+
+const bundleAnalyzer = withBundleAnalyzer({
+    enabled: process.env.ANALYZE === 'true',
+})
 
 const appName = name
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
@@ -68,6 +73,19 @@ const verifyUserEmailWithMarketingConsentEnabled = conf['VERIFY_USER_EMAIL_WITH_
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
 
 const nextConfig: NextConfig = {
+    experimental: {
+        reactCompiler: true,
+        // Optimize package imports to reduce bundle size
+        optimizePackageImports: [
+            'lodash',
+            '@open-condo/ui',
+            '@open-condo/icons',
+        ],
+
+        // померять
+        optimisticClientCache: true,
+    },
+
     transpilePackages: [
         '@open-condo/codegen',
         '@open-condo/next',
@@ -155,7 +173,92 @@ const nextConfig: NextConfig = {
             },
         ]
     },
-    webpack: (config) => {
+    async headers () {
+        return [
+            // Static assets in public folder (images, fonts, etc.)
+            {
+                source: '/:path*.(svg|jpg|jpeg|png|gif|ico|webp|avif|woff|woff2|ttf|eot)',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+            // Next.js generated static files
+            {
+                source: '/_next/static/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+            // Next.js image optimization
+            {
+                source: '/_next/image/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+        ]
+    },
+    webpack: (config, { isServer }) => {
+        config.resolve.alias = {
+            ...config.resolve.alias,
+            'react/compiler-runtime': 'react-compiler-runtime',
+        }
+
+        // Optimize bundle splitting
+        /* config.optimization = {
+            ...config.optimization,
+            moduleIds: 'deterministic',
+            runtimeChunk: isServer ? undefined : 'single',
+            splitChunks: {
+                chunks: 'all',
+                cacheGroups: {
+                    default: false,
+                    vendors: false,
+                    // Vendor chunk for node_modules
+                    vendor: {
+                        name: 'vendor',
+                        chunks: 'all',
+                        test: /node_modules/,
+                        priority: 20,
+                    },
+                    // Common chunk for shared code
+                    common: {
+                        name: 'common',
+                        minChunks: 2,
+                        chunks: 'all',
+                        priority: 10,
+                        reuseExistingChunk: true,
+                        enforce: true,
+                    },
+                    // Separate chunks for large libraries
+                    antd: {
+                        name: 'antd',
+                        test: /\/node_modules\/(antd|@ant-design)\//,
+                        priority: 30,
+                    },
+                    apollo: {
+                        name: 'apollo',
+                        test: /\/node_modules\/(@apollo)\//,
+                        priority: 30,
+                    },
+                    react: {
+                        name: 'react',
+                        test: /\/node_modules\/(react|react-dom)\//,
+                        priority: 30,
+                    },
+                },
+            },
+        } */
+        
         config.module.rules = [
             ...(config.module.rules || []),
             {
@@ -171,4 +274,5 @@ const nextConfig: NextConfig = {
     },
 }
 
-export default withLess(nextConfig)
+// показать на техтолках
+export default bundleAnalyzer(withLess(nextConfig))
