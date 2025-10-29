@@ -117,24 +117,27 @@ jobs:
             fi
 
             echo "-- From namespace: $ns  -> prefix: $sanitized" >> "$TMP_SQL"
-            cat >> "$TMP_SQL" <<EOF
-            WITH to_drop AS (
-              SELECT datname
-              FROM pg_database
-              WHERE datname LIKE '${sanitized}%'
-                AND datname NOT IN ('postgres','template0','template1')
-            )
-            SELECT 'DROP DATABASE ' || quote_ident(datname) || ';' FROM to_drop;
-            EOF
-                      done < namespaces_to_delete.txt
+cat >> "$TMP_SQL" <<EOF
+WITH to_drop AS (
+  SELECT datname
+  FROM pg_database
+  WHERE datname LIKE '${sanitized}%'
+    AND datname NOT IN ('postgres','template0','template1')
+)
+SELECT 'DROP DATABASE ' || quote_ident(datname) || ' WITH (FORCE);'
+FROM to_drop;
+EOF
+          done < namespaces_to_delete.txt
 
-                      echo "Planned DROP statements:"
-                      psql -d "$PSQL_DSN" -Atqc "\i $TMP_SQL" | sed 's/^/  /' || true
+          echo "Planned DROP statements:"
+          # Show the generated DROP statements (do not execute yet)
+          psql -d "$PSQL_DSN" -v ON_ERROR_STOP=1 -Atqc "\i $TMP_SQL" | sed 's/^/  /' || true
 
-                      echo "Executing drops..."
-                      psql -d "$PSQL_DSN" -Atqc "\i $TMP_SQL" | psql -d "$PSQL_DSN"
+          echo "Executing drops..."
+          # Generate the DROP statements, then pipe them into a second psql for execution
+          psql -d "$PSQL_DSN" -v ON_ERROR_STOP=1 -Atqc "\i $TMP_SQL" | psql -d "$PSQL_DSN" -v ON_ERROR_STOP=1
 
-                      echo "Database cleanup finished."
+          echo "Database cleanup finished."
 
       - name: Summary
         shell: bash
