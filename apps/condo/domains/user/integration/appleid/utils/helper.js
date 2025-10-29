@@ -1,10 +1,10 @@
 const { isNil } = require('lodash')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { AppleIdIdentityIntegration } = require('@condo/domains/user/integration/appleid/AppleIdIdentityIntegration')
@@ -75,7 +75,7 @@ async function getIdTokenByLinkingCode (req) {
 async function interruptForRegistration (req, res, idToken) {
     const user = getUser(req)
     const authFlowId = getAuthFlowId(req)
-    const linkingCode = uuid()
+    const linkingCode = generateUUIDv4()
 
     // let's save linkingCode into the redis as a key
     // with authFlowId and idToken data
