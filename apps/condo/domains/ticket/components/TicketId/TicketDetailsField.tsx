@@ -1,33 +1,33 @@
-import { Ticket } from '@app/condo/schema'
-import omit from 'lodash/omit'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Markdown, Typography, Checkbox } from '@open-condo/ui'
+import { Markdown } from '@open-condo/ui'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 
 type TicketDetailsFieldProps = {
-    ticket: Ticket
+    ticketDetails: string
+    updateTicketDetails?: (newTicketDetails: string) => void
 }
 
-const MARKDOWN_COMPONENT_OVERRIDES = {
-    p: (props) => <Typography.Paragraph {...omit(props, 'ref')} type='primary' />,
-    input: (props) => <Checkbox/>,
-}
-
-export const TicketDetailsField: React.FC<TicketDetailsFieldProps> = ({ ticket }) => {
+export const TicketDetailsField: React.FC<TicketDetailsFieldProps> = ({ ticketDetails, updateTicketDetails }) => {
     const intl = useIntl()
     const TicketDetailsMessage = intl.formatMessage({ id: 'Problem' })
 
+    // This is for backwards compatibility
+    const getUpdateTicketDetailsFunction = () => {
+        if (typeof updateTicketDetails === 'function') {
+            return (newDetails) => updateTicketDetails(newDetails)
+        } else {
+            return () => {}
+        }
+    }
+
     return (
         <>
-            <PageFieldRow title={TicketDetailsMessage} ellipsis lineWrapping='break-spaces'>
-                {ticket?.details}
-            </PageFieldRow>
             <PageFieldRow title={TicketDetailsMessage} ellipsis>
-                <Markdown components={MARKDOWN_COMPONENT_OVERRIDES}>
-                    {ticket?.details}
+                <Markdown type='lite' onCheckboxChange = {getUpdateTicketDetailsFunction()}>
+                    {ticketDetails}
                 </Markdown>
             </PageFieldRow>
         </>
