@@ -31,7 +31,17 @@ import { getPageIndexFromStartRow } from '@open-condo/ui/src/components/Table/ut
 
 const COLUMN_ID_SELECTION = 'selection'
 
-// Need add resize columns
+/**
+ * @deprecated This component is experimental. API may change at any time without notice.
+ * 
+ * @experimental
+ * 
+ * Table component is in experimental stage of development.
+ * API may be changed at any moment without prior notice.
+ * Use with caution in production.
+ * 
+ * @template TData - Type of table row data
+ */
 export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData extends RowData = RowData> ({
     id,
     dataSource,

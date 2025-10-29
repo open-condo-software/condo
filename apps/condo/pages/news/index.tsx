@@ -1,23 +1,14 @@
 import { Col, Row, RowProps } from 'antd'
-import debounce from 'lodash/debounce'
+import { isEmpty } from 'lodash'
 import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { 
-    ActionBar, 
-    ActionBarProps, 
-    Button, 
-    Typography, 
-    Table as OpenTable, 
-    TableState, 
-    TableColumnMenuLabels,
-} from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -25,94 +16,67 @@ import { PageHeader, PageWrapper } from '@condo/domains/common/components/contai
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
-import { DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { PageComponentType } from '@condo/domains/common/types'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
-import { useOpenTableColumns, useTableColumns } from '@condo/domains/news/hooks/useTableColumns'
+import { useTableColumns } from '@condo/domains/news/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/news/hooks/useTableFilters'
 import { NewsItem } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
+
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const SORTABLE_PROPERTIES = ['number', 'createdAt']
 const NEWS_DEFAULT_SORT_BY = ['createdAt_DESC']
 
-const OpenTableContainer = ({
-    baseNewsQuery,
+const NewsTableContainer = ({
     filterMetas,
-    loading, 
-    search,
+    sortBy,
+    searchNewsQuery,
+    loading,
 }) => {
     const intl = useIntl()
     const CreateNewsLabel = intl.formatMessage({ id: 'news.createNews' })
-    const SortLabel = intl.formatMessage({ id: 'Table.Sort' })
-    const FilterLabel = intl.formatMessage({ id: 'Table.Filter' })
-    const SettingsLabel = intl.formatMessage({ id: 'Table.Settings' })
-    const SortedLabel = intl.formatMessage({ id: 'Table.Sorted' })
-    const FilteredLabel = intl.formatMessage({ id: 'Table.Filtered' })
-    const SettedLabel = intl.formatMessage({ id: 'Table.Setted' })
-    const { push } = useRouter()
+    const router = useRouter()
+    const { offset } = useMemo(() => parseQuery(router.query), [router.query])
 
-    const columns = useOpenTableColumns(filterMetas)
-
+    const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE), [offset])
     const { canManage } = useNewsItemsAccess()
 
-    const { refetch } = NewsItem.useObjects({})
+    const {
+        loading: isNewsFetching,
+        count: total,
+        objs: news,
+    } = NewsItem.useObjects({
+        sortBy,
+        where: searchNewsQuery,
+        first: DEFAULT_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    }, { fetchPolicy: 'network-only' })
 
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
-
-    const debouncedRefetch = useMemo(() => {
-        return debounce(async (params) => {
-            return await refetch(params)
-        }, 3000)
-    }, [refetch])
-
-    const dataSource = useCallback(async ({ filterState, sortState, startRow, endRow }: TableState) => {
-        const querySorts = sortState.map((column) => ({
-            columnKey: column.id,
-            order: column.desc ? 'descend' : 'ascend' as 'descend' | 'ascend',
-        }))
-        try {
-            const sortBy = sortersToSortBy(querySorts, NEWS_DEFAULT_SORT_BY)
-            const where = filtersToWhere({ ...filterState, search, ...baseNewsQuery })
-            const { data } = await debouncedRefetch({
-                sortBy,
-                where,
-                first: endRow - startRow,
-                skip: endRow,
-            })
-
-            return { rowData: data?.objs ?? [], rowCount: data?.meta?.count }
-        } catch (e) {
-            return { rowData: [], rowCount: 0 }
-        }
-    }, [sortersToSortBy, filtersToWhere, search, debouncedRefetch, baseNewsQuery])
-
-    const columnMenuLabels: TableColumnMenuLabels = {
-        sortDescLabel: SortLabel,
-        sortAscLabel: SortLabel,
-        filterLabel: FilterLabel,
-        settingsLabel: SettingsLabel,
-        sortedDescLabel: SortedLabel,
-        sortedAscLabel: SortedLabel,
-        filteredLabel: FilteredLabel,
-        settedLabel: SettedLabel,
-    }
-
-    const handleRowAction = useCallback(async (record) => {
-        await push(`/news/${record.id}`)
-    }, [push])
+    const columns = useTableColumns(filterMetas)
 
     const handleAddNews = useCallback(async () => {
-        await push('/news/create')
-    }, [push])
+        await router.push('/news/create')
+    }, [router])
+
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: async () => {
+                await router.push(`/news/${record.id}`)
+            },
+        }
+    }, [router])
+
+    const isAllLoaded = !(loading || isNewsFetching)
 
     const actionBarButtons: ActionBarProps['actions'] = useMemo(() => [
         canManage && <Button
@@ -124,47 +88,34 @@ const OpenTableContainer = ({
     ], [CreateNewsLabel, canManage, handleAddNews])
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
-            <Row gutter={PAGE_ROW_GUTTER}>
-                <Col span={24}>
-                    <OpenTable
-                        dataSource={dataSource}
-                        columns={columns}
-                        pageSize={DEFAULT_PAGE_SIZE}
-                        onTableStateChange={(tableState) => {
-                            console.log('tableState', tableState)
-                        }}
-                        initialTableState={{
-                            filterState: {}, 
-                            startRow: 0, 
-                            sortState: [], 
-                            endRow: 0,
-                        }}
-                        columnMenuLabels={columnMenuLabels}
-                        id='open-table'
-                        onRowClick={handleRowAction}
-                    />
-                </Col>
-            </Row>
+        <Row gutter={PAGE_ROW_GUTTER}>
+            <Col span={24}>
+                <Table
+                    totalRows={total}
+                    loading={!isAllLoaded}
+                    dataSource={isAllLoaded ? news : null}
+                    columns={columns}
+                    data-cy='news__table'
+                    onRow={handleRowAction}
+                />
+            </Col>
             {
                 !isEmpty(actionBarButtons.filter(Boolean)) && (
-                    <Row gutter={PAGE_ROW_GUTTER}>
-                        <Col span={24}>
-                            <ActionBar
-                                actions={actionBarButtons}
-                            />
-                        </Col>
-                    </Row>
+                    <Col span={24}>
+                        <ActionBar
+                            actions={actionBarButtons}
+                        />
+                    </Col>
                 )
             }
-        </div>
+        </Row>
     )
-            
 }
 
 const NewsPageContent = ({
     baseNewsQuery,
     filterMetas,
+    sortableProperties,
 }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -180,7 +131,13 @@ const NewsPageContent = ({
     const handleSearchChange = useCallback((e) => {
         changeSearch(e.target.value)
     }, [changeSearch])
-    
+
+    const router = useRouter()
+    const { filters, sorters } = parseQuery(router.query)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
+    const sortBy = sortersToSortBy(sorters, NEWS_DEFAULT_SORT_BY)
+    const searchNewsQuery = useMemo(() => ({ ...baseNewsQuery, ...filtersToWhere(filters) }),
+        [baseNewsQuery, filters, filtersToWhere])
     const { canManage } = useNewsItemsAccess()
 
     const { organization } = useOrganization()
@@ -243,11 +200,11 @@ const NewsPageContent = ({
                     />
                 </TableFiltersContainer>
             </Col>
-            <OpenTableContainer
-                baseNewsQuery={baseNewsQuery}
+            <NewsTableContainer
+                searchNewsQuery={searchNewsQuery}
+                sortBy={sortBy}
                 filterMetas={filterMetas}
-                loading={loading}   
-                search={search}
+                loading={loading}
             />
         </Row>
     )
@@ -286,6 +243,7 @@ const NewsPage: PageComponentType = () => {
                     <NewsPageContent
                         baseNewsQuery={baseNewsQuery}
                         filterMetas={filterMetas}
+                        sortableProperties={SORTABLE_PROPERTIES}
                     />
                 </TablePageContent>
             </PageWrapper>
