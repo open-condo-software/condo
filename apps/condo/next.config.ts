@@ -150,7 +150,7 @@ const nextConfig: NextConfig = {
             },
             {
                 source: '/reports/detail/report-by-tickets/:path*',
-                destination: '/reports/:path*',
+                destination: '/reports',
                 permanent: false,
             },
         ]
