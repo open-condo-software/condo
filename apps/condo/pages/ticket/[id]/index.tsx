@@ -7,6 +7,7 @@ import {
     useGetTicketCommentsQuery,
     useGetTicketLastCommentsTimeQuery, useGetUserTicketCommentsReadTimeQuery,
     useUpdateTicketCommentMutation,
+    useUpdateTicketMutation,
     useCreateUserTicketCommentReadTimeMutation,
     useUpdateUserTicketCommentReadTimeMutation, useGetTicketInvoicesQuery, GetIncidentsQuery,
 } from '@app/condo/gql'
@@ -14,6 +15,7 @@ import { B2BAppGlobalFeature } from '@app/condo/schema'
 import { Affix, Col, ColProps, notification, Row, RowProps, Space } from 'antd'
 import dayjs from 'dayjs'
 import compact from 'lodash/compact'
+import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map'
@@ -22,8 +24,10 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
+
 import { useCachePersistor } from '@open-condo/apollo'
 import { Link as LinkIcon } from '@open-condo/icons'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
@@ -98,7 +102,6 @@ import {
 import { prefetchTicket } from '@condo/domains/ticket/utils/next/Ticket'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
-
 
 const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
@@ -351,7 +354,7 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
     )
 }
 
-const TicketContent = ({ ticket }) => {
+const TicketContent = ({ ticket, ticketDetails, handleUpdateTicketDetails }) => {
     return (
         <Col span={24}>
             <Row gutter={[0, 16]}>
@@ -360,7 +363,7 @@ const TicketContent = ({ ticket }) => {
                 <TicketDeadlineField ticket={ticket}/>
                 <TicketPropertyField ticket={ticket}/>
                 <TicketClientField ticket={ticket}/>
-                <TicketDetailsField ticket={ticket}/>
+                <TicketDetailsField ticketDetails={ticketDetails} updateTicketDetails={handleUpdateTicketDetails}/>
                 <TicketFileListField ticket={ticket}/>
                 <TicketClassifierField ticket={ticket}/>
                 <TicketExecutorField ticket={ticket}/>
@@ -571,6 +574,8 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
 
     const id = useMemo(() => ticket?.id, [ticket?.id])
 
+    const [ticketDetails, setTicketDetails] = useState(ticket?.details)
+
     const {
         data: ticketChangesData,
         refetch: refetchTicketChanges,
@@ -616,6 +621,25 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
             files: ticketCommentFiles.filter(file => file.ticketComment.id === comment.id),
         }
     }), [comments, ticketCommentFiles])
+
+    const [updateTicket] = useUpdateTicketMutation()
+    const debouncedUpdateTicket = useMemo(() => debounce(updateTicket, 500), [updateTicket])
+
+    const handleUpdateTicketDetails = async (newTicketDetails: string) => {
+        setTicketDetails(newTicketDetails)
+
+        await debouncedUpdateTicket({
+            variables: {
+                id: id,
+                data: {
+                    details: newTicketDetails,
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                },
+            },
+
+        })
+    }
 
     const [updateComment] = useUpdateTicketCommentMutation({
         onCompleted: async () => {
@@ -730,7 +754,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                             )
                         }
                     </Row>
-                    <TicketContent ticket={ticket}/>
+                    <TicketContent ticket={ticket} ticketDetails={ticketDetails} handleUpdateTicketDetails={handleUpdateTicketDetails}/>
                     {
                         isNoServiceProviderOrganization && ticket.isPayable && (
                             <Col span={24}>

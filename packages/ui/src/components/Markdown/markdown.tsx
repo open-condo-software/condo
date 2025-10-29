@@ -1,6 +1,6 @@
 import omit from 'lodash/omit'
 import React from 'react'
-import ReactMarkdown, { ReactMarkdownOptions } from 'react-markdown'
+import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 import { CodeWrapper } from './codeWrapper'
@@ -14,19 +14,36 @@ const REMARK_PLUGINS: Array<any> = [
 
 export type MarkdownProps = {
     children: string
+    type: 'default' | 'lite'
     onCheckboxChange?: (newMarkdownContent: string) => void
-    components?: Pick<ReactMarkdownOptions, 'components'>
+}
+
+type PositionType = {
+    start: {
+        offset: number
+        line: number
+        column: number
+    }
+    end: {
+        offset: number
+        line: number
+        column: number
+    }
 }
 
 const MARKDOWN_CLASS_PREFIX = 'condo-markdown'
 
-const TaskListItem: React.FC<{
-    node: any
+type TaskListItemType = {
+    node: { 
+        position: PositionType
+    }
     checked?: boolean
     children: React.ReactNode
-    onToggle?: (checked: boolean) => void
+    onToggle?: (checked: { checked: boolean, position: PositionType }) => void
     disabled?: boolean
-}> = ({
+}
+
+const TaskListItem: React.FC<TaskListItemType> = ({
     checked = false,
     children,
     onToggle,
@@ -35,15 +52,12 @@ const TaskListItem: React.FC<{
 }) => {
     const position = node.position
 
-    console.log('checkbox position', position)
-
     return (
         <li style={{ listStyle: 'none' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                 <Checkbox
                     checked={checked}
-                    // @ts-ignore
-                    onChange={(e) => onToggle?.({ checked: e.target.checked, e: e, position })}
+                    onChange={(e) => onToggle?.({ checked: e.target.checked, position })}
                     disabled={disabled}
                 />
                 <Typography.Text type='secondary'>
@@ -54,15 +68,37 @@ const TaskListItem: React.FC<{
     )
 }
 
-export const Markdown: React.FC<MarkdownProps> = ({ children, components, onCheckboxChange }) => {
-    const hasInteractiveCheckboxes = onCheckboxChange && typeof onCheckboxChange === 'function'
-    console.log('hasInteractiveCheckboxes', onCheckboxChange, hasInteractiveCheckboxes)
+const MARKDOWN_COMPONENTS_BY_TYPE = {
+    'default': {
+        h1: (props: any) => <Typography.Title {...omit(props, 'ref')} level={1}/>,
+        h2: (props: any) => <Typography.Title {...omit(props, 'ref')} level={2}/>,
+        h3: (props: any) => <Typography.Title {...omit(props, 'ref')} level={3}/>,
+        h4: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
+        h5: (props: any) => <Typography.Title {...omit(props, 'ref')} level={5}/>,
+        h6: (props: any) => <Typography.Title {...omit(props, 'ref')} level={6}/>,
+    },
+    // Lite should be used when displaying text formatted by user
+    'lite': {
+        h1: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
+        h2: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
+        h3: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
+        h4: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
+        h5: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
+        h6: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
+        p: (props: any) => <Typography.Paragraph {...omit(props, 'ref')} type='primary' />,
+    },
+}
 
-    // @ts-ignore
-    const callOnCheckboxChange = ({ checked, e, position }) => {
+export const Markdown: React.FC<MarkdownProps> = ({ children, type = 'default', onCheckboxChange }) => {
+    if (!MARKDOWN_COMPONENTS_BY_TYPE.hasOwnProperty(type)) {
+        throw new Error('Unsupported markdown type')
+    }
+
+    const hasInteractiveCheckboxes = onCheckboxChange && typeof onCheckboxChange === 'function'
+
+    const callOnCheckboxChange: TaskListItemType['onToggle']  = ({ checked, position }) => {
         console.log('position', position)
         console.log('checked', checked)
-        console.log('e', e)
 
         if (hasInteractiveCheckboxes) {
             const checkboxChangedPositionOffset = position.start.offset + 3
@@ -82,16 +118,8 @@ export const Markdown: React.FC<MarkdownProps> = ({ children, components, onChec
             className={MARKDOWN_CLASS_PREFIX}
             remarkPlugins={REMARK_PLUGINS}
             components={{
-                h1: (props) => <Typography.Title {...omit(props, 'ref')} level={1}/>,
-                h2: (props) => <Typography.Title {...omit(props, 'ref')} level={2}/>,
-                h3: (props) => <Typography.Title {...omit(props, 'ref')} level={3}/>,
-                h4: (props) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
-                h5: (props) => <Typography.Title {...omit(props, 'ref')} level={5}/>,
-                h6: (props) => <Typography.Title {...omit(props, 'ref')} level={6}/>,
-                // TODO: Try more elegant solutions if deploys succeed
-                p: (props: any) => <Typography.Paragraph {...omit(props, 'ref')} type='secondary' />,
+                ...MARKDOWN_COMPONENTS_BY_TYPE[type],
                 a: (props: any) => <Typography.Link {...omit(props, 'ref')} rel='noopener noreferer' target='_blank'/>,
-                //li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
                 pre: (props: any) => <CodeWrapper {...props}/>,
                 input: (props) => {
                     if (props.type !== 'checkbox') {
@@ -108,39 +136,31 @@ export const Markdown: React.FC<MarkdownProps> = ({ children, components, onChec
                 li: (props) => {
                     const { children, ...restProps } = props
 
-                    // Check if this is a task list item by looking for checkbox input
                     const childrenArray = React.Children.toArray(children)
                     const checkboxChild = childrenArray.find(child =>
                         React.isValidElement(child) && child.props?.type === 'checkbox'
                     )
 
-                    if (checkboxChild as React.ReactElement) {
-                        console.log('rendering props:', props)
+                    if (checkboxChild) {
+                        const checked = React.isValidElement(checkboxChild) && checkboxChild?.props?.checked || false
 
-                        // @ts-ignore
-                        const checked = checkboxChild?.props?.checked || false
-                        // Remove the checkbox from children since we'll render it separately
                         const contentChildren = childrenArray.filter(child =>
                             !(React.isValidElement(child) && child.props?.type === 'checkbox')
                         )
 
-
                         return (
-                            // @ts-ignore
-                            <TaskListItem node={props.node} checked={checked} disabled={!hasInteractiveCheckboxes} onToggle={callOnCheckboxChange}>
+                            <TaskListItem node={props.node as any} checked={checked} disabled={!hasInteractiveCheckboxes} onToggle={callOnCheckboxChange}>
                                 {contentChildren}
                             </TaskListItem>
                         )
                     }
 
-                    // Regular list item
                     return (
                         <li {...restProps}>
                             <Typography.Text type='secondary'>{children}</Typography.Text>
                         </li>
                     )
                 },
-                ...components,
             }}
         >
             {children}
