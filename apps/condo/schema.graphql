@@ -86562,6 +86562,17 @@ type VerifyUserEmailOutput {
   status: String!
 }
 
+input ChangeTwoFactorAuthenticationInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  token: String!
+  isEnabled: Boolean!
+}
+
+type ChangeTwoFactorAuthenticationOutput {
+  status: String!
+}
+
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
@@ -98879,6 +98890,66 @@ type Mutation {
   }`
   """
   verifyUserEmail(data: VerifyUserEmailInput!): VerifyUserEmailOutput
+
+  """
+  This mutation changes the "isTwoFactorAuthenticationEnabled" field in the "User" schema. 
+  To perform this operation, you must obtain and pass a sudo token.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_TOKEN",
+    "message": "Invalid token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNSUPPORTED_TOKEN",
+    "message": "Unsupported token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOKEN_NOT_FOUND",
+    "message": "Unable to find non-expired UserSudoToken by specified token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_NOT_FOUND",
+    "message": "User not found",
+    "messageForUser": "Unable to update email"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "OPERATION_FAILED",
+    "message": "The operation failed",
+    "messageForUser": "Failed to update email"
+  }`
+  """
+  changeTwoFactorAuthentication(data: ChangeTwoFactorAuthenticationInput!): ChangeTwoFactorAuthenticationOutput
 
   """
   Registers new Organization for current user

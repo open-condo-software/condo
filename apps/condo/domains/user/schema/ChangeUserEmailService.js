@@ -53,7 +53,7 @@ const ERRORS = {
         messageForUser: 'api.user.changeUserEmail.TOKEN_NOT_FOUND',
     },
     USER_NOT_FOUND: {
-        mutation: 'changeUserPassword',
+        mutation: 'changeUserEmail',
         code: BAD_USER_INPUT,
         type: USER_NOT_FOUND,
         message: 'User not found',

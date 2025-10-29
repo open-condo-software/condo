@@ -261,6 +261,12 @@ const VERIFY_USER_EMAIL_MUTATION = gql`
     }
 `
 
+const CHANGE_TWO_FACTOR_AUTHENTICATION_MUTATION = gql`
+    mutation changeTwoFactorAuthentication ($data: ChangeTwoFactorAuthenticationInput!) {
+        result: changeTwoFactorAuthentication(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -305,5 +311,6 @@ module.exports = {
     CHANGE_USER_PASSWORD_MUTATION,
     CHANGE_USER_EMAIL_MUTATION,
     VERIFY_USER_EMAIL_MUTATION,
+    CHANGE_TWO_FACTOR_AUTHENTICATION_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
