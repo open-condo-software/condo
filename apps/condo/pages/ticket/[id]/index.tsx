@@ -12,7 +12,7 @@ import {
     useUpdateUserTicketCommentReadTimeMutation, useGetTicketInvoicesQuery, GetIncidentsQuery,
 } from '@app/condo/gql'
 import { B2BAppGlobalFeature } from '@app/condo/schema'
-import { Affix, Col, ColProps, notification, Row, RowProps, Space } from 'antd'
+import { Affix, Col, ColProps, notification, Row, RowProps, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
 import compact from 'lodash/compact'
 import debounce from 'lodash/debounce'
@@ -32,12 +32,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { 
-    ActionBar, 
-    Alert, 
-    Button, 
-    Typography,
-} from '@open-condo/ui'
+import { ActionBar, Alert, Button } from '@open-condo/ui'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
@@ -178,9 +173,8 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                         <Col xl={13} md={11} xs={24}>
                             <Row gutter={SMALL_VERTICAL_GUTTER} align='middle'>
                                 <Col span={breakpoints.TABLET_LARGE ? 24 : 22}>
-                                    <Typography.Title level={1}>
-                                        {TicketTitleMessage}
-                                    </Typography.Title>
+                                    <Typography.Title style={TITLE_STYLE}
+                                        level={1}>{TicketTitleMessage}</Typography.Title>
                                 </Col>
                                 {
                                     !breakpoints.TABLET_LARGE && (
@@ -194,31 +188,29 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                 <Col id='ticket__create-info' span={24}>
                                     <Row>
                                         <Col span={24}>
-                                            <Typography.Text type='secondary' size='small'>
-                                                {TicketCreationDate}, {TicketAuthorMessage}{' '} 
+                                            <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
+                                                <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}
+                                                    type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                                                <UserNameField user={createdBy}>
+                                                    {({ name, postfix }) => (
+                                                        <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
+                                                            {name}
+                                                            {postfix && <Typography.Text type='secondary'
+                                                                ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                                        </Typography.Text>
+                                                    )}
+                                                </UserNameField>
                                             </Typography.Text>
-                                            <UserNameField user={createdBy}>
-                                                {({ name, postfix }) => (
-                                                    <Typography.Text size='small'>
-                                                        {name}
-                                                        {postfix && (
-                                                            <Typography.Text type='secondary' size='small'>
-                                                                &nbsp;{postfix}
-                                                            </Typography.Text>
-                                                        )}
-                                                    </Typography.Text>
-                                                )}
-                                            </UserNameField>
                                         </Col>
                                         <Col span={24}>
-                                            <Typography.Text type='secondary' size='small'>
+                                            <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                 {SourceMessage} — {sourceName}
                                             </Typography.Text>
                                         </Col>
                                         <Col span={24}>
                                             {
                                                 !isResidentTicket && !canReadByResident && (
-                                                    <Typography.Text type='secondary' size='small'>
+                                                    <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                         <FormattedMessage
                                                             id='pages.condo.ticket.title.CanReadByResident'
                                                             values={canReadByResidentFormattedValue}
@@ -255,19 +247,14 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                         </Col>
                                         {
                                             statusUpdatedAt && (
-                                                <Col id='ticket__update-info'>
-                                                    <Row justify='end'>
-                                                        <Col offset={4}>
-                                                            <Typography.Text size='small'>
-                                                                {ChangedMessage}: {formattedStatusUpdatedAt}
-                                                            </Typography.Text>
-                                                        </Col>
-                                                        <Col>
-                                                            <Typography.Text type='secondary' size='small'>
-                                                                {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
-                                                            </Typography.Text>
-                                                        </Col>
-                                                    </Row>
+                                                <Col>
+                                                    <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
+                                                        {ChangedMessage}: {formattedStatusUpdatedAt}
+                                                    </Typography.Paragraph>
+                                                    <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}
+                                                        type='secondary'>
+                                                        {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
+                                                    </Typography.Paragraph>
                                                 </Col>
                                             )
                                         }
@@ -285,19 +272,14 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                         </Col>
                                         {
                                             statusUpdatedAt && (
-                                                <Col id='ticket__update-info'>
-                                                    <Row justify='end'>
-                                                        <Col offset={4}>
-                                                            <Typography.Text size='small'>
-                                                                {ChangedMessage}: {formattedStatusUpdatedAt}
-                                                            </Typography.Text>
-                                                        </Col>
-                                                        <Col>
-                                                            <Typography.Text type='secondary' size='small'>
-                                                                {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
-                                                            </Typography.Text>
-                                                        </Col>
-                                                    </Row>
+                                                <Col>
+                                                    <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
+                                                        {ChangedMessage}: {formattedStatusUpdatedAt}
+                                                    </Typography.Paragraph>
+                                                    <Typography.Paragraph style={TICKET_CREATE_INFO_TEXT_STYLE}
+                                                        type='secondary'>
+                                                        {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
+                                                    </Typography.Paragraph>
                                                 </Col>
                                             )
                                         }
@@ -492,7 +474,10 @@ const TicketActionBar = ({
     )
 }
 
+const TICKET_CREATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px' }
+const TICKET_UPDATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px', textAlign: 'end' }
 const HINT_CARD_STYLE: CSSProperties = { maxHeight: '3em ' }
+const TITLE_STYLE: CSSProperties = { margin: 0 }
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 const CopyMessageStyle: CSSProperties = { flexShrink: 1, whiteSpace: 'nowrap' }
 
@@ -576,10 +561,6 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
 
     const [ticketDetails, setTicketDetails] = useState(ticket?.details)
 
-    useEffect(() => {
-        setTicketDetails(ticket?.details)
-    }, [ticket?.id, ticket?.details])
-
     const {
         data: ticketChangesData,
         refetch: refetchTicketChanges,
@@ -641,12 +622,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                     sender: getClientSideSenderInfo(),
                 },
             },
-            onError: () => {
-                setTicketDetails(ticket?.details)
-                notification.error({
-                    message: intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' }),
-                })
-            },
+
         })
     }
 
