@@ -1,5 +1,5 @@
 import { flexRender, HeaderGroup, RowData, Table, CoreHeader } from '@tanstack/react-table'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 
 import { 
     MoreVertical, 
@@ -123,31 +123,10 @@ export function TableHeader <TData extends RowData = RowData> ({
         return columnMenu
     }, [renderColumnSettings, columnMenuLabels])
 
-    // В TableHeader компоненте
-    useEffect(() => {
-        const syncWidths = () => {
-            headerGroup.headers.forEach((header) => {
-                const thElement = document.querySelector(`[data-header-id="${header.id}"]`)
-                if (thElement) {
-                    const actualWidth = (thElement as HTMLElement).getBoundingClientRect().width as number
-                    // Устанавливаем CSS переменную
-                    (thElement as HTMLElement).style.setProperty('--actual-width', `${actualWidth}px`)
-                }
-            })
-        }
-    
-        // Синхронизируем без ререндера
-        requestAnimationFrame(syncWidths)
-    }, [])
-
     return (
         <div key={headerGroup.id} className='condo-table-thead'>
             {headerGroup.headers.map((header) => {
-                const isResizing = header.column.getIsResizing()
-                const deltaOffset = table.getState().columnSizingInfo.deltaOffset ?? 0
-                console.log('deltaOffset:', deltaOffset)
-                // Добавить логирование для отладки
-                console.log('Header size:', header.id, header.getSize())
+
                 return (
                     <div
                         key={header.id}
@@ -156,9 +135,9 @@ export function TableHeader <TData extends RowData = RowData> ({
                             header.column.getIsSorted() || header.column.getIsFiltered() 
                                 ? 'condo-table-th-active' 
                                 : ''
-                        } ${isResizing ? 'condo-table-th-resizing' : ''}`}
+                        }`}
                         style={{ 
-                            width: header.getSize(),
+                            width: header.column.getSize(),
                         }}
                     >
                         <div className='condo-table-th-content'>
@@ -183,15 +162,17 @@ export function TableHeader <TData extends RowData = RowData> ({
                                 )}
                             </div>
                         </div>
-                        <div
-                            className='condo-table-th-resize-handle'
-                            onMouseDown={header.getResizeHandler()}
-                            onTouchStart={header.getResizeHandler()}
-                            onDoubleClick={() => header.column.resetSize()}
-                            style={isResizing ? {
-                                '--resize-line-position': (deltaOffset >= 0) ? `-${deltaOffset}px` : `${-deltaOffset}px`,
-                            } as React.CSSProperties : undefined}
-                        />
+                        {/* {!isPercentage && (
+                            <div
+                                className='condo-table-th-resize-handle'
+                                onMouseDown={header.getResizeHandler()}
+                                onTouchStart={header.getResizeHandler()}
+                                onDoubleClick={() => header.column.resetSize()}
+                                style={isResizing ? {
+                                    '--resize-line-position': (deltaOffset >= 0) ? `-${deltaOffset}px` : `${-deltaOffset}px`,
+                                } as React.CSSProperties : undefined}
+                            />
+                        )} */}
                     </div>
                 )
             })}

@@ -1,7 +1,6 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 
 .condo-table-container {
-  position: relative;
   width: 100%;
   font-family: @condo-global-font-family-default;
 }
@@ -13,7 +12,7 @@
 .condo-table {
   box-sizing: border-box;
   width: 100%;
-  overflow: auto;
+  overflow: scroll;
   background-color: @condo-global-color-white;
   border: 1px solid @condo-global-color-gray-5;
   border-radius: @condo-global-border-radius-large;
@@ -22,7 +21,6 @@
 }
 
 .condo-table-thead {
-  position: sticky;
   top: 0;
   z-index: 10;
   display: flex;
@@ -70,11 +68,9 @@
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: stretch;
   box-sizing: border-box;
-  min-width: 60px;
   padding: 16px 12px;
-  overflow: auto;
+  min-width: 0;
   color: @condo-global-color-gray-7;
   font-weight: 600;
   font-size: 12px;
@@ -121,7 +117,7 @@
 
 .condo-table-th-content {
   display: flex;
-  flex: 1 1 auto;
+  width: 100%;
   gap: 8px;
   align-items: center;
   justify-content: space-between;
@@ -165,7 +161,6 @@
   }
 }
 
-// // Класс для активного состояния ресайза
 .condo-table-th-resizing .condo-table-th-resize-handle::after {
   position: absolute;
   top: 0;
@@ -181,8 +176,8 @@
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  min-width: 60px;
   padding: 16px 12px;
+  min-width: 0;
   overflow: hidden;
   color: @condo-global-color-black;
   font-size: 14px;
