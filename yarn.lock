@@ -47322,7 +47322,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-bundle-analyzer@npm:^4":
+"webpack-bundle-analyzer@npm:4.10.1, webpack-bundle-analyzer@npm:^4":
   version: 4.10.1
   resolution: "webpack-bundle-analyzer@npm:4.10.1"
   dependencies:
