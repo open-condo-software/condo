@@ -66,7 +66,7 @@ const canAccessToEmailField = {
 }
 
 const canAccessIsTwoFactorAuthenticationEnabledField = {
-    read: userIsAdminOrIsThisItemOrCanDirectlyReadField,
+    read: (args) => (access.userIsAdminOrIsSupport(args) || access.userIsThisItem(args)),
     create: access.userIsAdmin,
     update: access.userIsAdmin,
 }
