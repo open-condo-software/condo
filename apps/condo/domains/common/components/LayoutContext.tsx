@@ -3,8 +3,9 @@ import React, { createContext, useContext, useLayoutEffect, useState } from 'rea
 
 import { ScreenMap, useBreakpoints } from '@open-condo/ui/dist/hooks'
 
-import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
+import { IS_COLLAPSED_COOKIE_NAME } from '@condo/domains/common/utils/next/ssr'
 
+import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
 
 interface ILayoutContext {
     /**
@@ -29,6 +30,9 @@ const isMobileUserAgent = (): boolean => {
         && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent)
     )
 }
+
+
+const YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 
 const LayoutContext = createContext<ILayoutContext>({})
 
@@ -65,7 +69,8 @@ export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (prop
 
     const toggleCollapsed = () => {
         const newValue = !isCollapsed
-        setCookie('isCollapsed', String(newValue), { maxAge: 60 * 60 * 24 * 365 }) // 1 year
+        // Save this state to cookie to prevent flick on hydration
+        setCookie(IS_COLLAPSED_COOKIE_NAME, String(newValue), { maxAge:YEAR_IN_SECONDS }) // 1 year
         setIsCollapsed(newValue)
     }
 
@@ -73,7 +78,8 @@ export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (prop
 
     useLayoutEffect(() => {
         if (initialIsCollapsed === undefined && detectedMobileUserAgentInSSR) {
-            setCookie('isCollapsed', 'true', { maxAge: 60 * 60 * 24 * 365 })
+            // Save this state to cookie to prevent flick on hydration
+            setCookie(IS_COLLAPSED_COOKIE_NAME, 'true', { maxAge: YEAR_IN_SECONDS })
             setIsCollapsed(true)
         }
     }, [detectedMobileUserAgentInSSR, initialIsCollapsed])

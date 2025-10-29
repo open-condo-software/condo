@@ -1,3 +1,8 @@
+:root {
+  --side-menu-width: 256px;
+  --collapsed-side-menu-width: 92px;
+}
+
 /* Side-menu */
 
 .menu.desktop-menu {
@@ -11,29 +16,10 @@
   border-width: 0 1px 0 0;
 }
 
-/* Desktop sider placeholder - reserve space for fixed menu */
-.desktop-sider-placeholder {
-  flex: 0 0 auto;
-  flex-shrink: 0;
-}
-
-.desktop-sider-placeholder.expanded {
-  width: 256px;
-  min-width: 256px;
-  max-width: 256px;
-}
-
-.desktop-sider-placeholder.collapsed {
-  width: 92px;
-  min-width: 92px;
-  max-width: 92px;
-}
-
 /* Hide desktop menu and placeholder on mobile */
 @media (max-width: 767px) {
   .menu.desktop-menu,
-  .desktop-sider,
-  .desktop-sider-placeholder {
+  .desktop-sider {
     display: none !important;
   }
 }

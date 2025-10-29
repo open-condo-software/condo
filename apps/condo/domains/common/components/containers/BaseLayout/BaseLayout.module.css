@@ -17,11 +17,11 @@
 
 @media (min-width: 768px) {
   .sub-layout-expanded {
-    margin-left: 256px;
+    margin-left: var(--side-menu-width);
   }
 
   .sub-layout-collapsed {
-    margin-left: 92px;
+    margin-left: var(--collapsed-side-menu-width);
   }
 }
 

@@ -76,7 +76,6 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     return (
         <UserMessagesListContextProvider organizationIdsToFilter={organizationIdsToFilterMessages}>
             {ChooseEmployeeRoleModal}
-            {/* Render both headers always, hide via CSS */}
             <>
                 <div id='tasks-container' className='tasks-container' />
                 <Layout.Header className='header mobile-header'>
