@@ -30,7 +30,7 @@ const ADAPTERS = {
     [PUSH_TRANSPORT_APPLE]: new AppleAdapter(),
 }
 
-/**
+/**x
  * Prepares conditions
  * @param ownerId
  * @param remoteClientId
