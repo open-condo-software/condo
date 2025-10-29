@@ -1,6 +1,6 @@
 import { NewsItem as INewsItem } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { FilterValue } from 'antd/es/table/interface'
+import { FilterValue, ColumnType } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -12,7 +12,6 @@ import React, { useCallback } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
 import { RefreshCw } from '@open-condo/icons'
-import { TableColumn } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -22,7 +21,7 @@ import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { getCompactAddressPropertiesRender } from '@condo/domains/property/utils/clientSchema/Renders'
 
 
-type GetRenderType = TableColumn<INewsItem>['render']
+type GetRenderType = ColumnType<INewsItem>['render']
 
 type GetRenderTitleType = (search: FilterValue) => GetRenderType
 
@@ -57,11 +56,11 @@ const getNewsDate = (intl, stringDate: string, format: string): string => {
 }
 
 export const getRenderTitle: GetRenderTitleType = (search) => (body) => {
-    return getTableCellRenderer({ search, extraTitle: typeof body === 'string' ? body : '', ellipsis: true })(typeof body === 'string' ? body : '')
+    return getTableCellRenderer({ search, extraTitle: body, ellipsis: true })(body)
 }
 
 export const getRenderBody: GetRenderBodyType = (search) => (body) => {
-    return getTableCellRenderer({ search, extraTitle: typeof body === 'string' ? body : '', ellipsis: true })(typeof body === 'string' ? body : '')
+    return getTableCellRenderer({ search, extraTitle: body, ellipsis: true })(body)
 }
 
 export const getRenderNewsDate: GetRenderNewsDateType = (intl, search) => (_, news) => {
