@@ -79,19 +79,16 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
             },
             setColumnFilter: (columnId: string, value: unknown) => {
                 setColumnFilters((prev) => {
-                    // Если значение пустое, удаляем фильтр, иначе обновляем/добавляем
                     if (value === '' || value === null || value === undefined) {
                         return prev.filter(filter => filter.id !== columnId)
                     }
                     
                     const existingFilterIndex = prev.findIndex(filter => filter.id === columnId)
                     if (existingFilterIndex >= 0) {
-                        // Обновляем существующий фильтр
                         const newFilters = [...prev]
                         newFilters[existingFilterIndex] = { id: columnId, value: value }
                         return newFilters
                     } else {
-                        // Добавляем новый фильтр
                         return [...prev, { id: columnId, value: value }]
                     }
                 })
@@ -293,9 +290,7 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
             }
             const newFilters = typeof updaterOrValue === 'function' ? updaterOrValue(columnFilters) : updaterOrValue
 
-            // Фильтруем пустые строковые значения
             const filteredFilters = newFilters.filter(filter => {
-                // Проверяем, что значение не является пустой строкой
                 return filter.value !== '' && filter.value !== null && filter.value !== undefined
             })
             setColumnFilters(filteredFilters)
@@ -309,8 +304,8 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
             columnFilters,
             columnVisibility,
             columnOrder,
-            columnSizing,
             rowSelection,
+            columnSizing,
         },
         rowCount: rowCount,
         enableMultiSort: false,
@@ -329,31 +324,25 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
 
     return (
         <div className='condo-table-container'>
-            <div className='condo-table-wrapper'>
-                <div className='condo-table'>
-                    {table.getHeaderGroups().map(headerGroup => (
-                        <TableHeader<TData>
-                            key={headerGroup.id}
-                            headerGroup={headerGroup}
-                            columns={orderedColumns}
-                            columnMenuLabels={columnMenuLabels}
-                            table={table}
-                        />
-                    ))}
-                    {
-                        // We need external loading props? 
-                        // loading ? (<div className='condo-table-loading' />) : 
-                        <TableBody<TData> 
-                            table={table} 
-                            onRowClick={onRowClick} 
-                            showSkeleton={internalLoading}
-                        />
-                    }
-                </div>
-                {table.getPageCount() > 0 && (
-                    <TablePagination<TData> table={table} />
-                )}
+            <div className='condo-table'>
+                {table.getHeaderGroups().map(headerGroup => (
+                    <TableHeader<TData>
+                        key={headerGroup.id}
+                        headerGroup={headerGroup}
+                        columns={orderedColumns}
+                        columnMenuLabels={columnMenuLabels}
+                        table={table}
+                    />
+                ))}
+                <TableBody<TData> 
+                    table={table} 
+                    onRowClick={onRowClick} 
+                    showSkeleton={internalLoading}
+                />
             </div>
+            {table.getPageCount() > 0 && (
+                <TablePagination<TData> table={table} />
+            )}
         </div>
         
     )

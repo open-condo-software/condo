@@ -3,10 +3,9 @@ import { RowData, AccessorFn, SortingState, RowSelectionState, Table } from '@ta
 export type ColumnSettings = {
     visibility: boolean
     order: number
-    size?: number
+    size: number | string
 }
 
-// How we store table settings in iframe?
 export type TableSettings<TData extends RowData = RowData> = Record<TableColumn<TData>['id'], ColumnSettings>
 
 export type TableColumnMenuLabels = {
@@ -24,7 +23,7 @@ export type DefaultColumn = {
     enableSorting?: boolean
     enableColumnSettings?: boolean
     initialVisibility?: boolean
-    initialSize?: string  // '150px' or '15%'?
+    initialSize?: string | number
 }
 
 export type RowSelection<TData> = {
@@ -53,7 +52,7 @@ export type TableColumn<TData extends RowData = RowData> = {
     enableSorting?: boolean
     enableColumnSettings?: boolean
     initialVisibility?: boolean
-    initialSize?: string  // '150px' or '15%'?
+    initialSize?: string | number
     initialOrder?: number
 }
 

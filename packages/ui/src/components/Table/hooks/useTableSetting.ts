@@ -17,7 +17,6 @@ interface UsePersistentTableStateProps<TData extends RowData = RowData> {
 
 export const useTableSetting = <TData extends RowData = RowData>({ storageKey, columns, defaultColumn }: UsePersistentTableStateProps<TData>) => {
     const getInitialState = useCallback((): TableSettings<TData> => {
-        
         const savedState = getStorage(storageKey)
 
         if (savedState) {
@@ -38,10 +37,26 @@ export const useTableSetting = <TData extends RowData = RowData>({ storageKey, c
         const resultColumns = orderedColumns.map(c => (c || unorderedColumns.shift())).filter(Boolean) as (TableColumn<TData>)[]
 
         return resultColumns.reduce((result, column, index) => {
+            let columnSize: number | string = 0
+            const sizeValue = column.initialSize ?? (defaultColumn?.initialSize ?? undefined)
+            
+            if (sizeValue !== undefined) {
+                if (typeof sizeValue === 'string' && sizeValue.includes('%')) {
+                    columnSize = sizeValue
+                } else if (typeof sizeValue === 'number') {
+                    columnSize = sizeValue
+                } else if (typeof sizeValue === 'string') {
+                    const parsed = parseInt(sizeValue.replace('px', ''), 10)
+                    if (!isNaN(parsed)) {
+                        columnSize = parsed
+                    }
+                }
+            }
+            
             result[column.id] = {
                 order: index,
                 visibility: column.initialVisibility !== undefined ? column.initialVisibility : (defaultColumn?.initialVisibility ?? true),
-                size: column.initialSize !== undefined ? parseInt(column.initialSize) : (defaultColumn?.initialSize ? parseInt(defaultColumn.initialSize) : undefined),
+                size: columnSize,
             }
             return result
         }, {} as TableSettings<TData>)
