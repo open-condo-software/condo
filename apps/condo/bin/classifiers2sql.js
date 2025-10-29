@@ -1,7 +1,8 @@
 // node classifiers2sql.js > classifiers.sql
 
 const has = require('lodash/has')
-const { v4: uuid } = require('uuid')
+
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const CLASSIFIER_PLACE_TEMPLATE = 'INSERT INTO public."TicketPlaceClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
 const CLASSIFIER_CATEGORY_TEMPLATE = 'INSERT INTO public."TicketCategoryClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
@@ -352,7 +353,7 @@ class ClassifiersToSql {
 
     setUUID (place, key) {
         if (!has(place, key)) {
-            place[key] = uuid()
+            place[key] = generateUUIDv4()
         }
     }
 
@@ -417,7 +418,7 @@ class ClassifiersToSql {
         [...this.relations, ...Object.values(this.nullRelations)].forEach(({ place, category, problem }) => {
             process.stdout.write(
                 CLASSIFIER_RULE_TEMPLATE
-                    .split('{uuid}').join(uuid())
+                    .split('{uuid}').join(generateUUIDv4())
                     .split('{place}').join(place)
                     .split('{category}').join(category)
                     .split('{problem}').join(problem ? `'${problem}'` : null)

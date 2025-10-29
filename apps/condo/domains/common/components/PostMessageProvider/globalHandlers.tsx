@@ -5,9 +5,9 @@ import omit from 'lodash/omit'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
-import { v4 as uuidV4 } from 'uuid'
 
 import type { CondoBridgeResultResponseEvent } from '@open-condo/bridge'
+import { generateUUIDv4 } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -59,7 +59,7 @@ export const useModalHandler: () => [
             throw new Error('Forbidden url. Your url is probably injected')
         }
 
-        const modalId = uuidV4()
+        const modalId = generateUUIDv4()
         // NOTE: Patch url with modalId, so it can be closed by itself as well as by sender window
         const urlWithMeta = new URL(url)
         urlWithMeta.searchParams.set('modalId', modalId)
@@ -164,7 +164,7 @@ export const useShowProgressBarHandler: () => RequestHandler<'CondoWebAppShowPro
         description,
         externalTaskId },
     origin) => {
-        const id = uuidV4()
+        const id = generateUUIDv4()
         const taskRecord = {
             id,
             taskId: externalTaskId,

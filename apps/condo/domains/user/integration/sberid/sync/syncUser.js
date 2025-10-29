@@ -1,4 +1,4 @@
-const { v4: uuid } = require('uuid')
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -29,7 +29,7 @@ const registerUser = async (context, userInfo, userType) => {
     // prepare data
     const normalizedPhone = normalizePhone(userInfo.phoneNumber)
     const normalizedEmail = normalizeEmail(userInfo.email)
-    const password = uuid()
+    const password = generateUUIDv4()
 
     // validate that email is not picked up
     if (normalizedEmail) {

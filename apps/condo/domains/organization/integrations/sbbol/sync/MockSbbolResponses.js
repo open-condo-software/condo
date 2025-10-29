@@ -1,6 +1,7 @@
 const { faker } = require('@faker-js/faker')
 const pickBy = require('lodash/pickBy')
-const { v4: uuid } = require('uuid')
+
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries.js')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
@@ -257,8 +258,8 @@ class MockSbbolResponses {
             inn,
             phone_number: faker.phone.number('+792########'),
             email: faker.internet.email(),
-            HashOrgId: uuid(),
-            userGuid: uuid(),
+            HashOrgId: generateUUIDv4(),
+            userGuid: generateUUIDv4(),
         }
     }
 
@@ -301,8 +302,8 @@ class MockSbbolResponses {
     static getTokenSet () {
         return {
             ...EXAMPLE_TOKEN_SET,
-            access_token: uuid(),
-            refresh_token: uuid(),
+            access_token: generateUUIDv4(),
+            refresh_token: generateUUIDv4(),
         }
     }
 
@@ -331,7 +332,7 @@ class MockSbbolResponses {
         return Array(5).fill(EXAMPLE_TRANSACTION).map( transaction => {
             const clonedTransaction = pickBy(transaction)
             clonedTransaction.number = faker.datatype.number(1000000).toString()
-            clonedTransaction.uuid = faker.datatype.uuid()
+            clonedTransaction.uuid = generateUUIDv4()
             return clonedTransaction
         })
     }
