@@ -11,7 +11,7 @@ interface UseColumnSizingProps<TData extends RowData = RowData> {
 
 const convertPercentToPixels = (size: string, tableWidth: number): number => {
     if (size.includes('%')) {
-        const percent = parseFloat(size.replace('%', ''))
+        const percent = parseFloat(size)
         if (!isNaN(percent)) {
             return (tableWidth * percent) / 100
         }
@@ -78,7 +78,6 @@ export const useColumnSizing = <TData extends RowData = RowData>({
         const sizes: ColumnSizingState = {}
         
         const allColumnIds = Object.keys(settings)
-        console.log('settings1', settings)
 
         const visibleColumnIds = allColumnIds.filter(
             columnId => settings[columnId]?.visibility !== false
