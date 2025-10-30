@@ -34,9 +34,7 @@ type PositionType = {
 const MARKDOWN_CLASS_PREFIX = 'condo-markdown'
 
 type TaskListItemType = {
-    node: { 
-        position: PositionType
-    }
+    node: { position: PositionType }
     checked?: boolean
     children: React.ReactNode
     onToggle?: (checked: { checked: boolean, position: PositionType }) => void
@@ -97,9 +95,6 @@ export const Markdown: React.FC<MarkdownProps> = ({ children, type = 'default', 
     const hasInteractiveCheckboxes = onCheckboxChange && typeof onCheckboxChange === 'function'
 
     const callOnCheckboxChange: TaskListItemType['onToggle']  = ({ checked, position }) => {
-        console.log('position', position)
-        console.log('checked', checked)
-
         if (hasInteractiveCheckboxes) {
             const checkboxChangedPositionOffset = position.start.offset + 3
 
