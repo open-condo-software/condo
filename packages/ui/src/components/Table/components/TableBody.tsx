@@ -36,9 +36,7 @@ export function TableBody <TData extends RowData = RowData> ({
             <div className='condo-table-tbody'>
                 <div className='condo-table-empty'>
                     <Inbox color={colors.gray[7]} />
-                    <div className='condo-table-empty-content'>
-                        No data
-                    </div>
+                    <div className='condo-table-empty-content'></div>
                 </div>
             </div>
         )
@@ -57,7 +55,7 @@ export function TableBody <TData extends RowData = RowData> ({
                     aria-label={onRowClick ? `Select row ${row.id}` : undefined}
                 >
                     {row.getVisibleCells().map(cell => {
-                        console.log('777', cell.column.getSize())
+
                         return (
                             <div
                                 key={cell.id}

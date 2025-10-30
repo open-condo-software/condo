@@ -17,7 +17,10 @@ import { Checkbox } from '@open-condo/ui/src'
 import { TableBody } from '@open-condo/ui/src/components/Table/components/TableBody'
 import { TableHeader } from '@open-condo/ui/src/components/Table/components/TableHeader'
 import { TablePagination } from '@open-condo/ui/src/components/Table/components/TablePagination'
-import { DEFAULT_PAGE_SIZE } from '@open-condo/ui/src/components/Table/constans'
+import {
+    DEFAULT_PAGE_SIZE, 
+    COLUMN_ID_SELECTION,
+} from '@open-condo/ui/src/components/Table/constans'
 import { useTableSetting } from '@open-condo/ui/src/components/Table/hooks/useTableSetting'
 import type { 
     TableColumn, 
@@ -26,10 +29,8 @@ import type {
     TableRef,
     TableApi,
 } from '@open-condo/ui/src/components/Table/types'
-import { renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderCellUtils'
+import { renderHeaderWithTooltip, renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderCellUtils'
 import { getPageIndexFromStartRow } from '@open-condo/ui/src/components/Table/utils/urlQuery'
-
-const COLUMN_ID_SELECTION = 'selection'
 
 /**
  * @deprecated This component is experimental. API may change at any time without notice.
@@ -151,7 +152,7 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
         }
         
         fetchData()
-    }, [dataSource, sorting, pagination, columnFilters, onTableStateChange])
+    }, [sorting, pagination, columnFilters]) // We don't need to fetch data when dataSource changes
 
     useEffect(() => {
         const handleTableStateChange = async () => {
@@ -165,7 +166,7 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
                     }
                     return acc
                 }, {} as FilterState)
-    
+
                 onTableStateChange({
                     startRow,
                     endRow,
@@ -199,6 +200,7 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
                         onChange={row.getToggleSelectedHandler()}
                     />
                 ),
+
                 meta: {
                     enableColumnSettings: false,
                 },
@@ -218,11 +220,13 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
 
             resultColumns.push(columnHelper.accessor(c.dataKey as AccessorFn<TData, unknown>, {
                 id: c.id,
-                header: typeof c.header === 'string' ? c.header : (info: HeaderContext<TData, unknown>) => {
+                header: (info: HeaderContext<TData, unknown>) => {
+                    if (typeof c.header === 'string') {
+                        return renderHeaderWithTooltip()(c.header)
+                    }
                     if (typeof c.header === 'function') {
                         return c.header(info.table)
                     }
-                    return c.header
                 },
                 enableSorting,
                 enableColumnFilter,
@@ -248,6 +252,7 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
                         onChange={table.getToggleAllRowsSelectedHandler()} //or getToggleAllPageRowsSelectedHandler
                     />
                 ),
+                initialSize: 50,
                 initialOrder: 0,
             })
         }
