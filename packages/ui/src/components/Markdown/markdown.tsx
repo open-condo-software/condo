@@ -34,9 +34,7 @@ type PositionType = {
 const MARKDOWN_CLASS_PREFIX = 'condo-markdown'
 
 type TaskListItemType = {
-    node: { 
-        position: PositionType
-    }
+    node: { position: PositionType }
     checked?: boolean
     children: React.ReactNode
     onToggle?: (checked: { checked: boolean, position: PositionType }) => void
@@ -97,9 +95,6 @@ export const Markdown: React.FC<MarkdownProps> = ({ children, type = 'default', 
     const hasInteractiveCheckboxes = onCheckboxChange && typeof onCheckboxChange === 'function'
 
     const callOnCheckboxChange: TaskListItemType['onToggle']  = ({ checked, position }) => {
-        console.log('position', position)
-        console.log('checked', checked)
-
         if (hasInteractiveCheckboxes) {
             const checkboxChangedPositionOffset = position.start.offset + 3
 
@@ -119,16 +114,16 @@ export const Markdown: React.FC<MarkdownProps> = ({ children, type = 'default', 
             remarkPlugins={REMARK_PLUGINS}
             components={{
                 ...MARKDOWN_COMPONENTS_BY_TYPE[type],
-                a: (props: any) => <Typography.Link {...omit(props, 'ref')} rel='noopener noreferer' target='_blank'/>,
+                a: (props: any) => <Typography.Link {...omit(props, 'ref')} rel='noopener noreferrer' target='_blank'/>,
                 pre: (props: any) => <CodeWrapper {...props}/>,
-                input: (props) => {
-                    if (props.type !== 'checkbox') {
-                        return <input {...props} />
+                input: ({ type, checked, disabled, ...restProps }) => {
+                    if (type !== 'checkbox') {
+                        return <input type={type} {...restProps} />
                     }
 
                     return (
                         <Checkbox
-                            checked={props.checked || false}
+                            checked={checked || false}
                             disabled
                         />
                     )
