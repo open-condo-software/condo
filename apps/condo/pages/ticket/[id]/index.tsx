@@ -561,6 +561,10 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
 
     const [ticketDetails, setTicketDetails] = useState(ticket?.details)
 
+    useEffect(() => {
+        setTicketDetails(ticket?.details)
+    }, [ticket?.id, ticket?.details])
+
     const {
         data: ticketChangesData,
         refetch: refetchTicketChanges,
@@ -622,7 +626,12 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                     sender: getClientSideSenderInfo(),
                 },
             },
-
+            onError: () => {
+                setTicketDetails(ticket?.details)
+                notification.error({
+                    message: intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' }),
+                })
+            },
         })
     }
 
