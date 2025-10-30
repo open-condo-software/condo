@@ -152,8 +152,6 @@ const MD_EDITABLE_CHECKBOXES_EXAMPLE = `
 - [ ] Non-checked checkbox
 - [x] Checked checkbox
 - [ ] Another unchecked checkbox
-
-> Tip: Open up console to see console.logs in action
 `
 
 export default {

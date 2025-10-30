@@ -14,7 +14,7 @@ const REMARK_PLUGINS: Array<any> = [
 
 export type MarkdownProps = {
     children: string
-    type: 'default' | 'lite'
+    type?: 'default' | 'lite'
     onCheckboxChange?: (newMarkdownContent: string) => void
 }
 
@@ -114,16 +114,16 @@ export const Markdown: React.FC<MarkdownProps> = ({ children, type = 'default', 
             remarkPlugins={REMARK_PLUGINS}
             components={{
                 ...MARKDOWN_COMPONENTS_BY_TYPE[type],
-                a: (props: any) => <Typography.Link {...omit(props, 'ref')} rel='noopener noreferer' target='_blank'/>,
+                a: (props: any) => <Typography.Link {...omit(props, 'ref')} rel='noopener noreferrer' target='_blank'/>,
                 pre: (props: any) => <CodeWrapper {...props}/>,
-                input: (props) => {
-                    if (props.type !== 'checkbox') {
-                        return <input {...props} />
+                input: ({ type, checked, disabled, ...restProps }) => {
+                    if (type !== 'checkbox') {
+                        return <input type={type} {...restProps} />
                     }
 
                     return (
                         <Checkbox
-                            checked={props.checked || false}
+                            checked={checked || false}
                             disabled
                         />
                     )
