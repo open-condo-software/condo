@@ -2,9 +2,9 @@ import Ajv from 'ajv'
 import get from 'lodash/get'
 import omit from 'lodash/omit'
 import React, { useEffect, createContext, useState, useContext, useCallback } from 'react'
-import { v4 as uuidV4 } from 'uuid'
 
 import type { ErrorReason, ErrorCode } from '@open-condo/bridge'
+import { generateUUIDv4 } from '@open-condo/miniapp-utils'
 
 import {
     handleNotification,
@@ -182,7 +182,7 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     }, [addEventHandler, updateProgressBarHandler])
 
     const addFrame = useCallback((ref: React.Ref<HTMLIFrameElement>) => {
-        const frameId = uuidV4()
+        const frameId = generateUUIDv4()
         setRegisteredFrames((prev) => ({ ...prev, [frameId]: ref }))
         
         return frameId

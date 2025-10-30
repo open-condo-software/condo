@@ -67,7 +67,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         
         // Billing domain
         { schemaName: 'BillingReceipt', readonly: true },
-        { schemaName: 'BillingOrganizationIntegrationContext', readonly: true },
+        { schemaName: 'BillingIntegrationOrganizationContext', readonly: true },
     ],
     fields: {
         Organization: [

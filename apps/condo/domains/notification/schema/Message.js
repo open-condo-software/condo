@@ -186,8 +186,9 @@ const Message = new GQLListSchema('Message', {
             },
             {
                 type: 'BTreeIndex',
-                fields: ['user', 'type', 'organization'],
-                name: 'message_user_type_org',
+                fields: ['user', 'type', 'organization', '-createdAt'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'message_user_type_org_createdat',
             },
         ],
     },

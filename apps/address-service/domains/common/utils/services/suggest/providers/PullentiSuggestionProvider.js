@@ -8,6 +8,12 @@ const { maybeBoostQueryWithTin } = require('@address-service/domains/common/util
 
 const { AbstractSuggestionProvider } = require('./AbstractSuggestionProvider')
 
+
+/**
+ * TODO (DOMA-11991)
+ * ⚠️ Pullenti provider still in beta. Normalized result may differ from dadata. Use only for GUID searching.
+ */
+
 const DEFAULT_COUNT = 20
 const SEARCH_COEF_THRESHOLD = 90
 

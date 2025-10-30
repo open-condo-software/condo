@@ -3,12 +3,12 @@
  */
 const { faker } = require('@faker-js/faker')
 const get = require('lodash/get')
-const { v4: uuid } = require('uuid')
 
 const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, tracked, softDeleted, uuided, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, find } = require('@open-condo/keystone/schema')
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
@@ -70,7 +70,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         inviteCode: {
             schemaDoc: 'Secret invite code (used for accept invite verification)',
             type: 'Uuid',
-            defaultValue: () => uuid(),
+            defaultValue: () => generateUUIDv4(),
             kmigratorOptions: { null: true, unique: true },
             access: {
                 read: userIsAdmin,

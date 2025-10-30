@@ -3,7 +3,6 @@
  */
 
 const { get } = require('lodash')
-const { v4: uuid } = require('uuid')
 
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 

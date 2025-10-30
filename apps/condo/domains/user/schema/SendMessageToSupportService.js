@@ -4,7 +4,6 @@
 
 const dayjs = require('dayjs')
 const { get } = require('lodash')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
@@ -12,6 +11,7 @@ const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
@@ -90,7 +90,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                     const stream = createReadStream()
                     return fileAdapter.save({
                         stream,
-                        id: `${dayjs().format('YYYY-MM-DD_HH-mm-ss')}_${uuid()}`,
+                        id: `${dayjs().format('YYYY-MM-DD_HH-mm-ss')}_${generateUUIDv4()}`,
                         filename: originalFilename,
                     }).then(({ filename, id }) => {
                         const ret = {

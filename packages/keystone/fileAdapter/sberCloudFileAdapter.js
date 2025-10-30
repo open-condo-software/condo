@@ -195,7 +195,7 @@ class SberCloudFileAdapter {
         // propagate original filename for an indirect url
         let qs = ''
         const searchParams = new URLSearchParams({
-            ...(isNil(originalFilename) && { original_filename: encodeURIComponent(originalFilename) }),
+            ...(!isNil(originalFilename) && { original_filename: encodeURIComponent(originalFilename) }),
             ...(sign && { sign }),
         }).toString()
 
