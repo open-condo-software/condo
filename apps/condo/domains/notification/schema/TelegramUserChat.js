@@ -8,10 +8,10 @@ const access = require('@condo/domains/notification/access/TelegramUserChat')
 
 
 const TelegramUserChat = new GQLListSchema('TelegramUserChat', {
-    schemaDoc: 'Link between condo user and user\'s telegram chat with bot',
+    schemaDoc: 'Links a user to their Telegram chat with the bot.',
     fields: {
         user: {
-            schemaDoc: 'Condo user',
+            schemaDoc: 'User connected to the Telegram chat.',
             type: 'Relationship',
             ref: 'User',
             isRequired: true,
@@ -19,7 +19,7 @@ const TelegramUserChat = new GQLListSchema('TelegramUserChat', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
         telegramChatId: {
-            schemaDoc: 'Id of user\'s telegram chat with bot',
+            schemaDoc: 'Identifier of the user\'s Telegram chat with the bot.',
             type: 'Text',
             isRequired: true,
         },

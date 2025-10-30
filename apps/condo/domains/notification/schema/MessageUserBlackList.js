@@ -9,32 +9,32 @@ const { EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR } = require('@condo/domains/n
 const { getMessageTypeField } = require('@condo/domains/notification/schema/fields/MessageType')
 
 const MessageUserBlackList = new GQLListSchema('MessageUserBlackList', {
-    schemaDoc: 'Rule for blocking messages (specific type or all) for user, phone or email',
+    schemaDoc: 'Defines rules for blocking notifications for a user, phone number, or email address.',
     fields: {
         user: {
-            schemaDoc: 'The user to whom we want to block sending messages',
+            schemaDoc: 'User for whom notifications should be blocked.',
             type: 'Relationship',
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
         phone: {
-            schemaDoc: 'The phone number to which we want to block sending messages',
+            schemaDoc: 'Phone number that should not receive notifications.',
             type: 'Text',
         },
 
         email: {
-            schemaDoc: 'Email to which we want to block the sending of messages',
+            schemaDoc: 'Email address that should not receive notifications.',
             type: 'Text',
         },
 
         type: getMessageTypeField({
-            schemaDoc: 'The type of message we want to block (null means all types)',
+            schemaDoc: 'Message type to block. Leave empty to block all types.',
             isRequired: false,
         }),
 
         description: {
-            schemaDoc: 'The reason why the entry was added to the MessageUserBlackList',
+            schemaDoc: 'Reason for adding the entry to the blacklist.',
             type: 'Text',
             isRequired: true,
         },

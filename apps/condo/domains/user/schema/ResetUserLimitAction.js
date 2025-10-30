@@ -60,8 +60,8 @@ const ERRORS = {
 }
 
 const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
-    schemaDoc: 'A model for resetting user counters limit. ' +
-        'To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset.',
+    schemaDoc: 'Represents an action that resets a user-related counter limit. '
+        + 'Create a record with the limit type, identifier, and reason to trigger the reset.',
     fields: {
         type: {
             schemaDoc: `Type of limit to reset. Possible values: [${Object.keys(resetters).map(key => `"${key}"`).join(', ')}]`,
@@ -71,7 +71,7 @@ const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
             isRequired: true,
         },
         identifier: {
-            schemaDoc: 'The identifier of user, to which reset will apply. Possible values are based on reset type: \n' +
+            schemaDoc: 'Identifier of the user or entity whose limit should be reset. Supported identifier types by limit: \n' +
                 Object.entries(resetters)
                     .map(([key, resetter]) => `${key}: [${resetter.supportedIdentifiers.map(type => `"${type}"`).join(', ')}]`)
                     .join(', \n'),
@@ -98,7 +98,7 @@ const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
             },
         },
         reason: {
-            schemaDoc: 'Reason for resetting the limit',
+            schemaDoc: 'Reason for resetting the limit.',
             type: 'Text',
             isRequired: true,
         },

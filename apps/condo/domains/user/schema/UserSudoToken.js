@@ -26,24 +26,24 @@ const ERRORS = {
 }
 
 const UserSudoToken = new GQLListSchema('UserSudoToken', {
-    schemaDoc: 'A user\'s sudo token that is used to confirm any sensitive actions with the user.',
+    schemaDoc: 'A sudo token that confirms sensitive user actions.',
     fields: {
 
         token: {
-            schemaDoc: 'Unique token',
+            schemaDoc: 'Unique token value.',
             type: 'Text',
             isUnique: true,
             isRequired: true,
         },
 
         expiresAt: {
-            schemaDoc: 'Time when sudo token becomes not valid',
+            schemaDoc: 'Timestamp when the sudo token expires.',
             type: 'DateTimeUtc',
             isRequired: true,
         },
 
         user: {
-            schemaDoc: 'User to whom a sudo token is linked',
+            schemaDoc: 'User associated with this sudo token.',
             type: 'Relationship',
             ref: 'User',
             isRequired: true,
@@ -52,7 +52,7 @@ const UserSudoToken = new GQLListSchema('UserSudoToken', {
         },
 
         remainingUses: {
-            schemaDoc: 'Number of remaining uses of the token. Once these are used up, the token will be not valid',
+            schemaDoc: 'Number of remaining times the token can be used before it becomes invalid.',
             type: 'Integer',
             isRequired: true,
             hooks: {

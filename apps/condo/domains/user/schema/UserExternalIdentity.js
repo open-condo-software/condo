@@ -15,7 +15,7 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
     schemaDoc: 'Individual user external identity link. Used primarily for authorization and linking to external identity provider purposes. Think of `User` as a technical entity, not a business actor.',
     fields: {
         user: {
-            schemaDoc: 'Link to user',
+            schemaDoc: 'User associated with this external identity.',
             type: 'Relationship',
             ref: 'User',
             isRequired: true,
@@ -23,12 +23,12 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
         identityId: {
-            schemaDoc: 'External identity id. The value of this field should be populated from an external identity provider',
+            schemaDoc: 'Identifier provided by the external identity provider.',
             type: 'Text',
             isRequired: true,
         },
         identityType: {
-            schemaDoc: 'The type of external identity that was a source for this link',
+            schemaDoc: 'Type of external identity provider associated with this link.',
             type: 'Text',
             isRequired: true,
             hooks: {
@@ -41,13 +41,13 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
             },
         },
         userType: {
-            schemaDoc: 'Type of connected user',
+            schemaDoc: 'Type of the linked user.',
             type: 'Select',
             options: USER_TYPES,
             isRequired: true,
         },
         meta: {
-            schemaDoc: 'External identity provider user metadata',
+            schemaDoc: 'Metadata returned by the external identity provider.',
             type: 'Json',
         },
     },
