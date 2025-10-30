@@ -1,7 +1,8 @@
+import React, { useState } from 'react'
+
 import { Markdown as Component } from '@open-condo/ui/src'
 
 import type { Meta, StoryObj } from '@storybook/react-webpack5'
-import {useState} from "react";
 
 const TS_CODE_EXAMPLE = `
 \`\`\`typescript
@@ -147,14 +148,12 @@ Right aligned columns
 `
 
 const MD_EDITABLE_CHECKBOXES_EXAMPLE = `
-
 ## Interactive checkboxes playground
 - [ ] Non-checked checkbox
 - [x] Checked checkbox
 - [ ] Another unchecked checkbox
 
 > Tip: Open up console to see console.logs in action
-
 `
 
 export default {
@@ -165,27 +164,76 @@ export default {
     },
 } as Meta<typeof Component>
 
-const MarkdownWithInteractiveComponents = ({ props }) => {
+// Story with interactive checkboxes
+const InteractiveCheckboxesTemplate = (args: any) => {
+    const [markdownState, setMarkdownState] = useState(args.children)
 
-    const markdownContent = props.children
-
-    const [markdownState, setMarkdownState] = useState(markdownContent)
-
-    return <>
-        <h1>Markdown:</h1>
-        <Component children={markdownState} onCheckboxChange={setMarkdownState}/>
-        <h2>State:</h2>
-        <pre>markdownState</pre>
-    </>
+    return (
+        <div>
+            <h1>Markdown with Interactive Checkboxes:</h1>
+            <Component
+                {...args}
+                children={markdownState}
+                onCheckboxChange={setMarkdownState}
+            />
+            <h2>Current Markdown State:</h2>
+            <pre style={{
+                background: '#f5f5f5',
+                padding: '16px',
+                borderRadius: '4px',
+                overflow: 'auto',
+                maxHeight: '200px',
+            }}>
+                {markdownState}
+            </pre>
+        </div>
+    )
 }
 
-export const MarkdownWithInteractiveCheckboxes = {
-    title: 'Components/MarkdownWithInteractiveCheckboxes',
-    component: MarkdownWithInteractiveComponents,
+// Story with lite type
+const LiteTemplate = (args: any) => {
+    return (
+        <div>
+            <h1>Markdown with Lite Typography:</h1>
+            <Component {...args} />
+        </div>
+    )
+}
+
+export const Default: StoryObj<typeof Component> = {}
+
+export const WithInteractiveCheckboxes: StoryObj<typeof Component> = {
+    render: InteractiveCheckboxesTemplate,
     args: {
         children: MD_EDITABLE_CHECKBOXES_EXAMPLE,
-        onCheckboxChange: console.info
     },
 }
 
-export const Markdown: StoryObj<typeof Component> = {}
+export const Lite: StoryObj<typeof Component> = {
+    render: LiteTemplate,
+    args: {
+        type: 'lite',
+        children: `
+# This is H1 but looks like H4
+## This is H2 but looks like H4
+### This is H3 but looks like H4
+
+Regular paragraph text with lite styling.
+
+- List item 1
+- List item 2
+- List item 3
+
+**Bold text** and *italic text* still work.
+        `,
+    },
+}
+
+// You can also add a combined story to show both features
+export const LiteWithInteractiveCheckboxes: StoryObj<typeof Component> = {
+    render: InteractiveCheckboxesTemplate,
+    args: {
+        type: 'lite',
+        children: MD_EDITABLE_CHECKBOXES_EXAMPLE,
+    },
+}
