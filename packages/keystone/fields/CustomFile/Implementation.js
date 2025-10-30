@@ -146,8 +146,12 @@ class CustomFile extends FileWithUTF8Name.implementation {
                 signature: input.signature,
                 userId: context.authedItem?.id || null,
                 listKey,
+                originalFilename: input.originalFilename,
             }
-            return null // field stays null for the first write
+
+            return {
+                originalFilename: input.originalFilename || '',
+            }
         }
 
         if (this._strictMode) {
@@ -167,7 +171,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         if (!hasFileInRequest) return
 
         const payload = {
-            id: resolvedData.id,
+            itemId: resolvedData.id,
             modelName: listKey,
             signature: context._fileNewFlow[key].signature,
             fileClientId: this._fileClientId,
@@ -176,10 +180,17 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
         let attachResult
 
+        const headers = { 'Content-Type': 'application/json' }
+        if (context?.req?.headers?.cookie) {
+            headers['Cookie'] = context?.req?.headers?.cookie
+        } else if (context?.req?.headers?.authorization) {
+            headers['Authorization'] = context?.req?.headers?.authorization
+        }
+
         try {
             const res = await fetch(this._fileServiceUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify(payload),
             })
 

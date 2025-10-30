@@ -7,18 +7,36 @@ const path = require('path')
 const { faker } = require('@faker-js/faker')
 
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, expectToThrowGQLError, catchErrorFrom, UploadingFile } = require('@open-condo/keystone/test.utils')
+const { FileRecord } = require('@open-condo/files/schema/utils/testSchema')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    UUID_RE,
+    expectToThrowGQLError,
+    catchErrorFrom,
+    getUploadingFile,
+} = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
 const { ERRORS } = require('@condo/domains/document/constants')
-const { Document, createTestDocument, updateTestDocument, createTestDocumentCategory, softDeleteTestDocument } = require('@condo/domains/document/utils/testSchema')
+const {
+    Document,
+    createTestDocument,
+    updateTestDocument,
+    createTestDocumentCategory,
+    softDeleteTestDocument,
+} = require('@condo/domains/document/utils/testSchema')
 const { createTestOrganization,  createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithSupportUser,
+    makeClientWithResidentUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 
 const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
@@ -55,8 +73,16 @@ describe('Document', () => {
     describe('Access', () => {
         describe('Create', () => {
             it('anonymous can not', async () => {
+                const fileMeta = {
+                    user: { id: admin.user.id },
+                    fileClientId: 'condo',
+                    modelNames: ['Document'],
+                    dv: 1, sender: { dv: 1, fingerprint: 'test-utils' },
+                }
+                const file = await getUploadingFile(TEST_FILE, fileMeta, admin)
+
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestDocument(anonymous, organization, documentCategory)
+                    await createTestDocument(anonymous, organization, documentCategory, { file })
                 })
             })
 
@@ -95,6 +121,24 @@ describe('Document', () => {
                 await createTestOrganizationEmployee(admin, otherOrganization, employeeUserWithDocumentPermissions.user, otherRole)
                 const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+                const fileMeta = {
+                    organization: { id: organization.id },
+                    user: { id: employeeUserWithDocumentPermissions.user.id },
+                    fileClientId: 'condo',
+                    modelNames: ['Document'],
+                    dv: 1, sender,
+                }
+                const file = await getUploadingFile(TEST_FILE, fileMeta, employeeUserWithDocumentPermissions)
+
+                expect(file).toHaveProperty('id')
+                expect(file).toHaveProperty('signature')
+                expect(file).toHaveProperty('originalFilename')
+
+                const fileRecord = await FileRecord.getOne(admin, { id: file.id })
+                expect(fileRecord).toHaveProperty(['user', 'id'], employeeUserWithDocumentPermissions.user.id)
+                expect(fileRecord).toHaveProperty(['organization', 'id'], organization.id)
+                expect(fileRecord.attachments).toBeNull()
+
                 const documents = await Document.createMany(employeeUserWithDocumentPermissions, [
                     {
                         data: {
@@ -102,7 +146,7 @@ describe('Document', () => {
                             sender,
                             organization: { connect: { id: organization.id } },
                             category: { connect: { id: documentCategory.id } },
-                            file: new UploadingFile(TEST_FILE),
+                            file,
                         },
                     },
                     {
@@ -111,7 +155,7 @@ describe('Document', () => {
                             sender,
                             organization: { connect: { id: otherOrganization.id } },
                             category: { connect: { id: documentCategory.id } },
-                            file: new UploadingFile(TEST_FILE),
+                            file,
                         },
                     },
                 ])
@@ -127,6 +171,10 @@ describe('Document', () => {
                         }),
                     ])
                 )
+
+                const attachedFileRecords = await FileRecord.getOne(admin, { id: file.id })
+
+                expect(attachedFileRecords.attachments.attachments).not.toHaveLength(0)
             })
 
             it('employee without canManageDocuments can not', async () => {
