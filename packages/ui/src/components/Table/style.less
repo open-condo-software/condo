@@ -74,9 +74,6 @@
   color: @condo-global-color-gray-7;
   font-weight: 600;
   font-size: 12px;
-  line-height: 24px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   background-color: @condo-global-color-white;
   border: none;
   border-bottom: 1px solid @condo-global-color-gray-5;
@@ -124,12 +121,9 @@
 }
 
 .condo-table-th-title-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .condo-table-th-icons {

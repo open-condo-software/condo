@@ -46,3 +46,21 @@ export const renderTextWithTooltip = <TValue = unknown>({
         </Tooltip>
     )
 }
+
+export const renderHeaderWithTooltip = ({
+    extraTooltipProps,
+}: { extraTooltipProps?: TooltipProps } = {}) => function RenderHeaderWithTooltipComponent (title: string) {
+    return (
+        <Tooltip 
+            title={title}
+            placement='topLeft'
+            {...extraTooltipProps}
+        >
+            <span>
+                <Typography.Paragraph ellipsis={{ rows: 1 }} size='small' type='secondary' strong>
+                    {title}
+                </Typography.Paragraph>
+            </span>
+        </Tooltip>
+    )
+}

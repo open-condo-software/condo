@@ -1,5 +1,8 @@
 const DEFAULT_PAGE_SIZE = 30
+const COLUMN_ID_SELECTION = 'selection'
+
 
 export { 
     DEFAULT_PAGE_SIZE,
+    COLUMN_ID_SELECTION,
 }

@@ -94,9 +94,7 @@ export interface TableProps<TData extends RowData = RowData> {
     onTableStateChange?: (tableState: FullTableState) => void
     initialTableState?: FullTableState
     storageKey?: string
-    // loading?: boolean - We don't need it, if we have dataSource prop
     columnMenuLabels?: TableColumnMenuLabels
     onRowClick?: (record: TData) => void
     rowSelectionOptions?: RowSelection<TData>
-    // Add prop for refresh table data
 }
