@@ -39,14 +39,32 @@ export function TableHeader <TData extends RowData = RowData> ({
         const sortingColumnMenuItems = [
             {
                 className: header.column.getIsSorted() === 'desc' && 'condo-dropdown-menu-item-active',
-                label: header.column.getIsSorted() === 'desc' ? <div className='condo-dropdown-menu-item-inner'>{columnMenuLabels?.sortedDescLabel} <Close size='small' /></div> : <div>{columnMenuLabels?.sortDescLabel}</div>,
+                label: (
+                    header.column.getIsSorted() === 'desc' 
+                        ? (
+                            <div className='condo-dropdown-menu-item-inner'>
+                                <Space size={8}>{columnMenuLabels?.sortedDescLabel} <Close size='small' color={colors.black}/></Space>
+                            </div> 
+                        ) : (
+                            <div>{columnMenuLabels?.sortDescLabel}</div>
+                        )
+                ),
                 key: 'sort-desc',
                 icon: <SortDesc size='small' />,
-                onClick: () => (header.column.getIsSorted() === 'desc' ? header.column.clearSorting() : header.column.toggleSorting(true, true)),
+                onClick: () => header.column.getIsSorted() === 'desc' ? header.column.clearSorting() : header.column.toggleSorting(true, true),
             },
             {
                 className: header.column.getIsSorted() === 'asc' && 'condo-dropdown-menu-item-active',
-                label: header.column.getIsSorted() === 'asc' ? <div className='condo-dropdown-menu-item-inner'>{columnMenuLabels?.sortedAscLabel} <Close size='small' /></div>  : <div>{columnMenuLabels?.sortAscLabel}</div>,
+                label: (
+                    header.column.getIsSorted() === 'asc' 
+                        ? (
+                            <div className='condo-dropdown-menu-item-inner'>
+                                <Space size={8}>{columnMenuLabels?.sortedAscLabel} <Close size='small' color={colors.black} /></Space>
+                            </div> 
+                        ) : (
+                            <div>{columnMenuLabels?.sortAscLabel}</div>
+                        )
+                ),
                 key: 'sort-asc',
                 icon: <SortAsc size='small' />,
                 onClick: () => (header.column.getIsSorted() === 'asc' ? header.column.clearSorting() : header.column.toggleSorting(false, true)),
