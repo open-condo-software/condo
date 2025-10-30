@@ -9,7 +9,7 @@ const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organiza
 const access = require('@condo/domains/ticket/access/TicketProblemClassifier')
 
 const TicketProblemClassifier = new GQLListSchema('TicketProblemClassifier', {
-    schemaDoc: 'Describes what work needs to be done to fix incident',
+    schemaDoc: 'Describes what work needs to be done to fix the incident',
     fields: {
         organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
         name: {

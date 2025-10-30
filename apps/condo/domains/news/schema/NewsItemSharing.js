@@ -42,11 +42,11 @@ const ERRORS = {
 }
 
 const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
-    schemaDoc: 'Existence of this models means that certain NewsItem should published in certain B2BApp that implements NewsSharing API.',
+    schemaDoc: 'Represents publishing a news item to a specific B2B mini-app that implements the NewsSharing API',
     fields: {
 
         b2bAppContext: {
-            schemaDoc: 'Connection to the miniapp that is responsible for publishing this news item',
+            schemaDoc: 'Mini-app context responsible for publishing this news item',
             type: 'Relationship',
             ref: 'B2BAppContext',
             isRequired: true,
@@ -60,7 +60,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         },
 
         newsItem: {
-            schemaDoc: 'Connection to the published news item',
+            schemaDoc: 'News item that should be published through this mini-app',
             type: 'Relationship',
             ref: 'NewsItem',
             isRequired: true,
@@ -74,7 +74,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         },
 
         sharingParams: {
-            schemaDoc: 'Sending parameters specific to a particular mini-app',
+            schemaDoc: 'Parameters passed to the mini-app when publishing the news item',
             type: 'Json',
             isRequired: false,
             access: {
@@ -85,7 +85,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         },
 
         status: {
-            schemaDoc: 'Publication status of the news: updated automatically',
+            schemaDoc: 'Publication status of the news item. Updated automatically',
             type: 'Select',
             options: Object.values(STATUSES),
             isRequired: true,
@@ -93,13 +93,13 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         },
 
         statusMessage: {
-            schemaDoc: 'Explanations regarding the publication status. Might be shown to user',
+            schemaDoc: 'Explanation of the current publication status. May be shown to the user',
             type: 'Text',
             isRequired: false,
         },
 
         lastPostRequest: {
-            schemaDoc: 'The outcome from the most recent invocation of the lastPostRequest',
+            schemaDoc: 'Payload and result of the most recent lastPostRequest call',
             type: 'Json',
             isRequired: false,
         },

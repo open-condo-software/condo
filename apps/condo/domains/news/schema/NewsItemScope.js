@@ -35,11 +35,11 @@ const ERRORS = {
 }
 
 const NewsItemScope = new GQLListSchema('NewsItemScope', {
-    schemaDoc: 'Which residents can see the particular news item',
+    schemaDoc: 'Defines which residents can view a particular news item',
     fields: {
 
         type: {
-            schemaDoc: 'The scope type. This is an auto-calculated field. Used to find news items by scopes filled with some set of attributes.',
+            schemaDoc: 'Scope type. Calculated automatically and used to find news items by the attributes provided in the scope',
             type: 'Select',
             options: NEWS_ITEMS_SCOPES_TYPES,
             isRequired: true,
@@ -51,7 +51,7 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
         },
 
         newsItem: {
-            schemaDoc: 'The news item to control access for',
+            schemaDoc: 'News item whose audience is limited by this scope',
             type: 'Relationship',
             ref: 'NewsItem.scopes',
             isRequired: true,
@@ -60,7 +60,7 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
         },
 
         property: {
-            schemaDoc: 'Filter on Resident by property, who can read news',
+            schemaDoc: 'Limits eligible residents to a specific property',
             type: 'Relationship',
             ref: 'Property',
             isRequired: false,
@@ -69,7 +69,7 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
         },
 
         unitType: {
-            schemaDoc: 'Filter on Resident by unit type, who can read news',
+            schemaDoc: 'Limits eligible residents to a specific unit type',
             type: 'Select',
             options: UNIT_TYPES,
             hooks: {
@@ -88,7 +88,7 @@ const NewsItemScope = new GQLListSchema('NewsItemScope', {
         },
 
         unitName: {
-            schemaDoc: 'Filter on Resident by unit name, who can read news. Because in case when a Property will have several units of different types, NewsItem can go to wrong recipients. In practice, when an organization needs to address specific residents it is usually assumed, that they are from units of some specific type, for example, a flat. Without this restriction, a NewsItem, targeted only to unitName 1 can potentially be received by residents of flat 1, parking 1 etc.',
+            schemaDoc: 'Limits eligible residents to a specific unit name. Prevents sending a message to residents of units with the same name but different types (for example, flat 1 versus parking 1)',
             type: 'Text',
         },
 
