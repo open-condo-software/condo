@@ -3011,7 +3011,7 @@ type UserRightsSetHistoryRecord {
   canManageUserRightsSets: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
-  canReadBillingOrganizationIntegrationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -3138,8 +3138,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadPayments_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
-  canReadBillingOrganizationIntegrationContexts: Boolean
-  canReadBillingOrganizationIntegrationContexts_not: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
@@ -3325,8 +3325,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadPayments_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
-  canReadBillingOrganizationIntegrationContexts_ASC
-  canReadBillingOrganizationIntegrationContexts_DESC
+  canReadBillingIntegrationOrganizationContexts_ASC
+  canReadBillingIntegrationOrganizationContexts_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
@@ -3407,7 +3407,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageUserRightsSets: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
-  canReadBillingOrganizationIntegrationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -3479,7 +3479,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageUserRightsSets: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
-  canReadBillingOrganizationIntegrationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -3684,9 +3684,9 @@ type UserRightsSet {
   """
   canReadBillingReceipts: Boolean
 
-  """ Enables a user with the given UserRightsSet to view all entities of model "BillingOrganizationIntegrationContext" as support / admin users do 
+  """ Enables a user with the given UserRightsSet to view all entities of model "BillingIntegrationOrganizationContext" as support / admin users do 
   """
-  canReadBillingOrganizationIntegrationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
 
   """ Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation 
   """
@@ -3851,8 +3851,8 @@ input UserRightsSetWhereInput {
   canReadPayments_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
-  canReadBillingOrganizationIntegrationContexts: Boolean
-  canReadBillingOrganizationIntegrationContexts_not: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
@@ -4018,8 +4018,8 @@ enum SortUserRightsSetsBy {
   canReadPayments_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
-  canReadBillingOrganizationIntegrationContexts_ASC
-  canReadBillingOrganizationIntegrationContexts_DESC
+  canReadBillingIntegrationOrganizationContexts_ASC
+  canReadBillingIntegrationOrganizationContexts_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
@@ -4100,7 +4100,7 @@ input UserRightsSetUpdateInput {
   canManageUserRightsSets: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
-  canReadBillingOrganizationIntegrationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -4169,7 +4169,7 @@ input UserRightsSetCreateInput {
   canManageUserRightsSets: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
-  canReadBillingOrganizationIntegrationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
