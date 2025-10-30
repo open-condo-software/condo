@@ -14,7 +14,7 @@ const REMARK_PLUGINS: Array<any> = [
 
 export type MarkdownProps = {
     children: string
-    type: 'default' | 'lite'
+    type?: 'default' | 'lite'
     onCheckboxChange?: (newMarkdownContent: string) => void
 }
 
