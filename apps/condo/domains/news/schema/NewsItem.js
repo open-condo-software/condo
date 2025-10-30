@@ -100,27 +100,27 @@ const COMPACT_SCOPES_SIZE = 2
 const readOnlyFieldsWhenPublished = ['organization', 'title', 'body', 'type', 'sendAt']
 
 const NewsItem = new GQLListSchema('NewsItem', {
-    schemaDoc: 'The news item created by the organization to show on resident\'s mobile devices',
+    schemaDoc: 'News item created by an organization for residents\' mobile devices',
     labelResolver: ({ title, type }) => `${type === NEWS_TYPE_EMERGENCY ? '🚨' : ''} ${title}`,
     fields: {
 
         organization: ORGANIZATION_OWNED_FIELD,
 
         number: {
-            schemaDoc: 'The news item number',
+            schemaDoc: 'Sequential number of the news item within the organization',
             type: 'AutoIncrementInteger',
             isRequired: false,
             autoIncrementScopeFields: ['organization'],
         },
 
         title: {
-            schemaDoc: 'The news item title',
+            schemaDoc: 'Title of the news item',
             type: 'Text',
             isRequired: true,
         },
 
         body: {
-            schemaDoc: 'The news item main body',
+            schemaDoc: 'Main body of the news item',
             type: 'Text',
             isRequired: true,
         },
@@ -133,13 +133,13 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         validBefore: {
-            schemaDoc: 'Date before which the news item makes sense',
+            schemaDoc: 'Date after which the news item is no longer relevant',
             type: 'DateTimeUtc',
         },
 
         sendAt: {
-            schemaDoc: 'Start time for sending notifications.' +
-                '\nIf the value is null, but the “isPublished” flag is true, then the "sendAt" value will be automatically set to "publishedAt" + 15 sec',
+            schemaDoc: 'Scheduled time for sending notifications.' +
+                '\nIf null while the “isPublished” flag is true, the value is automatically set to "publishedAt" + 15 seconds',
             type: 'DateTimeUtc',
         },
 
@@ -190,8 +190,8 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         sentAt: {
-            schemaDoc: 'The date when newsItem was sent to residents.' +
-                ' This is an internal field used to detect was the message has already been sent or not.',
+            schemaDoc: 'Date when the news item was sent to residents.' +
+                ' Used internally to determine whether the message has already been delivered.',
             type: 'DateTimeUtc',
             access: {
                 read: true,
@@ -201,13 +201,13 @@ const NewsItem = new GQLListSchema('NewsItem', {
         },
 
         isPublished: {
-            schemaDoc: 'Shows if the news item is ready to be shown and send to residents',
+            schemaDoc: 'Indicates whether the news item is ready to be shown and sent to residents',
             type: 'Checkbox',
             defaultValue: false,
         },
 
         publishedAt: {
-            schemaDoc: 'The date when the news item was published. It is an auto-Calculated field.',
+            schemaDoc: 'Date when the news item was published. Auto-calculated field',
             type: 'DateTimeUtc',
             hooks: {
                 resolveInput: ({ resolvedData, fieldPath }) => (
