@@ -12,38 +12,38 @@ const { NEWS_TYPES } = require('@condo/domains/news/constants/newsTypes')
 
 
 const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
-    schemaDoc: 'The news item template for quick composing a news item',
+    schemaDoc: 'Template that helps compose news items quickly',
     fields: {
 
         type: {
-            schemaDoc: 'The news item template type.',
+            schemaDoc: 'Template type used when creating a news item',
             type: 'Select',
             options: NEWS_TYPES,
             isRequired: true,
         },
 
         organization: {
-            schemaDoc: 'Organization who creates the template. A common template if there is no organization',
+            schemaDoc: 'Organization that created the template. Leave empty for a common template',
             type: 'Relationship',
             ref: 'Organization',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
         name: {
-            schemaDoc: 'Name of template the news item. Example `Heating outage due to repairs` or any other text value',
+            schemaDoc: 'Template name (for example, `Heating outage due to repairs`)',
             type: 'Text',
             isRequired: true,
         },
 
         category: {
-            schemaDoc: 'Category of template of the news item. Example `Water` or any other select value. News item does not necessarily have a category',
+            schemaDoc: 'Suggested category for news items created from this template (for example, `Water`). Optional',
             type: 'Select',
             options: ALL_NEWS_CATEGORIES,
             isRequired: false,
         },
 
         title: {
-            schemaDoc: 'The title of a future news item',
+            schemaDoc: 'Default title for a news item created from this template',
             type: 'Text',
             isRequired: true,
             hooks: {
@@ -54,7 +54,7 @@ const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
         },
 
         body: {
-            schemaDoc: 'A future news item\'s body',
+            schemaDoc: 'Default body for a news item created from this template',
             type: 'Text',
             isRequired: true,
             hooks: {

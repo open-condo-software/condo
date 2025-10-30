@@ -65,11 +65,11 @@ const scopesSchema = {
 const recipientsExportScopesValidator = getValidator(ajv.compile(scopesSchema))
 
 const NewsItemRecipientsExportTask = new GQLListSchema('NewsItemRecipientsExportTask', {
-    schemaDoc: 'Stores data about the exporting',
+    schemaDoc: 'Stores metadata about exporting news recipients',
     fields: {
 
         user: {
-            schemaDoc: 'The user who has started the exporting',
+            schemaDoc: 'User who started the export',
             type: 'Relationship',
             ref: 'User',
             isRequired: true,
@@ -78,7 +78,7 @@ const NewsItemRecipientsExportTask = new GQLListSchema('NewsItemRecipientsExport
         },
 
         organization: {
-            schemaDoc: 'The organization from which the recipients will be exported from',
+            schemaDoc: 'Organization whose recipients are exported',
             type: 'Relationship',
             ref: 'Organization',
             isRequired: true,
@@ -87,7 +87,7 @@ const NewsItemRecipientsExportTask = new GQLListSchema('NewsItemRecipientsExport
         },
 
         scopes: {
-            schemaDoc: 'The array of recipients\' scopes',
+            schemaDoc: 'Scopes that define which recipients are exported',
             type: 'Json',
             isRequired: true,
             access: {
@@ -101,7 +101,7 @@ const NewsItemRecipientsExportTask = new GQLListSchema('NewsItemRecipientsExport
         },
 
         status: {
-            schemaDoc: 'Status of export job',
+            schemaDoc: 'Current status of the export job',
             type: 'Select',
             options: EXPORT_STATUS_VALUES,
             isRequired: true,
@@ -114,7 +114,7 @@ const NewsItemRecipientsExportTask = new GQLListSchema('NewsItemRecipientsExport
         },
 
         file: {
-            schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
+            schemaDoc: 'Metadata about the exported file stored outside the database. The JSON structure depends on the storage adapter',
             type: 'File',
             adapter: NewsItemRecipientsExportTaskFileAdapter,
             access: {

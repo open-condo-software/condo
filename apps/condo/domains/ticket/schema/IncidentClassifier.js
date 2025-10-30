@@ -15,7 +15,7 @@ const IncidentClassifier = new GQLListSchema('IncidentClassifier', {
         organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
 
         category: {
-            schemaDoc: 'Type of work to fix incident',
+            schemaDoc: 'Type of work required to fix the incident',
             type: 'Relationship',
             ref: 'TicketCategoryClassifier',
             isRequired: true,
@@ -23,7 +23,7 @@ const IncidentClassifier = new GQLListSchema('IncidentClassifier', {
         },
 
         problem: {
-            schemaDoc: 'What needs to be done',
+            schemaDoc: 'Specific task that needs to be performed',
             type: 'Relationship',
             ref: 'TicketProblemClassifier',
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
