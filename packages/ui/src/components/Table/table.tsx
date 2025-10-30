@@ -43,7 +43,7 @@ import { getPageIndexFromStartRow } from '@open-condo/ui/src/components/Table/ut
  * 
  * @template TData - Type of table row data
  */
-export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData extends RowData = RowData> ({
+export const Table = forwardRef(function Table<TData extends RowData = RowData> ({
     id,
     dataSource,
     columns,
@@ -208,9 +208,9 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
         }
 
         columns.forEach(c => {
-            const enableSorting = c.enableSorting !== undefined ? c.enableSorting : (defaultColumn?.enableSorting ?? false)
-            const enableColumnFilter = c.filterComponent !== undefined
-            const enableColumnSettings = c.enableColumnSettings !== undefined ? c.enableColumnSettings : (defaultColumn?.enableColumnSettings ?? true)
+            const enableSorting = c.enableSorting ?? (defaultColumn?.enableSorting ?? false)
+            const enableColumnFilter = !!c.filterComponent
+            const enableColumnSettings = c.enableColumnSettings ?? (defaultColumn?.enableColumnSettings ?? true)
             const enableColumnOptions = enableSorting || enableColumnFilter || enableColumnSettings
             const meta = {
                 filterComponent: c.filterComponent,
@@ -301,7 +301,7 @@ export const Table = forwardRef<TableRef, TableProps<any>>(function Table<TData 
             setColumnFilters(filteredFilters)
         },
         manualSorting: true,
-        manualFiltering: false,
+        manualFiltering: true,
         manualPagination: true,
         state: {
             sorting,

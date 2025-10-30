@@ -14,7 +14,7 @@
   width: 100%;
   overflow: scroll;
   background-color: @condo-global-color-white;
-  border: 1px solid @condo-global-color-gray-5;
+  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
   border-radius: @condo-global-border-radius-large;
   border-collapse: separate;
   border-spacing: 0;
@@ -69,14 +69,14 @@
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  padding: 16px 12px;
   min-width: 0;
+  padding: 16px 12px;
   color: @condo-global-color-gray-7;
   font-weight: 600;
   font-size: 12px;
   background-color: @condo-global-color-white;
   border: none;
-  border-bottom: 1px solid @condo-global-color-gray-5;
+  border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-5;
   cursor: pointer;
   user-select: none;
 
@@ -114,10 +114,10 @@
 
 .condo-table-th-content {
   display: flex;
-  width: 100%;
   gap: 8px;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
 }
 
 .condo-table-th-title-content {
@@ -170,8 +170,8 @@
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  padding: 16px 12px;
   min-width: 0;
+  padding: 16px 12px;
   overflow: hidden;
   color: @condo-global-color-black;
   font-size: 14px;
@@ -180,7 +180,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   border: none;
-  border-bottom: 1px solid @condo-global-color-gray-5;
+  border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-5;
 
   .condo-table-tr:last-child & {
     border-bottom: none;
@@ -363,13 +363,13 @@
   font-size: 14px;
   font-family: @condo-global-font-family-default;
   background: @condo-global-color-white;
-  border: 1px solid @condo-global-color-gray-5;
+  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
 
   &:disabled {
-    border: 1px solid @condo-global-color-gray-5;
+    border: @condo-global-border-width-default solid @condo-global-color-gray-5;
     cursor: not-allowed;
     opacity: 0.5;
 
@@ -396,7 +396,7 @@
   color: @condo-global-color-black;
   font-size: 14px;
   background: @condo-global-color-white;
-  border: 1px solid @condo-global-color-green-5;
+  border: @condo-global-border-width-default solid @condo-global-color-green-5;
   border-radius: 6px;
   cursor: pointer;
 

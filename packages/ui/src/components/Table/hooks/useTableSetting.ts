@@ -46,7 +46,7 @@ export const useTableSetting = <TData extends RowData = RowData>({ storageKey, c
                 } else if (typeof sizeValue === 'number') {
                     columnSize = sizeValue
                 } else if (typeof sizeValue === 'string') {
-                    const parsed = parseInt(sizeValue.replace('px', ''), 10)
+                    const parsed = parseInt(sizeValue, 10)
                     if (!isNaN(parsed)) {
                         columnSize = parsed
                     }
