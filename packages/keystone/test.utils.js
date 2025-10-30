@@ -2,6 +2,7 @@ const crypto = require('crypto')
 const fs = require('fs')
 const http = require('http')
 const https = require('https')
+const path = require('path')
 const urlLib = require('url')
 
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
@@ -54,9 +55,17 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
  * Should be used to pass file uploading to variables of Keystone mutations
  * Pay attention to close stream in case when instance of this class is used more than one time in tests,
  * that examining a function (without mutation call).
+ * @deprecated - use await getUploadingFile instead
  */
 class UploadingFile {
     constructor (filePath) {
+        this._fileClient = conf['FILE_CLIENT_ID']
+        this._fileSecret = conf['FILE_SECRET']
+
+        if (this._fileClient && this._fileSecret) {
+            this._fileServiceUrl = conf['FILE_SERVICE_URL'] || conf['SERVER_URL'] + '/api/files/upload'
+        }
+
         this.stream = fs.createReadStream(filePath)
     }
 
@@ -64,6 +73,37 @@ class UploadingFile {
     createReadStream () {
         return this.stream
     }
+}
+
+/**
+ * Returns correct file format based on environment
+ * @param {string} filePath - absolute path to the upload file on the local disk
+ * @param {Object} fileMeta - file meta, that should be attached to FileRecord
+ * @param {Object} user - result of 'createTestUser'
+ * @returns {Promise<UploadingFile>}
+ */
+async function getUploadingFile (filePath, fileMeta, user) {
+    const fileSecret = conf['FILE_SECRET']
+    const fileClient = conf['FILE_CLIENT_ID']
+    const fileServiceUrl = conf['FILE_SERVICE_URL'] || conf['SERVER_URL'] + '/api/files/upload'
+
+    // NOTE: Old way to upload file. Keep that for backward compatibility
+    if (!fileSecret || !fileClient) {
+        return new UploadingFile(filePath)
+    }
+
+    const form = new FormData()
+    form.append('file', fs.readFileSync(filePath), path.basename(filePath))
+    form.append('meta', JSON.stringify(fileMeta))
+
+    const response = await fetch(fileServiceUrl, {
+        method: 'POST',
+        body: form,
+        headers: { Cookie: user.getCookie() },
+    })
+    const json = await response.json()
+
+    return json.data.files[0]
 }
 
 const SIGNIN_BY_EMAIL_MUTATION = gql`
@@ -1130,6 +1170,7 @@ module.exports = {
     UUID_RE,
     NUMBER_RE,
     UploadingFile,
+    getUploadingFile,
     catchErrorFrom,
     expectToThrowAccessDeniedError,
     expectToThrowAccessDeniedErrorToObj,
