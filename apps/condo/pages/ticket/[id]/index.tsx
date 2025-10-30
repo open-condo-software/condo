@@ -641,7 +641,12 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                     sender: getClientSideSenderInfo(),
                 },
             },
-
+            onError: () => {
+                setTicketDetails(ticket?.details)
+                notification.error({
+                    message: intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+                })
+            },
         })
     }
 
