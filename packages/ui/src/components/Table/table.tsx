@@ -154,6 +154,7 @@ export const Table = forwardRef(function Table<TData extends RowData = RowData> 
         fetchData()
     }, [sorting, pagination, columnFilters]) // We don't need to fetch data when dataSource changes
 
+    // This effect should be first, because if we have error in this effect, we don't want to change the table state and fetch new data
     useEffect(() => {
         const handleTableStateChange = async () => {
             if (onTableStateChange) {
