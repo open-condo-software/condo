@@ -21,6 +21,7 @@ const {
     generateSudoTokenByTestClient,
     updateTestUser,
     UserSudoToken,
+    createTestConfirmPhoneAction,
 } = require('@condo/domains/user/utils/testSchema')
 const { generateToken, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
@@ -100,15 +101,19 @@ describe('ChangeTwoFactorAuthenticationService', () => {
             { from: true, to: false },
             { from: true, to: true },
         ]
-        describe('Should change "isTwoFactorAuthenticationEnabled" for current user', () => {
+        describe('Should change "isTwoFactorAuthenticationEnabled" for current user if sufficient authentication factors (min 3)', () => {
             test.each(cases)('$from -> $to', async ({ from, to }) => {
                 const staffClient = await makeClientWithStaffUser({
+                    isEmailVerified: true,
                     isTwoFactorAuthenticationEnabled: from,
+                })
+                const [{ token: confirmPhoneToken }] = await createTestConfirmPhoneAction(adminClient, {
+                    phone: staffClient.userAttrs.phone, isPhoneVerified: true,
                 })
                 const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
                     user: { phone: staffClient.userAttrs.phone, userType: STAFF },
-                    authFactors: { password: staffClient.userAttrs.password },
+                    authFactors: { password: staffClient.userAttrs.password, confirmPhoneToken },
                 })
                 const [result] = await changeTwoFactorAuthenticationByTestClient(staffClient, {
                     token: sudoToken.token,
@@ -138,6 +143,53 @@ describe('ChangeTwoFactorAuthenticationService', () => {
                 token: sudoToken.token,
             })
             expect(updatedSudoToken).toHaveProperty('remainingUses', 0)
+        })
+
+        test('Throw error if try enable 2FA when insufficient authentication factors (less then 3)', async () => {
+            // Staff has only password and verified phone
+            const staffClient = await makeClientWithStaffUser({
+                isEmailVerified: false,
+                email: null,
+            })
+            const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
+                captcha: getCaptcha(),
+                user: { phone: staffClient.userAttrs.phone, userType: STAFF },
+                authFactors: { password: staffClient.userAttrs.password },
+            })
+            await expectToThrowGQLErrorToResult(async () => {
+                await changeTwoFactorAuthenticationByTestClient(staffClient, {
+                    token: sudoToken.token,
+                    isEnabled: true,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INSUFFICIENT_AUTHENTICATION_FACTORS',
+                message: 'Insufficient authentication factors. At least three must be specified. For example, password, verified phone and verified email.',
+            })
+
+            // Staff without password
+            const staffClient2 = await makeClientWithStaffUser({
+                isEmailVerified: true,
+                password: null,
+            })
+            const [{ token: confirmPhoneToken }] = await createTestConfirmPhoneAction(adminClient, {
+                phone: staffClient2.userAttrs.phone, isPhoneVerified: true,
+            })
+            const [sudoToken2] = await generateSudoTokenByTestClient(staffClient2, {
+                captcha: getCaptcha(),
+                user: { phone: staffClient2.userAttrs.phone, userType: STAFF },
+                authFactors: { confirmPhoneToken },
+            })
+            await expectToThrowGQLErrorToResult(async () => {
+                await changeTwoFactorAuthenticationByTestClient(staffClient2, {
+                    token: sudoToken2.token,
+                    isEnabled: true,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INSUFFICIENT_AUTHENTICATION_FACTORS',
+                message: 'Insufficient authentication factors. At least three must be specified. For example, password, verified phone and verified email.',
+            })
         })
 
         test('Throw error if unsupported token', async () => {
