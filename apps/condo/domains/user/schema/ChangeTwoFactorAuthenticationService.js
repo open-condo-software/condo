@@ -33,7 +33,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: INVALID_TOKEN,
         message: 'Invalid token',
-        messageForUser: 'api.user.changeUserEmail.INVALID_TOKEN',
+        messageForUser: 'api.user.changeTwoFactorAuthentication.INVALID_TOKEN',
     },
     UNSUPPORTED_TOKEN: {
         mutation: 'changeTwoFactorAuthentication',
@@ -41,7 +41,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: UNSUPPORTED_TOKEN,
         message: 'Unsupported token',
-        messageForUser: 'api.user.changeUserEmail.UNSUPPORTED_TOKEN',
+        messageForUser: 'api.user.changeTwoFactorAuthentication.UNSUPPORTED_TOKEN',
     },
     TOKEN_NOT_FOUND: {
         mutation: 'changeTwoFactorAuthentication',
@@ -49,21 +49,28 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: TOKEN_NOT_FOUND,
         message: 'Unable to find non-expired UserSudoToken by specified token',
-        messageForUser: 'api.user.changeUserEmail.TOKEN_NOT_FOUND',
+        messageForUser: 'api.user.changeTwoFactorAuthentication.TOKEN_NOT_FOUND',
     },
     USER_NOT_FOUND: {
         mutation: 'changeTwoFactorAuthentication',
         code: BAD_USER_INPUT,
         type: USER_NOT_FOUND,
         message: 'User not found',
-        messageForUser: 'api.user.changeUserEmail.USER_NOT_FOUND',
+        messageForUser: 'api.user.changeTwoFactorAuthentication.USER_NOT_FOUND',
     },
     OPERATION_FAILED: {
         mutation: 'changeTwoFactorAuthentication',
         code: BAD_USER_INPUT,
         type: 'OPERATION_FAILED',
         message: 'The operation failed',
-        messageForUser: 'api.user.changeUserEmail.OPERATION_FAILED',
+        messageForUser: 'api.user.changeTwoFactorAuthentication.OPERATION_FAILED',
+    },
+    INSUFFICIENT_AUTHENTICATION_FACTORS: {
+        mutation: 'changeTwoFactorAuthentication',
+        code: BAD_USER_INPUT,
+        type: 'INSUFFICIENT_AUTHENTICATION_FACTORS',
+        message: 'Insufficient authentication factors. At least three must be specified. For example, password, verified phone and verified email.',
+        messageForUser: 'api.user.changeTwoFactorAuthentication.INSUFFICIENT_AUTHENTICATION_FACTORS',
     },
 }
 
@@ -146,6 +153,17 @@ const ChangeTwoFactorAuthenticationService = new GQLCustomSchema('ChangeTwoFacto
                 })
 
                 if (!user) throw new GQLError(ERRORS.USER_NOT_FOUND, context)
+
+                if (
+                    isEnabled
+                    && (
+                        !user.password
+                        || !user.phone || !user.isPhoneVerified
+                        || !user.email || !user.isEmailVerified
+                    )
+                ) {
+                    throw new GQLError(ERRORS.INSUFFICIENT_AUTHENTICATION_FACTORS, context)
+                }
 
                 await User.update(context, user.id, {
                     dv: 1, sender,
