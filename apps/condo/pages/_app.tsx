@@ -487,7 +487,7 @@ const MyApp = ({ Component, pageProps }) => {
     const { user, isAuthenticated, isLoading: isUserLoading } = useAuth()
     const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId, isSnowfallDisabled, googleTagManagerId } } = getConfig()
 
-    const { isMobileUserAgent, isCollapsed: isCollapsedCookie } = useSSRCookiesContext()
+    const { isMobileUserAgent, isSidebarCollapsed: isCollapsedCookie } = useSSRCookiesContext()
     const detectedMobileUserAgentInSSR = isMobileUserAgent === 'true'
     const initialIsCollapsed = isCollapsedCookie === 'true' ? true : isCollapsedCookie === 'false' ? false : undefined
 
