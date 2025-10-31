@@ -105,8 +105,6 @@ const getCommentAuthorRoleMessage = (author: User, intl) => {
 export const linkifyText = (text: string): React.ReactNode => {
     if (!text) return text
 
-
-
     const parts = text.split(URL_REGEX)
 
     return parts.map((part, index) => {
@@ -115,6 +113,16 @@ export const linkifyText = (text: string): React.ReactNode => {
 
             if (!url.startsWith('http')) {
                 url = `https://${url}`
+            }
+
+            // Validate URL protocol for security
+            try {
+                const urlObj = new URL(url)
+                if (!['http:', 'https:'].includes(urlObj.protocol)) {
+                    return part
+                }
+            } catch {
+                return part
             }
 
             return (
