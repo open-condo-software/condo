@@ -6,9 +6,8 @@ import React, { useCallback, useEffect } from 'react'
 import { Close } from '@open-condo/icons'
 import { useOrganization } from '@open-condo/next/organization'
 
+import styles from '@condo/domains/common/components/containers/BaseLayout/BaseLayout.module.css'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-
-import styles from '../../BaseLayout.module.css'
 
 
 interface ISideNavProps {
