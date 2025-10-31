@@ -59,13 +59,6 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
  */
 class UploadingFile {
     constructor (filePath) {
-        this._fileClient = conf['FILE_CLIENT_ID']
-        this._fileSecret = conf['FILE_SECRET']
-
-        if (this._fileClient && this._fileSecret) {
-            this._fileServiceUrl = conf['FILE_SERVICE_URL'] || conf['SERVER_URL'] + '/api/files/upload'
-        }
-
         this.stream = fs.createReadStream(filePath)
     }
 
@@ -85,7 +78,7 @@ class UploadingFile {
 async function getUploadingFile (filePath, fileMeta, user) {
     const fileSecret = conf['FILE_SECRET']
     const fileClient = conf['FILE_CLIENT_ID']
-    const fileServiceUrl = conf['FILE_SERVICE_URL'] || conf['SERVER_URL'] + '/api/files/upload'
+    const fileServiceUrl = conf['FILE_SERVICE_URL'] + '/api/files/upload' || conf['SERVER_URL'] + '/api/files/upload'
 
     // NOTE: Old way to upload file. Keep that for backward compatibility
     if (!fileSecret || !fileClient) {
