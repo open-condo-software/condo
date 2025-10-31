@@ -22,7 +22,7 @@ const ERRORS = {
 }
 
 const ConfirmEmailAction = new GQLListSchema('ConfirmEmailAction', {
-    schemaDoc: 'User confirm email actions',
+    schemaDoc: 'Represents an email confirmation action.',
     fields: {
 
         email: {
@@ -48,14 +48,14 @@ const ConfirmEmailAction = new GQLListSchema('ConfirmEmailAction', {
         },
 
         token: {
-            schemaDoc: 'Unique token to complete confirmation',
+            schemaDoc: 'Unique token used to complete the confirmation.',
             type: 'Text',
             isUnique: true,
             isRequired: true,
         },
 
         secretCode: {
-            schemaDoc: 'Last secret code sent to user',
+            schemaDoc: 'Most recent secret code sent to the user.',
             type: 'Text',
             isRequired: true,
             hooks: {
@@ -70,43 +70,43 @@ const ConfirmEmailAction = new GQLListSchema('ConfirmEmailAction', {
         },
 
         secretCodeRequestedAt: {
-            schemaDoc: 'Time when secret code was requested',
+            schemaDoc: 'Timestamp when the secret code was requested.',
             type: 'DateTimeUtc',
             isRequired: true,
         },
 
         secretCodeExpiresAt: {
-            schemaDoc: 'Time when secret code becomes not valid',
+            schemaDoc: 'Timestamp when the secret code expires.',
             type: 'DateTimeUtc',
             isRequired: true,
         },
 
         retries: {
-            schemaDoc: 'Number of times secret code input from user failed',
+            schemaDoc: 'Number of failed attempts to enter the secret code.',
             type: 'Integer',
             defaultValue: 0,
         },
 
         isEmailVerified: {
-            schemaDoc: 'Email verification flag. User verify email by access to email message',
+            schemaDoc: 'Indicates whether the user confirmed the email address by entering the secret code.',
             type: 'Checkbox',
             defaultValue: false,
         },
 
         requestedAt: {
-            schemaDoc: 'DateTime when confirm email action was started',
+            schemaDoc: 'Timestamp when the email confirmation action was created.',
             type: 'DateTimeUtc',
             isRequired: true,
         },
 
         expiresAt: {
-            schemaDoc: 'When confirm email action becomes invalid',
+            schemaDoc: 'Timestamp when the email confirmation action expires.',
             type: 'DateTimeUtc',
             isRequired: true,
         },
 
         completedAt: {
-            schemaDoc: 'When confirm email action was completed',
+            schemaDoc: 'Timestamp when the email confirmation action was completed.',
             type: 'DateTimeUtc',
             isRequired: false,
         },
