@@ -74607,6 +74607,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageBillingAccounts: Boolean
   canReadBillingProperties: Boolean
   canManageBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+  canManageBillingRecipients: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean
@@ -74719,6 +74721,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadBillingProperties_not: Boolean
   canManageBillingProperties: Boolean
   canManageBillingProperties_not: Boolean
+  canReadBillingRecipients: Boolean
+  canReadBillingRecipients_not: Boolean
+  canManageBillingRecipients: Boolean
+  canManageBillingRecipients_not: Boolean
   canReadContacts: Boolean
   canReadContacts_not: Boolean
   canManageContacts: Boolean
@@ -74894,6 +74900,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadBillingProperties_DESC
   canManageBillingProperties_ASC
   canManageBillingProperties_DESC
+  canReadBillingRecipients_ASC
+  canReadBillingRecipients_DESC
+  canManageBillingRecipients_ASC
+  canManageBillingRecipients_DESC
   canReadContacts_ASC
   canReadContacts_DESC
   canManageContacts_ASC
@@ -74994,6 +75004,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageBillingAccounts: Boolean
   canReadBillingProperties: Boolean
   canManageBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+  canManageBillingRecipients: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean
@@ -75061,6 +75073,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageBillingAccounts: Boolean
   canReadBillingProperties: Boolean
   canManageBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+  canManageBillingRecipients: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean
@@ -75163,6 +75177,11 @@ type B2BAppAccessRightSet {
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
   """
   canManageBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageBillingRecipients: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean
@@ -75279,6 +75298,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadBillingProperties_not: Boolean
   canManageBillingProperties: Boolean
   canManageBillingProperties_not: Boolean
+  canReadBillingRecipients: Boolean
+  canReadBillingRecipients_not: Boolean
+  canManageBillingRecipients: Boolean
+  canManageBillingRecipients_not: Boolean
   canReadContacts: Boolean
   canReadContacts_not: Boolean
   canManageContacts: Boolean
@@ -75436,6 +75459,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadBillingProperties_DESC
   canManageBillingProperties_ASC
   canManageBillingProperties_DESC
+  canReadBillingRecipients_ASC
+  canReadBillingRecipients_DESC
+  canManageBillingRecipients_ASC
+  canManageBillingRecipients_DESC
   canReadContacts_ASC
   canReadContacts_DESC
   canManageContacts_ASC
@@ -75536,6 +75563,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManageBillingAccounts: Boolean
   canReadBillingProperties: Boolean
   canManageBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+  canManageBillingRecipients: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean
@@ -75600,6 +75629,8 @@ input B2BAppAccessRightSetCreateInput {
   canManageBillingAccounts: Boolean
   canReadBillingProperties: Boolean
   canManageBillingProperties: Boolean
+  canReadBillingRecipients: Boolean
+  canManageBillingRecipients: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadInvoices: Boolean
