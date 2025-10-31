@@ -15,7 +15,6 @@ import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/file
 import styles from './Comments.module.css'
 
 import { CommentWithFiles } from './index'
-import omit from "lodash/omit";
 
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
