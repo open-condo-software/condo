@@ -15,6 +15,7 @@ import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/file
 import styles from './Comments.module.css'
 
 import { CommentWithFiles } from './index'
+import omit from "lodash/omit";
 
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
@@ -33,6 +34,8 @@ const getFilePreviewByMimetype = (mimetype, url) => {
 
 const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
 const ELLIPSIS_CONFIG = { rows: 1 }
+
+const URL_REGEX = /(https?:\/\/[^\s<]+[^\s<\.)])/g
 
 type CommentFileListProps = {
     comment: CommentWithFiles
@@ -100,41 +103,35 @@ const getCommentAuthorRoleMessage = (author: User, intl) => {
 }
 
 export const linkifyText = (text: string): React.ReactNode => {
-    if (!text) return text;
+    if (!text) return text
 
-    // Enhanced URL regex that handles more cases
-    const urlRegex = /(https?:\/\/[^\s<]+[^\s<\.)])/g;
 
-    const parts = text.split(urlRegex);
+
+    const parts = text.split(URL_REGEX)
 
     return parts.map((part, index) => {
-        if (part.match(urlRegex)) {
-            let url = part;
-            // Ensure URL has protocol
+        if (part.match(URL_REGEX)) {
+            let url = part
+
             if (!url.startsWith('http')) {
-                url = `https://${url}`;
+                url = `https://${url}`
             }
 
             return (
-                <a
+                <Typography.Link
                     key={index}
                     href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                        color: '#1890ff',
-                        textDecoration: 'underline',
-                        wordBreak: 'break-all'
-                    }}
+                    target='_blank'
+                    rel='noopener noreferrer'
                     onClick={(e) => e.stopPropagation()}
                 >
                     {part}
-                </a>
-            );
+                </Typography.Link>
+            )
         }
-        return part;
-    });
-};
+        return part
+    })
+}
 
 export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, deleteAction, hasInteractiveLinks = false }) => {
     const intl = useIntl()
