@@ -215,7 +215,6 @@ async function changeTwoFactorAuthentication (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write changeTwoFactorAuthentication serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: CHANGE_TWO_FACTOR_AUTHENTICATION_MUTATION,
