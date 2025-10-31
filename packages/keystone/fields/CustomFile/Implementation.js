@@ -37,7 +37,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
         this.graphQLOutputType = 'File'
         this._fileSecret = conf['FILE_SECRET']
         this._fileClientId = conf['FILE_CLIENT_ID']
-        this._fileServiceUrl = conf['FILE_SERVICE_URL'] + '/api/files/attach' || conf['SERVER_URL'] + '/api/files/attach'
+        this._fileServiceUrl = (conf['FILE_SERVICE_URL'] || conf['SERVER_URL']) + '/api/files/attach'
         this._strictMode = conf['FILE_UPLOAD_STRICT_MODE'] || false
     }
 

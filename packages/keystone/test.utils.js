@@ -78,7 +78,7 @@ class UploadingFile {
 async function getUploadingFile (filePath, fileMeta, user) {
     const fileSecret = conf['FILE_SECRET']
     const fileClient = conf['FILE_CLIENT_ID']
-    const fileServiceUrl = conf['FILE_SERVICE_URL'] + '/api/files/upload' || conf['SERVER_URL'] + '/api/files/upload'
+    const fileServiceUrl = (conf['FILE_SERVICE_URL'] || conf['SERVER_URL']) + '/api/files/upload'
 
     // NOTE: Old way to upload file. Keep that for backward compatibility
     if (!fileSecret || !fileClient) {
