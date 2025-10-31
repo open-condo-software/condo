@@ -637,7 +637,222 @@ describe('function "validateUserCredentials"', () => {
             })
         })
 
-        // describe('two-factor authentication')
+        describe('two-factor authentication', () => {
+            describe('should return "success: false" if there are not enough factors for authentication', () => {
+                test('if only the password is passed and it is valid', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+                    const result = await validateUserCredentials(
+                        { phone: userAttrs.phone, userType: registeredUser.type },
+                        { password: userAttrs.password }
+                    )
+
+                    expect(result.success).toBeFalsy()
+                    expect(result._error.errorType).toBe('NOT_ENOUGH_AUTH_FACTORS')
+                    expect(result._error.authChecks).toEqual({
+                        password: 'success',
+                        confirmPhoneToken: 'skip',
+                        confirmEmailToken: 'skip',
+                    })
+                    expect(result._error.is2FAEnabled).toBeTruthy()
+                })
+
+                test('if only the confirmPhoneToken is passed and it is valid', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token }] = await createTestConfirmPhoneAction(adminClient, {
+                        phone: userAttrs.phone, isPhoneVerified: true,
+                    })
+
+                    const result = await validateUserCredentials(
+                        { phone: userAttrs.phone, userType: registeredUser.type },
+                        { confirmPhoneToken: token }
+                    )
+
+                    expect(result.success).toBeFalsy()
+                    expect(result._error.errorType).toBe('NOT_ENOUGH_AUTH_FACTORS')
+                    expect(result._error.authChecks).toEqual({
+                        password: 'skip',
+                        confirmPhoneToken: 'success',
+                        confirmEmailToken: 'skip',
+                    })
+                    expect(result._error.is2FAEnabled).toBeTruthy()
+                })
+
+                test('if only the confirmEmailToken is passed and it is valid', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token }] = await createTestConfirmEmailAction(adminClient, {
+                        email: userAttrs.email, isEmailVerified: true,
+                    })
+
+                    const result = await validateUserCredentials(
+                        { email: userAttrs.email, userType: registeredUser.type },
+                        { confirmEmailToken: token }
+                    )
+
+                    expect(result.success).toBeFalsy()
+                    expect(result._error.errorType).toBe('NOT_ENOUGH_AUTH_FACTORS')
+                    expect(result._error.authChecks).toEqual({
+                        password: 'skip',
+                        confirmPhoneToken: 'skip',
+                        confirmEmailToken: 'success',
+                    })
+                    expect(result._error.is2FAEnabled).toBeTruthy()
+                })
+
+                test('if password and confirmPhoneToken is valid, but confirmEmailToken is not valid', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token }] = await createTestConfirmPhoneAction(adminClient, {
+                        phone: userAttrs.phone, isPhoneVerified: true,
+                    })
+                    const result = await validateUserCredentials(
+                        { phone: userAttrs.phone, userType: registeredUser.type },
+                        { password: userAttrs.password, confirmPhoneToken: token, confirmEmailToken: faker.datatype.uuid() }
+                    )
+                    expect(result.success).toBeFalsy()
+                })
+
+                test('if password and confirmEmailToken is valid, but confirmPhoneToken is not valid', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token }] = await createTestConfirmEmailAction(adminClient, {
+                        email: userAttrs.email, isEmailVerified: true,
+                    })
+                    const result = await validateUserCredentials(
+                        { phone: userAttrs.phone, userType: registeredUser.type },
+                        { password: userAttrs.password, confirmPhoneToken: faker.datatype.uuid(), confirmEmailToken: token }
+                    )
+                    expect(result.success).toBeFalsy()
+                })
+
+                test('if confirmPhoneToken and confirmEmailToken is valid, but password is not valid', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token: confirmPhoneToken }] = await createTestConfirmPhoneAction(adminClient, {
+                        phone: userAttrs.phone, isPhoneVerified: true,
+                    })
+                    const [{ token: confirmEmailToken }] = await createTestConfirmEmailAction(adminClient, {
+                        email: userAttrs.email, isEmailVerified: true,
+                    })
+                    const result = await validateUserCredentials(
+                        { phone: userAttrs.phone, userType: registeredUser.type },
+                        { password: faker.random.alphaNumeric(16), confirmPhoneToken, confirmEmailToken }
+                    )
+                    expect(result.success).toBeFalsy()
+                })
+            })
+
+            describe('should return "success: true" if there are enough authentication factors', () => {
+                test('if password and confirmPhoneToken is valid', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token }] = await createTestConfirmPhoneAction(adminClient, {
+                        phone: userAttrs.phone, isPhoneVerified: true,
+                    })
+                    const result = await validateUserCredentials(
+                        { phone: userAttrs.phone, userType: registeredUser.type },
+                        { password: userAttrs.password, confirmPhoneToken: token }
+                    )
+                    expect(result.success).toBeTruthy()
+                })
+
+                test('if password and confirmEmailToken is valid', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token }] = await createTestConfirmEmailAction(adminClient, {
+                        email: userAttrs.email, isEmailVerified: true,
+                    })
+                    const result = await validateUserCredentials(
+                        { email: userAttrs.email, userType: registeredUser.type },
+                        { password: userAttrs.password, confirmEmailToken: token }
+                    )
+                    expect(result.success).toBeTruthy()
+                })
+
+                test('if confirmPhoneToken and confirmEmailToken is valid', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token: confirmPhoneToken }] = await createTestConfirmPhoneAction(adminClient, {
+                        phone: userAttrs.phone, isPhoneVerified: true,
+                    })
+                    const [{ token: confirmEmailToken }] = await createTestConfirmEmailAction(adminClient, {
+                        email: userAttrs.email, isEmailVerified: true,
+                    })
+                    const result = await validateUserCredentials(
+                        { userType: registeredUser.type },
+                        { confirmPhoneToken, confirmEmailToken }
+                    )
+                    expect(result.success).toBeTruthy()
+                })
+
+                test('if password and confirmPhoneToken and confirmEmailToken is valid', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token: confirmPhoneToken }] = await createTestConfirmPhoneAction(adminClient, {
+                        phone: userAttrs.phone, isPhoneVerified: true,
+                    })
+                    const [{ token: confirmEmailToken }] = await createTestConfirmEmailAction(adminClient, {
+                        email: userAttrs.email, isEmailVerified: true,
+                    })
+                    const result = await validateUserCredentials(
+                        { phone: userAttrs.phone, userType: registeredUser.type },
+                        { password: userAttrs.password, confirmPhoneToken, confirmEmailToken }
+                    )
+                    expect(result.success).toBeTruthy()
+                })
+            })
+        })
 
         test('correctly separates users with the same phone and email but different types', async () => {
             const [registeredResidentUser, residentUserAttrs] = await registerNewUser(await makeClient())
