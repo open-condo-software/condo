@@ -69201,6 +69201,7 @@ enum B2BAppIconType {
   FloorParking
   Frown
   Globe
+  GripHorizontal
   Guide
   History
   Home
@@ -69251,6 +69252,7 @@ enum B2BAppIconType {
   Settings
   Share
   Sheet
+  Size
   Slash
   SmartHome
   Smartphone
