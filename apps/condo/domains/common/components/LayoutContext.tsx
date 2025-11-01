@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import { setCookie } from 'cookies-next'
+import React, { createContext, useContext, useLayoutEffect, useState } from 'react'
 
 import { ScreenMap, useBreakpoints } from '@open-condo/ui/dist/hooks'
 
-import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
+import { IS_SIDEBAR_COLLAPSED_COOKIE_NAME } from '@condo/domains/common/utils/next/ssr'
 
+import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
 
 interface ILayoutContext {
     /**
@@ -29,6 +31,9 @@ const isMobileUserAgent = (): boolean => {
     )
 }
 
+
+const YEAR_IN_SECONDS = 60 * 60 * 24 * 365
+
 const LayoutContext = createContext<ILayoutContext>({})
 
 export const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>(LayoutContext)
@@ -37,17 +42,18 @@ type LayoutContextProviderProps = {
     children: React.ReactNode
     serviceProblemsAlert?: React.ReactNode
     detectedMobileUserAgentInSSR?: boolean
+    initialIsCollapsed?: boolean
 }
 
 export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (props) => {
-    const { detectedMobileUserAgentInSSR = false } = props
+    const { detectedMobileUserAgentInSSR = false, initialIsCollapsed } = props
     const breakpoints = useBreakpoints()
-    const [isCollapsed, setIsCollapsed] = useState(detectedMobileUserAgentInSSR)
+    const [isCollapsed, setIsCollapsed] = useState(initialIsCollapsed ?? detectedMobileUserAgentInSSR)
 
     // NOTE: On the first render, the breakpoint returns default values, which may be incorrect.
     const [breakpointsReady, setBreakpointsReady] = useState(false)
     const [isMobileView, setIsMobileView] = useState(detectedMobileUserAgentInSSR)
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!breakpointsReady) {
             setBreakpointsReady(true)
             return
@@ -62,20 +68,21 @@ export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (prop
     } = useTopNotificationsHook(props.serviceProblemsAlert)
 
     const toggleCollapsed = () => {
-        localStorage && localStorage.setItem('isCollapsed', String(!isCollapsed))
-        setIsCollapsed(!isCollapsed)
+        const newValue = !isCollapsed
+        // Save this state to cookie to prevent flick on hydration
+        setCookie(IS_SIDEBAR_COLLAPSED_COOKIE_NAME, String(newValue), { maxAge:YEAR_IN_SECONDS }) // 1 year
+        setIsCollapsed(newValue)
     }
 
     const shouldTableScroll = !breakpoints.DESKTOP_LARGE
 
-    useEffect(() => {
-        if (detectedMobileUserAgentInSSR) {
-            localStorage.setItem('isCollapsed', 'true')
+    useLayoutEffect(() => {
+        if (initialIsCollapsed === undefined && detectedMobileUserAgentInSSR) {
+            // Save this state to cookie to prevent flick on hydration
+            setCookie(IS_SIDEBAR_COLLAPSED_COOKIE_NAME, 'true', { maxAge: YEAR_IN_SECONDS })
+            setIsCollapsed(true)
         }
-        const isCollapsed = localStorage.getItem('isCollapsed') === 'true'
-
-        setIsCollapsed(isCollapsed)
-    }, [])
+    }, [detectedMobileUserAgentInSSR, initialIsCollapsed])
 
     return (
         <LayoutContext.Provider value={{

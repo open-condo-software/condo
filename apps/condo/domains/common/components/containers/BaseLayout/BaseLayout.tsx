@@ -6,19 +6,12 @@ import React, { CSSProperties, FunctionComponent, ElementType } from 'react'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
+import styles from './BaseLayout.module.css'
 import { SideNav } from './components/SideNav'
-import {
-    LAYOUT_CSS,
-    PAGE_CONTENT_CSS,
-    PAGE_HEADER_CSS,
-    SPACED_PAGE_HEADER_CSS,
-    StyledPageWrapper,
-    SUB_LAYOUT_CSS,
-    TABLE_PAGE_CONTENT_CSS,
-} from './components/styles'
 import { ITopMenuItemsProps } from './components/TopMenuItems'
 import { Footer } from './Footer'
 import { Header } from './Header'
+
 
 interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>
@@ -42,10 +35,17 @@ const BaseLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props) 
         TopMenuItems,
     } = props
 
+    const { isCollapsed } = useLayoutContext()
+
     return (
-        <Layout className={className} style={style} css={LAYOUT_CSS}>
+        <Layout className={classnames(styles.layout, className)} style={style}>
             <SideNav menuData={menuData} onLogoClick={onLogoClick}/>
-            <Layout css={SUB_LAYOUT_CSS}>
+            <Layout 
+                className={classnames(
+                    styles.subLayout,
+                    isCollapsed ? styles.subLayoutCollapsed : styles.subLayoutExpanded
+                )}
+            >
                 <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />
                 {children}
                 <Footer />
@@ -61,12 +61,18 @@ interface IPageWrapperProps {
 
 const PageWrapper: FunctionComponent<React.PropsWithChildren<IPageWrapperProps>> = (props) => {
     const { children, className, style } = props
-    const { breakpoints } = useLayoutContext()
 
     return (
-        <StyledPageWrapper isSmall={!breakpoints.TABLET_LARGE} className={classnames('page-wrapper', className)} style={style}>
+        <Layout.Content 
+            className={classnames(
+                styles.pageWrapper,
+                'page-wrapper',
+                className
+            )} 
+            style={style}
+        >
             {children}
-        </StyledPageWrapper>
+        </Layout.Content>
     )
 }
 
@@ -89,8 +95,14 @@ const PageHeader: FunctionComponent<IPageHeaderProps> = ({
 }) => {
     return (
         <AntPageHeader
-            className={classnames('page-header', className)} css={spaced ? SPACED_PAGE_HEADER_CSS : PAGE_HEADER_CSS} style={style}
-            title={title} subTitle={subTitle}
+            className={classnames(
+                spaced ? styles.spacedPageHeader : styles.pageHeader,
+                'page-header',
+                className
+            )} 
+            style={style}
+            title={title} 
+            subTitle={subTitle}
             {...pageHeaderProps}
         >
             {children}
@@ -105,7 +117,7 @@ interface IPageContentProps {
 
 const PageContent: FunctionComponent<React.PropsWithChildren<IPageContentProps>> = ({ children, className, style }) => {
     return (
-        <div className={classnames('page-content', className)} css={PAGE_CONTENT_CSS} style={style}>
+        <div className={classnames(styles.pageContent, 'page-content', className)} style={style}>
             {children}
         </div>
     )
@@ -113,7 +125,7 @@ const PageContent: FunctionComponent<React.PropsWithChildren<IPageContentProps>>
 
 const TablePageContent: FunctionComponent<React.PropsWithChildren<IPageContentProps>> = ({ children, className, style }) => {
     return (
-        <div className={classnames('page-content', className)} css={TABLE_PAGE_CONTENT_CSS} style={style}>
+        <div className={classnames(styles.tablePageContent, 'page-content', className)} style={style}>
             {children}
         </div>
     )
