@@ -11740,6 +11740,7 @@ __metadata:
   resolution: "@open-condo/miniapp-utils@workspace:packages/miniapp-utils"
   dependencies:
     "@apollo/client": ^3.11.8
+    "@open-condo/bridge": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@types/http-proxy": ^1.17.16
     "@types/jest": ^29.5.14

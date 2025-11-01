@@ -29,7 +29,7 @@ const SEMVER_REGEXP = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\
 const MESSAGE_SCHEMA = z.object({
     handler: z.string(),
     params: z.record(z.string(), z.unknown()).and(z.object({
-        requestId: z.union([z.string(), z.number()]),
+        requestId: z.union([z.string(), z.number()]).optional(),
     })),
     type: z.string(),
     version: z.string().regex(SEMVER_REGEXP),
@@ -38,6 +38,13 @@ const MESSAGE_SCHEMA = z.object({
 export class PostMessageController {
     #registeredFrames: Record<FrameId, FrameType> = {}
     #registeredHandlers: Record<HandlerScope, Record<EventType, Record<EventName, HandlerMethods<EventParams, HandlerResult>>>> = {}
+
+    constructor () {
+        this.addFrame = this.addFrame.bind(this)
+        this.removeFrame = this.removeFrame.bind(this)
+        this.addHandler = this.addHandler.bind(this)
+        this.eventListener = this.eventListener.bind(this)
+    }
 
     addFrame (frame: FrameType): FrameId {
         const frameId = generateUUIDv4()
