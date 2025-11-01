@@ -22,6 +22,7 @@ interface ICommentProps {
     comment: CommentWithFiles
     setEditableComment: (value: CommentWithFiles) => void
     deleteAction?: (obj: CommentWithFiles) => Promise<void>
+    hasInteractiveLinks?: boolean
 }
 
 const getFilePreviewByMimetype = (mimetype, url) => {
@@ -32,6 +33,8 @@ const getFilePreviewByMimetype = (mimetype, url) => {
 
 const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
 const ELLIPSIS_CONFIG = { rows: 1 }
+
+const URL_REGEX = /(https?:\/\/[^\s<]+[^\s<\.)])/g
 
 type CommentFileListProps = {
     comment: CommentWithFiles
@@ -98,7 +101,46 @@ const getCommentAuthorRoleMessage = (author: User, intl) => {
     }
 }
 
-export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, deleteAction }) => {
+export const linkifyText = (text: string): React.ReactNode => {
+    if (!text) return text
+
+    const parts = text.split(URL_REGEX)
+
+    return parts.map((part, index) => {
+        if (part.match(URL_REGEX)) {
+            let url = part
+
+            if (!url.startsWith('http')) {
+                url = `https://${url}`
+            }
+
+            // Validate URL protocol for security
+            try {
+                const urlObj = new URL(url)
+                if (!['http:', 'https:'].includes(urlObj.protocol)) {
+                    return part
+                }
+            } catch {
+                return part
+            }
+
+            return (
+                <Typography.Link
+                    key={index}
+                    href={url}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {part}
+                </Typography.Link>
+            )
+        }
+        return part
+    })
+}
+
+export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, deleteAction, hasInteractiveLinks = false }) => {
     const intl = useIntl()
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'Comments.actions.delete.confirm.title' })
     const ConfirmDeleteOkText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.okText' })
@@ -177,13 +219,17 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
         </Tooltip>,
     ]), [isDeleteTooltipOpen, ConfirmDeleteCancelText, ConfirmDeleteOkText, ConfirmDeleteTitle, comment.user.id, handleDeleteComment, handleUpdateComment, user.id])
 
+    const commentContent = hasInteractiveLinks
+        ? linkifyText(comment.content)
+        : comment.content
+
     return (
         <AntComment
             className={styles.comment}
             content={
                 <>
                     <Typography.Text size='medium'>
-                        {comment.content}
+                        {commentContent}
                     </Typography.Text>
                     <CommentFileList comment={comment} />
                 </>
