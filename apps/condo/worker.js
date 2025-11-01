@@ -33,7 +33,7 @@ function traceWrapper (fn) {
     return tracer.wrap('task.process', fn)
 }
 
-createWorker(index, process.argv.slice(2), traceWrapper)
+createWorker(false, process.argv.slice(2), traceWrapper)
     .catch((error) => {
         console.error(error)
         process.exit(2)
