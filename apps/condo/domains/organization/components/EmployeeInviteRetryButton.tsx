@@ -6,7 +6,7 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sende
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button } from '@open-condo/ui'
+import { Button, Typography } from '@open-condo/ui'
 
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
@@ -49,23 +49,28 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
         <CountDownTimer action={reInviteEmployee} id='RESET_EMPLOYEE_INVITE'>
             {({ countdown, runAction, loading }) => {
                 const isCountDownActive = countdown > 0
-                const buttonText = isCountDownActive 
-                    ? `${RetryInviteMessage} (${countdown} ${Seconds})`
-                    : RetryInviteMessage
 
                 return (
-                    <Button
-                        type='accent'
-                        size='medium'
-                        minimal
-                        compact
-                        stateless
-                        loading={loading}
-                        disabled={isCountDownActive}
-                        onClick={runAction}
-                    >
-                        {buttonText}
-                    </Button>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
+                        <Button
+                            type='accent'
+                            size='medium'
+                            minimal
+                            compact
+                            stateless
+                            loading={loading}
+                            disabled={isCountDownActive}
+                            onClick={runAction}
+                        >
+                            {RetryInviteMessage}
+                        </Button>
+                        {
+                            isCountDownActive && 
+                            <Typography.Text type='primary' size='medium' strong>
+                                <span style={{ opacity: 0.5 }}>{`(${countdown} ${Seconds})`}</span>
+                            </Typography.Text>
+                        }
+                    </div>
                 )
             }}
         </CountDownTimer>
