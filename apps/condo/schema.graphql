@@ -85572,7 +85572,7 @@ type FileAttachment {
   modelName: String!
   id: ID!
   fileClientId: String!
-  user: ID!
+  user: FileRecordMetaUser!
 }
 
 type FileAttachments {

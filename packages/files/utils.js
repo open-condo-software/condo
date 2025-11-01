@@ -383,9 +383,8 @@ function fileStorageHandler ({ keystone, appClients }) {
         const fileRecords = await FileRecord.updateMany(context,
             createdFiles.map(e => ({
                 id: e.id, data: { fileMeta: { ...e.fileMeta, recordId: e.id }, dv: meta.dv, sender: meta.sender },
-            })), `id fileMeta { meta ${FILE_RECORD_USER_META} }`)
+            })), `id fileMeta { originalFilename meta ${FILE_RECORD_USER_META} }`)
 
-        // --- NEW: optionally attach inline ---
         let result = []
         if (!inlineAttach) {
             // classic behavior
@@ -396,6 +395,7 @@ function fileStorageHandler ({ keystone, appClients }) {
                     appClient.secret,
                     { expiresIn: '5m', algorithm: 'HS256' }
                 ),
+                originalFilename: file.fileMeta.originalFilename,
             }))
         } else {
             // validate modelName against meta.modelNames

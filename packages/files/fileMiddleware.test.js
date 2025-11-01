@@ -500,6 +500,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                     expect(file).toEqual({
                         id: file.id,
                         signature: file.signature,
+                        originalFilename: 'dino.png',
                     })
 
                     const attachResult = await fetch(serverAttachUrl, {
@@ -549,6 +550,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                     expect(file).toEqual({
                         id: file.id,
                         signature: file.signature,
+                        originalFilename: 'dino.png',
                     })
 
                     const attachResult = await fetch(serverAttachUrl, {
@@ -598,6 +600,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                     expect(file).toEqual({
                         id: file.id,
                         signature: file.signature,
+                        originalFilename: 'dino.png',
                     })
 
                     const attachResult = await fetch(serverAttachUrl, {
@@ -727,6 +730,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                 expect(file).toEqual({
                     id: file.id,
                     signature: file.signature,
+                    originalFilename: 'dino.png',
                 })
             })
 
@@ -756,6 +760,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                 expect(file).toEqual({
                     id: file.id,
                     signature: file.signature,
+                    originalFilename: 'dino.png',
                 })
 
                 const decryptedData = jwt.verify(file.signature, appClients[Object.keys(appClients)[0]].secret, { algorithms: ['HS256'] })
@@ -888,6 +893,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                 expect(file).toEqual({
                     id: file.id,
                     signature: file.signature,
+                    originalFilename: 'dino.png',
                 })
 
                 const attachResult = await fetch(serverAttachUrl, {

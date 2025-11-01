@@ -6,6 +6,8 @@ const yargs = require('yargs/yargs')
 
 const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
+const { DEFAULT_FILE_ADAPTER } = require('@condo/domains/common/constants/uploads')
+
 // FileRecord location + columns
 const FILE_RECORD = {
     schema: 'public',
@@ -88,7 +90,7 @@ function buildFileRecord (srcVal, ctx) {
 
     const fileSize = size != null ? String(size) : null
     const fileMimeType = mimetype || null
-    const resolvedAdapter = fileAdapter || adapter || storageAdapter || null
+    const resolvedAdapter = fileAdapter || adapter || storageAdapter || DEFAULT_FILE_ADAPTER
 
     const fileMeta = {
         id: id || null,
@@ -106,8 +108,8 @@ function buildFileRecord (srcVal, ctx) {
                 fingerprint: meta?.sender?.fingerprint ?? 'migrator',
             },
             user: userId ? { id: userId } : { id: null },
-            fileClientId: meta?.fileClientId ?? null,
-            modelNames: Array.isArray(meta?.modelNames) ? meta.modelNames : [],
+            fileClientId: meta?.fileClientId ?? 'condo',
+            modelNames: Array.isArray(meta?.modelNames) ? meta.modelNames : [ctx.source.table],
             sourceFileClientId: meta?.sourceFileClientId ?? null,
         },
     }

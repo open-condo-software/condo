@@ -11,6 +11,7 @@
     "./schema": "./schema/index.js",
     "./schema/models": "./schema/models/index.js",
     "./schema/utils/serverSchema": "./schema/utils/serverSchema.js",
+    "./schema/utils/testSchema": "./schema/utils/testSchema.js",
     "./fileMiddleware": "./fileMiddleware.js",
     "./fileMiddleware.test": "./fileMiddleware.test.js",
     "./utils": "./utils.js",
