@@ -10,11 +10,13 @@ import type { NormalizedCacheObject, ApolloClient } from '@apollo/client'
 
 
 const COOKIE_STATE_PROP_NAME = '__SSR_COOKIE_EXTRACTOR__'
+export const IS_SIDEBAR_COLLAPSED_COOKIE_NAME = 'isSidebarCollapsed'
 
 // NOTE: put here only cookies needed in SRR (hydration)
 const VITAL_COOKIES = [
     'organizationLinkId',
     'isMobileUserAgent',
+    IS_SIDEBAR_COLLAPSED_COOKIE_NAME,
 ] as const
 
 type SSRRequest = NextPageContext['req']

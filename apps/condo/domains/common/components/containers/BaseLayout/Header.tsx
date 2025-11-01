@@ -37,7 +37,7 @@ interface IHeaderProps {
 
 export const Header: React.FC<IHeaderProps> = (props) => {
     const client = useApolloClient()
-    const { toggleCollapsed, isMobileView } = useLayoutContext()
+    const { toggleCollapsed } = useLayoutContext()
     const router = useRouter()
 
     const { isAuthenticated } = useAuth()
@@ -76,40 +76,33 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     return (
         <UserMessagesListContextProvider organizationIdsToFilter={organizationIdsToFilterMessages}>
             {ChooseEmployeeRoleModal}
-            {
-                isMobileView
-                    ? (
-                        <>
-                            <div id='tasks-container' className='tasks-container' />
-                            <Layout.Header className='header mobile-header'>
-                                <div className='context-bar'>
-                                    <UserMessagesList />
-                                    <div className='organization-user-block'>
-                                        <Space direction='horizontal' size={4}>
-                                            <SBBOLIndicator organization={organization} />
-                                            <InlineOrganizationSelect/>
-                                        </Space>
-                                        <UserMenu/>
-                                    </div>
-                                </div>
-                                <div className='appeals-bar'>
-                                    <Menu size='large' onClick={toggleCollapsed}/>
-                                    <Logo onClick={handleLogoClick} minified/>
-                                    <div>
-                                        {hasAccessToAppeals && (
-                                            <ResidentActions minified/>
-                                        )}
-                                    </div>
-                                </div>
-                            </Layout.Header>
-                        </>
-                    )
-                    : (
-                        <Layout.Header className='header desktop-header'>
-                            <TopMenuItems headerAction={props.headerAction}/>
-                        </Layout.Header>
-                    )
-            }
+            <>
+                <div id='tasks-container' className='tasks-container' />
+                <Layout.Header className='header mobile-header'>
+                    <div className='context-bar'>
+                        <UserMessagesList />
+                        <div className='organization-user-block'>
+                            <Space direction='horizontal' size={4}>
+                                <SBBOLIndicator organization={organization} />
+                                <InlineOrganizationSelect/>
+                            </Space>
+                            <UserMenu/>
+                        </div>
+                    </div>
+                    <div className='appeals-bar'>
+                        <Menu size='large' onClick={toggleCollapsed}/>
+                        <Logo onClick={handleLogoClick} minified/>
+                        <div>
+                            {hasAccessToAppeals && (
+                                <ResidentActions minified/>
+                            )}
+                        </div>
+                    </div>
+                </Layout.Header>
+                <Layout.Header className='header desktop-header'>
+                    <TopMenuItems headerAction={props.headerAction}/>
+                </Layout.Header>
+            </>
         </UserMessagesListContextProvider>
     )
 }

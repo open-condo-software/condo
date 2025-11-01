@@ -2,7 +2,7 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import {
     AuthenticatedUserDocument,
     GetActiveOrganizationEmployeeDocument,
-    useGetBillingIntegrationOrganizationContextsQuery, useGetBillingIntegrationOrganizationContextsWithLastReportQuery,
+    useGetBillingIntegrationOrganizationContextsWithLastReportQuery,
     useGetProcessingTasksQuery,
 } from '@app/condo/gql'
 import createCache from '@emotion/cache'
@@ -487,8 +487,9 @@ const MyApp = ({ Component, pageProps }) => {
     const { user, isAuthenticated, isLoading: isUserLoading } = useAuth()
     const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId, isSnowfallDisabled, googleTagManagerId } } = getConfig()
 
-    const { isMobileUserAgent } = useSSRCookiesContext()
+    const { isMobileUserAgent, isSidebarCollapsed: isCollapsedCookie } = useSSRCookiesContext()
     const detectedMobileUserAgentInSSR = isMobileUserAgent === 'true'
+    const initialIsCollapsed = isCollapsedCookie === 'true' ? true : isCollapsedCookie === 'false' ? false : undefined
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -531,6 +532,7 @@ const MyApp = ({ Component, pageProps }) => {
                     <LayoutContextProvider
                         serviceProblemsAlert={<ServiceProblemsAlert />}
                         detectedMobileUserAgentInSSR={detectedMobileUserAgentInSSR}
+                        initialIsCollapsed={initialIsCollapsed}
                     >
                         {shouldDisplayCookieAgreement && <CookieAgreement/>}
                         <HCaptchaProvider>

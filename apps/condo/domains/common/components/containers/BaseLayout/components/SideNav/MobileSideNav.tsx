@@ -6,12 +6,8 @@ import React, { useCallback, useEffect } from 'react'
 import { Close } from '@open-condo/icons'
 import { useOrganization } from '@open-condo/next/organization'
 
+import styles from '@condo/domains/common/components/containers/BaseLayout/BaseLayout.module.css'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-
-import {
-    MobileMenuItemsContainer,
-    MobileSideNavHeader,
-} from '../styles'
 
 
 interface ISideNavProps {
@@ -21,7 +17,7 @@ interface ISideNavProps {
 export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
     const { menuData } = props
     const { link } = useOrganization()
-    const { toggleCollapsed, isCollapsed } = useLayoutContext()
+    const { toggleCollapsed, isCollapsed, isMobileView } = useLayoutContext()
     const router = useRouter()
 
     const hideSideNav = useCallback(() => {
@@ -31,12 +27,14 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
     }, [isCollapsed])
 
     useEffect(() => {
+        if (!isMobileView) return
+
         router.events.on('routeChangeComplete', hideSideNav)
 
         return () => {
             router.events.off('routeChangeComplete', hideSideNav)
         }
-    }, [router])
+    }, [router, isMobileView, hideSideNav])
 
 
     if (get(link, 'isBlocked', false)) {
@@ -51,12 +49,12 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
             width='100%'
             collapsedWidth={0}
         >
-            <MobileSideNavHeader>
+            <div className={styles.mobileSideNavHeader}>
                 <Close size='medium' onClick={toggleCollapsed}/>
-            </MobileSideNavHeader>
-            <MobileMenuItemsContainer>
+            </div>
+            <div className={styles.mobileMenuItemsContainer}>
                 {menuData}
-            </MobileMenuItemsContainer>
+            </div>
         </Layout.Sider>
     )
 }
