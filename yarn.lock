@@ -1586,6 +1586,7 @@ __metadata:
     typescript: ^5.8.3
     uuid: ^8.3.0
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
+    xml2js: ^0.6.2
   languageName: unknown
   linkType: soft
 
@@ -47984,7 +47985,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xml2js@npm:0.6.2":
+"xml2js@npm:0.6.2, xml2js@npm:^0.6.2":
   version: 0.6.2
   resolution: "xml2js@npm:0.6.2"
   dependencies:
