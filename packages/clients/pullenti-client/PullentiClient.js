@@ -21,7 +21,7 @@ class PullentiClient {
      */
     constructor (url, options = {}) {
         if (!url) {
-            throw new Error('The `url` parameter is mandatory')
+            console.error('The `url` parameter is mandatory')
         }
         
         const { processor = null } = options
