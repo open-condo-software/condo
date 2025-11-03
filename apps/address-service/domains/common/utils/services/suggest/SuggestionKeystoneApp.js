@@ -4,6 +4,7 @@ const get = require('lodash/get')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { appendDbAddressesToSuggestions } = require('@address-service/domains/common/utils/services/appendDbAddressesToSuggestions')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 
@@ -57,6 +58,8 @@ class SuggestionKeystoneApp {
         }
 
         const processRequest = async (req, res, next) => {
+            const godContext = await params.keystone.createContext({ skipAccessControl: true })
+
             /**
              * User's search string
              * @type {?string}
@@ -102,6 +105,14 @@ class SuggestionKeystoneApp {
              */
             const helpers = getReqJson(req, 'helpers', {})
 
+            /**
+             * Whether the suggestion provider should include addresses from the DB
+             * in addition to the address suggestions.
+             * Default: false
+             * @type {boolean}
+             */
+            const includeDbAddress = getReqParam(req, 'include_db_address', 'false') === 'true'
+
             if (!s) {
                 this.logger.warn({ msg: 'No string to search suggestions', reqId: req.id })
                 res.sendStatus(400)
@@ -132,7 +143,7 @@ class SuggestionKeystoneApp {
             // 3. Inject some data not presented in provider
             if (!bypass) {
                 const injectionsSeeker = new InjectionsSeeker(s)
-                const denormalizedInjections = await injectionsSeeker.getInjections(await params.keystone.createContext({ skipAccessControl: true }))
+                const denormalizedInjections = await injectionsSeeker.getInjections(godContext)
 
                 suggestions.unshift(...injectionsSeeker.normalize(denormalizedInjections))
                 suggestions.sort((a, b) => {
@@ -152,6 +163,11 @@ class SuggestionKeystoneApp {
 
                     return 0
                 })
+            }
+
+            // 4. Augment suggestions with DB addresses the provider did not return
+            if (includeDbAddress) {
+                suggestions = await appendDbAddressesToSuggestions(godContext, suggestions)
             }
 
             res.json(suggestions)
