@@ -1,0 +1,6 @@
+{
+  "global.projectName": "Doma.ai",
+  "pages.auth.signin.authorize": "Autorización",
+  "pages.auth.signin.header": "Centro de contacto de la plataforma {projectName}",
+  "pages.auth.signin.title": "Autorización"
+}

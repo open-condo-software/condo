@@ -1,0 +1,45 @@
+query getTicketDocumentGenerationTasks ($where: TicketDocumentGenerationTaskWhereInput!) {
+    tasks: allTicketDocumentGenerationTasks(
+        where: $where
+    ) {
+        id
+        progress
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}
+
+mutation createTicketDocumentGenerationTask ($data: TicketDocumentGenerationTaskCreateInput!) {
+    task: createTicketDocumentGenerationTask(
+        data: $data
+    ) {
+        id
+        progress
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}
+
+mutation updateTicketDocumentGenerationTask ($id: ID!, $data: TicketDocumentGenerationTaskUpdateInput!) {
+    task: updateTicketDocumentGenerationTask(
+        data: $data,
+        id: $id
+    ) {
+        id
+        progress
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}

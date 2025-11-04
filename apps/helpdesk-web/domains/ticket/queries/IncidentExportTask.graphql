@@ -1,0 +1,48 @@
+query getIncidentExportTasks ($where: IncidentExportTaskWhereInput!) {
+    tasks: allIncidentExportTasks(
+        where: $where
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}
+
+mutation createIncidentExportTask ($data: IncidentExportTaskCreateInput!) {
+    task: createIncidentExportTask(
+        data: $data
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}
+
+mutation updateIncidentExportTask ($id: ID!, $data: IncidentExportTaskUpdateInput!) {
+    task: updateIncidentExportTask(
+        data: $data,
+        id: $id
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}
