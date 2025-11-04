@@ -1,0 +1,11 @@
+query getTicketPropertyHintPropertyByProperty ($propertyId: ID!) {
+    ticketPropertyHintProperty: allTicketPropertyHintProperties (
+        where: {
+            property: { id: $propertyId },
+        },
+        first: 1
+    ) {
+        id
+        ticketPropertyHint { id }
+    }
+}

@@ -1,0 +1,13 @@
+.footer {
+  width: 100%;
+  max-width: 1600px;
+  background: var(--condo-global-color-white) !important;
+}
+
+.mobile-footer {
+  padding: 10px 20px !important;
+}
+
+.desktop-footer {
+  padding: 10px 40px 20px !important;
+}

@@ -1,0 +1,6 @@
+{
+  "global.projectName": "Ticket.ai",
+  "pages.auth.signin.authorize": "Login",
+  "pages.auth.signin.header": "Contact center of the platform {projectName}",
+  "pages.auth.signin.title": "Login"
+}

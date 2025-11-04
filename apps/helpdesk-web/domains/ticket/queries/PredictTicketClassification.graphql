@@ -1,0 +1,17 @@
+query predictTicketClassification ($details: String!) {
+    ticketClassification: predictTicketClassification(
+        data: {
+            details: $details,
+        }
+    ) {
+        id
+        place {
+            id
+            name
+        }
+        category {
+            id
+            name
+        }
+    }
+}

@@ -1,0 +1,3 @@
+.text-area-without-submit + span > span:last-child > button {
+  display: none;
+}
