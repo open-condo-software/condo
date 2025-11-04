@@ -3,13 +3,16 @@ import { Comment as AntComment, Image } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import omit from 'lodash/omit'
 import React, { useCallback, useMemo, useState } from 'react'
+
 
 import { Edit, Trash } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Tooltip, Typography } from '@open-condo/ui'
 
+import { URL_REGEX } from '@condo/domains/common/constants/regexps'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
 import styles from './Comments.module.css'
@@ -33,8 +36,6 @@ const getFilePreviewByMimetype = (mimetype, url) => {
 
 const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
 const ELLIPSIS_CONFIG = { rows: 1 }
-
-const URL_REGEX = /(https?:\/\/[^\s<]+[^\s<\.)])/g
 
 type CommentFileListProps = {
     comment: CommentWithFiles
@@ -126,7 +127,7 @@ export const linkifyText = (text: string): React.ReactNode => {
 
             return (
                 <Typography.Link
-                    key={index}
+                    key={`${index}-${part}`}
                     href={url}
                     target='_blank'
                     rel='noopener noreferrer'
