@@ -3,7 +3,6 @@ import { Comment as AntComment, Image } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import omit from 'lodash/omit'
 import React, { useCallback, useMemo, useState } from 'react'
 
 
