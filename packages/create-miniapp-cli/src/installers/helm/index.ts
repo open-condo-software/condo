@@ -34,8 +34,8 @@ export async function setupHelm ({ appName, hasReview, appResources, workerResou
         const secretValuesFile = await updateSecretValues(appName, hasReview)
         if (secretValuesFile) created.push(secretValuesFile)
 
-        // const valuesFile = await updateValues({ appName, appResources, workerResources, hasReview, hasWorker, maxOldSpace })
-        // if (valuesFile) created.push(valuesFile)
+        const valuesFile = await updateValues({ appName, appResources, workerResources, hasReview, hasWorker, maxOldSpace })
+        if (valuesFile) created.push(valuesFile)
 
         spinner.succeed('Helm setup completed!')
     } catch (err: any) {

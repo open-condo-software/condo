@@ -1,10 +1,9 @@
 import fs from 'fs/promises'
 import path from 'path'
 
-
 import { CONDO_ROOT } from '@cli/consts'
 import { logger } from '@cli/utils/logger'
-import { parseDocument, isScalar, YAMLMap, visit, Pair, Scalar } from 'yaml'
+import { parseDocument, YAMLMap, Pair, Scalar } from 'yaml'
 
 export interface MaxOldSpace {
     default: number
@@ -51,10 +50,19 @@ export async function updateValues (options: UpdateValuesOptions) {
 
     const snakeName = appName.replace(/-/g, '_')
     const rawYaml = await fs.readFile(VALUES_FILE, 'utf8')
-    const doc = parseDocument(rawYaml)
-    const data = doc.toJS({ mapAsMap: false }) as Record<string, any>
+    const doc = parseDocument(rawYaml, {
+        keepSourceTokens: true, // NOTE(@abshnko): keep original content as-is
+    })
 
-    // --- new miniapp block ---
+    if (!doc.contents) {
+        throw new Error('values.yaml appears empty or invalid')
+    }
+
+    if (doc.get(snakeName)) {
+        logger.info(`${snakeName} already exists in values.yaml, skipping.`)
+        return VALUES_FILE
+    }
+
     const newMiniappBlock: Record<string, any> = {
         app: {
             port: { _default: 3000 },
@@ -97,12 +105,7 @@ export async function updateValues (options: UpdateValuesOptions) {
         }
     }
 
-    if (!data[snakeName]) data[snakeName] = newMiniappBlock
-    else Object.assign(data[snakeName], newMiniappBlock)
-
-    if (!data.envs) data.envs = {}
-
-    const envEntry: Record<string, any> = {
+    const envEntry: Record<string, Record<string, string>> = {
         keep_alive_timeout: { _default: '75000' },
         headers_timeout: { _default: '80000' },
         default_locale: { _default: 'ru' },
@@ -134,42 +137,30 @@ export async function updateValues (options: UpdateValuesOptions) {
         envEntry.node_options.review = `--max_old_space_size=${maxOldSpace.review ?? maxOldSpace.default} --trace-warnings`
     }
 
-    data.envs[snakeName] = envEntry
+    if (!doc.has('envs')) {
+        doc.set('envs', {})
+    }
 
-    const newNode = doc.createNode(data)
-    // @ts-expect-error safe root overwrite
-    doc.contents = newNode
+    const envs = doc.get('envs') as YAMLMap
+    envs.set(snakeName, envEntry)
 
-    const QUOTED_KEYS = new Set(['_default', 'development', 'production', 'review'])
+    const map = doc.contents as YAMLMap
+    let inserted = false
+    const newItems: typeof map.items = []
 
-    
-    visit(doc, {
-        Scalar (key, node, path) {
-            if (!isScalar(node) || typeof node.value !== 'string') return
+    for (const pair of map.items) {
+        if ((pair.key as Scalar).value === 'envs' && !inserted) {
+            newItems.push(new Pair(snakeName, newMiniappBlock))
+            inserted = true
+        }
+        newItems.push(pair)
+    }
 
-            const parent = path[path.length - 1]
-            if (parent && parent instanceof YAMLMap) {
-                const pair = parent.items.find(
-                    (p: Pair) => p.value === node,
-                ) as Pair | undefined
+    map.items = newItems
 
-                // ensure key exists and is a Scalar
-                const keyNode = pair?.key as Scalar | undefined
-                const keyValue = keyNode?.value
+    await fs.writeFile(VALUES_FILE, doc.toString({ lineWidth: 0 }), 'utf8')
+    logger.success(`Added ${snakeName} to .helm/values.yaml`)
 
-                if (keyValue && QUOTED_KEYS.has(String(keyValue))) {
-                    node.type = 'QUOTE_DOUBLE'
-                }
-            }
-        },
-    })
-
-    const newYaml = doc.toString({
-        lineWidth: 1000,
-        defaultStringType: 'PLAIN',
-    })
-
-    await fs.writeFile(VALUES_FILE, newYaml, 'utf8')
-    logger.success(`Successfully updated .helm/values.yaml for ${appName}`)
     return VALUES_FILE
 }
+
