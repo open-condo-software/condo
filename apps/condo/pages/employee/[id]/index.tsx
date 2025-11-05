@@ -264,6 +264,7 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
                                                         <Link key='update' href={`/employee/${get(employee, 'id')}/update`}>
                                                             <Button
                                                                 type='primary'
+                                                                block
                                                             >
                                                                 {UpdateMessage}
                                                             </Button>
