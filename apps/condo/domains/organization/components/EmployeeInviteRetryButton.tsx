@@ -1,4 +1,5 @@
 import { OrganizationEmployee } from '@app/condo/schema'
+import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import React, { useCallback } from 'react'
 
@@ -51,26 +52,31 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
                 const isCountDownActive = countdown > 0
 
                 return (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
-                        <Button
-                            type='accent'
-                            size='medium'
-                            minimal
-                            compact
-                            stateless
-                            loading={loading}
-                            disabled={isCountDownActive}
-                            onClick={runAction}
-                        >
-                            {RetryInviteMessage}
-                        </Button>
-                        {
-                            isCountDownActive && 
-                            <Typography.Text type='primary' size='medium' strong>
-                                <span style={{ opacity: 0.5 }}>{`(${countdown} ${Seconds})`}</span>
-                            </Typography.Text>
-                        }
-                    </div>
+                    <Row gutter={4}>
+                        <Col>
+                            <Button
+                                type='accent'
+                                size='medium'
+                                minimal
+                                compact
+                                stateless
+                                loading={loading}
+                                disabled={isCountDownActive}
+                                onClick={runAction}
+                            >
+                                {RetryInviteMessage}
+                            </Button>
+                        </Col>
+                        <Col>
+                            {
+                                isCountDownActive && 
+                                <Typography.Text type='primary' size='medium' strong>
+                                    <span style={{ opacity: 0.5 }}>{`(${countdown} ${Seconds})`}</span>
+                                </Typography.Text>
+                            }
+                        </Col>
+                    </Row>
+                   
                 )
             }}
         </CountDownTimer>
