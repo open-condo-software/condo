@@ -105,6 +105,7 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                             comment={comment}
                             deleteAction={deleteAction}
                             setEditableComment={setEditableComment}
+                            hasInteractiveLinks={comment.user?.type === UserTypeType.Staff}
                         />
                         {
                             showGenerateAnswerButton && lastComment?.id === comment.id && (
