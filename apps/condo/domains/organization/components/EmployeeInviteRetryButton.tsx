@@ -71,14 +71,14 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
                                 {RetryInviteMessage}
                             </Button>
                         </Col>
-                        <Col>
-                            {
-                                isCountDownActive && 
+                        {
+                            isCountDownActive && 
+                            <Col>
                                 <Typography.Text type='primary' size='medium' strong>
                                     <span className={styles.countdownText}>{`(${countdown} ${Seconds})`}</span>
                                 </Typography.Text>
-                            }
-                        </Col>
+                            </Col>
+                        }
                     </Row>
                    
                 )
