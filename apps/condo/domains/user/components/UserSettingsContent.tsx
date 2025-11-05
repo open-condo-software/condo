@@ -70,12 +70,14 @@ export const UserSettingsContent: React.FC = () => {
             organization: { id: organization?.id },
             billingIntegration: { id: sppBillingId },
             type: UserHelpRequestTypeType.IntegrationSetup,
+            meta: { disableIntegration: true },
         },
         first: 1,
     }, { skip: !organization || !isSPPOrg || !sppBillingId })
 
     const createUserHelpRequestAction = UserHelpRequest.useCreate({
         type: UserHelpRequestTypeType.IntegrationSetup,
+        meta: { disableIntegration: true },
     }, () => userHelpRequestRefetch())
 
     const sendDisableSppRequest = useCallback(async () => {
