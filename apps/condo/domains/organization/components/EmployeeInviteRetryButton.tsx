@@ -1,5 +1,5 @@
 import { OrganizationEmployee } from '@app/condo/schema'
-import { Col, Row } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import React, { useCallback } from 'react'
 
@@ -13,9 +13,13 @@ import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { REINVITE_ORGANIZATION_EMPLOYEE_MUTATION } from '@condo/domains/organization/gql'
 
+import styles from './EmployeeInviteRetryButton.module.css'
+
 interface IEmployeeInviteRetryButtonProps {
     employee: OrganizationEmployee
 }
+
+const ROW_GUTTER: RowProps['gutter'] = 4
 
 export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps> = (props) => {
     const intl = useIntl()
@@ -52,7 +56,7 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
                 const isCountDownActive = countdown > 0
 
                 return (
-                    <Row gutter={4}>
+                    <Row gutter={ROW_GUTTER}>
                         <Col>
                             <Button
                                 type='accent'
@@ -71,7 +75,7 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
                             {
                                 isCountDownActive && 
                                 <Typography.Text type='primary' size='medium' strong>
-                                    <span style={{ opacity: 0.5 }}>{`(${countdown} ${Seconds})`}</span>
+                                    <span className={styles.countdownText}>{`(${countdown} ${Seconds})`}</span>
                                 </Typography.Text>
                             }
                         </Col>
