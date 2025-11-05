@@ -18,6 +18,7 @@ const TICKET_STATUS_TYPES = [
     CLOSED_STATUS_TYPE,
 ]
 
+
 /**
  * @deprecated replaced to 'feedback*'
  * @type {{RETURN: string, BAD: string, GOOD: string}}
