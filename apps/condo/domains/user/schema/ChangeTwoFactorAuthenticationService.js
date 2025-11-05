@@ -70,7 +70,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'INSUFFICIENT_AUTHENTICATION_FACTORS',
         message: 'Insufficient authentication factors. At least three must be specified. For example, password, verified phone and verified email.',
-        // TODO(DOMA-12404): add translations for errors
         messageForUser: 'api.user.changeTwoFactorAuthentication.INSUFFICIENT_AUTHENTICATION_FACTORS',
     },
 }
