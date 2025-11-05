@@ -358,7 +358,7 @@ const User = new GQLListSchema('User', {
         },
 
         isTwoFactorAuthenticationEnabled: {
-            schemaDoc: 'Two-factor authentication is enabled or disabled. Read-only field. The value can only be changed via the "changeTwoFactorAuthentication" mutation.',
+            schemaDoc: 'If true then Two-factor authentication is enabled. Value can only be changed via "changeTwoFactorAuthentication" mutation.',
             type: 'Checkbox',
             isRequired: false,
             defaultValue: false,
