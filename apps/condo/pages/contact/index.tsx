@@ -2,6 +2,7 @@ import {
     GetContactsForTableQueryHookResult,
     useGetContactsExistenceQuery,
     useGetContactsForTableQuery,
+    GetContactsForTableQuery,
     useUpdateContactsMutation,
     useGetNewsItemsRecipientsCountersQuery,
     useGetAllPropertyCountByOrganizationIdQuery,
@@ -15,7 +16,6 @@ import {
 } from '@app/condo/schema'
 import { Col, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { ColumnsType } from 'antd/lib/table'
 import chunk from 'lodash/chunk'
 import getConfig from 'next/config'
 import Head from 'next/head'
@@ -39,6 +39,9 @@ import {
     Tooltip,
     Card,
     Typography,
+    Table as NewTable,
+    GetTableData,
+    TableColumn,
 } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
@@ -65,7 +68,7 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { useContactExportToExcelTask } from '@condo/domains/contact/hooks/useContactExportToExcelTask'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
-import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
+import { useNewTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
 import { CONTACT_PAGE_SIZE, IFilters } from '@condo/domains/contact/utils/helpers'
 import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hooks/useNewsItemRecipientsExportToExcelTask'
@@ -82,7 +85,6 @@ type ContactBaseSearchQuery = { organization: { id: string } } | { organization:
 
 type ContactPageContentProps = {
     filterMeta: FiltersMeta<ContactWhereInput>[]
-    tableColumns: ColumnsType
     baseSearchQuery: ContactBaseSearchQuery
     role?: Pick<OrganizationEmployeeRole, 'canManageContacts'>
     loading: boolean
@@ -304,7 +306,6 @@ const allOrganizationScope = [{
 const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     const {
         baseSearchQuery,
-        tableColumns,
         filterMeta,
         loading,
         role,
@@ -491,6 +492,229 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     )
 }
 
+const ResidentAnalyticsContent: React.FC = () => {
+
+    const intl = useIntl()
+    const MoreDetails = intl.formatMessage({ id: 'InMoreDetail' })
+
+    const { organization } = useOrganization()
+    const { user } = useAuth()
+
+    const organizationId = useMemo(() => organization?.id || null, [organization])
+
+    const { persistor } = useCachePersistor()
+
+    const { useFlag } = useFeatureFlags()
+    const isAnalyticsResidentInContactPageEnabled = useFlag(ANALYTICS_RESIDENT_IN_CONTACT_PAGE)
+
+    const residentAnalyticsData = useMemo(() => contactPageResidentAnalytics?.[intl?.locale], [intl])
+    const residentAnalyticsLinks = useMemo(() => residentAnalyticsData?.links ?? {}, [residentAnalyticsData])
+    const residentAnalyticsTexts = useMemo(() => residentAnalyticsData?.texts ?? {}, [residentAnalyticsData])
+
+    const { data: propertyInOrganizationCount } = useGetAllPropertyCountByOrganizationIdQuery({
+        variables: {
+            organizationId: organizationId,
+        },
+        skip: !isAnalyticsResidentInContactPageEnabled || !persistor || !organizationId || !residentAnalyticsData,
+    })
+    const propertyCount = useMemo(() => propertyInOrganizationCount?._allPropertiesMeta?.count, [propertyInOrganizationCount])
+
+    const { data: propertyWithoutMapInOrganizationCount } = useGetAllPropertyWithoutMapCountByOrganizationIdQuery({
+        variables: {
+            organizationId: organizationId,
+        },
+        skip: !isAnalyticsResidentInContactPageEnabled || !persistor || !organizationId || !residentAnalyticsData,
+    })
+    const propertyWithoutMapCount = useMemo(() => propertyWithoutMapInOrganizationCount?._allPropertiesMeta?.count, [propertyWithoutMapInOrganizationCount])
+
+    const { NewsItemRecipientsExportToXlsxButton } = useNewsItemRecipientsExportToExcelTask({
+        organization,
+        user,
+        scopes: allOrganizationScope,
+        icon: <Download size='medium' />,
+    })
+
+    const { data: counts } = useGetNewsItemsRecipientsCountersQuery({
+        variables: {
+            data: {
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+                organization: { id: organizationId },
+                newsItemScopes: allOrganizationScope,
+            },
+        },
+        skip: !isAnalyticsResidentInContactPageEnabled || !persistor || !organizationId || !allOrganizationScope || !residentAnalyticsData,
+    })
+    const residentCount = useMemo(() => counts?.result?.receiversCount, [counts])
+
+    return (
+        <Col span={24}>
+            {
+                isAnalyticsResidentInContactPageEnabled && counts && propertyWithoutMapInOrganizationCount && 
+                    <Card width='100%'>
+                        <Row justify='space-between'>
+                            {
+                                propertyWithoutMapCount === propertyCount ?
+                                    <Typography.Text size='large'>
+                                        {residentAnalyticsTexts?.seeAnalytics}{', '}
+                                        <Typography.Link size='large' href={residentAnalyticsLinks?.properties} target='_blank'>
+                                            {residentAnalyticsTexts?.createMap}
+                                        </Typography.Link>
+                                    </Typography.Text>
+                                    :
+                                    <Space align='center' size={16}>
+                                        <Space align='center' size={8}>
+                                            <Typography.Text size='large'>
+                                                {residentAnalyticsTexts?.countUnits}{', '}
+                                                <Typography.Text size='large' type='secondary'>
+                                                    {residentAnalyticsTexts?.residentHasMobileApp}&nbsp;-&nbsp;
+                                                </Typography.Text>
+                                                {residentCount}
+                                            </Typography.Text>
+                                            <Tooltip title={<Typography.Text size='small'>{residentAnalyticsTexts?.calculateUnitsWhereIsResident}{' '}
+                                                <Typography.Link size='small' href={residentAnalyticsLinks?.moreDetails} target='_blank'>
+                                                    {MoreDetails}
+                                                </Typography.Link>
+                                            </Typography.Text>}>
+                                                <Space size={8}>
+                                                    <AlertCircle size='small' color={colors.gray[7]}/>
+                                                </Space>
+                                            </Tooltip>
+                                        </Space>
+                                        <NewsItemRecipientsExportToXlsxButton/>
+                                    </Space>
+                            }
+                            <Typography.Link size='large' href={residentAnalyticsLinks?.tourGuide} target='_blank'>{residentAnalyticsTexts?.guideForIntroduceMobileApp}</Typography.Link>
+                        </Row>
+                    </Card>
+            }
+        </Col>
+    )
+}
+
+const NewContactTableContent: React.FC<ContactPageContentProps> = (props) => {
+    const {
+        baseSearchQuery,
+        filterMeta,
+        // loading,
+        role,
+    } = props
+
+    const tableRef = useRef(null)
+
+    const intl = useIntl()
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+
+    const router = useRouter()
+
+    const { filters, sorters, offset } = parseQuery(router.query)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMeta, SORTABLE_PROPERTIES)
+    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortContactsBy[], [sorters, sortersToSortBy])
+    const canManageContacts = role?.canManageContacts ?? false
+    const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
+
+    const searchContactsQuery = useMemo(() => ({
+        ...baseSearchQuery,
+        ...filtersToWhere(filters),
+    }), [baseSearchQuery, filters, filtersToWhere])
+
+    const { refetch } = useGetContactsForTableQuery()
+
+    const dataSource: GetTableData<GetContactsForTableQuery['contacts'][number]> = useCallback(async (tableState) => {
+        const sortBy = []
+        const where = searchContactsQuery
+        const skip = tableState.startRow
+        const first = tableState.endRow - tableState.startRow
+
+        const { data: { contacts, meta: { count } } } = await refetch({
+            sortBy,
+            where,
+            first,
+            skip,
+        })
+
+        return {
+            rowData: contacts?.filter(Boolean) ?? [],
+            rowCount: count,
+        }
+    }, [refetch, searchContactsQuery])
+
+    const tableColumns = useNewTableColumns(filterMeta, tableRef.current)
+
+    // const { selectedKeys, clearSelection, rowSelection } = useTableRowSelection<typeof contacts[number]>({ items: contacts })
+    const [search, handleSearchChange] = useSearch<IFilters>()
+
+    const defaultColumn = useMemo(() => ({
+        enableSorting: true,
+        initialVisibility: true,
+    }), [])
+
+    const menuLabels = useMemo(() => ({
+        sortDescLabel: intl.formatMessage({ id: 'Table.Sort' }),
+        sortAscLabel: intl.formatMessage({ id: 'Table.Sort' }),
+        filterLabel: intl.formatMessage({ id: 'Table.Filter' }),
+        settingsLabel: intl.formatMessage({ id: 'Table.Settings' }),
+        sortedDescLabel: intl.formatMessage({ id: 'Table.Sorted' }),
+        sortedAscLabel: intl.formatMessage({ id: 'Table.Sorted' }),
+        filteredLabel: intl.formatMessage({ id: 'Table.Filtered' }),
+        settedLabel: intl.formatMessage({ id: 'Table.Setted' }),
+    }), [intl])
+
+    const handleRowAction = useCallback((record: GetContactsForTableQuery['contacts'][number]) => {
+        router.push(`/contact/${record.id}`)
+    }, [router])
+
+    return (
+        <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start'>
+            <ResidentAnalyticsContent />
+            <Col span={24}>
+                <TableFiltersContainer>
+                    <Input
+                        placeholder={SearchPlaceholder}
+                        onChange={(e) => {
+                            handleSearchChange(e.target.value)
+                        }}
+                        value={search}
+                        allowClear
+                        suffix={<Search size='medium' color={colors.gray[7]} />}
+                    />
+                </TableFiltersContainer>
+            </Col>
+            <Col span={24}>
+                <NewTable
+                    id='contacts-table'
+                    dataSource={dataSource}
+                    // @ts-expect-error TODO: fix this
+                    columns={tableColumns}
+                    onRowClick={handleRowAction}
+                    pageSize={CONTACT_PAGE_SIZE}
+                    columnMenuLabels={menuLabels}
+                    defaultColumn={defaultColumn}
+                    rowSelectionOptions={canManageContacts && { getRowId: (row: GetContactsForTableQuery['contacts'][number]) => row.id }}
+                    ref={tableRef}
+                />
+            </Col>
+            {/* {
+                canManageContacts && (
+                    selectedKeys.length > 0 ? (
+                        <ActionBarWithSelectedItems
+                            selectedKeys={selectedKeys}
+                            clearSelection={clearSelection}
+                            refetch={refetch}
+                        />
+                    ) : (
+                        <DefaultActionBar
+                            searchContactsQuery={searchContactsQuery}
+                            sortBy={sortBy}
+                            refetch={refetch}
+                        />
+                    )
+                )
+            } */}
+        </Row>
+    )
+}
+
 const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
     const { baseSearchQuery, role, loading } = props
 
@@ -544,7 +768,7 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
         )
     }
 
-    return <ContactTableContent {...props} />
+    return <NewContactTableContent {...props} />
 }
 
 export const ContactPageContentWrapper: React.FC<ContactPageContentProps> = (props) => {
@@ -571,7 +795,6 @@ export const ContactPageContentWrapper: React.FC<ContactPageContentProps> = (pro
 
 const ContactsPage: PageComponentType = () => {
     const filterMeta = useContactsTableFilters()
-    const tableColumns = useTableColumns(filterMeta)
     const { organization, role, employee, isLoading } = useOrganization()
     const userOrganizationId = useMemo(() => organization?.id, [organization?.id])
     const employeeId = useMemo(() => employee?.id, [employee?.id])
@@ -586,7 +809,6 @@ const ContactsPage: PageComponentType = () => {
         <ContactPageContentWrapper
             filterMeta={filterMeta}
             baseSearchQuery={baseSearchQuery}
-            tableColumns={tableColumns}
             role={role}
             loading={isLoading}
         />

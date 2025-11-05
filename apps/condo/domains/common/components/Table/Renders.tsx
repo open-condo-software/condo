@@ -265,6 +265,12 @@ export const getUnitNameRender = <T extends Record<string, unknown>>(intl, text:
     return getTableCellRenderer({ search, extraTitle })(unitName)
 }
 
+export const getUnitTypeRender = <T extends Record<string, unknown>>(intl, text: string, record: T, search?: FilterValue | string) => {
+    const unitType = get(text, 'unitType', BuildingUnitSubType.Flat)
+    const renderUnitType = unitType ? intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` }) : null
+    return getTableCellRenderer({ search, extraTitle: renderUnitType })(renderUnitType)
+}
+
 export const getDateRender = (intl, search?: FilterValue | string, prefix = '\n') => {
     return function render (stringDate: string): RenderReturnType {
         if (!stringDate) return '—'
