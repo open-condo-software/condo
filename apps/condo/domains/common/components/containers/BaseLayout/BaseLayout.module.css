@@ -39,7 +39,7 @@
   flex-direction: column;
   width: min(100%, 1600px);
   height: 100%;
-  margin: 0 auto;
+  margin: 0;
   padding: 20px 40px 0;
 }
 
