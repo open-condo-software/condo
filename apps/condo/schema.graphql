@@ -98917,37 +98917,43 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "INVALID_TOKEN",
-    "message": "Invalid token"
+    "message": "Invalid token",
+    "messageForUser": "Invalid token"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "UNSUPPORTED_TOKEN",
-    "message": "Unsupported token"
+    "message": "Unsupported token",
+    "messageForUser": "Invalid token"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOKEN_NOT_FOUND",
-    "message": "Unable to find non-expired UserSudoToken by specified token"
+    "message": "Unable to find non-expired UserSudoToken by specified token",
+    "messageForUser": "Invalid token"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "USER_NOT_FOUND",
-    "message": "User not found"
+    "message": "User not found",
+    "messageForUser": "User not found"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "OPERATION_FAILED",
-    "message": "The operation failed"
+    "message": "The operation failed",
+    "messageForUser": "Operation failed"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "INSUFFICIENT_AUTHENTICATION_FACTORS",
-    "message": "Insufficient authentication factors. At least three must be specified. For example, password, verified phone and verified email."
+    "message": "Insufficient authentication factors. At least three must be specified. For example, password, verified phone and verified email.",
+    "messageForUser": "Insufficient authentication factors"
   }`
   """
   changeTwoFactorAuthentication(data: ChangeTwoFactorAuthenticationInput!): ChangeTwoFactorAuthenticationOutput
