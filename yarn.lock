@@ -1633,6 +1633,7 @@ __metadata:
     graphql-tag: ^2.12.6
     http-proxy: ^1.18.1
     jest: ^29.7.0
+    jest-jasmine2: ^29.7.0
     jsonwebtoken: ^9.0.0
     locale-currency: 1.0.0
     lodash: ^4.17.21
