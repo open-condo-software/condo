@@ -149,9 +149,16 @@ Right aligned columns
 
 const MD_EDITABLE_CHECKBOXES_EXAMPLE = `
 ## Interactive checkboxes playground
-- [ ] Non-checked checkbox
-- [x] Checked checkbox
-- [ ] Another unchecked checkbox
+- [ ] Team Finance
+- [x] Team Development
+- [ ] Team Payments
+- [ ] Team UI Kit
+    - [ ] Chief of Inputs
+    - [x] Typography Team
+        - [ ] Queen of Headers
+        - [x] Ace of quotes
+        - [ ] King of paragraphs
+        - [ ]       - [x] Ambassador of preformatted text
 `
 
 export default {
@@ -225,9 +232,15 @@ Headers are supposed to be made as **bold text** like this:
 
 Paragraph text inside of this header
 
-- List item 1
-- List item 2
-- List item 3
+1. Guide to mental health  
+  - If anxious
+  - If depressed
+  - If overworked
+    1. Calm down 
+    2. Code 
+2. If this does not work, try Linux
+3. Don't forget about staying hydrated, sleeping at least **8** hours per day and going to gym
+
 
 **Header 2**
 
