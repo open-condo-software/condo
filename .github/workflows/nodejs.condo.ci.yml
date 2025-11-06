@@ -6,7 +6,7 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - reopened
@@ -132,7 +132,6 @@ jobs:
       webhooks: ${{ steps.detect-changes.outputs.webhooks }}
       pos-integration: ${{ steps.detect-changes.outputs.pos-integration }}
       accruals-gateway: ${{ steps.detect-changes.outputs.accruals-gateway }}
-      resident-app: ${{ steps.detect-changes.outputs.resident-app }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -196,9 +195,6 @@ jobs:
               - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
-            resident-app:
-              - 'apps/resident-app/**'
-              - 'packages/**'
 
   lint:
     name: Lint source code
@@ -935,54 +931,6 @@ jobs:
           yarn install --immutable
       - name: Test webhooks utils
         run: yarn workspace @open-condo/webhooks test
-        env:
-          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
-          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
-          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
-          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
-
-  run-resident-app-tests:
-    name: Resident app tests
-    runs-on: ubuntu-22.04
-    needs:
-      - authorize
-      - build-image
-      - detect-changes
-    if: ${{ needs.detect-changes.outputs.residentApp == 'true' }}
-    steps:
-      - name: Login to cloud registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ secrets.DOCKER_REGISTRY }}
-          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
-          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
-      - name: Setup PG db
-        run: |
-          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: main
-      - name: Setup Redis db
-        run: |
-          ${{ env.REDIS_RUN_COMMAND }}
-      - name: Run condo container with daemon
-        run: |
-          docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
-      - name: Prepare apps
-        run: |
-          docker exec condo-container node bin/prepare.js -f condo rb
-      - name: Check migrations state
-        run: |
-          docker exec condo-container yarn workspace @app/rb makemigrations --check
-      - name: Run apps and tests
-        run: |
-          docker exec \
-          -e PROMETHEUS_RW_SERVER_URL=$PROMETHEUS_RW_SERVER_URL \
-          -e PROMETHEUS_USER=$PROMETHEUS_USER \
-          -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
-          -e GH_REF_NAME=$GH_REF_NAME \
-          yarn workspace @app/resident-app test"
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
