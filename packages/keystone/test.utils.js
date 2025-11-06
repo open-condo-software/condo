@@ -454,7 +454,7 @@ const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '
     if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.httpsAgent = httpsAgentWithUnauthorizedTls
     const client = axios.create({
         withCredentials: true,
-        adapter: require('axios/lib/adapters/http'),
+        adapter: 'http',
         validateStatus: (status) => status >= 200 && status < 500,
         ...options,
     })
