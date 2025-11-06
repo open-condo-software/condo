@@ -11172,7 +11172,7 @@ __metadata:
     apollo-upload-client: ^17.0.0
     aws-sdk: ^2.1692.0
     axios: ^1.13.2
-    axios-cookiejar-support: ^1.0.1
+    axios-cookiejar-support: ^6.0.4
     babel-jest: ^29.7.0
     big.js: ^6.2.2
     body-parser: ^1.20.3
@@ -16516,7 +16516,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"agent-base@npm:^7.1.2":
+"agent-base@npm:^7.1.2, agent-base@npm:^7.1.4":
   version: 7.1.4
   resolution: "agent-base@npm:7.1.4"
   checksum: 86a7f542af277cfbd77dd61e7df8422f90bac512953709003a1c530171a9d019d072e2400eab2b59f84b49ab9dd237be44315ca663ac73e82b3922d10ea5eafa
@@ -17837,17 +17837,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios-cookiejar-support@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "axios-cookiejar-support@npm:1.0.1"
+"axios-cookiejar-support@npm:^6.0.4":
+  version: 6.0.4
+  resolution: "axios-cookiejar-support@npm:6.0.4"
   dependencies:
-    is-redirect: ^1.0.0
-    pify: ^5.0.0
+    http-cookie-agent: ^7.0.2
   peerDependencies:
-    "@types/tough-cookie": ">=2.3.3"
-    axios: ">=0.16.2"
-    tough-cookie: ">=2.3.3"
-  checksum: 5479790240d108fc3ff1e393dc57ec51524f080ae3492f9d0aece876dab68513d79e99db72b642c72d6bc82d82dd64f26bd32eddc783739b0ab13ac9d5179dba
+    axios: ">=0.20.0"
+    tough-cookie: ">=4.0.0"
+  checksum: e1afcf8e428e7d273ee23e6df8c7591db6ab2a874d7704d3b781247fd54f264d23c6c8a25b951411074e420339f7f476dd75ed414487389fbe8728be8ef512d4
   languageName: node
   linkType: hard
 
@@ -27199,6 +27197,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"http-cookie-agent@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "http-cookie-agent@npm:7.0.2"
+  dependencies:
+    agent-base: ^7.1.4
+  peerDependencies:
+    tough-cookie: ^4.0.0 || ^5.0.0
+    undici: ^7.0.0
+  peerDependenciesMeta:
+    undici:
+      optional: true
+  checksum: b5d7a5af31acfa7cd8a00013c58bb872250ac9464071bc7344954893b578760c6ab14a8a7280e6da73515638e7554b6267fd9d1ee87d03e8473e278e7504ecf7
+  languageName: node
+  linkType: hard
+
 "http-errors@npm:1.8.0":
   version: 1.8.0
   resolution: "http-errors@npm:1.8.0"
@@ -28518,13 +28531,6 @@ __metadata:
   version: 5.0.0
   resolution: "is-plain-object@npm:5.0.0"
   checksum: e32d27061eef62c0847d303125440a38660517e586f2f3db7c9d179ae5b6674ab0f469d519b2e25c147a1a3bc87156d0d5f4d8821e0ce4a9ee7fe1fcf11ce45c
-  languageName: node
-  linkType: hard
-
-"is-redirect@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "is-redirect@npm:1.0.0"
-  checksum: 25dd3d9943f57ef0f29d28e2d9deda8288e0c7098ddc65abec3364ced9a6491ea06cfaf5110c61fc40ec1fde706b73cee5d171f85278edbf4e409b85725bfea7
   languageName: node
   linkType: hard
 
@@ -36119,13 +36125,6 @@ __metadata:
   version: 4.0.1
   resolution: "pify@npm:4.0.1"
   checksum: 9c4e34278cb09987685fa5ef81499c82546c033713518f6441778fbec623fc708777fe8ac633097c72d88470d5963094076c7305cafc7ad340aae27cfacd856b
-  languageName: node
-  linkType: hard
-
-"pify@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "pify@npm:5.0.0"
-  checksum: 443e3e198ad6bfa8c0c533764cf75c9d5bc976387a163792fb553ffe6ce923887cf14eebf5aea9b7caa8eab930da8c33612990ae85bd8c2bc18bedb9eae94ecb
   languageName: node
   linkType: hard
 
