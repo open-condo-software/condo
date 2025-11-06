@@ -132,6 +132,7 @@ jobs:
       webhooks: ${{ steps.detect-changes.outputs.webhooks }}
       pos-integration: ${{ steps.detect-changes.outputs.pos-integration }}
       accruals-gateway: ${{ steps.detect-changes.outputs.accruals-gateway }}
+      resident-app: ${{ steps.detect-changes.outputs.resident-app }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -195,6 +196,9 @@ jobs:
               - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
+            resident-app:
+              - 'apps/resident-app/**'
+              - 'packages/**'
 
   lint:
     name: Lint source code
