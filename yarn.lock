@@ -11172,7 +11172,7 @@ __metadata:
     apollo-upload-client: ^17.0.0
     aws-sdk: ^2.1692.0
     axios: ^1.13.2
-    axios-cookiejar-support: ^6.0.4
+    axios-cookiejar-support: ^5.0.2
     babel-jest: ^29.7.0
     big.js: ^6.2.2
     body-parser: ^1.20.3
@@ -16516,7 +16516,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"agent-base@npm:^7.1.2, agent-base@npm:^7.1.4":
+"agent-base@npm:^7.1.2, agent-base@npm:^7.1.3":
   version: 7.1.4
   resolution: "agent-base@npm:7.1.4"
   checksum: 86a7f542af277cfbd77dd61e7df8422f90bac512953709003a1c530171a9d019d072e2400eab2b59f84b49ab9dd237be44315ca663ac73e82b3922d10ea5eafa
@@ -17837,15 +17837,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios-cookiejar-support@npm:^6.0.4":
-  version: 6.0.4
-  resolution: "axios-cookiejar-support@npm:6.0.4"
+"axios-cookiejar-support@npm:^5.0.2":
+  version: 5.0.5
+  resolution: "axios-cookiejar-support@npm:5.0.5"
   dependencies:
-    http-cookie-agent: ^7.0.2
+    http-cookie-agent: ^6.0.8
   peerDependencies:
     axios: ">=0.20.0"
     tough-cookie: ">=4.0.0"
-  checksum: e1afcf8e428e7d273ee23e6df8c7591db6ab2a874d7704d3b781247fd54f264d23c6c8a25b951411074e420339f7f476dd75ed414487389fbe8728be8ef512d4
+  checksum: 4d3acdef40ee54dd76941c5551de61b5cd71dc7a4be75a918a77dd52905758b84d9b43e3c56bd92a4e281f3be2e799e9ec1491fbf5178bb1aa1c5e4c15f2164e
   languageName: node
   linkType: hard
 
@@ -27197,18 +27197,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-cookie-agent@npm:^7.0.2":
-  version: 7.0.2
-  resolution: "http-cookie-agent@npm:7.0.2"
+"http-cookie-agent@npm:^6.0.8":
+  version: 6.0.8
+  resolution: "http-cookie-agent@npm:6.0.8"
   dependencies:
-    agent-base: ^7.1.4
+    agent-base: ^7.1.3
   peerDependencies:
     tough-cookie: ^4.0.0 || ^5.0.0
-    undici: ^7.0.0
+    undici: ^5.11.0 || ^6.0.0
   peerDependenciesMeta:
     undici:
       optional: true
-  checksum: b5d7a5af31acfa7cd8a00013c58bb872250ac9464071bc7344954893b578760c6ab14a8a7280e6da73515638e7554b6267fd9d1ee87d03e8473e278e7504ecf7
+  checksum: aa0c3133f5c8c19f1535ffd16a3681efd6f28d026226369559c85f2e9ac79ff8cdfe9a232fd72bb47bd08b619de9f9588708df43e3f104c38890af1cc7f4a5db
   languageName: node
   linkType: hard
 

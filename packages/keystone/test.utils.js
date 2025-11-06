@@ -7,8 +7,8 @@ const urlLib = require('url')
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
 const { faker } = require('@faker-js/faker')
 const { createUploadLink } = require('apollo-upload-client')
-const axiosLib = require('axios')
-const axiosCookieJarSupportLib = require('axios-cookiejar-support')
+const axios = require('axios')
+const { wrapper: axiosCookieJarSupport } = require('axios-cookiejar-support')
 const express = require('express')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
@@ -23,8 +23,6 @@ const { GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
 
 const urlParse = urlLib.parse
-const axios = axiosLib.default
-const axiosCookieJarSupport = axiosCookieJarSupportLib.default
 
 const getRandomString = (length = 16) => crypto.randomBytes(Math.ceil(length / 2)).toString('hex')
 

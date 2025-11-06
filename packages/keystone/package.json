@@ -64,7 +64,7 @@
     "apollo-upload-client": "^17.0.0",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.13.2",
-    "axios-cookiejar-support": "^6.0.4",
+    "axios-cookiejar-support": "^5.0.2",
     "big.js": "^6.2.2",
     "body-parser": "^1.20.3",
     "bull": "^4.8.4",
