@@ -1614,6 +1614,7 @@ __metadata:
     "@telegram-apps/bridge": ^2.10.3
     "@types/big.js": ^6.2.2
     "@types/http-proxy": ^1.17.16
+    "@types/jest": ^29.5.14
     "@types/node": ^22
     "@types/react": ^18.3.1
     "@types/react-dom": ^18.3.1
@@ -1631,6 +1632,7 @@ __metadata:
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
     http-proxy: ^1.18.1
+    jest: ^29.7.0
     jsonwebtoken: ^9.0.0
     locale-currency: 1.0.0
     lodash: ^4.17.21
@@ -1646,6 +1648,7 @@ __metadata:
     swr: ^2.3.6
     telegraf: ^4.16.3
     telegraf-i18n: ^6.6.0
+    ts-jest: ^29.4.0
     ts-node: ^10.9.2
     typescript: ^5.8.3
     usehooks-ts: ^3.1.0
