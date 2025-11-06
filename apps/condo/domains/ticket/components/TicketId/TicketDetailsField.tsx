@@ -14,19 +14,10 @@ export const TicketDetailsField: React.FC<TicketDetailsFieldProps> = ({ ticketDe
     const intl = useIntl()
     const TicketDetailsMessage = intl.formatMessage({ id: 'Problem' })
 
-    // This is for backwards compatibility
-    const getUpdateTicketDetailsFunction = () => {
-        if (typeof updateTicketDetails === 'function') {
-            return (newDetails) => updateTicketDetails(newDetails)
-        } else {
-            return () => {}
-        }
-    }
-
     return (
         <>
             <PageFieldRow title={TicketDetailsMessage} ellipsis>
-                <Markdown type='inline' onCheckboxChange={getUpdateTicketDetailsFunction()}>
+                <Markdown type='inline' onCheckboxChange={updateTicketDetails}>
                     {ticketDetails}
                 </Markdown>
             </PageFieldRow>
