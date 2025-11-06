@@ -32,6 +32,7 @@ type PositionType = {
 }
 
 const MARKDOWN_CLASS_PREFIX = 'condo-markdown'
+const MARKDOWN_TASK_LIST_CLASS_PREFIX = 'condo-markdown-task-list-item'
 
 type TaskListItemType = {
     // Node is Element from @types/hast. I decided to skip the import and just declare the type myself
@@ -53,8 +54,8 @@ const TaskListItem: React.FC<TaskListItemType> = ({
     const position = node.position
 
     return (
-        <li style={{ listStyle: 'none' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+        <li>
+            <div className={MARKDOWN_TASK_LIST_CLASS_PREFIX}>
                 <Checkbox
                     checked={checked}
                     onChange={(e) => onToggle?.({ checked: e.target.checked, position })}
