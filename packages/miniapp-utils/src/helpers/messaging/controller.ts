@@ -1,26 +1,23 @@
 import { z } from 'zod'
 
 import { getClientErrorMessage } from './errors'
+import { registerBridgeEvents } from './events/bridge'
 
 import { generateUUIDv4 } from '../uuid'
 
-type FrameId = string
-type FrameType = HTMLIFrameElement
-type EventType = string
-type EventName = string
-export type EventParams = Record<string, unknown>
-type ValidationResult<T> = 
-    | { success: true, data: T, error?: never }
-    | { success: false, data?: never, error: string }
-
-export type ParamsValidator<Params extends EventParams> = (params: unknown) => ValidationResult<Params>
-type HandlerResult = Record<string, unknown>
-type Handler<Params extends EventParams, Result extends HandlerResult> = (params: Params) => Result | Promise<Result>
-type HandlerMethods<Params extends EventParams, Result extends HandlerResult> = {
-    validator: ParamsValidator<Params>
-    handler: Handler<Params, Result>
-}
-type HandlerScope = FrameId | '*' | 'parent'
+import type { RegisterBridgeEventsOptions } from './events/bridge'
+import type {
+    FrameId,
+    FrameType,
+    EventType,
+    EventName,
+    EventParams,
+    ParamsValidator,
+    HandlerResult,
+    Handler,
+    HandlerMethods,
+    HandlerScope,
+} from './types'
 
 // NOTE: taken from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
 const SEMVER_REGEXP = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
@@ -44,6 +41,7 @@ export class PostMessageController {
         this.removeFrame = this.removeFrame.bind(this)
         this.addHandler = this.addHandler.bind(this)
         this.eventListener = this.eventListener.bind(this)
+        this.registerBridgeEvents = this.registerBridgeEvents.bind(this)
     }
 
     addFrame (frame: FrameType): FrameId {
@@ -85,9 +83,11 @@ export class PostMessageController {
         const { handler: eventName, params: { requestId, ...handlerParams }, type: eventType } = message
 
         const sourceWindow = event.source.window
+
+        let frame: FrameType | undefined = undefined
         let frameId = 'parent'
 
-        if (sourceWindow !== window) {
+        if (event.source.window !== window) {
             const registeredFrame = Object.entries(this.#registeredFrames)
                 .find(([, ref]) => ref.contentWindow === sourceWindow)
 
@@ -99,6 +99,7 @@ export class PostMessageController {
             }
 
             frameId = registeredFrame[0]
+            frame = registeredFrame[1]
         }
 
         const handlerMethods = (
@@ -125,7 +126,7 @@ export class PostMessageController {
         const validatedParams = validationResult.data
 
         try {
-            const result = await handler(validatedParams)
+            const result = await handler(validatedParams, frame)
             return event.source.postMessage({
                 type: `${eventName}Result`,
                 data: {
@@ -140,5 +141,12 @@ export class PostMessageController {
                 event.origin
             )
         }
+    }
+
+    registerBridgeEvents ({ router }: Omit<RegisterBridgeEventsOptions, 'addHandler'>) {
+        registerBridgeEvents({
+            addHandler: this.addHandler,
+            router,
+        })
     }
 }

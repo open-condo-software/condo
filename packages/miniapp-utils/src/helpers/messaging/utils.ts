@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import type { EventParams, ParamsValidator } from './controller'
+import type { EventParams, ParamsValidator } from './types'
 
 type TypeChecker<T extends EventParams> = (params: unknown) => params is T
 
