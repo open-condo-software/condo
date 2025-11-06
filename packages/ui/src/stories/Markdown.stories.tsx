@@ -210,19 +210,28 @@ export const WithInteractiveCheckboxes: StoryObj<typeof Component> = {
 export const Lite: StoryObj<typeof Component> = {
     render: LiteTemplate,
     args: {
-        type: 'lite',
+        type: 'inline',
         children: `
-# This is H1 but looks like H4
-## This is H2 but looks like H4
-### This is H3 but looks like H4
+# Header 1
+## Header 2
+### Header 3
+#### Header 4
 
-Regular paragraph text with lite styling.
+Inline markdown is a type of markdown inspired by popular messaging apps. It does not support any headers, and is supposed to be used where the platform needs to show text formatted by user  
+
+Headers are supposed to be made as **bold text** like this:
+
+**Header 1**
+
+Paragraph text inside of this header
 
 - List item 1
 - List item 2
 - List item 3
 
-**Bold text** and *italic text* still work.
+**Header 2**
+
+**Bold text** and *italic text* still work as intended.
         `,
     },
 }
@@ -231,7 +240,7 @@ Regular paragraph text with lite styling.
 export const LiteWithInteractiveCheckboxes: StoryObj<typeof Component> = {
     render: InteractiveCheckboxesTemplate,
     args: {
-        type: 'lite',
+        type: 'inline',
         children: MD_EDITABLE_CHECKBOXES_EXAMPLE,
     },
 }

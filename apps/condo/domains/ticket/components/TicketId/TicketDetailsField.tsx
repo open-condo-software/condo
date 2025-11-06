@@ -26,7 +26,7 @@ export const TicketDetailsField: React.FC<TicketDetailsFieldProps> = ({ ticketDe
     return (
         <>
             <PageFieldRow title={TicketDetailsMessage} ellipsis>
-                <Markdown type='lite' onCheckboxChange = {getUpdateTicketDetailsFunction()}>
+                <Markdown type='inline' onCheckboxChange={getUpdateTicketDetailsFunction()}>
                     {ticketDetails}
                 </Markdown>
             </PageFieldRow>

@@ -14,7 +14,7 @@ const REMARK_PLUGINS: Array<any> = [
 
 export type MarkdownProps = {
     children: string
-    type?: 'default' | 'lite'
+    type?: 'default' | 'inline'
     onCheckboxChange?: (newMarkdownContent: string) => void
 }
 
@@ -34,6 +34,8 @@ type PositionType = {
 const MARKDOWN_CLASS_PREFIX = 'condo-markdown'
 
 type TaskListItemType = {
+    // Node is Element from @types/hast. I decided to skip the import and just declare the type myself
+    // https://github.com/remarkjs/react-markdown?tab=readme-ov-file#appendix-b-components
     node: { position: PositionType }
     checked?: boolean
     children: React.ReactNode
@@ -75,14 +77,14 @@ const MARKDOWN_COMPONENTS_BY_TYPE = {
         h5: (props: any) => <Typography.Title {...omit(props, 'ref')} level={5}/>,
         h6: (props: any) => <Typography.Title {...omit(props, 'ref')} level={6}/>,
     },
-    // Lite should be used when displaying text formatted by user
-    'lite': {
-        h1: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
-        h2: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
-        h3: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
-        h4: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
-        h5: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
-        h6: (props: any) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
+    // Inline should be used when displaying text formatted by user
+    'inline': {
+        h1: (props: any) => <Typography.Paragraph strong {...omit(props, 'ref')} type='primary' />,
+        h2: (props: any) => <Typography.Paragraph strong {...omit(props, 'ref')} type='primary' />,
+        h3: (props: any) => <Typography.Paragraph strong {...omit(props, 'ref')} type='primary' />,
+        h4: (props: any) => <Typography.Paragraph strong {...omit(props, 'ref')} type='primary' />,
+        h5: (props: any) => <Typography.Paragraph strong {...omit(props, 'ref')} type='primary' />,
+        h6: (props: any) => <Typography.Paragraph strong {...omit(props, 'ref')} type='primary' />,
         p: (props: any) => <Typography.Paragraph {...omit(props, 'ref')} type='primary' />,
     },
 }
