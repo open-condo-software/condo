@@ -8,12 +8,12 @@ type FrameId = string
 type FrameType = HTMLIFrameElement
 type EventType = string
 type EventName = string
-type EventParams = Record<string, unknown>
+export type EventParams = Record<string, unknown>
 type ValidationResult<T> = 
     | { success: true, data: T, error?: never }
     | { success: false, data?: never, error: string }
 
-type ParamsValidator<Params extends EventParams> = (params: unknown) => ValidationResult<Params>
+export type ParamsValidator<Params extends EventParams> = (params: unknown) => ValidationResult<Params>
 type HandlerResult = Record<string, unknown>
 type Handler<Params extends EventParams, Result extends HandlerResult> = (params: Params) => Result | Promise<Result>
 type HandlerMethods<Params extends EventParams, Result extends HandlerResult> = {
