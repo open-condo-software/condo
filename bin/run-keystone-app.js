@@ -2,6 +2,56 @@
 const conf = require('@open-condo/config')  // Note: we need to prepare process.env first
 // eslint-disable-next-line
 const tracer = require('dd-trace')  // Note: required for monkey patching
+// eslint-disable-next-line
+const ff = require('dd-trace/packages/dd-trace/src/format')
+// eslint-disable-next-line
+const { channel } = require('diagnostics_channel')
+const { processSpan } = require('./ddlib')
+
+// const startCh = channel('dd-trace:span:start')
+const finishCh = channel('dd-trace:span:finish')
+
+// experimental.exporter
+
+function logSpan (serializedSpan) {
+    console.log(JSON.stringify(serializedSpan))
+}
+
+/**
+ * Experimental tracing hack
+ */
+if (1) {
+    // eslint-disable-next-line
+    // eslint-disable-next-line
+    const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-proto')
+    const { BatchSpanProcessor } = require('@opentelemetry/sdk-trace-base')
+
+    const OTEL_CONFIG = conf.OTEL_CONFIG ? JSON.parse(conf.OTEL_CONFIG) : {}
+    const { tracesUrl, headers = {} } = OTEL_CONFIG
+    const exporter = new OTLPTraceExporter({ url: tracesUrl, headers: headers })
+    const processor = new BatchSpanProcessor(exporter)
+
+    process.on('beforeExit', async () => {
+        await processor.forceFlush()
+        await processor.shutdown()
+        await exporter.shutdown()
+    })
+
+    finishCh.subscribe((span) => {
+        const serializedSpan = JSON.parse(JSON.stringify(ff(span)))
+        if (serializedSpan.name === 'dns.lookup') return
+        if (serializedSpan.parent_id === "0000000000000000" && serializedSpan.name === "graphql.parse") return
+
+        console.log(span)
+        logSpan(serializedSpan)
+        try {
+            processSpan(processor, serializedSpan)
+        } catch (e) {
+            console.error('error!', e, serializedSpan)
+            throw e
+        }
+    })
+}
 
 /**
  * This file is based on @keystonejs/keystone/bin/commands/dev.js
@@ -35,7 +85,7 @@ const HEADERS_TIMEOUT = parseInt(conf['HEADERS_TIMEOUT'] || '60000')
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 
-if (IS_ENABLE_DD_TRACE) {
+if (1) {
     // Note: it's slightly modified default templates! Ported from source code.
 
     // eslint-disable-next-line
@@ -55,8 +105,8 @@ if (IS_ENABLE_DD_TRACE) {
         // Note: we need to save old service name as `root` to save history
         service: (appName === 'condo-app') ? 'root' : appName,
         tags: { xRemoteApp, xRemoteClient, xRemoteVersion },
-        experimental: (isDDLog) ? { exporter: 'log' } : undefined,
-        appsec: { blockedTemplateHtml, blockedTemplateJson, blockedTemplateGraphql },
+        // experimental: (isDDLog) ? { exporter: 'log' } : undefined,
+        // appsec: { blockedTemplateHtml, blockedTemplateJson, blockedTemplateGraphql },
     })
     tracer.use('express', {
         // hook will be executed right before the request span is finished

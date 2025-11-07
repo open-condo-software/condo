@@ -1,3 +1,5 @@
+const os = require('os')
+
 const otelApi = require('@opentelemetry/api')
 const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-proto')
 const { IORedisInstrumentation } = require('@opentelemetry/instrumentation-ioredis')
@@ -12,6 +14,7 @@ const { getListAdapters } = require('@open-condo/keystone/databaseAdapters/utils
 const { getExecutionContext } = require('./executionContext')
 
 
+const HOSTNAME = os.hostname()
 const DELIMETER = ':'
 const SERVER_URL = conf.SERVER_URL
 const KEYSTONE_MUTATION_QUERY_REGEX = /(?:mutation|query)\s+(\w+)/
@@ -72,6 +75,7 @@ function _getTracedFunction ({ name, spanHook, tracer, ctx, f }) {
 
 function _addExecutionContextAttributes (span) {
     const executionContext = getExecutionContext()
+    span.setAttribute('hostname', HOSTNAME)
 
     if (executionContext.startReqId) {
         span.setAttribute('startReqId', executionContext.startReqId)
