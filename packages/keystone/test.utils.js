@@ -7,13 +7,11 @@ const urlLib = require('url')
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
 const { faker } = require('@faker-js/faker')
 const { createUploadLink } = require('apollo-upload-client')
-const axiosLib = require('axios')
-const axiosCookieJarSupportLib = require('axios-cookiejar-support')
 const express = require('express')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
 const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template, pick, set, isArray } = require('lodash')
-const fetch = require('node-fetch')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
 const conf = require('@open-condo/config')
@@ -23,9 +21,6 @@ const { GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
 
 const urlParse = urlLib.parse
-const axios = axiosLib.default
-const axiosCookieJarSupport = axiosCookieJarSupportLib.default
-
 const getRandomString = (length = 16) => crypto.randomBytes(Math.ceil(length / 2)).toString('hex')
 
 const DATETIME_RE = /^[0-9]{4}-[01][0-9]-[0123][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9][.][0-9]{3}Z$/i
@@ -444,24 +439,124 @@ const makeClient = async (opts = { generateIP: true, serverUrl: undefined }) => 
 }
 
 const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
-    const cookies = (cookie) ? cookie.split(';').map(Cookie.parse) : []
+    const cookies = cookie ? cookie.split(';').map(Cookie.parse).filter(Boolean) : []
     const cookieJar = new CookieJar()
-    const domain = (urlParse(cookieDomain).protocol || 'http:') + '//' + urlParse(cookieDomain).host
-    cookies.forEach((cookie) => cookieJar.setCookieSync(cookie, domain))
-    // test axios client with disabled tls
-    // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
+    const parsedDomain = urlParse(cookieDomain || '')
+    const domain = ((parsedDomain.protocol || 'http:') + '//' + (parsedDomain.host || parsedDomain.pathname || '')).replace(/\/\/$/, '')
+    const domainUrl = domain ? `${domain}/` : ''
+    if (domainUrl) {
+        cookies.forEach((parsedCookie) => cookieJar.setCookieSync(parsedCookie, domainUrl))
+    }
+
     const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
-    if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.httpsAgent = httpsAgentWithUnauthorizedTls
-    const client = axios.create({
-        withCredentials: true,
-        adapter: require('axios/lib/adapters/http'),
-        validateStatus: (status) => status >= 200 && status < 500,
-        ...options,
-    })
-    axiosCookieJarSupport(client)
-    client.defaults.jar = cookieJar
-    client.getCookie = () => toPairs(fromPairs(flattenDeep(Object.values(client.defaults.jar.store.idx).map(x => Object.values(x).map(y => Object.values(y).map(c => `${c.key}=${c.value}`)))).map(x => x.split('=')))).map(([k, v]) => `${k}=${v}`).join(';')
-    return client
+    const {
+        httpsAgent,
+        maxRedirects,
+        timeout,
+        headers: defaultHeaders = {},
+        validateStatus, // eslint-disable-line no-unused-vars
+        withCredentials, // eslint-disable-line no-unused-vars
+        adapter, // eslint-disable-line no-unused-vars
+        ...restOptions
+    } = options
+
+    const agentToUse = TESTS_TLS_IGNORE_UNAUTHORIZED ? httpsAgentWithUnauthorizedTls : httpsAgent
+
+    let lastCookieUrl = domainUrl
+
+    const doRequest = async (requestUrl, requestOptions = {}) => {
+        const urlObject = new URL(requestUrl)
+        lastCookieUrl = urlObject.href
+
+        const {
+            headers: requestHeaders = {},
+            method = 'GET',
+            body,
+            agent: requestAgent,
+            abortRequestTimeout,
+            follow,
+            ...extraOptions
+        } = requestOptions
+
+        const headers = { ...defaultHeaders, ...requestHeaders }
+        const jarCookie = cookieJar.getCookieStringSync(urlObject.href)
+        if (jarCookie) {
+            headers.Cookie = jarCookie
+        }
+
+        const fetchOptions = {
+            ...restOptions,
+            ...extraOptions,
+            method,
+            headers,
+        }
+
+        if (body !== undefined) {
+            fetchOptions.body = body
+        }
+
+        if (agentToUse || requestAgent) {
+            fetchOptions.agent = requestAgent || agentToUse
+        }
+
+        if (timeout && abortRequestTimeout === undefined && fetchOptions.abortRequestTimeout === undefined) {
+            fetchOptions.abortRequestTimeout = timeout
+        }
+
+        if (abortRequestTimeout !== undefined) {
+            fetchOptions.abortRequestTimeout = abortRequestTimeout
+        }
+
+        if (maxRedirects !== undefined && follow === undefined && fetchOptions.follow === undefined) {
+            fetchOptions.follow = maxRedirects
+        }
+
+        if (follow !== undefined) {
+            fetchOptions.follow = follow
+        }
+
+        const response = await fetch(requestUrl, fetchOptions)
+
+        const setCookieHeader = response.headers.raw()['set-cookie']
+        if (setCookieHeader) {
+            setCookieHeader.forEach((cookieString) => {
+                cookieJar.setCookieSync(cookieString, `${urlObject.origin}/`)
+            })
+        }
+
+        const responseHeaders = Object.fromEntries(response.headers.entries())
+
+        let data
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json()
+        } else {
+            data = await response.text()
+        }
+
+        if (response.status >= 500) {
+            const error = new Error(`Request failed with status code ${response.status}`)
+            error.response = { status: response.status, data, headers: responseHeaders }
+            error.request = { res: { statusCode: response.status } }
+            throw error
+        }
+
+        return {
+            status: response.status,
+            statusText: response.statusText,
+            headers: responseHeaders,
+            data,
+            config: { url: response.url || requestUrl, method },
+        }
+    }
+
+    return {
+        get: (requestUrl, requestOptions = {}) => doRequest(requestUrl, { ...requestOptions, method: 'GET' }),
+        getCookie: () => {
+            const targetUrl = lastCookieUrl || domainUrl
+            return targetUrl ? cookieJar.getCookieStringSync(targetUrl) : ''
+        },
+    }
 }
 
 const makeLoggedInClient = async (credentials, serverUrl) => {

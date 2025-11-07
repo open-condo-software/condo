@@ -1,8 +1,8 @@
-const axios = require('axios')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getByCondition } = require('@open-condo/keystone/schema')
+const { fetch } = require('@open-condo/keystone/fetch')
 
 const { TELEGRAM_TRANSPORT } = require('@condo/domains/notification/constants/constants')
 const { NO_TELEGRAM_CHAT_FOR_USER, NO_USER_ID_TO_SEND_TELEGRAM_NOTIFICATION } = require('@condo/domains/notification/constants/errors')
@@ -40,12 +40,30 @@ async function send ({ telegramChatId, text, html, inlineKeyboard } = {}) {
         }
     }
 
-    const result = await axios.post(`https://api.telegram.org/bot${conf.TELEGRAM_EMPLOYEE_BOT_TOKEN}/sendMessage`, {
-        chat_id: telegramChatId,
-        ...messageData,
+    const response = await fetch(`https://api.telegram.org/bot${conf.TELEGRAM_EMPLOYEE_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: telegramChatId,
+            ...messageData,
+        }),
     })
 
-    return [true, result.data]
+    const bodyText = await response.text()
+    let data
+    try {
+        data = JSON.parse(bodyText)
+    } catch (error) {
+        data = bodyText
+    }
+
+    if (!response.ok) {
+        const error = new Error(`Request failed with status code ${response.status}`)
+        error.response = { status: response.status, data }
+        throw error
+    }
+
+    return [true, data]
 }
 
 module.exports = {

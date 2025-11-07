@@ -1,6 +1,6 @@
-import axios from 'axios'
 import * as Figma from 'figma-js'
 import { processFile } from 'figma-transformer'
+import { fetch } from '@open-condo/keystone/fetch'
 
 const DEFAULT_BATCH_SIZE = 100
 
@@ -78,11 +78,16 @@ export async function getSVGData (config: GetSVGDataConfig): Promise<Array<SVGDa
 
 export async function downloadSVGs (data: Array<SVGData>): Promise<Array<SVG>> {
     return Promise.all(data.map(async item => {
-        const downloadedSVG = await axios.get<string>(item.url)
+        const response = await fetch(item.url)
+        const svgData = await response.text()
+
+        if (!response.ok) {
+            throw new Error(`Request failed with status code ${response.status}`)
+        }
 
         return {
             ...item,
-            data: downloadedSVG.data,
+            data: svgData,
         }
     }))
 }

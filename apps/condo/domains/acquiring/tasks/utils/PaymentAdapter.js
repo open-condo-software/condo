@@ -1,6 +1,6 @@
-const axios = require('axios').default
 const { isNil, get } = require('lodash')
 
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const {
@@ -66,7 +66,34 @@ class PaymentAdapter {
     }
 
     async doCall (url, params = {}) {
-        return await axios.get(url, { params })
+        const requestUrl = new URL(url)
+
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                requestUrl.searchParams.set(key, value)
+            }
+        })
+
+        const response = await fetch(requestUrl.toString())
+
+        let data
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json()
+        } else {
+            data = await response.text()
+        }
+
+        if (!response.ok) {
+            const error = new Error(`Request failed with status code ${response.status}`)
+            error.response = { status: response.status, data }
+            throw error
+        }
+
+        return {
+            status: response.status,
+            data,
+        }
     }
 }
 

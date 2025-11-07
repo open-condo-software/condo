@@ -1,4 +1,4 @@
-const axios = require('axios').default
+const { fetch } = require('@open-condo/keystone/fetch')
 
 // eslint-disable-next-line import/order
 const https = require('https')
@@ -71,15 +71,25 @@ class SberIdIdentityIntegration {
         }
 
         // send a request
-        const tokenResponse = await axios.create({
-            timeout: axiosTimeout,
+        const tokenResponse = await fetch(tokenUrl, {
+            method: 'POST',
             headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
                 'x-ibm-client-id': clientId,
                 'rquid': nanoid(),
             },
-            validateStatus: () => true,
-            httpsAgent,
-        }).post(tokenUrl, new URLSearchParams(request))
+            body: new URLSearchParams(request).toString(),
+            abortRequestTimeout: axiosTimeout,
+            agent: httpsAgent,
+        })
+
+        const tokenBody = await tokenResponse.text()
+        let tokenData = {}
+        try {
+            tokenData = JSON.parse(tokenBody)
+        } catch (error) {
+            tokenData = {}
+        }
 
         // extract required params
         const {
@@ -88,10 +98,10 @@ class SberIdIdentityIntegration {
             expires_in: expiresIn,
             scope,
             id_token: idToken,
-        } = tokenResponse.data
+        } = tokenData
 
         if (tokenResponse.status !== 200 || isNil(accessToken) || isNil(idToken)) {
-            throw new Error(JSON.stringify(tokenResponse.data))
+            throw new Error(tokenBody || JSON.stringify(tokenData))
         }
 
         return {
@@ -107,16 +117,23 @@ class SberIdIdentityIntegration {
         if (!accessToken) throw new Error('call getUserInfo without required accessToken')
 
         // send a request
-        const response = await axios.create({
-            timeout: axiosTimeout,
+        const response = await fetch(userInfoUrl, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'x-ibm-client-id': clientId,
                 'x-introspect-rquid': nanoid(),
             },
-            validateStatus: () => true,
-            httpsAgent,
-        }).get(userInfoUrl)
+            abortRequestTimeout: axiosTimeout,
+            agent: httpsAgent,
+        })
+
+        const responseBody = await response.text()
+        let responseData = {}
+        try {
+            responseData = JSON.parse(responseBody)
+        } catch (error) {
+            responseData = {}
+        }
 
         // extract params that going to be cleaned
         const {
@@ -126,10 +143,10 @@ class SberIdIdentityIntegration {
             phone_number: phoneNumber,
             family_name: familyName,
             given_name: givenName,
-        } = response.data
+        } = responseData
 
         if (response.status !== 200 || isNil(sub)) {
-            throw new Error(JSON.stringify(response.data))
+            throw new Error(responseBody || JSON.stringify(responseData))
         }
 
         return {
