@@ -11,6 +11,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { B2BAppContext, B2BAppPermission, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
 import { UseEmployeeRolesPermissionsGroups } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 import { OrganizationEmployeeRole as EmployeeRole } from '@condo/domains/organization/utils/clientSchema'
+import { filterB2BAppsData } from '@condo/domains/organization/utils/roles.utils'
 
 import { BaseEmployeeRoleForm, BaseEmployeeRoleFormPropsType } from './BaseEmployeeRoleForm'
 
@@ -60,24 +61,28 @@ export const UpdateEmployeeRoleForm: React.FC<UpdateEmployeeRoleFormProps> = ({
     , [b2bAppContexts])
 
     const {
+        loading: isB2BAppPermissionsLoading,
+        objs: b2BAppPermissions,
+        error: b2BAppPermissionsError,
+    } = B2BAppPermission.useObjects({
+        where: { app: { id_in: connectedB2BApps.map(b2bApp => get(b2bApp, 'id')) } },
+    }, {
+        skip: withoutB2BApps,
+    })
+
+    const filteredConnectedB2BAppsForRolesQuery = useMemo(() =>
+        filterB2BAppsData(connectedB2BApps, b2BAppPermissions).connectedB2BApps
+    , [connectedB2BApps, b2BAppPermissions])
+
+    const {
         loading: isB2BAppRolesLoading,
         objs: b2bAppRoles,
         error: b2bAppRolesError,
     } = B2BAppRole.useObjects({
         where: {
             role: { id_in: employeeRoles.map(role => role.id) },
-            app: { id_in: connectedB2BApps.map(context => context.id) },
+            app: { id_in: filteredConnectedB2BAppsForRolesQuery.map(context => context.id) },
         },
-    }, {
-        skip: withoutB2BApps,
-    })
-
-    const {
-        loading: isB2BAppPermissionsLoading,
-        objs: b2BAppPermissions,
-        error: b2BAppPermissionsError,
-    } = B2BAppPermission.useObjects({
-        where: { app: { id_in: connectedB2BApps.map(b2bApp => get(b2bApp, 'id')) } },
     }, {
         skip: withoutB2BApps,
     })
@@ -98,11 +103,15 @@ export const UpdateEmployeeRoleForm: React.FC<UpdateEmployeeRoleFormProps> = ({
         return <Typography.Title level={4}>{NotFoundRoleError}</Typography.Title>
     }
 
+    const { connectedB2BApps: filteredConnectedB2BApps, b2BAppPermissions: filteredB2BAppPermissions, b2BAppRoles: filteredB2BAppRoles } = useMemo(() =>
+        filterB2BAppsData(connectedB2BApps, b2BAppPermissions, b2bAppRoles)
+    , [connectedB2BApps, b2BAppPermissions, b2bAppRoles])
+
     return (
         <BaseEmployeeRoleForm
-            connectedB2BApps={connectedB2BApps}
-            b2BAppPermissions={b2BAppPermissions}
-            b2bAppRoles={b2bAppRoles}
+            connectedB2BApps={filteredConnectedB2BApps}
+            b2BAppPermissions={filteredB2BAppPermissions}
+            b2bAppRoles={filteredB2BAppRoles}
             createOrUpdateEmployeeRole={action}
             employeeRoles={employeeRoles}
             employeeRoleToUpdate={roleToUpdate}
