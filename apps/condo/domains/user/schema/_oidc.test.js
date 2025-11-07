@@ -1,5 +1,4 @@
 const { faker } = require('@faker-js/faker')
-const { default: axios } = require('axios')
 const dayjs = require('dayjs')
 const jwtDecode = require('jwt-decode')
 const { Issuer, generators } = require('openid-client')
@@ -76,15 +75,15 @@ test('getCookie test util', async () => {
     const cookie = client.getCookie()
     const graphql = { 'query': '{ authenticatedUser { id name } }' }
 
-    const result1 = await axios.create({
-        timeout: 2000,
+    const result1 = await fetch(`${client.serverUrl}/admin/api`, {
+        method: 'POST',
+        body: JSON.stringify(graphql),
         headers: {
+            'Content-Type': 'application/json',
             Cookie: cookie,
         },
-        validateStatus: () => true,
     })
-        .post(`${client.serverUrl}/admin/api`, graphql)
-    expect(result1.data).toMatchObject({
+    expect(await result1.json()).toMatchObject({
         'data': {
             'authenticatedUser': {
                 id: client.user.id,

@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/order
-const axios = require('axios').default
+const { fetch } = require('@open-condo/keystone/fetch')
 
 // eslint-disable-next-line import/order
 const dayjs = require('dayjs')
@@ -82,10 +82,20 @@ class AppleIdIdentityIntegration {
         }
 
         // send a request
-        const tokenResponse = await axios.create({
-            timeout: AXIOS_TIMEOUT,
-            validateStatus: () => true,
-        }).post(tokenUrl, new URLSearchParams(request))
+        const tokenResponse = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(request).toString(),
+            abortRequestTimeout: AXIOS_TIMEOUT,
+        })
+
+        const tokenBody = await tokenResponse.text()
+        let tokenData = {}
+        try {
+            tokenData = JSON.parse(tokenBody)
+        } catch (error) {
+            tokenData = {}
+        }
 
         // extract required params
         const {
@@ -93,10 +103,10 @@ class AppleIdIdentityIntegration {
             token_type: tokenType,
             expires_in: expiresIn,
             id_token: idToken,
-        } = tokenResponse.data
+        } = tokenData
 
         if (tokenResponse.status !== 200 || isNil(accessToken) || isNil(idToken)) {
-            throw new Error(JSON.stringify(tokenResponse.data))
+            throw new Error(tokenBody || JSON.stringify(tokenData))
         }
 
         return {
@@ -142,10 +152,11 @@ class AppleIdIdentityIntegration {
 
     async getAppleIdKeys () {
         // send a request
-        return (await axios.create({
-            timeout: AXIOS_TIMEOUT,
-            validateStatus: () => true,
-        }).get('https://appleid.apple.com/auth/keys')).data
+        const response = await fetch('https://appleid.apple.com/auth/keys', {
+            abortRequestTimeout: AXIOS_TIMEOUT,
+        })
+
+        return await response.json()
     }
 }
 
