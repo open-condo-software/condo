@@ -37,6 +37,12 @@ interface ITicketChangeFieldMessages {
     remove?: FormatjsIntl.Message['ids']
 }
 
+type TicketChangeFieldDefinition = {
+    field: string
+    messageId?: FormatjsIntl.Message['ids']
+    customMessages?: ITicketChangeFieldMessages
+}
+
 enum TicketChangeFieldMessageType {
     From,
     To,
@@ -69,6 +75,35 @@ const getAddressChangePostfix = (sectionName, sectionType, floorName, unitName, 
 
     return addressChangePostfix
 }
+
+const BASE_TICKET_CHANGE_FIELDS: Array<TicketChangeFieldDefinition> = [
+    { field: 'canReadByResident', messageId: 'pages.condo.ticket.TicketChanges.canReadByResident', customMessages: { change: 'pages.condo.ticket.TicketChanges.canReadByResident.change' } },
+    { field: 'clientPhone', messageId: 'pages.condo.ticket.TicketChanges.clientPhone' },
+    { field: 'details', messageId: 'pages.condo.ticket.TicketChanges.details' },
+    { field: 'clientName', messageId: 'pages.condo.ticket.TicketChanges.clientName' },
+    { field: 'isPayable', messageId: 'pages.condo.ticket.TicketChanges.ticketType' },
+    { field: 'isEmergency', messageId: 'pages.condo.ticket.TicketChanges.ticketType' },
+    { field: 'isWarranty', messageId: 'pages.condo.ticket.TicketChanges.ticketType' },
+    { field: 'statusDisplayName', messageId: 'pages.condo.ticket.TicketChanges.statusDisplayName' },
+    { field: 'propertyDisplayName', messageId: 'pages.condo.ticket.TicketChanges.address' },
+    { field: 'assigneeDisplayName', messageId: 'pages.condo.ticket.TicketChanges.assignee', customMessages: { add: 'pages.condo.ticket.TicketChanges.assignee.add' } },
+    { field: 'executorDisplayName', messageId: 'pages.condo.ticket.TicketChanges.executor', customMessages: { add: 'pages.condo.ticket.TicketChanges.executor.add', remove: 'pages.condo.ticket.TicketChanges.executor.remove' } },
+    { field: 'classifierDisplayName', messageId: 'pages.condo.ticket.TicketChanges.classifier' },
+    { field: 'deadline', messageId: 'pages.condo.ticket.TicketChanges.deadline' },
+    { field: 'deferredUntil', messageId: 'pages.condo.ticket.TicketChanges.deferredUntil' },
+    { field: 'statusReopenedCounter', customMessages: { change: 'pages.condo.ticket.TicketChanges.statusReopenedCounter.change' } },
+    { field: 'sourceDisplayName', messageId: 'pages.condo.ticket.TicketChanges.source' },
+    { field: 'feedbackValue', messageId: 'pages.condo.ticket.TicketChanges.feedbackValue' },
+    { field: 'feedbackAdditionalOptions', messageId: 'pages.condo.ticket.TicketChanges.feedbackAdditionalOptions' },
+    { field: 'feedbackComment', messageId: 'pages.condo.ticket.TicketChanges.feedbackComment' },
+    { field: 'qualityControlValue', messageId: 'pages.condo.ticket.TicketChanges.qualityControlValue' },
+    { field: 'qualityControlAdditionalOptions', messageId: 'pages.condo.ticket.TicketChanges.qualityControlAdditionalOptions' },
+    { field: 'qualityControlComment', messageId: 'pages.condo.ticket.TicketChanges.qualityControlComment', customMessages: { add: 'pages.condo.ticket.TicketChanges.qualityControlComment.add' } },
+]
+
+const PRIORITY_FIELDS = ['statusReopenedCounter']
+const DECLINED_BY_RESIDENT_FIELDS = ['statusDisplayName']
+const AUTO_REOPEN_FIELDS = ['deferredUntil', 'assigneeDisplayName', 'executorDisplayName', 'statusDisplayName']
 
 const isDeclinedByResident = (ticketChange) =>
     get(ticketChange, 'createdBy.type') === RESIDENT
@@ -120,29 +155,7 @@ const addLink = (ticketChange, fieldId, value, type: TicketChangeFieldMessageTyp
 
 export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfType = (ticketChange) => {
     const intl = useIntl()
-    const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone' })
-    const DetailsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details' })
-    const ClientNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName' })
-    const StatusDisplayNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName' })
-    const AssigneeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee' })
-    const ExecutorMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.executor' })
-    const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
-    const AddressMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.address' })
-    const DeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deadline' })
-    const DeferredUntilMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deferredUntil' })
-    const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.source' })
-    const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident' })
     const DeclineTicketByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.declineTicketByResident.status' })
-    const FeedbackValueMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.feedbackValue' })
-    const FeedbackCommentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.feedbackComment' })
-    const FeedbackAdditionalOptionsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.feedbackAdditionalOptions' })
-    const QualityControlValueMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.qualityControlValue' })
-    const QualityControlCommentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.qualityControlComment' })
-    const QualityControlAdditionalOptionsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.qualityControlAdditionalOptions' })
-
-    const IsPayableMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
-    const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
-    const IsWarrantyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
 
     const FeedbackBadMessage = intl.formatMessage({ id: 'ticket.feedback.bad' })
     const FeedbackGoodMessage = intl.formatMessage({ id: 'ticket.feedback.good' })
@@ -181,30 +194,14 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
     const ticketStatuses = useMemo(() => ticketStatusesData?.statuses?.filter(Boolean) || [],
         [ticketStatusesData?.statuses])
 
-    const fields: Array<[string, string, ITicketChangeFieldMessages] | [string,  string]> = [
-        ['canReadByResident', CanReadByResidentMessage, { change: 'pages.condo.ticket.TicketChanges.canReadByResident.change' }],
-        ['clientPhone', ClientPhoneMessage],
-        ['details', DetailsMessage],
-        ['clientName', ClientNameMessage],
-        ['isPayable', IsPayableMessage],
-        ['isEmergency', IsEmergencyMessage],
-        ['isWarranty', IsWarrantyMessage],
-        ['statusDisplayName', StatusDisplayNameMessage],
-        ['propertyDisplayName', AddressMessage],
-        ['assigneeDisplayName', AssigneeMessage, { add: 'pages.condo.ticket.TicketChanges.assignee.add' }],
-        ['executorDisplayName', ExecutorMessage, { add: 'pages.condo.ticket.TicketChanges.executor.add', remove: 'pages.condo.ticket.TicketChanges.executor.remove' }],
-        ['classifierDisplayName', ClassifierMessage],
-        ['deadline', DeadlineMessage],
-        ['deferredUntil', DeferredUntilMessage],
-        ['statusReopenedCounter', '', { change: 'pages.condo.ticket.TicketChanges.statusReopenedCounter.change' }],
-        ['sourceDisplayName', SourceMessage],
-        ['feedbackValue', FeedbackValueMessage],
-        ['feedbackAdditionalOptions', FeedbackAdditionalOptionsMessage], // NOTE: may display options that are not available in the CRM, but are available in the API
-        ['feedbackComment', FeedbackCommentMessage],
-        ['qualityControlValue', QualityControlValueMessage],
-        ['qualityControlAdditionalOptions', QualityControlAdditionalOptionsMessage], // NOTE: may display options that are not available in the CRM, but are available in the API
-        ['qualityControlComment', QualityControlCommentMessage, { add: 'pages.condo.ticket.TicketChanges.qualityControlComment.add' }],
-    ]
+    const fields: Array<[string, string, ITicketChangeFieldMessages] | [string, string]> = BASE_TICKET_CHANGE_FIELDS.map(({ field, messageId, customMessages }) => {
+        const message = messageId ? intl.formatMessage({ id: messageId }) : ''
+        if (customMessages) {
+            return [field, message, customMessages]
+        }
+
+        return [field, message]
+    })
 
     const BooleanToString = {
         canReadByResident: {
@@ -433,12 +430,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
 
     const getAutoReopenTicketChanges = (ticketChange) => {
         // need a specific order of fields for auto reopen tickets
-        const fields = [
-            ['deferredUntil'],
-            ['assigneeDisplayName'],
-            ['executorDisplayName'],
-            ['statusDisplayName'],
-        ]
+        const fields = AUTO_REOPEN_FIELDS.map(field => [field])
 
         const changedFields = fields.filter(([field]) => (
             ticketChange[`${field}From`] !== null || ticketChange[`${field}To`] !== null
@@ -461,9 +453,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
     }
 
     if (isDeclinedByResident(ticketChange)) {
-        const fields = [
-            ['statusDisplayName'],
-        ]
+        const fields = DECLINED_BY_RESIDENT_FIELDS.map(field => [field])
 
         const changedFields = fields.filter(([field]) => (
             ticketChange[`${field}From`] !== null || ticketChange[`${field}To`] !== null
@@ -485,8 +475,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
     // If we have several changed fields in one changedField object and should display one message.
     // For example, when returning an ticket by a resident, only the message 'statusReopenedCounter' should be displayed,
     // and 3 fields are changed: 'statusReopenedCounter', 'statusDisplayName' and 'feedbackValue'
-    const priorityFields = ['statusReopenedCounter']
-    const priorityField = priorityFields.find(priorityField => changedFields.find(([field]) => field === priorityField))
+    const priorityField = PRIORITY_FIELDS.find(priorityField => changedFields.find(([field]) => field === priorityField))
     if (priorityField) {
         changedFields = changedFields.filter(([changedField]) => changedField === priorityField)
     }
@@ -496,4 +485,32 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
             field,
             message: formatDiffMessage(field, message, ticketChange, changeMessage),
         }))
+}
+
+const hasFieldDiff = (ticketChange, field: string) => (
+    ticketChange[`${field}From`] !== null || ticketChange[`${field}To`] !== null
+)
+
+export const hasTicketChangeDiff = (ticketChange?: ITicketChange): boolean => {
+    if (!ticketChange) return false
+
+    if (isAutoReopenTicketChanges(ticketChange)) {
+        return AUTO_REOPEN_FIELDS.some(field => hasFieldDiff(ticketChange, field))
+    }
+
+    if (isDeclinedByResident(ticketChange)) {
+        return DECLINED_BY_RESIDENT_FIELDS.some(field => hasFieldDiff(ticketChange, field))
+    }
+
+    const changedFields = BASE_TICKET_CHANGE_FIELDS
+        .map(({ field }) => field)
+        .filter(field => hasFieldDiff(ticketChange, field))
+
+    if (changedFields.length === 0) return false
+
+    if (PRIORITY_FIELDS.some(priorityField => changedFields.includes(priorityField))) {
+        return true
+    }
+
+    return changedFields.length > 0
 }
