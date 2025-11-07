@@ -2298,6 +2298,8 @@
   "pages.condo.meter.reportingPeriod.create.inputPostfix": "día de cada mes incluido",
   "pages.condo.meter.reportingPeriod.create.organizationPeriod": "Para todas las comunidades",
   "pages.condo.meter.reportingPeriod.create.organizationTooltip": "Este período será válido para todas las casas que no tengan un período con una dirección específica",
+  "pages.condo.news.profanity.badWords.default": "El texto de la noticia contiene lenguaje inapropiado",
+  "pages.condo.news.profanity.badWords.list": "El texto de la noticia contiene lenguaje inapropiado: {badWords}",
   "pages.condo.meter.reportingPeriod.create.save.button": "Crear período",
   "pages.condo.meter.reportingPeriod.create.settings.alert": "Vecinos recibirán aviso para limitar plazo de entrega de medidores",
   "pages.condo.meter.reportingPeriod.create.settings.notStrict.tooltip": "Cuando finalice el período, los residentes podrán tomar lecturas, pero verán un aviso de que se contabilizarán el próximo mes",
