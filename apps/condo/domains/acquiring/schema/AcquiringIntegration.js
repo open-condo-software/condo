@@ -47,8 +47,8 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: true,
             type: 'Select',
             dataType: 'string',
-            defaultValue: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
             options: ACQUIRING_INTEGRATION_TYPES,
+            defaultValue: ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE,
         },
 
         accessRights: {
