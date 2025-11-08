@@ -238,8 +238,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                     deletedAt: null,
                     id_not: newItem['id'],
                 })
-                const acquiringIntegrationId = existingItem?.integration || resolvedData?.integration
-                const acquiringIntegration = getById('AcquiringIntegration', acquiringIntegrationId)
+                const acquiringIntegration = await getById('AcquiringIntegration', newItem.integration)
                 if (acquiringIntegration.type === ACQUIRING_INTEGRATION_ONLINE_PROCESSING_TYPE &&  activeContexts.length > 0) {
                     addValidationError(CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
                 }
