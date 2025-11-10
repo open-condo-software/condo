@@ -220,7 +220,7 @@ async function changeTwoFactorAuthentication (context, data) {
         query: CHANGE_TWO_FACTOR_AUTHENTICATION_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to changeTwoFactorAuthentication',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
