@@ -21,7 +21,8 @@
     "lint:deps": "turbo boundaries --filter=!'@app/condo' --filter=!'@open-condo/codegen' && cross-env NODE_OPTIONS=\"--max_old_space_size=6144\" knip",
     "lint": "yarn lint:code && yarn lint:styles && yarn lint:translations && yarn lint:deps",
     "createapp": "node ./bin/createapp",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "create-miniapp": "node ./packages/create-miniapp-cli/dist/index.js"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",
