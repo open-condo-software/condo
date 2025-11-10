@@ -79,7 +79,7 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                     <div>
                         <Typography.Text strong type='secondary'>{BodyLabel}</Typography.Text><br/>
                         <Typography.Paragraph type='secondary' className={styles.newsItemCardMarkdown}>
-                            <Markdown type='inline'>{body || ''}</Markdown>
+                            <Markdown type='inline'>{body}</Markdown>
                         </Typography.Paragraph>
                     </div>
                     {
@@ -124,7 +124,7 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                             type='secondary'
                             className={styles.newsItemCardMarkdown}
                         >
-                            <Markdown type='inline'>{body || ''}</Markdown>
+                            <Markdown type='inline'>{body}</Markdown>
                         </Typography.Paragraph>
                     </Col>
                     {
