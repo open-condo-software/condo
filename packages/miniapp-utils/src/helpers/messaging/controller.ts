@@ -143,10 +143,11 @@ export class PostMessageController {
         }
     }
 
-    registerBridgeEvents ({ router }: Omit<RegisterBridgeEventsOptions, 'addHandler'>) {
+    registerBridgeEvents ({ router, notificationsApi }: Omit<RegisterBridgeEventsOptions, 'addHandler'>) {
         registerBridgeEvents({
             addHandler: this.addHandler,
             router,
+            notificationsApi,
         })
     }
 }

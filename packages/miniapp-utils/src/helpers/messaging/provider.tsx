@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react'
 
 import { PostMessageController } from './controller'
 
-import type { SimpleRouter } from './events/bridge'
+import type { RegisterBridgeEventsOptions } from './events/bridge'
 
 
 type PostMessageContextType = Pick<PostMessageController, 'addFrame' | 'removeFrame' | 'addHandler'>
@@ -13,16 +13,14 @@ const PostMessageContext = createContext<PostMessageContextType>({
     addHandler: () => {},
 })
 
-type PostMessageProviderProps = {
-    router?: SimpleRouter
-}
+type PostMessageProviderProps = Partial<Omit<RegisterBridgeEventsOptions, 'addHandler'>>
 
-export const PostMessageProvider: React.FC<React.PropsWithChildren<PostMessageProviderProps>> = ({ children, router }) => {
+export const PostMessageProvider: React.FC<React.PropsWithChildren<PostMessageProviderProps>> = ({ children, router, notificationsApi }) => {
     const [controller] = useState(() => new PostMessageController())
 
     useEffect(() => {
-        controller.registerBridgeEvents({ router })
-    }, [controller, router])
+        controller.registerBridgeEvents({ router, notificationsApi })
+    }, [controller, notificationsApi, router])
 
     useEffect(() => {
         window.addEventListener('message', controller.eventListener)
