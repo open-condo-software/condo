@@ -75,9 +75,9 @@ const Document = new GQLListSchema('Document', {
                 }
             }
         },
-        resolveInput: ({ resolvedData, operation }) => {
+        resolveInput: ({ resolvedData, operation, context, listKey }) => {
             if (operation === 'create' && !resolvedData['name']) {
-                resolvedData['name'] = get(resolvedData, 'file.originalFilename')
+                resolvedData['name'] = get(resolvedData, 'file.originalFilename') || get(context, ['_fileNewFlow', `${listKey}.file`, 'originalFilename'])
             }
 
             return resolvedData
