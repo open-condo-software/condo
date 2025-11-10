@@ -18,6 +18,8 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { TASK_STATUSES } = require('@condo/domains/ai/constants')
+const aiTasks = require('@condo/domains/ai/tasks')
+const { executeAIFlow } = require('@condo/domains/ai/tasks/executeAIFlow')
 const { removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const {
     ExecutionAIFlowTask,
@@ -42,15 +44,24 @@ describe.skip('ExecutionAIFlowTask', () => {
     // In envs the full url is specified, so we must specify the port
     initTestExpressApp('Flowise', new FlowiseTestingApp().prepareMiddleware(), 'http', 57657, { useDanglingMode: true })
 
+    /** @type {SpyInstance} */
+    let executeAIFlowMock
+
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
         anonymousClient = await makeClient()
+        executeAIFlowMock = jest.spyOn(aiTasks.executeAIFlow, 'delay')
+    })
+
+    afterAll(async () => {
+        executeAIFlowMock.mockRestore()
     })
 
     beforeEach(async () => {
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
+        executeAIFlowMock.mockReset().mockImplementation((() => Promise.resolve()))
     })
 
     describe('Accesses', () => {
@@ -89,6 +100,8 @@ describe.skip('ExecutionAIFlowTask', () => {
                     flowType: 'success_flow',
                     context: { some_field: faker.lorem.words(3) },
                 })
+                expect(executeAIFlowMock).toHaveBeenCalledTimes(1)
+                await executeAIFlow(createdTask.id)
                 // NOTE: we cannot guarantee that the task has been cancelled
                 // because the task completion may happen very quickly before we send the task cancellation request
                 await waitFor(async () => {
@@ -158,7 +171,8 @@ describe.skip('ExecutionAIFlowTask', () => {
                     flowType: 'success_flow',
                     context: { some_field: faker.lorem.words(3) },
                 })
-
+                expect(executeAIFlowMock).toHaveBeenCalledTimes(1)
+                await executeAIFlow(selfTask.id)
                 // NOTE: we cannot guarantee that the task has been cancelled
                 // because the task completion may happen very quickly before we send the task cancellation request
                 await waitFor(async () => {
@@ -259,7 +273,8 @@ describe.skip('ExecutionAIFlowTask', () => {
                     dv: 1,
                     sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
                 })
-
+                expect(executeAIFlowMock).toHaveBeenCalledTimes(1)
+                await executeAIFlow(selfTask.id)
                 // NOTE: we cannot guarantee that the task has been cancelled
                 // because the task completion may happen very quickly before we send the task cancellation request
                 await waitFor(async () => {
@@ -459,7 +474,8 @@ describe.skip('ExecutionAIFlowTask', () => {
                 flowType: 'success_flow',
                 context: { problem: faker.lorem.sentence() },
             })
-
+            expect(executeAIFlowMock).toHaveBeenCalledTimes(1)
+            await executeAIFlow(task.id)
             await waitFor(async () => {
                 const foundTask = await ExecutionAIFlowTask.getOne(adminClient, { id: task.id })
                 expect(foundTask.status).toBe(TASK_STATUSES.COMPLETED)
@@ -479,7 +495,8 @@ describe.skip('ExecutionAIFlowTask', () => {
                 flowType: 'failed_flow',
                 context: { problem: faker.lorem.sentence() },
             })
-
+            expect(executeAIFlowMock).toHaveBeenCalledTimes(1)
+            await expect(async () => await executeAIFlow(task.id)).rejects.toThrow()
             await waitFor(async () => {
                 const foundTask = await ExecutionAIFlowTask.getOne(adminClient, { id: task.id })
                 expect(foundTask.status).toBe(TASK_STATUSES.ERROR)
