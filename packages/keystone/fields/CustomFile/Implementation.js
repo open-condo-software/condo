@@ -4,9 +4,11 @@ const { get, omit } = require('lodash')
 const conf = require('@open-condo/config')
 const { validateFileUploadSignature } = require('@open-condo/files/utils')
 const { GQLError, GQLErrorCode: { INTERNAL_ERROR, BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
 
+const logger = getLogger('custom-file')
 const ERRORS = {
     INTERNAL_ERROR: {
         code: INTERNAL_ERROR,
@@ -208,6 +210,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
                     }, context)
                 }
 
+                logger.error({ msg: 'fetch error', errors: attachResult.errors, attachResult })
                 throw new GQLError(ERRORS.INTERNAL_ERROR, context)
             }
 
@@ -217,6 +220,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             resolvedData[this.path] = omit(data, ['iat', 'exp'])
         } catch (err) {
+            logger.error({ msg: 'unexpected file attach error', err })
             if (err instanceof GQLError) {
                 throw err
             }
