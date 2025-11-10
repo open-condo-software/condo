@@ -3,12 +3,13 @@ import { Row, Col, Divider } from 'antd'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Card, Space, RadioGroup, Radio } from '@open-condo/ui'
+import { Typography, Card, Space, RadioGroup, Radio, Markdown } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
 import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { stripMarkdown } from '@condo/domains/news/utils/stripMarkdown'
 
 import type { RowProps } from 'antd'
 
@@ -36,7 +37,6 @@ const APP_TOP_COLUMN_STYLE: React.CSSProperties = { textAlign: 'center', padding
 const APP_CLOSE_ICON_STYLE: React.CSSProperties = { position: 'absolute', right: '10px', top: '14px' }
 const APP_CONTENT_STYLE: React.CSSProperties = { padding: '0 12px' }
 const RADIO_GROUP_CONTAINER_STYLE: React.CSSProperties = { maxWidth: '360px' }
-const PUSH_PARAGRAPH_ELLIPSIS_CONFIG = { rows: 2 }
 const PREVIEW_CONTENT_WIDTH = 360
 const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
 const CONDO_APP_BACKGROUND_PICTURE_URL = '/phoneNewsPreview.png'
@@ -152,8 +152,8 @@ const NewsPushPreview: React.FC<INewsItemPushPreview> = ({ appName, appIcon, new
                                 <Typography.Text size='medium' strong>{title}</Typography.Text>
                             </Col>
                             <Col span={24}>
-                                <Typography.Paragraph ellipsis={PUSH_PARAGRAPH_ELLIPSIS_CONFIG} size='medium'>
-                                    {body}
+                                <Typography.Paragraph ellipsis={{ rows: 2 }} size='medium'>
+                                    {stripMarkdown(body)}
                                 </Typography.Paragraph>
                             </Col>
                         </Row>
@@ -253,8 +253,8 @@ const CondoAppPreview: React.FC<NewsItemData> = ({ title, body, validBefore }) =
                                     )}
                                 </Typography.Text>
                             </Space>
-                            <Typography.Paragraph>
-                                {body}
+                            <Typography.Paragraph type='secondary' style={{ marginBottom: 0 }}>
+                                <Markdown type='inline'>{body}</Markdown>
                             </Typography.Paragraph>
                         </Space>
                     </div>

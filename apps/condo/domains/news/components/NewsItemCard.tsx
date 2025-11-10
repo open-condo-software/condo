@@ -5,7 +5,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import React, { useState, useMemo, JSX } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Card, Modal, Typography } from '@open-condo/ui'
+import { Card, Modal, Typography, Markdown } from '@open-condo/ui'
 
 import styles from './NewsItemCard.module.css'
 import { MemoizedRecipientCounter, MemoizedNewsSharingRecipientCounter, Counter } from './RecipientCounter'
@@ -78,7 +78,9 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                     </div>
                     <div>
                         <Typography.Text strong type='secondary'>{BodyLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary'>{body}</Typography.Paragraph>
+                        <Typography.Paragraph type='secondary' className={styles.newsItemCardMarkdown}>
+                            <Markdown type='inline'>{body || ''}</Markdown>
+                        </Typography.Paragraph>
                     </div>
                     {
                         footer && (
@@ -120,8 +122,9 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                                 onEllipsis: (ellipsis: boolean) => setIsEllipsis(ellipsis),
                             }}
                             type='secondary'
+                            className={styles.newsItemCardMarkdown}
                         >
-                            {body}
+                            <Markdown type='inline'>{body || ''}</Markdown>
                         </Typography.Paragraph>
                     </Col>
                     {
