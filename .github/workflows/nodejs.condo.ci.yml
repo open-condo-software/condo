@@ -6,7 +6,7 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -132,6 +132,7 @@ jobs:
       webhooks: ${{ steps.detect-changes.outputs.webhooks }}
       pos-integration: ${{ steps.detect-changes.outputs.pos-integration }}
       accruals-gateway: ${{ steps.detect-changes.outputs.accruals-gateway }}
+      resident-app: ${{ steps.detect-changes.outputs.resident-app }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -192,6 +193,9 @@ jobs:
             registry-importer:
               - 'apps/registry-importer/**'
               - 'apps/rb'
+              - 'packages/**'
+            resident-app:
+              - 'apps/resident-app'
               - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
@@ -904,6 +908,33 @@ jobs:
           yarn workspace @app/registry-importer start & \
           node bin/wait-apps-apis.js -f condo registry-importer rb) && \
           yarn workspace @app/registry-importer test"
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+  run-miniapp-utils-tests:
+    name: Resident App Tests
+    runs-on: ubuntu-22.04
+    needs:
+      - authorize
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.resident-app == 'true' }}
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
+      - name: Install packages
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+      - name: Run @app/resident-app tests
+        run: yarn workspace @app/resident-app test
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
