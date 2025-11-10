@@ -66,7 +66,7 @@ const sealingDate = {
 }
 
 const archiveDate = {
-    schemaDoc: 'The date when the meter was disabled and no longer in use. Is treated like a flaf and cannot be in the future.',
+    schemaDoc: 'The date when the meter was disabled and no longer in use. Is treated like a flag and cannot be in the future.',
     type: 'DateTimeUtc',
     hooks: {
         resolveInput: ({ resolvedData, fieldPath, existingItem }) => {
@@ -74,11 +74,11 @@ const archiveDate = {
             if (!value) return existingItem?.[fieldPath] || null
 
             const today = dayjs()
-            if (dayjs(resolvedData[fieldPath]).isAfter(today)){
+            if (dayjs(value).isAfter(today)){
                 return existingItem?.[fieldPath] || null
             }
 
-            return resolvedData[fieldPath]
+            return value
         },
     },
 }
