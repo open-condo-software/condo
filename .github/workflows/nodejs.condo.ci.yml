@@ -914,7 +914,7 @@ jobs:
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
           GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
-  run-miniapp-utils-tests:
+  run-resident-app-tests:
     name: Resident App Tests
     runs-on: ubuntu-22.04
     needs:
