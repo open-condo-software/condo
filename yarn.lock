@@ -738,6 +738,7 @@ __metadata:
     "@graphql-codegen/typescript-react-apollo": ^4.3.2
     "@hcaptcha/react-hcaptcha": ^1.10.1
     "@metro-fs/analytics-plugin-posthog": ^1.14.0
+    "@next/bundle-analyzer": ^16.0.0
     "@open-condo/apollo": "workspace:^"
     "@open-condo/billing": "workspace:^"
     "@open-condo/bridge": "workspace:^"
@@ -775,6 +776,7 @@ __metadata:
     antd: ^4.24.12
     aws-sdk: ^2.1692.0
     axios: ^0.26.0
+    babel-plugin-react-compiler: ^1.0.0
     bad-words-next: ^1.6.7
     big.js: ^6.2.2
     carbone: 3.2.3
@@ -838,6 +840,7 @@ __metadata:
     rc-picker: ^4.2.0
     rc-upload: ~4.3.0
     react: ^18.3.1
+    react-compiler-runtime: ^1.0.0
     react-dom: ^18.3.1
     react-hotkeys-hook: 3.4.6
     react-indiana-drag-scroll: ^2.0.1
@@ -3061,6 +3064,13 @@ __metadata:
   version: 7.27.1
   resolution: "@babel/helper-validator-identifier@npm:7.27.1"
   checksum: 3c7e8391e59d6c85baeefe9afb86432f2ab821c6232b00ea9082a51d3e7e95a2f3fb083d74dc1f49ac82cf238e1d2295dafcb001f7b0fab479f3f56af5eaaa47
+  languageName: node
+  linkType: hard
+
+"@babel/helper-validator-identifier@npm:^7.28.5":
+  version: 7.28.5
+  resolution: "@babel/helper-validator-identifier@npm:7.28.5"
+  checksum: 5a251a6848e9712aea0338f659a1a3bd334d26219d5511164544ca8ec20774f098c3a6661e9da65a0d085c745c00bb62c8fada38a62f08fa1f8053bc0aeb57e4
   languageName: node
   linkType: hard
 
@@ -5523,6 +5533,16 @@ __metadata:
     "@babel/helper-validator-identifier": ^7.24.7
     to-fast-properties: ^2.0.0
   checksum: 9b2f84ff3f874ad05b0b9bf06862c56f478b65781801f82296b4cc01bee39e79c20a7c0a06959fed0ee582c8267e1cb21638318655c5e070b0287242a844d1c9
+  languageName: node
+  linkType: hard
+
+"@babel/types@npm:^7.26.0":
+  version: 7.28.5
+  resolution: "@babel/types@npm:7.28.5"
+  dependencies:
+    "@babel/helper-string-parser": ^7.27.1
+    "@babel/helper-validator-identifier": ^7.28.5
+  checksum: 5bc266af9e55ff92f9ddf33d83a42c9de1a87f9579d0ed62ef94a741a081692dd410a4fbbab18d514b83e135083ff05bc0e37003834801c9514b9d8ad748070d
   languageName: node
   linkType: hard
 
@@ -10533,6 +10553,15 @@ __metadata:
   resolution: "@news-telegram-api/domains@link:./domains::locator=%40app%2Fnews-telegram-api%40workspace%3Aapps%2Fnews-telegram-api"
   languageName: node
   linkType: soft
+
+"@next/bundle-analyzer@npm:^16.0.0":
+  version: 16.0.1
+  resolution: "@next/bundle-analyzer@npm:16.0.1"
+  dependencies:
+    webpack-bundle-analyzer: 4.10.1
+  checksum: 2fb2c0ce0ab25cec81a44ee9acc9824ca3dde11250ea3785c2ca4f49a5f665c484e370bf09a69aaa351ccded7b479abe159501ab2249941f952d30db65cd5980
+  languageName: node
+  linkType: hard
 
 "@next/env@npm:15.4.6":
   version: 15.4.6
@@ -18562,6 +18591,15 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: ab0355efbad17d29492503230387679dfb780b63b25408990d2e4cf421012dae61d6199ddc309f4d2409ce4e9d3002d187702700dd8f4f8770ebbba651ed066c
+  languageName: node
+  linkType: hard
+
+"babel-plugin-react-compiler@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "babel-plugin-react-compiler@npm:1.0.0"
+  dependencies:
+    "@babel/types": ^7.26.0
+  checksum: 4c5c6c209a27477b7af8ce2361f3e5ddbc1ef59ebac5fc9d85cf91c3921752c19ac814bb7f98e7f55084db3cb585fc966aa05191018fa70e4444f2f4a980fff2
   languageName: node
   linkType: hard
 
@@ -39840,6 +39878,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-compiler-runtime@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "react-compiler-runtime@npm:1.0.0"
+  peerDependencies:
+    react: ^17.0.0 || ^18.0.0 || ^19.0.0 || ^0.0.0-experimental
+  checksum: 78333ac1b06fe1209aa912986959b8c3017f681f98f07b8ad7927f73be6d6ce3516edffa182990840f3afd371be631ed78954d2404acce1258d62adc06f14255
+  languageName: node
+  linkType: hard
+
 "react-copy-to-clipboard@npm:^5.0.1":
   version: 5.1.0
   resolution: "react-copy-to-clipboard@npm:5.1.0"
@@ -47851,7 +47898,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-bundle-analyzer@npm:^4":
+"webpack-bundle-analyzer@npm:4.10.1, webpack-bundle-analyzer@npm:^4":
   version: 4.10.1
   resolution: "webpack-bundle-analyzer@npm:4.10.1"
   dependencies:

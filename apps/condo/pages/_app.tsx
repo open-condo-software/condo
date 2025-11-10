@@ -24,7 +24,7 @@ import React, { Fragment, useMemo, useEffect } from 'react'
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import * as AllIcons from '@open-condo/icons'
+import * as Icons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { isSSR } from '@open-condo/miniapp-utils'
 import { withApollo } from '@open-condo/next/apollo'
@@ -210,7 +210,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-tour',
                     path: 'tour',
-                    icon: AllIcons['Guide'],
+                    icon: Icons.Guide,
                     label: 'global.section.tour',
                     access: hasAccessToTour && isManagingCompany,
                 },
@@ -222,7 +222,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-reports',
                     path: 'reports',
-                    icon: AllIcons['BarChartVertical'],
+                    icon: Icons.BarChartVertical,
                     label: 'global.section.analytics',
                     access: hasAccessToAnalytics && isManagingCompany,
                 },
@@ -234,21 +234,21 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-ticket',
                     path: 'ticket',
-                    icon: AllIcons['NewAppeal'],
+                    icon: Icons.NewAppeal,
                     label: 'global.section.controlRoom',
                     access: isManagingCompany && hasAccessToTickets,
                 },
                 {
                     id: 'menu-item-incident',
                     path: 'incident',
-                    icon: AllIcons['OnOff'],
+                    icon: Icons.OnOff,
                     label: 'global.section.incidents',
                     access: isManagingCompany && hasAccessToIncidents,
                 },
                 {
                     id: 'menu-item-news',
                     path: 'news',
-                    icon: AllIcons['Newspaper'],
+                    icon: Icons.Newspaper,
                     label: 'global.section.newsItems',
                     access: hasAccessToNewsItems,
                 },
@@ -260,7 +260,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-property',
                     path: 'property',
-                    icon: AllIcons['Building'],
+                    icon: Icons.Building,
                     label: 'global.section.properties',
                     access: hasAccessToProperties,
                 },
@@ -272,7 +272,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-contact',
                     path: 'contact',
-                    icon: AllIcons['Contacts'],
+                    icon: Icons.Contacts,
                     label: 'global.section.contacts',
                     access: isManagingCompany && hasAccessToContacts,
                 },
@@ -284,7 +284,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-employee',
                     path: 'employee',
-                    icon: AllIcons['Employee'],
+                    icon: Icons.Employee,
                     label: 'global.section.employees',
                     access: hasAccessToEmployees,
                 },
@@ -296,7 +296,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-marketplace',
                     path: 'marketplace',
-                    icon: AllIcons['Market'],
+                    icon: Icons.Market,
                     label: 'global.section.marketplace',
                     access: hasAccessToMarketplace && isNoServiceProviderOrganization,
                 },
@@ -308,7 +308,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-billing',
                     path: 'billing',
-                    icon: AllIcons['Wallet'],
+                    icon: Icons.Wallet,
                     label: 'global.section.accrualsAndPayments',
                     // NOTE: For SPP users billing is available after first receipts-load finished
                     access: isSPPOrg
@@ -318,7 +318,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-service-provider-profile',
                     path: 'service-provider-profile',
-                    icon: AllIcons['Sber'],
+                    icon: Icons.Sber,
                     label: 'global.section.SPP',
                     access: hasAccessToBilling && sppBillingId && isSPPOrg,
                 },
@@ -330,7 +330,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-meter',
                     path: 'meter',
-                    icon: AllIcons['Meters'],
+                    icon: Icons.Meters,
                     label: 'global.section.meters',
                     access: hasAccessToMeters,
                 },
@@ -342,7 +342,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-miniapps',
                     path: 'miniapps',
-                    icon: AllIcons['Services'],
+                    icon: Icons.Services,
                     label: 'global.section.miniapps',
                     access: hasAccessToServices && isManagingCompany,
                     // not a ReDoS issue: running on end user browser
@@ -357,7 +357,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-settings',
                     path: 'settings',
-                    icon: AllIcons['Settings'],
+                    icon: Icons.Settings,
                     label: 'global.section.settings',
                     access: hasAccessToSettings,
                 },
@@ -390,7 +390,7 @@ const MenuItems: React.FC = () => {
                             id={`menu-item-app-${app.id}`}
                             key={`menu-item-app-${app.id}`}
                             path={`/miniapps/${app.id}`}
-                            icon={AllIcons?.[app.icon] || AllIcons['QuestionCircle']}
+                            icon={Icons[app.icon] || Icons.QuestionCircle}
                             label={app.name}
                             labelRaw
                             disabled={disabled}
