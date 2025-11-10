@@ -1,12 +1,12 @@
 {
-  "name": "@open-condo/create-miniapp",
+  "name": "@open-condo/create-miniapp-cli",
   "version": "1.0.0",
   "description": "Create Condo-compatible miniapp",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/open-condo-software/condo.git",
-    "directory": "packages/create-miniapp"
+    "directory": "packages/create-miniapp-cli"
   },
   "author": {
     "name": "Daria Abushenko",

@@ -11789,9 +11789,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@open-condo/create-miniapp@workspace:packages/create-miniapp-cli":
+"@open-condo/create-miniapp-cli@workspace:packages/create-miniapp-cli":
   version: 0.0.0-use.local
-  resolution: "@open-condo/create-miniapp@workspace:packages/create-miniapp-cli"
+  resolution: "@open-condo/create-miniapp-cli@workspace:packages/create-miniapp-cli"
   dependencies:
     "@clack/prompts": ^0.6.3
     "@types/fs-extra": ^11.0.4
@@ -11802,7 +11802,6 @@ __metadata:
     execa: ^7.2.0
     fs-extra: ^11.2.0
     gradient-string: ^2.0.2
-    js-yaml: ^4.1.0
     ora: 6.3.1
     tsup: ^8.4.0
     type-fest: ^3.13.1
@@ -11810,7 +11809,7 @@ __metadata:
     yaml: ^2.8.1
     zod: ^4.0.8
   bin:
-    create-miniapp: ./dist/index.js
+    create-miniapp-cli: ./dist/index.js
   languageName: unknown
   linkType: soft
 
