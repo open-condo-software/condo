@@ -181,8 +181,11 @@ class CustomFile extends FileWithUTF8Name.implementation {
         let attachResult
 
         const headers = { 'Content-Type': 'application/json' }
-        if (context?.req?.headers?.cookie) {
-            headers['Cookie'] = context?.req?.headers?.cookie
+        const raw = context?.req?.headers?.cookie || ''
+        const cookieMatch = raw.match(/(?:^|;\s*)keystone\.sid=([^;]+)/)
+
+        if (cookieMatch) {
+            headers['Cookie'] = `keystone.sid=${cookieMatch[1]}`
         } else if (context?.req?.headers?.authorization) {
             headers['Authorization'] = context?.req?.headers?.authorization
         }
