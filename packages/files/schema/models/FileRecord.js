@@ -1,10 +1,11 @@
+const { userIsAdmin } = require('@open-condo/keystone/access')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const FILE_RECORD_USER_META = '{ dv sender { dv fingerprint } user { id } fileClientId modelNames sourceFileClientId }'
-const FILE_RECORD_META_FIELDS = `{ id fileAdapter recordId path filename originalFilename mimetype size encoding meta ${FILE_RECORD_USER_META} }`
+const FILE_RECORD_META_FIELDS = `{ id fileAdapter recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
 const FILE_RECORD_PUBLIC_META_FIELDS = `{ id recordId path filename originalFilename mimetype encoding meta ${FILE_RECORD_USER_META} }`
-const FILE_RECORD_ATTACHMENTS = '{ attachments { id modelName fileClientId user } }'
+const FILE_RECORD_ATTACHMENTS = '{ attachments { id modelName fileClientId user { id } } }'
 
 
 const FileRecord = new GQLListSchema('FileRecord', {
@@ -70,14 +71,14 @@ const FileRecord = new GQLListSchema('FileRecord', {
             schemaDoc: 'List of objects that stores info about which model, application and object is attached this binary',
             graphQLReturnType: 'FileAttachments',
             extendGraphQLTypes: [
-                'type FileAttachment { modelName: String!, id: ID!, fileClientId: String!, user: ID! }',
+                'type FileAttachment { modelName: String!, id: ID!, fileClientId: String!, user: FileRecordMetaUser! }',
                 'type FileAttachments { attachments: [FileAttachment!]! }',
             ],
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
-        read: false,
+        read: userIsAdmin,
         create: false,
         update: false,
         delete: false,

@@ -9,7 +9,7 @@ const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.util
 
 const { DocumentCategory: DocumentCategoryGQL } = require('@condo/domains/document/gql')
 const { Document: DocumentGQL } = require('@condo/domains/document/gql')
-const { UploadingFile } = require('@open-condo/keystone/test.utils')
+const { getUploadingFile } = require('@open-condo/keystone/test.utils')
 const path = require('path')
 const conf = require('@open-condo/config')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -73,12 +73,26 @@ async function createTestDocument (client, organization, category, extraAttrs = 
     if (!category || !category.id) throw new Error('no category.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    let file
+    if (extraAttrs.file) {
+        file = extraAttrs.file
+    } else {
+        const fileMeta = {
+            organization: { id: organization.id },
+            user: { id: client.user.id },
+            fileClientId: 'condo',
+            modelNames: ['Document'],
+            dv: 1, sender,
+        }
+        file = await getUploadingFile(TEST_FILE, fileMeta, client)
+    }
+
     const attrs = {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
         category: { connect: { id: category.id } },
-        file: new UploadingFile(TEST_FILE),
+        file,
         ...extraAttrs,
     }
     const obj = await Document.create(client, attrs)

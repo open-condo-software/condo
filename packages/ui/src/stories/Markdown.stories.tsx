@@ -1,3 +1,5 @@
+import React, { useState } from 'react'
+
 import { Markdown as Component } from '@open-condo/ui/src'
 
 import type { Meta, StoryObj } from '@storybook/react-webpack5'
@@ -145,6 +147,20 @@ Right aligned columns
 | ext    | extension to be used for dest files. |
 `
 
+const MD_EDITABLE_CHECKBOXES_EXAMPLE = `
+## Interactive checkboxes playground
+- [ ] Team Finance
+- [x] Team Development
+- [ ] Team Payments
+- [ ] Team UI Kit
+    - [ ] Chief of Inputs
+    - [x] Typography Team
+        - [ ] Queen of Headers
+        - [x] Ace of quotes
+        - [ ] King of paragraphs
+        - [ ]       - [x] Ambassador of preformatted text
+`
+
 export default {
     title: 'Components/Markdown',
     component: Component,
@@ -153,4 +169,91 @@ export default {
     },
 } as Meta<typeof Component>
 
-export const Markdown: StoryObj<typeof Component> = {}
+// Story with interactive checkboxes
+const InteractiveCheckboxesTemplate = (args: any) => {
+    const [markdownState, setMarkdownState] = useState(args.children)
+
+    return (
+        <div>
+            <h1>Markdown with Interactive Checkboxes:</h1>
+            <Component
+                {...args}
+                children={markdownState}
+                onCheckboxChange={setMarkdownState}
+            />
+            <h2>Current Markdown State:</h2>
+            <pre style={{
+                background: '#f5f5f5',
+                padding: '16px',
+                borderRadius: '4px',
+                overflow: 'auto',
+                maxHeight: '200px',
+            }}>
+                {markdownState}
+            </pre>
+        </div>
+    )
+}
+
+// Story with lite type
+const LiteTemplate = (args: any) => {
+    return (
+        <div>
+            <h1>Markdown with Lite Typography:</h1>
+            <Component {...args} />
+        </div>
+    )
+}
+
+export const Default: StoryObj<typeof Component> = {}
+
+export const WithInteractiveCheckboxes: StoryObj<typeof Component> = {
+    render: InteractiveCheckboxesTemplate,
+    args: {
+        children: MD_EDITABLE_CHECKBOXES_EXAMPLE,
+    },
+}
+
+export const Lite: StoryObj<typeof Component> = {
+    render: LiteTemplate,
+    args: {
+        type: 'inline',
+        children: `
+# Header 1
+## Header 2
+### Header 3
+#### Header 4
+
+Inline markdown is a type of markdown inspired by popular messaging apps. It does not support any headers, and is supposed to be used where the platform needs to show text formatted by user  
+
+Headers are supposed to be made as **bold text** like this:
+
+**Header 1**
+
+Paragraph text inside of this header
+
+1. Guide to mental health  
+  - If anxious
+  - If depressed
+  - If overworked
+    1. Calm down 
+    2. Code 
+2. If this does not work, try Linux
+3. Don't forget about staying hydrated, sleeping at least **8** hours per day and going to gym
+
+
+**Header 2**
+
+**Bold text** and *italic text* still work as intended.
+        `,
+    },
+}
+
+// You can also add a combined story to show both features
+export const LiteWithInteractiveCheckboxes: StoryObj<typeof Component> = {
+    render: InteractiveCheckboxesTemplate,
+    args: {
+        type: 'inline',
+        children: MD_EDITABLE_CHECKBOXES_EXAMPLE,
+    },
+}
