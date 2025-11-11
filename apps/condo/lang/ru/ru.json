@@ -1652,6 +1652,8 @@
   "notification.messages.NEWS_ITEM_COMMON_MESSAGE_TYPE.push.title": "{title}",
   "notification.messages.NEWS_ITEM_EMERGENCY_MESSAGE_TYPE.push.title": "{title}",
   "notification.messages.PASS_TICKET_COMMENT_CREATED.push.title": "Новости по пропуску 💡",
+  "notification.messages.TICKET_CREATED.push.title": "Новая заявка",
+  "notification.messages.TICKET_COMMENT_CREATED.push.title": "Новый комментарий",
   "notification.messages.PASS_TICKET_CREATED.push.title": "Новый пропуск",
   "notification.messages.PASS_TICKET_CREATED.telegram.urlMessage": "Открыть пропуск",
   "notification.messages.RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE.push.title": "Автоплатеж не прошел 🚨",
