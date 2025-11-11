@@ -1,0 +1,5 @@
+{%- if message.meta.data.authorName -%}
+{{ message.meta.data.authorName }}, {{ message.meta.data.authorType }}: {{ message.meta.data.commentContent }}
+{%- else -%}
+{{ message.meta.data.commentContent }}
+{% endif %}
