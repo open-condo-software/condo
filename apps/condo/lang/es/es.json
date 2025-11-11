@@ -3368,6 +3368,7 @@
   "ticket.shareWarningEmailAndMore": "… y también de {length}",
   "ticket.source.CALL.name": "Llamada",
   "ticket.source.CRM_IMPORT.name": "Importación",
+  "ticket.source.DOMCLICK.name": "DomClick",
   "ticket.source.EMAIL.name": "Coreo electrónico (e-mail)",
   "ticket.source.MESSENGER.name": "Mensajeros (tg, whatsapp, viber, ..)",
   "ticket.source.MOBILE_APP.name": "Aplicación del vecino",

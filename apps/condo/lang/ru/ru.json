@@ -3368,6 +3368,7 @@
   "ticket.shareWarningEmailAndMore": "… и ещё у {length}",
   "ticket.source.CALL.name": "Звонок",
   "ticket.source.CRM_IMPORT.name": "Импорт",
+  "ticket.source.DOMCLICK.name": "ДомКлик",
   "ticket.source.EMAIL.name": "Эл. почта (e-mail)",
   "ticket.source.MESSENGER.name": "Мессенджеры (tg, whatsapp, viber, ..)",
   "ticket.source.MOBILE_APP.name": "Приложение жителя",

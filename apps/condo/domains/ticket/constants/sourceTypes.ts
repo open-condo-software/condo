@@ -10,6 +10,7 @@ export const VISIBLE_TICKET_SOURCE_TYPES: TicketSourceWhereInput['type_in'] = [
     TicketSourceTypeType.WebApp,
     TicketSourceTypeType.MobileAppStaff,
     TicketSourceTypeType.Messenger,
+    TicketSourceTypeType.Domclick,
 ]
 
 export const VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM: TicketSourceWhereInput['type_in'] = [
