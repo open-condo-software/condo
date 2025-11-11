@@ -9,16 +9,18 @@ const ADDRESS_ITEM_FIELDS = 'id address key meta overrides'
 async function upsertAddressSource (context, addressSourceServerUtils, dvSender, normalizedSource, addressId) {
     if (!normalizedSource) return null
 
+    const source = normalizedSource.toLowerCase()
+
     const existing = await addressSourceServerUtils.getOne(
         context,
-        { source: normalizedSource.toLowerCase(), deletedAt: null },
+        { source, deletedAt: null },
         ADDRESS_ITEM_FIELDS
     )
 
     if (existing) {
         await addressSourceServerUtils.update(context, existing.id, {
             ...dvSender,
-            source: normalizedSource,
+            source,
             address: { connect: { id: addressId } },
         })
         return existing.id
@@ -26,7 +28,7 @@ async function upsertAddressSource (context, addressSourceServerUtils, dvSender,
 
     const created = await addressSourceServerUtils.create(context, {
         ...dvSender,
-        source: normalizedSource,
+        source,
         address: { connect: { id: addressId } },
     })
 
@@ -69,13 +71,14 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     // Address source
     //
     const addressSourceCandidates = [addressSource, addressItem.address]
-
-    const uniqueNormalizedSources = [
-        ...new Set(
+    const uniqueNormalizedSources = Array.from(
+        new Set(
             addressSourceCandidates
-                .map(item => mergeAddressAndHelpers(item, helpers))
+                .filter((item) => typeof item === 'string' && item.trim().length > 0)
+                .map((item) => mergeAddressAndHelpers(item.trim(), helpers))
                 .filter(Boolean)
-        )]
+        )
+    )
 
     for (const uniqueSource of uniqueNormalizedSources) {
         await upsertAddressSource(context, addressSourceServerUtils, dvSender, uniqueSource, addressItem.id)
