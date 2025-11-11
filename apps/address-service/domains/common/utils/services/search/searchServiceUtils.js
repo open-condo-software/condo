@@ -175,6 +175,7 @@ function mergeAddressAndHelpers (address, helpers) {
 }
 
 module.exports = {
+    upsertAddressSource,
     createOrUpdateAddressWithSource,
     createReturnObject,
     mergeAddressAndHelpers,
