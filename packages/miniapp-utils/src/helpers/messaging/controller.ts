@@ -17,6 +17,7 @@ import type {
     Handler,
     HandlerMethods,
     HandlerScope,
+    DataStorage,
 } from './types'
 
 // NOTE: taken from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
@@ -35,6 +36,7 @@ const MESSAGE_SCHEMA = z.object({
 export class PostMessageController {
     #registeredFrames: Record<FrameId, FrameType> = {}
     #registeredHandlers: Record<HandlerScope, Record<EventType, Record<EventName, HandlerMethods<EventParams, HandlerResult>>>> = {}
+    #storage: DataStorage = {}
 
     constructor () {
         this.addFrame = this.addFrame.bind(this)
@@ -124,9 +126,11 @@ export class PostMessageController {
         }
 
         const validatedParams = validationResult.data
+        this.#storage[eventType] ??= new Map()
+        const storage = this.#storage[eventType]
 
         try {
-            const result = await handler(validatedParams, frame)
+            const result = await handler(validatedParams, storage, frame)
             return event.source.postMessage({
                 type: `${eventName}Result`,
                 data: {
@@ -143,11 +147,10 @@ export class PostMessageController {
         }
     }
 
-    registerBridgeEvents ({ router, notificationsApi }: Omit<RegisterBridgeEventsOptions, 'addHandler'>) {
+    registerBridgeEvents (options: Omit<RegisterBridgeEventsOptions, 'addHandler'>) {
         registerBridgeEvents({
+            ...options,
             addHandler: this.addHandler,
-            router,
-            notificationsApi,
         })
     }
 }
