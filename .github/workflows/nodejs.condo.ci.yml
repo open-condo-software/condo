@@ -118,6 +118,11 @@ jobs:
     name: Define job list based on changed files
     needs: authorize
     runs-on: ubuntu-22.04
+    permissions:
+      # See actions/checkout@v4 recommended permissions https://github.com/actions/checkout?tab=readme-ov-file#recommended-permissions
+      contents: read
+      # See dorny/paths-filter@v3 required permissions https://github.com/dorny/paths-filter?tab=readme-ov-file#conditional-execution
+      pull-requests: read
     outputs:
       address-service: ${{ steps.detect-changes.outputs.address-service }}
       dev-portal-api: ${{ steps.detect-changes.outputs.dev-portal-api }}
@@ -141,6 +146,9 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
+          # See https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/
+          # Quote from link: Yes it is (workflow is vulnerable), because a workflow triggered on pull_request_target still has the read/write repository token in memory that is potentially available to any running program. If the workflow uses actions/checkout and does not pass the optional parameter persist-credentials as false, it makes it even worse. The default for the parameter is true. It means that in any subsequent steps any running code can simply read the stored repository token from the disk. If you don’t need a repository write access or secrets, just stick to the pull_request trigger.
+          persist-credentials: false
       - name: Scan changed files
         uses: dorny/paths-filter@v3
         id: detect-changes
