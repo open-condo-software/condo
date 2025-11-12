@@ -16,6 +16,7 @@ const {
     MESSAGE_DELIVERY_DEFAULT_PRIORITY,
     MESSAGE_DELIVERY_PRIORITY_TO_TASK_QUEUE_MAP,
     MESSAGE_DISABLED_BY_USER_STATUS,
+    DEFAULT_MESSAGE_DELIVERY_OPTIONS,
 } = require('@condo/domains/notification/constants/constants')
 const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { deliverMessage } = require('@condo/domains/notification/tasks')
@@ -193,24 +194,42 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 if (to.remoteClient) messageAttrs.remoteClient = { connect: to.remoteClient }
 
                 if (to.user) {
+                    const messageTransports = MESSAGE_DELIVERY_OPTIONS[type]?.defaultTransports ?? DEFAULT_MESSAGE_DELIVERY_OPTIONS.defaultTransports
                     const messageSettings = await find('NotificationUserSetting', {
                         OR: [
                             { user: to.user },
                             { user_is_null: true },
                         ],
-                        messageTransport_in: allowedTransports,
+                        messageTransport_in: messageTransports,
                         messageType: type,
                         deletedAt: null,
                     })
-                    const allowedTransports = MESSAGE_DELIVERY_OPTIONS[type].allowedTransports
+                    
                     const globalSettings = messageSettings.filter((setting) => !setting.user)
                     const userSettings = messageSettings.filter((setting) => setting.user)
-                    const isGlobalSettingDisabledForAllTransports = globalSettings.length === allowedTransports.length &&
-                        globalSettings.every((setting) => !setting.isEnabled)
-
-                    // if disabled by default => check that no user ovveride default disabled message
-                    // if enabled by default => check that user not disabled all transports 
-                    if (isGlobalSettingDisabledForAllTransports || userSettings.length === allowedTransports.length) {
+                    
+                    // Build map of transport -> isEnabled, applying defaults first, then user overrides
+                    const transportEnabledMap = new Map()
+                    
+                    // By default all transports are enabled
+                    messageTransports.forEach(transport => {
+                        transportEnabledMap.set(transport, true)
+                    })
+                    
+                    // Apply global settings (defaults)
+                    globalSettings.forEach(setting => {
+                        transportEnabledMap.set(setting.messageTransport, setting.isEnabled)
+                    })
+                    
+                    // Apply user-specific settings (override defaults)
+                    userSettings.forEach(setting => {
+                        transportEnabledMap.set(setting.messageTransport, setting.isEnabled)
+                    })
+                    
+                    // Check if all transports are disabled
+                    const allTransportsDisabled = Array.from(transportEnabledMap.values()).every(isEnabled => !isEnabled)
+                    
+                    if (allTransportsDisabled) {
                         return {
                             status: MESSAGE_DISABLED_BY_USER_STATUS,
                             id: null,
