@@ -2,7 +2,7 @@ const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getByCondition, find } = require('@open-condo/keystone/schema')
 
 const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
@@ -15,6 +15,7 @@ const {
     MESSAGE_DELIVERY_OPTIONS,
     MESSAGE_DELIVERY_DEFAULT_PRIORITY,
     MESSAGE_DELIVERY_PRIORITY_TO_TASK_QUEUE_MAP,
+    MESSAGE_DISABLED_BY_USER_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { deliverMessage } = require('@condo/domains/notification/tasks')
@@ -149,7 +150,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'type SendMessageOutput { status: String!, id: String!, isDuplicateMessage: Boolean }',
+            type: 'type SendMessageOutput { status: String!, id: String, isDuplicateMessage: Boolean }',
         },
         {
             access: true,
@@ -191,8 +192,34 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 if (to.user) messageAttrs.user = { connect: to.user }
                 if (to.remoteClient) messageAttrs.remoteClient = { connect: to.remoteClient }
 
-                let messageWithSameUniqKey
+                if (to.user) {
+                    const messageSettings = await find('NotificationUserSetting', {
+                        OR: [
+                            { user: to.user },
+                            { user_is_null: true },
+                        ],
+                        messageTransport_in: allowedTransports,
+                        messageType: type,
+                        deletedAt: null,
+                    })
+                    const allowedTransports = MESSAGE_DELIVERY_OPTIONS[type].allowedTransports
+                    const globalSettings = messageSettings.filter((setting) => !setting.user)
+                    const userSettings = messageSettings.filter((setting) => setting.user)
+                    const isGlobalSettingDisabledForAllTransports = globalSettings.length === allowedTransports.length &&
+                        globalSettings.every((setting) => !setting.isEnabled)
 
+                    // if disabled by default => check that no user ovveride default disabled message
+                    // if enabled by default => check that user not disabled all transports 
+                    if (isGlobalSettingDisabledForAllTransports || userSettings.length === allowedTransports.length) {
+                        return {
+                            status: MESSAGE_DISABLED_BY_USER_STATUS,
+                            id: null,
+                            isDuplicateMessage: false,
+                        }
+                    }
+                }
+
+                let messageWithSameUniqKey
                 if (uniqKey) {
                     messageWithSameUniqKey = await getByCondition('Message', {
                         uniqKey,

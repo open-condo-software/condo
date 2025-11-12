@@ -15,7 +15,7 @@ export const B2B_APP_MESSAGE_TYPES = [
 /**
  * Message types available for filtering in the UserMessagesList component
  */
-const USER_MESSAGE_TYPES_FILTER_ON_CLIENT = [
+export const USER_MESSAGE_TYPES_FILTER_ON_CLIENT = [
     ...CONDO_MESSAGE_TYPES,
     ...B2B_APP_MESSAGE_TYPES,
 ] as const
