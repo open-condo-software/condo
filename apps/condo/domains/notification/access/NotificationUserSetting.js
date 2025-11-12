@@ -13,7 +13,7 @@ async function canReadNotificationUserSettings ({ authentication: { item: user }
 
     if (user.isAdmin || user.isSupport) return {}
 
-    return { user: { id: user.id } }
+    return { OR: [{ user: { id: user.id } }, { user_is_null: true }] }
 }
 
 async function canManageNotificationUserSettings (params) {
