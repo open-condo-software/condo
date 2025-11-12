@@ -747,6 +747,7 @@ __metadata:
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/featureflags": "workspace:^"
+    "@open-condo/files": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
@@ -11543,17 +11544,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@open-condo/files@workspace:packages/files":
+"@open-condo/files@workspace:^, @open-condo/files@workspace:packages/files":
   version: 0.0.0-use.local
   resolution: "@open-condo/files@workspace:packages/files"
   dependencies:
     "@faker-js/faker": ^7.6.0
     "@open-condo/config": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
+    "@open-condo/tsconfig": "workspace:^"
+    "@types/jsonwebtoken": ^9.0.0
     express: ^4.21.2
     form-data: ^4.0.4
     formidable: ^3.5.4
     jsonwebtoken: ^9.0.0
+    rimraf: ^6.0.1
+    typescript: ^5.8.3
     zod: ^4.0.8
   languageName: unknown
   linkType: soft
@@ -15393,7 +15398,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsonwebtoken@npm:^9.0.4":
+"@types/jsonwebtoken@npm:^9.0.0, @types/jsonwebtoken@npm:^9.0.4":
   version: 9.0.10
   resolution: "@types/jsonwebtoken@npm:9.0.10"
   dependencies:
