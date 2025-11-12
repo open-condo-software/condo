@@ -27,12 +27,17 @@ const NotificationUserSetting = new GQLListSchema('NotificationUserSetting', {
     fields: {
 
         user: {
-            schemaDoc: 'The user the settings will apply for',
+            schemaDoc: `
+                The user the settings will apply for. 
+                If null - settings are global. 
+                If not null - settings are user specific, which overrides global settings.
+                By default all notifications are enabled for all users.
+            `,
             type: 'Relationship',
             ref: 'User',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true },
         },
 
         messageType: getMessageTypeField({
@@ -90,20 +95,6 @@ const NotificationUserSetting = new GQLListSchema('NotificationUserSetting', {
                 name: 'user_messageType_idx',
             },
         ],
-    },
-    hooks: {
-        validateInput: async (args) => {
-            const { resolvedData, operation, existingItem, context } = args
-
-            const isEnabled = get(resolvedData, 'isEnabled')
-
-            // This is a temporary check.
-            // It is actual as long we only control if the message enabled
-            // All messages are enabled by default, so there is no needed to create model with isEnabled=true
-            if (isEnabled) {
-                throw new GQLError(ERRORS.NO_NEED_TO_ENABLE_NOTIFICATIONS, context)
-            }
-        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

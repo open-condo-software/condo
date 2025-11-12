@@ -1,0 +1,37 @@
+query getNotificationUserSettings ($userId: ID!, $types: [MessageType!]) {
+    allNotificationUserSettings (where: { 
+        OR: [
+            { user: { id: $userId } },
+            { user_is_null: true },
+        ],
+        messageType_in: $types
+    }) {
+        id
+        user { id }
+        messageType
+        messageTransport
+        isEnabled
+    }
+}
+
+mutation createNotificationUserSetting ($userId: ID!, $messageType: MessageType!, $isEnabled: Boolean!, $sender: SenderFieldInput!) {
+    createNotificationUserSetting (data: {
+        user: { connect: { id: $userId } },
+        messageType: $messageType,
+        messageTransport: push,
+        isEnabled: $isEnabled,
+        sender: $sender,
+        dv: 1,
+    }) {
+        id
+    }
+}
+
+mutation updateNotificationUserSetting ($id: ID!, $isEnabled: Boolean!, $sender: SenderFieldInput!) {
+    updateNotificationUserSetting (
+        id: $id,
+        data: { isEnabled: $isEnabled, sender: $sender, dv: 1 },
+    ) {
+        id
+    }
+}

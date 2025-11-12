@@ -413,6 +413,33 @@ export type GetUserMessagesQueryVariables = Types.Exact<{
 
 export type GetUserMessagesQuery = { __typename?: 'Query', messages?: Array<{ __typename?: 'Message', id: string, type?: Types.MessageType | null, createdAt?: string | null, meta?: any | null, defaultContent?: { __typename?: 'MessageDefaultContentField', content?: string | null } | null } | null> | null };
 
+export type GetNotificationUserSettingsQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+  types?: Types.InputMaybe<Array<Types.MessageType> | Types.MessageType>;
+}>;
+
+
+export type GetNotificationUserSettingsQuery = { __typename?: 'Query', allNotificationUserSettings?: Array<{ __typename?: 'NotificationUserSetting', id: string, messageType?: Types.MessageType | null, messageTransport?: Types.NotificationUserSettingMessageTransportType | null, isEnabled?: boolean | null, user?: { __typename?: 'User', id: string } | null } | null> | null };
+
+export type CreateNotificationUserSettingMutationVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+  messageType: Types.MessageType;
+  isEnabled: Types.Scalars['Boolean']['input'];
+  sender: Types.SenderFieldInput;
+}>;
+
+
+export type CreateNotificationUserSettingMutation = { __typename?: 'Mutation', createNotificationUserSetting?: { __typename?: 'NotificationUserSetting', id: string } | null };
+
+export type UpdateNotificationUserSettingMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  isEnabled: Types.Scalars['Boolean']['input'];
+  sender: Types.SenderFieldInput;
+}>;
+
+
+export type UpdateNotificationUserSettingMutation = { __typename?: 'Mutation', updateNotificationUserSetting?: { __typename?: 'NotificationUserSetting', id: string } | null };
+
 export type SyncTourStepsMutationVariables = Types.Exact<{
   data: Types.SyncTourStepsInput;
 }>;
