@@ -25,3 +25,6 @@ export type AddHandlerType = <Params extends EventParams, Result extends Handler
     validator: ParamsValidator<Params>,
     handler: Handler<Params, Result>
 ) => void
+export type ControllerState = {
+    isBridgeReady: boolean
+}

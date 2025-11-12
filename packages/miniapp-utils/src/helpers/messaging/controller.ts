@@ -18,6 +18,7 @@ import type {
     HandlerMethods,
     HandlerScope,
     DataStorage,
+    ControllerState,
 } from './types'
 
 // NOTE: taken from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
@@ -33,17 +34,24 @@ const MESSAGE_SCHEMA = z.object({
     version: z.string().regex(SEMVER_REGEXP),
 }).strict()
 
-export class PostMessageController {
+export class PostMessageController extends EventTarget {
     #registeredFrames: Record<FrameId, FrameType> = {}
     #registeredHandlers: Record<HandlerScope, Record<EventType, Record<EventName, HandlerMethods<EventParams, HandlerResult>>>> = {}
     #storage: DataStorage = {}
+    state: ControllerState = { isBridgeReady: false }
 
     constructor () {
+        super()
         this.addFrame = this.addFrame.bind(this)
         this.removeFrame = this.removeFrame.bind(this)
         this.addHandler = this.addHandler.bind(this)
         this.eventListener = this.eventListener.bind(this)
         this.registerBridgeEvents = this.registerBridgeEvents.bind(this)
+    }
+
+    private updateState (state: Partial<ControllerState>) {
+        this.state = { ...this.state, ...state }
+        this.dispatchEvent(new CustomEvent('statechange', { detail: this.state }))
     }
 
     addFrame (frame: FrameType): FrameId {
@@ -152,5 +160,6 @@ export class PostMessageController {
             ...options,
             addHandler: this.addHandler,
         })
+        this.updateState({ isBridgeReady: true })
     }
 }
