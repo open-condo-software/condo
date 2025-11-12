@@ -118,6 +118,11 @@ jobs:
     name: Define job list based on changed files
     needs: authorize
     runs-on: ubuntu-22.04
+    permissions:
+      # See actions/checkout@v4 recommended permissions https://github.com/actions/checkout?tab=readme-ov-file#recommended-permissions
+      contents: read
+      # See dorny/paths-filter@v3 required permissions https://github.com/dorny/paths-filter?tab=readme-ov-file#conditional-execution
+      pull-requests: read
     outputs:
       address-service: ${{ steps.detect-changes.outputs.address-service }}
       dev-portal-api: ${{ steps.detect-changes.outputs.dev-portal-api }}
@@ -132,6 +137,7 @@ jobs:
       webhooks: ${{ steps.detect-changes.outputs.webhooks }}
       pos-integration: ${{ steps.detect-changes.outputs.pos-integration }}
       accruals-gateway: ${{ steps.detect-changes.outputs.accruals-gateway }}
+      resident-app: ${{ steps.detect-changes.outputs.resident-app }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -140,6 +146,9 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
+          # See https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/
+          # Quote from link: Yes it is (workflow is vulnerable), because a workflow triggered on pull_request_target still has the read/write repository token in memory that is potentially available to any running program. If the workflow uses actions/checkout and does not pass the optional parameter persist-credentials as false, it makes it even worse. The default for the parameter is true. It means that in any subsequent steps any running code can simply read the stored repository token from the disk. If you don’t need a repository write access or secrets, just stick to the pull_request trigger.
+          persist-credentials: false
       - name: Scan changed files
         uses: dorny/paths-filter@v3
         id: detect-changes
@@ -192,6 +201,9 @@ jobs:
             registry-importer:
               - 'apps/registry-importer/**'
               - 'apps/rb'
+              - 'packages/**'
+            resident-app:
+              - 'apps/resident-app'
               - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
@@ -904,6 +916,33 @@ jobs:
           yarn workspace @app/registry-importer start & \
           node bin/wait-apps-apis.js -f condo registry-importer rb) && \
           yarn workspace @app/registry-importer test"
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+  run-resident-app-tests:
+    name: Resident App Tests
+    runs-on: ubuntu-22.04
+    needs:
+      - authorize
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.resident-app == 'true' }}
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
+      - name: Install packages
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+      - name: Run @app/resident-app tests
+        run: yarn workspace @app/resident-app test
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
