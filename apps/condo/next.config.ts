@@ -141,6 +141,19 @@ const nextConfig: NextConfig = {
     serverRuntimeConfig: {
         proxyName,
     },
+    async headers () {
+        return [
+            {
+                source: '/:path*.(jpg|jpeg|png|gif|ico|svg|webp|avif|woff|woff2|ttf|otf|eot)',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=86400, stale-while-revalidate=31536000',
+                    },
+                ],
+            },
+        ]
+    },
     async redirects () {
         return [
             {
