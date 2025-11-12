@@ -164,7 +164,7 @@ export async function upload ({ serverUrl, cookie, files, meta, attach }: Upload
     }
 
     for (const f of files) {
-        if (f instanceof Buffer) {
+        if (typeof Buffer !== 'undefined') {
             form.append('file', f, 'file.bin')
         } else if (f && typeof f === 'object' && 'buffer' in f && 'filename' in f) {
             form.append('file', (f as { buffer: Buffer, filename: string }).buffer, (f as { buffer: Buffer, filename: string }).filename)
