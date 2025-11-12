@@ -17,6 +17,7 @@ import type {
     UpdateModalWindowParams,
     CloseModalWindowData,
     CloseModalWindowParams,
+    CondoBridgeResultResponseEvent,
 } from '@open-condo/bridge'
 
 import { isSafeUrl } from '../../urls'
@@ -119,7 +120,7 @@ export function registerBridgeEvents ({
             title: z.string(),
             url: z.url(),
             size: z.enum(['big', 'small']).optional(),
-        })), (params, bridgeStorage) => {
+        })), (params, storage, frame) => {
             const modalId = generateUUIDv4()
             if (!isSafeUrl(params.url)) {
                 throw new Error('Forbidden url. Your url is probably injected')
@@ -127,9 +128,26 @@ export function registerBridgeEvents ({
             const originalSrc = new URL(params.url)
             originalSrc.searchParams.set('modalId', modalId)
 
-            bridgeStorage.set(`modals:${modalId}`, modalsApi({
+            const closeEventData: CondoBridgeResultResponseEvent<'CondoWebAppCloseModalWindow'> = {
+                type: 'CondoWebAppCloseModalWindowResult',
+                data: {
+                    success: true,
+                    modalId,
+                },
+            }
+
+            const onCancel = () => {
+                storage.delete(`modals:${modalId}`)
+                if (frame) {
+                    const frameOrigin = new URL(frame.src).origin
+                    frame.contentWindow?.postMessage(closeEventData, frameOrigin)
+                }
+            }
+
+            storage.set(`modals:${modalId}`, modalsApi({
                 ...params,
                 url: originalSrc.toString(),
+                onCancel,
             }))
 
             return { modalId }
