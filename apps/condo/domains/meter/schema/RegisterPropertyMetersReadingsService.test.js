@@ -911,7 +911,7 @@ describe('RegisterPropertyMetersReadingsService', () => {
         // create another reading for same meter and change `verificationDate`, `nextVerificationDate` and `archiveDate` fields values
         const nextVerificationDate = dayjs().add(1, 'week').toISOString()
         const verificationDate2 = dayjs().subtract(1, 'week').toISOString()
-        const archiveDate = dayjs().add(2, 'week').toISOString()
+        const archiveDate = dayjs().subtract(2, 'week').toISOString()
         const anotherReadings = [{
             ...readings[0],
             value1: faker.random.numeric(3),
