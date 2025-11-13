@@ -1,6 +1,6 @@
 import { MessageType, NotificationUserSettingMessageTransportType } from '@app/condo/schema'
 import debounce from 'lodash/debounce'
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -38,72 +38,29 @@ type NotificationUserSettingType = {
     isEnabled?: boolean | null
 }
 
-type MutationCallbacks = {
-    createSetting: (messageType: MessageTypeAllowedToFilterType, isEnabled: boolean) => Promise<void>
-    updateSetting: (id: string, isEnabled: boolean) => Promise<void>
-}
-
 class UserMessagesListSettingsStorage {
     private readonly userId: string
     private readonly organizationId: string
     private readonly storageKey = 'userMessagesListSettingsStorage'
     private readonly storage = new LocalStorageManager<StorageDataType>()
     private settings: Array<NotificationUserSettingType>
-    private readonly mutationCallbacks: MutationCallbacks
-    private pendingChanges: Map<MessageTypeAllowedToFilterType, boolean> = new Map()
-    private debouncedApplyChanges: ReturnType<typeof debounce>
+    private createSetting: (messageType: MessageTypeAllowedToFilterType, isEnabled: boolean) => Promise<void>
+    private updateSetting: (id: string, isEnabled: boolean) => Promise<void>
+    private debouncedSave: Map<MessageTypeAllowedToFilterType, ReturnType<typeof debounce>>
 
     constructor (
         userId: string,
         organizationId: string,
         settings: Array<NotificationUserSettingType>,
-        mutationCallbacks: MutationCallbacks
+        createSetting: (messageType: MessageTypeAllowedToFilterType, isEnabled: boolean) => Promise<void>,
+        updateSetting: (id: string, isEnabled: boolean) => Promise<void>
     ) {
         this.userId = userId
         this.organizationId = organizationId
         this.settings = settings || []
-        this.mutationCallbacks = mutationCallbacks
-        
-        // Debounce the actual mutation execution
-        this.debouncedApplyChanges = debounce(async () => {
-            await this.applyPendingChanges()
-        }, 500)
-    }
-
-    updateSettings (settings: Array<NotificationUserSettingType>): void {
-        this.settings = settings
-    }
-
-    cleanup (): void {
-        // Cancel any pending debounced calls
-        this.debouncedApplyChanges.cancel()
-        this.pendingChanges.clear()
-    }
-
-    private async applyPendingChanges (): Promise<void> {
-        if (this.pendingChanges.size === 0) return
-
-        const changes = Array.from(this.pendingChanges.entries())
-        this.pendingChanges.clear()
-
-        const updates = changes.map(async ([messageType, isEnabled]) => {
-            // Find existing user-specific setting
-            const existingSetting = this.settings.find(
-                s => s.messageType === messageType && s.user?.id === this.userId
-            )
-
-            if (existingSetting) {
-                // Update existing setting if value changed
-                if (existingSetting.isEnabled !== isEnabled) {
-                    await this.mutationCallbacks.updateSetting(existingSetting.id, isEnabled)
-                }
-            } else {
-                // Create new user-specific setting
-                await this.mutationCallbacks.createSetting(messageType, isEnabled)
-            }
-        })
-
-        await Promise.all(updates)
+        this.createSetting = createSetting
+        this.updateSetting = updateSetting
+        this.debouncedSave = new Map()
     }
 
     getStorageKey (): string {
@@ -145,25 +102,38 @@ class UserMessagesListSettingsStorage {
     setExcludedUserMessagesTypes (messageTypes: Array<MessageTypeAllowedToFilterType>): void {
         if (!this.userId || !this.organizationId) return
 
-        // Get current state to detect what actually changed
+        // Get current excluded types to detect what actually changed
         const currentExcluded = this.getExcludedUserMessagesTypes()
         const allMessageTypes = USER_MESSAGE_TYPES_FILTER_ON_CLIENT as readonly MessageTypeAllowedToFilterType[]
         
-        // Store only changed settings
+        // Only process message types that actually changed
         allMessageTypes.forEach((messageType) => {
             const isEnabled = !messageTypes.includes(messageType)
             const wasEnabled = !currentExcluded.includes(messageType)
             
-            // Only add to pending if value changed
-            if (isEnabled !== wasEnabled) {
-                this.pendingChanges.set(messageType, isEnabled)
-            }
-        })
+            // Skip if value didn't change
+            if (isEnabled === wasEnabled) return
+            
+            // Get or create debounced function for this message type
+            if (!this.debouncedSave.has(messageType)) {
+                this.debouncedSave.set(messageType, debounce(async (enabled: boolean) => {
+                    const existingSetting = this.settings.find(
+                        s => s.messageType === messageType && s.user?.id === this.userId
+                    )
 
-        // Trigger debounced execution only if there are changes
-        if (this.pendingChanges.size > 0) {
-            this.debouncedApplyChanges()
-        }
+                    if (existingSetting) {
+                        if (existingSetting.isEnabled !== enabled) {
+                            await this.updateSetting(existingSetting.id, enabled)
+                        }
+                    } else {
+                        await this.createSetting(messageType, enabled)
+                    }
+                }, 500))
+            }
+            
+            // Call debounced function with new value
+            this.debouncedSave.get(messageType)!(isEnabled)
+        })
     }
 
     getReadUserMessagesAt (): string | null {
@@ -227,72 +197,41 @@ export const useUserMessagesListSettingsStorage: UseUserMessagesListSettingsStor
     const [createNotificationUserSetting] = useCreateNotificationUserSettingMutation()
     const [updateNotificationUserSetting] = useUpdateNotificationUserSettingMutation()
 
-    const userId = useMemo(() => user?.id, [user?.id])
-    const organizationId = useMemo(() => organization?.id, [organization?.id])
+    const userId = user?.id
+    const organizationId = organization?.id
 
-    const settings = useMemo(() => {
-        return data?.allNotificationUserSettings || []
-    }, [data])
-
-    // Store callbacks in ref to keep them fresh without recreating storage
-    const mutationCallbacksRef = useRef<MutationCallbacks>({
-        createSetting: async () => {},
-        updateSetting: async () => {},
-    })
-
-    // Update callbacks ref on every render
-    mutationCallbacksRef.current = {
-        createSetting: async (messageType: MessageTypeAllowedToFilterType, isEnabled: boolean) => {
-            if (!userId) return
-            await createNotificationUserSetting({
-                variables: {
-                    userId,
-                    messageType,
-                    isEnabled,
-                    sender,
-                },
-            })
-            await refetch()
-        },
-        updateSetting: async (id: string, isEnabled: boolean) => {
-            await updateNotificationUserSetting({
-                variables: {
-                    id,
-                    isEnabled,
-                    sender,
-                },
-            })
-            await refetch()
-        },
-    }
-
-    // Stable callbacks object that delegates to ref
-    const stableMutationCallbacks = useMemo<MutationCallbacks>(() => ({
-        createSetting: async (messageType, isEnabled) => {
-            return mutationCallbacksRef.current.createSetting(messageType, isEnabled)
-        },
-        updateSetting: async (id, isEnabled) => {
-            return mutationCallbacksRef.current.updateSetting(id, isEnabled)
-        },
-    }), [])
-
-    // Create storage instance only once with stable callbacks
     const userMessagesSettingsStorage = useMemo(
-        () => new UserMessagesListSettingsStorage(userId, organizationId, settings, stableMutationCallbacks),
-        [userId, organizationId, settings, stableMutationCallbacks]
+        () => {
+            const settings = data?.allNotificationUserSettings || []
+            
+            const createSetting = async (messageType: MessageTypeAllowedToFilterType, isEnabled: boolean) => {
+                if (!userId) return
+                await createNotificationUserSetting({
+                    variables: {
+                        userId,
+                        messageType,
+                        isEnabled,
+                        sender,
+                    },
+                })
+                await refetch()
+            }
+
+            const updateSetting = async (id: string, isEnabled: boolean) => {
+                await updateNotificationUserSetting({
+                    variables: {
+                        id,
+                        isEnabled,
+                        sender,
+                    },
+                })
+                await refetch()
+            }
+
+            return new UserMessagesListSettingsStorage(userId, organizationId, settings, createSetting, updateSetting)
+        },
+        [userId, organizationId, data?.allNotificationUserSettings, createNotificationUserSetting, updateNotificationUserSetting, refetch, sender]
     )
-
-    // Update settings in existing instance when data changes
-    useEffect(() => {
-        userMessagesSettingsStorage.updateSettings(settings)
-    }, [settings, userMessagesSettingsStorage])
-
-    // Cleanup on unmount
-    useEffect(() => {
-        return () => {
-            userMessagesSettingsStorage.cleanup()
-        }
-    }, [userMessagesSettingsStorage])
 
     return {
         userMessagesSettingsStorage,
