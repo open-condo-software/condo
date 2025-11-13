@@ -208,25 +208,16 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     const globalSettings = messageSettings.filter((setting) => !setting.user)
                     const userSettings = messageSettings.filter((setting) => setting.user)
                     
-                    // Build map of transport -> isEnabled, applying defaults first, then user overrides
                     const transportEnabledMap = new Map()
-                    
-                    // By default all transports are enabled
                     messageTransports.forEach(transport => {
                         transportEnabledMap.set(transport, true)
                     })
-                    
-                    // Apply global settings (defaults)
                     globalSettings.forEach(setting => {
                         transportEnabledMap.set(setting.messageTransport, setting.isEnabled)
                     })
-                    
-                    // Apply user-specific settings (override defaults)
                     userSettings.forEach(setting => {
                         transportEnabledMap.set(setting.messageTransport, setting.isEnabled)
                     })
-                    
-                    // Check if all transports are disabled
                     const allTransportsDisabled = Array.from(transportEnabledMap.values()).every(isEnabled => !isEnabled)
                     
                     if (allTransportsDisabled) {
