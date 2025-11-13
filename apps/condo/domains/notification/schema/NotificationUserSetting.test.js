@@ -102,6 +102,29 @@ describe('NotificationUserSetting', () => {
                     await createTestNotificationUserSetting(client, { user: { connect: { id: otherClient.user.id } } })
                 })
             })
+
+            test('support can create global setting (user=null)', async () => {
+                const [obj] = await createTestNotificationUserSetting(supportClient, {
+                    user: null,
+                    messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+                    messageTransport: PUSH_TRANSPORT,
+                    isEnabled: false,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.user).toBeNull()
+            })
+
+            test('regular user can\'t create global setting (user=null)', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestNotificationUserSetting(userClient, {
+                        user: null,
+                        messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+                        messageTransport: PUSH_TRANSPORT,
+                        isEnabled: false,
+                    })
+                })
+            })
         })
 
         describe('update', () => {
@@ -185,7 +208,9 @@ describe('NotificationUserSetting', () => {
             })
 
             test('user can', async () => {
-                const objs = await NotificationUserSetting.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
+                const objs = await NotificationUserSetting.getAll(userClient, {
+                    user: { id: userClient.user.id },
+                }, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs).toHaveLength(1)
                 expect(objs[0]).toMatchObject({
@@ -196,7 +221,9 @@ describe('NotificationUserSetting', () => {
             test('user can\'t read other user\'s data', async () => {
                 const otherUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const objs = await NotificationUserSetting.getAll(otherUserClient, {}, { sortBy: ['updatedAt_DESC'] })
+                const objs = await NotificationUserSetting.getAll(otherUserClient, {
+                    user: { id: otherUserClient.user.id },
+                }, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs).toHaveLength(0)
             })
@@ -236,17 +263,6 @@ describe('NotificationUserSetting', () => {
             await expectToThrowGraphQLRequestError(
                 async () => await createTestNotificationUserSetting(adminClient, { messageTransport }),
                 `Value "${messageTransport}" does not exist in "NotificationUserSettingMessageTransportType" enum`,
-            )
-        })
-
-        test('must throw an error on trying to enable messages', async () => {
-            await expectToThrowGQLError(
-                async () => await createTestNotificationUserSetting(adminClient, { isEnabled: true }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'NO_NEED_TO_ENABLE_NOTIFICATIONS',
-                    message: 'No need to enable notifications. All notifications enabled by default. You may just delete this setting instead.',
-                },
             )
         })
     })
@@ -304,6 +320,54 @@ describe('NotificationUserSetting', () => {
             const [obj2] = await createTestNotificationUserSetting(otherAdminClient, modelAttrs)
 
             expect(obj2.id).not.toEqual(deletedObj.id)
+        })
+
+        test('can\'t create global setting (user=null) without messageType', async () => {
+            await expectToThrowCheckConstraintViolationError(
+                async () => await createTestNotificationUserSetting(supportClient, {
+                    user: null,
+                    messageType: null,
+                    messageTransport: PUSH_TRANSPORT,
+                }),
+                'global_setting_requires_messageType_and_messageTransport',
+            )
+        })
+
+        test('can\'t create global setting (user=null) without messageTransport', async () => {
+            await expectToThrowCheckConstraintViolationError(
+                async () => await createTestNotificationUserSetting(supportClient, {
+                    user: null,
+                    messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+                    messageTransport: null,
+                }),
+                'global_setting_requires_messageType_and_messageTransport',
+            )
+        })
+
+        test('can\'t create global setting (user=null) without both messageType and messageTransport', async () => {
+            await expectToThrowCheckConstraintViolationError(
+                async () => await createTestNotificationUserSetting(supportClient, {
+                    user: null,
+                    messageType: null,
+                    messageTransport: null,
+                }),
+                'global_setting_requires_messageType_and_messageTransport',
+            )
+        })
+
+        test('can create global setting (user=null) with both messageType and messageTransport', async () => {
+            const [obj] = await createTestNotificationUserSetting(supportClient, {
+                user: null,
+                messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+                messageTransport: PUSH_TRANSPORT,
+                isEnabled: false,
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.user).toBeNull()
+            expect(obj.messageType).toEqual(NEWS_ITEM_COMMON_MESSAGE_TYPE)
+            expect(obj.messageTransport).toEqual(PUSH_TRANSPORT)
+            expect(obj.isEnabled).toBe(false)
         })
     })
 })
