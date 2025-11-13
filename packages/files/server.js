@@ -17,7 +17,7 @@ function getClientSecret (fileClientId) {
 }
 
 function getServerUrl () {
-    const serverUrl = conf['SERVER_URL'] || conf['FILE_SERVER_URL']
+    const serverUrl = conf['FILE_SERVER_URL'] || conf['SERVER_URL']
     if (!serverUrl) {
         throw new Error('SERVER_URL or FILE_SERVER_URL must be set in environment variables')
     }
@@ -66,7 +66,7 @@ function verifyUploadSignature (signature, fileClientId) {
  * @param {string} [options.organizationId] - Optional organization ID
  * @param {Object} [options.attach] - Optional inline attach: { itemId, modelName, dv, sender }
  * @param {string} [options.serverUrl] - Optional server URL override (defaults to SERVER_URL or FILE_SERVER_URL from env)
- * @param {string} [options.cookie] - Optional cookie for authentication (for service-to-service calls)
+ * @param {string} [options.authorization] - Optional authorization value, that'll be used as value in headers.Authorization for authentication (service-to-service calls)
  * @returns {Promise<Array<{id: string, signature: string, attached?: boolean, publicSignature?: string}>>}
  */
 async function uploadFilesFromServer ({
@@ -78,7 +78,7 @@ async function uploadFilesFromServer ({
     organizationId,
     attach,
     serverUrl,
-    cookie,
+    authorization,
 }) {
     if (!Array.isArray(files) || files.length === 0) {
         throw new Error('uploadFilesFromServer: "files" must be a non-empty array')
@@ -120,8 +120,8 @@ async function uploadFilesFromServer ({
     const headers = {
         ...form.getHeaders(),
     }
-    if (cookie) {
-        headers.Cookie = cookie
+    if (authorization) {
+        headers['Authorization'] = authorization
     }
 
     const res = await fetch(`${baseUrl}/api/files/upload`, {
@@ -149,7 +149,7 @@ async function uploadFilesFromServer ({
  * @param {string} options.fileClientId - File client ID
  * @param {string} options.fingerprint - Sender fingerprint
  * @param {string} [options.serverUrl] - Optional server URL override (defaults to SERVER_URL or FILE_SERVER_URL from env)
- * @param {string} [options.cookie] - Optional cookie for authentication
+ * @param {string} [options.authorization] - Optional authorization value, that'll be used as value in headers.Authorization for authentication (service-to-service calls)
  * @returns {Promise<{signature: string}>} - Public signature for the attached file
  */
 async function attachFileFromServer ({
@@ -159,7 +159,7 @@ async function attachFileFromServer ({
     fileClientId,
     fingerprint,
     serverUrl,
-    cookie,
+    authorization,
 }) {
     const baseUrl = serverUrl || getServerUrl()
 
@@ -175,8 +175,8 @@ async function attachFileFromServer ({
     const headers = {
         'Content-Type': 'application/json',
     }
-    if (cookie) {
-        headers.Cookie = cookie
+    if (authorization) {
+        headers['Authorization'] = authorization
     }
 
     const res = await fetch(`${baseUrl}/api/files/attach`, {
@@ -204,7 +204,7 @@ async function attachFileFromServer ({
  * @param {string} options.fingerprint - Sender fingerprint
  * @param {string[]} [options.modelNames] - Optional model names
  * @param {string} [options.serverUrl] - Optional server URL override (defaults to SERVER_URL or FILE_SERVER_URL from env)
- * @param {string} [options.cookie] - Optional cookie for authentication
+ * @param {string} [options.authorization] - Optional authorization value, that'll be used as value in headers.Authorization for authentication (service-to-service calls)
  * @returns {Promise<{id: string, signature: string}>}
  */
 async function shareFileFromServer ({
@@ -214,7 +214,7 @@ async function shareFileFromServer ({
     fingerprint,
     modelNames,
     serverUrl,
-    cookie,
+    authorization,
 }) {
     const baseUrl = serverUrl || getServerUrl()
 
@@ -230,8 +230,8 @@ async function shareFileFromServer ({
     const headers = {
         'Content-Type': 'application/json',
     }
-    if (cookie) {
-        headers.Cookie = cookie
+    if (authorization) {
+        headers['Authorization'] = authorization
     }
 
     const res = await fetch(`${baseUrl}/api/files/share`, {

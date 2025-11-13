@@ -34,7 +34,6 @@ export interface BuildMetaOptions {
 
 export interface UploadOptions {
     serverUrl?: string
-    cookie?: string
     files: Array<File | Blob | { buffer: Buffer, filename: string }>
     meta: FileMeta
     attach?: InlineAttachPayload
@@ -56,7 +55,6 @@ export interface SharePayload {
 
 export interface ShareOptions {
     serverUrl?: string
-    cookie?: string
     payload: SharePayload
 }
 
@@ -74,7 +72,6 @@ export interface AttachPayload {
 
 export interface AttachOptions {
     serverUrl?: string
-    cookie?: string
     payload: AttachPayload
 }
 
@@ -131,14 +128,15 @@ function getServerUrl (override?: string): string {
     }
 
     if (typeof window !== 'undefined') {
-        const envUrl = (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SERVER_URL) ||
-                       (window as any).__NEXT_DATA__?.env?.NEXT_PUBLIC_SERVER_URL
+        const envUrl =
+          (typeof process !== 'undefined' && (process.env?.NEXT_PUBLIC_FILE_SERVER_URL || process.env?.NEXT_PUBLIC_SERVER_URL)) ||
+          ((window as any).__NEXT_DATA__?.env?.NEXT_PUBLIC_FILE_SERVER_URL || (window as any).__NEXT_DATA__?.env?.NEXT_PUBLIC_SERVER_URL)
         if (envUrl) {
             return envUrl.replace(/\/$/, '')
         }
         return window.location.origin
     } else {
-        const envUrl = process.env.SERVER_URL || process.env.FILE_SERVER_URL
+        const envUrl = process.env.FILE_SERVER_URL || process.env.SERVER_URL
         if (envUrl) {
             return envUrl.replace(/\/$/, '')
         }
@@ -146,7 +144,7 @@ function getServerUrl (override?: string): string {
     }
 }
 
-export async function upload ({ serverUrl, cookie, files, meta, attach }: UploadOptions): Promise<UploadResponse> {
+export async function upload ({ serverUrl, files, meta, attach }: UploadOptions): Promise<UploadResponse> {
     let FormDataClass: typeof FormData
     let form: FormData | any
 
@@ -164,13 +162,14 @@ export async function upload ({ serverUrl, cookie, files, meta, attach }: Upload
     }
 
     for (const f of files) {
+        const randomFilename = crypto.randomUUID()
         if (typeof Buffer !== 'undefined') {
-            form.append('file', f, 'file.bin')
+            form.append('file', f, `${randomFilename}.bin`)
         } else if (f && typeof f === 'object' && 'buffer' in f && 'filename' in f) {
             form.append('file', (f as { buffer: Buffer, filename: string }).buffer, (f as { buffer: Buffer, filename: string }).filename)
         } else {
             const file = f as File | Blob
-            form.append('file', file, (file as File).name || 'file.bin')
+            form.append('file', file, (file as File).name || `${randomFilename}.bin`)
         }
     }
 
@@ -179,19 +178,9 @@ export async function upload ({ serverUrl, cookie, files, meta, attach }: Upload
         form.append('attach', JSON.stringify(attach))
     }
 
-    const headers: Record<string, string> = {}
-    if (cookie) {
-        headers.Cookie = cookie
-    }
-
-    if (typeof window === 'undefined' && form.getHeaders) {
-        Object.assign(headers, form.getHeaders())
-    }
-
     const baseUrl = getServerUrl(serverUrl)
     const res = await fetch(`${baseUrl}/api/files/upload`, {
         method: 'POST',
-        headers,
         body: form,
     })
 
@@ -203,13 +192,12 @@ export async function upload ({ serverUrl, cookie, files, meta, attach }: Upload
     return json.data
 }
 
-export async function share ({ serverUrl, cookie, payload }: ShareOptions): Promise<ShareResponse> {
+export async function share ({ serverUrl, payload }: ShareOptions): Promise<ShareResponse> {
     const baseUrl = getServerUrl(serverUrl)
     const res = await fetch(`${baseUrl}/api/files/share`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...(cookie ? { Cookie: cookie } : {}),
         },
         body: JSON.stringify(payload),
     })
@@ -222,13 +210,12 @@ export async function share ({ serverUrl, cookie, payload }: ShareOptions): Prom
     return json.data
 }
 
-export async function attach ({ serverUrl, cookie, payload }: AttachOptions): Promise<AttachResponse> {
+export async function attach ({ serverUrl, payload }: AttachOptions): Promise<AttachResponse> {
     const baseUrl = getServerUrl(serverUrl)
     const res = await fetch(`${baseUrl}/api/files/attach`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...(cookie ? { Cookie: cookie } : {}),
         },
         body: JSON.stringify(payload),
     })
@@ -240,4 +227,3 @@ export async function attach ({ serverUrl, cookie, payload }: AttachOptions): Pr
 
     return json.data
 }
-
