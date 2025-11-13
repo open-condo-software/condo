@@ -145,17 +145,7 @@ function getServerUrl (override?: string): string {
 }
 
 export async function upload ({ serverUrl, files, meta, attach }: UploadOptions): Promise<UploadResponse> {
-    let FormDataClass: typeof FormData
-    let form: FormData | any
-
-    if (typeof window !== 'undefined') {
-        FormDataClass = FormData
-        form = new FormDataClass()
-    } else {
-        const FormDataModule = require('form-data')
-        FormDataClass = FormDataModule
-        form = new FormDataClass()
-    }
+    const form = new FormData()
 
     if (!Array.isArray(files) || files.length === 0) {
         throw new Error('upload: "files" must be a non-empty array')
@@ -163,13 +153,24 @@ export async function upload ({ serverUrl, files, meta, attach }: UploadOptions)
 
     for (const f of files) {
         const randomFilename = crypto.randomUUID()
-        if (typeof Buffer !== 'undefined') {
-            form.append('file', f, `${randomFilename}.bin`)
-        } else if (f && typeof f === 'object' && 'buffer' in f && 'filename' in f) {
-            form.append('file', (f as { buffer: Buffer, filename: string }).buffer, (f as { buffer: Buffer, filename: string }).filename)
+        const filename =
+      (typeof File !== 'undefined' && f instanceof File && f.name) ||
+      (f && typeof f === 'object' && 'filename' in f && (f as any).filename) ||
+      `${randomFilename}.bin`
+
+        if (typeof Blob !== 'undefined' && f instanceof Blob) {
+            form.append('file', f, filename)
+        } else if (typeof Buffer !== 'undefined' && Buffer.isBuffer(f)) {
+            const blob = new Blob([f], { type: 'application/octet-stream' })
+            form.append('file', blob, filename)
+        } else if (f && typeof f === 'object' && 'buffer' in f) {
+            const { buffer, filename: fn } = f as { buffer: Buffer, filename?: string }
+            const file = typeof File !== 'undefined'
+                ? new File([buffer], fn ?? filename, { type: 'application/octet-stream' })
+                : new Blob([buffer], { type: 'application/octet-stream' })
+            form.append('file', file as any, fn ?? filename)
         } else {
-            const file = f as File | Blob
-            form.append('file', file, (file as File).name || `${randomFilename}.bin`)
+            throw new TypeError('Unsupported file type for append')
         }
     }
 
