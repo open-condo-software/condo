@@ -35,6 +35,8 @@ const {
     Message,
     createTestMessage,
     createTestNotificationUserSetting,
+    updateTestNotificationUserSetting,
+    NotificationUserSetting,
 } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
@@ -45,6 +47,18 @@ describe('SendMessageService', () => {
 
     beforeAll( async () => {
         admin = await makeLoggedInAdminClient()
+    })
+
+    beforeEach(async () => {
+        const globalSettings = await NotificationUserSetting.getAll(admin, {
+            user_is_null: true,
+            deletedAt: null,
+        })
+        for (const setting of globalSettings) {
+            await updateTestNotificationUserSetting(admin, setting.id, {
+                deletedAt: new Date(),
+            })
+        }
     })
 
     describe('sendMessage', () => {
@@ -620,6 +634,7 @@ describe('SendMessageService', () => {
         const allTransports = get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'defaultTransports'])
 
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        await syncRemoteClientWithPushTokenByTestClient(client)
         const transportToEnable = allTransports[0]
         
         // Create global settings (user: null) that disable all transports
@@ -642,7 +657,7 @@ describe('SendMessageService', () => {
         const [data] = await sendMessageByTestClient(admin, {
             to: { user: { id: client.user.id } },
             type: messageType,
-            meta: { dv: 1 },
+            meta: { dv: 1, title: faker.lorem.word(), body: faker.lorem.sentence() },
         })
 
         await waitFor(async () => {
