@@ -52420,7 +52420,8 @@ type Meter {
   """
   sealingDate: String
 
-  """ The date when the meter was disabled and no longer in use """
+  """ The date when the meter was disabled and no longer in use. Is treated like a flag and cannot be in the future. 
+  """
   archiveDate: String
 
   """ Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading.So MeterReadings only be acquired through external integration or adjusted by organization employee 
@@ -53636,7 +53637,8 @@ type PropertyMeter {
   """
   sealingDate: String
 
-  """ The date when the meter was disabled and no longer in use """
+  """ The date when the meter was disabled and no longer in use. Is treated like a flag and cannot be in the future. 
+  """
   archiveDate: String
 
   """ Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading.So MeterReadings only be acquired through external integration or adjusted by organization employee 

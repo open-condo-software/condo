@@ -1,3 +1,5 @@
+const dayjs = require('dayjs')
+
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 
 const { NUMBER_OF_TARIFFS_NOT_VALID } = require('@condo/domains/meter/constants/errors')
@@ -64,8 +66,21 @@ const sealingDate = {
 }
 
 const archiveDate = {
-    schemaDoc: 'The date when the meter was disabled and no longer in use',
+    schemaDoc: 'The date when the meter was disabled and no longer in use. Is treated like a flag and cannot be in the future.',
     type: 'DateTimeUtc',
+    hooks: {
+        resolveInput: ({ resolvedData, fieldPath, existingItem }) => {
+            const value = resolvedData[fieldPath]
+            if (!value) return existingItem?.[fieldPath] || null
+
+            const today = dayjs()
+            if (dayjs(value).isAfter(today)){
+                return existingItem?.[fieldPath] || null
+            }
+
+            return value
+        },
+    },
 }
 
 const isAutomatic = {
