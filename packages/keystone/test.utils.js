@@ -8,8 +8,8 @@ const urlLib = require('url')
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
 const { faker } = require('@faker-js/faker')
 const { createUploadLink } = require('apollo-upload-client')
-const axiosLib = require('axios')
-const axiosCookieJarSupportLib = require('axios-cookiejar-support')
+const axios = require('axios')
+const { wrapper: axiosCookieJarSupport } = require('axios-cookiejar-support')
 const express = require('express')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
@@ -24,8 +24,6 @@ const { GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
 
 const urlParse = urlLib.parse
-const axios = axiosLib.default
-const axiosCookieJarSupport = axiosCookieJarSupportLib.default
 
 const getRandomString = (length = 16) => crypto.randomBytes(Math.ceil(length / 2)).toString('hex')
 
@@ -487,7 +485,7 @@ const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '
     if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.httpsAgent = httpsAgentWithUnauthorizedTls
     const client = axios.create({
         withCredentials: true,
-        adapter: require('axios/lib/adapters/http'),
+        adapter: 'http',
         validateStatus: (status) => status >= 200 && status < 500,
         ...options,
     })

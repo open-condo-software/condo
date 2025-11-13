@@ -1,4 +1,4 @@
-const axios = require('axios').default
+const axios = require('axios')
 
 // eslint-disable-next-line import/order
 const https = require('https')

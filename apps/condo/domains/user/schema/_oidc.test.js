@@ -765,10 +765,24 @@ describe('OIDC', () => {
                 ...checks,
             })
 
-            const res1 = await request(redirectUrl, client.getCookie(), 100)
-            expect(res1.status).toEqual(200)
+            // 2) client side ( open oidcAuthUrl and follow redirects manually )
+            const res1 = await request(redirectUrl, client.getCookie())
+            expect(res1.status).toBe(303)
+            expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
 
-            const params = issuerClient.callbackParams(res1.url)
+            const res2 = await request(`${client.serverUrl}${res1.headers.location}`, res1.cookie)
+            expect(res2.status).toBe(303)
+            expect(res2.headers.location.startsWith(`${client.serverUrl}/oidc/auth/`)).toBeTruthy()
+
+            const res3 = await request(res2.headers.location, res2.cookie)
+            expect(res3.status).toBe(303)
+            expect(res3.headers.location).toContain(`${uri}?code=`)
+
+            // 3) callback to server side ( callback with code to oidc app site; server get the access and can use it )
+            const params = issuerClient.callbackParams(res3.headers.location)
+            expect(params.code).toBeTruthy()
+            expect(params.state).toEqual(checks.state)
+            
             const tokenSet = await issuerClient.callback(uri, params, { ...checks })
             expect(tokenSet.access_token).toBeTruthy()
         })

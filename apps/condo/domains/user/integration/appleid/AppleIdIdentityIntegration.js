@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/order
-const axios = require('axios').default
+const axios = require('axios')
 
 // eslint-disable-next-line import/order
 const dayjs = require('dayjs')
