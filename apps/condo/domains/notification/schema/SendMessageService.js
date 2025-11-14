@@ -193,6 +193,10 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 if (to.user) messageAttrs.user = { connect: to.user }
                 if (to.remoteClient) messageAttrs.remoteClient = { connect: to.remoteClient }
 
+                // NOTE: Check user notification settings before creating Message.
+                // We don't create Message if user has disabled this notification type for all transports.
+                // This prevents creating unnecessary Message objects that won't be delivered anyway.
+                // Settings priority: user-specific settings override global settings (where user is null).
                 if (to.user) {
                     const messageTransports = MESSAGE_DELIVERY_OPTIONS[type]?.defaultTransports ?? DEFAULT_MESSAGE_DELIVERY_OPTIONS.defaultTransports
                     const messageSettings = await find('NotificationUserSetting', {
@@ -221,6 +225,8 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     const allTransportsDisabled = Array.from(transportEnabledMap.values()).every(isEnabled => !isEnabled)
                     
                     if (allTransportsDisabled) {
+                        logger.info({ msg: 'Message disabled by user for all transports', data: { user: to.user?.id, type } })
+                            
                         return {
                             status: MESSAGE_DISABLED_BY_USER_STATUS,
                             id: null,
