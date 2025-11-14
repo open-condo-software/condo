@@ -610,7 +610,6 @@ describe('SendMessageService', () => {
 
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         
-        // Disable all transports for this user
         for (const transport of allTransports) {
             await createTestNotificationUserSetting(client, {
                 messageType,
@@ -637,7 +636,6 @@ describe('SendMessageService', () => {
         await syncRemoteClientWithPushTokenByTestClient(client)
         const transportToEnable = allTransports[0]
         
-        // Create global settings (user: null) that disable all transports
         for (const transport of allTransports) {
             await createTestNotificationUserSetting(admin, {
                 user: null,
@@ -647,7 +645,6 @@ describe('SendMessageService', () => {
             })
         }
 
-        // User overrides one transport to enable it
         await createTestNotificationUserSetting(client, {
             messageType,
             messageTransport: transportToEnable,
@@ -686,7 +683,6 @@ describe('SendMessageService', () => {
 
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         
-        // Create global settings (user: null) that disable all transports
         for (const transport of allTransports) {
             await createTestNotificationUserSetting(admin, {
                 user: null,
