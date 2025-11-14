@@ -26,8 +26,8 @@ const ConstraintErrorSchema = z.object({
 
 export type ErrorHandler = (error: ApolloError) => void
 
-type UseMutationErrorHandlerArgs<FormType> = {
-    form?: FormInstance<FormType>
+type UseMutationErrorHandlerArgs = {
+    form?: FormInstance
     typeToFieldMapping?: Record<string, string>
     constraintToMessageMapping?: Record<string, string>
     errorHandlers?: Record<string, (errorMessage: string) => void>
@@ -40,7 +40,7 @@ type UseMutationErrorHandlerArgs<FormType> = {
  * Else uses default message which is extracted from ApolloError
  * @param opts
  */
-export function useMutationErrorHandler<FormType> (opts: UseMutationErrorHandlerArgs<FormType> = {}): ErrorHandler {
+export function useMutationErrorHandler (opts: UseMutationErrorHandlerArgs = {}): ErrorHandler {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'global.errors.serverError.title' })
     const DefaultConstraintErrorDescription = intl.formatMessage({ id: 'global.errors.constraintError.default.description' })
