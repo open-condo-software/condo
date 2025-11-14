@@ -70649,6 +70649,7 @@ type B2CAppHistoryRecord {
   developer: String
   isHidden: Boolean
   colorSchema: JSON
+  appUrl: String
   currentBuild: String
   id: ID!
   v: Int
@@ -70734,6 +70735,24 @@ input B2CAppHistoryRecordWhereInput {
   colorSchema_not: JSON
   colorSchema_in: [JSON]
   colorSchema_not_in: [JSON]
+  appUrl: String
+  appUrl_not: String
+  appUrl_contains: String
+  appUrl_not_contains: String
+  appUrl_starts_with: String
+  appUrl_not_starts_with: String
+  appUrl_ends_with: String
+  appUrl_not_ends_with: String
+  appUrl_i: String
+  appUrl_not_i: String
+  appUrl_contains_i: String
+  appUrl_not_contains_i: String
+  appUrl_starts_with_i: String
+  appUrl_not_starts_with_i: String
+  appUrl_ends_with_i: String
+  appUrl_not_ends_with_i: String
+  appUrl_in: [String]
+  appUrl_not_in: [String]
   currentBuild: String
   currentBuild_not: String
   currentBuild_in: [String]
@@ -70865,6 +70884,8 @@ enum SortB2CAppHistoryRecordsBy {
   developer_DESC
   isHidden_ASC
   isHidden_DESC
+  appUrl_ASC
+  appUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -70894,6 +70915,7 @@ input B2CAppHistoryRecordUpdateInput {
   developer: String
   isHidden: Boolean
   colorSchema: JSON
+  appUrl: String
   currentBuild: String
   v: Int
   createdAt: String
@@ -70923,6 +70945,7 @@ input B2CAppHistoryRecordCreateInput {
   developer: String
   isHidden: Boolean
   colorSchema: JSON
+  appUrl: String
   currentBuild: String
   v: Int
   createdAt: String
@@ -70999,6 +71022,10 @@ type B2CApp {
   """ The color schema of the B2C application used to display it correctly. The main color is used for texts, icons etc. The secondary color is used for the background 
   """
   colorSchema: AppColorSchemaField
+
+  """ Url to app page, which is the app starting point and will be opened in iframe 
+  """
+  appUrl: String
 
   """ Link to current active app build """
   currentBuild: B2CAppBuild
@@ -71103,6 +71130,24 @@ input B2CAppWhereInput {
   colorSchema_not: AppColorSchemaFieldInput
   colorSchema_in: [AppColorSchemaFieldInput]
   colorSchema_not_in: [AppColorSchemaFieldInput]
+  appUrl: String
+  appUrl_not: String
+  appUrl_contains: String
+  appUrl_not_contains: String
+  appUrl_starts_with: String
+  appUrl_not_starts_with: String
+  appUrl_ends_with: String
+  appUrl_not_ends_with: String
+  appUrl_i: String
+  appUrl_not_i: String
+  appUrl_contains_i: String
+  appUrl_not_contains_i: String
+  appUrl_starts_with_i: String
+  appUrl_not_starts_with_i: String
+  appUrl_ends_with_i: String
+  appUrl_not_ends_with_i: String
+  appUrl_in: [String]
+  appUrl_not_in: [String]
   currentBuild: B2CAppBuildWhereInput
   currentBuild_is_null: Boolean
 
@@ -71221,6 +71266,8 @@ enum SortB2CAppsBy {
   developer_DESC
   isHidden_ASC
   isHidden_DESC
+  appUrl_ASC
+  appUrl_DESC
   currentBuild_ASC
   currentBuild_DESC
   accessRights_ASC
@@ -71254,6 +71301,7 @@ input B2CAppUpdateInput {
   developer: String
   isHidden: Boolean
   colorSchema: AppColorSchemaFieldInput
+  appUrl: String
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
   v: Int
@@ -71281,6 +71329,7 @@ input B2CAppCreateInput {
   developer: String
   isHidden: Boolean
   colorSchema: AppColorSchemaFieldInput
+  appUrl: String
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
   v: Int
