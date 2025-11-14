@@ -3,6 +3,7 @@ import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
+import set from 'lodash/set'
 import getConfig from 'next/config'
 import { useCallback, useMemo, useState } from 'react'
 
@@ -89,43 +90,50 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
         try {
             const filesChunks = chunk(selectedFiles, 5)
             for (const filesChunk of filesChunks) {
-                setFileList((prevFiles) => prevFiles.map((file) => {
+                setFileList(prevFiles => prevFiles.map(file => {
                     if (filesChunk.some(chunkFile => chunkFile.uid === file.uid)) {
                         return { ...file, status: 'uploading' }
                     }
                     return file
                 }))
 
-                const rcFiles = filesChunk
-                    .map((file) => file.originFileObj)
-                    .filter((originFile): originFile is RcFile => !!originFile)
+                let createInput
 
-                const filesToUpload = rcFiles.map((file) => file as File)
+                if (fileClientId) {
+                    const rcFiles = filesChunk
+                        .map((file) => file.originFileObj)
+                        .filter((originFile): originFile is RcFile => !!originFile)
 
-                const uploadResult = await uploadFiles({
-                    files: filesToUpload,
-                    meta: buildMeta({
-                        userId: user.id,
-                        fileClientId: fileClientId,
-                        modelNames: [FILE_UPLOAD_MODEL],
-                        fingerprint: senderInfo.fingerprint,
-                        organizationId,
-                    }),
-                })
+                    const filesToUpload = rcFiles.map((file) => file as File)
 
-                const createInput = uploadResult.files.map((uploadedFile, index) => {
-                    return {
+                    const uploadResult = await uploadFiles({
+                        files: filesToUpload,
+                        meta: buildMeta({
+                            userId: user.id,
+                            fileClientId: fileClientId,
+                            modelNames: [FILE_UPLOAD_MODEL],
+                            fingerprint: senderInfo.fingerprint,
+                            organizationId,
+                        }),
+                    })
+
+                    createInput = uploadResult.files.map((uploadedFile, index) => ({
                         ...baseCreateData,
                         name: filesChunk[index].name,
                         file: {
                             signature: uploadedFile.signature,
                         },
-                    }
-                })
+                    }))
+                } else {
+                    createInput = filesChunk.map(file => ({
+                        ...baseCreateData,
+                        file,
+                    }))
+                }
 
                 await createDocuments(createInput)
 
-                setFileList((prevFiles) => prevFiles.map((file) => {
+                setFileList(prevFiles => prevFiles.map(file => {
                     if (filesChunk.some(chunkFile => chunkFile.uid === file.uid)) {
                         return { ...file, status: 'done' }
                     }
@@ -142,7 +150,7 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
             }
         } catch (error) {
             console.error(error)
-            setFileList((prevFiles) => prevFiles.map((file) => {
+            setFileList(prevFiles => prevFiles.map(file => {
                 if (selectedFiles.some(selectedFile => selectedFile.uid === file.uid)) {
                     return { ...file, status: 'error' }
                 }
@@ -152,13 +160,13 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
             setFormSubmitting(false)
         }
     }, [
-        user?.id,
         filesWithoutError,
         initialCreateDocumentValue,
         createDocuments,
         uploadForm,
         closeModal,
         onComplete,
+        user?.id,
     ])
 
     const uploadProps: UploadProps = {
@@ -167,28 +175,39 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
         },
         beforeUpload: (file) => {
             if (file.size > MAX_UPLOAD_FILE_SIZE) {
-                const errored: UploadFile = {
+                if (fileClientId) {
+                    const errored: UploadFile = {
+                        uid: file.uid,
+                        name: file.name,
+                        status: 'error',
+                        error: { message: FileTooBigErrorMessage },
+                        originFileObj: file,
+                        type: file.type,
+                        size: file.size,
+                    }
+                    setFileList(prev => [...prev, errored])
+                } else {
+                    set(file, 'status', 'error')
+                    set(file, ['error', 'message'], FileTooBigErrorMessage)
+                    setFileList(prev => [...prev, file])
+                }
+                return false
+            }
+
+            if (fileClientId) {
+                const wrapped: UploadFile = {
                     uid: file.uid,
                     name: file.name,
-                    status: 'error',
-                    error: { message: FileTooBigErrorMessage },
                     originFileObj: file,
                     type: file.type,
                     size: file.size,
                 }
-                setFileList(prev => [...prev, errored])
-                return false
+                setFileList(prev => [...prev, wrapped])
+            } else {
+                setFileList(prev => [...prev, file])
             }
 
-            const wrapped: UploadFile = {
-                uid: file.uid,
-                name: file.name,
-                originFileObj: file,
-                type: file.type,
-                size: file.size,
-            }
-            setFileList(prev => [...prev, wrapped])
-            return
+            return false
         },
         fileList,
         multiple: true,
