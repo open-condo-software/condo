@@ -64,7 +64,7 @@ const inviteRequiredFields = conf['INVITE_REQUIRED_FIELDS'] ? JSON.parse(conf['I
 const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
 const defaultStaffAuthMethods = conf['DEFAULT_STAFF_AUTH_METHODS'] ? JSON.parse(conf['DEFAULT_STAFF_AUTH_METHODS']) : []
 const verifyUserEmailWithMarketingConsentEnabled = conf['VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED'] === 'true'
-const fileClientId = conf['FILE_CLIENT_ID'] || 'condo'
+const fileClientId = conf['FILE_CLIENT_ID']
 
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
 
