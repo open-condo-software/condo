@@ -10,7 +10,6 @@ jest.mock('@open-condo/config', () => ({
     SERVER_URL: 'https://example.com',
     SBERCLOUD_OBS_CONFIG: null,
     FILE_SECRET: 'test-secret',
-    FILE_APP_CLIENTS: null,
 }))
 jest.mock('jsonwebtoken')
 
@@ -319,7 +318,7 @@ describe('SberCloudFileAdapter', () => {
                 id: fileId,
                 filename: 'test.pdf',
                 originalFilename: 'document.pdf',
-                meta: { appId: 'test-app-id' },
+                meta: { fileClientId: 'test-app-id' },
             }, { id: 'user-id' })
 
             expect(result).toContain('sign=')
@@ -328,11 +327,11 @@ describe('SberCloudFileAdapter', () => {
                 {
                     id: fileId,
                     filename: 'test.pdf',
-                    appId: 'test-app-id',
+                    fileClientId: 'test-app-id',
                     user: { id: 'user-id' },
                 },
                 'test-secret',
-                { expiresIn: '1m', algorithm: 'HS256' }
+                { expiresIn: '1h', algorithm: 'HS256' }
             )
         })
 
@@ -344,7 +343,7 @@ describe('SberCloudFileAdapter', () => {
                 adapter.publicUrl({
                     id: faker.datatype.uuid(),
                     filename: 'test.pdf',
-                    meta: { appId: 'test-app-id' },
+                    meta: { fileClientId: 'test-app-id' },
                 })
             }).toThrow('FILE_SECRET is not configured')
         })

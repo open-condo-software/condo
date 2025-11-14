@@ -7,7 +7,24 @@
     "url": "https://github.com/sitozzz"
   },
   "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "rimraf dist && tsc"
+  },
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "require": "./dist/client.js",
+      "import": "./dist/client.js"
+    },
+    "./server": "./server.js",
     "./schema": "./schema/index.js",
     "./schema/models": "./schema/models/index.js",
     "./schema/utils/serverSchema": "./schema/utils/serverSchema.js",
@@ -27,6 +44,10 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
-    "form-data": "^4.0.4"
+    "@open-condo/tsconfig": "workspace:^",
+    "@types/jsonwebtoken": "^9.0.0",
+    "form-data": "^4.0.4",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3"
   }
 }

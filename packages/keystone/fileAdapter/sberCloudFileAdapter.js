@@ -177,12 +177,13 @@ class SberCloudFileAdapter {
         //    the token is expired - user needs to reload the page to generate a new access token
         let folder = this.folder
         let sign
-        if ('meta' in props && props['meta']['appId']) {
-            folder = props['meta']['appId']
+        if ('meta' in props && props['meta']['fileClientId']) {
+            folder = props['meta']['sourceFileClientId'] || props['meta']['fileClientId']
             if (!conf['FILE_SECRET']) {
                 throw new Error('FILE_SECRET is not configured')
             }
-            sign = jwt.sign({ id: props.id, filename, appId: props.meta.appId, user }, conf['FILE_SECRET'], { expiresIn: '1m', algorithm: 'HS256' })
+
+            sign = jwt.sign({ id: props.id, filename, fileClientId: folder, user }, conf['FILE_SECRET'], { expiresIn: '1h', algorithm: 'HS256' })
         }
         if (this.shouldResolveDirectUrl) {
             return this.acl.generateUrl({
@@ -202,7 +203,7 @@ class SberCloudFileAdapter {
         if (searchParams) {
             qs = `?${searchParams}`
         }
-        return `${SERVER_URL}/api/files/${this.folder}/${filename}${qs}`
+        return `${SERVER_URL}/api/files/${folder}/${filename}${qs}`
     }
 
     uploadParams ({ meta = {} }) {
@@ -220,7 +221,7 @@ class SberCloudFileAdapter {
 const obsRouterHandler = ({ keystone }) => {
 
     const obsConfig = SBERCLOUD_OBS_CONFIG ? JSON.parse(SBERCLOUD_OBS_CONFIG) : {}
-    const appClients = conf['FILE_APP_CLIENTS'] ? JSON.parse(conf['FILE_APP_CLIENTS']) : {}
+    const appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
     const Acl = new SberCloudObsAcl(obsConfig)
 
     return async function (req, res, next) {
