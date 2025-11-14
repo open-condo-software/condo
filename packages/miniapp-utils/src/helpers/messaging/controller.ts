@@ -55,6 +55,12 @@ export class PostMessageController extends EventTarget {
     }
 
     addFrame (frame: FrameType): FrameId {
+        const registeredFrame = Object.entries(this.#registeredFrames)
+            .find(([, ref]) => ref === frame)
+        if (registeredFrame) {
+            return registeredFrame[0]
+        }
+
         const frameId = generateUUIDv4()
         this.#registeredFrames[frameId] = frame
         return frameId
