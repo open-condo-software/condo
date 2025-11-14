@@ -98,17 +98,17 @@ export class PostMessageController extends EventTarget {
 
         const { handler: eventName, params: { requestId, ...handlerParams }, type: eventType } = message
 
-        const sourceWindow = event.source.window
+        const sourceWindow = event.source
 
         let frame: FrameType | undefined = undefined
         let frameId = 'parent'
 
-        if (event.source.window !== window) {
+        if (sourceWindow !== window) {
             const registeredFrame = Object.entries(this.#registeredFrames)
                 .find(([, ref]) => ref.contentWindow === sourceWindow)
 
             if (!registeredFrame) {
-                return event.source.postMessage(
+                return sourceWindow.postMessage(
                     getClientErrorMessage('ACCESS_DENIED', 0, 'Message was received from unregistered origin / iframe', requestId, eventName),
                     event.origin,
                 )
@@ -125,7 +125,7 @@ export class PostMessageController extends EventTarget {
         )
         const { handler, validator } = handlerMethods
         if (!handler || !validator) {
-            return event.source.postMessage(
+            return sourceWindow.postMessage(
                 getClientErrorMessage('UNKNOWN_METHOD', 2, 'Unknown method was provided. Make sure your runtime environment supports it.', requestId),
                 event.origin,
             )
@@ -133,7 +133,7 @@ export class PostMessageController extends EventTarget {
 
         const validationResult = validator(handlerParams)
         if (!validationResult.success) {
-            return event.source.postMessage(
+            return sourceWindow.postMessage(
                 getClientErrorMessage('INVALID_PARAMETERS', 3, validationResult.error, requestId, eventName),
                 event.origin,
             )
@@ -145,7 +145,7 @@ export class PostMessageController extends EventTarget {
 
         try {
             const result = await handler(validatedParams, storage, frame)
-            return event.source.postMessage({
+            return sourceWindow.postMessage({
                 type: `${eventName}Result`,
                 data: {
                     ...result,
@@ -154,7 +154,7 @@ export class PostMessageController extends EventTarget {
             }, event.origin)
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : String(err)
-            return event.source.postMessage(
+            return sourceWindow.postMessage(
                 getClientErrorMessage('HANDLER_ERROR', 4, errorMessage, requestId, eventName),
                 event.origin
             )

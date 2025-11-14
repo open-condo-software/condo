@@ -128,6 +128,10 @@ export function registerBridgeEvents ({
             const originalSrc = new URL(params.url)
             originalSrc.searchParams.set('modalId', modalId)
 
+            if (frame && originalSrc.origin !== new URL(frame.src).origin) {
+                throw new Error('Forbidden url. Url must have same origin as sender')
+            }
+
             const closeEventData: CondoBridgeResultResponseEvent<'CondoWebAppCloseModalWindow'> = {
                 type: 'CondoWebAppCloseModalWindowResult',
                 data: {
