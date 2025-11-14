@@ -1,3 +1,8 @@
+import { 
+    useGetNotificationUserSettingsQuery,
+    useCreateNotificationUserSettingMutation,
+    useUpdateNotificationUserSettingMutation,
+} from '@app/condo/gql'
 import { MessageType, NotificationUserSettingMessageTransportType } from '@app/condo/schema'
 import debounce from 'lodash/debounce'
 import { useMemo } from 'react'
@@ -9,12 +14,6 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 import { MessageTypeAllowedToFilterType, USER_MESSAGE_TYPES_FILTER_ON_CLIENT } from '@condo/domains/notification/utils/client/constants'
-
-import { 
-    useGetNotificationUserSettingsQuery,
-    useCreateNotificationUserSettingMutation,
-    useUpdateNotificationUserSettingMutation,
-} from '../../../gql'
 
 
 type StorageDataType = {
@@ -70,14 +69,10 @@ class UserMessagesListSettingsStorage {
     getExcludedUserMessagesTypes (): Array<MessageTypeAllowedToFilterType> {
         if (!this.userId || !this.organizationId) return []
 
-        // Get user-specific settings and default settings (where user is null)
         const userSettings = this.settings.filter(s => s.user?.id === this.userId)
         const defaultSettings = this.settings.filter(s => !s.user)
-
-        // Build a map of messageType -> isEnabled, prioritizing user settings over defaults
         const settingsMap = new Map<MessageTypeAllowedToFilterType, boolean>()
         
-        // First, apply default settings
         defaultSettings.forEach(setting => {
             const messageType = setting.messageType
             if (messageType && (USER_MESSAGE_TYPES_FILTER_ON_CLIENT as readonly MessageType[]).includes(messageType)) {
@@ -85,7 +80,6 @@ class UserMessagesListSettingsStorage {
             }
         })
         
-        // Then, override with user-specific settings
         userSettings.forEach(setting => {
             const messageType = setting.messageType
             if (messageType && (USER_MESSAGE_TYPES_FILTER_ON_CLIENT as readonly MessageType[]).includes(messageType)) {
@@ -93,7 +87,6 @@ class UserMessagesListSettingsStorage {
             }
         })
 
-        // Return message types where isEnabled is false (excluded)
         return Array.from(settingsMap.entries())
             .filter(([_, isEnabled]) => !isEnabled)
             .map(([messageType]) => messageType)
@@ -102,19 +95,15 @@ class UserMessagesListSettingsStorage {
     setExcludedUserMessagesTypes (messageTypes: Array<MessageTypeAllowedToFilterType>): void {
         if (!this.userId || !this.organizationId) return
 
-        // Get current excluded types to detect what actually changed
         const currentExcluded = this.getExcludedUserMessagesTypes()
         const allMessageTypes = USER_MESSAGE_TYPES_FILTER_ON_CLIENT as readonly MessageTypeAllowedToFilterType[]
         
-        // Only process message types that actually changed
         allMessageTypes.forEach((messageType) => {
             const isEnabled = !messageTypes.includes(messageType)
             const wasEnabled = !currentExcluded.includes(messageType)
             
-            // Skip if value didn't change
             if (isEnabled === wasEnabled) return
             
-            // Get or create debounced function for this message type
             if (!this.debouncedSave.has(messageType)) {
                 this.debouncedSave.set(messageType, debounce(async (enabled: boolean) => {
                     const existingSetting = this.settings.find(
@@ -131,7 +120,6 @@ class UserMessagesListSettingsStorage {
                 }, 500))
             }
             
-            // Call debounced function with new value
             this.debouncedSave.get(messageType)!(isEnabled)
         })
     }
@@ -154,7 +142,7 @@ class UserMessagesListSettingsStorage {
     }
 
     getIsNotificationSoundEnabled (): boolean {
-        if (!this.userId) return true
+        if (!this.userId) return
         const data = this.storage.getItem(this.storageKey) ?? DEFAULT_VALUE
 
         return data.isNotificationSoundEnabled?.[this.userId] ?? true

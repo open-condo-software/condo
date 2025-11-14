@@ -228,6 +228,29 @@ describe('NotificationUserSetting', () => {
                 expect(objs).toHaveLength(0)
             })
 
+            test('user can read global settings (user=null)', async () => {
+                const [globalSetting] = await createTestNotificationUserSetting(supportClient, {
+                    user: null,
+                    messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+                    messageTransport: PUSH_TRANSPORT,
+                    isEnabled: false,
+                })
+
+                const objs = await NotificationUserSetting.getAll(userClient, {
+                    user_is_null: true,
+                }, { sortBy: ['updatedAt_DESC'] })
+
+                expect(objs.length).toBeGreaterThanOrEqual(1)
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: globalSetting.id,
+                        user: null,
+                        messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+                        messageTransport: PUSH_TRANSPORT,
+                    }),
+                ]))
+            })
+
             test('anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await NotificationUserSetting.getAll(anonymousClient, {}, { sortBy: ['updatedAt_DESC'] })
