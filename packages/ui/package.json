@@ -116,7 +116,7 @@
     "token-transformer": "^0.0.27",
     "ts-loader": "^9.4.1",
     "typescript": "^5.8.3",
-    "webpack": "^5.91.0",
+    "webpack": "^5.99.9",
     "webpack-cli": "^4.10.0",
     "webpack-merge": "^5.8.0"
   },
