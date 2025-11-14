@@ -123,7 +123,7 @@ class AwsFileAdapter {
     publicUrl ({ filename, originalFilename, ...props }, user) {
         let folder = this.folder
         let sign
-        if ('meta' in props && props['meta']['appId']) {
+        if ('meta' in props && props['meta']['fileClientId']) {
             folder = props['meta']['sourceFileClientId'] || props['meta']['fileClientId']
             if (!conf['FILE_SECRET']) {
                 throw new Error('FILE_SECRET is not configured')
