@@ -1008,8 +1008,8 @@ export type GetContactByUnitSuspenseQueryHookResult = ReturnType<typeof useGetCo
 export type GetContactByUnitQueryResult = Apollo.QueryResult<Types.GetContactByUnitQuery, Types.GetContactByUnitQueryVariables>;
 export const GetContactsExistenceDocument = gql`
     query getContactsExistence($where: ContactWhereInput) {
-  contacts: allContacts(first: 1, where: $where) {
-    id
+  count: _allContactsMeta(first: 1, where: $where) {
+    count
   }
 }
     `;

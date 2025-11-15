@@ -1,6 +1,6 @@
 import { FormInstance, SelectProps } from 'antd'
 import { FormItemProps } from 'antd/es'
-import { CheckboxGroupProps } from 'antd/es/checkbox'
+import { CheckboxChangeEvent, CheckboxGroupProps } from 'antd/es/checkbox'
 import { RangePickerProps } from 'antd/lib/date-picker/generatePicker'
 import { ColumnType } from 'antd/lib/table/interface'
 import dayjs, { Dayjs } from 'dayjs'
@@ -9,7 +9,13 @@ import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 import React, { CSSProperties } from 'react'
 
-import { CheckboxProps, InputProps } from '@open-condo/ui'
+import { 
+    CheckboxProps, 
+    InputProps,
+    TableColumn,
+    SelectProps as OpenSelectProps,
+    OptionsItem,
+} from '@open-condo/ui'
 
 import { ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
@@ -19,6 +25,12 @@ import {
     getOptionFilterDropdown,
     getSelectFilterDropdown,
     getTextFilterDropdown,
+    getTextFilterComponent,
+    getCheckboxGroupFilterComponent,
+    getSelectFilterComponent,
+    getGQLSelectFilterComponent,
+    getDateFilterComponent,
+    getDateRangeFilterComponent,
 } from '@condo/domains/common/components/Table/Filters'
 import { FILTERS_POPUP_CONTAINER_ID } from '@condo/domains/common/constants/filters'
 
@@ -60,7 +72,17 @@ type GQLSelectFilterType = {
     props?: ISearchInputProps
 }
 
+type OpenGQLSelectFilterType = {
+    type: ComponentType.GQLSelect
+    props?: ISearchInputProps
+}
+
 type InputFilterType = {
+    type: ComponentType.Input
+    props?: InputProps
+}
+
+type OpenInputFilterType = {
     type: ComponentType.Input
     props?: InputProps
 }
@@ -71,7 +93,18 @@ type CheckboxGroupFilterType = {
     props?: CheckboxGroupProps
 }
 
+type OpenCheckboxGroupFilterType = {
+    type: ComponentType.CheckboxGroup
+    options: OptionType[]
+    props?: CheckboxGroupProps
+}
+
 type CheckboxFilterType = {
+    type: ComponentType.Checkbox
+    props?: CheckboxProps
+}
+
+type OpenCheckboxFilterType = {
     type: ComponentType.Checkbox
     props?: CheckboxProps
 }
@@ -82,7 +115,18 @@ type SelectFilterType = {
     props?: SelectProps<string>
 }
 
+type OpenSelectFilterType = {
+    type: ComponentType.Select
+    options: OptionsItem[]
+    props?: Omit<OpenSelectProps, 'options' | 'value' | 'onChange' | 'defaultValue'>
+}
+
 type TagsSelectFilterType = {
+    type: ComponentType.TagsSelect
+    props?: SelectProps<string>
+}
+
+type OpenTagsSelectFilterType = {
     type: ComponentType.TagsSelect
     props?: SelectProps<string>
 }
@@ -92,7 +136,17 @@ type DateFilterType = {
     props?: DatePickerType
 }
 
+type OpenDateFilterType = {
+    type: ComponentType.Date
+    props?: DatePickerType
+}
+
 type DateRangeFilterType = {
+    type: ComponentType.DateRange
+    props?: RangePickerProps<Dayjs>
+}
+
+type OpenDateRangeFilterType = {
     type: ComponentType.DateRange
     props?: RangePickerProps<Dayjs>
 }
@@ -103,9 +157,20 @@ type CustomFilterType<RecordType> = {
     modalFilterComponent?: React.ReactElement | ((form: FormInstance) => React.ReactElement)
 }
 
+type OpenCustomFilterType<RecordType> = {
+    type: ComponentType.Custom
+    getComponentFilterDropdown?: ColumnType<RecordType>['filterDropdown']
+    modalFilterComponent?: React.ReactElement | ((form: FormInstance) => React.ReactElement)
+}
+
 export type FilterComponentType<RecordType = unknown> = CommonFilterComponentType & (
     GQLSelectFilterType | InputFilterType | CheckboxGroupFilterType | CheckboxFilterType | SelectFilterType |
-    TagsSelectFilterType | DateFilterType | DateRangeFilterType | CustomFilterType<RecordType>
+    OpenSelectFilterType | TagsSelectFilterType | DateFilterType | DateRangeFilterType | CustomFilterType<RecordType>
+)
+
+export type OpenFilterComponentType<RecordType = unknown> = CommonFilterComponentType & (
+    OpenGQLSelectFilterType | OpenInputFilterType | OpenCheckboxGroupFilterType | OpenCheckboxFilterType | OpenSelectFilterType |
+    OpenTagsSelectFilterType | OpenDateFilterType | OpenDateRangeFilterType | OpenCustomFilterType<RecordType>
 )
 
 export type nonCustomFilterComponentType = CommonFilterComponentType & (
@@ -113,8 +178,17 @@ export type nonCustomFilterComponentType = CommonFilterComponentType & (
     TagsSelectFilterType | DateFilterType | DateRangeFilterType
 )
 
+export type nonOpenFilterComponentType = CommonFilterComponentType & (
+    OpenGQLSelectFilterType | OpenInputFilterType | OpenCheckboxGroupFilterType | OpenCheckboxFilterType | OpenSelectFilterType |
+    OpenTagsSelectFilterType | OpenDateFilterType | OpenDateRangeFilterType
+)
+
 export type FiltersMeta<FilterType, RecordType = unknown> = QueryMeta<FilterType> & {
     component?: FilterComponentType<RecordType>
+}
+
+export type OpenFiltersMeta<FilterType, RecordType = unknown> = QueryMeta<FilterType> & {
+    component?: OpenFilterComponentType<RecordType>
 }
 
 export const getQueryToValueProcessorByType = (type: ComponentType) => {
@@ -129,6 +203,9 @@ export const getQueryToValueProcessorByType = (type: ComponentType) => {
 
 const TAGS_SELECT_DROPDOWN_STYLE: CSSProperties = { display: 'none' }
 
+/**
+ * @deprecated use getFilterComponentByKey
+ */
 export function getFilterDropdownByKey <FilterType, RecordType> (filterMetas: Array<FiltersMeta<FilterType, RecordType>>, key: string): ColumnType<RecordType>['filterDropdown'] {
     const filterMeta = filterMetas.find(filterMeta => filterMeta.keyword === key)
     const component = get(filterMeta, 'component')
@@ -221,6 +298,133 @@ export function getFilterDropdownByKey <FilterType, RecordType> (filterMetas: Ar
             return get(component, 'getComponentFilterDropdown')
 
         default: return
+    }
+}
+
+export function getFilterComponentByKey <FilterType, RecordType> (filterMetas: Array<OpenFiltersMeta<FilterType, RecordType>>, key: string): TableColumn['filterComponent'] {
+    const filterMeta = filterMetas.find(meta => meta.keyword === key)
+    const component = filterMeta?.component
+
+    if (!component) return undefined
+
+    let idFromProps: string | undefined
+    if ('props' in component && component.props && typeof component.props === 'object') {
+        idFromProps = 'id' in component.props ? component.props.id : undefined
+    }
+    const id = idFromProps || `${key}FilterComponent`
+
+    switch (component.type) {
+        case ComponentType.Input: {
+            return getTextFilterComponent({
+                inputProps: {
+                    ...(component.props ?? {}),
+                    id,
+                },
+            })
+        }
+
+        case ComponentType.CheckboxGroup: {
+            const options = component.options ?? []
+            const checkboxGroupPropsFromMeta = component.props ?? {}
+            type CheckboxGroupComponentProps = NonNullable<Parameters<typeof getCheckboxGroupFilterComponent>[0]>['checkboxGroupProps']
+
+            const resolvedCheckboxGroupProps: CheckboxGroupComponentProps = {
+                options,
+                id,
+                className: checkboxGroupPropsFromMeta.className,
+                disabled: checkboxGroupPropsFromMeta.disabled,
+                onChange: (e: CheckboxChangeEvent) => {
+                    const keys = e.target.checked ? [e.target.value] : []
+                    return keys as React.Key[]
+                },
+            }
+            
+            return getCheckboxGroupFilterComponent({
+                checkboxGroupProps: resolvedCheckboxGroupProps,
+            })
+        }
+
+        case ComponentType.Select: {
+            const options = component.options ?? []
+            const loading = component.props?.loading ?? false
+            const selectProps = component.props ?? {}
+
+            return getSelectFilterComponent({
+                selectProps: {
+                    ...selectProps,
+                    options,
+                    loading,
+                    id,
+                },
+            })
+        }
+
+        case ComponentType.Date: {
+            const props = component?.props ?? {}
+
+            return getDateFilterComponent({ datePickerProps: { ...props, id } })
+        }
+
+        case ComponentType.DateRange: {
+            const props = component?.props ?? {}
+            
+            return getDateRangeFilterComponent({ datePickerProps: { ...props, id } })
+        }
+
+        case ComponentType.GQLSelect: {
+            const props = component?.props
+            const search = props?.search
+            const mode = props?.mode
+            const columnFilterComponentWrapperStyles = component?.columnFilterComponentWrapper
+
+            return getGQLSelectFilterComponent({
+                containerStyles: columnFilterComponentWrapperStyles,
+                gqlSelectProps: {
+                    ...props,
+                    search,
+                    mode,   
+                    id,
+                },
+            })
+        }
+
+        case ComponentType.TagsSelect: {
+            const props = get(component, 'props', {})
+            const columnFilterComponentWrapperStyles = get(component, 'columnFilterComponentWrapper')
+
+            const oldFilterDropdown = getSelectFilterDropdown({
+                selectProps: {
+                    mode: 'tags',
+                    dropdownStyle: TAGS_SELECT_DROPDOWN_STYLE,
+                    allowClear: true,
+                    suffixIcon: null,
+                    ...props,
+                    id,
+                },
+                containerStyles: columnFilterComponentWrapperStyles,
+            })
+
+            // TODO: Migrate from getSelectFilterDropdown to getSelectFilterComponent
+            return (newProps) => {
+                const { setFilterValue, filterValue, confirm, clearFilters } = newProps
+                return oldFilterDropdown({
+                    setSelectedKeys: setFilterValue,
+                    selectedKeys: Array.isArray(filterValue) ? filterValue : filterValue ? [filterValue] : [],
+                    confirm,
+                    clearFilters,
+                    visible: true,
+                    close: () => confirm({ closeDropdown: true }),
+                    prefixCls: 'condo-dropdown',
+                })
+            }
+        }
+
+        case ComponentType.Custom: {
+            return component?.getComponentFilterDropdown as TableColumn['filterComponent']
+        }
+
+        default:
+            return undefined
     }
 }
 

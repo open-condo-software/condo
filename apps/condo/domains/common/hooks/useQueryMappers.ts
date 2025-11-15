@@ -2,6 +2,8 @@ import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import { useMemo } from 'react'
 
+import type { SortState } from '@open-condo/ui'
+
 import { QueryMeta, SorterColumn, convertSortersToSortBy } from '../utils/tables.utils'
 
 const DEFAULT_SORT_BY = ['createdAt_DESC']
@@ -59,4 +61,62 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
         }
 
     }, [queryMetas, sortableColumns])
+}
+
+
+export const useNewQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>) => {
+    return useMemo(() => {
+
+        const validMetas = queryMetas
+            .filter((meta) => meta && meta.keyword && meta.filters && (isFunction(meta.filters) || meta.filters.length > 0))
+
+        const filtersToWhere = (queryFilters) => {
+            const whereQueries = []
+            validMetas.forEach((meta) => {
+                let searchValue = get(queryFilters, meta.keyword)
+                const queryToWhereProcessor = meta.queryToWhereProcessor
+
+                if (searchValue && queryToWhereProcessor) {
+                    searchValue = queryToWhereProcessor(searchValue)
+                }
+
+                const filters = isFunction(meta.filters) ? meta.filters(searchValue || meta.defaultValue) : meta.filters
+                const createdFilters = filters
+                    .map((filter) => filter(searchValue || meta.defaultValue))
+                    .filter(Boolean)
+                
+                if (createdFilters.length) {
+                    const combineType = get(meta, 'combineType', 'AND')
+                    whereQueries.push({ [combineType]: createdFilters })
+                }
+            })
+
+            if (whereQueries.length) {
+                return {
+                    AND: whereQueries,
+                }
+            } else {
+                return {}
+            }
+        }
+
+        const sortersToSortBy = (querySorts: SortState, defaultSortBy?: string[]) => {
+            const defaultSorters = defaultSortBy ? defaultSortBy : DEFAULT_SORT_BY
+            if (!Array.isArray(querySorts) || querySorts.length === 0) {
+                return defaultSorters
+            }
+
+            return querySorts
+                .map((sorter) => {
+                    return `${sorter.id}_${sorter.desc ? 'DESC' : 'ASC'}`
+                })
+                .filter(Boolean)
+        }
+
+        return {
+            filtersToWhere,
+            sortersToSortBy,
+        }
+
+    }, [queryMetas])
 }

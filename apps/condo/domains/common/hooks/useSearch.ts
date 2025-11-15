@@ -4,6 +4,8 @@ import isEqual from 'lodash/isEqual'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { TableRef } from '@open-condo/ui/src'
+
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
 
@@ -35,6 +37,26 @@ export const useSearch = <F> (debounceTime: number = 400): UseSearchOutputType =
             setSearch(searchValueFromQuery)
         }
     }, [searchValueFromQuery])
+
+    return [search, handleSearchChange, handleResetSearch]
+}
+
+export const useNewSearch = (tableRef: TableRef, debounceTime: number = 400): UseSearchOutputType => {
+    const [search, setSearch] = useState<string>('')
+
+    const searchChange = useMemo(() => debounce((value: string) => {
+        tableRef?.api?.setColumnFilter('search', value)
+    }, debounceTime), [tableRef?.api, debounceTime])
+
+    const handleSearchChange = useCallback((value: string): void => {
+        setSearch(value)
+        searchChange(value)
+    }, [searchChange])
+
+    const handleResetSearch = useCallback(() => {
+        setSearch('')
+        searchChange('')
+    }, [searchChange])
 
     return [search, handleSearchChange, handleResetSearch]
 }
