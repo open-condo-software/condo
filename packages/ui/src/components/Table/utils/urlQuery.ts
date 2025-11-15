@@ -1,51 +1,17 @@
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 
-import { TableState } from '@open-condo/ui/src/components/Table/types'
+import { FullTableState, RowSelectionState, SortState } from '@open-condo/ui/src'
 
-export type QueryArgType = string | Array<string>
-export type FiltersFromQueryType = { [key: string]: QueryArgType }
+type ParsedUrlQuery = Record<string, string | string[]>
 
-export type SorterColumn = {
-    columnKey: string
-    order: 'ascend' | 'descend'
-}
+type QueryArgType = string | string[]
+type FiltersFromQueryType = { [key: string]: QueryArgType }
 
-export enum FULL_TO_SHORT_ORDERS_MAP {
-    ascend = 'ASC',
-    descend = 'DESC',
-}
+const DESC = 'DESC'
+const ASC = 'ASC'
 
-enum SHORT_TO_FULL_ORDERS_MAP {
-    ASC = 'ascend',
-    DESC = 'descend',
-}
-
-export const parseUrlQuery = (search?: string): Record<string, string | string[]> => {
-    if (!search) {
-        search = typeof window !== 'undefined' ? window.location.search : ''
-    }
-    
-    const params = new URLSearchParams(search)
-    const result: Record<string, string | string[]> = {}
-    
-    for (const [key, value] of params.entries()) {
-        if (result[key]) {
-            if (Array.isArray(result[key])) {
-                (result[key] as string[]).push(value)
-            } else {
-                result[key] = [result[key] as string, value]
-            }
-        } else {
-            result[key] = value
-        }
-    }
-    
-    return result
-}
-
-export const getFiltersFromQuery = (query: Record<string, string | string[]>): { [x: string]: QueryArgType } => {
+const getFiltersFromQuery = (query: ParsedUrlQuery): { [x: string]: QueryArgType } => {
     const { filters } = query
     if (!filters || typeof filters !== 'string') {
         return {}
@@ -67,16 +33,20 @@ export const getFiltersFromQuery = (query: Record<string, string | string[]>): {
     }
 }
 
-
-export const getSortersFromQuery = (query: Record<string, string | string[]>): SorterColumn[] => {
-    const sorters = get(query, 'sort', [])
+const getSortersFromQuery = (query: ParsedUrlQuery): SortState => {
+    const sorters = query?.sort || []
     
     let sortArray: string[] = []
     if (Array.isArray(sorters)) {
         sortArray = sorters
     } else if (typeof sorters === 'string') {
         try {
-            sortArray = [JSON.parse(sorters)]
+            const parsed = JSON.parse(sorters)
+            if (typeof parsed === 'string') {
+                sortArray = parsed.split(',')
+            } else {
+                sortArray = sorters.split(',')
+            }
         } catch {
             sortArray = sorters.split(',')
         }
@@ -85,44 +55,38 @@ export const getSortersFromQuery = (query: Record<string, string | string[]>): S
     return sortArray
         .map((sorter) => {
             const [column, order] = sorter.split('_')
-            if (!column || !order || !(order in SHORT_TO_FULL_ORDERS_MAP)) return undefined
+            if (!column || (order !== ASC && order !== DESC)) return undefined
             return { 
-                columnKey: column, 
-                order: (SHORT_TO_FULL_ORDERS_MAP as Record<string, 'ascend' | 'descend'>)[order] as 'ascend' | 'descend',
+                id: column, 
+                desc: order === ASC ? false : true,
             }
         })
-        .filter((sorter): sorter is SorterColumn => sorter !== undefined)
+        .filter((sorter): sorter is { id: string, desc: boolean } => sorter !== undefined)
 }
 
+const getRowSelectionFromQuery = (query: ParsedUrlQuery): RowSelectionState => {
+    const selectedRows = query?.selectedRows || []
 
-export const getPageIndexFromStartRow = (startRow: number, pageSize: number): number => {
-    return Math.floor(startRow / pageSize)
-}
-
-export const defaultParseUrlQuery = (pageSize: number): TableState => {
-    const query = parseUrlQuery()
-    
-    const filters = getFiltersFromQuery(query)
-    const sorters = getSortersFromQuery(query)
-    
-    const queryOffset = get(query, 'offset')
-    const offset = Number(queryOffset) ? Number(queryOffset) : 0
-    const pageIndex = Math.floor(offset / pageSize)
-    const newStartRow = pageIndex * pageSize
-
-    return { 
-        filterState: filters, 
-        sortState: sorters.map(sorter => ({
-            id: sorter.columnKey,
-            desc: sorter.order === 'descend',
-        })), 
-        startRow: newStartRow, 
-        endRow: newStartRow + pageSize,
+    let selectedRowsArray: string[] = []
+    if (Array.isArray(selectedRows)) {
+        selectedRowsArray = selectedRows.filter((id): id is string => typeof id === 'string' && id.trim() !== '')
+    } else if (typeof selectedRows === 'string') {
+        try {
+            const json = JSON.parse(selectedRows)
+            if (Array.isArray(json)) {
+                selectedRowsArray = json.filter((id): id is string => typeof id === 'string' && id.trim() !== '')
+            } else if (typeof json === 'string') {
+                selectedRowsArray = json.split(',').filter(id => id.trim() !== '').map(id => id.trim())
+            }
+        } catch {
+            selectedRowsArray = selectedRows.split(',').filter(id => id.trim() !== '').map(id => id.trim())
+        }
     }
+        
+    return selectedRowsArray
 }
 
-
-export const updateUrl = (
+const updateUrl = (
     newParams: Record<string, unknown>, 
     options?: { 
         resetOldParameters?: boolean 
@@ -138,11 +102,15 @@ export const updateUrl = (
     }
 
     Object.entries(newParams).forEach(([key, value]) => {
-        if (value === null) {
+        if (!value) {
             url.searchParams.delete(key)
-        } else if (value !== undefined) {
-            const query = JSON.stringify(value)
-            url.searchParams.set(key, query)
+        } else {
+            const query = typeof value === 'string' ? value : JSON.stringify(value)
+            if (query === '{}' || query === '[]' || query === '""') {
+                url.searchParams.delete(key)
+            } else {
+                url.searchParams.set(key, query)
+            }
         }
     })
 
@@ -153,8 +121,27 @@ export const updateUrl = (
     }
 }
 
-export const defaultUpdateUrlCallback = (params: TableState) => {
-    const { startRow, filterState, sortState } = params
+
+export const defaultParseUrlQuery = (query: Record<string, string | string[]>, pageSize: number): FullTableState => {
+    const filters = getFiltersFromQuery(query)
+    const sorters = getSortersFromQuery(query)
+    const rowSelection = getRowSelectionFromQuery(query)
+    
+    const offset = Number(query?.offset) ? Number(query?.offset) : 0
+    const pageIndex = Math.floor(offset / pageSize)
+    const newStartRow = pageIndex * pageSize
+
+    return { 
+        filterState: filters, 
+        sortState: sorters,
+        startRow: newStartRow, 
+        endRow: newStartRow + pageSize,
+        rowSelectionState: rowSelection,
+    }
+}
+
+export const defaultUpdateUrlQuery = (params: FullTableState) => {
+    const { startRow, filterState, sortState, rowSelectionState } = params
 
     let newOffset
     if (startRow !== undefined && startRow > 0) {
@@ -165,7 +152,14 @@ export const defaultUpdateUrlCallback = (params: TableState) => {
 
     let newFilters
     if (filterState && Object.keys(filterState).length > 0) {
-        newFilters = { ...filterState }
+        console.log('filterState', filterState)
+        const possibleDate = pickBy(filterState, (value, key) => typeof key === 'string' && (typeof value === 'string' && !isEmpty(value) || Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' && !isEmpty(item)))) as FiltersFromQueryType
+        console.log('possibleDate', possibleDate)
+        if (Object.keys(possibleDate).length > 0) {
+            newFilters = possibleDate
+        } else {
+            newFilters = null
+        }
     } else {
         newFilters = null
     }
@@ -174,25 +168,25 @@ export const defaultUpdateUrlCallback = (params: TableState) => {
     if (sortState && sortState.length > 0) {
         const sorter = sortState[0]
         if (sorter) {
-            const order = sorter.desc ? 'descend' : 'ascend'
-            newSorters = `${sorter.id}_${FULL_TO_SHORT_ORDERS_MAP[order]}`
+            newSorters = `${sorter.id}_${sorter.desc ? DESC : ASC}`
         }
     } else {
         newSorters = null
     }
 
-    // @ts-ignore
-    const newParameters = getFiltersQueryData(newFilters, newSorters, newOffset)
+    let newSelectedRows
+    if (rowSelectionState && rowSelectionState.length > 0) {
+        newSelectedRows = [...rowSelectionState]
+    } else {
+        newSelectedRows = null
+    }
+
+    const newParameters = { 
+        offset: newOffset, 
+        filters: newFilters, 
+        sort: newSorters, 
+        selectedRows: newSelectedRows,
+    }
 
     return updateUrl(newParameters, { resetOldParameters: false, shallow: true })
-}
-
-export function getFiltersQueryData (newFilters?: FiltersFromQueryType | null, sort?: string[] | null, offset?: number | null) {
-    const possibleFilters = newFilters ? pickBy(newFilters, (value) => !isEmpty(value)) as FiltersFromQueryType : undefined
-    
-    return { 
-        sort, 
-        offset, 
-        filters: possibleFilters, 
-    }
 }

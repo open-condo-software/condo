@@ -14,18 +14,21 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { RowData, Table } from '@tanstack/react-table'
-import React, { useCallback } from 'react'
+import React, { useCallback, useRef } from 'react'
 
-import { ColumnSettingsItem } from './ColumnSettingsItem'
-
-import type { TableColumn, TableColumnMeta } from '../types'
+import { ColumnSettingsItem } from '@open-condo/ui/src/components/Table/components/ColumnSettingsItem'
+import type { ColumnDefWithId, TableColumnMeta } from '@open-condo/ui/src/components/Table/types'
 
 interface ColumnSettingsProps<TData extends RowData = RowData> {
-    columns: TableColumn<TData>[]
+    columns: ColumnDefWithId<TData>[]
     table: Table<TData>
 }
 
 export const ColumnSettings = <TData extends RowData = RowData>({ columns, table }: ColumnSettingsProps<TData>) => {
+    const columnWithoutToggleVisibility = useRef<number>(
+        table.getVisibleLeafColumns().reduce((acc, column) => acc += ((column.columnDef?.meta as TableColumnMeta).enableColumnSettings ? 0 : 1), 0)
+    )
+
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
@@ -46,7 +49,15 @@ export const ColumnSettings = <TData extends RowData = RowData>({ columns, table
     }, [columns, table])
 
     const handleToggleVisibility = useCallback((columnKey: string, checked: boolean) => {
-        table.getColumn(columnKey)?.toggleVisibility(checked)
+        const column = table.getColumn(columnKey)
+        
+        // If column is hidden - reset filter and sorting state
+        if (!checked && column) {
+            column.clearSorting()
+            column.setFilterValue(undefined)
+        }
+        
+        column?.toggleVisibility(checked)
     }, [table])
 
     return (
@@ -60,7 +71,7 @@ export const ColumnSettings = <TData extends RowData = RowData>({ columns, table
                     {columns.map((column) => {
                         if (!(table.getColumn(column.id)?.columnDef?.meta as TableColumnMeta)?.enableColumnSettings) return 
                         const isVisible = table.getColumn(column.id)?.getIsVisible()
-                        const isLastVisibleColumn = isVisible && table.getVisibleLeafColumns().length === 1
+                        const isLastVisibleColumn = isVisible && table.getVisibleLeafColumns().length === columnWithoutToggleVisibility.current + 1
 
                         return (
                             <ColumnSettingsItem

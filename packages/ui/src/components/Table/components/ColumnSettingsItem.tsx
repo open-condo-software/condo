@@ -1,15 +1,15 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { flexRender, RowData, Table } from '@tanstack/react-table'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { GripHorizontal } from '@open-condo/icons'
 import { Space, Switch, Typography } from '@open-condo/ui/src'
+import type { ColumnDefWithId } from '@open-condo/ui/src/components/Table/types'
 
-import type { TableColumn } from '../types'
 
 interface ColumnSettingsItemProps<TData extends RowData = RowData> {
-    column: TableColumn<TData>
+    column: ColumnDefWithId<TData>
     table: Table<TData>
     isVisible: boolean
     isLastVisibleColumn: boolean
@@ -40,6 +40,16 @@ export const ColumnSettingsItem = <TData extends RowData = RowData> ({
         transform: CSS.Transform.toString(transform),
         transition,
     }
+
+    const text = useMemo(() => 
+        flexRender(column.header, { 
+            column: table.getColumn(column.id)!, 
+            table: table, 
+            header: table
+                .getFlatHeaders()
+                .find(header => header.id === column.id)!,
+        })
+    ,  [column.header, column.id, table])
 
     return (
         <div
@@ -90,7 +100,7 @@ export const ColumnSettingsItem = <TData extends RowData = RowData> ({
                     <GripHorizontal size='small'/>
                 </div>
                 <Typography.Text type='primary' size='medium'>
-                    {flexRender(column.header, table)}
+                    {text}
                 </Typography.Text>
             </Space>
         </div>

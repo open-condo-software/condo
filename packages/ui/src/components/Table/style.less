@@ -2,6 +2,7 @@
 
 .condo-table-container {
   width: 100%;
+  overflow-x: auto;
   font-family: @condo-global-font-family-default;
 }
 
@@ -12,7 +13,7 @@
 .condo-table {
   box-sizing: border-box;
   width: 100%;
-  overflow: scroll;
+  overflow-x: auto;
   background-color: @condo-global-color-white;
   border: @condo-global-border-width-default solid @condo-global-color-gray-5;
   border-radius: @condo-global-border-radius-large;
@@ -25,11 +26,13 @@
   z-index: 10;
   display: flex;
   width: 100%;
+  min-width: fit-content;
 }
 
 .condo-table-tbody {
   display: flex;
   flex-direction: column;
+  min-width: fit-content;
 }
 
 .condo-table-loading {
@@ -167,18 +170,13 @@
 }
 
 .condo-table-td {
-  display: flex;
-  align-items: center;
   box-sizing: border-box;
   min-width: 0;
   padding: 16px 12px;
-  overflow: hidden;
   color: @condo-global-color-black;
   font-size: 14px;
   line-height: 24px;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  letter-spacing: -0.01em;  
   border: none;
   border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-5;
 
@@ -251,10 +249,6 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 16px;
-  background-color: @condo-global-color-white;
-  border-radius: 8px;
-  box-shadow: 0 4px 14px @condo-global-color-gray-3;
 }
 
 .condo-table-column-settings-dropdown:has(.condo-table-column-settings-item.is-dragging) {
@@ -324,14 +318,36 @@
   }
 }
 
-.condo-dropdown-menu-item-active {
-  color: @condo-global-color-green-5;
+.condo-dropdown-menu-item-container {
+
+  &:hover {
+    color: @condo-global-color-green-5;
+
+    .condo-dropdown-menu-item-inner-left svg {
+      color: @condo-global-color-green-5;
+    }
+  }
 }
 
 .condo-dropdown-menu-item-inner {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.condo-dropdown-menu-item-inner-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;&:hover {
+    svg {
+      color: @condo-global-color-green-5;
+    }
+  }
+}
+
+.condo-dropdown-menu-item-inner-left-active {
+  color: @condo-global-color-green-5;
 }
 
 .condo-table-pagination {
@@ -431,4 +447,20 @@
   color: @condo-global-color-gray-7;
   font-size: 14px;
   text-align: center;
+}
+
+.condo-dropdown-menu-item-wrapper {
+  padding: 16px;
+  background-color: @condo-global-color-white;
+  border-radius: @condo-global-border-radius-large;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 
+              0 6px 16px 0 rgba(0, 0, 0, 0.08), 
+              0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+.condo-dropdown-menu-item-wrapper-reset-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
 }

@@ -55,7 +55,7 @@ const data: TableData[] = [
 const columns: TableColumn<TableData>[] = [
     {
         id: 'White column',
-        dataKey: '',
+        dataKey: 'whiteColumn',
         header: '',
         enableColumnSettings: false,
         enableSorting: false,
@@ -68,23 +68,22 @@ const columns: TableColumn<TableData>[] = [
         id: 'firstName',
         initialOrder: 4,
         initialVisibility: true,
-        initialSize: '10%',
+        initialSize: '30%',
         render: renderTextWithTooltip({ ellipsis: true }),
-        filterComponent: ({ setFilterValue, filterValue }) => (
-            <Input
-                onChange={(event) => {
-                    const value = event.target.value
-                    setFilterValue(value)
-                }} 
-                placeholder='Filter by first name'
-                value={filterValue?.toString()}
-            />
-        ),
+        filterComponent: {
+            key: 'textColumnFilter',
+            componentProps: {
+                inputProps: {
+                    placeholder: 'Filter by first name',
+                },
+            },
+        },
     },
     {
         dataKey: 'lastName',
         header: 'Last Name',
         id: 'lastName',
+        initialSize: '20%',
         initialVisibility: false,
     },
     {
