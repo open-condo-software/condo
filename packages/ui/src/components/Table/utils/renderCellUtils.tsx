@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Typography, TooltipProps, Tooltip } from '@open-condo/ui/src'
+import { Typography, TooltipProps, Tooltip, TypographyTextProps } from '@open-condo/ui/src'
 
 const ELLIPSIS_SETTINGS = { rows: 3, expandable: false }
 
@@ -8,6 +8,7 @@ type EllipsisProp = boolean | NonNullable<React.ComponentProps<typeof Typography
 type RenderTextWithTooltipProps = {
     ellipsis?: EllipsisProp
     postfix?: string
+    type?: TypographyTextProps['type']
     extraTitle?: string | null
     extraTooltipProps?: TooltipProps
 }
@@ -24,6 +25,7 @@ const getTitleMessage = ({ text, extraTitle, postfix }: { text?: unknown, extraT
 export const renderTextWithTooltip = <TValue = unknown>({
     ellipsis = false,
     postfix = '',
+    type = 'primary',
     extraTitle,
     extraTooltipProps,
 }: RenderTextWithTooltipProps = {}) => function RenderTextWithTooltipComponent (text: TValue) {
@@ -39,26 +41,8 @@ export const renderTextWithTooltip = <TValue = unknown>({
             {...extraTooltipProps}
         >
             <span>
-                <Typography.Paragraph ellipsis={ellipsisConfig} size='medium'>
+                <Typography.Paragraph ellipsis={ellipsisConfig} size='medium' type={type}>
                     {String(text)}
-                </Typography.Paragraph>
-            </span>
-        </Tooltip>
-    )
-}
-
-export const renderHeaderWithTooltip = ({
-    extraTooltipProps,
-}: { extraTooltipProps?: TooltipProps } = {}) => function RenderHeaderWithTooltipComponent (title: string) {
-    return (
-        <Tooltip 
-            title={title}
-            placement='topLeft'
-            {...extraTooltipProps}
-        >
-            <span>
-                <Typography.Paragraph ellipsis={{ rows: 1 }} size='small' type='secondary' strong>
-                    {title}
                 </Typography.Paragraph>
             </span>
         </Tooltip>

@@ -51,6 +51,8 @@ export type { StepsProps, StepItem } from './components/Steps'
 export { 
     Table,
     renderTextWithTooltip,
+    defaultUpdateUrlQuery,
+    defaultParseUrlQuery,
 } from './components/Table'
 export type { 
     TableProps, 
@@ -58,9 +60,15 @@ export type {
     TableColumnMenuLabels, 
     GetTableData, 
     TableState, 
+    FullTableState,
     DefaultColumn,
-    RowSelection,
+    RowSelectionOptions,
     TableRef,
+    FilterComponentProps,
+    FilterComponent,
+    RowSelectionState,
+    SortState,
+    FilterState,
 } from './components/Table'
 
 export { Tabs } from './components/Tabs'

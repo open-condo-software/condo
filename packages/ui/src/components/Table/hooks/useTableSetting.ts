@@ -1,68 +1,81 @@
-import { RowData } from '@tanstack/react-table'
+import { RowData, ColumnDef } from '@tanstack/react-table'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useColumnOrder } from '@open-condo/ui/src/components/Table/hooks/useColumnOrder'
 import { useColumnSizing } from '@open-condo/ui/src/components/Table/hooks/useColumnSizing'
 import { useColumnVisibility } from '@open-condo/ui/src/components/Table/hooks/useColumnVisibility'
-import { TableSettings, TableColumn, DefaultColumn } from '@open-condo/ui/src/components/Table/types'
+import { TableSettings, TableColumnMeta, ColumnDefWithId } from '@open-condo/ui/src/components/Table/types'
 import { getStorage, saveStorage } from '@open-condo/ui/src/components/Table/utils/storage'
 
 
 interface UsePersistentTableStateProps<TData extends RowData = RowData> {
     storageKey: string
-    columns: TableColumn<TData>[]
-    defaultColumn?: DefaultColumn
+    columns: ColumnDefWithId<TData>[]
 }
 
-export const useTableSetting = <TData extends RowData = RowData>({ storageKey, columns, defaultColumn }: UsePersistentTableStateProps<TData>) => {
-    const getInitialState = useCallback((): TableSettings<TData> => {
+export function getInitialTableState<TData extends RowData> (
+    storageKey: string,
+    columns: ColumnDef<TData, unknown>[],
+    resetSettings: boolean = false,
+): TableSettings<TData> {
+    if (!resetSettings) {
         const savedState = getStorage(storageKey)
-
         if (savedState) {
             return savedState as TableSettings<TData>
         }
+    }
 
-        const orderedColumns: (TableColumn<TData> | null)[] = new Array(columns.length).fill(null)
-        const unorderedColumns: TableColumn<TData>[] = []
+    const orderedColumns: (ColumnDef<TData> | null)[] = new Array(columns.length).fill(null)
+    const unorderedColumns: ColumnDef<TData>[] = []
 
-        for (const col of columns) {
-            if (col.initialOrder !== undefined && col.initialOrder < columns.length && !orderedColumns[col.initialOrder]) {
-                orderedColumns[col.initialOrder] = col
-            } else {
-                unorderedColumns.push(col)
-            }
+    for (const col of columns) {
+        const initialOrder = (col.meta as TableColumnMeta)?.initialOrder 
+        if (initialOrder !== undefined && initialOrder < columns.length && !orderedColumns[initialOrder]) {
+            orderedColumns[initialOrder] = col
+        } else {
+            unorderedColumns.push(col)
         }
+    }
 
-        const resultColumns = orderedColumns.map(c => (c || unorderedColumns.shift())).filter(Boolean) as (TableColumn<TData>)[]
+    const resultColumns = orderedColumns
+        .map(c => (c || unorderedColumns.shift()))
+        .filter((column): column is ColumnDefWithId<TData> => 
+            column !== undefined && column.id !== undefined
+        )
 
-        return resultColumns.reduce((result, column, index) => {
-            let columnSize: number | string = 0
-            const sizeValue = column.initialSize ?? (defaultColumn?.initialSize ?? undefined)
-            
-            if (sizeValue !== undefined) {
-                if (typeof sizeValue === 'string' && sizeValue.includes('%')) {
-                    columnSize = sizeValue
-                } else if (typeof sizeValue === 'number') {
-                    columnSize = sizeValue
-                } else if (typeof sizeValue === 'string') {
-                    const parsed = parseInt(sizeValue, 10)
-                    if (!isNaN(parsed)) {
-                        columnSize = parsed
-                    }
+    return resultColumns.reduce((result, column, index) => {
+        let columnSize: number | string = ''
+        const sizeValue = (column.meta as TableColumnMeta)?.initialSize
+        
+        if (sizeValue !== undefined) {
+            if (typeof sizeValue === 'string' && sizeValue.includes('%')) {
+                columnSize = sizeValue
+            } else if (typeof sizeValue === 'number') {
+                columnSize = sizeValue
+            } else if (typeof sizeValue === 'string') {
+                const parsed = parseInt(sizeValue, 10)
+                if (!isNaN(parsed)) {
+                    columnSize = parsed
                 }
             }
-            
-            result[column.id] = {
-                order: index,
-                visibility: column.initialVisibility !== undefined ? column.initialVisibility : (defaultColumn?.initialVisibility ?? true),
-                size: columnSize,
-            }
-            return result
-        }, {} as TableSettings<TData>)
-    }, [columns, storageKey, defaultColumn])
+        }
+        
+        const initialVisibility = (column.meta as TableColumnMeta)?.initialVisibility
+        
+        result[column.id] = {
+            order: index,
+            visibility: initialVisibility,
+            size: columnSize,
+        }
+        return result
+    }, {} as TableSettings<TData>)
+}
 
-    const [settings, setSettings] = useState<TableSettings<TData>>(getInitialState)
+export const useTableSetting = <TData extends RowData = RowData>({ storageKey, columns }: UsePersistentTableStateProps<TData>) => {
+    const [settings, setSettings] = useState<TableSettings<TData>>(() => 
+        getInitialTableState(storageKey, columns)
+    )
 
     const debouncedSave = useMemo(
         () => debounce((state: TableSettings<TData>) => saveStorage(storageKey, state), 300),
@@ -88,6 +101,10 @@ export const useTableSetting = <TData extends RowData = RowData>({ storageKey, c
         setSettings,
     })
 
+    const resetSettings = useCallback(() => {
+        setSettings(getInitialTableState(storageKey, columns, true))
+    }, [storageKey, columns, setSettings])
+
     return {
         columnVisibility,
         columnOrder,
@@ -95,5 +112,6 @@ export const useTableSetting = <TData extends RowData = RowData>({ storageKey, c
         onColumnVisibilityChange,
         onColumnOrderChange,
         onColumnSizingChange,
+        resetSettings,
     }
 }

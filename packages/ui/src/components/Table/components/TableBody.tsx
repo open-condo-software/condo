@@ -3,17 +3,24 @@ import React, { useCallback } from 'react'
 
 import { Inbox } from '@open-condo/icons'
 import { colors } from '@open-condo/ui/src/colors'
+import type { 
+    TableColumnMenuLabels, 
+} from '@open-condo/ui/src/components/Table/types'
+
+type TableBodyProps<TData extends RowData = RowData> = {
+    table: Table<TData>
+    onRowClick?: (record: TData) => void
+    showSkeleton?: boolean
+    columnMenuLabels?: TableColumnMenuLabels
+}
 
 
 export function TableBody <TData extends RowData = RowData> ({ 
     table, 
     onRowClick, 
     showSkeleton,
-}: {
-    table: Table<TData>
-    onRowClick?: (record: TData) => void
-    showSkeleton?: boolean
-}) {
+    columnMenuLabels = {},
+}: TableBodyProps<TData>) {
     const createKeyDownHandler = useCallback((row: { original: TData }) => (e: React.KeyboardEvent<HTMLDivElement>) => {
         if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
             e.preventDefault()
@@ -36,7 +43,9 @@ export function TableBody <TData extends RowData = RowData> ({
             <div className='condo-table-tbody'>
                 <div className='condo-table-empty'>
                     <Inbox color={colors.gray[7]} />
-                    <div className='condo-table-empty-content'></div>
+                    <div className='condo-table-empty-content'>
+                        {columnMenuLabels?.noData}
+                    </div>
                 </div>
             </div>
         )

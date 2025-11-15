@@ -3,7 +3,6 @@ import {
     useReactTable,
     RowData,
     CellContext,
-    AccessorFn,
     createColumnHelper,
     SortingState,
     PaginationState,
@@ -11,7 +10,7 @@ import {
     RowSelectionState,
     HeaderContext,
 } from '@tanstack/react-table'
-import React, { forwardRef, useImperativeHandle, useMemo, useState, useEffect } from 'react'
+import React, { forwardRef, useImperativeHandle, useMemo, useState, useEffect, useCallback, useRef } from 'react'
 
 import { Checkbox } from '@open-condo/ui/src'
 import { TableBody } from '@open-condo/ui/src/components/Table/components/TableBody'
@@ -23,14 +22,15 @@ import {
 } from '@open-condo/ui/src/components/Table/constans'
 import { useTableSetting } from '@open-condo/ui/src/components/Table/hooks/useTableSetting'
 import type { 
-    TableColumn, 
+    ColumnDefWithId,
     TableProps, 
     FilterState, 
     TableRef,
     TableApi,
+    TableColumnMeta,
 } from '@open-condo/ui/src/components/Table/types'
-import { renderHeaderWithTooltip, renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderCellUtils'
-import { getPageIndexFromStartRow } from '@open-condo/ui/src/components/Table/utils/urlQuery'
+import { getFilterByKey } from '@open-condo/ui/src/components/Table/utils/filterComponents'
+import { renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderCellUtils'
 
 /**
  * @deprecated This component is experimental. API may change at any time without notice.
@@ -43,187 +43,84 @@ import { getPageIndexFromStartRow } from '@open-condo/ui/src/components/Table/ut
  * 
  * @template TData - Type of table row data
  */
-export const Table = forwardRef(function Table<TData extends RowData = RowData> ({
-    id,
-    dataSource,
-    columns,
-    defaultColumn,
-    pageSize = DEFAULT_PAGE_SIZE,
-    onTableStateChange,
-    initialTableState = { filterState: {}, startRow: 0, endRow: pageSize, sortState: [], rowSelection: {} },
-    storageKey = `table-settings-${id}`,
-    columnMenuLabels = {},
-    onRowClick,
-    rowSelectionOptions,
-    // shouldHidePaginationOnSinglePage?: boolean
-}: TableProps<TData>, ref: React.Ref<TableRef>): React.ReactElement {
+function TableComponent<TData extends RowData = RowData> (
+    props: TableProps<TData>,
+    ref: React.Ref<TableRef>
+): React.ReactElement {
+    const {
+        id,
+        dataSource,
+        columns,
+        defaultColumn,
+        pageSize = DEFAULT_PAGE_SIZE,
+        onTableStateChange,
+        initialTableState = { filterState: {}, startRow: 0, endRow: pageSize, sortState: [], rowSelectionState: [] },
+        storageKey = `table-settings-${id}`,
+        columnMenuLabels = {},
+        onRowClick,
+        rowSelectionOptions,
+        onGridReady,
+        // shouldHidePaginationOnSinglePage?: boolean
+    } = props
 
-    const [sorting, setSorting] = useState<SortingState>(initialTableState.sortState)
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(Object.entries(initialTableState.filterState).map(([key, value]) => ({ id: key, value: value })))
-    const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
-    const [tableData, setTableData] = useState<TData[]>([])
-    const [rowCount, setRowCount] = useState<number>(0)
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>(initialTableState.rowSelection || {})
-    const [internalLoading, setInternalLoading] = useState<boolean>(true)
-
-    useImperativeHandle(ref, () => {
-        const api: TableApi = {
-            // Need to refactor 
-            setFilterState: (newFilterState: FilterState) => {
-                setColumnFilters((prev) => [...prev, ...Object.entries(newFilterState).map(([key, value]) => {
-                    // We don't need to filter empty string values
-                    if (value !== '' && value !== null && value !== undefined) {
-                        return { id: key, value: value }
-                    }
-                    return null
-                }).filter(Boolean)] as ColumnFiltersState)
-            },
-            setColumnFilter: (columnId: string, value: unknown) => {
-                setColumnFilters((prev) => {
-                    if (value === '' || value === null || value === undefined) {
-                        return prev.filter(filter => filter.id !== columnId)
-                    }
-                    
-                    const existingFilterIndex = prev.findIndex(filter => filter.id === columnId)
-                    if (existingFilterIndex >= 0) {
-                        const newFilters = [...prev]
-                        newFilters[existingFilterIndex] = { id: columnId, value: value }
-                        return newFilters
-                    } else {
-                        return [...prev, { id: columnId, value: value }]
-                    }
-                })
-            },
-            getFilterState: () => {
-                return columnFilters.reduce((acc, filter) => {
-                    // We don't need to filter empty string values
-                    if (filter.value !== '' && filter.value !== null && filter.value !== undefined) {
-                        acc[filter.id] = filter.value
-                    }
-                    return acc
-                }, {} as FilterState)
-            },
-            getColumnFilter: (columnId: string) => {
-                return columnFilters.find(filter => filter.id === columnId)?.value
-            },
-            refresh: () => {
-                setTableData(prev => [...prev])
-            },
-            setSorting: (newSorting: SortingState) => {
-                setSorting(newSorting)
-            },
-            getSorting: () => {
-                return sorting
-            },
-        }
-
-        return { api }
-    }, [columnFilters, sorting])
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setInternalLoading(true)
-            const startRow = pagination.pageIndex * pagination.pageSize
-            const endRow = startRow + pagination.pageSize
-            const filterState = columnFilters.reduce((acc, filter) => {
-                // We don't need to filter empty string values
-                if (filter.value !== '' && filter.value !== null && filter.value !== undefined) {
-                    acc[filter.id] = filter.value
-                }
-                return acc
-            }, {} as FilterState)
-
-            try {
-                const { rowData, rowCount } = await dataSource({
-                    startRow,
-                    endRow,
-                    filterState,
-                    sortState: sorting,
-                })
-                setTableData(rowData)
-                setRowCount(rowCount)
-            } catch (error) {
-                // Show error if fetch is down
-                setTableData([])
-                setRowCount(0)
-            } finally {
-                setInternalLoading(false)
-            }
-        }
-        
-        fetchData()
-    }, [sorting, pagination, columnFilters]) // We don't need to fetch data when dataSource changes
-
-    // This effect should be first, because if we have error in this effect, we don't want to change the table state and fetch new data
-    useEffect(() => {
-        const handleTableStateChange = async () => {
-            if (onTableStateChange) {
-                const startRow = pagination.pageIndex * pagination.pageSize
-                const endRow = startRow + pagination.pageSize
-                const filterState = columnFilters.reduce((acc, filter) => {
-                    // We don't need to filter empty string values
-                    if (filter.value !== '' && filter.value !== null && filter.value !== undefined) {
-                        acc[filter.id] = filter.value
-                    }
-                    return acc
-                }, {} as FilterState)
-
-                onTableStateChange({
-                    startRow,
-                    endRow,
-                    filterState,
-                    sortState: sorting,
-                    rowSelection,
-                })
-            }
-        }
-        
-        handleTableStateChange()
-    }, [sorting, pagination, columnFilters, onTableStateChange, rowSelection])
-    
     const columnHelper = createColumnHelper<TData>()
     const tableColumns = useMemo(() => {
-        const resultColumns = []
+        const resultColumns: ColumnDefWithId<TData>[]  = []
         if (rowSelectionOptions) {
             resultColumns.push(columnHelper.accessor(rowSelectionOptions.getRowId, {
                 id: COLUMN_ID_SELECTION,
                 header: ({ table }) => (
-                    <Checkbox
-                        checked={table.getIsAllRowsSelected()}
-                        indeterminate={table.getIsSomeRowsSelected()}
-                        onChange={table.getToggleAllRowsSelectedHandler()} //or getToggleAllPageRowsSelectedHandler
-                    />
+                    <span onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                            checked={table.getIsAllRowsSelected()}
+                            indeterminate={table.getIsSomeRowsSelected()}
+                            onChange={table.getToggleAllRowsSelectedHandler()}
+                        />
+                    </span>
                 ),
                 cell: ({ row }) => (
-                    <Checkbox
-                        checked={row.getIsSelected()}
-                        disabled={!row.getCanSelect()}
-                        onChange={row.getToggleSelectedHandler()}
-                    />
+                    <span onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                            checked={row.getIsSelected()}
+                            disabled={!row.getCanSelect()}
+                            onChange={row.getToggleSelectedHandler()}
+                        />
+                    </span>
                 ),
-
+                minSize: 48,
+                enableSorting: false,
+                enableColumnFilter: false,
                 meta: {
+                    initialSize: 48,
+                    initialOrder: 0,
                     enableColumnSettings: false,
                 },
-            }))
+            }) as ColumnDefWithId<TData>)
         }
 
         columns.forEach(c => {
-            const enableSorting = c.enableSorting ?? (defaultColumn?.enableSorting ?? false)
-            const enableColumnFilter = !!c.filterComponent
+            const filterComponent = c.filterComponent ? (typeof c.filterComponent === 'function' ? c.filterComponent : getFilterByKey(c.filterComponent)) : undefined
+            const enableColumnFilter = !!filterComponent
             const enableColumnSettings = c.enableColumnSettings ?? (defaultColumn?.enableColumnSettings ?? true)
+            const enableSorting = c.enableSorting ?? (defaultColumn?.enableSorting ?? false)
             const enableColumnOptions = enableSorting || enableColumnFilter || enableColumnSettings
+            const initialSize = c.initialSize ?? (defaultColumn?.initialSize ?? '')
+            const initialVisibility = c.initialVisibility ?? (defaultColumn?.initialVisibility ?? true)
+            const initialOrder = c.initialOrder
             const meta = {
-                filterComponent: c.filterComponent,
-                enableColumnSettings: enableColumnSettings,
-                enableColumnOptions: enableColumnOptions,
-            }
+                filterComponent,
+                enableColumnSettings,
+                enableColumnOptions,
+                initialSize,
+                initialVisibility,
+                initialOrder,
+            } as TableColumnMeta
 
-            resultColumns.push(columnHelper.accessor(c.dataKey as AccessorFn<TData, unknown>, {
+            resultColumns.push(columnHelper.accessor(c.dataKey, {
                 id: c.id,
                 header: (info: HeaderContext<TData, unknown>) => {
                     if (typeof c.header === 'string') {
-                        return renderHeaderWithTooltip()(c.header)
+                        return renderTextWithTooltip({ type: 'secondary', ellipsis: { rows: 1 } })(c.header)
                     }
                     if (typeof c.header === 'function') {
                         return c.header(info.table)
@@ -231,36 +128,14 @@ export const Table = forwardRef(function Table<TData extends RowData = RowData> 
                 },
                 enableSorting,
                 enableColumnFilter,
+                minSize: c.minSize,
                 cell: (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index) || renderTextWithTooltip()(info.getValue()),
                 meta: meta,
-            }))
+            }) as ColumnDefWithId<TData>)
         })
 
         return resultColumns
     }, [columns, columnHelper, defaultColumn, rowSelectionOptions])
-
-    const internalColumns = useMemo(() => {
-        const resultColumns: TableColumn<TData>[] = []
-        
-        if (rowSelectionOptions) {
-            resultColumns.push({
-                id: COLUMN_ID_SELECTION,
-                dataKey: COLUMN_ID_SELECTION,
-                header: (table) => (
-                    <Checkbox
-                        checked={table.getIsAllRowsSelected()}
-                        indeterminate={table.getIsSomeRowsSelected()}
-                        onChange={table.getToggleAllRowsSelectedHandler()} //or getToggleAllPageRowsSelectedHandler
-                    />
-                ),
-                initialSize: 50,
-                initialOrder: 0,
-            })
-        }
-
-        resultColumns.push(...columns)
-        return resultColumns
-    }, [columns, rowSelectionOptions])
     
     const {
         columnVisibility,
@@ -269,15 +144,100 @@ export const Table = forwardRef(function Table<TData extends RowData = RowData> 
         onColumnVisibilityChange,
         onColumnOrderChange,
         onColumnSizingChange,
-    } = useTableSetting<TData>({ storageKey, columns: internalColumns, defaultColumn })
+        resetSettings,
+    } = useTableSetting<TData>({ storageKey, columns: tableColumns })
 
     const orderedColumns = useMemo(() => {
         if (columnOrder && columnOrder.length > 0) {
-            const columnsById = new Map(internalColumns.map(c => [c.id, c]))
-            return columnOrder.map(key => columnsById.get(key)).filter(Boolean) as TableColumn<TData>[] 
+            const columnsById = Object.fromEntries(tableColumns.map(c => [c.id, c]))
+            return columnOrder
+                .map(key => columnsById[key])
+                .filter((col): col is ColumnDefWithId<TData> => col !== undefined)
         }
-        return internalColumns
-    }, [internalColumns, columnOrder])
+        return tableColumns
+    }, [tableColumns, columnOrder])
+
+    const [sorting, setSorting] = useState<SortingState>(
+        initialTableState.sortState
+            .filter(sortCol => tableColumns.find(col => sortCol.id === col.id)?.enableSorting)
+    )
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+        Object.entries(initialTableState.filterState)
+            .map(([key, value]) => ({ id: key, value: value }))
+            .filter(filterCol => tableColumns.find(col => filterCol.id === col.id)?.enableColumnFilter)
+    )
+    const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
+    const [tableData, setTableData] = useState<TData[]>([])
+    const [rowCount, setRowCount] = useState<number>(0)
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>(initialTableState.rowSelectionState?.reduce((acc, selectedRow) => {
+        acc[selectedRow] = true
+        return acc
+    }, {} as RowSelectionState) || {})
+    const [internalLoading, setInternalLoading] = useState<boolean>(true)
+
+    // This effect should be first, because if we have error in this effect, we don't want to change the table state and fetch new data
+    useEffect(() => {
+        const handleTableStateChange = async () => {
+            if (onTableStateChange) {
+                const startRow = pagination.pageIndex * pagination.pageSize
+                const endRow = startRow + pagination.pageSize
+                const filterState = columnFilters.reduce((acc, filter) => {
+                    acc[filter.id] = filter.value
+                    return acc
+                }, {} as FilterState)
+
+                onTableStateChange({
+                    startRow,
+                    endRow,
+                    filterState,
+                    sortState: sorting,
+                    rowSelectionState: Object.keys(rowSelection),
+                })
+            }
+        }
+        
+        handleTableStateChange()
+    }, [sorting, pagination, columnFilters, onTableStateChange, rowSelection])
+
+    const stableDataSource = useRef(dataSource)
+    
+    useEffect(() => {
+        stableDataSource.current = dataSource
+    }, [dataSource])
+    
+    const fetchData = useCallback(async (isRefetch: boolean = false) => {
+        setInternalLoading(true)
+        const startRow = pagination.pageIndex * pagination.pageSize
+        const endRow = startRow + pagination.pageSize
+        const filterState = columnFilters.reduce((acc, filter) => {
+            // We don't need to filter empty string values
+            if (filter.value !== '' && filter.value !== null && filter.value !== undefined) {
+                acc[filter.id] = filter.value
+            }
+            return acc
+        }, {} as FilterState)
+
+        try {
+            const { rowData, rowCount } = await stableDataSource.current({
+                startRow,
+                endRow,
+                filterState,
+                sortState: sorting,
+            }, isRefetch)
+            setTableData(rowData)
+            setRowCount(rowCount)
+        } catch (error) {
+            // Show error if fetch is down
+            setTableData([])
+            setRowCount(0)
+        } finally {
+            setInternalLoading(false)
+        }
+    }, [pagination, columnFilters, sorting])
+
+    useEffect(() => {
+        fetchData()
+    }, [fetchData])
 
     const table = useReactTable<TData>({
         data: tableData,
@@ -287,7 +247,16 @@ export const Table = forwardRef(function Table<TData extends RowData = RowData> 
             if (pagination.pageIndex !== 0) {
                 setPagination({ pageIndex: 0, pageSize: pagination.pageSize })
             }
-            setSorting(typeof updaterOrValue === 'function' ? updaterOrValue(sorting) : updaterOrValue)
+            const newSorting = typeof updaterOrValue === 'function' ? updaterOrValue(sorting) : updaterOrValue
+            
+            const validatedSorting = newSorting.filter(sortItem => {
+                const column = tableColumns.find(col => col.id === sortItem.id)
+                if (!column) return false
+                
+                return column.enableSorting !== false
+            })
+            
+            setSorting(validatedSorting)
         },
         onPaginationChange: setPagination,
         onColumnFiltersChange: (updaterOrValue) => {
@@ -297,9 +266,26 @@ export const Table = forwardRef(function Table<TData extends RowData = RowData> 
             const newFilters = typeof updaterOrValue === 'function' ? updaterOrValue(columnFilters) : updaterOrValue
 
             const filteredFilters = newFilters.filter(filter => {
-                return filter.value !== '' && filter.value !== null && filter.value !== undefined
+                const column = tableColumns.find(col => col.id === filter.id)
+                if (!column) return false
+                if (!column.enableColumnFilter) return false
+                
+                return (
+                    filter.value !== null && 
+                    filter.value !== undefined && 
+                    Object.keys(filter.value).length !== 0 && 
+                    !(Array.isArray(filter.value) && filter.value.length === 0) && 
+                    !(typeof filter.value === 'string' && filter.value.trim() === '') 
+                )
             })
             setColumnFilters(filteredFilters)
+        },
+        onRowSelectionChange: (updaterOrValue) => {
+            const newRowSelection = typeof updaterOrValue === 'function' ? updaterOrValue(rowSelection) : updaterOrValue
+            if (rowSelectionOptions?.onRowSelectionChange) {
+                rowSelectionOptions.onRowSelectionChange(Object.keys(newRowSelection))
+            }
+            setRowSelection(newRowSelection)
         },
         manualSorting: true,
         manualFiltering: true,
@@ -320,13 +306,97 @@ export const Table = forwardRef(function Table<TData extends RowData = RowData> 
         onColumnVisibilityChange: onColumnVisibilityChange,
         onColumnOrderChange: onColumnOrderChange,
         onColumnSizingChange: onColumnSizingChange,
-        onRowSelectionChange: setRowSelection,
-        enableRowSelection: true,
+        enableRowSelection: !!rowSelectionOptions?.getRowId,
         getRowId: rowSelectionOptions?.getRowId,
         defaultColumn: {
-            minSize: 10,
+            minSize: 70,
         },
     })
+
+    const stableOnGridReady = useRef<((tableRef: TableRef) => void) | undefined>(onGridReady)
+
+    useEffect(() => {
+        console.log('useEffect onGridReady', stableOnGridReady.current, ref)
+        if (stableOnGridReady.current && ref && 'current' in ref && ref.current) {
+            const fn = stableOnGridReady.current
+            stableOnGridReady.current = undefined
+            fn(ref.current)
+            console.log('useEffect onGridReady called', fn, ref.current)
+        }
+    }, [ref])
+
+    useImperativeHandle(ref, () => {
+        const api: TableApi = {
+            setFilterState: (newFilterState: FilterState) => {
+                // If we change filter state, we need to reset pagination to the first page
+                setPagination(prev => prev.pageIndex !== 0 ? { ...prev, pageIndex: 0 } : prev)
+                setColumnFilters((prev) => [...prev, ...Object.entries(newFilterState).map(([key, value]) => {
+                    // We don't need to filter empty string values
+                    if (value !== '' && value !== null && value !== undefined) {
+                        return { id: key, value: value }
+                    }
+                    return null
+                }).filter(Boolean)] as ColumnFiltersState)
+            },
+            setColumnFilter: (columnId: string, value: unknown) => {
+                // If we change column filter, we need to reset pagination to the first page
+                setPagination(prev => prev.pageIndex !== 0 ? { ...prev, pageIndex: 0 } : prev)
+                setColumnFilters((prev) => {
+                    if (value === '' || value === null || value === undefined) {
+                        return prev.filter(filter => filter.id !== columnId)
+                    }
+                    
+                    const existingFilterIndex = prev.findIndex(filter => filter.id === columnId)
+                    if (existingFilterIndex >= 0) {
+                        const newFilters = [...prev]
+                        newFilters[existingFilterIndex] = { id: columnId, value: value }
+                        return newFilters
+                    } else {
+                        return [...prev, { id: columnId, value: value }]
+                    }
+                })
+            },
+            getFilterState: () => {
+                return table.getState().columnFilters.reduce((acc, filter) => {
+                    // We don't need to filter empty string values
+                    if (filter.value !== '' && filter.value !== null && filter.value !== undefined) {
+                        acc[filter.id] = filter.value
+                    }
+                    return acc
+                }, {} as FilterState)
+            },
+            getColumnFilter: (columnId: string) => {
+                return table.getState().columnFilters.find(filter => filter.id === columnId)?.value
+            },
+            refetchData: async () => {
+                fetchData(true)
+            },
+            getPagination: () => {
+                return { startRow: table.getState().pagination.pageIndex * table.getState().pagination.pageSize, endRow: table.getState().pagination.pageIndex * table.getState().pagination.pageSize + table.getState().pagination.pageSize }
+            },
+            setPagination: ({ startRow, endRow }: { startRow: number, endRow: number }) => {
+                setPagination({ pageIndex: Math.floor(startRow / table.getState().pagination.pageSize), pageSize: endRow - startRow })
+            },
+            setSorting: (newSorting: SortingState) => {
+                // If we change sorting, we need to reset pagination to the first page
+                setPagination(prev => prev.pageIndex !== 0 ? { ...prev, pageIndex: 0 } : prev)
+                setSorting(newSorting)
+            },
+            getSorting: () => {
+                return table.getState().sorting
+            },
+            getRowSelection: () => {
+                return table.getSelectedRowModel().flatRows.map(row => row.id)
+            },
+            resetRowSelection: () => {
+                table.resetRowSelection()
+            },
+        }
+
+        const tableRef = { api }
+
+        return tableRef
+    }, [table, fetchData])
 
     return (
         <div className='condo-table-container'>
@@ -338,12 +408,14 @@ export const Table = forwardRef(function Table<TData extends RowData = RowData> 
                         columns={orderedColumns}
                         columnMenuLabels={columnMenuLabels}
                         table={table}
+                        resetSettings={resetSettings}
                     />
                 ))}
-                <TableBody<TData> 
+                <TableBody<TData>
                     table={table} 
                     onRowClick={onRowClick} 
                     showSkeleton={internalLoading}
+                    columnMenuLabels={columnMenuLabels}
                 />
             </div>
             {table.getPageCount() > 0 && (
@@ -352,4 +424,12 @@ export const Table = forwardRef(function Table<TData extends RowData = RowData> 
         </div>
         
     )
-})
+}
+
+export const Table = forwardRef(TableComponent) as <TData extends RowData = RowData>(
+    props: TableProps<TData> & { ref?: React.Ref<TableRef> }
+) => React.ReactElement
+
+function getPageIndexFromStartRow (startRow: number, pageSize: number): number {
+    return Math.floor(startRow / pageSize)
+}
