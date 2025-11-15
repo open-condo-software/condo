@@ -146,7 +146,7 @@ export type GetContactsExistenceQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetContactsExistenceQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string } | null> | null };
+export type GetContactsExistenceQuery = { __typename?: 'Query', count?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type GetContactForClientCardQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.ContactWhereInput>;

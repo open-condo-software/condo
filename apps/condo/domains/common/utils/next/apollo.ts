@@ -47,6 +47,11 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         merge: listHelper.mergeLists,
                     },
                     allContacts: {
+                        keyArgs: ['where', 'sortBy'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allContactRoles: {
                         keyArgs: ['where'],
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
