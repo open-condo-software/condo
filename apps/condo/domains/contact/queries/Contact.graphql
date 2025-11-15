@@ -43,11 +43,11 @@ query getContactByUnit ($propertyId: ID!, $unitName: String!, $unitType: Contact
 }
 
 query getContactsExistence ($where: ContactWhereInput) {
-    contacts: allContacts(
+    count: _allContactsMeta(
         first: 1
         where: $where
     ) {
-        id
+        count
     }
 }
 

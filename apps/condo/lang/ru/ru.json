@@ -299,6 +299,7 @@
   "Table.Sorted": "Отсортировано",
   "Table.Filtered": "Отфильтровано",
   "Table.Setted": "Настроены колонки",
+  "Table.NoData": "Нет данных",
   "accrualsAndPayments.billing.noReceiptsYet": "Подключено, но квитанций пока нет",
   "accrualsAndPayments.billing.statusTag.connected": "{name}: подключено",
   "accrualsAndPayments.billing.statusTag.error": "{name}: ошибка",

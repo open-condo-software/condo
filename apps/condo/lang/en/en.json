@@ -299,6 +299,7 @@
   "Table.Sorted": "Sorted",
   "Table.Filtered": "Filtered",
   "Table.Setted": "Setted",
+  "Table.NoData": "No Data",
   "accrualsAndPayments.billing.noReceiptsYet": "Connected, but no receipt yet",
   "accrualsAndPayments.billing.statusTag.connected": "{name}: connected",
   "accrualsAndPayments.billing.statusTag.error": "{name}: error",
