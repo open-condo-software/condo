@@ -13,7 +13,7 @@ const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-c
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { TICKET_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { NO_TELEGRAM_CHAT_FOR_USER } = require('@condo/domains/notification/constants/errors')
-const { Message, createTestTelegramUserChat, TelegramUserChat } = require('@condo/domains/notification/utils/testSchema')
+const { Message, createTestTelegramUserChat, TelegramUserChat, updateTestNotificationUserSetting, NotificationUserSetting } = require('@condo/domains/notification/utils/testSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -75,6 +75,16 @@ describe('sendTicketCreatedNotifications', ()  => {
         })
         for (const message of messages) {
             await Message.softDelete(admin, message.id)
+        }
+
+        const globalSettings = await NotificationUserSetting.getAll(admin, {
+            user_is_null: true,
+            deletedAt: null,
+        })
+        for (const setting of globalSettings) {
+            await updateTestNotificationUserSetting(admin, setting.id, {
+                deletedAt: new Date(),
+            })
         }
     })
 
