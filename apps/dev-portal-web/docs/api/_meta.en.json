@@ -6,5 +6,6 @@
   "dv": "About Data-Version",
   "examples": "API Usage Examples",
   "external-auth": "Authorization via external services",
-  "proxying": "IP proxying"
+  "proxying": "IP proxying",
+  "working-with-files": "Working with files"
 }
