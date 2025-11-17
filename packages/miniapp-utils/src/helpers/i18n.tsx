@@ -422,7 +422,7 @@ export class TranslationsHelper<
         if (this.localeQueryParam) {
             let paramValue: string | null = null
             if (req && req.url) {
-                paramValue = new URL(req.url).searchParams.get(this.localeQueryParam)
+                paramValue = new URL(req.url, 'https://_').searchParams.get(this.localeQueryParam)
             } else if (!isSSR()) {
                 paramValue = new URLSearchParams(window.location.search).get(this.localeQueryParam)
             }
