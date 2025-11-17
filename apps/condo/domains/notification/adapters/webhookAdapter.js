@@ -120,7 +120,7 @@ class WebhookAdapter {
                 continue
             }
 
-            const authorizationHeader = configForApp.authorizationHeader
+            const secret = configForApp.secret
             const url = configForApp.url
             const requestBody = { notifications: notificationsBatchForApp }
 
@@ -129,7 +129,7 @@ class WebhookAdapter {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': authorizationHeader,
+                        'Authorization': secret,
                     },
                     body: JSON.stringify(requestBody),
                 })
