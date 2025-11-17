@@ -23,7 +23,7 @@ const NotificationUserSetting = new GQLListSchema('NotificationUserSetting', {
             ref: 'User',
             isRequired: false,
             knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true },
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
         messageType: getMessageTypeField({
