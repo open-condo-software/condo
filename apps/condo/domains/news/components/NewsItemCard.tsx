@@ -5,7 +5,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import React, { useState, useMemo, JSX } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Card, Modal, Typography } from '@open-condo/ui'
+import { Card, Modal, Typography, Markdown } from '@open-condo/ui'
 
 import styles from './NewsItemCard.module.css'
 import { MemoizedRecipientCounter, MemoizedNewsSharingRecipientCounter, Counter } from './RecipientCounter'
@@ -76,9 +76,11 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                         <Typography.Text strong type='secondary'>{TitleLabel}</Typography.Text><br/>
                         <Typography.Paragraph type='secondary'>{title}</Typography.Paragraph>
                     </div>
-                    <div>
+                    <div className={styles.newsItemCardMarkdown}>
                         <Typography.Text strong type='secondary'>{BodyLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary'>{body}</Typography.Paragraph>
+                        <Typography.Paragraph type='secondary'>
+                            <Markdown type='inline'>{body}</Markdown>
+                        </Typography.Paragraph>
                     </div>
                     {
                         footer && (
@@ -111,7 +113,7 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                         <Typography.Text strong type='secondary'>{TitleLabel}</Typography.Text><br/>
                         <Typography.Paragraph type='secondary'>{title}</Typography.Paragraph>
                     </Col>
-                    <Col span={24}>
+                    <Col span={24} className={styles.newsItemCardMarkdown}>
                         <Typography.Text strong type='secondary'>{BodyLabel}</Typography.Text><br/>
                         <Typography.Paragraph
                             ellipsis={{
@@ -121,7 +123,7 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                             }}
                             type='secondary'
                         >
-                            {body}
+                            <Markdown type='inline'>{body}</Markdown>
                         </Typography.Paragraph>
                     </Col>
                     {

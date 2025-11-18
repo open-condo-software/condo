@@ -3,12 +3,13 @@ import { Row, Col, Divider } from 'antd'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Card, Space, RadioGroup, Radio } from '@open-condo/ui'
+import { Typography, Card, Space, RadioGroup, Radio, Markdown } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
 import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { stripMarkdown } from '@condo/domains/news/utils/stripMarkdown'
 
 import type { RowProps } from 'antd'
 
@@ -153,7 +154,7 @@ const NewsPushPreview: React.FC<INewsItemPushPreview> = ({ appName, appIcon, new
                             </Col>
                             <Col span={24}>
                                 <Typography.Paragraph ellipsis={PUSH_PARAGRAPH_ELLIPSIS_CONFIG} size='medium'>
-                                    {body}
+                                    {stripMarkdown(body)}
                                 </Typography.Paragraph>
                             </Col>
                         </Row>
@@ -253,8 +254,8 @@ const CondoAppPreview: React.FC<NewsItemData> = ({ title, body, validBefore }) =
                                     )}
                                 </Typography.Text>
                             </Space>
-                            <Typography.Paragraph>
-                                {body}
+                            <Typography.Paragraph type='secondary'>
+                                <Markdown type='inline'>{body}</Markdown>
                             </Typography.Paragraph>
                         </Space>
                     </div>
