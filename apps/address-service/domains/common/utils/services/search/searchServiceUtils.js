@@ -6,6 +6,35 @@ const { md5 } = require('@condo/domains/common/utils/crypto')
 
 const ADDRESS_ITEM_FIELDS = 'id address key meta overrides'
 
+async function upsertAddressSource (context, addressSourceServerUtils, dvSender, normalizedSource, addressId) {
+    if (!normalizedSource) return null
+
+    const source = normalizedSource.toLowerCase()
+
+    const existing = await addressSourceServerUtils.getOne(
+        context,
+        { source, deletedAt: null },
+        ADDRESS_ITEM_FIELDS
+    )
+
+    if (existing) {
+        await addressSourceServerUtils.update(context, existing.id, {
+            ...dvSender,
+            source,
+            address: { connect: { id: addressId } },
+        })
+        return existing.id
+    }
+
+    const created = await addressSourceServerUtils.create(context, {
+        ...dvSender,
+        source,
+        address: { connect: { id: addressId } },
+    })
+
+    return created?.id ?? null
+}
+
 /**
  * @param context Keystone context
  * @param addressServerUtils
@@ -41,24 +70,18 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     //
     // Address source
     //
-    const compoundedAddressSource = mergeAddressAndHelpers(addressSource, helpers)
-    const addressSourceItem = await addressSourceServerUtils.getOne(context, { source: compoundedAddressSource.toLowerCase(), deletedAt: null }, ADDRESS_ITEM_FIELDS)
-
-    if (addressSourceItem) {
-        await addressSourceServerUtils.update(context, addressSourceItem.id, {
-            ...dvSender,
-            source: compoundedAddressSource,
-            address: { connect: { id: addressItem.id } },
-        })
-    } else {
-        await addressSourceServerUtils.create(
-            context,
-            {
-                ...dvSender,
-                source: compoundedAddressSource,
-                address: { connect: { id: addressItem.id } },
-            },
+    const addressSourceCandidates = [addressSource, addressItem.address]
+    const uniqueNormalizedSources = Array.from(
+        new Set(
+            addressSourceCandidates
+                .filter((item) => typeof item === 'string' && item.trim().length > 0)
+                .map((item) => mergeAddressAndHelpers(item.trim(), helpers))
+                .filter(Boolean)
         )
+    )
+
+    for (const uniqueSource of uniqueNormalizedSources) {
+        await upsertAddressSource(context, addressSourceServerUtils, dvSender, uniqueSource, addressItem.id)
     }
 
     return addressItem
@@ -152,6 +175,7 @@ function mergeAddressAndHelpers (address, helpers) {
 }
 
 module.exports = {
+    upsertAddressSource,
     createOrUpdateAddressWithSource,
     createReturnObject,
     mergeAddressAndHelpers,
