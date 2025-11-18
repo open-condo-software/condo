@@ -16,7 +16,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar } from '@open-condo/ui'
-import { Typography, Button } from '@open-condo/ui'
+import { Typography, Button, Markdown } from '@open-condo/ui'
 
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import {
@@ -51,18 +51,20 @@ const HEADER_STYLES: React.CSSProperties = { padding: '0 0 20px 0 !important' }
 interface IFieldPairRowProps {
     fieldTitle: string
     fieldValue: string | React.ReactNode
+    renderFieldValue?: (value: string | React.ReactNode) => React.ReactElement
 }
 const FieldPairRow: React.FC<IFieldPairRowProps> = (props) => {
     const {
         fieldTitle,
         fieldValue,
+        renderFieldValue,
     } = props
 
     const { breakpoints } = useLayoutContext()
 
     return (
         <PageFieldRow title={fieldTitle} ellipsis labelSpan={!breakpoints.TABLET_LARGE ? 5 : 7}>
-            <NotDefinedField value={fieldValue}/>
+            <NotDefinedField value={fieldValue} render={renderFieldValue}/>
         </PageFieldRow>
     )
 }
@@ -267,6 +269,14 @@ const NewsItemCard: React.FC = () => {
         )
     }
 
+    const renderBodyFieldValue = useCallback((value: string | React.ReactNode) => {
+        if (typeof value === 'string') {
+            return <Markdown type='inline'>{value}</Markdown>
+        }
+
+        return <>{value}</>
+    }, [])
+
     const isLoading = employeeLoading || newsItemLoading || isAccessLoading || newsItemScopesLoading || propertyLoading || newsItemSharingsLoading
     const hasError = employeeError || newsItemError || newsItemScopesError || newsItemSharingsError
     const isNotFound = !isLoading && (!employee || !newsItem)
@@ -319,6 +329,7 @@ const NewsItemCard: React.FC = () => {
                                     <FieldPairRow
                                         fieldTitle={BodyLabel}
                                         fieldValue={newsItem.body}
+                                        renderFieldValue={renderBodyFieldValue}
                                     />
                                 </Row>
                             </FrontLayerContainer>
@@ -349,6 +360,7 @@ const NewsItemCard: React.FC = () => {
                                             <FieldPairRow
                                                 fieldTitle={BodyLabel}
                                                 fieldValue={get(newsItemSharing, ['sharingParams', 'preview', 'renderedBody'])}
+                                                renderFieldValue={renderBodyFieldValue}
                                             />
                                         </Row>
                                     </FrontLayerContainer>
