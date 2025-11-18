@@ -251,3 +251,20 @@ query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizatio
         }
     }
 }
+
+query checkEmployeeExists($organizationId: ID!, $phone: String, $email: String) {
+    objs: allOrganizationEmployees(
+        where: {
+            organization: { id: $organizationId }
+            OR: [
+                { phone: $phone }
+                { email: $email }
+            ]
+            deletedAt: null
+        }
+    ) {
+        id
+        phone
+        email
+    }
+}

@@ -3473,6 +3473,52 @@ export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryHookResult = Retu
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeLazyQueryHookResult = ReturnType<typeof useGetEmployeesInvitesByUserIdAndOrganizationTypeLazyQuery>;
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeSuspenseQueryHookResult = ReturnType<typeof useGetEmployeesInvitesByUserIdAndOrganizationTypeSuspenseQuery>;
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryResult = Apollo.QueryResult<Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQuery, Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables>;
+export const CheckEmployeeExistsDocument = gql`
+    query checkEmployeeExists($organizationId: ID!, $phone: String, $email: String) {
+  objs: allOrganizationEmployees(
+    where: {organization: {id: $organizationId}, OR: [{phone: $phone}, {email: $email}], deletedAt: null}
+  ) {
+    id
+    phone
+    email
+  }
+}
+    `;
+
+/**
+ * __useCheckEmployeeExistsQuery__
+ *
+ * To run a query within a React component, call `useCheckEmployeeExistsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckEmployeeExistsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckEmployeeExistsQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *      phone: // value for 'phone'
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useCheckEmployeeExistsQuery(baseOptions: Apollo.QueryHookOptions<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables> & ({ variables: Types.CheckEmployeeExistsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>(CheckEmployeeExistsDocument, options);
+      }
+export function useCheckEmployeeExistsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>(CheckEmployeeExistsDocument, options);
+        }
+export function useCheckEmployeeExistsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>(CheckEmployeeExistsDocument, options);
+        }
+export type CheckEmployeeExistsQueryHookResult = ReturnType<typeof useCheckEmployeeExistsQuery>;
+export type CheckEmployeeExistsLazyQueryHookResult = ReturnType<typeof useCheckEmployeeExistsLazyQuery>;
+export type CheckEmployeeExistsSuspenseQueryHookResult = ReturnType<typeof useCheckEmployeeExistsSuspenseQuery>;
+export type CheckEmployeeExistsQueryResult = Apollo.QueryResult<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>;
 export const GetLastUserOrganizationEmployeeRequestDocument = gql`
     query getLastUserOrganizationEmployeeRequest($userId: ID!) {
   requests: allOrganizationEmployeeRequests(
@@ -3662,6 +3708,41 @@ export type GetOrganizationEmployeeRolesByOrganizationQueryHookResult = ReturnTy
 export type GetOrganizationEmployeeRolesByOrganizationLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeRolesByOrganizationLazyQuery>;
 export type GetOrganizationEmployeeRolesByOrganizationSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeRolesByOrganizationSuspenseQuery>;
 export type GetOrganizationEmployeeRolesByOrganizationQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeRolesByOrganizationQuery, Types.GetOrganizationEmployeeRolesByOrganizationQueryVariables>;
+export const CreateOrganizationEmployeeRoleDocument = gql`
+    mutation createOrganizationEmployeeRole($data: OrganizationEmployeeRoleCreateInput!) {
+  obj: createOrganizationEmployeeRole(data: $data) {
+    id
+    name
+    description
+  }
+}
+    `;
+export type CreateOrganizationEmployeeRoleMutationFn = Apollo.MutationFunction<Types.CreateOrganizationEmployeeRoleMutation, Types.CreateOrganizationEmployeeRoleMutationVariables>;
+
+/**
+ * __useCreateOrganizationEmployeeRoleMutation__
+ *
+ * To run a mutation, you first call `useCreateOrganizationEmployeeRoleMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateOrganizationEmployeeRoleMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createOrganizationEmployeeRoleMutation, { data, loading, error }] = useCreateOrganizationEmployeeRoleMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateOrganizationEmployeeRoleMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateOrganizationEmployeeRoleMutation, Types.CreateOrganizationEmployeeRoleMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateOrganizationEmployeeRoleMutation, Types.CreateOrganizationEmployeeRoleMutationVariables>(CreateOrganizationEmployeeRoleDocument, options);
+      }
+export type CreateOrganizationEmployeeRoleMutationHookResult = ReturnType<typeof useCreateOrganizationEmployeeRoleMutation>;
+export type CreateOrganizationEmployeeRoleMutationResult = Apollo.MutationResult<Types.CreateOrganizationEmployeeRoleMutation>;
+export type CreateOrganizationEmployeeRoleMutationOptions = Apollo.BaseMutationOptions<Types.CreateOrganizationEmployeeRoleMutation, Types.CreateOrganizationEmployeeRoleMutationVariables>;
 export const GetOrganizationEmployeeSpecializationsDocument = gql`
     query getOrganizationEmployeeSpecializations($employeeId: ID!) {
   organizationEmployeeSpecializations: allOrganizationEmployeeSpecializations(

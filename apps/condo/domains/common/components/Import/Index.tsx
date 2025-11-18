@@ -23,6 +23,7 @@ import {
 import { ActiveModalType, BaseImportWrapper, ExtraModalContentType } from './BaseImportWrapper'
 
 export interface IImportWrapperProps<TExtraProps = unknown> {
+    headerRow?: number
     accessCheck: boolean
     onFinish?: () => void
     columns: Columns
@@ -39,6 +40,8 @@ export interface IImportWrapperProps<TExtraProps = unknown> {
     extraModalContent?: ExtraModalContentType
     handleClose?: () => void
     extraProps?: TExtraProps
+    setHandleActiveModal?: React.Dispatch<React.SetStateAction<ActiveModalType>>
+    handleActiveModal?: ActiveModalType
 }
 
 export function fitToColumn (arrayOfArray) {
@@ -57,6 +60,9 @@ export const ImportEmitter = {
 
 const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const {
+        headerRow = 0,
+        setHandleActiveModal,
+        handleActiveModal,
         accessCheck,
         columns,
         rowNormalizer,
@@ -76,7 +82,10 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const ChooseFileForUploadLabel = intl.formatMessage({ id: 'import.uploadModal.chooseFileForUpload' })
     const ErrorsMessage = intl.formatMessage({ id: 'import.Errors' })
 
-    const [activeModal, setActiveModal] = useState<ActiveModalType>()
+    const [innerActiveModal, setInnerActiveModal] = useState<ActiveModalType>()
+
+    const activeModal = handleActiveModal ?? innerActiveModal
+    const setActiveModal = setHandleActiveModal ?? setInnerActiveModal
 
     useEffect(() => {
         if (typeof activeModal !== 'undefined') {
@@ -89,7 +98,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         totalRowsRef.current = value
     }
 
-    const successRowsRef = useRef(0)
+    const successRowsRef = useRef(-headerRow)
     const setSuccessRowsRef = () => {
         successRowsRef.current = successRowsRef.current + 1
     }
@@ -107,6 +116,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         rowNormalizer,
         rowValidator,
         objectCreator,
+        headerRow,
         setTotalRows: setTotalRowsRef,
         setSuccessRows: setSuccessRowsRef,
         handleRowError,
@@ -129,10 +139,10 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         setActiveModal('progress')
 
         totalRowsRef.current = 0
-        successRowsRef.current = 0
+        successRowsRef.current = -headerRow
         if (errors.current.length > 0) clearErrors()
         importData(file.data)
-    }, [importData])
+    }, [headerRow, importData, setActiveModal])
 
     const handleDownloadPartyLoadedData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
@@ -191,10 +201,14 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         )
     }, [ChooseFileForUploadLabel, handleUpload])
 
+    const isViewButton = setHandleActiveModal && handleActiveModal === undefined
+
     return (
         accessCheck && (
             <BaseImportWrapper
                 {...{
+                    isViewButton,
+                    headerRow,
                     importCardButton,
                     setActiveModal,
                     domainName,

@@ -20,6 +20,7 @@ const SLEEP_INTERVAL_BEFORE_QUERIES = 1000
 
 interface IUseImporterProps {
     columns: Columns
+    headerRow: number
     rowNormalizer: RowNormalizer
     rowValidator: RowValidator
     objectCreator: ObjectCreator
@@ -33,6 +34,7 @@ interface IUseImporterProps {
 
 export const useImporter = ({
     columns,
+    headerRow,
     rowNormalizer,
     rowValidator,
     objectCreator,
@@ -82,9 +84,9 @@ export const useImporter = ({
         setIsImported(false)
         setError(null)
         setProgress(0)
-        setTotalRows(Math.max(0, data.length - 1))
+        setTotalRows(Math.max(0, data.length - (headerRow + 1)))
 
-        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors, mutationErrorsToMessages, SLEEP_INTERVAL_BEFORE_QUERIES, maxTableLength)
+        importer.current = new Importer(columns, rowNormalizer, rowValidator, objectCreator, errors, mutationErrorsToMessages, SLEEP_INTERVAL_BEFORE_QUERIES, maxTableLength, headerRow)
         importer.current.onProgressUpdate(setProgress)
         importer.current.onError((e) => {
             importer.current = null

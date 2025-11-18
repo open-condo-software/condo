@@ -535,6 +535,15 @@ export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables = Types
 
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeQuery = { __typename?: 'Query', invitations?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', name?: string | null } | null } | null> | null };
 
+export type CheckEmployeeExistsQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+  phone?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  email?: Types.InputMaybe<Types.Scalars['String']['input']>;
+}>;
+
+
+export type CheckEmployeeExistsQuery = { __typename?: 'Query', objs?: Array<{ __typename?: 'OrganizationEmployee', id: string, phone?: string | null, email?: string | null } | null> | null };
+
 export type GetLastUserOrganizationEmployeeRequestQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
 }>;
@@ -564,6 +573,13 @@ export type GetOrganizationEmployeeRolesByOrganizationQueryVariables = Types.Exa
 
 
 export type GetOrganizationEmployeeRolesByOrganizationQuery = { __typename?: 'Query', roles?: Array<{ __typename?: 'OrganizationEmployeeRole', id: string, name?: string | null, description?: string | null } | null> | null };
+
+export type CreateOrganizationEmployeeRoleMutationVariables = Types.Exact<{
+  data: Types.OrganizationEmployeeRoleCreateInput;
+}>;
+
+
+export type CreateOrganizationEmployeeRoleMutation = { __typename?: 'Mutation', obj?: { __typename?: 'OrganizationEmployeeRole', id: string, name?: string | null, description?: string | null } | null };
 
 export type GetOrganizationEmployeeSpecializationsQueryVariables = Types.Exact<{
   employeeId: Types.Scalars['ID']['input'];
