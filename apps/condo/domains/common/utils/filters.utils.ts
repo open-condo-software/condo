@@ -12,9 +12,10 @@ import React, { CSSProperties } from 'react'
 import { 
     CheckboxProps, 
     InputProps,
-    TableColumn,
     SelectProps as OpenSelectProps,
     OptionsItem,
+    FilterComponent,
+    TableColumn,
 } from '@open-condo/ui'
 
 import { ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -157,20 +158,20 @@ type CustomFilterType<RecordType> = {
     modalFilterComponent?: React.ReactElement | ((form: FormInstance) => React.ReactElement)
 }
 
-type OpenCustomFilterType<RecordType> = {
+type OpenCustomFilterType = {
     type: ComponentType.Custom
-    getComponentFilterDropdown?: ColumnType<RecordType>['filterDropdown']
+    getFilterComponent?: FilterComponent
     modalFilterComponent?: React.ReactElement | ((form: FormInstance) => React.ReactElement)
 }
 
 export type FilterComponentType<RecordType = unknown> = CommonFilterComponentType & (
     GQLSelectFilterType | InputFilterType | CheckboxGroupFilterType | CheckboxFilterType | SelectFilterType |
-    OpenSelectFilterType | TagsSelectFilterType | DateFilterType | DateRangeFilterType | CustomFilterType<RecordType>
+    TagsSelectFilterType | DateFilterType | DateRangeFilterType | CustomFilterType<RecordType>
 )
 
-export type OpenFilterComponentType<RecordType = unknown> = CommonFilterComponentType & (
+export type OpenFilterComponentType = CommonFilterComponentType & (
     OpenGQLSelectFilterType | OpenInputFilterType | OpenCheckboxGroupFilterType | OpenCheckboxFilterType | OpenSelectFilterType |
-    OpenTagsSelectFilterType | OpenDateFilterType | OpenDateRangeFilterType | OpenCustomFilterType<RecordType>
+    OpenTagsSelectFilterType | OpenDateFilterType | OpenDateRangeFilterType | OpenCustomFilterType
 )
 
 export type nonCustomFilterComponentType = CommonFilterComponentType & (
@@ -178,17 +179,14 @@ export type nonCustomFilterComponentType = CommonFilterComponentType & (
     TagsSelectFilterType | DateFilterType | DateRangeFilterType
 )
 
-export type nonOpenFilterComponentType = CommonFilterComponentType & (
-    OpenGQLSelectFilterType | OpenInputFilterType | OpenCheckboxGroupFilterType | OpenCheckboxFilterType | OpenSelectFilterType |
-    OpenTagsSelectFilterType | OpenDateFilterType | OpenDateRangeFilterType
-)
+export type nonOpenCustomFilterComponentType = CommonFilterComponentType & Omit<OpenFilterComponentType, ComponentType.Custom>
 
 export type FiltersMeta<FilterType, RecordType = unknown> = QueryMeta<FilterType> & {
     component?: FilterComponentType<RecordType>
 }
 
-export type OpenFiltersMeta<FilterType, RecordType = unknown> = QueryMeta<FilterType> & {
-    component?: OpenFilterComponentType<RecordType>
+export type OpenFiltersMeta<FilterType> = QueryMeta<FilterType> & {
+    component?: OpenFilterComponentType
 }
 
 export const getQueryToValueProcessorByType = (type: ComponentType) => {
@@ -301,7 +299,7 @@ export function getFilterDropdownByKey <FilterType, RecordType> (filterMetas: Ar
     }
 }
 
-export function getFilterComponentByKey <FilterType, RecordType> (filterMetas: Array<OpenFiltersMeta<FilterType, RecordType>>, key: string): TableColumn['filterComponent'] {
+export function getFilterComponentByKey <FilterType> (filterMetas: Array<OpenFiltersMeta<FilterType>>, key: string): TableColumn['filterComponent'] {
     const filterMeta = filterMetas.find(meta => meta.keyword === key)
     const component = filterMeta?.component
 
@@ -420,7 +418,7 @@ export function getFilterComponentByKey <FilterType, RecordType> (filterMetas: A
         }
 
         case ComponentType.Custom: {
-            return component?.getComponentFilterDropdown as TableColumn['filterComponent']
+            return component?.getFilterComponent
         }
 
         default:

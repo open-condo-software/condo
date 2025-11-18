@@ -28,8 +28,10 @@ import type {
     TableRef,
     TableApi,
     TableColumnMeta,
+    FilterComponent,
+    FilterConfig,
 } from '@open-condo/ui/src/components/Table/types'
-import { getFilterByKey } from '@open-condo/ui/src/components/Table/utils/filterComponents'
+import { getFilterComponentByKey } from '@open-condo/ui/src/components/Table/utils/filterComponents'
 import { renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderCellUtils'
 
 /**
@@ -99,7 +101,14 @@ function TableComponent<TData extends RowData = RowData> (
         }
 
         columns.forEach(c => {
-            const filterComponent = c.filterComponent ? (typeof c.filterComponent === 'function' ? c.filterComponent : getFilterByKey(c.filterComponent)) : undefined
+            let filterComponent: FilterComponent | undefined | FilterConfig
+            if (typeof c.filterComponent === 'function') {
+                filterComponent = c.filterComponent
+            } else if (c.filterComponent && typeof c.filterComponent === 'object' && 'key' in c.filterComponent) {
+                filterComponent = getFilterComponentByKey(c.filterComponent)
+            } else {
+                filterComponent = undefined
+            }
             const enableColumnFilter = !!filterComponent
             const enableColumnSettings = c.enableColumnSettings ?? (defaultColumn?.enableColumnSettings ?? true)
             const enableSorting = c.enableSorting ?? (defaultColumn?.enableSorting ?? false)

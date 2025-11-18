@@ -19,8 +19,6 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 const filterName = getStringContainsFilter('name')
 const filterPhone = getStringContainsFilter('phone')
 const filterEmail = getStringContainsFilter('email')
-const filterOwnershipPercentage = getStringContainsFilter('ownershipPercentage')
-const filterNote = getStringContainsFilter('note')
 const filterCommunityFee = getStringContainsFilter('communityFee')
 const filterUnitType = getStringContainsFilter('unitType')
 const filterAddressStringContains = getStringContainsFilter(['property', 'address'])
@@ -38,8 +36,6 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
     const EmailMessage = intl.formatMessage({ id: 'Email' })
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
-    const OwnershipPercentageMessage = intl.formatMessage({ id: 'contact.column.header.ownershipPercentage' })
-    const NoteMessage = intl.formatMessage({ id: 'contact.column.header.note' })
     const CommunityFeeMessage = intl.formatMessage({ id: 'contact.column.header.communityFee' })
     const StartDateMessage = intl.formatMessage({ id: 'global.filters.dateRange.start' })
     const EndDateMessage = intl.formatMessage({ id: 'global.filters.dateRange.end' })
@@ -190,26 +186,6 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
                 },
             },
             {
-                keyword: 'ownershipPercentage',
-                filters: [filterOwnershipPercentage],
-                component: {
-                    type: ComponentType.Input,
-                    props: {
-                        placeholder: OwnershipPercentageMessage,
-                    },
-                },
-            },
-            {
-                keyword: 'note',
-                filters: [filterNote],
-                component: {
-                    type: ComponentType.Input,
-                    props: {
-                        placeholder: NoteMessage,
-                    },
-                },
-            },
-            {
                 keyword: 'communityFee',
                 filters: [filterCommunityFee],
                 component: {
@@ -223,8 +199,6 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
     }, [
         CommunityFeeMessage,
         EnterAddressMessage,
-        NoteMessage,
-        OwnershipPercentageMessage,
         contactRoleOptions,
         EndDateMessage, 
         EnterUnitNameLabel, 

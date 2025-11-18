@@ -83,11 +83,11 @@ type ContactBaseSearchQuery = { organization: { id: string } } | { organization:
 
 type ContactPageContentProps = {
     baseSearchQuery: ContactBaseSearchQuery
-    role?: Pick<OrganizationEmployeeRole, 'canManageContacts'>
-    loading?: boolean
     filterMeta: OpenFiltersMeta<ContactWhereInput>[]
     tableColumns: TableColumn<GetContactsForTableQuery['contacts'][number]>[]
     tableRef: React.RefObject<TableRef | null>
+    role?: Pick<OrganizationEmployeeRole, 'canManageContacts'>
+    loading?: boolean
 }
 
 

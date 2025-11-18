@@ -20,6 +20,7 @@ export type {
     TableRef,
     FilterComponentProps,
     FilterComponent,
+    FilterConfig,
     RowSelectionState,
     SortState,
     FilterState,

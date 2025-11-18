@@ -1,5 +1,11 @@
 import { RowData, DeepKeys, SortingState, Table, ColumnDef } from '@tanstack/react-table'
 
+import type { 
+    TextColumnFilterConfig, 
+    SelectColumnFilterConfig, 
+    CheckboxGroupColumnFilterConfig,
+} from './utils/filterComponents'
+
 export type ColumnSettings = {
     visibility: boolean
     order: number
@@ -47,15 +53,10 @@ export type FilterComponentProps = {
     clearFilters: () => void
 }
 
-export type FilterComponentKey =
-    | 'textColumnFilter'
-    | 'selectColumnFilter'
-    | 'checkboxGroupColumnFilter'
-
-export type FilterConfig = {
-    key: FilterComponentKey
-    componentProps?: Record<string, unknown>
-}
+export type FilterConfig = 
+    | TextColumnFilterConfig
+    | SelectColumnFilterConfig
+    | CheckboxGroupColumnFilterConfig
 
 export type FilterComponent = (props: FilterComponentProps) => React.ReactNode
 

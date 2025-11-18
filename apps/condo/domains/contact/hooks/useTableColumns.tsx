@@ -2,7 +2,7 @@ import { GetContactsForTableQuery } from '@app/condo/gql'
 import { 
     Contact, 
     ContactWhereInput, 
-    OrganizationEmployeeRole,
+    ContactRole,
 } from '@app/condo/schema'
 import { useCallback, useMemo } from 'react'
 
@@ -56,16 +56,18 @@ export const useTableColumns: UseTableColumns = (filterMetas, tableRef) => {
         , [search, intl])
 
     const renderRole = useCallback(
-        (role: OrganizationEmployeeRole) => renderCell(role?.name ?? '—')
+        (role: ContactRole) => renderCell(role?.name ?? '—')
         , [renderCell])
 
     const renderDate = useCallback(
         (date) => getDateRender(intl, String(search))(date),
         [search, intl])
 
-    const renderPhone = useCallback(
-        (phone) => getTableCellRenderer({ search, href: `tel:${phone}` })(phone ?? '—')
-        , [search])
+    const renderPhone = useCallback((phone, contact) => {
+        const phonePrefix = contact?.organization?.phoneNumberPrefix
+
+        return getTableCellRenderer({ search, href: `tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}` })(phone)
+    }, [search])
 
     const renderEmail = useCallback(
         (email) => getTableCellRenderer({ search, href: email ? `mailto:${email}` : undefined })(email ?? '—')
