@@ -6211,6 +6211,58 @@ export function useUpdateOrganizationEmployeeTicketsForReassignmentMutation(base
 export type UpdateOrganizationEmployeeTicketsForReassignmentMutationHookResult = ReturnType<typeof useUpdateOrganizationEmployeeTicketsForReassignmentMutation>;
 export type UpdateOrganizationEmployeeTicketsForReassignmentMutationResult = Apollo.MutationResult<Types.UpdateOrganizationEmployeeTicketsForReassignmentMutation>;
 export type UpdateOrganizationEmployeeTicketsForReassignmentMutationOptions = Apollo.BaseMutationOptions<Types.UpdateOrganizationEmployeeTicketsForReassignmentMutation, Types.UpdateOrganizationEmployeeTicketsForReassignmentMutationVariables>;
+export const GetTicketCategoryClassifiersDocument = gql`
+    query getTicketCategoryClassifiers($where: TicketCategoryClassifierWhereInput, $first: Int, $skip: Int, $sortBy: [SortTicketCategoryClassifiersBy!]) {
+  objs: allTicketCategoryClassifiers(
+    where: $where
+    first: $first
+    skip: $skip
+    sortBy: $sortBy
+  ) {
+    id
+    name
+    organization {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetTicketCategoryClassifiersQuery__
+ *
+ * To run a query within a React component, call `useGetTicketCategoryClassifiersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketCategoryClassifiersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketCategoryClassifiersQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *      sortBy: // value for 'sortBy'
+ *   },
+ * });
+ */
+export function useGetTicketCategoryClassifiersQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetTicketCategoryClassifiersQuery, Types.GetTicketCategoryClassifiersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetTicketCategoryClassifiersQuery, Types.GetTicketCategoryClassifiersQueryVariables>(GetTicketCategoryClassifiersDocument, options);
+      }
+export function useGetTicketCategoryClassifiersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketCategoryClassifiersQuery, Types.GetTicketCategoryClassifiersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetTicketCategoryClassifiersQuery, Types.GetTicketCategoryClassifiersQueryVariables>(GetTicketCategoryClassifiersDocument, options);
+        }
+export function useGetTicketCategoryClassifiersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketCategoryClassifiersQuery, Types.GetTicketCategoryClassifiersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetTicketCategoryClassifiersQuery, Types.GetTicketCategoryClassifiersQueryVariables>(GetTicketCategoryClassifiersDocument, options);
+        }
+export type GetTicketCategoryClassifiersQueryHookResult = ReturnType<typeof useGetTicketCategoryClassifiersQuery>;
+export type GetTicketCategoryClassifiersLazyQueryHookResult = ReturnType<typeof useGetTicketCategoryClassifiersLazyQuery>;
+export type GetTicketCategoryClassifiersSuspenseQueryHookResult = ReturnType<typeof useGetTicketCategoryClassifiersSuspenseQuery>;
+export type GetTicketCategoryClassifiersQueryResult = Apollo.QueryResult<Types.GetTicketCategoryClassifiersQuery, Types.GetTicketCategoryClassifiersQueryVariables>;
 export const GetTicketChangesDocument = gql`
     query getTicketChanges($ticketId: ID!) {
   ticketChanges: allTicketChanges(

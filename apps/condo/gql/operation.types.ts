@@ -961,6 +961,16 @@ export type UpdateOrganizationEmployeeTicketsForReassignmentMutationVariables = 
 
 export type UpdateOrganizationEmployeeTicketsForReassignmentMutation = { __typename?: 'Mutation', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null };
 
+export type GetTicketCategoryClassifiersQueryVariables = Types.Exact<{
+  where?: Types.InputMaybe<Types.TicketCategoryClassifierWhereInput>;
+  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  skip?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  sortBy?: Types.InputMaybe<Array<Types.SortTicketCategoryClassifiersBy> | Types.SortTicketCategoryClassifiersBy>;
+}>;
+
+
+export type GetTicketCategoryClassifiersQuery = { __typename?: 'Query', objs?: Array<{ __typename?: 'TicketCategoryClassifier', id: string, name?: string | null, organization?: { __typename?: 'Organization', id: string } | null } | null> | null };
+
 export type GetTicketChangesQueryVariables = Types.Exact<{
   ticketId: Types.Scalars['ID']['input'];
 }>;

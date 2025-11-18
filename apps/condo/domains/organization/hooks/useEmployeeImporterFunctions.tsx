@@ -1,6 +1,6 @@
 import {
     useCheckEmployeeExistsLazyQuery, useCreateOrganizationEmployeeRoleMutation,
-    useGetOrganizationEmployeeRolesByOrganizationQuery,
+    useGetOrganizationEmployeeRolesByOrganizationQuery, useGetTicketCategoryClassifiersQuery,
 } from '@app/condo/gql'
 import {
     InviteNewOrganizationEmployeeInput,
@@ -14,7 +14,6 @@ import { useOrganization } from '@open-condo/next/organization'
 import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
 import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
 import { useInviteNewOrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { TicketCategoryClassifier } from '@condo/domains/ticket/utils/clientSchema'
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -52,7 +51,6 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
 
     const [checkEmployeeExists] = useCheckEmployeeExistsLazyQuery({
         fetchPolicy: 'network-only',
-        nextFetchPolicy: 'network-only',
     })
 
     const { data: employeeRoles, loading: isRolesLoading } = useGetOrganizationEmployeeRolesByOrganizationQuery({
@@ -68,29 +66,31 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
         }), {})
     }
 
-    const { loading: isSpecializationsLoading, objs: specializations } = TicketCategoryClassifier.useObjects({
-        where: {
-            OR: [
-                { organization_is_null: true },
-                { organization: { id: userOrganizationId } },
-            ],
+    const { data: ticketCategoryClassifiers, loading: isSpecializationsLoading } = useGetTicketCategoryClassifiersQuery({
+        variables: {
+            where: {
+                OR: [
+                    { organization_is_null: true },
+                    { organization: { id: userOrganizationId } },
+                ],
+            },
         },
     })
 
     if (!isSpecializationsLoading) {
-        specializationsCache = specializations.reduce((result, current) => ({
+        specializationsCache = ticketCategoryClassifiers?.objs?.reduce((result, current) => ({
             ...result,
             [String(current.name).toLowerCase().trim()]: current.id,
-        }), {})
+        }), {}) || {}
     }
 
     const columns: Columns = [
         { name: NameTitle + '*', type: 'string', required: true },
         { name: PhoneTitle + '*', type: 'string', required: true },
-        { name: EmailTitle, type: 'string', required: false },
-        { name: RoleTitle, type: 'string', required: true },
-        { name: PositionTitle, type: 'string', required: false },
+        { name: RoleTitle + '*', type: 'string', required: true },
         { name: SpecializationTitle, type: 'string', required: false },
+        { name: PositionTitle, type: 'string', required: false },
+        { name: EmailTitle, type: 'string', required: false },
     ]
 
     const employeeNormalizer: RowNormalizer = async (row) => {
@@ -102,11 +102,11 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
             role: null,
             email: null,
             position: null,
-            specialization: null,
+            specializations: [],
             hasAllSpecializations: false,
         }
 
-        const [name, phone, email, role, position, specialization] = row
+        const [name, phone, role, specialization, position, email] = row
 
         addons.name = String(name?.value ?? '').trim()
 
@@ -122,12 +122,14 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
 
         addons.position = String(position?.value ?? '').trim() || null
 
-        const specializationValue = String(specialization?.value ?? '').trim().toLowerCase()
+        const specializationValue = String(specialization?.value ?? '').trim()
         if (specializationValue) {
-            if (specializationValue === AllSpecializationsTitle.toLowerCase()) {
+            if (specializationValue.toLowerCase() === AllSpecializationsTitle.toLowerCase()) {
                 addons.hasAllSpecializations = true
             } else {
-                addons.specialization = specializationValue
+                addons.specializations = specializationValue.split(',')
+                    .map(value => value.trim().toLowerCase())
+                    .filter(Boolean)
             }
         }
 
@@ -187,10 +189,10 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
             }
         }
 
-        const specializationName = row?.addons?.specialization
-        if (specializationName && !row?.addons?.hasAllSpecializations) {
-            const specializationId = specializationsCache?.[specializationName]
-            if (!specializationId) {
+        const specializationNames = row?.addons?.specializations || []
+        if (specializationNames.length && !row?.addons?.hasAllSpecializations) {
+            const missingSpecializations = specializationNames.filter((name) => !specializationsCache?.[name])
+            if (missingSpecializations.length) {
                 errors.push(SpecializationNotFoundMessage)
             }
         }
@@ -251,10 +253,14 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
 
             if (hasAllSpecializations) {
                 employeeData.hasAllSpecializations = true
-            } else if (row.addons.specialization) {
-                const specializationId = specializationsCache[row.addons.specialization]
-                if (specializationId) {
-                    employeeData.specializations = [{ id: specializationId }]
+            } else if (row.addons.specializations?.length) {
+                const specializationIds = row.addons.specializations
+                    .map((name) => specializationsCache[name])
+                    .filter(Boolean)
+                    .map((id) => ({ id }))
+
+                if (specializationIds.length) {
+                    employeeData.specializations = specializationIds
                 }
             }
 
