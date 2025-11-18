@@ -1,0 +1,269 @@
+import {
+    useCheckEmployeeExistsLazyQuery, useCreateOrganizationEmployeeRoleMutation,
+    useGetOrganizationEmployeeRolesByOrganizationQuery,
+} from '@app/condo/gql'
+import {
+    InviteNewOrganizationEmployeeInput,
+    OrganizationEmployeeRoleTicketVisibilityTypeType,
+} from '@app/condo/schema'
+
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
+import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
+import { useInviteNewOrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { TicketCategoryClassifier } from '@condo/domains/ticket/utils/clientSchema'
+
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+
+let rolesCache = {}
+let specializationsCache = {}
+
+export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
+    const intl = useIntl()
+
+    const NameTitle = intl.formatMessage({ id: 'employee.import.column.Name' })
+    const PhoneTitle = intl.formatMessage({ id: 'employee.import.column.Phone' })
+    const RoleTitle = intl.formatMessage({ id: 'employee.import.column.Role' })
+    const EmailTitle = intl.formatMessage({ id: 'employee.import.column.Email' })
+    const PositionTitle = intl.formatMessage({ id: 'employee.import.column.Position' })
+    const SpecializationTitle = intl.formatMessage({ id: 'employee.import.column.Specialization' })
+    const AllSpecializationsTitle = intl.formatMessage({ id: 'employee.AllSpecializations' })
+
+    const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectRowFormat' })
+    const EmptyNameMessage = intl.formatMessage({ id: 'errors.import.employee.EmptyName' })
+    const NameWithSpecialCharactersMessage = intl.formatMessage({ id: 'errors.import.employee.NameWithSpecialCharacters' })
+    const IncorrectPhoneMessage = intl.formatMessage({ id: 'errors.import.employee.IncorrectPhone' })
+    const EmptyRoleMessage = intl.formatMessage({ id: 'errors.import.employee.EmptyRole' })
+    const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.IncorrectEmailFormat' })
+    const SpecializationNotFoundMessage = intl.formatMessage({ id: 'errors.import.employee.SpecializationNotFound' })
+    const AlreadyInvitedPhoneMessage = intl.formatMessage({ id: 'errors.import.employee.AlreadyInvitedPhone' })
+    const AlreadyInvitedEmailMessage = intl.formatMessage({ id: 'errors.import.employee.AlreadyInvitedEmail' })
+
+    const { organization } = useOrganization()
+    const userOrganizationId = organization.id
+
+    const inviteEmployeeAction = useInviteNewOrganizationEmployee({ organization: { id: userOrganizationId } }, () => {
+        return
+    })
+
+    const [checkEmployeeExists] = useCheckEmployeeExistsLazyQuery({
+        fetchPolicy: 'network-only',
+        nextFetchPolicy: 'network-only',
+    })
+
+    const { data: employeeRoles, loading: isRolesLoading } = useGetOrganizationEmployeeRolesByOrganizationQuery({
+        variables: {
+            organizationId: userOrganizationId,
+        },
+    })
+
+    if (!isRolesLoading) {
+        rolesCache = employeeRoles?.roles.reduce((result, current) => ({
+            ...result,
+            [String(current.name).toLowerCase().trim()]: current.id,
+        }), {})
+    }
+
+    const { loading: isSpecializationsLoading, objs: specializations } = TicketCategoryClassifier.useObjects({
+        where: {
+            OR: [
+                { organization_is_null: true },
+                { organization: { id: userOrganizationId } },
+            ],
+        },
+    })
+
+    if (!isSpecializationsLoading) {
+        specializationsCache = specializations.reduce((result, current) => ({
+            ...result,
+            [String(current.name).toLowerCase().trim()]: current.id,
+        }), {})
+    }
+
+    const columns: Columns = [
+        { name: NameTitle + '*', type: 'string', required: true },
+        { name: PhoneTitle + '*', type: 'string', required: true },
+        { name: EmailTitle, type: 'string', required: false },
+        { name: RoleTitle, type: 'string', required: true },
+        { name: PositionTitle, type: 'string', required: false },
+        { name: SpecializationTitle, type: 'string', required: false },
+    ]
+
+    const employeeNormalizer: RowNormalizer = async (row) => {
+        if (row.length !== columns.length) return { row }
+
+        const addons = {
+            name: null,
+            phone: null,
+            role: null,
+            email: null,
+            position: null,
+            specialization: null,
+            hasAllSpecializations: false,
+        }
+
+        const [name, phone, email, role, position, specialization] = row
+
+        addons.name = String(name?.value ?? '').trim()
+
+        const phoneValue = String(phone?.value ?? '').trim()
+        addons.phone = normalizePhone('+7' + phoneValue)
+
+        addons.role = String(role?.value ?? '').trim().toLowerCase()
+
+        const emailValue = String(email?.value ?? '').trim()
+        if (emailValue) {
+            addons.email = normalizeEmail(emailValue) || null
+        }
+
+        addons.position = String(position?.value ?? '').trim() || null
+
+        const specializationValue = String(specialization?.value ?? '').trim().toLowerCase()
+        if (specializationValue) {
+            if (specializationValue === AllSpecializationsTitle.toLowerCase()) {
+                addons.hasAllSpecializations = true
+            } else {
+                addons.specialization = specializationValue
+            }
+        }
+
+        return { row, addons }
+    }
+
+    const employeeValidator: RowValidator = async (row) => {
+        if (!row) return false
+        const errors = []
+
+        if (!row?.addons) errors.push(IncorrectRowFormatMessage)
+
+        const name = row?.addons?.name
+        if (!name) {
+            errors.push(EmptyNameMessage)
+        } else if (SPECIAL_CHAR_REGEXP.test(name)) {
+            errors.push(NameWithSpecialCharactersMessage)
+        }
+
+        const phone = row?.addons?.phone
+        if (!phone) {
+            errors.push(IncorrectPhoneMessage)
+        }
+
+        const roleName = row?.addons?.role
+        if (!roleName) {
+            errors.push(EmptyRoleMessage)
+        }
+
+        const rowEmail = row?.row?.[3]?.value ?? ''
+        if (rowEmail && !row?.addons?.email) {
+            errors.push(IncorrectEmailMessage)
+        }
+
+        if (phone || row?.addons?.email) {
+            try {
+
+                const { data } = await checkEmployeeExists({
+                    variables: {
+                        organizationId: userOrganizationId,
+                        phone: phone || null,
+                        email: row?.addons?.email || null,
+                    },
+                })
+
+                if (data?.objs && data.objs.length > 0) {
+                    const existingEmployee = data.objs[0]
+                    if (phone && existingEmployee.phone === phone) {
+                        errors.push(AlreadyInvitedPhoneMessage)
+                    }
+                    if (row?.addons?.email && existingEmployee.email === row.addons.email) {
+                        errors.push(AlreadyInvitedEmailMessage)
+                    }
+                }
+            } catch (e) {
+                console.error('Error checking existing employee:', e)
+            }
+        }
+
+        const specializationName = row?.addons?.specialization
+        if (specializationName && !row?.addons?.hasAllSpecializations) {
+            const specializationId = specializationsCache?.[specializationName]
+            if (!specializationId) {
+                errors.push(SpecializationNotFoundMessage)
+            }
+        }
+
+        if (errors.length) {
+            row.errors = errors
+            return false
+        }
+
+        return true
+    }
+
+    const [createEmployeeRole] = useCreateOrganizationEmployeeRoleMutation()
+
+    const employeeCreator: ObjectCreator = async (row) => {
+        if (!row) return
+
+        const name = row.addons.name
+        const phone = row.addons.phone
+        const roleName = row.addons.role
+        const email = row.addons.email
+        const position = row.addons.position
+        const hasAllSpecializations = row.addons.hasAllSpecializations
+
+        try {
+            let roleId = rolesCache[roleName]
+
+            if (!roleId) {
+                const newRole = await createEmployeeRole({
+                    variables: {
+                        data : {
+                            organization: { connect : { id: userOrganizationId } },
+                            ticketVisibilityType: OrganizationEmployeeRoleTicketVisibilityTypeType.Organization,
+                            name: roleName,
+                            dv: 1,
+                            sender: getClientSideSenderInfo(),
+                        },
+                    } } )
+                roleId = newRole.data.obj.id
+                rolesCache[roleName] = roleId
+            }
+
+            const employeeData: Omit<InviteNewOrganizationEmployeeInput, 'organization'> = {
+                name,
+                phone,
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+                role: { id: roleId },
+            }
+
+            if (email) {
+                employeeData.email = email
+            }
+
+            if (position) {
+                employeeData.position = position
+            }
+
+            if (hasAllSpecializations) {
+                employeeData.hasAllSpecializations = true
+            } else if (row.addons.specialization) {
+                const specializationId = specializationsCache[row.addons.specialization]
+                if (specializationId) {
+                    employeeData.specializations = [{ id: specializationId }]
+                }
+            }
+
+            await inviteEmployeeAction(employeeData)
+        } catch (error) {
+            row.errors = [String(error.message || error)]
+            row.shouldBeReported = true
+        }
+    }
+
+    return [columns, employeeNormalizer, employeeValidator, employeeCreator]
+}

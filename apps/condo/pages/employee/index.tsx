@@ -4,7 +4,7 @@ import { Col, Row } from 'antd'
 import { get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -12,6 +12,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import {
     ActionBar,
     Button,
+    Dropdown,
     Typography,
 } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
@@ -20,6 +21,8 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
+import { ActiveModalType } from '@condo/domains/common/components/Import/BaseImportWrapper'
+import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
@@ -30,6 +33,7 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
+import { useEmployeeImporterFunctions } from '@condo/domains/organization/hooks/useEmployeeImporterFunctions'
 import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/organization/hooks/useTableFilters'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -47,6 +51,7 @@ export const EmployeesPageContent = ({
     employeesLoading,
     total,
     addEmployeeLabel = undefined,
+    refetch,
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
@@ -54,11 +59,16 @@ export const EmployeesPageContent = ({
     const EmptyListLabel = intl.formatMessage({ id: 'employee.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'employee.EmptyList.title' })
     const AddEmployeeLabel = addEmployeeLabel || intl.formatMessage({ id: 'AddEmployee' })
+    const AddEmployeeFillWebFormLabel = intl.formatMessage({ id: 'employee.AddDropdown.FillWebForm' })
+    const AddEmployeeFillWebFormDescription = intl.formatMessage({ id: 'employee.AddDropdown.FillWebFormDescription' })
+    const AddEmployeeUploadExcelLabel = intl.formatMessage({ id: 'employee.AddDropdown.UploadExcel' })
+    const AddEmployeeUploadExcelDescription = intl.formatMessage({ id: 'employee.AddDropdown.UploadExcelDescription' })
 
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
 
     const { GlobalHints } = useGlobalHints()
+    const [columns, employeeNormalizer, employeeValidator, employeeCreator] = useEmployeeImporterFunctions()
 
     const rowClassName = (record) => {
         return record.isBlocked ? 'ant-table-row-inactive' : ''
@@ -82,6 +92,8 @@ export const EmployeesPageContent = ({
     const [search, handleSearchChange] = useSearch<IFilters>()
 
     const handleAddEmployee = () => router.push(ADD_EMPLOYEE_ROUTE)
+
+    const [activeModal, setActiveModal] = useState<ActiveModalType>(null)
 
     return (
         <>
@@ -130,13 +142,28 @@ export const EmployeesPageContent = ({
                                         <Col span={24}>
                                             <ActionBar
                                                 actions={[
-                                                    <Button
-                                                        key='create'
-                                                        type='primary'
-                                                        onClick={handleAddEmployee}
-                                                    >
-                                                        {AddEmployeeLabel}
-                                                    </Button>,
+                                                    <>
+                                                        <Dropdown.Button
+                                                            type='primary'
+                                                            items={[
+                                                                {
+                                                                    key: 'create',
+                                                                    label: AddEmployeeFillWebFormLabel,
+                                                                    description: AddEmployeeFillWebFormDescription,
+                                                                    onClick: handleAddEmployee,
+                                                                },
+                                                                {
+                                                                    key: 'import',
+                                                                    label: AddEmployeeUploadExcelLabel,
+                                                                    description: AddEmployeeUploadExcelDescription,
+                                                                    onClick: ()=> setActiveModal('example'),
+                                                                },
+                                                            ]
+                                                            }
+                                                        >
+                                                            {AddEmployeeLabel}
+                                                        </Dropdown.Button>
+                                                    </>,
                                                 ]}
                                             />
                                         </Col>
@@ -145,6 +172,19 @@ export const EmployeesPageContent = ({
                             </Row>
                     }
                 </TablePageContent>
+                <ImportWrapper
+                    setHandleActiveModal={setActiveModal}
+                    handleActiveModal={activeModal}
+                    key='import'
+                    accessCheck={canManageEmployee}
+                    headerRow={1}
+                    onFinish={refetch}
+                    columns={columns}
+                    rowNormalizer={employeeNormalizer}
+                    rowValidator={employeeValidator}
+                    objectCreator={employeeCreator}
+                    domainName='employee'
+                />
             </PageWrapper>
         </>
     )
@@ -174,6 +214,7 @@ const EmployeesPage: PageComponentType = () => {
         loading: employeesLoading,
         count: total,
         objs: employees,
+        refetch,
     } = OrganizationEmployee.useObjects({
         sortBy,
         where: searchEmployeeQuery,
@@ -190,6 +231,7 @@ const EmployeesPage: PageComponentType = () => {
             employees={employees}
             employeesLoading={employeesLoading}
             total={total}
+            refetch={refetch}
         />
     )
 }
