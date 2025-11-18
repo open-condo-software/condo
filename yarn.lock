@@ -1654,6 +1654,7 @@ __metadata:
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     jsonwebtoken: ^9.0.0
+    libphonenumber-js: ^1.12.26
     locale-currency: 1.0.0
     lodash: ^4.17.21
     next: ^15.4.6
@@ -31003,6 +31004,13 @@ __metadata:
     libbase64: 1.3.0
     libqp: 2.1.1
   checksum: c7b2ec88727912e8027e420e95cd7b7efc125955b360bfb18b6ca7e21a9eba65b8fff401060e7cc9624fd483923ddbc706d1ab89579e52d5471755a4720661d4
+  languageName: node
+  linkType: hard
+
+"libphonenumber-js@npm:^1.12.26":
+  version: 1.12.26
+  resolution: "libphonenumber-js@npm:1.12.26"
+  checksum: 6d6450a32334bf204c7e6b4477a19dbc8b93433814d5dd152364bf19b3a27870a4884db0c6b7d5299a6e879bdda20e01d6acdb6fbecd722e12ef3885252a078a
   languageName: node
   linkType: hard
 
