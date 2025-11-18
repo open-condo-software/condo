@@ -28796,7 +28796,7 @@ enum TicketChangeUnitTypeToType {
   warehouse
 }
 
-""" Incremental changes of Ticket """
+""" Tracks incremental changes to a ticket """
 type TicketChange {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -28807,7 +28807,7 @@ type TicketChange {
   """
   _label_: String
 
-  """ Related ticket, whose change is logged in this entity """
+  """ Ticket whose changes are recorded in this entry """
   ticket: Ticket
 
   """ Counter showing the number of changes `status` to `new_or_reopened` """
@@ -29242,11 +29242,11 @@ type TicketChange {
   sourceDisplayNameTo: String
   sourceDisplayNameToNonLocalized: String
 
-  """ Actual creation ticket change date, for case when ticket updated from offline 
+  """ Date when this change was originally created, used when syncing offline updates 
   """
   actualCreationDate: String
 
-  """ Type of user who changed the ticket, can be employee role from same organization or related, resident or deleted employee 
+  """ Role of the user who made the change. Can be an employee role from the same or a linked organization, a resident, or a deleted employee 
   """
   changedByRole: String
   id: ID!
@@ -32418,7 +32418,7 @@ input TicketProblemClassifierHistoryRecordsCreateInput {
   data: TicketProblemClassifierHistoryRecordCreateInput
 }
 
-""" Describes what work needs to be done to fix incident """
+""" Describes what work needs to be done to fix the incident """
 type TicketProblemClassifier {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -37956,10 +37956,10 @@ type IncidentClassifier {
   """
   organization: Organization
 
-  """ Type of work to fix incident """
+  """ Type of work required to fix the incident """
   category: TicketCategoryClassifier
 
-  """ What needs to be done """
+  """ Specific task that needs to be performed """
   problem: TicketProblemClassifier
   id: ID!
   v: Int
@@ -65974,8 +65974,7 @@ type ShortScopesField {
   firstOnes: [NewsItemScope]!
 }
 
-""" The news item created by the organization to show on resident's mobile devices 
-"""
+""" News item created by an organization for residents' mobile devices """
 type NewsItem {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -65990,25 +65989,25 @@ type NewsItem {
   """
   organization: Organization
 
-  """ The news item number """
+  """ Sequential number of the news item within the organization """
   number: Int
 
-  """ The news item title """
+  """ Title of the news item """
   title: String
 
-  """ The news item main body """
+  """ Main body of the news item """
   body: String
 
   """ The news item type. The `common` type generates push messages no more than 1 per hour per single user. Also, the resident may disable push messages for this type. The `emergency` type will always be accompanied by a push message and shown at the top of the news list. Also, this type always has a news item validity date. 
   """
   type: NewsItemTypeType
 
-  """ Date before which the news item makes sense """
+  """ Date after which the news item is no longer relevant """
   validBefore: String
 
   """
-   Start time for sending notifications.
-  If the value is null, but the “isPublished” flag is true, then the "sendAt" value will be automatically set to "publishedAt" + 15 sec 
+   Scheduled time for sending notifications.
+  If null while the “isPublished” flag is true, the value is automatically set to "publishedAt" + 15 seconds 
   """
   sendAt: String
   scopes(where: NewsItemScopeWhereInput, search: String, sortBy: [SortNewsItemScopesBy!], orderBy: String, first: Int, skip: Int): [NewsItemScope!]!
@@ -66020,15 +66019,15 @@ type NewsItem {
   """
   compactScopes: ShortScopesField
 
-  """ The date when newsItem was sent to residents. This is an internal field used to detect was the message has already been sent or not. 
+  """ Date when the news item was sent to residents. Used internally to determine whether the message has already been delivered. 
   """
   sentAt: String
 
-  """ Shows if the news item is ready to be shown and send to residents """
+  """ Indicates whether the news item is ready to be shown and sent to residents 
+  """
   isPublished: Boolean
 
-  """ The date when the news item was published. It is an auto-Calculated field. 
-  """
+  """ Date when the news item was published. Auto-calculated field """
   publishedAt: String
   id: ID!
   v: Int
@@ -66587,7 +66586,7 @@ enum NewsItemScopeUnitTypeType {
   warehouse
 }
 
-""" Which residents can see the particular news item """
+""" Defines which residents can view a particular news item """
 type NewsItemScope {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -66598,20 +66597,20 @@ type NewsItemScope {
   """
   _label_: String
 
-  """ The scope type. This is an auto-calculated field. Used to find news items by scopes filled with some set of attributes. 
+  """ Scope type. Calculated automatically and used to find news items by the attributes provided in the scope 
   """
   type: NewsItemScopeTypeType
 
-  """ The news item to control access for """
+  """ News item whose audience is limited by this scope """
   newsItem: NewsItem
 
-  """ Filter on Resident by property, who can read news """
+  """ Limits eligible residents to a specific property """
   property: Property
 
-  """ Filter on Resident by unit type, who can read news """
+  """ Limits eligible residents to a specific unit type """
   unitType: NewsItemScopeUnitTypeType
 
-  """ Filter on Resident by unit name, who can read news. Because in case when a Property will have several units of different types, NewsItem can go to wrong recipients. In practice, when an organization needs to address specific residents it is usually assumed, that they are from units of some specific type, for example, a flat. Without this restriction, a NewsItem, targeted only to unitName 1 can potentially be received by residents of flat 1, parking 1 etc. 
+  """ Limits eligible residents to a specific unit name. Prevents sending a message to residents of units with the same name but different types (for example, flat 1 versus parking 1) 
   """
   unitName: String
   id: ID!
@@ -67122,7 +67121,7 @@ enum NewsItemTemplateCategoryType {
   FIRE_PROTECTION
 }
 
-""" The news item template for quick composing a news item """
+""" Template that helps compose news items quickly """
 type NewsItemTemplate {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -67133,25 +67132,24 @@ type NewsItemTemplate {
   """
   _label_: String
 
-  """ The news item template type. """
+  """ Template type used when creating a news item """
   type: NewsItemTemplateTypeType
 
-  """ Organization who creates the template. A common template if there is no organization 
+  """ Organization that created the template. Leave empty for a common template 
   """
   organization: Organization
 
-  """ Name of template the news item. Example `Heating outage due to repairs` or any other text value 
-  """
+  """ Template name (for example, `Heating outage due to repairs`) """
   name: String
 
-  """ Category of template of the news item. Example `Water` or any other select value. News item does not necessarily have a category 
+  """ Suggested category for news items created from this template (for example, `Water`). Optional 
   """
   category: NewsItemTemplateCategoryType
 
-  """ The title of a future news item """
+  """ Default title for a news item created from this template """
   title: String
 
-  """ A future news item's body """
+  """ Default body for a news item created from this template """
   body: String
   id: ID!
   v: Int
@@ -67569,7 +67567,7 @@ input NewsItemUserReadHistoryRecordsCreateInput {
   data: NewsItemUserReadHistoryRecordCreateInput
 }
 
-""" The fact the user has read the particular news item """
+""" Records that a user has read a particular news item """
 type NewsItemUserRead {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -67580,10 +67578,10 @@ type NewsItemUserRead {
   """
   _label_: String
 
-  """ The news item the user has read """
+  """ News item that the user read """
   newsItem: NewsItem
 
-  """ The user who has read the particular news item """
+  """ User who read the news item """
   user: User
   id: ID!
   v: Int
@@ -67969,7 +67967,7 @@ enum NewsItemRecipientsExportTaskStatusType {
   cancelled
 }
 
-""" Stores data about the exporting """
+""" Stores metadata about exporting news recipients """
 type NewsItemRecipientsExportTask {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -67980,19 +67978,19 @@ type NewsItemRecipientsExportTask {
   """
   _label_: String
 
-  """ The user who has started the exporting """
+  """ User who started the export """
   user: User
 
-  """ The organization from which the recipients will be exported from """
+  """ Organization whose recipients are exported """
   organization: Organization
 
-  """ The array of recipients' scopes """
+  """ Scopes that define which recipients are exported """
   scopes: JSON
 
-  """ Status of export job """
+  """ Current status of the export job """
   status: NewsItemRecipientsExportTaskStatusType
 
-  """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
+  """ Metadata about the exported file stored outside the database. The JSON structure depends on the storage adapter 
   """
   file: File
   id: ID!
@@ -68429,7 +68427,7 @@ enum NewsItemSharingStatusType {
   error
 }
 
-""" Existence of this models means that certain NewsItem should published in certain B2BApp that implements NewsSharing API. 
+""" Represents publishing a news item to a specific B2B mini-app that implements the NewsSharing API 
 """
 type NewsItemSharing {
   """
@@ -68441,24 +68439,23 @@ type NewsItemSharing {
   """
   _label_: String
 
-  """ Connection to the miniapp that is responsible for publishing this news item 
-  """
+  """ Mini-app context responsible for publishing this news item """
   b2bAppContext: B2BAppContext
 
-  """ Connection to the published news item """
+  """ News item that should be published through this mini-app """
   newsItem: NewsItem
 
-  """ Sending parameters specific to a particular mini-app """
+  """ Parameters passed to the mini-app when publishing the news item """
   sharingParams: JSON
 
-  """ Publication status of the news: updated automatically """
+  """ Publication status of the news item. Updated automatically """
   status: NewsItemSharingStatusType
 
-  """ Explanations regarding the publication status. Might be shown to user 
+  """ Explanation of the current publication status. May be shown to the user 
   """
   statusMessage: String
 
-  """ The outcome from the most recent invocation of the lastPostRequest """
+  """ Payload and result of the most recent lastPostRequest call """
   lastPostRequest: JSON
   id: ID!
   v: Int
