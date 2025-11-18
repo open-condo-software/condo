@@ -23,12 +23,9 @@
   padding-left: 24px;
 }
 
-.news-item-card-markdown :global(.condo-markdown) {
-  color: inherit;
-}
-
-.news-item-card-markdown :global(.condo-markdown > *) {
+.news-item-card-markdown :global(.condo-markdown *) {
   margin-bottom: 0;
+  color: inherit;
 }
 
 .news-item-card .news-item-card-footer {

@@ -76,9 +76,9 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                         <Typography.Text strong type='secondary'>{TitleLabel}</Typography.Text><br/>
                         <Typography.Paragraph type='secondary'>{title}</Typography.Paragraph>
                     </div>
-                    <div>
+                    <div className={styles.newsItemCardMarkdown}>
                         <Typography.Text strong type='secondary'>{BodyLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary' className={styles.newsItemCardMarkdown}>
+                        <Typography.Paragraph type='secondary'>
                             <Markdown type='inline'>{body}</Markdown>
                         </Typography.Paragraph>
                     </div>
@@ -113,7 +113,7 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                         <Typography.Text strong type='secondary'>{TitleLabel}</Typography.Text><br/>
                         <Typography.Paragraph type='secondary'>{title}</Typography.Paragraph>
                     </Col>
-                    <Col span={24}>
+                    <Col span={24} className={styles.newsItemCardMarkdown}>
                         <Typography.Text strong type='secondary'>{BodyLabel}</Typography.Text><br/>
                         <Typography.Paragraph
                             ellipsis={{
@@ -122,7 +122,6 @@ const NewsItemCard: React.FC<NewsItemCardProps> = ({
                                 onEllipsis: (ellipsis: boolean) => setIsEllipsis(ellipsis),
                             }}
                             type='secondary'
-                            className={styles.newsItemCardMarkdown}
                         >
                             <Markdown type='inline'>{body}</Markdown>
                         </Typography.Paragraph>
