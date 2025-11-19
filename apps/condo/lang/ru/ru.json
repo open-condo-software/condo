@@ -3379,6 +3379,7 @@
   "ticket.source.SOCIAL_NETWORK.name": "Соц. сети (vk, fb, ..)",
   "ticket.source.VISIT.name": "Визит в офис",
   "ticket.source.WEB_APP.name": "ЛК сайт",
+  "ticket.source.WEB_APP_RESIDENT.name": "Личный кабинет жителя",
   "ticket.status.CLOSED.many": "Закрытые",
   "ticket.status.CLOSED.name": "Закрыта",
   "ticket.status.COMPLETED.many": "Выполненные",

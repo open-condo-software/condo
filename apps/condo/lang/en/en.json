@@ -3379,6 +3379,7 @@
   "ticket.source.SOCIAL_NETWORK.name": "Social media (vk, fb, ..)",
   "ticket.source.VISIT.name": "Office visit",
   "ticket.source.WEB_APP.name": "Web application",
+  "ticket.source.WEB_APP_RESIDENT.name": "Resident web application",
   "ticket.status.CLOSED.many": "Closed",
   "ticket.status.CLOSED.name": "Closed",
   "ticket.status.COMPLETED.many": "Completed",
