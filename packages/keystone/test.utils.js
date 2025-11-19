@@ -16,7 +16,7 @@ const { gql } = require('graphql-tag')
 const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template, pick, set, isArray } = require('lodash')
 const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
-
+const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const conf = require('@open-condo/config')
 const { getTranslations } = require('@open-condo/locales/loader')
 
@@ -546,6 +546,85 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
 
 const makeLoggedInAdminClient = async () => {
     return await makeLoggedInClient({ email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET })
+}
+
+class OIDCAuthClient {
+
+    constructor (authToken) {
+        this.authToken = authToken
+        this.cookieJar = new fetch.Headers()
+    }
+
+    async oidcRequest (url) {
+        const response = await fetch(url, {
+            headers: {
+                ...this.authToken ? { authorization: `Bearer ${this.authToken}` } : {},
+                cookie: [...this.cookieJar.entries()].map(([name, value]) => `${name}=${value}`).join('; '),
+            },
+            redirect: 'manual',
+            credentials: 'same-origin',
+        })
+        if (response.status >= 400) {
+            throw new Error(`OIDC request failed: ${response.status} ${response.statusText}`)
+        }
+        const newCookies = response.headers.raw()['set-cookie']
+        if (newCookies) {
+            newCookies.forEach(cookie => {
+                const [cookieValue] = cookie.split(';')
+                const [name, value] = cookieValue.split('=')
+                this.cookieJar.set(name, value)
+            })
+        }
+        return {
+            location: response.headers.get('location'),
+            debug: await response.text(),
+        }
+    }
+
+}
+
+const makeLoggedInMiniAppClient = async (loggenInCondoClient, miniAppUrl, oidcAuthRequestParams = {}) => {
+    const authCookie = loggenInCondoClient.getCookie().split(';').find(cookie => cookie.startsWith('keystone.sid='))
+    if (!authCookie) {
+        throw new Error('keystone.sid cookie not found')
+    }
+    const miniAppAuth = new OIDCAuthClient()
+    const condoAuth = new OIDCAuthClient(decodeURIComponent(authCookie.split('=')[1]).split(':')[1])
+    // const condoAuth = new OIDCAuthClient(decodeURIComponent(authCookie.split('=')[1]))
+
+    const { origin: miniAppUrlOrigin } = new URL(miniAppUrl)
+    const oidcAuthUrl = new URL(`${miniAppUrlOrigin}/oidc/auth`)
+    Object.keys(oidcAuthRequestParams).forEach((k) => oidcAuthUrl.searchParams.set(k, oidcAuthRequestParams[k]))
+    // Start auth
+    const { location: startAuthUrl } = await miniAppAuth.oidcRequest(oidcAuthUrl.toString())
+    // Condo redirects
+    const { location: interactUrl } = await condoAuth.oidcRequest(startAuthUrl)
+    const { location: interactCompleteUrl } = await condoAuth.oidcRequest(interactUrl)
+    const { location: completeAuthUrl } = await condoAuth.oidcRequest(interactCompleteUrl)
+    // Complete auth
+    await miniAppAuth.oidcRequest(completeAuthUrl)
+    const decodedToken = decodeURIComponent(miniAppAuth.cookieJar.get('keystone.sid'))
+
+    const miniAppClient = await makeClient({ serverUrl: miniAppUrl })
+    miniAppClient.setHeaders({
+        'Authorization': `Bearer ${decodedToken.split(':')[1]}`,
+    })
+
+    const whoAmIQuery = gql`
+        query auth {
+            authenticatedUser {
+                id
+                name
+            }
+        }
+    `
+
+    const { data, errors } = await miniAppClient.query(whoAmIQuery)
+    throwIfError(data, errors, { query: whoAmIQuery })
+
+    miniAppClient.user = data.authenticatedUser
+
+    return miniAppClient
 }
 
 /**
@@ -1153,6 +1232,7 @@ module.exports = {
     makeClient,
     makeLoggedInClient,
     makeLoggedInAdminClient,
+    makeLoggedInMiniAppClient,
     gql,
     DEFAULT_TEST_ADMIN_IDENTITY,
     DEFAULT_TEST_ADMIN_SECRET,
