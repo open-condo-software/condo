@@ -123,12 +123,12 @@ class AwsFileAdapter {
     publicUrl ({ filename, originalFilename, ...props }, user) {
         let folder = this.folder
         let sign
-        if ('meta' in props && props['meta']['appId']) {
-            folder = props['meta']['appId']
+        if ('meta' in props && props['meta']['fileClientId']) {
+            folder = props['meta']['sourceFileClientId'] || props['meta']['fileClientId']
             if (!conf['FILE_SECRET']) {
                 throw new Error('FILE_SECRET is not configured')
             }
-            sign = jwt.sign({ id: props.id, filename, appId: props.meta.appId, user }, conf['FILE_SECRET'], { expiresIn: '1m', algorithm: 'HS256' })
+            sign = jwt.sign({ id: props.id, filename, fileClientId: folder, user }, conf['FILE_SECRET'], { expiresIn: '1h', algorithm: 'HS256' })
         }
 
         if (this.shouldResolveDirectUrl) {
@@ -163,7 +163,7 @@ const awsRouterHandler = ({ keystone }) => {
     const s3Config = AWS_CONFIG ? JSON.parse(AWS_CONFIG) : {}
     const acl = new AwsS3Acl(s3Config)
 
-    const appClients = conf['FILE_APP_CLIENTS'] ? JSON.parse(conf['FILE_APP_CLIENTS']) : {}
+    const appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
 
     return async function (req, res, next) {
         if (!req.user) {

@@ -23,6 +23,11 @@
   padding-left: 24px;
 }
 
+.news-item-card-markdown :global(.condo-markdown *) {
+  margin-bottom: 0;
+  color: inherit;
+}
+
 .news-item-card .news-item-card-footer {
   margin-top: 8px;
   padding-top: 24px;

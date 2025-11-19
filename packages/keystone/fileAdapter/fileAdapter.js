@@ -40,19 +40,19 @@ class LocalFileAdapter extends BaseLocalFileAdapter {
     }
 
     publicUrl ({ filename, ...props }, user) {
-        if ('meta' in props && props['meta']['appId']) {
+        if ('meta' in props && props['meta']['fileClientId']) {
             const meta = props['meta']
 
-            const appId = meta.sourceAppId || meta.appId
+            const fileClientId = meta.sourceFileClientId || meta.fileClientId
             let sign
             if (user !== null) {
                 if (!conf['FILE_SECRET']) {
                     throw new Error('FILE_SECRET is not configured')
                 }
                 sign = jwt.sign(
-                    { id: props.id, user, appId },
+                    { id: props.id, user, fileClientId },
                     conf['FILE_SECRET'],
-                    { expiresIn: '1m' }
+                    { expiresIn: '1h' }
                 )
             }
 
@@ -60,7 +60,7 @@ class LocalFileAdapter extends BaseLocalFileAdapter {
                 ? `?sign=${sign}`
                 : ''
 
-            return `${this.mediaPath}/${appId}/${filename}${search}`
+            return `${this.mediaPath}/${fileClientId}/${filename}${search}`
         }
 
         return super.publicUrl({ filename })
@@ -74,7 +74,7 @@ class LocalFilesMiddleware {
         if (typeof src !== 'string') throw new Error('LocalFilesMiddleware requires a "src" option, which must be a string.')
         this._path = path
         this._src = src
-        this._appClients = conf['FILE_APP_CLIENTS'] ? JSON.parse(conf['FILE_APP_CLIENTS']) : {}
+        this._appClients = conf['FILE_UPLOAD_CONFIG'] ? get(JSON.parse(conf['FILE_UPLOAD_CONFIG']), 'clients', {}) : {}
     }
 
     prepareMiddleware () {

@@ -89,7 +89,7 @@ import {
 } from '@condo/domains/ticket/contexts/TicketQualityControlContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { usePollTicketComments } from '@condo/domains/ticket/hooks/usePollTicketComments'
-import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
+import { hasTicketChangeDiff, useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
 import { useTicketDocumentGenerationTask } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import {
@@ -590,7 +590,11 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
         },
         skip: !persistor,
     })
-    const ticketChanges = useMemo(() => ticketChangesData?.ticketChanges?.filter(Boolean) || [], [ticketChangesData?.ticketChanges])
+    const ticketChanges = useMemo(() => {
+        const changes = ticketChangesData?.ticketChanges?.filter(Boolean) || []
+
+        return changes.filter(hasTicketChangeDiff)
+    }, [ticketChangesData?.ticketChanges])
     const ticketChangesCount = useMemo(() => ticketChanges.length, [ticketChanges.length])
 
     const {

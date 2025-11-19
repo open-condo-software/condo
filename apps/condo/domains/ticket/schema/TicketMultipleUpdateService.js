@@ -13,7 +13,7 @@ const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
 
 const TicketMultipleUpdateService = new GQLCustomSchema('TicketMultipleUpdateService', {
-    schemaDoc: 'This mutation is used to update ticket sequentially from the technic mobile application (when user enter in online)',
+    schemaDoc: 'Mutation used by the technician mobile app to sequentially apply queued ticket updates once the device is online',
     types: [
         {
             access: true,

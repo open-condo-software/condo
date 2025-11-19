@@ -16,6 +16,7 @@ const {
     SHORT_DESCRIPTION_FIELD,
     DEVELOPER_FIELD,
     IS_HIDDEN_FIELD,
+    IFRAME_URL_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
@@ -40,6 +41,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
         developer: DEVELOPER_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         colorSchema: COLOR_SCHEMA_FIELD,
+        appUrl: IFRAME_URL_FIELD,
         currentBuild: {
             schemaDoc: 'Link to current active app build',
             type: 'Relationship',

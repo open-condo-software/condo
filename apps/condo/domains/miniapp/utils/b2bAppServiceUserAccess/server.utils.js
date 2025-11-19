@@ -22,7 +22,7 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
 
     const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
 
-    const sessionRestrictions = parseSession(context.req.session)
+    const sessionRestrictions = parseSession(context?.req?.session)
 
     const permissionKey = `canRead${pluralize.plural(listKey)}`
     if (sessionRestrictions.enabledB2BAppPermissions !== true && !sessionRestrictions.enabledB2BAppPermissions.includes(permissionKey)) {

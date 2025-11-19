@@ -11,7 +11,7 @@
     "types:watch": "yarn maketypes --watch"
   },
   "dependencies": {
-    "@ant-design/cssinjs": "^1.18.5",
+    "@ant-design/cssinjs": "^1.24.0",
     "@apollo/client": "^3.11.8",
     "@open-condo/apollo": "workspace:^",
     "@open-condo/billing": "workspace:^",
@@ -21,7 +21,7 @@
     "@open-condo/miniapp-utils": "workspace:^",
     "@open-condo/tsconfig": "workspace:^",
     "@open-condo/ui": "workspace:^",
-    "antd": "5.16.4",
+    "antd": "5.28.0",
     "classnames": "^2.5.1",
     "cookies-next": "^4.2.1",
     "glob": "8.1.0",

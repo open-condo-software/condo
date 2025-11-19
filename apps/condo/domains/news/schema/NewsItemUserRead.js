@@ -20,11 +20,11 @@ const ERRORS = {
 }
 
 const NewsItemUserRead = new GQLListSchema('NewsItemUserRead', {
-    schemaDoc: 'The fact the user has read the particular news item',
+    schemaDoc: 'Records that a user has read a particular news item',
     fields: {
 
         newsItem: {
-            schemaDoc: 'The news item the user has read',
+            schemaDoc: 'News item that the user read',
             type: 'Relationship',
             ref: 'NewsItem',
             isRequired: true,
@@ -33,7 +33,7 @@ const NewsItemUserRead = new GQLListSchema('NewsItemUserRead', {
         },
 
         user: {
-            schemaDoc: 'The user who has read the particular news item',
+            schemaDoc: 'User who read the news item',
             type: 'Relationship',
             ref: 'User',
             isRequired: true,

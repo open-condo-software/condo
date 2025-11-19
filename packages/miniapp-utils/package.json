@@ -57,6 +57,9 @@
       "helpers/i18n": [
         "dist/helpers/i18n.d.ts"
       ],
+      "helpers/messaging": [
+        "dist/helpers/messaging/index.d.ts"
+      ],
       "helpers/oidc": [
         "dist/helpers/oidc.d.ts"
       ],
@@ -127,6 +130,11 @@
       "require": "./dist/helpers/i18n.js",
       "import": "./dist/helpers/i18n.mjs"
     },
+    "./helpers/messaging": {
+      "types": "./dist/helpers/messaging/index.d.ts",
+      "require": "./dist/helpers/messaging/index.js",
+      "import": "./dist/helpers/messaging/index.mjs"
+    },
     "./helpers/oidc": {
       "types": "./dist/helpers/oidc.d.ts",
       "require": "./dist/helpers/oidc.js",
@@ -183,12 +191,14 @@
   },
   "peerDependencies": {
     "@apollo/client": ">=3.0.0",
+    "@open-condo/bridge": ">=2.0.0",
     "analytics": "^0.8.16",
     "react": ">=16.0.0",
     "react-dom": ">=16.0.0"
   },
   "devDependencies": {
     "@apollo/client": "^3.11.8",
+    "@open-condo/bridge": "workspace:^",
     "@open-condo/tsconfig": "workspace:^",
     "@types/http-proxy": "^1.17.16",
     "@types/jest": "^29.5.14",

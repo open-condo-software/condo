@@ -64,6 +64,7 @@ const inviteRequiredFields = conf['INVITE_REQUIRED_FIELDS'] ? JSON.parse(conf['I
 const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
 const defaultStaffAuthMethods = conf['DEFAULT_STAFF_AUTH_METHODS'] ? JSON.parse(conf['DEFAULT_STAFF_AUTH_METHODS']) : []
 const verifyUserEmailWithMarketingConsentEnabled = conf['VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED'] === 'true'
+const fileClientId = conf['FILE_CLIENT_ID']
 
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
 
@@ -137,9 +138,23 @@ const nextConfig: NextConfig = {
         footerConfig,
         defaultStaffAuthMethods,
         verifyUserEmailWithMarketingConsentEnabled,
+        fileClientId,
     },
     serverRuntimeConfig: {
         proxyName,
+    },
+    async headers () {
+        return [
+            {
+                source: '/:path*.(jpg|jpeg|png|gif|ico|svg|webp|avif|woff|woff2|ttf|otf|eot)',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=604800, stale-while-revalidate=86400',
+                    },
+                ],
+            },
+        ]
     },
     async redirects () {
         return [

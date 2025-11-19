@@ -42,6 +42,7 @@
     "@open-condo/codegen": "workspace:^",
     "@open-condo/config": "workspace:^",
     "@open-condo/featureflags": "workspace:^",
+    "@open-condo/files": "workspace:^",
     "@open-condo/icons": "workspace:^",
     "@open-condo/keystone": "workspace:^",
     "@open-condo/locales": "workspace:^",
