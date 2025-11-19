@@ -23,7 +23,7 @@ import {
 import { ActiveModalType, BaseImportWrapper, ExtraModalContentType } from './BaseImportWrapper'
 
 export interface IImportWrapperProps<TExtraProps = unknown> {
-    headerRow?: number
+    headerRowIndex?: number
     accessCheck: boolean
     onFinish?: () => void
     columns: Columns
@@ -60,7 +60,7 @@ export const ImportEmitter = {
 
 const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const {
-        headerRow = 0,
+        headerRowIndex = 0,
         setHandleActiveModal,
         handleActiveModal,
         accessCheck,
@@ -98,7 +98,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         totalRowsRef.current = value
     }
 
-    const successRowsRef = useRef(-headerRow)
+    const successRowsRef = useRef(0)
     const setSuccessRowsRef = () => {
         successRowsRef.current = successRowsRef.current + 1
     }
@@ -116,7 +116,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         rowNormalizer,
         rowValidator,
         objectCreator,
-        headerRow,
+        headerRowIndex,
         setTotalRows: setTotalRowsRef,
         setSuccessRows: setSuccessRowsRef,
         handleRowError,
@@ -139,10 +139,10 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         setActiveModal('progress')
 
         totalRowsRef.current = 0
-        successRowsRef.current = -headerRow
+        successRowsRef.current = 0
         if (errors.current.length > 0) clearErrors()
         importData(file.data)
-    }, [headerRow, importData, setActiveModal])
+    }, [importData, setActiveModal])
 
     const handleDownloadPartyLoadedData = useCallback(() => {
         return new Promise<void>((resolve, reject) => {
@@ -201,14 +201,13 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         )
     }, [ChooseFileForUploadLabel, handleUpload])
 
-    const isViewButton = setHandleActiveModal && handleActiveModal === undefined
+    const showImportTrigger = setHandleActiveModal && handleActiveModal === undefined
 
     return (
         accessCheck && (
             <BaseImportWrapper
                 {...{
-                    isViewButton,
-                    headerRow,
+                    showImportTrigger,
                     importCardButton,
                     setActiveModal,
                     domainName,
