@@ -16,12 +16,12 @@ import { ActionBar, Button } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
-import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
 import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+import { BaseTicketForm } from '@helpdesk-web/domains/ticket/components/BaseTicketForm'
 
 
 export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
@@ -49,12 +49,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
                     const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
 
-                    const disabledCondition = !property
-                        || !details
-                        || !placeClassifier
-                        || !categoryClassifier
-                        || !!propertyMismatchError
-                        || (isRequiredDeadline && !deadline)
+                    const disabledCondition = (isRequiredDeadline && !deadline)
                         || ticketSettingLoading
 
                     return (

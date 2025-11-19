@@ -7,8 +7,8 @@ import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
-import { CreateContactForm } from '@condo/domains/contact/components/CreateContactForm'
 import { ContactsReadAndManagePermissionRequired } from '@condo/domains/contact/components/PageAccess'
+import { CreateContactForm } from '@helpdesk-web/domains/contact/components/CreateContactForm'
 
 
 const CreateContactPage: PageComponentType = () => {

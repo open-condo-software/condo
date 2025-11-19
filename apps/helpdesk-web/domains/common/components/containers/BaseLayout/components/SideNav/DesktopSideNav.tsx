@@ -7,9 +7,9 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
-import { ResidentActions } from '@helpdesk-web/domains/common/components/ResidentActions/ResidentActions'
 import { SERVICE_PROVIDER_TYPE, MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
+import { ResidentActions } from '@helpdesk-web/domains/common/components/ResidentActions/ResidentActions'
 
 import {
     SIDE_MENU_WIDTH,

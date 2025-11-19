@@ -7,11 +7,11 @@ import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
-import { CreateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/CreateEmployeeForm'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     EmployeesReadAndInvitePermissionRequired,
 } from '@condo/domains/organization/components/PageAccess'
+import { CreateEmployeeForm } from '@helpdesk-web/domains/organization/components/EmployeeForm/CreateEmployeeForm'
 
 
 const CreateEmployeePage: PageComponentType = () => {

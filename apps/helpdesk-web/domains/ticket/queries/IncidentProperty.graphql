@@ -55,7 +55,6 @@ query getFullIncidentPropertiesByIncidentId ($incidentId: ID!) {
             addressMeta {
                 value
                 unrestricted_value
-                ...AddressMetaForTableAddress
             }
             address
         }

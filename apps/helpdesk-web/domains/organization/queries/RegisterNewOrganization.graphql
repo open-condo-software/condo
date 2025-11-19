@@ -1,0 +1,5 @@
+mutation registerNewOrganization($data: RegisterNewOrganizationInput!) {
+    organization: registerNewOrganization(data: $data) {
+        id
+    }
+}

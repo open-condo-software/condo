@@ -13,10 +13,10 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
 import { PageComponentType } from '@condo/domains/common/types'
 import { InfoBlock } from '@condo/domains/user/components/auth/InfoBlock'
-import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/auth'
+import AuthLayout from '@helpdesk-web/domains/user/components/containers/AuthLayout'
 
 
 const {

@@ -10,10 +10,10 @@ import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
 import { PageComponentType } from '@condo/domains/common/types'
 import { SignInForm } from '@condo/domains/user/components/auth/SignInForm'
-import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/auth'
 import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
+import AuthLayout from '@helpdesk-web/domains/user/components/containers/AuthLayout'
 
 
 const SignInPage: PageComponentType = () => {

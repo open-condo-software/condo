@@ -65,11 +65,11 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { useContactExportToExcelTask } from '@condo/domains/contact/hooks/useContactExportToExcelTask'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
-import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
-import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
 import { CONTACT_PAGE_SIZE, IFilters } from '@condo/domains/contact/utils/helpers'
 import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hooks/useNewsItemRecipientsExportToExcelTask'
 import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
+import { useTableColumns } from '@helpdesk-web/domains/contact/hooks/useTableColumns'
+import { useContactsTableFilters } from '@helpdesk-web/domains/contact/hooks/useTableFilters'
 
 
 const ADD_CONTACT_ROUTE = '/contact/create'

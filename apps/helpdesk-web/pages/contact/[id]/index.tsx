@@ -84,35 +84,34 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
             </Head>
             <PageWrapper>
                 <Row gutter={[0, 20]} align='middle'>
-                    <Col lg={18}>
+                    <Col span={9}>
                         <Row gutter={[0, 60]}>
                             <Typography.Title>
                                 {contactName}
                             </Typography.Title>
                             <FrontLayerContainer>
                                 <Row gutter={[0, 24]}>
-                                    <FieldPairRow
+                                    {/* <FieldPairRow
                                         fieldTitle={AddressLabel}
                                         fieldValue={contactAddress}
-                                    />
+                                    /> */}
                                     <FieldPairRow
                                         fieldTitle={PhoneLabel}
                                         fieldValue={contactPhone}
                                         href={`tel:${phonePrefix ?
                                             `${phonePrefix}${contactPhone}` : contactPhone}`}
                                     />
-                                    {
-                                        contactEmail && <FieldPairRow
-                                            fieldTitle={EmailLabel}
-                                            fieldValue={contactEmail}
-                                            href={`mailto:${contactEmail}`}
-                                        />
-                                    }
                                     <FieldPairRow
+                                        fieldTitle={EmailLabel}
+                                        fieldValue={contactEmail || 'Не указан'}
+                                        {...(contactEmail ? { href: `mailto:${contactEmail}` } : {})}
+                                    />
+
+                                    {/* <FieldPairRow
                                         fieldTitle={ContactRoleTitle}
                                         fieldValue={contactRoleName}
-                                    />
-                                    <>
+                                    /> */}
+                                    {/* <>
                                         <Col span={8}>
                                             <Typography.Text type='secondary'>
                                                 {VerifiedMessage}
@@ -124,13 +123,13 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                 disabled={!isVerified}
                                             />
                                         </Col>
-                                    </>
-                                    {
+                                    </> */}
+                                    {/* {
                                         typeof hasResident === 'boolean' && <FieldPairRow
                                             fieldTitle={HasResident}
                                             fieldValue={hasResident ? ResidentRegistred : ResidentUnregistred}
                                         />
-                                    }
+                                    } */}
                                 </Row>
                             </FrontLayerContainer>
                             {isContactEditable && breakpoints.DESKTOP_SMALL && (

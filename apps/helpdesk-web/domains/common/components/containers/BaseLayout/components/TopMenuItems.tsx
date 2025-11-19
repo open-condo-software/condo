@@ -5,10 +5,10 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Space } from '@open-condo/ui'
 
 import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
-import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
+import { InlineOrganizationSelect } from '@helpdesk-web/domains/organization/components/OrganizationSelect'
 
 
 export interface ITopMenuItemsProps {

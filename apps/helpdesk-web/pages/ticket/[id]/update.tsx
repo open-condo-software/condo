@@ -9,8 +9,8 @@ import { Typography } from '@open-condo/ui'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
 import { TicketReadAndManagePermissionRequired } from '@condo/domains/ticket/components/PageAccess'
-import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 import { prefetchTicket } from '@condo/domains/ticket/utils/next/Ticket'
+import { TicketForm } from '@helpdesk-web/domains/ticket/components/TicketForm'
 
 
 const TicketUpdatePage: PageComponentType = () => {

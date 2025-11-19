@@ -24,12 +24,12 @@ import {
     RegisterContextProvider,
     useRegisterContext,
 } from '@condo/domains/user/components/auth/RegisterContextProvider'
-import AuthLayout, { AuthLayoutProps } from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { useSudoToken } from '@condo/domains/user/components/SudoTokenProvider'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 import { detectTokenTypeSafely, TOKEN_TYPES } from '@condo/domains/user/utils/tokens'
+import AuthLayout, { AuthLayoutProps } from '@helpdesk-web/domains/user/components/containers/AuthLayout'
 
 import type { FetchResult } from '@apollo/client/link/core'
 import type { AuthenticateUserWithEmailAndPasswordMutation, AuthenticateUserWithPhoneAndPasswordMutation } from '@app/condo/gql'

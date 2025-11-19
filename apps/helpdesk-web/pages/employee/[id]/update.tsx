@@ -7,8 +7,8 @@ import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
-import { UpdateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/UpdateEmployeeForm'
 import { EmployeesReadAndManagePermissionRequired } from '@condo/domains/organization/components/PageAccess'
+import { UpdateEmployeeForm } from '@helpdesk-web/domains/organization/components/EmployeeForm/UpdateEmployeeForm'
 
 export const EmployeeUpdatePage: PageComponentType = () => {
     const intl = useIntl()

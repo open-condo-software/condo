@@ -12,9 +12,9 @@ import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
 import { PageComponentType } from '@condo/domains/common/types'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { AuthButton } from '@condo/domains/user/components/auth/AuthButton'
-import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { AUTH_FLOW_USER_TYPE_COOKIE_NAME, WAS_AUTHENTICATED_COOKIE_NAME } from '@condo/domains/user/constants/auth'
+import AuthLayout from '@helpdesk-web/domains/user/components/containers/AuthLayout'
 
 
 const {

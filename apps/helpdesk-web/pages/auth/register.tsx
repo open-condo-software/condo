@@ -17,10 +17,10 @@ import { InputIdentifierForm } from '@condo/domains/user/components/auth/InputId
 import { RegisterContextProvider, useRegisterContext } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { RegisterForm } from '@condo/domains/user/components/auth/RegisterForm'
 import { ValidateIdentifierForm } from '@condo/domains/user/components/auth/ValidateIdentifierForm'
-import AuthLayout, { AuthLayoutProps } from '@condo/domains/user/components/containers/AuthLayout'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/auth'
 import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
+import AuthLayout, { AuthLayoutProps } from '@helpdesk-web/domains/user/components/containers/AuthLayout'
 
 
 const RegisterPage: PageComponentType = () => {

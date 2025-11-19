@@ -22,12 +22,12 @@ import {
     useRegisterContext,
 } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { ValidateIdentifierForm } from '@condo/domains/user/components/auth/ValidateIdentifierForm'
-import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { SMS_CODE_TTL, EMAIL_CODE_TTL } from '@condo/domains/user/constants/common'
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 import { normalizeUserIdentifier } from '@condo/domains/user/utils/helpers'
+import AuthLayout from '@helpdesk-web/domains/user/components/containers/AuthLayout'
 
 import type { FetchResult } from '@apollo/client/link/core'
 import type { StartConfirmEmailActionMutation, StartConfirmPhoneActionMutation } from '@app/condo/gql'
