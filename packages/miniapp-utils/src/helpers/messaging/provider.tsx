@@ -23,10 +23,11 @@ function useControllerState (controller: PostMessageController): ControllerState
     return controllerState
 }
 
-type PostMessageContextType = Pick<PostMessageController, 'addFrame' | 'removeFrame' | 'addHandler'> & ControllerState
+type PostMessageContextType = Pick<PostMessageController, 'addFrame' | 'tryAddServiceWorker' | 'removeFrame' | 'addHandler'> & ControllerState
 
 const PostMessageContext = createContext<PostMessageContextType>({
     addFrame: () => '',
+    tryAddServiceWorker: () => '',
     removeFrame: () => {},
     addHandler: () => {},
     isBridgeReady: false,
@@ -44,14 +45,17 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren<PostMessagePr
 
     useEffect(() => {
         window.addEventListener('message', controller.eventListener)
+        navigator?.serviceWorker?.addEventListener('message', controller.eventListener)
         return () => {
             window.removeEventListener('message', controller.eventListener)
+            navigator?.serviceWorker?.removeEventListener('message', controller.eventListener)
         }
     }, [controller.eventListener])
 
     const contextValue: PostMessageContextType = useMemo(() => ({
         ...controllerState,
         addFrame: controller.addFrame,
+        tryAddServiceWorker: controller.tryAddServiceWorker,
         removeFrame: controller.removeFrame,
         addHandler: controller.addHandler,
     }), [controller, controllerState])
