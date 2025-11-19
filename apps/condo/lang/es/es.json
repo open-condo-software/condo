@@ -895,6 +895,7 @@
   "errors.import.IncorrectEmailFormat": "Formato de correo electrónico incorrecto",
   "errors.import.employee.AlreadyInvitedEmail": "Ya se ha invitado a un empleado con este correo electrónico a la organización",
   "errors.import.employee.AlreadyInvitedPhone": "Ya se ha invitado a un empleado con este número de teléfono a la organización",
+  "errors.import.employee.CheckEmployeeExistsFailed": "No se pudo comprobar si existen duplicados del empleado. Inténtalo de nuevo más tarde.",
   "errors.import.employee.EmptyName": "El nombre del empleado no puede estar vacío",
   "errors.import.employee.EmptyRole": "El rol del empleado es obligatorio",
   "errors.import.employee.IncorrectPhone": "El número de teléfono tiene un formato inválido",

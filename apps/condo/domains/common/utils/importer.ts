@@ -66,9 +66,9 @@ export class Importer implements IImporter {
         private mutationErrorsToMessages: MutationErrorsToMessagesType,
         private sleepInterval: number,
         private maxTableLength: number,
-        headerRow: number
+        headerRowIndex: number
     ) {
-        this.headerRow = headerRow
+        this.headerRowIndex = headerRowIndex
         this.columnsNames = columnsTemplate.map(column => column.name.trim().toLowerCase())
         this.columnsTypes = columnsTemplate.map(column => column.type)
         this.columnsRequired = columnsTemplate.map(column => column.required)
@@ -87,7 +87,7 @@ export class Importer implements IImporter {
     private errorHandler: ErrorHandler
     private successProcessingHandler: SuccessProcessingHandler
     private failProcessingHandler: FailProcessingHandler
-    private readonly headerRow: number
+    private readonly headerRowIndex: number
     private readonly columnsNames: Array<string>
     private readonly columnsTypes: Array<ColumnType>
     private readonly columnsRequired: Array<boolean>
@@ -95,8 +95,8 @@ export class Importer implements IImporter {
     public import (data: Array<TableRow>): Promise<void> {
         this.tableData = data
 
-        const columns = this.tableData[this.headerRow]
-        const body = this.tableData.slice(this.headerRow + 1)
+        const columns = this.tableData[this.headerRowIndex]
+        const body = this.tableData.slice(this.headerRowIndex + 1)
 
         if (!columns || columns.length === 0) {
             this.errorHandler(this.errors.invalidColumns)
@@ -186,7 +186,7 @@ export class Importer implements IImporter {
         if (value) {
             this.progress.current = value
         } else {
-            const totalRows = Math.max(this.tableData.length - (this.headerRow + 1), 1)
+            const totalRows = Math.max(this.tableData.length - (this.headerRowIndex + 1), 1)
             const step = 100 / totalRows
             const newProgress = this.progress.current + step
             this.progress.current = Math.min(newProgress, 100)

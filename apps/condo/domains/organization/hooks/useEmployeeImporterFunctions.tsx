@@ -41,6 +41,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
     const SpecializationNotFoundMessage = intl.formatMessage({ id: 'errors.import.employee.SpecializationNotFound' })
     const AlreadyInvitedPhoneMessage = intl.formatMessage({ id: 'errors.import.employee.AlreadyInvitedPhone' })
     const AlreadyInvitedEmailMessage = intl.formatMessage({ id: 'errors.import.employee.AlreadyInvitedEmail' })
+    const CheckEmployeeExistsFailedMessage = intl.formatMessage({ id: 'errors.import.employee.CheckEmployeeExistsFailed' })
 
     const { organization } = useOrganization()
     const userOrganizationId = organization.id
@@ -111,7 +112,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
         addons.name = String(name?.value ?? '').trim()
 
         const phoneValue = String(phone?.value ?? '').trim()
-        addons.phone = normalizePhone('+7' + phoneValue)
+        addons.phone = normalizePhone(phoneValue)
 
         addons.role = String(role?.value ?? '').trim().toLowerCase()
 
@@ -159,7 +160,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
             errors.push(EmptyRoleMessage)
         }
 
-        const rowEmail = row?.row?.[3]?.value ?? ''
+        const rowEmail = row?.addons?.email
         if (rowEmail && !row?.addons?.email) {
             errors.push(IncorrectEmailMessage)
         }
@@ -175,16 +176,16 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
                     },
                 })
 
-                if (data?.objs && data.objs.length > 0) {
-                    const existingEmployee = data.objs[0]
-                    if (phone && existingEmployee.phone === phone) {
+                if (data?.objs?.length) {
+                    if (phone && data.objs.some(employee => employee.phone === phone)) {
                         errors.push(AlreadyInvitedPhoneMessage)
                     }
-                    if (row?.addons?.email && existingEmployee.email === row.addons.email) {
+                    if (row?.addons?.email && data.objs.some(employee => employee.email === row.addons.email)) {
                         errors.push(AlreadyInvitedEmailMessage)
                     }
                 }
             } catch (e) {
+                errors.push(CheckEmployeeExistsFailedMessage)
                 console.error('Error checking existing employee:', e)
             }
         }

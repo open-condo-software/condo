@@ -74,7 +74,7 @@ type TBaseImportWrapperProps = {
     successRowsRef: React.MutableRefObject<number>
     totalRowsRef: React.MutableRefObject<number>
     error: any
-    isViewButton?: boolean
+    showImportTrigger?: boolean
     dataImporter: JSX.Element
     extraModalContent?: ExtraModalContentType
 }
@@ -94,7 +94,7 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
         totalRowsRef,
         error,
         dataImporter,
-        isViewButton = true,
+        showImportTrigger = true,
         extraModalContent = {},
     } = props
 
@@ -128,7 +128,7 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
     return (
         <>
             {
-                isViewButton ?
+                showImportTrigger ?
                     importCardButton ? (
                         <Card.CardButton
                             {...importCardButton}
