@@ -20,6 +20,7 @@ const TICKET_SOURCE_TYPES = {
     MOBILE_APP_STAFF: 'mobile_app_staff',
     MOBILE_APP_RESIDENT: 'mobile_app_resident',
     CRM_IMPORT: 'crm_import',
+    WEB_APP_RESIDENT: 'web_app_resident',
 }
 
 const MIN_TICKET_DEADLINE_DURATION = 'P' // 0 days
