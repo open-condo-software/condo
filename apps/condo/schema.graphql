@@ -27722,6 +27722,7 @@ enum TicketSourceTypeType {
   mobile_app_staff
   mobile_app_resident
   crm_import
+  web_app_resident
 }
 
 """ Ticket source. Income call, mobile app, external system, ... """
