@@ -19,7 +19,6 @@ import { filterToQuery, getAggregatedData, GroupTicketsByTypes } from '@condo/do
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { PageComponentType } from '@condo/domains/common/types'
-import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     DATE_DISPLAY_FORMAT,
@@ -475,15 +474,15 @@ const PdfView = () => {
                 },
             })
         }
-        if (!loading && !chartLoading && data !== null) {
-            createPdfWithPageBreaks({ element: containerRef.current, fileName: 'analytics_result.pdf' })
-                .catch((e) => {
-                    notification.error({
-                        message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
-                        description: e.message,
-                    })
-                })
-        }
+        // if (!loading && !chartLoading && data !== null) {
+        //     createPdfWithPageBreaks({ element: containerRef.current, fileName: 'analytics_result.pdf' })
+        //         .catch((e) => {
+        //             notification.error({
+        //                 message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
+        //                 description: e.message,
+        //             })
+        //         })
+        // }
     }, [loading, data, chartLoading])
 
     if (queryParamsRef.current === null ) {

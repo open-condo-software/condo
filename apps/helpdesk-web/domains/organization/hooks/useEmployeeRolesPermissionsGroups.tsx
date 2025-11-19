@@ -1,0 +1,269 @@
+import { B2BApp, B2BAppPermission } from '@app/condo/schema'
+import { useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+
+export type PermissionRow = {
+    key: string
+    name: string
+    relatedCheckPermissions?: string[]
+    relatedUncheckPermissions?: string[]
+}
+
+export type PermissionsGroup = {
+    key: string
+    b2bAppId?: string
+    groupName: string
+    permissions: PermissionRow[]
+}
+
+
+/**
+ * Generates b2b role permissions data for settings table.
+ */
+const getB2BRolePermissionGroups = (intl, connectedB2BApps, b2BAppPermissions): PermissionsGroup[] => {
+    const CanReadServiceTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.permission.canReadService' })
+
+    return connectedB2BApps.map((b2bApp): PermissionsGroup => {
+        const canReadKey = `canRead${b2bApp.id}`
+        const appPermissions = b2BAppPermissions.filter(permission => permission.app.id === b2bApp.id)
+        const appPermissionKeys = appPermissions.map(({ key }) => key)
+
+        return {
+            key: b2bApp.id,
+            b2bAppId: b2bApp.id,
+            groupName: b2bApp.name,
+            permissions: [
+                // Client side mark that employee role has b2bRole (Due to our logic this employee role can read b2bApp).
+                {
+                    key: `canRead${b2bApp.id}`,
+                    name: CanReadServiceTitle,
+                    relatedUncheckPermissions: appPermissionKeys,
+                },
+                ...appPermissions
+                    .map((permission): PermissionRow => ({
+                        key: permission.key,
+                        name: permission.name,
+                        relatedCheckPermissions: [canReadKey],
+                    })),
+            ],
+        }
+    })
+}
+
+export const addNamesToPermissions = (intl) => (permissionGroup): PermissionsGroup => ({
+    ...permissionGroup,
+    groupName: intl.formatMessage({ id: `pages.condo.settings.employeeRoles.permissionGroup.${permissionGroup.key}` }),
+    permissions: permissionGroup.permissions.map(
+        (permission): PermissionRow => ({
+            ...permission,
+            name: intl.formatMessage({ id: `pages.condo.settings.employeeRoles.permission.${permission.key}` }),
+        })
+    ),
+})
+
+export type UseEmployeeRolesPermissionsGroups = (connectedB2BApps: B2BApp[], b2BAppPermissions: B2BAppPermission[]) => PermissionsGroup[]
+
+export const useEmployeeRolesPermissionsGroups: UseEmployeeRolesPermissionsGroups = (connectedB2BApps, b2BAppPermissions) => {
+    const intl = useIntl()
+
+    const employeeRolePermissionGroups: PermissionsGroup[] = useMemo(() => [
+        {
+            key: 'analytics',
+            permissions: [
+                { key: 'canReadAnalytics' },
+            ],
+        },
+        {
+            key: 'tickets',
+            permissions: [
+                {
+                    key: 'canReadTickets',
+                    relatedCheckPermissions: ['canShareTickets'],
+                    relatedUncheckPermissions: ['canManageTickets', 'canShareTickets', 'canManageTicketComments'],
+                },
+                {
+                    key: 'canManageTickets',
+                    relatedCheckPermissions: ['canReadTickets', 'canShareTickets', 'canManageTicketComments'],
+                    relatedUncheckPermissions: ['canShareTickets', 'canManageTicketComments'],
+                },
+            ],
+        },
+        {
+            key: 'incidents',
+            permissions: [
+                {
+                    key: 'canReadIncidents',
+                    relatedUncheckPermissions: ['canManageIncidents'],
+                },
+                {
+                    key: 'canManageIncidents',
+                    relatedCheckPermissions: ['canReadIncidents'],
+                },
+            ],
+        },
+        {
+            key: 'news',
+            permissions: [
+                {
+                    key: 'canReadNewsItems',
+                    relatedUncheckPermissions: ['canManageNewsItems'],
+                },
+                {
+                    key: 'canManageNewsItems',
+                    relatedCheckPermissions: ['canReadNewsItems'],
+                },
+            ],
+        },
+        {
+            key: 'properties',
+            permissions: [
+                {
+                    key: 'canManageProperties',
+                    relatedCheckPermissions: ['canReadProperties'],
+                },
+                {
+                    key: 'canReadDocuments',
+                    relatedUncheckPermissions: ['canManageDocuments'],
+                },
+                {
+                    key: 'canManageDocuments',
+                    relatedCheckPermissions: ['canReadDocuments'],
+                },
+            ],
+        },
+        {
+            key: 'contacts',
+            permissions: [
+                {
+                    key: 'canReadContacts',
+                },
+                {
+                    key: 'canManageContacts',
+                },
+            ],
+        },
+        {
+            key: 'employees',
+            permissions: [
+                {
+                    key: 'canReadEmployees',
+                    relatedUncheckPermissions: ['canManageEmployees', 'canManageRoles', 'canInviteNewOrganizationEmployees', 'canManageOrganizationEmployeeRequests'],
+                },
+                {
+                    key: 'canManageEmployees',
+                    relatedCheckPermissions: ['canReadEmployees'],
+                },
+                {
+                    key: 'canInviteNewOrganizationEmployees',
+                    relatedCheckPermissions: ['canReadEmployees', 'canManageOrganizationEmployeeRequests'],
+                    relatedUncheckPermissions: ['canManageOrganizationEmployeeRequests'],
+                },
+                {
+                    key: 'canManageRoles',
+                    relatedCheckPermissions: ['canReadEmployees', 'canReadSettings'],
+                },
+            ],
+        },
+        {
+            key: 'marketplace',
+            permissions: [
+                {
+                    key: 'canManageMarketplace',
+                    relatedCheckPermissions: ['canReadMarketplace', 'canReadMarketItems', 'canReadMarketItemPrices', 'canReadMarketPriceScopes'],
+                },
+                {
+                    key: 'canReadPaymentsWithInvoices',
+                    relatedCheckPermissions: ['canReadMarketplace'],
+                },
+                {
+                    key: 'canReadMarketItems',
+                    relatedCheckPermissions: ['canReadMarketplace', 'canReadMarketItemPrices', 'canReadMarketPriceScopes'],
+                    relatedUncheckPermissions: ['canManageInvoices', 'canManageMarketplace', 'canManageMarketItems', 'canManageMarketItemPrices', 'canManageMarketPriceScopes', 'canReadMarketItemPrices', 'canReadMarketPriceScopes'],
+                },
+                {
+                    key: 'canManageMarketItems',
+                    relatedCheckPermissions: ['canReadMarketplace', 'canReadMarketItems', 'canReadMarketItemPrices', 'canReadMarketPriceScopes', 'canManageMarketItemPrices', 'canManageMarketPriceScopes'],
+                    relatedUncheckPermissions: ['canManageMarketItemPrices', 'canManageMarketPriceScopes'],
+                },
+                {
+                    key: 'canReadInvoices',
+                    relatedCheckPermissions: ['canReadMarketplace'],
+                    relatedUncheckPermissions: ['canManageInvoices'],
+                },
+                {
+                    key: 'canManageInvoices',
+                    relatedCheckPermissions: ['canReadMarketItems', 'canReadMarketItemPrices', 'canReadMarketPriceScopes', 'canReadMarketplace', 'canReadInvoices'],
+                },
+            ],
+        },
+        {
+            key: 'billing',
+            permissions: [
+                {
+                    key: 'canReadBillingReceipts',
+                    relatedCheckPermissions: ['canReadPayments'],
+                    relatedUncheckPermissions: ['canManageIntegrations', 'canImportBillingReceipts', 'canReadPayments'],
+                },
+                {
+                    key: 'canManageIntegrations',
+                    relatedCheckPermissions: ['canReadPayments', 'canReadBillingReceipts'],
+                },
+                {
+                    key: 'canImportBillingReceipts',
+                    relatedCheckPermissions: ['canReadPayments', 'canReadBillingReceipts'],
+                },
+            ],
+        },
+        {
+            key: 'meters',
+            permissions: [
+                {
+                    key: 'canReadMeters',
+                    relatedUncheckPermissions: ['canManageMeters', 'canManageMeterReadings'],
+                },
+                {
+                    key: 'canManageMeters',
+                    relatedCheckPermissions: ['canReadMeters'],
+                },
+                {
+                    key: 'canManageMeterReadings',
+                    relatedCheckPermissions: ['canReadMeters'],
+                },
+            ],
+        },
+        {
+            key: 'settings',
+            permissions: [
+                {
+                    key: 'canReadSettings',
+                    relatedUncheckPermissions: ['canManageRoles'],
+                },
+            ],
+        },
+        {
+            key: 'services',
+            permissions: [
+                {
+                    key: 'canReadServices',
+                    relatedUncheckPermissions: ['canManageB2BApps'],
+                },
+                {
+                    key: 'canManageB2BApps',
+                    relatedCheckPermissions: ['canReadServices'],
+                },
+            ],
+        },
+    ]
+        .map(config => ({ ...config, permissions: config.permissions.filter(Boolean) }))
+        .map(addNamesToPermissions(intl))
+    , [intl])
+
+    const b2bRolePermissionGroups = useMemo(() => getB2BRolePermissionGroups(intl, connectedB2BApps, b2BAppPermissions), [intl, connectedB2BApps, b2BAppPermissions])
+
+    return useMemo(() => [
+        ...employeeRolePermissionGroups,
+        ...b2bRolePermissionGroups,
+    ], [b2bRolePermissionGroups, employeeRolePermissionGroups])
+}

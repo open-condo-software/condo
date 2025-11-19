@@ -25,14 +25,16 @@ import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyBu
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
+import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { BaseTicketForm } from '@helpdesk-web/domains/ticket/components/BaseTicketForm'
 import { TicketSubmitButton } from '@helpdesk-web/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
-import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { REQUIRED_TICKET_FIELDS } from '@helpdesk-web/domains/ticket/constants/common'
 import { useCacheUtils } from '@helpdesk-web/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@helpdesk-web/domains/ticket/utils/clientSchema'
 import { ClientCardTab, getClientCardTabKey } from '@helpdesk-web/domains/ticket/utils/clientSchema/clientCard'
 import { getTicketDefaultDeadline } from '@helpdesk-web/domains/ticket/utils/helpers'
+
+import { usePropertyOrCreate } from '../../hooks/usePropertyOrCreate'
 
 dayjs.extend(isToday)
 
@@ -81,12 +83,11 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
                     const isEmergency = form.getFieldValue('isEmergency')
                     const isWarranty = form.getFieldValue('isWarranty')
                     const isRequiredDeadline = getTicketDefaultDeadline(ticketSetting, isPayable, isEmergency, isWarranty) !== null
-                    const disabledCondition = !property
-                        || !details
-                        || !placeClassifier
-                        || !categoryClassifier
+                    const disabledCondition = !details
                         || (isRequiredDeadline && !deadline)
                         || ticketSettingLoading
+
+                    console.log('disabledCondition', disabledCondition)
 
                     setDisabled(disabledCondition)
 
@@ -132,6 +133,8 @@ export const CreateTicketForm: React.FC = () => {
     const CopyLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copyLink' })
     const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
     const SuccessNotificationWithPaymentLinkDescription = intl.formatMessage({ id: 'pages.condo.ticket.notification.success.description.withPaymentLink' })
+    const { property } = usePropertyOrCreate()
+    console.log(property)
 
     const { organization } = useOrganization()
     const router = useRouter()
@@ -219,6 +222,7 @@ export const CreateTicketForm: React.FC = () => {
                         connect: { id: OPEN_STATUS },
                     },
                     organization: { connect: { id: organization.id } },
+                    property: { connect: { id: property.id } },
                     ...Ticket.formValuesProcessor({ ...ticketValues, deadline }),
                 },
             },
@@ -279,7 +283,7 @@ export const CreateTicketForm: React.FC = () => {
         }
 
         return ticket
-    }, [createTicketAction, organization.id, getCompletedNotification, client, getPaymentLink, intl, createInvoiceAction, getPublishTicketInvoices, requestFeature])
+    }, [createTicketAction, organization.id, getCompletedNotification, client, getPaymentLink, intl, createInvoiceAction, getPublishTicketInvoices, requestFeature, property])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,

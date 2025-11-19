@@ -6,9 +6,9 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { PageComponentType } from '@condo/domains/common/types'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
-import { CreateOrganizationPageContent } from '@condo/domains/organization/components/CreateOrganizationPageContent'
 import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { CreateOrganizationPageContent } from '@helpdesk-web/domains/organization/components/CreateOrganizationPageContent'
 
 
 const CreateOrganizationPage: PageComponentType = () => {

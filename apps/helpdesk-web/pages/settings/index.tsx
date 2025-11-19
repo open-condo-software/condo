@@ -10,8 +10,6 @@ import { TabItem, Typography } from '@open-condo/ui'
 
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { TablePageContent } from '@helpdesk-web/domains/common/components/containers/BaseLayout/BaseLayout'
-import { ControlRoomSettingsContent } from '@helpdesk-web/domains/common/components/settings/ControlRoomSettingsContent'
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
 import { TabsPageContent } from '@condo/domains/common/components/TabsPageContent'
 import { SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
@@ -36,6 +34,8 @@ import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/com
 import { useEmployeeRolesPermissionsGroups } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
+import { TablePageContent } from '@helpdesk-web/domains/common/components/containers/BaseLayout/BaseLayout'
+import { ControlRoomSettingsContent } from '@helpdesk-web/domains/common/components/settings/ControlRoomSettingsContent'
 
 
 const { canEnableSubscriptions } = getConfig()

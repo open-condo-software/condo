@@ -93,13 +93,11 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
-    const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
     const BlockUserMessage = intl.formatMessage({ id: 'employee.BlockUser' })
     const CanNotBlockYourselfMessage = intl.formatMessage({ id: 'employee.CanNotBlockYourself' })
     const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.ConfirmDeleteMessage' })
-    const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.AllSpecializations' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
 
     const { user } = useAuth()
@@ -227,22 +225,6 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
                                                                 )
                                                             }
                                                         />
-                                                    </Col>
-
-                                                    <Col lg={4} xs={10}>
-                                                        <Typography.Text type='secondary'>
-                                                            {SpecializationsMessage}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col lg={18} xs={13} offset={1}>
-                                                        {
-                                                            hasAllSpecializations ? AllSpecializationsMessage : (
-                                                                <NotDefinedField
-                                                                    value={get(employee, 'specializations')}
-                                                                    render={renderSpecializations}
-                                                                />
-                                                            )
-                                                        }
                                                     </Col>
 
                                                     {

@@ -39,6 +39,14 @@
   }
 }
 
+.accent-button::before {
+  background: linear-gradient(90deg, #FFD882 0%, #3CE3C7 100%) !important;
+}
+
+.accent-button::after {
+  background: linear-gradient(90deg, #FFD882 0%, #3CE3C7 100%) border-box !important;
+}
+
 .accent-button > span:last-child {
   opacity: 0;
   animation: fade-in var(--condo-global-transition-duration-default) ease-in forwards;

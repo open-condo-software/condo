@@ -87,12 +87,12 @@ import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibi
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
-import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicketExportToExcelTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
-import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+import { useTableColumns } from '@helpdesk-web/domains/ticket/hooks/useTableColumns'
+import { useTicketTableFilters } from '@helpdesk-web/domains/ticket/hooks/useTicketTableFilters'
 
 import styles from './index.module.css'
 
@@ -694,19 +694,17 @@ const FiltersContainer = ({ filterMetas }) => {
         changeSearch(e.target.value)
     }, [changeSearch])
 
-    let checkboxColSpan = 24
+    const checkboxColSpan = 24
     let filterButtonColSpan = 24
 
     const isXlContainerSize = contentWidth >= 980
     const isXxlContainerSize = contentWidth >= 1288
 
     if (isXlContainerSize) {
-        checkboxColSpan = 17
         filterButtonColSpan = 7
     }
 
     if (isXxlContainerSize) {
-        checkboxColSpan = 18
         filterButtonColSpan = 6
     }
 
@@ -714,7 +712,7 @@ const FiltersContainer = ({ filterMetas }) => {
         <>
             <TableFiltersContainer ref={setRef}>
                 <Row gutter={FILTERS_CONTAINER_ROW_GUTTER} align='middle'>
-                    <Col span={24}>
+                    <Col span={17}>
                         <Input
                             placeholder={SearchPlaceholder}
                             onChange={handleSearchChange}
@@ -722,76 +720,6 @@ const FiltersContainer = ({ filterMetas }) => {
                             allowClear
                             suffix={<Search size='medium' color={colors.gray[7]}/>}
                         />
-                    </Col>
-                    <Col span={checkboxColSpan}>
-                        <Row
-                            align='middle'
-                            gutter={CHECKBOX_WRAPPER_GUTTERS}
-                        >
-                            <Col span={24}>
-                                <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={!isXlContainerSize ? CHECKBOX_WRAPPER_STYLES : null}>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={handleAttributeCheckboxChange('isRegular')}
-                                            checked={regular}
-                                            id='ticket-filter-regular'
-                                            data-cy='ticket__filter-isRegular'
-                                        >
-                                            {RegularLabel}
-                                        </Checkbox>
-                                    </Col>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={handleAttributeCheckboxChange('isEmergency')}
-                                            checked={emergency}
-                                            id='ticket-filter-emergency'
-                                            data-cy='ticket__filter-isEmergency'
-                                        >
-                                            {EmergenciesLabel}
-                                        </Checkbox>
-                                    </Col>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={handleAttributeCheckboxChange('isPayable')}
-                                            checked={payable}
-                                            id='ticket-filter-payable'
-                                            data-cy='ticket__filter-isPayable'
-                                        >
-                                            {PayableLabel}
-                                        </Checkbox>
-                                    </Col>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={handleAttributeCheckboxChange('isWarranty')}
-                                            checked={warranty}
-                                            id='ticket-filter-warranty'
-                                            data-cy='ticket__filter-isWarranty'
-                                        >
-                                            {WarrantiesLabel}
-                                        </Checkbox>
-                                    </Col>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={handleAttributeCheckboxChange('statusReopenedCounter')}
-                                            checked={returned}
-                                            id='ticket-filter-returned'
-                                            data-cy='ticket__filter-isReturned'
-                                        >
-                                            {ReturnedLabel}
-                                        </Checkbox>
-                                    </Col>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={(event) => handleChangeIsCompletedAfterDeadline(event?.target?.checked || false)}
-                                            checked={isCompletedAfterDeadline}
-                                            id='ticket-filter-completed-after-deadline'
-                                            data-cy='ticket__filter-isCompletedAfterDeadline'
-                                            children={ExpiredLabel}
-                                        />
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
                     </Col>
                     <Col span={filterButtonColSpan} style={{ alignSelf: 'end' }}>
                         <Row justify={isXlContainerSize ? 'end' : 'start'} align='bottom'>

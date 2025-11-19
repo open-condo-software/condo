@@ -124,7 +124,7 @@ const getSearchFilter: FiltersGetterType<TicketWhereInput> = (rawSearch: string)
     }
 
     return [
-        ...baseFilters, 
+        ...baseFilters,
         ...searchSpecificFilters,
     ]
 }
@@ -256,16 +256,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                 filters: getSearchFilter,
                 combineType: 'OR',
             },
-            {
-                keyword: 'address',
-                filters: [filterAddress],
-                component: {
-                    type: ComponentType.Input,
-                    props: {
-                        placeholder: AddressMessage,
-                    },
-                },
-            },
+
             {
                 keyword: 'details',
                 filters: [filterDetails],
@@ -296,166 +287,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     },
                 },
             },
-            {
-                keyword: 'property',
-                filters: [filterProperty],
-                component: {
-                    type: ComponentType.GQLSelect,
-                    props: {
-                        search: searchOrganizationProperty(userOrganizationId),
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: EnterAddressMessage,
-                        infinityScroll: true,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: AddressMessage,
-                        size: FilterComponentSize.MediumLarge,
-                    },
-                    columnFilterComponentWrapper: {
-                        width: '400px',
-                    },
-                },
-            },
-            {
-                keyword: 'propertyScope',
-                filters: [filterPropertyScope],
-                component: {
-                    type: ComponentType.GQLSelect,
-                    props: {
-                        search: searchOrganizationPropertyScope(userOrganizationId),
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: SelectMessage,
-                        keyField: 'key',
-                    },
-                    modalFilterComponentWrapper: {
-                        label: PropertyScopeMessage,
-                        size: FilterComponentSize.Small,
-                    },
-                },
-            },
-            {
-                keyword: 'unitType',
-                filters: [filterUnitType],
-                component: {
-                    type: ComponentType.Select,
-                    options: unitTypeOptions,
-                    props: {
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: SelectMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: UnitTypeMessage,
-                        size: FilterComponentSize.Small,
-                    },
-                },
-            },
-            {
-                keyword: 'unitName',
-                filters: [filterUnit],
-                component: {
-                    type: ComponentType.TagsSelect,
-                    props: {
-                        placeholder: EnterUnitNameLabel,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: UnitMessage,
-                        size: FilterComponentSize.Small,
-                    },
-                },
-            },
-            {
-                keyword: 'type',
-                filters: [filterTicketType],
-                component: {
-                    type: ComponentType.Select,
-                    options: ticketTypeOptions,
-                    props: {
-                        loading: false,
-                        showArrow: true,
-                        placeholder: SelectMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: TicketTypeMessage,
-                        size: FilterComponentSize.Small,
-                    },
-                },
-            },
-            {
-                keyword: 'sectionName',
-                filters: [filterSection],
-                component: {
-                    type: ComponentType.TagsSelect,
-                    props: {
-                        placeholder: SelectMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: SectionMessage,
-                        size: FilterComponentSize.Small,
-                    },
-                },
-            },
-            {
-                keyword: 'floorName',
-                filters: [filterFloor],
-                component: {
-                    type: ComponentType.TagsSelect,
-                    props: {
-                        placeholder: SelectMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: FloorMessage,
-                        size: FilterComponentSize.Small,
-                        spaceSizeAfter: FilterComponentSize.Small,
-                    },
-                },
-            },
-            {
-                keyword: 'placeClassifier',
-                filters: [filterPlaceClassifier],
-                component: {
-                    type: ComponentType.Custom,
-                    modalFilterComponent: (form) => <FilterModalPlaceClassifierSelect form={form} />,
-                    modalFilterComponentWrapper: {
-                        label: PlaceClassifierLabel,
-                        size: FilterComponentSize.Small,
-                    },
-                },
-            },
-            {
-                keyword: 'categoryClassifier',
-                filters: [filterCategoryClassifier],
-                component: {
-                    type: ComponentType.Custom,
-                    modalFilterComponent: (form) => <FilterModalCategoryClassifierSelect form={form} />,
-                    modalFilterComponentWrapper: {
-                        label: CategoryClassifierLabel,
-                        size: FilterComponentSize.Small,
-                    },
-                    getComponentFilterDropdown: getSelectFilterDropdown({
-                        selectProps: {
-                            options: categoryClassifiersOptions,
-                            placeholder: CategoryClassifierLabel,
-                            mode: 'multiple',
-                            id: 'categoryClassifierFilterDropdown',
-                        },
-                    }),
-                },
-            },
-            {
-                keyword: 'problemClassifier',
-                filters: [filterProblemClassifier],
-                component: {
-                    type: ComponentType.Custom,
-                    modalFilterComponent: (form) => <FilterModalProblemClassifierSelect form={form} />,
-                    modalFilterComponentWrapper: {
-                        label: ProblemClassifierLabel,
-                        size: FilterComponentSize.Small,
-                    },
-                },
-            },
+
+
+
             {
                 keyword: 'status',
                 filters: [filterStatus],

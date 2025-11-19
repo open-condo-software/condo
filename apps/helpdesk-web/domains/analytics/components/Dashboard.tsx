@@ -486,12 +486,12 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                                 data={newTickets}
                             />
                         </Col>
-                        <Col lg={12} md={24} xs={24}>
+                        {/* <Col lg={12} md={24} xs={24}>
                             <TicketByCategoryChart
                                 data={categoryTickets}
                                 organizationId={organizationId}
                             />
-                        </Col>
+                        </Col> */}
                         {/* <Col lg={12} md={24} xs={24}>
                             <PaymentTotalChart
                                 data={paymentsData}

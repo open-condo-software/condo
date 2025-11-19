@@ -5,9 +5,9 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
-import { EditContactForm } from '@condo/domains/contact/components/EditContactForm'
 import { ContactsReadAndManagePermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { prefetchContact } from '@condo/domains/contact/utils/next/Contact'
+import { EditContactForm } from '@helpdesk-web/domains/contact/components/EditContactForm'
 
 
 const ContactUpdatePage: PageComponentType = () => {

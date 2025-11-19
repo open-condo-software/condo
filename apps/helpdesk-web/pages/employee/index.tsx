@@ -30,10 +30,10 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
-import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/organization/hooks/useTableFilters'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
+import { useTableColumns } from '@helpdesk-web/domains/organization/hooks/useTableColumns'
 
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create'
