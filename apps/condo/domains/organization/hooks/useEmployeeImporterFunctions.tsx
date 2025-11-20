@@ -79,7 +79,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
     })
 
     if (!isSpecializationsLoading) {
-        specializationsCache = ticketCategoryClassifiers?.objs?.reduce((result, current) => ({
+        specializationsCache = ticketCategoryClassifiers?.classifiers?.reduce((result, current) => ({
             ...result,
             [String(current.name).toLowerCase().trim()]: current.id,
         }), {}) || {}
@@ -232,7 +232,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
                             sender: getClientSideSenderInfo(),
                         },
                     } } )
-                roleId = newRole.data.obj.id
+                roleId = newRole.data.role.id
                 rolesCache[roleName] = roleId
             }
 

@@ -12,7 +12,7 @@ query getOrganizationEmployeeRolesByOrganization ($organizationId: ID!) {
 }
 
 mutation createOrganizationEmployeeRole($data: OrganizationEmployeeRoleCreateInput!) {
-    obj: createOrganizationEmployeeRole(data: $data) {
+    role: createOrganizationEmployeeRole(data: $data) {
         id
         name
         description
