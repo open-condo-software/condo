@@ -1,5 +1,5 @@
 query getTicketCategoryClassifiers ($where: TicketCategoryClassifierWhereInput, $first: Int, $skip: Int, $sortBy: [SortTicketCategoryClassifiersBy!]) {
-    objs: allTicketCategoryClassifiers(
+    classifiers: allTicketCategoryClassifiers(
         where: $where,
         first: $first,
         skip: $skip,

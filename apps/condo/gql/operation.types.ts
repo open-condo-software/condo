@@ -579,7 +579,7 @@ export type CreateOrganizationEmployeeRoleMutationVariables = Types.Exact<{
 }>;
 
 
-export type CreateOrganizationEmployeeRoleMutation = { __typename?: 'Mutation', obj?: { __typename?: 'OrganizationEmployeeRole', id: string, name?: string | null, description?: string | null } | null };
+export type CreateOrganizationEmployeeRoleMutation = { __typename?: 'Mutation', role?: { __typename?: 'OrganizationEmployeeRole', id: string, name?: string | null, description?: string | null } | null };
 
 export type GetOrganizationEmployeeSpecializationsQueryVariables = Types.Exact<{
   employeeId: Types.Scalars['ID']['input'];
@@ -969,7 +969,7 @@ export type GetTicketCategoryClassifiersQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetTicketCategoryClassifiersQuery = { __typename?: 'Query', objs?: Array<{ __typename?: 'TicketCategoryClassifier', id: string, name?: string | null, organization?: { __typename?: 'Organization', id: string } | null } | null> | null };
+export type GetTicketCategoryClassifiersQuery = { __typename?: 'Query', classifiers?: Array<{ __typename?: 'TicketCategoryClassifier', id: string, name?: string | null, organization?: { __typename?: 'Organization', id: string } | null } | null> | null };
 
 export type GetTicketChangesQueryVariables = Types.Exact<{
   ticketId: Types.Scalars['ID']['input'];
