@@ -548,6 +548,10 @@ const makeLoggedInAdminClient = async () => {
     return await makeLoggedInClient({ email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET })
 }
 
+/**
+ * Class for OIDC auth client
+ * Helps to perform OIDC auth flow
+ */
 class OIDCAuthClient {
 
     constructor (authToken) {
@@ -564,10 +568,13 @@ class OIDCAuthClient {
             redirect: 'manual',
             credentials: 'same-origin',
         })
+
         if (response.status >= 400) {
             throw new Error(`OIDC request failed: ${response.status} ${response.statusText}`)
         }
+
         const newCookies = response.headers.raw()['set-cookie']
+
         if (newCookies) {
             newCookies.forEach(cookie => {
                 const [cookieValue] = cookie.split(';')
@@ -575,26 +582,69 @@ class OIDCAuthClient {
                 this.cookieJar.set(name, value)
             })
         }
+
         return {
             location: response.headers.get('location'),
             debug: await response.text(),
         }
     }
-
 }
 
-const makeLoggedInMiniAppClient = async (loggenInCondoClient, miniAppUrl, oidcAuthRequestParams = {}) => {
+/**
+ * Creates the client for mini app with all OIDC flow completed
+ * This means that all OIDC endpoints of miniapp were called and session contains all needed fields
+ * @note This function not working in TESTS_FAKE_CLIENT_MODE=true because callback url already contains miniapp url (see OidcClient model created during preparing)
+ * @param {Object} loggenInCondoClient - logged in condo client 
+ * @param {{condoOrganizationId: string, condoUserId: string}} forcedOidcAuthParams - forced OIDC auth params if user in your tests has 2+ organizations
+ * @returns {Promise<Object>} Mini app client with all OIDC flow completed
+ */
+const makeLoggedInMiniAppClient = async (loggenInCondoClient, forcedOidcAuthParams = {}) => {
     const authCookie = loggenInCondoClient.getCookie().split(';').find(cookie => cookie.startsWith('keystone.sid='))
     if (!authCookie) {
         throw new Error('keystone.sid cookie not found')
     }
     const miniAppAuth = new OIDCAuthClient()
     const condoAuth = new OIDCAuthClient(decodeURIComponent(authCookie.split('=')[1]).split(':')[1])
-    // const condoAuth = new OIDCAuthClient(decodeURIComponent(authCookie.split('=')[1]))
 
+    // Need to set miniapp url explicitly because callback url already contains miniapp url (see OidcClient model created during preparing)
+    const miniAppClient = await makeClient({ serverUrl: conf['SERVER_URL'] })
+
+    //
+    // Try to detect oidc parameters (condoOrganizationId and condoUserId).
+    // Get them from condo logged in user
+    //
+    const whoAmIQuery = gql`query auth { authenticatedUser { id name } }`
+    const { data: condoUserData, errors: condoUserErrors } = await loggenInCondoClient.query(whoAmIQuery)
+    throwIfError(condoUserData, condoUserErrors, { query: whoAmIQuery })
+    const condoUserId = condoUserData.authenticatedUser.id
+
+    // Get all available organizations for logged in user
+    const myOrganizationQuery = gql`query allOrganizations { allOrganizations { id name } }`
+    const { data: condoOrganizationsData, errors: condoOrganizationsErrors } = await loggenInCondoClient.query(myOrganizationQuery)
+    throwIfError(condoOrganizationsData, condoOrganizationsErrors, { query: myOrganizationQuery })
+    const organizations = condoOrganizationsData.allOrganizations
+
+    if (organizations.length === 0) throw new Error('No organizations found for logged in user!')
+    if (organizations.length > 1) throw new Error('More than one organization found for logged in user! Please use forcedOidcAuthParams to specify organization id')
+
+    const condoOrganizationId = organizations[0].id
+
+    //
+    // Set parameters for OIDC auth
+    //
+    const oidcAuthRequestParams = { condoUserId, condoOrganizationId, ...forcedOidcAuthParams }
+
+    //
+    // Build OIDC auth url
+    //
+    const miniAppUrl = miniAppClient.serverUrl
     const { origin: miniAppUrlOrigin } = new URL(miniAppUrl)
     const oidcAuthUrl = new URL(`${miniAppUrlOrigin}/oidc/auth`)
     Object.keys(oidcAuthRequestParams).forEach((k) => oidcAuthUrl.searchParams.set(k, oidcAuthRequestParams[k]))
+
+    //
+    // 3... 2... 1... AUTH!
+    //
     // Start auth
     const { location: startAuthUrl } = await miniAppAuth.oidcRequest(oidcAuthUrl.toString())
     // Condo redirects
@@ -603,26 +653,25 @@ const makeLoggedInMiniAppClient = async (loggenInCondoClient, miniAppUrl, oidcAu
     const { location: completeAuthUrl } = await condoAuth.oidcRequest(interactCompleteUrl)
     // Complete auth
     await miniAppAuth.oidcRequest(completeAuthUrl)
-    const decodedToken = decodeURIComponent(miniAppAuth.cookieJar.get('keystone.sid'))
 
-    const miniAppClient = await makeClient({ serverUrl: miniAppUrl })
+    //
+    // Get auth token from cookie
+    //
+    const decodedCookie = decodeURIComponent(miniAppAuth.cookieJar.get('keystone.sid'))
+
+    //
+    // Set auth token to client
+    //
     miniAppClient.setHeaders({
-        'Authorization': `Bearer ${decodedToken.split(':')[1]}`,
+        'Authorization': `Bearer ${decodedCookie.split(':')[1]}`,
     })
 
-    const whoAmIQuery = gql`
-        query auth {
-            authenticatedUser {
-                id
-                name
-            }
-        }
-    `
-
-    const { data, errors } = await miniAppClient.query(whoAmIQuery)
-    throwIfError(data, errors, { query: whoAmIQuery })
-
-    miniAppClient.user = data.authenticatedUser
+    //
+    // Inject user data to client
+    //
+    const { data: miniAppUserData, errors: miniAppUserErrors } = await miniAppClient.query(whoAmIQuery)
+    throwIfError(miniAppUserData, miniAppUserErrors, { query: whoAmIQuery })
+    miniAppClient.user = miniAppUserData.authenticatedUser
 
     return miniAppClient
 }
