@@ -556,7 +556,7 @@ class OIDCAuthClient {
 
     constructor (authToken) {
         this.authToken = authToken
-        this.cookieJar = new fetch.Headers()
+        this.cookieJar = new Map()
     }
 
     async oidcRequest (url) {
@@ -570,16 +570,20 @@ class OIDCAuthClient {
         })
 
         if (response.status >= 400) {
-            throw new Error(`OIDC request failed: ${response.status} ${response.statusText}`)
+            throw new Error(`OIDC request failed: ${response.status} ${response.statusText} (URL: ${url})`)
         }
 
         const newCookies = response.headers.raw()['set-cookie']
 
         if (newCookies) {
             newCookies.forEach(cookie => {
-                const [cookieValue] = cookie.split(';')
-                const [name, value] = cookieValue.split('=')
-                this.cookieJar.set(name, value)
+                const cookieValue = cookie.split(';')[0]
+                const separatorIndex = cookieValue.indexOf('=')
+                if (separatorIndex !== -1) {
+                    const name = cookieValue.substring(0, separatorIndex)
+                    const value = cookieValue.substring(separatorIndex + 1)
+                    this.cookieJar.set(name, value)
+                }
             })
         }
 
