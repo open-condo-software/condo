@@ -897,7 +897,7 @@
   "errors.import.employee.AlreadyInvitedPhone": "Сотрудник с таким номером телефона уже приглашен в организацию",
   "errors.import.employee.CheckEmployeeExistsFailed": "Не удалось проверить дубликаты сотрудников. Попробуйте ещё раз позже.",
   "errors.import.employee.EmptyName": "ФИО сотрудника не может быть пустым",
-  "errors.import.employee.EmptyRole": "Роль сотрудника может быть пустой",
+  "errors.import.employee.EmptyRole": "Роль сотрудника не может быть пустой",
   "errors.import.employee.IncorrectPhone": "Номер телефона не соответствует правильному формату",
   "errors.import.employee.NameWithSpecialCharacters": "ФИО сотрудника может содержать только буквы, пробелы и дефисы",
   "errors.import.employee.SpecializationNotFound": "Указанная специализация не найдена",
