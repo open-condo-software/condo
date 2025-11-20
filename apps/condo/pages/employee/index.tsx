@@ -11,7 +11,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import {
     ActionBar,
-    Button,
     Dropdown,
     Typography,
 } from '@open-condo/ui'
@@ -51,7 +50,7 @@ export const EmployeesPageContent = ({
     employeesLoading,
     total,
     addEmployeeLabel = undefined,
-    refetch,
+    refetchEmployees,
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
@@ -178,7 +177,7 @@ export const EmployeesPageContent = ({
                     key='import'
                     accessCheck={canManageEmployee}
                     headerRowIndex={1}
-                    onFinish={refetch}
+                    onFinish={refetchEmployees}
                     columns={columns}
                     rowNormalizer={employeeNormalizer}
                     rowValidator={employeeValidator}
@@ -214,7 +213,7 @@ const EmployeesPage: PageComponentType = () => {
         loading: employeesLoading,
         count: total,
         objs: employees,
-        refetch,
+        refetch: refetchEmployees,
     } = OrganizationEmployee.useObjects({
         sortBy,
         where: searchEmployeeQuery,
@@ -231,7 +230,7 @@ const EmployeesPage: PageComponentType = () => {
             employees={employees}
             employeesLoading={employeesLoading}
             total={total}
-            refetch={refetch}
+            refetchEmployees={refetchEmployees}
         />
     )
 }
