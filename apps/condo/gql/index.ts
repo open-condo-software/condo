@@ -3710,7 +3710,7 @@ export type GetOrganizationEmployeeRolesByOrganizationSuspenseQueryHookResult = 
 export type GetOrganizationEmployeeRolesByOrganizationQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeRolesByOrganizationQuery, Types.GetOrganizationEmployeeRolesByOrganizationQueryVariables>;
 export const CreateOrganizationEmployeeRoleDocument = gql`
     mutation createOrganizationEmployeeRole($data: OrganizationEmployeeRoleCreateInput!) {
-  obj: createOrganizationEmployeeRole(data: $data) {
+  role: createOrganizationEmployeeRole(data: $data) {
     id
     name
     description
@@ -6213,7 +6213,7 @@ export type UpdateOrganizationEmployeeTicketsForReassignmentMutationResult = Apo
 export type UpdateOrganizationEmployeeTicketsForReassignmentMutationOptions = Apollo.BaseMutationOptions<Types.UpdateOrganizationEmployeeTicketsForReassignmentMutation, Types.UpdateOrganizationEmployeeTicketsForReassignmentMutationVariables>;
 export const GetTicketCategoryClassifiersDocument = gql`
     query getTicketCategoryClassifiers($where: TicketCategoryClassifierWhereInput, $first: Int, $skip: Int, $sortBy: [SortTicketCategoryClassifiersBy!]) {
-  objs: allTicketCategoryClassifiers(
+  classifiers: allTicketCategoryClassifiers(
     where: $where
     first: $first
     skip: $skip
