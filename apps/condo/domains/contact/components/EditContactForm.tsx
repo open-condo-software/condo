@@ -18,6 +18,7 @@ import { ActionBar, Button, Typography, Checkbox, Input } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { Loader } from '@condo/domains/common/components/Loader'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -54,6 +55,7 @@ export const EditContactForm: React.FC = () => {
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const NoteLabel = intl.formatMessage({ id: 'Note' })
+    const NoteVisibilityHint = intl.formatMessage({ id: 'contact.note.visibility.hint' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
     const Verified = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
@@ -240,7 +242,7 @@ export const EditContactForm: React.FC = () => {
                                                     {...INPUT_LAYOUT_PROPS}
                                                     labelAlign='left'
                                                     name='note'
-                                                    label={NoteLabel}
+                                                    label={<LabelWithInfo message={NoteLabel} title={NoteVisibilityHint} />}
                                                 >
                                                     <Input />
                                                 </Form.Item>

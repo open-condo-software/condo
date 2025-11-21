@@ -7,8 +7,8 @@ import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 
 
 export type FieldPairRowProps = {
-    fieldTitle: string
-    fieldValue: string
+    fieldTitle: React.ReactNode
+    fieldValue: React.ReactNode
     href?: string
     titleColProps?: ColProps
     valueColProps?: ColProps
