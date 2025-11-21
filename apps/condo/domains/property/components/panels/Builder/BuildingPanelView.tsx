@@ -75,6 +75,7 @@ const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsLoading,
     const FieldContactNameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const FieldPhoneMessage = intl.formatMessage({ id: 'Phone' })
     const RolePhoneMessage = intl.formatMessage({ id: 'field.Role' })
+    const NoteMessage = intl.formatMessage({ id: 'Note' })
 
     const ContactsMessage = intl.formatMessage({ id: 'global.section.contacts' })
     const GoToContactMessage = intl.formatMessage({ id: 'pages.condo.property.map.modal.goToContacts' })
@@ -130,6 +131,10 @@ const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsLoading,
                                         label: RolePhoneMessage,
                                         value: contact?.role?.name || '—',
                                     },
+                                    {
+                                        label: NoteMessage,
+                                        value: contact?.note?.trim() || '—',
+                                    },
                                 ]}/>
                             <Row justify='end' style={{ marginTop: 8 }}>
                                 <Typography.Link size='large' href={`/contact/${contact.id}`} target='_blank' rel='noreferrer'>
@@ -155,6 +160,7 @@ const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, contact
     const TotalContactsMessage = intl.formatMessage({ id: 'pages.condo.property.map.modal.totalContacts' })
     const AndOthersMessage = intl.formatMessage({ id: 'AndOthers' })
     const ErrorLoadingContactsMessage = intl.formatMessage({ id: 'pages.condo.property.map.modal.errorLoadingContacts' })
+    const NoteMessage = intl.formatMessage({ id: 'Note' })
 
     const contactsLines = useMemo(() => {
         if (!contactsLoading && contacts) {
@@ -164,9 +170,12 @@ const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, contact
             if (contacts.length === 1) {
                 const contact = contacts[0]
 
+                const noteValue = contact?.note?.trim() || '—'
+
                 const result = [
                     `${ResidentNameMessage}: ${contact.name} ${contact?.role?.name ? `(${contact?.role?.name})` : ''}`,
                     `${PhoneMessage}: ${contact.phone}`,
+                    `${NoteMessage}: ${noteValue}`,
                 ]
 
                 return result

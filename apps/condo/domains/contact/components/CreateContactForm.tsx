@@ -63,6 +63,7 @@ export const CreateContactForm: React.FC = () => {
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
+    const NoteLabel = intl.formatMessage({ id: 'Note' })
     const SubmitButtonLabel = intl.formatMessage({ id: 'AddContact' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholderMessage = intl.formatMessage({ id: 'placeholder.Address' })
@@ -308,6 +309,16 @@ export const CreateContactForm: React.FC = () => {
                                             {...INPUT_LAYOUT_PROPS}
                                         >
                                             <Input placeholder={ExampleEmailMessage} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col lg={18} xs={24}>
+                                        <Form.Item
+                                            name='note'
+                                            label={NoteLabel}
+                                            labelAlign='left'
+                                            {...INPUT_LAYOUT_PROPS}
+                                        >
+                                            <Input.TextArea rows={3} />
                                         </Form.Item>
                                     </Col>
                                     <Col lg={18} xs={24}>

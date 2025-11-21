@@ -53,6 +53,7 @@ export const EditContactForm: React.FC = () => {
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
+    const NoteLabel = intl.formatMessage({ id: 'Note' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
     const Verified = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
@@ -133,6 +134,7 @@ export const EditContactForm: React.FC = () => {
         phone: contact?.phone,
         email: contact?.email,
         role: contact?.role?.id,
+        note: contact?.note,
         isVerified: contact?.isVerified,
     }), [contact])
 
@@ -221,23 +223,33 @@ export const EditContactForm: React.FC = () => {
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24}>
-                                                <Form.Item
-                                                    {...INPUT_LAYOUT_PROPS}
-                                                    labelAlign='left'
-                                                    name='email'
-                                                    label={EmailLabel}
-                                                    required={false}
-                                                    validateFirst
-                                                    rules={validations.email}
-                                                >
-                                                    <Input placeholder={ExampleEmailMessage} />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    {...INPUT_LAYOUT_PROPS}
-                                                    labelAlign='left'
-                                                    name='role'
+                                            <Form.Item
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign='left'
+                                                name='email'
+                                                label={EmailLabel}
+                                                required={false}
+                                                validateFirst
+                                                rules={validations.email}
+                                            >
+                                                <Input placeholder={ExampleEmailMessage} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign='left'
+                                                name='note'
+                                                label={NoteLabel}
+                                            >
+                                                <Input.TextArea rows={3} />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign='left'
+                                                name='role'
                                                     label={RoleLabel}
                                                 >
                                                     {roles && <ContactRoleSelect roles={roles} />}

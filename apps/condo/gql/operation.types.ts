@@ -139,7 +139,7 @@ export type GetContactByUnitQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetContactByUnitQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, email?: string | null, phone?: string | null, isVerified?: boolean | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null };
+export type GetContactByUnitQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, email?: string | null, phone?: string | null, note?: string | null, isVerified?: boolean | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null };
 
 export type GetContactsExistenceQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.ContactWhereInput>;
