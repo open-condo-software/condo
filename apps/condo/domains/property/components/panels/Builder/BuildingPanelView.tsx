@@ -18,6 +18,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, List, Modal, Space, Tooltip, Typography } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
@@ -76,6 +77,7 @@ const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsLoading,
     const FieldPhoneMessage = intl.formatMessage({ id: 'Phone' })
     const RolePhoneMessage = intl.formatMessage({ id: 'field.Role' })
     const NoteMessage = intl.formatMessage({ id: 'Note' })
+    const NoteVisibilityHint = intl.formatMessage({ id: 'contact.note.visibility.hint' })
 
     const ContactsMessage = intl.formatMessage({ id: 'global.section.contacts' })
     const GoToContactMessage = intl.formatMessage({ id: 'pages.condo.property.map.modal.goToContacts' })
@@ -132,7 +134,7 @@ const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsLoading,
                                         value: contact?.role?.name || '—',
                                     },
                                     {
-                                        label: NoteMessage,
+                                        label: <LabelWithInfo message={NoteMessage} title={NoteVisibilityHint} />,
                                         value: contact?.note?.trim() || '—',
                                     },
                                 ]}/>
@@ -161,6 +163,7 @@ const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, contact
     const AndOthersMessage = intl.formatMessage({ id: 'AndOthers' })
     const ErrorLoadingContactsMessage = intl.formatMessage({ id: 'pages.condo.property.map.modal.errorLoadingContacts' })
     const NoteMessage = intl.formatMessage({ id: 'Note' })
+    const NoteVisibilityHint = intl.formatMessage({ id: 'contact.note.visibility.hint' })
 
     const contactsLines = useMemo(() => {
         if (!contactsLoading && contacts) {
@@ -175,7 +178,12 @@ const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, contact
                 const result = [
                     `${ResidentNameMessage}: ${contact.name} ${contact?.role?.name ? `(${contact?.role?.name})` : ''}`,
                     `${PhoneMessage}: ${contact.phone}`,
-                    `${NoteMessage}: ${noteValue}`,
+                    (
+                        <Space size={4}>
+                            <LabelWithInfo message={NoteMessage} title={NoteVisibilityHint} />:
+                            <Typography.Text>{noteValue}</Typography.Text>
+                        </Space>
+                    ),
                 ]
 
                 return result
