@@ -17,6 +17,7 @@ const {
     CHECK_USER_EXISTENCE_TYPE,
     CHANGE_USER_PASSWORD_TYPE,
     CHANGE_OR_VERIFY_USER_EMAIL_TYPE,
+    CHANGE_TWO_FACTOR_AUTHENTICATION_TYPE,
 } = require('@condo/domains/user/constants/limits')
 const { getIdentifierType } = require('@condo/domains/user/utils/identifiers')
 const {
@@ -28,6 +29,7 @@ const {
     CheckUserExistenceResetter,
     ChangeUserPassword,
     ChangeOrVerifyUserEmail,
+    ChangeTwoFactorAuthentication,
 } = require('@condo/domains/user/utils/limits/resetters')
 
 
@@ -40,6 +42,7 @@ const resetters = {
     [CHECK_USER_EXISTENCE_TYPE]: new CheckUserExistenceResetter(),
     [CHANGE_USER_PASSWORD_TYPE]: new ChangeUserPassword(),
     [CHANGE_OR_VERIFY_USER_EMAIL_TYPE]: new ChangeOrVerifyUserEmail(),
+    [CHANGE_TWO_FACTOR_AUTHENTICATION_TYPE]: new ChangeTwoFactorAuthentication(),
 }
 
 const ERRORS = {

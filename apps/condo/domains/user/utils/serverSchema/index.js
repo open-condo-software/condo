@@ -31,6 +31,7 @@ const { AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION } = require('@condo/d
 const { CHANGE_USER_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
 const { CHANGE_USER_EMAIL_MUTATION } = require('@condo/domains/user/gql')
 const { VERIFY_USER_EMAIL_MUTATION } = require('@condo/domains/user/gql')
+const { CHANGE_TWO_FACTOR_AUTHENTICATION_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils('User')
@@ -210,6 +211,19 @@ async function verifyUserEmail (context, data) {
     })
 }
 
+async function changeTwoFactorAuthentication (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: CHANGE_TWO_FACTOR_AUTHENTICATION_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to changeTwoFactorAuthentication',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -292,5 +306,6 @@ module.exports = {
     changeUserPassword,
     changeUserEmail,
     verifyUserEmail,
+    changeTwoFactorAuthentication,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

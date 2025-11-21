@@ -21,6 +21,7 @@ const {
     CHECK_USER_EXISTENCE_TYPE,
     CHANGE_USER_PASSWORD_TYPE,
     CHANGE_OR_VERIFY_USER_EMAIL_TYPE,
+    CHANGE_TWO_FACTOR_AUTHENTICATION_TYPE,
 } = require('@condo/domains/user/constants/limits')
 const { ERRORS } = require('@condo/domains/user/schema/ResetUserLimitAction')
 const { buildQuotaKey: buildAuthQuotaKey, buildQuotaKeyByUserType: buildAuthQuotaKeyByUserType } = require('@condo/domains/user/utils/serverSchema/auth')
@@ -745,6 +746,50 @@ describe('ResetUserLimitAction', () => {
                 expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
                 await createTestResetUserLimitAction(userWithDirectAccess, CHANGE_OR_VERIFY_USER_EMAIL_TYPE, identifier)
+                const afterReset = await redisGuard.getCounterValue(dailyKey)
+                expect(afterReset).toBeNull()
+            })
+        })
+
+        describe(`${CHANGE_TWO_FACTOR_AUTHENTICATION_TYPE} type`, () => {
+            test('throws error if key is not exists', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, CHANGE_TWO_FACTOR_AUTHENTICATION_TYPE, faker.internet.ipv4())
+                }, ERRORS.KEY_NOT_FOUND)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, CHANGE_TWO_FACTOR_AUTHENTICATION_TYPE, faker.datatype.uuid())
+                }, ERRORS.KEY_NOT_FOUND)
+            })
+
+            describe('throws error if key is not valid ip, uuid', () => {
+                const cases = [
+                    createTestPhone(),
+                    faker.random.alphaNumeric(10),
+                    createTestEmail(),
+                ]
+                test.each(cases)('%p', async (key) => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestResetUserLimitAction(userWithDirectAccess, CHANGE_TWO_FACTOR_AUTHENTICATION_TYPE, key)
+                    }, ERRORS.INVALID_IDENTIFIER)
+                })
+            })
+
+            const cases = [
+                ['ip', 'ip', faker.internet.ipv4()],
+                ['uuid', 'userId', faker.datatype.uuid()],
+            ]
+
+            test.each(cases)('resets rate-limit by %p', async (_, identifierKey, identifier) => {
+                const dailyKey = [CHANGE_TWO_FACTOR_AUTHENTICATION_TYPE, 'daily', identifierKey, identifier].join(':')
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(dailyKey)
+                }
+                const beforeReset = await redisGuard.getCounterValue(dailyKey)
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, CHANGE_TWO_FACTOR_AUTHENTICATION_TYPE, identifier)
                 const afterReset = await redisGuard.getCounterValue(dailyKey)
                 expect(afterReset).toBeNull()
             })
