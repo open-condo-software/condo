@@ -9,7 +9,6 @@ import {
     ColumnFiltersState,
     RowSelectionState,
     HeaderContext,
-    ColumnDef,
 } from '@tanstack/react-table'
 import React, { forwardRef, useImperativeHandle, useMemo, useState, useEffect, useCallback, useRef } from 'react'
 
