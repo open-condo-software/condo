@@ -11,6 +11,53 @@ export type GetProcessingTasksQueryVariables = Types.Exact<{
 
 export type GetProcessingTasksQuery = { __typename?: 'Query', allTicketDocumentGenerationTasks?: Array<{ __typename: 'TicketDocumentGenerationTask', id: string, progress?: number | null, status?: Types.TicketDocumentGenerationTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allTicketExportTasks?: Array<{ __typename: 'TicketExportTask', id: string, status?: Types.TicketExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allIncidentExportTasks?: Array<{ __typename: 'IncidentExportTask', id: string, status?: Types.IncidentExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allContactExportTasks?: Array<{ __typename: 'ContactExportTask', id: string, status?: Types.ContactExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allBankSyncTasks?: Array<{ __typename: 'BankSyncTask', id: string, status?: Types.BankSyncTaskStatusType | null, processedCount?: number | null, totalCount?: number | null, meta?: any | null, property?: { __typename?: 'Property', id: string } | null, options?: { __typename?: 'BankSyncTaskOptions', type?: string | null } | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allBankAccountReportTasks?: Array<{ __typename: 'BankAccountReportTask', id: string, progress?: number | null, status?: Types.BankAccountReportTaskStatusType | null } | null> | null, allNewsItemRecipientsExportTasks?: Array<{ __typename: 'NewsItemRecipientsExportTask', id: string, status?: Types.NewsItemRecipientsExportTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allMeterReadingsImportTasks?: Array<{ __typename: 'MeterReadingsImportTask', id: string, status?: Types.MeterReadingsImportTaskStatusType | null, errorMessage?: string | null, totalRecordsCount?: number | null, processedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null, errorFile?: { __typename?: 'File', publicUrl?: string | null } | null } | null> | null, allMeterReadingExportTasks?: Array<{ __typename: 'MeterReadingExportTask', id: string, status?: Types.MeterReadingExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null };
 
+export type GetAllMiniAppsQueryVariables = Types.Exact<{
+  data: Types.AllMiniAppsInput;
+}>;
+
+
+export type GetAllMiniAppsQuery = { __typename?: 'Query', allMiniApps?: Array<{ __typename?: 'MiniAppOutput', id: string, name: string, shortDescription?: string | null, connected: boolean, accessible: boolean, category: Types.AppCategory, logo?: string | null, label?: string | null, icon?: string | null, menuCategory?: string | null }> | null };
+
+export type GetB2BAppsWithMessageSettingsQueryVariables = Types.Exact<{
+  messageTypes?: Types.InputMaybe<Array<Types.InputMaybe<Types.MessageType>> | Types.InputMaybe<Types.MessageType>>;
+}>;
+
+
+export type GetB2BAppsWithMessageSettingsQuery = { __typename?: 'Query', settings?: Array<{ __typename?: 'AppMessageSetting', type?: Types.MessageType | null, b2bApp?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
+
+export type GetGlobalB2BAppsQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type GetGlobalB2BAppsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, appUrl?: string | null, features?: Array<Types.B2BAppGlobalFeature> | null } | null> | null };
+
+export type GetCountB2BAppsWithNewsSharingConfigQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type GetCountB2BAppsWithNewsSharingConfigQuery = { __typename?: 'Query', _allB2BAppsMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
+export type GetEmployeeB2BAppRolesForSpecificAppsQueryVariables = Types.Exact<{
+  employeeRoleId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
+  b2bAppIds?: Types.InputMaybe<Array<Types.InputMaybe<Types.Scalars['ID']['input']>> | Types.InputMaybe<Types.Scalars['ID']['input']>>;
+}>;
+
+
+export type GetEmployeeB2BAppRolesForSpecificAppsQuery = { __typename?: 'Query', b2bRoles?: Array<{ __typename?: 'B2BAppRole', id: string, app?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
+
+export type GetEmployeeB2BAppRolesQueryVariables = Types.Exact<{
+  employeeRole: Types.OrganizationEmployeeRoleWhereInput;
+}>;
+
+
+export type GetEmployeeB2BAppRolesQuery = { __typename?: 'Query', b2bRoles?: Array<{ __typename?: 'B2BAppRole', id: string, app?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
+
+export type GetCustomValuesForObjectQueryVariables = Types.Exact<{
+  modelName: Types.CustomFieldModelNameType;
+  itemId: Types.Scalars['String']['input'];
+}>;
+
+
+export type GetCustomValuesForObjectQuery = { __typename?: 'Query', customValues?: Array<{ __typename?: 'CustomValue', id: string, data?: any | null, sourceType?: Types.CustomValueSourceTypeType | null, sourceId?: string | null, customField?: { __typename?: 'CustomField', priority?: number | null, name?: string | null, type?: Types.CustomFieldTypeType | null } | null } | null> | null };
+
 export type AcceptOrRejectOrganizationEmployeeRequestMutationVariables = Types.Exact<{
   data: Types.AcceptOrRejectOrganizationEmployeeRequestInput;
 }>;

@@ -5,8 +5,8 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
-import { CatalogPageContent } from '@condo/domains/miniapp/components/Catalog/PageContent'
 import { ServicesReadPermissionRequired } from '@condo/domains/miniapp/components/PageAccess'
+import { CatalogPageContent } from '@helpdesk-web/domains/miniapp/components/Catalog/PageContent'
 
 
 const MiniappsCatalogPage: PageComponentType = () => {
