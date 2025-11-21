@@ -46,11 +46,11 @@ const ERRORS = {
 }
 
 const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGenerationTask', {
-    schemaDoc: 'Information about generation process of ticket document',
+    schemaDoc: 'Tracks the process of generating a document for a ticket.',
     fields: {
 
         ticket: {
-            schemaDoc: 'The application for which the document is generated',
+            schemaDoc: 'Ticket for which the document is generated.',
             type: 'Relationship',
             ref: 'Ticket',
             isRequired: true,
@@ -64,7 +64,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         },
 
         status: {
-            schemaDoc: 'Status of current generation operation',
+            schemaDoc: 'Current status of the document generation task.',
             type: 'Select',
             options: Object.values(TICKET_DOCUMENT_GENERATION_TASK_STATUS).join(','),
             defaultValue: TICKET_DOCUMENT_GENERATION_TASK_STATUS.PROCESSING,
@@ -77,7 +77,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         },
 
         format: {
-            schemaDoc: 'Output file format',
+            schemaDoc: 'Output file format.',
             type: 'Select',
             options: Object.values(TICKET_DOCUMENT_GENERATION_TASK_FORMAT).join(','),
             isRequired: true,
@@ -89,7 +89,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         },
 
         progress: {
-            schemaDoc: 'Progress of current generation operation',
+            schemaDoc: 'Progress percentage of the generation task.',
             type: 'Integer',
             isRequired: true,
             defaultValue: 0,
@@ -101,7 +101,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         },
 
         user: {
-            schemaDoc: 'User that requested this generation operation. Will be used for read access checks to display all generating tasks somewhere and to display progress indicator of ongoing generating task for current user',
+            schemaDoc: 'User who requested the document. Used for access checks and progress display.',
             type: 'Relationship',
             ref: 'User',
             isRequired: true,
@@ -115,7 +115,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         },
 
         timeZone: {
-            schemaDoc: 'All datetime fields in export template will be converted to specified tz',
+            schemaDoc: 'Time zone applied to datetime values in the generated document.',
             type: 'Text',
             isRequired: true,
             access: {
@@ -132,7 +132,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         },
 
         file: {
-            schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
+            schemaDoc: 'Generated file metadata stored outside the database. The structure depends on the file adapter.',
             type: 'File',
             adapter: TicketDocumentGenerationTaskFileAdapter,
             access: {
@@ -143,7 +143,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         },
 
         documentType: {
-            schemaDoc: 'Type of document',
+            schemaDoc: 'Type of document being generated.',
             type: 'Select',
             options: Object.values(TICKET_DOCUMENT_TYPE).join(','),
             isRequired: true,
@@ -155,7 +155,7 @@ const TicketDocumentGenerationTask = new GQLListSchema('TicketDocumentGeneration
         },
 
         meta: {
-            schemaDoc: 'Structured untyped metadata, can be used to store errors or anything else',
+            schemaDoc: 'Additional metadata, such as error details or diagnostic information.',
             type: 'Json',
             access: {
                 create: canOnlyServerSideWithoutUserRequest,

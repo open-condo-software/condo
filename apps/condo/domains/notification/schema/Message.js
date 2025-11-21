@@ -14,10 +14,10 @@ const { renderDefaultTemplate } = require('@condo/domains/notification/templates
 
 
 const Message = new GQLListSchema('Message', {
-    schemaDoc: 'Notification message',
+    schemaDoc: 'Represents a notification message and its delivery state.',
     fields: {
         organization: {
-            schemaDoc: 'This message is related to some organization. Organization can manage their messages',
+            schemaDoc: 'Organization that owns the message. The organization can manage its messages.',
             type: 'Relationship',
             ref: 'Organization',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
@@ -29,7 +29,7 @@ const Message = new GQLListSchema('Message', {
         },
 
         user: {
-            schemaDoc: 'to User',
+            schemaDoc: 'Recipient user.',
             type: 'Relationship',
             ref: 'User',
             isRequired: false,
@@ -37,19 +37,19 @@ const Message = new GQLListSchema('Message', {
         },
 
         phone: {
-            schemaDoc: 'to Phone',
+            schemaDoc: 'Recipient phone number.',
             type: 'Text',
             isRequired: false,
         },
 
         email: {
-            schemaDoc: 'to Email',
+            schemaDoc: 'Recipient email address.',
             type: 'Text',
             isRequired: false,
         },
 
         remoteClient: {
-            schemaDoc: 'to Remote client',
+            schemaDoc: 'Recipient remote client (for device-specific delivery).',
             type: 'Relationship',
             ref: 'RemoteClient',
             isRequired: false,
@@ -62,13 +62,13 @@ const Message = new GQLListSchema('Message', {
         },
 
         emailFrom: {
-            schemaDoc: 'from Email',
+            schemaDoc: 'Sender email address.',
             type: 'Text',
             isRequired: false,
         },
 
         lang: {
-            schemaDoc: 'Message status',
+            schemaDoc: 'Language code used to localize the message.',
             type: 'Select',
             options: Object.keys(LOCALES).join(','),
             isRequired: true,
@@ -80,7 +80,7 @@ const Message = new GQLListSchema('Message', {
         }),
 
         meta: {
-            schemaDoc: 'Message context',
+            schemaDoc: 'Message context and template variables.',
             type: 'Json',
             isRequired: true,
             hooks: {
@@ -91,7 +91,7 @@ const Message = new GQLListSchema('Message', {
         },
 
         status: {
-            schemaDoc: 'Message status',
+            schemaDoc: 'Current delivery status of the message.',
             type: 'Select',
             defaultValue: MESSAGE_SENDING_STATUS,
             options: MESSAGE_STATUSES.join(','),
@@ -99,7 +99,7 @@ const Message = new GQLListSchema('Message', {
         },
 
         processingMeta: {
-            schemaDoc: 'Task processing metadata. Just for debug purpose. You can see exactly what and where the message was sent',
+            schemaDoc: 'Processing metadata used for debugging message delivery.',
             type: 'Json',
             isRequired: false,
             hooks: {
@@ -110,7 +110,7 @@ const Message = new GQLListSchema('Message', {
         },
 
         defaultContent: {
-            schemaDoc: 'Specifies the default message content if it exists',
+            schemaDoc: 'Provides the default message content, if available.',
             type: 'Virtual',
             extendGraphQLTypes: ['type MessageDefaultContentField { content: String }'],
             graphQLReturnType: 'MessageDefaultContentField',
@@ -128,25 +128,25 @@ const Message = new GQLListSchema('Message', {
         },
 
         deliveredAt: {
-            schemaDoc: 'Delivered (received) at time',
+            schemaDoc: 'Timestamp when the message was delivered to the recipient.',
             type: 'DateTimeUtc',
             isRequired: false,
         },
 
         sentAt: {
-            schemaDoc: 'Sent at time',
+            schemaDoc: 'Timestamp when the message was sent.',
             type: 'DateTimeUtc',
             isRequired: false,
         },
 
         readAt: {
-            schemaDoc: 'Read at time',
+            schemaDoc: 'Timestamp when the recipient read the message.',
             type: 'DateTimeUtc',
             isRequired: false,
         },
 
         uniqKey: {
-            schemaDoc: 'Unique message key. You can use it if you need to make sure that the message you are trying to create has not been created before. Fields `user`, `type` and `uniqkey` is to be unique. If you don\'t have a `user`, the fields `type` and `uniqkey` is to be unique',
+            schemaDoc: 'Unique message key that prevents duplicate messages. The combination of `user`, `type`, and `uniqKey` must be unique. If `user` is empty, the combination of `type` and `uniqKey` must be unique.',
             type: 'Text',
             isRequired: false,
         },

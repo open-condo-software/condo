@@ -15,11 +15,11 @@ const { BANK_SYNC_TASK_STATUS } = require('../constants')
 
 
 const BankAccountReportTask = new GQLListSchema('BankAccountReportTask', {
-    schemaDoc: 'Information about the report generation process',
+    schemaDoc: 'Tracks the progress of generating a bank account report.',
     fields: {
 
         account: {
-            schemaDoc: 'Bank account for which the current report generation operation is running.',
+            schemaDoc: 'Bank account for which the report is being generated.',
             type: 'Relationship',
             ref: 'BankAccount',
             isRequired: true,
@@ -35,7 +35,7 @@ const BankAccountReportTask = new GQLListSchema('BankAccountReportTask', {
         organization: ORGANIZATION_OWNED_FIELD,
 
         status: {
-            schemaDoc: 'Status of current generation operation',
+            schemaDoc: 'Status of the report generation task.',
             type: 'Select',
             options: values(BANK_SYNC_TASK_STATUS),
             defaultValue: BANK_SYNC_TASK_STATUS.PROCESSING,
@@ -43,12 +43,12 @@ const BankAccountReportTask = new GQLListSchema('BankAccountReportTask', {
         },
 
         progress: {
-            schemaDoc: 'Progress of current generation operation',
+            schemaDoc: 'Progress percentage of the report generation task.',
             type: 'Integer',
         },
 
         user: {
-            schemaDoc: 'User that requested this operation. Will be used for read access checks to display all tasks somewhere and to display progress indicator of ongoing generating task for current user',
+            schemaDoc: 'User who requested the report. Used for access checks and progress display.',
             type: 'Relationship',
             ref: 'User',
             isRequired: true,
@@ -62,7 +62,7 @@ const BankAccountReportTask = new GQLListSchema('BankAccountReportTask', {
         },
 
         meta: {
-            schemaDoc: 'Additional data, specific to used integration',
+            schemaDoc: 'Additional data specific to the integration that generated the report.',
             type: 'Json',
         },
 

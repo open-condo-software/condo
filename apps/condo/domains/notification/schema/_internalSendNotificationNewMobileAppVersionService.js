@@ -45,7 +45,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
     mutations: [
         {
             access: access.can_internalSendNotificationNewMobileAppVersion,
-            schemaDoc: 'The mutation is necessary to send push notifications directly to a specific user device with an outdated version of the mobile application build.',
+            schemaDoc: 'Sends a push notification to user devices that run an outdated version of the mobile app.',
             schema: '_internalSendNotificationNewMobileAppVersion(data: _internalSendNotificationNewMobileAppVersionInput!): _internalSendNotificationNewMobileAppVersionOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
 
