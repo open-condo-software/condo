@@ -1,0 +1,15 @@
+query getCustomValuesForObject ($modelName: CustomFieldModelNameType! $itemId: String!) {
+    customValues: allCustomValues(
+        where: { customField: { modelName: $modelName }, itemId: $itemId }
+    ) {
+        id
+        data
+        customField {
+          priority
+          name
+          type
+        }
+        sourceType
+        sourceId
+    }
+}
