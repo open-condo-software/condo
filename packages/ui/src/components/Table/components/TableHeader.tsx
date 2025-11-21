@@ -244,7 +244,7 @@ function SettingsMenuDropdown <TData> ({
             <div className='condo-dropdown-menu-item-inner'>
                 <div className='condo-dropdown-menu-item-inner-left'>
                     <GripHorizontal size='small' color={colors.gray[7]} />
-                    {columnLabels.settingsLabel || 'Setted'}
+                    {columnLabels.settingsLabel || 'Settings'}
                 </div>
             </div>
         </Dropdown>
@@ -380,21 +380,23 @@ export function TableHeader <TData> ({
                             <div className='condo-table-th-title-content'>
                                 {flexRender(header.column.columnDef.header, header.getContext())}
                             </div>
-                            {(header.column.columnDef.meta?.enableColumnMenu) && (<div className='condo-table-th-icons'>
-                                {header.column.getIsSorted() === 'asc' && <SortAsc size='small' color={colors.green[5]} /> }
-                                {header.column.getIsSorted() === 'desc' && <SortDesc size='small' color={colors.green[5]} />}
-                                {header.column.getIsFiltered() && <Filter size='small' color={colors.green[5]} />}
-                                <Dropdown
-                                    menu={{ 
-                                        items: getColumnMenu(header),
-                                    }}
-                                    trigger={['hover']}
-                                >
-                                    <div className='condo-table-th-more-icon'>
-                                        <MoreVertical size='small' />
-                                    </div>
-                                </Dropdown>
-                            </div>)}
+                            {header.column.columnDef.meta?.enableColumnMenu && (
+                                <div className='condo-table-th-icons'>
+                                    {header.column.getIsSorted() === 'asc' && <SortAsc size='small' color={colors.green[5]} /> }
+                                    {header.column.getIsSorted() === 'desc' && <SortDesc size='small' color={colors.green[5]} />}
+                                    {header.column.getIsFiltered() && <Filter size='small' color={colors.green[5]} />}
+                                    <Dropdown
+                                        menu={{ 
+                                            items: getColumnMenu(header),
+                                        }}
+                                        trigger={['hover']}
+                                    >
+                                        <div className='condo-table-th-more-icon'>
+                                            <MoreVertical size='small' />
+                                        </div>
+                                    </Dropdown>
+                                </div>
+                            )}
                         </div>
                         <div
                             className='condo-table-th-resize-handle'

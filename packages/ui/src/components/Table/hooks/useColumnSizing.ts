@@ -108,8 +108,9 @@ export const useColumnSizing = <TData extends RowData = RowData>({
                 if (tableWidth > 0) {
                     const sizeInPixels = (tableWidth * 10) / 100
                     result[columnId] = sizeInPixels
+                } else {
+                    result[columnId] = 0
                 }
-                result[columnId] = 0
             } else {
                 if (typeof columnSettings?.size === 'string') {
                     const sizeInPixels = convertPercentToPixels(columnSettings.size, tableWidth)
@@ -156,8 +157,9 @@ export const useColumnSizing = <TData extends RowData = RowData>({
                     if (tableWidth > 0) {
                         const sizeInPixels = (tableWidth * 10) / 100
                         distributedSizing[columnId] = sizeInPixels
+                    } else {
+                        distributedSizing[columnId] = 0
                     }
-                    distributedSizing[columnId] = 0
                 } else {
                     if (typeof columnSettings.size === 'string') {
                         const sizeInPixels = convertPercentToPixels(columnSettings.size, tableWidth)

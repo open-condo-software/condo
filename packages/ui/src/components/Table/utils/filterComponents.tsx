@@ -182,7 +182,8 @@ const getSelectFilterDropdown: GetSelectFilterComponentType = ({ selectProps }: 
 export function getFilterComponentByKey (
     filterConfig: FilterConfig
 ): TableColumn['filterComponent'] {
-    const id = (filterConfig?.componentProps as { id?: string }).id || `${filterConfig?.key}FilterComponent`
+    const componentPropsWithId = filterConfig?.componentProps as { id?: string } | undefined
+    const id = componentPropsWithId?.id || `${filterConfig?.key}FilterComponent`
 
     switch (filterConfig?.key) {
         case ComponentType.Input: {

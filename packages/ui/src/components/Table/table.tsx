@@ -128,7 +128,7 @@ function TableComponent<TData extends RowData = RowData> (
             const enableSorting = c.enableSorting ?? (defaultColumn?.enableSorting ?? false)
             const enableColumnMenu = enableSorting || enableColumnFilter || enableColumnSettings
             const colMinSize = c.minSize ?? (defaultColumn?.minSize ?? DEFAULT_MIN_SIZE)
-            const initialSize = c.initialSize ?? (defaultColumn?.initialSize ?? '')
+            const initialSize = c.initialSize ?? (defaultColumn?.initialSize ?? undefined)
             const initialVisibility = c.initialVisibility ?? (defaultColumn?.initialVisibility ?? true)
             const initialOrder = c.initialOrder
             const meta: TableColumnMeta = {
@@ -348,14 +348,18 @@ function TableComponent<TData extends RowData = RowData> (
             setFilterState: (newFilterState: FilterState) => {
                 // NOTE: If we change filter state, we need to reset pagination to the first page
                 setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
-                setColumnFilters((prev) => [...prev, ...Object.entries(newFilterState).map(([key, value]) => ({ id: key, value: value })).filter(Boolean)] as ColumnFiltersState)
+                setColumnFilters((prev) => {
+                    const newFilter = ([key, value]: [string, unknown]) => ({ id: key, value: value })
+                    return [...prev, ...Object.entries(newFilterState).map(newFilter).filter(Boolean)] as ColumnFiltersState
+                })
             },
             getColumnFilter: (columnId: string) => table.getState().columnFilters.find(filter => filter.id === columnId)?.value,
             setColumnFilter: (columnId: string, value: unknown) => {
                 // NOTE: If we change column filter, we need to reset pagination to the first page
                 setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
+                const findIndex = (filter: ColumnFiltersState[number]) => filter.id === columnId
                 setColumnFilters((prev) => {                    
-                    const existingFilterIndex = prev.findIndex(filter => filter.id === columnId)
+                    const existingFilterIndex = prev.findIndex(findIndex)
                     if (existingFilterIndex >= 0) {
                         const newFilters = [...prev]
                         newFilters[existingFilterIndex] = { id: columnId, value: value }

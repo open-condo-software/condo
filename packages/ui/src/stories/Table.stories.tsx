@@ -164,7 +164,7 @@ const getTableData: GetTableData<TableData> = (tableState) => {
             if (tableState.sortState.length > 0) {
                 const sortDesc = tableState.sortState[0].desc
                 const sortId = tableState.sortState[0].id as keyof TableData
-                const getNestedValue = (obj: any, path: string): any => {
+                const getNestedValue = (obj: any, path: any): unknown => {
                     if (!path || !obj) return undefined
                     
                     if (!path.includes('.')) {
@@ -184,39 +184,32 @@ const getTableData: GetTableData<TableData> = (tableState) => {
                     return value
                 }
 
+                const compareValues = (a: any, b: any, desc: boolean): number => {
+                    if (a === undefined || a === null) {
+                        return desc ? -1 : 1
+                    }
+                    if (b === undefined || b === null) {
+                        return desc ? 1 : -1
+                    }
+
+                    const aType = typeof a
+                    const bType = typeof b
+
+                    if (aType === 'number' && bType === 'number') {
+                        return desc ? b - a : a - b
+                    }
+
+                    if (aType === 'string' && bType === 'string') {
+                        return desc ? b.localeCompare(a) : a.localeCompare(b)
+                    }
+
+                    return 0
+                }
+
                 resultData.sort((a, b) => {
                     const aValue = getNestedValue(a, sortId)
                     const bValue = getNestedValue(b, sortId)
-
-                    if (aValue === undefined || aValue === null) {
-                        return sortDesc ? -1 : 1
-                    }
-                    if (bValue === undefined || bValue === null) {
-                        return sortDesc ? 1 : -1
-                    }
-
-                    if (!sortDesc) {
-                        switch (typeof aValue[sortId]) {
-                            case 'number':
-                                return aValue[sortId] - (bValue[sortId] as number)
-                            case 'string':
-                                if (aValue[sortId] === undefined || null) return  1
-                                if (bValue[sortId] === undefined || null) return  -1
-                                return aValue[sortId].localeCompare(bValue[sortId] as string)
-                            default:
-                                return 0
-                        }
-                    }
-                    switch (typeof bValue[sortId]) {
-                        case 'number':
-                            return bValue[sortId] - (aValue[sortId] as number)
-                        case 'string':
-                            if (aValue[sortId] === undefined || null) return  1
-                            if (aValue[sortId] === undefined || null) return  -1
-                            return (bValue[sortId]).localeCompare(aValue[sortId] as string)
-                        default:
-                            return 0
-                    }
+                    return compareValues(aValue, bValue, sortDesc)
                 })
             }
             resolve({ rowData: resultData.slice(tableState.startRow, tableState.endRow), rowCount: resultData.length })
