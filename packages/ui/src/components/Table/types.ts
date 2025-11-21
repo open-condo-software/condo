@@ -63,10 +63,10 @@ export type FilterComponent = (props: FilterComponentProps) => React.ReactNode
 
 export type TableColumnMeta = {
     filterComponent?: FilterComponent
-    enableColumnSettings: boolean
+    enableColumnSettings?: boolean
     enableColumnMenu?: boolean
-    initialVisibility: boolean
-    initialSize: string | number
+    initialVisibility?: boolean
+    initialSize?: string | number
     initialOrder?: number
 }
 
@@ -144,12 +144,5 @@ export interface TableProps<TData extends RowData = RowData> {
 }
 
 declare module '@tanstack/react-table' {
-    interface ColumnMeta<TData extends RowData, TValue> {
-        filterComponent?: FilterComponent
-        enableColumnSettings: boolean
-        enableColumnMenu?: boolean
-        initialVisibility: boolean
-        initialSize: string | number
-        initialOrder?: number
-    }
+    interface ColumnMeta<TData extends RowData, TValue> extends TableColumnMeta {}
 }

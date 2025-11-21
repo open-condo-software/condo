@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 
-import { FullTableState, RowSelectionState, SortState } from '@open-condo/ui/src'
+import { FilterState, FullTableState, RowSelectionState, SortState } from '@open-condo/ui/src'
 
 type ParsedUrlQuery = Record<string, string | string[]>
 
@@ -149,6 +149,49 @@ export const defaultParseUrlQuery = (query: Record<string, string | string[]>, p
     }
 }
 
+const normalizeOffset = (startRow: number | undefined): number | null => {
+    if (startRow === undefined) return null
+    return startRow > 0 ? startRow : null
+}
+
+const isValidFilterValue = (value: unknown): boolean => {
+    if (typeof value === 'string') {
+        return !isEmpty(value)
+    }
+    if (Array.isArray(value)) {
+        return value.length > 0 && value.every(item => typeof item === 'string' && !isEmpty(item))
+    }
+    return false
+}
+
+const normalizeFilters = (filterState: FilterState | undefined): FiltersFromQueryType | null => {
+    if (!filterState || Object.keys(filterState).length === 0) {
+        return null
+    }   
+    
+    const validFilters = pickBy(filterState, (value, key) => 
+        typeof key === 'string' && isValidFilterValue(value)
+    ) as FiltersFromQueryType
+    
+    return Object.keys(validFilters).length > 0 ? validFilters : null
+}
+
+const normalizeSorters = (sortState: SortState | undefined): string | null => {
+    if (!sortState || sortState.length === 0) {
+        return null
+    }
+    
+    const sorter = sortState[0]
+    return sorter ? `${sorter.id}_${sorter.desc ? DESC : ASC}` : null
+}
+
+const normalizeSelectedRows = (rowSelectionState: RowSelectionState | undefined): RowSelectionState | null => {
+    if (!rowSelectionState || rowSelectionState.length === 0) {
+        return null
+    }
+    return [...rowSelectionState]
+}
+
 /**
  * @deprecated This function is experimental. API may change at any time without notice.
  * 
@@ -164,47 +207,11 @@ export const defaultParseUrlQuery = (query: Record<string, string | string[]>, p
 export const defaultUpdateUrlQuery = (params: FullTableState) => {
     const { startRow, filterState, sortState, rowSelectionState } = params
 
-    let newOffset
-    if (startRow !== undefined && startRow > 0) {
-        newOffset = startRow
-    } else if (startRow === 0) {
-        newOffset = null
-    }
-
-    let newFilters
-    if (filterState && Object.keys(filterState).length > 0) {
-        const possibleDate = pickBy(filterState, (value, key) => typeof key === 'string' && (typeof value === 'string' && !isEmpty(value) || Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' && !isEmpty(item)))) as FiltersFromQueryType
-        if (Object.keys(possibleDate).length > 0) {
-            newFilters = possibleDate
-        } else {
-            newFilters = null
-        }
-    } else {
-        newFilters = null
-    }
-
-    let newSorters
-    if (sortState && sortState.length > 0) {
-        const sorter = sortState[0]
-        if (sorter) {
-            newSorters = `${sorter.id}_${sorter.desc ? DESC : ASC}`
-        }
-    } else {
-        newSorters = null
-    }
-
-    let newSelectedRows
-    if (rowSelectionState && rowSelectionState.length > 0) {
-        newSelectedRows = [...rowSelectionState]
-    } else {
-        newSelectedRows = null
-    }
-
     const newParameters = { 
-        offset: newOffset, 
-        filters: newFilters, 
-        sort: newSorters, 
-        selectedRows: newSelectedRows,
+        offset: normalizeOffset(startRow), 
+        filters: normalizeFilters(filterState), 
+        sort: normalizeSorters(sortState), 
+        selectedRows: normalizeSelectedRows(rowSelectionState),
     }
 
     return updateUrl(newParameters, { resetOldParameters: false, shallow: true })
