@@ -59,7 +59,6 @@ export function TableBody <TData extends RowData = RowData> ({
                     className='condo-table-tr'
                     onClick={() => onRowClick?.(row.original)}
                     onKeyDown={createKeyDownHandler(row)}
-                    aria-label={onRowClick ? `Select row ${row.id}` : undefined}
                 >
                     {row.getVisibleCells().map(cell => {
 
