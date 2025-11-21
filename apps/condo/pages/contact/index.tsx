@@ -491,12 +491,14 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         router.push(`/contact/${record.id}`)
     }, [router])
 
-    const rowSelectionOptions = useMemo(() => canManageContacts && { 
-        getRowId: (row: GetContactsForTableQuery['contacts'][number]) => row.id,
+    const rowSelectionOptions = useMemo(() => ({ 
+        enableRowSelection: canManageContacts,
         onRowSelectionChange: (rowSelectionState: RowSelectionState) => {
             setSelectedRowsCount(Object.keys(rowSelectionState).length)
         },
-    }, [canManageContacts])
+    }), [canManageContacts])
+
+    const getRowId = useCallback((row: GetContactsForTableQuery['contacts'][number]) => row.id, [])
 
     const onGridReady = useCallback((tableRef: TableRef) => {
         handleSearchChange(String(tableRef.api.getColumnFilter('search') || ''))
@@ -527,9 +529,10 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
                     pageSize={CONTACT_PAGE_SIZE}
                     onTableStateChange={defaultUpdateUrlQuery}
                     initialTableState={initialTableState}
-                    columnMenuLabels={menuLabels}
+                    columnLabels={menuLabels}
                     defaultColumn={defaultColumn}
                     rowSelectionOptions={rowSelectionOptions}
+                    getRowId={getRowId}
                     onGridReady={onGridReady}
                     ref={tableRef}
                 />
