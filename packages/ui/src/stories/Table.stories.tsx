@@ -92,19 +92,17 @@ const columns: TableColumn<TableData>[] = [
         id: 'age',
         initialOrder: 1,
         enableSorting: true,
-        filterComponent: ({ setFilterValue, filterValue }) => {
-            // TODO: We have trouble with number in filter. Table state is not updated
-            return (
-                <Input
-                    onChange={(event) => {
-                        const value = +event.target.value
-                        setFilterValue(value)
-                    }} 
-                    placeholder='Filter by age'
-                    value={filterValue?.toString()}
-                />
-            )
-        },
+        filterComponent: ({ setFilterValue, filterValue, confirm }) => (
+            <Input
+                onChange={(event) => {
+                    const value = event.target.value === '' ? null : Number(event.target.value)
+                    setFilterValue(value)
+                    confirm()
+                }} 
+                placeholder='Filter by age'
+                value={filterValue?.toString()}
+            />
+        ),
     },
     {
         dataKey: 'status',

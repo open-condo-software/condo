@@ -235,9 +235,7 @@ function TableComponent<TData extends RowData = RowData> (
         const startRow = pagination.pageIndex * pagination.pageSize
         const endRow = startRow + pagination.pageSize
         const filterState = columnFilters.reduce((acc, filter) => {
-            if (filter.value !== '' && filter.value !== null && filter.value !== undefined) {
-                acc[filter.id] = filter.value
-            }
+            acc[filter.id] = filter.value
             return acc
         }, {} as FilterState)
 
@@ -290,7 +288,7 @@ function TableComponent<TData extends RowData = RowData> (
             const filteredFilters = newFilters.filter(filter => {
                 const column = tableColumns.find(col => col.id === filter.id)
                 if (!column || !column.enableColumnFilter) return false
-                
+
                 const value = filter.value
                 if (value === null || value === undefined) return false
                 if (typeof value === 'string') return value.trim() !== ''
@@ -328,6 +326,9 @@ function TableComponent<TData extends RowData = RowData> (
         onColumnSizingChange: onColumnSizingChange,
         enableRowSelection: rowSelectionOptions?.enableRowSelection ?? false,
         getRowId: getRowId,
+        defaultColumn: {
+            filterFn: 'equals',
+        },
     })
 
     const stableOnGridReady = useRef<((tableRef: TableRef) => void) | undefined>(onGridReady)
