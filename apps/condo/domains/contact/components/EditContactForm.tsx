@@ -242,7 +242,7 @@ export const EditContactForm: React.FC = () => {
                                                     name='note'
                                                     label={NoteLabel}
                                                 >
-                                                    <Input.TextArea rows={3} />
+                                                    <Input />
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24}>

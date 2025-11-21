@@ -318,7 +318,7 @@ export const CreateContactForm: React.FC = () => {
                                             labelAlign='left'
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <Input.TextArea rows={3} />
+                                            <Input />
                                         </Form.Item>
                                     </Col>
                                     <Col lg={18} xs={24}>
