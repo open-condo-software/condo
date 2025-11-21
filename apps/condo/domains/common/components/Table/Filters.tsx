@@ -8,9 +8,18 @@ import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
 import isFunction from 'lodash/isFunction'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import {
+    Select as OpenSelect,
+    Input as OpenInput,
+    FilterComponent,
+    InputProps as OpenInputProps,
+    SelectProps as OpenSelectProps,
+    CheckboxProps as OpenCheckboxProps,
+    FilterComponentProps,
+} from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input, { InputProps } from '@condo/domains/common/components/antd/Input'
@@ -19,9 +28,10 @@ import { GraphQlSearchInput, ISearchInputProps } from '@condo/domains/common/com
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { colors } from '@condo/domains/common/constants/style'
-import { QueryArgType } from '@condo/domains/common/utils/tables.utils'
+import { QueryArgType, OptionType } from '@condo/domains/common/utils/tables.utils'
 
 import { Button } from '../Button'
+
 
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
@@ -29,22 +39,29 @@ type FilterValueType = (path: string | Array<string>, filters: { [x: string]: Qu
 
 type CommonFilterDropdownProps = { containerStyles?: CSSProperties }
 type GetCommonFilterDropdownType<P> = (props?: P) => (props: FilterDropdownProps) => React.ReactNode
+type GetCommonFilterComponentType<P> = (props?: P) => FilterComponent
 
 type GetTextFilterDropdownType = GetCommonFilterDropdownType<{ inputProps?: InputProps } & CommonFilterDropdownProps>
+type GetTextFilterComponentType = GetCommonFilterComponentType<{ inputProps?: OpenInputProps }>
 
 type GetOptionFilterDropdownType = GetCommonFilterDropdownType<{ checkboxGroupProps?: CheckboxGroupProps & { id?: string } } & CommonFilterDropdownProps>
+type GetCheckboxGroupFilterComponentType = GetCommonFilterComponentType<{ checkboxGroupProps?: OpenCheckboxProps & { id?: string, options?: OptionType[] } }>
 
 type GetSelectFilterDropdownProps<ValueType> = { selectProps?: CustomSelectProps<ValueType> } & CommonFilterDropdownProps
 type GetSelectFilterDropdownType<ValueType> = GetCommonFilterDropdownType<GetSelectFilterDropdownProps<ValueType>>
+type GetSelectFilterComponentType = GetCommonFilterComponentType<{ selectProps?: Omit<OpenSelectProps, 'value' | 'onChange' | 'defaultValue'> }>
 
 type GetGQLSelectFilterDropdownType = GetCommonFilterDropdownType<{ gqlSelectProps?: ISearchInputProps } & CommonFilterDropdownProps>
+type GetGQLSelectFilterComponentType = GetCommonFilterComponentType<{ gqlSelectProps?: ISearchInputProps } & CommonFilterDropdownProps>
 
 type GetDateFilterDropdownType = GetCommonFilterDropdownType<{ datePickerProps?: PickerProps<Dayjs> } & CommonFilterDropdownProps>
+type GetDateFilterComponentType = GetCommonFilterComponentType<{ datePickerProps?: PickerProps<Dayjs> }>
 
 type GetDateRangeFilterDropdownType = GetCommonFilterDropdownType<{
     Component?: React.FC
     datePickerProps?: RangePickerProps<Dayjs>
 } & CommonFilterDropdownProps>
+type GetDateRangeFilterComponentType = GetCommonFilterComponentType<{ datePickerProps?: RangePickerProps<Dayjs> }>
 
 interface IFilterContainerProps {
     clearFilters: () => void
@@ -118,6 +135,9 @@ const FILTER_DROPDOWN_CHECKBOX_STYLES: CSSProperties = { display: 'flex', flexDi
 export const getFilterIcon: FilterIconType = (filtered) => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 export const getFilterValue: FilterValueType = (path, filters) => get(filters, path, null)
 
+/**
+ * @deprecated use getTextFilterComponent
+ */
 export const getTextFilterDropdown: GetTextFilterDropdownType = ({ containerStyles, inputProps } = {}) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
 
@@ -164,6 +184,38 @@ export const getTextFilterDropdown: GetTextFilterDropdownType = ({ containerStyl
     }
 }
 
+export const getTextFilterComponent: GetTextFilterComponentType = ({ inputProps } = {}) => {
+    const TextFilterDropdown = ({ 
+        setFilterValue, 
+        filterValue, 
+        confirm, 
+        setShowResetButton,
+    }: FilterComponentProps) => {
+
+        useEffect(() => {
+            setShowResetButton(typeof filterValue === 'string' && filterValue.trim() !== '')
+        }, [filterValue, setShowResetButton])
+
+        const handleChangeInput: InputProps['onChange'] = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+            setFilterValue(event.target.value)
+            confirm({ closeDropdown: false })
+        }, [confirm, setFilterValue])
+
+        return (
+            <OpenInput
+                {...inputProps}
+                value={typeof filterValue === 'string' ? filterValue : ''}
+                onChange={handleChangeInput}
+            />
+        )
+    }
+
+    return TextFilterDropdown
+}
+
+/**
+ * @deprecated use getCheckboxGroupFilterComponent
+ */
 export const getOptionFilterDropdown: GetOptionFilterDropdownType = ({ containerStyles, checkboxGroupProps } = {}) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
 
@@ -208,8 +260,41 @@ export const getOptionFilterDropdown: GetOptionFilterDropdownType = ({ container
     }
 }
 
+export const getCheckboxGroupFilterComponent: GetCheckboxGroupFilterComponentType = ({ checkboxGroupProps } = {}) => {
+    const CheckboxGroupFilterDropdown = ({ 
+        setFilterValue, 
+        filterValue, 
+        confirm, 
+        setShowResetButton,
+    }: FilterComponentProps) => {
+        useEffect(() => {
+            setShowResetButton(Array.isArray(filterValue) && filterValue.length > 0)
+        }, [filterValue, setShowResetButton])
+
+        const handleChange = useCallback((checked: Array<string | number | boolean>) => {
+            const keys = checked.filter((v): v is string | number => typeof v !== 'boolean')
+            setFilterValue(keys as React.Key[])
+            confirm({ closeDropdown: false })
+        }, [setFilterValue, confirm])
+
+        return (
+            <Checkbox.Group
+                {...checkboxGroupProps}
+                style={FILTER_DROPDOWN_CHECKBOX_STYLES}
+                value={(Array.isArray(filterValue) ? filterValue : []).map(key => String(key))}
+                onChange={handleChange}
+            />
+        )
+    }
+
+    return CheckboxGroupFilterDropdown
+}
+
 const DROPDOWN_SELECT_STYLE: CSSProperties = { display: 'flex', flexDirection: 'column' }
 
+/**
+ * @deprecated use getSelectFilterComponent
+ */
 export const getSelectFilterDropdown = <ValueType extends SelectValueType>({ selectProps, containerStyles }: GetSelectFilterDropdownProps<ValueType> = {}): ReturnType<GetSelectFilterDropdownType<ValueType>> => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const handleClear = useCallback(() => {
@@ -247,7 +332,41 @@ export const getSelectFilterDropdown = <ValueType extends SelectValueType>({ sel
     }
 }
 
-const GRAPHQL_SEARCH_INPUT_STYLE: CSSProperties = { width: '100%' }
+export const getSelectFilterComponent: GetSelectFilterComponentType = ({ selectProps } = {}) => {
+    const SelectFilterDropdown = ({ 
+        setFilterValue, 
+        filterValue, 
+        confirm, 
+        setShowResetButton,
+    }: FilterComponentProps) => {
+        const { mode, options, ...restSelectProps } = selectProps || {}
+
+        useEffect(() => {
+            setShowResetButton(Array.isArray(filterValue) && filterValue.length > 0)
+        }, [filterValue, setShowResetButton])
+
+        const handleChange = useCallback<NonNullable<OpenSelectProps['onChange']>>((value)  => {
+            setFilterValue(value)
+            confirm({ closeDropdown: false })
+        }, [confirm, setFilterValue])
+
+        return (
+            <OpenSelect
+                {...restSelectProps}
+                options={options}
+                mode={mode}
+                showArrow
+                optionFilterProp='label'
+                value={Array.isArray(filterValue) ? filterValue : [filterValue]}
+                onChange={handleChange}
+            />
+        )
+    }
+
+    return SelectFilterDropdown
+}
+
+const GRAPHQL_SEARCH_INPUT_STYLE: CSSProperties = { width: '100%', display: 'flex', flexDirection: 'column' }
 
 export const getGQLSelectFilterDropdown: GetGQLSelectFilterDropdownType = ({ gqlSelectProps, containerStyles } = {}) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters, visible }) => {
@@ -288,6 +407,40 @@ export const getGQLSelectFilterDropdown: GetGQLSelectFilterDropdownType = ({ gql
     }
 }
 
+export const getGQLSelectFilterComponent: GetGQLSelectFilterComponentType = ({ gqlSelectProps } = {}) => {
+    const GQLSelectFilterDropdown = ({ 
+        setFilterValue, 
+        filterValue, 
+        confirm, 
+        setShowResetButton,
+    }: FilterComponentProps) => {
+        
+        useEffect(() => {
+            setShowResetButton(Array.isArray(filterValue) && filterValue.length > 0)
+        }, [filterValue, setShowResetButton])
+
+        const handleChange = useCallback<NonNullable<OpenSelectProps['onChange']>>((value)  => {
+            setFilterValue(value)
+            confirm({ closeDropdown: false })
+        }, [confirm, setFilterValue])
+
+        return (
+            <GraphQlSearchInput
+                showArrow
+                {...gqlSelectProps}
+                value={Array.isArray(filterValue) ? filterValue : [filterValue]}
+                onChange={handleChange}
+                style={GRAPHQL_SEARCH_INPUT_STYLE}
+            />
+        )
+    }
+
+    return GQLSelectFilterDropdown
+}
+
+/**
+ * @deprecated use getDateFilterComponent
+ */
 export const getDateFilterDropdown: GetDateFilterDropdownType = ({ datePickerProps: outerPickerProps, containerStyles } = {}) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const innerPickerProps: PickerProps<Dayjs> = useMemo(() => ({
@@ -318,6 +471,42 @@ export const getDateFilterDropdown: GetDateFilterDropdownType = ({ datePickerPro
     }
 }
 
+export const getDateFilterComponent: GetDateFilterComponentType = ({ datePickerProps: outerPickerProps } = {}) => {
+    const DateFilterComponent = ({ 
+        setFilterValue, 
+        filterValue, 
+        confirm, 
+        setShowResetButton,
+    }: FilterComponentProps) => {
+        useEffect(() => {
+            setShowResetButton(typeof filterValue === 'string' && filterValue.trim() !== '')
+        }, [filterValue, setShowResetButton])
+
+        const innerPickerProps: PickerProps<Dayjs> = useMemo(() => ({
+            value: undefined,
+            onChange: value => {
+                setFilterValue(value.toISOString())
+                confirm({ closeDropdown: true })
+            },
+            allowClear: false,
+        }), [confirm, setFilterValue])
+
+        if (typeof filterValue === 'string' && filterValue.trim() !== '') {
+            innerPickerProps.value = dayjs(String(filterValue))
+        }
+
+        return (
+            <DatePicker {...outerPickerProps} {...innerPickerProps} />
+        )
+    }
+
+    return DateFilterComponent
+}
+
+
+/**
+ * @deprecated use getDateRangeFilterComponent
+ */
 export const getDateRangeFilterDropdown: GetDateRangeFilterDropdownType = ({ Component, datePickerProps: outerPickerProps, containerStyles } = {}) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const handleClear = useCallback(() => {
@@ -351,4 +540,36 @@ export const getDateRangeFilterDropdown: GetDateRangeFilterDropdownType = ({ Com
             </FilterContainer>
         )
     }
+}
+
+export const getDateRangeFilterComponent: GetDateRangeFilterComponentType = ({ datePickerProps: outerPickerProps } = {}) => {
+    const DateRangeFilterComponent = ({ 
+        setFilterValue, 
+        filterValue, 
+        confirm, 
+        setShowResetButton,
+    }: FilterComponentProps) => {
+        useEffect(() => {
+            setShowResetButton(Array.isArray(filterValue) && filterValue.length > 0)
+        }, [filterValue, setShowResetButton])
+
+        const innerPickerProps: RangePickerProps<Dayjs> = useMemo(() => ({
+            value: undefined,
+            onChange: values => {
+                setFilterValue([values[0].toISOString(), values[1].toISOString()])
+                confirm({ closeDropdown: true })
+            },
+            allowClear: false,
+        }), [confirm, setFilterValue])
+
+        if (Array.isArray(filterValue) && filterValue.length > 0) {
+            innerPickerProps.value = [dayjs(String(filterValue[0])), dayjs(String(filterValue[1]))]
+        }
+
+        return (
+            <DateRangePicker {...outerPickerProps} {...innerPickerProps} />
+        )
+    }
+
+    return DateRangeFilterComponent
 }
