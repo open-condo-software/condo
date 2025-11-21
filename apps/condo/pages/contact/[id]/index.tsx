@@ -68,6 +68,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
     const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
+    const NoteLabel = intl.formatMessage({ id: 'Note' })
     const VerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
     const HasResident = intl.formatMessage({ id: 'pages.condo.contact.HasResident' })
     const ResidentRegistred = intl.formatMessage({ id: 'pages.condo.contact.ResidentRegistered' })
@@ -83,6 +84,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const unitSuffix = useMemo(() => contactUnitName ? `${UnitTypeMessage.toLowerCase()} ${contactUnitName}` : '', [UnitTypeMessage, contactUnitName])
     const contactAddress = useMemo(() => `${contact?.property?.address ?? DeletedMessage} ${unitSuffix}`, [contact, DeletedMessage, unitSuffix])
     const contactRoleName = useMemo(() => contact?.role?.name ?? '—', [contact])
+    const contactNote = useMemo(() => contact?.note?.trim() || '—', [contact])
     const isVerified = useMemo(() => contact?.isVerified, [contact])
     const hasResident = useMemo(() => contact?.hasResident, [contact])
     const phonePrefix = useMemo(() => organizationPhonePrefix ?? '', [organizationPhonePrefix])
@@ -123,6 +125,10 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                     <FieldPairRow
                                         fieldTitle={ContactRoleTitle}
                                         fieldValue={contactRoleName}
+                                    />
+                                    <FieldPairRow
+                                        fieldTitle={NoteLabel}
+                                        fieldValue={contactNote}
                                     />
                                     <>
                                         <Col span={8}>
