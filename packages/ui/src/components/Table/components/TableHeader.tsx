@@ -1,4 +1,4 @@
-import { flexRender, HeaderGroup, RowData, Table, CoreHeader } from '@tanstack/react-table'
+import { flexRender, HeaderGroup, Table, CoreHeader } from '@tanstack/react-table'
 import debounce from 'lodash/debounce'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -14,45 +14,50 @@ import { Button, Dropdown } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 import { ColumnSettings } from '@open-condo/ui/src/components/Table/components/ColumnSettings'
 import type { 
-    TableColumnMenuLabels, 
-    TableColumnMeta, 
+    TableLabels, 
     ColumnDefWithId,
 } from '@open-condo/ui/src/components/Table/types'
 
 
-type TableHeaderProps<TData extends RowData = RowData> = {
+type TableHeaderProps<TData> = Readonly<{
     headerGroup: HeaderGroup<TData>
     columns: ColumnDefWithId<TData>[]
-    columnMenuLabels: TableColumnMenuLabels
+    columnLabels: TableLabels
     table: Table<TData>
     resetSettings: () => void
-}
+}>
 
-type ResetButtonProps = {
+type ResetButtonProps = Readonly<{
     onClick: () => void
     resetLabel: string
     showResetButton?: boolean
-}
+}>
 
-type FilterMenuDropdownProps<TData extends RowData = RowData> = {
+type FilterMenuDropdownProps<TData> = Readonly<{
     header: CoreHeader<TData, unknown>
-    columnMenuLabels: TableColumnMenuLabels
-}
+    columnLabels: TableLabels
+}>
 
-type SettingsMenuDropdownProps<TData extends RowData = RowData> = {
-    columnMenuLabels: TableColumnMenuLabels
+type SettingsDropdownContentProps<TData> = Readonly<{
     columns: ColumnDefWithId<TData>[]
     table: Table<TData>
     resetSettings: () => void
-}
+    columnLabels: TableLabels
+}>
 
-const ResetButton = (
-    {
-        onClick, 
-        resetLabel,
-        showResetButton = true,
-    }: ResetButtonProps
-) => {
+type SettingsMenuDropdownProps<TData> = Readonly<{
+    columnLabels: TableLabels
+    columns: ColumnDefWithId<TData>[]
+    table: Table<TData>
+    resetSettings: () => void
+}>
+
+
+function ResetButton ({
+    onClick, 
+    resetLabel,
+    showResetButton = true,
+}: ResetButtonProps) {
 
     if (!showResetButton) {
         return null
@@ -73,14 +78,15 @@ const ResetButton = (
     )
 }
 
-const FilterMenuDropdown = <TData extends RowData = RowData>({ header, columnMenuLabels }: FilterMenuDropdownProps<TData>) => {
+function FilterMenuDropdown <TData> ({ 
+    header, 
+    columnLabels,
+}: FilterMenuDropdownProps<TData>) {
     const [open, setOpen] = useState(false)
     const [showResetButton, setShowResetButton] = useState(false)
-    // Синхронизируем tempValue с реальным значением фильтра колонки
     const currentFilterValue = header.column.getFilterValue()
     const [tempValue, setTempValue] = useState(currentFilterValue)
 
-    // Синхронизируем tempValue при изменении фильтра колонки извне
     useEffect(() => {
         setTempValue(currentFilterValue)
     }, [currentFilterValue])
@@ -95,22 +101,17 @@ const FilterMenuDropdown = <TData extends RowData = RowData>({ header, columnMen
 
     const debouncedConfirmRef = useRef<ReturnType<typeof debounce> | null>(null)
     
-    // Создаем debounced функцию один раз и используем ref для актуального значения
     const debouncedConfirm = useMemo(() => {
         const debounced = debounce(() => {
-            // Получаем актуальное значение из ref, а не из замыкания
             const actualValue = tempValueRef.current
             
-            // Сохраняем активный элемент перед применением фильтра
             const activeElement = document.activeElement as HTMLElement
             
             header.column.setFilterValue(actualValue)
             
-            // Восстанавливаем фокус после применения фильтра
             requestAnimationFrame(() => {
-                if (activeElement && activeElement.isConnected) {
+                if (activeElement?.isConnected) {
                     activeElement.focus()
-                    // Для input нужно установить курсор в конец
                     if (activeElement instanceof HTMLInputElement) {
                         const length = activeElement.value.length
                         activeElement.setSelectionRange(length, length)
@@ -121,12 +122,10 @@ const FilterMenuDropdown = <TData extends RowData = RowData>({ header, columnMen
         
         debouncedConfirmRef.current = debounced
         return debounced
-    }, [header.column]) // Убираем tempValue из зависимостей
+    }, [header.column])
 
-    // Ref для хранения актуального значения tempValue
     const tempValueRef = useRef(tempValue)
     
-    // Обновляем ref при изменении tempValue
     useEffect(() => {
         tempValueRef.current = tempValue
     }, [tempValue])
@@ -143,7 +142,7 @@ const FilterMenuDropdown = <TData extends RowData = RowData>({ header, columnMen
         confirm({ closeDropdown: true })
     }, [clearFilters, confirm])
 
-    const FilterComponent = (header.column.columnDef.meta as TableColumnMeta)?.filterComponent
+    const FilterComponent = header.column.columnDef.meta?.filterComponent
 
     const dropdownRender = useCallback(() => (
         <div 
@@ -159,11 +158,11 @@ const FilterMenuDropdown = <TData extends RowData = RowData>({ header, columnMen
             />}
             <ResetButton
                 onClick={handleClear}
-                resetLabel={columnMenuLabels?.resetFilterLabel || 'Reset Filter'}
+                resetLabel={columnLabels.resetFilterLabel || 'Reset Filter'}
                 showResetButton={showResetButton}
             />
         </div>
-    ), [FilterComponent, tempValue, setTempValue, confirm, handleClear, columnMenuLabels, showResetButton, clearFilters])
+    ), [FilterComponent, tempValue, setTempValue, confirm, handleClear, columnLabels, showResetButton, clearFilters])
 
 
     return (
@@ -182,7 +181,7 @@ const FilterMenuDropdown = <TData extends RowData = RowData>({ header, columnMen
                     <div className='condo-dropdown-menu-item-inner'>
                         <div className='condo-dropdown-menu-item-inner-left condo-dropdown-menu-item-inner-left-active'>
                             <Filter size='small' color={colors.green[5]}/>
-                            {columnMenuLabels?.filteredLabel}
+                            {columnLabels?.filteredLabel || 'Filtered'}
                         </div>
                         <Close size='small' onClick={clearFilters} color={colors.black}/>
                     </div>
@@ -190,7 +189,7 @@ const FilterMenuDropdown = <TData extends RowData = RowData>({ header, columnMen
                     <div className='condo-dropdown-menu-item-inner'>
                         <div className='condo-dropdown-menu-item-inner-left'>
                             <Filter size='small' color={colors.gray[7]}/>
-                            {columnMenuLabels?.filterLabel}
+                            {columnLabels?.filterLabel || 'Filter'}
                         </div>
                     </div>
                 )
@@ -199,12 +198,32 @@ const FilterMenuDropdown = <TData extends RowData = RowData>({ header, columnMen
     )
 }
 
-const SettingsMenuDropdown = <TData extends RowData = RowData>({ 
-    columnMenuLabels,
+function SettingsDropdownContent <TData> ({
     columns,
     table,
     resetSettings,
-}: SettingsMenuDropdownProps<TData>) => {
+    columnLabels,
+}: SettingsDropdownContentProps<TData>) {
+    return (
+        <div 
+            onClick={(e) => e.stopPropagation()}
+            className='condo-dropdown-menu-item-wrapper'
+        >
+            <ColumnSettings columns={columns} table={table} />
+            <ResetButton
+                onClick={resetSettings}
+                resetLabel={columnLabels?.defaultSettingsLabel || 'Restore default settings'}
+            />
+        </div>
+    )
+}
+
+function SettingsMenuDropdown <TData> ({ 
+    columnLabels,
+    columns,
+    table,
+    resetSettings,
+}: SettingsMenuDropdownProps<TData>) {
     
     return (
         <Dropdown
@@ -214,33 +233,29 @@ const SettingsMenuDropdown = <TData extends RowData = RowData>({
             }}
             trigger={['click']}
             dropdownRender={() => (
-                <div 
-                    onClick={(e) => e.stopPropagation()}
-                    className='condo-dropdown-menu-item-wrapper'
-                >
-                    <ColumnSettings columns={columns} table={table} />
-                    <ResetButton
-                        onClick={resetSettings}
-                        resetLabel={columnMenuLabels?.defaultSettingsLabel || 'Default Settings'}
-                    />
-                </div>
+                <SettingsDropdownContent
+                    columns={columns}
+                    table={table}
+                    resetSettings={resetSettings}
+                    columnLabels={columnLabels}
+                />
             )}
         >
             <div className='condo-dropdown-menu-item-inner'>
                 <div className='condo-dropdown-menu-item-inner-left'>
                     <GripHorizontal size='small' color={colors.gray[7]} />
-                    {columnMenuLabels.settingsLabel}
+                    {columnLabels.settingsLabel || 'Setted'}
                 </div>
             </div>
         </Dropdown>
     )
 }
 
-export function TableHeader <TData extends RowData = RowData> ({ 
+export function TableHeader <TData> ({ 
     headerGroup, 
     columns, 
     table, 
-    columnMenuLabels,
+    columnLabels,
     resetSettings,
 }: TableHeaderProps<TData>) {
 
@@ -254,7 +269,7 @@ export function TableHeader <TData extends RowData = RowData> ({
                         <div className='condo-dropdown-menu-item-inner'>
                             <div className='condo-dropdown-menu-item-inner-left condo-dropdown-menu-item-inner-left-active'>
                                 <SortDesc size='small' color={colors.green[5]}/>
-                                {columnMenuLabels?.sortedDescLabel}
+                                {columnLabels?.sortedDescLabel || 'Sorted'}
                             </div>
                             <Close size='small' color={colors.black} onClick={(e) => {
                                 e.stopPropagation()
@@ -265,7 +280,7 @@ export function TableHeader <TData extends RowData = RowData> ({
                         <div className='condo-dropdown-menu-item-inner'>
                             <div className='condo-dropdown-menu-item-inner-left'>
                                 <SortDesc size='small' color={colors.gray[7]}/>
-                                {columnMenuLabels?.sortDescLabel}
+                                {columnLabels?.sortDescLabel || 'Sorted'}
                             </div>
                         </div>
                     )
@@ -280,7 +295,7 @@ export function TableHeader <TData extends RowData = RowData> ({
                         <div className='condo-dropdown-menu-item-inner'>
                             <div className='condo-dropdown-menu-item-inner-left condo-dropdown-menu-item-inner-left-active'>
                                 <SortAsc size='small' color={colors.green[5]}/>
-                                {columnMenuLabels?.sortedAscLabel}
+                                {columnLabels?.sortedAscLabel || 'Sort'}
                             </div>
                             <Close size='small' color={colors.black} onClick={(e) => {
                                 e.stopPropagation()
@@ -291,7 +306,7 @@ export function TableHeader <TData extends RowData = RowData> ({
                         <div className='condo-dropdown-menu-item-inner'>
                             <div className='condo-dropdown-menu-item-inner-left'>
                                 <SortAsc size='small' color={colors.gray[7]}/>
-                                {columnMenuLabels?.sortAscLabel} 
+                                {columnLabels?.sortAscLabel || 'Sort'} 
                             </div>
                         </div>
                     )
@@ -306,9 +321,9 @@ export function TableHeader <TData extends RowData = RowData> ({
             {
                 className: 'condo-dropdown-menu-item-container',
                 label: (
-                    <FilterMenuDropdown 
+                    <FilterMenuDropdown<TData> 
                         header={header} 
-                        columnMenuLabels={columnMenuLabels}
+                        columnLabels={columnLabels}
                     />
                 ),
                 key: 'filter',
@@ -320,7 +335,7 @@ export function TableHeader <TData extends RowData = RowData> ({
             className: 'condo-dropdown-menu-item-container',
             label: (
                 <SettingsMenuDropdown 
-                    columnMenuLabels={columnMenuLabels} 
+                    columnLabels={columnLabels} 
                     columns={columns}
                     table={table}
                     resetSettings={resetSettings}
@@ -337,12 +352,12 @@ export function TableHeader <TData extends RowData = RowData> ({
             columnMenu.push(...filterColumnMenuItems)
         }
 
-        if ((header.column.columnDef.meta as TableColumnMeta)?.enableColumnSettings) {
+        if (header.column.columnDef.meta?.enableColumnSettings) {
             columnMenu.push(settingColumnMenuItem)
         }
 
         return columnMenu
-    }, [columnMenuLabels, columns, table, resetSettings])
+    }, [columnLabels, columns, table, resetSettings])
 
     return (
         <div key={headerGroup.id} className='condo-table-thead'>
@@ -356,7 +371,7 @@ export function TableHeader <TData extends RowData = RowData> ({
                             header.column.getIsSorted() || header.column.getIsFiltered() 
                                 ? 'condo-table-th-active' 
                                 : ''
-                        }`}
+                        } ${header.column.getIsResizing() ? 'condo-table-th-resizing' : ''}`}
                         style={{ 
                             width: header.column.getSize(),
                         }}
@@ -365,7 +380,7 @@ export function TableHeader <TData extends RowData = RowData> ({
                             <div className='condo-table-th-title-content'>
                                 {flexRender(header.column.columnDef.header, header.getContext())}
                             </div>
-                            {((header.column.columnDef.meta as TableColumnMeta)?.enableColumnOptions) && (<div className='condo-table-th-icons'>
+                            {(header.column.columnDef.meta?.enableColumnMenu) && (<div className='condo-table-th-icons'>
                                 {header.column.getIsSorted() === 'asc' && <SortAsc size='small' color={colors.green[5]} /> }
                                 {header.column.getIsSorted() === 'desc' && <SortDesc size='small' color={colors.green[5]} />}
                                 {header.column.getIsFiltered() && <Filter size='small' color={colors.green[5]} />}
@@ -381,17 +396,16 @@ export function TableHeader <TData extends RowData = RowData> ({
                                 </Dropdown>
                             </div>)}
                         </div>
-                        {/* 
-                            <div
-                                className='condo-table-th-resize-handle'
-                                onMouseDown={header.getResizeHandler()}
-                                onTouchStart={header.getResizeHandler()}
-                                onDoubleClick={() => header.column.resetSize()}
-                                style={isResizing ? {
-                                    '--resize-line-position': (deltaOffset >= 0) ? `-${deltaOffset}px` : `${-deltaOffset}px`,
-                                } as React.CSSProperties : undefined}
-                            />
-                        */}
+                        <div
+                            className='condo-table-th-resize-handle'
+                            onMouseDown={header.getResizeHandler()}
+                            onTouchStart={header.getResizeHandler()}
+                            onDoubleClick={() => header.column.resetSize()}
+                            style={header.column.getIsResizing() ? {
+                                '--resize-line-position': `${-(table.getState().columnSizingInfo.deltaOffset || 0)}px`,
+                            } as React.CSSProperties : undefined}
+                        />
+                       
                     </div>
                 )
             })}

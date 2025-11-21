@@ -1,71 +1,71 @@
-import isFunction from 'lodash/isFunction'
-import React, { CSSProperties, useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 import { 
-    Space, 
     Checkbox, 
     Input, 
     InputProps,
     Select, 
-    Button,
     FilterComponentProps,
     SelectProps,
     CheckboxProps,
+    TableColumn,
 } from '@open-condo/ui/src'
-import type { FilterConfig, FilterComponent } from '@open-condo/ui/src/components/Table/types'
+import type { FilterComponent, FilterConfig } from '@open-condo/ui/src/components/Table/types'
 
-export type TextFilterDropdownType = { inputProps?: InputProps }
-export type CheckboxGroupFilterDropdownType = { checkboxGroupProps?: CheckboxProps & { id?: string } }
-export type SelectFilterDropdownType = { selectProps?: SelectProps }
-
-type GetCommonFilterDropdownType<P> = (props: P) => FilterComponent
-type FilterByKey = (filterConfig: FilterConfig) => FilterComponent | undefined
-
-type GetTextFilterDropdownType = GetCommonFilterDropdownType<TextFilterDropdownType>
-type GetCheckboxGroupFilterDropdownType = GetCommonFilterDropdownType<CheckboxGroupFilterDropdownType>
-type GetSelectFilterDropdownType = GetCommonFilterDropdownType<SelectFilterDropdownType>
-
-
-interface IFilterContainerProps {
-    clearFilters: () => void
-    showClearButton?: boolean
-    style?: CSSProperties
+type OptionType = {
+    label: string
+    value: string
 }
 
-const FilterContainer: React.FC<React.PropsWithChildren<IFilterContainerProps>> = (props) => {
-    const { showClearButton, clearFilters, children } = props
+const TextColumnFilterKey = 'textColumnFilter'
+const CheckboxGroupColumnFilterKey = 'checkboxGroupColumnFilter'
+const SelectColumnFilterKey = 'selectColumnFilter'
 
-    return (
-        <Space size={8} direction='vertical' align='center'>
-            {children}
-            {
-                showClearButton && (
-                    <Button
-                        onClick={clearFilters}
-                        type='accent'
-                    >
-                        Reset
-                    </Button>
-                )
-            }
-        </Space>
-    )
+enum ComponentType {
+    Input = TextColumnFilterKey,
+    CheckboxGroup = CheckboxGroupColumnFilterKey,
+    Select = SelectColumnFilterKey,
 }
-FilterContainer.displayName = 'FilterContainer'
 
-const getTextFilterDropdown: GetTextFilterDropdownType = ({ inputProps } = {}) => {
+export type TextColumnFilterConfig = {
+    key: typeof TextColumnFilterKey
+    componentProps?: TextFilterComponentType
+}
+
+export type SelectColumnFilterConfig = {
+    key: typeof SelectColumnFilterKey
+    options: OptionType[]
+    componentProps?: SelectFilterComponentType
+}
+
+export type CheckboxGroupColumnFilterConfig = {
+    key: typeof CheckboxGroupColumnFilterKey
+    options: OptionType[]
+    componentProps?: CheckboxGroupFilterComponentType
+}
+
+type TextFilterComponentType = { inputProps?: InputProps }
+type CheckboxGroupFilterComponentType = { checkboxGroupProps?: CheckboxProps & { options?: OptionType[] } }
+type SelectFilterComponentType = { selectProps?: SelectProps }
+
+type GetCommonFilterComponentType<P> = (props: P) => FilterComponent
+
+type GetTextFilterComponentType = GetCommonFilterComponentType<TextFilterComponentType>
+type GetCheckboxGroupFilterComponentType = GetCommonFilterComponentType<CheckboxGroupFilterComponentType>
+type GetSelectFilterComponentType = GetCommonFilterComponentType<SelectFilterComponentType>
+
+
+const getTextFilterDropdown: GetTextFilterComponentType = ({ inputProps }: TextFilterComponentType = {}) => {
     const TextFilterDropdown = ({ 
         setFilterValue, 
         filterValue, 
         confirm, 
-        clearFilters,
+        setShowResetButton,
     }: FilterComponentProps) => {
 
-        const handleClear = useCallback(() => {
-            isFunction(clearFilters) && clearFilters()
-            setFilterValue('')
-            confirm({ closeDropdown: true })
-        }, [clearFilters, confirm, setFilterValue])
+        useEffect(() => {
+            setShowResetButton(typeof filterValue === 'string' && filterValue.trim() !== '')
+        }, [filterValue, setShowResetButton])
 
         const handleChangeInput: InputProps['onChange'] = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
             setFilterValue(event.target.value)
@@ -73,38 +73,28 @@ const getTextFilterDropdown: GetTextFilterDropdownType = ({ inputProps } = {}) =
         }, [confirm, setFilterValue])
 
         return (
-            <FilterContainer
-                clearFilters={handleClear}
-                showClearButton={
-                    (Array.isArray(filterValue) && filterValue.length > 0) ||
-                    (!Array.isArray(filterValue) && filterValue !== '' && filterValue !== null && filterValue !== undefined)
-                }
-            >
-                <Input
-                    {...inputProps}
-                    value={typeof filterValue === 'string' ? filterValue : ''}
-                    onChange={handleChangeInput}
-                />
-            </FilterContainer>
+            <Input
+                {...inputProps}
+                value={typeof filterValue === 'string' ? filterValue : ''}
+                onChange={handleChangeInput}
+            />
         )
     }
 
     return TextFilterDropdown
 }
 
-const getCheckboxGroupFilterDropdown: GetCheckboxGroupFilterDropdownType = ({ checkboxGroupProps } = {}) => {
+const getCheckboxGroupFilterDropdown: GetCheckboxGroupFilterComponentType = ({ checkboxGroupProps }: CheckboxGroupFilterComponentType = {}) => {
     const CheckboxGroupFilterDropdown = ({ 
         setFilterValue, 
         filterValue, 
         confirm, 
-        clearFilters,
+        setShowResetButton,
     }: FilterComponentProps) => {
 
-        const handleClear = useCallback(() => {
-            isFunction(clearFilters) && clearFilters()
-            setFilterValue([])
-            confirm({ closeDropdown: true })
-        }, [clearFilters, confirm, setFilterValue])
+        useEffect(() => {
+            setShowResetButton(Array.isArray(filterValue) && filterValue.length > 0)
+        }, [filterValue, setShowResetButton])
 
         const handleChange = useCallback((checked: Array<string | number | boolean>) => {
             const keys = checked.filter((v): v is string | number => typeof v !== 'boolean')
@@ -113,96 +103,123 @@ const getCheckboxGroupFilterDropdown: GetCheckboxGroupFilterDropdownType = ({ ch
         }, [setFilterValue, confirm])
 
         return (
-            <FilterContainer
-                clearFilters={handleClear}
-                showClearButton={Array.isArray(filterValue) && filterValue.length > 0}
+            <Checkbox.Group
+                {...checkboxGroupProps}
+                value={(Array.isArray(filterValue) ? filterValue : []).map(key => String(key))}
+                onChange={handleChange}
             >
-                <Checkbox.Group
-                    {...checkboxGroupProps}
-                    value={(Array.isArray(filterValue) ? filterValue : []).map(key => String(key))}
-                    onChange={handleChange}
-                />
-            </FilterContainer>
+                {checkboxGroupProps?.options?.map((option: OptionType) => (
+                    <Checkbox key={option.value} value={option.value}>
+                        {option.label}
+                    </Checkbox>
+                ))}
+            </Checkbox.Group>
         )
     }
 
     return CheckboxGroupFilterDropdown
 }
 
-const getSelectFilterDropdown: GetSelectFilterDropdownType = ({ selectProps }) => {
+const getSelectFilterDropdown: GetSelectFilterComponentType = ({ selectProps }: SelectFilterComponentType = {}) => {
     const SelectFilterDropdown = ({ 
         setFilterValue, 
         filterValue, 
         confirm, 
-        clearFilters,
+        setShowResetButton,
     }: FilterComponentProps) => {
+
+        useEffect(() => {
+            setShowResetButton(Array.isArray(filterValue) && filterValue.length > 0)
+        }, [filterValue, setShowResetButton])
 
         const valueForSelect: SelectProps['value'] =
             Array.isArray(filterValue)
                 ? filterValue
                 : undefined
 
-        const multipleValueForSelecet: SelectProps['value'] =
-        typeof filterValue === 'string' || typeof filterValue === 'number'
-            ? filterValue
-            : undefined
-        
-        const handleClear = useCallback(() => {
-            isFunction(clearFilters) && clearFilters()
-            setFilterValue([])
-            confirm({ closeDropdown: true })
-        }, [clearFilters, confirm, setFilterValue])
+        const singleValueForSelect: SelectProps['value'] =
+            typeof filterValue === 'string' || typeof filterValue === 'number'
+                ? filterValue
+                : undefined
 
         const handleChange = useCallback<NonNullable<SelectProps['onChange']>>((value)  => {
             setFilterValue(value)
             confirm({ closeDropdown: false })
         }, [confirm, setFilterValue])
 
+        const safeSelectProps = (selectProps || {}) as SelectProps
+
         return (
-            <FilterContainer
-                clearFilters={handleClear}
-                showClearButton={
-                    (Array.isArray(filterValue) && filterValue.length > 0) ||
-                    (!Array.isArray(filterValue) && filterValue !== '' && filterValue !== null && filterValue !== undefined)
-                }
-            >
+            <>
                 {
                     selectProps?.mode === 'multiple' ?
                         <Select
-                            {...selectProps}
-                            options={selectProps?.options || []}
+                            {...safeSelectProps}
+                            options={safeSelectProps?.options || []}
                             showArrow
                             optionFilterProp='label'
                             mode='multiple'
-                            value={valueForSelect}
+                            value={valueForSelect as (string | number)[] | undefined}
                             onChange={handleChange}
                         /> 
                         :
                         <Select
-                            {...selectProps}   
+                            {...(safeSelectProps as Omit<SelectProps, 'mode'>)}   
                             showArrow
-                            options={selectProps?.options || []}
+                            options={safeSelectProps?.options || []}
                             optionFilterProp='label'
-                            value={multipleValueForSelecet}
+                            value={singleValueForSelect}
                             onChange={handleChange}
                         /> 
                 }
-            </FilterContainer>
+            </>
         )
     }
 
     return SelectFilterDropdown
 }
 
-const mapper = {
-    textColumnFilter: getTextFilterDropdown,
-    selectColumnFilter: getSelectFilterDropdown,
-    checkboxGroupColumnFilter: getCheckboxGroupFilterDropdown,
-}
+export function getFilterComponentByKey (
+    filterConfig: FilterConfig
+): TableColumn['filterComponent'] {
+    const id = (filterConfig?.componentProps as { id?: string }).id || `${filterConfig?.key}FilterComponent`
 
-export const getFilterByKey: FilterByKey = ({ key, componentProps = {} }) => {
-    const getComponent = mapper[key]
-    if (getComponent) return getComponent(componentProps)
+    switch (filterConfig?.key) {
+        case ComponentType.Input: {
+            const inputProps = filterConfig?.componentProps?.inputProps ?? {}
+            const resolvedInputProps = {
+                ...inputProps,
+                id,
+            }
+            return getTextFilterDropdown({
+                inputProps: resolvedInputProps,
+            })
+        }
 
-    return undefined
+        case ComponentType.Select: {
+            const selectProps = filterConfig?.componentProps?.selectProps ?? {}
+            const resolvedSelectProps = {
+                ...selectProps,
+                options: filterConfig?.options || [],
+                id,
+            }
+            return getSelectFilterDropdown({
+                selectProps: resolvedSelectProps,
+            })
+        }
+
+        case ComponentType.CheckboxGroup: {
+            const checkboxGroupProps = filterConfig?.componentProps?.checkboxGroupProps ?? {}
+            return getCheckboxGroupFilterDropdown({
+                checkboxGroupProps: {
+                    ...checkboxGroupProps,
+                    options: filterConfig?.options || [],
+                    id,
+                },
+            })
+        }
+
+        default:
+            return undefined
+    }
 }

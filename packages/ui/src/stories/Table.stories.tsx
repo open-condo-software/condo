@@ -5,11 +5,11 @@ import { Select, Table, Input, renderTextWithTooltip } from '@open-condo/ui/src'
 import type {
     TableProps,
     TableColumn,
-    TableColumnMenuLabels,
+    TableLabels,
     TableState,
     GetTableData,
     DefaultColumn,
-    RowSelection,
+    RowSelectionOptions,
     TableRef,
 } from '@open-condo/ui/src'
 
@@ -55,12 +55,12 @@ const data: TableData[] = [
 const columns: TableColumn<TableData>[] = [
     {
         id: 'White column',
-        dataKey: 'whiteColumn',
         header: '',
         enableColumnSettings: false,
         enableSorting: false,
         render: () => <span></span>,
         initialSize: 50,
+        minSize: 20,
     },
     {
         dataKey: 'firstName',
@@ -93,7 +93,7 @@ const columns: TableColumn<TableData>[] = [
         initialOrder: 1,
         enableSorting: true,
         filterComponent: ({ setFilterValue, filterValue }) => {
-            // We have trouble with number in filter. Table state is not updated
+            // TODO: We have trouble with number in filter. Table state is not updated
             return (
                 <Input
                     onChange={(event) => {
@@ -128,13 +128,14 @@ const columns: TableColumn<TableData>[] = [
     },
     {
         // How we can add sorting for this column? 
-        dataKey: (row) => row.organization?.name,
+        dataKey: 'organization.name',
+        enableSorting: true,
         header: (table) => <span>{table.getColumn('organization.name')?.columnDef?.id}</span>,
         id: 'organization.name',
         render: (_, record) => <span>{record.organization?.name ? String(record.organization.name) : '—'}</span>,
     },
     {
-        dataKey: (row) => row.organization?.id,
+        dataKey: 'organization.id',
         header: 'Organization ID',
         id: 'organization.id',
         render: (_, record) => <span>{record.organization?.id ? String(record.organization.id) : '—'}</span>,
@@ -163,27 +164,56 @@ const getTableData: GetTableData<TableData> = (tableState) => {
             if (tableState.sortState.length > 0) {
                 const sortDesc = tableState.sortState[0].desc
                 const sortId = tableState.sortState[0].id as keyof TableData
+                const getNestedValue = (obj: any, path: string): any => {
+                    if (!path || !obj) return undefined
+                    
+                    if (!path.includes('.')) {
+                        return obj[path]
+                    }
+                    
+                    const keys = path.split('.')
+                    let value = obj
+                    
+                    for (const key of keys) {
+                        if (value === null || value === undefined) {
+                            return undefined
+                        }
+                        value = value[key]
+                    }
+                    
+                    return value
+                }
 
                 resultData.sort((a, b) => {
+                    const aValue = getNestedValue(a, sortId)
+                    const bValue = getNestedValue(b, sortId)
+
+                    if (aValue === undefined || aValue === null) {
+                        return sortDesc ? -1 : 1
+                    }
+                    if (bValue === undefined || bValue === null) {
+                        return sortDesc ? 1 : -1
+                    }
+
                     if (!sortDesc) {
-                        switch (typeof a[sortId]) {
+                        switch (typeof aValue[sortId]) {
                             case 'number':
-                                return a[sortId] - (b[sortId] as number)
+                                return aValue[sortId] - (bValue[sortId] as number)
                             case 'string':
-                                if (a[sortId] === undefined || null) return  1
-                                if (b[sortId] === undefined || null) return  -1
-                                return a[sortId].localeCompare(b[sortId] as string)
+                                if (aValue[sortId] === undefined || null) return  1
+                                if (bValue[sortId] === undefined || null) return  -1
+                                return aValue[sortId].localeCompare(bValue[sortId] as string)
                             default:
                                 return 0
                         }
                     }
-                    switch (typeof b[sortId]) {
+                    switch (typeof bValue[sortId]) {
                         case 'number':
-                            return b[sortId] - (a[sortId] as number)
+                            return bValue[sortId] - (aValue[sortId] as number)
                         case 'string':
-                            if (a[sortId] === undefined || null) return  1
-                            if (b[sortId] === undefined || null) return  -1
-                            return (b[sortId]).localeCompare(a[sortId] as string)
+                            if (aValue[sortId] === undefined || null) return  1
+                            if (aValue[sortId] === undefined || null) return  -1
+                            return (bValue[sortId]).localeCompare(aValue[sortId] as string)
                         default:
                             return 0
                     }
@@ -194,7 +224,7 @@ const getTableData: GetTableData<TableData> = (tableState) => {
     })
 }
 
-const columnMenuLabels: TableColumnMenuLabels = {
+const columnLabels: TableLabels = {
     sortDescLabel: 'Sort',
     sortAscLabel: 'Sort',
     filterLabel: 'Filter',
@@ -202,7 +232,7 @@ const columnMenuLabels: TableColumnMenuLabels = {
     sortedDescLabel: 'Sorted',
     sortedAscLabel: 'Sorted',
     filteredLabel: 'Filtered',
-    settedLabel: 'Setted',
+    defaultSettingsLabel: 'Restore default settings',
 }
 const tableId = '1'
 
@@ -218,6 +248,7 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
         storageKey,
         onRowClick, 
         rowSelectionOptions,
+        getRowId,
     } = args
 
     const tableRef = useRef<TableRef>(null)
@@ -236,10 +267,11 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
                 pageSize={pageSize}
                 onTableStateChange={onTableStateChangeCallback}
                 initialTableState={initialTableState}
-                columnMenuLabels={columnMenuLabels}
+                columnLabels={columnLabels}
                 storageKey={storageKey}
                 onRowClick={onRowClick}
                 rowSelectionOptions={rowSelectionOptions}
+                getRowId={getRowId}
             />
         </div>
     )
@@ -269,18 +301,20 @@ const defaultColumn: DefaultColumn = {
     initialSize: '150px',
 }
 
-const rowSelection: RowSelection<{ id: string }>  = {
-    getRowId: (row) => row.id,
+const rowSelectionOptions: RowSelectionOptions = {
+    enableRowSelection: true,
+    onRowSelectionChange: (rowSelectionState) => {
+        console.log('rowSelectionState', rowSelectionState)
+    },
 }
 
-// How I can visible function in story? 
 export const Default: StoryObj<TableProps<TableData>> = {
     render: Template,
     args: {
         id: tableId,
         dataSource: getTableData,
         columns,
-        columnMenuLabels, 
+        columnLabels, 
         storageKey: 'table-default',
     },
 }
@@ -292,7 +326,7 @@ export const WithInitialTableState: StoryObj<TableProps<TableData>> = {
         dataSource: getTableData,
         columns,
         pageSize: 10,
-        columnMenuLabels,
+        columnLabels,
         storageKey: 'table-with-initial-state',
         onTableStateChange: onTableStateChange,
         initialTableState: initialTableState(),
@@ -308,7 +342,7 @@ export const DefaultColumnState: StoryObj<TableProps<TableData>> = {
         columns,
         defaultColumn: defaultColumn,
         pageSize: 10,
-        columnMenuLabels,
+        columnLabels,
         storageKey: 'table-with-initial-state',
     },
 }
@@ -319,6 +353,7 @@ export const RowSelectionState: StoryObj<TableProps<TableData>> = {
         id: tableId,
         dataSource: getTableData,
         columns,
-        rowSelectionOptions: rowSelection,
+        rowSelectionOptions: rowSelectionOptions,
+        getRowId: (row) => row.id,
     },
 }

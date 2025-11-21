@@ -30,9 +30,9 @@ export const renderTextWithTooltip = <TValue = unknown>({
     extraTooltipProps,
 }: RenderTextWithTooltipProps = {}) => function RenderTextWithTooltipComponent (text: TValue) {
     const title = getTitleMessage({ text, extraTitle, postfix })
-    const ellipsisConfig = typeof ellipsis === 'boolean'
-        ? (ellipsis ? ELLIPSIS_SETTINGS : false)
-        : ellipsis
+    
+    const booleanEllipsisValue = ellipsis ? ELLIPSIS_SETTINGS : false
+    const ellipsisConfig = typeof ellipsis === 'boolean' ? booleanEllipsisValue : ellipsis
 
     return (
         <Tooltip 

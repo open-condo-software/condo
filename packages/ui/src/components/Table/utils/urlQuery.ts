@@ -21,14 +21,11 @@ const getFiltersFromQuery = (query: ParsedUrlQuery): { [x: string]: QueryArgType
         const result: { [x: string]: QueryArgType } = {}
         Object.keys(json).forEach((key) => {
             const value = json[key]
-            if (Array.isArray(value)) {
-                result[key] = value.filter((v) => typeof v === 'string' && Boolean(v))
-            } else {
-                if (typeof value === 'string' && !!value) result[key] = value
-            }
+            if (Array.isArray(value)) result[key] = value.filter((v) => typeof v === 'string' && Boolean(v))
+            if (typeof value === 'string' && !!value) result[key] = value
         })
         return result
-    } catch (e) {
+    } catch {
         return {}
     }
 }
@@ -58,7 +55,7 @@ const getSortersFromQuery = (query: ParsedUrlQuery): SortState => {
             if (!column || (order !== ASC && order !== DESC)) return undefined
             return { 
                 id: column, 
-                desc: order === ASC ? false : true,
+                desc: order === DESC,
             }
         })
         .filter((sorter): sorter is { id: string, desc: boolean } => sorter !== undefined)
@@ -121,7 +118,19 @@ const updateUrl = (
     }
 }
 
-
+/**
+ * @deprecated This function is experimental. API may change at any time without notice.
+ * 
+ * @experimental
+ * 
+ * This function is in experimental stage of development.
+ * API may be changed at any moment without prior notice.
+ * Use with caution in production.
+ * 
+ * @param query - Query object to parse
+ * @param pageSize - Page size to use
+ * @returns Full table state parsed from query
+ */
 export const defaultParseUrlQuery = (query: Record<string, string | string[]>, pageSize: number): FullTableState => {
     const filters = getFiltersFromQuery(query)
     const sorters = getSortersFromQuery(query)
@@ -140,6 +149,18 @@ export const defaultParseUrlQuery = (query: Record<string, string | string[]>, p
     }
 }
 
+/**
+ * @deprecated This function is experimental. API may change at any time without notice.
+ * 
+ * @experimental
+ * 
+ * This function is in experimental stage of development.
+ * API may be changed at any moment without prior notice.
+ * Use with caution in production.
+ * 
+ * @param params - Full table state to update
+ * @returns void
+ */
 export const defaultUpdateUrlQuery = (params: FullTableState) => {
     const { startRow, filterState, sortState, rowSelectionState } = params
 
@@ -152,9 +173,7 @@ export const defaultUpdateUrlQuery = (params: FullTableState) => {
 
     let newFilters
     if (filterState && Object.keys(filterState).length > 0) {
-        console.log('filterState', filterState)
         const possibleDate = pickBy(filterState, (value, key) => typeof key === 'string' && (typeof value === 'string' && !isEmpty(value) || Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' && !isEmpty(item)))) as FiltersFromQueryType
-        console.log('possibleDate', possibleDate)
         if (Object.keys(possibleDate).length > 0) {
             newFilters = possibleDate
         } else {
