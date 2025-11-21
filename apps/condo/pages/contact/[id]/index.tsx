@@ -49,11 +49,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
 }) => {
     const intl = useIntl()
     
-    const {
-        loading: customValuesLoading,
-        error: customValuesError,
-        customValues,
-    } = useCustomValues({
+    const { customValues } = useCustomValues({
         modelName: CustomFieldModelNameType.Contact,
         objectId: contact?.id || '',
         skip: !contact?.id,
