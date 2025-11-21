@@ -113,10 +113,10 @@ async function getUserSettingsForMessage (context, message) {
         const messageTransport = get(setting, 'messageTransport')
         const isEnabled = get(setting, 'isEnabled')
         const hasUser = !!get(setting, ['user', 'id'])
-        const isGlobalSetting = !isAnonymous && !hasUser
+        const useGlobalSetting = !isAnonymous && !hasUser
         
         // Priority: GLOBAL_SETTING (without user, specific transport)
-        if (isGlobalSetting) {
+        if (useGlobalSetting) {
             if (get(appliedPriorities, messageTransport, 0) < GLOBAL_SETTING) {
                 userTransportSettings[messageTransport] = isEnabled
                 appliedPriorities[messageTransport] = GLOBAL_SETTING
@@ -144,7 +144,7 @@ async function getUserSettingsForMessage (context, message) {
         }
 
         // Priority: PARTICULAR_TYPE_N_TRANSPORT
-        if (!isGlobalSetting && !!messageType && !!messageTransport && get(appliedPriorities, messageTransport, 0) < PARTICULAR_TYPE_N_TRANSPORT) {
+        if (!useGlobalSetting && !!messageType && !!messageTransport && get(appliedPriorities, messageTransport, 0) < PARTICULAR_TYPE_N_TRANSPORT) {
             userTransportSettings[messageTransport] = isEnabled
             appliedPriorities[messageTransport] = PARTICULAR_TYPE_N_TRANSPORT
         }
