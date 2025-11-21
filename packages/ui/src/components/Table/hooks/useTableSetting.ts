@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useColumnOrder } from '@open-condo/ui/src/components/Table/hooks/useColumnOrder'
 import { useColumnSizing } from '@open-condo/ui/src/components/Table/hooks/useColumnSizing'
 import { useColumnVisibility } from '@open-condo/ui/src/components/Table/hooks/useColumnVisibility'
-import { TableSettings, TableColumnMeta, ColumnDefWithId } from '@open-condo/ui/src/components/Table/types'
+import { ColumnDefWithId, TableSettings } from '@open-condo/ui/src/components/Table/types'
 import { getStorage, saveStorage } from '@open-condo/ui/src/components/Table/utils/storage'
 
 
@@ -16,7 +16,7 @@ interface UsePersistentTableStateProps<TData extends RowData = RowData> {
 
 export function getInitialTableState<TData extends RowData> (
     storageKey: string,
-    columns: ColumnDef<TData, unknown>[],
+    columns: ColumnDefWithId<TData>[],
     resetSettings: boolean = false,
 ): TableSettings<TData> {
     if (!resetSettings) {
@@ -30,7 +30,7 @@ export function getInitialTableState<TData extends RowData> (
     const unorderedColumns: ColumnDef<TData>[] = []
 
     for (const col of columns) {
-        const initialOrder = (col.meta as TableColumnMeta)?.initialOrder 
+        const initialOrder = (col.meta)?.initialOrder 
         if (initialOrder !== undefined && initialOrder < columns.length && !orderedColumns[initialOrder]) {
             orderedColumns[initialOrder] = col
         } else {
@@ -46,7 +46,7 @@ export function getInitialTableState<TData extends RowData> (
 
     return resultColumns.reduce((result, column, index) => {
         let columnSize: number | string = ''
-        const sizeValue = (column.meta as TableColumnMeta)?.initialSize
+        const sizeValue = column.meta?.initialSize
         
         if (sizeValue !== undefined) {
             if (typeof sizeValue === 'string' && sizeValue.includes('%')) {
@@ -61,7 +61,7 @@ export function getInitialTableState<TData extends RowData> (
             }
         }
         
-        const initialVisibility = (column.meta as TableColumnMeta)?.initialVisibility
+        const initialVisibility = column.meta?.initialVisibility ?? true
         
         result[column.id] = {
             order: index,

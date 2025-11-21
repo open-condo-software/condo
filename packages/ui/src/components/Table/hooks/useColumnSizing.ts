@@ -11,8 +11,8 @@ interface UseColumnSizingProps<TData extends RowData = RowData> {
 
 const convertPercentToPixels = (size: string, tableWidth: number): number => {
     if (size.includes('%')) {
-        const percent = parseFloat(size)
-        if (!isNaN(percent)) {
+        const percent = Number.parseFloat(size)
+        if (!Number.isNaN(percent)) {
             return (tableWidth * percent) / 100
         }
     }
@@ -67,7 +67,7 @@ export const useColumnSizing = <TData extends RowData = RowData>({
         const observer = new ResizeObserver((entries) => {
             setTableWidth(entries[0].contentRect.width)
         })
-        const target = document.querySelector('.condo-table')
+        const target = document.querySelector('.condo-table-wrapper')
         if (target) {
             observer.observe(target)
         }
@@ -104,19 +104,18 @@ export const useColumnSizing = <TData extends RowData = RowData>({
         hiddenColumnIds.forEach((columnId) => {
             const columnSettings = settings[columnId]
             
-            if (columnSettings?.size !== 0) {
-                if (typeof columnSettings.size === 'string') {
-                    const sizeInPixels = convertPercentToPixels(columnSettings.size, tableWidth)
-                    result[columnId] = sizeInPixels
-                } else if (typeof columnSettings.size === 'number') {
-                    result[columnId] = columnSettings.size
-                }
-            } else {
+            if (columnSettings?.size === 0) {
                 if (tableWidth > 0) {
                     const sizeInPixels = (tableWidth * 10) / 100
                     result[columnId] = sizeInPixels
-                } else {
-                    result[columnId] = 0
+                }
+                result[columnId] = 0
+            } else {
+                if (typeof columnSettings?.size === 'string') {
+                    const sizeInPixels = convertPercentToPixels(columnSettings.size, tableWidth)
+                    result[columnId] = sizeInPixels
+                } else if (typeof columnSettings?.size === 'number') {
+                    result[columnId] = columnSettings.size
                 }
             }
         })
@@ -153,19 +152,18 @@ export const useColumnSizing = <TData extends RowData = RowData>({
             hiddenColumnIds.forEach((columnId) => {
                 const columnSettings = prevSettings[columnId]
                 
-                if (columnSettings.size !== 0) {
+                if (columnSettings?.size === 0) {
+                    if (tableWidth > 0) {
+                        const sizeInPixels = (tableWidth * 10) / 100
+                        distributedSizing[columnId] = sizeInPixels
+                    }
+                    distributedSizing[columnId] = 0
+                } else {
                     if (typeof columnSettings.size === 'string') {
                         const sizeInPixels = convertPercentToPixels(columnSettings.size, tableWidth)
                         distributedSizing[columnId] = sizeInPixels
                     } else if (typeof columnSettings.size === 'number') {
                         distributedSizing[columnId] = columnSettings.size
-                    }
-                } else {
-                    if (tableWidth > 0) {
-                        const sizeInPixels = (tableWidth * 10) / 100
-                        distributedSizing[columnId] = sizeInPixels
-                    } else {
-                        distributedSizing[columnId] = 0
                     }
                 }
             })
@@ -177,13 +175,7 @@ export const useColumnSizing = <TData extends RowData = RowData>({
                 if (newSettings[columnId] && typeof size === 'number') {
                     const originalSize = prevSettings[columnId]?.size
                     
-                    if (typeof originalSize === 'string') {
-                        const sizeInPercent = convertSizeToPercent(size, tableWidth)
-                        newSettings[columnId] = {
-                            ...newSettings[columnId],
-                            size: sizeInPercent,
-                        }
-                    } else if (typeof originalSize === 'number') {
+                    if (typeof originalSize === 'number') {
                         newSettings[columnId] = {
                             ...newSettings[columnId],
                             size: size,

@@ -2,18 +2,17 @@ import { Table } from '@tanstack/react-table'
 import React, { useMemo } from 'react'
 
 import { ChevronLeft, ChevronRight } from '@open-condo/icons'
+import { PAGINATION_CONSTANTS } from '@open-condo/ui/src/components/Table/constans'
 
 type PageJumpToken = 'prev5' | 'next5'
 type PageItem = number | PageJumpToken
 type PageItems = PageItem[]
 
-const PAGINATION_CONSTANTS = {
-    MAX_VISIBLE_PAGES: 7,
-    PAGES_JUMP: 5,
-    FIRST_PAGE: 1,
-    PAGINATION_THRESHOLD: 4,
-} as const
+type TablePaginationProps<TData> = Readonly<{
+    table: Table<TData>
+}>
 
+// TODO: Now we scroll to top of window. Need to scroll to top of table
 const scrollToTableTop = () => {
     window.scrollTo({ top: 0 })
 }
@@ -47,10 +46,6 @@ const generateComplexPagination = (currentPage: number, totalPages: number): Pag
     }
     
     return pages
-}
-
-interface TablePaginationProps<TData> {
-    table: Table<TData>
 }
 
 export function TablePagination<TData> ({ table }: TablePaginationProps<TData>) {
@@ -95,7 +90,7 @@ export function TablePagination<TData> ({ table }: TablePaginationProps<TData>) 
             onClick = () => handlePageChange(Math.min(totalPages - 1, pageIndex + PAGINATION_CONSTANTS.PAGES_JUMP))
             content = '...'
         } else {
-            onClick = () => handlePageChange(page as number - 1)
+            onClick = () => handlePageChange(page - 1)
             content = page
             isActive = page === currentPage
         }

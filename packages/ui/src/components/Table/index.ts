@@ -11,7 +11,7 @@ import './style.less'
 export type { 
     TableProps, 
     TableColumn, 
-    TableColumnMenuLabels, 
+    TableLabels, 
     GetTableData, 
     TableState, 
     FullTableState,
@@ -20,6 +20,7 @@ export type {
     TableRef,
     FilterComponentProps,
     FilterComponent,
+    FilterConfig,
     RowSelectionState,
     SortState,
     FilterState,
@@ -30,5 +31,3 @@ export {
     defaultUpdateUrlQuery, 
     defaultParseUrlQuery,
 }
-
-// We want export defaultParseUrl and defaultUpdateUrl for condo from our ui-kit? 

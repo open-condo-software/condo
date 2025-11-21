@@ -57,7 +57,7 @@ export {
 export type { 
     TableProps, 
     TableColumn, 
-    TableColumnMenuLabels, 
+    TableLabels, 
     GetTableData, 
     TableState, 
     FullTableState,
@@ -66,6 +66,7 @@ export type {
     TableRef,
     FilterComponentProps,
     FilterComponent,
+    FilterConfig,
     RowSelectionState,
     SortState,
     FilterState,

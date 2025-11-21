@@ -4,22 +4,22 @@ import React, { useCallback } from 'react'
 import { Inbox } from '@open-condo/icons'
 import { colors } from '@open-condo/ui/src/colors'
 import type { 
-    TableColumnMenuLabels, 
+    TableLabels, 
 } from '@open-condo/ui/src/components/Table/types'
 
-type TableBodyProps<TData extends RowData = RowData> = {
+type TableBodyProps<TData extends RowData = RowData> = Readonly<{
     table: Table<TData>
     onRowClick?: (record: TData) => void
     showSkeleton?: boolean
-    columnMenuLabels?: TableColumnMenuLabels
-}
+    columnLabels?: TableLabels
+}>
 
 
 export function TableBody <TData extends RowData = RowData> ({ 
     table, 
     onRowClick, 
     showSkeleton,
-    columnMenuLabels = {},
+    columnLabels = {},
 }: TableBodyProps<TData>) {
     const createKeyDownHandler = useCallback((row: { original: TData }) => (e: React.KeyboardEvent<HTMLDivElement>) => {
         if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
@@ -44,7 +44,7 @@ export function TableBody <TData extends RowData = RowData> ({
                 <div className='condo-table-empty'>
                     <Inbox color={colors.gray[7]} />
                     <div className='condo-table-empty-content'>
-                        {columnMenuLabels?.noData}
+                        {columnLabels?.noDataLabel}
                     </div>
                 </div>
             </div>
@@ -58,8 +58,6 @@ export function TableBody <TData extends RowData = RowData> ({
                     key={row.id}
                     className='condo-table-tr'
                     onClick={() => onRowClick?.(row.original)}
-                    role={onRowClick ? 'button' : 'row'}
-                    tabIndex={onRowClick ? 0 : undefined}
                     onKeyDown={createKeyDownHandler(row)}
                     aria-label={onRowClick ? `Select row ${row.id}` : undefined}
                 >

@@ -17,7 +17,7 @@ import { RowData, Table } from '@tanstack/react-table'
 import React, { useCallback, useRef } from 'react'
 
 import { ColumnSettingsItem } from '@open-condo/ui/src/components/Table/components/ColumnSettingsItem'
-import type { ColumnDefWithId, TableColumnMeta } from '@open-condo/ui/src/components/Table/types'
+import type { ColumnDefWithId } from '@open-condo/ui/src/components/Table/types'
 
 interface ColumnSettingsProps<TData extends RowData = RowData> {
     columns: ColumnDefWithId<TData>[]
@@ -26,7 +26,7 @@ interface ColumnSettingsProps<TData extends RowData = RowData> {
 
 export const ColumnSettings = <TData extends RowData = RowData>({ columns, table }: ColumnSettingsProps<TData>) => {
     const columnWithoutToggleVisibility = useRef<number>(
-        table.getVisibleLeafColumns().reduce((acc, column) => acc += ((column.columnDef?.meta as TableColumnMeta).enableColumnSettings ? 0 : 1), 0)
+        table.getVisibleLeafColumns().reduce((acc, column) => acc + (column.columnDef.meta?.enableColumnSettings ? 0 : 1), 0)
     )
 
     const sensors = useSensors(
@@ -69,7 +69,7 @@ export const ColumnSettings = <TData extends RowData = RowData>({ columns, table
             <SortableContext items={columns.map(c => c.id)} strategy={verticalListSortingStrategy}>
                 <div className='condo-table-column-settings-dropdown'>
                     {columns.map((column) => {
-                        if (!(table.getColumn(column.id)?.columnDef?.meta as TableColumnMeta)?.enableColumnSettings) return 
+                        if (!table.getColumn(column.id)?.columnDef?.meta?.enableColumnSettings) return 
                         const isVisible = table.getColumn(column.id)?.getIsVisible()
                         const isLastVisibleColumn = isVisible && table.getVisibleLeafColumns().length === columnWithoutToggleVisibility.current + 1
 
