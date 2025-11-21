@@ -2296,6 +2296,8 @@
   "pages.condo.meter.reportingPeriod.create.finish": "Конец периода",
   "pages.condo.meter.reportingPeriod.create.incorrectPeriod": "Конец периода должен быть больше начала периода",
   "pages.condo.meter.reportingPeriod.create.inputPostfix": "числа каждого месяца включительно",
+  "pages.condo.news.profanity.badWords.default": "В тексте новости есть ненормативная лексика",
+  "pages.condo.news.profanity.badWords.list": "В тексте новости есть ненормативная лексика: {badWords}",
   "pages.condo.meter.reportingPeriod.create.organizationPeriod": "Выбрать все дома",
   "pages.condo.meter.reportingPeriod.create.organizationTooltip": "Этот период будет действовать для всех домов, у которых нет периода с определенным адресом",
   "pages.condo.meter.reportingPeriod.create.save.button": "Создать период",
