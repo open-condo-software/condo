@@ -168,6 +168,9 @@ const getTableData: GetTableData<TableData> = (tableState) => {
                     if (!path || !obj) return undefined
                     
                     if (!path.includes('.')) {
+                        if (path === '__proto__' || path === 'constructor' || path === 'prototype') {
+                            return undefined
+                        }
                         return obj[path]
                     }
                     
@@ -176,6 +179,12 @@ const getTableData: GetTableData<TableData> = (tableState) => {
                     
                     for (const key of keys) {
                         if (value === null || value === undefined) {
+                            return undefined
+                        }
+                        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                            return undefined
+                        }
+                        if (!Object.prototype.hasOwnProperty.call(value, key) && typeof value === 'object') {
                             return undefined
                         }
                         value = value[key]

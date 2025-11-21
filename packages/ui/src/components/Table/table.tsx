@@ -348,8 +348,8 @@ function TableComponent<TData extends RowData = RowData> (
             setFilterState: (newFilterState: FilterState) => {
                 // NOTE: If we change filter state, we need to reset pagination to the first page
                 setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
+                const newFilter = ([key, value]: [string, unknown]): ColumnFiltersState[number] => ({ id: key, value: value })
                 setColumnFilters((prev) => {
-                    const newFilter = ([key, value]: [string, unknown]) => ({ id: key, value: value })
                     return [...prev, ...Object.entries(newFilterState).map(newFilter).filter(Boolean)] as ColumnFiltersState
                 })
             },
