@@ -602,7 +602,7 @@ describe('SendMessageService', () => {
         })
     })
 
-    test('Not send message if all transports are disabled by user', async () => {
+    test('Message is not created if all transports are disabled by user', async () => {
         const messageType = TICKET_CREATED_TYPE
         const allTransports = get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'defaultTransports'])
 
