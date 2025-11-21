@@ -962,6 +962,7 @@ export const GetContactByUnitDocument = gql`
     name
     email
     phone
+    note
     role {
       id
       name
