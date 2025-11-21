@@ -124,10 +124,18 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                         fieldTitle={ContactRoleTitle}
                                         fieldValue={contactRoleName}
                                     />
-                                    <FieldPairRow
-                                        fieldTitle={<LabelWithInfo title={NoteVisibilityHint} message={NoteLabel} />}
-                                        fieldValue={contactNote}
-                                    />
+                                    <>
+                                        <Col {...CONTACT_FIELD_PAIR_PROPS.titleColProps}>
+                                            <Typography.Text type='secondary'>
+                                                <LabelWithInfo title={NoteVisibilityHint} message={NoteLabel} />
+                                            </Typography.Text>
+                                        </Col>
+                                        <Col {...CONTACT_FIELD_PAIR_PROPS.valueColProps}>
+                                            <Typography.Text>
+                                                {contactNote}
+                                            </Typography.Text>
+                                        </Col>
+                                    </>
                                     <>
                                         <Col span={8}>
                                             <Typography.Text type='secondary'>
