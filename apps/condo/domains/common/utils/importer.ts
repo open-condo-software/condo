@@ -66,7 +66,9 @@ export class Importer implements IImporter {
         private mutationErrorsToMessages: MutationErrorsToMessagesType,
         private sleepInterval: number,
         private maxTableLength: number,
+        headerRowIndex: number
     ) {
+        this.headerRowIndex = headerRowIndex
         this.columnsNames = columnsTemplate.map(column => column.name.trim().toLowerCase())
         this.columnsTypes = columnsTemplate.map(column => column.type)
         this.columnsRequired = columnsTemplate.map(column => column.required)
@@ -85,14 +87,18 @@ export class Importer implements IImporter {
     private errorHandler: ErrorHandler
     private successProcessingHandler: SuccessProcessingHandler
     private failProcessingHandler: FailProcessingHandler
+    private readonly headerRowIndex: number
     private readonly columnsNames: Array<string>
     private readonly columnsTypes: Array<ColumnType>
     private readonly columnsRequired: Array<boolean>
 
     public import (data: Array<TableRow>): Promise<void> {
         this.tableData = data
-        const [columns, ...body] = this.tableData
-        if (!columns) {
+
+        const columns = this.tableData[this.headerRowIndex]
+        const body = this.tableData.slice(this.headerRowIndex + 1)
+
+        if (!columns || columns.length === 0) {
             this.errorHandler(this.errors.invalidColumns)
             return
         }
@@ -180,7 +186,7 @@ export class Importer implements IImporter {
         if (value) {
             this.progress.current = value
         } else {
-            const totalRows = Math.max(this.tableData.length - 1, 1)
+            const totalRows = Math.max(this.tableData.length - (this.headerRowIndex + 1), 1)
             const step = 100 / totalRows
             const newProgress = this.progress.current + step
             this.progress.current = Math.min(newProgress, 100)
