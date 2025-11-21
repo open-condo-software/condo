@@ -111,8 +111,11 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
 
         addons.name = String(name?.value ?? '').trim()
 
-        const phoneValue = String(phone?.value ?? '').trim()
-        addons.phone = normalizePhone(phoneValue)
+        let phoneValue = String(phone?.value ?? '').trim()
+        if (phoneValue.startsWith('8')) {
+            phoneValue = '+7' + phoneValue.substring(1)
+        }
+        addons.phone = normalizePhone(phoneValue, true)
 
         addons.role = String(role?.value ?? '').trim().toLowerCase()
 

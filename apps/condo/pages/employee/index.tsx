@@ -11,6 +11,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import {
     ActionBar,
+    Button,
     Dropdown,
     Typography,
 } from '@open-condo/ui'
@@ -51,6 +52,7 @@ export const EmployeesPageContent = ({
     total,
     addEmployeeLabel = undefined,
     refetchEmployees,
+    isEmployeeImporterEnabled = true,
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
@@ -142,26 +144,35 @@ export const EmployeesPageContent = ({
                                             <ActionBar
                                                 actions={[
                                                     <>
-                                                        <Dropdown.Button
-                                                            type='primary'
-                                                            items={[
-                                                                {
-                                                                    key: 'create',
-                                                                    label: AddEmployeeFillWebFormLabel,
-                                                                    description: AddEmployeeFillWebFormDescription,
-                                                                    onClick: handleAddEmployee,
-                                                                },
-                                                                {
-                                                                    key: 'import',
-                                                                    label: AddEmployeeUploadExcelLabel,
-                                                                    description: AddEmployeeUploadExcelDescription,
-                                                                    onClick: ()=> setActiveModal('example'),
-                                                                },
-                                                            ]
-                                                            }
-                                                        >
-                                                            {AddEmployeeLabel}
-                                                        </Dropdown.Button>
+                                                        {isEmployeeImporterEnabled ?
+                                                            <Dropdown.Button
+                                                                type='primary'
+                                                                items={[
+                                                                    {
+                                                                        key: 'create',
+                                                                        label: AddEmployeeFillWebFormLabel,
+                                                                        description: AddEmployeeFillWebFormDescription,
+                                                                        onClick: handleAddEmployee,
+                                                                    },
+                                                                    {
+                                                                        key: 'import',
+                                                                        label: AddEmployeeUploadExcelLabel,
+                                                                        description: AddEmployeeUploadExcelDescription,
+                                                                        onClick: ()=> setActiveModal('example'),
+                                                                    },
+                                                                ]
+                                                                }
+                                                            >
+                                                                {AddEmployeeLabel}
+                                                            </Dropdown.Button> :
+                                                            <Button
+                                                                key='create'
+                                                                type='primary'
+                                                                onClick={handleAddEmployee}
+                                                            >
+                                                                {AddEmployeeLabel}
+                                                            </Button>
+                                                        }
                                                     </>,
                                                 ]}
                                             />

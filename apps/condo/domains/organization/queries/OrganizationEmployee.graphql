@@ -254,6 +254,7 @@ query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizatio
 
 query checkEmployeeExists($organizationId: ID!, $phone: String, $email: String) {
     objs: allOrganizationEmployees(
+        first: 100
         where: {
             organization: { id: $organizationId }
             OR: [
