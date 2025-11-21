@@ -1272,7 +1272,7 @@
   "import.meterReading.plural": "lectura",
   "import.partlyDataLoadedModal.alert.description": "Los datos no cargados se puede añadir manualmente o generar una tabla de ellos e intentar cargarla de nuevo",
   "import.partlyDataLoadedModal.alert.message": "Se han añadido {success} de {total} {genitive}",
-  "import.partlyDataLoadedModal.title": "Ha fallado la carga de algunas comunidades",
+  "import.partlyDataLoadedModal.title": "No se pudieron cargar algunos datos",
   "import.progressModal.description": "La descarga se interrumpirá si cierras la pestaña del navegador o apagas el ordenador",
   "import.progressModal.message": "Por favor, espera",
   "import.progressModal.title": "Cargando datos",

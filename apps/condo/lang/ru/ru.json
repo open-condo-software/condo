@@ -1272,7 +1272,7 @@
   "import.meterReading.plural": "Показания",
   "import.partlyDataLoadedModal.alert.description": "Незагруженные данные можно попробовать добавить вручную или сформировать из них таблицу и попробовать загрузить снова",
   "import.partlyDataLoadedModal.alert.message": "Получилось добавить {success} из {total} {genitive}",
-  "import.partlyDataLoadedModal.title": "Некоторые дома не получилось загрузить",
+  "import.partlyDataLoadedModal.title": "Некоторые данные не получилось загрузить",
   "import.progressModal.description": "Загрузка прервется, если вы закроете вкладку браузера или выключите компьютер",
   "import.progressModal.message": "Пожалуйста, подождите",
   "import.progressModal.title": "Загрузка данных",

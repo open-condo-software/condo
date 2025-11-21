@@ -3476,6 +3476,7 @@ export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryResult = Apollo.Q
 export const CheckEmployeeExistsDocument = gql`
     query checkEmployeeExists($organizationId: ID!, $phone: String, $email: String) {
   objs: allOrganizationEmployees(
+    first: 100
     where: {organization: {id: $organizationId}, OR: [{phone: $phone}, {email: $email}], deletedAt: null}
   ) {
     id

@@ -1272,7 +1272,7 @@
   "import.meterReading.plural": "Meter readings",
   "import.partlyDataLoadedModal.alert.description": "You can try to add or create a table from this data and try to download again",
   "import.partlyDataLoadedModal.alert.message": "It has become possible to add {success} of {total} {genitive}",
-  "import.partlyDataLoadedModal.title": "Some properties could not be loaded",
+  "import.partlyDataLoadedModal.title": "Some data could not be loaded",
   "import.progressModal.description": "The download will stop if you close the browser tab or turn off the computer",
   "import.progressModal.message": "Wait please",
   "import.progressModal.title": "Data loading",
