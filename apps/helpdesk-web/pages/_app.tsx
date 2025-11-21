@@ -12,7 +12,6 @@ import getConfig from 'next/config'
 import DefaultErrorPage from 'next/error'
 import React, { Fragment, useMemo } from 'react'
 
-import { FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { isSSR } from '@open-condo/miniapp-utils'
@@ -39,7 +38,6 @@ import {
     MINIAPPS_CATEGORY, RESIDENTS_CATEGORY, SETTINGS_CATEGORY,
 
 } from '@condo/domains/common/constants/menuCategories'
-import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { nextRedirect } from '@condo/domains/common/utils/next/helpers'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
@@ -281,7 +279,6 @@ const TasksProvider = ({ children }) => {
 
 const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()
-    useHotCodeReload()
     dayjs.locale(intl.locale)
 
     const LayoutComponent = Component.container || BaseLayout
@@ -304,9 +301,7 @@ const MyApp = ({ Component, pageProps }) => {
                                                 <ActiveCallContextProvider>
                                                     <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                         <RequiredAccess>
-                                                            <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                <Component {...pageProps} />
-                                                            </FeaturesReady>
+                                                            <Component {...pageProps} />
                                                         </RequiredAccess>
                                                     </LayoutComponent>
                                                 </ActiveCallContextProvider>
@@ -477,10 +472,8 @@ export default (
             withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
                 withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
                     withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
-                        withFeatureFlags({ ssr: !isDisabledSsr })(
-                            withError()(
-                                MyApp
-                            )
+                        withError()(
+                            MyApp
                         )
                     )
                 )
