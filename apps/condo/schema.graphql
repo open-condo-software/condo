@@ -68675,6 +68675,8 @@ type B2BAppHistoryRecord {
   developerUrl: String
   detailedDescription: JSON
   appUrl: String
+  additionalDomains: JSON
+  oidcClient: String
   isHidden: Boolean
   isGlobal: Boolean
   isPublic: Boolean
@@ -68805,6 +68807,14 @@ input B2BAppHistoryRecordWhereInput {
   appUrl_not_ends_with_i: String
   appUrl_in: [String]
   appUrl_not_in: [String]
+  additionalDomains: JSON
+  additionalDomains_not: JSON
+  additionalDomains_in: [JSON]
+  additionalDomains_not_in: [JSON]
+  oidcClient: String
+  oidcClient_not: String
+  oidcClient_in: [String]
+  oidcClient_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
   isGlobal: Boolean
@@ -69082,6 +69092,8 @@ input B2BAppHistoryRecordUpdateInput {
   developerUrl: String
   detailedDescription: JSON
   appUrl: String
+  additionalDomains: JSON
+  oidcClient: String
   isHidden: Boolean
   isGlobal: Boolean
   isPublic: Boolean
@@ -69123,6 +69135,8 @@ input B2BAppHistoryRecordCreateInput {
   developerUrl: String
   detailedDescription: JSON
   appUrl: String
+  additionalDomains: JSON
+  oidcClient: String
   isHidden: Boolean
   isGlobal: Boolean
   isPublic: Boolean
@@ -69153,6 +69167,22 @@ input B2BAppHistoryRecordCreateInput {
 
 input B2BAppHistoryRecordsCreateInput {
   data: B2BAppHistoryRecordCreateInput
+}
+
+input OidcClientRelateToOneInput {
+  create: OidcClientCreateInput
+  connect: OidcClientWhereUniqueInput
+  disconnect: OidcClientWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+type MiniappDomainMapping {
+  from: String!
+  to: String!
+}
+
+type MiniappDomains {
+  mapping: [MiniappDomainMapping!]!
 }
 
 enum B2BAppIconType {
@@ -69360,6 +69390,17 @@ type B2BApp {
   """
   appUrl: String
 
+  """ List of additional domains that miniapp uses in its work and that need to be proxied for the application to work correctly 
+  """
+  additionalDomains: [String!]
+
+  """ Relation to OIDC configuration, which application use for authorization 
+  """
+  oidcClient: OidcClient
+
+  """ List of mapping from condo-hosted domain to miniapp-defined domain """
+  domains: MiniappDomains
+
   """ Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM 
   """
   isHidden: Boolean
@@ -69558,6 +69599,12 @@ input B2BAppWhereInput {
   appUrl_not_ends_with_i: String
   appUrl_in: [String]
   appUrl_not_in: [String]
+  additionalDomains: [String!]
+  additionalDomains_not: [String!]
+  additionalDomains_in: [[String!]]
+  additionalDomains_not_in: [[String!]]
+  oidcClient: OidcClientWhereInput
+  oidcClient_is_null: Boolean
   isHidden: Boolean
   isHidden_not: Boolean
   isGlobal: Boolean
@@ -69706,6 +69753,8 @@ enum SortB2BAppsBy {
   detailedDescription_DESC
   appUrl_ASC
   appUrl_DESC
+  oidcClient_ASC
+  oidcClient_DESC
   isHidden_ASC
   isHidden_DESC
   isGlobal_ASC
@@ -69758,6 +69807,8 @@ input B2BAppUpdateInput {
   developerUrl: String
   detailedDescription: String
   appUrl: String
+  additionalDomains: [String!]
+  oidcClient: OidcClientRelateToOneInput
   isHidden: Boolean
   isGlobal: Boolean
   isPublic: Boolean
@@ -69797,6 +69848,8 @@ input B2BAppCreateInput {
   developerUrl: String
   detailedDescription: String
   appUrl: String
+  additionalDomains: [String!]
+  oidcClient: OidcClientRelateToOneInput
   isHidden: Boolean
   isGlobal: Boolean
   isPublic: Boolean
@@ -70648,6 +70701,8 @@ type B2CAppHistoryRecord {
   isHidden: Boolean
   colorSchema: JSON
   appUrl: String
+  additionalDomains: JSON
+  oidcClient: String
   currentBuild: String
   id: ID!
   v: Int
@@ -70751,6 +70806,14 @@ input B2CAppHistoryRecordWhereInput {
   appUrl_not_ends_with_i: String
   appUrl_in: [String]
   appUrl_not_in: [String]
+  additionalDomains: JSON
+  additionalDomains_not: JSON
+  additionalDomains_in: [JSON]
+  additionalDomains_not_in: [JSON]
+  oidcClient: String
+  oidcClient_not: String
+  oidcClient_in: [String]
+  oidcClient_not_in: [String]
   currentBuild: String
   currentBuild_not: String
   currentBuild_in: [String]
@@ -70914,6 +70977,8 @@ input B2CAppHistoryRecordUpdateInput {
   isHidden: Boolean
   colorSchema: JSON
   appUrl: String
+  additionalDomains: JSON
+  oidcClient: String
   currentBuild: String
   v: Int
   createdAt: String
@@ -70944,6 +71009,8 @@ input B2CAppHistoryRecordCreateInput {
   isHidden: Boolean
   colorSchema: JSON
   appUrl: String
+  additionalDomains: JSON
+  oidcClient: String
   currentBuild: String
   v: Int
   createdAt: String
@@ -71024,6 +71091,17 @@ type B2CApp {
   """ Url to app page, which is the app starting point and will be opened in iframe 
   """
   appUrl: String
+
+  """ List of additional domains that miniapp uses in its work and that need to be proxied for the application to work correctly 
+  """
+  additionalDomains: [String!]
+
+  """ Relation to OIDC configuration, which application use for authorization 
+  """
+  oidcClient: OidcClient
+
+  """ List of mapping from condo-hosted domain to miniapp-defined domain """
+  domains: MiniappDomains
 
   """ Link to current active app build """
   currentBuild: B2CAppBuild
@@ -71146,6 +71224,12 @@ input B2CAppWhereInput {
   appUrl_not_ends_with_i: String
   appUrl_in: [String]
   appUrl_not_in: [String]
+  additionalDomains: [String!]
+  additionalDomains_not: [String!]
+  additionalDomains_in: [[String!]]
+  additionalDomains_not_in: [[String!]]
+  oidcClient: OidcClientWhereInput
+  oidcClient_is_null: Boolean
   currentBuild: B2CAppBuildWhereInput
   currentBuild_is_null: Boolean
 
@@ -71266,6 +71350,8 @@ enum SortB2CAppsBy {
   isHidden_DESC
   appUrl_ASC
   appUrl_DESC
+  oidcClient_ASC
+  oidcClient_DESC
   currentBuild_ASC
   currentBuild_DESC
   accessRights_ASC
@@ -71300,6 +71386,8 @@ input B2CAppUpdateInput {
   isHidden: Boolean
   colorSchema: AppColorSchemaFieldInput
   appUrl: String
+  additionalDomains: [String!]
+  oidcClient: OidcClientRelateToOneInput
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
   v: Int
@@ -71328,6 +71416,8 @@ input B2CAppCreateInput {
   isHidden: Boolean
   colorSchema: AppColorSchemaFieldInput
   appUrl: String
+  additionalDomains: [String!]
+  oidcClient: OidcClientRelateToOneInput
   currentBuild: B2CAppBuildRelateToOneInput
   accessRights: B2CAppAccessRightRelateToManyInput
   v: Int

@@ -4,6 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
+const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -11,6 +12,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
+const { replaceDomainPrefix } = require('@open-condo/miniapp-utils/helpers/urls')
 
 const {
     MAP_GENERATION_FEATURE,
@@ -19,22 +21,22 @@ const {
 } = require('@condo/domains/miniapp/constants')
 const { B2BApp, createTestB2BApp, updateTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
 
 
 
 describe('B2BApp', () => {
+    let admin
+    let support
+    let user
+    let anonymous
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
+        user = await makeClientWithNewRegisteredAndLoggedInUser()
+        anonymous = await makeClient()
+    })
     describe('CRUD', () => {
-        let admin
-        let support
-        let user
-        let anonymous
-        beforeAll(async () => {
-            admin = await makeLoggedInAdminClient()
-            support = await makeClientWithSupportUser()
-            user = await makeClientWithNewRegisteredAndLoggedInUser()
-            anonymous = await makeClient()
-        })
         describe('Create', () => {
             const createPayload = {
                 name: faker.company.name().replace(/ /, '-').toUpperCase() + ' B2B APP',
@@ -220,6 +222,129 @@ describe('B2BApp', () => {
                     isGlobal: false,
                 })
                 expect(updatedApp).toHaveProperty('features', null)
+            })
+        })
+    })
+    describe('Resolvers', () => {
+        describe('domains field', () => {
+            test('should initially return empty mapping', async () => {
+                const [app] = await createTestB2BApp(support)
+                const appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.domains).toEqual({ mapping: [] })
+            })
+
+            test('should show correct resolution order', async () => {
+                // Step 1: Create app with empty domains
+                const [app] = await createTestB2BApp(support)
+                let appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toHaveLength(0)
+
+                // Step 2: Add OIDC client with redirect URIs - expect indexes 2-3 to appear
+                const [oidcClient, { payload }] = await createTestOidcClient(support)
+                await updateTestB2BApp(support, app.id, {
+                    oidcClient: { connect: { id: oidcClient.id } },
+                })
+                await updateTestOidcClient(support, oidcClient.id, {
+                    payload: {
+                        ...payload,
+                        redirect_uris: ['https://app1.example.com/oidc/callback', 'https://app2.example.com/api/oidc/callback'],
+                    },
+                })
+                appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toHaveLength(2)
+                expect(appData.domains.mapping).toEqual(expect.arrayContaining([
+                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
+                    { from: 'https://app2.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
+                ]))
+
+                // Step 3: Add additional domains - expect index 4-5 to appear
+                await updateTestB2BApp(support, app.id, {
+                    additionalDomains: ['https://cdn.example.com', 'https://api.example.com'],
+                })
+                appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toHaveLength(4)
+                expect(appData.domains.mapping).toEqual(expect.arrayContaining([
+                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
+                    { from: 'https://app2.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
+                    { from: 'https://cdn.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-4.miniapps`) },
+                    { from: 'https://api.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-5.miniapps`) },
+                ]))
+
+                // Step 4: Add appUrl - expect index 1 to appear
+                await updateTestB2BApp(support, app.id, {
+                    appUrl: 'https://main.example.com/app',
+                })
+                appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toHaveLength(5)
+                expect(appData.domains.mapping).toEqual(expect.arrayContaining([
+                    { from: 'https://main.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-1.miniapps`) },
+                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
+                    { from: 'https://app2.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
+                    { from: 'https://cdn.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-4.miniapps`) },
+                    { from: 'https://api.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-5.miniapps`) },
+                ]))
+
+                // Step 5: Remove one redirect URI - expect additional domains to shift to 3-4
+                await updateTestOidcClient(support, oidcClient.id, {
+                    payload: {
+                        ...payload,
+                        redirect_uris: ['https://app1.example.com/callback'],
+                    },
+                })
+                appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toHaveLength(4)
+                expect(appData.domains.mapping).toEqual(expect.arrayContaining([
+                    { from: 'https://main.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-1.miniapps`) },
+                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
+                    { from: 'https://cdn.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
+                    { from: 'https://api.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-4.miniapps`) },
+                ]))
+
+                // Step 6: Change appUrl to same domain as remaining redirect_uri - expect index 1 to disappear
+                await updateTestB2BApp(support, app.id, {
+                    appUrl: 'https://app1.example.com/main',
+                })
+                appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toHaveLength(3)
+                expect(appData.domains.mapping).toEqual(expect.arrayContaining([
+                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
+                    { from: 'https://cdn.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
+                    { from: 'https://api.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-4.miniapps`) },
+                ]))
+
+                // Step 7: Change one additional domain to same as redirect uri - expect remaining to take its place
+                await updateTestB2BApp(support, app.id, {
+                    additionalDomains: ['https://app1.example.com', 'https://api.example.com'],
+                })
+                appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toHaveLength(2)
+                expect(appData.domains.mapping).toEqual(expect.arrayContaining([
+                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
+                    { from: 'https://api.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
+                ]))
+            })
+
+            test('should handle duplicate domains correctly', async () => {
+                const [oidcClient] = await createTestOidcClient(support)
+                await updateTestOidcClient(support, oidcClient.id, {
+                    payload: {
+                        ...oidcClient.payload,
+                        redirect_uris: ['https://same.example.com/callback1', 'https://same.example.com/callback2'],
+                    },
+                })
+
+                const [app] = await createTestB2BApp(support, {
+                    appUrl: 'https://same.example.com/app',
+                    additionalDomains: ['https://same.example.com', 'https://different.example.com'],
+                    oidcClient: { connect: { id: oidcClient.id } },
+                })
+
+                const appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.domains.mapping).toHaveLength(2)
+                expect(appData.domains.mapping).toEqual(expect.arrayContaining([
+                    { from: 'https://same.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
+                    { from: 'https://different.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
+                ]))
             })
         })
     })
