@@ -18,3 +18,15 @@ export function isSafeUrl (url: unknown): boolean {
     
     return !normalizedUrl.includes('javascript:')
 }
+
+export function replaceDomainPrefix (originalUrl: string, prefix: string): string {
+    const url = new URL(originalUrl)
+
+    const originalHostnameParts = url.hostname.split('.')
+    const suffixParts = originalHostnameParts.length > 2 ? originalHostnameParts.slice(1) : originalHostnameParts
+    const suffix = suffixParts.join('.')
+
+    url.hostname = `${prefix}.${suffix}`
+
+    return url.toString()
+}
