@@ -40,7 +40,7 @@ const MINIAPP_DOMAINS_FIELD = {
 
         if (item.oidcClient) {
             const client = await getByCondition('OidcClient', { id: item.oidcClient, deletedAt: null })
-            if (client.payload.redirect_uris && client.payload.redirect_uris.length) {
+            if (client && client.payload && client.payload.redirect_uris && client.payload.redirect_uris.length) {
                 oidcRedirectURIS = client.payload.redirect_uris
             }
         }
@@ -77,6 +77,8 @@ const MINIAPP_DOMAINS_FIELD = {
                 })
             }
         }
+
+        idx = Math.max(idx, 3)
 
         for (const domain of item.additionalDomains) {
             if (!domain) continue

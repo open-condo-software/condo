@@ -6,7 +6,7 @@ describe('URL utils', () => {
             const safeCases = [
                 // Standard HTTPS URLs
                 'https://github.com',
-                'https://v1.doma.ai/ticket',
+                'https://v1.condo.dev/ticket',
                 'https://example.com:8080/path?query=value#fragment',
             
                 // HTTP URLs
@@ -165,8 +165,8 @@ describe('URL utils', () => {
                 },
                 {
                     prefix: 'staging',
-                    originalUrl: 'http://doma.ai/path',
-                    expected: 'http://staging.doma.ai/path',
+                    originalUrl: 'http://condo.dev/path',
+                    expected: 'http://staging.condo.dev/path',
                 },
                 {
                     prefix: 'dev',
@@ -177,8 +177,8 @@ describe('URL utils', () => {
                 // Replacing leftmost subdomain with prefix
                 {
                     prefix: 'staging',
-                    originalUrl: 'http://api.doma.ai/v1/tickets',
-                    expected: 'http://staging.doma.ai/v1/tickets',
+                    originalUrl: 'http://api.condo.dev/v1/tickets',
+                    expected: 'http://staging.condo.dev/v1/tickets',
                 },
                 {
                     prefix: 'prod',
