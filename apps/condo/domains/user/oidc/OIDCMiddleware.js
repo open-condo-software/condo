@@ -3,10 +3,14 @@ const express = require('express')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
+
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const createConfiguration = require('./configuration')
 const { OIDCBearerTokenKeystonePatch } = require('./OIDCBearerTokenKeystonePatch')
+const { getOIDCSharedRedirectURIHandler } = require('./OIDCSharedRedirectURIHandler')
+
+
 const logger = getLogger()
 
 const RESIDENT_APP_DOMAIN = conf['RESIDENT_APP_DOMAIN']
@@ -51,6 +55,9 @@ class OIDCMiddleware {
             res.set('Cache-Control', 'no-cache, no-store')
             next()
         }
+
+        // NOTE(SavelevMatthew): small middleware to adjust redirect uri
+        app.post('/oidc/token', getOIDCSharedRedirectURIHandler(provider))
 
         app.get('/oidc/interaction/:uid', setNoCache, async (req, res) => {
             /*
