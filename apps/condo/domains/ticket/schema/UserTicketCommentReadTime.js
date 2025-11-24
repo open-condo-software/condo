@@ -32,6 +32,21 @@ const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime',
         readCommentAt: {
             schemaDoc: 'Time when the user last read any comment',
             type: 'DateTimeUtc',
+            hooks: {
+                resolveInput: async ({ resolvedData, fieldPath }) => {
+                    if (fieldPath in resolvedData) {
+                        return resolvedData[fieldPath]
+                    }
+                    const resident = resolvedData['readResidentCommentAt']
+                    const organization = resolvedData['readOrganizationCommentAt']
+    
+                    if (resident && organization) {
+                        return new Date(resident) > new Date(organization) ? resident : organization
+                    }
+    
+                    return resident || organization
+                },
+            },
         },
 
         readResidentCommentAt: {

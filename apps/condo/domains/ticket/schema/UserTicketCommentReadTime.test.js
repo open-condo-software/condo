@@ -163,6 +163,27 @@ describe('UserTicketCommentReadTime', () => {
 
     describe('resident', () => {
         describe('create', () => {
+            it('cannot create UserTicketCommentReadTime for other user', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const anotherResidentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, property, { unitName })
+                await createTestResident(admin, anotherResidentClient.user, property, { unitName: 'different-unit' })
+
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestUserTicketCommentReadTime(anotherResidentClient, residentClient.user, ticket)
+                })
+            })
+
             it('cannot create UserTicketCommentReadTime for other users tickets', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
@@ -370,6 +391,185 @@ describe('UserTicketCommentReadTime', () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await UserTicketCommentReadTime.delete(residentClient, userTicketCommentRead.id)
                 })
+            })
+        })
+    })
+    describe('fields validation', () => {
+        describe('readCommentAt', () => {
+            it('should use explicitly passed readCommentAt when provided', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+
+                const explicitReadTime = new Date('2023-01-01T00:00:00Z').toISOString()
+                const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(
+                    userClient, 
+                    residentClient.user, 
+                    ticket,
+                    { readCommentAt: explicitReadTime }
+                )
+
+                expect(userTicketCommentReadTime.readCommentAt).toBe(explicitReadTime)
+            })
+
+            it('should set readCommentAt to readResidentCommentAt when only resident time is provided', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+
+                const residentReadTime = new Date('2023-01-01T00:00:00Z').toISOString()
+                const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(
+                    userClient, 
+                    residentClient.user, 
+                    ticket,
+                    { readResidentCommentAt: residentReadTime }
+                )
+
+                expect(userTicketCommentReadTime.readCommentAt).toBe(residentReadTime)
+            })
+
+            it('should set readCommentAt to readOrganizationCommentAt when only organization time is provided', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+
+                const organizationReadTime = new Date('2023-01-01T00:00:00Z').toISOString()
+                const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(
+                    userClient, 
+                    residentClient.user, 
+                    ticket,
+                    { readOrganizationCommentAt: organizationReadTime }
+                )
+
+                expect(userTicketCommentReadTime.readCommentAt).toBe(organizationReadTime)
+            })
+
+            it('should set readCommentAt to the latest timestamp when both specific times are provided', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+
+                const residentReadTime = new Date('2023-01-01T00:00:00Z').toISOString()
+                const organizationReadTime = new Date('2023-01-02T00:00:00Z').toISOString() // Later date
+                const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(
+                    userClient, 
+                    residentClient.user, 
+                    ticket,
+                    {
+                        readResidentCommentAt: residentReadTime,
+                        readOrganizationCommentAt: organizationReadTime,
+                    }
+                )
+
+                expect(userTicketCommentReadTime.readCommentAt).toBe(organizationReadTime)
+            })
+
+            it('should set readCommentAt to the latest timestamp when both specific times are provided (reverse order)', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+
+                const residentReadTime = new Date('2023-01-02T00:00:00Z').toISOString() // Later date
+                const organizationReadTime = new Date('2023-01-01T00:00:00Z').toISOString()
+                const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(
+                    userClient, 
+                    residentClient.user, 
+                    ticket,
+                    {
+                        readResidentCommentAt: residentReadTime,
+                        readOrganizationCommentAt: organizationReadTime,
+                    }
+                )
+
+                expect(userTicketCommentReadTime.readCommentAt).toBe(residentReadTime)
+            })
+
+            it('should not set readCommentAt when neither specific times nor readCommentAt are provided', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+
+                const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(
+                    userClient, 
+                    residentClient.user, 
+                    ticket
+                )
+
+                expect(userTicketCommentReadTime.readCommentAt).toBeNull()
+            })
+
+            it('should prioritize explicitly passed readCommentAt over specific times', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+
+                const explicitReadTime = new Date('2023-01-03T00:00:00Z').toISOString()
+                const residentReadTime = new Date('2023-01-01T00:00:00Z').toISOString()
+                const organizationReadTime = new Date('2023-01-02T00:00:00Z').toISOString()
+            
+                const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(
+                    userClient, 
+                    residentClient.user, 
+                    ticket,
+                    {
+                        readCommentAt: explicitReadTime,
+                        readResidentCommentAt: residentReadTime,
+                        readOrganizationCommentAt: organizationReadTime,
+                    }
+                )
+
+                expect(userTicketCommentReadTime.readCommentAt).toBe(explicitReadTime)
+            })
+
+            it('should handle null values correctly for specific times', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+
+                const residentReadTime = new Date('2023-01-01T00:00:00Z').toISOString()
+                const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(
+                    userClient, 
+                    residentClient.user, 
+                    ticket,
+                    {
+                        readResidentCommentAt: residentReadTime,
+                        readOrganizationCommentAt: null,
+                    }
+                )
+
+                expect(userTicketCommentReadTime.readCommentAt).toBe(residentReadTime)
             })
         })
     })

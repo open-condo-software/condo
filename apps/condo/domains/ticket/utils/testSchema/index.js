@@ -472,14 +472,12 @@ async function createTestUserTicketCommentReadTime (client, user, ticket, extraA
     if (!user || !user.id) throw new Error('no user.id')
     if (!ticket || !ticket.id) throw new Error('no ticket.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const now = new Date().toISOString()
 
     const attrs = {
         dv: 1,
         sender,
         user: { connect: { id: user.id } },
         ticket: { connect: { id: ticket.id } },
-        readResidentCommentAt: now,
         ...extraAttrs,
     }
     const obj = await UserTicketCommentReadTime.create(client, attrs)

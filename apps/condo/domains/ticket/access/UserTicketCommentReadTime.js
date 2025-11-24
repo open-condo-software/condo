@@ -58,6 +58,9 @@ async function canManageUserTicketCommentReadTimes ({ authentication: { item: us
         if (operation === 'create') {
             if (!validateAllowedFields(originalInput, AVAILABLE_FIELDS_FOR_CREATE_BY_RESIDENT)) return false
 
+            const userId = get(originalInput, ['user', 'connect', 'id'])
+            if (userId !== user.id) return false
+
             const ticket = await getById('Ticket', get(originalInput, ['ticket', 'connect', 'id']))
             return ticket && ticket.client === user.id
         }
