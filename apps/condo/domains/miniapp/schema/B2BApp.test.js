@@ -23,7 +23,9 @@ const { B2BApp, createTestB2BApp, updateTestB2BApp } = require('@condo/domains/m
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
 
-
+function expectedAppDomain (appId, idx) {
+    return new URL(replaceDomainPrefix(conf['SERVER_URL'], `${appId}-${idx}.miniapps`)).origin
+}
 
 describe('B2BApp', () => {
     let admin
@@ -253,8 +255,8 @@ describe('B2BApp', () => {
                 appData = await B2BApp.getOne(support, { id: app.id })
                 expect(appData.domains.mapping).toHaveLength(2)
                 expect(appData.domains.mapping).toEqual(expect.arrayContaining([
-                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
-                    { from: 'https://app2.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
+                    { from: 'https://app1.example.com', to: expectedAppDomain(app.id, 2) },
+                    { from: 'https://app2.example.com', to: expectedAppDomain(app.id, 3) },
                 ]))
 
                 // Step 3: Add additional domains - expect index 4-5 to appear
@@ -264,10 +266,10 @@ describe('B2BApp', () => {
                 appData = await B2BApp.getOne(support, { id: app.id })
                 expect(appData.domains.mapping).toHaveLength(4)
                 expect(appData.domains.mapping).toEqual(expect.arrayContaining([
-                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
-                    { from: 'https://app2.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
-                    { from: 'https://cdn.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-4.miniapps`) },
-                    { from: 'https://api.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-5.miniapps`) },
+                    { from: 'https://app1.example.com', to: expectedAppDomain(app.id, 2) },
+                    { from: 'https://app2.example.com', to: expectedAppDomain(app.id, 3) },
+                    { from: 'https://cdn.example.com', to: expectedAppDomain(app.id, 4) },
+                    { from: 'https://api.example.com', to: expectedAppDomain(app.id, 5) },
                 ]))
 
                 // Step 4: Add appUrl - expect index 1 to appear
@@ -277,11 +279,11 @@ describe('B2BApp', () => {
                 appData = await B2BApp.getOne(support, { id: app.id })
                 expect(appData.domains.mapping).toHaveLength(5)
                 expect(appData.domains.mapping).toEqual(expect.arrayContaining([
-                    { from: 'https://main.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-1.miniapps`) },
-                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
-                    { from: 'https://app2.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
-                    { from: 'https://cdn.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-4.miniapps`) },
-                    { from: 'https://api.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-5.miniapps`) },
+                    { from: 'https://main.example.com', to: expectedAppDomain(app.id, 1) },
+                    { from: 'https://app1.example.com', to: expectedAppDomain(app.id, 2) },
+                    { from: 'https://app2.example.com', to: expectedAppDomain(app.id, 3) },
+                    { from: 'https://cdn.example.com', to: expectedAppDomain(app.id, 4) },
+                    { from: 'https://api.example.com', to: expectedAppDomain(app.id, 5) },
                 ]))
 
                 // Step 5: Remove one redirect URI - expect additional domains to shift to 3-4
@@ -294,10 +296,10 @@ describe('B2BApp', () => {
                 appData = await B2BApp.getOne(support, { id: app.id })
                 expect(appData.domains.mapping).toHaveLength(4)
                 expect(appData.domains.mapping).toEqual(expect.arrayContaining([
-                    { from: 'https://main.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-1.miniapps`) },
-                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
-                    { from: 'https://cdn.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
-                    { from: 'https://api.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-4.miniapps`) },
+                    { from: 'https://main.example.com', to: expectedAppDomain(app.id, 1) },
+                    { from: 'https://app1.example.com', to: expectedAppDomain(app.id, 2) },
+                    { from: 'https://cdn.example.com', to: expectedAppDomain(app.id, 3) },
+                    { from: 'https://api.example.com', to: expectedAppDomain(app.id, 4) },
                 ]))
 
                 // Step 6: Change appUrl to same domain as remaining redirect_uri - expect index 1 to disappear
@@ -307,9 +309,9 @@ describe('B2BApp', () => {
                 appData = await B2BApp.getOne(support, { id: app.id })
                 expect(appData.domains.mapping).toHaveLength(3)
                 expect(appData.domains.mapping).toEqual(expect.arrayContaining([
-                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
-                    { from: 'https://cdn.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
-                    { from: 'https://api.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-4.miniapps`) },
+                    { from: 'https://app1.example.com', to: expectedAppDomain(app.id, 2) },
+                    { from: 'https://cdn.example.com', to: expectedAppDomain(app.id, 3) },
+                    { from: 'https://api.example.com', to: expectedAppDomain(app.id, 4) },
                 ]))
 
                 // Step 7: Change one additional domain to same as redirect uri - expect remaining to take its place
@@ -319,8 +321,8 @@ describe('B2BApp', () => {
                 appData = await B2BApp.getOne(support, { id: app.id })
                 expect(appData.domains.mapping).toHaveLength(2)
                 expect(appData.domains.mapping).toEqual(expect.arrayContaining([
-                    { from: 'https://app1.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
-                    { from: 'https://api.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
+                    { from: 'https://app1.example.com', to: expectedAppDomain(app.id, 2) },
+                    { from: 'https://api.example.com', to: expectedAppDomain(app.id, 3) },
                 ]))
             })
 
@@ -342,8 +344,8 @@ describe('B2BApp', () => {
                 const appData = await B2BApp.getOne(support, { id: app.id })
                 expect(appData.domains.mapping).toHaveLength(2)
                 expect(appData.domains.mapping).toEqual(expect.arrayContaining([
-                    { from: 'https://same.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-2.miniapps`) },
-                    { from: 'https://different.example.com', to: replaceDomainPrefix(conf['SERVER_URL'], `${app.id}-3.miniapps`) },
+                    { from: 'https://same.example.com', to: expectedAppDomain(app.id, 2) },
+                    { from: 'https://different.example.com', to: expectedAppDomain(app.id, 3) },
                 ]))
             })
         })

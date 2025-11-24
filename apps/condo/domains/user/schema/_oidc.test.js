@@ -4,12 +4,19 @@ const dayjs = require('dayjs')
 const jwtDecode = require('jwt-decode')
 const { Issuer, generators } = require('openid-client')
 
+const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const {
-    createAxiosClientWithCookie, getRandomString, makeLoggedInAdminClient, catchErrorFrom,
+    createAxiosClientWithCookie,
+    getRandomString,
+    makeLoggedInAdminClient,
+    catchErrorFrom,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
+const { replaceDomainPrefix } = require('@open-condo/miniapp-utils/helpers/urls')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { createTestB2BApp, createTestB2CApp, updateTestB2BApp, updateTestB2CApp, B2BApp, B2CApp } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     createTestOidcClient,
@@ -359,6 +366,99 @@ describe('OIDC', () => {
                     { 'Authorization': `Bearer ${tokenSet.access_token}` },
                 )
             })
+        })
+        // TODO: figure out how to fix this test
+        // NOTE: it fails because of the redirect uri protocol validation,
+        // since replace domain changes http://localhost:3000 -> http://123.miniapps.localhost:3000
+        // OIDC blocks this since for web apps only https is allowed, and for native only localhost
+        // Test is working on prepare.js with --https flag, but we need to figure out how to make it work in CI
+        // (probably add OIDC configuration tweak based on env)
+        test.skip('should progressively allow redirect URIs as apps are linked', async () => {
+            const admin = await makeLoggedInAdminClient()
+
+            // Step 1: Create OIDC client with no linked apps
+            const [oidcClient] = await createTestOidcClient(admin)
+            const clientId = oidcClient.payload.client_id
+            const originalRedirectUri = oidcClient.payload.redirect_uris[0]
+
+            const [b2bApp] = await createTestB2BApp(admin)
+            const [b2cApp] = await createTestB2CApp(admin)
+
+            const b2bAppUrlDomain = new URL(replaceDomainPrefix(conf['SERVER_URL'], `${b2bApp.id}-2.miniapps`))
+            const b2cAppUrlDomain = new URL(replaceDomainPrefix(conf['SERVER_URL'], `${b2cApp.id}-2.miniapps`))
+            const originalPathname = new URL(originalRedirectUri).pathname
+            b2bAppUrlDomain.pathname = originalPathname
+            b2cAppUrlDomain.pathname = originalPathname
+
+            const b2bAppUrl = b2bAppUrlDomain.toString()
+            const b2cAppUrl = b2cAppUrlDomain.toString()
+
+            // Helper function to test redirect URI validation via OIDC authorization
+            async function testRedirectUri (redirectUri, shouldSucceed = true) {
+                const state = getRandomString()
+                const authUrl = `${conf.SERVER_URL}/oidc/auth?client_id=${clientId}&response_type=code&scope=openid&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`
+
+                try {
+                    const res = await request(authUrl)
+                    if (shouldSucceed) {
+                        // Should redirect to login or consent, not throw invalid_redirect_uri error
+                        console.log(res.data)
+                        expect(res.status).toBe(303)
+                        expect(res.data).toContain('Redirecting to')
+                    } else {
+                        // Should fail with invalid_redirect_uri
+                        expect(res.status).toBe(400)
+                        expect(res.data).toContain('invalid_redirect_uri')
+                    }
+                } catch (error) {
+                    if (shouldSucceed) {
+                        throw error
+                    }
+                    // Expected to fail
+                }
+            }
+
+            // Step 1: Test with no linked apps - only original URI should work
+            await testRedirectUri(originalRedirectUri, true)
+            await testRedirectUri(b2bAppUrl, false)
+            await testRedirectUri(b2cAppUrl, false)
+
+            // Step 2: Link B2BApp to client
+            await updateTestB2BApp(admin, b2bApp.id, {
+                oidcClient: { connect: { id: oidcClient.id } },
+            })
+
+            await waitFor(async () => {
+                const app = await B2BApp.getOne(admin, { id: b2bApp.id })
+                expect(app).toHaveProperty(['domains', 'mapping'])
+                expect(app.domains.mapping).toEqual(expect.arrayContaining([expect.objectContaining({
+                    to: b2bAppUrlDomain.origin,
+                })]))
+            })
+
+            // Step 2: Test with B2BApp linked - original + B2B proxied URI should work
+            console.log(originalRedirectUri)
+            await testRedirectUri(originalRedirectUri, true)
+            // await testRedirectUri(b2bAppUrl, true)
+            // await testRedirectUri(b2cAppUrl, false)
+
+            // Step 3: Link B2CApp
+            // await updateTestB2CApp(admin, b2cApp.id, {
+            //     oidcClient: { connect: { id: oidcClient.id } },
+            // })
+
+            // await waitFor(async () => {
+            //     const app = await B2CApp.getOne(admin, { id: b2cApp.id })
+            //     expect(app).toHaveProperty(['domains', 'mapping'])
+            //     expect(app.domains.mapping).toEqual(expect.arrayContaining([expect.objectContaining({
+            //         to: b2cAppUrlDomain.origin,
+            //     })]))
+            // })
+
+            // Step 3: Test with both apps linked - all URIs should work
+            // await testRedirectUri(originalRedirectUri, true)
+            // await testRedirectUri(b2bAppUrl, true)
+            // await testRedirectUri(b2cAppUrl, true)
         })
     })
     describe('Real-life cases', () => {
@@ -773,7 +873,6 @@ describe('OIDC', () => {
             expect(tokenSet.access_token).toBeTruthy()
         })
     })
-
     describe('Phone and Email Scopes', () => {
         test('openid scope should not include phone/email fields', async () => {
             const uri = OIDC_REDIRECT_URI
