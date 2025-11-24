@@ -2,8 +2,9 @@
  * The OidcModelClientAdapter based on official example
  * @link https://github.com/panva/node-oidc-provider/blob/f5c9a3f9d4bd83df24959e7bfc5d354a5015164a/example/my_adapter.js
  */
-const { getByCondition } = require('@open-condo/keystone/schema')
+const { getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { B2BApp, B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
 const { OidcClient } = require('@condo/domains/user/utils/serverSchema')
 
 const OIDC_FINGERPRINT = 'create-oidc-client'
@@ -191,7 +192,44 @@ class OidcModelClientAdapter {
         if (!item) {
             throw new Error(`There is no active OIDC client with clientId=${id}`)
         }
-        return item.payload
+
+        // NOTE: we need to enhance allowed redirect_uris like "https://smart-home.example.com/oidc/callback" with miniapp urls
+        // Example: app has mapping: { from: "https://smart-home.example.com", to: "https://123.miniapps.condo.dev" }
+        // meaning redirects uris must be "https://smart-home.example.com/oidc/callback" and "https://123.miniapps.condo.dev/oidc/callback"
+        const { keystone: context } = getSchemaCtx('B2BApp')
+        const relatedB2BApps = await B2BApp.getAll(
+            context,
+            { oidcClient: { id: item.id }, deletedAt: null },
+            'id domains { mapping { from to } }',
+            { first: 1000 }
+        )
+        const relatedB2CApps = await B2CApp.getAll(
+            context,
+            { oidcClient: { id: item.id }, deletedAt: null },
+            'id domains { mapping { from to } }',
+            { first: 1000 }
+        )
+
+        const relatedAppDomainMappings = [...relatedB2BApps, ...relatedB2CApps]
+            .map(app => app.domains.mapping)
+            .flat()
+
+        const originalRedirectUris = (item.payload.redirect_uris || []).filter(Boolean)
+        const enhancedRedirectUris = [...originalRedirectUris]
+
+        for (const originalUri of originalRedirectUris) {
+            const url = new URL(originalUri)
+            const originalUriDomain = url.origin
+            for (const mapping of relatedAppDomainMappings.filter(mapping => mapping.from === originalUriDomain)) {
+                const enhancedUri = new URL(mapping.to)
+                enhancedUri.search = url.search
+                enhancedUri.pathname = url.pathname
+                enhancedUri.hash = url.hash
+                enhancedRedirectUris.push(enhancedUri.toString())
+            }
+        }
+
+        return { ...item.payload, redirect_uris: enhancedRedirectUris }
     }
 
     /**

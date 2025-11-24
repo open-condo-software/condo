@@ -62,7 +62,7 @@ const MINIAPP_DOMAINS_FIELD = {
             mappedOrigins.push(origin)
             mapping.push({
                 from: origin,
-                to: replaceDomainPrefix(conf['SERVER_URL'], `${item.id}-${idx}.miniapps`),
+                to: new URL(replaceDomainPrefix(conf['SERVER_URL'], `${item.id}-${idx}.miniapps`)).origin,
             })
             idx++
         }
@@ -73,7 +73,7 @@ const MINIAPP_DOMAINS_FIELD = {
                 mappedOrigins.push(origin)
                 mapping.push({
                     from: origin,
-                    to: replaceDomainPrefix(conf['SERVER_URL'], `${item.id}-1.miniapps`),
+                    to: new URL(replaceDomainPrefix(conf['SERVER_URL'], `${item.id}-1.miniapps`)).origin,
                 })
             }
         }
@@ -87,7 +87,7 @@ const MINIAPP_DOMAINS_FIELD = {
             mappedOrigins.push(origin)
             mapping.push({
                 from: origin,
-                to: replaceDomainPrefix(conf['SERVER_URL'], `${item.id}-${idx}.miniapps`),
+                to: new URL(replaceDomainPrefix(conf['SERVER_URL'], `${item.id}-${idx}.miniapps`)).origin,
             })
             idx++
         }
