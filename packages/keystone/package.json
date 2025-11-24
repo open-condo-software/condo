@@ -41,7 +41,7 @@
     "@open-keystone/adapter-knex": "^14.0.16",
     "@open-keystone/adapter-mongoose": "^13.0.10",
     "@open-keystone/adapter-prisma": "^4.0.16",
-    "@open-keystone/app-admin-ui": "^9.0.3",
+    "@open-keystone/app-admin-ui": "^9.0.5",
     "@open-keystone/app-graphql": "^7.0.2",
     "@open-keystone/auth-password": "^7.0.16",
     "@open-keystone/fields": "^25.0.5",
