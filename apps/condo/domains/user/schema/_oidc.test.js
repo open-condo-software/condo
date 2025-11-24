@@ -7,12 +7,16 @@ const { Issuer, generators } = require('openid-client')
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const {
-    createAxiosClientWithCookie, getRandomString, makeLoggedInAdminClient, catchErrorFrom,
+    createAxiosClientWithCookie,
+    getRandomString,
+    makeLoggedInAdminClient,
+    catchErrorFrom,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 const { replaceDomainPrefix } = require('@open-condo/miniapp-utils/helpers/urls')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { createTestB2BApp, createTestB2CApp, updateTestB2BApp, updateTestB2CApp } = require('@condo/domains/miniapp/utils/testSchema')
+const { createTestB2BApp, createTestB2CApp, updateTestB2BApp, updateTestB2CApp, B2BApp, B2CApp } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     createTestOidcClient,
@@ -417,6 +421,14 @@ describe('OIDC', () => {
                 oidcClient: { connect: { id: oidcClient.id } },
             })
 
+            await waitFor(async () => {
+                const app = await B2BApp.getOne(admin, { id: b2bApp.id })
+                expect(app).toHaveProperty(['domains', 'mapping'])
+                expect(app.domains.mapping).toEqual(expect.arrayContaining([expect.objectContaining({
+                    to: b2bAppUrlDomain.origin,
+                })]))
+            })
+
             // Step 2: Test with B2BApp linked - original + B2B proxied URI should work
             await testRedirectUri(originalRedirectUri, true)
             await testRedirectUri(b2bAppUrl, true)
@@ -425,6 +437,14 @@ describe('OIDC', () => {
             // Step 3: Link B2CApp
             await updateTestB2CApp(admin, b2cApp.id, {
                 oidcClient: { connect: { id: oidcClient.id } },
+            })
+
+            await waitFor(async () => {
+                const app = await B2CApp.getOne(admin, { id: b2cApp.id })
+                expect(app).toHaveProperty(['domains', 'mapping'])
+                expect(app.domains.mapping).toEqual(expect.arrayContaining([expect.objectContaining({
+                    to: b2cAppUrlDomain.origin,
+                })]))
             })
 
             // Step 3: Test with both apps linked - all URIs should work
