@@ -163,7 +163,28 @@ describe('UserTicketCommentReadTime', () => {
 
     describe('resident', () => {
         describe('create', () => {
-            it('cannot create UserTicketCommentReadTime', async () => {
+            it('cannot create UserTicketCommentReadTime for other users tickets', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const anotherResidentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, property, { unitName })
+                await createTestResident(admin, anotherResidentClient.user, property, { unitName: 'different-unit' })
+
+                const [ticket] = await createTestTicket(anotherResidentClient, organization, property, {
+                    unitName: 'different-unit',
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestUserTicketCommentReadTime(residentClient, residentClient.user, ticket)
+                })
+            })
+
+            it('can create UserTicketCommentReadTime for their own tickets', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
 
@@ -171,57 +192,183 @@ describe('UserTicketCommentReadTime', () => {
                 const [property] = await createTestProperty(admin, organization)
                 const unitName = faker.random.alphaNumeric(5)
 
-                await createTestResident(admin, residentClient.user, property, {
-                    unitName,
-                })
-                const [ticket] = await createTestTicket(residentClient, organization, property, {
-                    unitName,
-                })
+                await createTestResident(admin, residentClient.user, property, { unitName })
+                const [ticket] = await createTestTicket(residentClient, organization, property, { unitName })
+
+                const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(
+                    residentClient, 
+                    residentClient.user, 
+                    ticket,
+                )
+
+                expect(userTicketCommentReadTime).toBeDefined()
+                expect(userTicketCommentReadTime.user.id).toBe(residentClient.user.id)
+                expect(userTicketCommentReadTime.ticket.id).toBe(ticket.id)
+            })
+
+            it('cannot create UserTicketCommentReadTime with invalid ticket', async () => {
+                const residentClient = await makeClientWithResidentUser()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestUserTicketCommentReadTime(residentClient, residentClient.user, ticket)
+                    await createTestUserTicketCommentReadTime(residentClient, residentClient.user, { id: faker.datatype.uuid() })
                 })
             })
+
+            it('cannot create UserTicketCommentReadTime with restricted fields', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, property, { unitName })
+                const [ticket] = await createTestTicket(residentClient, organization, property, { unitName })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestUserTicketCommentReadTime(
+                        residentClient, 
+                        residentClient.user, 
+                        ticket,
+                        {
+                            readCommentAt: new Date().toISOString(),
+                            readOrganizationCommentAt: new Date().toISOString(),
+                        }
+                    )
+                })
+            })
+
         })
 
         describe('read', () => {
-            it('cannot read UserTicketCommentReadTime', async () => {
+            it('can read their own UserTicketCommentReadTime', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
                 const userClient = await makeClientWithProperty()
                 const unitName = faker.random.alphaNumeric(5)
 
-                await createTestResident(admin, residentClient.user, userClient.property, {
-                    unitName,
-                })
-                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
-                    unitName,
-                })
-                await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+                
+                await createTestUserTicketCommentReadTime(userClient, residentClient.user, ticket)
 
                 const userTicketCommentReadObjs = await UserTicketCommentReadTime.getAll(residentClient)
 
-                expect(userTicketCommentReadObjs).toHaveLength(0)
+                expect(userTicketCommentReadObjs).toHaveLength(1)
+                expect(userTicketCommentReadObjs[0].user.id).toBe(residentClient.user.id)
+            })
+
+            it('cannot read other users UserTicketCommentReadTime', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const anotherResidentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                await createTestResident(admin, anotherResidentClient.user, userClient.property, { unitName: 'other-unit' })
+                
+                const [ticket1] = await createTestTicket(residentClient, userClient.organization, userClient.property, { unitName })
+                const [ticket2] = await createTestTicket(anotherResidentClient, userClient.organization, userClient.property, { unitName: 'other-unit' })
+                
+                await createTestUserTicketCommentReadTime(userClient, residentClient.user, ticket1)
+                await createTestUserTicketCommentReadTime(userClient, anotherResidentClient.user, ticket2)
+
+                const userTicketCommentReadObjs = await UserTicketCommentReadTime.getAll(residentClient)
+                
+                expect(userTicketCommentReadObjs).toHaveLength(1)
+                expect(userTicketCommentReadObjs[0].user.id).toBe(residentClient.user.id)
             })
         })
 
         describe('update', () => {
-            it('cannot update UserTicketCommentReadTime', async () => {
+            it('cannot update UserTicketCommentReadTime with restricted fields', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
                 const userClient = await makeClientWithProperty()
                 const unitName = faker.random.alphaNumeric(5)
 
-                await createTestResident(admin, residentClient.user, userClient.property, {
-                    unitName,
-                })
-                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
-                    unitName,
-                })
-                const [userTicketCommentRead] = await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+                const [userTicketCommentRead] = await createTestUserTicketCommentReadTime(userClient, residentClient.user, ticket)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestUserTicketCommentReadTime(residentClient, userTicketCommentRead.id, {})
+                    await updateTestUserTicketCommentReadTime(residentClient, userTicketCommentRead.id, {
+                        user: { connect: { id: faker.datatype.uuid() } },
+                    })
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestUserTicketCommentReadTime(residentClient, userTicketCommentRead.id, {
+                        ticket: { connect: { id: faker.datatype.uuid() } },
+                    })
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestUserTicketCommentReadTime(residentClient, userTicketCommentRead.id, {
+                        readCommentAt: new Date().toISOString(),
+                    })
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestUserTicketCommentReadTime(residentClient, userTicketCommentRead.id, {
+                        readOrganizationCommentAt: new Date().toISOString(),
+                    })
+                })
+            })
+
+            it('can update UserTicketCommentReadTime with allowed fields', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+                const [userTicketCommentRead] = await createTestUserTicketCommentReadTime(userClient, residentClient.user, ticket)
+
+                const newReadTime = new Date().toISOString()
+                const [updated] = await updateTestUserTicketCommentReadTime(residentClient, userTicketCommentRead.id, {
+                    readResidentCommentAt: newReadTime,
+                })
+
+                expect(updated.readResidentCommentAt).toBe(newReadTime)
+            })
+
+            it('cannot update other users UserTicketCommentReadTime', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const anotherResidentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                await createTestResident(admin, anotherResidentClient.user, userClient.property, { unitName: 'other-unit' })
+                
+                const [ticket] = await createTestTicket(anotherResidentClient, userClient.organization, userClient.property, { unitName: 'other-unit' })
+                const [otherUserTicketCommentReadTime] = await createTestUserTicketCommentReadTime(userClient, anotherResidentClient.user, ticket)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestUserTicketCommentReadTime(residentClient, otherUserTicketCommentReadTime.id, {
+                        readResidentCommentAt: new Date().toISOString(),
+                    })
+                })
+            })
+        })
+
+        describe('delete', () => {
+            it('cannot delete UserTicketCommentReadTime', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await createTestResident(admin, residentClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+                const [userTicketCommentRead] = await createTestUserTicketCommentReadTime(userClient, residentClient.user, ticket)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await UserTicketCommentReadTime.delete(residentClient, userTicketCommentRead.id)
                 })
             })
         })
