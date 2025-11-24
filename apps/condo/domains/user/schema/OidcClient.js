@@ -7,6 +7,7 @@ const Ajv = require('ajv')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { updateRelatedMiniappsFromOIDCClient } = require('@condo/domains/miniapp/tasks/updateRelatedMiniappsFromOIDCClient')
 const access = require('@condo/domains/user/access/OidcClient')
 
 const ajv = new Ajv()
@@ -100,6 +101,11 @@ const OidcClient = new GQLListSchema('OidcClient', {
                 name: 'oidc_client_unique_clientId',
             },
         ],
+    },
+    hooks: {
+        afterChange: async ({ updatedItem }) => {
+            await updateRelatedMiniappsFromOIDCClient.delay(updatedItem.id)
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), importable()],
     access: {

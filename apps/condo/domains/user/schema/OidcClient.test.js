@@ -12,8 +12,10 @@ const {
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowValidationFailureError,
     expectToThrowUniqueConstraintViolationError,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 
+const { createTestB2BApp, createTestB2CApp, B2BApp, B2CApp } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -208,6 +210,43 @@ describe('OidcClient', () => {
 
             const [anotherClient] = await createTestOidcClient(support, { clientId })
             expect(anotherClient).toHaveProperty('clientId', clientId)
+        })
+    })
+    describe('Hooks test', () => {
+        test('afterChange hook must trigger update of related miniapps', async () => {
+            const [oidcClient] = await createTestOidcClient(support)
+            const [b2bApp1] = await createTestB2BApp(support, {
+                oidcClient: { connect: { id: oidcClient.id } },
+            })
+            const [b2bApp2] = await createTestB2BApp(support, {
+                oidcClient: { connect: { id: oidcClient.id } },
+            })
+            const [b2cApp1] = await createTestB2CApp(support, {
+                oidcClient: { connect: { id: oidcClient.id } },
+            })
+            const [b2cApp2] = await createTestB2CApp(support, {
+                oidcClient: { connect: { id: oidcClient.id } },
+            })
+
+            await updateTestOidcClient(support, oidcClient.id, {
+                payload: {
+                    ...oidcClient.payload,
+                    redirect_uris: ['https://domain.example.com/api/oidc/callback'],
+                },
+            })
+
+            await waitFor(async () => {
+                const b2bApps = await B2BApp.getAll(support, { id_in: [b2bApp1.id, b2bApp2.id] })
+                const b2cApps = await B2CApp.getAll(support, { id_in: [b2cApp1.id, b2cApp2.id] })
+                const apps = [...b2bApps, ...b2cApps]
+                expect(apps).toHaveLength(4)
+                expect(apps).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: b2bApp1.id, v: 2, sender: { dv: 1, fingerprint: 'update-related-miniapps-task' } }),
+                    expect.objectContaining({ id: b2bApp2.id, v: 2, sender: { dv: 1, fingerprint: 'update-related-miniapps-task' } }),
+                    expect.objectContaining({ id: b2cApp1.id, v: 2, sender: { dv: 1, fingerprint: 'update-related-miniapps-task' } }),
+                    expect.objectContaining({ id: b2cApp2.id, v: 2, sender: { dv: 1, fingerprint: 'update-related-miniapps-task' } }),
+                ]))
+            })
         })
     })
 })
