@@ -76,3 +76,6 @@
 [submodule "apps/accruals-gateway"]
 	path = apps/accruals-gateway
 	url = git@github.com:open-condo-software/condo-accruals-gateway.git
+[submodule "apps/payments-gateway"]
+	path = apps/payments-gateway
+	url = git@github.com:open-condo-software/condo-payments-gateway.git
