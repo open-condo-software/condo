@@ -1,0 +1,45 @@
+node_modules
+dist
+out
+.next
+.idea
+.zed
+.env
+.kmigrator
+.DS_Store
+.docker-cache-warming
+.expo
+.expo-shared
+web-build
+coverage
+__generated__
+__media
+_example.js
+codegen.yaml
+
+# yarn + npm
+yarn-error.log
+npm-debug.*
+ignore.*
+
+# mobile
+*.jks
+*.p8
+*.p12
+*.key
+*.pem
+*.mobileprovision
+*.orig.*
+.kmigratorknex.connection.json
+.kmigratorknex.schema.json
+
+.vscode
+.werf_secret_key
+/bin/werf
+
+# Turborepo local cache
+.turbo
+
+# semgrep
+semgrep.sarif
+semgrep_results/*
