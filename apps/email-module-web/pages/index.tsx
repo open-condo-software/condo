@@ -108,7 +108,7 @@ const IndexPage: React.FC = () => {
             id: 'username',
             dataKey: 'username',
             header: intl.formatMessage({ id: 'pages.index.table.username' }),
-            render: (value) => value ?? '—',
+            render: (value) => value as React.ReactNode ?? '—',
         },
         {
             id: 'port',

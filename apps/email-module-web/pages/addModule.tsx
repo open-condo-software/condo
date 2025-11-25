@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { FormEvent, useState } from 'react'
+import React, { useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { Button, Input, Typography, Space } from '@open-condo/ui'
