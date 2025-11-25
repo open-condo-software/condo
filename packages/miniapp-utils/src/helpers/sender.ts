@@ -12,7 +12,7 @@ export const FINGERPRINT_ID_COOKIE_NAME = 'fingerprint'
 /** Default fingerprint length */
 export const FINGERPRINT_ID_LENGTH = 32
 /** Fingerprint cookie should be persistent, so we are giving it a big maxAge */
-const VERY_LONG_MAX_AGE = 1000 * (Math.pow(2, 31) - 1) // Around 68 years in milliseconds
+const VERY_LONG_MAX_AGE_IN_SECONDS = Math.pow(2, 31) - 1 // Around 68 years in seconds
 
 function makeId (length: number): string {
     const croppedLength = Math.min(length, 32)
@@ -36,9 +36,9 @@ export function getClientSideFingerprint (): string {
     if (!fingerprint) {
         fingerprint = generateFingerprint()
     }
-    // Since 2022 browsers mainain cookie for 400 days at max, so let's update cookie expiration time
+    // Since 2022 browsers maintain cookie for 400 days at max, so let's update cookie expiration time
     setCookie(FINGERPRINT_ID_COOKIE_NAME, fingerprint, {
-        maxAge: VERY_LONG_MAX_AGE, // no "maxAge" or "expires" means that cookie clears when session ends (f.e. when browser closes)
+        maxAge: VERY_LONG_MAX_AGE_IN_SECONDS, // no "maxAge" or "expires" means that cookie clears when session ends (f.e. when browser closes)
     })
 
     return fingerprint
