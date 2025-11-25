@@ -138,6 +138,7 @@ jobs:
       pos-integration: ${{ steps.detect-changes.outputs.pos-integration }}
       accruals-gateway: ${{ steps.detect-changes.outputs.accruals-gateway }}
       resident-app: ${{ steps.detect-changes.outputs.resident-app }}
+      payments-gateway: ${{ steps.detect-changes.outputs.payments-gateway }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -188,6 +189,9 @@ jobs:
               - '**/*.md'
               - '*'
               - '!.helm/**'
+            payments-gateway:
+              - 'apps/payments-gateway/**'
+              - 'apps/condo/domains/acquiring/**'
             pos-integration:
               - 'apps/pos-integration/**'
               - 'packages/**'
@@ -605,6 +609,58 @@ jobs:
           yarn workspace @app/meter-importer start & \
           node bin/wait-apps-apis.js -f condo meter-importer) && \
           yarn workspace @app/meter-importer test"
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+  run-payments-gateway-tests:
+    name: Payments-gateway Tests
+    runs-on: ubuntu-22.04
+    needs:
+      - authorize
+      - build-image
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.payments-gateway == 'true' }}
+    steps:
+      - name: Login to cloud registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Setup PG db
+        run: |
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main
+      - name: Setup Redis db
+        run: |
+          ${{ env.REDIS_RUN_COMMAND }}
+      - name: Run condo container with daemon
+        run: |
+          docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
+      - name: Prepare apps
+        run: |
+          docker exec condo-container node bin/prepare.js -f condo payments-gateway
+      - name: Check migrations state
+        run: |
+          docker exec condo-container yarn workspace @app/payments-gateway makemigrations --check
+      - name: Run apps and tests
+        run: |
+          docker exec \
+          -e PROMETHEUS_RW_SERVER_URL=$PROMETHEUS_RW_SERVER_URL \
+          -e PROMETHEUS_USER=$PROMETHEUS_USER \
+          -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
+          -e GH_REF_NAME=$GH_REF_NAME \
+          condo-container sh -c "(\
+          yarn workspace @app/condo start & \
+          yarn workspace @app/payments-gateway start & \
+          node bin/wait-apps-apis.js -f condo payments-gateway) && \
+          yarn workspace @app/payments-gateway test"
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
