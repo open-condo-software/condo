@@ -39,9 +39,7 @@ const AddModulesPage: React.FC = () => {
         }))
     }
 
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-
+    const handleSubmit = async () => {
         console.log(formValues)
 
         if (!isOrgId || !userId) {
@@ -75,7 +73,7 @@ const AddModulesPage: React.FC = () => {
         <BaseLayout>
             <div className={styles.container}>
                 <div className={styles.form}>
-                    <Typography.Title level={5} className={styles.sectionTitle}>
+                    <Typography.Title level={5} >
                         {intl.formatMessage({ id: 'pages.addModule.emailCredentials' })}
                     </Typography.Title>
 
@@ -121,7 +119,7 @@ const AddModulesPage: React.FC = () => {
                         />
                     </div>
 
-                    <Typography.Title level={5} className={styles.sectionTitle}>
+                    <Typography.Title level={5}>
                         {intl.formatMessage({ id: 'pages.addModule.smtpSettings' })}
                     </Typography.Title>
 
@@ -153,7 +151,7 @@ const AddModulesPage: React.FC = () => {
                         </div>
                     </div>
 
-                    <Typography.Title level={5} className={styles.sectionTitle}>
+                    <Typography.Title level={5}>
                         {intl.formatMessage({ id: 'pages.addModule.imapSettings' })}
                     </Typography.Title>
 
@@ -190,7 +188,7 @@ const AddModulesPage: React.FC = () => {
                             <Button type='secondary' onClick={() => router.back()}>
                                 {intl.formatMessage({ id: 'pages.addModule.cancel' })}
                             </Button>
-                            <Button htmlType='submit' onClick={handleSubmit} type='primary' loading={loading}>
+                            <Button htmlType='submit' onClick={() => handleSubmit()} type='primary' loading={loading}>
                                 {intl.formatMessage({ id: 'pages.addModule.submit' })}
                             </Button>
                         </Space>
