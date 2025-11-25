@@ -33,6 +33,8 @@ const {
     MENU_CATEGORY_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
+const { ADDITIONAL_DOMAINS_FIELD, OIDC_CLIENT_FIELD, MINIAPP_DOMAINS_FIELD } = require('./fields/domains')
+
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
 const B2BApp = new GQLListSchema('B2BApp', {
@@ -55,6 +57,9 @@ const B2BApp = new GQLListSchema('B2BApp', {
             isRequired: false,
         },
         appUrl: IFRAME_URL_FIELD,
+        additionalDomains: ADDITIONAL_DOMAINS_FIELD,
+        oidcClient: OIDC_CLIENT_FIELD,
+        domains: MINIAPP_DOMAINS_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         isGlobal: {
             schemaDoc: 'Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It\'s also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section',

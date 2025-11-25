@@ -19,6 +19,8 @@ const {
     IFRAME_URL_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
+const { OIDC_CLIENT_FIELD, MINIAPP_DOMAINS_FIELD, ADDITIONAL_DOMAINS_FIELD } = require('./fields/domains')
+
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
 const B2CApp = new GQLListSchema('B2CApp', {
@@ -42,6 +44,9 @@ const B2CApp = new GQLListSchema('B2CApp', {
         isHidden: IS_HIDDEN_FIELD,
         colorSchema: COLOR_SCHEMA_FIELD,
         appUrl: IFRAME_URL_FIELD,
+        additionalDomains: ADDITIONAL_DOMAINS_FIELD,
+        oidcClient: OIDC_CLIENT_FIELD,
+        domains: MINIAPP_DOMAINS_FIELD,
         currentBuild: {
             schemaDoc: 'Link to current active app build',
             type: 'Relationship',

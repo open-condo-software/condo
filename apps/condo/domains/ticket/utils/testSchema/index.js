@@ -6,11 +6,24 @@
 
 const { faker } = require('@faker-js/faker')
 const { get } = require('lodash')
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-const { TICKET_STATUS_TYPES, ORGANIZATION_COMMENT_TYPE } = require('../../constants')
+
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
+const { EXCEL } = require('@condo/domains/common/constants/export')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { Ticket: TicketGQL, EXPORT_TICKETS_TO_EXCEL } = require('@condo/domains/ticket/gql')
+const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
+const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
+const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
+const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
+const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
+const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ticket/gql')
+const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
+const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@condo/domains/ticket/gql')
+const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
 const {
     TicketStatus: TicketStatusGQL,
     TicketChange: TicketChangeGQL,
@@ -22,18 +35,6 @@ const {
     TicketProblemClassifier: TicketProblemClassifierGQL,
     TicketClassifier: TicketClassifierGQL,
 } = require('@condo/domains/ticket/gql')
-const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
-const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
-const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
-const { FLAT_UNIT_TYPE } = require("@condo/domains/property/constants/common");
-const { TicketCommentFile: TicketCommentFileGQL } = require('@condo/domains/ticket/gql')
-const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
-const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ticket/gql')
-const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
-const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@condo/domains/ticket/gql')
-const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
-const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-const { EXCEL } = require('@condo/domains/common/constants/export')
 const { Incident: IncidentGQL } = require('@condo/domains/ticket/gql')
 const { IncidentProperty: IncidentPropertyGQL } = require('@condo/domains/ticket/gql')
 const { IncidentChange: IncidentChangeGQL } = require('@condo/domains/ticket/gql')
@@ -43,13 +44,15 @@ const { UserFavoriteTicket: UserFavoriteTicketGQL } = require('@condo/domains/ti
 const { IncidentExportTask: IncidentExportTaskGQL } = require('@condo/domains/ticket/gql')
 const { CallRecord: CallRecordGQL } = require('@condo/domains/ticket/gql')
 const { CallRecordFragment: CallRecordFragmentGQL } = require('@condo/domains/ticket/gql')
-const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { TICKET_MULTIPLE_UPDATE_MUTATION } = require('@condo/domains/ticket/gql')
 const { TicketAutoAssignment: TicketAutoAssignmentGQL } = require('@condo/domains/ticket/gql')
 const { TicketDocumentGenerationTask: TicketDocumentGenerationTaskGQL } = require('@condo/domains/ticket/gql')
+const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
+
+const { TICKET_STATUS_TYPES, ORGANIZATION_COMMENT_TYPE } = require('../../constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
+const TICKET_OPEN_STATUS_ID = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 
 const Ticket = generateGQLTestUtils(TicketGQL)
@@ -360,7 +363,7 @@ async function updateTestTicketClassifier (client, id, extraAttrs = {}) {
 
 const TICKET_MOBILE_SOURCE_ID = '3068d49a-a45c-4c3a-a02d-ea1a53e1febb'
 
-async function createResidentTicketByTestClient(client, property, extraAttrs = {}) {
+async function createResidentTicketByTestClient (client, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -376,7 +379,7 @@ async function createResidentTicketByTestClient(client, property, extraAttrs = {
     return [obj, attrs]
 }
 
-async function updateResidentTicketByTestClient(client, id, extraAttrs = {}) {
+async function updateResidentTicketByTestClient (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -422,7 +425,7 @@ async function updateTestTicketFilterTemplate (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function predictTicketClassificationByTestClient(client, extraAttrs = {}) {
+async function predictTicketClassificationByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const attrs = {
         details: faker.lorem.words(),
@@ -469,15 +472,12 @@ async function createTestUserTicketCommentReadTime (client, user, ticket, extraA
     if (!user || !user.id) throw new Error('no user.id')
     if (!ticket || !ticket.id) throw new Error('no ticket.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const now = new Date().toISOString()
 
     const attrs = {
         dv: 1,
         sender,
         user: { connect: { id: user.id } },
         ticket: { connect: { id: ticket.id } },
-        readResidentCommentAt: now,
-        readCommentAt: now,
         ...extraAttrs,
     }
     const obj = await UserTicketCommentReadTime.create(client, attrs)
@@ -621,7 +621,7 @@ async function updateTestTicketExportTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function exportTestTicketsToExcel (client, where={}, data={}) {
+async function exportTestTicketsToExcel (client, where = {}, data = {}) {
     const { data: { result: { task } } } = await client.query(EXPORT_TICKETS_TO_EXCEL, {
         data: {
             dv: 1,
@@ -925,7 +925,7 @@ async function updateTestCallRecordFragment (client, id, extraAttrs = {}) {
 }
 
 
-async function ticketMultipleUpdateByTestClient(client, extraAttrs = {}) {
+async function ticketMultipleUpdateByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -950,8 +950,8 @@ async function createTestTicketAutoAssignment (client, organization, assignee, e
         sender,
         organization: { connect: { id: organization.id } },
         classifier: { connect: { id: classifier.id } },
-        ...(assignee ? { assignee: { connect: { id: assignee.id } }} : undefined),
-        ...(executor ? { executor: { connect: { id: executor.id } }} : undefined),
+        ...(assignee ? { assignee: { connect: { id: assignee.id } } } : undefined),
+        ...(executor ? { executor: { connect: { id: executor.id } } } : undefined),
         ...extraAttrs,
     }
     const obj = await TicketAutoAssignment.create(client, attrs)
