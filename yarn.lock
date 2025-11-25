@@ -976,6 +976,33 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/email-module-web@workspace:apps/email-module-web":
+  version: 0.0.0-use.local
+  resolution: "@app/email-module-web@workspace:apps/email-module-web"
+  dependencies:
+    "@ant-design/icons": ^6.0.0
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
+    "@open-condo/tsconfig": "workspace:^"
+    "@open-condo/ui": "workspace:^"
+    "@types/node": ^22
+    "@types/react": ^18.3.1
+    "@types/react-dom": ^18.3.1
+    classnames: ^2.5.1
+    dayjs: ^1.11.10
+    deepmerge: ^4.3.1
+    next: 15.4.7
+    react: ^18.3.1
+    react-dom: ^18.3.1
+    react-intl: ^7.1.11
+    ts-node: ^10.9.2
+    typescript: ^5.8.3
+  languageName: unknown
+  linkType: soft
+
 "@app/employee-bot@workspace:apps/employee-bot":
   version: 0.0.0-use.local
   resolution: "@app/employee-bot@workspace:apps/employee-bot"
@@ -1086,6 +1113,56 @@ __metadata:
     jest: ^29.7.0
     lodash: ^4.17.21
     uuid: ^8.0.3
+  languageName: unknown
+  linkType: soft
+
+"@app/helpdesk-web@workspace:apps/helpdesk-web":
+  version: 0.0.0-use.local
+  resolution: "@app/helpdesk-web@workspace:apps/helpdesk-web"
+  dependencies:
+    "@ant-design/colors": ^6.0.0
+    "@apollo/client": ^3.11.8
+    "@app/condo": "workspace:^"
+    "@condo/domains": "link:../condo/domains"
+    "@emotion/cache": ^11.11.0
+    "@emotion/react": ^11.11.0
+    "@emotion/server": ^11.11.0
+    "@emotion/styled": ^11.11.0
+    "@graphql-codegen/cli": ^5.0.2
+    "@graphql-codegen/import-types-preset": ^3.0.0
+    "@graphql-codegen/typescript-operations": ^4.2.3
+    "@graphql-codegen/typescript-react-apollo": ^4.3.2
+    "@helpdesk-web/domains": "link:./domains"
+    "@open-condo/apollo": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
+    "@open-condo/locales": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
+    "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
+    "@types/http-proxy": ^1.17.16
+    "@types/lodash": 4.14.182
+    "@types/node": ^22
+    "@types/react": ^18.3.1
+    antd: ^4.24.12
+    classnames: ^2.5.1
+    cookies-next: ^4.2.1
+    dayjs: ^1.11.10
+    graphql: ^16.10.0
+    graphql-tag: ^2.12.6
+    http-proxy: ^1.18.1
+    iron-session: ^8.0.4
+    less: ^4.3.0
+    less-loader: ^12.3.0
+    lodash: ^4.17.21
+    next: ^15.4.6
+    next-with-less: ^3.0.1
+    openid-client: 5.7.1
+    react: ^18.3.1
+    react-dom: ^18.3.1
+    typescript: ^5.8.3
+    uuid: ^8.3.0
   languageName: unknown
   linkType: soft
 
@@ -5812,6 +5889,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@condo/domains@link:../condo/domains::locator=%40app%2Fhelpdesk-web%40workspace%3Aapps%2Fhelpdesk-web":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fhelpdesk-web%40workspace%3Aapps%2Fhelpdesk-web"
+  languageName: node
+  linkType: soft
+
 "@condo/domains@link:../condo/domains::locator=%40app%2Finsurance%40workspace%3Aapps%2Finsurance":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Finsurance%40workspace%3Aapps%2Finsurance"
@@ -9456,6 +9539,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@helpdesk-web/domains@link:./domains::locator=%40app%2Fhelpdesk-web%40workspace%3Aapps%2Fhelpdesk-web":
+  version: 0.0.0-use.local
+  resolution: "@helpdesk-web/domains@link:./domains::locator=%40app%2Fhelpdesk-web%40workspace%3Aapps%2Fhelpdesk-web"
+  languageName: node
+  linkType: soft
+
 "@humanwhocodes/config-array@npm:^0.13.0":
   version: 0.13.0
   resolution: "@humanwhocodes/config-array@npm:0.13.0"
@@ -10553,9 +10642,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@next/env@npm:15.4.7":
+  version: 15.4.7
+  resolution: "@next/env@npm:15.4.7"
+  checksum: e24f77a4dbc42e33eedf8db060a5a034217a9f466b97d84046779a506785d2ab4f1a386847dd5636a306b8d9a6a9daa7c83a36a8e36b0d6ad77f7e815e0dee55
+  languageName: node
+  linkType: hard
+
 "@next/swc-darwin-arm64@npm:15.4.6":
   version: 15.4.6
   resolution: "@next/swc-darwin-arm64@npm:15.4.6"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@next/swc-darwin-arm64@npm:15.4.7":
+  version: 15.4.7
+  resolution: "@next/swc-darwin-arm64@npm:15.4.7"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
@@ -10567,9 +10670,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@next/swc-darwin-x64@npm:15.4.7":
+  version: 15.4.7
+  resolution: "@next/swc-darwin-x64@npm:15.4.7"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
 "@next/swc-linux-arm64-gnu@npm:15.4.6":
   version: 15.4.6
   resolution: "@next/swc-linux-arm64-gnu@npm:15.4.6"
+  conditions: os=linux & cpu=arm64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@next/swc-linux-arm64-gnu@npm:15.4.7":
+  version: 15.4.7
+  resolution: "@next/swc-linux-arm64-gnu@npm:15.4.7"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
@@ -10581,9 +10698,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@next/swc-linux-arm64-musl@npm:15.4.7":
+  version: 15.4.7
+  resolution: "@next/swc-linux-arm64-musl@npm:15.4.7"
+  conditions: os=linux & cpu=arm64 & libc=musl
+  languageName: node
+  linkType: hard
+
 "@next/swc-linux-x64-gnu@npm:15.4.6":
   version: 15.4.6
   resolution: "@next/swc-linux-x64-gnu@npm:15.4.6"
+  conditions: os=linux & cpu=x64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@next/swc-linux-x64-gnu@npm:15.4.7":
+  version: 15.4.7
+  resolution: "@next/swc-linux-x64-gnu@npm:15.4.7"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
@@ -10595,6 +10726,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@next/swc-linux-x64-musl@npm:15.4.7":
+  version: 15.4.7
+  resolution: "@next/swc-linux-x64-musl@npm:15.4.7"
+  conditions: os=linux & cpu=x64 & libc=musl
+  languageName: node
+  linkType: hard
+
 "@next/swc-win32-arm64-msvc@npm:15.4.6":
   version: 15.4.6
   resolution: "@next/swc-win32-arm64-msvc@npm:15.4.6"
@@ -10602,9 +10740,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@next/swc-win32-arm64-msvc@npm:15.4.7":
+  version: 15.4.7
+  resolution: "@next/swc-win32-arm64-msvc@npm:15.4.7"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
 "@next/swc-win32-x64-msvc@npm:15.4.6":
   version: 15.4.6
   resolution: "@next/swc-win32-x64-msvc@npm:15.4.6"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@next/swc-win32-x64-msvc@npm:15.4.7":
+  version: 15.4.7
+  resolution: "@next/swc-win32-x64-msvc@npm:15.4.7"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -34299,6 +34451,65 @@ __metadata:
     less-loader: ">= 7.0.0"
     next: ">= 11.0.1"
   checksum: c46f6c0c8b20ebf2563660926445178d5ec8bac8745f4d12b8d3440118f1d7a82567eced19d5f5d398ce315d481aca37877777d366fa075a0e2eb484cafbd6da
+  languageName: node
+  linkType: hard
+
+"next@npm:15.4.7":
+  version: 15.4.7
+  resolution: "next@npm:15.4.7"
+  dependencies:
+    "@next/env": 15.4.7
+    "@next/swc-darwin-arm64": 15.4.7
+    "@next/swc-darwin-x64": 15.4.7
+    "@next/swc-linux-arm64-gnu": 15.4.7
+    "@next/swc-linux-arm64-musl": 15.4.7
+    "@next/swc-linux-x64-gnu": 15.4.7
+    "@next/swc-linux-x64-musl": 15.4.7
+    "@next/swc-win32-arm64-msvc": 15.4.7
+    "@next/swc-win32-x64-msvc": 15.4.7
+    "@swc/helpers": 0.5.15
+    caniuse-lite: ^1.0.30001579
+    postcss: 8.4.31
+    sharp: ^0.34.3
+    styled-jsx: 5.1.6
+  peerDependencies:
+    "@opentelemetry/api": ^1.1.0
+    "@playwright/test": ^1.51.1
+    babel-plugin-react-compiler: "*"
+    react: ^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0
+    react-dom: ^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0
+    sass: ^1.3.0
+  dependenciesMeta:
+    "@next/swc-darwin-arm64":
+      optional: true
+    "@next/swc-darwin-x64":
+      optional: true
+    "@next/swc-linux-arm64-gnu":
+      optional: true
+    "@next/swc-linux-arm64-musl":
+      optional: true
+    "@next/swc-linux-x64-gnu":
+      optional: true
+    "@next/swc-linux-x64-musl":
+      optional: true
+    "@next/swc-win32-arm64-msvc":
+      optional: true
+    "@next/swc-win32-x64-msvc":
+      optional: true
+    sharp:
+      optional: true
+  peerDependenciesMeta:
+    "@opentelemetry/api":
+      optional: true
+    "@playwright/test":
+      optional: true
+    babel-plugin-react-compiler:
+      optional: true
+    sass:
+      optional: true
+  bin:
+    next: dist/bin/next
+  checksum: 7f4c9e25444fe0ab30c5874640a762b8061db8eb8ec3abbf9343d91c28f0ccd037a8b8aeefc4930b3e89d5415b2b8eab224597d29440cebe04763e28473454c7
   languageName: node
   linkType: hard
 
