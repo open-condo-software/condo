@@ -252,7 +252,7 @@ query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizatio
     }
 }
 
-query checkEmployeeExists($organizationId: ID!, $phone: String, $email: String) {
+query checkEmployeeExistence($organizationId: ID!, $phone: String, $email: String) {
     objs: allOrganizationEmployees(
         first: 100
         where: {
@@ -261,7 +261,6 @@ query checkEmployeeExists($organizationId: ID!, $phone: String, $email: String) 
                 { phone: $phone }
                 { email: $email }
             ]
-            deletedAt: null
         }
     ) {
         id

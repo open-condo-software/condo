@@ -3473,11 +3473,11 @@ export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryHookResult = Retu
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeLazyQueryHookResult = ReturnType<typeof useGetEmployeesInvitesByUserIdAndOrganizationTypeLazyQuery>;
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeSuspenseQueryHookResult = ReturnType<typeof useGetEmployeesInvitesByUserIdAndOrganizationTypeSuspenseQuery>;
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryResult = Apollo.QueryResult<Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQuery, Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables>;
-export const CheckEmployeeExistsDocument = gql`
-    query checkEmployeeExists($organizationId: ID!, $phone: String, $email: String) {
+export const CheckEmployeeExistenceDocument = gql`
+    query checkEmployeeExistence($organizationId: ID!, $phone: String, $email: String) {
   objs: allOrganizationEmployees(
     first: 100
-    where: {organization: {id: $organizationId}, OR: [{phone: $phone}, {email: $email}], deletedAt: null}
+    where: {organization: {id: $organizationId}, OR: [{phone: $phone}, {email: $email}]}
   ) {
     id
     phone
@@ -3487,16 +3487,16 @@ export const CheckEmployeeExistsDocument = gql`
     `;
 
 /**
- * __useCheckEmployeeExistsQuery__
+ * __useCheckEmployeeExistenceQuery__
  *
- * To run a query within a React component, call `useCheckEmployeeExistsQuery` and pass it any options that fit your needs.
- * When your component renders, `useCheckEmployeeExistsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useCheckEmployeeExistenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckEmployeeExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useCheckEmployeeExistsQuery({
+ * const { data, loading, error } = useCheckEmployeeExistenceQuery({
  *   variables: {
  *      organizationId: // value for 'organizationId'
  *      phone: // value for 'phone'
@@ -3504,22 +3504,22 @@ export const CheckEmployeeExistsDocument = gql`
  *   },
  * });
  */
-export function useCheckEmployeeExistsQuery(baseOptions: Apollo.QueryHookOptions<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables> & ({ variables: Types.CheckEmployeeExistsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useCheckEmployeeExistenceQuery(baseOptions: Apollo.QueryHookOptions<Types.CheckEmployeeExistenceQuery, Types.CheckEmployeeExistenceQueryVariables> & ({ variables: Types.CheckEmployeeExistenceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>(CheckEmployeeExistsDocument, options);
+        return Apollo.useQuery<Types.CheckEmployeeExistenceQuery, Types.CheckEmployeeExistenceQueryVariables>(CheckEmployeeExistenceDocument, options);
       }
-export function useCheckEmployeeExistsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>) {
+export function useCheckEmployeeExistenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.CheckEmployeeExistenceQuery, Types.CheckEmployeeExistenceQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>(CheckEmployeeExistsDocument, options);
+          return Apollo.useLazyQuery<Types.CheckEmployeeExistenceQuery, Types.CheckEmployeeExistenceQueryVariables>(CheckEmployeeExistenceDocument, options);
         }
-export function useCheckEmployeeExistsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>) {
+export function useCheckEmployeeExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.CheckEmployeeExistenceQuery, Types.CheckEmployeeExistenceQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>(CheckEmployeeExistsDocument, options);
+          return Apollo.useSuspenseQuery<Types.CheckEmployeeExistenceQuery, Types.CheckEmployeeExistenceQueryVariables>(CheckEmployeeExistenceDocument, options);
         }
-export type CheckEmployeeExistsQueryHookResult = ReturnType<typeof useCheckEmployeeExistsQuery>;
-export type CheckEmployeeExistsLazyQueryHookResult = ReturnType<typeof useCheckEmployeeExistsLazyQuery>;
-export type CheckEmployeeExistsSuspenseQueryHookResult = ReturnType<typeof useCheckEmployeeExistsSuspenseQuery>;
-export type CheckEmployeeExistsQueryResult = Apollo.QueryResult<Types.CheckEmployeeExistsQuery, Types.CheckEmployeeExistsQueryVariables>;
+export type CheckEmployeeExistenceQueryHookResult = ReturnType<typeof useCheckEmployeeExistenceQuery>;
+export type CheckEmployeeExistenceLazyQueryHookResult = ReturnType<typeof useCheckEmployeeExistenceLazyQuery>;
+export type CheckEmployeeExistenceSuspenseQueryHookResult = ReturnType<typeof useCheckEmployeeExistenceSuspenseQuery>;
+export type CheckEmployeeExistenceQueryResult = Apollo.QueryResult<Types.CheckEmployeeExistenceQuery, Types.CheckEmployeeExistenceQueryVariables>;
 export const GetLastUserOrganizationEmployeeRequestDocument = gql`
     query getLastUserOrganizationEmployeeRequest($userId: ID!) {
   requests: allOrganizationEmployeeRequests(

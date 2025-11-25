@@ -535,14 +535,14 @@ export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables = Types
 
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeQuery = { __typename?: 'Query', invitations?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', name?: string | null } | null } | null> | null };
 
-export type CheckEmployeeExistsQueryVariables = Types.Exact<{
+export type CheckEmployeeExistenceQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
   phone?: Types.InputMaybe<Types.Scalars['String']['input']>;
   email?: Types.InputMaybe<Types.Scalars['String']['input']>;
 }>;
 
 
-export type CheckEmployeeExistsQuery = { __typename?: 'Query', objs?: Array<{ __typename?: 'OrganizationEmployee', id: string, phone?: string | null, email?: string | null } | null> | null };
+export type CheckEmployeeExistenceQuery = { __typename?: 'Query', objs?: Array<{ __typename?: 'OrganizationEmployee', id: string, phone?: string | null, email?: string | null } | null> | null };
 
 export type GetLastUserOrganizationEmployeeRequestQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];

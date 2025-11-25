@@ -201,13 +201,13 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         )
     }, [ChooseFileForUploadLabel, handleUpload])
 
-    const showImportTrigger = setHandleActiveModal && handleActiveModal === undefined
+    const showImportButton = setHandleActiveModal && handleActiveModal === undefined
 
     return (
         accessCheck && (
             <BaseImportWrapper
                 {...{
-                    showImportTrigger,
+                    showImportButton,
                     importCardButton,
                     setActiveModal,
                     domainName,

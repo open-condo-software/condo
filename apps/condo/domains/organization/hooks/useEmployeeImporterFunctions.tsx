@@ -1,6 +1,8 @@
 import {
-    useCheckEmployeeExistsLazyQuery, useCreateOrganizationEmployeeRoleMutation,
-    useGetOrganizationEmployeeRolesByOrganizationQuery, useGetTicketCategoryClassifiersQuery,
+    useCheckEmployeeExistenceLazyQuery,
+    useCreateOrganizationEmployeeRoleMutation,
+    useGetOrganizationEmployeeRolesByOrganizationQuery,
+    useGetTicketCategoryClassifiersQuery,
 } from '@app/condo/gql'
 import {
     InviteNewOrganizationEmployeeInput,
@@ -18,18 +20,18 @@ import { useInviteNewOrganizationEmployee } from '@condo/domains/organization/ut
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
-let rolesCache = {}
-let specializationsCache = {}
+let rolesByName = {}
+let specializationsByName = {}
 
 export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
 
-    const NameTitle = intl.formatMessage({ id: 'employee.import.column.Name' })
-    const PhoneTitle = intl.formatMessage({ id: 'employee.import.column.Phone' })
-    const RoleTitle = intl.formatMessage({ id: 'employee.import.column.Role' })
-    const EmailTitle = intl.formatMessage({ id: 'employee.import.column.Email' })
-    const PositionTitle = intl.formatMessage({ id: 'employee.import.column.Position' })
-    const SpecializationTitle = intl.formatMessage({ id: 'employee.import.column.Specialization' })
+    const NameTitle = intl.formatMessage({ id: 'field.FullName.short' })
+    const PhoneTitle = intl.formatMessage({ id: 'Phone' })
+    const RoleTitle = intl.formatMessage({ id: 'employee.Role' })
+    const EmailTitle = intl.formatMessage({ id: 'field.EMail' })
+    const PositionTitle = intl.formatMessage({ id: 'employee.Position' })
+    const SpecializationTitle = intl.formatMessage({ id: 'employee.Specializations' })
     const AllSpecializationsTitle = intl.formatMessage({ id: 'employee.AllSpecializations' })
 
     const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectRowFormat' })
@@ -38,7 +40,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
     const IncorrectPhoneMessage = intl.formatMessage({ id: 'errors.import.employee.IncorrectPhone' })
     const EmptyRoleMessage = intl.formatMessage({ id: 'errors.import.employee.EmptyRole' })
     const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.IncorrectEmailFormat' })
-    const SpecializationNotFoundMessage = intl.formatMessage({ id: 'errors.import.employee.SpecializationNotFound' })
+    const SpecializationNotFoundMessage = (specializations: string) => intl.formatMessage({ id: 'errors.import.employee.SpecializationNotFound' }, { specializations })
     const AlreadyInvitedPhoneMessage = intl.formatMessage({ id: 'errors.import.employee.AlreadyInvitedPhone' })
     const AlreadyInvitedEmailMessage = intl.formatMessage({ id: 'errors.import.employee.AlreadyInvitedEmail' })
     const CheckEmployeeExistsFailedMessage = intl.formatMessage({ id: 'errors.import.employee.CheckEmployeeExistsFailed' })
@@ -50,7 +52,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
         return
     })
 
-    const [checkEmployeeExists] = useCheckEmployeeExistsLazyQuery({
+    const [checkEmployeeExists] = useCheckEmployeeExistenceLazyQuery({
         fetchPolicy: 'network-only',
     })
 
@@ -61,7 +63,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
     })
 
     if (!isRolesLoading) {
-        rolesCache = employeeRoles?.roles.reduce((result, current) => ({
+        rolesByName = employeeRoles?.roles.reduce((result, current) => ({
             ...result,
             [String(current.name).toLowerCase().trim()]: current.id,
         }), {})
@@ -79,7 +81,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
     })
 
     if (!isSpecializationsLoading) {
-        specializationsCache = ticketCategoryClassifiers?.classifiers?.reduce((result, current) => ({
+        specializationsByName = ticketCategoryClassifiers?.classifiers?.reduce((result, current) => ({
             ...result,
             [String(current.name).toLowerCase().trim()]: current.id,
         }), {}) || {}
@@ -164,7 +166,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
         }
 
         const rowEmail = row?.addons?.email
-        if (rowEmail && !row?.addons?.email) {
+        if (rowEmail === null) {
             errors.push(IncorrectEmailMessage)
         }
 
@@ -174,8 +176,8 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
                 const { data } = await checkEmployeeExists({
                     variables: {
                         organizationId: userOrganizationId,
-                        phone: phone || null,
-                        email: row?.addons?.email || null,
+                        ...(phone ? { phone } : {}),
+                        ...(rowEmail ? { email: rowEmail } : {}),
                     },
                 })
 
@@ -195,9 +197,9 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
 
         const specializationNames = row?.addons?.specializations || []
         if (specializationNames.length && !row?.addons?.hasAllSpecializations) {
-            const missingSpecializations = specializationNames.filter((name) => !specializationsCache?.[name])
+            const missingSpecializations = specializationNames.filter((name) => !specializationsByName?.[name])
             if (missingSpecializations.length) {
-                errors.push(SpecializationNotFoundMessage)
+                errors.push(SpecializationNotFoundMessage(missingSpecializations.join(', ')))
             }
         }
 
@@ -222,7 +224,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
         const hasAllSpecializations = row.addons.hasAllSpecializations
 
         try {
-            let roleId = rolesCache[roleName]
+            let roleId = rolesByName[roleName]
 
             if (!roleId) {
                 const newRole = await createEmployeeRole({
@@ -236,7 +238,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
                         },
                     } } )
                 roleId = newRole.data.role.id
-                rolesCache[roleName] = roleId
+                rolesByName[roleName] = roleId
             }
 
             const employeeData: Omit<InviteNewOrganizationEmployeeInput, 'organization'> = {
@@ -259,7 +261,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
                 employeeData.hasAllSpecializations = true
             } else if (row.addons.specializations?.length) {
                 const specializationIds = row.addons.specializations
-                    .map((name) => specializationsCache[name])
+                    .map((name) => specializationsByName[name])
                     .filter(Boolean)
                     .map((id) => ({ id }))
 

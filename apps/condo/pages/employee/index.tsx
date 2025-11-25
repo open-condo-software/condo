@@ -60,10 +60,10 @@ export const EmployeesPageContent = ({
     const EmptyListLabel = intl.formatMessage({ id: 'employee.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'employee.EmptyList.title' })
     const AddEmployeeLabel = addEmployeeLabel || intl.formatMessage({ id: 'AddEmployee' })
-    const AddEmployeeFillWebFormLabel = intl.formatMessage({ id: 'employee.AddDropdown.FillWebForm' })
+    const AddEmployeeFillWebFormLabel = intl.formatMessage({ id: 'AddDropdown.FillWebForm' })
     const AddEmployeeFillWebFormDescription = intl.formatMessage({ id: 'employee.AddDropdown.FillWebFormDescription' })
-    const AddEmployeeUploadExcelLabel = intl.formatMessage({ id: 'employee.AddDropdown.UploadExcel' })
-    const AddEmployeeUploadExcelDescription = intl.formatMessage({ id: 'employee.AddDropdown.UploadExcelDescription' })
+    const AddEmployeeUploadExcelLabel = intl.formatMessage({ id: 'AddDropdown.UploadExcel' })
+    const AddEmployeeUploadExcelDescription = intl.formatMessage({ id: 'AddDropdown.UploadExcelDescription' })
 
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
