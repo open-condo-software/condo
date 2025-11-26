@@ -34,13 +34,12 @@ const {
 const { SMS_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const {
+    User,
     ConfirmPhoneAction,
     generateSmsCode,
 } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const { TOKEN_TYPES, generateTokenSafely } = require('@condo/domains/user/utils/tokens')
-
-const { User } = require('../utils/serverSchema')
 
 
 const redisGuard = new RedisGuard()
@@ -88,6 +87,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'PHONE_AND_USER_ID_IS_MISSING',
         message: 'Phone or user id is missing',
+        // TODO(DOMA-12564): translate
         messageForUser: 'api.user.startConfirmPhoneAction.PHONE_AND_USER_ID_IS_MISSING',
     },
     SHOULD_BE_ONE_IDENTIFIER_ONLY: {
@@ -95,6 +95,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'SHOULD_BE_ONE_IDENTIFIER_ONLY',
         message: 'You need to pass either only the email or only the userId',
+        // TODO(DOMA-12564): translate
         messageForUser: 'api.user.startConfirmPhoneAction.SHOULD_BE_ONE_IDENTIFIER_ONLY',
     },
     SMS_CODE_EXPIRED: {
@@ -277,7 +278,6 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
 
-                // TODO(DOMA-12564): add limits by user id
                 await checkSMSDayLimitCounters(normalizedPhone, context.req.ip, context)
                 await redisGuard.checkLock(normalizedPhone, 'sendsms', context)
                 await redisGuard.lock(normalizedPhone, 'sendsms', SMS_CODE_TTL)

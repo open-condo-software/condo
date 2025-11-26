@@ -41,14 +41,13 @@ const {
 } = require('@condo/domains/user/constants/errors')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const {
+    User,
     ConfirmEmailAction,
     generateSecureCode,
 } = require('@condo/domains/user/utils/serverSchema')
 const { getGuardKey } = require('@condo/domains/user/utils/serverSchema/confirmEmailAction')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const { generateTokenSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
-
-const { User } = require('../utils/serverSchema')
 
 
 /**
@@ -89,6 +88,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'EMAIL_AND_USER_ID_IS_MISSING',
         message: 'Email or user id is missing',
+        // TODO(DOMA-12564): translate
         messageForUser: 'api.user.startConfirmEmailAction.EMAIL_AND_USER_ID_IS_MISSING',
     },
     SHOULD_BE_ONE_IDENTIFIER_ONLY: {
@@ -96,6 +96,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'SHOULD_BE_ONE_IDENTIFIER_ONLY',
         message: 'You need to pass either only the email or only the userId',
+        // TODO(DOMA-12564): translate
         messageForUser: 'api.user.startConfirmEmailAction.SHOULD_BE_ONE_IDENTIFIER_ONLY',
     },
     WRONG_EMAIL_FORMAT: {
@@ -332,8 +333,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     throw new GQLError(ERRORS.WRONG_EMAIL_FORMAT, context)
                 }
 
-                // TODO(DOMA-12564): add limits by user id
-                await checkEmailSendingLimits(context, emailFromInput, ip)
+                await checkEmailSendingLimits(context, email, ip)
 
                 const { error: tokenError, token } = generateTokenSafely(TOKEN_TYPES.CONFIRM_EMAIL)
                 if (tokenError) {
