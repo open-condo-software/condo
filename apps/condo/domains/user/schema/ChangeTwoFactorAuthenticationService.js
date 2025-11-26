@@ -84,11 +84,11 @@ async function changeTwoFactorAuthenticationGuard (context) {
 
     const guards = [{
         key: ['changeTwoFactorAuthentication', 'daily', 'ip', ip].join(':'),
-        windowLimit: 3000,
+        windowLimit: 30,
         windowSizeInSec: DAY_IN_SEC,
     }, {
         key: ['changeTwoFactorAuthentication', 'daily', 'userId', userId].join(':'),
-        windowLimit: 1000,
+        windowLimit: 10,
         windowSizeInSec: DAY_IN_SEC,
     }]
 
