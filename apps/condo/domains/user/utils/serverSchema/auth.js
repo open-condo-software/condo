@@ -307,10 +307,6 @@ async function _matchUser (user, authFactors) {
     /** @type {string[]} */
     const nonSkippedChecks = Object.entries(authChecks).filter(([key, value]) => value !== AUTH_CHECK_STATUSES.SKIP).map(([key]) => key)
 
-    console.log({
-        failedChecks, successfulChecks, nonSkippedChecks, numberOfChecksRequiredForAuth,
-    })
-
     if (nonSkippedChecks.length < numberOfChecksRequiredForAuth) {
         if (failedChecks.length === 0 && successfulChecks.length === 1) {
             const availableSecondFactorsMap = {
@@ -327,10 +323,6 @@ async function _matchUser (user, authFactors) {
                 ...(availableSecondFactorsMap.confirmEmailToken ? { email: maskEmail(user.email) } : null),
                 ...(availableSecondFactorsMap.confirmPhoneToken ? { phone: maskPhone(user.phone) } : null),
             }
-
-            console.log({
-                nonSkippedChecks, failedChecks, successfulChecks, availableSecondFactorsMap, availableSecondFactors, userId, maskedData, is2FAEnabled, 
-            })
 
             return {
                 success: false,
