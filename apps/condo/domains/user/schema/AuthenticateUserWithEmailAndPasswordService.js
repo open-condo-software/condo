@@ -18,7 +18,6 @@ const { AUTH_FACTOR_TYPES } = require('../constants/authFactors')
 const { NOT_ENOUGH_AUTH_FACTORS } = require('../constants/errors')
 const { ConfirmPhoneAction, ConfirmEmailAction } = require('../utils/serverSchema')
 const { ERROR_TYPES } = require('../utils/serverSchema/auth')
-const { TOKEN_TYPES, detectTokenTypeSafely } = require('../utils/tokens')
 
 
 /**
@@ -134,7 +133,6 @@ const AuthenticateUserWithEmailAndPasswordService = new GQLCustomSchema('Authent
                 )
 
                 if (!validation.success) {
-                    // TODO(DOMA-12564): add tests for error
                     if (validation._error?.errorType === ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS) {
                         if (validation._error.is2FAEnabled) {
                             throw new GQLError({
