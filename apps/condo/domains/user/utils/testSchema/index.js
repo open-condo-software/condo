@@ -40,6 +40,7 @@ const {
     RESEND_CONFIRM_EMAIL_ACTION_MUTATION,
     GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY,
     START_CONFIRM_EMAIL_ACTION_MUTATION,
+    START_CONFIRM_PHONE_ACTION_MUTATION,
 } = require('@condo/domains/user/gql')
 const { generateSmsCode, generateSecureCode } = require('@condo/domains/user/utils/serverSchema')
 
@@ -702,6 +703,22 @@ async function completeConfirmEmailActionByTestClient (client, extraAttrs = {}) 
     return [data.result, attrs]
 }
 
+async function startConfirmPhoneActionByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(START_CONFIRM_PHONE_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 async function startConfirmEmailActionByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -874,5 +891,6 @@ module.exports = {
     changeUserEmailByTestClient,
     verifyUserEmailByTestClient,
     changeTwoFactorAuthenticationByTestClient,
+    startConfirmPhoneActionByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
