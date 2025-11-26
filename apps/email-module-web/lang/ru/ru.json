@@ -15,6 +15,8 @@
     "pages.addModule.imapPort": "IMAP порт",
     "pages.addModule.cancel": "Отмена",
     "pages.addModule.submit": "Сохранить",
+  "pages.index.table.serverUrl.smtp": "smtp URL сервера",
+  "pages.index.table.serverUrl.imap": "imap URL сервера",
     "pages.index.table.serverUrl": "URL сервера",
     "pages.index.table.description": "Описание",
     "pages.index.table.username": "Почта / имя пользователя",

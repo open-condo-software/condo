@@ -19,6 +19,8 @@ type ServerItem = {
     username?: string | null
     port?: number | null
     createdAt?: string | null
+    imapUrl: string
+    imapPort: number
 }
 
 type EmailSettingItem = {
@@ -52,6 +54,8 @@ const mapEmailSettingToServerItem = (setting: EmailSettingItem): ServerItem => {
         username: setting.email_login,
         port: setting.smtp_port,
         createdAt: setting.created_at,
+        imapUrl: setting.imap_host,
+        imapPort: setting.imap_port,
     }
 }
 
@@ -95,7 +99,13 @@ const IndexPage: React.FC = () => {
         {
             id: 'serverUrl',
             dataKey: 'serverUrl',
-            header: intl.formatMessage({ id: 'pages.index.table.serverUrl' }),
+            header: intl.formatMessage({ id: 'pages.index.table.serverUrl.smtp' }),
+            render: renderTextWithTooltip({ ellipsis: true }),
+        },
+        {
+            id: 'imapUrl',
+            dataKey: 'serverUrl',
+            header: intl.formatMessage({ id: 'pages.index.table.serverUrl.imap' }),
             render: renderTextWithTooltip({ ellipsis: true }),
         },
         {
@@ -109,12 +119,6 @@ const IndexPage: React.FC = () => {
             dataKey: 'username',
             header: intl.formatMessage({ id: 'pages.index.table.username' }),
             render: (value) => value as React.ReactNode ?? '—',
-        },
-        {
-            id: 'port',
-            dataKey: 'port',
-            header: intl.formatMessage({ id: 'pages.index.table.port' }),
-            render: (value) => (value ? value.toString() : '—'),
         },
         {
             id: 'createdAt',

@@ -63,7 +63,7 @@ const AddModulesPage: React.FC = () => {
                 },
             })
 
-            await router.push('/channels')
+            await router.push('/')
         } finally {
             setLoading(false)
         }
