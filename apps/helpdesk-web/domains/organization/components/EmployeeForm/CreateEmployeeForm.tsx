@@ -69,10 +69,15 @@ export const CreateEmployeeForm: React.FC = () => {
     const { breakpoints } = useLayoutContext()
 
     const organizationId = get(organization, 'id', null)
-
-    const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useObjects(
-        { where: { organization: { id: organizationId } }, skip: 5 }
-    )
+    const CheckName = intl.formatMessage({ id: 'CheckAll' })
+    const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useObjects({
+        where: {
+            AND: [
+                { organization: { id: organizationId } },
+                { isEditable: false },
+            ]
+        }
+    });
 
     const { changeMessage, requiredValidator, emailValidator, phoneValidator, trimValidator, specCharValidator } = useValidations()
 
@@ -152,7 +157,12 @@ export const CreateEmployeeForm: React.FC = () => {
                                         <Col span={24}>
                                             <Row gutter={[0, 40]}>
                                                 <Col span={24}>
-                                                    <Form.Item name='role' label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign='left' >
+                                                    <Form.Item 
+                                                        name='role' 
+                                                        // 1. This hides it from the UI completely
+                                                        hidden={true} 
+                                                        // 2. CRITICAL: Since the user can't select it, you must default it here
+                                                        initialValue={employeeRoles?.[0]?.id}>
                                                         <EmployeeRoleSelect
                                                             employeeRoles={employeeRoles}
                                                         />
@@ -232,25 +242,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                         </Col>
                                     </Row>
                                 </Col>
-                                {breakpoints.TABLET_LARGE && (
-                                    <Col span={10}>
-                                        <Form.Item dependencies={['role']}>
-                                            {({ getFieldValue }) => {
-                                                const roleId = getFieldValue('role')
-                                                const role = employeeRoles.find(x => x.id === roleId)
-                                                if (!role || !role.description) return null
-                                                return (
-                                                    <Alert
-                                                        type='info'
-                                                        showIcon
-                                                        message={intl.formatMessage({ id: 'employee.Role.whoIs' }, { roleName: role.name.toLowerCase() })}
-                                                        description={role.description}
-                                                    />
-                                                )
-                                            }}
-                                        </Form.Item>
-                                    </Col>
-                                )}
+                                
                             </Row>
                         </>
                     )
