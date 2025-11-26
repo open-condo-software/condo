@@ -104,7 +104,7 @@ const IndexPage: React.FC = () => {
         },
         {
             id: 'imapUrl',
-            dataKey: 'serverUrl',
+            dataKey: 'imapUrl',
             header: intl.formatMessage({ id: 'pages.index.table.serverUrl.imap' }),
             render: renderTextWithTooltip({ ellipsis: true }),
         },
