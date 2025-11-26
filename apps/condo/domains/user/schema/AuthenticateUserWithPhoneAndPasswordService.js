@@ -129,10 +129,6 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                     }
                 )
 
-                console.log({
-                    validation,
-                })
-
                 if (!validation.success) {
                     if (validation._error?.errorType === ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS) {
                         if (validation._error.is2FAEnabled) {

@@ -452,11 +452,6 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                             authFactors,
                         )
 
-                        console.log({
-                            validation,
-                            authFactors,
-                        })
-
                         if (!validation.success) {
                             if (validation._error?.errorType === ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS) {
                                 if (validation._error.is2FAEnabled) {
