@@ -1,4 +1,5 @@
-const { normalizeEmail }  = require('./mail')
+const { normalizeEmail, maskEmail }  = require('./mail')
+
 
 describe('normalizeMail()', () => {
     test('no data', () => {
@@ -61,5 +62,21 @@ describe('normalizeMail()', () => {
         expect(normalizeEmail('\t    ASD@asD.asd\t\t\t   ')).toEqual('asd@asd.asd')
         expect(normalizeEmail('   \t   my.EmAil@googleMAIL.com   \t')).toEqual('myemail@gmail.com')
         expect((normalizeEmail('      asdasd@ya.ru \t'))).toEqual('asdasd@yandex.ru')
+    })
+})
+
+describe('maskEmail()', () => {
+    const cases = [
+        ['a@example.com', 'a***@example.com'],
+        ['ab@example.com', 'ab***@example.com'],
+        ['abc@example.com', 'ab***@example.com'],
+        ['abcd@example.com', 'ab***@example.com'],
+        ['abcde@example.com', 'ab***@example.com'],
+        ['abcdef@example.com', 'ab***@example.com'],
+        ['abcdefg@example.com', 'ab***@example.com'],
+        ['qwerty123@yandex.ru', 'qw***@yandex.ru'],
+    ]
+    test.each(cases)('should correct work (%p)', (input, output) => {
+        expect(maskEmail(input)).toBe(output)
     })
 })
