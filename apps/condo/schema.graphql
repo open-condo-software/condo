@@ -35,6 +35,7 @@ type UserHistoryRecord {
   customAccess: JSON
   showGlobalHints: Boolean
   rightsSet: String
+  isTwoFactorAuthenticationEnabled: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -247,6 +248,8 @@ input UserHistoryRecordWhereInput {
   rightsSet_not: String
   rightsSet_in: [String]
   rightsSet_not_in: [String]
+  isTwoFactorAuthenticationEnabled: Boolean
+  isTwoFactorAuthenticationEnabled_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -364,6 +367,8 @@ enum SortUserHistoryRecordsBy {
   locale_DESC
   showGlobalHints_ASC
   showGlobalHints_DESC
+  isTwoFactorAuthenticationEnabled_ASC
+  isTwoFactorAuthenticationEnabled_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -404,6 +409,7 @@ input UserHistoryRecordUpdateInput {
   customAccess: JSON
   showGlobalHints: Boolean
   rightsSet: String
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -445,6 +451,7 @@ input UserHistoryRecordCreateInput {
   customAccess: JSON
   showGlobalHints: Boolean
   rightsSet: String
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -631,6 +638,10 @@ type User {
   """ A set of permissions that allow the user to directly read or manage certain schemas as well as run certain mutations. 
   """
   rightsSet: UserRightsSet
+
+  """ If true then Two-factor authentication is enabled. Value can only be changed via "changeTwoFactorAuthentication" mutation. 
+  """
+  isTwoFactorAuthenticationEnabled: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -804,6 +815,8 @@ input UserWhereInput {
   showGlobalHints_not: Boolean
   rightsSet: UserRightsSetWhereInput
   rightsSet_is_null: Boolean
+  isTwoFactorAuthenticationEnabled: Boolean
+  isTwoFactorAuthenticationEnabled_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -901,6 +914,8 @@ enum SortUsersBy {
   showGlobalHints_DESC
   rightsSet_ASC
   rightsSet_DESC
+  isTwoFactorAuthenticationEnabled_ASC
+  isTwoFactorAuthenticationEnabled_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -941,6 +956,7 @@ input UserUpdateInput {
   customAccess: CustomAccessInput
   showGlobalHints: Boolean
   rightsSet: UserRightsSetRelateToOneInput
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -979,6 +995,7 @@ input UserCreateInput {
   customAccess: CustomAccessInput
   showGlobalHints: Boolean
   rightsSet: UserRightsSetRelateToOneInput
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4447,6 +4464,7 @@ enum ResetUserLimitActionTypeType {
   checkUserExistence
   changeUserPassword
   changeOrVerifyUserEmail
+  ChangeTwoFactorAuthentication
 }
 
 """ A model for resetting user counters limit. To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset. 
@@ -4461,7 +4479,7 @@ type ResetUserLimitAction {
   """
   _label_: String
 
-  """ Type of limit to reset. Possible values: ["email", "sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence", "changeUserPassword", "changeOrVerifyUserEmail"] 
+  """ Type of limit to reset. Possible values: ["email", "sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence", "changeUserPassword", "changeOrVerifyUserEmail", "ChangeTwoFactorAuthentication"] 
   """
   type: ResetUserLimitActionTypeType
 
@@ -4474,7 +4492,8 @@ type ResetUserLimitAction {
   auth: ["ip", "uuid", "phone", "email"], 
   checkUserExistence: ["ip", "phone"], 
   changeUserPassword: ["ip"], 
-  changeOrVerifyUserEmail: ["ip", "uuid", "email"] 
+  changeOrVerifyUserEmail: ["ip", "uuid", "email"], 
+  ChangeTwoFactorAuthentication: ["ip", "uuid"] 
   """
   identifier: String
 
@@ -86545,6 +86564,17 @@ type VerifyUserEmailOutput {
   status: String!
 }
 
+input ChangeTwoFactorAuthenticationInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  token: String!
+  isEnabled: Boolean!
+}
+
+type ChangeTwoFactorAuthenticationOutput {
+  status: String!
+}
+
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
@@ -98862,6 +98892,73 @@ type Mutation {
   }`
   """
   verifyUserEmail(data: VerifyUserEmailInput!): VerifyUserEmailOutput
+
+  """
+  This mutation changes the "isTwoFactorAuthenticationEnabled" field in the "User" schema. 
+  To perform this operation, you must obtain and pass a sudo token.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_TOKEN",
+    "message": "Invalid token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNSUPPORTED_TOKEN",
+    "message": "Unsupported token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOKEN_NOT_FOUND",
+    "message": "Unable to find non-expired UserSudoToken by specified token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_NOT_FOUND",
+    "message": "User not found",
+    "messageForUser": "User not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "OPERATION_FAILED",
+    "message": "The operation failed",
+    "messageForUser": "Operation failed"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INSUFFICIENT_AUTHENTICATION_FACTORS",
+    "message": "Insufficient authentication factors. At least three must be specified. For example, password, verified phone and verified email.",
+    "messageForUser": "Insufficient authentication factors"
+  }`
+  """
+  changeTwoFactorAuthentication(data: ChangeTwoFactorAuthenticationInput!): ChangeTwoFactorAuthenticationOutput
 
   """
   Registers new Organization for current user

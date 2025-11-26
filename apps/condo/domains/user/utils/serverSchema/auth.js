@@ -277,7 +277,7 @@ async function _matchUser (user, authFactors) {
         confirmEmailToken: authFactors.confirmEmailToken === undefined ? AUTH_CHECK_STATUSES.SKIP : AUTH_CHECK_STATUSES.FAIL,
     }
 
-    const is2FAEnabled = false // TODO(DOMA-10969): add logic for 2FA
+    const is2FAEnabled = user.isTwoFactorAuthenticationEnabled
 
     const numberOfChecksRequiredForAuth = is2FAEnabled ? 2 : 1
 
@@ -310,7 +310,7 @@ async function _matchUser (user, authFactors) {
     if (nonSkippedChecks.length < numberOfChecksRequiredForAuth) {
         return {
             success: false,
-            // NOtE: In general we don't return any detailed errors
+            // NOTE: In general we don't return any detailed errors
             // But we should know that we don't have enough data for validation
             _error: { errorType: ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS, authChecks, is2FAEnabled },
         }
@@ -331,7 +331,7 @@ async function _matchUser (user, authFactors) {
  *
  * @param {Object} user
  * @param {string} password
- * @return {Promise<{success: *}>}
+ * @return {Promise<{success: boolean}>}
  * @private
  */
 async function _matchUserPassword (user, password) {
@@ -381,6 +381,13 @@ async function _matchUserConfirmPhoneToken (user, confirmPhoneToken) {
     return { success: false }
 }
 
+/**
+ *
+ * @param {*} user
+ * @param {string} confirmEmailToken
+ * @return {Promise<{success: boolean}|{confirmEmailAction: { id: string, email: string, isEmailVerified: boolean }, success: boolean}>}
+ * @private
+ */
 async function _matchUserConfirmEmailToken (user, confirmEmailToken) {
     if (!confirmEmailToken) {
         await _preventTimeBasedAttack({ confirmEmailToken })

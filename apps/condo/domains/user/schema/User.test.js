@@ -24,6 +24,7 @@ const {
     expectToThrowGQLError,
     catchErrorFrom,
     expectToThrowAccessDeniedToManageFieldError,
+    expectToThrowAccessDeniedToFieldError,
 } = require('@open-condo/keystone/test.utils')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
@@ -56,6 +57,7 @@ const {
     makeClientWithSupportUser,
     registerNewUser,
 } = require('@condo/domains/user/utils/testSchema')
+
 
 const USER_FIELDS = '_label_'
 const UserLabelGQL = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
@@ -797,6 +799,120 @@ describe('User fields', () => {
                     })
                 })
 
+            })
+        })
+    })
+
+    describe('isTwoFactorAuthenticationEnabled', () => {
+        let adminClient, supportClient
+        const UserWith2FA = generateGQLTestUtils(generateGqlQueries('User', '{ id isTwoFactorAuthenticationEnabled }'))
+
+        beforeAll(async () => {
+            supportClient = await makeClientWithSupportUser()
+            adminClient = await makeLoggedInAdminClient()
+        })
+
+        test('Default value is "false"', async () => {
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const user = await UserWith2FA.getOne(adminClient, { id: userClient.user.id })
+            expect(user.isTwoFactorAuthenticationEnabled).toBeFalsy()
+        })
+
+        describe('Accesses', () => {
+            describe('Admin', () => {
+                test('can set field when create user', async () => {
+                    const [user] = await createTestUser(adminClient, {
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+                    const createdUser = await UserWith2FA.getOne(adminClient, { id: user.id })
+                    expect(createdUser.isTwoFactorAuthenticationEnabled).toBeTruthy()
+                })
+
+                test('can update', async () => {
+                    const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const user = await UserWith2FA.getOne(adminClient, { id: userClient.user.id })
+                    expect(user.isTwoFactorAuthenticationEnabled).toBeFalsy()
+                    await updateTestUser(adminClient, userClient.user.id, {
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+                    const updatedUser = await UserWith2FA.getOne(adminClient, { id: userClient.user.id })
+                    expect(updatedUser.isTwoFactorAuthenticationEnabled).toBeTruthy()
+                })
+
+                test('can read', async () => {
+                    const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const user = await UserWith2FA.getOne(adminClient, { id: userClient.user.id })
+                    expect(user.isTwoFactorAuthenticationEnabled).toBeDefined()
+                    expect(user.isTwoFactorAuthenticationEnabled).toBeFalsy()
+                })
+            })
+
+            describe('Support', () => {
+                test('can not set field when create user', async () => {
+                    await expectToThrowAccessDeniedToManageFieldError(async () => {
+                        await createTestUser(supportClient, {
+                            isTwoFactorAuthenticationEnabled: true,
+                        })
+                    }, 'obj', 'isTwoFactorAuthenticationEnabled')
+                })
+
+                test('can not update', async () => {
+                    const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const user = await UserWith2FA.getOne(adminClient, { id: userClient.user.id })
+                    expect(user.isTwoFactorAuthenticationEnabled).toBeFalsy()
+                    await expectToThrowAccessDeniedToManageFieldError(async () => {
+                        await updateTestUser(supportClient, userClient.user.id, {
+                            isTwoFactorAuthenticationEnabled: true,
+                        })
+                    }, 'obj', 'isTwoFactorAuthenticationEnabled')
+                })
+
+                test('can read', async () => {
+                    const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const user = await UserWith2FA.getOne(supportClient, { id: userClient.user.id })
+                    expect(user.isTwoFactorAuthenticationEnabled).toBeDefined()
+                    expect(user.isTwoFactorAuthenticationEnabled).toBeFalsy()
+                })
+            })
+
+            describe('User', () => {
+                test('can not update', async () => {
+                    const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const user = await UserWith2FA.getOne(adminClient, { id: userClient.user.id })
+                    expect(user.isTwoFactorAuthenticationEnabled).toBeFalsy()
+                    await expectToThrowAccessDeniedToManageFieldError(async () => {
+                        await updateTestUser(userClient2, userClient.user.id, {
+                            isTwoFactorAuthenticationEnabled: true,
+                        })
+                    }, 'obj', 'isTwoFactorAuthenticationEnabled')
+                })
+
+                test('can not update by himself', async () => {
+                    const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const user = await UserWith2FA.getOne(adminClient, { id: userClient.user.id })
+                    expect(user.isTwoFactorAuthenticationEnabled).toBeFalsy()
+                    await expectToThrowAccessDeniedToManageFieldError(async () => {
+                        await updateTestUser(userClient, userClient.user.id, {
+                            isTwoFactorAuthenticationEnabled: true,
+                        })
+                    }, 'obj', 'isTwoFactorAuthenticationEnabled')
+                })
+
+                test('can read by himself', async () => {
+                    const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const user = await UserWith2FA.getOne(userClient, { id: userClient.user.id })
+                    expect(user.isTwoFactorAuthenticationEnabled).toBeDefined()
+                    expect(user.isTwoFactorAuthenticationEnabled).toBeFalsy()
+                })
+
+                test('can not read (not himself)', async () => {
+                    const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
+                    await expectToThrowAccessDeniedToFieldError(async () => {
+                        await UserWith2FA.getOne(userClient2, { id: userClient.user.id })
+                    }, 'objs', 'isTwoFactorAuthenticationEnabled')
+                })
             })
         })
     })
