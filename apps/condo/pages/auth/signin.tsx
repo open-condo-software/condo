@@ -1,12 +1,12 @@
 import { Col, Row } from 'antd'
 import { setCookie } from 'cookies-next'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import React from 'react'
 
 import { useEffectOnce } from '@open-condo/miniapp-utils'
 import { useIntl } from '@open-condo/next/intl'
 
-import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
 import { PageComponentType } from '@condo/domains/common/types'
 import { SignInForm } from '@condo/domains/user/components/auth/SignInForm'
@@ -20,8 +20,6 @@ const SignInPage: PageComponentType = () => {
     const intl = useIntl()
     const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.signin.title' })
 
-    const { authMethods } = useAuthMethods()
-
     useEffectOnce(() => {
         setCookie(AUTH_FLOW_USER_TYPE_COOKIE_NAME, 'staff', { maxAge: COOKIE_MAX_AGE_IN_SEC })
     })
@@ -31,15 +29,6 @@ const SignInPage: PageComponentType = () => {
             <Head><title>{SignInTitleMsg}</title></Head>
             <Row>
                 <Col>
-                    {
-                        (authMethods.phonePassword || authMethods.emailPassword) && (
-                            <Row justify='center'>
-                                <Col>
-                                    <TabsAuthAction currentActiveKey='signin'/>
-                                </Col>
-                            </Row>
-                        )
-                    }
                     <SignInForm/>
                 </Col>
             </Row>
@@ -48,9 +37,13 @@ const SignInPage: PageComponentType = () => {
 }
 
 const HeaderAction: React.FC = () => {
+    const router = useRouter()
+    const { query: { authStep } } = router
+
     const { authFlow } = useAuthMethods()
 
     if (authFlow !== 'default') return null
+    if (authStep === 'secondFactor') return null
 
     return <WelcomeHeaderTitle userType='staff'/>
 
