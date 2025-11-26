@@ -55,22 +55,20 @@ export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ 
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
     const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.resendSms' })
     const ResendConfirmCodeLabel = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.resendConfirmCode' })
-    const codeAvailableLabel = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.codeIsAvailable' })
-    const smsCodeMismatchError = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.smsCodeMismatchError' })
-    const confirmCodeMismatchError = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.confirmCodeMismatchError' })
-    const smsNotDeliveredMessage = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.smsNotDelivered' })
-    const mailNotDeliveredMessage = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.mailNotDelivered' })
-    const smsProblemsModalTitle = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.smsProblemsModal.title' })
-    const mailProblemsModalTitle = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.mailProblemsModal.title' })
-    const checkPhoneLabel = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.checkPhone' })
-    const checkEmailLabel = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.checkEmail' })
-    const instructionStepCheckPhone = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.checkPhone' })
-    const instructionStepCheckEmail = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.checkEmail' })
-    const chatInTelegramMessage = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.supportTelegramChat.chatInTelegram' })
-    const instructionStepSupportTelegramChat = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.supportTelegramChat' }, {
+    const CodeAvailableLabel = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.codeIsAvailable' })
+    const SmsCodeMismatchError = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.smsCodeMismatchError' })
+    const ConfirmCodeMismatchError = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.confirmCodeMismatchError' })
+    const SmsNotDeliveredMessage = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.smsNotDelivered' })
+    const MailNotDeliveredMessage = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.mailNotDelivered' })
+    const SmsProblemsModalTitle = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.smsProblemsModal.title' })
+    const MailProblemsModalTitle = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.mailProblemsModal.title' })
+    const InstructionStepCheckPhone = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.checkPhone' })
+    const InstructionStepCheckEmail = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.checkEmail' })
+    const ChatInTelegramMessage = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.supportTelegramChat.chatInTelegram' })
+    const InstructionStepSupportTelegramChat = intl.formatMessage({ id: 'pages.auth.validateIdentifierForm.problemsModal.instruction.steps.supportTelegramChat' }, {
         chatBotLink: (
             <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
-                {chatInTelegramMessage}
+                {ChatInTelegramMessage}
             </SecondaryLink>
         ),
     })
@@ -163,12 +161,12 @@ export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ 
                 return
             }
             if (confirmCode.length > SMS_CODE_LENGTH) {
-                return setConfirmCodeError(smsCodeMismatchError)
+                return setConfirmCodeError(SmsCodeMismatchError)
             }
 
             confirmCodeAsNumber = Number(confirmCode)
             if (Number.isNaN(confirmCodeAsNumber)) {
-                return setConfirmCodeError(smsCodeMismatchError)
+                return setConfirmCodeError(SmsCodeMismatchError)
             }
         }
 
@@ -179,7 +177,7 @@ export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ 
                 return
             }
             if (confirmCode.length > SECRET_CODE_LENGTH) {
-                return setConfirmCodeError(confirmCodeMismatchError)
+                return setConfirmCodeError(ConfirmCodeMismatchError)
             }
         }
 
@@ -223,7 +221,7 @@ export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ 
             console.error('Verification error')
             console.error(error)
         }
-    }, [completeConfirmEmailMutation, completeConfirmPhoneMutation, confirmCodeMismatchError, executeCaptcha, form, identifierType, onFinish, smsCodeMismatchError, token])
+    }, [completeConfirmEmailMutation, completeConfirmPhoneMutation, ConfirmCodeMismatchError, executeCaptcha, form, identifierType, onFinish, SmsCodeMismatchError, token])
 
     const closeModal = useCallback(() => setIsOpenProblemsModal(false), [])
 
@@ -293,7 +291,7 @@ export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ 
                                                     ? (
                                                         <Space direction='horizontal' size={8}>
                                                             <Typography.Text type='secondary'>
-                                                                {codeAvailableLabel}
+                                                                {CodeAvailableLabel}
                                                             </Typography.Text>
                                                             <Typography.Text type='secondary'>
                                                                 {`${new Date(countdown * 1000).toISOString().substring(14, 19)}`}
@@ -310,7 +308,7 @@ export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ 
                                     </CountDownTimer>
 
                                     <Typography.Link onClick={openModal} tabIndex={3}>
-                                        {identifierType === 'email' ? mailNotDeliveredMessage : smsNotDeliveredMessage}
+                                        {identifierType === 'email' ? MailNotDeliveredMessage : SmsNotDeliveredMessage}
                                     </Typography.Link>
                                 </Space>
                             </Col>
@@ -321,26 +319,21 @@ export const ValidateIdentifierForm: React.FC<ValidateIdentifierFormProps> = ({ 
 
             <Modal
                 open={isOpenProblemsModal}
-                title={identifierType === 'email' ? mailProblemsModalTitle : smsProblemsModalTitle}
+                title={identifierType === 'email' ? MailProblemsModalTitle : SmsProblemsModalTitle}
                 width='small'
                 onCancel={closeModal}
-                footer={
-                    <Button type='primary' onClick={closeModal}>
-                        {identifierType === 'email' ? checkEmailLabel : checkPhoneLabel}
-                    </Button>
-                }
             >
                 <Space
                     direction='vertical'
                     size={0}
                 >
                     <Typography.Text type='secondary'>
-                        {identifierType === 'email' ? instructionStepCheckEmail : instructionStepCheckPhone}
+                        {identifierType === 'email' ? InstructionStepCheckEmail : InstructionStepCheckPhone}
                     </Typography.Text>
                     {
                         hasSupportTelegramChat && (
                             <Typography.Text type='secondary'>
-                                {instructionStepSupportTelegramChat}
+                                {InstructionStepSupportTelegramChat}
                             </Typography.Text>
                         )
                     }
