@@ -247,7 +247,6 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     context
                 )
 
-                // TODO(DOMA-12564): add tests
                 if (!phoneFromInput && !userFromInput?.id) {
                     throw new GQLError(ERRORS.PHONE_AND_USER_ID_IS_MISSING, context)
                 }

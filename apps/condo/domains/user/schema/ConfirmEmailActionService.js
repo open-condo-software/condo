@@ -302,7 +302,6 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     ...ERRORS.WRONG_SENDER_FORMAT, mutation: 'startConfirmEmailAction',
                 }, context)
 
-                // TODO(DOMA-12564): add tests
                 if (!emailFromInput && !userFromInput?.id) {
                     throw new GQLError(ERRORS.EMAIL_AND_USER_ID_IS_MISSING, context)
                 }

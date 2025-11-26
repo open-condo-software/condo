@@ -54,7 +54,6 @@ function dotReplacer (match) {
     return match.length > 1 ? match : ''
 }
 
-// TODO(DOMA-12564): add test
 function maskEmail (normalizedEmail) {
     const [user, domain] = normalizedEmail.split('@')
     if (!domain) return normalizedEmail
