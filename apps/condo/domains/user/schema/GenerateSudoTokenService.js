@@ -133,7 +133,6 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
                 )
 
                 if (!validation.success) {
-                    // TODO(DOMA-12564): add tests for error
                     if (validation._error?.errorType === ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS) {
                         if (validation._error.is2FAEnabled) {
                             throw new GQLError({
