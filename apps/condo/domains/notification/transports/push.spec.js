@@ -547,6 +547,81 @@ describe('push transport', () => {
 
             })
 
+            it('successfully sends notification to multiple apps with different appIds', async () => {
+                const residentUser = await makeClientWithResidentUser()
+                
+                const payload1 = getRandomTokenData({
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    pushTransport: PUSH_TRANSPORT_FIREBASE,
+                    appId: APP_RESIDENT_ID_ANDROID,
+                    pushToken: getRandomFakeSuccessToken(),
+                })
+                
+                const payload2 = getRandomTokenData({
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    pushTransport: PUSH_TRANSPORT_FIREBASE,
+                    appId: APP_MASTER_ID_ANDROID,
+                    pushToken: getRandomFakeSuccessToken(),
+                })
+            
+                await syncRemoteClientByTestClient(residentUser, payload1)
+                await syncRemoteClientByTestClient(residentUser, payload2)
+            
+                const target = residentUser.user.id
+                const batch = {
+                    id: faker.datatype.uuid(),
+                    title: faker.random.alphaNumeric(20),
+                    message: faker.random.alphaNumeric(50),
+                    deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
+                }
+                const today = dayjs().format(DATE_FORMAT_Z)
+                const messageData = prepareMessageData(target, batch, today)
+            
+                expect(messageData).not.toEqual(0)
+            
+                const [messageStatus] = await sendMessageByTestClient(admin, messageData)
+            
+                expect(messageStatus.isDuplicateMessage).toBeFalsy()
+            
+                const messageWhere = {
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
+                    uniqKey: messageData.uniqKey,
+                }
+            
+                let message, transportMeta
+            
+                await waitFor(async () => {
+                    message = await Message.getOne(admin, messageWhere)
+                    transportMeta = message.processingMeta.transportsMeta[0]
+            
+                    expect(message).toBeDefined()
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                })
+            
+                const { responses, pushContext, successCount, failureCount } = transportMeta.deliveryMetadata
+            
+                expect(responses).toHaveLength(2)
+                expect(successCount).toEqual(2)
+                expect(failureCount).toEqual(0)
+                
+                const responseTokens = responses.map(r => r.pushToken)
+                expect(responseTokens).toContain(payload1.pushToken)
+                expect(responseTokens).toContain(payload2.pushToken)
+                
+                responses.forEach(response => {
+                    expect(response.success).toBeTruthy()
+                    expect(response.type).toEqual('Fake')
+                    expect(response.messageId).toBeDefined()
+                })
+                
+                expect(pushContext[PUSH_TYPE_DEFAULT]).toBeDefined()
+                expect(pushContext[PUSH_TYPE_DEFAULT].notification).toBeDefined()
+                expect(pushContext[PUSH_TYPE_DEFAULT].notification.body).toEqual(batch.message)
+                expect(pushContext[PUSH_TYPE_DEFAULT].notification.title).toEqual(batch.title)
+            })
+
             it('fails to send fake ordinary notification of CUSTOM_CONTENT_MESSAGE_TYPE', async () => {
                 const residentUser = await makeClientWithResidentUser()
                 const payload = getRandomTokenData({
