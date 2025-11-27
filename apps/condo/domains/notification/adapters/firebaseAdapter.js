@@ -15,6 +15,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { EMPTY_FIREBASE_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
 
+console.log('conf321', conf[FIREBASE_CONFIG_ENV])
 const FIREBASE_CONFIG = conf[FIREBASE_CONFIG_ENV] ? JSON.parse(conf[FIREBASE_CONFIG_ENV]) : null
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
 const DEFAULT_PUSH_SETTINGS = {
@@ -49,30 +50,27 @@ class FirebaseAdapter {
     messageIdPrefixRegexpByAppId = {}
 
     constructor (config = FIREBASE_CONFIG) {
-        if (isObject(config) && !isEmpty(config)) {
-            for (const [appId, appConfig] of Object.entries(config)) {
-                if (!isObject(appConfig)) {
-                    logger.error({ msg: 'Invalid app config format', appId })
-                    continue
-                }
-                try {
-                    this.appsByAppId[appId] = admin.initializeApp(
-                        { credential: admin.credential.cert(appConfig) },
-                        appId
-                    )
-                } catch (error) {
-                    logger.error({ msg: 'FirebaseAdapter app init error', err: error, appId })
-                }
-            }
+        console.log('config1234567890', config)
+        if (!isObject(config) || isEmpty(config)) {
+            logger.error({ msg: 'Invalid Firebase config format', config })
+            return
         }
-
-        this.messageIdPrefixRegexpByAppId = {}
         for (const [appId, appConfig] of Object.entries(config)) {
-            if (this.appsByAppId[appId]) {
+            if (!isObject(appConfig) || isEmpty(appConfig)) {
+                logger.error({ msg: 'Invalid app config format', appId })
+                continue
+            }
+            try {
+                this.appsByAppId[appId] = admin.initializeApp(
+                    { credential: admin.credential.cert(appConfig) },
+                    appId
+                )
                 const projectId = get(appConfig, 'project_id', null)
                 // not an user input. No ReDoS regexp expected
                 // nosemreg: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                 this.messageIdPrefixRegexpByAppId[appId] = new RegExp(`projects/${projectId}/messages`)
+            } catch (error) {
+                logger.error({ msg: 'FirebaseAdapter app init error', err: error, appId })
             }
         }
     }
