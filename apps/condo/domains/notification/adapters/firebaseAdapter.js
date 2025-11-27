@@ -15,7 +15,6 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { EMPTY_FIREBASE_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
 
-console.log('conf321', conf[FIREBASE_CONFIG_ENV])
 const FIREBASE_CONFIG = conf[FIREBASE_CONFIG_ENV] ? JSON.parse(conf[FIREBASE_CONFIG_ENV]) : null
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
 const DEFAULT_PUSH_SETTINGS = {
@@ -50,7 +49,6 @@ class FirebaseAdapter {
     messageIdPrefixRegexpByAppId = {}
 
     constructor (config = FIREBASE_CONFIG) {
-        console.log('config1234567890', config)
         if (!isObject(config) || isEmpty(config)) {
             logger.error({ msg: 'Invalid Firebase config format', config })
             return
@@ -233,17 +231,22 @@ class FirebaseAdapter {
     async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = FirebaseAdapter.prepareBatchData(notification, data, tokens, pushTypes, isVoIP, appIds)
-        let result
+        const [notifications, fakeNotifications, pushContext] = FirebaseAdapter.prepareBatchData(
+            notification, 
+            data, 
+            tokens, 
+            pushTypes, 
+            isVoIP, 
+            appIds
+        )
+        let result = FirebaseAdapter.getEmptyResult()
 
         // If we come up to here and no real tokens provided, that means fakeNotifications contains
         // some FAKE tokens and emulation is required for testing purposes
         if (isEmpty(notifications)) {
             result = FirebaseAdapter.injectFakeResults(FirebaseAdapter.getEmptyResult(), fakeNotifications)
-        }
-
         // NOTE: we try to fire FireBase request only if FireBase was initialized and we have some real notifications
-        if (!isEmpty(this.appsByAppId) && !isEmpty(notifications)) {
+        } else if (!isEmpty(this.appsByAppId)) { 
             const notificationsByAppId = {}
             for (const notification of notifications) {
                 const appId = appIds[notification.token]
