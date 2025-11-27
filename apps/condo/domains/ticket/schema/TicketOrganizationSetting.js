@@ -21,11 +21,11 @@ const MIN_DURATION_AS_MILLISECONDS = dayjs.duration(MIN_TICKET_DEADLINE_DURATION
 const MAX_DURATION_AS_MILLISECONDS = dayjs.duration(MAX_TICKET_DEADLINE_DURATION).asMilliseconds()
 
 const TicketOrganizationSetting = new GQLListSchema('TicketOrganizationSetting', {
-    schemaDoc: 'Ticket settings rules for each organization. (Setting the "deadline" fields for each ticket type)',
+    schemaDoc: 'Defines default ticket deadlines for each organization and ticket type.',
     fields: {
         organization: ORGANIZATION_OWNED_FIELD,
         defaultDeadlineDuration: {
-            schemaDoc: 'Default deadline duration for default tickets (ISO 8601 format)',
+            schemaDoc: 'Default deadline for standard tickets (ISO 8601 duration).',
             type: 'DateInterval',
             defaultValue: DEFAULT_TICKET_DEADLINE_DURATION,
             kmigratorOptions: { null: true },
@@ -44,7 +44,7 @@ const TicketOrganizationSetting = new GQLListSchema('TicketOrganizationSetting',
             },
         },
         paidDeadlineDuration: {
-            schemaDoc: 'Default deadline duration for payable tickets (ISO 8601 format)',
+            schemaDoc: 'Default deadline for payable tickets (ISO 8601 duration).',
             type: 'DateInterval',
             defaultValue: DEFAULT_TICKET_DEADLINE_DURATION,
             kmigratorOptions: { null: true },
@@ -63,7 +63,7 @@ const TicketOrganizationSetting = new GQLListSchema('TicketOrganizationSetting',
             },
         },
         emergencyDeadlineDuration: {
-            schemaDoc: 'Default deadline duration for emergency tickets (ISO 8601 format)',
+            schemaDoc: 'Default deadline for emergency tickets (ISO 8601 duration).',
             type: 'DateInterval',
             defaultValue: DEFAULT_TICKET_DEADLINE_DURATION,
             kmigratorOptions: { null: true },
@@ -82,7 +82,7 @@ const TicketOrganizationSetting = new GQLListSchema('TicketOrganizationSetting',
             },
         },
         warrantyDeadlineDuration: {
-            schemaDoc: 'Default deadline duration for warranty tickets (ISO 8601 format)',
+            schemaDoc: 'Default deadline for warranty tickets (ISO 8601 duration).',
             type: 'DateInterval',
             defaultValue: DEFAULT_TICKET_DEADLINE_DURATION,
             kmigratorOptions: { null: true },

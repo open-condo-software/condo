@@ -13,7 +13,7 @@ const READ_ONLY_ACCESS = {
 }
 
 const TicketSource = new GQLListSchema('TicketSource', {
-    schemaDoc: 'Ticket source. Income call, mobile app, external system, ...',
+    schemaDoc: 'Describes where a ticket originated (incoming call, mobile app, external system, etc.).',
     fields: {
         organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
 
@@ -24,7 +24,7 @@ const TicketSource = new GQLListSchema('TicketSource', {
         },
 
         name: {
-            schemaDoc: 'Localized Ticket source name',
+            schemaDoc: 'Localized name of the ticket source.',
             type: 'LocalizedText',
             isRequired: true,
             template: 'ticket.source.*.name',

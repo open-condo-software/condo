@@ -13,7 +13,7 @@ const {
 
 
 const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
-    schemaDoc: 'User confirm phone actions is used before registration starts',
+    schemaDoc: 'Represents a phone confirmation action that is performed before registration starts.',
     fields: {
         phone: {
             ...PHONE_WITHOUT_LAND_LINE_FIELD,
@@ -21,48 +21,48 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
             isRequired: true,
         },
         token: {
-            schemaDoc: 'Unique token to complete confirmation',
+            schemaDoc: 'Unique token used to complete the confirmation.',
             type: 'Text',
             isUnique: true,
             isRequired: true,
         },
         smsCode: {
-            schemaDoc: 'Last sms code sent to user',
+            schemaDoc: 'Most recent SMS code sent to the user.',
             type: 'Integer',
             length: SMS_CODE_LENGTH,
         },
         smsCodeRequestedAt: {
-            schemaDoc: 'Time when sms code was requested',
+            schemaDoc: 'Timestamp when the SMS code was requested.',
             type: 'DateTimeUtc',
             isRequired: true,
         },
         smsCodeExpiresAt: {
-            schemaDoc: 'Time when sms code becomes not valid',
+            schemaDoc: 'Timestamp when the SMS code expires.',
             type: 'DateTimeUtc',
             isRequired: true,
         },
         retries: {
-            schemaDoc: 'Number of times sms code input from user failed',
+            schemaDoc: 'Number of failed attempts to enter the SMS code.',
             type: 'Integer',
             defaultValue: 0,
         },
         isPhoneVerified: {
-            schemaDoc: 'Phone verification flag. User verify phone by access to secret sms message',
+            schemaDoc: 'Indicates whether the user confirmed the phone number by entering the SMS code.',
             type: 'Checkbox',
             defaultValue: false,
         },
         requestedAt: {
-            schemaDoc: 'DateTime when confirm phone action was started',
+            schemaDoc: 'Timestamp when the phone confirmation action was created.',
             type: 'DateTimeUtc',
             isRequired: true,
         },
         expiresAt: {
-            schemaDoc: 'When confirm phone action becomes invalid',
+            schemaDoc: 'Timestamp when the phone confirmation action expires.',
             type: 'DateTimeUtc',
             isRequired: true,
         },
         completedAt: {
-            schemaDoc: 'When confirm phone action was completed',
+            schemaDoc: 'Timestamp when the phone confirmation action was completed.',
             type: 'DateTimeUtc',
             isRequired: false,
         },

@@ -31,10 +31,10 @@ const ERRORS = {
 }
 
 const NotificationAnonymousSetting = new GQLListSchema('NotificationAnonymousSetting', {
-    schemaDoc: 'Anonymous contact notifications settings',
+    schemaDoc: 'Notification settings for contacts that are not linked to a registered user.',
     fields: {
         email: {
-            schemaDoc: 'The settings will applied for',
+            schemaDoc: 'Email address the setting applies to.',
             type: 'Text',
             isRequired: false,
             hooks: {
@@ -46,7 +46,7 @@ const NotificationAnonymousSetting = new GQLListSchema('NotificationAnonymousSet
             },
         },
         phone: {
-            schemaDoc: 'Phone. In international E.164 format without spaces',
+            schemaDoc: 'Phone number in international E.164 format without spaces.',
             type: 'Text',
             isRequired: false,
             hooks: {
@@ -58,11 +58,11 @@ const NotificationAnonymousSetting = new GQLListSchema('NotificationAnonymousSet
             },
         },
         messageType: getMessageTypeField({
-            schemaDoc: 'Affected message type',
+            schemaDoc: 'Message type controlled by this setting.',
             isRequired: false,
         }),
         messageTransport: {
-            schemaDoc: `Affected message transport. Possible values are: ${EMAIL_TRANSPORT}, ${SMS_TRANSPORT}`,
+            schemaDoc: `Message transport controlled by this setting. Possible values: ${EMAIL_TRANSPORT}, ${SMS_TRANSPORT}.`,
             type: 'Select',
             options: [EMAIL_TRANSPORT, SMS_TRANSPORT],
             isRequired: false,
@@ -70,7 +70,7 @@ const NotificationAnonymousSetting = new GQLListSchema('NotificationAnonymousSet
             kmigratorOptions: { null: true },
         },
         isEnabled: {
-            schemaDoc: 'Is notification enabled',
+            schemaDoc: 'Indicates whether notifications are enabled for this contact.',
             type: 'Checkbox',
             isRequired: false,
             defaultValue: true,
