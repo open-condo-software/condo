@@ -20,6 +20,7 @@ async function main (args) {
         response_types: ['code id_token', 'code', 'id_token'],
         grant_types: ['implicit', 'authorization_code', 'refresh_token'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
         token_endpoint_auth_method: 'client_secret_basic',
+        application_type: 'native', // allows OIDC working on localhost without https
         ...(postLogoutRedirectUri ? { post_logout_redirect_uris: [postLogoutRedirectUri] } : {}),
     }, keystone)
 
