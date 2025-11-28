@@ -669,13 +669,22 @@ const makeLoggedInMiniAppClient = async (loggedInCondoClient, forcedOidcAuthPara
     //
     // Get auth token from cookie
     //
-    const decodedCookie = decodeURIComponent(miniAppAuth.cookieJar.get('keystone.sid'))
+    const oidcSessionCookie = miniAppAuth.cookieJar.get('keystone.sid')
+    if (!oidcSessionCookie) {
+        throw new Error('OIDC flow did not set keystone.sid cookie - authentication failed')
+    }
+    const decodedCookie = decodeURIComponent(oidcSessionCookie)
+
+    const [, token] = decodedCookie.split(':')
+    if (!token) {
+        throw new Error('Can not extract token from keystone.sid cookie - authentication failed (should be in format "s:<token>")')
+    }
 
     //
     // Set auth token to client
     //
     miniAppClient.setHeaders({
-        'Authorization': `Bearer ${decodedCookie.split(':')[1]}`,
+        'Authorization': `Bearer ${token}`,
     })
 
     //
