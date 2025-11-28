@@ -49,10 +49,10 @@ class FirebaseAdapter {
     messageIdPrefixRegexpByAppId = {}
 
     constructor (config = FIREBASE_CONFIG) {
-        if (!isObject(config) || isEmpty(config)) {
-            logger.error({ msg: 'Invalid Firebase config format', config })
-            return
+        if (!isObject(config) || !config[FIREBASE_DEFAULT_APP_ID]) {
+            throw new Error(`${EMPTY_FIREBASE_CONFIG_ERROR}. Expected a "default" app configuration with key "${FIREBASE_DEFAULT_APP_ID}" for fallback purposes.`)
         }
+
         for (const [appId, appConfig] of Object.entries(config)) {
             if (!isObject(appConfig) || isEmpty(appConfig)) {
                 logger.error({ msg: 'Invalid app config format', appId })
@@ -281,16 +281,16 @@ class FirebaseAdapter {
                         )
                     }
 
-                    if (!combinedResult) {
+                    if (combinedResult) {
+                        combinedResult.successCount += (fbResult.successCount || 0)
+                        combinedResult.failureCount += (fbResult.failureCount || 0)
+                        combinedResult.responses = (combinedResult.responses || []).concat(fbResult.responses || [])
+                    } else {
                         combinedResult = {
                             successCount: fbResult.successCount || 0,
                             failureCount: fbResult.failureCount || 0,
                             responses: fbResult.responses || [],
                         }
-                    } else {
-                        combinedResult.successCount += (fbResult.successCount || 0)
-                        combinedResult.failureCount += (fbResult.failureCount || 0)
-                        combinedResult.responses = (combinedResult.responses || []).concat(fbResult.responses || [])
                     }
                 } catch (error) {
                     logger.error({ msg: 'sendNotification error', err: error, appId })
