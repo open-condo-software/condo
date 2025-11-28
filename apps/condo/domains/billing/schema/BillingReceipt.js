@@ -214,6 +214,19 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
                 if (!category) return false
 
+                const billingContext = await getByCondition('BillingIntegrationOrganizationContext', {
+                    id: get(receipt, 'context'),
+                    deletedAt: null,
+                })
+                if (!billingContext) return false
+
+                const activeAcquiringContexts = await find('AcquiringIntegrationContext', {
+                    organization: { id: get(billingContext, 'organization') },
+                    status: CONTEXT_FINISHED_STATUS,
+                    deletedAt: null,
+                })
+                if (!activeAcquiringContexts || activeAcquiringContexts.length !== 1) return false
+
                 const validityMonths = get(category, 'receiptValidityMonths')
                 if (validityMonths) {
                     const periodDate = dayjs(get(receipt, 'period'))
