@@ -68,12 +68,13 @@ const SYNC_BANK_ACCOUNTS_FROM_SBBOL = 'sync-bank-accounts-from-sbbol'
  * @param keystone
  * @param {UserInfo} userInfo data from OAuth client about user
  * @param {TokenSet} tokenSet
+ * @param {User} authedUser
  * @param {string} reqId
  * @param {Array<string>} features list of features to sync
  * @param {boolean?} useExtendedConfig
  * @return {Promise<void>}
  */
-const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig = false  }) => {
+const sync = async ({ keystone, userInfo, tokenSet, authedUser, features, useExtendedConfig = false  }) => {
     const adminContext = await keystone.createContext({ skipAccessControl: true })
     const context = {
         keystone,
@@ -119,7 +120,14 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
     }
     let organizationSyncResult
     try {
-        organizationSyncResult = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
+        organizationSyncResult = await syncOrganization({ 
+            context,
+            authedUser,
+            user,
+            userData,
+            organizationInfo,
+            dvSenderFields,
+        })
     } catch (err) {
         logger.error({
             msg: 'failed to sync organization',

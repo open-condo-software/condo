@@ -230,4 +230,150 @@ describe('syncOrganization from SBBOL', () => {
             expect(organization.id).not.toEqual(existingOrganization.id)
         })
     })
+
+    describe('AuthedUser has organization with same TIN', () => {
+        it('should update authedUser organization instead of creating new one', async () => {
+            const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
+            const adminContext = await keystone.createContext({ skipAccessControl: true })
+            const context = {
+                keystone,
+                context: adminContext,
+            }
+            const authedUserClient = await makeClientWithRegisteredOrganization()
+            const authedUser = await UserAPI.getOne(adminContext, { id: authedUserClient.user.id }, USER_FIELDS)
+            const authedUserOrganization = authedUserClient.organization
+
+            organizationData.meta.inn = authedUserOrganization.tin
+
+            const identityId = faker.datatype.uuid()
+            const importedUser = await syncUser({ context, userInfo: userData, identityId })
+            const { organization, employee } = await syncOrganization({
+                context,
+                user: importedUser,
+                userData,
+                authedUser,
+                dvSenderFields,
+                organizationInfo: organizationData,
+            })
+
+            expect(organization.id).toEqual(authedUserOrganization.id)
+
+            const updatedOrganization = await OrganizationApi.getOne(adminContext, { id: organization.id }, 'importId importRemoteSystem meta')
+            expect(updatedOrganization.importId).toEqual(organizationData.importId)
+            expect(updatedOrganization.importRemoteSystem).toEqual(organizationData.importRemoteSystem)
+            expect(updatedOrganization.meta).toMatchObject(organizationData.meta)
+
+            expect(employee).toBeDefined()
+
+            const [importedUserEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
+                organization: { id: authedUserOrganization.id },
+                user: { id: importedUser.id },
+            }, 'id user { id } organization { id } isAccepted role { canManageEmployees }')
+            expect(importedUserEmployee).toBeDefined()
+            expect(importedUserEmployee.user.id).toEqual(importedUser.id)
+            expect(importedUserEmployee.organization.id).toEqual(authedUserOrganization.id)
+            expect(importedUserEmployee.isAccepted).toBeTruthy()
+            expect(importedUserEmployee.role.canManageEmployees).toBeTruthy()
+
+            const allOrganizations = await OrganizationApi.getAll(adminContext, {
+                tin: authedUserOrganization.tin,
+                deletedAt: null,
+            })
+            expect(allOrganizations).toHaveLength(1)
+        })
+
+        it('should create new organization when authedUser has no organization with same TIN', async () => {
+            const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
+            const adminContext = await keystone.createContext({ skipAccessControl: true })
+            const context = {
+                keystone,
+                context: adminContext,
+            }
+
+            const authedUserClient = await makeClientWithRegisteredOrganization()
+            const authedUser = await UserAPI.getOne(adminContext, { id: authedUserClient.user.id }, USER_FIELDS)
+            const authedUserOrganization = authedUserClient.organization
+
+            organizationData.meta.inn = '1234567890'
+
+            const identityId = faker.datatype.uuid()
+            const importedUser = await syncUser({ context, userInfo: userData, identityId })
+            const { organization, employee } = await syncOrganization({
+                context,
+                user: importedUser,
+                userData,
+                authedUser,
+                dvSenderFields,
+                organizationInfo: organizationData,
+            })
+
+            expect(organization.id).not.toEqual(authedUserOrganization.id)
+            expect(organization.tin).toEqual(organizationData.meta.inn)
+            const newOrganization = await OrganizationApi.getOne(adminContext, { id: organization.id }, 'importId importRemoteSystem tin meta')
+            expect(newOrganization.importId).toEqual(organizationData.importId)
+            expect(newOrganization.importRemoteSystem).toEqual(organizationData.importRemoteSystem)
+            expect(newOrganization.tin).toEqual(organizationData.meta.inn)
+
+            expect(employee).toBeDefined()
+            const [importedUserEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
+                organization: { id: organization.id },
+                user: { id: importedUser.id },
+            }, 'id user { id } organization { id } isAccepted role { canManageEmployees }')
+            expect(importedUserEmployee).toBeDefined()
+            expect(importedUserEmployee.user.id).toEqual(importedUser.id)
+            expect(importedUserEmployee.organization.id).toEqual(organization.id)
+            expect(importedUserEmployee.isAccepted).toBeTruthy()
+            expect(importedUserEmployee.role.canManageEmployees).toBeTruthy()
+        })
+
+        it('should create new organization when authedUser is not provided', async () => {
+            const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
+            const adminContext = await keystone.createContext({ skipAccessControl: true })
+            const context = {
+                keystone,
+                context: adminContext,
+            }
+
+            const identityId = faker.datatype.uuid()
+            const importedUser = await syncUser({ context, userInfo: userData, identityId })
+
+            const organizationsBeforeSync = await OrganizationApi.getAll(adminContext, {
+                tin: organizationData.meta.inn,
+                deletedAt: null,
+            })
+            const countBefore = organizationsBeforeSync.length
+
+            const { organization, employee } = await syncOrganization({
+                context,
+                user: importedUser,
+                userData,
+                authedUser: null, 
+                dvSenderFields,
+                organizationInfo: organizationData,
+            })
+
+            expect(organization).toBeDefined()
+            expect(organization.tin).toEqual(organizationData.meta.inn)
+
+            const organizationsAfterSync = await OrganizationApi.getAll(adminContext, {
+                tin: organizationData.meta.inn,
+                deletedAt: null,
+            })
+            expect(organizationsAfterSync).toHaveLength(countBefore + 1)
+
+            const newOrganization = await OrganizationApi.getOne(adminContext, { id: organization.id }, 'importId importRemoteSystem tin')
+            expect(newOrganization.importId).toEqual(organizationData.importId)
+            expect(newOrganization.importRemoteSystem).toEqual(organizationData.importRemoteSystem)
+
+            expect(employee).toBeDefined()
+            const [importedUserEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
+                organization: { id: organization.id },
+                user: { id: importedUser.id },
+            }, 'id user { id } isAccepted role { canManageEmployees }')
+            expect(importedUserEmployee).toBeDefined()
+            expect(importedUserEmployee.user.id).toEqual(importedUser.id)
+            expect(importedUserEmployee.isAccepted).toBeTruthy()
+            expect(importedUserEmployee.role.canManageEmployees).toBeTruthy()
+        })
+    })
 })
