@@ -50,7 +50,7 @@
     "@open-condo/next": "workspace:^",
     "@open-condo/ui": "workspace:^",
     "@open-condo/webhooks": "workspace:^",
-    "@open-keystone/app-admin-ui": "^9.0.3",
+    "@open-keystone/app-admin-ui": "^9.0.5",
     "@open-keystone/app-graphql": "^7.0.2",
     "@open-keystone/app-next": "^9.0.1",
     "@open-keystone/server-side-graphql-client": "^2.1.3",
