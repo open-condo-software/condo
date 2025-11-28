@@ -51,16 +51,15 @@ class FirebaseAdapter {
     messageIdPrefixRegexpByAppId = {}
 
     constructor (config = FIREBASE_CONFIG) {
-        if (!isObject(config) || isEmpty(config)) {
-            throw new Error(`${EMPTY_FIREBASE_CONFIG_ERROR}. Expected a "${FIREBASE_DEFAULT_APP_ID}" app configuration with key "${FIREBASE_DEFAULT_APP_ID}" for fallback purposes.`)
-        }
-
-        for (const [appId, appConfig] of Object.entries(config)) {
-            if (!isObject(appConfig) || isEmpty(appConfig)) {
-                logger.error({ msg: 'Invalid app config format', appId })
-                continue
+        try {
+            if (!isObject(config) || !config[FIREBASE_DEFAULT_APP_ID]) {
+                throw new Error(`${EMPTY_FIREBASE_CONFIG_ERROR}. Expected a "${FIREBASE_DEFAULT_APP_ID}" app configuration with key "${FIREBASE_DEFAULT_APP_ID}" for fallback purposes.`)
             }
-            try {
+            for (const [appId, appConfig] of Object.entries(config)) {
+                if (!isObject(appConfig) || isEmpty(appConfig)) {
+                    throw new Error('Invalid app config format', appId)
+                }
+
                 this.appsByAppId[appId] = admin.initializeApp(
                     { credential: admin.credential.cert(appConfig) },
                     appId
@@ -69,9 +68,9 @@ class FirebaseAdapter {
                 // not an user input. No ReDoS regexp expected
                 // nosemreg: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                 this.messageIdPrefixRegexpByAppId[appId] = new RegExp(`projects/${projectId}/messages`)
-            } catch (error) {
-                logger.error({ msg: 'FirebaseAdapter app init error', err: error, appId })
             }
+        } catch (error) {
+            logger.error({ msg: 'FirebaseAdapter app init error', err: error })
         }
     }
 
