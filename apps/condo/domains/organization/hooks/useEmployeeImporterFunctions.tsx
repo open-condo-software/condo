@@ -20,8 +20,8 @@ import { useInviteNewOrganizationEmployee } from '@condo/domains/organization/ut
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
-let rolesByName = {}
-let specializationsByName = {}
+let rolesIdsByName = {}
+let specializationIdsByName = {}
 
 export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
@@ -63,7 +63,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
     })
 
     if (!isRolesLoading) {
-        rolesByName = employeeRoles?.roles.reduce((result, current) => ({
+        rolesIdsByName = employeeRoles?.roles.reduce((result, current) => ({
             ...result,
             [String(current.name).toLowerCase().trim()]: current.id,
         }), {})
@@ -81,7 +81,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
     })
 
     if (!isSpecializationsLoading) {
-        specializationsByName = ticketCategoryClassifiers?.classifiers?.reduce((result, current) => ({
+        specializationIdsByName = ticketCategoryClassifiers?.classifiers?.reduce((result, current) => ({
             ...result,
             [String(current.name).toLowerCase().trim()]: current.id,
         }), {}) || {}
@@ -165,19 +165,19 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
             errors.push(EmptyRoleMessage)
         }
 
-        const rowEmail = row?.addons?.email
-        if (rowEmail === null) {
+        const email = row?.addons?.email
+        if (email === null) {
             errors.push(IncorrectEmailMessage)
         }
 
-        if (phone || row?.addons?.email) {
+        if (phone || email) {
             try {
 
                 const { data } = await checkEmployeeExists({
                     variables: {
                         organizationId: userOrganizationId,
                         ...(phone ? { phone } : {}),
-                        ...(rowEmail ? { email: rowEmail } : {}),
+                        ...(email ? { email: email } : {}),
                     },
                 })
 
@@ -197,7 +197,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
 
         const specializationNames = row?.addons?.specializations || []
         if (specializationNames.length && !row?.addons?.hasAllSpecializations) {
-            const missingSpecializations = specializationNames.filter((name) => !specializationsByName?.[name])
+            const missingSpecializations = specializationNames.filter((name) => !specializationIdsByName?.[name])
             if (missingSpecializations.length) {
                 errors.push(SpecializationNotFoundMessage(missingSpecializations.join(', ')))
             }
@@ -224,7 +224,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
         const hasAllSpecializations = row.addons.hasAllSpecializations
 
         try {
-            let roleId = rolesByName[roleName]
+            let roleId = rolesIdsByName[roleName]
 
             if (!roleId) {
                 const newRole = await createEmployeeRole({
@@ -238,7 +238,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
                         },
                     } } )
                 roleId = newRole.data.role.id
-                rolesByName[roleName] = roleId
+                rolesIdsByName[roleName] = roleId
             }
 
             const employeeData: Omit<InviteNewOrganizationEmployeeInput, 'organization'> = {
@@ -261,7 +261,7 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
                 employeeData.hasAllSpecializations = true
             } else if (row.addons.specializations?.length) {
                 const specializationIds = row.addons.specializations
-                    .map((name) => specializationsByName[name])
+                    .map((name) => specializationIdsByName[name])
                     .filter(Boolean)
                     .map((id) => ({ id }))
 
