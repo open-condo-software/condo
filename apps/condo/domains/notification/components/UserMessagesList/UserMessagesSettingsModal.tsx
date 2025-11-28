@@ -35,15 +35,13 @@ export const UserMessagesSettingsModal: React.FC<UserMessagesSettingsModalProps>
     const { isNotificationSoundEnabled, setIsNotificationSoundEnabled } = useUserMessagesList()
 
     const handleSwitchChange = useCallback((checked: boolean, checkedType: MessageTypeAllowedToFilterType) => {
-        setExcludedMessageTypes((prevExcludedTypes) => {
-            const newExcludedTypes: Array<MessageTypeAllowedToFilterType> = checked
-                ? prevExcludedTypes.filter(type => type !== checkedType)
-                : [...prevExcludedTypes, checkedType]
+        const newExcludedTypes: Array<MessageTypeAllowedToFilterType> = checked
+            ? excludedMessageTypes.filter(type => type !== checkedType)
+            : [...excludedMessageTypes, checkedType]
 
-            userMessagesSettingsStorage.setExcludedUserMessagesTypes(newExcludedTypes)
-            return newExcludedTypes
-        })
-    }, [setExcludedMessageTypes, userMessagesSettingsStorage])
+        setExcludedMessageTypes(newExcludedTypes)
+        userMessagesSettingsStorage.setExcludedUserMessagesTypes(newExcludedTypes)
+    }, [excludedMessageTypes, setExcludedMessageTypes, userMessagesSettingsStorage])
 
     const handleSubmit = useCallback(() => {
         setOpen(false)

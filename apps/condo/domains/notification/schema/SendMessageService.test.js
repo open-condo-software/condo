@@ -26,6 +26,8 @@ const {
     MESSAGE_DISABLED_BY_USER_STATUS,
     MESSAGE_DELIVERY_OPTIONS,
     DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
+    TICKET_CREATED_TYPE,
+    NEWS_ITEM_COMMON_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
     syncRemoteClientWithPushTokenByTestClient, sendMessageByTestClient,
@@ -33,6 +35,8 @@ const {
     Message,
     createTestMessage,
     createTestNotificationUserSetting,
+    updateTestNotificationUserSetting,
+    NotificationUserSetting,
 } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
@@ -43,6 +47,18 @@ describe('SendMessageService', () => {
 
     beforeAll( async () => {
         admin = await makeLoggedInAdminClient()
+    })
+
+    beforeEach(async () => {
+        const globalSettings = await NotificationUserSetting.getAll(admin, {
+            user_is_null: true,
+            deletedAt: null,
+        })
+        for (const setting of globalSettings) {
+            await updateTestNotificationUserSetting(admin, setting.id, {
+                deletedAt: new Date(),
+            })
+        }
     })
 
     describe('sendMessage', () => {
@@ -584,6 +600,106 @@ describe('SendMessageService', () => {
                 })),
             ))
         })
+    })
+
+    test('Message is not created if all transports are disabled by user', async () => {
+        const messageType = TICKET_CREATED_TYPE
+        const allTransports = get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'defaultTransports'])
+
+        expect(allTransports.length).toBeGreaterThanOrEqual(2)
+
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        
+        for (const transport of allTransports) {
+            await createTestNotificationUserSetting(client, {
+                messageType,
+                messageTransport: transport,
+                isEnabled: false,
+            })
+        }
+
+        const [data] = await sendMessageByTestClient(admin, {
+            to: { user: { id: client.user.id } },
+            type: messageType,
+            meta: { dv: 1 },
+        })
+
+        expect(data.status).toBe(MESSAGE_DISABLED_BY_USER_STATUS)
+        expect(data.id).toBeNull()
+    })
+
+    test('Send message if global setting disables transport but user overrides it', async () => {
+        const messageType = NEWS_ITEM_COMMON_MESSAGE_TYPE
+        const allTransports = get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'defaultTransports'])
+
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        await syncRemoteClientWithPushTokenByTestClient(client)
+        const transportToEnable = allTransports[0]
+        
+        for (const transport of allTransports) {
+            await createTestNotificationUserSetting(admin, {
+                user: null,
+                messageType,
+                messageTransport: transport,
+                isEnabled: false,
+            })
+        }
+
+        await createTestNotificationUserSetting(client, {
+            messageType,
+            messageTransport: transportToEnable,
+            isEnabled: true,
+        })
+
+        const [data] = await sendMessageByTestClient(admin, {
+            to: { user: { id: client.user.id } },
+            type: messageType,
+            meta: { dv: 1, title: faker.lorem.word(), body: faker.lorem.sentence() },
+        })
+
+        await waitFor(async () => {
+            const message = await Message.getOne(admin, { id: data.id })
+
+            expect(message.status).toBe(MESSAGE_SENT_STATUS)
+
+            const transportsMeta = get(message, ['processingMeta', 'transportsMeta'])
+            expect(transportsMeta).toBeTruthy()
+
+            const sentTransport = transportsMeta.find(t => t.transport === transportToEnable)
+            expect(sentTransport.status).toBe(MESSAGE_SENT_STATUS)
+
+            const disabledTransports = transportsMeta.filter(t => t.transport !== transportToEnable)
+            disabledTransports.forEach(t => {
+                expect(t.status).toBe(MESSAGE_DISABLED_BY_USER_STATUS)
+            })
+        })
+    })
+
+    test('Not send message if global setting disables all transports and user has no overrides', async () => {
+        const messageType = DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE
+        const allTransports = get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'defaultTransports'])
+
+        expect(allTransports.length).toBeGreaterThanOrEqual(2)
+
+        const client = await makeClientWithNewRegisteredAndLoggedInUser()
+        
+        for (const transport of allTransports) {
+            await createTestNotificationUserSetting(admin, {
+                user: null,
+                messageType,
+                messageTransport: transport,
+                isEnabled: false,
+            })
+        }
+
+        const [data] = await sendMessageByTestClient(admin, {
+            to: { user: { id: client.user.id } },
+            type: messageType,
+            meta: { dv: 1 },
+        })
+
+        expect(data.status).toBe(MESSAGE_DISABLED_BY_USER_STATUS)
+        expect(data.id).toBeNull()
     })
 })
 
