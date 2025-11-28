@@ -5,7 +5,12 @@ const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeyst
 const { createOidcClient } = require('@condo/domains/user/oidc')
 
 
-async function main (args) {
+const USE_NATIVE_APPLICATION_TYPE_FLAG = '--native-application-type'
+
+async function main (rawArgs) {
+    const useNativeApplicationType = rawArgs.includes(USE_NATIVE_APPLICATION_TYPE_FLAG)
+
+    const args = rawArgs.filter(arg => arg !== USE_NATIVE_APPLICATION_TYPE_FLAG)
     const [clientId, clientSecret, redirectUri, postLogoutRedirectUri] = args
     if (!clientId || !clientSecret || !redirectUri.startsWith('http')) throw new Error('use: create-oidc-client <clientId> <clientSecret> <redirectUri>')
     if (postLogoutRedirectUri && !postLogoutRedirectUri.startsWith('http')) throw new Error('use: create-oidc-client <clientId> <clientSecret> <redirectUri> <postLogoutRedirectUri>')
@@ -20,7 +25,7 @@ async function main (args) {
         response_types: ['code id_token', 'code', 'id_token'],
         grant_types: ['implicit', 'authorization_code', 'refresh_token'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
         token_endpoint_auth_method: 'client_secret_basic',
-        application_type: 'native', // allows OIDC working on localhost without https
+        ...(useNativeApplicationType ? { application_type: 'native' } : {}), // allows OIDC working on localhost without https
         ...(postLogoutRedirectUri ? { post_logout_redirect_uris: [postLogoutRedirectUri] } : {}),
     }, keystone)
 
