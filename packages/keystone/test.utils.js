@@ -600,9 +600,10 @@ class OIDCAuthClient {
  * @note This function not working in TESTS_FAKE_CLIENT_MODE=true because callback url already contains miniapp url (see OidcClient model created during preparing)
  * @param {Object} loggedInCondoClient - logged in condo client 
  * @param {{condoOrganizationId: string, condoUserId: string}} forcedOidcAuthParams - forced OIDC auth params if user in your tests has 2+ organizations
+ * @param {{ miniAppServerUrl: string }} options - options for mini app client. The `miniAppServerUrl` is required if you create this client not from the miniapp you testing
  * @returns {Promise<Object>} Mini app client with all OIDC flow completed
  */
-const makeLoggedInMiniAppClient = async (loggedInCondoClient, forcedOidcAuthParams = {}) => {
+const makeLoggedInMiniAppClient = async (loggedInCondoClient, forcedOidcAuthParams = {}, options = { miniAppServerUrl: null }) => {
     const authCookie = loggedInCondoClient.getCookie().split(';').find(cookie => cookie.startsWith('keystone.sid='))
     if (!authCookie) {
         throw new Error('keystone.sid cookie not found')
@@ -610,8 +611,7 @@ const makeLoggedInMiniAppClient = async (loggedInCondoClient, forcedOidcAuthPara
     const miniAppAuth = new OIDCAuthClient()
     const condoAuth = new OIDCAuthClient(decodeURIComponent(authCookie.split('=')[1]).split(':')[1])
 
-    // Need to set miniapp url explicitly because callback url already contains miniapp url (see OidcClient model created during preparing)
-    const miniAppClient = await makeClient({ serverUrl: conf['SERVER_URL'] })
+    const miniAppClient = await makeClient({ serverUrl: options.miniAppServerUrl })
 
     //
     // Try to detect oidc parameters (condoOrganizationId and condoUserId).
