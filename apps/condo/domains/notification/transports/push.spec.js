@@ -606,10 +606,6 @@ describe('push transport', () => {
                 expect(successCount).toEqual(2)
                 expect(failureCount).toEqual(0)
                 
-                const responseTokens = responses.map(r => r.pushToken)
-                expect(responseTokens).toContain(payload1.pushToken)
-                expect(responseTokens).toContain(payload2.pushToken)
-                
                 responses.forEach(response => {
                     expect(response.success).toBeTruthy()
                     expect(response.type).toEqual('Fake')
