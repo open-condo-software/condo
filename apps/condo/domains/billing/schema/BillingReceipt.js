@@ -10,9 +10,8 @@ const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const access = require('@condo/domains/billing/access/BillingReceipt')
-const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
+const { DEFAULT_BILLING_CATEGORY_ID, CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
 const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
@@ -213,6 +212,19 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 })
 
                 if (!category) return false
+
+                const billingContext = await getByCondition('BillingIntegrationOrganizationContext', {
+                    id: get(receipt, 'context'),
+                    deletedAt: null,
+                })
+                if (!billingContext) return false
+
+                const activeAcquiringContexts = await find('AcquiringIntegrationContext', {
+                    organization: { id: get(billingContext, 'organization') },
+                    status: CONTEXT_FINISHED_STATUS,
+                    deletedAt: null,
+                })
+                if (!activeAcquiringContexts || activeAcquiringContexts.length !== 1) return false
 
                 const validityMonths = get(category, 'receiptValidityMonths')
                 if (validityMonths) {
