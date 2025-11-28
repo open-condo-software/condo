@@ -211,12 +211,17 @@ describe('Firebase adapter utils', () => {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
+            // data.app is set only in tests
+            // in real flow data is set without data.app
             data: {
                 app : 'condo.app.clients',
                 type: 'notification',
             },
             pushTypes: {
                 [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_SILENT_DATA,
+            },
+            appIds: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: 'condo.app.clients',
             },
         }
         const [isOk, result] = await adapter.sendNotification(pushData)
