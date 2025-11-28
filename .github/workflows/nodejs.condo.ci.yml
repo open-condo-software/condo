@@ -193,6 +193,8 @@ jobs:
               - 'packages/**'
               - 'apps/condo/domains/acquiring/**'
               - 'apps/condo/domains/billing/**'
+              - 'apps/condo/domains/organization/**'
+              - 'apps/condo/domains/miniapp/**'
             rb:
               - 'apps/rb'
               - 'apps/condo/domains/acquiring/**'
