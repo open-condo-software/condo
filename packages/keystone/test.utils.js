@@ -613,30 +613,38 @@ const makeLoggedInMiniAppClient = async (loggedInCondoClient, forcedOidcAuthPara
 
     const miniAppClient = await makeClient({ serverUrl: options.miniAppServerUrl })
 
+    const whoAmIQuery = gql`query auth { authenticatedUser { id name } }`
+
+    let condoUserId = forcedOidcAuthParams?.condoUserId
+    let condoOrganizationId = forcedOidcAuthParams?.condoOrganizationId
+
     //
     // Try to detect oidc parameters (condoOrganizationId and condoUserId).
-    // Get them from condo logged in user
+    // If these parameters not passed in forcedOidcAuthParams, try to get them from condo logged in user
     //
-    const whoAmIQuery = gql`query auth { authenticatedUser { id name } }`
-    const { data: condoUserData, errors: condoUserErrors } = await loggedInCondoClient.query(whoAmIQuery)
-    throwIfError(condoUserData, condoUserErrors, { query: whoAmIQuery })
-    const condoUserId = condoUserData.authenticatedUser.id
+    if (!condoUserId) {
+        const { data: condoUserData, errors: condoUserErrors } = await loggedInCondoClient.query(whoAmIQuery)
+        throwIfError(condoUserData, condoUserErrors, { query: whoAmIQuery })
+        condoUserId = condoUserData.authenticatedUser.id
+    }
 
-    // Get all available organizations for logged in user
-    const myOrganizationQuery = gql`query allOrganizations { allOrganizations { id name } }`
-    const { data: condoOrganizationsData, errors: condoOrganizationsErrors } = await loggedInCondoClient.query(myOrganizationQuery)
-    throwIfError(condoOrganizationsData, condoOrganizationsErrors, { query: myOrganizationQuery })
-    const organizations = condoOrganizationsData.allOrganizations
+    if (!condoOrganizationId) {
+        // Get all available organizations for logged in user
+        const myOrganizationQuery = gql`query allOrganizations { allOrganizations { id name } }`
+        const { data: condoOrganizationsData, errors: condoOrganizationsErrors } = await loggedInCondoClient.query(myOrganizationQuery)
+        throwIfError(condoOrganizationsData, condoOrganizationsErrors, { query: myOrganizationQuery })
+        const organizations = condoOrganizationsData.allOrganizations
 
-    if (organizations.length === 0) throw new Error('No organizations found for logged in user!')
-    if (organizations.length > 1) throw new Error('More than one organization found for logged in user! Please use forcedOidcAuthParams to specify organization id')
+        if (organizations.length === 0) throw new Error('No organizations found for logged in user!')
+        if (organizations.length > 1) throw new Error('More than one organization found for logged in user! Please use forcedOidcAuthParams to specify organization id')
 
-    const condoOrganizationId = organizations[0].id
+        condoOrganizationId = organizations[0].id
+    }
 
     //
     // Set parameters for OIDC auth
     //
-    const oidcAuthRequestParams = { condoUserId, condoOrganizationId, ...forcedOidcAuthParams }
+    const oidcAuthRequestParams = { condoUserId, condoOrganizationId }
 
     //
     // Build OIDC auth url
