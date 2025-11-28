@@ -9,7 +9,6 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
 import { SERVICE_PROVIDER_TYPE, MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
-import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 
 import {
     SIDE_MENU_WIDTH,
@@ -58,7 +57,6 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
                 <div className='menu-items-container'>
                     {menuData}
                 </div>
-                <ServiceSubscriptionIndicator/>
             </Layout.Sider>
         </>
     )
