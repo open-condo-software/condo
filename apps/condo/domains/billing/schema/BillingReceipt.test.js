@@ -1350,8 +1350,13 @@ describe('BillingReceipt', () => {
         })
         describe('virtual fields check', () => {
             it('checking the completion of virtual fields: canGroupReceipts, hostUrl, acquiringIntegrationId, currencyCode', async () => {
+                const [organization] = await createTestOrganization(admin)
                 const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
-                const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, context.organization, acquiringIntegration)
+                const [billingIntegration] = await createTestBillingIntegration(admin)
+                const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+                const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
+                const [property] = await createTestBillingProperty(admin, context)
+                const [account] = await createTestBillingAccount(admin, context, property)
                 await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { status: CONTEXT_FINISHED_STATUS })
                 const [billingReceipt] = await createTestBillingReceipt(admin, context, property, account)
 
