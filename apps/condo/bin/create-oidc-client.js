@@ -12,8 +12,12 @@ async function main (rawArgs) {
 
     const args = rawArgs.filter(arg => arg !== USE_NATIVE_APPLICATION_TYPE_FLAG)
     const [clientId, clientSecret, redirectUri, postLogoutRedirectUri] = args
-    if (!clientId || !clientSecret || !redirectUri.startsWith('http')) throw new Error('use: create-oidc-client <clientId> <clientSecret> <redirectUri>')
-    if (postLogoutRedirectUri && !postLogoutRedirectUri.startsWith('http')) throw new Error('use: create-oidc-client <clientId> <clientSecret> <redirectUri> <postLogoutRedirectUri>')
+
+    const usage = 'use: create-oidc-client <clientId> <clientSecret> <redirectUri> [postLogoutRedirectUri] [--native-application-type]'
+
+    if (!clientId || !clientSecret || !redirectUri.startsWith('http')) throw new Error(usage)
+    if (postLogoutRedirectUri && !postLogoutRedirectUri.startsWith('http')) throw new Error(usage)
+
     const { keystone } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
     await createOidcClient({
