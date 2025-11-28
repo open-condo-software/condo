@@ -1,5 +1,7 @@
 const admin = require('firebase-admin')
-const { isEmpty, get, isObject } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isObject = require('lodash/isObject')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -49,8 +51,8 @@ class FirebaseAdapter {
     messageIdPrefixRegexpByAppId = {}
 
     constructor (config = FIREBASE_CONFIG) {
-        if (!isObject(config) || !config[FIREBASE_DEFAULT_APP_ID]) {
-            throw new Error(`${EMPTY_FIREBASE_CONFIG_ERROR}. Expected a "default" app configuration with key "${FIREBASE_DEFAULT_APP_ID}" for fallback purposes.`)
+        if (!isObject(config) || isEmpty(config)) {
+            throw new Error(`${EMPTY_FIREBASE_CONFIG_ERROR}. Expected a "${FIREBASE_DEFAULT_APP_ID}" app configuration with key "${FIREBASE_DEFAULT_APP_ID}" for fallback purposes.`)
         }
 
         for (const [appId, appConfig] of Object.entries(config)) {
@@ -217,17 +219,18 @@ class FirebaseAdapter {
     }
 
     /**
-     * Manages to send notification to all available pushTokens of the user.
-     * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes
-     * Would try to send request to FireBase only if FireBase is initialized and `tokens` array contains real (non-fake) items.
-     * Would succeed if at least one real token succeeds in delivering notification through FireBase, or
-     * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
-     * @param notification
-     * @param tokens
-     * @param data
-     * @param pushTypes
-     * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
-     */
+      * Manages to send notification to all available pushTokens of the user.
+      * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes
+      * Would try to send request to FireBase only if FireBase is initialized and `tokens` array contains real (non-fake) items.
+      * Would succeed if at least one real token succeeds in delivering notification through FireBase, or
+      * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
+      * @param notification
+      * @param tokens
+      * @param data
+      * @param pushTypes
++     * @param appIds - Object mapping pushToken to appId for routing notifications to the correct Firebase app
+      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
+      */
     async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
@@ -298,7 +301,15 @@ class FirebaseAdapter {
                         combinedResult = FirebaseAdapter.getEmptyResult()
                     }
                     combinedResult.failureCount += notificationsBatchForApp.length
-                    combinedResult.responses.push({ state: 'error', error })
+                    for (const notification of notificationsBatchForApp) {
+                        combinedResult.responses.push({
+                            success: false,
+                            state: 'error',
+                            error,
+                            pushToken: notification.token,
+                            pushType: get(pushTypes, notification.token, null),
+                        })
+                    }
                 }
             }
 
