@@ -598,12 +598,12 @@ class OIDCAuthClient {
  * Creates the client for mini app with all OIDC flow completed
  * This means that all OIDC endpoints of miniapp were called and session contains all needed fields
  * @note This function not working in TESTS_FAKE_CLIENT_MODE=true because callback url already contains miniapp url (see OidcClient model created during preparing)
- * @param {Object} loggenInCondoClient - logged in condo client 
+ * @param {Object} loggedInCondoClient - logged in condo client 
  * @param {{condoOrganizationId: string, condoUserId: string}} forcedOidcAuthParams - forced OIDC auth params if user in your tests has 2+ organizations
  * @returns {Promise<Object>} Mini app client with all OIDC flow completed
  */
-const makeLoggedInMiniAppClient = async (loggenInCondoClient, forcedOidcAuthParams = {}) => {
-    const authCookie = loggenInCondoClient.getCookie().split(';').find(cookie => cookie.startsWith('keystone.sid='))
+const makeLoggedInMiniAppClient = async (loggedInCondoClient, forcedOidcAuthParams = {}) => {
+    const authCookie = loggedInCondoClient.getCookie().split(';').find(cookie => cookie.startsWith('keystone.sid='))
     if (!authCookie) {
         throw new Error('keystone.sid cookie not found')
     }
@@ -618,13 +618,13 @@ const makeLoggedInMiniAppClient = async (loggenInCondoClient, forcedOidcAuthPara
     // Get them from condo logged in user
     //
     const whoAmIQuery = gql`query auth { authenticatedUser { id name } }`
-    const { data: condoUserData, errors: condoUserErrors } = await loggenInCondoClient.query(whoAmIQuery)
+    const { data: condoUserData, errors: condoUserErrors } = await loggedInCondoClient.query(whoAmIQuery)
     throwIfError(condoUserData, condoUserErrors, { query: whoAmIQuery })
     const condoUserId = condoUserData.authenticatedUser.id
 
     // Get all available organizations for logged in user
     const myOrganizationQuery = gql`query allOrganizations { allOrganizations { id name } }`
-    const { data: condoOrganizationsData, errors: condoOrganizationsErrors } = await loggenInCondoClient.query(myOrganizationQuery)
+    const { data: condoOrganizationsData, errors: condoOrganizationsErrors } = await loggedInCondoClient.query(myOrganizationQuery)
     throwIfError(condoOrganizationsData, condoOrganizationsErrors, { query: myOrganizationQuery })
     const organizations = condoOrganizationsData.allOrganizations
 
