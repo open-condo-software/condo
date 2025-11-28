@@ -23,6 +23,7 @@ const { makeClient } = require('@open-condo/keystone/test.utils')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
+const { CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/billing/constants/constants')
 const {
     makeServiceUserForIntegration,
     makeOrganizationIntegrationManager,
@@ -45,6 +46,7 @@ const {
     generateServicesData,
     createTestBillingIntegration,
     createTestBillingIntegrationOrganizationContext,
+    updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
@@ -80,9 +82,13 @@ describe('BillingReceipt', () => {
     let anotherAccount
 
     beforeAll(async () => {
-        const { admin: adminClient, context: billingContext, integration } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+        const { admin: adminClient, context: billingContext, integration, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         admin = adminClient
         context = billingContext
+        const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+        await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+            status: CONTEXT_FINISHED_STATUS,
+        })
         const [firstProperty] = await createTestBillingProperty(admin, context)
         const [firstAccount] = await createTestBillingAccount(admin, context, firstProperty)
         property = firstProperty
@@ -1344,8 +1350,13 @@ describe('BillingReceipt', () => {
         })
         describe('virtual fields check', () => {
             it('checking the completion of virtual fields: canGroupReceipts, hostUrl, acquiringIntegrationId, currencyCode', async () => {
+                const [organization] = await createTestOrganization(admin)
                 const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
-                const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, context.organization, acquiringIntegration)
+                const [billingIntegration] = await createTestBillingIntegration(admin)
+                const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+                const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
+                const [property] = await createTestBillingProperty(admin, context)
+                const [account] = await createTestBillingAccount(admin, context, property)
                 await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { status: CONTEXT_FINISHED_STATUS })
                 const [billingReceipt] = await createTestBillingReceipt(admin, context, property, account)
 
@@ -1356,6 +1367,13 @@ describe('BillingReceipt', () => {
             })
 
             describe('isPayable virtual field', () => {
+                let billingIntegration
+                let acquiringIntegration
+
+                beforeAll(async () => {
+                    [billingIntegration] = await createTestBillingIntegration(admin);
+                    [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+                })
 
                 test('should return true for a receipt within validity period with no newer receipts', async () => {
                     const period = dayjs().subtract(1, 'month').format('YYYY-MM-01') // 1 month ago
@@ -1447,6 +1465,112 @@ describe('BillingReceipt', () => {
                     jest.useRealTimers()
                 })
 
+                test('should return false when billing context was soft deleted', async () => {
+                    const period = dayjs().subtract(1, 'month').format('YYYY-MM-01')
+                    const [category] = await createTestBillingCategory(admin, {
+                        receiptValidityMonths: 3,
+                    })
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
+                    const [property] = await createTestBillingProperty(admin, context)
+                    const [account] = await createTestBillingAccount(admin, context, property)
+                    const [createdReceipt] = await createTestBillingReceipt(admin, context, property, account, {
+                        period,
+                        category: { connect: { id: category.id } },
+                    })
+                    await updateTestBillingIntegrationOrganizationContext(admin, context.id, { deletedAt: new Date().toISOString() })
+                    const receipt = await BillingReceipt.getOne(admin, { id: createdReceipt.id })
+                    expect(receipt.isPayable).toBe(false)
+                })
+
+                test('should return false when no acquiring context with status Finished exists for organization', async () => {
+                    const period = dayjs().subtract(1, 'month').format('YYYY-MM-01')
+                    const [category] = await createTestBillingCategory(admin, {
+                        receiptValidityMonths: 3,
+                    })
+        
+                    const [o10n] = await createTestOrganization(admin)
+                    const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, o10n, billingIntegration)
+                    const [property] = await createTestBillingProperty(admin, billingContext)
+                    const [account] = await createTestBillingAccount(admin, billingContext, property)
+                    const [receipt] = await createTestBillingReceipt(admin, billingContext, property, account, {
+                        period,
+                        category: { connect: { id: category.id } },
+                    })
+
+                    expect(receipt.isPayable).toBe(false)
+                })
+
+                test('should return false when acquiring context exists but not in Finished status', async () => {
+                    const period = dayjs().subtract(1, 'month').format('YYYY-MM-01')
+                    const [category] = await createTestBillingCategory(admin, {
+                        receiptValidityMonths: 3,
+                    })
+        
+                    const [o10n] = await createTestOrganization(admin)
+                    await createTestAcquiringIntegrationContext(admin, o10n, acquiringIntegration, {
+                        status: CONTEXT_IN_PROGRESS_STATUS,
+                    })
+        
+                    const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, o10n, billingIntegration)
+                    const [property] = await createTestBillingProperty(admin, billingContext)
+                    const [account] = await createTestBillingAccount(admin, billingContext, property)
+                    const [receipt] = await createTestBillingReceipt(admin, billingContext, property, account, {
+                        period,
+                        category: { connect: { id: category.id } },
+                    })
+
+                    expect(receipt.isPayable).toBe(false)
+                })
+
+                test('should return false when all acquiring contexts are deleted', async () => {
+                    const period = dayjs().subtract(1, 'month').format('YYYY-MM-01')
+                    const [category] = await createTestBillingCategory(admin, {
+                        receiptValidityMonths: 3,
+                    })
+        
+                    const [o10n] = await createTestOrganization(admin)
+                    const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, o10n, acquiringIntegration, {
+                        status: CONTEXT_FINISHED_STATUS,
+                    })
+                    await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, { deletedAt: new Date().toISOString() })
+        
+                    const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, o10n, billingIntegration)
+                    const [property] = await createTestBillingProperty(admin, billingContext)
+                    const [account] = await createTestBillingAccount(admin, billingContext, property)
+                    const [receipt] = await createTestBillingReceipt(admin, billingContext, property, account, {
+                        period,
+                        category: { connect: { id: category.id } },
+                    })
+
+                    expect(receipt.isPayable).toBe(false)
+                })
+
+                test('should return true when exactly one acquiring context in status Finished exists', async () => {
+                    const period = dayjs().subtract(1, 'month').format('YYYY-MM-01')
+                    const [category] = await createTestBillingCategory(admin, {
+                        receiptValidityMonths: 3,
+                    })
+        
+                    const [o10n] = await createTestOrganization(admin)
+                    await createTestAcquiringIntegrationContext(admin, o10n, acquiringIntegration, {
+                        status: CONTEXT_IN_PROGRESS_STATUS,
+                    })
+                    await createTestAcquiringIntegrationContext(admin, o10n, acquiringIntegration, {
+                        status: CONTEXT_FINISHED_STATUS,
+                    })
+        
+                    const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, o10n, billingIntegration)
+                    const [property] = await createTestBillingProperty(admin, billingContext)
+                    const [account] = await createTestBillingAccount(admin, billingContext, property)
+                    const [receipt] = await createTestBillingReceipt(admin, billingContext, property, account, {
+                        period,
+                        category: { connect: { id: category.id } },
+                    })
+
+                    expect(receipt.isPayable).toBe(true)
+                })
             })
         })
     })
