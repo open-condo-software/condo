@@ -202,7 +202,7 @@ async function getAppServerUrl (appName) {
     return await getAppEnvValue(appName, 'SERVER_URL')
 }
 
-async function prepareCondoAppOidcConfig (appName, { redirectUrl, postLogoutRedirectUrl } = {}) {
+async function prepareCondoAppOidcConfig (appName, { redirectUrl, postLogoutRedirectUrl, useNativeApplicationType = true } = {}) {
     const clientSecret = getRandomString(20)
     const clientId = appName
     const serverUrl = await getAppServerUrl('condo')
@@ -210,6 +210,9 @@ async function prepareCondoAppOidcConfig (appName, { redirectUrl, postLogoutRedi
     let command = `yarn workspace @app/condo node ./bin/create-oidc-client.js ${appName} ${clientSecret} ${callbackUrl}`
     if (postLogoutRedirectUrl) {
         command += ` ${postLogoutRedirectUrl}`
+    }
+    if (useNativeApplicationType) {
+        command += ' --native-application-type'
     }
     await safeExec(command)
     return { serverUrl, clientId, clientSecret }
