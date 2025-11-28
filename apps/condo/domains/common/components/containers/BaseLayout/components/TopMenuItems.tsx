@@ -7,7 +7,6 @@ import { Space } from '@open-condo/ui'
 import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
-import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 
@@ -30,7 +29,6 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                 </div>
                 <Space size={12}>
                     <SBBOLIndicator organization={organization} />
-                    <ServiceSubscriptionIndicator />
                     <InlineOrganizationSelect />
                 </Space>
                 <UserMenu />
