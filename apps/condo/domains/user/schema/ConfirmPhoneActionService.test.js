@@ -8,7 +8,6 @@ const {
     TOO_MANY_REQUESTS,
 } = require('@condo/domains/user/constants/errors')
 const {
-    START_CONFIRM_PHONE_MUTATION,
     COMPLETE_CONFIRM_PHONE_MUTATION,
     GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
     RESEND_CONFIRM_PHONE_SMS_MUTATION,
@@ -17,9 +16,10 @@ const {
     createTestPhone,
     createTestConfirmPhoneAction,
     ConfirmPhoneAction,
+    startConfirmPhoneActionByTestClient,
+    completeConfirmPhoneActionByTestClient,
+    registerNewUser,
 } = require('@condo/domains/user/utils/testSchema')
-
-const { completeConfirmPhoneActionByTestClient } = require('../utils/testSchema')
 
 const captcha = () => {
     return faker.lorem.sentence()
@@ -27,12 +27,50 @@ const captcha = () => {
 
 describe('ConfirmPhoneActionService', () => {
     describe('startConfirmPhoneAction', () => {
-        it('can be created by Anonymous', async () => {
+        it('can be created by Anonymous if pass phone', async () => {
             const client = await makeClient()
             const phone = createTestPhone()
-            const createInput = { phone, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, captcha: captcha() }
-            const { data: { result: { token } } } = await client.mutate(START_CONFIRM_PHONE_MUTATION, { data: createInput })
+            const [{ token }] = await startConfirmPhoneActionByTestClient(client, {
+                phone,
+            })
             expect(token).not.toHaveLength(0)
+        })
+
+        test('can be created by Anonymous if pass user', async () => {
+            const client = await makeClient()
+            const anonymous = await makeClient()
+            const [registeredUser] = await registerNewUser(anonymous)
+            const [{ token }] = await startConfirmPhoneActionByTestClient(client, {
+                user: { id: registeredUser.id },
+            })
+            expect(token).not.toHaveLength(0)
+        })
+
+        test('Should throw error if no pass phone and user both', async () => {
+            const client = await makeClient()
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await startConfirmPhoneActionByTestClient(client, {})
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'PHONE_AND_USER_ID_IS_MISSING',
+            })
+        })
+
+        test('Should throw error if pass phone and user both', async () => {
+            const client = await makeClient()
+            const anonymous = await makeClient()
+            const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await startConfirmPhoneActionByTestClient(client, {
+                    user: { id: registeredUser.id },
+                    phone: userAttrs.phone,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'SHOULD_BE_ONE_IDENTIFIER_ONLY',
+            })
         })
     })
 
