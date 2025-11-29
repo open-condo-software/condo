@@ -1,0 +1,14 @@
+query getTicketCategoryClassifiers ($where: TicketCategoryClassifierWhereInput, $first: Int, $skip: Int, $sortBy: [SortTicketCategoryClassifiersBy!]) {
+    classifiers: allTicketCategoryClassifiers(
+        where: $where,
+        first: $first,
+        skip: $skip,
+        sortBy: $sortBy
+    ) {
+        id
+        name
+        organization {
+            id
+        }
+    }
+}

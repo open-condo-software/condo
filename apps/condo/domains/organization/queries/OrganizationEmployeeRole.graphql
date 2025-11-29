@@ -10,3 +10,11 @@ query getOrganizationEmployeeRolesByOrganization ($organizationId: ID!) {
         description
     }
 }
+
+mutation createOrganizationEmployeeRole($data: OrganizationEmployeeRoleCreateInput!) {
+    role: createOrganizationEmployeeRole(data: $data) {
+        id
+        name
+        description
+    }
+}
