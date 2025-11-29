@@ -19,6 +19,8 @@ const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@co
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const { resetOrganizationEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
+const { SUBSCRIPTION_TYPE_PRIORITY } = require('@condo/domains/subscription/constants')
+const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
 
@@ -209,6 +211,53 @@ const Organization = new GQLListSchema('Organization', {
                 '\nIf the organization is test or fraudulent, then you need to set value to false.',
             type: 'Checkbox',
             defaultValue: true,
+        },
+
+        subscription: {
+            schemaDoc: 'Active subscription context for this organization. Returns the best active subscription ' +
+                '(by type priority: extended > basic, then by latest startAt). Returns null if no active subscription',
+            type: 'Virtual',
+            graphQLReturnType: 'SubscriptionContext',
+            graphQLReturnFragment: '{ id subscriptionPlan { id type period name } startAt endAt isTrial daysRemaining }',
+            resolver: async (organization, args, context) => {
+                const now = new Date().toISOString()
+
+                // Find all active subscription contexts with their plans
+                const activeContexts = await SubscriptionContext.getAll(context, {
+                    organization: { id: organization.id },
+                    startAt_lte: now,
+                    endAt_gte: now,
+                    deletedAt: null,
+                }, {
+                    sortBy: ['startAt_DESC'],
+                })
+
+                if (activeContexts.length === 0) {
+                    return null
+                }
+
+                // If only one context, return it
+                if (activeContexts.length === 1) {
+                    return activeContexts[0]
+                }
+
+                // Sort by type priority (extended > basic), then by startAt (latest first)
+                // subscriptionPlan is already loaded as related object
+                const sorted = activeContexts.sort((a, b) => {
+                    const priorityA = SUBSCRIPTION_TYPE_PRIORITY[a.subscriptionPlan?.type] || 0
+                    const priorityB = SUBSCRIPTION_TYPE_PRIORITY[b.subscriptionPlan?.type] || 0
+
+                    // Higher priority first
+                    if (priorityA !== priorityB) {
+                        return priorityB - priorityA
+                    }
+
+                    // Later startAt first (already sorted, but keep for clarity)
+                    return new Date(b.startAt).getTime() - new Date(a.startAt).getTime()
+                })
+
+                return sorted[0]
+            },
         },
     },
     hooks: {

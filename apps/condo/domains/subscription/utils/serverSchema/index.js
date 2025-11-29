@@ -9,9 +9,15 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ServiceSubscription = generateServerUtils('ServiceSubscription')
+const SubscriptionPlan = generateServerUtils('SubscriptionPlan')
+const PricingRule = generateServerUtils('PricingRule')
+const SubscriptionContext = generateServerUtils('SubscriptionContext')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     ServiceSubscription,
+    SubscriptionPlan,
+    PricingRule,
+    SubscriptionContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
