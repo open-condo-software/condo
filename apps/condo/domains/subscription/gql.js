@@ -11,9 +11,21 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const SERVICE_SUBSCRIPTION_FIELDS = `{ type isTrial organization { id } startAt finishAt unitsCount unitPrice totalPrice currency ${COMMON_FIELDS} }`
 const ServiceSubscription = generateGqlQueries('ServiceSubscription', SERVICE_SUBSCRIPTION_FIELDS)
 
+const SUBSCRIPTION_PLAN_FIELDS = `{ type periodType name description price currencyCode news marketplace support ai passTickets isActive ${COMMON_FIELDS} }`
+const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
+
+const PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } organization { id } organizationFeatures validFrom validTo ruleType discountPercent discountAmount fixedPrice priority isActive canBePromoted promotionText ${COMMON_FIELDS} }`
+const PricingRule = generateGqlQueries('PricingRule', PRICING_RULE_FIELDS)
+
+const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } startAt endAt basePrice calculatedPrice appliedRules manualPrice manualPriceReason isTrial ${COMMON_FIELDS} }`
+const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     ServiceSubscription,
+    SubscriptionPlan,
+    PricingRule,
+    SubscriptionContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
