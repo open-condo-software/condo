@@ -8,32 +8,15 @@ async function canReadSubscriptionPlans ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return {}
-
-    // TODO(codegen): write canReadSubscriptionPlans logic for user!
-    return false
+    return {}
 }
 
-async function canManageSubscriptionPlans ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageSubscriptionPlans ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
 
-    if (operation === 'create') {
-        // TODO(codegen): write canManageSubscriptionPlans create logic!
-        return false
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManageSubscriptionPlans update logic!
-        return false
-    }
-
-    return false
+    return user.isAdmin || user.isSupport
 }
-
-/*
-  Rules are logical functions that used for list access, and may return a boolean (meaning
-  all or no items are available) or a set of filters that limit the available items.
-*/
 module.exports = {
     canReadSubscriptionPlans,
     canManageSubscriptionPlans,

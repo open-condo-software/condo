@@ -3,13 +3,11 @@
  */
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/GetAvailableSubscriptionPlansService')
-const { PRICING_RULE_TYPE } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_PERIODS } = require('@condo/domains/subscription/constants')
 const { calculateSubscriptionPrice } = require('@condo/domains/subscription/utils/calculateSubscriptionPrice')
-const { SubscriptionPlan, PricingRule } = require('@condo/domains/subscription/utils/serverSchema')
 
 const ERRORS = {
     ORGANIZATION_NOT_FOUND: {
@@ -23,16 +21,18 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
     types: [
         {
             access: true,
-            type: `type AvailableSubscriptionPlan {
-                plan: SubscriptionPlan!
+            type: `type SubscriptionPlanPrice {
+                period: String!
                 basePrice: String!
                 currentPrice: String!
-                discount: String
-                appliedRules: JSON
-                hasPromotion: Boolean!
-                promotionText: String
-                promotionPrice: String
-                promotionDiscount: String
+                currencyCode: String
+            }`,
+        },
+        {
+            access: true,
+            type: `type AvailableSubscriptionPlan {
+                plan: SubscriptionPlan!
+                prices: [SubscriptionPlanPrice!]!
             }`,
         },
         {
@@ -46,107 +46,40 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
     queries: [
         {
             access: access.canGetAvailableSubscriptionPlans,
-            schema: 'getAvailableSubscriptionPlans(organizationId: ID!): GetAvailableSubscriptionPlansOutput',
+            schema: 'getAvailableSubscriptionPlans(organization: OrganizationWhereUniqueInput!): GetAvailableSubscriptionPlansOutput',
             resolver: async (parent, args, context) => {
-                const { organizationId } = args
+                const { organization: organizationInput } = args
 
-                // Get organization
-                const [organization] = await Organization.getAll(context, {
-                    id: organizationId,
+                const [organization] = await find('Organization', {
+                    id: organizationInput.id,
                     deletedAt: null,
-                }, { first: 1 })
-
+                })
                 if (!organization) {
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
-
-                // Get all active plans for this organization type
-                const plans = await SubscriptionPlan.getAll(context, {
+                
+                const plans = await find('SubscriptionPlan', {
                     isActive: true,
                     organizationType: organization.type,
                     deletedAt: null,
-                }, {
-                    sortBy: ['type_ASC', 'period_ASC'],
                 })
 
-                // Get promotional rules (canBePromoted = true)
-                const promotionalRules = await PricingRule.getAll(context, {
-                    isActive: true,
-                    canBePromoted: true,
-                    deletedAt: null,
-                })
+                const result = []
 
-                const now = new Date()
-                const orgFeatures = organization.features || []
+                for (const plan of plans) {
+                    const prices = []
 
-                const result = await Promise.all(plans.map(async (plan) => {
-                    // Calculate current price for this organization
-                    const priceCalculation = await calculateSubscriptionPrice(
-                        context,
-                        organizationId,
-                        plan.id,
-                        organization
-                    )
+                    for (const period of SUBSCRIPTION_PERIODS) {
+                        const priceData = await calculateSubscriptionPrice(plan.id, period, organization)
+                        if (!priceData) continue
 
-                    const basePrice = priceCalculation.basePrice
-                    const currentPrice = priceCalculation.finalPrice
-                    const discount = basePrice !== currentPrice
-                        ? ((parseFloat(basePrice) - parseFloat(currentPrice)) / parseFloat(basePrice) * 100).toFixed(0) + '%'
-                        : null
+                        const { basePrice, finalPrice, currencyCode } = priceData
 
-                    // Find promotional rules that DON'T currently apply but could
-                    let hasPromotion = false
-                    let promotionText = null
-                    let promotionPrice = null
-                    let promotionDiscount = null
-
-                    for (const rule of promotionalRules) {
-                        // Check if rule applies to this plan
-                        if (rule.subscriptionPlan && rule.subscriptionPlan !== plan.id) continue
-
-                        // Check time range
-                        if (rule.validFrom && new Date(rule.validFrom) > now) continue
-                        if (rule.validTo && new Date(rule.validTo) < now) continue
-
-                        // Check if organization already qualifies (then it's not a promotion)
-                        const alreadyQualifies = !rule.organizationFeatures ||
-                            rule.organizationFeatures.length === 0 ||
-                            rule.organizationFeatures.every(f => orgFeatures.includes(f))
-
-                        if (alreadyQualifies) continue
-
-                        // This is a promotion the organization could get
-                        hasPromotion = true
-                        promotionText = rule.promotionText
-
-                        // Calculate what price would be with this rule
-                        let promoPrice = parseFloat(basePrice)
-                        if (rule.ruleType === PRICING_RULE_TYPE.PERCENTAGE_DISCOUNT) {
-                            promoPrice = promoPrice * (1 - parseFloat(rule.discountPercent) / 100)
-                        } else if (rule.ruleType === PRICING_RULE_TYPE.FIXED_DISCOUNT) {
-                            promoPrice = Math.max(0, promoPrice - parseFloat(rule.discountAmount))
-                        } else if (rule.ruleType === PRICING_RULE_TYPE.FIXED_PRICE) {
-                            promoPrice = parseFloat(rule.fixedPrice)
-                        }
-
-                        promotionPrice = promoPrice.toFixed(2)
-                        promotionDiscount = ((parseFloat(basePrice) - promoPrice) / parseFloat(basePrice) * 100).toFixed(0) + '%'
-
-                        break // Take first matching promotion
+                        prices.push({ period, basePrice, currentPrice: finalPrice, currencyCode })
                     }
 
-                    return {
-                        plan,
-                        basePrice,
-                        currentPrice,
-                        discount,
-                        appliedRules: priceCalculation.appliedRules,
-                        hasPromotion,
-                        promotionText,
-                        promotionPrice,
-                        promotionDiscount,
-                    }
-                }))
+                    result.push({ plan, prices })
+                }
 
                 return { plans: result }
             },

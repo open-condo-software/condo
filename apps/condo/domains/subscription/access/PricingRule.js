@@ -8,24 +8,15 @@ async function canReadPricingRules ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
 
-    // TODO(codegen): write canReadPricingRules logic for user!
     return false
 }
 
 async function canManagePricingRules ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
-
-    if (operation === 'create') {
-        // TODO(codegen): write canManagePricingRules create logic!
-        return false
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManagePricingRules update logic!
-        return false
-    }
+    if (user.isAdmin || user.isSupport) return true
 
     return false
 }

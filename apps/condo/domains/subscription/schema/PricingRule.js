@@ -5,10 +5,11 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const { MONEY_AMOUNT_FIELD, PERCENT_FIELD } = require('@condo/domains/common/schema/fields')
-const { ALL_FEATURES } = require('@condo/domains/organization/constants/features')
+const { MONEY_AMOUNT_FIELD, PERCENT_FIELD, CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
+const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const access = require('@condo/domains/subscription/access/PricingRule')
-const { PRICING_RULE_TYPES } = require('@condo/domains/subscription/constants')
+const { PRICING_RULE_TYPES, SUBSCRIPTION_PERIODS } = require('@condo/domains/subscription/constants')
 
 
 const PricingRule = new GQLListSchema('PricingRule', {
@@ -28,40 +29,36 @@ const PricingRule = new GQLListSchema('PricingRule', {
         },
 
         subscriptionPlan: {
-            schemaDoc: 'Subscription plan this rule applies to. If null, applies to all plans',
+            schemaDoc: 'Subscription plan this rule applies to',
             type: 'Relationship',
             ref: 'SubscriptionPlan',
+            isRequired: true,
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
+
+        period: {
+            schemaDoc: 'Subscription period this rule applies to (monthly, yearly)',
+            type: 'Select',
+            options: SUBSCRIPTION_PERIODS,
+            isRequired: true,
+        },
+
+        currencyCode: {
+            ...CURRENCY_CODE_FIELD,
+            schemaDoc: 'Currency code for fixed prices/amounts (ISO-4217). Required for fixed_price and fixed_discount rules',
             isRequired: false,
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         organization: {
+            ...COMMON_AND_ORGANIZATION_OWNED_FIELD,
             schemaDoc: 'Specific organization this rule applies to. If null, applies to all organizations',
-            type: 'Relationship',
-            ref: 'Organization',
             isRequired: false,
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
         organizationFeatures: {
+            ...ORGANIZATION_FEATURES_FIELD,
             schemaDoc: 'List of organization features required for this rule to apply. All features must be present',
-            type: 'Json',
             isRequired: false,
-            defaultValue: [],
-            hooks: {
-                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
-                    const features = resolvedData[fieldPath]
-                    if (!features) return
-                    if (!Array.isArray(features)) {
-                        return addFieldValidationError('organizationFeatures must be an array')
-                    }
-                    for (const feature of features) {
-                        if (!ALL_FEATURES.includes(feature)) {
-                            return addFieldValidationError(`Unknown feature: ${feature}. Allowed: ${ALL_FEATURES.join(', ')}`)
-                        }
-                    }
-                },
-            },
         },
 
         validFrom: {

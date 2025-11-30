@@ -4,36 +4,33 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canReadSubscriptionContexts ({ authentication: { item: user } }) {
+const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
+
+async function canReadSubscriptionContexts ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
 
-    // TODO(codegen): write canReadSubscriptionContexts logic for user!
-    return false
+    // Employee can read their organization's subscription contexts
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+    
+    return {
+        organization: { id_in: permittedOrganizations },
+    }
 }
 
-async function canManageSubscriptionContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageSubscriptionContexts ({ authentication: { item: user }, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
 
     if (operation === 'create') {
-        // TODO(codegen): write canManageSubscriptionContexts create logic!
-        return false
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManageSubscriptionContexts update logic!
-        return false
+        return user.isAdmin || user.isSupport
     }
 
     return false
 }
 
-/*
-  Rules are logical functions that used for list access, and may return a boolean (meaning
-  all or no items are available) or a set of filters that limit the available items.
-*/
 module.exports = {
     canReadSubscriptionContexts,
     canManageSubscriptionContexts,

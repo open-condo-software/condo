@@ -5,28 +5,25 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const { CURRENCY_CODE_FIELD, POSITIVE_MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/subscription/access/SubscriptionPlan')
-const { SUBSCRIPTION_TYPES, SUBSCRIPTION_PERIODS } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_TYPES } = require('@condo/domains/subscription/constants')
 
 
 const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
-    schemaDoc: 'Subscription plan that defines pricing tier, period, features and base price',
+    schemaDoc: 'Subscription plan that defines a product with features. Prices are defined via PricingRule',
     fields: {
 
         type: {
-            schemaDoc: 'Type of subscription plan (basic, extended)',
+            schemaDoc: 'Type of subscription plan (basic, extended). Used for programmatic access',
             type: 'Select',
             options: SUBSCRIPTION_TYPES,
             isRequired: true,
-        },
-
-        period: {
-            schemaDoc: 'Subscription period (monthly, yearly)',
-            type: 'Select',
-            options: SUBSCRIPTION_PERIODS,
-            isRequired: true,
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
         name: {
@@ -47,17 +44,11 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             options: ORGANIZATION_TYPES,
             dataType: 'string',
             isRequired: true,
-        },
-
-        price: {
-            ...POSITIVE_MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Base price of the subscription plan',
-            isRequired: true,
-        },
-
-        currencyCode: {
-            ...CURRENCY_CODE_FIELD,
-            schemaDoc: 'Currency code for the price (ISO-4217)',
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
         news: {

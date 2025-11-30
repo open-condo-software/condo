@@ -1,17 +1,16 @@
 /**
- * Service to activate a subscription plan for an organization
+ * Service to activate a trial subscription for an organization
  */
 
 const dayjs = require('dayjs')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionPlanService')
-const { SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
-const { calculateSubscriptionPrice } = require('@condo/domains/subscription/utils/calculateSubscriptionPrice')
-const { SubscriptionPlan, SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+
+const TRIAL_PERIOD_DAYS = 14
 
 const ERRORS = {
     ORGANIZATION_NOT_FOUND: {
@@ -29,6 +28,16 @@ const ERRORS = {
         type: 'INVALID_ORGANIZATION_TYPE',
         message: 'Plan is not available for this organization type',
     },
+    TRIAL_ALREADY_USED: {
+        code: BAD_USER_INPUT,
+        type: 'TRIAL_ALREADY_USED',
+        message: 'Trial subscription for this plan has already been used',
+    },
+    PAID_SUBSCRIPTION_NOT_SUPPORTED: {
+        code: BAD_USER_INPUT,
+        type: 'PAID_SUBSCRIPTION_NOT_SUPPORTED',
+        message: 'Paid subscriptions are not yet supported through this service. Contact support',
+    },
 }
 
 const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptionPlanService', {
@@ -40,7 +49,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                 sender: SenderFieldInput!
                 organization: OrganizationWhereUniqueInput!
                 subscriptionPlan: SubscriptionPlanWhereUniqueInput!
-                isTrial: Boolean
+                isTrial: Boolean!
             }`,
         },
         {
@@ -57,25 +66,26 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
             schema: 'activateSubscriptionPlan(data: ActivateSubscriptionPlanInput!): ActivateSubscriptionPlanOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, organization: organizationInput, subscriptionPlan: planInput, isTrial = false } = data
+                const { dv, sender, organization: organizationInput, subscriptionPlan: planInput, isTrial } = data
 
-                // Get organization
-                const [organization] = await Organization.getAll(context, {
+                // Only trial subscriptions supported for now
+                if (!isTrial) {
+                    throw new GQLError(ERRORS.PAID_SUBSCRIPTION_NOT_SUPPORTED, context)
+                }
+
+                const [organization] = await find('Organization', {
                     id: organizationInput.id,
                     deletedAt: null,
-                }, { first: 1 })
-
+                })
                 if (!organization) {
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
 
-                // Get subscription plan
-                const [plan] = await SubscriptionPlan.getAll(context, {
+                const [plan] = await find('SubscriptionPlan', {
                     id: planInput.id,
                     isActive: true,
                     deletedAt: null,
-                }, { first: 1 })
-
+                })
                 if (!plan) {
                     throw new GQLError(ERRORS.PLAN_NOT_FOUND, context)
                 }
@@ -85,20 +95,23 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     throw new GQLError(ERRORS.INVALID_ORGANIZATION_TYPE, context)
                 }
 
-                // Calculate price
-                const priceCalculation = await calculateSubscriptionPrice(
-                    context,
-                    organization.id,
-                    plan.id,
-                    organization
-                )
+                // Check if trial already used for this plan
+                const [existingTrial] = await find('SubscriptionContext', {
+                    organization: organization.id,
+                    subscriptionPlan: plan.id,
+                    isTrial: true,
+                    deletedAt: null,
+                })
 
-                // Determine dates
+                if (existingTrial) {
+                    throw new GQLError(ERRORS.TRIAL_ALREADY_USED, context)
+                }
+
+                // Trial dates
                 const startAt = dayjs().startOf('day')
-                const periodDays = plan.period === SUBSCRIPTION_PERIOD.YEARLY ? 365 : 30
-                const endAt = startAt.add(periodDays, 'day')
+                const endAt = startAt.add(TRIAL_PERIOD_DAYS, 'day')
 
-                // Create subscription context
+                // Create trial subscription context
                 const subscriptionContext = await SubscriptionContext.create(context, {
                     dv,
                     sender,
@@ -106,15 +119,10 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     subscriptionPlan: { connect: { id: plan.id } },
                     startAt: startAt.toISOString(),
                     endAt: endAt.toISOString(),
-                    basePrice: priceCalculation.basePrice,
-                    calculatedPrice: priceCalculation.finalPrice,
-                    appliedRules: priceCalculation.appliedRules,
-                    isTrial,
+                    isTrial: true,
                 })
 
-                return {
-                    subscriptionContext,
-                }
+                return { subscriptionContext }
             },
         },
     ],
