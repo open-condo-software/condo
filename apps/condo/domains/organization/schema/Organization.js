@@ -19,7 +19,7 @@ const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@co
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const { resetOrganizationEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
-const { SUBSCRIPTION_TYPE_PRIORITY } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
@@ -215,10 +215,10 @@ const Organization = new GQLListSchema('Organization', {
 
         subscription: {
             schemaDoc: 'Active subscription context for this organization. Returns the best active subscription ' +
-                '(by type priority: extended > basic, then by latest startAt). Returns null if no active subscription',
+                '(by plan type: extended > basic, then by latest startAt). Returns null if no active subscription',
             type: 'Virtual',
             graphQLReturnType: 'SubscriptionContext',
-            graphQLReturnFragment: '{ id subscriptionPlan { id type period name } startAt endAt isTrial daysRemaining }',
+            graphQLReturnFragment: '{ id subscriptionPlan { id type name } startAt endAt isTrial daysRemaining }',
             resolver: async (organization, args, context) => {
                 const now = new Date().toISOString()
 
@@ -230,7 +230,7 @@ const Organization = new GQLListSchema('Organization', {
                     deletedAt: null,
                 }, {
                     sortBy: ['startAt_DESC'],
-                })
+                }, 'id subscriptionPlan { id type name } startAt endAt isTrial')
 
                 if (activeContexts.length === 0) {
                     return null
@@ -241,18 +241,23 @@ const Organization = new GQLListSchema('Organization', {
                     return activeContexts[0]
                 }
 
-                // Sort by type priority (extended > basic), then by startAt (latest first)
-                // subscriptionPlan is already loaded as related object
-                const sorted = activeContexts.sort((a, b) => {
-                    const priorityA = SUBSCRIPTION_TYPE_PRIORITY[a.subscriptionPlan?.type] || 0
-                    const priorityB = SUBSCRIPTION_TYPE_PRIORITY[b.subscriptionPlan?.type] || 0
+                // Type priority: extended > basic
+                const TYPE_PRIORITY = {
+                    [SUBSCRIPTION_TYPE.BASIC]: 1,
+                    [SUBSCRIPTION_TYPE.EXTENDED]: 2,
+                }
 
-                    // Higher priority first
+                // Sort by type priority (higher = better), then by startAt (latest first)
+                const sorted = activeContexts.sort((a, b) => {
+                    const priorityA = TYPE_PRIORITY[a.subscriptionPlan?.type] || 0
+                    const priorityB = TYPE_PRIORITY[b.subscriptionPlan?.type] || 0
+
+                    // Higher priority first (extended > basic)
                     if (priorityA !== priorityB) {
                         return priorityB - priorityA
                     }
 
-                    // Later startAt first (already sorted, but keep for clarity)
+                    // Later startAt first
                     return new Date(b.startAt).getTime() - new Date(a.startAt).getTime()
                 })
 
