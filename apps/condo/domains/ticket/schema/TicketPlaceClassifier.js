@@ -9,11 +9,11 @@ const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organiza
 const access = require('@condo/domains/ticket/access/TicketPlaceClassifier')
 
 const TicketPlaceClassifier = new GQLListSchema('TicketPlaceClassifier', {
-    schemaDoc: 'Describes where the incident occurred',
+    schemaDoc: 'Classifies the location where an incident occurred.',
     fields: {
         organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
         name: {
-            schemaDoc: 'Localized Ticket Place classifier name',
+            schemaDoc: 'Localized name of the location classifier.',
             type: 'LocalizedText',
             isRequired: true,
             template: 'ticket.place.classifier.*.name',

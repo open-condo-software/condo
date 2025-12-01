@@ -16,11 +16,11 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 
 
 const BankTransaction = new GQLListSchema('BankTransaction', {
-    schemaDoc: 'Transaction related to costs of Organization with BankAccount. Full fields set from data import will be stored in "meta"',
+    schemaDoc: 'Represents a bank transaction recorded for an organization account. Full import payload is stored in `meta`.',
     fields: {
 
         account: {
-            schemaDoc: 'Related BankAccount of Organization which payed',
+            schemaDoc: 'Organization bank account that initiated the transaction.',
             type: 'Relationship',
             ref: 'BankAccount',
             isRequired: true,
@@ -29,7 +29,7 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         },
 
         integrationContext: {
-            schemaDoc: 'Data source from which this transaction was created',
+            schemaDoc: 'Integration context that provided the transaction data.',
             type: 'Relationship',
             ref: 'BankIntegrationAccountContext',
             isRequired: true,
@@ -38,14 +38,14 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         },
 
         contractorAccount: {
-            schemaDoc: 'Related account of contractor, which has received the payment via this transaction',
+            schemaDoc: 'Counterparty bank account that received the payment.',
             type: 'Relationship',
             ref: 'BankContractorAccount',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
         costItem: {
-            schemaDoc: 'Related costs class',
+            schemaDoc: 'Cost item associated with the transaction.',
             type: 'Relationship',
             ref: 'BankCostItem',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
@@ -54,25 +54,25 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         organization: ORGANIZATION_OWNED_FIELD,
 
         number: {
-            schemaDoc: 'Number of transaction, obtained from external system',
+            schemaDoc: 'Transaction number from the external system.',
             type: 'Text',
             isRequired: true,
         },
 
         date: {
-            schemaDoc: 'When payment order was created',
+            schemaDoc: 'Date when the payment order was created.',
             type: 'CalendarDay',
             isRequired: true,
         },
 
         amount: {
             ...POSITIVE_MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Amount of transaction in specified currency. Always positive number. Look at "isOutcome" field to determine whether this transaction commits negative or positive change to balance',
+            schemaDoc: 'Transaction amount in the specified currency. Always positive; use `isOutcome` to determine the balance impact.',
             isRequired: true,
         },
 
         isOutcome: {
-            schemaDoc: 'Indicator of outcome transaction which commits negative change to balance',
+            schemaDoc: 'Indicates whether the transaction decreases the account balance.',
             type: 'Checkbox',
             isRequired: true,
         },
@@ -80,25 +80,25 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         currencyCode: CURRENCY_CODE_FIELD,
 
         purpose: {
-            schemaDoc: 'Textual description of payment purpose in free form',
+            schemaDoc: 'Free-form description of the payment purpose.',
             type: 'Text',
             isRequired: true,
         },
 
         meta: {
-            schemaDoc: 'Stores data, obtained from external source',
+            schemaDoc: 'Raw transaction data received from the external source.',
             type: 'Json',
             isRequired: true,
         },
 
         importId: {
-            schemaDoc: 'Identifier of corresponding record in external system, from that this record was copied',
+            schemaDoc: 'Identifier of the corresponding record in the external system.',
             type: 'Text',
             isRequired: true,
         },
 
         importRemoteSystem: {
-            schemaDoc: 'Name of external system, from that this record was copied',
+            schemaDoc: 'External system that supplied the transaction data.',
             type: 'Select',
             options: IMPORT_REMOTE_SYSTEM_VALUES,
             // Cannot use `enum` datatype because a number is presented in first character of a value "1CClientBankExchange".

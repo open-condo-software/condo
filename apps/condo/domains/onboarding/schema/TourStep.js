@@ -16,24 +16,24 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 
 
 const TourStep = new GQLListSchema('TourStep', {
-    schemaDoc: 'One of the few steps in the tour for the organization',
+    schemaDoc: 'Represents an onboarding step for an organization.',
     fields: {
         organization: ORGANIZATION_OWNED_FIELD,
         type: {
-            schemaDoc: 'Type of the tour step. It is need to understand what this step is responsible for',
+            schemaDoc: 'Type of tour step that describes what needs to be completed.',
             type: 'Select',
             options: STEP_TYPES,
             isRequired: true,
             access: { read: true, create: true, update: false },
         },
         status: {
-            schemaDoc: 'Step status, may be todo, waiting, completed and disabled',
+            schemaDoc: 'Current status of the step (todo, waiting, completed, or disabled).',
             type: 'Select',
             options: STEP_STATUSES,
             isRequired: true,
         },
         order: {
-            schemaDoc: 'Used for sorting',
+            schemaDoc: 'Sort order of the step within the tour.',
             type: 'Integer',
             isRequired: true,
             access: { read: true, create: true, update: false },

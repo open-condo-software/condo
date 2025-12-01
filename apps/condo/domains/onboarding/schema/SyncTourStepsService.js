@@ -38,8 +38,7 @@ const SyncTourStepsService = new GQLCustomSchema('SyncTourStepsService', {
         {
             access: access.canSyncTourSteps,
             schema: 'syncTourSteps(data: SyncTourStepsInput!): SyncTourStepsOutput',
-            schemaDoc: 'Updates organization tour steps according to changes of related tour step objects. ' +
-                'Used on web client to sync TourSteps state with actions which was made from api or something.',
+            schemaDoc: 'Synchronizes an organization\'s tour steps based on related data created through the API or other clients.',
             resolver: async (parent, args, context) => {
                 const { data: { organization: { id: organizationId } } } = args
 
