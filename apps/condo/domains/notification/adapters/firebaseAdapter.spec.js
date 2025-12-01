@@ -283,4 +283,83 @@ describe('Firebase adapter utils', () => {
         expect(typeof preparedData.ticketNumber).toEqual('string')
     })
 
+    describe('FirebaseAdapter.prepareBatchData', () => {
+        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
+        const notification = {
+            title: 'Condo',
+            body: `${dayjs().format()} Condo greets you!`,
+        }
+        const data = {
+            app: 'condo',
+            type: 'notification',
+        }
+        const appIds = {
+            [PUSH_FAKE_TOKEN_SUCCESS]: 'condo.app.main',
+        }
+
+        const assertTopLevelFields = (entry, allowedFields) => {
+            expect(entry).toBeDefined()
+            Object.keys(entry).forEach((field) => {
+                expect(allowedFields).toContain(field)
+            })
+        }
+
+        const buildPayload = (pushType, isVoIP = false) => FirebaseAdapter.prepareBatchData(
+            notification,
+            data,
+            tokens,
+            { [PUSH_FAKE_TOKEN_SUCCESS]: pushType },
+            isVoIP,
+            appIds
+        )
+
+        it('prepares default payload without VoIP and keeps appIds out of pushData', () => {
+            const [, , pushContext] = buildPayload(PUSH_TYPE_DEFAULT)
+            const entry = pushContext[PUSH_TYPE_DEFAULT]
+
+            expect(entry.notification).toBeDefined()
+            expect(entry.android).toBeUndefined()
+            expect(entry.appIds).toBeUndefined()
+
+            assertTopLevelFields(entry, ['token', 'data', 'notification', 'apns', 'android'])
+        })
+
+        it('prepares default payload for VoIP with android priority while still hiding appIds', () => {
+            const [, , pushContext] = buildPayload(PUSH_TYPE_DEFAULT, true)
+            const entry = pushContext[PUSH_TYPE_DEFAULT]
+
+            expect(entry.notification).toBeDefined()
+            expect(entry.android).toBeDefined()
+            expect(entry.android.priority).toEqual('high')
+            expect(entry.appIds).toBeUndefined()
+
+            assertTopLevelFields(entry, ['token', 'data', 'notification', 'apns', 'android'])
+        })
+
+        it('prepares silent payload without VoIP and excludes notification & appIds', () => {
+            const [, , pushContext] = buildPayload(PUSH_TYPE_SILENT_DATA)
+            const entry = pushContext[PUSH_TYPE_SILENT_DATA]
+
+            expect(entry.notification).toBeUndefined()
+            expect(entry.android).toBeUndefined()
+            expect(entry.data._title).toEqual(notification.title)
+            expect(entry.data._body).toEqual(notification.body)
+            expect(entry.appIds).toBeUndefined()
+
+            assertTopLevelFields(entry, ['token', 'data', 'apns', 'android'])
+        })
+
+        it('prepares silent payload with VoIP, adds android priority and keeps appIds hidden', () => {
+            const [, , pushContext] = buildPayload(PUSH_TYPE_SILENT_DATA, true)
+            const entry = pushContext[PUSH_TYPE_SILENT_DATA]
+
+            expect(entry.notification).toBeUndefined()
+            expect(entry.android).toBeDefined()
+            expect(entry.android.priority).toEqual('high')
+            expect(entry.appIds).toBeUndefined()
+
+            assertTopLevelFields(entry, ['token', 'data', 'apns', 'android'])
+        })
+    })
+
 })
