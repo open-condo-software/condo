@@ -5,7 +5,7 @@
  */
 
 const { gql } = require('graphql-tag')
-const { upperFirst } = require('lodash')
+const upperFirst = require('lodash/upperFirst')
 const pluralize = require('pluralize')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
@@ -100,6 +100,9 @@ const CustomField = generateGqlQueries('CustomField', CUSTOM_FIELD_FIELDS)
 const CUSTOM_VALUE_FIELDS = `{ itemId data customField { id name priority modelName type validationRules isVisible } filterDataString sourceType sourceId organization { id } ${COMMON_FIELDS} }`
 const CustomValue = generateGqlQueries('CustomValue', CUSTOM_VALUE_FIELDS)
 
+const B2B_APP_POS_INTEGRATION_CONFIG_FIELDS = `{ paymentsAlertPageUrl ${COMMON_FIELDS} }`
+const B2BAppPosIntegrationConfig = generateGqlQueries('B2BAppPosIntegrationConfig', B2B_APP_POS_INTEGRATION_CONFIG_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -127,5 +130,6 @@ module.exports = {
     AppMessageSetting,
     SEND_B2B_APP_PUSH_MESSAGE_MUTATION,
     B2BAppRoleWithoutEmployeeRole,
+    B2BAppPosIntegrationConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
