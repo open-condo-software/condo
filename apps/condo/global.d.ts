@@ -5,12 +5,14 @@ import esCustom from '@app/condo/lang/es/es.custom.json'
 import es from '@app/condo/lang/es/es.json'
 import ruCustom from '@app/condo/lang/ru/ru.custom.json'
 import ru from '@app/condo/lang/ru/ru.json'
+import trCustom from '@app/condo/lang/tr/tr.custom.json'
+import tr from '@app/condo/lang/tr/tr.json'
 import React from 'react'
 
 
 // NOTE: Combine all keys together
-const translations = [en, ru, es] as const
-const customTranslations = [enCustom, ruCustom, esCustom] as const
+const translations = [en, ru, es, tr] as const
+const customTranslations = [enCustom, ruCustom, esCustom, trCustom] as const
 
 type TranslationsKeysType = keyof typeof translations[number]
 type CustomTranslationsKeysType = keyof typeof customTranslations[number]

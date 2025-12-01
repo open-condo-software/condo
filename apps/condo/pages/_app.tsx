@@ -11,6 +11,7 @@ import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import esES from 'antd/lib/locale/es_ES'
 import ruRU from 'antd/lib/locale/ru_RU'
+import trTR from 'antd/lib/locale/tr_TR'
 import { setCookie } from 'cookies-next'
 import dayjs from 'dayjs'
 import isEmpty from 'lodash/isEmpty'
@@ -132,6 +133,7 @@ const ANT_LOCALES = {
     ru: ruRU,
     en: enUS,
     es: esES,
+    tr: trTR,
 }
 
 interface IMenuItemData {

@@ -34,7 +34,8 @@ const APPLE_ID_SESSION_KEY = 'appleid'
 const LOCALE_RU = 'ru'
 const LOCALE_EN = 'en'
 const LOCALE_ES = 'es'
-const LOCALES = [LOCALE_RU, LOCALE_EN, LOCALE_ES]
+const LOCALE_TR = 'tr'
+const LOCALES = [LOCALE_RU, LOCALE_EN, LOCALE_ES, LOCALE_TR]
 
 module.exports = {
     MIN_PASSWORD_LENGTH,
@@ -64,6 +65,7 @@ module.exports = {
     APPLE_ID_SESSION_KEY,
     LOCALE_EN,
     LOCALE_RU,
+    LOCALE_TR,
     LOCALES,
     MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD,
     SECRET_CODE_LENGTH,

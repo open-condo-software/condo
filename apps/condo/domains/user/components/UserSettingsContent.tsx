@@ -54,6 +54,7 @@ export const UserSettingsContent: React.FC = () => {
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
     const EsTitle = intl.formatMessage({ id: 'language.spanish-es.withFlag' })
+    const TrTitle = intl.formatMessage({ id: 'language.turkish-tr.withFlag' })
 
     const [showGlobalHints, setShowGlobalHints] = useState<boolean>(false)
     const [hasMarketingConsent, setMarketingConsent] = useState<boolean>(false)
@@ -108,7 +109,8 @@ export const UserSettingsContent: React.FC = () => {
         { label: RuTitle, value: 'ru' },
         { label: EnTitle, value: 'en' },
         { label: EsTitle, value: 'es' },
-    ]), [EnTitle, RuTitle, EsTitle])
+        { label: TrTitle, value: 'tr' },
+    ]), [EnTitle, RuTitle, EsTitle, TrTitle])
 
     const handleLocaleChange = useCallback((setLocale) => async (newLocale) => {
         if (!user?.id) return
