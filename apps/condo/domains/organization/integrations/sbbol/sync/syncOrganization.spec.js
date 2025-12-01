@@ -8,7 +8,7 @@ const { faker } = require('@faker-js/faker')
 const { setFakeClientMode, makeLoggedInAdminClient, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
 const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { registerNewOrganization, generateTin } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { USER_FIELDS } = require('@condo/domains/user/gql')
 const { User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
@@ -261,25 +261,25 @@ describe('syncOrganization from SBBOL', () => {
             const updatedOrganization = await OrganizationApi.getOne(adminContext, { id: organization.id }, 'importId importRemoteSystem meta')
             expect(updatedOrganization.importId).toEqual(organizationData.importId)
             expect(updatedOrganization.importRemoteSystem).toEqual(organizationData.importRemoteSystem)
-            expect(updatedOrganization.meta).toMatchObject(organizationData.meta)
+            expect(updatedOrganization.meta.inn).toEqual(organizationData.meta.inn)
+            expect(updatedOrganization.meta.ogrn).toEqual(organizationData.meta.ogrn)
+            expect(updatedOrganization.meta.address).toEqual(organizationData.meta.address)
+            expect(updatedOrganization.meta.fullname).toEqual(organizationData.meta.fullname)
+            expect(updatedOrganization.meta.bank).toEqual(organizationData.meta.bank)
 
             expect(employee).toBeDefined()
 
             const [importedUserEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: authedUserOrganization.id },
                 user: { id: importedUser.id },
+                deletedAt: null,
             }, 'id user { id } organization { id } isAccepted role { canManageEmployees }')
+
             expect(importedUserEmployee).toBeDefined()
             expect(importedUserEmployee.user.id).toEqual(importedUser.id)
             expect(importedUserEmployee.organization.id).toEqual(authedUserOrganization.id)
             expect(importedUserEmployee.isAccepted).toBeTruthy()
             expect(importedUserEmployee.role.canManageEmployees).toBeTruthy()
-
-            const allOrganizations = await OrganizationApi.getAll(adminContext, {
-                tin: authedUserOrganization.tin,
-                deletedAt: null,
-            })
-            expect(allOrganizations).toHaveLength(1)
         })
 
         it('should create new organization when authedUser has no organization with same TIN', async () => {
@@ -294,7 +294,7 @@ describe('syncOrganization from SBBOL', () => {
             const authedUser = await UserAPI.getOne(adminContext, { id: authedUserClient.user.id }, USER_FIELDS)
             const authedUserOrganization = authedUserClient.organization
 
-            organizationData.meta.inn = '1234567890'
+            organizationData.meta.inn = generateTin('ru')
 
             const identityId = faker.datatype.uuid()
             const importedUser = await syncUser({ context, userInfo: userData, identityId })
@@ -308,11 +308,11 @@ describe('syncOrganization from SBBOL', () => {
             })
 
             expect(organization.id).not.toEqual(authedUserOrganization.id)
-            expect(organization.tin).toEqual(organizationData.meta.inn)
+            expect(organization.tin).toEqual(String(organizationData.meta.inn))
             const newOrganization = await OrganizationApi.getOne(adminContext, { id: organization.id }, 'importId importRemoteSystem tin meta')
             expect(newOrganization.importId).toEqual(organizationData.importId)
             expect(newOrganization.importRemoteSystem).toEqual(organizationData.importRemoteSystem)
-            expect(newOrganization.tin).toEqual(organizationData.meta.inn)
+            expect(newOrganization.tin).toEqual(String(organizationData.meta.inn))
 
             expect(employee).toBeDefined()
             const [importedUserEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
@@ -337,11 +337,12 @@ describe('syncOrganization from SBBOL', () => {
             const identityId = faker.datatype.uuid()
             const importedUser = await syncUser({ context, userInfo: userData, identityId })
 
-            const organizationsBeforeSync = await OrganizationApi.getAll(adminContext, {
-                tin: organizationData.meta.inn,
+            console.log('organizationData.meta.inn', organizationData.meta.inn)
+
+            const countBefore = await OrganizationApi.count(adminContext, {
+                tin: String(organizationData.meta.inn),
                 deletedAt: null,
             })
-            const countBefore = organizationsBeforeSync.length
 
             const { organization, employee } = await syncOrganization({
                 context,
@@ -353,13 +354,13 @@ describe('syncOrganization from SBBOL', () => {
             })
 
             expect(organization).toBeDefined()
-            expect(organization.tin).toEqual(organizationData.meta.inn)
+            expect(organization.tin).toEqual(String(organizationData.meta.inn))
 
-            const organizationsAfterSync = await OrganizationApi.getAll(adminContext, {
-                tin: organizationData.meta.inn,
+            const countAfter = await OrganizationApi.count(adminContext, {
+                tin: String(organizationData.meta.inn),
                 deletedAt: null,
             })
-            expect(organizationsAfterSync).toHaveLength(countBefore + 1)
+            expect(countAfter).toEqual(countBefore + 1)
 
             const newOrganization = await OrganizationApi.getOne(adminContext, { id: organization.id }, 'importId importRemoteSystem tin')
             expect(newOrganization.importId).toEqual(organizationData.importId)

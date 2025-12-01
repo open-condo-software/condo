@@ -135,6 +135,9 @@ const syncOrganization = async ({ context, user, userData, authedUser, organizat
                     name: 'employee.role.Administrator.name',
                     deletedAt: null,
                 })
+                if (!allRoles.length) {
+                    throw new Error(`No Administrator role found for organization ${updatedOrganization.id}`)
+                }
 
                 const employee = await createConfirmedEmployee(adminContext, updatedOrganization, {
                     ...userData,
