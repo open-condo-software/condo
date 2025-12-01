@@ -11,7 +11,7 @@ const { SUBSCRIPTION_TYPES } = require('@condo/domains/subscription/constants')
 
 
 const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
-    schemaDoc: 'Subscription plan that defines a product with features. Prices are defined via PricingRule',
+    schemaDoc: 'Subscription plan that defines a product with features. Prices are defined via SubscriptionPlanPricingRule',
     fields: {
 
         type: {

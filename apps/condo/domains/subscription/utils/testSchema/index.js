@@ -11,13 +11,15 @@ const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/
 const dayjs = require('dayjs')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { SubscriptionPlan: SubscriptionPlanGQL } = require('@condo/domains/subscription/gql')
-const { PricingRule: PricingRuleGQL } = require('@condo/domains/subscription/gql')
+const { SubscriptionPlanPricingRule: SubscriptionPlanPricingRuleGQL } = require('@condo/domains/subscription/gql')
 const { SubscriptionContext: SubscriptionContextGQL } = require('@condo/domains/subscription/gql')
+const { ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION } = require('@condo/domains/subscription/gql')
+const { GET_AVAILABLE_SUBSCRIPTION_PLANS_MUTATION } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ServiceSubscription = generateGQLTestUtils(ServiceSubscriptionGQL)
 const SubscriptionPlan = generateGQLTestUtils(SubscriptionPlanGQL)
-const PricingRule = generateGQLTestUtils(PricingRuleGQL)
+const SubscriptionPlanPricingRule = generateGQLTestUtils(SubscriptionPlanPricingRuleGQL)
 const SubscriptionContext = generateGQLTestUtils(SubscriptionContextGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -58,8 +60,6 @@ async function updateTestServiceSubscription (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestServiceSubscription logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -81,8 +81,6 @@ async function createTestSubscriptionPlan (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestSubscriptionPlan logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -97,8 +95,6 @@ async function updateTestSubscriptionPlan (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestSubscriptionPlan logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -108,38 +104,35 @@ async function updateTestSubscriptionPlan (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestPricingRule (client, subscriptionPlan, organization, extraAttrs = {}) {
+async function createTestSubscriptionPlanPricingRule (client, subscriptionPlan, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!subscriptionPlan || !subscriptionPlan.id) throw new Error('no subscriptionPlan.id')
-    if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestPricingRule logic for generate fields
 
     const attrs = {
         dv: 1,
         sender,
+        name: faker.commerce.productName(),
         subscriptionPlan: { connect: { id: subscriptionPlan.id } },
-        organization: { connect: { id: organization.id } },
+        period: 'monthly',
+        discountPercent: '10',
         ...extraAttrs,
     }
-    const obj = await PricingRule.create(client, attrs)
+    const obj = await SubscriptionPlanPricingRule.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestPricingRule (client, id, extraAttrs = {}) {
+async function updateTestSubscriptionPlanPricingRule (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestPricingRule logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
         ...extraAttrs,
     }
-    const obj = await PricingRule.update(client, id, attrs)
+    const obj = await SubscriptionPlanPricingRule.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -148,8 +141,6 @@ async function createTestSubscriptionContext (client, organization, subscription
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!subscriptionPlan || !subscriptionPlan.id) throw new Error('no subscriptionPlan.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestSubscriptionContext logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -167,8 +158,6 @@ async function updateTestSubscriptionContext (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestSubscriptionContext logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -178,12 +167,42 @@ async function updateTestSubscriptionContext (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function activateTrialSubscriptionPlanByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function getAvailableSubscriptionPlansByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GET_AVAILABLE_SUBSCRIPTION_PLANS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     ServiceSubscription, createTestServiceSubscription, updateTestServiceSubscription, expectOverlappingFor,
     SubscriptionPlan, createTestSubscriptionPlan, updateTestSubscriptionPlan,
-    PricingRule, createTestPricingRule, updateTestPricingRule,
+    SubscriptionPlanPricingRule, createTestSubscriptionPlanPricingRule, updateTestSubscriptionPlanPricingRule,
     SubscriptionContext, createTestSubscriptionContext, updateTestSubscriptionContext,
+    activateTrialSubscriptionPlanByTestClient,
+    getAvailableSubscriptionPlansByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -4,14 +4,11 @@
 
 const { itemsQuery } = require('@open-condo/keystone/schema')
 
-const { PRICING_RULE_TYPE } = require('@condo/domains/subscription/constants')
-
 /**
  * Calculate subscription price for a plan and period.
  * Rules are applied in order of priority (highest first):
- * - fixed_price: sets/overrides current price (first one also sets basePrice)
- * - percentage_discount: applies % discount to current price
- * - fixed_discount: subtracts fixed amount from current price
+ * - fixedPrice: sets/overrides current price (first one also sets basePrice)
+ * - discountPercent: applies % discount to current price
  *
  * @param {string} subscriptionPlanId - Subscription plan ID
  * @param {string} period - Subscription period (monthly/yearly)
@@ -19,10 +16,8 @@ const { PRICING_RULE_TYPE } = require('@condo/domains/subscription/constants')
  * @returns {Object|null} { basePrice, finalPrice, currencyCode, appliedRules } or null if no base price configured
  */
 async function calculateSubscriptionPrice (subscriptionPlanId, period, organization = null) {
-    const now = new Date()
-
     // Get pricing rules: either for this specific org or for all orgs (organization = null)
-    const rules = await itemsQuery('PricingRule', {
+    const rules = await itemsQuery('SubscriptionPlanPricingRule', {
         where: {
             subscriptionPlan: subscriptionPlanId,
             period,
@@ -42,17 +37,17 @@ async function calculateSubscriptionPrice (subscriptionPlanId, period, organizat
     const appliedRules = []
 
     for (const rule of rules) {
-        if (rule.validFrom && new Date(rule.validFrom) > now) continue
-        if (rule.validTo && new Date(rule.validTo) < now) continue
-
+        // Check organization features if specified
         if (rule.organizationFeatures?.length > 0) {
             const orgFeatures = organization?.features || []
             if (!rule.organizationFeatures.every(f => orgFeatures.includes(f))) continue
         }
 
         const priceBefore = currentPrice
+        const hasFixedPrice = rule.fixedPrice !== null && rule.fixedPrice !== undefined
+        const hasDiscountPercent = rule.discountPercent !== null && rule.discountPercent !== undefined
 
-        if (rule.ruleType === PRICING_RULE_TYPE.FIXED_PRICE) {
+        if (hasFixedPrice) {
             // Only first matching fixed_price rule sets the price
             if (basePrice === 0) {
                 const price = parseFloat(rule.fixedPrice) || 0
@@ -62,16 +57,14 @@ async function calculateSubscriptionPrice (subscriptionPlanId, period, organizat
             } else {
                 continue
             }
-        } else if (rule.ruleType === PRICING_RULE_TYPE.PERCENTAGE_DISCOUNT) {
+        } else if (hasDiscountPercent) {
             currentPrice = currentPrice * (1 - (parseFloat(rule.discountPercent) || 0) / 100)
-        } else if (rule.ruleType === PRICING_RULE_TYPE.FIXED_DISCOUNT) {
-            currentPrice = Math.max(0, currentPrice - (parseFloat(rule.discountAmount) || 0))
         }
 
         appliedRules.push({
             ruleId: rule.id,
             ruleName: rule.name,
-            ruleType: rule.ruleType,
+            ruleType: hasFixedPrice ? 'fixed_price' : 'percentage_discount',
             priceBefore: priceBefore.toFixed(2),
             priceAfter: currentPrice.toFixed(2),
         })

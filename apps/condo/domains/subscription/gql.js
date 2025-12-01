@@ -4,6 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const { gql } = require('graphql-tag')
+
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
@@ -14,18 +16,36 @@ const ServiceSubscription = generateGqlQueries('ServiceSubscription', SERVICE_SU
 const SUBSCRIPTION_PLAN_FIELDS = `{ type periodType name description price currencyCode news marketplace support ai passTickets isActive ${COMMON_FIELDS} }`
 const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
 
-const PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } organization { id } organizationFeatures validFrom validTo ruleType discountPercent discountAmount fixedPrice priority isActive canBePromoted promotionText ${COMMON_FIELDS} }`
-const PricingRule = generateGqlQueries('PricingRule', PRICING_RULE_FIELDS)
+const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period currencyCode organization { id } organizationFeatures discountPercent fixedPrice priority isActive canBePromoted promotionText ${COMMON_FIELDS} }`
+const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
 
 const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } startAt endAt basePrice calculatedPrice appliedRules manualPrice manualPriceReason isTrial ${COMMON_FIELDS} }`
 const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
+
+// TODO(codegen): write return type result!
+
+const ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION = gql`
+    mutation activateTrialSubscriptionPlan ($data: ActivateTrialSubscriptionPlanInput!) {
+        result: activateTrialSubscriptionPlan(data: $data) { id }
+    }
+`
+
+// TODO(codegen): write return type result!
+ 
+const GET_AVAILABLE_SUBSCRIPTION_PLANS_BY_ID_QUERY = gql`
+    query getGetAvailableSubscriptionPlansById ($data: GetAvailableSubscriptionPlansInput!) {
+        obj: GetAvailableSubscriptionPlans(where: {id: $id}) ${COMMON_FIELDS}
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     ServiceSubscription,
     SubscriptionPlan,
-    PricingRule,
+    SubscriptionPlanPricingRule,
     SubscriptionContext,
+    ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION,
+    GET_AVAILABLE_SUBSCRIPTION_PLANS_BY_ID_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
