@@ -66,7 +66,8 @@ class PaymentAdapter {
     }
 
     async doCall (url, params = {}) {
-        return await fetch(url + '?' + new URLSearchParams(params).toString())
+        const response = await fetch(url + '?' + new URLSearchParams(params).toString())
+        return { status: response.status, data: await response.json() }
     }
 }
 
