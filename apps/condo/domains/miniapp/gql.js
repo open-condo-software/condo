@@ -32,10 +32,13 @@ const SEND_B2C_APP_PUSH_MESSAGE_MUTATION = gql`
 const B2B_APP_NEWS_SHARING_CONFIG_FIELDS = `{ publishUrl previewUrl pushNotificationSettings customFormUrl getRecipientsUrl getRecipientsCountersUrl icon { publicUrl } previewPicture { publicUrl } name ${COMMON_FIELDS} }`
 const B2BAppNewsSharingConfig = generateGqlQueries('B2BAppNewsSharingConfig', B2B_APP_NEWS_SHARING_CONFIG_FIELDS)
 
-const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} developer developerUrl appUrl category label gallery price features additionalDomains domains { mapping { from to } } ${COMMON_FIELDS} }`
+const B2B_APP_POS_INTEGRATION_CONFIG_FIELDS = `{ paymentsAlertPageUrl ${COMMON_FIELDS} }`
+const B2BAppPosIntegrationConfig = generateGqlQueries('B2BAppPosIntegrationConfig', B2B_APP_POS_INTEGRATION_CONFIG_FIELDS)
+
+const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} posIntegrationConfig ${B2B_APP_POS_INTEGRATION_CONFIG_FIELDS} developer developerUrl appUrl category label gallery price features additionalDomains domains { mapping { from to } } ${COMMON_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
-const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl icon menuCategory hasDynamicTitle newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} } organization { id } status ${COMMON_FIELDS} }`
+const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl icon menuCategory hasDynamicTitle newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} posIntegrationConfig ${B2B_APP_POS_INTEGRATION_CONFIG_FIELDS} } organization { id } status ${COMMON_FIELDS} }`
 const B2BAppContext = generateGqlQueries('B2BAppContext', B2B_APP_CONTEXT_FIELDS)
 
 const B2B_ACCESSES_LISTS_FIELDS = Object.keys(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.lists)
@@ -99,9 +102,6 @@ const CustomField = generateGqlQueries('CustomField', CUSTOM_FIELD_FIELDS)
 
 const CUSTOM_VALUE_FIELDS = `{ itemId data customField { id name priority modelName type validationRules isVisible } filterDataString sourceType sourceId organization { id } ${COMMON_FIELDS} }`
 const CustomValue = generateGqlQueries('CustomValue', CUSTOM_VALUE_FIELDS)
-
-const B2B_APP_POS_INTEGRATION_CONFIG_FIELDS = `{ paymentsAlertPageUrl ${COMMON_FIELDS} }`
-const B2BAppPosIntegrationConfig = generateGqlQueries('B2BAppPosIntegrationConfig', B2B_APP_POS_INTEGRATION_CONFIG_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
