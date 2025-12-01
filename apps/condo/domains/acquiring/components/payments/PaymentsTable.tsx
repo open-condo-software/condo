@@ -1,8 +1,8 @@
 import { PaymentStatusType, SortPaymentsBy } from '@app/condo/schema'
-import { Col, Row, Space } from 'antd'
+import { Col, Row, Space, Spin } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
@@ -19,6 +19,7 @@ import { EXPORT_PAYMENTS_TO_EXCEL } from '@condo/domains/acquiring/gql'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
+import { usePosIntegrationAlert } from '@condo/domains/acquiring/hooks/usePosIntegrationAlert'
 import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
@@ -38,6 +39,7 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
+
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
@@ -53,7 +55,7 @@ interface IPaymentsSumInfoProps {
     title: string
     message: string
     currencyCode: string
-    type?:  'success' | 'warning'
+    type?: 'success' | 'warning'
     loading: boolean
 }
 
@@ -302,10 +304,19 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 }
 
 const PaymentsTable: React.FC = (props) => {
+    const { PosIntegrationAlert, loading } = usePosIntegrationAlert()
+
     return (
-        <MultipleFilterContextProvider>
-            <PaymentsTableContent {...props} />
-        </MultipleFilterContextProvider>
+        <Space size={30} direction='vertical'>
+            {PosIntegrationAlert}
+            {loading ? (
+                <Spin size='large' />
+            ) : (
+                <MultipleFilterContextProvider>
+                    <PaymentsTableContent {...props} />
+                </MultipleFilterContextProvider>
+            )}
+        </Space>
     )
 }
 

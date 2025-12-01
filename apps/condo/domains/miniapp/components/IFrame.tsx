@@ -36,6 +36,7 @@ export type IFrameProps = {
     withPrefetch?: boolean
     withResize?: boolean
     allowFullscreen?: boolean
+    onLoad?: () => void
 }
 
 
@@ -48,6 +49,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         withPrefetch = false,
         withResize = false,
         allowFullscreen = false,
+        onLoad,
     } = props
 
     const intl = useIntl()
@@ -102,7 +104,8 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
 
     const handleLoad = useCallback(() => {
         setIsLoading(false)
-    }, [])
+        onLoad?.()
+    }, [onLoad])
 
     const preFetch = useCallback(async () => {
         if (isClientSide) {
