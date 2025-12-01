@@ -113,6 +113,13 @@ const B2BApp = new GQLListSchema('B2BApp', {
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
+        posIntegrationConfig: {
+            schemaDoc: 'Configuration for POS Integration feature. If specified, then this B2BApp is embeddable to the /billing and /marketplace pages and supports POS Integration API',
+            type: 'Relationship',
+            ref: 'B2BAppPosIntegrationConfig',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
     },
     hooks: {
         resolveInput: ({ resolvedData, operation }) => {
