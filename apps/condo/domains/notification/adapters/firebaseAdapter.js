@@ -196,7 +196,6 @@ class FirebaseAdapter {
                     },
                     ...DEFAULT_SILENT_PUSH_SETTINGS,
                     ...extraPayload,
-                    appId: appIds[pushToken],
                 }
                 : {
                     token: pushToken,
@@ -204,12 +203,12 @@ class FirebaseAdapter {
                     notification,
                     ...DEFAULT_PUSH_SETTINGS,
                     ...extraPayload,
-                    appId: appIds[pushToken],
                 }
 
             // appId is set for each pushToken, so we can check if the app is disabled
             // data.app is also checked for backward compatibility, as it was used in the old implementation
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(pushData.appId) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
+            const appId = appIds[pushToken]
+            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(appId) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
