@@ -19,7 +19,7 @@ const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@co
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const { resetOrganizationEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
-const { SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
+const { TYPE_PRIORITY } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
@@ -222,7 +222,6 @@ const Organization = new GQLListSchema('Organization', {
             resolver: async (organization, args, context) => {
                 const now = new Date().toISOString()
 
-                // Find all active subscription contexts with their plans
                 const activeContexts = await SubscriptionContext.getAll(context, {
                     organization: { id: organization.id },
                     startAt_lte: now,
@@ -235,29 +234,18 @@ const Organization = new GQLListSchema('Organization', {
                 if (activeContexts.length === 0) {
                     return null
                 }
-
-                // If only one context, return it
                 if (activeContexts.length === 1) {
                     return activeContexts[0]
                 }
 
-                // Type priority: extended > basic
-                const TYPE_PRIORITY = {
-                    [SUBSCRIPTION_TYPE.BASIC]: 1,
-                    [SUBSCRIPTION_TYPE.EXTENDED]: 2,
-                }
-
-                // Sort by type priority (higher = better), then by startAt (latest first)
                 const sorted = activeContexts.sort((a, b) => {
                     const priorityA = TYPE_PRIORITY[a.subscriptionPlan?.type] || 0
                     const priorityB = TYPE_PRIORITY[b.subscriptionPlan?.type] || 0
 
-                    // Higher priority first (extended > basic)
                     if (priorityA !== priorityB) {
                         return priorityB - priorityA
                     }
 
-                    // Later startAt first
                     return new Date(b.startAt).getTime() - new Date(a.startAt).getTime()
                 })
 

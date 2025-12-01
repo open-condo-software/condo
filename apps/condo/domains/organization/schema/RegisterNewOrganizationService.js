@@ -5,7 +5,6 @@ const access = require('@condo/domains/organization/access/RegisterNewOrganizati
 const { ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
 const { createConfirmedEmployee, createOrganization, createDefaultRoles, pushOrganizationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { createDefaultPropertyScopeForNewOrganization } = require('@condo/domains/scope/utils/serverSchema')
-const { createTrialSubscription } = require('@condo/domains/subscription/utils/serverSchema/ServiceSubscription')
 const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/serverSchema')
 
 const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizationService', {
@@ -35,7 +34,6 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                 const defaultRoles = await createDefaultRoles(context, organization, dvSenderData)
                 const adminRole = defaultRoles.Administrator
                 await createConfirmedEmployee(context, organization, context.authedItem, adminRole, dvSenderData)
-                await createTrialSubscription(context, organization, dvSenderData)
                 await createTourStepsForOrganization(context, organization, dvSenderData)
                 await TicketOrganizationSetting.create(context, {
                     ...dvSenderData,
