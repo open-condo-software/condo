@@ -6,7 +6,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
 
-const { FlowiseAdapter } = require('@condo/domains/ai/adapters')
+const { FlowiseAdapter, N8NAdapter } = require('@condo/domains/ai/adapters')
 const {
     TASK_STATUSES,
     FLOW_ADAPTERS: FLOW_ADAPTER_NAMES,
@@ -22,6 +22,7 @@ const BASE_ATTRIBUTES = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGE
 
 const FLOW_ADAPTERS = {
     [FLOW_ADAPTER_NAMES.FLOWISE]: new FlowiseAdapter(),
+    [FLOW_ADAPTER_NAMES.N8N]: new N8NAdapter(),
 }
 
 const ajv = new Ajv()
