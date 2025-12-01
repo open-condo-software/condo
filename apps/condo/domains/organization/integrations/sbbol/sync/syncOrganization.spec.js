@@ -337,8 +337,6 @@ describe('syncOrganization from SBBOL', () => {
             const identityId = faker.datatype.uuid()
             const importedUser = await syncUser({ context, userInfo: userData, identityId })
 
-            console.log('organizationData.meta.inn', organizationData.meta.inn)
-
             const countBefore = await OrganizationApi.count(adminContext, {
                 tin: String(organizationData.meta.inn),
                 deletedAt: null,
