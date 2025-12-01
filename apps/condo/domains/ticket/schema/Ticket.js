@@ -108,6 +108,7 @@ const ERRORS = {
         message: 'You already sent this ticket! You can not create more tickets!',
         messageForUser: 'api.ticket.ticket.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
     },
+
 }
 
 /**
@@ -638,6 +639,10 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             kmigratorOptions: { default: false },
             access: readOnlyFieldAccess,
+        },
+        sentToAuthoritiesAt: {
+            schemaDoc: 'Date and time when the ticket was sent to the authorities',
+            type: 'DateTimeUtc',
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],

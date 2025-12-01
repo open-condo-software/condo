@@ -1170,6 +1170,38 @@ describe('Ticket', () => {
                 expect(updatedTicket.qualityControlUpdatedBy.id).toEqual(client.user.id)
             })
         })
+
+        test('resident: cannot create "sentToAuthoritiesAt"', async () => {
+            const residentClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, residentClient.user, residentClient.property, {
+                unitName,
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+                    unitName,
+                    sentToAuthoritiesAt: dayjs().toISOString(),
+                })
+            })
+        })
+
+        test('resident: cannot update "sentToAuthoritiesAt"', async () => {
+            const residentClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, residentClient.user, residentClient.property, {
+                unitName,
+            })
+            const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+                unitName,
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestTicket(residentClient, ticket.id, {
+                    sentToAuthoritiesAt: dayjs().toISOString(),
+                })
+            })
+        })
     })
 
     describe('Permissions', () => {
