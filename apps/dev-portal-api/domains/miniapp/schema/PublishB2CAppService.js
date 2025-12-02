@@ -87,7 +87,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
     logger.info({
         msg: 'started app publishing',
         entityId: app.id,
-        entity: 'B2BApp',
+        entity: 'B2CApp',
         environment,
     })
     const exportIdField = getExportIdField(environment)
@@ -119,7 +119,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         logger.info({
             msg: 'found existing condo app',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { condoAppId: condoApp.id },
         })
@@ -131,7 +131,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         logger.info({
             msg: 'condo app successfully updated',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             data: { condoAppId: condoApp.id },
             environment,
         })
@@ -140,7 +140,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         logger.info({
             msg: 'condo app not found. Creating new one',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
         })
         updatedCondoApp = await serverClient.createModel({
@@ -150,7 +150,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         logger.info({
             msg: 'condo app successfully created',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { condoAppId: updatedCondoApp.id },
         })
@@ -165,7 +165,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         logger.info({
             msg: 'dev-portal app exportId updated',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { condoAppId: updatedCondoApp.id },
         })
@@ -183,7 +183,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
         logger.info({
             msg: 'condo build not found, creating new one',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: {
                 condoAppId: condoApp.id,
@@ -210,7 +210,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
         logger.info({ msg: 'condo build created',
             environment,
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             data: { version: build.version, condoAppId: condoApp.id },
         })
     }
@@ -219,7 +219,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
         msg: 'updating condo app current build',
         environment,
         entityId: app.id,
-        entity: 'B2BApp',
+        entity: 'B2CApp',
         data: { condoAppId: condoApp.id, version: build.version, condoBuildId: buildToUpdate.id },
     })
     await serverClient.updateModel({
@@ -235,7 +235,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
         msg: 'current build successfully updated',
         environment,
         entityId: app.id,
-        entity: 'B2BApp',
+        entity: 'B2CApp',
         data: { condoAppId: condoApp.id, version: build.version, condoBuildId: buildToUpdate.id },
     })
 
@@ -248,14 +248,14 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
         logger.info({
             msg: 'dev-portal build exportId updated',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { condoAppId: condoApp.id, version: build.version, condoBuildId: buildToUpdate.id },
         })
     }
 }
 
-async function enableOIDCClient ({ args, serverClient }) {
+async function syncOIDCClient ({ args, serverClient, condoApp }) {
     const { data: { dv, sender, app, environment } } = args
 
     const oidcClients = await serverClient.getModels({
@@ -268,7 +268,7 @@ async function enableOIDCClient ({ args, serverClient }) {
         logger.info({
             msg: 'no OIDC clients found for app',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
         })
         return
@@ -276,33 +276,45 @@ async function enableOIDCClient ({ args, serverClient }) {
 
     const oidcClient = oidcClients[0]
 
-    if (oidcClient.isEnabled) {
+    if (!oidcClient.isEnabled) {
+        await serverClient.updateModel({
+            modelGql: CondoOIDCClientGql,
+            id: oidcClient.id,
+            updateInput: {
+                dv,
+                sender,
+                isEnabled: true,
+            },
+        })
         logger.info({
-            msg: 'OIDC client is already enabled',
+            msg: 'OIDC client is enabled now',
             entityId: app.id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { oidcClientId: oidcClient.id },
         })
-        return
     }
 
-    await serverClient.updateModel({
-        modelGql: CondoOIDCClientGql,
-        id: oidcClient.id,
-        updateInput: {
-            dv,
-            sender,
-            isEnabled: true,
-        },
-    })
-    logger.info({
-        msg: 'OIDC client is enabled now',
-        entityId: app.id,
-        entity: 'B2BApp',
-        environment,
-        data: { oidcClientId: oidcClient.id },
-    })
+
+
+    if (!condoApp.oidcClient || condoApp.oidcClient.deletedAt) {
+        await serverClient.updateModel({
+            modelGql: CondoB2CAppGql,
+            id: condoApp.id,
+            updateInput: {
+                dv,
+                sender,
+                oidcClient: { connect: { id: oidcClient.id } },
+            },
+        })
+        logger.info({
+            msg: 'B2CApp is connected to OIDC client',
+            entityId: app.id,
+            entity: 'B2CApp',
+            environment,
+            data: { oidcClientId: oidcClient.id },
+        })
+    }
 }
 
 async function addAccessRight ({ args, serverClient, context, condoApp }) {
@@ -319,7 +331,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         logger.info({
             msg: 'access right found for app',
             entityId: id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { accessRightId: accessRight.id },
         })
@@ -336,7 +348,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
             logger.info({
                 msg: 'existing condo access right found for app',
                 entityId: id,
-                entity: 'B2BApp',
+                entity: 'B2CApp',
                 environment,
                 data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  },
             })
@@ -348,7 +360,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
                 logger.info({
                     msg: 'existing condo access right user does not match with dev-portal one',
                     entityId: id,
-                    entity: 'B2BApp',
+                    entity: 'B2CApp',
                     environment,
                     data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  },
                 })
@@ -364,7 +376,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
                 logger.info({
                     msg: 'existing condo access right successfully deleted',
                     entityId: id,
-                    entity: 'B2BApp',
+                    entity: 'B2CApp',
                     environment,
                     data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id  },
                 })
@@ -374,7 +386,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         logger.info({
             msg: 'creating new condo access right',
             entityId: id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { accessRightId: accessRight.id },
         })
@@ -392,7 +404,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         logger.info({
             msg: 'Updating dev-portal access right info',
             entityId: id,
-            entity: 'B2BApp',
+            entity: 'B2CApp',
             environment,
             data: { accessRightId: accessRight.id, condoAccessRightId: condoRight.id },
         })
@@ -516,7 +528,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                 await addAccessRight({ args, serverClient, context, condoApp })
 
                 // Step 4. If OIDC client was created, publish must enable it for usage
-                await enableOIDCClient({ args, serverClient })
+                await syncOIDCClient({ args, serverClient, condoApp })
 
                 return {
                     success: true,
