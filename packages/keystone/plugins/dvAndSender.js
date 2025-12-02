@@ -1,7 +1,7 @@
 const isEmpty = require('lodash/isEmpty')
 const nextCookies = require('next-cookies')
 const pluralize = require('pluralize')
-const validate = require('validate.js')
+const { z } = require('zod')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
@@ -14,19 +14,14 @@ const DV_VERSION_MISMATCH_ERROR = {
     message: 'Wrong value for data version number',
 }
 
-const SENDER_FIELD_CONSTRAINTS = {
-    fingerprint: {
-        presence: true,
-        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
-        length: { minimum: 5, maximum: 42 },
-    },
-    dv: {
-        numericality: {
-            noStrings: true,
-            equalTo: 1,
-        },
-    },
-}
+const SENDER_FIELD_CONSTRAINTS = z.object({
+    fingerprint: z
+        .string()
+        .min(5, 'length must be at least 5')
+        .max(42, 'length must be at most 42')
+        .regex(/^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/, 'must match expected format'),
+    dv: z.literal(1),
+})
 
 const WRONG_SENDER_FORMAT_ERROR = {
     variable: ['data', 'sender'],
@@ -49,13 +44,20 @@ function checkDvAndSender (data, dvError, senderError, context) {
         throw new GQLError({ ...DV_VERSION_MISMATCH_ERROR, ...dvError }, context)
     }
 
-    const senderErrors = validate(sender, SENDER_FIELD_CONSTRAINTS)
-    if (senderErrors && Object.keys(senderErrors).length) {
-        const details = Object.keys(senderErrors)
-            .map(field => `${field}: ${senderErrors[field].map(error => `'${error}'`).join('; ')}`)
+    const result = SENDER_FIELD_CONSTRAINTS.safeParse(sender)
+    if (!result.success) {
+        const details = result.error.issues
+            .map(issue => {
+                const field = issue.path.join('.') || 'unknown'
+                return `${field}: '${issue.message}'`
+            })
             .join(', ')
 
-        throw new GQLError({ ...WRONG_SENDER_FORMAT_ERROR, messageInterpolation: { details }, ...senderError }, context)
+        throw new GQLError({
+            ...WRONG_SENDER_FORMAT_ERROR,
+            messageInterpolation: { details },
+            ...senderError,
+        }, context)
     }
 }
 

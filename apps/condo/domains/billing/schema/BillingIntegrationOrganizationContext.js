@@ -59,7 +59,7 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             isRequired: true,
             hooks: {
                 validateInput: (args) => {
-                    hasValidJsonStructure(args, true, 1, {})
+                    hasValidJsonStructure(args, true, 1)
                 },
             },
         },

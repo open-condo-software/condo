@@ -89,7 +89,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
                     if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
                     const value = resolvedData[fieldPath]
                     if (value === null) return // null is OK
-                    if (!hasValidJsonStructure(args, true, 1, {}))
+                    if (!hasValidJsonStructure(args, true, 1))
                         return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`)
                 },
             },

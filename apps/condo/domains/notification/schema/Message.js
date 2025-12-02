@@ -85,7 +85,7 @@ const Message = new GQLListSchema('Message', {
             isRequired: true,
             hooks: {
                 validateInput: (args) => {
-                    if (!hasValidJsonStructure(args, true, 1, {})) return
+                    if (!hasValidJsonStructure(args, true, 1)) return
                 },
             },
         },
@@ -104,7 +104,7 @@ const Message = new GQLListSchema('Message', {
             isRequired: false,
             hooks: {
                 validateInput: (args) => {
-                    if (!hasValidJsonStructure(args, false, 1, {})) return
+                    if (!hasValidJsonStructure(args, false, 1)) return
                 },
             },
         },

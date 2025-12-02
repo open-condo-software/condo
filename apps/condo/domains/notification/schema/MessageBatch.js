@@ -108,7 +108,7 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
             isRequired: false,
             hooks: {
                 validateInput: (args) => {
-                    if (!hasValidJsonStructure(args, false, 1, {})) return
+                    if (!hasValidJsonStructure(args, false, 1)) return
                 },
             },
         },

@@ -110,8 +110,8 @@
     "redlock": "^5.0.0-beta.2",
     "tough-cookie": "^4.1.3",
     "uuid": "^8.3.0",
-    "validate.js": "^0.13.1",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
+    "zod": "^4.0.8"
   },
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/keystone",
   "devDependencies": {

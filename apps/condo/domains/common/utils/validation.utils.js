@@ -1,5 +1,5 @@
 const { isNull, isUndefined, isObject } = require('lodash')
-const validate = require('validate.js')
+const z = require('zod')
 
 const {
     JSON_WRONG_VERSION_FORMAT_ERROR,
@@ -56,7 +56,18 @@ function hasOneOfFields (requestRequired, resolvedData, existingItem = {}, addFi
     return hasOneField
 }
 
-function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints) {
+/**
+ * Validates that a JSON field in the resolved data matches the expected structure and version.
+ * @param {Object} args - The validation context.
+ * @param {Object} args.resolvedData - The input data object containing the field to validate.
+ * @param {string} args.fieldPath - The key in `resolvedData` to validate (e.g., 'sender').
+ * @param {Function} args.addFieldValidationError - Callback to report validation errors (receives error message string).
+ * @param {boolean} isRequired - Whether the field must be present in `resolvedData`.
+ * @param {number} dataVersion - The expected data version (`dv`) value.
+ * @param {import('zod').ZodObject<any>} fieldsConstraintsSchema - A Zod schema describing the expected shape of the object (excluding `dv`).
+ * @returns {boolean} `true` if the structure is valid; `false` otherwise.
+ */
+function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraintsSchema = z.object({})) {
     const { resolvedData, fieldPath, addFieldValidationError } = args
 
     if (isRequired && !resolvedData.hasOwnProperty(fieldPath)) {
@@ -73,19 +84,22 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
     const { dv, ...data } = value
 
     if (dv === dataVersion) {
-        const errors = validate(data, fieldsConstraints)
+        const result = fieldsConstraintsSchema.safeParse(data)
 
-        if (errors) {
-            for (const name of Object.keys(errors)) {
-                for (const err of errors[name]) {
-                    addFieldValidationError(`${JSON_WRONG_VERSION_FORMAT_ERROR}${fieldPath}] Field '${name}': ${err}`)
-                }
+        if (!result.success) {
+            for (const issue of result.error.issues) {
+                const fieldName = issue.path.join('.') || 'unknown'
+                addFieldValidationError(
+                    `${JSON_WRONG_VERSION_FORMAT_ERROR}${fieldPath}] Field '${fieldName}': ${issue.message}`
+                )
             }
+            return false
         }
 
-        return !errors
+        return true
     } else {
-        return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+        addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+        return false
     }
 }
 
