@@ -3035,6 +3035,7 @@ type UserRightsSetHistoryRecord {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
   canManageUserHasMarketingConsentField: Boolean
@@ -3169,6 +3170,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
+  canManageTicketSentToAuthoritiesAtField_not: Boolean
   canReadUserEmailField: Boolean
   canReadUserEmailField_not: Boolean
   canReadUserPhoneField: Boolean
@@ -3356,6 +3359,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecute_allBillingReceiptsSum_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
+  canManageTicketSentToAuthoritiesAtField_ASC
+  canManageTicketSentToAuthoritiesAtField_DESC
   canReadUserEmailField_ASC
   canReadUserEmailField_DESC
   canReadUserPhoneField_ASC
@@ -3431,6 +3436,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
   canManageUserHasMarketingConsentField: Boolean
@@ -3503,6 +3509,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
   canManageUserHasMarketingConsentField: Boolean
@@ -3729,6 +3736,10 @@ type UserRightsSet {
   """
   canManageOrganizationIsApprovedField: Boolean
 
+  """ Enables a user with the given UserRightsSet to update "sentToAuthoritiesAt" field of model "Ticket" 
+  """
+  canManageTicketSentToAuthoritiesAtField: Boolean
+
   """ Enables a user with the given UserRightsSet to read "email" field of model "User" 
   """
   canReadUserEmailField: Boolean
@@ -3882,6 +3893,8 @@ input UserRightsSetWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
+  canManageTicketSentToAuthoritiesAtField_not: Boolean
   canReadUserEmailField: Boolean
   canReadUserEmailField_not: Boolean
   canReadUserPhoneField: Boolean
@@ -4049,6 +4062,8 @@ enum SortUserRightsSetsBy {
   canExecute_allBillingReceiptsSum_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
+  canManageTicketSentToAuthoritiesAtField_ASC
+  canManageTicketSentToAuthoritiesAtField_DESC
   canReadUserEmailField_ASC
   canReadUserEmailField_DESC
   canReadUserPhoneField_ASC
@@ -4124,6 +4139,7 @@ input UserRightsSetUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
   canManageUserHasMarketingConsentField: Boolean
@@ -4193,6 +4209,7 @@ input UserRightsSetCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
   canManageUserHasMarketingConsentField: Boolean
@@ -25332,6 +25349,7 @@ type TicketHistoryRecord {
   sourceMeta: JSON
   deferredUntil: String
   isCompletedAfterDeadline: Boolean
+  sentToAuthoritiesAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -25938,6 +25956,14 @@ input TicketHistoryRecordWhereInput {
   deferredUntil_not_in: [String]
   isCompletedAfterDeadline: Boolean
   isCompletedAfterDeadline_not: Boolean
+  sentToAuthoritiesAt: String
+  sentToAuthoritiesAt_not: String
+  sentToAuthoritiesAt_lt: String
+  sentToAuthoritiesAt_lte: String
+  sentToAuthoritiesAt_gt: String
+  sentToAuthoritiesAt_gte: String
+  sentToAuthoritiesAt_in: [String]
+  sentToAuthoritiesAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -26109,6 +26135,8 @@ enum SortTicketHistoryRecordsBy {
   deferredUntil_DESC
   isCompletedAfterDeadline_ASC
   isCompletedAfterDeadline_DESC
+  sentToAuthoritiesAt_ASC
+  sentToAuthoritiesAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -26192,6 +26220,7 @@ input TicketHistoryRecordUpdateInput {
   sourceMeta: JSON
   deferredUntil: String
   isCompletedAfterDeadline: Boolean
+  sentToAuthoritiesAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -26276,6 +26305,7 @@ input TicketHistoryRecordCreateInput {
   sourceMeta: JSON
   deferredUntil: String
   isCompletedAfterDeadline: Boolean
+  sentToAuthoritiesAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -26634,6 +26664,9 @@ type Ticket {
   """ (Auto-set) Used to filter tickets that were completed (,closed or cancelled) after the deadline.  
   """
   isCompletedAfterDeadline: Boolean
+
+  """ Date and time when the ticket was sent to the authorities """
+  sentToAuthoritiesAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -27140,6 +27173,14 @@ input TicketWhereInput {
   deferredUntil_not_in: [String]
   isCompletedAfterDeadline: Boolean
   isCompletedAfterDeadline_not: Boolean
+  sentToAuthoritiesAt: String
+  sentToAuthoritiesAt_not: String
+  sentToAuthoritiesAt_lt: String
+  sentToAuthoritiesAt_lte: String
+  sentToAuthoritiesAt_gt: String
+  sentToAuthoritiesAt_gte: String
+  sentToAuthoritiesAt_in: [String]
+  sentToAuthoritiesAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -27321,6 +27362,8 @@ enum SortTicketsBy {
   deferredUntil_DESC
   isCompletedAfterDeadline_ASC
   isCompletedAfterDeadline_DESC
+  sentToAuthoritiesAt_ASC
+  sentToAuthoritiesAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -27404,6 +27447,7 @@ input TicketUpdateInput {
   sourceMeta: JSON
   deferredUntil: String
   isCompletedAfterDeadline: Boolean
+  sentToAuthoritiesAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -27485,6 +27529,7 @@ input TicketCreateInput {
   sourceMeta: JSON
   deferredUntil: String
   isCompletedAfterDeadline: Boolean
+  sentToAuthoritiesAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -29104,6 +29149,12 @@ type TicketChange {
   """ Date until which the ticket is deferred """
   deferredUntilTo: String
 
+  """ Date and time when the ticket was sent to the authorities """
+  sentToAuthoritiesAtFrom: String
+
+  """ Date and time when the ticket was sent to the authorities """
+  sentToAuthoritiesAtTo: String
+
   """ Old id of related entity. Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
   organizationIdFrom: ID
@@ -30023,6 +30074,22 @@ input TicketChangeWhereInput {
   deferredUntilTo_gte: String
   deferredUntilTo_in: [String]
   deferredUntilTo_not_in: [String]
+  sentToAuthoritiesAtFrom: String
+  sentToAuthoritiesAtFrom_not: String
+  sentToAuthoritiesAtFrom_lt: String
+  sentToAuthoritiesAtFrom_lte: String
+  sentToAuthoritiesAtFrom_gt: String
+  sentToAuthoritiesAtFrom_gte: String
+  sentToAuthoritiesAtFrom_in: [String]
+  sentToAuthoritiesAtFrom_not_in: [String]
+  sentToAuthoritiesAtTo: String
+  sentToAuthoritiesAtTo_not: String
+  sentToAuthoritiesAtTo_lt: String
+  sentToAuthoritiesAtTo_lte: String
+  sentToAuthoritiesAtTo_gt: String
+  sentToAuthoritiesAtTo_gte: String
+  sentToAuthoritiesAtTo_in: [String]
+  sentToAuthoritiesAtTo_not_in: [String]
   organizationIdFrom: ID
   organizationIdFrom_not: ID
   organizationIdFrom_in: [ID]
@@ -30652,6 +30719,10 @@ enum SortTicketChangesBy {
   deferredUntilFrom_DESC
   deferredUntilTo_ASC
   deferredUntilTo_DESC
+  sentToAuthoritiesAtFrom_ASC
+  sentToAuthoritiesAtFrom_DESC
+  sentToAuthoritiesAtTo_ASC
+  sentToAuthoritiesAtTo_DESC
   organizationIdFrom_ASC
   organizationIdFrom_DESC
   organizationIdTo_ASC
@@ -30826,6 +30897,8 @@ input TicketChangeUpdateInput {
   sourceMetaTo: JSON
   deferredUntilFrom: String
   deferredUntilTo: String
+  sentToAuthoritiesAtFrom: String
+  sentToAuthoritiesAtTo: String
   organizationIdFrom: ID
   organizationIdTo: ID
   organizationDisplayNameFrom: String
@@ -30957,6 +31030,8 @@ input TicketChangeCreateInput {
   sourceMetaTo: JSON
   deferredUntilFrom: String
   deferredUntilTo: String
+  sentToAuthoritiesAtFrom: String
+  sentToAuthoritiesAtTo: String
   organizationIdFrom: ID
   organizationIdTo: ID
   organizationDisplayNameFrom: String

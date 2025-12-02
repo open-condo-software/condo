@@ -73,6 +73,9 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         Organization: [
             { fieldName: 'isApproved', manage: true },
         ],
+        Ticket: [
+            { fieldName: 'sentToAuthoritiesAt', manage: true },
+        ],
         User: [
             {
                 fieldName: 'email',

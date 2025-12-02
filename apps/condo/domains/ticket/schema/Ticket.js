@@ -71,6 +71,7 @@ const {
 } = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { USER_TYPES } = require('@condo/domains/user/constants/common')
+const { canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 
@@ -108,6 +109,7 @@ const ERRORS = {
         message: 'You already sent this ticket! You can not create more tickets!',
         messageForUser: 'api.ticket.ticket.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
     },
+
 }
 
 /**
@@ -638,6 +640,18 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             kmigratorOptions: { default: false },
             access: readOnlyFieldAccess,
+        },
+        sentToAuthoritiesAt: {
+            schemaDoc: 'Date and time when the ticket was sent to the authorities',
+            type: 'DateTimeUtc',
+            access: {
+                read: true,
+                create: false,
+                update: async (args) => {
+                    const { authentication: { item: user }, operation, originalInput, listKey } = args
+                    return await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+                },
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
