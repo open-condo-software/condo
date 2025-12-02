@@ -67,13 +67,14 @@ const createOrganization = async ({ context, user, importInfo, organizationInfo 
  * Creates or updates organization, according to data from SBBOL
  *
  * @param {KeystoneContext} context
- * @param user
+ * @param user - imported user from external system (SBBOL)
  * @param userData prepared data at our side for saving user
+ * @param authedUser - current authenticated user in the system
  * @param organizationInfo
  * @param dvSenderFields
  * @return {Promise<{organization, employee}>}
  */
-const syncOrganization = async ({ context, user, userData, organizationInfo, dvSenderFields }) => {
+const syncOrganization = async ({ context, user, userData, authedUser, organizationInfo, dvSenderFields }) => {
     const { context: adminContext } = context
     const importInfo = {
         importId: organizationInfo.importId,
@@ -98,7 +99,53 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
         const employeeWithExistingOrganization = employees.find(( employee ) => employee.organization.tin === organizationInfo.meta.inn && employee.organization.deletedAt === null)
         const existingOrganization = get(employeeWithExistingOrganization, 'organization')
 
-        if (!existingOrganization) {
+        // Check if the current authenticated user already has an organization with the same TIN
+        // If yes, we'll update that organization instead of creating a new one
+        let authedUserOrganization = null
+        if (authedUser) {
+            const [authedUserEmployee] = await OrganizationEmployee.getAll(adminContext, {
+                user: { id: authedUser.id },
+                organization: { tin: `${organizationInfo.meta.inn}`, deletedAt: null },
+                deletedAt: null,
+            }, 'id organization { id meta }', { first: 1, sortBy: ['updatedAt_DESC'] })
+            
+            authedUserOrganization = get(authedUserEmployee, 'organization')
+        }
+
+        if (authedUserOrganization) {
+            // Update authedUser's existing organization
+            const updatedOrganization = await Organization.update(adminContext, authedUserOrganization.id, {
+                ...dvSenderFields,
+                ...importInfo,
+                meta: {
+                    ...authedUserOrganization.meta,
+                    ...organizationInfo.meta,
+                },
+            }, 'id features country tin name')
+
+            // Find or create employee for the imported user in this organization
+            const existingEmployee = employees.find(employee => employee.organization.id === updatedOrganization.id)
+            if (existingEmployee) {
+                return { organization: updatedOrganization, employee: existingEmployee }
+            } else {
+                const allRoles = await OrganizationEmployeeRole.getAll(adminContext, {
+                    organization: {
+                        id: updatedOrganization.id,
+                    },
+                    name: 'employee.role.Administrator.name',
+                    deletedAt: null,
+                })
+                if (!allRoles.length) {
+                    throw new Error(`No Administrator role found for organization ${updatedOrganization.id}`)
+                }
+
+                const employee = await createConfirmedEmployee(adminContext, updatedOrganization, {
+                    ...userData,
+                    ...user,
+                }, allRoles[0], dvSenderFields)
+                return { organization: updatedOrganization, employee }
+            }
+        } else if (!existingOrganization) {
             const [existingOrganizationWithoutUser] = await Organization.getAll(adminContext, {
                 tin: `${organizationInfo.meta.inn}`,
                 deletedAt: null,
