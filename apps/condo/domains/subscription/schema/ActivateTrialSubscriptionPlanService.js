@@ -128,4 +128,5 @@ const ActivateTrialSubscriptionPlanService = new GQLCustomSchema('ActivateTrialS
 
 module.exports = {
     ActivateTrialSubscriptionPlanService,
+    ERRORS,
 }

@@ -7,7 +7,7 @@
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const { ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION } = require('@condo/domains/subscription/gql')
-const { GET_AVAILABLE_SUBSCRIPTION_PLANS_MUTATION } = require('@condo/domains/subscription/gql')
+const { GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ServiceSubscription = generateServerUtils('ServiceSubscription')
@@ -27,16 +27,15 @@ async function activateTrialSubscriptionPlan (context, data) {
     })
 }
 
-async function getAvailableSubscriptionPlans (context, data) {
+async function getAvailableSubscriptionPlans (context, organizationId) {
     if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
+    if (!organizationId) throw new Error('no organizationId')
 
     return await execGqlWithoutAccess(context, {
-        query: GET_AVAILABLE_SUBSCRIPTION_PLANS_MUTATION,
-        variables: { data: { dv: 1, ...data } },
+        query: GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
+        variables: { organization: { id: organizationId } },
         errorMessage: '[error] Unable to getAvailableSubscriptionPlans',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 

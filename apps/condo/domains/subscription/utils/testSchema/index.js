@@ -4,17 +4,19 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
 
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
-
-const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/subscription/gql')
-const dayjs = require('dayjs')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
-const { SubscriptionPlan: SubscriptionPlanGQL } = require('@condo/domains/subscription/gql')
-const { SubscriptionPlanPricingRule: SubscriptionPlanPricingRuleGQL } = require('@condo/domains/subscription/gql')
-const { SubscriptionContext: SubscriptionContextGQL } = require('@condo/domains/subscription/gql')
-const { ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION } = require('@condo/domains/subscription/gql')
-const { GET_AVAILABLE_SUBSCRIPTION_PLANS_MUTATION } = require('@condo/domains/subscription/gql')
+
+const {
+    ServiceSubscription: ServiceSubscriptionGQL,
+    SubscriptionPlan: SubscriptionPlanGQL,
+    SubscriptionPlanPricingRule: SubscriptionPlanPricingRuleGQL,
+    SubscriptionContext: SubscriptionContextGQL,
+    ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION,
+    GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
+} = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ServiceSubscription = generateGQLTestUtils(ServiceSubscriptionGQL)
@@ -168,32 +170,29 @@ async function updateTestSubscriptionContext (client, id, extraAttrs = {}) {
 }
 
 
-async function activateTrialSubscriptionPlanByTestClient(client, extraAttrs = {}) {
+async function activateTrialSubscriptionPlanByTestClient (client, organization, subscriptionPlan, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!subscriptionPlan || !subscriptionPlan.id) throw new Error('no subscriptionPlan.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
+        organization: { id: organization.id },
+        subscriptionPlan: { id: subscriptionPlan.id },
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
+    return { data, errors }
 }
 
-async function getAvailableSubscriptionPlansByTestClient(client, extraAttrs = {}) {
+async function getAvailableSubscriptionPlansByTestClient (client, organization) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    if (!organization || !organization.id) throw new Error('no organization.id')
 
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(GET_AVAILABLE_SUBSCRIPTION_PLANS_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
+    const { data, errors } = await client.query(GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY, { organization: { id: organization.id } })
+    return { data, errors }
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
