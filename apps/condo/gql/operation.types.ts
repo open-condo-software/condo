@@ -1089,7 +1089,7 @@ export type GetTicketPropertyHintPropertyByPropertyQueryVariables = Types.Exact<
 export type GetTicketPropertyHintPropertyByPropertyQuery = { __typename?: 'Query', ticketPropertyHintProperty?: Array<{ __typename?: 'TicketPropertyHintProperty', id: string, ticketPropertyHint?: { __typename?: 'TicketPropertyHint', id: string } | null } | null> | null };
 
 export type GetTicketSourcesQueryVariables = Types.Exact<{
-  types?: Types.InputMaybe<Array<Types.TicketSourceTypeType> | Types.TicketSourceTypeType>;
+  where?: Types.InputMaybe<Types.TicketSourceWhereInput>;
 }>;
 
 

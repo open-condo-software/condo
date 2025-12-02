@@ -7080,8 +7080,8 @@ export type GetTicketPropertyHintPropertyByPropertyLazyQueryHookResult = ReturnT
 export type GetTicketPropertyHintPropertyByPropertySuspenseQueryHookResult = ReturnType<typeof useGetTicketPropertyHintPropertyByPropertySuspenseQuery>;
 export type GetTicketPropertyHintPropertyByPropertyQueryResult = Apollo.QueryResult<Types.GetTicketPropertyHintPropertyByPropertyQuery, Types.GetTicketPropertyHintPropertyByPropertyQueryVariables>;
 export const GetTicketSourcesDocument = gql`
-    query getTicketSources($types: [TicketSourceTypeType!]) {
-  sources: allTicketSources(where: {type_in: $types}) {
+    query getTicketSources($where: TicketSourceWhereInput) {
+  sources: allTicketSources(where: $where) {
     id
     name
   }
@@ -7100,7 +7100,7 @@ export const GetTicketSourcesDocument = gql`
  * @example
  * const { data, loading, error } = useGetTicketSourcesQuery({
  *   variables: {
- *      types: // value for 'types'
+ *      where: // value for 'where'
  *   },
  * });
  */
