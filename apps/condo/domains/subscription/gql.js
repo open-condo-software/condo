@@ -13,28 +13,26 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const SERVICE_SUBSCRIPTION_FIELDS = `{ type isTrial organization { id } startAt finishAt unitsCount unitPrice totalPrice currency ${COMMON_FIELDS} }`
 const ServiceSubscription = generateGqlQueries('ServiceSubscription', SERVICE_SUBSCRIPTION_FIELDS)
 
-const SUBSCRIPTION_PLAN_FIELDS = `{ type periodType name description price currencyCode news marketplace support ai passTickets isActive ${COMMON_FIELDS} }`
+const SUBSCRIPTION_PLAN_FIELDS = `{ type name description organizationType news marketplace support ai passTickets isActive ${COMMON_FIELDS} }`
 const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
 
 const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period currencyCode organization { id } organizationFeatures discountPercent fixedPrice priority isActive canBePromoted promotionText ${COMMON_FIELDS} }`
 const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
 
-const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } startAt endAt basePrice calculatedPrice appliedRules manualPrice manualPriceReason isTrial ${COMMON_FIELDS} }`
+const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } startAt endAt basePrice calculatedPrice appliedRules isTrial daysRemaining ${COMMON_FIELDS} }`
 const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
 
 // TODO(codegen): write return type result!
 
 const ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION = gql`
     mutation activateTrialSubscriptionPlan ($data: ActivateTrialSubscriptionPlanInput!) {
-        result: activateTrialSubscriptionPlan(data: $data) { id }
+        result: activateTrialSubscriptionPlan(data: $data) { subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial } }
     }
 `
 
-// TODO(codegen): write return type result!
- 
-const GET_AVAILABLE_SUBSCRIPTION_PLANS_BY_ID_QUERY = gql`
-    query getGetAvailableSubscriptionPlansById ($data: GetAvailableSubscriptionPlansInput!) {
-        obj: GetAvailableSubscriptionPlans(where: {id: $id}) ${COMMON_FIELDS}
+const GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY = gql`
+    query getAvailableSubscriptionPlans ($organization: OrganizationWhereUniqueInput!) {
+        result: getAvailableSubscriptionPlans(organization: $organization) { plans { plan { id type name } prices { period basePrice currentPrice currencyCode } } }
     }
 `
 
@@ -46,6 +44,6 @@ module.exports = {
     SubscriptionPlanPricingRule,
     SubscriptionContext,
     ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION,
-    GET_AVAILABLE_SUBSCRIPTION_PLANS_BY_ID_QUERY,
+    GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

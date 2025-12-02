@@ -89,4 +89,5 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
 
 module.exports = {
     GetAvailableSubscriptionPlansService,
+    ERRORS,
 }

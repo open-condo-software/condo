@@ -20,15 +20,11 @@ async function canReadSubscriptionContexts ({ authentication: { item: user }, co
     }
 }
 
-async function canManageSubscriptionContexts ({ authentication: { item: user }, operation }) {
+async function canManageSubscriptionContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (operation === 'create') {
-        return user.isAdmin || user.isSupport
-    }
-
-    return false
+    return user.isAdmin || user.isSupport
 }
 
 module.exports = {
