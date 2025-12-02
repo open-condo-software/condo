@@ -73,8 +73,8 @@ import {
 } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { MAX_DETAILS_LENGTH } from '@condo/domains/ticket/constants'
-import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/sourceTypes'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
+import { useVisibleTicketSources } from '@condo/domains/ticket/hooks/useVisibleTicketSources'
 import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
@@ -628,7 +628,11 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
 const TICKET_SOURCE_SELECT_STYLE: React.CSSProperties = { width: '100%' }
 const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
 
-export const TicketSourceSelect: React.FC = () => {
+export const TicketSourceSelect: React.FC<{ organizationId?: string, showExtraSources?: boolean, initialSource?: string }> = ({
+    organizationId,
+    initialSource,
+    showExtraSources = false,
+}) => {
     const intl = useIntl()
     const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
@@ -636,12 +640,18 @@ export const TicketSourceSelect: React.FC = () => {
     const {
         data: sourcesData,
         loading,
-    } = useGetTicketSourcesQuery({
-        variables: {
-            types: VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM,
-        },
-    })
-    const sources = useMemo(() => sourcesData?.sources || [], [sourcesData?.sources])
+    } = useGetTicketSourcesQuery()
+    const { visibleTicketSourceIds } = useVisibleTicketSources(showExtraSources ? organizationId : null)
+    const mergedVisibleTicketSourceIds = useMemo(() => {
+        const res = [...visibleTicketSourceIds]
+        if (initialSource) res.push(initialSource)
+        return res
+    }, [visibleTicketSourceIds, initialSource])
+    const sources = useMemo(
+        () => sourcesData?.sources?.filter(Boolean)
+            ?.filter((source) => mergedVisibleTicketSourceIds.includes(source.id)) || [],
+        [sourcesData?.sources, mergedVisibleTicketSourceIds]
+    )
     const sourceOptions = convertToOptions(sources, 'name', 'id')
 
     const LoadingSelect = useMemo(() => (
@@ -693,6 +703,7 @@ export interface ITicketFormProps {
     autoAssign?: boolean
     isExisted?: boolean
     children: React.ReactNode | IFormWithActionChildren
+    showExtraTicketSources?: boolean
 }
 
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
@@ -722,10 +733,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         autoAssign,
         OnCompletedMsg,
         isExisted,
+        showExtraTicketSources = false,
     } = props
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(get(initialValues, 'property', null))
     const selectPropertyIdRef = useRef(selectedPropertyId)
+
+    const initialTicketSourceId = useMemo(() => initialValues?.source, [initialValues?.source])
 
     const {
         data: propertyByIdData,
@@ -971,7 +985,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         <Col>
                                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                                 <Col span={24} lg={7}>
-                                                    <TicketSourceSelect />
+                                                    <TicketSourceSelect organizationId={organizationId} initialSource={initialTicketSourceId} showExtraSources={showExtraTicketSources} />
                                                 </Col>
                                                 <Col span={24}>
                                                     <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>

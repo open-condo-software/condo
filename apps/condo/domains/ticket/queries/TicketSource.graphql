@@ -1,7 +1,5 @@
-query getTicketSources ($types: [TicketSourceTypeType!]) {
-    sources: allTicketSources (where: {
-        type_in: $types
-    }) {
+query getTicketSources ($where: TicketSourceWhereInput) {
+    sources: allTicketSources (where: $where) {
         id
         name
     }
