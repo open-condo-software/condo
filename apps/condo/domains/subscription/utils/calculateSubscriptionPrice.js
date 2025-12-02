@@ -4,6 +4,8 @@
 
 const { itemsQuery } = require('@open-condo/keystone/schema')
 
+const { evaluateConditions } = require('./conditionsEvaluator')
+
 /**
  * Calculate subscription price for a plan and period.
  * Rules are applied in order of priority (highest first):
@@ -19,13 +21,13 @@ async function calculateSubscriptionPrice (subscriptionPlanId, period, organizat
     // Get pricing rules: either for this specific org or for all orgs (organization = null)
     const rules = await itemsQuery('SubscriptionPlanPricingRule', {
         where: {
-            subscriptionPlan: subscriptionPlanId,
+            subscriptionPlan: { id: subscriptionPlanId },
             period,
             isActive: true,
             deletedAt: null,
             OR: [
                 { organization_is_null: true },
-                ...(organization ? [{ organization: organization.id }] : []),
+                ...(organization ? [{ organization: { id: organization.id } }] : []),
             ],
         },
         sortBy: ['priority_DESC'],
@@ -36,11 +38,18 @@ async function calculateSubscriptionPrice (subscriptionPlanId, period, organizat
     let currencyCode = null
     const appliedRules = []
 
+    // Build context for conditions evaluation (facts: organizationIds, organizationFeatures)
+    const context = {
+        organization: organization ? {
+            id: organization.id,
+            features: organization.features || [],
+        } : null,
+    }
+
     for (const rule of rules) {
-        // Check organization features if specified
-        if (rule.organizationFeatures?.length > 0) {
-            const orgFeatures = organization?.features || []
-            if (!rule.organizationFeatures.every(f => orgFeatures.includes(f))) continue
+        // Evaluate conditions
+        if (!evaluateConditions(rule.conditions, context)) {
+            continue
         }
 
         const priceBefore = currentPrice
@@ -58,6 +67,8 @@ async function calculateSubscriptionPrice (subscriptionPlanId, period, organizat
                 continue
             }
         } else if (hasDiscountPercent) {
+            // Skip discount if no base price yet
+            if (basePrice === 0) continue
             currentPrice = currentPrice * (1 - (parseFloat(rule.discountPercent) || 0) / 100)
         }
 

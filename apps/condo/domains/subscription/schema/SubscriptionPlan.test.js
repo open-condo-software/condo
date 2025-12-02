@@ -8,7 +8,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { ORGANIZATION_TYPE_MANAGING_COMPANY } = require('@condo/domains/organization/constants/common')
+const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const {
     SubscriptionPlan,
@@ -25,13 +25,23 @@ describe('SubscriptionPlan', () => {
         support = await makeClientWithSupportUser()
     })
 
+    beforeEach(async () => {
+        const plans = await SubscriptionPlan.getAll(admin, {
+            isActive: true,
+            deletedAt: null,
+        })
+        for (const plan of plans) {
+            await updateTestSubscriptionPlan(admin, plan.id, { deletedAt: new Date() })
+        }
+    })
+
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can create', async () => {
                 const [obj] = await createTestSubscriptionPlan(admin, {
                     type: SUBSCRIPTION_TYPE.BASIC,
                     name: 'Test Plan',
-                    organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                    organizationType: SERVICE_PROVIDER_TYPE,
                     isActive: true,
                 })
 
@@ -44,7 +54,7 @@ describe('SubscriptionPlan', () => {
                 const [obj] = await createTestSubscriptionPlan(support, {
                     type: SUBSCRIPTION_TYPE.EXTENDED,
                     name: 'Support Plan',
-                    organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                    organizationType: SERVICE_PROVIDER_TYPE,
                     isActive: true,
                 })
 
@@ -58,7 +68,7 @@ describe('SubscriptionPlan', () => {
                     await createTestSubscriptionPlan(user, {
                         type: SUBSCRIPTION_TYPE.BASIC,
                         name: 'User Plan',
-                        organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                        organizationType: SERVICE_PROVIDER_TYPE,
                         isActive: true,
                     })
                 })
@@ -71,7 +81,7 @@ describe('SubscriptionPlan', () => {
                     await createTestSubscriptionPlan(client, {
                         type: SUBSCRIPTION_TYPE.BASIC,
                         name: 'Anonymous Plan',
-                        organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                        organizationType: SERVICE_PROVIDER_TYPE,
                         isActive: true,
                     })
                 })
@@ -83,7 +93,7 @@ describe('SubscriptionPlan', () => {
                 const [objCreated] = await createTestSubscriptionPlan(admin, {
                     type: SUBSCRIPTION_TYPE.BASIC,
                     name: 'Original Name',
-                    organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                    organizationType: SERVICE_PROVIDER_TYPE,
                     isActive: true,
                 })
 
@@ -98,7 +108,7 @@ describe('SubscriptionPlan', () => {
                 const [objCreated] = await createTestSubscriptionPlan(admin, {
                     type: SUBSCRIPTION_TYPE.BASIC,
                     name: 'Original Name',
-                    organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                    organizationType: SERVICE_PROVIDER_TYPE,
                     isActive: true,
                 })
 
@@ -113,7 +123,7 @@ describe('SubscriptionPlan', () => {
                 const [objCreated] = await createTestSubscriptionPlan(admin, {
                     type: SUBSCRIPTION_TYPE.BASIC,
                     name: 'Test Plan',
-                    organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                    organizationType: SERVICE_PROVIDER_TYPE,
                     isActive: true,
                 })
 
@@ -129,7 +139,7 @@ describe('SubscriptionPlan', () => {
                 const [objCreated] = await createTestSubscriptionPlan(admin, {
                     type: SUBSCRIPTION_TYPE.BASIC,
                     name: 'Test Plan',
-                    organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                    organizationType: SERVICE_PROVIDER_TYPE,
                     isActive: true,
                 })
 
@@ -144,7 +154,7 @@ describe('SubscriptionPlan', () => {
                 const [obj] = await createTestSubscriptionPlan(admin, {
                     type: SUBSCRIPTION_TYPE.BASIC,
                     name: 'Readable Plan',
-                    organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                    organizationType: SERVICE_PROVIDER_TYPE,
                     isActive: true,
                 })
 
@@ -158,7 +168,7 @@ describe('SubscriptionPlan', () => {
                 await createTestSubscriptionPlan(admin, {
                     type: SUBSCRIPTION_TYPE.BASIC,
                     name: 'Test Plan',
-                    organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                    organizationType: SERVICE_PROVIDER_TYPE,
                     isActive: true,
                 })
 
@@ -175,7 +185,7 @@ describe('SubscriptionPlan', () => {
             await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'First Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: SERVICE_PROVIDER_TYPE,
                 isActive: true,
             })
 
@@ -183,12 +193,13 @@ describe('SubscriptionPlan', () => {
                 await createTestSubscriptionPlan(admin, {
                     type: SUBSCRIPTION_TYPE.BASIC,
                     name: 'Duplicate Plan',
-                    organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                    organizationType: SERVICE_PROVIDER_TYPE,
                     isActive: true,
                 })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'DUPLICATE_ACTIVE_PLAN',
+                message: 'An active subscription plan with this type and organizationType already exists',
             }, 'obj')
         })
 
@@ -196,14 +207,14 @@ describe('SubscriptionPlan', () => {
             await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Active Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: SERVICE_PROVIDER_TYPE,
                 isActive: true,
             })
 
             const [inactivePlan] = await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Inactive Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: SERVICE_PROVIDER_TYPE,
                 isActive: false,
             })
 
@@ -215,14 +226,14 @@ describe('SubscriptionPlan', () => {
             await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Basic Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: SERVICE_PROVIDER_TYPE,
                 isActive: true,
             })
 
             const [extendedPlan] = await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.EXTENDED,
                 name: 'Extended Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: SERVICE_PROVIDER_TYPE,
                 isActive: true,
             })
 
@@ -234,7 +245,7 @@ describe('SubscriptionPlan', () => {
             await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Managing Company Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: SERVICE_PROVIDER_TYPE,
                 isActive: true,
             })
 
@@ -252,14 +263,14 @@ describe('SubscriptionPlan', () => {
             await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Active Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: SERVICE_PROVIDER_TYPE,
                 isActive: true,
             })
 
             const [inactivePlan] = await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Inactive Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: SERVICE_PROVIDER_TYPE,
                 isActive: false,
             })
 
@@ -268,6 +279,7 @@ describe('SubscriptionPlan', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'DUPLICATE_ACTIVE_PLAN',
+                message: 'An active subscription plan with this type and organizationType already exists',
             }, 'obj')
         })
     })
@@ -277,7 +289,7 @@ describe('SubscriptionPlan', () => {
             const [objCreated] = await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Test Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: SERVICE_PROVIDER_TYPE,
                 isActive: true,
             })
 
@@ -292,7 +304,7 @@ describe('SubscriptionPlan', () => {
             const [objCreated] = await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Test Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: SERVICE_PROVIDER_TYPE,
                 isActive: true,
             })
 
@@ -300,7 +312,7 @@ describe('SubscriptionPlan', () => {
                 organizationType: 'HOLDING',
             })
 
-            expect(obj.organizationType).toBe(ORGANIZATION_TYPE_MANAGING_COMPANY)
+            expect(obj.organizationType).toBe(SERVICE_PROVIDER_TYPE)
         })
     })
 })

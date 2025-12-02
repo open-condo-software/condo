@@ -6,7 +6,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -184,7 +184,8 @@ async function activateTrialSubscriptionPlanByTestClient (client, organization, 
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION, { data: attrs })
-    return { data, errors }
+    throwIfError(data, errors)
+    return [data.result, attrs]
 }
 
 async function getAvailableSubscriptionPlansByTestClient (client, organization) {
@@ -192,7 +193,8 @@ async function getAvailableSubscriptionPlansByTestClient (client, organization) 
     if (!organization || !organization.id) throw new Error('no organization.id')
 
     const { data, errors } = await client.query(GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY, { organization: { id: organization.id } })
-    return { data, errors }
+    throwIfError(data, errors, { query: GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY, variables: { organization: { id: organization.id } } })
+    return [data.result, {}]
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 

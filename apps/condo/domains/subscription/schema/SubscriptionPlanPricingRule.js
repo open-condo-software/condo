@@ -8,9 +8,9 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { MONEY_AMOUNT_FIELD, PERCENT_FIELD, CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const access = require('@condo/domains/subscription/access/SubscriptionPlanPricingRule')
 const { SUBSCRIPTION_PERIODS } = require('@condo/domains/subscription/constants')
+const { validateConditions } = require('@condo/domains/subscription/utils/conditionsEvaluator')
 
 const ERRORS = {
     INVALID_PRICING_RULE_VALUES: {
@@ -24,6 +24,12 @@ const ERRORS = {
         type: 'CURRENCY_REQUIRED_FOR_FIXED_PRICE',
         message: 'currencyCode is required when fixedPrice is specified',
         messageForUser: 'api.subscription.SubscriptionPlanPricingRule.CURRENCY_REQUIRED_FOR_FIXED_PRICE',
+    },
+    INVALID_CONDITIONS: {
+        code: 'BAD_USER_INPUT',
+        type: 'INVALID_CONDITIONS',
+        message: 'Invalid conditions format',
+        messageForUser: 'api.subscription.SubscriptionPlanPricingRule.INVALID_CONDITIONS',
     },
 }
 
@@ -70,10 +76,25 @@ const SubscriptionPlanPricingRule = new GQLListSchema('SubscriptionPlanPricingRu
             isRequired: false,
         },
 
-        organizationFeatures: {
-            ...ORGANIZATION_FEATURES_FIELD,
-            schemaDoc: 'List of organization features required for this rule to apply. All features must be present',
+        conditions: {
+            schemaDoc: 'JSON conditions for rule matching (json-rules-engine format). Format: { all: [...] } or { any: [...] }. Each condition: { fact, operator, value }. Facts: organizationIds, organizationFeatures. Operators: equal, notEqual, in, notIn, contains, doesNotContain',
+            type: 'Json',
             isRequired: false,
+            defaultValue: null,
+            hooks: {
+                validateInput: async ({ resolvedData, fieldPath, operation }) => {
+                    const conditions = resolvedData[fieldPath]
+                    if (conditions === null || conditions === undefined) return
+
+                    const validationResult = validateConditions(conditions)
+                    if (!validationResult.valid) {
+                        throw new GQLError({
+                            ...ERRORS.INVALID_CONDITIONS,
+                            message: validationResult.error,
+                        }, { operation })
+                    }
+                },
+            },
         },
 
         discountPercent: {

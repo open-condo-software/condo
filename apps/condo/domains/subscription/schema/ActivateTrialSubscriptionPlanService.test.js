@@ -7,12 +7,14 @@ const dayjs = require('dayjs')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
-const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const { MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const {
     activateTrialSubscriptionPlanByTestClient,
     createTestSubscriptionPlan,
+    updateTestSubscriptionPlan,
+    SubscriptionPlan,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -26,50 +28,65 @@ describe('ActivateTrialSubscriptionPlanService', () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
-    })
 
-    beforeEach(async () => {
-        user = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [org] = await registerNewOrganization(user)
-        organization = org
+        const plans = await SubscriptionPlan.getAll(admin, {
+            isActive: true,
+            deletedAt: null,
+        })
+        for (const plan of plans) {
+            await updateTestSubscriptionPlan(admin, plan.id, { deletedAt: new Date() })
+        }
 
         const [plan] = await createTestSubscriptionPlan(admin, {
             type: SUBSCRIPTION_TYPE.BASIC,
-            name: 'Test Plan',
+            name: 'Test Plan for ActivateTrial',
             organizationType: MANAGING_COMPANY_TYPE,
             isActive: true,
         })
         subscriptionPlan = plan
     })
 
+    afterAll(async () => {
+        const plans = await SubscriptionPlan.getAll(admin, {
+            isActive: true,
+            deletedAt: null,
+        })
+        for (const plan of plans) {
+            await updateTestSubscriptionPlan(admin, plan.id, { deletedAt: new Date() })
+        }
+    })
+
+    beforeEach(async () => {
+        user = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [org] = await registerNewOrganization(user, { type: MANAGING_COMPANY_TYPE })
+        organization = org
+    })
+
     describe('Access', () => {
         test('admin can activate trial', async () => {
-            const { data, errors } = await activateTrialSubscriptionPlanByTestClient(admin, organization, subscriptionPlan)
+            const [result] = await activateTrialSubscriptionPlanByTestClient(admin, organization, subscriptionPlan)
 
-            expect(errors).toBeUndefined()
-            expect(data.result.subscriptionContext).toBeDefined()
-            expect(data.result.subscriptionContext.isTrial).toBe(true)
+            expect(result.subscriptionContext).toBeDefined()
+            expect(result.subscriptionContext.isTrial).toBe(true)
         })
 
         test('support can activate trial', async () => {
-            const { data, errors } = await activateTrialSubscriptionPlanByTestClient(support, organization, subscriptionPlan)
+            const [result] = await activateTrialSubscriptionPlanByTestClient(support, organization, subscriptionPlan)
 
-            expect(errors).toBeUndefined()
-            expect(data.result.subscriptionContext).toBeDefined()
-            expect(data.result.subscriptionContext.isTrial).toBe(true)
+            expect(result.subscriptionContext).toBeDefined()
+            expect(result.subscriptionContext.isTrial).toBe(true)
         })
 
         test('organization admin can activate trial for own organization', async () => {
-            const { data, errors } = await activateTrialSubscriptionPlanByTestClient(user, organization, subscriptionPlan)
+            const [result] = await activateTrialSubscriptionPlanByTestClient(user, organization, subscriptionPlan)
 
-            expect(errors).toBeUndefined()
-            expect(data.result.subscriptionContext).toBeDefined()
-            expect(data.result.subscriptionContext.isTrial).toBe(true)
+            expect(result.subscriptionContext).toBeDefined()
+            expect(result.subscriptionContext.isTrial).toBe(true)
         })
 
         test('user cannot activate trial for other organization', async () => {
             const otherUser = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [otherOrg] = await registerNewOrganization(otherUser)
+            const [otherOrg] = await registerNewOrganization(otherUser, { type: MANAGING_COMPANY_TYPE })
 
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await activateTrialSubscriptionPlanByTestClient(user, otherOrg, subscriptionPlan)
@@ -85,9 +102,9 @@ describe('ActivateTrialSubscriptionPlanService', () => {
 
     describe('Logic', () => {
         test('creates trial subscription context with correct dates', async () => {
-            const { data } = await activateTrialSubscriptionPlanByTestClient(admin, organization, subscriptionPlan)
+            const [result] = await activateTrialSubscriptionPlanByTestClient(admin, organization, subscriptionPlan)
 
-            const context = data.result.subscriptionContext
+            const context = result.subscriptionContext
             expect(context.isTrial).toBe(true)
             expect(context.organization.id).toBe(organization.id)
             expect(context.subscriptionPlan.id).toBe(subscriptionPlan.id)
@@ -117,7 +134,7 @@ describe('ActivateTrialSubscriptionPlanService', () => {
             const [inactivePlan] = await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.EXTENDED,
                 name: 'Inactive Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: MANAGING_COMPANY_TYPE,
                 isActive: false,
             })
 
@@ -130,7 +147,7 @@ describe('ActivateTrialSubscriptionPlanService', () => {
             const [differentTypePlan] = await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Different Type Plan',
-                organizationType: 'HOLDING',
+                organizationType: HOLDING_TYPE,
                 isActive: true,
             })
 
@@ -151,20 +168,20 @@ describe('ActivateTrialSubscriptionPlanService', () => {
 
         test('can activate trial for different plans', async () => {
             // First plan trial
-            const { data: data1 } = await activateTrialSubscriptionPlanByTestClient(admin, organization, subscriptionPlan)
-            expect(data1.result.subscriptionContext.isTrial).toBe(true)
+            const [result1] = await activateTrialSubscriptionPlanByTestClient(admin, organization, subscriptionPlan)
+            expect(result1.subscriptionContext.isTrial).toBe(true)
 
             // Create another plan
             const [anotherPlan] = await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.EXTENDED,
                 name: 'Another Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: MANAGING_COMPANY_TYPE,
                 isActive: true,
             })
 
             // Second plan trial should work
-            const { data: data2 } = await activateTrialSubscriptionPlanByTestClient(admin, organization, anotherPlan)
-            expect(data2.result.subscriptionContext.isTrial).toBe(true)
+            const [result2] = await activateTrialSubscriptionPlanByTestClient(admin, organization, anotherPlan)
+            expect(result2.subscriptionContext.isTrial).toBe(true)
         })
     })
 })

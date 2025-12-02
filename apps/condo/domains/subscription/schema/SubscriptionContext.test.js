@@ -4,20 +4,22 @@
 
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, expectToThrowGQLError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { ORGANIZATION_TYPE_MANAGING_COMPANY } = require('@condo/domains/organization/constants/common')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const {
     SubscriptionContext,
+    SubscriptionPlan,
     createTestSubscriptionContext,
     updateTestSubscriptionContext,
     createTestSubscriptionPlan,
+    updateTestSubscriptionPlan,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -28,20 +30,38 @@ describe('SubscriptionContext', () => {
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
+
+        const plans = await SubscriptionPlan.getAll(admin, {
+            isActive: true,
+            deletedAt: null,
+        })
+        for (const plan of plans) {
+            await updateTestSubscriptionPlan(admin, plan.id, { deletedAt: new Date() })
+        }
+
+        const [plan] = await createTestSubscriptionPlan(admin, {
+            type: SUBSCRIPTION_TYPE.EXTENDED,
+            name: 'Test Plan for SubscriptionContext',
+            organizationType: HOLDING_TYPE,
+            isActive: true,
+        })
+        subscriptionPlan = plan
+    })
+
+    afterAll(async () => {
+        const plans = await SubscriptionPlan.getAll(admin, {
+            isActive: true,
+            deletedAt: null,
+        })
+        for (const plan of plans) {
+            await updateTestSubscriptionPlan(admin, plan.id, { deletedAt: new Date() })
+        }
     })
 
     beforeEach(async () => {
         const user = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [org] = await registerNewOrganization(user)
+        const [org] = await registerNewOrganization(user, { type: HOLDING_TYPE })
         organization = org
-
-        const [plan] = await createTestSubscriptionPlan(admin, {
-            type: SUBSCRIPTION_TYPE.BASIC,
-            name: 'Test Plan',
-            organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
-            isActive: true,
-        })
-        subscriptionPlan = plan
     })
 
     describe('CRUD tests', () => {
@@ -241,35 +261,29 @@ describe('SubscriptionContext', () => {
                 isTrial: true,
             })
 
-            const [anotherPlan] = await createTestSubscriptionPlan(admin, {
-                type: SUBSCRIPTION_TYPE.EXTENDED,
-                name: 'Another Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
-                isActive: true,
+            await catchErrorFrom(async () => {
+                await updateTestSubscriptionContext(admin, objCreated.id, {
+                    subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+                })
+            }, ({ errors }) => {
+                expect(errors[0].message).toContain('Field "subscriptionPlan" is not defined by type "SubscriptionContextUpdateInput"')
             })
-
-            // Trying to update subscriptionPlan should be ignored (field has update: false)
-            const [obj] = await updateTestSubscriptionContext(admin, objCreated.id, {
-                subscriptionPlan: { connect: { id: anotherPlan.id } },
-            })
-
-            expect(obj.subscriptionPlan.id).toBe(subscriptionPlan.id)
         })
 
         test('cannot update startAt', async () => {
-            const originalStartAt = dayjs().toISOString()
             const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: originalStartAt,
+                startAt: dayjs().toISOString(),
                 endAt: dayjs().add(14, 'day').toISOString(),
                 isTrial: true,
             })
 
-            const newStartAt = dayjs().add(5, 'day').toISOString()
-            const [obj] = await updateTestSubscriptionContext(admin, objCreated.id, {
-                startAt: newStartAt,
+            await catchErrorFrom(async () => {
+                await updateTestSubscriptionContext(admin, objCreated.id, {
+                    startAt: dayjs().add(5, 'day').toISOString(),
+                })
+            }, ({ errors }) => {
+                expect(errors[0].message).toContain('Field "startAt" is not defined by type "SubscriptionContextUpdateInput"')
             })
-
-            expect(obj.startAt).toBe(originalStartAt)
         })
 
         test('cannot update isTrial', async () => {
@@ -279,11 +293,13 @@ describe('SubscriptionContext', () => {
                 isTrial: true,
             })
 
-            const [obj] = await updateTestSubscriptionContext(admin, objCreated.id, {
-                isTrial: false,
+            await catchErrorFrom(async () => {
+                await updateTestSubscriptionContext(admin, objCreated.id, {
+                    isTrial: false,
+                })
+            }, ({ errors }) => {
+                expect(errors[0].message).toContain('Field "isTrial" is not defined by type "SubscriptionContextUpdateInput"')
             })
-
-            expect(obj.isTrial).toBe(true)
         })
     })
 })
