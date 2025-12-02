@@ -29,7 +29,7 @@ const DEFAULT_TICKET_DEADLINE_DURATION = 'P8D' // 8 days
 const TICKET_DEFAULT_DEADLINE_DURATION_FIELDS = ['defaultDeadlineDuration', 'paidDeadlineDuration', 'emergencyDeadlineDuration', 'warrantyDeadlineDuration']
 
 const INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_STAFF = ['feedbackValue', 'feedbackComment', 'feedbackAdditionalOptions']
-const INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT = ['qualityControlValue', 'qualityControlComment', 'qualityControlAdditionalOptions', 'sentToAuthoritiesAt']
+const INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT = ['qualityControlValue', 'qualityControlComment', 'qualityControlAdditionalOptions']
 const AVAILABLE_TICKET_FIELDS_FOR_UPDATE_BY_RESIDENT = [
     'dv', 'status', 'sender',
     // TODO(DOMA-5833): should delete 'reviewValue' and 'reviewComment' when the mobile app will use 'feedback*' fields

@@ -98,6 +98,8 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     createTestPhone,
     makeClientWithSupportUser,
+    updateTestUser,
+    createTestUserRightsSet,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -1171,35 +1173,95 @@ describe('Ticket', () => {
             })
         })
 
-        test('resident: cannot create "sentToAuthoritiesAt"', async () => {
-            const residentClient = await makeClientWithResidentAccessAndProperty()
-            const unitName = faker.random.alphaNumeric(5)
-            await createTestResident(admin, residentClient.user, residentClient.property, {
-                unitName,
-            })
-
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+        describe('field "sentToAuthoritiesAt"', () => {
+            test('resident: cannot create "sentToAuthoritiesAt"', async () => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, residentClient.user, residentClient.property, {
                     unitName,
-                    sentToAuthoritiesAt: dayjs().toISOString(),
                 })
-            })
-        })
 
-        test('resident: cannot update "sentToAuthoritiesAt"', async () => {
-            const residentClient = await makeClientWithResidentAccessAndProperty()
-            const unitName = faker.random.alphaNumeric(5)
-            await createTestResident(admin, residentClient.user, residentClient.property, {
-                unitName,
-            })
-            const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
-                unitName,
+                await expectToThrowGraphQLRequestError(async () => {
+                    await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+                        unitName,
+                        sentToAuthoritiesAt: dayjs().toISOString(),
+                    })
+                }, 'Field "sentToAuthoritiesAt" is not defined by type "TicketCreateInput"')
             })
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestTicket(residentClient, ticket.id, {
+            test('resident: cannot update "sentToAuthoritiesAt"', async () => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, residentClient.user, residentClient.property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+                    unitName,
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestTicket(residentClient, ticket.id, {
+                        sentToAuthoritiesAt: dayjs().toISOString(),
+                    })
+                })
+            })
+
+            test('staff: cannot create "sentToAuthoritiesAt"', async () => {
+                const client = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+
+                await expectToThrowGraphQLRequestError(async () => {
+                    await createTestTicket(client, client.organization, client.property, {
+                        unitName,
+                        sentToAuthoritiesAt: dayjs().toISOString(),
+                    })
+                }, 'Field "sentToAuthoritiesAt" is not defined by type "TicketCreateInput"')
+            })
+
+            test('staff: cannot update "sentToAuthoritiesAt"', async () => {
+                const client = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                    unitName,
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestTicket(client, ticket.id, {
+                        sentToAuthoritiesAt: dayjs().toISOString(),
+                    })
+                })
+            })
+
+            test('user with rightSet: cannot create "sentToAuthoritiesAt"', async () => {
+                const client = await makeClientWithProperty()
+                const client2 = await makeClientWithProperty()
+                const [rightsSet] = await createTestUserRightsSet(admin, { canManageTicketSentToAuthoritiesAtField: true })
+                await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+                const unitName = faker.random.alphaNumeric(5)
+
+                await expectToThrowGraphQLRequestError(async () => {
+                    await createTestTicket(client, client2.organization, client2.property, {
+                        unitName,
+                        sentToAuthoritiesAt: dayjs().toISOString(),
+                    })
+                }, 'Field "sentToAuthoritiesAt" is not defined by type "TicketCreateInput"')
+            })
+
+            test('support: can update "sentToAuthoritiesAt"', async () => {
+                const client = await makeClientWithProperty()
+                const client2 = await makeClientWithProperty()
+                const [rightsSet] = await createTestUserRightsSet(admin, {  canManageTicketSentToAuthoritiesAtField: true })
+                await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightsSet.id } } })
+                const unitName = faker.random.alphaNumeric(5)
+                const [ticket] = await createTestTicket(client2, client2.organization, client2.property, {
+                    unitName,
+                })
+
+                const [updatedTicket, ticketAttrs] = await updateTestTicket(client, ticket.id, {
                     sentToAuthoritiesAt: dayjs().toISOString(),
                 })
+
+                expect(updatedTicket.sentToAuthoritiesAt).toBe(ticketAttrs.sentToAuthoritiesAt)
             })
         })
     })
