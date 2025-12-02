@@ -5,7 +5,7 @@
 const dayjs = require('dayjs')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/subscription/access/ActivateTrialSubscriptionPlanService')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
@@ -95,8 +95,8 @@ const ActivateTrialSubscriptionPlanService = new GQLCustomSchema('ActivateTrialS
 
                 // Check if trial already used for this plan
                 const [existingTrial] = await find('SubscriptionContext', {
-                    organization: organization.id,
-                    subscriptionPlan: plan.id,
+                    organization: { id: organization.id },
+                    subscriptionPlan: { id: plan.id },
                     isTrial: true,
                     deletedAt: null,
                 })
@@ -110,7 +110,7 @@ const ActivateTrialSubscriptionPlanService = new GQLCustomSchema('ActivateTrialS
                 const endAt = startAt.add(TRIAL_PERIOD_DAYS, 'day')
 
                 // Create trial subscription context
-                const subscriptionContext = await SubscriptionContext.create(context, {
+                const createdSubscriptionContext = await SubscriptionContext.create(context, {
                     dv,
                     sender,
                     organization: { connect: { id: organization.id } },
@@ -119,6 +119,7 @@ const ActivateTrialSubscriptionPlanService = new GQLCustomSchema('ActivateTrialS
                     endAt: endAt.toISOString(),
                     isTrial: true,
                 })
+                const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
 
                 return { subscriptionContext }
             },

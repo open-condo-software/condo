@@ -35,7 +35,7 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
         },
         {
             access: true,
-            type: 'type GetAvailableSubscriptionPlansOutput { plans: [AvailableSubscriptionPlan!]! }',
+            type: 'type GetAvailableSubscriptionPlansOutput { plans: [AvailableSubscriptionPlan]! }',
         },
     ],
 

@@ -5,13 +5,15 @@
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
-const { ORGANIZATION_TYPE_MANAGING_COMPANY } = require('@condo/domains/organization/constants/common')
+const { MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { SUBSCRIPTION_TYPE, SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
 const {
     getAvailableSubscriptionPlansByTestClient,
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
+    updateTestSubscriptionPlan,
+    SubscriptionPlan,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -25,17 +27,19 @@ describe('GetAvailableSubscriptionPlansService', () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
-    })
 
-    beforeEach(async () => {
-        user = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [org] = await registerNewOrganization(user)
-        organization = org
+        const plans = await SubscriptionPlan.getAll(admin, {
+            isActive: true,
+            deletedAt: null,
+        })
+        for (const plan of plans) {
+            await updateTestSubscriptionPlan(admin, plan.id, { deletedAt: new Date() })
+        }
 
         const [plan] = await createTestSubscriptionPlan(admin, {
-            type: SUBSCRIPTION_TYPE.BASIC,
-            name: 'Test Plan',
-            organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+            type: SUBSCRIPTION_TYPE.EXTENDED,
+            name: 'Test Plan for GetAvailable',
+            organizationType: MANAGING_COMPANY_TYPE,
             isActive: true,
         })
         subscriptionPlan = plan
@@ -49,26 +53,39 @@ describe('GetAvailableSubscriptionPlansService', () => {
         })
     })
 
+    afterAll(async () => {
+        const plans = await SubscriptionPlan.getAll(admin, {
+            isActive: true,
+            deletedAt: null,
+        })
+        for (const plan of plans) {
+            await updateTestSubscriptionPlan(admin, plan.id, { deletedAt: new Date() })
+        }
+    })
+
+    beforeEach(async () => {
+        user = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [org] = await registerNewOrganization(user)
+        organization = org
+    })
+
     describe('Access', () => {
         test('admin can get available plans', async () => {
-            const { data, errors } = await getAvailableSubscriptionPlansByTestClient(admin, organization)
+            const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
 
-            expect(errors).toBeUndefined()
-            expect(data.result.plans).toBeDefined()
+            expect(result.plans).toBeDefined()
         })
 
         test('support can get available plans', async () => {
-            const { data, errors } = await getAvailableSubscriptionPlansByTestClient(support, organization)
+            const [result] = await getAvailableSubscriptionPlansByTestClient(support, organization)
 
-            expect(errors).toBeUndefined()
-            expect(data.result.plans).toBeDefined()
+            expect(result.plans).toBeDefined()
         })
 
         test('organization admin can get available plans for own organization', async () => {
-            const { data, errors } = await getAvailableSubscriptionPlansByTestClient(user, organization)
+            const [result] = await getAvailableSubscriptionPlansByTestClient(user, organization)
 
-            expect(errors).toBeUndefined()
-            expect(data.result.plans).toBeDefined()
+            expect(result.plans).toBeDefined()
         })
 
         test('user cannot get available plans for other organization', async () => {
@@ -89,10 +106,10 @@ describe('GetAvailableSubscriptionPlansService', () => {
 
     describe('Logic', () => {
         test('returns plans with calculated prices', async () => {
-            const { data } = await getAvailableSubscriptionPlansByTestClient(admin, organization)
+            const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
 
-            expect(data.result.plans).toHaveLength(1)
-            const plan = data.result.plans[0]
+            expect(result.plans).toHaveLength(1)
+            const plan = result.plans[0]
             expect(plan.plan.id).toBe(subscriptionPlan.id)
             expect(plan.prices).toHaveLength(1)
             expect(plan.prices[0].period).toBe(SUBSCRIPTION_PERIOD.MONTHLY)
@@ -106,7 +123,7 @@ describe('GetAvailableSubscriptionPlansService', () => {
             const [differentTypePlan] = await createTestSubscriptionPlan(admin, {
                 type: SUBSCRIPTION_TYPE.EXTENDED,
                 name: 'Different Type Plan',
-                organizationType: 'HOLDING',
+                organizationType: HOLDING_TYPE,
                 isActive: true,
             })
 
@@ -118,18 +135,18 @@ describe('GetAvailableSubscriptionPlansService', () => {
             })
 
             // Should only return the plan matching organization type
-            const { data } = await getAvailableSubscriptionPlansByTestClient(admin, organization)
+            const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
 
-            const planIds = data.result.plans.map(p => p.plan.id)
+            const planIds = result.plans.map(p => p.plan.id)
             expect(planIds).toContain(subscriptionPlan.id)
             expect(planIds).not.toContain(differentTypePlan.id)
         })
 
         test('does not return inactive plans', async () => {
             const [inactivePlan] = await createTestSubscriptionPlan(admin, {
-                type: SUBSCRIPTION_TYPE.EXTENDED,
+                type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Inactive Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: MANAGING_COMPANY_TYPE,
                 isActive: false,
             })
 
@@ -140,9 +157,9 @@ describe('GetAvailableSubscriptionPlansService', () => {
                 discountPercent: null,
             })
 
-            const { data } = await getAvailableSubscriptionPlansByTestClient(admin, organization)
+            const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
 
-            const planIds = data.result.plans.map(p => p.plan.id)
+            const planIds = result.plans.map(p => p.plan.id)
             expect(planIds).not.toContain(inactivePlan.id)
         })
 
@@ -157,9 +174,9 @@ describe('GetAvailableSubscriptionPlansService', () => {
         test('applies discount rules correctly', async () => {
             // Create plan with discount
             const [discountPlan] = await createTestSubscriptionPlan(admin, {
-                type: SUBSCRIPTION_TYPE.EXTENDED,
+                type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Discount Plan',
-                organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+                organizationType: MANAGING_COMPANY_TYPE,
                 isActive: true,
             })
 
@@ -180,9 +197,9 @@ describe('GetAvailableSubscriptionPlansService', () => {
                 priority: 50,
             })
 
-            const { data } = await getAvailableSubscriptionPlansByTestClient(admin, organization)
+            const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
 
-            const plan = data.result.plans.find(p => p.plan.id === discountPlan.id)
+            const plan = result.plans.find(p => p.plan.id === discountPlan.id)
             expect(plan).toBeDefined()
             const yearlyPrice = plan.prices.find(p => p.period === SUBSCRIPTION_PERIOD.YEARLY)
             expect(yearlyPrice.basePrice).toBe('10000.00')

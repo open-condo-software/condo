@@ -16,7 +16,7 @@ const ServiceSubscription = generateGqlQueries('ServiceSubscription', SERVICE_SU
 const SUBSCRIPTION_PLAN_FIELDS = `{ type name description organizationType news marketplace support ai passTickets isActive ${COMMON_FIELDS} }`
 const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
 
-const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period currencyCode organization { id } organizationFeatures discountPercent fixedPrice priority isActive canBePromoted promotionText ${COMMON_FIELDS} }`
+const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period currencyCode organization { id } conditions discountPercent fixedPrice priority isActive canBePromoted promotionText ${COMMON_FIELDS} }`
 const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
 
 const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } startAt endAt basePrice calculatedPrice appliedRules isTrial daysRemaining ${COMMON_FIELDS} }`

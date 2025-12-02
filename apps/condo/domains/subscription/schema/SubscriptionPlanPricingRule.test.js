@@ -8,13 +8,16 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { ORGANIZATION_TYPE_MANAGING_COMPANY } = require('@condo/domains/organization/constants/common')
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const { ACTIVE_BANKING_FEATURE, HIGH_REVENUE_CUSTOMER_FEATURE } = require('@condo/domains/organization/constants/features')
 const { SUBSCRIPTION_TYPE, SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
 const {
+    SubscriptionPlan,
     SubscriptionPlanPricingRule,
     createTestSubscriptionPlanPricingRule,
     updateTestSubscriptionPlanPricingRule,
     createTestSubscriptionPlan,
+    updateTestSubscriptionPlan,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -25,16 +28,32 @@ describe('SubscriptionPlanPricingRule', () => {
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
-    })
 
-    beforeEach(async () => {
+        const plans = await SubscriptionPlan.getAll(admin, {
+            isActive: true,
+            deletedAt: null,
+        })
+        for (const plan of plans) {
+            await updateTestSubscriptionPlan(admin, plan.id, { deletedAt: new Date() })
+        }
+
         const [plan] = await createTestSubscriptionPlan(admin, {
             type: SUBSCRIPTION_TYPE.BASIC,
             name: 'Test Plan',
-            organizationType: ORGANIZATION_TYPE_MANAGING_COMPANY,
+            organizationType: MANAGING_COMPANY_TYPE,
             isActive: true,
         })
         subscriptionPlan = plan
+    })
+
+    afterAll(async () => {
+        const plans = await SubscriptionPlan.getAll(admin, {
+            isActive: true,
+            deletedAt: null,
+        })
+        for (const plan of plans) {
+            await updateTestSubscriptionPlan(admin, plan.id, { deletedAt: new Date() })
+        }
     })
 
     describe('CRUD tests', () => {
@@ -48,7 +67,7 @@ describe('SubscriptionPlanPricingRule', () => {
                 })
 
                 expect(obj.id).toMatch(UUID_RE)
-                expect(obj.fixedPrice).toBe('1000.00')
+                expect(obj.fixedPrice).toBe('1000.00000000')
                 expect(obj.currencyCode).toBe('RUB')
             })
 
@@ -60,7 +79,7 @@ describe('SubscriptionPlanPricingRule', () => {
                 })
 
                 expect(obj.id).toMatch(UUID_RE)
-                expect(obj.discountPercent).toBe('15')
+                expect(obj.discountPercent).toBe('15.0000')
             })
 
             test('support can create', async () => {
@@ -109,7 +128,7 @@ describe('SubscriptionPlanPricingRule', () => {
                     discountPercent: '20',
                 })
 
-                expect(obj.discountPercent).toBe('20')
+                expect(obj.discountPercent).toBe('20.0000')
             })
 
             test('support can update', async () => {
@@ -194,6 +213,7 @@ describe('SubscriptionPlanPricingRule', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'INVALID_PRICING_RULE_VALUES',
+                message: 'You must specify either fixedPrice or discountPercent, but not both',
             }, 'obj')
         })
 
@@ -208,6 +228,7 @@ describe('SubscriptionPlanPricingRule', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'INVALID_PRICING_RULE_VALUES',
+                message: 'You must specify either fixedPrice or discountPercent, but not both',
             }, 'obj')
         })
 
@@ -222,6 +243,7 @@ describe('SubscriptionPlanPricingRule', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'CURRENCY_REQUIRED_FOR_FIXED_PRICE',
+                message: 'currencyCode is required when fixedPrice is specified',
             }, 'obj')
         })
 
@@ -281,7 +303,7 @@ describe('SubscriptionPlanPricingRule', () => {
                 currencyCode: 'RUB',
             })
 
-            expect(obj.fixedPrice).toBe('500.00')
+            expect(obj.fixedPrice).toBe('500.00000000')
             expect(obj.discountPercent).toBeNull()
         })
 
@@ -307,6 +329,194 @@ describe('SubscriptionPlanPricingRule', () => {
             })
 
             expect(obj.isActive).toBe(false)
+        })
+    })
+
+    describe('Conditions validation tests', () => {
+        test('can create rule with null conditions', async () => {
+            const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                fixedPrice: '1000.00',
+                currencyCode: 'RUB',
+                discountPercent: null,
+                conditions: null,
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.conditions).toBeNull()
+        })
+
+        test('can create rule with valid single condition', async () => {
+            const conditions = {
+                fact: 'organizationFeatures',
+                operator: 'contains',
+                value: ACTIVE_BANKING_FEATURE,
+            }
+            const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                fixedPrice: '1000.00',
+                currencyCode: 'RUB',
+                discountPercent: null,
+                conditions,
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.conditions).toEqual(conditions)
+        })
+
+        test('can create rule with valid all conditions', async () => {
+            const conditions = {
+                all: [
+                    { fact: 'organizationFeatures', operator: 'contains', value: ACTIVE_BANKING_FEATURE },
+                    { fact: 'organizationFeatures', operator: 'contains', value: HIGH_REVENUE_CUSTOMER_FEATURE },
+                ],
+            }
+            const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                fixedPrice: '0.00',
+                currencyCode: 'RUB',
+                discountPercent: null,
+                conditions,
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.conditions).toEqual(conditions)
+        })
+
+        test('can create rule with valid any conditions', async () => {
+            const conditions = {
+                any: [
+                    { fact: 'organizationFeatures', operator: 'contains', value: ACTIVE_BANKING_FEATURE },
+                    { fact: 'organizationIds', operator: 'contains', value: 'some-org-id' },
+                ],
+            }
+            const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                discountPercent: '20',
+                fixedPrice: null,
+                conditions,
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.conditions).toEqual(conditions)
+        })
+
+        test('can create rule with organizationIds condition', async () => {
+            const conditions = {
+                all: [
+                    { fact: 'organizationIds', operator: 'contains', value: 'org-uuid-1' },
+                ],
+            }
+            const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                fixedPrice: '500.00',
+                currencyCode: 'RUB',
+                discountPercent: null,
+                conditions,
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.conditions).toEqual(conditions)
+        })
+
+        test('cannot create rule with invalid conditions structure', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    fixedPrice: '1000.00',
+                    currencyCode: 'RUB',
+                    discountPercent: null,
+                    conditions: {
+                        all: 'not an array',
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_CONDITIONS',
+                message: 'conditions.all: must be an array',
+            }, 'obj')
+        })
+
+        test('cannot create rule with unsupported fact', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    fixedPrice: '1000.00',
+                    currencyCode: 'RUB',
+                    discountPercent: null,
+                    conditions: {
+                        all: [
+                            { fact: 'unknownFact', operator: 'equal', value: 'test' },
+                        ],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_CONDITIONS',
+                message: 'conditions.all[0]: unsupported fact "unknownFact". Supported: organizationIds, organizationFeatures',
+            }, 'obj')
+        })
+
+        test('cannot create rule with unsupported operator', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    fixedPrice: '1000.00',
+                    currencyCode: 'RUB',
+                    discountPercent: null,
+                    conditions: {
+                        all: [
+                            { fact: 'organizationIds', operator: 'unknownOp', value: 'test' },
+                        ],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_CONDITIONS',
+                message: 'conditions.all[0]: unsupported operator "unknownOp". Supported: contains, doesNotContain, equal, notEqual, in, notIn',
+            }, 'obj')
+        })
+
+        test('cannot create rule with missing operator in condition', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    fixedPrice: '1000.00',
+                    currencyCode: 'RUB',
+                    discountPercent: null,
+                    conditions: {
+                        all: [
+                            { fact: 'organizationFeatures', value: ACTIVE_BANKING_FEATURE },
+                        ],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_CONDITIONS',
+                message: 'conditions.all[0]: missing or invalid "operator"',
+            }, 'obj')
+        })
+
+        test('can update rule conditions', async () => {
+            const [objCreated] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                fixedPrice: '1000.00',
+                currencyCode: 'RUB',
+                discountPercent: null,
+                conditions: null,
+            })
+
+            const newConditions = {
+                fact: 'organizationFeatures',
+                operator: 'contains',
+                value: ACTIVE_BANKING_FEATURE,
+            }
+
+            const [obj] = await updateTestSubscriptionPlanPricingRule(admin, objCreated.id, {
+                conditions: newConditions,
+            })
+
+            expect(obj.conditions).toEqual(newConditions)
         })
     })
 })
