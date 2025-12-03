@@ -202,7 +202,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                 OR: [
                     {
                         id_in: VISIBLE_TICKET_SOURCE_IDS,
-                        isDefault: true,
                     },
                     {
                         isDefault: false,
