@@ -2,7 +2,6 @@ const crypto = require('crypto')
 
 const dayjs = require('dayjs')
 
-const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getById } = require('@open-condo/keystone/schema')
@@ -14,9 +13,6 @@ const {
 } = require('@condo/domains/marketplace/constants')
 
 const logger = getLogger()
-
-// Fallback secret used only if invoice doesn't have its own secret (legacy invoices)
-const FALLBACK_WEBHOOK_SECRET = conf.INVOICE_WEBHOOK_SECRET || 'default-webhook-secret'
 
 
 /**
@@ -104,8 +100,15 @@ async function tryDeliverWebhook (delivery) {
         }
     }
 
-    // Use invoice-specific secret or fallback to global secret for legacy invoices
-    const secret = invoice.statusChangeCallbackSecret || FALLBACK_WEBHOOK_SECRET
+    // Use invoice-specific secret
+    const secret = invoice.statusChangeCallbackSecret
+    if (!secret) {
+        logger.error({ msg: 'Invoice has no webhook secret', data: { deliveryId: delivery.id, invoiceId: invoice.id } })
+        return {
+            success: false,
+            error: 'Invoice has no webhook secret configured',
+        }
+    }
 
     const body = JSON.stringify(payload)
     const signature = generateSignature(body, secret)
@@ -208,5 +211,4 @@ module.exports = {
     generateSignature,
     calculateNextRetryAt,
     tryDeliverWebhook,
-    FALLBACK_WEBHOOK_SECRET,
 }
