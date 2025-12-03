@@ -1,7 +1,4 @@
-Condo API provides two ways to work with files:
-
-1. **Signature chain** — use a pair of `client_id` + secret and `/api/files` endpoints to exchange signed metadata strings
-2. **GraphQL Upload** — direct use of the [GraphQL multipart request spec](https://github.com/jaydenseric/graphql-multipart-request-spec)
+Condo API relies on a signature-based REST flow powered by `/api/files` endpoints
 
 <Alert type="warning">
     GraphQL Upload is deprecated and will be removed in the future. Please migrate to the signature-based flow.
@@ -9,7 +6,7 @@ Condo API provides two ways to work with files:
 
 ---
 
-## Signature chain flow (recommended)
+## File API
 
 The signature flow relies on dedicated REST endpoints (`/api/files`) and requires a `client_id` that was pre-registered on the file server. It brings better security, rate limiting and allows reusing previously uploaded files.
 
@@ -25,7 +22,7 @@ If your application has its own backend and you need to verify signatures receiv
 
 Use the `@open-condo/files` package to upload files:
 
-<Tabs labels={['TypeScript example', 'JavaScript example']}>
+<Tabs labels={['TypeScript example', 'JavaScript example', 'cURL example']}>
 ```typescript
 import { upload, buildMeta } from '@open-condo/files'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -35,7 +32,7 @@ const { publicRuntimeConfig: { fileClientId } } = getConfig()
 
 async function uploadFile(file: File, userId: string, organizationId?: string) {
   const senderInfo = getClientSideSenderInfo()
-  
+
   const uploadResult = await upload({
     files: [file],
     meta: buildMeta({
@@ -76,6 +73,19 @@ async function uploadFile(file, userId, organizationId) {
 
   return uploadResult.files[0].signature
 }
+```
+
+```bash
+SERVER="https://condo.d.doma.ai"
+AUTHORIZATION="Bearer ..."
+META_JSON='{"dv":1,"sender":{"dv":1,"fingerprint":"<fingerprint>"},"user":{"id":"<user-id>"},"fileClientId":"<client-id>","modelNames":["Document"],"organization":{"id":"<organization-id>"}}'
+ATTACH_JSON='{"dv":1,"sender":{"dv":1,"fingerprint":"<fingerprint>"},"modelName":"Document","itemId":"existing-document-id"}'
+
+curl -X POST "$SERVER/api/files/upload" \
+  -H "Authorization: $AUTHORIZATION" \
+  -F "meta=$META_JSON" \
+  -F "attach=$ATTACH_JSON" \
+  -F "files=@/path/to/file.pdf;type=application/pdf"
 ```
 </Tabs>
 
@@ -234,7 +244,7 @@ const uploadResult = await upload({
 
 Share an uploaded file with another user or app:
 
-<Tabs labels={['TypeScript example']}>
+<Tabs labels={['TypeScript example', 'cURL example']}>
 ```typescript
 import { share } from '@open-condo/files'
 
@@ -251,13 +261,32 @@ const shareResult = await share({
 
 // shareResult.file.signature contains the new signature
 ```
+
+```bash
+SERVER="https://condo.d.doma.ai"
+AUTHORIZATION="Bearer ..."
+
+curl -X POST "$SERVER/api/files/share" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: $AUTHORIZATION" \
+  -d '{
+    "payload": {
+      "dv": 1,
+      "sender": { "dv": 1, "fingerprint": "<fingerprint>" },
+      "id": "existing-file-id",
+      "user": { "id": "target-user-id" },
+      "fileClientId": "target-app-id",
+      "modelNames": ["Document"]
+    }
+  }'
+```
 </Tabs>
 
 ### Attaching existing files
 
 Attach a previously uploaded file to a model:
 
-<Tabs labels={['TypeScript example']}>
+<Tabs labels={['TypeScript example', 'cURL example']}>
 ```typescript
 import { attach } from '@open-condo/files'
 
@@ -273,6 +302,25 @@ const attachResult = await attach({
 })
 
 // attachResult.file.signature contains the public signature
+```
+
+```bash
+SERVER="https://condo.d.doma.ai"
+AUTHORIZATION="Bearer ..."
+
+curl -X POST "$SERVER/api/files/attach" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: $AUTHORIZATION" \
+  -d '{
+    "payload": {
+      "dv": 1,
+      "sender": { "dv": 1, "fingerprint": "<fingerprint>" },
+      "modelName": "Document",
+      "itemId": "document-id",
+      "fileClientId": "<client-id>",
+      "signature": "upload-or-share-signature"
+    }
+  }'
 ```
 </Tabs>
 
@@ -319,87 +367,6 @@ The new flow uses the following REST endpoints:
 * `POST /api/files/attach` — attach a file to a model
 * `GET /api/files/<file_id>?sign=<signature>` — download a file
 
-All endpoints require authentication via session cookie (same as GraphQL API).
-
----
-
-## Legacy flow (deprecated)
-
 <Alert type="warning">
-    This flow is deprecated and will be removed in the future. Please migrate to the new flow.
+    All endpoints require authentication via session cookie / Authorization header (same as GraphQL API).
 </Alert>
-
-The legacy flow uses GraphQL Upload directly without `fileClientId`. Files are uploaded as part of the GraphQL mutation.
-
-### Usage
-
-<Tabs labels={['GraphQL mutation', 'cURL example']}>
-```graphql
-mutation CreateDocument($data: DocumentCreateInput!) {
-  obj: createDocument(data: $data) {
-    id
-    file {
-      filename
-      mimetype
-      publicUrl
-    }
-  }
-}
-```
-
-```bash
-curl -X POST "$SERVER/admin/api" \
-  -H "Cookie: $COOKIE" \
-  -F "operations={\"query\":\"mutation($file: Upload!) { createDocument(data: {file: $file}) { id } }\",\"variables\":{\"file\":null}}" \
-  -F "map={\"0\":[\"variables.file\"]}" \
-  -F "0=@/path/to/file.pdf"
-```
-</Tabs>
-
-### Limitations
-
-* No rate limiting per application
-* No file sharing between apps
-* Less secure (no client ID validation)
-* Will be removed in future versions
-
----
-
-## Migration guide
-
-To migrate from legacy flow to the new flow:
-
-1. Install `@open-condo/files` package
-2. Get `fileClientId` from your application configuration
-3. Replace direct GraphQL Upload with `/api/files/upload` endpoint
-4. Use the returned `signature` in your GraphQL mutations instead of the file stream
-
-Example migration:
-
-**Before (legacy):**
-```typescript
-// File uploaded directly in GraphQL mutation
-const result = await createDocument({
-  file: fileObject, // Upload stream
-  name: 'Document',
-})
-```
-
-**After (new flow):**
-```typescript
-// 1. Upload file first
-const uploadResult = await upload({
-  files: [file],
-  meta: buildMeta({ ... }),
-})
-
-// 2. Use signature in GraphQL mutation
-const result = await createDocument({
-  file: {
-    signature: uploadResult.files[0].signature,
-    originalFilename: file.name,
-  },
-  name: 'Document',
-})
-```
-
