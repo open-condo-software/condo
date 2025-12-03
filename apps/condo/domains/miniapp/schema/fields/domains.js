@@ -20,7 +20,7 @@ const ADDITIONAL_DOMAINS_FIELD = {
     graphQLReturnType: '[String!]',
     graphQLInputType: '[String!]',
     isRequired: true,
-    defaultValue: [],
+    defaultValue: '[]',
     hooks: {
         validateInput: getGQLErrorValidator(z.array(z.url({ protocol: /^https$/ })), 'INVALID_MINIAPP_DOMAINS'),
     },
