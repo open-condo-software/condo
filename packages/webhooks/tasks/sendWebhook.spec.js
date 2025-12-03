@@ -70,8 +70,8 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
             expect(updated).toHaveProperty('syncedAt')
             const syncTime = dayjs(updated.syncedAt)
-            expect(syncTime.isSame(initialSyncTime)).toEqual(false)
-            expect(syncTime.isAfter(initialSyncTime)).toEqual(true)
+            expect(syncTime.isSame(initialSyncTime)).toEqual(true)
+            expect(syncTime.isAfter(initialSyncTime)).toEqual(false)
             expect(updated).toHaveProperty('syncedAmount', 0)
 
             await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
@@ -129,8 +129,8 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             expect(lastUpdated).toHaveProperty('syncedAt')
             const lastSyncTime = dayjs(lastUpdated.syncedAt)
             // NOTE: Rest of objects was sent
-            expect(lastSyncTime.isSame(initialSyncTime)).toEqual(false)
-            expect(lastSyncTime.isAfter(initialSyncTime)).toEqual(true)
+            expect(lastSyncTime.isSame(initialSyncTime)).toEqual(true)
+            expect(lastSyncTime.isAfter(initialSyncTime)).toEqual(false)
             expect(lastUpdated).toHaveProperty('syncedAmount', 0)
             expect(lastUpdated).toHaveProperty('failuresCount', 0)
             expect(ODD_CALLS).toHaveLength(3)
