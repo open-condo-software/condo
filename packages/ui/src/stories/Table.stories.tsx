@@ -50,19 +50,6 @@ const data: TableData[] = [
     { id: '11', firstName: 'sandy', lastName: 'shore', age: 35, status: true },
     { id: '12', firstName: 'mike', lastName: 'drop', age: 42, status: false },
     { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
-    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
 ]
 
 const columns: TableColumn<TableData>[] = [
@@ -140,13 +127,14 @@ const columns: TableColumn<TableData>[] = [
     {
         // How we can add sorting for this column? 
         dataKey: 'organization.name',
-        enableSorting: true,
+        enableSorting: false,
         header: (table) => <span>{table.getColumn('organization.name')?.columnDef?.id}</span>,
         id: 'organization.name',
     },
     {
         dataKey: 'organization.id',
         header: 'Organization ID',
+        enableSorting: false,
         id: 'organization.id',
         render: (_, record) => <span>{record.organization?.id ? String(record.organization.id) : '—'}</span>,
     },
@@ -172,63 +160,22 @@ const getTableData: GetTableData<TableData> = (tableState) => {
             }
 
             if (tableState.sortState.length > 0) {
-                const sortDesc = tableState.sortState[0].desc
-                const sortId = tableState.sortState[0].id as keyof TableData
-                const getNestedValue = (obj: any, path: any): unknown => {
-                    if (!path || !obj) return undefined
-                    
-                    if (!path.includes('.')) {
-                        if (path === '__proto__' || path === 'constructor' || path === 'prototype') {
-                            return undefined
-                        }
-                        return obj[path]
-                    }
-                    
-                    const keys = path.split('.')
-                    let value = obj
-                    
-                    for (const key of keys) {
-                        if (value === null || value === undefined) {
-                            return undefined
-                        }
-                        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
-                            return undefined
-                        }
-                        if (!Object.prototype.hasOwnProperty.call(value, key) && typeof value === 'object') {
-                            return undefined
-                        }
-                        value = value[key]
-                    }
-                    
-                    return value
-                }
-
-                const compareValues = (a: any, b: any, desc: boolean): number => {
-                    if (a === undefined || a === null) {
-                        return desc ? -1 : 1
-                    }
-                    if (b === undefined || b === null) {
-                        return desc ? 1 : -1
-                    }
-
-                    const aType = typeof a
-                    const bType = typeof b
-
-                    if (aType === 'number' && bType === 'number') {
-                        return desc ? b - a : a - b
-                    }
-
-                    if (aType === 'string' && bType === 'string') {
-                        return desc ? b.localeCompare(a) : a.localeCompare(b)
-                    }
-
-                    return 0
-                }
-
+                const { id, desc } = tableState.sortState[0]
                 resultData.sort((a, b) => {
-                    const aValue = getNestedValue(a, sortId)
-                    const bValue = getNestedValue(b, sortId)
-                    return compareValues(aValue, bValue, sortDesc)
+                    const aValue = a[id as keyof TableData]
+                    const bValue = b[id as keyof TableData]
+
+                    if (aValue == null && bValue == null) return 0
+                    if (aValue == null) return desc ? 1 : -1
+                    if (bValue == null) return desc ? -1 : 1
+
+                    if (typeof aValue === 'number' && typeof bValue === 'number') {
+                        return desc ? bValue - aValue : aValue - bValue
+                    }
+
+                    const aString = String(aValue)
+                    const bString = String(bValue)
+                    return desc ? bString.localeCompare(aString) : aString.localeCompare(bString)
                 })
             }
             resolve({ rowData: resultData.slice(tableState.startRow, tableState.endRow), rowCount: resultData.length })

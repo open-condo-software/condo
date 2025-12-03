@@ -178,15 +178,15 @@ function FilterMenuDropdown <TData> ({
                 header.column.getIsFiltered() ? (
                     <div className='condo-dropdown-menu-item-inner'>
                         <div className='condo-dropdown-menu-item-inner-left condo-dropdown-menu-item-inner-left-active'>
-                            <Filter size='small' className='condo-table-icon condo-table-icon--green'/>
+                            <Filter size='small' className='condo-table-icon condo-table-icon-green'/>
                             {columnLabels?.filteredLabel || 'Filtered'}
                         </div>
-                        <Close size='small' onClick={clearFilters} className='condo-table-icon condo-table-icon--black'/>
+                        <Close size='small' onClick={clearFilters} className='condo-table-icon condo-table-icon-black'/>
                     </div>
                 ) : (
                     <div className='condo-dropdown-menu-item-inner'>
                         <div className='condo-dropdown-menu-item-inner-left'>
-                            <Filter size='small' className='condo-table-icon condo-table-icon--gray'/>
+                            <Filter size='small' className='condo-table-icon condo-table-icon-gray'/>
                             {columnLabels?.filterLabel || 'Filter'}
                         </div>
                     </div>
@@ -238,7 +238,7 @@ function SettingsMenuDropdown <TData> ({
         >
             <div className='condo-dropdown-menu-item-inner'>
                 <div className='condo-dropdown-menu-item-inner-left'>
-                    <GripHorizontal size='small' className='condo-table-icon condo-table-icon--gray' />
+                    <GripHorizontal size='small' className='condo-table-icon condo-table-icon-gray' />
                     {columnLabels.settingsLabel || 'Settings'}
                 </div>
             </div>
@@ -267,15 +267,15 @@ export function TableHeader <TData> ({
                     header.column.getIsSorted() === 'desc' ? (
                         <div className='condo-dropdown-menu-item-inner'>
                             <div className='condo-dropdown-menu-item-inner-left condo-dropdown-menu-item-inner-left-active'>
-                                <SortDesc size='small' className='condo-table-icon condo-table-icon--green'/>
+                                <SortDesc size='small' className='condo-table-icon condo-table-icon-green'/>
                                 {columnLabels?.sortedDescLabel || 'Sorted'}
                             </div>
-                            <Close size='small' className='condo-table-icon condo-table-icon--black' onClick={clearSorting}/>
+                            <Close size='small' className='condo-table-icon condo-table-icon-black' onClick={clearSorting}/>
                         </div>
                     ) : (
                         <div className='condo-dropdown-menu-item-inner'>
                             <div className='condo-dropdown-menu-item-inner-left'>
-                                <SortDesc size='small' className='condo-table-icon condo-table-icon--gray'/>
+                                <SortDesc size='small' className='condo-table-icon condo-table-icon-gray'/>
                                 {columnLabels?.sortDescLabel || 'Sorted'}
                             </div>
                         </div>
@@ -290,15 +290,15 @@ export function TableHeader <TData> ({
                     header.column.getIsSorted() === 'asc' ? (
                         <div className='condo-dropdown-menu-item-inner'>
                             <div className='condo-dropdown-menu-item-inner-left condo-dropdown-menu-item-inner-left-active'>
-                                <SortAsc size='small' className='condo-table-icon condo-table-icon--green'/>
+                                <SortAsc size='small' className='condo-table-icon condo-table-icon-green'/>
                                 {columnLabels?.sortedAscLabel || 'Sort'}
                             </div>
-                            <Close size='small' className='condo-table-icon condo-table-icon--black' onClick={clearSorting}/>
+                            <Close size='small' className='condo-table-icon condo-table-icon-black' onClick={clearSorting}/>
                         </div>
                     ) : (
                         <div className='condo-dropdown-menu-item-inner'>
                             <div className='condo-dropdown-menu-item-inner-left'>
-                                <SortAsc size='small' className='condo-table-icon condo-table-icon--gray'/>
+                                <SortAsc size='small' className='condo-table-icon condo-table-icon-gray'/>
                                 {columnLabels?.sortAscLabel || 'Sort'} 
                             </div>
                         </div>
@@ -375,9 +375,9 @@ export function TableHeader <TData> ({
                             </div>
                             {header.column.columnDef.meta?.enableColumnMenu && (
                                 <div className='condo-table-th-icons'>
-                                    {header.column.getIsSorted() === 'asc' && <SortAsc size='small' className='condo-table-icon condo-table-icon--green' /> }
-                                    {header.column.getIsSorted() === 'desc' && <SortDesc size='small' className='condo-table-icon condo-table-icon--green' />}
-                                    {header.column.getIsFiltered() && <Filter size='small' className='condo-table-icon condo-table-icon--green' />}
+                                    {header.column.getIsSorted() === 'asc' && <SortAsc size='small' className='condo-table-icon condo-table-icon-green' /> }
+                                    {header.column.getIsSorted() === 'desc' && <SortDesc size='small' className='condo-table-icon condo-table-icon-green' />}
+                                    {header.column.getIsFiltered() && <Filter size='small' className='condo-table-icon condo-table-icon-green' />}
                                     <Dropdown
                                         menu={{ 
                                             items: getColumnMenu(header),
