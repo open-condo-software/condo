@@ -686,13 +686,13 @@ const Invoice = new GQLListSchema('Invoice', {
 
             // Only trigger if:
             // 1. There's a callback URL configured
-            // 2. Status has actually changed (or it's a new invoice with non-draft status)
+            // 2. Status has actually changed (or it's a new invoice with non-draft status, because 'draft' is default status)
             const statusChanged = operation === 'create'
                 ? newStatus !== INVOICE_STATUS_DRAFT // draft is default status
                 : previousStatus !== newStatus
 
             if (callbackUrl && statusChanged) {
-                const sender = { dv: 1, fingerprint: 'Invoice_webhookTrigger' }
+                const sender = { dv: 1, fingerprint: 'invoice-webhook-trigger' }
                 try {
                     const delivery = await InvoiceWebhookDelivery.create(context, {
                         dv: 1,
