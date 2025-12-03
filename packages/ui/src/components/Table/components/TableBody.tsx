@@ -57,7 +57,7 @@ export function TableBody <TData extends RowData = RowData> ({
                     <div className='condo-table-empty'>
                         <Inbox className='condo-table-icon condo-table-icon-gray condo-table-empty-icon' />
                         <div className='condo-table-empty-content'>
-                            {columnLabels?.noDataLabel}
+                            {columnLabels?.noDataLabel ?? 'No data'}
                         </div>
                     </div>
                 </div>
