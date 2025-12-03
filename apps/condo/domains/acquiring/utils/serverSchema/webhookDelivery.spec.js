@@ -7,11 +7,9 @@ const crypto = require('crypto')
 const dayjs = require('dayjs')
 
 jest.mock('@open-condo/keystone/fetch')
-jest.mock('@open-condo/keystone/logging')
 jest.mock('@open-condo/keystone/schema')
 
 const { fetch } = require('@open-condo/keystone/fetch')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
@@ -31,15 +29,8 @@ const {
 
 
 describe('webhookDelivery', () => {
-    const mockLogger = {
-        info: jest.fn(),
-        warn: jest.fn(),
-        error: jest.fn(),
-    }
-
     beforeEach(() => {
         jest.clearAllMocks()
-        getLogger.mockReturnValue(mockLogger)
     })
 
     describe('generateSignature', () => {
