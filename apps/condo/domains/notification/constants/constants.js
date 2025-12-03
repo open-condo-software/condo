@@ -874,15 +874,15 @@ const MESSAGE_DELIVERY_OPTIONS = {
     [TICKET_CREATED_TYPE]: {
         ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
         strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
-        allowedTransports: [TELEGRAM_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT],
+        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
     [TICKET_COMMENT_CREATED_TYPE]: {
         ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
         strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
-        allowedTransports: [TELEGRAM_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT],
+        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
     [DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE]: {
@@ -1097,14 +1097,15 @@ const MESSAGE_DELIVERY_OPTIONS = {
         isAllowedToChangeDefaultTransport: false,
     },
     [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
-        allowedTransports: [TELEGRAM_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT],
+        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
         isAllowedToChangeDefaultTransport: false,
     },
     [PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE]: {
-        // TODO DOMA-12361 Add push transport
-        allowedTransports: [TELEGRAM_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT],
+        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
         isAllowedToChangeDefaultTransport: false,
     },
 }

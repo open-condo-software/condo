@@ -11,6 +11,7 @@ const {
 
 // Settings priorities
 // The highest number is the most prioritized value
+const GLOBAL_SETTING = 5
 const ALL_MESSAGES_TYPES = 10
 const ALL_TYPE_TRANSPORTS = 20
 const PARTICULAR_TYPE_N_TRANSPORT = 30
@@ -23,13 +24,27 @@ const PARTICULAR_TYPE_N_TRANSPORT = 30
  */
 async function getUserSettings (context, userId, messageType) {
     return await NotificationUserSetting.getAll(context, {
-        user: { id: userId },
         deletedAt: null,
         OR: [
-            { messageType: null }, // possible settings for all messages
-            { messageType }, // settings for specific message type
+            {
+                AND: [
+                    { user_is_null: true }, // global settings
+                    { messageType },
+                ],
+            },
+            {
+                AND: [
+                    {
+                        user: { id: userId },
+                        OR: [
+                            { messageType: null }, // possible settings for all messages
+                            { messageType }, // settings for specific message type
+                        ],
+                    },
+                ],
+            },
         ],
-    }, 'messageType messageTransport isEnabled')
+    }, 'user { id } messageType messageTransport isEnabled')
 }
 
 /**
@@ -97,7 +112,17 @@ async function getUserSettingsForMessage (context, message) {
         const messageType = get(setting, 'messageType')
         const messageTransport = get(setting, 'messageTransport')
         const isEnabled = get(setting, 'isEnabled')
-
+        const hasUser = !!get(setting, ['user', 'id'])
+        const useGlobalSetting = !isAnonymous && !hasUser
+        
+        // Priority: GLOBAL_SETTING (without user, specific transport)
+        if (useGlobalSetting) {
+            if (get(appliedPriorities, messageTransport, 0) < GLOBAL_SETTING) {
+                userTransportSettings[messageTransport] = isEnabled
+                appliedPriorities[messageTransport] = GLOBAL_SETTING
+            }
+        }
+        
         // Priority: ALL_MESSAGES_TYPES
         if (!messageType && !messageTransport) {
             transports.forEach((transport) => {
@@ -119,7 +144,7 @@ async function getUserSettingsForMessage (context, message) {
         }
 
         // Priority: PARTICULAR_TYPE_N_TRANSPORT
-        if (!!messageType && !!messageTransport && get(appliedPriorities, messageTransport, 0) < PARTICULAR_TYPE_N_TRANSPORT) {
+        if (!useGlobalSetting && !!messageType && !!messageTransport && get(appliedPriorities, messageTransport, 0) < PARTICULAR_TYPE_N_TRANSPORT) {
             userTransportSettings[messageTransport] = isEnabled
             appliedPriorities[messageTransport] = PARTICULAR_TYPE_N_TRANSPORT
         }

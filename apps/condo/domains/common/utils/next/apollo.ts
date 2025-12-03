@@ -141,6 +141,11 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('showAll'),
                         merge: listHelper.mergeLists,
                     },
+                    allNotificationUserSettings: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
                 },
             },
 
