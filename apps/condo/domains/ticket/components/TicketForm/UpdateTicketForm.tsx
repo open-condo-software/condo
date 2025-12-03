@@ -219,7 +219,6 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
                 replace(`/ticket/${ticket.id}`)
             }}
             isExisted={Boolean(obj)}
-            showExtraTicketSources
         >
             {({ handleSave, isLoading, form }) => <ApplyChangesActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
         </BaseTicketForm>

@@ -73,8 +73,8 @@ import {
 } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { MAX_DETAILS_LENGTH } from '@condo/domains/ticket/constants'
+import { VISIBLE_TICKET_SOURCE_IDS, TICKET_SOURCE_IDS_BY_TYPE } from '@condo/domains/ticket/constants/sources'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
-import { useVisibleTicketSources } from '@condo/domains/ticket/hooks/useVisibleTicketSources'
 import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
@@ -626,12 +626,10 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
 }
 
 const TICKET_SOURCE_SELECT_STYLE: React.CSSProperties = { width: '100%' }
-const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
+const DEFAULT_TICKET_SOURCE_ID = TICKET_SOURCE_IDS_BY_TYPE.CALL
 
-export const TicketSourceSelect: React.FC<{ organizationId?: string, showExtraSources?: boolean, initialSource?: string }> = ({
-    organizationId,
-    initialSource,
-    showExtraSources = false,
+export const TicketSourceSelect: React.FC<{ initialSourceId?: string }> = ({
+    initialSourceId,
 }) => {
     const intl = useIntl()
     const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
@@ -641,16 +639,17 @@ export const TicketSourceSelect: React.FC<{ organizationId?: string, showExtraSo
         data: sourcesData,
         loading,
     } = useGetTicketSourcesQuery()
-    const { visibleTicketSourceIds } = useVisibleTicketSources(showExtraSources ? organizationId : null)
-    const mergedVisibleTicketSourceIds = useMemo(() => {
-        const res = [...visibleTicketSourceIds]
-        if (initialSource) res.push(initialSource)
-        return res
-    }, [visibleTicketSourceIds, initialSource])
+    const isCustomInitialSource = useMemo(() => {
+        const initSource = sourcesData?.sources?.find((source) => source.id === initialSourceId) || null
+        return !!initSource && !initSource.isDefault
+    }, [initialSourceId, sourcesData?.sources])
     const sources = useMemo(
         () => sourcesData?.sources?.filter(Boolean)
-            ?.filter((source) => mergedVisibleTicketSourceIds.includes(source.id)) || [],
-        [sourcesData?.sources, mergedVisibleTicketSourceIds]
+            ?.filter((source) => {
+                if (VISIBLE_TICKET_SOURCE_IDS.includes(source.id)) return true
+                return !!initialSourceId && source.id === initialSourceId
+            }) || [],
+        [sourcesData?.sources, initialSourceId]
     )
     const sourceOptions = convertToOptions(sources, 'name', 'id')
 
@@ -675,13 +674,13 @@ export const TicketSourceSelect: React.FC<{ organizationId?: string, showExtraSo
             required
             name='source'
             data-cy='ticket__source-item'
-            initialValue={DEFAULT_TICKET_SOURCE_CALL_ID}
+            initialValue={DEFAULT_TICKET_SOURCE_ID}
         >
             <Select
                 style={TICKET_SOURCE_SELECT_STYLE}
                 options={sourceOptions}
-                defaultValue={DEFAULT_TICKET_SOURCE_CALL_ID}
-                disabled={loading}
+                defaultValue={DEFAULT_TICKET_SOURCE_ID}
+                disabled={loading || isCustomInitialSource}
             />
         </Form.Item>
     )
@@ -703,7 +702,6 @@ export interface ITicketFormProps {
     autoAssign?: boolean
     isExisted?: boolean
     children: React.ReactNode | IFormWithActionChildren
-    showExtraTicketSources?: boolean
 }
 
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
@@ -733,7 +731,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         autoAssign,
         OnCompletedMsg,
         isExisted,
-        showExtraTicketSources = false,
     } = props
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(get(initialValues, 'property', null))
@@ -985,7 +982,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         <Col>
                                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                                 <Col span={24} lg={7}>
-                                                    <TicketSourceSelect organizationId={organizationId} initialSource={initialTicketSourceId} showExtraSources={showExtraTicketSources} />
+                                                    <TicketSourceSelect initialSourceId={initialTicketSourceId} />
                                                 </Col>
                                                 <Col span={24}>
                                                     <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>

@@ -1,4 +1,4 @@
-import { useGetTicketSourcesQuery, useGetTicketStatusesQuery } from '@app/condo/gql'
+import { useGetTicketStatusesQuery } from '@app/condo/gql'
 import {
     BuildingUnitSubType,
     Ticket,
@@ -195,16 +195,12 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const statuses = useMemo(() => statusesData?.statuses?.filter(Boolean) || [], [statusesData?.statuses])
     const statusOptions = useMemo(() => convertToOptions(statuses, 'name', 'type'), [statuses])
 
-    const { data: sourcesData } = useGetTicketSourcesQuery({
-        skip: !persistor,
+    const organizationIds = useMemo(() => [userOrganizationId], [userOrganizationId])
+    const { visibleSources } = useVisibleTicketSources({
+        key: userOrganizationId,
+        organizationIds,
     })
-    const { visibleTicketSourceIds } = useVisibleTicketSources(userOrganizationId)
-    const sources = useMemo(
-        () => sourcesData?.sources?.filter(Boolean)
-            ?.filter((source) => visibleTicketSourceIds.includes(source.id)) || [],
-        [sourcesData?.sources, visibleTicketSourceIds]
-    )
-    const sourceOptions = useMemo(() => convertToOptions(sources, 'name', 'id'), [sources])
+    const sourceOptions = useMemo(() => convertToOptions(visibleSources, 'name', 'id'), [visibleSources])
 
     const attributeOptions = useMemo(() => [
         { label: RegularMessage, value: 'isRegular' },

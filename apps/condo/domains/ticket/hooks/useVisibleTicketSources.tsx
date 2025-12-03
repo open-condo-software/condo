@@ -1,48 +1,82 @@
-import intersection from 'lodash/intersection'
-import uniq from 'lodash/uniq'
-import { useMemo } from 'react'
+import { useCheckTicketExistenceWithSourceAndOrganizationLazyQuery, useGetTicketSourcesQuery } from '@app/condo/gql'
+import { useMemo, useState, useCallback } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { useCachePersistor } from '@open-condo/apollo'
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 
-import { EXTRA_TICKET_SOURCES_TO_ORGANIZATIONS } from '@condo/domains/common/constants/featureflags'
 import { VISIBLE_TICKET_SOURCE_IDS } from '@condo/domains/ticket/constants/sources'
 
 
-export const useVisibleTicketSources = (organizationIdsOrIdToCheck: string | Array<string> = []): { visibleTicketSourceIds: Array<string> } => {
-    const { useFlagValue } = useFeatureFlags()
-    const extraTicketSourcesToOrganizationIds = useFlagValue<{ [ticketSourceId: string]: Array<string> }>(EXTRA_TICKET_SOURCES_TO_ORGANIZATIONS)
+const VISIBLE_CUSTOM_SOURCE_IDS_BY_ORGANIZATION_ID = {}
 
-    const visibleTicketSourceIds: Array<string> = useMemo(() => {
-        const organizationIdsToCheck: Array<string> = []
-        if (Array.isArray(organizationIdsOrIdToCheck)) {
-            organizationIdsToCheck.push(...organizationIdsOrIdToCheck)
-        } else if (typeof organizationIdsOrIdToCheck === 'string') {
-            organizationIdsToCheck.push(organizationIdsOrIdToCheck)
+export const useVisibleTicketSources = ({ organizationIds, key }: { organizationIds: Array<string>, key: string }) => {
+    const { persistor } = useCachePersistor()
+
+    const { data: sourcesData } = useGetTicketSourcesQuery({
+        skip: !persistor,
+    })
+    
+    const [checkTicketExistenceWithSourceAndOrganization] = useCheckTicketExistenceWithSourceAndOrganizationLazyQuery()
+    const customSourceIds = useMemo(
+        () => sourcesData?.sources?.filter(Boolean)
+            ?.filter(source => !source.isDefault)
+            ?.map(source => source.id) || [],
+        [sourcesData]
+    )
+    const [visibleCustomSourceIds, setVisibleCustomSourceIds] = useState<Array<string>>([])
+    const loadVisibleCustomTicketSources = useCallback(async (customSourceIds: Array<string>, organizationIds: Array<string>, key: string) => {
+        const visibleCustomSourcesForCurrentOrganization = VISIBLE_CUSTOM_SOURCE_IDS_BY_ORGANIZATION_ID[key]
+        if (Array.isArray(visibleCustomSourcesForCurrentOrganization)) {
+            return visibleCustomSourcesForCurrentOrganization
         }
 
-        const extraTicketSourceIds: Array<string> = []
+        const hasTicketsBySource = customSourceIds.reduce((acc, currentValue) => {
+            acc[currentValue] = false
+            return acc
+        }, {})
 
-        try {
-            if (!!extraTicketSourcesToOrganizationIds && typeof extraTicketSourcesToOrganizationIds === 'object' && organizationIdsToCheck.length > 0) {
-                Object.entries(extraTicketSourcesToOrganizationIds).forEach(([ticketSourceId, organizationIds]) => {
-                    const sourceIsInAtLeastOneOfRelatedOrganizations = Array.isArray(organizationIds) && intersection(organizationIds, organizationIdsToCheck).length > 0
-                    if (typeof ticketSourceId === 'string' && sourceIsInAtLeastOneOfRelatedOrganizations) {
-                        extraTicketSourceIds.push(ticketSourceId)
-                    }
-                })
+        for (const sourceId of customSourceIds) {
+            const res = await checkTicketExistenceWithSourceAndOrganization({
+                variables: {
+                    organizationIds,
+                    sourceId,
+                },
+            })
+
+            if (res?.data?.tickets?.length > 0) {
+                hasTicketsBySource[sourceId] = true
             }
-        } catch (error) {
-            console.log('Cannot processed extraTicketSourceIds!')
-            console.error(error)
         }
-        console.log({
-            organizationIdsToCheck,
-            organizationIdsOrIdToCheck,
-            extraTicketSourceIds,
-        })
 
-        return [...VISIBLE_TICKET_SOURCE_IDS, ...uniq(extraTicketSourceIds)]
-    }, [extraTicketSourcesToOrganizationIds, organizationIdsOrIdToCheck])
+        const visibleCustomSources = Object.entries(hasTicketsBySource)
+            .filter(([_, hasTickets]) => hasTickets)
+            .map(([sourceId]) => sourceId)
 
-    return useMemo(() => ({ visibleTicketSourceIds }), [visibleTicketSourceIds])
+        VISIBLE_CUSTOM_SOURCE_IDS_BY_ORGANIZATION_ID[key] = visibleCustomSources
+
+        return visibleCustomSources
+    }, [checkTicketExistenceWithSourceAndOrganization])
+
+    const getVisibleCustomTicketSources = useCallback(async (customSourceIds: Array<string>, organizationIds: Array<string>, key: string) => {
+        const visibleSourceIds = await loadVisibleCustomTicketSources(customSourceIds, organizationIds, key)
+        setVisibleCustomSourceIds(visibleSourceIds || [])
+    }, [loadVisibleCustomTicketSources])
+
+    useDeepCompareEffect(() => {
+        if (!organizationIds) return
+        if (customSourceIds.length < 1) return
+        if (!key) return
+
+        getVisibleCustomTicketSources(customSourceIds, organizationIds, key)
+    }, [customSourceIds, organizationIds, key])
+
+    const visibleSources = useMemo(
+        () => sourcesData?.sources?.filter(Boolean)
+            ?.filter((source) => {
+                return VISIBLE_TICKET_SOURCE_IDS.includes(source.id) || visibleCustomSourceIds.includes(source.id)
+            }) || [],
+        [sourcesData?.sources, visibleCustomSourceIds]
+    )
+
+    return useMemo(() => ({ visibleSources }), [visibleSources])
 }
