@@ -14,6 +14,7 @@ const MarketItemFile = generateServerUtils('MarketItemFile')
 const MarketItemPrice = generateServerUtils('MarketItemPrice')
 const MarketPriceScope = generateServerUtils('MarketPriceScope')
 const MarketSetting = generateServerUtils('MarketSetting')
+const InvoiceWebhookDelivery = generateServerUtils('InvoiceWebhookDelivery')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -24,5 +25,6 @@ module.exports = {
     MarketItemPrice,
     MarketPriceScope,
     MarketSetting,
+    InvoiceWebhookDelivery,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
