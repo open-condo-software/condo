@@ -1,7 +1,4 @@
-Condo API предоставляет два способа работы с файлами:
-
-1. **Цепочка подписи** — использование пары client_id, secret и эндпоинтов `/api/files` для обмена зашифрованными строками с метаданными
-2. **GraphQL Upload** — прямое использование [спецификации GraphQL Upload](https://github.com/jaydenseric/graphql-multipart-request-spec)
+Condo API предоставляет безопасный способ работы с файлами через REST эндпоинты `/api/files`, основанный на подписи (`signature`)
 
 <Alert type="warning">
     GraphQL Upload помечен как deprecated и будет удален в будущем. Пожалуйста, мигрируйте на новый flow с использованием подписи.
@@ -9,14 +6,14 @@ Condo API предоставляет два способа работы с фа�
 
 ---
 
-## Новый способ работы с файлами (рекомендуется)
+## API работы с файлами
 
-Новый способ загрузки файлов использует специальные REST эндпоинты (`/api/files`) и требует client_id, который ранее был зарегистрирован на файловом сервере. 
+API загрузки файлов использует специальные REST эндпоинты (`/api/files`) и требует client_id, который ранее был зарегистрирован на файловом сервере.
 Этот подход обеспечивает лучшую безопасность, ограничение частоты запросов, а также возможности для переиспользования ранее загруженных файлов.
 
 ### Начало работы
 
-Для использования нового flow вам необходим `fileClientId`. `fileClientId` — это уникальный идентификатор вашего приложения, предоставляемый вашим партнером.
+Для использования данного API вам необходим `fileClientId`. `fileClientId` — это уникальный идентификатор вашего приложения, предоставляемый вашим партнером.
 
 На клиентской стороне вам нужен только `fileClientId` (обычно доступен из `next/config` или переменных окружения). Вам не нужно знать о секрете или валидации подписи — это обрабатывается Condo API.
 
@@ -26,7 +23,7 @@ Condo API предоставляет два способа работы с фа�
 
 Используйте пакет `@open-condo/files` для загрузки файлов:
 
-<Tabs labels={['Пример TypeScript', 'Пример JavaScript']}>
+<Tabs labels={['Пример TypeScript', 'Пример JavaScript', 'Пример cURL']}>
 ```typescript
 import { upload, buildMeta } from '@open-condo/files'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -77,6 +74,19 @@ async function uploadFile(file, userId, organizationId) {
 
   return uploadResult.files[0].signature
 }
+```
+
+```bash
+SERVER="https://condo.d.doma.ai"
+AUTHORIZATION="Bearer ..."
+META_JSON='{"dv":1,"sender":{"dv":1,"fingerprint":"<fingerprint>"},"user":{"id":"<user-id>"},"fileClientId":"<client-id>","modelNames":["Document"],"organization":{"id":"<organization-id>"}}'
+ATTACH_JSON='{"dv":1,"sender":{"dv":1,"fingerprint":"<fingerprint>"},"modelName":"Document","itemId":"existing-document-id"}'
+
+curl -X POST "$SERVER/api/files/upload" \
+  -H "Authorization: $AUTHORIZATION" \
+  -F "meta=$META_JSON" \
+  -F "attach=$ATTACH_JSON" \
+  -F "files=@/path/to/file.pdf;type=application/pdf"
 ```
 </Tabs>
 
@@ -235,7 +245,7 @@ const uploadResult = await upload({
 
 Поделитесь загруженным файлом с другим пользователем или приложением:
 
-<Tabs labels={['Пример TypeScript']}>
+<Tabs labels={['Пример TypeScript', 'Пример cURL']}>
 ```typescript
 import { share } from '@open-condo/files'
 
@@ -252,13 +262,32 @@ const shareResult = await share({
 
 // shareResult.file.signature содержит новую подпись
 ```
+
+```bash
+SERVER="https://condo.d.doma.ai"
+AUTHORIZATION="Bearer ..."
+
+curl -X POST "$SERVER/api/files/share" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: $AUTHORIZATION" \
+  -d '{
+    "payload": {
+      "dv": 1,
+      "sender": { "dv": 1, "fingerprint": "<fingerprint>" },
+      "id": "existing-file-id",
+      "user": { "id": "target-user-id" },
+      "fileClientId": "target-app-id",
+      "modelNames": ["Document"]
+    }
+  }'
+```
 </Tabs>
 
 ### Прикрепление существующих файлов
 
 Прикрепите ранее загруженный файл к модели:
 
-<Tabs labels={['Пример TypeScript']}>
+<Tabs labels={['Пример TypeScript', 'Пример cURL']}>
 ```typescript
 import { attach } from '@open-condo/files'
 
@@ -274,6 +303,25 @@ const attachResult = await attach({
 })
 
 // attachResult.file.signature содержит публичную подпись
+```
+
+```bash
+SERVER="https://condo.d.doma.ai"
+AUTHORIZATION="Bearer ..."
+
+curl -X POST "$SERVER/api/files/attach" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: $AUTHORIZATION" \
+  -d '{
+    "payload": {
+      "dv": 1,
+      "sender": { "dv": 1, "fingerprint": "<fingerprint>" },
+      "modelName": "Document",
+      "itemId": "document-id",
+      "fileClientId": "<client-id>",
+      "signature": "upload-or-share-signature"
+    }
+  }'
 ```
 </Tabs>
 
@@ -320,87 +368,6 @@ GET /api/files/<file_id>?sign=<file_signature>
 * `POST /api/files/attach` — прикрепление файла к модели
 * `GET /api/files/<file_id>?sign=<signature>` — скачивание файла
 
-Все эндпоинты требуют аутентификации через cookie сессии (так же, как GraphQL API).
-
----
-
-## Устаревший flow (deprecated)
-
 <Alert type="warning">
-    Этот flow помечен как deprecated и будет удален в будущем. Пожалуйста, мигрируйте на новый flow.
+    Все эндпоинты требуют аутентификации через cookie сессии / Authorization заголовок (так же, как GraphQL API).
 </Alert>
-
-Устаревший flow использует GraphQL Upload напрямую без `fileClientId`. Файлы загружаются как часть GraphQL мутации.
-
-### Использование
-
-<Tabs labels={['GraphQL мутация', 'Пример cURL']}>
-```graphql
-mutation CreateDocument($data: DocumentCreateInput!) {
-  obj: createDocument(data: $data) {
-    id
-    file {
-      filename
-      mimetype
-      publicUrl
-    }
-  }
-}
-```
-
-```bash
-curl -X POST "$SERVER/admin/api" \
-  -H "Cookie: $COOKIE" \
-  -F "operations={\"query\":\"mutation($file: Upload!) { createDocument(data: {file: $file}) { id } }\",\"variables\":{\"file\":null}}" \
-  -F "map={\"0\":[\"variables.file\"]}" \
-  -F "0=@/path/to/file.pdf"
-```
-</Tabs>
-
-### Ограничения
-
-* Нет ограничения частоты запросов на приложение
-* Нет совместного использования файлов между приложениями
-* Меньшая безопасность (нет валидации client ID)
-* Будет удален в будущих версиях
-
----
-
-## Руководство по миграции
-
-Для миграции с устаревшего flow на новый flow:
-
-1. Установите пакет `@open-condo/files`
-2. Получите `fileClientId` из конфигурации вашего приложения
-3. Замените прямое использование GraphQL Upload на эндпоинт `/api/files/upload`
-4. Используйте возвращенную `signature` в ваших GraphQL мутациях вместо потока файла
-
-Пример миграции:
-
-**До (устаревший flow):**
-```typescript
-// Файл загружается напрямую в GraphQL мутации
-const result = await createDocument({
-  file: fileObject, // Upload stream
-  name: 'Документ',
-})
-```
-
-**После (новый flow):**
-```typescript
-// 1. Сначала загрузите файл
-const uploadResult = await upload({
-  files: [file],
-  meta: buildMeta({ ... }),
-})
-
-// 2. Используйте signature в GraphQL мутации
-const result = await createDocument({
-  file: {
-    signature: uploadResult.files[0].signature,
-    originalFilename: file.name,
-  },
-  name: 'Документ',
-})
-```
-
