@@ -635,21 +635,33 @@ export const TicketSourceSelect: React.FC<{ initialSourceId?: string }> = ({
     const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
+    const mergedTicketSourcesIds = useMemo(() => {
+        const result = [...VISIBLE_TICKET_SOURCE_IDS]
+        if (initialSourceId) result.push(initialSourceId)
+        return result
+    }, [initialSourceId])
+
     const {
         data: sourcesData,
         loading,
-    } = useGetTicketSourcesQuery()
+    } = useGetTicketSourcesQuery({
+        variables: {
+            where: {
+                OR: [
+                    {
+                        id_in: mergedTicketSourcesIds,
+                    },
+                ],
+            },
+        },
+    })
     const isCustomInitialSource = useMemo(() => {
         const initSource = sourcesData?.sources?.find((source) => source.id === initialSourceId) || null
         return !!initSource && !initSource.isDefault
     }, [initialSourceId, sourcesData?.sources])
     const sources = useMemo(
-        () => sourcesData?.sources?.filter(Boolean)
-            ?.filter((source) => {
-                if (VISIBLE_TICKET_SOURCE_IDS.includes(source.id)) return true
-                return !!initialSourceId && source.id === initialSourceId
-            }) || [],
-        [sourcesData?.sources, initialSourceId]
+        () => sourcesData?.sources?.filter(Boolean) || [],
+        [sourcesData?.sources]
     )
     const sourceOptions = convertToOptions(sources, 'name', 'id')
 
