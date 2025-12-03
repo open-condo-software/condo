@@ -39,8 +39,8 @@ const {
     clearReceivedWebhooks,
     getReceivedWebhooks,
 } = require('@condo/domains/acquiring/utils/testSchema/WebhookTestingApp')
-const { createTestBillingReceipt, updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
+const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 
