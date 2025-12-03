@@ -647,11 +647,7 @@ export const TicketSourceSelect: React.FC<{ initialSourceId?: string }> = ({
     } = useGetTicketSourcesQuery({
         variables: {
             where: {
-                OR: [
-                    {
-                        id_in: mergedTicketSourcesIds,
-                    },
-                ],
+                id_in: mergedTicketSourcesIds,
             },
         },
     })
