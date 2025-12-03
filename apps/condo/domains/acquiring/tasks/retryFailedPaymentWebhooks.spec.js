@@ -2,8 +2,6 @@
  * @jest-environment node
  */
 
-const dayjs = require('dayjs')
-
 const mockLogger = {
     info: jest.fn(),
     warn: jest.fn(),
