@@ -5,9 +5,9 @@ const { find } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const {
-    INVOICE_WEBHOOK_DELIVERY_STATUS_PENDING,
-} = require('@condo/domains/marketplace/constants')
-const { sendInvoiceWebhook } = require('@condo/domains/marketplace/tasks/sendInvoiceWebhook')
+    PAYMENT_WEBHOOK_DELIVERY_STATUS_PENDING,
+} = require('@condo/domains/acquiring/constants/webhook')
+const { sendPaymentWebhook } = require('@condo/domains/acquiring/tasks/sendPaymentWebhook')
 
 
 const logger = getLogger()
@@ -16,12 +16,12 @@ const logger = getLogger()
  * Cron task that picks up pending webhook deliveries that are due for retry
  * Runs every 5 minutes
  */
-async function retryFailedInvoiceWebhooks () {
+async function retryFailedPaymentWebhooks () {
     const now = dayjs().toISOString()
 
     // Find pending deliveries that are due for retry and not expired
-    const pendingDeliveries = await find('InvoiceWebhookDelivery', {
-        status: INVOICE_WEBHOOK_DELIVERY_STATUS_PENDING,
+    const pendingDeliveries = await find('PaymentWebhookDelivery', {
+        status: PAYMENT_WEBHOOK_DELIVERY_STATUS_PENDING,
         nextRetryAt_lte: now,
         expiresAt_gt: now,
         deletedAt: null,
@@ -37,7 +37,7 @@ async function retryFailedInvoiceWebhooks () {
     // Queue each delivery for processing
     for (const delivery of pendingDeliveries) {
         try {
-            await sendInvoiceWebhook.delay(delivery.id)
+            await sendPaymentWebhook.delay(delivery.id)
             logger.info({ msg: 'Queued webhook delivery for retry', data: { deliveryId: delivery.id } })
         } catch (err) {
             logger.error({ msg: 'Failed to queue webhook delivery', data: { deliveryId: delivery.id }, err })
@@ -46,10 +46,10 @@ async function retryFailedInvoiceWebhooks () {
 }
 
 module.exports = {
-    retryFailedInvoiceWebhooksCronTask: createCronTask(
-        'retryFailedInvoiceWebhooks',
+    retryFailedPaymentWebhooksCronTask: createCronTask(
+        'retryFailedPaymentWebhooks',
         '*/5 * * * *', // Every 5 minutes
-        retryFailedInvoiceWebhooks
+        retryFailedPaymentWebhooks
     ),
-    retryFailedInvoiceWebhooks,
+    retryFailedPaymentWebhooks,
 }

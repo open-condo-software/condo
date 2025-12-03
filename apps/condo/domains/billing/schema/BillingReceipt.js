@@ -4,12 +4,19 @@
 
 const { Big } = require('big.js')
 const dayjs = require('dayjs')
-const { get, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
+const {
+    STATUS_CHANGE_CALLBACK_URL_FIELD,
+    STATUS_CHANGE_CALLBACK_SECRET_FIELD,
+    applyWebhookSecretGeneration,
+    validateCallbackUrlInWhitelist,
+} = require('@condo/domains/acquiring/schema/fields/webhookCallback')
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { DEFAULT_BILLING_CATEGORY_ID, CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
 const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
@@ -314,6 +321,10 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 return billingContext.organization
             },
         }),
+
+        statusChangeCallbackUrl: STATUS_CHANGE_CALLBACK_URL_FIELD,
+
+        statusChangeCallbackSecret: STATUS_CHANGE_CALLBACK_SECRET_FIELD,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
@@ -345,7 +356,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         ],
     },
     hooks: {
-        validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
+        validateInput: async ({ resolvedData, addValidationError, existingItem, context }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const { context: contextId, property: propertyId, account: accountId } = newItem
 
@@ -360,13 +371,21 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
             }
 
+            // Validate callback URL is in whitelist
+            const callbackUrl = get(resolvedData, 'statusChangeCallbackUrl')
+            if (callbackUrl) {
+                await validateCallbackUrlInWhitelist(callbackUrl, context)
+            }
         },
-        resolveInput: ({ resolvedData }) => {
+        resolveInput: ({ resolvedData, existingItem }) => {
             // TODO(DOMA-6519): remove hook after toPayDetails field removal
             // Update toPayDetails explicit fields directly from passed value
             if ('toPayDetails' in resolvedData) {
                 resolvedData = { ...resolvedData, ...resolvedData.toPayDetails }
             }
+
+            // Auto-generate webhook secret when callback URL is set
+            applyWebhookSecretGeneration(resolvedData, existingItem)
 
             return resolvedData
         },

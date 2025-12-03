@@ -29,6 +29,7 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
+    createTestPaymentWebhookDeliveryWhiteListItem,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { AMOUNT_DISTRIBUTION_SUBFIELDS } = require('@condo/domains/billing/gql')
@@ -2817,6 +2818,160 @@ describe('Invoice', () => {
             // resident or organization can see invoice in mobile application
             const residentInvoices = await Invoice.getAll(residentClient, {})
             expect(residentInvoices).toEqual([expect.objectContaining({ id: invoice.id })])
+        })
+    })
+
+    describe('Webhook callback URL whitelist validation', () => {
+        test('can create invoice with whitelisted callback URL', async () => {
+            const callbackUrl = `https://whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Add URL to whitelist
+            await createTestPaymentWebhookDeliveryWhiteListItem(adminClient, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            // Create invoice with whitelisted URL
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                statusChangeCallbackUrl: callbackUrl,
+            })
+
+            expect(invoice.statusChangeCallbackUrl).toBe(callbackUrl)
+            expect(invoice.statusChangeCallbackSecret).toBeTruthy()
+        })
+
+        test('cannot create invoice with non-whitelisted callback URL', async () => {
+            const callbackUrl = `https://not-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestInvoice(adminClient, dummyOrganization, {
+                        statusChangeCallbackUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                },
+                'obj'
+            )
+        })
+
+        test('cannot create invoice with disabled whitelist URL', async () => {
+            const callbackUrl = `https://disabled-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Add URL to whitelist but disabled
+            await createTestPaymentWebhookDeliveryWhiteListItem(adminClient, {
+                url: callbackUrl,
+                isEnabled: false,
+            })
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestInvoice(adminClient, dummyOrganization, {
+                        statusChangeCallbackUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                },
+                'obj'
+            )
+        })
+
+        test('can create invoice without callback URL', async () => {
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
+
+            expect(invoice.statusChangeCallbackUrl).toBeNull()
+            expect(invoice.statusChangeCallbackSecret).toBeNull()
+        })
+
+        test('staff with permission can create invoice with whitelisted callback URL', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const callbackUrl = `https://staff-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, {
+                canManageInvoices: true,
+            })
+            await createTestOrganizationEmployee(adminClient, dummyOrganization, client.user, role)
+
+            // Add URL to whitelist
+            await createTestPaymentWebhookDeliveryWhiteListItem(adminClient, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            const [invoice] = await createTestInvoice(client, dummyOrganization, {
+                statusChangeCallbackUrl: callbackUrl,
+            })
+
+            expect(invoice.statusChangeCallbackUrl).toBe(callbackUrl)
+        })
+
+        test('staff with permission cannot create invoice with non-whitelisted callback URL', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const callbackUrl = `https://staff-not-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, {
+                canManageInvoices: true,
+            })
+            await createTestOrganizationEmployee(adminClient, dummyOrganization, client.user, role)
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestInvoice(client, dummyOrganization, {
+                        statusChangeCallbackUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                },
+                'obj'
+            )
+        })
+
+        test('can update invoice to add whitelisted callback URL', async () => {
+            const callbackUrl = `https://update-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Create invoice without callback URL
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
+            expect(invoice.statusChangeCallbackUrl).toBeNull()
+
+            // Add URL to whitelist
+            await createTestPaymentWebhookDeliveryWhiteListItem(adminClient, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            // Update invoice with whitelisted URL
+            const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                statusChangeCallbackUrl: callbackUrl,
+            })
+
+            expect(updatedInvoice.statusChangeCallbackUrl).toBe(callbackUrl)
+            expect(updatedInvoice.statusChangeCallbackSecret).toBeTruthy()
+        })
+
+        test('cannot update invoice to add non-whitelisted callback URL', async () => {
+            const callbackUrl = `https://update-not-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Create invoice without callback URL
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
+
+            await expectToThrowGQLError(
+                async () => {
+                    await updateTestInvoice(adminClient, invoice.id, {
+                        statusChangeCallbackUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                },
+                'obj'
+            )
         })
     })
 })

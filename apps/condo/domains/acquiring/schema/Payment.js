@@ -39,9 +39,13 @@ const {
     PAYMENT_DONE_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
+const { PAYMENT_WEBHOOK_DELIVERY_TTL_DAYS } = require('@condo/domains/acquiring/constants/webhook')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
+const { sendPaymentWebhook } = require('@condo/domains/acquiring/tasks/sendPaymentWebhook')
 const { AcquiringIntegrationContext, Payment: PaymentGQL } = require('@condo/domains/acquiring/utils/serverSchema')
+const { PaymentWebhookDelivery } = require('@condo/domains/acquiring/utils/serverSchema')
+const { getWebhookCallbackUrl } = require('@condo/domains/acquiring/utils/serverSchema/webhookDelivery')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const {
@@ -494,6 +498,7 @@ const Payment = new GQLListSchema('Payment', {
             }
         },
         afterChange: async ({ context, operation, existingItem, updatedItem }) => {
+            // Update invoice status when payment is done
             if (
                 updatedItem.invoice
                 && [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS].includes(get(updatedItem, 'status'))
@@ -505,6 +510,33 @@ const Payment = new GQLListSchema('Payment', {
                         sender: updatedItem.sender,
                         status: INVOICE_STATUS_PAID,
                     })
+                }
+            }
+
+            // Trigger webhook on status change
+            const previousStatus = get(existingItem, 'status')
+            const newStatus = get(updatedItem, 'status')
+            const statusChanged = operation === 'update' && previousStatus !== newStatus
+
+            if (statusChanged) {
+                // Get callback URL from invoice or receipt
+                const callbackUrl = await getWebhookCallbackUrl(updatedItem)
+
+                if (callbackUrl) {
+                    const dayjs = require('dayjs')
+                    const delivery = await PaymentWebhookDelivery.create(context, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'Payment_webhookTrigger' },
+                        payment: { connect: { id: updatedItem.id } },
+                        previousStatus,
+                        newStatus,
+                        callbackUrl,
+                        expiresAt: dayjs().add(PAYMENT_WEBHOOK_DELIVERY_TTL_DAYS, 'day').toISOString(),
+                        nextRetryAt: dayjs().toISOString(),
+                    })
+
+                    // Queue the webhook delivery task
+                    await sendPaymentWebhook.delay(delivery.id)
                 }
             }
         },

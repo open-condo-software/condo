@@ -77,36 +77,6 @@ const DEFAULT_INVOICE_CURRENCY_CODE = 'RUB'
 
 const MIN_PRICE_VALUE = 10
 
-// Invoice Webhook Delivery constants
-const INVOICE_WEBHOOK_DELIVERY_STATUS_PENDING = 'pending'
-const INVOICE_WEBHOOK_DELIVERY_STATUS_SUCCESS = 'success'
-const INVOICE_WEBHOOK_DELIVERY_STATUS_FAILED = 'failed'
-const INVOICE_WEBHOOK_DELIVERY_STATUSES = [
-    INVOICE_WEBHOOK_DELIVERY_STATUS_PENDING,
-    INVOICE_WEBHOOK_DELIVERY_STATUS_SUCCESS,
-    INVOICE_WEBHOOK_DELIVERY_STATUS_FAILED,
-]
-
-// How long to keep retrying webhook delivery (in days)
-const INVOICE_WEBHOOK_DELIVERY_TTL_DAYS = 7
-
-// Retry intervals in seconds (exponential backoff)
-const INVOICE_WEBHOOK_RETRY_INTERVALS = [
-    0,              // Attempt 1: immediate
-    60,             // Attempt 2: 1 minute
-    5 * 60,         // Attempt 3: 5 minutes
-    30 * 60,        // Attempt 4: 30 minutes
-    2 * 60 * 60,    // Attempt 5: 2 hours
-    6 * 60 * 60,    // Attempt 6: 6 hours
-    24 * 60 * 60,   // Attempt 7+: 24 hours (daily)
-]
-
-// HTTP request timeout for webhook delivery (in milliseconds)
-const INVOICE_WEBHOOK_TIMEOUT_MS = 30000
-
-// Maximum length of response body to store
-const INVOICE_WEBHOOK_MAX_RESPONSE_LENGTH = 1000
-
 const MARKETPLACE_PRICE_SCOPE_TYPE_UNKNOWN = 'unknown'
 const MARKETPLACE_PRICE_SCOPE_TYPE_ORGANIZATION = 'organization'
 const MARKETPLACE_PRICE_SCOPE_TYPE_PROPERTY = 'property'
@@ -168,12 +138,4 @@ module.exports = {
     MARKETPLACE_PRICE_SCOPE_TYPE_ORGANIZATION,
     MARKETPLACE_PRICE_SCOPE_TYPE_PROPERTY,
     ERROR_PROHIBITED_INVOICE_PAYMENT_TYPE,
-    INVOICE_WEBHOOK_DELIVERY_STATUS_PENDING,
-    INVOICE_WEBHOOK_DELIVERY_STATUS_SUCCESS,
-    INVOICE_WEBHOOK_DELIVERY_STATUS_FAILED,
-    INVOICE_WEBHOOK_DELIVERY_STATUSES,
-    INVOICE_WEBHOOK_DELIVERY_TTL_DAYS,
-    INVOICE_WEBHOOK_RETRY_INTERVALS,
-    INVOICE_WEBHOOK_TIMEOUT_MS,
-    INVOICE_WEBHOOK_MAX_RESPONSE_LENGTH,
 }
