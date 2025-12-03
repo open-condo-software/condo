@@ -14,7 +14,7 @@ const {
     SubscriptionPlan: SubscriptionPlanGQL,
     SubscriptionPlanPricingRule: SubscriptionPlanPricingRuleGQL,
     SubscriptionContext: SubscriptionContextGQL,
-    ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION,
+    ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
 } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -117,7 +117,8 @@ async function createTestSubscriptionPlanPricingRule (client, subscriptionPlan, 
         name: faker.commerce.productName(),
         subscriptionPlan: { connect: { id: subscriptionPlan.id } },
         period: 'monthly',
-        discountPercent: '10',
+        price: '1000.00',
+        currencyCode: 'RUB',
         ...extraAttrs,
     }
     const obj = await SubscriptionPlanPricingRule.create(client, attrs)
@@ -170,7 +171,7 @@ async function updateTestSubscriptionContext (client, id, extraAttrs = {}) {
 }
 
 
-async function activateTrialSubscriptionPlanByTestClient (client, organization, subscriptionPlan, extraAttrs = {}) {
+async function activateSubscriptionPlanByTestClient (client, organization, subscriptionPlan, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!subscriptionPlan || !subscriptionPlan.id) throw new Error('no subscriptionPlan.id')
@@ -181,9 +182,10 @@ async function activateTrialSubscriptionPlanByTestClient (client, organization, 
         sender,
         organization: { id: organization.id },
         subscriptionPlan: { id: subscriptionPlan.id },
+        isTrial: true,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(ACTIVATE_SUBSCRIPTION_PLAN_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -203,7 +205,7 @@ module.exports = {
     SubscriptionPlan, createTestSubscriptionPlan, updateTestSubscriptionPlan,
     SubscriptionPlanPricingRule, createTestSubscriptionPlanPricingRule, updateTestSubscriptionPlanPricingRule,
     SubscriptionContext, createTestSubscriptionContext, updateTestSubscriptionContext,
-    activateTrialSubscriptionPlanByTestClient,
+    activateSubscriptionPlanByTestClient,
     getAvailableSubscriptionPlansByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

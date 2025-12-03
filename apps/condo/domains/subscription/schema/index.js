@@ -4,7 +4,7 @@
  */
 
 
-const { ActivateTrialSubscriptionPlanService } = require('./ActivateTrialSubscriptionPlanService')
+const { ActivateSubscriptionPlanService } = require('./ActivateSubscriptionPlanService')
 const { GetAvailableSubscriptionPlansService } = require('./GetAvailableSubscriptionPlansService')
 const { SubscriptionContext } = require('./SubscriptionContext')
 const { SubscriptionPlan } = require('./SubscriptionPlan')
@@ -16,6 +16,6 @@ module.exports = {
     SubscriptionPlanPricingRule,
     SubscriptionContext,
     GetAvailableSubscriptionPlansService,
-    ActivateTrialSubscriptionPlanService,
+    ActivateSubscriptionPlanService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

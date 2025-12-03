@@ -31,7 +31,7 @@ describe('SubscriptionContext', () => {
         support = await makeClientWithSupportUser()
 
         const plans = await SubscriptionPlan.getAll(admin, {
-            isActive: true,
+            isHidden: false,
             deletedAt: null,
         })
         for (const plan of plans) {
@@ -41,14 +41,14 @@ describe('SubscriptionContext', () => {
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: 'Test Plan for SubscriptionContext',
             organizationType: HOLDING_TYPE,
-            isActive: true,
+            isHidden: false,
         })
         subscriptionPlan = plan
     })
 
     afterAll(async () => {
         const plans = await SubscriptionPlan.getAll(admin, {
-            isActive: true,
+            isHidden: false,
             deletedAt: null,
         })
         for (const plan of plans) {

@@ -6,7 +6,7 @@
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION } = require('@condo/domains/subscription/gql')
+const { ACTIVATE_SUBSCRIPTION_PLAN_MUTATION } = require('@condo/domains/subscription/gql')
 const { GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -14,15 +14,15 @@ const ServiceSubscription = generateServerUtils('ServiceSubscription')
 const SubscriptionPlan = generateServerUtils('SubscriptionPlan')
 const SubscriptionPlanPricingRule = generateServerUtils('SubscriptionPlanPricingRule')
 const SubscriptionContext = generateServerUtils('SubscriptionContext')
-async function activateTrialSubscriptionPlan (context, data) {
+async function activateSubscriptionPlan (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
 
     return await execGqlWithoutAccess(context, {
-        query: ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION,
+        query: ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to activateTrialSubscriptionPlan',
+        errorMessage: '[error] Unable to activateSubscriptionPlan',
         dataPath: 'obj',
     })
 }
@@ -46,7 +46,7 @@ module.exports = {
     SubscriptionPlan,
     SubscriptionPlanPricingRule,
     SubscriptionContext,
-    activateTrialSubscriptionPlan,
+    activateSubscriptionPlan,
     getAvailableSubscriptionPlans,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

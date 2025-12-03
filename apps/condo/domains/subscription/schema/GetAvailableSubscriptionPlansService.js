@@ -59,7 +59,7 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
                 }
 
                 const plans = await find('SubscriptionPlan', {
-                    isActive: true,
+                    isHidden: false,
                     organizationType: organization.type,
                     deletedAt: null,
                 })

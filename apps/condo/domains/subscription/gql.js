@@ -13,10 +13,10 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const SERVICE_SUBSCRIPTION_FIELDS = `{ type isTrial organization { id } startAt finishAt unitsCount unitPrice totalPrice currency ${COMMON_FIELDS} }`
 const ServiceSubscription = generateGqlQueries('ServiceSubscription', SERVICE_SUBSCRIPTION_FIELDS)
 
-const SUBSCRIPTION_PLAN_FIELDS = `{ name description organizationType news marketplace support ai passTickets isActive order ${COMMON_FIELDS} }`
+const SUBSCRIPTION_PLAN_FIELDS = `{ name description organizationType trialDays news marketplace support ai passTickets isHidden order ${COMMON_FIELDS} }`
 const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
 
-const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period currencyCode organization { id } conditions discountPercent fixedPrice priority isActive canBePromoted promotionText ${COMMON_FIELDS} }`
+const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden ${COMMON_FIELDS} }`
 const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
 
 const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } startAt endAt basePrice calculatedPrice appliedRules isTrial daysRemaining ${COMMON_FIELDS} }`
@@ -24,9 +24,9 @@ const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTI
 
 // TODO(codegen): write return type result!
 
-const ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION = gql`
-    mutation activateTrialSubscriptionPlan ($data: ActivateTrialSubscriptionPlanInput!) {
-        result: activateTrialSubscriptionPlan(data: $data) { subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial } }
+const ACTIVATE_SUBSCRIPTION_PLAN_MUTATION = gql`
+    mutation activateSubscriptionPlan ($data: ActivateSubscriptionPlanInput!) {
+        result: activateSubscriptionPlan(data: $data) { subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial } }
     }
 `
 
@@ -43,7 +43,7 @@ module.exports = {
     SubscriptionPlan,
     SubscriptionPlanPricingRule,
     SubscriptionContext,
-    ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION,
+    ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
