@@ -13,12 +13,13 @@ import {
     ActionBar,
     Button,
     Dropdown,
+    DropdownProps,
     Typography,
 } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ActiveModalType } from '@condo/domains/common/components/Import/BaseImportWrapper'
@@ -39,6 +40,9 @@ import { useTableFilters } from '@condo/domains/organization/hooks/useTableFilte
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
 
+
+const DROPDOWN_TRIGGER: DropdownProps['trigger'] = ['hover']
+const MOBILE_DROPDOWN_TRIGGER: DropdownProps['trigger'] = ['hover', 'click']
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create'
 const SORTABLE_PROPERTIES = ['name', 'role', 'position', 'phone', 'email']
@@ -64,6 +68,8 @@ export const EmployeesPageContent = ({
     const AddEmployeeFillWebFormDescription = intl.formatMessage({ id: 'employee.AddDropdown.FillWebFormDescription' })
     const AddEmployeeUploadExcelLabel = intl.formatMessage({ id: 'AddDropdown.UploadExcel' })
     const AddEmployeeUploadExcelDescription = intl.formatMessage({ id: 'AddDropdown.UploadExcelDescription' })
+
+    const { isMobile } = useLayoutContext()
 
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
@@ -147,6 +153,10 @@ export const EmployeesPageContent = ({
                                                         {isEmployeeImporterEnabled ?
                                                             <Dropdown.Button
                                                                 type='primary'
+                                                                dropdownProps={{
+                                                                    trigger: isMobile ? MOBILE_DROPDOWN_TRIGGER : DROPDOWN_TRIGGER,
+                                                                    placement: 'topLeft',
+                                                                }}
                                                                 items={[
                                                                     {
                                                                         key: 'create',
