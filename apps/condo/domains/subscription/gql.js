@@ -13,7 +13,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const SERVICE_SUBSCRIPTION_FIELDS = `{ type isTrial organization { id } startAt finishAt unitsCount unitPrice totalPrice currency ${COMMON_FIELDS} }`
 const ServiceSubscription = generateGqlQueries('ServiceSubscription', SERVICE_SUBSCRIPTION_FIELDS)
 
-const SUBSCRIPTION_PLAN_FIELDS = `{ type name description organizationType news marketplace support ai passTickets isActive ${COMMON_FIELDS} }`
+const SUBSCRIPTION_PLAN_FIELDS = `{ name description organizationType news marketplace support ai passTickets isActive order ${COMMON_FIELDS} }`
 const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
 
 const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period currencyCode organization { id } conditions discountPercent fixedPrice priority isActive canBePromoted promotionText ${COMMON_FIELDS} }`
@@ -32,7 +32,7 @@ const ACTIVATE_TRIAL_SUBSCRIPTION_PLAN_MUTATION = gql`
 
 const GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY = gql`
     query getAvailableSubscriptionPlans ($organization: OrganizationWhereUniqueInput!) {
-        result: getAvailableSubscriptionPlans(organization: $organization) { plans { plan { id type name } prices { period basePrice currentPrice currencyCode } } }
+        result: getAvailableSubscriptionPlans(organization: $organization) { plans { plan { id name order } prices { period basePrice currentPrice currencyCode } } }
     }
 `
 

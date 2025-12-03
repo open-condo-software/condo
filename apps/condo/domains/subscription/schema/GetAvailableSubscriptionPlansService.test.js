@@ -7,7 +7,7 @@ const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError
 
 const { MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_TYPE, SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
 const {
     getAvailableSubscriptionPlansByTestClient,
     createTestSubscriptionPlan,
@@ -37,7 +37,6 @@ describe('GetAvailableSubscriptionPlansService', () => {
         }
 
         const [plan] = await createTestSubscriptionPlan(admin, {
-            type: SUBSCRIPTION_TYPE.EXTENDED,
             name: 'Test Plan for GetAvailable',
             organizationType: MANAGING_COMPANY_TYPE,
             isActive: true,
@@ -121,7 +120,6 @@ describe('GetAvailableSubscriptionPlansService', () => {
         test('returns empty array if no plans match organization type', async () => {
             // Create plan for different organization type
             const [differentTypePlan] = await createTestSubscriptionPlan(admin, {
-                type: SUBSCRIPTION_TYPE.EXTENDED,
                 name: 'Different Type Plan',
                 organizationType: HOLDING_TYPE,
                 isActive: true,
@@ -144,7 +142,6 @@ describe('GetAvailableSubscriptionPlansService', () => {
 
         test('does not return inactive plans', async () => {
             const [inactivePlan] = await createTestSubscriptionPlan(admin, {
-                type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Inactive Plan',
                 organizationType: MANAGING_COMPANY_TYPE,
                 isActive: false,
@@ -174,7 +171,6 @@ describe('GetAvailableSubscriptionPlansService', () => {
         test('applies discount rules correctly', async () => {
             // Create plan with discount
             const [discountPlan] = await createTestSubscriptionPlan(admin, {
-                type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Discount Plan',
                 organizationType: MANAGING_COMPANY_TYPE,
                 isActive: true,

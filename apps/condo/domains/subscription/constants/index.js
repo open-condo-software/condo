@@ -2,13 +2,6 @@ const SUBSCRIPTION_PAYMENT_CURRENCY = {
     RUB: 'RUB',
 }
 
-// Subscription plan types
-const SUBSCRIPTION_TYPE = {
-    BASIC: 'basic',
-    EXTENDED: 'extended',
-}
-const SUBSCRIPTION_TYPES = Object.values(SUBSCRIPTION_TYPE)
-
 // Subscription periods
 const SUBSCRIPTION_PERIOD = {
     MONTHLY: 'monthly',
@@ -16,16 +9,8 @@ const SUBSCRIPTION_PERIOD = {
 }
 const SUBSCRIPTION_PERIODS = Object.values(SUBSCRIPTION_PERIOD)
 
-const TYPE_PRIORITY = {
-    [SUBSCRIPTION_TYPE.BASIC]: 1,
-    [SUBSCRIPTION_TYPE.EXTENDED]: 2,
-}
-
 module.exports = {
     SUBSCRIPTION_PAYMENT_CURRENCY,
-    TYPE_PRIORITY,
-    SUBSCRIPTION_TYPE,
-    SUBSCRIPTION_TYPES,
     SUBSCRIPTION_PERIOD,
     SUBSCRIPTION_PERIODS,
 }

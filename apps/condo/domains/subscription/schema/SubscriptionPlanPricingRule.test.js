@@ -10,7 +10,7 @@ const {
 
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { ACTIVE_BANKING_FEATURE, HIGH_REVENUE_CUSTOMER_FEATURE } = require('@condo/domains/organization/constants/features')
-const { SUBSCRIPTION_TYPE, SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
+const { SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
 const {
     SubscriptionPlan,
     SubscriptionPlanPricingRule,
@@ -38,7 +38,6 @@ describe('SubscriptionPlanPricingRule', () => {
         }
 
         const [plan] = await createTestSubscriptionPlan(admin, {
-            type: SUBSCRIPTION_TYPE.BASIC,
             name: 'Test Plan',
             organizationType: MANAGING_COMPANY_TYPE,
             isActive: true,
