@@ -939,6 +939,14 @@ export type GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables = Typ
 
 export type GetTicketsWithSamePropertyAndClassifierExistenceQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null };
 
+export type CheckTicketExistenceWithSourceAndOrganizationQueryVariables = Types.Exact<{
+  sourceId: Types.Scalars['ID']['input'];
+  organizationIds?: Types.InputMaybe<Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input']>;
+}>;
+
+
+export type CheckTicketExistenceWithSourceAndOrganizationQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null };
+
 export type CreateTicketMutationVariables = Types.Exact<{
   data: Types.TicketCreateInput;
 }>;
@@ -1089,11 +1097,11 @@ export type GetTicketPropertyHintPropertyByPropertyQueryVariables = Types.Exact<
 export type GetTicketPropertyHintPropertyByPropertyQuery = { __typename?: 'Query', ticketPropertyHintProperty?: Array<{ __typename?: 'TicketPropertyHintProperty', id: string, ticketPropertyHint?: { __typename?: 'TicketPropertyHint', id: string } | null } | null> | null };
 
 export type GetTicketSourcesQueryVariables = Types.Exact<{
-  types?: Types.InputMaybe<Array<Types.TicketSourceTypeType> | Types.TicketSourceTypeType>;
+  where?: Types.InputMaybe<Types.TicketSourceWhereInput>;
 }>;
 
 
-export type GetTicketSourcesQuery = { __typename?: 'Query', sources?: Array<{ __typename?: 'TicketSource', id: string, name?: string | null } | null> | null };
+export type GetTicketSourcesQuery = { __typename?: 'Query', sources?: Array<{ __typename?: 'TicketSource', id: string, name?: string | null, isDefault?: boolean | null } | null> | null };
 
 export type GetTicketStatusesQueryVariables = Types.Exact<{ [key: string]: never; }>;
 

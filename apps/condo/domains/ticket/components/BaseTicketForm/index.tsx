@@ -73,7 +73,7 @@ import {
 } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { MAX_DETAILS_LENGTH } from '@condo/domains/ticket/constants'
-import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/sourceTypes'
+import { VISIBLE_TICKET_SOURCE_IDS, TICKET_SOURCE_IDS_BY_TYPE } from '@condo/domains/ticket/constants/sources'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -626,22 +626,39 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
 }
 
 const TICKET_SOURCE_SELECT_STYLE: React.CSSProperties = { width: '100%' }
-const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
+const DEFAULT_TICKET_SOURCE_ID = TICKET_SOURCE_IDS_BY_TYPE.CALL
 
-export const TicketSourceSelect: React.FC = () => {
+export const TicketSourceSelect: React.FC<{ initialSourceId?: string }> = ({
+    initialSourceId,
+}) => {
     const intl = useIntl()
     const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+
+    const mergedTicketSourcesIds = useMemo(() => {
+        const result = [...VISIBLE_TICKET_SOURCE_IDS]
+        if (initialSourceId) result.push(initialSourceId)
+        return result
+    }, [initialSourceId])
 
     const {
         data: sourcesData,
         loading,
     } = useGetTicketSourcesQuery({
         variables: {
-            types: VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM,
+            where: {
+                id_in: mergedTicketSourcesIds,
+            },
         },
     })
-    const sources = useMemo(() => sourcesData?.sources || [], [sourcesData?.sources])
+    const isCustomInitialSource = useMemo(() => {
+        const initSource = sourcesData?.sources?.find((source) => source.id === initialSourceId) || null
+        return !!initSource && !initSource.isDefault
+    }, [initialSourceId, sourcesData?.sources])
+    const sources = useMemo(
+        () => sourcesData?.sources?.filter(Boolean) || [],
+        [sourcesData?.sources]
+    )
     const sourceOptions = convertToOptions(sources, 'name', 'id')
 
     const LoadingSelect = useMemo(() => (
@@ -665,13 +682,13 @@ export const TicketSourceSelect: React.FC = () => {
             required
             name='source'
             data-cy='ticket__source-item'
-            initialValue={DEFAULT_TICKET_SOURCE_CALL_ID}
+            initialValue={DEFAULT_TICKET_SOURCE_ID}
         >
             <Select
                 style={TICKET_SOURCE_SELECT_STYLE}
                 options={sourceOptions}
-                defaultValue={DEFAULT_TICKET_SOURCE_CALL_ID}
-                disabled={loading}
+                defaultValue={DEFAULT_TICKET_SOURCE_ID}
+                disabled={loading || isCustomInitialSource}
             />
         </Form.Item>
     )
@@ -726,6 +743,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(get(initialValues, 'property', null))
     const selectPropertyIdRef = useRef(selectedPropertyId)
+
+    const initialTicketSourceId = useMemo(() => initialValues?.source, [initialValues?.source])
 
     const {
         data: propertyByIdData,
@@ -971,7 +990,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                         <Col>
                                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                                 <Col span={24} lg={7}>
-                                                    <TicketSourceSelect />
+                                                    <TicketSourceSelect initialSourceId={initialTicketSourceId} />
                                                 </Col>
                                                 <Col span={24}>
                                                     <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>

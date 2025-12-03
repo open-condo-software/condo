@@ -27564,6 +27564,7 @@ type TicketSourceHistoryRecord {
   organization: String
   type: String
   name: String
+  isDefault: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -27622,6 +27623,8 @@ input TicketSourceHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  isDefault: Boolean
+  isDefault_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -27709,6 +27712,8 @@ enum SortTicketSourceHistoryRecordsBy {
   type_DESC
   name_ASC
   name_DESC
+  isDefault_ASC
+  isDefault_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -27731,6 +27736,7 @@ input TicketSourceHistoryRecordUpdateInput {
   organization: String
   type: String
   name: String
+  isDefault: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -27754,6 +27760,7 @@ input TicketSourceHistoryRecordCreateInput {
   organization: String
   type: String
   name: String
+  isDefault: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -27808,6 +27815,9 @@ type TicketSource {
   """ Localized Ticket source name """
   name: String
   nameNonLocalized: String
+
+  """ (Read-only) Indicates whether a ticket source is default or custom. """
+  isDefault: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -27858,6 +27868,8 @@ input TicketSourceWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  isDefault: Boolean
+  isDefault_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -27927,6 +27939,8 @@ enum SortTicketSourcesBy {
   type_DESC
   name_ASC
   name_DESC
+  isDefault_ASC
+  isDefault_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -27949,6 +27963,7 @@ input TicketSourceUpdateInput {
   organization: OrganizationRelateToOneInput
   type: TicketSourceTypeType
   name: String
+  isDefault: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -27969,6 +27984,7 @@ input TicketSourceCreateInput {
   organization: OrganizationRelateToOneInput
   type: TicketSourceTypeType
   name: String
+  isDefault: Boolean
   v: Int
   createdAt: String
   updatedAt: String
