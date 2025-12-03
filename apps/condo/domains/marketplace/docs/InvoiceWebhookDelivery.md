@@ -368,21 +368,14 @@ query {
 
 ## Configuration
 
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `INVOICE_WEBHOOK_SECRET` | `default-webhook-secret` | Fallback secret for legacy invoices without per-invoice secret |
-| `INVOICE_WEBHOOK_TIMEOUT_MS` | `30000` | HTTP request timeout in milliseconds |
-
-**Note**: New invoices automatically generate a unique `statusChangeCallbackSecret` when `statusChangeCallbackUrl` is set. The `INVOICE_WEBHOOK_SECRET` environment variable is only used as a fallback for legacy invoices that don't have their own secret.
-
 ### Constants
 
 | Constant | Default | Description |
 |----------|---------|-------------|
 | `INVOICE_WEBHOOK_DELIVERY_TTL_DAYS` | `7` | Days to retry before giving up |
 | `INVOICE_WEBHOOK_RETRY_INTERVALS` | See above | Retry delays in seconds |
+| `INVOICE_WEBHOOK_TIMEOUT_MS` | `30000` | HTTP request timeout in milliseconds |
+| `INVOICE_WEBHOOK_MAX_RESPONSE_LENGTH` | `1000` | Maximum response body length to store |
 
 ## File Structure
 

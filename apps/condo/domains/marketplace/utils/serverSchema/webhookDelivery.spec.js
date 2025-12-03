@@ -6,10 +6,6 @@ const crypto = require('crypto')
 
 const dayjs = require('dayjs')
 
-jest.mock('@open-condo/config', () => ({
-    INVOICE_WEBHOOK_SECRET: 'test-webhook-secret',
-}))
-
 jest.mock('@open-condo/keystone/fetch', () => ({
     fetch: jest.fn(),
 }))
@@ -26,18 +22,11 @@ const {
     generateSignature,
     calculateNextRetryAt,
     tryDeliverWebhook,
-    FALLBACK_WEBHOOK_SECRET,
 } = require('./webhookDelivery')
 
 describe('webhookDelivery utilities', () => {
     beforeEach(() => {
         jest.clearAllMocks()
-    })
-
-    describe('FALLBACK_WEBHOOK_SECRET', () => {
-        it('should use secret from config', () => {
-            expect(FALLBACK_WEBHOOK_SECRET).toBe('test-webhook-secret')
-        })
     })
 
     describe('generateSignature', () => {
@@ -385,7 +374,7 @@ describe('webhookDelivery utilities', () => {
             expect(signature).toBe(expectedSignature)
         })
 
-        it('should fallback to global secret when invoice has no secret', async () => {
+        it('should return error when invoice has no secret', async () => {
             const invoiceWithoutSecret = { ...mockInvoice, statusChangeCallbackSecret: null }
             getById.mockImplementation((model, id) => {
                 if (model === 'Invoice') return invoiceWithoutSecret
@@ -393,25 +382,11 @@ describe('webhookDelivery utilities', () => {
                 return null
             })
 
-            fetch.mockResolvedValue({
-                ok: true,
-                status: 200,
-                text: jest.fn().mockResolvedValue('ok'),
-            })
+            const result = await tryDeliverWebhook(mockDelivery)
 
-            await tryDeliverWebhook(mockDelivery)
-
-            const callArgs = fetch.mock.calls[0][1]
-            const body = callArgs.body
-            const signature = callArgs.headers['X-Condo-Signature']
-
-            // Verify signature was generated with fallback secret
-            const expectedSignature = crypto
-                .createHmac('sha256', 'test-webhook-secret')
-                .update(body)
-                .digest('hex')
-
-            expect(signature).toBe(expectedSignature)
+            expect(result.success).toBe(false)
+            expect(result.error).toBe('Invoice has no webhook secret configured')
+            expect(fetch).not.toHaveBeenCalled()
         })
     })
 })
