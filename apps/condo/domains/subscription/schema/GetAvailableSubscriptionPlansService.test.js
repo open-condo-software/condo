@@ -29,7 +29,7 @@ describe('GetAvailableSubscriptionPlansService', () => {
         anonymous = await makeClient()
 
         const plans = await SubscriptionPlan.getAll(admin, {
-            isActive: true,
+            isHidden: false,
             deletedAt: null,
         })
         for (const plan of plans) {
@@ -39,22 +39,21 @@ describe('GetAvailableSubscriptionPlansService', () => {
         const [plan] = await createTestSubscriptionPlan(admin, {
             name: 'Test Plan for GetAvailable',
             organizationType: MANAGING_COMPANY_TYPE,
-            isActive: true,
+            isHidden: false,
         })
         subscriptionPlan = plan
 
-        // Create pricing rule with fixed price
+        // Create pricing rule
         await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
             period: SUBSCRIPTION_PERIOD.MONTHLY,
-            fixedPrice: '1000.00',
+            price: '1000.00',
             currencyCode: 'RUB',
-            discountPercent: null,
         })
     })
 
     afterAll(async () => {
         const plans = await SubscriptionPlan.getAll(admin, {
-            isActive: true,
+            isHidden: false,
             deletedAt: null,
         })
         for (const plan of plans) {
@@ -122,14 +121,13 @@ describe('GetAvailableSubscriptionPlansService', () => {
             const [differentTypePlan] = await createTestSubscriptionPlan(admin, {
                 name: 'Different Type Plan',
                 organizationType: HOLDING_TYPE,
-                isActive: true,
+                isHidden: false,
             })
 
             await createTestSubscriptionPlanPricingRule(admin, differentTypePlan, {
                 period: SUBSCRIPTION_PERIOD.MONTHLY,
-                fixedPrice: '2000.00',
+                price: '2000.00',
                 currencyCode: 'RUB',
-                discountPercent: null,
             })
 
             // Should only return the plan matching organization type
@@ -140,24 +138,23 @@ describe('GetAvailableSubscriptionPlansService', () => {
             expect(planIds).not.toContain(differentTypePlan.id)
         })
 
-        test('does not return inactive plans', async () => {
-            const [inactivePlan] = await createTestSubscriptionPlan(admin, {
-                name: 'Inactive Plan',
+        test('does not return hidden plans', async () => {
+            const [hiddenPlan] = await createTestSubscriptionPlan(admin, {
+                name: 'Hidden Plan',
                 organizationType: MANAGING_COMPANY_TYPE,
-                isActive: false,
+                isHidden: true,
             })
 
-            await createTestSubscriptionPlanPricingRule(admin, inactivePlan, {
+            await createTestSubscriptionPlanPricingRule(admin, hiddenPlan, {
                 period: SUBSCRIPTION_PERIOD.MONTHLY,
-                fixedPrice: '500.00',
+                price: '500.00',
                 currencyCode: 'RUB',
-                discountPercent: null,
             })
 
             const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
 
             const planIds = result.plans.map(p => p.plan.id)
-            expect(planIds).not.toContain(inactivePlan.id)
+            expect(planIds).not.toContain(hiddenPlan.id)
         })
 
         test('throws error if organization not found', async () => {
@@ -168,38 +165,37 @@ describe('GetAvailableSubscriptionPlansService', () => {
             }, ERRORS.ORGANIZATION_NOT_FOUND, 'result')
         })
 
-        test('applies discount rules correctly', async () => {
-            // Create plan with discount
-            const [discountPlan] = await createTestSubscriptionPlan(admin, {
-                name: 'Discount Plan',
+        test('returns first matching rule by priority', async () => {
+            // Create plan with multiple rules
+            const [multiRulePlan] = await createTestSubscriptionPlan(admin, {
+                name: 'Multi Rule Plan',
                 organizationType: MANAGING_COMPANY_TYPE,
-                isActive: true,
+                isHidden: false,
             })
 
-            // Base price rule
-            await createTestSubscriptionPlanPricingRule(admin, discountPlan, {
+            // High priority rule
+            await createTestSubscriptionPlanPricingRule(admin, multiRulePlan, {
                 period: SUBSCRIPTION_PERIOD.YEARLY,
-                fixedPrice: '10000.00',
+                price: '10000.00',
                 currencyCode: 'RUB',
-                discountPercent: null,
                 priority: 100,
             })
 
-            // Discount rule
-            await createTestSubscriptionPlanPricingRule(admin, discountPlan, {
+            // Low priority rule (should be ignored)
+            await createTestSubscriptionPlanPricingRule(admin, multiRulePlan, {
                 period: SUBSCRIPTION_PERIOD.YEARLY,
-                discountPercent: '20',
-                fixedPrice: null,
+                price: '8000.00',
+                currencyCode: 'RUB',
                 priority: 50,
             })
 
             const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
 
-            const plan = result.plans.find(p => p.plan.id === discountPlan.id)
+            const plan = result.plans.find(p => p.plan.id === multiRulePlan.id)
             expect(plan).toBeDefined()
             const yearlyPrice = plan.prices.find(p => p.period === SUBSCRIPTION_PERIOD.YEARLY)
             expect(yearlyPrice.basePrice).toBe('10000.00')
-            expect(yearlyPrice.currentPrice).toBe('8000.00') // 20% discount
+            expect(yearlyPrice.currentPrice).toBe('10000.00')
         })
     })
 })

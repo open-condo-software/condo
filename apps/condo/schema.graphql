@@ -57296,13 +57296,14 @@ type SubscriptionPlanHistoryRecord {
   name: String
   description: String
   organizationType: String
-  isActive: Boolean
+  isHidden: Boolean
+  trialDays: Int
+  order: Int
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
   passTickets: Boolean
-  order: Int
   id: ID!
   v: Int
   createdAt: String
@@ -57375,8 +57376,24 @@ input SubscriptionPlanHistoryRecordWhereInput {
   organizationType_not_ends_with_i: String
   organizationType_in: [String]
   organizationType_not_in: [String]
-  isActive: Boolean
-  isActive_not: Boolean
+  isHidden: Boolean
+  isHidden_not: Boolean
+  trialDays: Int
+  trialDays_not: Int
+  trialDays_lt: Int
+  trialDays_lte: Int
+  trialDays_gt: Int
+  trialDays_gte: Int
+  trialDays_in: [Int]
+  trialDays_not_in: [Int]
+  order: Int
+  order_not: Int
+  order_lt: Int
+  order_lte: Int
+  order_gt: Int
+  order_gte: Int
+  order_in: [Int]
+  order_not_in: [Int]
   news: Boolean
   news_not: Boolean
   marketplace: Boolean
@@ -57387,14 +57404,6 @@ input SubscriptionPlanHistoryRecordWhereInput {
   ai_not: Boolean
   passTickets: Boolean
   passTickets_not: Boolean
-  order: Int
-  order_not: Int
-  order_lt: Int
-  order_lte: Int
-  order_gt: Int
-  order_gte: Int
-  order_in: [Int]
-  order_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57484,8 +57493,12 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   description_DESC
   organizationType_ASC
   organizationType_DESC
-  isActive_ASC
-  isActive_DESC
+  isHidden_ASC
+  isHidden_DESC
+  trialDays_ASC
+  trialDays_DESC
+  order_ASC
+  order_DESC
   news_ASC
   news_DESC
   marketplace_ASC
@@ -57496,8 +57509,6 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   ai_DESC
   passTickets_ASC
   passTickets_DESC
-  order_ASC
-  order_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57520,13 +57531,14 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   name: String
   description: String
   organizationType: String
-  isActive: Boolean
+  isHidden: Boolean
+  trialDays: Int
+  order: Int
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
   passTickets: Boolean
-  order: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -57550,13 +57562,14 @@ input SubscriptionPlanHistoryRecordCreateInput {
   name: String
   description: String
   organizationType: String
-  isActive: Boolean
+  isHidden: Boolean
+  trialDays: Int
+  order: Int
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
   passTickets: Boolean
-  order: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -57602,8 +57615,16 @@ type SubscriptionPlan {
   """ Type of organization this plan is available for """
   organizationType: SubscriptionPlanOrganizationTypeType
 
-  """ Whether this plan is currently available for purchase """
-  isActive: Boolean
+  """ Whether this plan is hidden and not available for purchase """
+  isHidden: Boolean
+
+  """ Number of trial days for this plan. If 0, trial activation is not available for this plan 
+  """
+  trialDays: Int
+
+  """ Display order for sorting plans on frontend (lower values appear first) 
+  """
+  order: Int
 
   """ Whether news feature is included in this plan """
   news: Boolean
@@ -57619,10 +57640,6 @@ type SubscriptionPlan {
 
   """ Whether pass tickets feature is included in this plan """
   passTickets: Boolean
-
-  """ Display order for sorting plans on frontend (lower values appear first) 
-  """
-  order: Int
   id: ID!
   v: Int
   createdAt: String
@@ -57689,8 +57706,24 @@ input SubscriptionPlanWhereInput {
   organizationType_not: SubscriptionPlanOrganizationTypeType
   organizationType_in: [SubscriptionPlanOrganizationTypeType]
   organizationType_not_in: [SubscriptionPlanOrganizationTypeType]
-  isActive: Boolean
-  isActive_not: Boolean
+  isHidden: Boolean
+  isHidden_not: Boolean
+  trialDays: Int
+  trialDays_not: Int
+  trialDays_lt: Int
+  trialDays_lte: Int
+  trialDays_gt: Int
+  trialDays_gte: Int
+  trialDays_in: [Int]
+  trialDays_not_in: [Int]
+  order: Int
+  order_not: Int
+  order_lt: Int
+  order_lte: Int
+  order_gt: Int
+  order_gte: Int
+  order_in: [Int]
+  order_not_in: [Int]
   news: Boolean
   news_not: Boolean
   marketplace: Boolean
@@ -57701,14 +57734,6 @@ input SubscriptionPlanWhereInput {
   ai_not: Boolean
   passTickets: Boolean
   passTickets_not: Boolean
-  order: Int
-  order_not: Int
-  order_lt: Int
-  order_lte: Int
-  order_gt: Int
-  order_gte: Int
-  order_in: [Int]
-  order_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57778,8 +57803,12 @@ enum SortSubscriptionPlansBy {
   description_DESC
   organizationType_ASC
   organizationType_DESC
-  isActive_ASC
-  isActive_DESC
+  isHidden_ASC
+  isHidden_DESC
+  trialDays_ASC
+  trialDays_DESC
+  order_ASC
+  order_DESC
   news_ASC
   news_DESC
   marketplace_ASC
@@ -57790,8 +57819,6 @@ enum SortSubscriptionPlansBy {
   ai_DESC
   passTickets_ASC
   passTickets_DESC
-  order_ASC
-  order_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57814,13 +57841,14 @@ input SubscriptionPlanUpdateInput {
   name: String
   description: String
   organizationType: SubscriptionPlanOrganizationTypeType
-  isActive: Boolean
+  isHidden: Boolean
+  trialDays: Int
+  order: Int
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
   passTickets: Boolean
-  order: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -57841,13 +57869,14 @@ input SubscriptionPlanCreateInput {
   name: String
   description: String
   organizationType: SubscriptionPlanOrganizationTypeType
-  isActive: Boolean
+  isHidden: Boolean
+  trialDays: Int
+  order: Int
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
   passTickets: Boolean
-  order: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -57883,15 +57912,11 @@ type SubscriptionPlanPricingRuleHistoryRecord {
   description: String
   subscriptionPlan: String
   period: String
-  currencyCode: String
-  organization: String
   conditions: JSON
-  discountPercent: String
-  fixedPrice: String
+  price: String
+  currencyCode: String
   priority: Int
-  isActive: Boolean
-  canBePromoted: Boolean
-  promotionText: String
+  isHidden: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -57968,6 +57993,18 @@ input SubscriptionPlanPricingRuleHistoryRecordWhereInput {
   period_not_ends_with_i: String
   period_in: [String]
   period_not_in: [String]
+  conditions: JSON
+  conditions_not: JSON
+  conditions_in: [JSON]
+  conditions_not_in: [JSON]
+  price: String
+  price_not: String
+  price_lt: String
+  price_lte: String
+  price_gt: String
+  price_gte: String
+  price_in: [String]
+  price_not_in: [String]
   currencyCode: String
   currencyCode_not: String
   currencyCode_contains: String
@@ -57986,30 +58023,6 @@ input SubscriptionPlanPricingRuleHistoryRecordWhereInput {
   currencyCode_not_ends_with_i: String
   currencyCode_in: [String]
   currencyCode_not_in: [String]
-  organization: String
-  organization_not: String
-  organization_in: [String]
-  organization_not_in: [String]
-  conditions: JSON
-  conditions_not: JSON
-  conditions_in: [JSON]
-  conditions_not_in: [JSON]
-  discountPercent: String
-  discountPercent_not: String
-  discountPercent_lt: String
-  discountPercent_lte: String
-  discountPercent_gt: String
-  discountPercent_gte: String
-  discountPercent_in: [String]
-  discountPercent_not_in: [String]
-  fixedPrice: String
-  fixedPrice_not: String
-  fixedPrice_lt: String
-  fixedPrice_lte: String
-  fixedPrice_gt: String
-  fixedPrice_gte: String
-  fixedPrice_in: [String]
-  fixedPrice_not_in: [String]
   priority: Int
   priority_not: Int
   priority_lt: Int
@@ -58018,28 +58031,8 @@ input SubscriptionPlanPricingRuleHistoryRecordWhereInput {
   priority_gte: Int
   priority_in: [Int]
   priority_not_in: [Int]
-  isActive: Boolean
-  isActive_not: Boolean
-  canBePromoted: Boolean
-  canBePromoted_not: Boolean
-  promotionText: String
-  promotionText_not: String
-  promotionText_contains: String
-  promotionText_not_contains: String
-  promotionText_starts_with: String
-  promotionText_not_starts_with: String
-  promotionText_ends_with: String
-  promotionText_not_ends_with: String
-  promotionText_i: String
-  promotionText_not_i: String
-  promotionText_contains_i: String
-  promotionText_not_contains_i: String
-  promotionText_starts_with_i: String
-  promotionText_not_starts_with_i: String
-  promotionText_ends_with_i: String
-  promotionText_not_ends_with_i: String
-  promotionText_in: [String]
-  promotionText_not_in: [String]
+  isHidden: Boolean
+  isHidden_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -58129,20 +58122,14 @@ enum SortSubscriptionPlanPricingRuleHistoryRecordsBy {
   description_DESC
   period_ASC
   period_DESC
+  price_ASC
+  price_DESC
   currencyCode_ASC
   currencyCode_DESC
-  discountPercent_ASC
-  discountPercent_DESC
-  fixedPrice_ASC
-  fixedPrice_DESC
   priority_ASC
   priority_DESC
-  isActive_ASC
-  isActive_DESC
-  canBePromoted_ASC
-  canBePromoted_DESC
-  promotionText_ASC
-  promotionText_DESC
+  isHidden_ASC
+  isHidden_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -58166,15 +58153,11 @@ input SubscriptionPlanPricingRuleHistoryRecordUpdateInput {
   description: String
   subscriptionPlan: String
   period: String
-  currencyCode: String
-  organization: String
   conditions: JSON
-  discountPercent: String
-  fixedPrice: String
+  price: String
+  currencyCode: String
   priority: Int
-  isActive: Boolean
-  canBePromoted: Boolean
-  promotionText: String
+  isHidden: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -58199,15 +58182,11 @@ input SubscriptionPlanPricingRuleHistoryRecordCreateInput {
   description: String
   subscriptionPlan: String
   period: String
-  currencyCode: String
-  organization: String
   conditions: JSON
-  discountPercent: String
-  fixedPrice: String
+  price: String
+  currencyCode: String
   priority: Int
-  isActive: Boolean
-  canBePromoted: Boolean
-  promotionText: String
+  isHidden: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -58419,7 +58398,7 @@ enum SubscriptionPlanPricingRuleCurrencyCodeType {
   ZWL
 }
 
-""" Pricing rule that modifies subscription plan price based on conditions. Rule type is determined by which value field is set: fixedPrice or discountPercent 
+""" Pricing rule for subscription plan. Defines price for specific period and conditions 
 """
 type SubscriptionPlanPricingRule {
   """
@@ -58443,38 +58422,22 @@ type SubscriptionPlanPricingRule {
   """ Subscription period this rule applies to (monthly, yearly) """
   period: SubscriptionPlanPricingRulePeriodType
 
-  """ Currency code for fixed price (ISO-4217). Required when fixedPrice is specified 
-  """
-  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
-
-  """ Specific organization this rule applies to. If null, applies to all organizations 
-  """
-  organization: Organization
-
   """ JSON conditions for rule matching (json-rules-engine format). Format: { all: [...] } or { any: [...] }. Each condition: { fact, operator, value }. Facts: organizationIds, organizationFeatures. Operators: equal, notEqual, in, notIn, contains, doesNotContain 
   """
   conditions: JSON
 
-  """ Discount percentage (0-100). Mutually exclusive with fixedPrice """
-  discountPercent: String
+  """ Price for this rule """
+  price: String
 
-  """ Fixed price to set. Mutually exclusive with discountPercent. Requires currencyCode 
-  """
-  fixedPrice: String
+  """ Currency code (ISO-4217) """
+  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
 
   """ Rule priority. Higher priority rules are applied first. Default is 100 
   """
   priority: Int
 
-  """ Whether this rule is currently active """
-  isActive: Boolean
-
-  """ Whether this rule can be shown as a promotion on the frontend """
-  canBePromoted: Boolean
-
-  """ Promotional text to display on the frontend when canBePromoted is true 
-  """
-  promotionText: String
+  """ Whether this rule is hidden and not applied """
+  isHidden: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -58543,32 +58506,22 @@ input SubscriptionPlanPricingRuleWhereInput {
   period_not: SubscriptionPlanPricingRulePeriodType
   period_in: [SubscriptionPlanPricingRulePeriodType]
   period_not_in: [SubscriptionPlanPricingRulePeriodType]
-  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
-  currencyCode_not: SubscriptionPlanPricingRuleCurrencyCodeType
-  currencyCode_in: [SubscriptionPlanPricingRuleCurrencyCodeType]
-  currencyCode_not_in: [SubscriptionPlanPricingRuleCurrencyCodeType]
-  organization: OrganizationWhereInput
-  organization_is_null: Boolean
   conditions: JSON
   conditions_not: JSON
   conditions_in: [JSON]
   conditions_not_in: [JSON]
-  discountPercent: String
-  discountPercent_not: String
-  discountPercent_lt: String
-  discountPercent_lte: String
-  discountPercent_gt: String
-  discountPercent_gte: String
-  discountPercent_in: [String]
-  discountPercent_not_in: [String]
-  fixedPrice: String
-  fixedPrice_not: String
-  fixedPrice_lt: String
-  fixedPrice_lte: String
-  fixedPrice_gt: String
-  fixedPrice_gte: String
-  fixedPrice_in: [String]
-  fixedPrice_not_in: [String]
+  price: String
+  price_not: String
+  price_lt: String
+  price_lte: String
+  price_gt: String
+  price_gte: String
+  price_in: [String]
+  price_not_in: [String]
+  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
+  currencyCode_not: SubscriptionPlanPricingRuleCurrencyCodeType
+  currencyCode_in: [SubscriptionPlanPricingRuleCurrencyCodeType]
+  currencyCode_not_in: [SubscriptionPlanPricingRuleCurrencyCodeType]
   priority: Int
   priority_not: Int
   priority_lt: Int
@@ -58577,28 +58530,8 @@ input SubscriptionPlanPricingRuleWhereInput {
   priority_gte: Int
   priority_in: [Int]
   priority_not_in: [Int]
-  isActive: Boolean
-  isActive_not: Boolean
-  canBePromoted: Boolean
-  canBePromoted_not: Boolean
-  promotionText: String
-  promotionText_not: String
-  promotionText_contains: String
-  promotionText_not_contains: String
-  promotionText_starts_with: String
-  promotionText_not_starts_with: String
-  promotionText_ends_with: String
-  promotionText_not_ends_with: String
-  promotionText_i: String
-  promotionText_not_i: String
-  promotionText_contains_i: String
-  promotionText_not_contains_i: String
-  promotionText_starts_with_i: String
-  promotionText_not_starts_with_i: String
-  promotionText_ends_with_i: String
-  promotionText_not_ends_with_i: String
-  promotionText_in: [String]
-  promotionText_not_in: [String]
+  isHidden: Boolean
+  isHidden_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -58670,22 +58603,14 @@ enum SortSubscriptionPlanPricingRulesBy {
   subscriptionPlan_DESC
   period_ASC
   period_DESC
+  price_ASC
+  price_DESC
   currencyCode_ASC
   currencyCode_DESC
-  organization_ASC
-  organization_DESC
-  discountPercent_ASC
-  discountPercent_DESC
-  fixedPrice_ASC
-  fixedPrice_DESC
   priority_ASC
   priority_DESC
-  isActive_ASC
-  isActive_DESC
-  canBePromoted_ASC
-  canBePromoted_DESC
-  promotionText_ASC
-  promotionText_DESC
+  isHidden_ASC
+  isHidden_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -58709,15 +58634,11 @@ input SubscriptionPlanPricingRuleUpdateInput {
   description: String
   subscriptionPlan: SubscriptionPlanRelateToOneInput
   period: SubscriptionPlanPricingRulePeriodType
-  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
-  organization: OrganizationRelateToOneInput
   conditions: JSON
-  discountPercent: String
-  fixedPrice: String
+  price: String
+  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
   priority: Int
-  isActive: Boolean
-  canBePromoted: Boolean
-  promotionText: String
+  isHidden: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -58739,15 +58660,11 @@ input SubscriptionPlanPricingRuleCreateInput {
   description: String
   subscriptionPlan: SubscriptionPlanRelateToOneInput
   period: SubscriptionPlanPricingRulePeriodType
-  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
-  organization: OrganizationRelateToOneInput
   conditions: JSON
-  discountPercent: String
-  fixedPrice: String
+  price: String
+  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
   priority: Int
-  isActive: Boolean
-  canBePromoted: Boolean
-  promotionText: String
+  isHidden: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -89147,14 +89064,15 @@ type GetAvailableSubscriptionPlansOutput {
   plans: [AvailableSubscriptionPlan]!
 }
 
-input ActivateTrialSubscriptionPlanInput {
+input ActivateSubscriptionPlanInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
   subscriptionPlan: SubscriptionPlanWhereUniqueInput!
+  isTrial: Boolean!
 }
 
-type ActivateTrialSubscriptionPlanOutput {
+type ActivateSubscriptionPlanOutput {
   subscriptionContext: SubscriptionContext!
 }
 
@@ -103243,7 +103161,7 @@ type Mutation {
   registerPropertyMetersReadings(data: RegisterPropertyMetersReadingsInput!): [RegisterPropertyMetersReadingsOutput]
 
   """
-  Activates a trial subscription for an organization
+  Activates a subscription plan for an organization. For trial subscriptions, set isTrial to true.
   
   
   
@@ -103274,8 +103192,20 @@ type Mutation {
     "type": "TRIAL_ALREADY_USED",
     "message": "Trial subscription for this plan has already been used"
   }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TRIAL_NOT_AVAILABLE",
+    "message": "Trial is not available for this subscription plan"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PAID_SUBSCRIPTION_NOT_IMPLEMENTED",
+    "message": "Paid subscription activation is not implemented yet. Only trial subscriptions are supported."
+  }`
   """
-  activateTrialSubscriptionPlan(data: ActivateTrialSubscriptionPlanInput!): ActivateTrialSubscriptionPlanOutput
+  activateSubscriptionPlan(data: ActivateSubscriptionPlanInput!): ActivateSubscriptionPlanOutput
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

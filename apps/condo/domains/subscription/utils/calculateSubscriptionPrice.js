@@ -8,35 +8,24 @@ const { evaluateConditions } = require('./conditionsEvaluator')
 
 /**
  * Calculate subscription price for a plan and period.
- * Rules are applied in order of priority (highest first):
- * - fixedPrice: sets/overrides current price (first one also sets basePrice)
- * - discountPercent: applies % discount to current price
+ * Returns the first matching rule's price based on priority and conditions.
  *
  * @param {string} subscriptionPlanId - Subscription plan ID
  * @param {string} period - Subscription period (monthly/yearly)
  * @param {Object} organization - Organization object (optional, for org-specific rules)
- * @returns {Object|null} { basePrice, finalPrice, currencyCode, appliedRules } or null if no base price configured
+ * @returns {Object|null} { basePrice, finalPrice, currencyCode, appliedRules } or null if no price configured
  */
 async function calculateSubscriptionPrice (subscriptionPlanId, period, organization = null) {
-    // Get pricing rules: either for this specific org or for all orgs (organization = null)
+    // Get pricing rules sorted by priority
     const rules = await itemsQuery('SubscriptionPlanPricingRule', {
         where: {
             subscriptionPlan: { id: subscriptionPlanId },
             period,
-            isActive: true,
+            isHidden: false,
             deletedAt: null,
-            OR: [
-                { organization_is_null: true },
-                ...(organization ? [{ organization: { id: organization.id } }] : []),
-            ],
         },
         sortBy: ['priority_DESC'],
     })
-
-    let basePrice = 0
-    let currentPrice = 0
-    let currencyCode = null
-    const appliedRules = []
 
     // Build context for conditions evaluation (facts: organizationIds, organizationFeatures)
     const context = {
@@ -46,51 +35,27 @@ async function calculateSubscriptionPrice (subscriptionPlanId, period, organizat
         } : null,
     }
 
+    // Find first matching rule
     for (const rule of rules) {
         // Evaluate conditions
         if (!evaluateConditions(rule.conditions, context)) {
             continue
         }
 
-        const priceBefore = currentPrice
-        const hasFixedPrice = rule.fixedPrice !== null && rule.fixedPrice !== undefined
-        const hasDiscountPercent = rule.discountPercent !== null && rule.discountPercent !== undefined
+        const price = parseFloat(rule.price) || 0
 
-        if (hasFixedPrice) {
-            // Only first matching fixed_price rule sets the price
-            if (basePrice === 0) {
-                const price = parseFloat(rule.fixedPrice) || 0
-                basePrice = price
-                currentPrice = price
-                currencyCode = rule.currencyCode
-            } else {
-                continue
-            }
-        } else if (hasDiscountPercent) {
-            // Skip discount if no base price yet
-            if (basePrice === 0) continue
-            currentPrice = currentPrice * (1 - (parseFloat(rule.discountPercent) || 0) / 100)
+        return {
+            basePrice: price.toFixed(2),
+            finalPrice: price.toFixed(2),
+            currencyCode: rule.currencyCode,
+            appliedRules: [{
+                ruleId: rule.id,
+                ruleName: rule.name,
+            }],
         }
-
-        appliedRules.push({
-            ruleId: rule.id,
-            ruleName: rule.name,
-            ruleType: hasFixedPrice ? 'fixed_price' : 'percentage_discount',
-            priceBefore: priceBefore.toFixed(2),
-            priceAfter: currentPrice.toFixed(2),
-        })
     }
 
-    if (basePrice === 0) {
-        return null
-    }
-
-    return {
-        basePrice: basePrice.toFixed(2),
-        finalPrice: currentPrice.toFixed(2),
-        currencyCode,
-        appliedRules,
-    }
+    return null
 }
 
 module.exports = {
