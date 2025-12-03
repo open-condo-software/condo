@@ -1,7 +1,6 @@
 const dayjs = require('dayjs')
 const { get } = require('lodash')
 const { default: RedLock } = require('redlock')
-const { v4: uuid } = require('uuid')
 
 const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
@@ -67,8 +66,9 @@ async function sendWebhook (subscriptionId) {
         let lastLoaded = packSize
         let lastSendSuccess = true
         let totalLoaded = syncedAmount
-        let lastSyncTime = dayjs().toISOString()
         let lastSubscriptionUpdate = updatedAt
+        let foundObjs = false
+        let newestObjUpdatedAt = null
 
         const where = {
             ...filters,
@@ -78,7 +78,7 @@ async function sendWebhook (subscriptionId) {
 
         while (lastLoaded === packSize) {
             // Step 1: Receive another batch
-            const variables = { first: maxPackSize || DEFAULT_MAX_PACK_SIZE, skip: totalLoaded, where }
+            const variables = { first: maxPackSize || DEFAULT_MAX_PACK_SIZE, skip: totalLoaded, where, sortBy: ['updatedAt_ASC'] }
             const userId = get(user, 'id')
             logger.info({ msg: 'tryGetData', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { variables, model, fields, userId } })
             const objs = await execGqlAsUser(keystone, user, {
@@ -90,12 +90,19 @@ async function sendWebhook (subscriptionId) {
             logger.info({ msg: 'tryGetResult', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { data: objs, variables, model, fields, userId } })
 
             lastLoaded = objs.length
-            // time is measured by the time of the last response from our server received
-            lastSyncTime = dayjs().toISOString()
 
             // No more objects -> GOTO final update syncedAt
             if (lastLoaded === 0) {
                 break
+            }
+
+            foundObjs = true
+
+            if (objs.length > 0) {
+                const lastObj = objs[objs.length - 1]
+                if (!newestObjUpdatedAt || dayjs(lastObj.updatedAt).isAfter(dayjs(newestObjUpdatedAt))) {
+                    newestObjUpdatedAt = lastObj.updatedAt
+                }
             }
 
             // Step 2: Send batch to specified url
@@ -141,11 +148,20 @@ async function sendWebhook (subscriptionId) {
 
         // TODO(pahaz): We do not need to update the WebhookSubscription if no updates are found, as we can utilize the same query and cache it.
         //     We also want to prevent the unnecessary expansion of the history log/database
-        await WebhookSubscription.update(keystone, subscriptionId, {
-            syncedAt: lastSyncTime,
-            dv: 1,
-            sender: { dv: 1, fingerprint: 'sendWebhook' },
-        })
+        if (foundObjs && newestObjUpdatedAt) {
+            await WebhookSubscription.update(keystone, subscriptionId, {
+                syncedAt: newestObjUpdatedAt,
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'sendWebhook' },
+            })
+        } else {
+            logger.info({
+                msg: 'No new records found, skipping syncedAt update',
+                url,
+                entityId: subscriptionId,
+                entity: 'WebhookSubscription',
+            })
+        }
 
         return { status: OK_STATUS }
 
