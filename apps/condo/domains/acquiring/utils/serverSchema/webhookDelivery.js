@@ -7,47 +7,74 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    INVOICE_WEBHOOK_TIMEOUT_MS,
-    INVOICE_WEBHOOK_MAX_RESPONSE_LENGTH,
-    INVOICE_WEBHOOK_RETRY_INTERVALS,
-} = require('@condo/domains/marketplace/constants')
+    PAYMENT_WEBHOOK_TIMEOUT_MS,
+    PAYMENT_WEBHOOK_MAX_RESPONSE_LENGTH,
+    PAYMENT_WEBHOOK_RETRY_INTERVALS,
+} = require('@condo/domains/acquiring/constants/webhook')
 
 const logger = getLogger()
 
 
 /**
- * Builds the webhook payload for an invoice status change
- * @param {Object} delivery - InvoiceWebhookDelivery record
+ * Builds the webhook payload for a payment status change
+ * @param {Object} delivery - PaymentWebhookDelivery record
  * @returns {Promise<Object>} Webhook payload
  */
 async function buildWebhookPayload (delivery) {
-    const invoice = await getById('Invoice', delivery.invoice)
-    if (!invoice) {
-        throw new Error(`Invoice not found: ${delivery.invoice}`)
+    const payment = await getById('Payment', delivery.payment)
+    if (!payment) {
+        throw new Error(`Payment not found: ${delivery.payment}`)
     }
 
-    const organization = await getById('Organization', invoice.organization)
+    const organization = await getById('Organization', payment.organization)
+
+    // Get related invoice if exists
+    let invoiceData = null
+    if (payment.invoice) {
+        const invoice = await getById('Invoice', payment.invoice)
+        if (invoice) {
+            invoiceData = {
+                id: invoice.id,
+                number: invoice.number,
+                status: invoice.status,
+                toPay: invoice.toPay,
+            }
+        }
+    }
+
+    // Get related receipt if exists
+    let receiptData = null
+    if (payment.receipt) {
+        const receipt = await getById('BillingReceipt', payment.receipt)
+        if (receipt) {
+            receiptData = {
+                id: receipt.id,
+                toPay: receipt.toPay,
+                period: receipt.period,
+            }
+        }
+    }
 
     return {
-        event: 'invoice.status.changed',
+        event: 'payment.status.changed',
         timestamp: new Date().toISOString(),
         deliveryId: delivery.id,
         attempt: delivery.attempt + 1,
         nextRetryAt: delivery.nextRetryAt,
         expiresAt: delivery.expiresAt,
         data: {
-            invoiceId: invoice.id,
-            invoiceNumber: invoice.number,
+            paymentId: payment.id,
             previousStatus: delivery.previousStatus,
             newStatus: delivery.newStatus,
-            toPay: invoice.toPay,
-            paidAt: invoice.paidAt,
-            publishedAt: invoice.publishedAt,
-            canceledAt: invoice.canceledAt,
+            amount: payment.amount,
+            currencyCode: payment.currencyCode,
+            accountNumber: payment.accountNumber,
             organization: {
                 id: organization.id,
                 name: organization.name,
             },
+            invoice: invoiceData,
+            receipt: receiptData,
         },
     }
 }
@@ -71,25 +98,75 @@ function generateSignature (body, secret) {
  * @returns {string} ISO timestamp for next retry
  */
 function calculateNextRetryAt (attempt) {
-    const intervals = INVOICE_WEBHOOK_RETRY_INTERVALS
+    const intervals = PAYMENT_WEBHOOK_RETRY_INTERVALS
     const delaySeconds = intervals[Math.min(attempt, intervals.length - 1)]
     return dayjs().add(delaySeconds, 'second').toISOString()
 }
 
 /**
+ * Gets the webhook secret from invoice or receipt
+ * @param {Object} payment - Payment record
+ * @returns {Promise<string|null>} Secret or null if not found
+ */
+async function getWebhookSecret (payment) {
+    // Try to get secret from invoice first
+    if (payment.invoice) {
+        const invoice = await getById('Invoice', payment.invoice)
+        if (invoice && invoice.statusChangeCallbackSecret) {
+            return invoice.statusChangeCallbackSecret
+        }
+    }
+
+    // Try to get secret from receipt
+    if (payment.receipt) {
+        const receipt = await getById('BillingReceipt', payment.receipt)
+        if (receipt && receipt.statusChangeCallbackSecret) {
+            return receipt.statusChangeCallbackSecret
+        }
+    }
+
+    return null
+}
+
+/**
+ * Gets the webhook callback URL from invoice or receipt
+ * @param {Object} payment - Payment record
+ * @returns {Promise<string|null>} Callback URL or null if not found
+ */
+async function getWebhookCallbackUrl (payment) {
+    // Try to get callback URL from invoice first
+    if (payment.invoice) {
+        const invoice = await getById('Invoice', payment.invoice)
+        if (invoice && invoice.statusChangeCallbackUrl) {
+            return invoice.statusChangeCallbackUrl
+        }
+    }
+
+    // Try to get callback URL from receipt
+    if (payment.receipt) {
+        const receipt = await getById('BillingReceipt', payment.receipt)
+        if (receipt && receipt.statusChangeCallbackUrl) {
+            return receipt.statusChangeCallbackUrl
+        }
+    }
+
+    return null
+}
+
+/**
  * Attempts to deliver webhook payload to the callback URL
- * @param {Object} delivery - InvoiceWebhookDelivery record
+ * @param {Object} delivery - PaymentWebhookDelivery record
  * @returns {Promise<Object>} { success: boolean, statusCode?: number, body?: string, error?: string }
  */
 async function tryDeliverWebhook (delivery) {
     const { callbackUrl } = delivery
 
     let payload
-    let invoice
+    let payment
     try {
-        invoice = await getById('Invoice', delivery.invoice)
-        if (!invoice) {
-            throw new Error(`Invoice not found: ${delivery.invoice}`)
+        payment = await getById('Payment', delivery.payment)
+        if (!payment) {
+            throw new Error(`Payment not found: ${delivery.payment}`)
         }
         payload = await buildWebhookPayload(delivery)
     } catch (err) {
@@ -100,13 +177,13 @@ async function tryDeliverWebhook (delivery) {
         }
     }
 
-    // Use invoice-specific secret
-    const secret = invoice.statusChangeCallbackSecret
+    // Get secret from invoice or receipt
+    const secret = await getWebhookSecret(payment)
     if (!secret) {
-        logger.error({ msg: 'Invoice has no webhook secret', data: { deliveryId: delivery.id, invoiceId: invoice.id } })
+        logger.error({ msg: 'No webhook secret found for payment', data: { deliveryId: delivery.id, paymentId: payment.id } })
         return {
             success: false,
-            error: 'Invoice has no webhook secret configured',
+            error: 'No webhook secret configured for invoice or receipt',
         }
     }
 
@@ -128,11 +205,11 @@ async function tryDeliverWebhook (delivery) {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Condo-Signature': signature,
-                'X-Condo-Event': 'invoice.status.changed',
+                'X-Condo-Event': 'payment.status.changed',
                 'X-Condo-Delivery-Id': delivery.id,
             },
             body,
-            abortRequestTimeout: INVOICE_WEBHOOK_TIMEOUT_MS,
+            abortRequestTimeout: PAYMENT_WEBHOOK_TIMEOUT_MS,
             maxRetries: 0,
         })
 
@@ -140,8 +217,8 @@ async function tryDeliverWebhook (delivery) {
         let responseBody = null
         try {
             responseBody = await response.text()
-            if (responseBody && responseBody.length > INVOICE_WEBHOOK_MAX_RESPONSE_LENGTH) {
-                responseBody = responseBody.substring(0, INVOICE_WEBHOOK_MAX_RESPONSE_LENGTH)
+            if (responseBody && responseBody.length > PAYMENT_WEBHOOK_MAX_RESPONSE_LENGTH) {
+                responseBody = responseBody.substring(0, PAYMENT_WEBHOOK_MAX_RESPONSE_LENGTH)
             }
         } catch (e) {
             responseBody = '[Could not read response body]'
@@ -185,12 +262,12 @@ async function tryDeliverWebhook (delivery) {
                 msg: 'Webhook delivery timed out',
                 data: {
                     deliveryId: delivery.id,
-                    timeout: INVOICE_WEBHOOK_TIMEOUT_MS,
+                    timeout: PAYMENT_WEBHOOK_TIMEOUT_MS,
                 },
             })
             return {
                 success: false,
-                error: `Request timeout after ${INVOICE_WEBHOOK_TIMEOUT_MS}ms`,
+                error: `Request timeout after ${PAYMENT_WEBHOOK_TIMEOUT_MS}ms`,
             }
         }
 
@@ -211,4 +288,6 @@ module.exports = {
     generateSignature,
     calculateNextRetryAt,
     tryDeliverWebhook,
+    getWebhookSecret,
+    getWebhookCallbackUrl,
 }

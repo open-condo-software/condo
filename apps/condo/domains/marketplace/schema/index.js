@@ -4,7 +4,6 @@
  */
 
 const { Invoice } = require('./Invoice')
-const { InvoiceWebhookDelivery } = require('./InvoiceWebhookDelivery')
 const { MarketCategory } = require('./MarketCategory')
 const { MarketItem } = require('./MarketItem')
 const { MarketItemFile } = require('./MarketItemFile')
@@ -21,6 +20,5 @@ module.exports = {
     MarketItemPrice,
     MarketPriceScope,
     MarketSetting,
-    InvoiceWebhookDelivery,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
