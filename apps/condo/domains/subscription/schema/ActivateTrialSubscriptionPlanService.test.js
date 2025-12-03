@@ -9,7 +9,6 @@ const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError
 
 const { MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const {
     activateTrialSubscriptionPlanByTestClient,
     createTestSubscriptionPlan,
@@ -38,7 +37,6 @@ describe('ActivateTrialSubscriptionPlanService', () => {
         }
 
         const [plan] = await createTestSubscriptionPlan(admin, {
-            type: SUBSCRIPTION_TYPE.BASIC,
             name: 'Test Plan for ActivateTrial',
             organizationType: MANAGING_COMPANY_TYPE,
             isActive: true,
@@ -132,7 +130,6 @@ describe('ActivateTrialSubscriptionPlanService', () => {
 
         test('throws error if plan is inactive', async () => {
             const [inactivePlan] = await createTestSubscriptionPlan(admin, {
-                type: SUBSCRIPTION_TYPE.EXTENDED,
                 name: 'Inactive Plan',
                 organizationType: MANAGING_COMPANY_TYPE,
                 isActive: false,
@@ -145,7 +142,6 @@ describe('ActivateTrialSubscriptionPlanService', () => {
 
         test('throws error if organization type does not match plan', async () => {
             const [differentTypePlan] = await createTestSubscriptionPlan(admin, {
-                type: SUBSCRIPTION_TYPE.BASIC,
                 name: 'Different Type Plan',
                 organizationType: HOLDING_TYPE,
                 isActive: true,
@@ -173,7 +169,6 @@ describe('ActivateTrialSubscriptionPlanService', () => {
 
             // Create another plan
             const [anotherPlan] = await createTestSubscriptionPlan(admin, {
-                type: SUBSCRIPTION_TYPE.EXTENDED,
                 name: 'Another Plan',
                 organizationType: MANAGING_COMPANY_TYPE,
                 isActive: true,

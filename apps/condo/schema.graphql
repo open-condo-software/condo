@@ -57293,7 +57293,6 @@ type SubscriptionPlanHistoryRecord {
    4. As an alias to the 'id' field on the SubscriptionPlanHistoryRecord List.
   """
   _label_: String
-  type: String
   name: String
   description: String
   organizationType: String
@@ -57303,6 +57302,7 @@ type SubscriptionPlanHistoryRecord {
   support: Boolean
   ai: Boolean
   passTickets: Boolean
+  order: Int
   id: ID!
   v: Int
   createdAt: String
@@ -57321,24 +57321,6 @@ type SubscriptionPlanHistoryRecord {
 input SubscriptionPlanHistoryRecordWhereInput {
   AND: [SubscriptionPlanHistoryRecordWhereInput]
   OR: [SubscriptionPlanHistoryRecordWhereInput]
-  type: String
-  type_not: String
-  type_contains: String
-  type_not_contains: String
-  type_starts_with: String
-  type_not_starts_with: String
-  type_ends_with: String
-  type_not_ends_with: String
-  type_i: String
-  type_not_i: String
-  type_contains_i: String
-  type_not_contains_i: String
-  type_starts_with_i: String
-  type_not_starts_with_i: String
-  type_ends_with_i: String
-  type_not_ends_with_i: String
-  type_in: [String]
-  type_not_in: [String]
   name: String
   name_not: String
   name_contains: String
@@ -57405,6 +57387,14 @@ input SubscriptionPlanHistoryRecordWhereInput {
   ai_not: Boolean
   passTickets: Boolean
   passTickets_not: Boolean
+  order: Int
+  order_not: Int
+  order_lt: Int
+  order_lte: Int
+  order_gt: Int
+  order_gte: Int
+  order_in: [Int]
+  order_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57488,8 +57478,6 @@ input SubscriptionPlanHistoryRecordWhereUniqueInput {
 }
 
 enum SortSubscriptionPlanHistoryRecordsBy {
-  type_ASC
-  type_DESC
   name_ASC
   name_DESC
   description_ASC
@@ -57508,6 +57496,8 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   ai_DESC
   passTickets_ASC
   passTickets_DESC
+  order_ASC
+  order_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57527,7 +57517,6 @@ enum SortSubscriptionPlanHistoryRecordsBy {
 }
 
 input SubscriptionPlanHistoryRecordUpdateInput {
-  type: String
   name: String
   description: String
   organizationType: String
@@ -57537,6 +57526,7 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   support: Boolean
   ai: Boolean
   passTickets: Boolean
+  order: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -57557,7 +57547,6 @@ input SubscriptionPlanHistoryRecordsUpdateInput {
 }
 
 input SubscriptionPlanHistoryRecordCreateInput {
-  type: String
   name: String
   description: String
   organizationType: String
@@ -57567,6 +57556,7 @@ input SubscriptionPlanHistoryRecordCreateInput {
   support: Boolean
   ai: Boolean
   passTickets: Boolean
+  order: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -57583,11 +57573,6 @@ input SubscriptionPlanHistoryRecordCreateInput {
 
 input SubscriptionPlanHistoryRecordsCreateInput {
   data: SubscriptionPlanHistoryRecordCreateInput
-}
-
-enum SubscriptionPlanTypeType {
-  basic
-  extended
 }
 
 enum SubscriptionPlanOrganizationTypeType {
@@ -57607,10 +57592,6 @@ type SubscriptionPlan {
    4. As an alias to the 'id' field on the SubscriptionPlan List.
   """
   _label_: String
-
-  """ Type of subscription plan (basic, extended). Used for programmatic access 
-  """
-  type: SubscriptionPlanTypeType
 
   """ Human-readable name of the subscription plan """
   name: String
@@ -57638,6 +57619,10 @@ type SubscriptionPlan {
 
   """ Whether pass tickets feature is included in this plan """
   passTickets: Boolean
+
+  """ Display order for sorting plans on frontend (lower values appear first) 
+  """
+  order: Int
   id: ID!
   v: Int
   createdAt: String
@@ -57664,10 +57649,6 @@ type SubscriptionPlan {
 input SubscriptionPlanWhereInput {
   AND: [SubscriptionPlanWhereInput]
   OR: [SubscriptionPlanWhereInput]
-  type: SubscriptionPlanTypeType
-  type_not: SubscriptionPlanTypeType
-  type_in: [SubscriptionPlanTypeType]
-  type_not_in: [SubscriptionPlanTypeType]
   name: String
   name_not: String
   name_contains: String
@@ -57720,6 +57701,14 @@ input SubscriptionPlanWhereInput {
   ai_not: Boolean
   passTickets: Boolean
   passTickets_not: Boolean
+  order: Int
+  order_not: Int
+  order_lt: Int
+  order_lte: Int
+  order_gt: Int
+  order_gte: Int
+  order_in: [Int]
+  order_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57783,8 +57772,6 @@ input SubscriptionPlanWhereUniqueInput {
 }
 
 enum SortSubscriptionPlansBy {
-  type_ASC
-  type_DESC
   name_ASC
   name_DESC
   description_ASC
@@ -57803,6 +57790,8 @@ enum SortSubscriptionPlansBy {
   ai_DESC
   passTickets_ASC
   passTickets_DESC
+  order_ASC
+  order_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57822,7 +57811,6 @@ enum SortSubscriptionPlansBy {
 }
 
 input SubscriptionPlanUpdateInput {
-  type: SubscriptionPlanTypeType
   name: String
   description: String
   organizationType: SubscriptionPlanOrganizationTypeType
@@ -57832,6 +57820,7 @@ input SubscriptionPlanUpdateInput {
   support: Boolean
   ai: Boolean
   passTickets: Boolean
+  order: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -57849,7 +57838,6 @@ input SubscriptionPlansUpdateInput {
 }
 
 input SubscriptionPlanCreateInput {
-  type: SubscriptionPlanTypeType
   name: String
   description: String
   organizationType: SubscriptionPlanOrganizationTypeType
@@ -57859,6 +57847,7 @@ input SubscriptionPlanCreateInput {
   support: Boolean
   ai: Boolean
   passTickets: Boolean
+  order: Int
   v: Int
   createdAt: String
   updatedAt: String

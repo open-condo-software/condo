@@ -12,7 +12,6 @@ const {
 
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const {
     SubscriptionContext,
     SubscriptionPlan,
@@ -40,7 +39,6 @@ describe('SubscriptionContext', () => {
         }
 
         const [plan] = await createTestSubscriptionPlan(admin, {
-            type: SUBSCRIPTION_TYPE.EXTENDED,
             name: 'Test Plan for SubscriptionContext',
             organizationType: HOLDING_TYPE,
             isActive: true,
