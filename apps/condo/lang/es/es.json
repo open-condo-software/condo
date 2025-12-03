@@ -191,6 +191,8 @@
   "NoPermissionToSettings": "No tienes permiso para ver y editar estos ajustes...",
   "NoReceiptsLoaded": "Los datos aún no se han cargado en nuestro sistema, o están en proceso de carga",
   "NotFound": "No encontrado",
+  "Note": "Nota",
+  "contact.note.visibility.hint": "Solo visible para su organización",
   "NotImplementedYet": "Aún no sabemos cómo hacerlo, pero aprenderemos",
   "Now": "Ahora",
   "NumberIsNotValid": "Por favor, introduce el número correcto",
