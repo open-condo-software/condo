@@ -1,4 +1,4 @@
-import { useGetTicketStatusesQuery } from '@app/condo/gql'
+import { useGetTicketSourcesQuery, useGetTicketStatusesQuery } from '@app/condo/gql'
 import {
     BuildingUnitSubType,
     Ticket,
@@ -32,7 +32,7 @@ import {
 import { searchOrganizationPropertyScope } from '@condo/domains/scope/utils/clientSchema/search'
 import { FEEDBACK_VALUES_BY_KEY } from '@condo/domains/ticket/constants/feedback'
 import { QUALITY_CONTROL_VALUES_BY_KEY } from '@condo/domains/ticket/constants/qualityControl'
-import { useVisibleTicketSources } from '@condo/domains/ticket/hooks/useVisibleTicketSources'
+import { VISIBLE_TICKET_SOURCE_IDS } from '@condo/domains/ticket/constants/sources'
 import { TicketCategoryClassifier } from '@condo/domains/ticket/utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import {
@@ -195,12 +195,27 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const statuses = useMemo(() => statusesData?.statuses?.filter(Boolean) || [], [statusesData?.statuses])
     const statusOptions = useMemo(() => convertToOptions(statuses, 'name', 'type'), [statuses])
 
-    const organizationIds = useMemo(() => [userOrganizationId], [userOrganizationId])
-    const { visibleSources } = useVisibleTicketSources({
-        key: userOrganizationId,
-        organizationIds,
+    const { data: sourcesData } = useGetTicketSourcesQuery({
+        skip: !persistor,
+        variables: {
+            where: {
+                OR: [
+                    {
+                        id_in: VISIBLE_TICKET_SOURCE_IDS,
+                        isDefault: true,
+                    },
+                    {
+                        isDefault: false,
+                    },
+                ],
+            },
+        },
     })
-    const sourceOptions = useMemo(() => convertToOptions(visibleSources, 'name', 'id'), [visibleSources])
+    const sources = useMemo(
+        () => sourcesData?.sources?.filter(Boolean) || [],
+        [sourcesData?.sources]
+    )
+    const sourceOptions = useMemo(() => convertToOptions(sources, 'name', 'id'), [sources])
 
     const attributeOptions = useMemo(() => [
         { label: RegularMessage, value: 'isRegular' },
