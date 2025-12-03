@@ -138,7 +138,7 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                     },
                     allTicketCategoryClassifiers: {
                         keyArgs: ['where'],
-                        read: listHelper.getReadFunction('paginate'),
+                        read: listHelper.getReadFunction('showAll'),
                         merge: listHelper.mergeLists,
                     },
                 },
