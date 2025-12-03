@@ -50,6 +50,19 @@ const data: TableData[] = [
     { id: '11', firstName: 'sandy', lastName: 'shore', age: 35, status: true },
     { id: '12', firstName: 'mike', lastName: 'drop', age: 42, status: false },
     { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
+    { id: '13', firstName: 'tanner', lastName: 'linsley', age: 33, status: true, organization: { id: '1', name: 'Organization 1' } },
 ]
 
 const columns: TableColumn<TableData>[] = [
@@ -130,7 +143,6 @@ const columns: TableColumn<TableData>[] = [
         enableSorting: true,
         header: (table) => <span>{table.getColumn('organization.name')?.columnDef?.id}</span>,
         id: 'organization.name',
-        render: (_, record) => <span>{record.organization?.name ? String(record.organization.name) : '—'}</span>,
     },
     {
         dataKey: 'organization.id',
@@ -228,10 +240,11 @@ const columnLabels: TableLabels = {
     sortDescLabel: 'Sort',
     sortAscLabel: 'Sort',
     filterLabel: 'Filter',
+    filteredLabel: 'Filtered',
     settingsLabel: 'Settings',
     sortedDescLabel: 'Sorted',
     sortedAscLabel: 'Sorted',
-    filteredLabel: 'Filtered',
+    noDataLabel: 'No data',
     defaultSettingsLabel: 'Restore default settings',
 }
 const tableId = '1'
@@ -256,7 +269,7 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <Input type='text' placeholder='Search' onChange={(e) => {
-                tableRef.current!.api.setColumnFilter('firstName', e.target.value)
+                tableRef.current?.api.setColumnFilter('firstName', e.target.value)
             }} />
             <Table
                 ref={tableRef}
@@ -304,7 +317,7 @@ const defaultColumn: DefaultColumn = {
 const rowSelectionOptions: RowSelectionOptions = {
     enableRowSelection: true,
     onRowSelectionChange: (rowSelectionState) => {
-        console.log('rowSelectionState', rowSelectionState)
+        return rowSelectionState
     },
 }
 
@@ -325,7 +338,7 @@ export const WithInitialTableState: StoryObj<TableProps<TableData>> = {
         id: tableId,
         dataSource: getTableData,
         columns,
-        pageSize: 10,
+        pageSize: 20,
         columnLabels,
         storageKey: 'table-with-initial-state',
         onTableStateChange: onTableStateChange,

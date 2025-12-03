@@ -1,6 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { flexRender, RowData, Table } from '@tanstack/react-table'
+import classNames from 'classnames'
 import React, { useMemo } from 'react'
 
 import { GripHorizontal } from '@open-condo/icons'
@@ -54,16 +55,15 @@ export const ColumnSettingsItem = <TData extends RowData = RowData> ({
     return (
         <div
             ref={setNodeRef}
-            className={`condo-table-column-settings-item ${isDragging ? 'is-dragging' : ''}`}
+            className={classNames(
+                'condo-table-column-settings-item',
+                isDragging && 'is-dragging',
+            )}
             style={style}
             {...attributes}
         >
             <Space size={12}>
-                <div
-                    className='condo-table-switch-container'
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
-                >
+                <div className='condo-table-switch-container'>
                     <Switch
                         checked={isVisible}
                         disabled={isLastVisibleColumn}

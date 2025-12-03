@@ -1,4 +1,4 @@
-import { RowData, DeepKeys, SortingState, Table, ColumnDef } from '@tanstack/react-table'
+import { RowData, DeepKeys, SortingState, Table, ColumnDef, CoreOptions } from '@tanstack/react-table'
 import '@tanstack/react-table'
 
 import type { 
@@ -6,17 +6,19 @@ import type {
     SelectColumnFilterConfig, 
     CheckboxGroupColumnFilterConfig,
 } from './utils/filterComponents'
+import type { ReactNode } from 'react'
 
 export type ColumnSettings = {
     visibility: boolean
     order: number
     size: number | string
+    minSize: number
 }
 
 export type TableSettings<TData extends RowData = RowData> = Record<TableColumn<TData>['id'], ColumnSettings>
 
 export type ColumnDefWithId<TData extends RowData = RowData, TValue = unknown> = 
-    ColumnDef<TData, TValue> & { id: string }
+    ColumnDef<TData, TValue> & { id: string } 
 
 export type TableLabels = {
     sortDescLabel?: string
@@ -59,7 +61,7 @@ export type FilterConfig =
     | SelectColumnFilterConfig
     | CheckboxGroupColumnFilterConfig
 
-export type FilterComponent = (props: FilterComponentProps) => React.ReactNode
+export type FilterComponent = (props: FilterComponentProps) => ReactNode
 
 export type TableColumnMeta = {
     filterComponent?: FilterComponent
@@ -72,7 +74,7 @@ export type TableColumnMeta = {
 
 type TableColumnBase<TData extends RowData = RowData> = {
     id: string
-    header: string | ((table: Table<TData>) => React.ReactNode)
+    header: string | ((table: Table<TData>) => ReactNode)
     filterComponent?: FilterConfig | FilterComponent
     enableSorting?: boolean
     enableColumnSettings?: boolean
@@ -85,11 +87,11 @@ type TableColumnBase<TData extends RowData = RowData> = {
 export type TableColumn<TData extends RowData = RowData> = 
     | (TableColumnBase<TData> & {
         dataKey: DeepKeys<TData>
-        render?: (value: unknown, record: TData, index: number) => React.ReactNode
+        render?: (value: unknown, record: TData, index: number) => ReactNode
     })
     | (TableColumnBase<TData> & {
         dataKey?: never
-        render: (value: unknown, record: TData, index: number) => React.ReactNode
+        render: (value: unknown, record: TData, index: number) => ReactNode
     })
 
 export type TableState = {
@@ -131,7 +133,7 @@ export interface TableProps<TData extends RowData = RowData> {
     id: string
     dataSource: GetTableData<TData>
     columns: TableColumn<TData>[]
-    getRowId: (row: TData) => string
+    getRowId?: CoreOptions<TData>['getRowId']
     defaultColumn?: DefaultColumn
     pageSize?: number
     onTableStateChange?: (tableState: FullTableState) => void

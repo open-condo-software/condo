@@ -2,10 +2,16 @@ import { ColumnSizingState, RowData } from '@tanstack/react-table'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { TableSettings } from '../types'
+import type { Dispatch, SetStateAction } from 'react'
 
 interface UseColumnSizingProps<TData extends RowData = RowData> {
     settings: TableSettings<TData>
-    setSettings: React.Dispatch<React.SetStateAction<TableSettings<TData>>>
+    setSettings: Dispatch<SetStateAction<TableSettings<TData>>>
+}
+
+type ColumnSizingResult = {
+    columnSizing: ColumnSizingState
+    onColumnSizingChange: (updater: SetStateAction<ColumnSizingState>) => void
 }
 
 
@@ -19,16 +25,11 @@ const convertPercentToPixels = (size: string, tableWidth: number): number => {
     return 0
 }
 
-const convertSizeToPercent = (sizeInPixels: number, tableWidth: number): string => {
-    if (tableWidth === 0) return '0%'
-    const percent = (sizeInPixels / tableWidth) * 100
-    return `${percent}%`
-}
-
 const distributeRemainingSpace = (
     columnSizing: ColumnSizingState,
     tableWidth: number,
-    allColumnIds: string[]
+    allColumnIds: string[],
+    lastColumnId: string
 ): ColumnSizingState => {
     const zeroSizedColumns: string[] = []
     let totalUsedWidth = 0
@@ -49,6 +50,9 @@ const distributeRemainingSpace = (
         zeroSizedColumns.forEach((columnId) => {
             columnSizing[columnId] = spacePerColumn
         })
+    } else if (zeroSizedColumns.length === 0 && tableWidth > 0) {
+        const freeSpace = Math.max(0, tableWidth - totalUsedWidth)
+        columnSizing[lastColumnId] = (columnSizing[lastColumnId] ?? 0) + freeSpace
     }
 
     return columnSizing
@@ -57,10 +61,7 @@ const distributeRemainingSpace = (
 export const useColumnSizing = <TData extends RowData = RowData>({ 
     settings, 
     setSettings, 
-}: UseColumnSizingProps<TData>): {
-    columnSizing: ColumnSizingState
-    onColumnSizingChange: (updater: React.SetStateAction<ColumnSizingState>) => void
-} => {
+}: UseColumnSizingProps<TData>): ColumnSizingResult => {
     const [tableWidth, setTableWidth] = useState<number>(0)
 
     useEffect(() => {
@@ -86,6 +87,8 @@ export const useColumnSizing = <TData extends RowData = RowData>({
             columnId => settings[columnId]?.visibility === false
         )
 
+        let lastColumnId = visibleColumnIds[0]
+
         visibleColumnIds.forEach((columnId) => {
             const columnSettings = settings[columnId]
 
@@ -93,30 +96,35 @@ export const useColumnSizing = <TData extends RowData = RowData>({
                 const sizeInPixels = convertPercentToPixels(columnSettings.size, tableWidth)
                 sizes[columnId] = sizeInPixels
             } else if (typeof columnSettings.size === 'number') {
-                sizes[columnId] = columnSettings.size
+                sizes[columnId] = Math.max(columnSettings.size, columnSettings.minSize)
             } else {
                 sizes[columnId] = 0
             }
+
+            if (settings[columnId].order > settings[lastColumnId].order) {
+                lastColumnId = columnId
+            }
         })
 
-        const result = distributeRemainingSpace(sizes, tableWidth, visibleColumnIds)
+
+        const result = distributeRemainingSpace(sizes, tableWidth, visibleColumnIds, lastColumnId)
         
         hiddenColumnIds.forEach((columnId) => {
             const columnSettings = settings[columnId]
             
-            if (columnSettings?.size === 0) {
+            if (columnSettings.size === 0) {
                 if (tableWidth > 0) {
                     const sizeInPixels = (tableWidth * 10) / 100
-                    result[columnId] = sizeInPixels
+                    result[columnId] = Math.max(sizeInPixels, columnSettings.minSize)
                 } else {
                     result[columnId] = 0
                 }
             } else {
-                if (typeof columnSettings?.size === 'string') {
+                if (typeof columnSettings.size === 'string') {
                     const sizeInPixels = convertPercentToPixels(columnSettings.size, tableWidth)
-                    result[columnId] = sizeInPixels
-                } else if (typeof columnSettings?.size === 'number') {
-                    result[columnId] = columnSettings.size
+                    result[columnId] = Math.max(sizeInPixels, columnSettings.minSize)
+                } else if (typeof columnSettings.size === 'number') {
+                    result[columnId] = Math.max(columnSettings.size, columnSettings.minSize)
                 }
             }
         })
@@ -124,7 +132,7 @@ export const useColumnSizing = <TData extends RowData = RowData>({
         return result
     }, [settings, tableWidth])
 
-    const onColumnSizingChange = useCallback((updater: React.SetStateAction<ColumnSizingState>) => {
+    const onColumnSizingChange = useCallback((updater: SetStateAction<ColumnSizingState>) => {
         setSettings((prevSettings: TableSettings<TData>) => {
             const currentSizing: ColumnSizingState = {}
             const allColumnIds = Object.keys(prevSettings)
@@ -136,19 +144,25 @@ export const useColumnSizing = <TData extends RowData = RowData>({
                 columnId => prevSettings[columnId]?.visibility === false
             )
             
+            let lastColumnId = visibleColumnIds[0]
+            
             visibleColumnIds.forEach((columnId) => {
                 const columnSettings = prevSettings[columnId]
                 if (typeof columnSettings.size === 'string') {
                     const sizeInPixels = convertPercentToPixels(columnSettings.size, tableWidth)
                     currentSizing[columnId] = sizeInPixels
                 } else if (typeof columnSettings.size === 'number') {
-                    currentSizing[columnId] = columnSettings.size
+                    currentSizing[columnId] = Math.max(columnSettings.size, columnSettings.minSize)
                 } else {
                     currentSizing[columnId] = 0
                 }
+
+                if (prevSettings[columnId].order > prevSettings[lastColumnId].order) {
+                    lastColumnId = columnId
+                }
             })
             
-            const distributedSizing = distributeRemainingSpace(currentSizing, tableWidth, visibleColumnIds)
+            const distributedSizing = distributeRemainingSpace(currentSizing, tableWidth, visibleColumnIds, lastColumnId)
             
             hiddenColumnIds.forEach((columnId) => {
                 const columnSettings = prevSettings[columnId]
@@ -156,16 +170,16 @@ export const useColumnSizing = <TData extends RowData = RowData>({
                 if (columnSettings?.size === 0) {
                     if (tableWidth > 0) {
                         const sizeInPixels = (tableWidth * 10) / 100
-                        distributedSizing[columnId] = sizeInPixels
+                        distributedSizing[columnId] = Math.max(sizeInPixels, columnSettings.minSize)
                     } else {
                         distributedSizing[columnId] = 0
                     }
                 } else {
                     if (typeof columnSettings.size === 'string') {
                         const sizeInPixels = convertPercentToPixels(columnSettings.size, tableWidth)
-                        distributedSizing[columnId] = sizeInPixels
+                        distributedSizing[columnId] = Math.max(sizeInPixels, columnSettings.minSize)
                     } else if (typeof columnSettings.size === 'number') {
-                        distributedSizing[columnId] = columnSettings.size
+                        distributedSizing[columnId] = Math.max(columnSettings.size, columnSettings.minSize)
                     }
                 }
             })
@@ -174,20 +188,12 @@ export const useColumnSizing = <TData extends RowData = RowData>({
             
             const newSettings = { ...prevSettings }
             Object.entries(newSizing).forEach(([columnId, size]) => {
-                if (newSettings[columnId] && typeof size === 'number') {
-                    const originalSize = prevSettings[columnId]?.size
+                if (newSettings[columnId]) {
+                    const clampedSize = Math.max(size, prevSettings[columnId].minSize)
                     
-                    if (typeof originalSize === 'number') {
-                        newSettings[columnId] = {
-                            ...newSettings[columnId],
-                            size: size,
-                        }
-                    } else {
-                        const sizeInPercent = convertSizeToPercent(size, tableWidth)
-                        newSettings[columnId] = {
-                            ...newSettings[columnId],
-                            size: sizeInPercent,
-                        }
+                    newSettings[columnId] = {
+                        ...newSettings[columnId],
+                        size: clampedSize,
                     }
                 }
             })

@@ -2,15 +2,16 @@ import { VisibilityState, RowData } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 
 import type { TableSettings } from '../types'
+import type { Dispatch, SetStateAction } from 'react'
 
 interface UseColumnVisibilityProps<TData extends RowData = RowData> {
     settings: TableSettings<TData>
-    setSettings: React.Dispatch<React.SetStateAction<TableSettings<TData>>>
+    setSettings: Dispatch<SetStateAction<TableSettings<TData>>>
 }
 
 export const useColumnVisibility = <TData extends RowData = RowData>({ settings, setSettings }: UseColumnVisibilityProps<TData>): {
     columnVisibility: VisibilityState
-    onColumnVisibilityChange: (updater: React.SetStateAction<VisibilityState>) => void
+    onColumnVisibilityChange: (updater: SetStateAction<VisibilityState>) => void
 } => {
     const columnVisibility = useMemo(() => {
         const visibility: VisibilityState = {}
@@ -23,7 +24,7 @@ export const useColumnVisibility = <TData extends RowData = RowData>({ settings,
         return visibility
     }, [settings])
 
-    const onColumnVisibilityChange = useCallback((updater: React.SetStateAction<Record<string, boolean>>) => {
+    const onColumnVisibilityChange = useCallback((updater: SetStateAction<VisibilityState>) => {
         setSettings((prevSettings: TableSettings<TData>) => {
             const prevVisibility: Record<string, boolean> = {}
             

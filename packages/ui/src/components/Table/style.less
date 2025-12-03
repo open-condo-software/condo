@@ -1,6 +1,7 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 
 .condo-table-container {
+  position: relative;
   width: 100%;
   font-family: @condo-global-font-family-default;
 }
@@ -21,6 +22,7 @@
 }
 
 .condo-table-thead {
+  position: sticky;
   top: 0;
   z-index: 10;
   display: flex;
@@ -33,24 +35,27 @@
   min-width: fit-content;
 }
 
-.condo-table-loading {
-  position: relative;
+.condo-table-loading-placeholder {
+  min-height: 200px;
+}
+
+.condo-table-loading-overlay {
+  position: absolute;
+  inset: 50px 0 0 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  min-height: 200px;
-  border: none;
+  pointer-events: none;
+}
 
-  &::after {
-    width: 24px;
-    height: 24px;
-    border: 3px solid @condo-global-color-gray-1;
-    border-top: 3px solid @condo-global-color-green-5;
-    border-radius: 50%;
-    animation: condo-table-loading-spin 1s linear infinite;
-    content: "";
-  }
+.condo-table-loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid @condo-global-color-gray-1;
+  border-top: 3px solid @condo-global-color-green-5;
+  border-radius: 50%;
+  animation: condo-table-loading-spin 1s linear infinite;
 }
 
 @keyframes condo-table-loading-spin {
@@ -133,11 +138,15 @@
 }
 
 .condo-table-th-resize-handle {
+  display: block;
+  padding: 0;
   position: absolute;
   top: 0;
   right: 0;
   z-index: 100;
   width: 4px;
+  border: none;
+  background-color: @condo-global-color-white;
   height: 100%;
   cursor: col-resize;
   user-select: none;
@@ -317,60 +326,86 @@
   }
 }
 
-.condo-table-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 0;
-}
-
-.condo-table-pagination-total {
-  color: @condo-global-color-gray-7;
-  font-size: 14px;
-}
-
-.condo-table-pagination-center {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.condo-table-pagination-btn {
+.condo-table-pagination-chip() {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
-  height: 32px;
-  padding: 0 8px;
-  color: @condo-global-color-black;
-  font-size: 14px;
-  font-family: @condo-global-font-family-default;
-  background: @condo-global-color-white;
+  box-sizing: border-box;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 10px;
+  color: @condo-global-color-gray-7;
+  background-color: @condo-global-color-white;
   border: @condo-global-border-width-default solid @condo-global-color-gray-5;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
+  border-radius: @condo-global-border-radius-medium;
+  transition: all @condo-global-transition-duration-default ease;
+}
 
-  &:disabled {
-    border: @condo-global-border-width-default solid @condo-global-color-gray-5;
-    cursor: not-allowed;
-    opacity: 0.5;
+// Pagination. Replace antd styles
+.condo-table-pagination {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: start;
+  width: 100%;
+  padding: 16px 0;
+  margin: 0;
+  list-style: none;
 
-    svg {
-      color: @condo-global-color-gray-5;
+  li {
+    margin: 0;
+  }
+
+  .condo-item {
+    .condo-table-pagination-chip();
+
+    a {
+      color: inherit;
     }
   }
 
-  &:hover:not(:disabled) {
+  .condo-prev,
+  .condo-next,
+  .condo-jump-prev,
+  .condo-jump-next {
+    .condo-item-link {
+      .condo-table-pagination-chip();
+    }
+  }
+
+  .condo-item:hover,
+  .condo-prev:not(.condo-disabled) .condo-item-link:hover,
+  .condo-next:not(.condo-disabled) .condo-item-link:hover,
+  .condo-jump-prev .condo-item-link:hover,
+  .condo-jump-next .condo-item-link:hover {
     color: @condo-global-color-green-5;
     border-color: @condo-global-color-green-5;
   }
 
-  &.condo-table-pagination-btn-active {
+  .condo-item-active {
     color: @condo-global-color-green-5;
-    font-weight: 500;
-    background: @condo-global-color-green-1;
     border-color: @condo-global-color-green-5;
+    background-color: @condo-global-color-green-1;
+
+    a {
+      color: @condo-global-color-green-5;
+    }
+  }
+
+  .condo-prev.condo-disabled .condo-item-link,
+  .condo-next.condo-disabled .condo-item-link {
+    color: @condo-global-color-gray-5;
+    border-color: @condo-global-color-gray-3;
+    background-color: @condo-global-color-gray-1;
+  }
+
+  .condo-item-ellipsis {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: @condo-global-color-gray-5;
+    border: none;
+    background: transparent;
   }
 }
 
@@ -405,6 +440,27 @@
 
 .condo-dropdown-menu-item-inner-left-active {
   color: @condo-global-color-green-5;
+}
+
+.condo-table-icon {
+  color: @condo-global-color-gray-7;
+  transition: color 0.2s ease;
+}
+
+.condo-table-icon--green {
+  color: @condo-global-color-green-5;
+}
+
+.condo-table-icon--gray {
+  color: @condo-global-color-gray-7;
+}
+
+.condo-table-icon--black {
+  color: @condo-global-color-black;
+}
+
+.condo-table-empty-icon {
+  color: @condo-global-color-gray-7;
 }
 
 .condo-table-pagination-size-selector {

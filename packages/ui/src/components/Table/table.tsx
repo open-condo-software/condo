@@ -20,7 +20,7 @@ import {
     DEFAULT_MIN_SIZE,
     DEFAULT_PAGE_SIZE, 
     COLUMN_ID_SELECTION,
-} from '@open-condo/ui/src/components/Table/constans'
+} from '@open-condo/ui/src/components/Table/constants'
 import { useTableSetting } from '@open-condo/ui/src/components/Table/hooks/useTableSetting'
 import type { 
     TableProps, 
@@ -34,6 +34,30 @@ import type {
 import '@open-condo/ui/src/components/Table/types'
 import { getFilterComponentByKey } from '@open-condo/ui/src/components/Table/utils/filterComponents'
 import { renderTextWithTooltip } from '@open-condo/ui/src/components/Table/utils/renderCellUtils'
+
+import type { CheckboxChangeEvent } from 'antd/lib/checkbox'
+
+function getPageIndexFromStartRow (startRow: number, pageSize: number): number {
+    return Math.floor(startRow / pageSize)
+}
+
+type SelectionCheckboxProps = {
+    checked?: boolean
+    disabled?: boolean
+    indeterminate?: boolean
+    onChange?: (event: CheckboxChangeEvent) => void
+}
+
+function SelectionCheckbox ({ checked, disabled, indeterminate, onChange }: SelectionCheckboxProps) {
+    return (
+        <Checkbox
+            checked={checked}
+            indeterminate={indeterminate}
+            disabled={disabled}
+            onChange={onChange}
+        />
+    )
+}
 
 /**
  * @deprecated This component is experimental. API may change at any time without notice.
@@ -73,22 +97,18 @@ function TableComponent<TData extends RowData = RowData> (
             resultColumns.push(columnHelper.display({
                 id: COLUMN_ID_SELECTION,
                 header: ({ table }) => (
-                    <span onClick={(e) => e.stopPropagation()}>
-                        <Checkbox
-                            checked={table.getIsAllRowsSelected()}
-                            indeterminate={table.getIsSomeRowsSelected()}
-                            onChange={table.getToggleAllRowsSelectedHandler()}
-                        />
-                    </span>
+                    <SelectionCheckbox
+                        checked={table.getIsAllRowsSelected()}
+                        indeterminate={table.getIsSomeRowsSelected()}
+                        onChange={table.getToggleAllRowsSelectedHandler()}
+                    />
                 ),
                 cell: ({ row }) => (
-                    <span onClick={(e) => e.stopPropagation()}>
-                        <Checkbox
-                            checked={row.getIsSelected()}
-                            disabled={!row.getCanSelect()}
-                            onChange={row.getToggleSelectedHandler()}
-                        />
-                    </span>
+                    <SelectionCheckbox
+                        checked={row.getIsSelected()}
+                        disabled={!row.getCanSelect()}
+                        onChange={row.getToggleSelectedHandler()}
+                    />
                 ),
                 minSize: 48,
                 enableSorting: false,
@@ -113,7 +133,7 @@ function TableComponent<TData extends RowData = RowData> (
                     return c.header(info.table)
                 }
             }
-            const colCell = (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index) || renderTextWithTooltip()(info.getValue())
+            const colCell = (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index) ?? renderTextWithTooltip()(info.getValue())
             let filterComponent: FilterComponent | undefined
             if (typeof c.filterComponent === 'function') {
                 filterComponent = c.filterComponent
@@ -287,7 +307,7 @@ function TableComponent<TData extends RowData = RowData> (
 
             const filteredFilters = newFilters.filter(filter => {
                 const column = tableColumns.find(col => col.id === filter.id)
-                if (!column || !column.enableColumnFilter) return false
+                if (!column?.enableColumnFilter) return false
 
                 const value = filter.value
                 if (value === null || value === undefined) return false
@@ -350,8 +370,8 @@ function TableComponent<TData extends RowData = RowData> (
                 // NOTE: If we change filter state, we need to reset pagination to the first page
                 setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
                 const newFilter = ([key, value]: [string, unknown]): ColumnFiltersState[number] => ({ id: key, value: value })
-                setColumnFilters((prev) => {
-                    return [...prev, ...Object.entries(newFilterState).map(newFilter).filter(Boolean)] as ColumnFiltersState
+                setColumnFilters(() => {
+                    return [...Object.entries(newFilterState).map(newFilter).filter(Boolean)] as ColumnFiltersState
                 })
             },
             getColumnFilter: (columnId: string) => table.getState().columnFilters.find(filter => filter.id === columnId)?.value,
@@ -385,7 +405,7 @@ function TableComponent<TData extends RowData = RowData> (
                 table.resetRowSelection()
             },
             refetchData: async () => {
-                fetchData(true)
+                await fetchData(true)
             },
         }
 
@@ -394,8 +414,10 @@ function TableComponent<TData extends RowData = RowData> (
         return tableRef
     }, [table, fetchData])
 
+    const tableContainerRef = useRef<HTMLDivElement>(null)
+
     return (
-        <div className='condo-table-container'>
+        <div className='condo-table-container' ref={tableContainerRef}>
             <div className='condo-table-wrapper'>
                 <div className='condo-table'>
                     {table.getHeaderGroups().map(headerGroup => (
@@ -409,16 +431,15 @@ function TableComponent<TData extends RowData = RowData> (
                         />
                     ))}
                     <TableBody<TData>
-                        table={table} 
-                        onRowClick={onRowClick} 
-                        showSkeleton={internalLoading}
+                        table={table}
+                        onRowClick={onRowClick}
+                        dataLoading={internalLoading}
                         columnLabels={columnLabels}
+                        tableContainerRef={tableContainerRef}
                     />
                 </div>
             </div>
-            {table.getPageCount() > 1 && (
-                <TablePagination<TData> table={table} />
-            )}
+            <TablePagination<TData> table={table} />
         </div>
         
     )
@@ -427,7 +448,3 @@ function TableComponent<TData extends RowData = RowData> (
 export const Table = forwardRef(TableComponent) as <TData extends RowData = RowData>(
     props: TableProps<TData> & { ref?: React.Ref<TableRef> }
 ) => React.ReactElement
-
-function getPageIndexFromStartRow (startRow: number, pageSize: number): number {
-    return Math.floor(startRow / pageSize)
-}

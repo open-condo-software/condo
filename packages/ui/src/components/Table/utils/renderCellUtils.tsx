@@ -33,6 +33,7 @@ export const renderTextWithTooltip = <TValue = unknown>({
     
     const booleanEllipsisValue = ellipsis ? ELLIPSIS_SETTINGS : false
     const ellipsisConfig = typeof ellipsis === 'boolean' ? booleanEllipsisValue : ellipsis
+    const displayText = text == null ? '' : String(text)
 
     return (
         <Tooltip 
@@ -42,7 +43,7 @@ export const renderTextWithTooltip = <TValue = unknown>({
         >
             <span>
                 <Typography.Paragraph ellipsis={ellipsisConfig} size='medium' type={type}>
-                    {String(text)}
+                    {displayText}
                 </Typography.Paragraph>
             </span>
         </Tooltip>

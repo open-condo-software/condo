@@ -42,7 +42,7 @@ const getSortersFromQuery = (query: ParsedUrlQuery): SortState => {
             if (typeof parsed === 'string') {
                 sortArray = parsed.split(',')
             } else {
-                sortArray = sorters.split(',')
+                sortArray = Array.isArray(parsed) ? parsed : [parsed]
             }
         } catch {
             sortArray = sorters.split(',')
@@ -182,7 +182,9 @@ const normalizeSorters = (sortState: SortState | undefined): string | null => {
     }
     
     const sorter = sortState[0]
-    return sorter ? `${sorter.id}_${sorter.desc ? DESC : ASC}` : null
+    const order = sorter?.desc ? DESC : ASC
+    
+    return sorter ? `${sorter.id}_${order}` : null
 }
 
 const normalizeSelectedRows = (rowSelectionState: RowSelectionState | undefined): RowSelectionState | null => {

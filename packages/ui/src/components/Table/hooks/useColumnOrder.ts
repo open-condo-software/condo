@@ -2,26 +2,34 @@ import { ColumnOrderState, RowData } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 
 import type { TableSettings, TableColumn } from '../types'
+import type { Dispatch, SetStateAction } from 'react'
 
 interface UseColumnOrderProps<TData extends RowData = RowData> {
     settings: TableSettings<TData>
-    setSettings: React.Dispatch<React.SetStateAction<TableSettings<TData>>>
+    setSettings: Dispatch<SetStateAction<TableSettings<TData>>>
 }
 
-export const useColumnOrder = <TData extends RowData = RowData>({ settings, setSettings }: UseColumnOrderProps<TData>): {
+type ColumnOrderResult = {
     columnOrder: ColumnOrderState
-    onColumnOrderChange: (updater: React.SetStateAction<ColumnOrderState>) => void
-} => {
+    onColumnOrderChange: (updater: SetStateAction<ColumnOrderState>) => void
+}
+
+
+export const useColumnOrder = <TData extends RowData = RowData>({ 
+    settings, 
+    setSettings,
+}: UseColumnOrderProps<TData>): ColumnOrderResult  => {
+    
     const columnOrder = useMemo(() => {
         return Object.entries(settings)
-            .sort(([, a], [, b]) => (a as TableSettings<TData>[TableColumn<TData>['id']]).order - (b as TableSettings<TData>[TableColumn<TData>['id']]).order)
+            .sort(([, a], [, b]) => a.order - b.order)
             .map(([key]) => key)
     }, [settings])
 
-    const onColumnOrderChange = useCallback((updater: React.SetStateAction<ColumnOrderState>) => {
+    const onColumnOrderChange = useCallback((updater: SetStateAction<ColumnOrderState>) => {
         setSettings((prevSettings: TableSettings<TData>) => {
             const prevOrder = Object.entries(prevSettings)
-                .sort(([, a], [, b]) => (a as TableSettings<TData>[TableColumn<TData>['id']]).order - (b as TableSettings<TData>[TableColumn<TData>['id']]).order)
+                .sort(([, a], [, b]) => a.order - b.order)
                 .map(([key]) => key)
 
             const newOrder = typeof updater === 'function' ? updater(prevOrder) : updater

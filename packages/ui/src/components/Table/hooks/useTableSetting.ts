@@ -2,12 +2,12 @@ import { RowData, ColumnDef } from '@tanstack/react-table'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { DEFAULT_MIN_SIZE, DEBOUNCE_SETTINGS_SAVE } from '@open-condo/ui/src/components/Table/constants'
 import { useColumnOrder } from '@open-condo/ui/src/components/Table/hooks/useColumnOrder'
 import { useColumnSizing } from '@open-condo/ui/src/components/Table/hooks/useColumnSizing'
 import { useColumnVisibility } from '@open-condo/ui/src/components/Table/hooks/useColumnVisibility'
 import { ColumnDefWithId, TableSettings } from '@open-condo/ui/src/components/Table/types'
 import { getStorage, saveStorage } from '@open-condo/ui/src/components/Table/utils/storage'
-
 
 interface UsePersistentTableStateProps<TData extends RowData = RowData> {
     storageKey: string
@@ -47,6 +47,7 @@ export function getInitialTableState<TData extends RowData> (
     return resultColumns.reduce((result, column, index) => {
         let columnSize: number | string = ''
         const sizeValue = column.meta?.initialSize
+        const minSize = column.minSize ?? DEFAULT_MIN_SIZE
         
         if (sizeValue !== undefined) {
             if (typeof sizeValue === 'string' && sizeValue.includes('%')) {
@@ -54,8 +55,8 @@ export function getInitialTableState<TData extends RowData> (
             } else if (typeof sizeValue === 'number') {
                 columnSize = sizeValue
             } else if (typeof sizeValue === 'string') {
-                const parsed = parseInt(sizeValue, 10)
-                if (!isNaN(parsed)) {
+                const parsed = Number.parseInt(sizeValue, 10)
+                if (!Number.isNaN(parsed)) {
                     columnSize = parsed
                 }
             }
@@ -67,6 +68,7 @@ export function getInitialTableState<TData extends RowData> (
             order: index,
             visibility: initialVisibility,
             size: columnSize,
+            minSize: minSize,
         }
         return result
     }, {} as TableSettings<TData>)
@@ -78,7 +80,7 @@ export const useTableSetting = <TData extends RowData = RowData>({ storageKey, c
     )
 
     const debouncedSave = useMemo(
-        () => debounce((state: TableSettings<TData>) => saveStorage(storageKey, state), 300),
+        () => debounce((state: TableSettings<TData>) => saveStorage(storageKey, state), DEBOUNCE_SETTINGS_SAVE),
         [storageKey]
     )
 
