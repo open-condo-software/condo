@@ -32,6 +32,9 @@ const MarketPriceScope = generateGqlQueries('MarketPriceScope', MARKET_PRICE_SCO
 const MARKET_SETTING_FIELDS = `{ organization { id } residentAllowedPaymentTypes ${COMMON_FIELDS} }`
 const MarketSetting = generateGqlQueries('MarketSetting', MARKET_SETTING_FIELDS)
 
+const INVOICE_WEBHOOK_DELIVERY_FIELDS = `{ invoice { id number status organization { id name } } previousStatus newStatus callbackUrl status attempt httpStatusCode responseBody errorMessage expiresAt nextRetryAt sentAt ${COMMON_FIELDS} }`
+const InvoiceWebhookDelivery = generateGqlQueries('InvoiceWebhookDelivery', INVOICE_WEBHOOK_DELIVERY_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -43,5 +46,7 @@ module.exports = {
     MarketPriceScope,
     INVOICE_FIELDS,
     MarketSetting,
+    InvoiceWebhookDelivery,
+    INVOICE_WEBHOOK_DELIVERY_FIELDS,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
