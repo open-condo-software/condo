@@ -178,7 +178,6 @@ describe('MultiPayment', () => {
                     let acquiringIntegration
 
                     beforeEach(async () => {
-                        console.log('BEFORE EACH START')
                         const {
                             admin: createdAdmin,
                             acquiringIntegration: createdAcquiringIntegration,
@@ -191,14 +190,8 @@ describe('MultiPayment', () => {
                         user = client
                         multiPaymentId = createdMultiPaymentId
                         acquiringIntegration = createdAcquiringIntegration
-                        console.log('BEFORE EACH END', { admin, user, multiPaymentId, acquiringIntegration })
                     })
                     test('admin can', async () => {
-                        console.log('TEST START', { admin, user, multiPaymentId, acquiringIntegration })
-                        console.log('BEFORE EACH', {
-                            admin, user, multiPaymentId, acquiringIntegration,
-                        })
-                        console.log('admin', admin)
                         const multiPayment = await MultiPaymentWithPayerInfo.getOne(admin, { id: multiPaymentId })
                         expect(multiPayment).toBeDefined()
                         expect(multiPayment.payerInfo).toBeDefined()
@@ -231,6 +224,13 @@ describe('MultiPayment', () => {
                             const multiPayment = await MultiPaymentWithPayerInfo.getOne(integrationClient, { id: multiPaymentId })
                             expect(multiPayment).toBeDefined()
                             expect(multiPayment.payerInfo).toBeDefined()
+                        })
+                        test('service user from another acquiring integration can\'t see', async () => {
+                            const { acquiringIntegration: anotherAcquiringIntegration } = await makePayer()
+                            const anotherIntegrationClient = await makeClientWithServiceUser()
+                            await createTestAcquiringIntegrationAccessRight(admin, anotherAcquiringIntegration, anotherIntegrationClient.user)
+                            const multiPayments = await MultiPaymentWithPayerInfo.getAll(anotherIntegrationClient, { id: multiPaymentId })
+                            expect(multiPayments).toHaveLength(0)
                         })
                     })
                     test('anonymous can\'t', async () => {

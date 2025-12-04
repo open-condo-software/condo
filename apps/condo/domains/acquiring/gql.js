@@ -24,7 +24,7 @@ const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ status invoiceStatus integration
 const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
 
 const MULTI_PAYMENT_PAYER_INFO_FIELDS = 'payerInfo { id name email phone }'
-const MULTI_PAYMENT_COMMON_FIELDS = `amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } recurrentPaymentContext { id } ${COMMON_FIELDS}`
+const MULTI_PAYMENT_COMMON_FIELDS = `amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail transactionId meta status payments { id } integration { id } recurrentPaymentContext { id } ${COMMON_FIELDS}`
 const MULTI_PAYMENT_FIELDS = `{ ${MULTI_PAYMENT_COMMON_FIELDS} }`
 const MULTI_PAYMENT_WITH_PAYER_INFO = `{ ${MULTI_PAYMENT_PAYER_INFO_FIELDS} ${MULTI_PAYMENT_COMMON_FIELDS} }`
 const MULTI_PAYMENT_ADMIN_FIELDS = `{ user { id name email phone isEmailVerified isPhoneVerified } ${MULTI_PAYMENT_PAYER_INFO_FIELDS} ${MULTI_PAYMENT_COMMON_FIELDS} }`
