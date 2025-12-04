@@ -58,6 +58,7 @@ const columns: TableColumn<TableData>[] = [
         header: '',
         enableColumnSettings: false,
         enableSorting: false,
+        enableColumnResize: false,
         render: () => <span></span>,
         initialSize: 50,
         minSize: 20,
@@ -215,7 +216,7 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <Input type='text' placeholder='Search' onChange={(e) => {
-                tableRef.current?.api.setColumnFilter('firstName', e.target.value)
+                tableRef.current?.api.setGlobalFilter(e.target.value)
             }} />
             <Table
                 ref={tableRef}

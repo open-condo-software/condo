@@ -7,6 +7,7 @@ import { FilterValue, FilterDropdownProps } from 'antd/es/table/interface'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
+import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 
@@ -342,7 +343,7 @@ export const getSelectFilterComponent: GetSelectFilterComponentType = ({ selectP
         const { mode, options, ...restSelectProps } = selectProps || {}
 
         useEffect(() => {
-            setShowResetButton(Array.isArray(filterValue) && filterValue.length > 0)
+            setShowResetButton(!isEmpty(filterValue) || (isArray(filterValue) && filterValue.length > 0))
         }, [filterValue, setShowResetButton])
 
         const handleChange = useCallback<NonNullable<OpenSelectProps['onChange']>>((value)  => {
@@ -357,7 +358,7 @@ export const getSelectFilterComponent: GetSelectFilterComponentType = ({ selectP
                 mode={mode}
                 showArrow
                 optionFilterProp='label'
-                value={Array.isArray(filterValue) ? filterValue : [filterValue]}
+                value={Array.isArray(filterValue) ? filterValue : typeof filterValue === 'string' || typeof filterValue === 'number' ? [filterValue] : undefined}
                 onChange={handleChange}
             />
         )
@@ -428,7 +429,7 @@ export const getGQLSelectFilterComponent: GetGQLSelectFilterComponentType = ({ g
             <GraphQlSearchInput
                 showArrow
                 {...gqlSelectProps}
-                value={Array.isArray(filterValue) ? filterValue : [filterValue]}
+                value={Array.isArray(filterValue) ? filterValue : filterValue ? [filterValue] : undefined}
                 onChange={handleChange}
                 style={GRAPHQL_SEARCH_INPUT_STYLE}
             />

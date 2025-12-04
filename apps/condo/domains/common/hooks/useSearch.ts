@@ -45,7 +45,7 @@ export const useNewSearch = (tableRef: TableRef, debounceTime: number = 400): Us
     const [search, setSearch] = useState<string>('')
 
     const searchChange = useMemo(() => debounce((value: string) => {
-        tableRef?.api?.setColumnFilter('search', value)
+        tableRef?.api?.setGlobalFilter(value)
     }, debounceTime), [tableRef?.api, debounceTime])
 
     const handleSearchChange = useCallback((value: string): void => {
