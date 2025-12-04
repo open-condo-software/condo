@@ -12,6 +12,7 @@ const {
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -222,12 +223,28 @@ describe('PaymentWebhookDeliveryWhiteListItem', () => {
             expect(newItem.url).toBe(url)
         })
 
-        test('should require valid URL', async () => {
-            await expect(async () => {
+        test('should require valid HTTPS URL', async () => {
+            const invalidUrl = `not-a-valid-url-${faker.datatype.uuid()}`
+            await expectToThrowGQLError(async () => {
                 await createTestPaymentWebhookDeliveryWhiteListItem(adminClient, {
-                    url: 'not-a-valid-url',
+                    url: invalidUrl,
                 })
-            }).rejects.toThrow()
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_URL',
+            })
+        })
+
+        test('should reject HTTP URLs (non-HTTPS)', async () => {
+            const httpUrl = `http://example.com/webhook/${faker.datatype.uuid()}`
+            await expectToThrowGQLError(async () => {
+                await createTestPaymentWebhookDeliveryWhiteListItem(adminClient, {
+                    url: httpUrl,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_URL',
+            })
         })
     })
 

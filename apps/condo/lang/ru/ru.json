@@ -373,6 +373,7 @@
   "api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем.",
   "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Сумма оплаты не должна превышать {maximumPaymentAmount}",
   "api.acquiring.payment.PAYMENT_AMOUNT_LESS_THAN_MINIMUM": "Сумма оплаты должна быть не меньше чем {minimumPaymentAmount}",
+  "api.acquiring.PaymentWebhookDeliveryWhiteListItem.INVALID_URL": "URL должен быть валидным HTTPS-адресом",
   "api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST": "Не удалось выполнить запрос",
   "api.ai.executionAIFlowTask.STATUS_IS_ALREADY_COMPLETED": "Задача уже успешно выполнена",
   "api.ai.executionAIFlowTask.STATUS_IS_ALREADY_ERROR": "Задача уже завершилась с ошибкой",

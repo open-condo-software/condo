@@ -373,6 +373,7 @@
   "api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN": "Receipts and invoices are forbidden to be together",
   "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Payment amount must not exceed {maximumPaymentAmount}",
   "api.acquiring.payment.PAYMENT_AMOUNT_LESS_THAN_MINIMUM": "Payment amount must be at least {minimumPaymentAmount}",
+  "api.acquiring.PaymentWebhookDeliveryWhiteListItem.INVALID_URL": "The URL must be a valid HTTPS URL",
   "api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST": "Failed to complete request",
   "api.ai.executionAIFlowTask.STATUS_IS_ALREADY_COMPLETED": "Task already completed successfully",
   "api.ai.executionAIFlowTask.STATUS_IS_ALREADY_ERROR": "The task has already completed with an error",
