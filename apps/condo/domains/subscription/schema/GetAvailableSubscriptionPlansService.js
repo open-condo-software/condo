@@ -27,11 +27,11 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
     types: [
         {
             access: true,
-            type: 'type SubscriptionPlanPrice { period: String!, basePrice: String!, currentPrice: String!, currencyCode: String }',
+            type: 'type SubscriptionPlanPrice { period: String!, price: String!, currencyCode: String! }',
         },
         {
             access: true,
-            type: 'type AvailableSubscriptionPlan { plan: SubscriptionPlan!, prices: [SubscriptionPlanPrice!]! }',
+            type: 'type AvailableSubscriptionPlan { plan: SubscriptionPlan!, prices: [SubscriptionPlanPrice!]!, trialAvailable: Boolean! }',
         },
         {
             access: true,
@@ -44,7 +44,7 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
             access: access.canGetAvailableSubscriptionPlans,
             schema: 'getAvailableSubscriptionPlans(organization: OrganizationWhereUniqueInput!): GetAvailableSubscriptionPlansOutput',
             doc: {
-                summary: 'Returns available subscription plans for an organization with calculated prices',
+                summary: 'Returns available subscription plans with calculated prices for the organization based on pricing rules and conditions.',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
@@ -67,18 +67,29 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
                 const result = []
 
                 for (const plan of plans) {
+                    // Calculate prices for this organization (based on conditions)
                     const prices = []
-
                     for (const period of SUBSCRIPTION_PERIODS) {
                         const priceData = await calculateSubscriptionPrice(plan.id, period, organization)
-                        if (!priceData) continue
-
-                        const { basePrice, finalPrice, currencyCode } = priceData
-
-                        prices.push({ period, basePrice, currentPrice: finalPrice, currencyCode })
+                        if (priceData) {
+                            prices.push({
+                                period,
+                                price: priceData.finalPrice,
+                                currencyCode: priceData.currencyCode,
+                            })
+                        }
                     }
 
-                    result.push({ plan, prices })
+                    // Check if trial is available for this organization
+                    const [existingTrial] = await find('SubscriptionContext', {
+                        organization: { id: organization.id },
+                        subscriptionPlan: { id: plan.id },
+                        isTrial: true,
+                        deletedAt: null,
+                    })
+                    const trialAvailable = plan.trialDays > 0 && !existingTrial
+
+                    result.push({ plan, prices, trialAvailable })
                 }
 
                 return { plans: result }

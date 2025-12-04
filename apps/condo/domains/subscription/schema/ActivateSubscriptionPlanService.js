@@ -7,6 +7,8 @@ const dayjs = require('dayjs')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
+const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
+const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionPlanService')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 
@@ -50,13 +52,6 @@ const ERRORS = {
         type: 'TRIAL_NOT_AVAILABLE',
         message: 'Trial is not available for this subscription plan',
     },
-    PAID_SUBSCRIPTION_NOT_IMPLEMENTED: {
-        mutation: 'activateSubscriptionPlan',
-        variable: ['data', 'isTrial'],
-        code: BAD_USER_INPUT,
-        type: 'PAID_SUBSCRIPTION_NOT_IMPLEMENTED',
-        message: 'Paid subscription activation is not implemented yet. Only trial subscriptions are supported.',
-    },
 }
 
 const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptionPlanService', {
@@ -67,7 +62,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
         },
         {
             access: true,
-            type: 'type ActivateSubscriptionPlanOutput { subscriptionContext: SubscriptionContext! }',
+            type: 'type ActivateSubscriptionPlanOutput { subscriptionContext: SubscriptionContext }',
         },
     ],
 
@@ -76,7 +71,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
             access: access.canActivateSubscriptionPlan,
             schema: 'activateSubscriptionPlan(data: ActivateSubscriptionPlanInput!): ActivateSubscriptionPlanOutput',
             doc: {
-                summary: 'Activates a subscription plan for an organization. For trial subscriptions, set isTrial to true.',
+                summary: 'Activates a subscription plan for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext. For paid subscriptions (isTrial=false), creates UserHelpRequest for manual processing.',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
@@ -105,12 +100,26 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     throw new GQLError(ERRORS.INVALID_ORGANIZATION_TYPE, context)
                 }
 
-                // Only trial subscriptions are supported for now
+                // Get user phone for UserHelpRequest
+                const user = await getById('User', context.authedItem.id)
                 if (!isTrial) {
-                    throw new GQLError(ERRORS.PAID_SUBSCRIPTION_NOT_IMPLEMENTED, context)
+                    // Paid subscription flow - create UserHelpRequest
+                    await UserHelpRequest.create(context, {
+                        dv,
+                        sender,
+                        type: ACTIVATE_SUBSCRIPTION_TYPE,
+                        organization: { connect: { id: organization.id } },
+                        phone: user.phone,
+                        meta: {
+                            subscriptionPlanId: plan.id,
+                            subscriptionPlanName: plan.name,
+                        },
+                    })
+                    return { subscriptionContext: null }
                 }
 
-                // Check if trial is available for this plan
+                
+                // Trial subscription flow
                 if (plan.trialDays <= 0) {
                     throw new GQLError(ERRORS.TRIAL_NOT_AVAILABLE, context)
                 }

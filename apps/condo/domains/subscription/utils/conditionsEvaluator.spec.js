@@ -5,6 +5,7 @@ const {
     evaluateConditionsAsync,
     evaluateConditionsWithDetails,
     validateConditions,
+    hasOrganizationIdCondition,
     createEngine,
     SUPPORTED_FACTS,
     SUPPORTED_OPERATORS,
@@ -380,6 +381,71 @@ describe('conditionsEvaluator', () => {
             expect(SUPPORTED_OPERATORS).toContain('notEqual')
             expect(SUPPORTED_OPERATORS).toContain('in')
             expect(SUPPORTED_OPERATORS).toContain('notIn')
+        })
+    })
+
+    describe('hasOrganizationIdCondition', () => {
+        test('returns false for null conditions', () => {
+            expect(hasOrganizationIdCondition(null)).toBe(false)
+        })
+
+        test('returns false for empty conditions', () => {
+            expect(hasOrganizationIdCondition({})).toBe(false)
+        })
+
+        test('returns true for single organizationIds condition', () => {
+            const conditions = { fact: 'organizationIds', operator: 'contains', value: 'org-123' }
+            expect(hasOrganizationIdCondition(conditions)).toBe(true)
+        })
+
+        test('returns true for organizationIds in all array', () => {
+            const conditions = {
+                all: [
+                    { fact: 'organizationIds', operator: 'contains', value: 'org-123' },
+                    { fact: 'organizationFeatures', operator: 'contains', value: ACTIVE_BANKING_FEATURE },
+                ],
+            }
+            expect(hasOrganizationIdCondition(conditions)).toBe(true)
+        })
+
+        test('returns true for organizationIds in any array', () => {
+            const conditions = {
+                any: [
+                    { fact: 'organizationIds', operator: 'contains', value: 'org-123' },
+                    { fact: 'organizationFeatures', operator: 'contains', value: ACTIVE_BANKING_FEATURE },
+                ],
+            }
+            expect(hasOrganizationIdCondition(conditions)).toBe(true)
+        })
+
+        test('returns true for nested organizationIds condition', () => {
+            const conditions = {
+                any: [
+                    {
+                        all: [
+                            { fact: 'organizationIds', operator: 'contains', value: 'org-123' },
+                        ],
+                    },
+                    { fact: 'organizationFeatures', operator: 'contains', value: ACTIVE_BANKING_FEATURE },
+                ],
+            }
+            expect(hasOrganizationIdCondition(conditions)).toBe(true)
+        })
+
+        test('returns false for conditions without organizationIds', () => {
+            const conditions = {
+                all: [
+                    { fact: 'organizationFeatures', operator: 'contains', value: ACTIVE_BANKING_FEATURE },
+                    { fact: 'organizationFeatures', operator: 'contains', value: HIGH_REVENUE_CUSTOMER_FEATURE },
+                ],
+            }
+            expect(hasOrganizationIdCondition(conditions)).toBe(false)
+        })
+
+        test('returns false for non-object input', () => {
+            expect(hasOrganizationIdCondition('string')).toBe(false)
+            expect(hasOrganizationIdCondition(123)).toBe(false)
+            expect(hasOrganizationIdCondition(undefined)).toBe(false)
         })
     })
 })

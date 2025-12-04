@@ -49752,6 +49752,7 @@ enum UserHelpRequestTypeType {
   callback
   importFile
   integrationSetup
+  activateSubscription
 }
 
 """ Request from the user to help him with some functionality """
@@ -58436,7 +58437,8 @@ type SubscriptionPlanPricingRule {
   """
   priority: Int
 
-  """ Whether this rule is hidden and not applied """
+  """ Whether this pricing rule is hidden from regular users. Hidden rules are only visible to admins and are not applied in price calculations. 
+  """
   isHidden: Boolean
   id: ID!
   v: Int
@@ -89050,14 +89052,14 @@ type RegisterPropertyMetersReadingsOutput {
 
 type SubscriptionPlanPrice {
   period: String!
-  basePrice: String!
-  currentPrice: String!
-  currencyCode: String
+  price: String!
+  currencyCode: String!
 }
 
 type AvailableSubscriptionPlan {
   plan: SubscriptionPlan!
   prices: [SubscriptionPlanPrice!]!
+  trialAvailable: Boolean!
 }
 
 type GetAvailableSubscriptionPlansOutput {
@@ -89073,7 +89075,7 @@ input ActivateSubscriptionPlanInput {
 }
 
 type ActivateSubscriptionPlanOutput {
-  subscriptionContext: SubscriptionContext!
+  subscriptionContext: SubscriptionContext
 }
 
 input RegisterMultiPaymentReceiptAmountInput {
@@ -94040,7 +94042,7 @@ type Query {
   exportPropertyMeterReadings(data: ExportPropertyMeterReadingsInput!): ExportPropertyMeterReadingsOutput
 
   """
-  Returns available subscription plans for an organization with calculated prices
+  Returns available subscription plans with calculated prices for the organization based on pricing rules and conditions.
   
   
   
@@ -103161,7 +103163,7 @@ type Mutation {
   registerPropertyMetersReadings(data: RegisterPropertyMetersReadingsInput!): [RegisterPropertyMetersReadingsOutput]
 
   """
-  Activates a subscription plan for an organization. For trial subscriptions, set isTrial to true.
+  Activates a subscription plan for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext. For paid subscriptions (isTrial=false), creates UserHelpRequest for manual processing.
   
   
   
@@ -103197,12 +103199,6 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "TRIAL_NOT_AVAILABLE",
     "message": "Trial is not available for this subscription plan"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "PAID_SUBSCRIPTION_NOT_IMPLEMENTED",
-    "message": "Paid subscription activation is not implemented yet. Only trial subscriptions are supported."
   }`
   """
   activateSubscriptionPlan(data: ActivateSubscriptionPlanInput!): ActivateSubscriptionPlanOutput

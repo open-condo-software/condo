@@ -104,7 +104,7 @@ const SubscriptionPlanPricingRule = new GQLListSchema('SubscriptionPlanPricingRu
         },
 
         isHidden: {
-            schemaDoc: 'Whether this rule is hidden and not applied',
+            schemaDoc: 'Whether this pricing rule is hidden from regular users. Hidden rules are only visible to admins and are not applied in price calculations.',
             type: 'Checkbox',
             defaultValue: false,
             isRequired: true,

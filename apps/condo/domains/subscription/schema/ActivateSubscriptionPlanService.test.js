@@ -210,11 +210,19 @@ describe('ActivateSubscriptionPlanService', () => {
             const [result2] = await activateSubscriptionPlanByTestClient(admin, organization, anotherPlan, { isTrial: true })
             expect(result2.subscriptionContext.isTrial).toBe(true)
         })
+    })
 
-        test('throws error if trying to activate paid subscription', async () => {
-            await expectToThrowGQLError(async () => {
-                await activateSubscriptionPlanByTestClient(admin, organization, subscriptionPlan, { isTrial: false })
-            }, ERRORS.PAID_SUBSCRIPTION_NOT_IMPLEMENTED, 'result')
+    describe('Paid Subscription Logic', () => {
+        test('creates UserHelpRequest when isTrial is false (returns null subscriptionContext)', async () => {
+            const [result] = await activateSubscriptionPlanByTestClient(user, organization, subscriptionPlan, { isTrial: false })
+
+            expect(result.subscriptionContext).toBeNull()
+        })
+
+        test('support can create paid subscription request', async () => {
+            const [result] = await activateSubscriptionPlanByTestClient(support, organization, subscriptionPlan, { isTrial: false })
+
+            expect(result.subscriptionContext).toBeNull()
         })
     })
 })

@@ -32,7 +32,7 @@ const ACTIVATE_SUBSCRIPTION_PLAN_MUTATION = gql`
 
 const GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY = gql`
     query getAvailableSubscriptionPlans ($organization: OrganizationWhereUniqueInput!) {
-        result: getAvailableSubscriptionPlans(organization: $organization) { plans { plan { id name order } prices { period basePrice currentPrice currencyCode } } }
+        result: getAvailableSubscriptionPlans(organization: $organization) { plans { plan { id name order trialDays } prices { period price currencyCode } trialAvailable } }
     }
 `
 
