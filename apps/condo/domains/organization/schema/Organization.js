@@ -17,10 +17,9 @@ const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/organization/access/Organization')
 const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
+const { ORGANIZATION_SUBSCRIPTION_FIELD } = require('@condo/domains/organization/schema/fields/subscription')
 const { resetOrganizationEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
-const { TYPE_PRIORITY } = require('@condo/domains/subscription/constants')
-const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
 
@@ -213,45 +212,7 @@ const Organization = new GQLListSchema('Organization', {
             defaultValue: true,
         },
 
-        subscription: {
-            schemaDoc: 'Active subscription context for this organization. Returns the best active subscription ' +
-                '(by plan type: extended > basic, then by latest startAt). Returns null if no active subscription',
-            type: 'Virtual',
-            graphQLReturnType: 'SubscriptionContext',
-            graphQLReturnFragment: '{ id subscriptionPlan { id type name } startAt endAt isTrial daysRemaining }',
-            resolver: async (organization, args, context) => {
-                const now = new Date().toISOString()
-
-                const activeContexts = await SubscriptionContext.getAll(context, {
-                    organization: { id: organization.id },
-                    startAt_lte: now,
-                    endAt_gte: now,
-                    deletedAt: null,
-                }, {
-                    sortBy: ['startAt_DESC'],
-                }, 'id subscriptionPlan { id type name } startAt endAt isTrial')
-
-                if (activeContexts.length === 0) {
-                    return null
-                }
-                if (activeContexts.length === 1) {
-                    return activeContexts[0]
-                }
-
-                const sorted = activeContexts.sort((a, b) => {
-                    const priorityA = TYPE_PRIORITY[a.subscriptionPlan?.type] || 0
-                    const priorityB = TYPE_PRIORITY[b.subscriptionPlan?.type] || 0
-
-                    if (priorityA !== priorityB) {
-                        return priorityB - priorityA
-                    }
-
-                    return new Date(b.startAt).getTime() - new Date(a.startAt).getTime()
-                })
-
-                return sorted[0]
-            },
-        },
+        subscription: ORGANIZATION_SUBSCRIPTION_FIELD,
     },
     hooks: {
         async afterChange ({ originalInput, existingItem, operation }) {

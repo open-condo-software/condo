@@ -35,9 +35,7 @@ async function calculateSubscriptionPrice (subscriptionPlanId, period, organizat
         } : null,
     }
 
-    // Find first matching rule
     for (const rule of rules) {
-        // Evaluate conditions
         if (!await evaluateConditions(rule.conditions, context)) {
             continue
         }
@@ -45,6 +43,7 @@ async function calculateSubscriptionPrice (subscriptionPlanId, period, organizat
         const price = parseFloat(rule.price) || 0
 
         return {
+            ruleId: rule.id,
             basePrice: price.toFixed(2),
             finalPrice: price.toFixed(2),
             currencyCode: rule.currencyCode,

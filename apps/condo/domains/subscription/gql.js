@@ -10,7 +10,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const SUBSCRIPTION_PLAN_FIELDS = `{ name description organizationType trialDays news marketplace support ai passTickets isHidden order ${COMMON_FIELDS} }`
+const SUBSCRIPTION_PLAN_FIELDS = `{ name description organizationType trialDays news marketplace support ai passTickets isHidden priority ${COMMON_FIELDS} }`
 const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
 
 const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden ${COMMON_FIELDS} }`
@@ -18,8 +18,6 @@ const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingR
 
 const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } startAt endAt basePrice calculatedPrice appliedRules isTrial daysRemaining ${COMMON_FIELDS} }`
 const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
-
-// TODO(codegen): write return type result!
 
 const ACTIVATE_SUBSCRIPTION_PLAN_MUTATION = gql`
     mutation activateSubscriptionPlan ($data: ActivateSubscriptionPlanInput!) {
@@ -29,7 +27,7 @@ const ACTIVATE_SUBSCRIPTION_PLAN_MUTATION = gql`
 
 const GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY = gql`
     query getAvailableSubscriptionPlans ($organization: OrganizationWhereUniqueInput!) {
-        result: getAvailableSubscriptionPlans(organization: $organization) { plans { plan { id name order trialDays } prices { period price currencyCode } trialAvailable } }
+        result: getAvailableSubscriptionPlans(organization: $organization) { plans { plan { id name priority trialDays } prices { id period price currencyCode } } }
     }
 `
 

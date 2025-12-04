@@ -8,7 +8,11 @@ async function canReadSubscriptionPlans ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return {}
+    // Admins and support can read all plans including hidden
+    if (user.isAdmin || user.isSupport) return {}
+
+    // Regular users can only read non-hidden plans
+    return { isHidden: false }
 }
 
 async function canManageSubscriptionPlans ({ authentication: { item: user } }) {

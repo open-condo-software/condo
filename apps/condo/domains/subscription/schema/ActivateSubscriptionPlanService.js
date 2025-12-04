@@ -118,7 +118,6 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     return { subscriptionContext: null }
                 }
 
-                
                 // Trial subscription flow
                 if (plan.trialDays <= 0) {
                     throw new GQLError(ERRORS.TRIAL_NOT_AVAILABLE, context)

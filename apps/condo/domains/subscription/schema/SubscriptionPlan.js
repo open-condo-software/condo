@@ -52,8 +52,8 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             isRequired: true,
         },
 
-        order: {
-            schemaDoc: 'Display order for sorting plans on frontend (lower values appear first)',
+        priority: {
+            schemaDoc: 'Priority for sorting plans on frontend and selecting active subscription (higher values = higher priority)',
             type: 'Integer',
             defaultValue: 0,
             isRequired: true,

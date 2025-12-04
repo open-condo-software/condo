@@ -45,12 +45,17 @@ function buildFacts (context) {
 
 /**
  * Convert stored conditions to json-rules-engine rule format
- * Stored format: { all: [...] } or { any: [...] }
+ * Stored format: { all: [...] } or { any: [...] } or single condition { fact, operator, value }
  * Engine format: { conditions: { all: [...] }, event: { type: 'match' } }
  */
 function toEngineRule (conditions) {
+    // If it's a single condition (has 'fact' property), wrap it in 'all'
+    const engineConditions = conditions.fact !== undefined
+        ? { all: [conditions] }
+        : conditions
+
     return {
-        conditions,
+        conditions: engineConditions,
         event: { type: 'match' },
     }
 }

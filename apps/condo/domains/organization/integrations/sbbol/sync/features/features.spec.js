@@ -215,7 +215,6 @@ describe('syncFeatures', () => {
         it('Should automatically add active_banking feature to all SBBOL organizations', async () => {
             const [org] = await createTestOrganization(admin)
             const { syncFeatures } = require('./index')
-            // Even without passing ACTIVE_BANKING_FEATURE in features array, it should be added
             await syncFeatures({ context: ctx, organization: org, features: [] })
 
             const updatedOrg = await Organization.getOne(admin, { id: org.id })

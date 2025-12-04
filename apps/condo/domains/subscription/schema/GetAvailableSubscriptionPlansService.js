@@ -27,11 +27,11 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
     types: [
         {
             access: true,
-            type: 'type SubscriptionPlanPrice { period: String!, price: String!, currencyCode: String! }',
+            type: 'type SubscriptionPlanPrice { id: ID!, period: String!, price: String!, currencyCode: String! }',
         },
         {
             access: true,
-            type: 'type AvailableSubscriptionPlan { plan: SubscriptionPlan!, prices: [SubscriptionPlanPrice!]!, trialAvailable: Boolean! }',
+            type: 'type AvailableSubscriptionPlan { plan: SubscriptionPlan!, prices: [SubscriptionPlanPrice!]! }',
         },
         {
             access: true,
@@ -67,12 +67,12 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
                 const result = []
 
                 for (const plan of plans) {
-                    // Calculate prices for this organization (based on conditions)
                     const prices = []
                     for (const period of SUBSCRIPTION_PERIODS) {
                         const priceData = await calculateSubscriptionPrice(plan.id, period, organization)
                         if (priceData) {
                             prices.push({
+                                id: priceData.ruleId,
                                 period,
                                 price: priceData.finalPrice,
                                 currencyCode: priceData.currencyCode,
@@ -80,16 +80,7 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
                         }
                     }
 
-                    // Check if trial is available for this organization
-                    const [existingTrial] = await find('SubscriptionContext', {
-                        organization: { id: organization.id },
-                        subscriptionPlan: { id: plan.id },
-                        isTrial: true,
-                        deletedAt: null,
-                    })
-                    const trialAvailable = plan.trialDays > 0 && !existingTrial
-
-                    result.push({ plan, prices, trialAvailable })
+                    result.push({ plan, prices })
                 }
 
                 return { plans: result }
