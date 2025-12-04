@@ -16,8 +16,8 @@ export function usePosIntegrationAlert () {
     }, [])
 
     const {
-        loading: isPosIntegrationAppContextsLoading,
-        objs: posIntegrationAppContexts,
+        loading: areB2bAppContextsLoading,
+        objs: b2bAppContexts,
     } = B2BAppContext.useObjects({
         where: {
             status: B2BAppContextStatusType.Finished,
@@ -27,7 +27,7 @@ export function usePosIntegrationAlert () {
         },
     }, { skip: !organization?.id })
 
-    const paymentsAlertPageUrl = posIntegrationAppContexts?.[0]?.app?.posIntegrationConfig?.paymentsAlertPageUrl
+    const paymentsAlertPageUrl = b2bAppContexts?.[0]?.app?.posIntegrationConfig?.paymentsAlertPageUrl
 
     const Component = useMemo(() => paymentsAlertPageUrl ? (
         <IFrame
@@ -42,6 +42,6 @@ export function usePosIntegrationAlert () {
 
     return {
         PosIntegrationAlert: Component,
-        loading: isPosIntegrationAppContextsLoading || isIFrameHidden,
+        loading: areB2bAppContextsLoading,
     }
 }
