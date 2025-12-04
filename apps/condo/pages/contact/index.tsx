@@ -483,8 +483,8 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         sortedDescLabel: intl.formatMessage({ id: 'Table.Sorted' }),
         sortedAscLabel: intl.formatMessage({ id: 'Table.Sorted' }),
         filteredLabel: intl.formatMessage({ id: 'Table.Filtered' }),
-        settedLabel: intl.formatMessage({ id: 'Table.Setted' }),
         noData: intl.formatMessage({ id: 'Table.NoData' }),
+        defaultSettings: intl.formatMessage({ id: 'Table.DefaultSettingsLabel' }),
     }), [intl])
 
     const handleRowAction = useCallback((record: GetContactsForTableQuery['contacts'][number]) => {
