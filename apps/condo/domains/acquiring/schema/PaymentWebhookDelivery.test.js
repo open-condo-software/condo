@@ -10,6 +10,7 @@ const {
     makeClient,
     UUID_RE,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     initTestExpressApp,
@@ -116,8 +117,9 @@ describe('PaymentWebhookDelivery', () => {
                 const [delivery] = await createTestPaymentWebhookDelivery(adminClient, payment)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const readDelivery = await PaymentWebhookDelivery.getOne(userClient, { id: delivery.id })
-                expect(readDelivery).toBeUndefined()
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await PaymentWebhookDelivery.getOne(userClient, { id: delivery.id })
+                })
             })
         })
 
@@ -389,7 +391,7 @@ describe('PaymentWebhookDelivery', () => {
             expect(deliveries.length).toBeGreaterThanOrEqual(1)
 
             const delivery = deliveries[0]
-            expect(delivery.httpStatusCode).toBe(500)
+            expect(delivery.lastHttpStatusCode).toBe(500)
             expect(delivery.attempt).toBeGreaterThanOrEqual(1)
             // Should still be pending for retry or failed
             expect([PAYMENT_WEBHOOK_DELIVERY_STATUS_PENDING, PAYMENT_WEBHOOK_DELIVERY_STATUS_FAILED]).toContain(delivery.status)
