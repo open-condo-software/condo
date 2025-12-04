@@ -266,7 +266,7 @@ export const getUnitNameRender = <T extends Record<string, unknown>>(intl, text:
 }
 
 export const getUnitTypeRender = <T extends Record<string, unknown>>(intl, text: string, record: T, search?: FilterValue | string) => {
-    const unitType = get(text, 'unitType', BuildingUnitSubType.Flat)
+    const unitType = get(record, 'unitType', BuildingUnitSubType.Flat)
     const renderUnitType = unitType ? intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` }) : null
     return getTableCellRenderer({ search, extraTitle: renderUnitType })(renderUnitType)
 }

@@ -60,7 +60,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { ANALYTICS_RESIDENT_IN_CONTACT_PAGE } from '@condo/domains/common/constants/featureflags'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
-import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
+// import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useNewQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useNewSearch } from '@condo/domains/common/hooks/useSearch'
 import { PageComponentType } from '@condo/domains/common/types'
@@ -431,11 +431,11 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         return sortersToSortBy(sortState) as SortContactsBy[]
     }, [sortersToSortBy])
 
-    const dataSource: GetTableData<GetContactsForTableQuery['contacts'][number]> = useCallback(async ({ filterState, sortState, startRow, endRow }, isRefetch) => {
+    const dataSource: GetTableData<GetContactsForTableQuery['contacts'][number]> = useCallback(async ({ filterState, sortState, startRow, endRow, globalFilter }, isRefetch) => {
         const sortBy = getContactsSortBy(sortState)
         const where = {
             ...baseSearchQuery,
-            ...filtersToWhere(filterState),
+            ...filtersToWhere({ ...filterState, search: globalFilter }),
         }
         const skip = startRow
         const first = endRow - startRow
@@ -470,11 +470,6 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
 
     const [search, handleSearchChange] = useNewSearch(tableRef.current)
 
-    const defaultColumn = useMemo(() => ({
-        enableSorting: true,
-        initialVisibility: true,
-    }), [])
-
     const menuLabels = useMemo(() => ({
         sortDescLabel: intl.formatMessage({ id: 'Table.Sort' }),
         sortAscLabel: intl.formatMessage({ id: 'Table.Sort' }),
@@ -484,7 +479,8 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         sortedAscLabel: intl.formatMessage({ id: 'Table.Sorted' }),
         filteredLabel: intl.formatMessage({ id: 'Table.Filtered' }),
         noData: intl.formatMessage({ id: 'Table.NoData' }),
-        defaultSettings: intl.formatMessage({ id: 'Table.DefaultSettingsLabel' }),
+        defaultSettingsLabel: intl.formatMessage({ id: 'Table.DefaultSettingsLabel' }),
+        resetFilterLabel: intl.formatMessage({ id: 'Table.ResetFilter' }),
     }), [intl])
 
     const handleRowAction = useCallback((record: GetContactsForTableQuery['contacts'][number]) => {
@@ -501,7 +497,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
     const getRowId = useCallback((row: GetContactsForTableQuery['contacts'][number]) => row.id, [])
 
     const onGridReady = useCallback((tableRef: TableRef) => {
-        handleSearchChange(String(tableRef.api.getColumnFilter('search') || ''))
+        handleSearchChange(String(tableRef.api.getGlobalFilter() || ''))
         setSelectedRowsCount(tableRef.api.getRowSelection().length)
     }, [handleSearchChange])
 
@@ -530,7 +526,6 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
                     onTableStateChange={defaultUpdateUrlQuery}
                     initialTableState={initialTableState}
                     columnLabels={menuLabels}
-                    defaultColumn={defaultColumn}
                     rowSelectionOptions={rowSelectionOptions}
                     getRowId={getRowId}
                     onGridReady={onGridReady}
@@ -638,9 +633,9 @@ export const ContactPageContentWrapper: React.FC<ContactPageContentProps> = (pro
 
 const ContactsPage: PageComponentType = () => {
     const filterMeta = useContactsTableFilters()
-    const { organization, role, employee, isLoading } = useOrganization()
+    const { organization, role, isLoading } = useOrganization()
     const userOrganizationId = useMemo(() => organization?.id, [organization?.id])
-    const employeeId = useMemo(() => employee?.id, [employee?.id])
+    // const employeeId = useMemo(() => employee?.id, [employee?.id])
 
     const tableRef = useRef<TableRef | null>(null)
     const tableColumns = useTableColumns(filterMeta, tableRef.current)
@@ -655,7 +650,7 @@ const ContactsPage: PageComponentType = () => {
         }
     }, [baseSearchQuery])
 
-    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
+    // usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     return (
         <ContactPageContentWrapper

@@ -36,6 +36,7 @@ export type TableLabels = {
 export type DefaultColumn = {
     enableSorting?: boolean
     enableColumnSettings?: boolean
+    enableColumnResize?: boolean
     initialVisibility?: boolean
     initialSize?: string | number
     minSize?: number
@@ -67,6 +68,7 @@ export type TableColumnMeta = {
     filterComponent?: FilterComponent
     enableColumnSettings?: boolean
     enableColumnMenu?: boolean
+    enableColumnResize?: boolean
     initialVisibility?: boolean
     initialSize?: string | number
     initialOrder?: number
@@ -78,6 +80,7 @@ type TableColumnBase<TData extends RowData = RowData> = {
     filterComponent?: FilterConfig | FilterComponent
     enableSorting?: boolean
     enableColumnSettings?: boolean
+    enableColumnResize?: boolean
     initialVisibility?: boolean
     initialSize?: string | number
     initialOrder?: number
@@ -99,6 +102,7 @@ export type TableState = {
     endRow?: number
     filterState: FilterState
     sortState: SortState
+    globalFilter?: string
 }
 
 export type FilterState = {
@@ -116,6 +120,8 @@ export type TableApi = {
     getFilterState: () => FilterState
     setColumnFilter: (columnId: string, value: unknown) => void
     getColumnFilter: (columnId: string) => unknown
+    setGlobalFilter: (globalFilter: string) => void
+    getGlobalFilter: () => string | undefined
     refetchData: () => Promise<void>
     setPagination: ({ startRow, endRow }: { startRow: number, endRow: number }) => void
     getPagination: () => { startRow: number, endRow: number }

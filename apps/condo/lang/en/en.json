@@ -306,6 +306,7 @@
   "Table.Filtered": "Filtered",
   "Table.NoData": "No Data",
   "Table.DefaultSettingsLabel": "Restore default settings",
+  "Table.ResetFilter": "Reset filters",
   "accrualsAndPayments.billing.noReceiptsYet": "Connected, but no receipt yet",
   "accrualsAndPayments.billing.statusTag.connected": "{name}: connected",
   "accrualsAndPayments.billing.statusTag.error": "{name}: error",

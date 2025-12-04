@@ -306,6 +306,7 @@
   "Table.Filtered": "Отфильтровано",
   "Table.NoData": "Нет данных",
   "Table.DefaultSettingsLabel": "Вернуть настройки по умолчанию",
+  "Table.ResetFilter": "Сбросить фильтры",
   "accrualsAndPayments.billing.noReceiptsYet": "Подключено, но квитанций пока нет",
   "accrualsAndPayments.billing.statusTag.connected": "{name}: подключено",
   "accrualsAndPayments.billing.statusTag.error": "{name}: ошибка",

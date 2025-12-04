@@ -166,8 +166,7 @@ function FilterMenuDropdown <TData> ({
     return (
         <Dropdown
             align={{
-                points: ['cl', 'cr'],
-                offset: [8, 0],
+                points: ['br', 'tl'],
             }}
             trigger={[DROPDOWN_TRIGGER_CLICK]}
             open={open}
@@ -392,16 +391,17 @@ export function TableHeader <TData> ({
                             )}
                         </div>
                         {/* TODO: Need to block dragging of the strip if the size is minimal  */}
-                        <button
-                            className='condo-table-th-resize-handle'
-                            onMouseDown={header.getResizeHandler()}
-                            onTouchStart={header.getResizeHandler()}
-                            onDoubleClick={() => header.column.resetSize()}
-                            style={header.column.getIsResizing() ? {
-                                '--resize-line-position': `${-(table.getState().columnSizingInfo.deltaOffset || 0)}px`,
-                            } as React.CSSProperties : undefined}
-                        />
-                       
+                        {header.column.columnDef.meta?.enableColumnResize && (
+                            <button
+                                className={classNames('condo-table-th-resize-handle')}
+                                onMouseDown={header.getResizeHandler()}
+                                onTouchStart={header.getResizeHandler()}
+                                onDoubleClick={() => header.column.resetSize()}
+                                style={header.column.getIsResizing() ? {
+                                    '--resize-line-position': `${-(table.getState().columnSizingInfo.deltaOffset || 0)}px`,
+                                } as React.CSSProperties : undefined}
+                            />
+                        )}
                     </div>
                 )
             })}

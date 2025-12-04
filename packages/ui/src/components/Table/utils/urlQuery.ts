@@ -11,22 +11,27 @@ type FiltersFromQueryType = { [key: string]: QueryArgType }
 const DESC = 'DESC'
 const ASC = 'ASC'
 
-const getFiltersFromQuery = (query: ParsedUrlQuery): { [x: string]: QueryArgType } => {
+const getFiltersFromQuery = (query: ParsedUrlQuery): [{ [x: string]: QueryArgType }, string | undefined] => {
     const { filters } = query
     if (!filters || typeof filters !== 'string') {
-        return {}
+        return [{}, undefined]
     }
     try {
         const json = JSON.parse(filters)
         const result: { [x: string]: QueryArgType } = {}
+        let globalFilter: string | undefined = undefined
         Object.keys(json).forEach((key) => {
             const value = json[key]
+            if (key === 'search') {
+                globalFilter = typeof value === 'string' && !isEmpty(value) ? value : undefined
+                return
+            }
             if (Array.isArray(value)) result[key] = value.filter((v) => typeof v === 'string' && Boolean(v))
-            if (typeof value === 'string' && !!value) result[key] = value
+            if (typeof value === 'string' && !isEmpty(value)) result[key] = value
         })
-        return result
+        return [result, globalFilter]
     } catch {
-        return {}
+        return [{}, undefined]
     }
 }
 
@@ -132,7 +137,7 @@ const updateUrl = (
  * @returns Full table state parsed from query
  */
 export const defaultParseUrlQuery = (query: Record<string, string | string[]>, pageSize: number): FullTableState => {
-    const filters = getFiltersFromQuery(query)
+    const [filters, globalFilter] = getFiltersFromQuery(query)
     const sorters = getSortersFromQuery(query)
     const rowSelection = getRowSelectionFromQuery(query)
     
@@ -145,6 +150,7 @@ export const defaultParseUrlQuery = (query: Record<string, string | string[]>, p
         sortState: sorters,
         startRow: newStartRow, 
         endRow: newStartRow + pageSize,
+        globalFilter,
         rowSelectionState: rowSelection,
     }
 }
@@ -164,14 +170,18 @@ const isValidFilterValue = (value: unknown): boolean => {
     return false
 }
 
-const normalizeFilters = (filterState: FilterState | undefined): FiltersFromQueryType | null => {
+const normalizeFilters = (filterState: FilterState | undefined, globalFilter: string | undefined): FiltersFromQueryType | null => {
     if (!filterState || Object.keys(filterState).length === 0) {
         return null
-    }   
+    }
     
     const validFilters = pickBy(filterState, (value, key) => 
         typeof key === 'string' && isValidFilterValue(value)
     ) as FiltersFromQueryType
+
+    if (globalFilter && isValidFilterValue(globalFilter)) {
+        validFilters.search = globalFilter
+    }
     
     return Object.keys(validFilters).length > 0 ? validFilters : null
 }
@@ -207,11 +217,11 @@ const normalizeSelectedRows = (rowSelectionState: RowSelectionState | undefined)
  * @returns void
  */
 export const defaultUpdateUrlQuery = (params: FullTableState) => {
-    const { startRow, filterState, sortState, rowSelectionState } = params
+    const { startRow, filterState, sortState, rowSelectionState, globalFilter } = params
 
     const newParameters = { 
         offset: normalizeOffset(startRow), 
-        filters: normalizeFilters(filterState), 
+        filters: normalizeFilters(filterState, globalFilter), 
         sort: normalizeSorters(sortState), 
         selectedRows: normalizeSelectedRows(rowSelectionState),
     }

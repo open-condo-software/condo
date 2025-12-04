@@ -37,7 +37,7 @@ export const useTableColumns: UseTableColumns = (filterMetas, tableRef) => {
 
     const search = useMemo(() => {
         if (!tableRef) return undefined
-        const filterValue = tableRef.api.getColumnFilter?.('search')
+        const filterValue = tableRef.api.getGlobalFilter()
         return typeof filterValue === 'string' ? filterValue : undefined
     }, [tableRef])
 
