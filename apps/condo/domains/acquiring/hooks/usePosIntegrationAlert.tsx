@@ -42,6 +42,6 @@ export function usePosIntegrationAlert () {
 
     return {
         PosIntegrationAlert: Component,
-        loading: areB2bAppContextsLoading,
+        loading: areB2bAppContextsLoading || isIFrameHidden,
     }
 }

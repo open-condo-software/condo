@@ -307,7 +307,7 @@ const PaymentsTable: React.FC = (props) => {
     const { PosIntegrationAlert, loading } = usePosIntegrationAlert()
 
     return (
-        <Space size={30} direction='vertical'>
+        <Space size={loading ? 0 : 30} direction='vertical'>
             {PosIntegrationAlert}
             {loading ? (
                 <Spin size='large' />
