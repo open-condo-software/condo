@@ -162,7 +162,7 @@ describe('SubscriptionPlanPricingRule', () => {
         })
 
         describe('read', () => {
-            test('admin can read', async () => {
+            test('admin can read all rules', async () => {
                 const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
                     period: SUBSCRIPTION_PERIOD.MONTHLY,
                     price: '1000.00',
@@ -173,6 +173,35 @@ describe('SubscriptionPlanPricingRule', () => {
 
                 expect(objs).toHaveLength(1)
                 expect(objs[0].id).toBe(obj.id)
+            })
+
+            test('regular user can read only visible rules (isHidden=false)', async () => {
+                // Create visible rule
+                const [visibleRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    price: '1000.00',
+                    currencyCode: 'RUB',
+                    isHidden: false,
+                })
+
+                // Create hidden rule
+                const [hiddenRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                    period: SUBSCRIPTION_PERIOD.YEARLY,
+                    price: '500.00',
+                    currencyCode: 'RUB',
+                    isHidden: true,
+                })
+
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                // User should only see visible rules
+                const userRules = await SubscriptionPlanPricingRule.getAll(user, {
+                    subscriptionPlan: { id: subscriptionPlan.id },
+                })
+
+                const userRuleIds = userRules.map(r => r.id)
+                expect(userRuleIds).toContain(visibleRule.id)
+                expect(userRuleIds).not.toContain(hiddenRule.id)
             })
 
             test('anonymous cannot read', async () => {
@@ -434,4 +463,5 @@ describe('SubscriptionPlanPricingRule', () => {
             expect(obj.conditions).toEqual(newConditions)
         })
     })
+
 })

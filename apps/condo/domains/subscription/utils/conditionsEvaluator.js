@@ -277,11 +277,36 @@ function validateConditions (conditions) {
     return validateNode(conditions)
 }
 
+/**
+ * Check if conditions contain organizationIds fact (custom pricing for specific organizations)
+ * @param {Object|null} conditions
+ * @returns {boolean}
+ */
+function hasOrganizationIdCondition (conditions) {
+    if (!conditions || typeof conditions !== 'object') return false
+
+    function checkNode (node) {
+        if (Array.isArray(node.all)) {
+            return node.all.some(checkNode)
+        }
+        if (Array.isArray(node.any)) {
+            return node.any.some(checkNode)
+        }
+        if (node.fact === 'organizationIds') {
+            return true
+        }
+        return false
+    }
+
+    return checkNode(conditions)
+}
+
 module.exports = {
     evaluateConditions,
     evaluateConditionsAsync,
     evaluateConditionsWithDetails,
     validateConditions,
+    hasOrganizationIdCondition,
     createEngine,
     SUPPORTED_FACTS,
     SUPPORTED_OPERATORS,

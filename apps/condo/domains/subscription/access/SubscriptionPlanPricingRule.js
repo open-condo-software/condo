@@ -10,7 +10,10 @@ async function canReadSubscriptionPlanPricingRules ({ authentication: { item: us
 
     if (user.isAdmin || user.isSupport) return {}
 
-    return false
+    // Regular users can only read visible pricing rules
+    return {
+        isHidden: false,
+    }
 }
 
 async function canManageSubscriptionPlanPricingRules ({ authentication: { item: user }, originalInput, operation, itemId }) {
