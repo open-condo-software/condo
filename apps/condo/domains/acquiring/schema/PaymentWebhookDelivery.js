@@ -13,6 +13,7 @@ const {
     PAYMENT_WEBHOOK_DELIVERY_STATUSES,
     PAYMENT_WEBHOOK_DELIVERY_STATUS_PENDING,
     PAYMENT_WEBHOOK_DELIVERY_TTL_DAYS,
+    PAYMENT_WEBHOOK_MAX_RESPONSE_LENGTH,
 } = require('@condo/domains/acquiring/constants/webhook')
 
 
@@ -74,7 +75,7 @@ const PaymentWebhookDelivery = new GQLListSchema('PaymentWebhookDelivery', {
         },
 
         lastResponseBody: {
-            schemaDoc: 'Response body from the last delivery attempt (truncated to 1000 chars)',
+            schemaDoc: `Response body from the last delivery attempt (truncated to ${PAYMENT_WEBHOOK_MAX_RESPONSE_LENGTH} chars)`,
             type: 'Text',
             isRequired: false,
         },
