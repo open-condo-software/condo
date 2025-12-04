@@ -16,16 +16,6 @@ const ERRORS = {
         type: 'END_DATE_MUST_BE_AFTER_START_DATE',
         message: 'endAt must be after startAt',
     },
-    BASE_PRICE_REQUIRED_FOR_NON_TRIAL: {
-        code: BAD_USER_INPUT,
-        type: 'BASE_PRICE_REQUIRED_FOR_NON_TRIAL',
-        message: 'basePrice is required for non-trial subscriptions',
-    },
-    CALCULATED_PRICE_REQUIRED_FOR_NON_TRIAL: {
-        code: BAD_USER_INPUT,
-        type: 'CALCULATED_PRICE_REQUIRED_FOR_NON_TRIAL',
-        message: 'calculatedPrice is required for non-trial subscriptions',
-    },
 }
 
 
@@ -137,26 +127,10 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
         validateInput: async ({ resolvedData, existingItem, context }) => {
             const startAt = resolvedData.startAt || existingItem?.startAt
             const endAt = resolvedData.endAt || existingItem?.endAt
-            const isTrial = resolvedData.isTrial !== undefined ? resolvedData.isTrial : existingItem?.isTrial
-            const basePrice = resolvedData.basePrice !== undefined ? resolvedData.basePrice : existingItem?.basePrice
-            const calculatedPrice = resolvedData.calculatedPrice !== undefined ? resolvedData.calculatedPrice : existingItem?.calculatedPrice
 
             // Validate dates
             if (startAt && endAt && new Date(startAt) >= new Date(endAt)) {
                 throw new GQLError(ERRORS.END_DATE_MUST_BE_AFTER_START_DATE, context)
-            }
-
-            // Validate price is required for non-trial subscriptions (unless created by admin/support)
-            const user = context.authedItem
-            const isPrivilegedUser = user && (user.isAdmin || user.isSupport)
-
-            if (!isTrial && !isPrivilegedUser) {
-                if (basePrice === null || basePrice === undefined) {
-                    throw new GQLError(ERRORS.BASE_PRICE_REQUIRED_FOR_NON_TRIAL, context)
-                }
-                if (calculatedPrice === null || calculatedPrice === undefined) {
-                    throw new GQLError(ERRORS.CALCULATED_PRICE_REQUIRED_FOR_NON_TRIAL, context)
-                }
             }
         },
     },
