@@ -16,19 +16,16 @@ const ERRORS = {
         code: 'BAD_USER_INPUT',
         type: 'PRICE_REQUIRED',
         message: 'price is required',
-        messageForUser: 'api.subscription.SubscriptionPlanPricingRule.PRICE_REQUIRED',
     },
     CURRENCY_REQUIRED: {
         code: 'BAD_USER_INPUT',
         type: 'CURRENCY_REQUIRED',
         message: 'currencyCode is required',
-        messageForUser: 'api.subscription.SubscriptionPlanPricingRule.CURRENCY_REQUIRED',
     },
     INVALID_CONDITIONS: {
         code: 'BAD_USER_INPUT',
         type: 'INVALID_CONDITIONS',
         message: 'Invalid conditions format',
-        messageForUser: 'api.subscription.SubscriptionPlanPricingRule.INVALID_CONDITIONS',
     },
 }
 

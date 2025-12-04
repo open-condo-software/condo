@@ -16,7 +16,7 @@ async function canActivateSubscriptionPlan ({ args, authentication: { item: user
 
     if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageOrganization')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageSubscriptions')
 }
 
 /*

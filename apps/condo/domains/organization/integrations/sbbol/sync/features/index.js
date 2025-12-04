@@ -55,7 +55,6 @@ async function syncFeatures ({ context, organization, features }) {
         }
     }
 
-    // SBBOL organizations always have active_banking feature (added automatically)
     if (!actualExistingFeatures.includes(ACTIVE_BANKING_FEATURE)) {
         logger.info({
             msg: 'feature is successfully connected',

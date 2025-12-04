@@ -6209,7 +6209,7 @@ type Organization {
   """
   isApproved: Boolean
 
-  """ Active subscription context for this organization. Returns the best active subscription (by plan type: extended > basic, then by latest startAt). Returns null if no active subscription 
+  """ Active subscription context for this organization. Returns the best active subscription (by plan priority, then by latest startAt). Returns null if no active subscription 
   """
   subscription: SubscriptionContext
   id: ID!
@@ -57294,7 +57294,7 @@ type SubscriptionPlanHistoryRecord {
   organizationType: String
   isHidden: Boolean
   trialDays: Int
-  order: Int
+  priority: Int
   news: Boolean
   marketplace: Boolean
   support: Boolean
@@ -57382,14 +57382,14 @@ input SubscriptionPlanHistoryRecordWhereInput {
   trialDays_gte: Int
   trialDays_in: [Int]
   trialDays_not_in: [Int]
-  order: Int
-  order_not: Int
-  order_lt: Int
-  order_lte: Int
-  order_gt: Int
-  order_gte: Int
-  order_in: [Int]
-  order_not_in: [Int]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
   news: Boolean
   news_not: Boolean
   marketplace: Boolean
@@ -57493,8 +57493,8 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   isHidden_DESC
   trialDays_ASC
   trialDays_DESC
-  order_ASC
-  order_DESC
+  priority_ASC
+  priority_DESC
   news_ASC
   news_DESC
   marketplace_ASC
@@ -57529,7 +57529,7 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   organizationType: String
   isHidden: Boolean
   trialDays: Int
-  order: Int
+  priority: Int
   news: Boolean
   marketplace: Boolean
   support: Boolean
@@ -57560,7 +57560,7 @@ input SubscriptionPlanHistoryRecordCreateInput {
   organizationType: String
   isHidden: Boolean
   trialDays: Int
-  order: Int
+  priority: Int
   news: Boolean
   marketplace: Boolean
   support: Boolean
@@ -57618,9 +57618,9 @@ type SubscriptionPlan {
   """
   trialDays: Int
 
-  """ Display order for sorting plans on frontend (lower values appear first) 
+  """ Priority for sorting plans on frontend and selecting active subscription (higher values = higher priority) 
   """
-  order: Int
+  priority: Int
 
   """ Whether news feature is included in this plan """
   news: Boolean
@@ -57712,14 +57712,14 @@ input SubscriptionPlanWhereInput {
   trialDays_gte: Int
   trialDays_in: [Int]
   trialDays_not_in: [Int]
-  order: Int
-  order_not: Int
-  order_lt: Int
-  order_lte: Int
-  order_gt: Int
-  order_gte: Int
-  order_in: [Int]
-  order_not_in: [Int]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
   news: Boolean
   news_not: Boolean
   marketplace: Boolean
@@ -57803,8 +57803,8 @@ enum SortSubscriptionPlansBy {
   isHidden_DESC
   trialDays_ASC
   trialDays_DESC
-  order_ASC
-  order_DESC
+  priority_ASC
+  priority_DESC
   news_ASC
   news_DESC
   marketplace_ASC
@@ -57839,7 +57839,7 @@ input SubscriptionPlanUpdateInput {
   organizationType: SubscriptionPlanOrganizationTypeType
   isHidden: Boolean
   trialDays: Int
-  order: Int
+  priority: Int
   news: Boolean
   marketplace: Boolean
   support: Boolean
@@ -57867,7 +57867,7 @@ input SubscriptionPlanCreateInput {
   organizationType: SubscriptionPlanOrganizationTypeType
   isHidden: Boolean
   trialDays: Int
-  order: Int
+  priority: Int
   news: Boolean
   marketplace: Boolean
   support: Boolean
@@ -58418,7 +58418,7 @@ type SubscriptionPlanPricingRule {
   """ Subscription period this rule applies to (monthly, yearly) """
   period: SubscriptionPlanPricingRulePeriodType
 
-  """ JSON conditions for rule matching (json-rules-engine format). Format: { all: [...] } or { any: [...] }. Each condition: { fact, operator, value }. Facts: organizationIds, organizationFeatures. Operators: equal, notEqual, in, notIn, contains, doesNotContain 
+  """ JSON conditions for rule matching (json-rules-engine format). Format: { all: [...] } or { any: [...] }. Each condition: { fact, operator, value }. Facts: organizationIds, organizationFeatures. Operators: equal, notEqual, in, notIn, contains 
   """
   conditions: JSON
 
@@ -100590,7 +100590,7 @@ type Mutation {
   """
   Registers new Organization for current user
   
-  Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole, creates trial ServiceSubscription for organization
+  Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole
   """
   registerNewOrganization(data: RegisterNewOrganizationInput!): Organization
 
