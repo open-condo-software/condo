@@ -47,7 +47,7 @@ async function sendPaymentWebhook (deliveryId) {
         logger.warn({ msg: 'Delivery expired', data: { now, deliveryId, expiresAt: delivery.expiresAt } })
         await PaymentWebhookDelivery.update(context, deliveryId, {
             status: PAYMENT_WEBHOOK_DELIVERY_STATUS_FAILED,
-            errorMessage: 'Delivery expired after TTL',
+            lastErrorMessage: 'Delivery expired after TTL',
             ...DV_SENDER,
         })
         return
@@ -61,11 +61,11 @@ async function sendPaymentWebhook (deliveryId) {
         // Success - mark as delivered
         await PaymentWebhookDelivery.update(context, deliveryId, {
             status: PAYMENT_WEBHOOK_DELIVERY_STATUS_SUCCESS,
-            httpStatusCode: result.statusCode,
-            responseBody: result.body,
-            sentAt: now.toISOString(),
+            lastHttpStatusCode: result.statusCode,
+            lastResponseBody: result.body,
+            lastSentAt: now.toISOString(),
             attempt: newAttempt,
-            errorMessage: null,
+            lastErrorMessage: null,
             ...DV_SENDER,
         })
         logger.info({ msg: 'Webhook delivered successfully', data: { deliveryId, attempt: newAttempt } })
@@ -79,10 +79,10 @@ async function sendPaymentWebhook (deliveryId) {
             // Mark as permanently failed
             await PaymentWebhookDelivery.update(context, deliveryId, {
                 status: PAYMENT_WEBHOOK_DELIVERY_STATUS_FAILED,
-                httpStatusCode: result.statusCode || null,
-                responseBody: result.body || null,
-                errorMessage: result.error,
-                sentAt: now.toISOString(),
+                lastHttpStatusCode: result.statusCode || null,
+                lastResponseBody: result.body || null,
+                lastErrorMessage: result.error,
+                lastSentAt: now.toISOString(),
                 attempt: newAttempt,
                 ...DV_SENDER,
             })
@@ -94,10 +94,10 @@ async function sendPaymentWebhook (deliveryId) {
             // Schedule retry
             await PaymentWebhookDelivery.update(context, deliveryId, {
                 status: PAYMENT_WEBHOOK_DELIVERY_STATUS_PENDING,
-                httpStatusCode: result.statusCode || null,
-                responseBody: result.body || null,
-                errorMessage: result.error,
-                sentAt: now.toISOString(),
+                lastHttpStatusCode: result.statusCode || null,
+                lastResponseBody: result.body || null,
+                lastErrorMessage: result.error,
+                lastSentAt: now.toISOString(),
                 nextRetryAt,
                 attempt: newAttempt,
                 ...DV_SENDER,
