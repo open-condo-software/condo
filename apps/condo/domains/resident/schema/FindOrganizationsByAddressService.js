@@ -63,8 +63,8 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
 
                 const properties = await find('Property', {
                     organization: {
-                        deletedAt: null,
                         ...(tin ? { tin } : { tin_not: null }),
+                        deletedAt: null, 
                     },
                     addressKey,
                     deletedAt: null,
