@@ -1,8 +1,8 @@
 const crypto = require('crypto')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const get = require('lodash/get')
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { find } = require('@open-condo/keystone/schema')
 
 /**

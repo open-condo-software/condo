@@ -40,7 +40,6 @@ const {
     getReceivedWebhooks,
 } = require('@condo/domains/acquiring/utils/testSchema/WebhookTestingApp')
 const { updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -113,31 +112,9 @@ describe('PaymentWebhookDelivery', () => {
                 })
             })
 
-            test('employee with canReadPayments: can read PaymentWebhookDelivery', async () => {
+            test('user: cannot read PaymentWebhookDelivery', async () => {
                 const [delivery] = await createTestPaymentWebhookDelivery(adminClient, payment)
-
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canReadPayments: true,
-                })
-                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role, {
-                    isAccepted: true,
-                })
-
-                const readDelivery = await PaymentWebhookDelivery.getOne(userClient, { id: delivery.id })
-                expect(readDelivery.id).toBe(delivery.id)
-            })
-
-            test('employee without canReadPayments: cannot read PaymentWebhookDelivery', async () => {
-                const [delivery] = await createTestPaymentWebhookDelivery(adminClient, payment)
-
-                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canReadPayments: false,
-                })
-                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role, {
-                    isAccepted: true,
-                })
 
                 const readDelivery = await PaymentWebhookDelivery.getOne(userClient, { id: delivery.id })
                 expect(readDelivery).toBeUndefined()
