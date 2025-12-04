@@ -24,7 +24,7 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
             schema: 'registerNewOrganization(data: RegisterNewOrganizationInput!): Organization',
             doc: {
                 summary: 'Registers new Organization for current user',
-                description: 'Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole, creates trial ServiceSubscription for organization',
+                description: 'Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole',
             },
             resolver: async (parent, args, context) => {
                 const { data } = args

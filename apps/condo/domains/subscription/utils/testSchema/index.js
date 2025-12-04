@@ -4,86 +4,31 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
-const dayjs = require('dayjs')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
-const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const {
-    ServiceSubscription: ServiceSubscriptionGQL,
     SubscriptionPlan: SubscriptionPlanGQL,
     SubscriptionPlanPricingRule: SubscriptionPlanPricingRuleGQL,
     SubscriptionContext: SubscriptionContextGQL,
     ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
 } = require('@condo/domains/subscription/gql')
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const ServiceSubscription = generateGQLTestUtils(ServiceSubscriptionGQL)
 const SubscriptionPlan = generateGQLTestUtils(SubscriptionPlanGQL)
 const SubscriptionPlanPricingRule = generateGQLTestUtils(SubscriptionPlanPricingRuleGQL)
 const SubscriptionContext = generateGQLTestUtils(SubscriptionContextGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestServiceSubscription (client, organization, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const type = 'default'
-    const isTrial = false
-    const startAt = dayjs()
-    const finishAt = dayjs().add(15, 'days')
-    const unitsCount = faker.datatype.number()
-    const unitPrice = faker.datatype.float({ precision: 0.01 })
-    const totalPrice = unitsCount * unitPrice
-    const currency = 'RUB'
-
-    const attrs = {
-        dv: 1,
-        sender,
-        type,
-        isTrial,
-        startAt,
-        finishAt,
-        unitsCount,
-        unitPrice: String(unitPrice),
-        totalPrice: String(totalPrice),
-        currency,
-        organization: { connect: { id: organization.id } },
-        ...extraAttrs,
-    }
-    const obj = await ServiceSubscription.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestServiceSubscription (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await ServiceSubscription.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-const expectOverlappingFor = async (action, ...args) => (
-    await catchErrorFrom(async () => {
-        await action(...args)
-    }, ({ errors, data }) => {
-        expect(errors[0].data.messages[0]).toMatch('[overlapping]')
-        expect(data).toEqual({ 'obj': null })
-    })
-)
 async function createTestSubscriptionPlan (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
+        name: 'Test Plan',
+        organizationType: MANAGING_COMPANY_TYPE,
         dv: 1,
         sender,
         ...extraAttrs,
@@ -201,7 +146,6 @@ async function getAvailableSubscriptionPlansByTestClient (client, organization) 
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    ServiceSubscription, createTestServiceSubscription, updateTestServiceSubscription, expectOverlappingFor,
     SubscriptionPlan, createTestSubscriptionPlan, updateTestSubscriptionPlan,
     SubscriptionPlanPricingRule, createTestSubscriptionPlanPricingRule, updateTestSubscriptionPlanPricingRule,
     SubscriptionContext, createTestSubscriptionContext, updateTestSubscriptionContext,

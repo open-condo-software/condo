@@ -18,7 +18,7 @@ const {
     BillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
-const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
+const { SERVICE_PROVIDER_PROFILE_FEATURE, ACTIVE_BANKING_FEATURE } = require('@condo/domains/organization/constants/features')
 const { createTestOrganization, Organization } = require('@condo/domains/organization/utils/testSchema')
 
 const { keystone } = index
@@ -208,6 +208,39 @@ describe('syncFeatures', () => {
                 expect(updatedOrg).toHaveProperty('features')
                 expect(updatedOrg.features).not.toEqual(expect.arrayContaining([SERVICE_PROVIDER_PROFILE_FEATURE]))
             })
+        })
+    })
+
+    describe('ACTIVE_BANKING_FEATURE', () => {
+        it('Should automatically add active_banking feature to all SBBOL organizations', async () => {
+            const [org] = await createTestOrganization(admin)
+            const { syncFeatures } = require('./index')
+            // Even without passing ACTIVE_BANKING_FEATURE in features array, it should be added
+            await syncFeatures({ context: ctx, organization: org, features: [] })
+
+            const updatedOrg = await Organization.getOne(admin, { id: org.id })
+            expect(updatedOrg).toHaveProperty('features')
+            expect(updatedOrg.features).toEqual(expect.arrayContaining([ACTIVE_BANKING_FEATURE]))
+        })
+
+        it('Should add both SPP and active_banking features', async () => {
+            const [org] = await createTestOrganization(admin)
+            const { syncFeatures } = require('./index')
+            await syncFeatures({ context: ctx, organization: org, features: [SERVICE_PROVIDER_PROFILE_FEATURE] })
+
+            const updatedOrg = await Organization.getOne(admin, { id: org.id })
+            expect(updatedOrg).toHaveProperty('features')
+            expect(updatedOrg.features).toEqual(expect.arrayContaining([SERVICE_PROVIDER_PROFILE_FEATURE, ACTIVE_BANKING_FEATURE]))
+        })
+
+        it('Should not duplicate active_banking feature if already exists', async () => {
+            const [org] = await createTestOrganization(admin, { features: [ACTIVE_BANKING_FEATURE] })
+            const { syncFeatures } = require('./index')
+            await syncFeatures({ context: ctx, organization: org, features: [] })
+
+            const updatedOrg = await Organization.getOne(admin, { id: org.id })
+            expect(updatedOrg).toHaveProperty('features')
+            expect(updatedOrg.features.filter(f => f === ACTIVE_BANKING_FEATURE)).toHaveLength(1)
         })
     })
 })

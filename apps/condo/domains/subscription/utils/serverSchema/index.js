@@ -10,7 +10,6 @@ const { ACTIVATE_SUBSCRIPTION_PLAN_MUTATION } = require('@condo/domains/subscrip
 const { GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const ServiceSubscription = generateServerUtils('ServiceSubscription')
 const SubscriptionPlan = generateServerUtils('SubscriptionPlan')
 const SubscriptionPlanPricingRule = generateServerUtils('SubscriptionPlanPricingRule')
 const SubscriptionContext = generateServerUtils('SubscriptionContext')
@@ -42,7 +41,6 @@ async function getAvailableSubscriptionPlans (context, organizationId) {
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    ServiceSubscription,
     SubscriptionPlan,
     SubscriptionPlanPricingRule,
     SubscriptionContext,
