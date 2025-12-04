@@ -3,7 +3,7 @@
  */
 
 const Big = require('big.js')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { split } = require('@open-condo/billing/utils/paymentSplitter')
 const conf = require('@open-condo/config')

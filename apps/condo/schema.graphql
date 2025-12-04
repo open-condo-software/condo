@@ -66691,12 +66691,12 @@ type PaymentWebhookDeliveryHistoryRecord {
   callbackUrl: String
   status: String
   attempt: Int
-  httpStatusCode: Int
-  responseBody: String
-  errorMessage: String
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
   expiresAt: String
   nextRetryAt: String
-  sentAt: String
+  lastSentAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -66799,50 +66799,50 @@ input PaymentWebhookDeliveryHistoryRecordWhereInput {
   attempt_gte: Int
   attempt_in: [Int]
   attempt_not_in: [Int]
-  httpStatusCode: Int
-  httpStatusCode_not: Int
-  httpStatusCode_lt: Int
-  httpStatusCode_lte: Int
-  httpStatusCode_gt: Int
-  httpStatusCode_gte: Int
-  httpStatusCode_in: [Int]
-  httpStatusCode_not_in: [Int]
-  responseBody: String
-  responseBody_not: String
-  responseBody_contains: String
-  responseBody_not_contains: String
-  responseBody_starts_with: String
-  responseBody_not_starts_with: String
-  responseBody_ends_with: String
-  responseBody_not_ends_with: String
-  responseBody_i: String
-  responseBody_not_i: String
-  responseBody_contains_i: String
-  responseBody_not_contains_i: String
-  responseBody_starts_with_i: String
-  responseBody_not_starts_with_i: String
-  responseBody_ends_with_i: String
-  responseBody_not_ends_with_i: String
-  responseBody_in: [String]
-  responseBody_not_in: [String]
-  errorMessage: String
-  errorMessage_not: String
-  errorMessage_contains: String
-  errorMessage_not_contains: String
-  errorMessage_starts_with: String
-  errorMessage_not_starts_with: String
-  errorMessage_ends_with: String
-  errorMessage_not_ends_with: String
-  errorMessage_i: String
-  errorMessage_not_i: String
-  errorMessage_contains_i: String
-  errorMessage_not_contains_i: String
-  errorMessage_starts_with_i: String
-  errorMessage_not_starts_with_i: String
-  errorMessage_ends_with_i: String
-  errorMessage_not_ends_with_i: String
-  errorMessage_in: [String]
-  errorMessage_not_in: [String]
+  lastHttpStatusCode: Int
+  lastHttpStatusCode_not: Int
+  lastHttpStatusCode_lt: Int
+  lastHttpStatusCode_lte: Int
+  lastHttpStatusCode_gt: Int
+  lastHttpStatusCode_gte: Int
+  lastHttpStatusCode_in: [Int]
+  lastHttpStatusCode_not_in: [Int]
+  lastResponseBody: String
+  lastResponseBody_not: String
+  lastResponseBody_contains: String
+  lastResponseBody_not_contains: String
+  lastResponseBody_starts_with: String
+  lastResponseBody_not_starts_with: String
+  lastResponseBody_ends_with: String
+  lastResponseBody_not_ends_with: String
+  lastResponseBody_i: String
+  lastResponseBody_not_i: String
+  lastResponseBody_contains_i: String
+  lastResponseBody_not_contains_i: String
+  lastResponseBody_starts_with_i: String
+  lastResponseBody_not_starts_with_i: String
+  lastResponseBody_ends_with_i: String
+  lastResponseBody_not_ends_with_i: String
+  lastResponseBody_in: [String]
+  lastResponseBody_not_in: [String]
+  lastErrorMessage: String
+  lastErrorMessage_not: String
+  lastErrorMessage_contains: String
+  lastErrorMessage_not_contains: String
+  lastErrorMessage_starts_with: String
+  lastErrorMessage_not_starts_with: String
+  lastErrorMessage_ends_with: String
+  lastErrorMessage_not_ends_with: String
+  lastErrorMessage_i: String
+  lastErrorMessage_not_i: String
+  lastErrorMessage_contains_i: String
+  lastErrorMessage_not_contains_i: String
+  lastErrorMessage_starts_with_i: String
+  lastErrorMessage_not_starts_with_i: String
+  lastErrorMessage_ends_with_i: String
+  lastErrorMessage_not_ends_with_i: String
+  lastErrorMessage_in: [String]
+  lastErrorMessage_not_in: [String]
   expiresAt: String
   expiresAt_not: String
   expiresAt_lt: String
@@ -66859,14 +66859,14 @@ input PaymentWebhookDeliveryHistoryRecordWhereInput {
   nextRetryAt_gte: String
   nextRetryAt_in: [String]
   nextRetryAt_not_in: [String]
-  sentAt: String
-  sentAt_not: String
-  sentAt_lt: String
-  sentAt_lte: String
-  sentAt_gt: String
-  sentAt_gte: String
-  sentAt_in: [String]
-  sentAt_not_in: [String]
+  lastSentAt: String
+  lastSentAt_not: String
+  lastSentAt_lt: String
+  lastSentAt_lte: String
+  lastSentAt_gt: String
+  lastSentAt_gte: String
+  lastSentAt_in: [String]
+  lastSentAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -66960,18 +66960,18 @@ enum SortPaymentWebhookDeliveryHistoryRecordsBy {
   status_DESC
   attempt_ASC
   attempt_DESC
-  httpStatusCode_ASC
-  httpStatusCode_DESC
-  responseBody_ASC
-  responseBody_DESC
-  errorMessage_ASC
-  errorMessage_DESC
+  lastHttpStatusCode_ASC
+  lastHttpStatusCode_DESC
+  lastResponseBody_ASC
+  lastResponseBody_DESC
+  lastErrorMessage_ASC
+  lastErrorMessage_DESC
   expiresAt_ASC
   expiresAt_DESC
   nextRetryAt_ASC
   nextRetryAt_DESC
-  sentAt_ASC
-  sentAt_DESC
+  lastSentAt_ASC
+  lastSentAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -66997,12 +66997,12 @@ input PaymentWebhookDeliveryHistoryRecordUpdateInput {
   callbackUrl: String
   status: String
   attempt: Int
-  httpStatusCode: Int
-  responseBody: String
-  errorMessage: String
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
   expiresAt: String
   nextRetryAt: String
-  sentAt: String
+  lastSentAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -67029,12 +67029,12 @@ input PaymentWebhookDeliveryHistoryRecordCreateInput {
   callbackUrl: String
   status: String
   attempt: Int
-  httpStatusCode: Int
-  responseBody: String
-  errorMessage: String
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
   expiresAt: String
   nextRetryAt: String
-  sentAt: String
+  lastSentAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -67114,14 +67114,14 @@ type PaymentWebhookDelivery {
   attempt: Int
 
   """ HTTP status code from the last delivery attempt """
-  httpStatusCode: Int
+  lastHttpStatusCode: Int
 
   """ Response body from the last delivery attempt (truncated to 1000 chars) 
   """
-  responseBody: String
+  lastResponseBody: String
 
   """ Error message from the last delivery attempt """
-  errorMessage: String
+  lastErrorMessage: String
 
   """ Timestamp after which no more delivery attempts will be made """
   expiresAt: String
@@ -67130,7 +67130,7 @@ type PaymentWebhookDelivery {
   nextRetryAt: String
 
   """ Timestamp of the last delivery attempt """
-  sentAt: String
+  lastSentAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -67197,50 +67197,50 @@ input PaymentWebhookDeliveryWhereInput {
   attempt_gte: Int
   attempt_in: [Int]
   attempt_not_in: [Int]
-  httpStatusCode: Int
-  httpStatusCode_not: Int
-  httpStatusCode_lt: Int
-  httpStatusCode_lte: Int
-  httpStatusCode_gt: Int
-  httpStatusCode_gte: Int
-  httpStatusCode_in: [Int]
-  httpStatusCode_not_in: [Int]
-  responseBody: String
-  responseBody_not: String
-  responseBody_contains: String
-  responseBody_not_contains: String
-  responseBody_starts_with: String
-  responseBody_not_starts_with: String
-  responseBody_ends_with: String
-  responseBody_not_ends_with: String
-  responseBody_i: String
-  responseBody_not_i: String
-  responseBody_contains_i: String
-  responseBody_not_contains_i: String
-  responseBody_starts_with_i: String
-  responseBody_not_starts_with_i: String
-  responseBody_ends_with_i: String
-  responseBody_not_ends_with_i: String
-  responseBody_in: [String]
-  responseBody_not_in: [String]
-  errorMessage: String
-  errorMessage_not: String
-  errorMessage_contains: String
-  errorMessage_not_contains: String
-  errorMessage_starts_with: String
-  errorMessage_not_starts_with: String
-  errorMessage_ends_with: String
-  errorMessage_not_ends_with: String
-  errorMessage_i: String
-  errorMessage_not_i: String
-  errorMessage_contains_i: String
-  errorMessage_not_contains_i: String
-  errorMessage_starts_with_i: String
-  errorMessage_not_starts_with_i: String
-  errorMessage_ends_with_i: String
-  errorMessage_not_ends_with_i: String
-  errorMessage_in: [String]
-  errorMessage_not_in: [String]
+  lastHttpStatusCode: Int
+  lastHttpStatusCode_not: Int
+  lastHttpStatusCode_lt: Int
+  lastHttpStatusCode_lte: Int
+  lastHttpStatusCode_gt: Int
+  lastHttpStatusCode_gte: Int
+  lastHttpStatusCode_in: [Int]
+  lastHttpStatusCode_not_in: [Int]
+  lastResponseBody: String
+  lastResponseBody_not: String
+  lastResponseBody_contains: String
+  lastResponseBody_not_contains: String
+  lastResponseBody_starts_with: String
+  lastResponseBody_not_starts_with: String
+  lastResponseBody_ends_with: String
+  lastResponseBody_not_ends_with: String
+  lastResponseBody_i: String
+  lastResponseBody_not_i: String
+  lastResponseBody_contains_i: String
+  lastResponseBody_not_contains_i: String
+  lastResponseBody_starts_with_i: String
+  lastResponseBody_not_starts_with_i: String
+  lastResponseBody_ends_with_i: String
+  lastResponseBody_not_ends_with_i: String
+  lastResponseBody_in: [String]
+  lastResponseBody_not_in: [String]
+  lastErrorMessage: String
+  lastErrorMessage_not: String
+  lastErrorMessage_contains: String
+  lastErrorMessage_not_contains: String
+  lastErrorMessage_starts_with: String
+  lastErrorMessage_not_starts_with: String
+  lastErrorMessage_ends_with: String
+  lastErrorMessage_not_ends_with: String
+  lastErrorMessage_i: String
+  lastErrorMessage_not_i: String
+  lastErrorMessage_contains_i: String
+  lastErrorMessage_not_contains_i: String
+  lastErrorMessage_starts_with_i: String
+  lastErrorMessage_not_starts_with_i: String
+  lastErrorMessage_ends_with_i: String
+  lastErrorMessage_not_ends_with_i: String
+  lastErrorMessage_in: [String]
+  lastErrorMessage_not_in: [String]
   expiresAt: String
   expiresAt_not: String
   expiresAt_lt: String
@@ -67257,14 +67257,14 @@ input PaymentWebhookDeliveryWhereInput {
   nextRetryAt_gte: String
   nextRetryAt_in: [String]
   nextRetryAt_not_in: [String]
-  sentAt: String
-  sentAt_not: String
-  sentAt_lt: String
-  sentAt_lte: String
-  sentAt_gt: String
-  sentAt_gte: String
-  sentAt_in: [String]
-  sentAt_not_in: [String]
+  lastSentAt: String
+  lastSentAt_not: String
+  lastSentAt_lt: String
+  lastSentAt_lte: String
+  lastSentAt_gt: String
+  lastSentAt_gte: String
+  lastSentAt_in: [String]
+  lastSentAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -67340,18 +67340,18 @@ enum SortPaymentWebhookDeliveriesBy {
   status_DESC
   attempt_ASC
   attempt_DESC
-  httpStatusCode_ASC
-  httpStatusCode_DESC
-  responseBody_ASC
-  responseBody_DESC
-  errorMessage_ASC
-  errorMessage_DESC
+  lastHttpStatusCode_ASC
+  lastHttpStatusCode_DESC
+  lastResponseBody_ASC
+  lastResponseBody_DESC
+  lastErrorMessage_ASC
+  lastErrorMessage_DESC
   expiresAt_ASC
   expiresAt_DESC
   nextRetryAt_ASC
   nextRetryAt_DESC
-  sentAt_ASC
-  sentAt_DESC
+  lastSentAt_ASC
+  lastSentAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -67377,12 +67377,12 @@ input PaymentWebhookDeliveryUpdateInput {
   callbackUrl: String
   status: PaymentWebhookDeliveryStatusType
   attempt: Int
-  httpStatusCode: Int
-  responseBody: String
-  errorMessage: String
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
   expiresAt: String
   nextRetryAt: String
-  sentAt: String
+  lastSentAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -67406,12 +67406,12 @@ input PaymentWebhookDeliveryCreateInput {
   callbackUrl: String
   status: PaymentWebhookDeliveryStatusType
   attempt: Int
-  httpStatusCode: Int
-  responseBody: String
-  errorMessage: String
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
   expiresAt: String
   nextRetryAt: String
-  sentAt: String
+  lastSentAt: String
   v: Int
   createdAt: String
   updatedAt: String

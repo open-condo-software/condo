@@ -93,7 +93,7 @@ describe('sendPaymentWebhook', () => {
                 'delivery-uuid',
                 expect.objectContaining({
                     status: PAYMENT_WEBHOOK_DELIVERY_STATUS_FAILED,
-                    errorMessage: 'Delivery expired after TTL',
+                    lastErrorMessage: 'Delivery expired after TTL',
                 })
             )
         })
@@ -113,8 +113,8 @@ describe('sendPaymentWebhook', () => {
                 'delivery-uuid',
                 expect.objectContaining({
                     status: PAYMENT_WEBHOOK_DELIVERY_STATUS_SUCCESS,
-                    httpStatusCode: 200,
-                    responseBody: '{"received":true}',
+                    lastHttpStatusCode: 200,
+                    lastResponseBody: '{"received":true}',
                     attempt: 1,
                 })
             )
@@ -138,9 +138,9 @@ describe('sendPaymentWebhook', () => {
                 'delivery-uuid',
                 expect.objectContaining({
                     status: PAYMENT_WEBHOOK_DELIVERY_STATUS_PENDING,
-                    httpStatusCode: 500,
-                    responseBody: 'Server error',
-                    errorMessage: 'HTTP 500: Internal Server Error',
+                    lastHttpStatusCode: 500,
+                    lastResponseBody: 'Server error',
+                    lastErrorMessage: 'HTTP 500: Internal Server Error',
                     nextRetryAt,
                     attempt: 1,
                 })
@@ -168,7 +168,7 @@ describe('sendPaymentWebhook', () => {
                 'delivery-uuid',
                 expect.objectContaining({
                     status: PAYMENT_WEBHOOK_DELIVERY_STATUS_FAILED,
-                    errorMessage: 'Connection refused',
+                    lastErrorMessage: 'Connection refused',
                     attempt: 1,
                 })
             )

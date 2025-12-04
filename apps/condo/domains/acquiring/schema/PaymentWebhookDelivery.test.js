@@ -150,14 +150,14 @@ describe('PaymentWebhookDelivery', () => {
 
                 const [updatedDelivery] = await updateTestPaymentWebhookDelivery(adminClient, delivery.id, {
                     status: PAYMENT_WEBHOOK_DELIVERY_STATUS_SUCCESS,
-                    httpStatusCode: 200,
-                    responseBody: '{"received":true}',
-                    sentAt: dayjs().toISOString(),
+                    lastHttpStatusCode: 200,
+                    lastResponseBody: '{"received":true}',
+                    lastSentAt: dayjs().toISOString(),
                 })
 
                 expect(updatedDelivery.status).toBe(PAYMENT_WEBHOOK_DELIVERY_STATUS_SUCCESS)
-                expect(updatedDelivery.httpStatusCode).toBe(200)
-                expect(updatedDelivery.responseBody).toBe('{"received":true}')
+                expect(updatedDelivery.lastHttpStatusCode).toBe(200)
+                expect(updatedDelivery.lastResponseBody).toBe('{"received":true}')
             })
 
             test('anonymous: cannot update PaymentWebhookDelivery', async () => {
@@ -212,11 +212,11 @@ describe('PaymentWebhookDelivery', () => {
 
             const [updatedDelivery] = await updateTestPaymentWebhookDelivery(adminClient, delivery.id, {
                 status: PAYMENT_WEBHOOK_DELIVERY_STATUS_FAILED,
-                errorMessage: 'Connection refused',
+                lastErrorMessage: 'Connection refused',
             })
 
             expect(updatedDelivery.status).toBe(PAYMENT_WEBHOOK_DELIVERY_STATUS_FAILED)
-            expect(updatedDelivery.errorMessage).toBe('Connection refused')
+            expect(updatedDelivery.lastErrorMessage).toBe('Connection refused')
         })
 
         test('should increment attempt on update', async () => {
@@ -353,7 +353,7 @@ describe('PaymentWebhookDelivery', () => {
 
             const successDelivery = deliveries.find(d => d.status === PAYMENT_WEBHOOK_DELIVERY_STATUS_SUCCESS)
             expect(successDelivery).toBeTruthy()
-            expect(successDelivery.httpStatusCode).toBe(200)
+            expect(successDelivery.lastHttpStatusCode).toBe(200)
         })
 
         test('webhook delivery fails and records error on 500 response', async () => {

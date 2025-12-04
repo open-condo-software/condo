@@ -67,19 +67,19 @@ const PaymentWebhookDelivery = new GQLListSchema('PaymentWebhookDelivery', {
             isRequired: true,
         },
 
-        httpStatusCode: {
+        lastHttpStatusCode: {
             schemaDoc: 'HTTP status code from the last delivery attempt',
             type: 'Integer',
             isRequired: false,
         },
 
-        responseBody: {
+        lastResponseBody: {
             schemaDoc: 'Response body from the last delivery attempt (truncated to 1000 chars)',
             type: 'Text',
             isRequired: false,
         },
 
-        errorMessage: {
+        lastErrorMessage: {
             schemaDoc: 'Error message from the last delivery attempt',
             type: 'Text',
             isRequired: false,
@@ -113,7 +113,7 @@ const PaymentWebhookDelivery = new GQLListSchema('PaymentWebhookDelivery', {
             },
         },
 
-        sentAt: {
+        lastSentAt: {
             schemaDoc: 'Timestamp of the last delivery attempt',
             type: 'DateTimeUtc',
             isRequired: false,
