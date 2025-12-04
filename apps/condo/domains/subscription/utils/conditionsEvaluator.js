@@ -3,11 +3,8 @@
  * 
  * Condition format (json-rules-engine):
  * {
- *   conditions: {
- *     all: [condition, ...],  // AND - all conditions must match
- *     any: [condition, ...],  // OR - at least one condition must match
- *   },
- *   event: { type: 'match' }  // Required by json-rules-engine but not used
+ *   all: [condition, ...],  // AND - all conditions must match
+ *   any: [condition, ...],  // OR - at least one condition must match
  * }
  * 
  * Single condition:
@@ -18,7 +15,7 @@
  * - organizationFeatures (array) - organization.features
  * 
  * Operators:
- * - contains, doesNotContain (for arrays)
+ * - contains (for arrays)
  * - equal, notEqual
  * - in, notIn (value is array)
  */
@@ -26,20 +23,13 @@
 const { Engine } = require('json-rules-engine')
 
 const SUPPORTED_FACTS = ['organizationIds', 'organizationFeatures']
-const SUPPORTED_OPERATORS = ['contains', 'doesNotContain', 'equal', 'notEqual', 'in', 'notIn']
+const SUPPORTED_OPERATORS = ['contains', 'equal', 'notEqual', 'in', 'notIn']
 
 /**
  * Create engine with custom operators
  */
 function createEngine () {
     const engine = new Engine([], { allowUndefinedFacts: true })
-
-    // Add custom operator: doesNotContain
-    engine.addOperator('doesNotContain', (factValue, jsonValue) => {
-        if (!Array.isArray(factValue)) return true
-        return !factValue.includes(jsonValue)
-    })
-
     return engine
 }
 
@@ -66,12 +56,12 @@ function toEngineRule (conditions) {
 }
 
 /**
- * Evaluate conditions against context (async)
+ * Evaluate conditions against context using json-rules-engine
  * @param {Object|null} conditions
  * @param {Object} context - { organization }
  * @returns {Promise<boolean>}
  */
-async function evaluateConditionsAsync (conditions, context) {
+async function evaluateConditions (conditions, context) {
     if (!conditions || Object.keys(conditions).length === 0) return true
 
     const engine = createEngine()
@@ -82,114 +72,6 @@ async function evaluateConditionsAsync (conditions, context) {
     const { events } = await engine.run(facts)
 
     return events.length > 0
-}
-
-/**
- * Evaluate conditions synchronously (for backward compatibility)
- * Uses custom sync implementation since json-rules-engine is async
- * @param {Object|null} conditions
- * @param {Object} context - { organization }
- * @returns {boolean}
- */
-function evaluateConditions (conditions, context) {
-    if (!conditions || Object.keys(conditions).length === 0) return true
-    const facts = buildFacts(context)
-    return evaluateNodeSync(conditions, facts).match
-}
-
-/**
- * Evaluate a single condition synchronously
- */
-function evaluateSingleConditionSync (condition, facts) {
-    const { fact, operator, value } = condition
-    const factValue = facts[fact]
-
-    let match = false
-
-    switch (operator) {
-        case 'contains':
-            match = Array.isArray(factValue) && factValue.includes(value)
-            break
-        case 'doesNotContain':
-            match = !Array.isArray(factValue) || !factValue.includes(value)
-            break
-        case 'equal':
-            match = factValue === value
-            break
-        case 'notEqual':
-            match = factValue !== value
-            break
-        case 'in':
-            match = Array.isArray(value) && value.includes(factValue)
-            break
-        case 'notIn':
-            match = !Array.isArray(value) || !value.includes(factValue)
-            break
-        default:
-            match = false
-    }
-
-    return { match, condition }
-}
-
-/**
- * Evaluate conditions recursively (sync)
- */
-function evaluateNodeSync (conditions, facts) {
-    if (!conditions || typeof conditions !== 'object') {
-        return { match: true, results: [] }
-    }
-
-    if (Array.isArray(conditions.all)) {
-        const results = conditions.all.map(c => {
-            if (c.all || c.any) return evaluateNodeSync(c, facts)
-            return evaluateSingleConditionSync(c, facts)
-        })
-        return { match: results.every(r => r.match), results }
-    }
-
-    if (Array.isArray(conditions.any)) {
-        const results = conditions.any.map(c => {
-            if (c.all || c.any) return evaluateNodeSync(c, facts)
-            return evaluateSingleConditionSync(c, facts)
-        })
-        return { match: results.some(r => r.match), results }
-    }
-
-    if (conditions.fact) {
-        const result = evaluateSingleConditionSync(conditions, facts)
-        return { match: result.match, results: [result] }
-    }
-
-    return { match: true, results: [] }
-}
-
-/**
- * Evaluate with details - returns failed conditions for promotions
- * @param {Object|null} conditions
- * @param {Object} context
- * @returns {{ match: boolean, failedConditions: Array }}
- */
-function evaluateConditionsWithDetails (conditions, context) {
-    if (!conditions || Object.keys(conditions).length === 0) {
-        return { match: true, failedConditions: [] }
-    }
-
-    const facts = buildFacts(context)
-    const { match, results } = evaluateNodeSync(conditions, facts)
-
-    const failedConditions = []
-    function collectFailed (resultList) {
-        for (const r of resultList) {
-            if (!r.match) {
-                if (r.condition) failedConditions.push(r.condition)
-                if (r.results) collectFailed(r.results)
-            }
-        }
-    }
-    collectFailed(results)
-
-    return { match, failedConditions }
 }
 
 /**
@@ -277,36 +159,9 @@ function validateConditions (conditions) {
     return validateNode(conditions)
 }
 
-/**
- * Check if conditions contain organizationIds fact (custom pricing for specific organizations)
- * @param {Object|null} conditions
- * @returns {boolean}
- */
-function hasOrganizationIdCondition (conditions) {
-    if (!conditions || typeof conditions !== 'object') return false
-
-    function checkNode (node) {
-        if (Array.isArray(node.all)) {
-            return node.all.some(checkNode)
-        }
-        if (Array.isArray(node.any)) {
-            return node.any.some(checkNode)
-        }
-        if (node.fact === 'organizationIds') {
-            return true
-        }
-        return false
-    }
-
-    return checkNode(conditions)
-}
-
 module.exports = {
     evaluateConditions,
-    evaluateConditionsAsync,
-    evaluateConditionsWithDetails,
     validateConditions,
-    hasOrganizationIdCondition,
     createEngine,
     SUPPORTED_FACTS,
     SUPPORTED_OPERATORS,
