@@ -60479,6 +60479,13 @@ enum MultiPaymentStatusType {
   WITHDRAWN
 }
 
+type PayerInfo {
+  id: ID!
+  name: String
+  email: String
+  phone: String
+}
+
 input PaymentRelateToManyInput {
   create: [PaymentCreateInput]
   connect: [PaymentWhereUniqueInput]
@@ -60564,6 +60571,10 @@ type MultiPayment {
 
   """ Link to user """
   user: User
+
+  """ Personal information for service account about user, who made this payment 
+  """
+  payerInfo: PayerInfo
 
   """ Link to all related payments """
   payments(where: PaymentWhereInput, search: String, sortBy: [SortPaymentsBy!], orderBy: String, first: Int, skip: Int): [Payment!]!

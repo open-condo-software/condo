@@ -28,6 +28,8 @@ const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domain
 const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require('@condo/domains/acquiring/gql')
 const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql')
+const { MultiPaymentWithPayerInfo: MultiPaymentWithPayerInfoGQL } = require('@condo/domains/acquiring/gql')
+const { MultiPaymentAdmin: MultiPaymentAdminGQL } = require('@condo/domains/acquiring/gql')
 const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 
 const dayjs = require('dayjs')
@@ -71,6 +73,8 @@ const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
 const AcquiringIntegrationAccessRight = generateGQLTestUtils(AcquiringIntegrationAccessRightGQL)
 const AcquiringIntegrationContext = generateGQLTestUtils(AcquiringIntegrationContextGQL)
 const MultiPayment = generateGQLTestUtils(MultiPaymentGQL)
+const MultiPaymentWithPayerInfo = generateGQLTestUtils(MultiPaymentWithPayerInfoGQL)
+const MultiPaymentAdmin = generateGQLTestUtils(MultiPaymentAdminGQL)
 const Payment = generateGQLTestUtils(PaymentGQL)
 const PaymentsFilterTemplate = generateGQLTestUtils(PaymentsFilterTemplateGQL)
 const RecurrentPaymentContext = generateGQLTestUtils(RecurrentPaymentContextGQL)
@@ -876,7 +880,7 @@ module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
     AcquiringIntegrationContext, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext,
-    MultiPayment, createTestMultiPayment, updateTestMultiPayment, addAcquiringIntegrationAndContext,
+    MultiPayment, MultiPaymentWithPayerInfo, MultiPaymentAdmin, createTestMultiPayment, updateTestMultiPayment, addAcquiringIntegrationAndContext,
     makeAcquiringContext,
     makeAcquiringContextAndIntegrationAccount,
     makeAcquiringContextAndIntegrationManager,
