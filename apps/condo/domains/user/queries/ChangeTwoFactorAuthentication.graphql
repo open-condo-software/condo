@@ -1,0 +1,3 @@
+mutation changeTwoFactorAuthentication($data: ChangeTwoFactorAuthenticationInput!) {
+    result: changeTwoFactorAuthentication(data: $data) { status }
+}
