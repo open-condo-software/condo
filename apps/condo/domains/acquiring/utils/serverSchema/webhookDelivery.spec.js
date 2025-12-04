@@ -4,6 +4,7 @@
 
 const crypto = require('crypto')
 
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 jest.mock('@open-condo/keystone/fetch')
@@ -36,7 +37,7 @@ describe('webhookDelivery', () => {
     describe('generateSignature', () => {
         it('should generate HMAC-SHA256 signature', () => {
             const body = '{"test":"data"}'
-            const secret = 'test-secret'
+            const secret = faker.random.alphaNumeric(16)
 
             const signature = generateSignature(body, secret)
 
@@ -404,7 +405,7 @@ describe('webhookDelivery', () => {
             const result = await tryDeliverWebhook(mockDelivery)
 
             expect(result.success).toBe(true)
-            expect(result.body.length).toBe(PAYMENT_WEBHOOK_MAX_RESPONSE_LENGTH)
+            expect(result.body).toHaveLength(PAYMENT_WEBHOOK_MAX_RESPONSE_LENGTH)
         })
 
         it('should send correct headers', async () => {
