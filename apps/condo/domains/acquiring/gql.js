@@ -103,7 +103,7 @@ const SET_PAYMENT_POS_RECEIPT_URL_MUTATION = gql`
     }
 `
 
-const PAYMENT_WEBHOOK_DELIVERY_FIELDS = `{ payment { id } previousStatus newStatus callbackUrl status attempt httpStatusCode responseBody errorMessage expiresAt nextRetryAt sentAt ${COMMON_FIELDS} }`
+const PAYMENT_WEBHOOK_DELIVERY_FIELDS = `{ payment { id } previousStatus newStatus callbackUrl status attempt lastHttpStatusCode lastResponseBody lastErrorMessage expiresAt nextRetryAt lastSentAt ${COMMON_FIELDS} }`
 const PaymentWebhookDelivery = generateGqlQueries('PaymentWebhookDelivery', PAYMENT_WEBHOOK_DELIVERY_FIELDS)
 
 const PAYMENT_WEBHOOK_DELIVERY_WHITE_LIST_ITEM_FIELDS = `{ url name description isEnabled ${COMMON_FIELDS} }`
