@@ -524,7 +524,10 @@ const Payment = new GQLListSchema('Payment', {
 
                 if (callbackUrl) {
                     const dayjs = require('dayjs')
-                    const delivery = await PaymentWebhookDelivery.create(context, {
+                    // Use sudo context because PaymentWebhookDelivery access is restricted to admin/support only,
+                    // but this internal operation should work regardless of who triggered the payment update
+                    const sudoContext = context.sudo()
+                    const delivery = await PaymentWebhookDelivery.create(sudoContext, {
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'Payment_webhookTrigger' },
                         payment: { connect: { id: updatedItem.id } },

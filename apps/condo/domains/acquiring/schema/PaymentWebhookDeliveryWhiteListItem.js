@@ -20,6 +20,15 @@ const ERRORS = {
 }
 
 const httpsUrlSchema = z.url().startsWith('https://')
+// Allow HTTP for localhost (for testing purposes)
+const httpLocalhostUrlSchema = z.url().refine(
+    (url) => url.startsWith('http://localhost') || url.startsWith('http://127.0.0.1'),
+    { message: 'HTTP is only allowed for localhost' }
+)
+
+function isValidWebhookUrl (url) {
+    return httpsUrlSchema.safeParse(url).success || httpLocalhostUrlSchema.safeParse(url).success
+}
 
 
 const PaymentWebhookDeliveryWhiteListItem = new GQLListSchema('PaymentWebhookDeliveryWhiteListItem', {
@@ -56,8 +65,7 @@ const PaymentWebhookDeliveryWhiteListItem = new GQLListSchema('PaymentWebhookDel
         validateInput: async ({ resolvedData, context }) => {
             const url = resolvedData['url']
             if (url !== undefined) {
-                const result = httpsUrlSchema.safeParse(url)
-                if (!result.success) {
+                if (!isValidWebhookUrl(url)) {
                     throw new GQLError(ERRORS.INVALID_URL, context)
                 }
             }
