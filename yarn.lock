@@ -13469,6 +13469,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pos-integration/domains@link:./domains::locator=%40app%2Fpos-integration%40workspace%3Aapps%2Fpos-integration":
+  version: 0.0.0-use.local
+  resolution: "@pos-integration/domains@link:./domains::locator=%40app%2Fpos-integration%40workspace%3Aapps%2Fpos-integration"
+  languageName: node
+  linkType: soft
+
 "@primer/octicons-react@npm:^11.3.0":
   version: 11.3.0
   resolution: "@primer/octicons-react@npm:11.3.0"
