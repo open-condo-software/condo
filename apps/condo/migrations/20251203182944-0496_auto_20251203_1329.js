@@ -5,6 +5,10 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';
+--
 -- Create model subscriptioncontext
 --
 CREATE TABLE "SubscriptionContext" ("startAt" timestamp with time zone NOT NULL, "endAt" timestamp with time zone NULL, "basePrice" numeric(18, 8) NULL, "calculatedPrice" numeric(18, 8) NULL, "appliedRules" jsonb NOT NULL, "isTrial" boolean NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "dv" integer NOT NULL, "sender" jsonb NOT NULL, "createdBy" uuid NULL, "organization" uuid NOT NULL);
@@ -81,6 +85,26 @@ CREATE INDEX "SubscriptionPlanPricingRule_updatedBy_a1c5d5f3" ON "SubscriptionPl
 CREATE INDEX "SubscriptionPlanPricingRuleHistoryRecord_history_id_d07328a4" ON "SubscriptionPlanPricingRuleHistoryRecord" ("history_id");
 CREATE INDEX "SubscriptionContext_subscriptionPlan_c8a0023f" ON "SubscriptionContext" ("subscriptionPlan");
 CREATE INDEX "SubscriptionContext_updatedBy_a00d428c" ON "SubscriptionContext" ("updatedBy");
+
+--
+-- [CUSTOM] Add canManageSubscriptions permission to Administrator role
+--
+UPDATE "OrganizationEmployeeRole" SET "canManageSubscriptions" = true WHERE "name" = 'employee.role.Administrator.name';
+
+--
+-- [CUSTOM] Add active_banking feature to all SBBOL organizations
+--
+UPDATE "Organization" 
+SET features = COALESCE(features, '[]'::jsonb) || '"active_banking"'::jsonb
+WHERE "importRemoteSystem" = 'sbbol' 
+  AND "deletedAt" IS NULL
+  AND NOT (COALESCE(features, '[]'::jsonb) @> '"active_banking"'::jsonb);
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
