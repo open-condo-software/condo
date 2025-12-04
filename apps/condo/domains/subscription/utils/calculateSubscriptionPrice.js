@@ -38,7 +38,7 @@ async function calculateSubscriptionPrice (subscriptionPlanId, period, organizat
     // Find first matching rule
     for (const rule of rules) {
         // Evaluate conditions
-        if (!evaluateConditions(rule.conditions, context)) {
+        if (!await evaluateConditions(rule.conditions, context)) {
             continue
         }
 
