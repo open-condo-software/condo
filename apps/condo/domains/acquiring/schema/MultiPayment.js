@@ -3,11 +3,13 @@
  */
 
 const Big = require('big.js')
-const { compact, get, uniq } = require('lodash')
+const compact = require('lodash/compact')
+const get = require('lodash/get')
+const uniq = require('lodash/uniq')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { getById, find, getByCondition } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/MultiPayment')
@@ -215,6 +217,23 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     }
                 },
             },
+        },
+
+        payerInfo: {
+            schemaDoc: 'Personal information for service account about user, who made this payment',
+            type: 'Virtual',
+            extendGraphQLTypes: ['type PayerInfo { id: ID!, name: String, email: String, phone: String }'],
+            graphQLReturnType: 'PayerInfo',
+            graphQLReturnFragment: '{ id name email phone }',
+            resolver: async (item, _args, _context) => {
+                if (!item?.user) return null
+                const user = await getByCondition('User', { id: item.user, deletedAt: null })
+                if (!user) return null
+                const email = user.isEmailVerified ? user.email : null
+                const phone = user.isPhoneVerified ? user.phone : null
+                return { id: user.id, name: user.name, email, phone }
+            },
+            access: access.canReadPayerInfoField,
         },
 
         payments: {

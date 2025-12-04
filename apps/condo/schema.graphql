@@ -61751,6 +61751,13 @@ enum PaymentStatusType {
   WITHDRAWN
 }
 
+type PayerInfo {
+  id: ID!
+  name: String
+  email: String
+  phone: String
+}
+
 """ Information about completed transaction from user to a specific organization 
 """
 type Payment {
@@ -61866,6 +61873,9 @@ type Payment {
 
   """ URL of the POS receipt """
   posReceiptUrl: String
+
+  """ Information for service account about user, who made this payment """
+  payerInfo: PayerInfo
   id: ID!
   v: Int
   createdAt: String
@@ -69341,7 +69351,6 @@ enum B2BAppIconType {
   FloorParking
   Frown
   Globe
-  GripHorizontal
   Guide
   History
   Home
