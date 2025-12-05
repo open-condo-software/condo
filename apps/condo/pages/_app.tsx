@@ -492,11 +492,6 @@ const MyApp = ({ Component, pageProps }) => {
         RequiredAccess = Component.requiredAccess
     }
 
-    const {
-        EndTrialSubscriptionReminderPopup,
-        isEndTrialSubscriptionReminderPopupVisible,
-    } = useEndTrialSubscriptionReminderPopup()
-
     const shouldDisplayCookieAgreement = router.pathname.match(/\/auth(\/.*)?/)
 
     // NOTE: We remember that the client has already been authorized,
@@ -532,30 +527,23 @@ const MyApp = ({ Component, pageProps }) => {
                                 <TasksProvider>
                                     <PostMessageProvider>
                                         <TourProvider>
-                                            <SubscriptionProvider>
-                                                <GlobalAppsFeaturesProvider>
-                                                    <GlobalAppsContainer/>
-                                                    <TicketVisibilityContextProvider>
-                                                        <ActiveCallContextProvider>
-                                                            <ConnectedAppsWithIconsContextProvider>
-                                                                <CondoAppEventsHandler/>
-                                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                    <RequiredAccess>
-                                                                        <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                            <Component {...pageProps} />
-                                                                            {
-                                                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                    <EndTrialSubscriptionReminderPopup/>
-                                                                                )
-                                                                            }
-                                                                        </FeaturesReady>
-                                                                    </RequiredAccess>
-                                                                </LayoutComponent>
-                                                            </ConnectedAppsWithIconsContextProvider>
-                                                        </ActiveCallContextProvider>
-                                                    </TicketVisibilityContextProvider>
-                                                </GlobalAppsFeaturesProvider>
-                                            </SubscriptionProvider>
+                                            <GlobalAppsFeaturesProvider>
+                                                <GlobalAppsContainer/>
+                                                <TicketVisibilityContextProvider>
+                                                    <ActiveCallContextProvider>
+                                                        <ConnectedAppsWithIconsContextProvider>
+                                                            <CondoAppEventsHandler/>
+                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                <RequiredAccess>
+                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                        <Component {...pageProps} />
+                                                                    </FeaturesReady>
+                                                                </RequiredAccess>
+                                                            </LayoutComponent>
+                                                        </ConnectedAppsWithIconsContextProvider>
+                                                    </ActiveCallContextProvider>
+                                                </TicketVisibilityContextProvider>
+                                            </GlobalAppsFeaturesProvider>
                                         </TourProvider>
                                     </PostMessageProvider>
                                 </TasksProvider>
