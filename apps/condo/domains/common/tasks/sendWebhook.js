@@ -5,37 +5,37 @@ const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const {
-    PAYMENT_WEBHOOK_DELIVERY_STATUS_PENDING,
-    PAYMENT_WEBHOOK_DELIVERY_STATUS_SUCCESS,
-    PAYMENT_WEBHOOK_DELIVERY_STATUS_FAILED,
-} = require('@condo/domains/acquiring/constants/webhook')
-const { PaymentWebhookDelivery } = require('@condo/domains/acquiring/utils/serverSchema')
+    WEBHOOK_DELIVERY_STATUS_PENDING,
+    WEBHOOK_DELIVERY_STATUS_SUCCESS,
+    WEBHOOK_DELIVERY_STATUS_FAILED,
+} = require('@condo/domains/common/constants/webhook')
+const { WebhookDelivery } = require('@condo/domains/common/utils/serverSchema')
 const {
     tryDeliverWebhook,
     calculateNextRetryAt,
-} = require('@condo/domains/acquiring/utils/serverSchema/webhookDelivery')
+} = require('@condo/domains/common/utils/serverSchema/webhookDelivery')
 
 
-const logger = getLogger()
+const logger = getLogger('sendWebhook')
 
-const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendPaymentWebhook' } }
+const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendWebhook' } }
 
 /**
- * Sends a webhook for a payment status change
+ * Sends a webhook delivery
  * Handles delivery, retries with exponential backoff, and expiration
- * @param {string} deliveryId - ID of the PaymentWebhookDelivery record
+ * @param {string} deliveryId - ID of the WebhookDelivery record
  */
-async function sendPaymentWebhook (deliveryId) {
-    const { keystone: context } = getSchemaCtx('PaymentWebhookDelivery')
+async function sendWebhook (deliveryId) {
+    const { keystone: context } = getSchemaCtx('WebhookDelivery')
 
-    const delivery = await getById('PaymentWebhookDelivery', deliveryId)
+    const delivery = await getById('WebhookDelivery', deliveryId)
     if (!delivery) {
         logger.error({ msg: 'Delivery record not found', data: { deliveryId } })
         return
     }
 
     // Skip if already completed
-    if (delivery.status !== PAYMENT_WEBHOOK_DELIVERY_STATUS_PENDING) {
+    if (delivery.status !== WEBHOOK_DELIVERY_STATUS_PENDING) {
         logger.info({ msg: 'Delivery already processed', data: { deliveryId, status: delivery.status } })
         return
     }
@@ -45,8 +45,8 @@ async function sendPaymentWebhook (deliveryId) {
     // Check if expired
     if (now.isAfter(delivery.expiresAt)) {
         logger.warn({ msg: 'Delivery expired', data: { now, deliveryId, expiresAt: delivery.expiresAt } })
-        await PaymentWebhookDelivery.update(context, deliveryId, {
-            status: PAYMENT_WEBHOOK_DELIVERY_STATUS_FAILED,
+        await WebhookDelivery.update(context, deliveryId, {
+            status: WEBHOOK_DELIVERY_STATUS_FAILED,
             lastErrorMessage: 'Delivery expired after TTL',
             ...DV_SENDER,
         })
@@ -59,8 +59,8 @@ async function sendPaymentWebhook (deliveryId) {
 
     if (result.success) {
         // Success - mark as delivered
-        await PaymentWebhookDelivery.update(context, deliveryId, {
-            status: PAYMENT_WEBHOOK_DELIVERY_STATUS_SUCCESS,
+        await WebhookDelivery.update(context, deliveryId, {
+            status: WEBHOOK_DELIVERY_STATUS_SUCCESS,
             lastHttpStatusCode: result.statusCode,
             lastResponseBody: result.body,
             lastSentAt: now.toISOString(),
@@ -77,8 +77,8 @@ async function sendPaymentWebhook (deliveryId) {
         // Check if next retry would be after expiration
         if (nextRetryTime.isAfter(delivery.expiresAt)) {
             // Mark as permanently failed
-            await PaymentWebhookDelivery.update(context, deliveryId, {
-                status: PAYMENT_WEBHOOK_DELIVERY_STATUS_FAILED,
+            await WebhookDelivery.update(context, deliveryId, {
+                status: WEBHOOK_DELIVERY_STATUS_FAILED,
                 lastHttpStatusCode: result.statusCode || null,
                 lastResponseBody: result.body || null,
                 lastErrorMessage: result.error,
@@ -92,8 +92,8 @@ async function sendPaymentWebhook (deliveryId) {
             })
         } else {
             // Schedule retry
-            await PaymentWebhookDelivery.update(context, deliveryId, {
-                status: PAYMENT_WEBHOOK_DELIVERY_STATUS_PENDING,
+            await WebhookDelivery.update(context, deliveryId, {
+                status: WEBHOOK_DELIVERY_STATUS_PENDING,
                 lastHttpStatusCode: result.statusCode || null,
                 lastResponseBody: result.body || null,
                 lastErrorMessage: result.error,
@@ -111,7 +111,7 @@ async function sendPaymentWebhook (deliveryId) {
 }
 
 module.exports = {
-    sendPaymentWebhook: createTask('sendPaymentWebhook', sendPaymentWebhook),
+    sendWebhook: createTask('sendWebhook', sendWebhook),
     // Export raw function for testing
-    _sendPaymentWebhook: sendPaymentWebhook,
+    _sendWebhook: sendWebhook,
 }

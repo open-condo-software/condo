@@ -133,8 +133,6 @@ async function setPaymentPosReceiptUrl (context, data) {
     })
 }
 
-const PaymentWebhookDelivery = generateServerUtils('PaymentWebhookDelivery')
-const PaymentWebhookDeliveryWhiteListItem = generateServerUtils('PaymentWebhookDeliveryWhiteListItem')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -155,7 +153,5 @@ module.exports = {
     calculateFeeForReceipt,
     PaymentsFile,
     setPaymentPosReceiptUrl,
-    PaymentWebhookDelivery,
-    PaymentWebhookDeliveryWhiteListItem,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
