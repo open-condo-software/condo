@@ -10,7 +10,7 @@ const {
     WEBHOOK_PAYLOAD_RETRY_INTERVALS,
 } = require('@open-condo/webhooks/constants')
 
-const logger = getLogger('webhookPayloadDelivery')
+const logger = getLogger()
 
 
 /**
@@ -43,7 +43,7 @@ function calculateNextRetryAt (attempt) {
  * @param {Object} webhookPayload - WebhookPayload record with payload, url, secret, eventType
  * @returns {Promise<Object>} { success: boolean, statusCode?: number, body?: string, error?: string }
  */
-async function tryDeliverWebhookPayload (webhookPayload) {
+async function trySendWebhookPayload (webhookPayload) {
     const { url, payload, secret, eventType } = webhookPayload
 
     if (!url || !payload || !secret) {
@@ -72,9 +72,9 @@ async function tryDeliverWebhookPayload (webhookPayload) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Condo-Signature': signature,
-                'X-Condo-Event': eventType || 'unknown',
-                'X-Condo-Delivery-Id': webhookPayload.id,
+                'X-Webhook-Signature': signature,
+                'X-Webhook-Event': eventType || 'unknown',
+                'X-Webhook-Delivery-Id': webhookPayload.id,
             },
             body,
             abortRequestTimeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,
@@ -154,5 +154,5 @@ async function tryDeliverWebhookPayload (webhookPayload) {
 module.exports = {
     generateSignature,
     calculateNextRetryAt,
-    tryDeliverWebhookPayload,
+    trySendWebhookPayload,
 }
