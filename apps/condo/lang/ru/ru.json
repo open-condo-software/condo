@@ -3097,6 +3097,7 @@
   "subscription.type.expiredMessage": "Количество дней до окончания пробной подписки",
   "subscription.type.sbbol": "Для клиентов Сбера",
   "subscription.type.trial": "Пробная версия",
+  "subscription.warns.noActiveSubscription": "Для доступа к этому разделу необходима активная подписка",
   "tasks.BankReportTask.progress.description.completed": "Отчет создан",
   "tasks.BankReportTask.progress.description.processing": "Собираем данные для отображения",
   "tasks.BankReportTask.progress.title": "Создание отчета",

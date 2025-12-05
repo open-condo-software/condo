@@ -1,0 +1,68 @@
+query getSubscriptionContext($id: ID!) {
+    subscriptionContext: SubscriptionContext(where: { id: $id }) {
+        id
+        organization {
+            id
+            name
+        }
+        subscriptionPlan {
+            id
+            name
+            description
+            organizationType
+            trialDays
+            priority
+            news
+            marketplace
+            support
+            ai
+            passTickets
+            isHidden
+        }
+        startAt
+        endAt
+        basePrice
+        calculatedPrice
+        appliedRules
+        isTrial
+        daysRemaining
+        dv
+        sender {
+            dv
+            fingerprint
+        }
+        v
+        deletedAt
+        newId
+        createdBy {
+            id
+            name
+        }
+        updatedBy {
+            id
+            name
+        }
+        createdAt
+        updatedAt
+    }
+}
+
+query getOrganizationTrialSubscriptions($organizationId: ID!) {
+    trialSubscriptions: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            isTrial: true
+        }
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        subscriptionPlan {
+            id
+            name
+        }
+        isTrial
+        startAt
+        endAt
+        createdAt
+    }
+}

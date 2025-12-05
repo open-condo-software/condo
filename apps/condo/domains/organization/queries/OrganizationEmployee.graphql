@@ -32,6 +32,9 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
             importId
             importRemoteSystem
             meta
+            subscription {
+                id
+            }
         }
         role {
             id
