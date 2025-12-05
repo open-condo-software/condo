@@ -3089,6 +3089,7 @@
   "subscription.type.expiredMessage": "Number of days until the end of the trial subscription",
   "subscription.type.sbbol": "For Sber clients",
   "subscription.type.trial": "Trial version",
+  "subscription.warns.noActiveSubscription": "An active subscription is required to access this section",
   "tasks.BankReportTask.progress.description.completed": "Report creation completed",
   "tasks.BankReportTask.progress.description.processing": "Collecting data for your report",
   "tasks.BankReportTask.progress.title": "Creating a report",
