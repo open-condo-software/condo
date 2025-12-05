@@ -14,6 +14,7 @@ const { MultiPayment } = require('./MultiPayment')
 const { Payment } = require('./Payment')
 const { PaymentsFile } = require('./PaymentsFile')
 const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
+const { PaymentStatusChangeWebhookUrl } = require('./PaymentStatusChangeWebhookUrl')
 const { RecurrentPayment } = require('./RecurrentPayment')
 const { RecurrentPaymentContext } = require('./RecurrentPaymentContext')
 const { RegisterMultiPaymentForInvoicesService } = require('./RegisterMultiPaymentForInvoicesService')
@@ -30,6 +31,7 @@ module.exports = {
     AcquiringIntegrationContext,
     MultiPayment,
     Payment,
+    PaymentStatusChangeWebhookUrl,
     RegisterMultiPaymentService,
     ExportPaymentsService,
     PaymentsFilterTemplate,

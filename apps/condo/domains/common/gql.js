@@ -16,19 +16,14 @@ const _INTERNAL_SCHEDULE_TASK_BY_NAME_MUTATION = gql`
     }
 `
 
-const WEBHOOK_DELIVERY_FIELDS = `{ payload url secret eventType modelName itemId status attempt lastHttpStatusCode lastResponseBody lastErrorMessage expiresAt nextRetryAt lastSentAt ${COMMON_FIELDS} }`
-const WebhookDelivery = generateGqlQueries('WebhookDelivery', WEBHOOK_DELIVERY_FIELDS)
-
-const WEBHOOK_DELIVERY_WHITE_LIST_ITEM_FIELDS = `{ url name description isEnabled ${COMMON_FIELDS} }`
-const WebhookDeliveryWhiteListItem = generateGqlQueries('WebhookDeliveryWhiteListItem', WEBHOOK_DELIVERY_WHITE_LIST_ITEM_FIELDS)
+const WEBHOOK_PAYLOAD_FIELDS = `{ payload url secret eventType modelName itemId status attempt lastHttpStatusCode lastResponseBody lastErrorMessage expiresAt nextRetryAt lastSentAt ${COMMON_FIELDS} }`
+const WebhookPayload = generateGqlQueries('WebhookPayload', WEBHOOK_PAYLOAD_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     _INTERNAL_SCHEDULE_TASK_BY_NAME_MUTATION,
-    WEBHOOK_DELIVERY_FIELDS,
-    WebhookDelivery,
-    WEBHOOK_DELIVERY_WHITE_LIST_ITEM_FIELDS,
-    WebhookDeliveryWhiteListItem,
+    WEBHOOK_PAYLOAD_FIELDS,
+    WebhookPayload,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
