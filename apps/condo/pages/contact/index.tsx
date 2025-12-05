@@ -1,11 +1,11 @@
 import {
-    GetContactsForTableQueryHookResult,
     useGetContactsExistenceQuery,
-    useGetContactsForTableQuery,
+    GetContactsForTableQuery,
     useUpdateContactsMutation,
     useGetNewsItemsRecipientsCountersQuery,
     useGetAllPropertyCountByOrganizationIdQuery,
     useGetAllPropertyWithoutMapCountByOrganizationIdQuery,
+    useGetContactsForTableLazyQuery,
 } from '@app/condo/gql'
 import {
     ContactWhereInput,
@@ -15,7 +15,6 @@ import {
 } from '@app/condo/schema'
 import { Col, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { ColumnsType } from 'antd/lib/table'
 import chunk from 'lodash/chunk'
 import getConfig from 'next/config'
 import Head from 'next/head'
@@ -24,9 +23,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { QuestionCircle, Search, AlertCircle, Download } from '@open-condo/icons'
+import { QuestionCircle, AlertCircle, Download } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
-import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -39,53 +37,57 @@ import {
     Tooltip,
     Card,
     Typography,
+    GetTableData,
+    Input,
+    defaultParseUrlQuery,
+    defaultUpdateUrlQuery,
+    TableRef,
+    RowSelectionState,
+    FilterState,
+    SortState,
+    TableColumn,
+    Table,
 } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
-import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { ANALYTICS_RESIDENT_IN_CONTACT_PAGE } from '@condo/domains/common/constants/featureflags'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
-import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
-import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { useTableRowSelection } from '@condo/domains/common/hooks/useTableRowSelection'
+// import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { useNewQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { useNewSearch } from '@condo/domains/common/hooks/useSearch'
 import { PageComponentType } from '@condo/domains/common/types'
-import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import { updateQuery } from '@condo/domains/common/utils/helpers'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { OpenFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { useContactExportToExcelTask } from '@condo/domains/contact/hooks/useContactExportToExcelTask'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
 import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
-import { CONTACT_PAGE_SIZE, IFilters } from '@condo/domains/contact/utils/helpers'
+import { CONTACT_PAGE_SIZE } from '@condo/domains/contact/utils/helpers'
 import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hooks/useNewsItemRecipientsExportToExcelTask'
-import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 
 
 const ADD_CONTACT_ROUTE = '/contact/create'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
-const SORTABLE_PROPERTIES = ['name', 'unitName', 'phone', 'email', 'role', 'createdAt']
 
 const { publicRuntimeConfig: { contactPageResidentAnalytics } } = getConfig()
 
 type ContactBaseSearchQuery = { organization: { id: string } } | { organization: { 'id_in': Array<string> } }
 
 type ContactPageContentProps = {
-    filterMeta: FiltersMeta<ContactWhereInput>[]
-    tableColumns: ColumnsType
     baseSearchQuery: ContactBaseSearchQuery
+    filterMeta: OpenFiltersMeta<ContactWhereInput>[]
+    tableColumns: TableColumn<GetContactsForTableQuery['contacts'][number]>[]
+    tableRef: React.RefObject<TableRef | null>
     role?: Pick<OrganizationEmployeeRole, 'canManageContacts'>
-    loading: boolean
+    loading?: boolean
 }
 
 
@@ -129,11 +131,11 @@ const useContactImportIsVerifiedCheckbox = () => {
 }
 
 type DefaultActionBarProps = {
-    searchContactsQuery: ContactWhereInput
-    sortBy: SortContactsBy[]
-    refetch: GetContactsForTableQueryHookResult['refetch']
+    getContactsWhere: (filterState: FilterState) => ContactWhereInput
+    getContactsSortBy: (sortState: SortState) => SortContactsBy[]
+    tableRef: TableRef
 }
-const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ searchContactsQuery, refetch, sortBy }) => {
+const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, tableRef, getContactsSortBy }) => {
     const intl = useIntl()
     const CreateContact = intl.formatMessage({ id: 'AddContact' })
 
@@ -145,8 +147,8 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ searchContactsQuery
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions({ isVerifiedRef })
 
     const { ExportButton } = useContactExportToExcelTask({
-        where: searchContactsQuery,
-        sortBy,
+        where: getContactsWhere(tableRef?.api?.getFilterState() ?? {}),
+        sortBy: getContactsSortBy(tableRef?.api?.getSorting() ?? []),
         format: ContactExportTaskFormatType.Excel,
         user,
         timeZone: intl.formatters.getDateTimeFormat().resolvedOptions().timeZone,
@@ -169,7 +171,7 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ searchContactsQuery
                         <ImportWrapper
                             key='import'
                             accessCheck={true}
-                            onFinish={refetch}
+                            onFinish={tableRef?.api?.refetchData}
                             columns={columns}
                             rowNormalizer={contactNormalizer}
                             rowValidator={contactValidator}
@@ -189,11 +191,10 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ searchContactsQuery
 }
 
 type ActionBarWithSelectedItemsProps = {
-    selectedKeys: string[]
-    clearSelection: () => void
-    refetch: GetContactsForTableQueryHookResult['refetch']
+    tableRef: TableRef
+    selectedRowsCount: number
 }
-const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({ refetch, selectedKeys, clearSelection }) => {
+const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({ tableRef, selectedRowsCount }) => {
     const intl = useIntl()
     const CancelSelectionMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const ConfirmDeleteManyContactsTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteManyTitle' })
@@ -203,22 +204,17 @@ const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({
     const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
     const VerifyMessage = intl.formatMessage({ id: 'contact.Verify' })
 
-    const router = useRouter()
-    const client = useApolloClient()
-
-    const SelectedItemsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedKeys.length }), [intl, selectedKeys])
+    const SelectedItemsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedRowsCount }), [intl, selectedRowsCount])
 
     const [updateContactsMutation] = useUpdateContactsMutation({
         onCompleted: async () => {
-            clearSelection()
-            await refetch()
         },
     })
 
     const updateSelectedContactsByChunks = useCallback(async (payload) => {
-        if (!selectedKeys.length) return
+        if (!selectedRowsCount || !tableRef.api) return
 
-        const itemsToDeleteByChunks = chunk(selectedKeys.map((key) => ({
+        const itemsToDeleteByChunks = chunk(tableRef?.api?.getRowSelection().map((key) => ({
             id: key,
             data: {
                 dv: 1,
@@ -235,19 +231,15 @@ const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({
             })
         }
 
-        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })
-        client.cache.gc()
-    }, [client.cache, selectedKeys, updateContactsMutation])
+        tableRef?.api?.resetRowSelection()
+        await tableRef?.api?.refetchData()
+    }, [selectedRowsCount, tableRef.api, updateContactsMutation])
 
     const handleDeleteButtonClick = useCallback(async () => {
         const now = new Date().toISOString()
         await updateSelectedContactsByChunks({ deletedAt: now })
-        await updateQuery(router, {
-            newParameters: {
-                offset: 0,
-            },
-        }, { routerAction: 'replace', resetOldParameters: false })
-    }, [router, updateSelectedContactsByChunks])
+        tableRef?.api?.setPagination({ startRow: 0, endRow: CONTACT_PAGE_SIZE })
+    }, [tableRef?.api, updateSelectedContactsByChunks])
 
     const handleVerifyButtonClick = useCallback(async () => {
         await updateSelectedContactsByChunks({ isVerified: true })
@@ -276,13 +268,13 @@ const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({
         <Button
             key='cancelContactsSelection'
             type='secondary'
-            onClick={clearSelection}
+            onClick={tableRef?.api?.resetRowSelection}
         >
             {CancelSelectionMessage}
         </Button>,
     ], [
         ConfirmDeleteManyContactsTitle, ConfirmDeleteManyContactsMessage, DeleteMessage, handleDeleteButtonClick,
-        DontDeleteMessage, handleVerifyButtonClick, clearSelection, CancelSelectionMessage, VerifyMessage,
+        DontDeleteMessage, handleVerifyButtonClick, tableRef?.api?.resetRowSelection, CancelSelectionMessage, VerifyMessage,
     ])
 
     return (
@@ -301,72 +293,24 @@ const allOrganizationScope = [{
     unitType: null,
 }]
 
-const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
-    const {
-        baseSearchQuery,
-        tableColumns,
-        filterMeta,
-        loading,
-        role,
-    } = props
+const ResidentAnalyticsContent: React.FC = () => {
 
     const intl = useIntl()
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const MoreDetails = intl.formatMessage({ id: 'InMoreDetail' })
 
     const { organization } = useOrganization()
     const { user } = useAuth()
 
     const organizationId = useMemo(() => organization?.id || null, [organization])
-    
+
+    const { persistor } = useCachePersistor()
+
     const { useFlag } = useFeatureFlags()
     const isAnalyticsResidentInContactPageEnabled = useFlag(ANALYTICS_RESIDENT_IN_CONTACT_PAGE)
 
     const residentAnalyticsData = useMemo(() => contactPageResidentAnalytics?.[intl?.locale], [intl])
     const residentAnalyticsLinks = useMemo(() => residentAnalyticsData?.links ?? {}, [residentAnalyticsData])
     const residentAnalyticsTexts = useMemo(() => residentAnalyticsData?.texts ?? {}, [residentAnalyticsData])
-
-    const router = useRouter()
-    const { persistor } = useCachePersistor()
-
-    const { filters, sorters, offset } = parseQuery(router.query)
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMeta, SORTABLE_PROPERTIES)
-    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortContactsBy[], [sorters, sortersToSortBy])
-    const canManageContacts = role?.canManageContacts ?? false
-    const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
-
-    const searchContactsQuery = useMemo(() => ({
-        ...baseSearchQuery,
-        ...filtersToWhere(filters),
-    }), [baseSearchQuery, filters, filtersToWhere])
-
-    const {
-        refetch,
-        loading: contactsLoading,
-        data: contactsData,
-    } = useGetContactsForTableQuery({
-        variables: {
-            sortBy,
-            where: searchContactsQuery,
-            skip: (currentPageIndex - 1) * CONTACT_PAGE_SIZE,
-            first: CONTACT_PAGE_SIZE,
-        },
-        // TODO (DOMA-11673): remove use network-only
-        fetchPolicy: 'network-only',
-    })
-    const contacts = contactsData?.contacts?.filter(Boolean)
-    const total = contactsData?.meta?.count
-
-    const { selectedKeys, clearSelection, rowSelection } = useTableRowSelection<typeof contacts[number]>({ items: contacts })
-    const [search, handleSearchChange] = useSearch<IFilters>()
-
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: () => {
-                router.push(`/contact/${record.id}`)
-            },
-        }
-    }, [router])
 
     const { data: propertyInOrganizationCount } = useGetAllPropertyCountByOrganizationIdQuery({
         variables: {
@@ -405,9 +349,9 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     const residentCount = useMemo(() => counts?.result?.receiversCount, [counts])
 
     return (
-        <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start'>
+        <Col span={24}>
             {
-                isAnalyticsResidentInContactPageEnabled && counts && propertyWithoutMapInOrganizationCount && <Col span={24}>
+                isAnalyticsResidentInContactPageEnabled && counts && propertyWithoutMapInOrganizationCount && 
                     <Card width='100%'>
                         <Row justify='space-between'>
                             {
@@ -444,8 +388,122 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
                             <Typography.Link size='large' href={residentAnalyticsLinks?.tourGuide} target='_blank'>{residentAnalyticsTexts?.guideForIntroduceMobileApp}</Typography.Link>
                         </Row>
                     </Card>
-                </Col>
             }
+        </Col>
+    )
+}
+
+const ContactTableContent: React.FC<ContactPageContentProps> = ({
+    baseSearchQuery,
+    filterMeta,
+    role,
+    tableRef,
+    tableColumns,
+}) => {
+    const intl = useIntl()
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+
+    const router = useRouter()
+    const [selectedRowsCount, setSelectedRowsCount] = useState(0)
+    
+    const { filtersToWhere, sortersToSortBy } = useNewQueryMappers(filterMeta)
+    const canManageContacts = role?.canManageContacts ?? false
+
+    const [fetchContacts, { refetch }] = useGetContactsForTableLazyQuery()
+    const initialTableState = useMemo(() => defaultParseUrlQuery(router.query, CONTACT_PAGE_SIZE), [router.query])
+
+    const getContactsWhere = useCallback((filterState: FilterState) => {
+        if (!filterState) {
+            return baseSearchQuery
+        }
+
+        return {
+            ...baseSearchQuery,
+            ...filtersToWhere(filterState),
+        }
+    }, [baseSearchQuery, filtersToWhere])
+
+    const getContactsSortBy = useCallback((sortState: SortState) => {
+        if (!sortState) {
+            return sortersToSortBy([]) as SortContactsBy[]
+        }
+
+        return sortersToSortBy(sortState) as SortContactsBy[]
+    }, [sortersToSortBy])
+
+    const dataSource: GetTableData<GetContactsForTableQuery['contacts'][number]> = useCallback(async ({ filterState, sortState, startRow, endRow, globalFilter }, isRefetch) => {
+        const sortBy = getContactsSortBy(sortState)
+        const where = {
+            ...baseSearchQuery,
+            ...filtersToWhere({ ...filterState, search: globalFilter }),
+        }
+        const skip = startRow
+        const first = endRow - startRow
+
+        if (isRefetch) {
+            const { data: { contacts, meta: { count } } } = await refetch({
+                sortBy,
+                where,
+                first,
+                skip,
+            })
+            return {
+                rowData: contacts?.filter(Boolean) ?? [],
+                rowCount: count,
+            }
+        }
+
+        const { data: { contacts, meta: { count } } } = await fetchContacts({
+            variables: {
+                sortBy,
+                where,
+                first,
+                skip,
+            },
+        })
+
+        return {
+            rowData: contacts?.filter(Boolean) ?? [],
+            rowCount: count,
+        }
+    }, [fetchContacts, refetch, filtersToWhere, baseSearchQuery, getContactsSortBy])
+
+    const [search, handleSearchChange] = useNewSearch(tableRef.current)
+
+    const menuLabels = useMemo(() => ({
+        sortDescLabel: intl.formatMessage({ id: 'Table.Sort' }),
+        sortAscLabel: intl.formatMessage({ id: 'Table.Sort' }),
+        filterLabel: intl.formatMessage({ id: 'Table.Filter' }),
+        settingsLabel: intl.formatMessage({ id: 'Table.Settings' }),
+        sortedDescLabel: intl.formatMessage({ id: 'Table.Sorted' }),
+        sortedAscLabel: intl.formatMessage({ id: 'Table.Sorted' }),
+        filteredLabel: intl.formatMessage({ id: 'Table.Filtered' }),
+        noData: intl.formatMessage({ id: 'Table.NoData' }),
+        defaultSettingsLabel: intl.formatMessage({ id: 'Table.DefaultSettingsLabel' }),
+        resetFilterLabel: intl.formatMessage({ id: 'Table.ResetFilter' }),
+    }), [intl])
+
+    const handleRowAction = useCallback((record: GetContactsForTableQuery['contacts'][number]) => {
+        router.push(`/contact/${record.id}`)
+    }, [router])
+
+    const rowSelectionOptions = useMemo(() => ({ 
+        enableRowSelection: canManageContacts,
+        onRowSelectionChange: (rowSelectionState: RowSelectionState) => {
+            setSelectedRowsCount(Object.keys(rowSelectionState).length)
+        },
+    }), [canManageContacts])
+
+    const getRowId = useCallback((row: GetContactsForTableQuery['contacts'][number]) => row.id, [])
+
+    const onGridReady = useCallback((tableRef: TableRef) => {
+        handleSearchChange(String(tableRef.api.getGlobalFilter() || ''))
+        setSelectedRowsCount(tableRef.api.getRowSelection().length)
+    }, [handleSearchChange])
+
+    return (
+        <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start'>
+            <ResidentAnalyticsContent />
             <Col span={24}>
                 <TableFiltersContainer>
                     <Input
@@ -455,34 +513,37 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
                         }}
                         value={search}
                         allowClear
-                        suffix={<Search size='medium' color={colors.gray[7]} />}
                     />
                 </TableFiltersContainer>
             </Col>
             <Col span={24}>
-                <Table
-                    totalRows={total}
-                    loading={contactsLoading || loading}
-                    dataSource={contacts}
+                <Table<GetContactsForTableQuery['contacts'][number]>
+                    id='contacts-table'
+                    dataSource={dataSource}
                     columns={tableColumns}
-                    onRow={handleRowAction}
+                    onRowClick={handleRowAction}
                     pageSize={CONTACT_PAGE_SIZE}
-                    rowSelection={canManageContacts && rowSelection}
+                    onTableStateChange={defaultUpdateUrlQuery}
+                    initialTableState={initialTableState}
+                    columnLabels={menuLabels}
+                    rowSelectionOptions={rowSelectionOptions}
+                    getRowId={getRowId}
+                    onGridReady={onGridReady}
+                    ref={tableRef}
                 />
             </Col>
             {
                 canManageContacts && (
-                    selectedKeys.length > 0 ? (
+                    selectedRowsCount > 0 ? (
                         <ActionBarWithSelectedItems
-                            selectedKeys={selectedKeys}
-                            clearSelection={clearSelection}
-                            refetch={refetch}
+                            tableRef={tableRef?.current}
+                            selectedRowsCount={selectedRowsCount}
                         />
                     ) : (
                         <DefaultActionBar
-                            searchContactsQuery={searchContactsQuery}
-                            sortBy={sortBy}
-                            refetch={refetch}
+                            getContactsWhere={getContactsWhere}
+                            getContactsSortBy={getContactsSortBy}
+                            tableRef={tableRef?.current}
                         />
                     )
                 )
@@ -493,31 +554,32 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
 
 const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
     const { baseSearchQuery, role, loading } = props
-
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'contact.EmptyList.header' })
     const EmptyListManualBodyDescription = intl.formatMessage({ id: 'contact.EmptyList.manualCreateCard.body.description' })
 
     const {
-        data: contactsExistenceData,
-        loading: contactsExistenceDataLoading,
+        data: contactExistenceData,
+        loading: contactExistenceDataLoading,
         refetch,
     } = useGetContactsExistenceQuery({
         variables: {
-            where: baseSearchQuery,
+            where: {
+                ...baseSearchQuery,
+            },
         },
-        // TODO (DOMA-11673): remove use network-only
-        fetchPolicy: 'network-only',
+        skip: loading,
+
     })
-    const contacts = contactsExistenceData?.contacts?.filter(Boolean) || []
+    const contactExistenceCount = contactExistenceData?.count?.count || 0
     const canManageContacts = role?.canManageContacts
 
     const { isVerifiedRef, handleImportModalClose, IsVerifiedCheckbox } = useContactImportIsVerifiedCheckbox()
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions({ isVerifiedRef })
 
-    if (contactsExistenceDataLoading || loading) return <Loader />
+    if (contactExistenceDataLoading || loading) return <Loader />
 
-    if (contacts.length === 0) {
+    if (contactExistenceCount === 0) {
         return (
             <EmptyListContent
                 label={EmptyListLabel}
@@ -544,7 +606,7 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
         )
     }
 
-    return <ContactTableContent {...props} />
+    return <ContactTableContent {...props}/>
 }
 
 export const ContactPageContentWrapper: React.FC<ContactPageContentProps> = (props) => {
@@ -571,24 +633,33 @@ export const ContactPageContentWrapper: React.FC<ContactPageContentProps> = (pro
 
 const ContactsPage: PageComponentType = () => {
     const filterMeta = useContactsTableFilters()
-    const tableColumns = useTableColumns(filterMeta)
-    const { organization, role, employee, isLoading } = useOrganization()
+    const { organization, role, isLoading } = useOrganization()
     const userOrganizationId = useMemo(() => organization?.id, [organization?.id])
-    const employeeId = useMemo(() => employee?.id, [employee?.id])
+    // const employeeId = useMemo(() => employee?.id, [employee?.id])
+
+    const tableRef = useRef<TableRef | null>(null)
+    const tableColumns = useTableColumns(filterMeta, tableRef.current)
 
     const baseSearchQuery: ContactBaseSearchQuery = useMemo(() => ({
         organization: { id: userOrganizationId },
     }), [userOrganizationId])
 
-    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
+    useEffect(() => {
+        if (tableRef.current) {
+            tableRef.current.api?.refetchData()
+        }
+    }, [baseSearchQuery])
+
+    // usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     return (
         <ContactPageContentWrapper
-            filterMeta={filterMeta}
             baseSearchQuery={baseSearchQuery}
-            tableColumns={tableColumns}
             role={role}
             loading={isLoading}
+            filterMeta={filterMeta}
+            tableColumns={tableColumns}
+            tableRef={tableRef}
         />
     )
 }
