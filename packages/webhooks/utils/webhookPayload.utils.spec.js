@@ -16,7 +16,7 @@ const { fetch } = require('@open-condo/keystone/fetch')
 const {
     generateSignature,
     calculateNextRetryAt,
-    tryDeliverWebhookPayload,
+    trySendWebhookPayload,
 } = require('./webhookPayload.utils')
 
 const { WEBHOOK_PAYLOAD_TIMEOUT_MS, WEBHOOK_PAYLOAD_RETRY_INTERVALS } = require('../constants')
@@ -90,7 +90,7 @@ describe('webhookDelivery utilities', () => {
         })
     })
 
-    describe('tryDeliverWebhookPayload', () => {
+    describe('trySendWebhookPayload', () => {
         const mockDelivery = {
             id: 'test-delivery-id',
             url: 'https://example.com/webhook',
@@ -108,7 +108,7 @@ describe('webhookDelivery utilities', () => {
                 text: jest.fn().mockResolvedValue('{"received":true}'),
             })
 
-            const result = await tryDeliverWebhookPayload(mockDelivery)
+            const result = await trySendWebhookPayload(mockDelivery)
 
             expect(result.success).toBe(true)
             expect(result.statusCode).toBe(200)
@@ -119,9 +119,9 @@ describe('webhookDelivery utilities', () => {
                     method: 'POST',
                     headers: expect.objectContaining({
                         'Content-Type': 'application/json',
-                        'X-Condo-Signature': expect.any(String),
-                        'X-Condo-Event': 'test.event',
-                        'X-Condo-Delivery-Id': 'test-delivery-id',
+                        'X-Webhook-Signature': expect.any(String),
+                        'X-Webhook-Event': 'test.event',
+                        'X-Webhook-Delivery-Id': 'test-delivery-id',
                     }),
                     abortRequestTimeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,
                 })
@@ -136,7 +136,7 @@ describe('webhookDelivery utilities', () => {
                 text: jest.fn().mockResolvedValue('Server error'),
             })
 
-            const result = await tryDeliverWebhookPayload(mockDelivery)
+            const result = await trySendWebhookPayload(mockDelivery)
 
             expect(result.success).toBe(false)
             expect(result.statusCode).toBe(500)
@@ -147,7 +147,7 @@ describe('webhookDelivery utilities', () => {
         test('should return failure for timeout', async () => {
             fetch.mockRejectedValue(new Error('Abort request by timeout'))
 
-            const result = await tryDeliverWebhookPayload(mockDelivery)
+            const result = await trySendWebhookPayload(mockDelivery)
 
             expect(result.success).toBe(false)
             expect(result.error).toContain('timeout')
@@ -156,7 +156,7 @@ describe('webhookDelivery utilities', () => {
         test('should return failure for network error', async () => {
             fetch.mockRejectedValue(new Error('Connection refused'))
 
-            const result = await tryDeliverWebhookPayload(mockDelivery)
+            const result = await trySendWebhookPayload(mockDelivery)
 
             expect(result.success).toBe(false)
             expect(result.error).toBe('Connection refused')
@@ -165,7 +165,7 @@ describe('webhookDelivery utilities', () => {
         test('should return failure if url is missing', async () => {
             const deliveryWithoutUrl = { ...mockDelivery, url: null }
 
-            const result = await tryDeliverWebhookPayload(deliveryWithoutUrl)
+            const result = await trySendWebhookPayload(deliveryWithoutUrl)
 
             expect(result.success).toBe(false)
             expect(result.error).toContain('Missing required payload fields')
@@ -174,7 +174,7 @@ describe('webhookDelivery utilities', () => {
         test('should return failure if payload is missing', async () => {
             const deliveryWithoutPayload = { ...mockDelivery, payload: null }
 
-            const result = await tryDeliverWebhookPayload(deliveryWithoutPayload)
+            const result = await trySendWebhookPayload(deliveryWithoutPayload)
 
             expect(result.success).toBe(false)
             expect(result.error).toContain('Missing required payload fields')
@@ -183,7 +183,7 @@ describe('webhookDelivery utilities', () => {
         test('should return failure if secret is missing', async () => {
             const deliveryWithoutSecret = { ...mockDelivery, secret: null }
 
-            const result = await tryDeliverWebhookPayload(deliveryWithoutSecret)
+            const result = await trySendWebhookPayload(deliveryWithoutSecret)
 
             expect(result.success).toBe(false)
             expect(result.error).toContain('Missing required payload fields')
@@ -198,7 +198,7 @@ describe('webhookDelivery utilities', () => {
                 text: jest.fn().mockResolvedValue(longBody),
             })
 
-            const result = await tryDeliverWebhookPayload(mockDelivery)
+            const result = await trySendWebhookPayload(mockDelivery)
 
             expect(result.success).toBe(true)
             expect(result.body).toHaveLength(1000) // WEBHOOK_MAX_RESPONSE_LENGTH
@@ -217,7 +217,7 @@ describe('webhookDelivery utilities', () => {
                 text: jest.fn().mockResolvedValue('OK'),
             })
 
-            const result = await tryDeliverWebhookPayload(deliveryWithStringPayload)
+            const result = await trySendWebhookPayload(deliveryWithStringPayload)
 
             expect(result.success).toBe(true)
             expect(fetch).toHaveBeenCalledWith(
@@ -236,7 +236,7 @@ describe('webhookDelivery utilities', () => {
                 text: jest.fn().mockResolvedValue('OK'),
             })
 
-            await tryDeliverWebhookPayload(mockDelivery)
+            await trySendWebhookPayload(mockDelivery)
 
             expect(mockLogger.info).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -258,7 +258,7 @@ describe('webhookDelivery utilities', () => {
                 text: jest.fn().mockResolvedValue('Error'),
             })
 
-            await tryDeliverWebhookPayload(mockDelivery)
+            await trySendWebhookPayload(mockDelivery)
 
             expect(mockLogger.warn).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -270,7 +270,7 @@ describe('webhookDelivery utilities', () => {
         test('should log error on network error', async () => {
             fetch.mockRejectedValue(new Error('Connection refused'))
 
-            await tryDeliverWebhookPayload(mockDelivery)
+            await trySendWebhookPayload(mockDelivery)
 
             expect(mockLogger.error).toHaveBeenCalledWith(
                 expect.objectContaining({
