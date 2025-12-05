@@ -4,7 +4,7 @@
 
 The Payment Webhook Delivery System allows API users to receive HTTP callbacks when a Payment's status changes. Users specify a callback URL when creating an Invoice or BillingReceipt, and the system sends webhooks when payments for those items change status.
 
-**Important**: Callback URLs must be pre-approved by adding them to the `WebhookDeliveryWhiteListItem` whitelist. Only admin/support users can manage this whitelist.
+**Important**: Callback URLs must be pre-approved by adding them to the `PaymentStatusChangeWebhookUrl` list. Only admin/support users can manage this list.
 
 ## Use Case
 
@@ -16,17 +16,17 @@ The system uses a generic webhook delivery infrastructure from the `common` doma
 
 ```
 ┌─────────────────┐     ┌──────────────────────┐     ┌─────────────────────┐
-│  Payment        │     │  WebhookDelivery     │     │  External Server    │
+│  Payment        │     │  WebhookPayload      │     │  External Server    │
 │  (status change)│────▶│  (generic delivery)  │────▶│  (callback URL)     │
 └─────────────────┘     └──────────────────────┘     └─────────────────────┘
         │                       │      ▲
         │ builds payload        │      │ retry
         ▼                       ▼      │
-┌─────────────────┐      ┌──────────────────────┐
-│  Invoice or     │      │  Cron Task           │
-│  BillingReceipt │      │  (retryFailedWebhooks│
-│  (callback URL) │      │   every 5 minutes)   │
-└─────────────────┘      └──────────────────────┘
+┌─────────────────┐      ┌─────────────────────────────┐
+│  Invoice or     │      │  Cron Task                  │
+│  BillingReceipt │      │  (retryFailedWebhookPayloads│
+│  (callback URL) │      │   every 5 minutes)          │
+└─────────────────┘      └─────────────────────────────┘
 ```
 
 ## Data Models
@@ -45,26 +45,27 @@ The system uses a generic webhook delivery infrastructure from the `common` doma
 | `statusChangeCallbackUrl` | Url (optional) | URL to call when payment status changes |
 | `statusChangeCallbackSecret` | Text (read-only) | Auto-generated secret for webhook signature verification |
 
-### WebhookDeliveryWhiteListItem (common domain)
+### PaymentStatusChangeWebhookUrl (acquiring domain)
 
-Stores approved webhook callback URLs. Only URLs in this whitelist can be used as `statusChangeCallbackUrl` in Invoice or BillingReceipt. This is a generic model in the `common` domain that can be reused for other webhook types.
+Stores approved webhook callback URLs for payment status change notifications. Only URLs in this list can be used as `statusChangeCallbackUrl` in Invoice or BillingReceipt.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `id` | UUID | Yes | Unique identifier |
-| `url` | Url | Yes | Approved webhook callback URL (must be unique, HTTPS required except localhost) |
 | `name` | Text | No | Human-readable name (e.g., "Production CRM Webhook") |
-| `description` | Text | No | Optional description of what this webhook is used for |
+| `url` | Url | Yes | Approved webhook callback URL (must be unique, HTTPS required except localhost) |
 | `isEnabled` | Checkbox | Yes | Whether this URL is currently enabled (default: true) |
+| `description` | Text | No | Optional description of what this webhook is used for |
+| `organization` | Relationship | No | Related organization that owns this webhook URL |
 
 **Access Control**:
 - **Read**: Admin, Support only
 - **Create/Update**: Admin, Support only
 - **Delete**: Not allowed (use soft delete)
 
-### WebhookDelivery (common domain)
+### WebhookPayload (common domain)
 
-Generic webhook delivery record that stores ready-to-send payloads. This model is in the `common` domain and can be reused for any webhook type.
+Generic webhook payload record that stores ready-to-send payloads. This model is in the `common` domain and can be reused for any webhook type.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -228,7 +229,7 @@ Before using a callback URL, it must be added to the whitelist:
 
 ```graphql
 mutation {
-  createWebhookDeliveryWhiteListItem(data: {
+  createPaymentStatusChangeWebhookUrl(data: {
     dv: 1
     sender: { dv: 1, fingerprint: "admin-panel" }
     url: "https://my-app.com/webhooks/payment"
@@ -248,7 +249,7 @@ mutation {
 
 ```graphql
 query {
-  allWebhookDeliveryWhiteListItems(where: { isEnabled: true }) {
+  allPaymentStatusChangeWebhookUrls(where: { isEnabled: true }) {
     id
     url
     name
@@ -288,8 +289,8 @@ mutation {
 
 ```graphql
 mutation {
-  updateWebhookDeliveryWhiteListItem(
-    id: "whitelist-item-uuid"
+  updatePaymentStatusChangeWebhookUrl(
+    id: "webhook-url-uuid"
     data: {
       dv: 1
       sender: { dv: 1, fingerprint: "admin-panel" }
@@ -323,17 +324,15 @@ apps/condo/domains/common/                      # Generic webhook infrastructure
 ├── constants/
 │   └── webhook.js                              # Webhook constants (TTL, timeouts, etc.)
 ├── schema/
-│   ├── WebhookDelivery.js                      # Generic delivery tracking schema
-│   └── WebhookDeliveryWhiteListItem.js         # URL whitelist schema
+│   └── WebhookPayload.js                       # Generic payload tracking schema
 ├── tasks/
-│   ├── sendWebhook.js                          # Generic delivery task
-│   └── retryFailedWebhooks.js                  # Retry cron task
+│   ├── sendWebhookPayload.js                   # Generic delivery task
+│   └── retryFailedWebhookPayloads.js           # Retry cron task
 ├── utils/
 │   └── serverSchema/
 │       └── webhookDelivery.js                  # tryDeliverWebhook, generateSignature
 └── access/
-    ├── WebhookDelivery.js                      # Delivery access control
-    └── WebhookDeliveryWhiteListItem.js         # Whitelist access control
+    └── WebhookPayload.js                       # Payload access control
 
 apps/condo/domains/common/docs/
 └── WebhookDelivery.md                          # This documentation
@@ -341,8 +340,11 @@ apps/condo/domains/common/docs/
 apps/condo/domains/acquiring/                   # Payment-specific webhook logic
 ├── schema/
 │   ├── Payment.js                              # afterChange hook triggers webhooks
+│   ├── PaymentStatusChangeWebhookUrl.js        # Approved webhook URLs for payments
 │   └── fields/
 │       └── webhookCallback.js                  # Shared webhook fields & validation
+├── access/
+│   └── PaymentStatusChangeWebhookUrl.js        # Webhook URL access control
 └── utils/
     └── serverSchema/
         └── paymentWebhookHelpers.js            # buildPaymentWebhookPayload, getWebhookCallbackUrl
@@ -350,7 +352,7 @@ apps/condo/domains/acquiring/                   # Payment-specific webhook logic
 
 ## Security Considerations
 
-1. **URL Whitelist**: Callback URLs must be pre-approved in `WebhookDeliveryWhiteListItem` by admin/support
+1. **URL Whitelist**: Callback URLs must be pre-approved in `PaymentStatusChangeWebhookUrl` by admin/support
 2. **URL Validation**: Callback URLs must be valid HTTPS URLs (HTTP allowed only for localhost/127.0.0.1 for testing)
 3. **Per-Invoice/Receipt Secrets**: Each invoice/receipt has its own unique webhook secret
 4. **Signature Verification**: All webhooks include HMAC-SHA256 signature for authenticity

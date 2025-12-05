@@ -18,7 +18,7 @@ jest.mock('@open-condo/keystone/schema', () => ({
 }))
 
 jest.mock('@condo/domains/common/utils/serverSchema', () => ({
-    WebhookDelivery: {
+    WebhookPayload: {
         update: jest.fn(),
     },
 }))
@@ -35,18 +35,18 @@ const {
     WEBHOOK_DELIVERY_STATUS_SUCCESS,
     WEBHOOK_DELIVERY_STATUS_FAILED,
 } = require('@condo/domains/common/constants/webhook')
-const { _sendWebhook } = require('@condo/domains/common/tasks/sendWebhook')
-const { WebhookDelivery } = require('@condo/domains/common/utils/serverSchema')
+const { _sendWebhookPayload } = require('@condo/domains/common/tasks/sendWebhookPayload')
+const { WebhookPayload } = require('@condo/domains/common/utils/serverSchema')
 const { tryDeliverWebhook, calculateNextRetryAt } = require('@condo/domains/common/utils/serverSchema/webhookDelivery')
 
 
-describe('sendWebhook task', () => {
+describe('sendWebhookPayload task', () => {
     beforeEach(() => {
         jest.clearAllMocks()
     })
 
-    const createMockDelivery = (overrides = {}) => ({
-        id: 'test-delivery-id',
+    const createMockPayload = (overrides = {}) => ({
+        id: 'test-payload-id',
         status: WEBHOOK_DELIVERY_STATUS_PENDING,
         attempt: 0,
         expiresAt: dayjs().add(7, 'day').toISOString(),
@@ -57,65 +57,65 @@ describe('sendWebhook task', () => {
         ...overrides,
     })
 
-    test('should skip if delivery not found', async () => {
+    test('should skip if payload not found', async () => {
         getById.mockResolvedValue(null)
 
-        await _sendWebhook('non-existent-id')
+        await _sendWebhookPayload('non-existent-id')
 
         expect(mockLogger.error).toHaveBeenCalledWith(
             expect.objectContaining({
-                msg: 'Delivery record not found',
+                msg: 'Payload record not found',
             })
         )
-        expect(WebhookDelivery.update).not.toHaveBeenCalled()
+        expect(WebhookPayload.update).not.toHaveBeenCalled()
     })
 
-    test('should skip if delivery already processed', async () => {
-        getById.mockResolvedValue(createMockDelivery({
+    test('should skip if payload already processed', async () => {
+        getById.mockResolvedValue(createMockPayload({
             status: WEBHOOK_DELIVERY_STATUS_SUCCESS,
         }))
 
-        await _sendWebhook('test-delivery-id')
+        await _sendWebhookPayload('test-payload-id')
 
         expect(mockLogger.info).toHaveBeenCalledWith(
             expect.objectContaining({
-                msg: 'Delivery already processed',
+                msg: 'Payload already processed',
             })
         )
-        expect(WebhookDelivery.update).not.toHaveBeenCalled()
+        expect(WebhookPayload.update).not.toHaveBeenCalled()
     })
 
     test('should mark as failed if expired', async () => {
-        getById.mockResolvedValue(createMockDelivery({
+        getById.mockResolvedValue(createMockPayload({
             expiresAt: dayjs().subtract(1, 'hour').toISOString(),
         }))
 
-        await _sendWebhook('test-delivery-id')
+        await _sendWebhookPayload('test-payload-id')
 
-        expect(WebhookDelivery.update).toHaveBeenCalledWith(
+        expect(WebhookPayload.update).toHaveBeenCalledWith(
             mockContext.keystone,
-            'test-delivery-id',
+            'test-payload-id',
             expect.objectContaining({
                 status: WEBHOOK_DELIVERY_STATUS_FAILED,
-                lastErrorMessage: 'Delivery expired after TTL',
+                lastErrorMessage: 'Payload expired after TTL',
             })
         )
     })
 
     test('should mark as success on successful delivery', async () => {
-        const delivery = createMockDelivery()
-        getById.mockResolvedValue(delivery)
+        const payload = createMockPayload()
+        getById.mockResolvedValue(payload)
         tryDeliverWebhook.mockResolvedValue({
             success: true,
             statusCode: 200,
             body: '{"received":true}',
         })
 
-        await _sendWebhook('test-delivery-id')
+        await _sendWebhookPayload('test-payload-id')
 
-        expect(WebhookDelivery.update).toHaveBeenCalledWith(
+        expect(WebhookPayload.update).toHaveBeenCalledWith(
             mockContext.keystone,
-            'test-delivery-id',
+            'test-payload-id',
             expect.objectContaining({
                 status: WEBHOOK_DELIVERY_STATUS_SUCCESS,
                 lastHttpStatusCode: 200,
@@ -131,10 +131,10 @@ describe('sendWebhook task', () => {
     })
 
     test('should schedule retry on failure if not expired', async () => {
-        const delivery = createMockDelivery()
+        const payload = createMockPayload()
         const nextRetryAt = dayjs().add(1, 'minute').toISOString()
 
-        getById.mockResolvedValue(delivery)
+        getById.mockResolvedValue(payload)
         tryDeliverWebhook.mockResolvedValue({
             success: false,
             statusCode: 500,
@@ -143,11 +143,11 @@ describe('sendWebhook task', () => {
         })
         calculateNextRetryAt.mockReturnValue(nextRetryAt)
 
-        await _sendWebhook('test-delivery-id')
+        await _sendWebhookPayload('test-payload-id')
 
-        expect(WebhookDelivery.update).toHaveBeenCalledWith(
+        expect(WebhookPayload.update).toHaveBeenCalledWith(
             mockContext.keystone,
-            'test-delivery-id',
+            'test-payload-id',
             expect.objectContaining({
                 status: WEBHOOK_DELIVERY_STATUS_PENDING,
                 lastHttpStatusCode: 500,
@@ -159,28 +159,28 @@ describe('sendWebhook task', () => {
         )
         expect(mockLogger.info).toHaveBeenCalledWith(
             expect.objectContaining({
-                msg: 'Webhook delivery failed, scheduled retry',
+                msg: 'Webhook payload failed, scheduled retry',
             })
         )
     })
 
     test('should mark as failed if next retry would be after expiration', async () => {
         const expiresAt = dayjs().add(30, 'second').toISOString()
-        const delivery = createMockDelivery({ expiresAt })
+        const payload = createMockPayload({ expiresAt })
         const nextRetryAt = dayjs().add(1, 'minute').toISOString() // After expiration
 
-        getById.mockResolvedValue(delivery)
+        getById.mockResolvedValue(payload)
         tryDeliverWebhook.mockResolvedValue({
             success: false,
             error: 'Connection refused',
         })
         calculateNextRetryAt.mockReturnValue(nextRetryAt)
 
-        await _sendWebhook('test-delivery-id')
+        await _sendWebhookPayload('test-payload-id')
 
-        expect(WebhookDelivery.update).toHaveBeenCalledWith(
+        expect(WebhookPayload.update).toHaveBeenCalledWith(
             mockContext.keystone,
-            'test-delivery-id',
+            'test-payload-id',
             expect.objectContaining({
                 status: WEBHOOK_DELIVERY_STATUS_FAILED,
                 lastErrorMessage: 'Connection refused',
@@ -189,25 +189,25 @@ describe('sendWebhook task', () => {
         )
         expect(mockLogger.warn).toHaveBeenCalledWith(
             expect.objectContaining({
-                msg: 'Webhook delivery permanently failed (next retry after expiration)',
+                msg: 'Webhook payload permanently failed (next retry after expiration)',
             })
         )
     })
 
     test('should increment attempt counter', async () => {
-        const delivery = createMockDelivery({ attempt: 3 })
-        getById.mockResolvedValue(delivery)
+        const payload = createMockPayload({ attempt: 3 })
+        getById.mockResolvedValue(payload)
         tryDeliverWebhook.mockResolvedValue({
             success: true,
             statusCode: 200,
             body: 'OK',
         })
 
-        await _sendWebhook('test-delivery-id')
+        await _sendWebhookPayload('test-payload-id')
 
-        expect(WebhookDelivery.update).toHaveBeenCalledWith(
+        expect(WebhookPayload.update).toHaveBeenCalledWith(
             mockContext.keystone,
-            'test-delivery-id',
+            'test-payload-id',
             expect.objectContaining({
                 attempt: 4,
             })
@@ -215,10 +215,10 @@ describe('sendWebhook task', () => {
     })
 
     test('should handle null statusCode and body on network error', async () => {
-        const delivery = createMockDelivery()
+        const payload = createMockPayload()
         const nextRetryAt = dayjs().add(1, 'minute').toISOString()
 
-        getById.mockResolvedValue(delivery)
+        getById.mockResolvedValue(payload)
         tryDeliverWebhook.mockResolvedValue({
             success: false,
             error: 'Connection refused',
@@ -226,11 +226,11 @@ describe('sendWebhook task', () => {
         })
         calculateNextRetryAt.mockReturnValue(nextRetryAt)
 
-        await _sendWebhook('test-delivery-id')
+        await _sendWebhookPayload('test-payload-id')
 
-        expect(WebhookDelivery.update).toHaveBeenCalledWith(
+        expect(WebhookPayload.update).toHaveBeenCalledWith(
             mockContext.keystone,
-            'test-delivery-id',
+            'test-payload-id',
             expect.objectContaining({
                 lastHttpStatusCode: null,
                 lastResponseBody: null,
@@ -240,21 +240,21 @@ describe('sendWebhook task', () => {
     })
 
     test('should clear lastErrorMessage on success', async () => {
-        const delivery = createMockDelivery({
+        const payload = createMockPayload({
             lastErrorMessage: 'Previous error',
         })
-        getById.mockResolvedValue(delivery)
+        getById.mockResolvedValue(payload)
         tryDeliverWebhook.mockResolvedValue({
             success: true,
             statusCode: 200,
             body: 'OK',
         })
 
-        await _sendWebhook('test-delivery-id')
+        await _sendWebhookPayload('test-payload-id')
 
-        expect(WebhookDelivery.update).toHaveBeenCalledWith(
+        expect(WebhookPayload.update).toHaveBeenCalledWith(
             mockContext.keystone,
-            'test-delivery-id',
+            'test-payload-id',
             expect.objectContaining({
                 lastErrorMessage: null,
             })
