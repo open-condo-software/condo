@@ -74,6 +74,9 @@ const organizationToUserFragment = `
       avatar {
         publicUrl
       }
+      subscription {
+        id
+      }
       importRemoteSystem
     }
     user {

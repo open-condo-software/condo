@@ -50,7 +50,7 @@ import { Snowfall } from '@condo/domains/common/components/Snowfall'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
-import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
@@ -93,6 +93,8 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
+import { SubscriptionAccessGuard } from '@condo/domains/subscription/components'
+import { useOrganizationSubscription, useNoSubscriptionToolTip } from '@condo/domains/subscription/hooks'
 import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useIncidentExportTaskUIInterface } from '@condo/domains/ticket/hooks/useIncidentExportTaskUIInterface'
@@ -117,7 +119,7 @@ import '@condo/domains/common/components/containers/global-styles.css'
 import '@open-condo/next/logging/patchConsoleLogMethods'
 
 
-const { publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
+const { canEnableSubscriptions, publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
 
 const emotionCache = createCache({ key: 'css', prepend: true })
 
@@ -154,9 +156,13 @@ const MenuItems: React.FC = () => {
 
     const { isAuthenticated, isLoading } = useAuth()
     const { employee, organization } = useOrganization()
-    const disabled = !employee
+    const { subscription, isExpired } = useOrganizationSubscription()
+    const hasNoSubscription = !subscription || isExpired
+    const disabled = !employee || hasNoSubscription
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
+    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
+    
     const role = employee?.role || null
     const orgId = organization?.id || null
     const orgFeatures = organization?.features || []
@@ -352,27 +358,49 @@ const MenuItems: React.FC = () => {
                     label: 'global.section.settings',
                     access: hasAccessToSettings,
                 },
+                {
+                    id: 'menu-item-subscription',
+                    path: 'subscription',
+                    icon: AllIcons['Settings'],
+                    label: 'Подписка',
+                    access: true,
+                },
             ].filter(checkItemAccess),
         },
-    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
+    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings, hasAccessToTour, isNoServiceProviderOrganization])
 
     return (
         <div>
             {menuCategoriesData.map((category) => (
                 <Fragment key={category.key}>
-                    {category.items.map((item) => (
-                        <MenuItem
-                            id={item.id}
-                            key={`menu-item-${item.path}`}
-                            path={`/${item.path}`}
-                            icon={item.icon}
-                            label={item.label}
-                            disabled={disabled}
-                            isCollapsed={isCollapsed}
-                            toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
-                            excludePaths={item.excludePaths}
-                        />
-                    ))}
+                    {category.items.map((item) => {
+                        const isSubscriptionPage = item.path === 'subscription'
+                        const isDisabled = isSubscriptionPage ? !employee : disabled
+                        
+                        // Choose appropriate tooltip based on the reason for being disabled
+                        let tooltipDecorator = null
+                        if (isDisabled) {
+                            if (!employee) {
+                                tooltipDecorator = wrapElementIntoNoOrganizationToolTip
+                            } else if (hasNoSubscription && !isSubscriptionPage) {
+                                tooltipDecorator = wrapElementIntoNoSubscriptionToolTip
+                            }
+                        }
+                        
+                        return (
+                            <MenuItem
+                                id={item.id}
+                                key={`menu-item-${item.path}`}
+                                path={`/${item.path}`}
+                                icon={item.icon}
+                                label={item.label}
+                                disabled={isDisabled}
+                                isCollapsed={isCollapsed}
+                                toolTipDecorator={tooltipDecorator}
+                                excludePaths={item.excludePaths}
+                            />
+                        )
+                    })}
                     {(appsByCategories?.[category.key] || []).map((app) => {
                         // not a ReDoS issue: running on end user browser
                         // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
@@ -534,9 +562,11 @@ const MyApp = ({ Component, pageProps }) => {
                                                             <CondoAppEventsHandler/>
                                                             <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                 <RequiredAccess>
-                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                        <Component {...pageProps} />
-                                                                    </FeaturesReady>
+                                                                    <SubscriptionAccessGuard>
+                                                                        <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                            <Component {...pageProps} />
+                                                                        </FeaturesReady>
+                                                                    </SubscriptionAccessGuard>
                                                                 </RequiredAccess>
                                                             </LayoutComponent>
                                                         </ConnectedAppsWithIconsContextProvider>

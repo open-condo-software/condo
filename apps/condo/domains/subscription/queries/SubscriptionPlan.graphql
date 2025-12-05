@@ -1,0 +1,34 @@
+query getSubscriptionPlan($id: ID!) {
+    subscriptionPlan: SubscriptionPlan(where: { id: $id }) {
+        id
+        name
+        description
+        organizationType
+        trialDays
+        priority
+        news
+        marketplace
+        support
+        ai
+        passTickets
+        isHidden
+        dv
+        sender {
+            dv
+            fingerprint
+        }
+        v
+        deletedAt
+        newId
+        createdBy {
+            id
+            name
+        }
+        updatedBy {
+            id
+            name
+        }
+        createdAt
+        updatedAt
+    }
+}
