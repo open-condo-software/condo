@@ -2,12 +2,12 @@ const { sendWebhookPayload } = require('./sendWebhookPayload')
 const {
     generateSignature,
     calculateNextRetryAt,
-    tryDeliverWebhookPayload,
+    trySendWebhookPayload,
 } = require('./webhookPayload.utils')
 
 module.exports = {
     generateSignature,
     calculateNextRetryAt,
-    tryDeliverWebhookPayload,
+    trySendWebhookPayload,
     sendWebhookPayload,
 }
