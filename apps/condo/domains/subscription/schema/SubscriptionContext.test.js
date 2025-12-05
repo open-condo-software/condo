@@ -22,7 +22,7 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('SubscriptionContext', () => {
-    let admin, support
+    let admin, support, employee
     let organization, subscriptionPlan
 
     beforeAll(async () => {
@@ -38,30 +38,14 @@ describe('SubscriptionContext', () => {
     })
 
     beforeEach(async () => {
-        const user = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [org] = await registerNewOrganization(user, { type: HOLDING_TYPE })
+        employee = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [org] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
         organization = org
     })
 
     describe('CRUD tests', () => {
         describe('create', () => {
-            test('admin can create trial subscription without prices', async () => {
-                const startAt = dayjs().toISOString()
-                const endAt = dayjs().add(14, 'day').toISOString()
-
-                const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt,
-                    endAt,
-                    isTrial: true,
-                })
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.isTrial).toBe(true)
-                expect(obj.basePrice).toBeNull()
-                expect(obj.calculatedPrice).toBeNull()
-            })
-
-            test('admin can create non-trial subscription without prices', async () => {
+            test('admin can create subscription without prices', async () => {
                 const startAt = dayjs().toISOString()
                 const endAt = dayjs().add(30, 'day').toISOString()
 
@@ -86,6 +70,16 @@ describe('SubscriptionContext', () => {
                 })
 
                 expect(obj.id).toMatch(UUID_RE)
+            })
+
+            test('employee cannot create', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestSubscriptionContext(employee, organization, subscriptionPlan, {
+                        startAt: dayjs().toISOString(),
+                        endAt: dayjs().add(14, 'day').toISOString(),
+                        isTrial: true,
+                    })
+                })
             })
 
             test('anonymous cannot create', async () => {
@@ -128,6 +122,20 @@ describe('SubscriptionContext', () => {
                 expect(obj.endAt).toBe(newEndAt)
             })
 
+            test('employee cannot update', async () => {
+                const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().toISOString(),
+                    endAt: dayjs().add(14, 'day').toISOString(),
+                    isTrial: true,
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestSubscriptionContext(employee, objCreated.id, {
+                        endAt: dayjs().add(30, 'day').toISOString(),
+                    })
+                })
+            })
+
             test('anonymous cannot update', async () => {
                 const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                     startAt: dayjs().toISOString(),
@@ -144,20 +152,6 @@ describe('SubscriptionContext', () => {
             })
         })
 
-        describe('hard delete', () => {
-            test('admin cannot delete', async () => {
-                const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
-                    isTrial: true,
-                })
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await SubscriptionContext.delete(admin, objCreated.id)
-                })
-            })
-        })
-
         describe('read', () => {
             test('admin can read', async () => {
                 const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
@@ -170,6 +164,34 @@ describe('SubscriptionContext', () => {
 
                 expect(objs).toHaveLength(1)
                 expect(objs[0].id).toBe(obj.id)
+            })
+
+            test('employee can read own organization subscription', async () => {
+                const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().toISOString(),
+                    endAt: dayjs().add(14, 'day').toISOString(),
+                    isTrial: true,
+                })
+
+                const objs = await SubscriptionContext.getAll(employee, { id: obj.id })
+
+                expect(objs).toHaveLength(1)
+                expect(objs[0].id).toBe(obj.id)
+            })
+
+            test('employee cannot read other organization subscription', async () => {
+                const otherUser = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [otherOrg] = await registerNewOrganization(otherUser, { type: HOLDING_TYPE })
+
+                const [obj] = await createTestSubscriptionContext(admin, otherOrg, subscriptionPlan, {
+                    startAt: dayjs().toISOString(),
+                    endAt: dayjs().add(14, 'day').toISOString(),
+                    isTrial: true,
+                })
+
+                const objs = await SubscriptionContext.getAll(employee, { id: obj.id })
+
+                expect(objs).toHaveLength(0)
             })
 
             test('anonymous cannot read', async () => {

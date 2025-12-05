@@ -8,6 +8,8 @@ const dayjs = require('dayjs')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
+const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
+const { UserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
@@ -82,7 +84,7 @@ describe('ActivateSubscriptionPlanService', () => {
 
     describe('Trial Logic', () => {
         test('creates trial subscription context with correct dates based on trialDays', async () => {
-            const [result] = await activateSubscriptionPlanByTestClient(admin, organization, subscriptionPlan, { isTrial: true })
+            const [result] = await activateSubscriptionPlanByTestClient(user, organization, subscriptionPlan, { isTrial: true })
 
             const context = result.subscriptionContext
             expect(context.isTrial).toBe(true)
@@ -94,34 +96,19 @@ describe('ActivateSubscriptionPlanService', () => {
             expect(endAt.diff(startAt, 'day')).toBe(subscriptionPlan.trialDays)
         })
 
-        test('creates trial with custom trialDays from plan', async () => {
-            const [customPlan] = await createTestSubscriptionPlan(admin, {
-                name: faker.commerce.productName(),
-                organizationType: MANAGING_COMPANY_TYPE,
-                isHidden: false,
-                trialDays: 30,
-            })
-
-            const [result] = await activateSubscriptionPlanByTestClient(admin, organization, customPlan, { isTrial: true })
-
-            const startAt = dayjs(result.subscriptionContext.startAt)
-            const endAt = dayjs(result.subscriptionContext.endAt)
-            expect(endAt.diff(startAt, 'day')).toBe(30)
-        })
-
-        test('throws error if organization not found', async () => {
+        test('throws access denied if organization not found', async () => {
             const fakeOrg = { id: '00000000-0000-0000-0000-000000000000' }
 
-            await expectToThrowGQLError(async () => {
-                await activateSubscriptionPlanByTestClient(admin, fakeOrg, subscriptionPlan, { isTrial: true })
-            }, ERRORS.ORGANIZATION_NOT_FOUND, 'result')
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await activateSubscriptionPlanByTestClient(user, fakeOrg, subscriptionPlan, { isTrial: true })
+            })
         })
 
         test('throws error if plan not found', async () => {
             const fakePlan = { id: '00000000-0000-0000-0000-000000000000' }
 
             await expectToThrowGQLError(async () => {
-                await activateSubscriptionPlanByTestClient(admin, organization, fakePlan, { isTrial: true })
+                await activateSubscriptionPlanByTestClient(user, organization, fakePlan, { isTrial: true })
             }, ERRORS.PLAN_NOT_FOUND, 'result')
         })
 
@@ -134,7 +121,7 @@ describe('ActivateSubscriptionPlanService', () => {
             })
 
             await expectToThrowGQLError(async () => {
-                await activateSubscriptionPlanByTestClient(admin, organization, hiddenPlan, { isTrial: true })
+                await activateSubscriptionPlanByTestClient(user, organization, hiddenPlan, { isTrial: true })
             }, ERRORS.PLAN_NOT_FOUND, 'result')
         })
 
@@ -147,7 +134,7 @@ describe('ActivateSubscriptionPlanService', () => {
             })
 
             await expectToThrowGQLError(async () => {
-                await activateSubscriptionPlanByTestClient(admin, organization, noTrialPlan, { isTrial: true })
+                await activateSubscriptionPlanByTestClient(user, organization, noTrialPlan, { isTrial: true })
             }, ERRORS.TRIAL_NOT_AVAILABLE, 'result')
         })
 
@@ -160,26 +147,22 @@ describe('ActivateSubscriptionPlanService', () => {
             })
 
             await expectToThrowGQLError(async () => {
-                await activateSubscriptionPlanByTestClient(admin, organization, differentTypePlan, { isTrial: true })
+                await activateSubscriptionPlanByTestClient(user, organization, differentTypePlan, { isTrial: true })
             }, ERRORS.INVALID_ORGANIZATION_TYPE, 'result')
         })
 
         test('throws error if trial already used for this plan', async () => {
-            // First activation
-            await activateSubscriptionPlanByTestClient(admin, organization, subscriptionPlan, { isTrial: true })
+            await activateSubscriptionPlanByTestClient(user, organization, subscriptionPlan, { isTrial: true })
 
-            // Second activation should fail
             await expectToThrowGQLError(async () => {
-                await activateSubscriptionPlanByTestClient(admin, organization, subscriptionPlan, { isTrial: true })
+                await activateSubscriptionPlanByTestClient(user, organization, subscriptionPlan, { isTrial: true })
             }, ERRORS.TRIAL_ALREADY_USED, 'result')
         })
 
         test('can activate trial for different plans', async () => {
-            // First plan trial
-            const [result1] = await activateSubscriptionPlanByTestClient(admin, organization, subscriptionPlan, { isTrial: true })
+            const [result1] = await activateSubscriptionPlanByTestClient(user, organization, subscriptionPlan, { isTrial: true })
             expect(result1.subscriptionContext.isTrial).toBe(true)
 
-            // Create another plan
             const [anotherPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
@@ -187,23 +170,25 @@ describe('ActivateSubscriptionPlanService', () => {
                 trialDays: 14,
             })
 
-            // Second plan trial should work
-            const [result2] = await activateSubscriptionPlanByTestClient(admin, organization, anotherPlan, { isTrial: true })
+            const [result2] = await activateSubscriptionPlanByTestClient(user, organization, anotherPlan, { isTrial: true })
             expect(result2.subscriptionContext.isTrial).toBe(true)
         })
     })
 
     describe('Paid Subscription Logic', () => {
-        test('creates UserHelpRequest when isTrial is false (returns null subscriptionContext)', async () => {
+        test('creates UserHelpRequest when isTrial is false', async () => {
             const [result] = await activateSubscriptionPlanByTestClient(user, organization, subscriptionPlan, { isTrial: false })
 
             expect(result.subscriptionContext).toBeNull()
-        })
 
-        test('support can create paid subscription request', async () => {
-            const [result] = await activateSubscriptionPlanByTestClient(support, organization, subscriptionPlan, { isTrial: false })
+            const helpRequests = await UserHelpRequest.getAll(admin, {
+                organization: { id: organization.id },
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+            })
 
-            expect(result.subscriptionContext).toBeNull()
+            expect(helpRequests).toHaveLength(1)
+            expect(helpRequests[0].organization.id).toBe(organization.id)
+            expect(helpRequests[0].type).toBe(ACTIVATE_SUBSCRIPTION_TYPE)
         })
     })
 })

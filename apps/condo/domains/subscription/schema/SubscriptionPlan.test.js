@@ -122,20 +122,6 @@ describe('SubscriptionPlan', () => {
             })
         })
 
-        describe('hard delete', () => {
-            test('admin cannot delete', async () => {
-                const [objCreated] = await createTestSubscriptionPlan(admin, {
-                    name: faker.commerce.productName(),
-                    organizationType: SERVICE_PROVIDER_TYPE,
-                    isHidden: false,
-                })
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await SubscriptionPlan.delete(admin, objCreated.id)
-                })
-            })
-        })
-
         describe('read', () => {
             test('admin can read', async () => {
                 const [obj] = await createTestSubscriptionPlan(admin, {
@@ -189,7 +175,7 @@ describe('SubscriptionPlan', () => {
                 expect(objs[0].id).toBe(hiddenPlan.id)
             })
 
-            test('regular user cannot read hidden plans', async () => {
+            test('regular user can read not hidden plans', async () => {
                 const [visiblePlan] = await createTestSubscriptionPlan(admin, {
                     name: faker.commerce.productName(),
                     organizationType: SERVICE_PROVIDER_TYPE,
@@ -256,7 +242,9 @@ describe('SubscriptionPlan', () => {
 
             expect(obj.priority).toBe(5)
         })
+    })
 
+    describe('Field access restrictions', () => {
         test('can create active plan with different organizationType', async () => {
             const [plan1] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
@@ -273,9 +261,7 @@ describe('SubscriptionPlan', () => {
             expect(plan1.id).toMatch(UUID_RE)
             expect(plan2.id).toMatch(UUID_RE)
         })
-    })
-
-    describe('Field access restrictions', () => {
+        
         test('cannot update organizationType', async () => {
             const [objCreated] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),

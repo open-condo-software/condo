@@ -83,7 +83,7 @@ describe('conditionsEvaluator', () => {
             })
         })
 
-        describe('any (OR)', () => {
+        describe('any', () => {
             test('match when at least one condition true', async () => {
                 const conditions = {
                     any: [

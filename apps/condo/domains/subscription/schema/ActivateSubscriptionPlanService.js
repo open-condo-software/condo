@@ -95,15 +95,12 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     throw new GQLError(ERRORS.PLAN_NOT_FOUND, context)
                 }
 
-                // Check organization type compatibility
                 if (plan.organizationType && plan.organizationType !== organization.type) {
                     throw new GQLError(ERRORS.INVALID_ORGANIZATION_TYPE, context)
                 }
 
-                // Get user phone for UserHelpRequest
                 const user = await getById('User', context.authedItem.id)
                 if (!isTrial) {
-                    // Paid subscription flow - create UserHelpRequest
                     await UserHelpRequest.create(context, {
                         dv,
                         sender,
@@ -118,28 +115,22 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     return { subscriptionContext: null }
                 }
 
-                // Trial subscription flow
                 if (plan.trialDays <= 0) {
                     throw new GQLError(ERRORS.TRIAL_NOT_AVAILABLE, context)
                 }
 
-                // Check if trial already used for this plan
                 const [existingTrial] = await find('SubscriptionContext', {
                     organization: { id: organization.id },
                     subscriptionPlan: { id: plan.id },
                     isTrial: true,
                     deletedAt: null,
                 })
-
                 if (existingTrial) {
                     throw new GQLError(ERRORS.TRIAL_ALREADY_USED, context)
                 }
 
-                // Trial dates based on plan's trialDays
                 const startAt = dayjs().startOf('day')
                 const endAt = startAt.add(plan.trialDays, 'day')
-
-                // Create subscription context
                 const createdSubscriptionContext = await SubscriptionContext.create(context, {
                     dv,
                     sender,
