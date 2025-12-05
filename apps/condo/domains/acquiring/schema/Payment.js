@@ -56,9 +56,9 @@ const {
     NON_NEGATIVE_MONEY_FIELD,
     IMPORT_ID_FIELD,
 } = require('@condo/domains/common/schema/fields')
-const { sendWebhook } = require('@condo/domains/common/tasks/sendWebhook')
+const { sendWebhookPayload } = require('@condo/domains/common/tasks/sendWebhookPayload')
 const { getCurrencyDecimalPlaces } = require('@condo/domains/common/utils/currencies')
-const { WebhookDelivery } = require('@condo/domains/common/utils/serverSchema')
+const { WebhookPayload } = require('@condo/domains/common/utils/serverSchema')
 const { INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 
@@ -532,10 +532,10 @@ const Payment = new GQLListSchema('Payment', {
                     // Build the complete payload at creation time
                     const payload = await buildPaymentWebhookPayload(updatedItem, previousStatus, newStatus)
 
-                    // Use sudo context because WebhookDelivery access is restricted to admin/support only,
+                    // Use sudo context because WebhookPayload access is restricted to admin/support only,
                     // but this internal operation should work regardless of who triggered the payment update
                     const sudoContext = context.sudo()
-                    const delivery = await WebhookDelivery.create(sudoContext, {
+                    const webhookPayload = await WebhookPayload.create(sudoContext, {
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'Payment_webhookTrigger' },
                         payload,
@@ -548,8 +548,8 @@ const Payment = new GQLListSchema('Payment', {
                         nextRetryAt: dayjs().toISOString(),
                     })
 
-                    // Queue the webhook delivery task
-                    await sendWebhook.delay(delivery.id)
+                    // Queue the webhook payload delivery task
+                    await sendWebhookPayload.delay(webhookPayload.id)
                 }
             }
         },

@@ -9,34 +9,34 @@ const {
     WEBHOOK_DELIVERY_STATUS_SUCCESS,
     WEBHOOK_DELIVERY_STATUS_FAILED,
 } = require('@condo/domains/common/constants/webhook')
-const { WebhookDelivery } = require('@condo/domains/common/utils/serverSchema')
+const { WebhookPayload } = require('@condo/domains/common/utils/serverSchema')
 const {
     tryDeliverWebhook,
     calculateNextRetryAt,
 } = require('@condo/domains/common/utils/serverSchema/webhookDelivery')
 
 
-const logger = getLogger('sendWebhook')
+const logger = getLogger('sendWebhookPayload')
 
-const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendWebhook' } }
+const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendWebhookPayload' } }
 
 /**
- * Sends a webhook delivery
+ * Sends a webhook payload
  * Handles delivery, retries with exponential backoff, and expiration
- * @param {string} deliveryId - ID of the WebhookDelivery record
+ * @param {string} payloadId - ID of the WebhookPayload record
  */
-async function sendWebhook (deliveryId) {
-    const { keystone: context } = getSchemaCtx('WebhookDelivery')
+async function sendWebhookPayload (payloadId) {
+    const { keystone: context } = getSchemaCtx('WebhookPayload')
 
-    const delivery = await getById('WebhookDelivery', deliveryId)
+    const delivery = await getById('WebhookPayload', payloadId)
     if (!delivery) {
-        logger.error({ msg: 'Delivery record not found', data: { deliveryId } })
+        logger.error({ msg: 'Payload record not found', data: { payloadId } })
         return
     }
 
     // Skip if already completed
     if (delivery.status !== WEBHOOK_DELIVERY_STATUS_PENDING) {
-        logger.info({ msg: 'Delivery already processed', data: { deliveryId, status: delivery.status } })
+        logger.info({ msg: 'Payload already processed', data: { payloadId, status: delivery.status } })
         return
     }
 
@@ -44,10 +44,10 @@ async function sendWebhook (deliveryId) {
 
     // Check if expired
     if (now.isAfter(delivery.expiresAt)) {
-        logger.warn({ msg: 'Delivery expired', data: { now, deliveryId, expiresAt: delivery.expiresAt } })
-        await WebhookDelivery.update(context, deliveryId, {
+        logger.warn({ msg: 'Payload expired', data: { now, payloadId, expiresAt: delivery.expiresAt } })
+        await WebhookPayload.update(context, payloadId, {
             status: WEBHOOK_DELIVERY_STATUS_FAILED,
-            lastErrorMessage: 'Delivery expired after TTL',
+            lastErrorMessage: 'Payload expired after TTL',
             ...DV_SENDER,
         })
         return
@@ -59,7 +59,7 @@ async function sendWebhook (deliveryId) {
 
     if (result.success) {
         // Success - mark as delivered
-        await WebhookDelivery.update(context, deliveryId, {
+        await WebhookPayload.update(context, payloadId, {
             status: WEBHOOK_DELIVERY_STATUS_SUCCESS,
             lastHttpStatusCode: result.statusCode,
             lastResponseBody: result.body,
@@ -68,7 +68,7 @@ async function sendWebhook (deliveryId) {
             lastErrorMessage: null,
             ...DV_SENDER,
         })
-        logger.info({ msg: 'Webhook delivered successfully', data: { deliveryId, attempt: newAttempt } })
+        logger.info({ msg: 'Webhook delivered successfully', data: { payloadId, attempt: newAttempt } })
     } else {
         // Failure - calculate next retry
         const nextRetryAt = calculateNextRetryAt(newAttempt)
@@ -77,7 +77,7 @@ async function sendWebhook (deliveryId) {
         // Check if next retry would be after expiration
         if (nextRetryTime.isAfter(delivery.expiresAt)) {
             // Mark as permanently failed
-            await WebhookDelivery.update(context, deliveryId, {
+            await WebhookPayload.update(context, payloadId, {
                 status: WEBHOOK_DELIVERY_STATUS_FAILED,
                 lastHttpStatusCode: result.statusCode || null,
                 lastResponseBody: result.body || null,
@@ -87,12 +87,12 @@ async function sendWebhook (deliveryId) {
                 ...DV_SENDER,
             })
             logger.warn({
-                msg: 'Webhook delivery permanently failed (next retry after expiration)',
-                data: { deliveryId, attempt: newAttempt, error: result.error },
+                msg: 'Webhook payload permanently failed (next retry after expiration)',
+                data: { payloadId, attempt: newAttempt, error: result.error },
             })
         } else {
             // Schedule retry
-            await WebhookDelivery.update(context, deliveryId, {
+            await WebhookPayload.update(context, payloadId, {
                 status: WEBHOOK_DELIVERY_STATUS_PENDING,
                 lastHttpStatusCode: result.statusCode || null,
                 lastResponseBody: result.body || null,
@@ -103,15 +103,15 @@ async function sendWebhook (deliveryId) {
                 ...DV_SENDER,
             })
             logger.info({
-                msg: 'Webhook delivery failed, scheduled retry',
-                data: { deliveryId, attempt: newAttempt, nextRetryAt, error: result.error },
+                msg: 'Webhook payload failed, scheduled retry',
+                data: { payloadId, attempt: newAttempt, nextRetryAt, error: result.error },
             })
         }
     }
 }
 
 module.exports = {
-    sendWebhook: createTask('sendWebhook', sendWebhook),
+    sendWebhookPayload: createTask('sendWebhookPayload', sendWebhookPayload),
     // Export raw function for testing
-    _sendWebhook: sendWebhook,
+    _sendWebhookPayload: sendWebhookPayload,
 }

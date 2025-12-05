@@ -12,13 +12,11 @@ const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/gene
 
 const { _INTERNAL_SCHEDULE_TASK_BY_NAME_MUTATION } = require('@condo/domains/common/gql')
 const {
-    WebhookDelivery: WebhookDeliveryGQL,
-    WebhookDeliveryWhiteListItem: WebhookDeliveryWhiteListItemGQL,
+    WebhookPayload: WebhookPayloadGQL,
 } = require('@condo/domains/common/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const WebhookDelivery = generateGQLTestUtils(WebhookDeliveryGQL)
-const WebhookDeliveryWhiteListItem = generateGQLTestUtils(WebhookDeliveryWhiteListItemGQL)
+const WebhookPayload = generateGQLTestUtils(WebhookPayloadGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -36,7 +34,7 @@ async function _internalScheduleTaskByNameByTestClient(client, extraAttrs = {}) 
     return [data.result, attrs]
 }
 
-async function createTestWebhookDelivery (client, extraAttrs = {}) {
+async function createTestWebhookPayload (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -51,11 +49,11 @@ async function createTestWebhookDelivery (client, extraAttrs = {}) {
         nextRetryAt: dayjs().toISOString(),
         ...extraAttrs,
     }
-    const obj = await WebhookDelivery.create(client, attrs)
+    const obj = await WebhookPayload.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestWebhookDelivery (client, id, extraAttrs = {}) {
+async function updateTestWebhookPayload (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -65,48 +63,16 @@ async function updateTestWebhookDelivery (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await WebhookDelivery.update(client, id, attrs)
+    const obj = await WebhookPayload.update(client, id, attrs)
     return [obj, attrs]
 }
 
-async function createTestWebhookDeliveryWhiteListItem (client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        url: `https://example-${faker.random.alphaNumeric(8)}.com/webhook`,
-        name: `Test Webhook ${faker.random.alphaNumeric(4)}`,
-        isEnabled: true,
-        ...extraAttrs,
-    }
-    const obj = await WebhookDeliveryWhiteListItem.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestWebhookDeliveryWhiteListItem (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await WebhookDeliveryWhiteListItem.update(client, id, attrs)
-    return [obj, attrs]
-}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     _internalScheduleTaskByNameByTestClient,
-    WebhookDelivery,
-    createTestWebhookDelivery,
-    updateTestWebhookDelivery,
-    WebhookDeliveryWhiteListItem,
-    createTestWebhookDeliveryWhiteListItem,
-    updateTestWebhookDeliveryWhiteListItem,
+    WebhookPayload,
+    createTestWebhookPayload,
+    updateTestWebhookPayload,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

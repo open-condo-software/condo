@@ -68,12 +68,12 @@ const conf = require("@open-condo/config");
 const { PAYMENTS_FILE_NEW_STATUS } = require("@condo/domains/acquiring/constants/constants");
 const { SET_PAYMENT_POS_RECEIPT_URL_MUTATION } = require('@condo/domains/acquiring/gql')
 const {
-    WebhookDelivery,
-    createTestWebhookDelivery,
-    updateTestWebhookDelivery,
-    WebhookDeliveryWhiteListItem,
-    createTestWebhookDeliveryWhiteListItem,
-    updateTestWebhookDeliveryWhiteListItem,
+    PaymentStatusChangeWebhookUrl: PaymentStatusChangeWebhookUrlGQL,
+} = require('@condo/domains/acquiring/gql')
+const {
+    WebhookPayload,
+    createTestWebhookPayload,
+    updateTestWebhookPayload,
 } = require('@condo/domains/common/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -88,6 +88,7 @@ const PaymentsFilterTemplate = generateGQLTestUtils(PaymentsFilterTemplateGQL)
 const RecurrentPaymentContext = generateGQLTestUtils(RecurrentPaymentContextGQL)
 const RecurrentPayment = generateGQLTestUtils(RecurrentPaymentGQL)
 const PaymentsFile = generateGQLTestUtils(PaymentsFileGQL)
+const PaymentStatusChangeWebhookUrl = generateGQLTestUtils(PaymentStatusChangeWebhookUrlGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const RecurrentPaymentContextLiteGQL = generateGqlQueries('RecurrentPaymentContext', '{ id }')
@@ -618,6 +619,36 @@ async function setPaymentPosReceiptUrlByTestClient (client, payment, extraAttrs 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function createTestPaymentStatusChangeWebhookUrl (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        url: `https://example-${faker.random.alphaNumeric(8)}.com/webhook`,
+        name: `Test Webhook ${faker.random.alphaNumeric(4)}`,
+        isEnabled: true,
+        ...extraAttrs,
+    }
+    const obj = await PaymentStatusChangeWebhookUrl.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPaymentStatusChangeWebhookUrl (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PaymentStatusChangeWebhookUrl.update(client, id, attrs)
+    return [obj, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate a bunch of entities for working with MultiPayments
@@ -918,7 +949,7 @@ module.exports = {
     generateQRCode,
     PaymentsFile, createTestPaymentsFile, updateTestPaymentsFile,
     setPaymentPosReceiptUrlByTestClient,
-    WebhookDelivery, createTestWebhookDelivery, updateTestWebhookDelivery,
-    WebhookDeliveryWhiteListItem, createTestWebhookDeliveryWhiteListItem, updateTestWebhookDeliveryWhiteListItem,
+    WebhookPayload, createTestWebhookPayload, updateTestWebhookPayload,
+    PaymentStatusChangeWebhookUrl, createTestPaymentStatusChangeWebhookUrl, updateTestPaymentStatusChangeWebhookUrl,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }

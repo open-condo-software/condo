@@ -29,7 +29,7 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
-    createTestWebhookDeliveryWhiteListItem,
+    createTestPaymentStatusChangeWebhookUrl,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { AMOUNT_DISTRIBUTION_SUBFIELDS } = require('@condo/domains/billing/gql')
@@ -2826,7 +2826,7 @@ describe('Invoice', () => {
             const callbackUrl = `https://whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
 
             // Add URL to whitelist
-            await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: callbackUrl,
                 isEnabled: true,
             })
@@ -2861,7 +2861,7 @@ describe('Invoice', () => {
             const callbackUrl = `https://disabled-${faker.random.alphaNumeric(10)}.com/webhook`
 
             // Add URL to whitelist but disabled
-            await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: callbackUrl,
                 isEnabled: false,
             })
@@ -2897,7 +2897,7 @@ describe('Invoice', () => {
             await createTestOrganizationEmployee(adminClient, dummyOrganization, client.user, role)
 
             // Add URL to whitelist
-            await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: callbackUrl,
                 isEnabled: true,
             })
@@ -2940,7 +2940,7 @@ describe('Invoice', () => {
             expect(invoice.statusChangeCallbackUrl).toBeNull()
 
             // Add URL to whitelist
-            await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: callbackUrl,
                 isEnabled: true,
             })

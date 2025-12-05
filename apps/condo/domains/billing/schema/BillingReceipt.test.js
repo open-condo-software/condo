@@ -25,7 +25,7 @@ const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
     updateTestAcquiringIntegrationContext,
-    createTestWebhookDeliveryWhiteListItem,
+    createTestPaymentStatusChangeWebhookUrl,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/billing/constants/constants')
@@ -1593,7 +1593,7 @@ describe('BillingReceipt', () => {
             const callbackUrl = `https://billing-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
 
             // Add URL to whitelist
-            await createTestWebhookDeliveryWhiteListItem(admin, {
+            await createTestPaymentStatusChangeWebhookUrl(admin, {
                 url: callbackUrl,
                 isEnabled: true,
             })
@@ -1628,7 +1628,7 @@ describe('BillingReceipt', () => {
             const callbackUrl = `https://billing-disabled-${faker.random.alphaNumeric(10)}.com/webhook`
 
             // Add URL to whitelist but disabled
-            await createTestWebhookDeliveryWhiteListItem(admin, {
+            await createTestPaymentStatusChangeWebhookUrl(admin, {
                 url: callbackUrl,
                 isEnabled: false,
             })
@@ -1658,7 +1658,7 @@ describe('BillingReceipt', () => {
             const callbackUrl = `https://integration-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
 
             // Add URL to whitelist
-            await createTestWebhookDeliveryWhiteListItem(admin, {
+            await createTestPaymentStatusChangeWebhookUrl(admin, {
                 url: callbackUrl,
                 isEnabled: true,
             })
@@ -1695,7 +1695,7 @@ describe('BillingReceipt', () => {
             expect(receipt.statusChangeCallbackUrl).toBeNull()
 
             // Add URL to whitelist
-            await createTestWebhookDeliveryWhiteListItem(admin, {
+            await createTestPaymentStatusChangeWebhookUrl(admin, {
                 url: callbackUrl,
                 isEnabled: true,
             })
