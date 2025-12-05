@@ -14,13 +14,13 @@ const ERRORS = {
     CALLBACK_URL_NOT_IN_WHITELIST: {
         code: BAD_USER_INPUT,
         type: 'CALLBACK_URL_NOT_IN_WHITELIST',
-        message: 'The callback URL must be registered in WebhookDeliveryWhiteListItem',
+        message: 'The callback URL must be registered in PaymentStatusChangeWebhookUrl',
         messageForUser: 'api.acquiring.webhook.CALLBACK_URL_NOT_IN_WHITELIST',
     },
 }
 
 const STATUS_CHANGE_CALLBACK_URL_FIELD = {
-    schemaDoc: 'URL to call when payment status changes. When set, the system will send HTTP POST requests to this URL with payment status change details. Must be registered in WebhookDeliveryWhiteListItem.',
+    schemaDoc: 'URL to call when payment status changes. When set, the system will send HTTP POST requests to this URL with payment status change details. Must be registered in PaymentStatusChangeWebhookUrl.',
     type: 'Url',
     isRequired: false,
 }
@@ -37,7 +37,7 @@ const STATUS_CHANGE_CALLBACK_SECRET_FIELD = {
 }
 
 /**
- * Validates that the callback URL is registered in WebhookDeliveryWhiteListItem.
+ * Validates that the callback URL is registered in PaymentStatusChangeWebhookUrl.
  * Use this in validateInput hook of schemas that have webhook callback fields.
  * Throws GQLError if URL is not in whitelist.
  * 
@@ -50,14 +50,14 @@ async function validateCallbackUrlInWhitelist (callbackUrl, context) {
         return // No URL to validate
     }
 
-    // Check if URL is in the global whitelist
-    const whitelistItems = await find('WebhookDeliveryWhiteListItem', {
+    // Check if URL is in the approved webhook URLs list
+    const approvedUrls = await find('PaymentStatusChangeWebhookUrl', {
         url: callbackUrl,
         isEnabled: true,
         deletedAt: null,
     })
 
-    if (whitelistItems.length === 0) {
+    if (approvedUrls.length === 0) {
         throw new GQLError(ERRORS.CALLBACK_URL_NOT_IN_WHITELIST, context)
     }
 }

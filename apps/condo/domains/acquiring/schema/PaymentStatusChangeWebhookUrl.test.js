@@ -17,14 +17,14 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const {
-    WebhookDeliveryWhiteListItem,
-    createTestWebhookDeliveryWhiteListItem,
-    updateTestWebhookDeliveryWhiteListItem,
-} = require('@condo/domains/common/utils/testSchema')
+    PaymentStatusChangeWebhookUrl,
+    createTestPaymentStatusChangeWebhookUrl,
+    updateTestPaymentStatusChangeWebhookUrl,
+} = require('@condo/domains/acquiring/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 
-describe('WebhookDeliveryWhiteListItem', () => {
+describe('PaymentStatusChangeWebhookUrl', () => {
     let adminClient
 
     beforeAll(async () => {
@@ -33,19 +33,19 @@ describe('WebhookDeliveryWhiteListItem', () => {
 
     describe('CRUD', () => {
         describe('Create', () => {
-            test('admin: can create WebhookDeliveryWhiteListItem', async () => {
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient)
+            test('admin: can create PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
 
                 expect(item.id).toMatch(UUID_RE)
                 expect(item.url).toContain('https://')
                 expect(item.isEnabled).toBe(true)
             })
 
-            test('admin: can create WebhookDeliveryWhiteListItem with name and description', async () => {
+            test('admin: can create PaymentStatusChangeWebhookUrl with name and description', async () => {
                 const name = 'Production CRM Webhook'
                 const description = 'Webhook for CRM integration'
 
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient, {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                     name,
                     description,
                 })
@@ -54,65 +54,65 @@ describe('WebhookDeliveryWhiteListItem', () => {
                 expect(item.description).toBe(description)
             })
 
-            test('admin: can create disabled WebhookDeliveryWhiteListItem', async () => {
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            test('admin: can create disabled PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                     isEnabled: false,
                 })
 
                 expect(item.isEnabled).toBe(false)
             })
 
-            test('anonymous: cannot create WebhookDeliveryWhiteListItem', async () => {
+            test('anonymous: cannot create PaymentStatusChangeWebhookUrl', async () => {
                 const anonymousClient = await makeClient()
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestWebhookDeliveryWhiteListItem(anonymousClient)
+                    await createTestPaymentStatusChangeWebhookUrl(anonymousClient)
                 })
             })
 
-            test('user: cannot create WebhookDeliveryWhiteListItem', async () => {
+            test('user: cannot create PaymentStatusChangeWebhookUrl', async () => {
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestWebhookDeliveryWhiteListItem(userClient)
+                    await createTestPaymentStatusChangeWebhookUrl(userClient)
                 })
             })
         })
 
         describe('Read', () => {
-            test('admin: can read WebhookDeliveryWhiteListItem', async () => {
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient)
+            test('admin: can read PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
 
-                const readItem = await WebhookDeliveryWhiteListItem.getOne(adminClient, { id: item.id })
+                const readItem = await PaymentStatusChangeWebhookUrl.getOne(adminClient, { id: item.id })
 
                 expect(readItem.id).toBe(item.id)
                 expect(readItem.url).toBe(item.url)
             })
 
-            test('anonymous: cannot read WebhookDeliveryWhiteListItem', async () => {
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient)
+            test('anonymous: cannot read PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
                 const anonymousClient = await makeClient()
 
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await WebhookDeliveryWhiteListItem.getOne(anonymousClient, { id: item.id })
+                    await PaymentStatusChangeWebhookUrl.getOne(anonymousClient, { id: item.id })
                 })
             })
 
-            test('user: cannot read WebhookDeliveryWhiteListItem', async () => {
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient)
+            test('user: cannot read PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
-                    await WebhookDeliveryWhiteListItem.getOne(userClient, { id: item.id })
+                    await PaymentStatusChangeWebhookUrl.getOne(userClient, { id: item.id })
                 })
             })
         })
 
         describe('Update', () => {
-            test('admin: can update WebhookDeliveryWhiteListItem', async () => {
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient)
+            test('admin: can update PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
 
-                const [updatedItem] = await updateTestWebhookDeliveryWhiteListItem(adminClient, item.id, {
+                const [updatedItem] = await updateTestPaymentStatusChangeWebhookUrl(adminClient, item.id, {
                     isEnabled: false,
                     name: 'Updated Name',
                 })
@@ -122,33 +122,33 @@ describe('WebhookDeliveryWhiteListItem', () => {
             })
 
             test('admin: can update URL to new valid HTTPS URL', async () => {
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient)
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
                 const newUrl = `https://new-webhook-${faker.random.alphaNumeric(8)}.com/callback`
 
-                const [updatedItem] = await updateTestWebhookDeliveryWhiteListItem(adminClient, item.id, {
+                const [updatedItem] = await updateTestPaymentStatusChangeWebhookUrl(adminClient, item.id, {
                     url: newUrl,
                 })
 
                 expect(updatedItem.url).toBe(newUrl)
             })
 
-            test('anonymous: cannot update WebhookDeliveryWhiteListItem', async () => {
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient)
+            test('anonymous: cannot update PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
                 const anonymousClient = await makeClient()
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestWebhookDeliveryWhiteListItem(anonymousClient, item.id, {
+                    await updateTestPaymentStatusChangeWebhookUrl(anonymousClient, item.id, {
                         isEnabled: false,
                     })
                 })
             })
 
-            test('user: cannot update WebhookDeliveryWhiteListItem', async () => {
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient)
+            test('user: cannot update PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestWebhookDeliveryWhiteListItem(userClient, item.id, {
+                    await updateTestPaymentStatusChangeWebhookUrl(userClient, item.id, {
                         isEnabled: false,
                     })
                 })
@@ -156,25 +156,25 @@ describe('WebhookDeliveryWhiteListItem', () => {
         })
 
         describe('Delete', () => {
-            test('admin: cannot hard delete WebhookDeliveryWhiteListItem', async () => {
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient)
+            test('admin: cannot hard delete PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await WebhookDeliveryWhiteListItem.delete(adminClient, item.id)
+                    await PaymentStatusChangeWebhookUrl.delete(adminClient, item.id)
                 })
             })
 
-            test('admin: can soft delete WebhookDeliveryWhiteListItem', async () => {
-                const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient)
+            test('admin: can soft delete PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
 
-                const [deletedItem] = await updateTestWebhookDeliveryWhiteListItem(adminClient, item.id, {
+                const [deletedItem] = await updateTestPaymentStatusChangeWebhookUrl(adminClient, item.id, {
                     deletedAt: dayjs().toISOString(),
                 })
 
                 expect(deletedItem.deletedAt).not.toBeNull()
 
                 // Should not be found in normal queries
-                const found = await WebhookDeliveryWhiteListItem.getOne(adminClient, { id: item.id })
+                const found = await PaymentStatusChangeWebhookUrl.getOne(adminClient, { id: item.id })
                 expect(found).toBeUndefined()
             })
         })
@@ -183,7 +183,7 @@ describe('WebhookDeliveryWhiteListItem', () => {
     describe('URL validation', () => {
         test('should require valid HTTPS URL', async () => {
             const uniqueUrl = `https://valid-webhook-${faker.random.alphaNumeric(10)}.com/callback`
-            const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: uniqueUrl,
             })
 
@@ -193,7 +193,7 @@ describe('WebhookDeliveryWhiteListItem', () => {
         test('should reject HTTP URLs (non-HTTPS)', async () => {
             await expectToThrowGQLError(
                 async () => {
-                    await createTestWebhookDeliveryWhiteListItem(adminClient, {
+                    await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                         url: 'http://insecure-webhook.com/callback',
                     })
                 },
@@ -210,7 +210,7 @@ describe('WebhookDeliveryWhiteListItem', () => {
             const path = faker.random.alphaNumeric(10)
             const url = `http://localhost:${port}/${path}`
             
-            const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url,
             })
 
@@ -222,7 +222,7 @@ describe('WebhookDeliveryWhiteListItem', () => {
             const path = faker.random.alphaNumeric(10)
             const url = `http://127.0.0.1:${port}/${path}`
             
-            const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url,
             })
 
@@ -231,7 +231,7 @@ describe('WebhookDeliveryWhiteListItem', () => {
 
         test('should reject invalid URL format', async () => {
             await expect(async () => {
-                await createTestWebhookDeliveryWhiteListItem(adminClient, {
+                await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                     url: 'not-a-valid-url',
                 })
             }).rejects.toThrow()
@@ -242,13 +242,13 @@ describe('WebhookDeliveryWhiteListItem', () => {
         test('should enforce unique URL constraint', async () => {
             const uniqueUrl = `https://unique-${faker.random.alphaNumeric(10)}.com/webhook`
 
-            await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: uniqueUrl,
             })
 
             // Trying to create another item with the same URL should fail
             await expect(async () => {
-                await createTestWebhookDeliveryWhiteListItem(adminClient, {
+                await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                     url: uniqueUrl,
                 })
             }).rejects.toThrow()
@@ -257,17 +257,17 @@ describe('WebhookDeliveryWhiteListItem', () => {
         test('should allow same URL after soft delete', async () => {
             const uniqueUrl = `https://reusable-${faker.random.alphaNumeric(10)}.com/webhook`
 
-            const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: uniqueUrl,
             })
 
             // Soft delete the item
-            await updateTestWebhookDeliveryWhiteListItem(adminClient, item.id, {
+            await updateTestPaymentStatusChangeWebhookUrl(adminClient, item.id, {
                 deletedAt: dayjs().toISOString(),
             })
 
             // Should be able to create a new item with the same URL
-            const [newItem] = await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            const [newItem] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: uniqueUrl,
             })
 
@@ -278,11 +278,11 @@ describe('WebhookDeliveryWhiteListItem', () => {
 
     describe('Querying', () => {
         test('can query by isEnabled', async () => {
-            const [enabledItem] = await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            const [enabledItem] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 isEnabled: true,
             })
 
-            const enabledItems = await WebhookDeliveryWhiteListItem.getAll(adminClient, {
+            const enabledItems = await PaymentStatusChangeWebhookUrl.getAll(adminClient, {
                 isEnabled: true,
                 id: enabledItem.id,
             })
@@ -293,11 +293,11 @@ describe('WebhookDeliveryWhiteListItem', () => {
 
         test('can query by url', async () => {
             const uniqueUrl = `https://queryable-${faker.random.alphaNumeric(10)}.com/webhook`
-            const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: uniqueUrl,
             })
 
-            const items = await WebhookDeliveryWhiteListItem.getAll(adminClient, {
+            const items = await PaymentStatusChangeWebhookUrl.getAll(adminClient, {
                 url: uniqueUrl,
             })
 
@@ -307,11 +307,11 @@ describe('WebhookDeliveryWhiteListItem', () => {
 
         test('can query by name contains', async () => {
             const uniqueName = `Webhook-${faker.random.alphaNumeric(10)}`
-            const [item] = await createTestWebhookDeliveryWhiteListItem(adminClient, {
+            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 name: uniqueName,
             })
 
-            const items = await WebhookDeliveryWhiteListItem.getAll(adminClient, {
+            const items = await PaymentStatusChangeWebhookUrl.getAll(adminClient, {
                 name_contains: uniqueName.substring(0, 10),
             })
 

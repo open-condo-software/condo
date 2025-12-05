@@ -8,8 +8,7 @@ const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/ut
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const WebhookDelivery = generateServerUtils('WebhookDelivery')
-const WebhookDeliveryWhiteListItem = generateServerUtils('WebhookDeliveryWhiteListItem')
+const WebhookPayload = generateServerUtils('WebhookPayload')
 
 const GLOBAL_QUERY_LIMIT = 1000
 const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 9000, 14900, 49000, 149000])
@@ -289,6 +288,5 @@ module.exports = {
     GqlWithKnexLoadList,
     loadListByChunks,
     filterBlankRelatedObjectsFrom,
-    WebhookDelivery,
-    WebhookDeliveryWhiteListItem,
+    WebhookPayload,
 }

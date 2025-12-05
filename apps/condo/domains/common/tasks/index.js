@@ -1,8 +1,8 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
-const { retryFailedWebhooksCronTask } = require('@condo/domains/common/tasks/retryFailedWebhooks')
-const { sendWebhook } = require('@condo/domains/common/tasks/sendWebhook')
+const { retryFailedWebhookPayloadsCronTask } = require('@condo/domains/common/tasks/retryFailedWebhookPayloads')
+const { sendWebhookPayload } = require('@condo/domains/common/tasks/sendWebhookPayload')
 
 const logger = getLogger('simple-cron-task')
 
@@ -12,7 +12,7 @@ module.exports = {
         logger.info('common-sample-cron-task successful call')
     }),
 
-    // Webhook delivery tasks
-    retryFailedWebhooksCronTask,
-    sendWebhook,
+    // Webhook payload tasks
+    retryFailedWebhookPayloadsCronTask,
+    sendWebhookPayload,
 }
