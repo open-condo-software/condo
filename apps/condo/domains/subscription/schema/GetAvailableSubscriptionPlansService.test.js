@@ -37,7 +37,7 @@ describe('GetAvailableSubscriptionPlansService', () => {
         subscriptionPlan = plan
 
         await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-            period: SUBSCRIPTION_PERIOD.MONTHLY,
+            period: SUBSCRIPTION_PERIOD.MONTH,
             price: '1000.00',
             currencyCode: 'RUB',
         })
@@ -94,7 +94,6 @@ describe('GetAvailableSubscriptionPlansService', () => {
 
     describe('Logic', () => {
         test('returns empty array if no plans match organization type', async () => {
-            // Create plan for different organization type
             const [differentTypePlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: HOLDING_TYPE,
@@ -102,12 +101,11 @@ describe('GetAvailableSubscriptionPlansService', () => {
             })
 
             await createTestSubscriptionPlanPricingRule(admin, differentTypePlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '2000.00',
                 currencyCode: 'RUB',
             })
 
-            // Should only return the plan matching organization type
             const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
 
             const planIds = result.plans.map(p => p.plan.id)
@@ -123,7 +121,7 @@ describe('GetAvailableSubscriptionPlansService', () => {
             })
 
             await createTestSubscriptionPlanPricingRule(admin, hiddenPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '500.00',
                 currencyCode: 'RUB',
             })
@@ -143,7 +141,6 @@ describe('GetAvailableSubscriptionPlansService', () => {
         })
 
         test('returns prices for multiple periods', async () => {
-            // Create plan with multiple rules
             const [multiRulePlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
@@ -151,16 +148,14 @@ describe('GetAvailableSubscriptionPlansService', () => {
                 trialDays: 14,
             })
 
-            // Monthly price
-            await createTestSubscriptionPlanPricingRule(admin, multiRulePlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+            const [monthlyRule] = await createTestSubscriptionPlanPricingRule(admin, multiRulePlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '1000.00',
                 currencyCode: 'RUB',
             })
 
-            // Yearly price
-            await createTestSubscriptionPlanPricingRule(admin, multiRulePlan, {
-                period: SUBSCRIPTION_PERIOD.YEARLY,
+            const [yearlyRule] = await createTestSubscriptionPlanPricingRule(admin, multiRulePlan, {
+                period: SUBSCRIPTION_PERIOD.YEAR,
                 price: '10000.00',
                 currencyCode: 'RUB',
             })
@@ -171,11 +166,13 @@ describe('GetAvailableSubscriptionPlansService', () => {
             expect(plan).toBeDefined()
             expect(plan.prices).toHaveLength(2)
 
-            const monthlyPrice = plan.prices.find(p => p.period === SUBSCRIPTION_PERIOD.MONTHLY)
+            const monthlyPrice = plan.prices.find(p => p.period === SUBSCRIPTION_PERIOD.MONTH)
             expect(monthlyPrice.price).toBe('1000.00')
+            expect(monthlyPrice.id).toBe(monthlyRule.id)
 
-            const yearlyPrice = plan.prices.find(p => p.period === SUBSCRIPTION_PERIOD.YEARLY)
+            const yearlyPrice = plan.prices.find(p => p.period === SUBSCRIPTION_PERIOD.YEAR)
             expect(yearlyPrice.price).toBe('10000.00')
+            expect(yearlyPrice.id).toBe(yearlyRule.id)
         })
 
         test('returns custom price for organization with matching condition', async () => {
@@ -186,17 +183,15 @@ describe('GetAvailableSubscriptionPlansService', () => {
                 trialDays: 14,
             })
 
-            // Regular price (lower priority)
             await createTestSubscriptionPlanPricingRule(admin, planWithCustomPrice, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '1000.00',
                 currencyCode: 'RUB',
                 priority: 10,
             })
 
-            // Custom price for specific organization (higher priority)
             await createTestSubscriptionPlanPricingRule(admin, planWithCustomPrice, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '500.00',
                 currencyCode: 'RUB',
                 priority: 100,
@@ -210,7 +205,6 @@ describe('GetAvailableSubscriptionPlansService', () => {
             const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
 
             const plan = result.plans.find(p => p.plan.id === planWithCustomPrice.id)
-            // Should return the custom price (matches this org)
             expect(plan.prices).toHaveLength(1)
             expect(plan.prices[0].price).toBe('500.00')
         })
@@ -223,9 +217,8 @@ describe('GetAvailableSubscriptionPlansService', () => {
                 trialDays: 14,
             })
 
-            // Price with feature condition that org doesn't have
             await createTestSubscriptionPlanPricingRule(admin, planWithFeaturePrice, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '800.00',
                 currencyCode: 'RUB',
                 conditions: {
@@ -238,30 +231,7 @@ describe('GetAvailableSubscriptionPlansService', () => {
             const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
 
             const plan = result.plans.find(p => p.plan.id === planWithFeaturePrice.id)
-            // prices will be empty because org doesn't have the feature
             expect(plan.prices).toHaveLength(0)
-        })
-
-        test('returns price id (pricing rule id) in prices', async () => {
-            const [planWithPrice] = await createTestSubscriptionPlan(admin, {
-                name: faker.commerce.productName(),
-                organizationType: MANAGING_COMPANY_TYPE,
-                isHidden: false,
-            })
-
-            const [pricingRule] = await createTestSubscriptionPlanPricingRule(admin, planWithPrice, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
-                price: '1500.00',
-                currencyCode: 'RUB',
-            })
-
-            const [result] = await getAvailableSubscriptionPlansByTestClient(admin, organization)
-
-            const plan = result.plans.find(p => p.plan.id === planWithPrice.id)
-            expect(plan.prices).toHaveLength(1)
-            expect(plan.prices[0].id).toBe(pricingRule.id)
-            expect(plan.prices[0].period).toBe(SUBSCRIPTION_PERIOD.MONTHLY)
-            expect(plan.prices[0].price).toBe('1500.00')
         })
     })
 })

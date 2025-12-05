@@ -12,11 +12,10 @@ const { evaluateConditions } = require('./conditionsEvaluator')
  *
  * @param {string} subscriptionPlanId - Subscription plan ID
  * @param {string} period - Subscription period (monthly/yearly)
- * @param {Object} organization - Organization object (optional, for org-specific rules)
+ * @param {Object} organization - Organization
  * @returns {Object|null} { basePrice, finalPrice, currencyCode, appliedRules } or null if no price configured
  */
 async function calculateSubscriptionPrice (subscriptionPlanId, period, organization = null) {
-    // Get pricing rules sorted by priority
     const rules = await itemsQuery('SubscriptionPlanPricingRule', {
         where: {
             subscriptionPlan: { id: subscriptionPlanId },

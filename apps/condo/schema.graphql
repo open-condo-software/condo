@@ -58209,8 +58209,8 @@ input SubscriptionPlanRelateToOneInput {
 }
 
 enum SubscriptionPlanPricingRulePeriodType {
-  monthly
-  yearly
+  month
+  year
 }
 
 enum SubscriptionPlanPricingRuleCurrencyCodeType {
@@ -58415,7 +58415,7 @@ type SubscriptionPlanPricingRule {
   """ Subscription plan this rule applies to """
   subscriptionPlan: SubscriptionPlan
 
-  """ Subscription period this rule applies to (monthly, yearly) """
+  """ Subscription period this rule applies to (month, year) """
   period: SubscriptionPlanPricingRulePeriodType
 
   """ JSON conditions for rule matching (json-rules-engine format). Format: { all: [...] } or { any: [...] }. Each condition: { fact, operator, value }. Facts: organizationIds, organizationFeatures. Operators: equal, notEqual, in, notIn, contains 
@@ -89046,6 +89046,7 @@ type RegisterPropertyMetersReadingsOutput {
 }
 
 type SubscriptionPlanPrice {
+  id: ID!
   period: String!
   price: String!
   currencyCode: String!
@@ -89054,7 +89055,6 @@ type SubscriptionPlanPrice {
 type AvailableSubscriptionPlan {
   plan: SubscriptionPlan!
   prices: [SubscriptionPlanPrice!]!
-  trialAvailable: Boolean!
 }
 
 type GetAvailableSubscriptionPlansOutput {

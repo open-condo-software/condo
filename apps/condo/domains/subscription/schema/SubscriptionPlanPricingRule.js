@@ -54,7 +54,7 @@ const SubscriptionPlanPricingRule = new GQLListSchema('SubscriptionPlanPricingRu
         },
 
         period: {
-            schemaDoc: 'Subscription period this rule applies to (monthly, yearly)',
+            schemaDoc: 'Subscription period this rule applies to (month, year)',
             type: 'Select',
             options: SUBSCRIPTION_PERIODS,
             isRequired: true,

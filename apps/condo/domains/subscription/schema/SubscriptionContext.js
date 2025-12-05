@@ -128,7 +128,6 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             const startAt = resolvedData.startAt || existingItem?.startAt
             const endAt = resolvedData.endAt || existingItem?.endAt
 
-            // Validate dates
             if (startAt && endAt && new Date(startAt) >= new Date(endAt)) {
                 throw new GQLError(ERRORS.END_DATE_MUST_BE_AFTER_START_DATE, context)
             }

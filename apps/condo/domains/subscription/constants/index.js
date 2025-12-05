@@ -4,8 +4,8 @@ const SUBSCRIPTION_PAYMENT_CURRENCY = {
 
 // Subscription periods
 const SUBSCRIPTION_PERIOD = {
-    MONTHLY: 'monthly',
-    YEARLY: 'yearly',
+    MONTH: 'month',
+    YEAR: 'year',
 }
 const SUBSCRIPTION_PERIODS = Object.values(SUBSCRIPTION_PERIOD)
 

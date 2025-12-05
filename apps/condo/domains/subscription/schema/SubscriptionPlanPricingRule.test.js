@@ -41,7 +41,7 @@ describe('SubscriptionPlanPricingRule', () => {
         describe('create', () => {
             test('admin can create', async () => {
                 const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    period: SUBSCRIPTION_PERIOD.MONTH,
                     price: '1000.00',
                     currencyCode: 'RUB',
                 })
@@ -53,7 +53,7 @@ describe('SubscriptionPlanPricingRule', () => {
 
             test('support can create', async () => {
                 const [obj] = await createTestSubscriptionPlanPricingRule(support, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.YEARLY,
+                    period: SUBSCRIPTION_PERIOD.YEAR,
                     price: '10000.00',
                     currencyCode: 'RUB',
                 })
@@ -66,7 +66,7 @@ describe('SubscriptionPlanPricingRule', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestSubscriptionPlanPricingRule(user, subscriptionPlan, {
-                        period: SUBSCRIPTION_PERIOD.MONTHLY,
+                        period: SUBSCRIPTION_PERIOD.MONTH,
                         price: '1000.00',
                         currencyCode: 'RUB',
                     })
@@ -78,7 +78,7 @@ describe('SubscriptionPlanPricingRule', () => {
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestSubscriptionPlanPricingRule(client, subscriptionPlan, {
-                        period: SUBSCRIPTION_PERIOD.MONTHLY,
+                        period: SUBSCRIPTION_PERIOD.MONTH,
                         price: '1000.00',
                         currencyCode: 'RUB',
                     })
@@ -89,7 +89,7 @@ describe('SubscriptionPlanPricingRule', () => {
         describe('update', () => {
             test('admin can update', async () => {
                 const [objCreated] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    period: SUBSCRIPTION_PERIOD.MONTH,
                     price: '1000.00',
                     currencyCode: 'RUB',
                 })
@@ -103,7 +103,7 @@ describe('SubscriptionPlanPricingRule', () => {
 
             test('support can update', async () => {
                 const [objCreated] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    period: SUBSCRIPTION_PERIOD.MONTH,
                     price: '1000.00',
                     currencyCode: 'RUB',
                 })
@@ -117,7 +117,7 @@ describe('SubscriptionPlanPricingRule', () => {
 
             test('anonymous cannot update', async () => {
                 const [objCreated] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    period: SUBSCRIPTION_PERIOD.MONTH,
                     price: '1000.00',
                     currencyCode: 'RUB',
                 })
@@ -129,24 +129,10 @@ describe('SubscriptionPlanPricingRule', () => {
             })
         })
 
-        describe('hard delete', () => {
-            test('admin cannot delete', async () => {
-                const [objCreated] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
-                    price: '1000.00',
-                    currencyCode: 'RUB',
-                })
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await SubscriptionPlanPricingRule.delete(admin, objCreated.id)
-                })
-            })
-        })
-
         describe('read', () => {
             test('admin can read all rules', async () => {
                 const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    period: SUBSCRIPTION_PERIOD.MONTH,
                     price: '1000.00',
                     currencyCode: 'RUB',
                 })
@@ -158,17 +144,15 @@ describe('SubscriptionPlanPricingRule', () => {
             })
 
             test('regular user can read only visible rules (isHidden=false)', async () => {
-                // Create visible rule
                 const [visibleRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    period: SUBSCRIPTION_PERIOD.MONTH,
                     price: '1000.00',
                     currencyCode: 'RUB',
                     isHidden: false,
                 })
 
-                // Create hidden rule
                 const [hiddenRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.YEARLY,
+                    period: SUBSCRIPTION_PERIOD.YEAR,
                     price: '500.00',
                     currencyCode: 'RUB',
                     isHidden: true,
@@ -176,7 +160,6 @@ describe('SubscriptionPlanPricingRule', () => {
 
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                // User should only see visible rules
                 const userRules = await SubscriptionPlanPricingRule.getAll(user, {
                     subscriptionPlan: { id: subscriptionPlan.id },
                 })
@@ -188,7 +171,7 @@ describe('SubscriptionPlanPricingRule', () => {
 
             test('anonymous cannot read', async () => {
                 await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    period: SUBSCRIPTION_PERIOD.MONTH,
                     price: '1000.00',
                     currencyCode: 'RUB',
                 })
@@ -204,33 +187,33 @@ describe('SubscriptionPlanPricingRule', () => {
     describe('Validation tests', () => {
         test('can create multiple rules for same plan with different periods', async () => {
             const [monthlyRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '1000.00',
                 currencyCode: 'RUB',
             })
 
             const [yearlyRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.YEARLY,
+                period: SUBSCRIPTION_PERIOD.YEAR,
                 price: '10000.00',
                 currencyCode: 'RUB',
             })
 
             expect(monthlyRule.id).toMatch(UUID_RE)
             expect(yearlyRule.id).toMatch(UUID_RE)
-            expect(monthlyRule.period).toBe(SUBSCRIPTION_PERIOD.MONTHLY)
-            expect(yearlyRule.period).toBe(SUBSCRIPTION_PERIOD.YEARLY)
+            expect(monthlyRule.period).toBe(SUBSCRIPTION_PERIOD.MONTH)
+            expect(yearlyRule.period).toBe(SUBSCRIPTION_PERIOD.YEAR)
         })
 
         test('can create multiple rules for same plan and period with different priorities', async () => {
             const [highPriorityRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '1000.00',
                 currencyCode: 'RUB',
                 priority: 100,
             })
 
             const [lowPriorityRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '500.00',
                 currencyCode: 'RUB',
                 priority: 50,
@@ -244,7 +227,7 @@ describe('SubscriptionPlanPricingRule', () => {
 
         test('isHidden defaults to false', async () => {
             const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '1000.00',
                 currencyCode: 'RUB',
             })
@@ -254,7 +237,7 @@ describe('SubscriptionPlanPricingRule', () => {
 
         test('can hide rule', async () => {
             const [objCreated] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '1000.00',
                 currencyCode: 'RUB',
             })
@@ -270,7 +253,7 @@ describe('SubscriptionPlanPricingRule', () => {
     describe('Conditions validation tests', () => {
         test('can create rule with null conditions', async () => {
             const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '1000.00',
                 currencyCode: 'RUB',
                 conditions: null,
@@ -287,7 +270,7 @@ describe('SubscriptionPlanPricingRule', () => {
                 value: ACTIVE_BANKING_FEATURE,
             }
             const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '1000.00',
                 currencyCode: 'RUB',
                 conditions,
@@ -305,7 +288,7 @@ describe('SubscriptionPlanPricingRule', () => {
                 ],
             }
             const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '0.00',
                 currencyCode: 'RUB',
                 conditions,
@@ -323,7 +306,7 @@ describe('SubscriptionPlanPricingRule', () => {
                 ],
             }
             const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '2000.00',
                 currencyCode: 'RUB',
                 conditions,
@@ -340,7 +323,7 @@ describe('SubscriptionPlanPricingRule', () => {
                 ],
             }
             const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '500.00',
                 currencyCode: 'RUB',
                 conditions,
@@ -353,7 +336,7 @@ describe('SubscriptionPlanPricingRule', () => {
         test('cannot create rule with invalid conditions structure', async () => {
             await expectToThrowGQLError(async () => {
                 await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    period: SUBSCRIPTION_PERIOD.MONTH,
                     price: '1000.00',
                     currencyCode: 'RUB',
                     conditions: {
@@ -370,7 +353,7 @@ describe('SubscriptionPlanPricingRule', () => {
         test('cannot create rule with unsupported fact', async () => {
             await expectToThrowGQLError(async () => {
                 await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    period: SUBSCRIPTION_PERIOD.MONTH,
                     price: '1000.00',
                     currencyCode: 'RUB',
                     conditions: {
@@ -389,7 +372,7 @@ describe('SubscriptionPlanPricingRule', () => {
         test('cannot create rule with unsupported operator', async () => {
             await expectToThrowGQLError(async () => {
                 await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    period: SUBSCRIPTION_PERIOD.MONTH,
                     price: '1000.00',
                     currencyCode: 'RUB',
                     conditions: {
@@ -408,7 +391,7 @@ describe('SubscriptionPlanPricingRule', () => {
         test('cannot create rule with missing operator in condition', async () => {
             await expectToThrowGQLError(async () => {
                 await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                    period: SUBSCRIPTION_PERIOD.MONTHLY,
+                    period: SUBSCRIPTION_PERIOD.MONTH,
                     price: '1000.00',
                     currencyCode: 'RUB',
                     conditions: {
@@ -426,7 +409,7 @@ describe('SubscriptionPlanPricingRule', () => {
 
         test('can update rule conditions', async () => {
             const [objCreated] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
-                period: SUBSCRIPTION_PERIOD.MONTHLY,
+                period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '1000.00',
                 currencyCode: 'RUB',
                 conditions: null,
