@@ -39,22 +39,26 @@ const {
     PAYMENT_DONE_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
-const { PAYMENT_WEBHOOK_DELIVERY_TTL_DAYS } = require('@condo/domains/acquiring/constants/webhook')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
-const { sendPaymentWebhook } = require('@condo/domains/acquiring/tasks/sendPaymentWebhook')
 const { AcquiringIntegrationContext, Payment: PaymentGQL } = require('@condo/domains/acquiring/utils/serverSchema')
-const { PaymentWebhookDelivery } = require('@condo/domains/acquiring/utils/serverSchema')
-const { getWebhookCallbackUrl } = require('@condo/domains/acquiring/utils/serverSchema/webhookDelivery')
+const {
+    getWebhookCallbackUrl,
+    getWebhookSecret,
+    buildPaymentWebhookPayload,
+} = require('@condo/domains/acquiring/utils/serverSchema/paymentWebhookHelpers')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const { WEBHOOK_DELIVERY_TTL_DAYS } = require('@condo/domains/common/constants/webhook')
 const {
     CURRENCY_CODE_FIELD,
     POSITIVE_MONEY_AMOUNT_FIELD,
     NON_NEGATIVE_MONEY_FIELD,
     IMPORT_ID_FIELD,
 } = require('@condo/domains/common/schema/fields')
+const { sendWebhook } = require('@condo/domains/common/tasks/sendWebhook')
 const { getCurrencyDecimalPlaces } = require('@condo/domains/common/utils/currencies')
+const { WebhookDelivery } = require('@condo/domains/common/utils/serverSchema')
 const { INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 
@@ -519,27 +523,33 @@ const Payment = new GQLListSchema('Payment', {
             const statusChanged = operation === 'update' && previousStatus !== newStatus
 
             if (statusChanged) {
-                // Get callback URL from invoice or receipt
-                const callbackUrl = await getWebhookCallbackUrl(updatedItem)
+                // Get callback URL and secret from invoice or receipt
+                const url = await getWebhookCallbackUrl(updatedItem)
+                const secret = await getWebhookSecret(updatedItem)
 
-                if (callbackUrl) {
+                if (url && secret) {
                     const dayjs = require('dayjs')
-                    // Use sudo context because PaymentWebhookDelivery access is restricted to admin/support only,
+                    // Build the complete payload at creation time
+                    const payload = await buildPaymentWebhookPayload(updatedItem, previousStatus, newStatus)
+
+                    // Use sudo context because WebhookDelivery access is restricted to admin/support only,
                     // but this internal operation should work regardless of who triggered the payment update
                     const sudoContext = context.sudo()
-                    const delivery = await PaymentWebhookDelivery.create(sudoContext, {
+                    const delivery = await WebhookDelivery.create(sudoContext, {
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'Payment_webhookTrigger' },
-                        payment: { connect: { id: updatedItem.id } },
-                        previousStatus,
-                        newStatus,
-                        callbackUrl,
-                        expiresAt: dayjs().add(PAYMENT_WEBHOOK_DELIVERY_TTL_DAYS, 'day').toISOString(),
+                        payload,
+                        url,
+                        secret,
+                        eventType: 'payment.status.changed',
+                        modelName: 'Payment',
+                        itemId: updatedItem.id,
+                        expiresAt: dayjs().add(WEBHOOK_DELIVERY_TTL_DAYS, 'day').toISOString(),
                         nextRetryAt: dayjs().toISOString(),
                     })
 
                     // Queue the webhook delivery task
-                    await sendPaymentWebhook.delay(delivery.id)
+                    await sendWebhook.delay(delivery.id)
                 }
             }
         },

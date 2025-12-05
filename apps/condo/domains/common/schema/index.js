@@ -4,9 +4,13 @@
  */
 
 const { _internalScheduleTaskByNameService } = require('./_internalScheduleTaskByNameService')
+const { WebhookDelivery } = require('./WebhookDelivery')
+const { WebhookDeliveryWhiteListItem } = require('./WebhookDeliveryWhiteListItem')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     _internalScheduleTaskByNameService,
+    WebhookDelivery,
+    WebhookDeliveryWhiteListItem,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
