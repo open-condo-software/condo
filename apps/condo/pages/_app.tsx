@@ -93,13 +93,6 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-import {
-    SubscriptionProvider,
-    useServiceSubscriptionContext,
-} from '@condo/domains/subscription/components/SubscriptionContext'
-import {
-    useEndTrialSubscriptionReminderPopup,
-} from '@condo/domains/subscription/hooks/useEndTrialSubscriptionReminderPopup'
 import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useIncidentExportTaskUIInterface } from '@condo/domains/ticket/hooks/useIncidentExportTaskUIInterface'
@@ -161,9 +154,8 @@ const MenuItems: React.FC = () => {
 
     const { isAuthenticated, isLoading } = useAuth()
     const { employee, organization } = useOrganization()
-    const { isExpired } = useServiceSubscriptionContext()
     const hasSubscriptionFeature = useFlag(SUBSCRIPTION) && canEnableSubscriptions
-    const disabled = !employee || (hasSubscriptionFeature && isExpired)
+    const disabled = !employee || (hasSubscriptionFeature)
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
     const role = employee?.role || null
@@ -500,11 +492,6 @@ const MyApp = ({ Component, pageProps }) => {
         RequiredAccess = Component.requiredAccess
     }
 
-    const {
-        EndTrialSubscriptionReminderPopup,
-        isEndTrialSubscriptionReminderPopupVisible,
-    } = useEndTrialSubscriptionReminderPopup()
-
     const shouldDisplayCookieAgreement = router.pathname.match(/\/auth(\/.*)?/)
 
     // NOTE: We remember that the client has already been authorized,
@@ -540,30 +527,23 @@ const MyApp = ({ Component, pageProps }) => {
                                 <TasksProvider>
                                     <PostMessageProvider>
                                         <TourProvider>
-                                            <SubscriptionProvider>
-                                                <GlobalAppsFeaturesProvider>
-                                                    <GlobalAppsContainer/>
-                                                    <TicketVisibilityContextProvider>
-                                                        <ActiveCallContextProvider>
-                                                            <ConnectedAppsWithIconsContextProvider>
-                                                                <CondoAppEventsHandler/>
-                                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                    <RequiredAccess>
-                                                                        <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                            <Component {...pageProps} />
-                                                                            {
-                                                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                    <EndTrialSubscriptionReminderPopup/>
-                                                                                )
-                                                                            }
-                                                                        </FeaturesReady>
-                                                                    </RequiredAccess>
-                                                                </LayoutComponent>
-                                                            </ConnectedAppsWithIconsContextProvider>
-                                                        </ActiveCallContextProvider>
-                                                    </TicketVisibilityContextProvider>
-                                                </GlobalAppsFeaturesProvider>
-                                            </SubscriptionProvider>
+                                            <GlobalAppsFeaturesProvider>
+                                                <GlobalAppsContainer/>
+                                                <TicketVisibilityContextProvider>
+                                                    <ActiveCallContextProvider>
+                                                        <ConnectedAppsWithIconsContextProvider>
+                                                            <CondoAppEventsHandler/>
+                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                <RequiredAccess>
+                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                        <Component {...pageProps} />
+                                                                    </FeaturesReady>
+                                                                </RequiredAccess>
+                                                            </LayoutComponent>
+                                                        </ConnectedAppsWithIconsContextProvider>
+                                                    </ActiveCallContextProvider>
+                                                </TicketVisibilityContextProvider>
+                                            </GlobalAppsFeaturesProvider>
                                         </TourProvider>
                                     </PostMessageProvider>
                                 </TasksProvider>

@@ -4,7 +4,7 @@ const uniq = require('lodash/uniq')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { SERVICE_PROVIDER_PROFILE_FEATURE, ALL_FEATURES } = require('@condo/domains/organization/constants/features')
+const { SERVICE_PROVIDER_PROFILE_FEATURE, ACTIVE_BANKING_FEATURE, ALL_FEATURES } = require('@condo/domains/organization/constants/features')
 const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
@@ -53,6 +53,18 @@ async function syncFeatures ({ context, organization, features }) {
             })
             connectedFeatures.push(SERVICE_PROVIDER_PROFILE_FEATURE)
         }
+    }
+
+    if (!actualExistingFeatures.includes(ACTIVE_BANKING_FEATURE)) {
+        logger.info({
+            msg: 'feature is successfully connected',
+            entityId: orgId,
+            entity: 'Organization',
+            data: {
+                feature: ACTIVE_BANKING_FEATURE,
+            },
+        })
+        connectedFeatures.push(ACTIVE_BANKING_FEATURE)
     }
 
     const actualFeatures = uniq(concat(actualExistingFeatures, connectedFeatures))
