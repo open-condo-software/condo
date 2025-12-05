@@ -1,0 +1,33 @@
+name: bumper.yml
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    branches:
+      - main
+
+jobs:
+  republish-image:
+    runs-on: test-pool-runners
+    steps:
+      - name: Prepare runner
+        run: |
+          sudo apt update && sudo apt install -y git
+      - name: Login to cloud registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Pull & push to registry
+        run: |
+          docker pull node:24-bookworm-slim
+          docker tag node:24-bookworm-slim ${{ secrets.DOCKER_REGISTRY }}/doma/utils/node:24-bookworm-slim
+          docker push ${{ secrets.DOCKER_REGISTRY }}/doma/utils/node:24-bookworm-slim
+      - name: Pull & push to registry
+        run: |
+          docker pull python:3.14-slim-bookworm
+          docker tag python:3.14-slim-bookworm ${{ secrets.DOCKER_REGISTRY }}/doma/utils/python:3.14-slim-bookworm
+          docker push ${{ secrets.DOCKER_REGISTRY }}/doma/utils/python:3.14-slim-bookworm
