@@ -1600,11 +1600,11 @@ describe('BillingReceipt', () => {
 
             // Create billing receipt with whitelisted URL
             const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
-                statusChangeCallbackUrl: callbackUrl,
+                paymentStatusChangeWebhookUrl: callbackUrl,
             })
 
-            expect(receipt.statusChangeCallbackUrl).toBe(callbackUrl)
-            expect(receipt.statusChangeCallbackSecret).toBeTruthy()
+            expect(receipt.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(receipt.paymentStatusChangeWebhookSecret).toBeTruthy()
         })
 
         test('cannot create billing receipt with non-whitelisted callback URL', async () => {
@@ -1613,12 +1613,13 @@ describe('BillingReceipt', () => {
             await expectToThrowGQLError(
                 async () => {
                     await createTestBillingReceipt(admin, context, property, account, {
-                        statusChangeCallbackUrl: callbackUrl,
+                        paymentStatusChangeWebhookUrl: callbackUrl,
                     })
                 },
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
                 },
                 'obj'
             )
@@ -1636,12 +1637,13 @@ describe('BillingReceipt', () => {
             await expectToThrowGQLError(
                 async () => {
                     await createTestBillingReceipt(admin, context, property, account, {
-                        statusChangeCallbackUrl: callbackUrl,
+                        paymentStatusChangeWebhookUrl: callbackUrl,
                     })
                 },
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
                 },
                 'obj'
             )
@@ -1650,8 +1652,8 @@ describe('BillingReceipt', () => {
         test('can create billing receipt without callback URL', async () => {
             const [receipt] = await createTestBillingReceipt(admin, context, property, account)
 
-            expect(receipt.statusChangeCallbackUrl).toBeNull()
-            expect(receipt.statusChangeCallbackSecret).toBeNull()
+            expect(receipt.paymentStatusChangeWebhookUrl).toBeNull()
+            expect(receipt.paymentStatusChangeWebhookSecret).toBeNull()
         })
 
         test('integration user can create billing receipt with whitelisted callback URL', async () => {
@@ -1664,10 +1666,10 @@ describe('BillingReceipt', () => {
             })
 
             const [receipt] = await createTestBillingReceipt(integrationUser, context, property, account, {
-                statusChangeCallbackUrl: callbackUrl,
+                paymentStatusChangeWebhookUrl: callbackUrl,
             })
 
-            expect(receipt.statusChangeCallbackUrl).toBe(callbackUrl)
+            expect(receipt.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
         })
 
         test('integration user cannot create billing receipt with non-whitelisted callback URL', async () => {
@@ -1676,12 +1678,13 @@ describe('BillingReceipt', () => {
             await expectToThrowGQLError(
                 async () => {
                     await createTestBillingReceipt(integrationUser, context, property, account, {
-                        statusChangeCallbackUrl: callbackUrl,
+                        paymentStatusChangeWebhookUrl: callbackUrl,
                     })
                 },
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
                 },
                 'obj'
             )
@@ -1692,7 +1695,7 @@ describe('BillingReceipt', () => {
 
             // Create billing receipt without callback URL
             const [receipt] = await createTestBillingReceipt(admin, context, property, account)
-            expect(receipt.statusChangeCallbackUrl).toBeNull()
+            expect(receipt.paymentStatusChangeWebhookUrl).toBeNull()
 
             // Add URL to whitelist
             await createTestPaymentStatusChangeWebhookUrl(admin, {
@@ -1702,11 +1705,11 @@ describe('BillingReceipt', () => {
 
             // Update billing receipt with whitelisted URL
             const [updatedReceipt] = await updateTestBillingReceipt(admin, receipt.id, {
-                statusChangeCallbackUrl: callbackUrl,
+                paymentStatusChangeWebhookUrl: callbackUrl,
             })
 
-            expect(updatedReceipt.statusChangeCallbackUrl).toBe(callbackUrl)
-            expect(updatedReceipt.statusChangeCallbackSecret).toBeTruthy()
+            expect(updatedReceipt.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(updatedReceipt.paymentStatusChangeWebhookSecret).toBeTruthy()
         })
 
         test('cannot update billing receipt to add non-whitelisted callback URL', async () => {
@@ -1718,12 +1721,13 @@ describe('BillingReceipt', () => {
             await expectToThrowGQLError(
                 async () => {
                     await updateTestBillingReceipt(admin, receipt.id, {
-                        statusChangeCallbackUrl: callbackUrl,
+                        paymentStatusChangeWebhookUrl: callbackUrl,
                     })
                 },
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
                 },
                 'obj'
             )

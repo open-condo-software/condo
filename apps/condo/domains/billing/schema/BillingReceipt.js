@@ -12,8 +12,8 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
 const {
-    STATUS_CHANGE_CALLBACK_URL_FIELD,
-    STATUS_CHANGE_CALLBACK_SECRET_FIELD,
+    PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
+    PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     applyWebhookSecretGeneration,
     validateCallbackUrlInWhitelist,
 } = require('@condo/domains/acquiring/schema/fields/webhookCallback')
@@ -322,9 +322,9 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             },
         }),
 
-        statusChangeCallbackUrl: STATUS_CHANGE_CALLBACK_URL_FIELD,
+        paymentStatusChangeWebhookUrl: PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
 
-        statusChangeCallbackSecret: STATUS_CHANGE_CALLBACK_SECRET_FIELD,
+        paymentStatusChangeWebhookSecret: PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
@@ -372,7 +372,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             }
 
             // Validate callback URL is in whitelist
-            const callbackUrl = get(resolvedData, 'statusChangeCallbackUrl')
+            const callbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
             if (callbackUrl) {
                 await validateCallbackUrlInWhitelist(callbackUrl, context)
             }

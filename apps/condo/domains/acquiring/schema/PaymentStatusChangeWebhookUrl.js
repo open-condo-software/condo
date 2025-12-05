@@ -42,7 +42,7 @@ function isValidWebhookUrl (url) {
 
 
 const PaymentStatusChangeWebhookUrl = new GQLListSchema('PaymentStatusChangeWebhookUrl', {
-    schemaDoc: 'Whitelist of approved webhook callback URLs for payment status change notifications. Only URLs registered here can be used as statusChangeCallbackUrl in Invoice or BillingReceipt. Managed by admin/support only.',
+    schemaDoc: 'Whitelist of approved webhook callback URLs for payment status change notifications. Only URLs registered here can be used as paymentStatusChangeWebhookUrl in Invoice or BillingReceipt. Managed by admin/support only.',
     fields: {
 
         name: {
