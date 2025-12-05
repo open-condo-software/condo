@@ -6,7 +6,9 @@ import {
     FindOrganizationsByTinQueryResult,
     RegisterNewOrganizationMutationResult,
     useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery,
-    SendOrganizationEmployeeRequestMutationResult, GetActualOrganizationEmployeesDocument,
+    SendOrganizationEmployeeRequestMutationResult,
+    GetActualOrganizationEmployeesDocument,
+    useActivateSubscriptionPlanMutation,
 } from '@app/condo/gql'
 import { Col, Form, FormInstance, Row } from 'antd'
 import getConfig from 'next/config'
@@ -21,7 +23,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Radio, RadioGroup, Space, Typography, Input, Button, Alert, Modal } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
-import { SKIP_SEARCH_ORGANIZATION_BY_TIN } from '@condo/domains/common/constants/featureflags'
+import { SKIP_SEARCH_ORGANIZATION_BY_TIN, DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
@@ -176,8 +178,12 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const { user } = useAuth()
     const userId = useMemo(() => user?.id, [user?.id])
     const locale = useMemo(() => organization?.country || defaultLocale, [organization?.country])
-    const { useFlag } = useFeatureFlags()
+    const { useFlag, useFlagValue } = useFeatureFlags()
     const skipSearchOrganizationByTin = useFlag(SKIP_SEARCH_ORGANIZATION_BY_TIN)
+
+    // todo fix
+    //const defaultTrialPlanId = useFlagValue(DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID) as string
+    const defaultTrialPlanId = 'eb835e7e-6cff-4880-b599-d516813e5acf'
 
     const [isFoundOrganizationModalOpen, setIsFoundOrganizationModalOpen] = useState<boolean>(false)
     const [isSearchByTinLimitReached, setIsSearchByTinLimitReached] = useState<boolean>(false)
@@ -208,6 +214,9 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const [getLastActiveOrganizationEmployeeRequest] = useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery({
         onError,
         fetchPolicy: 'network-only',
+    })
+    const [activateSubscriptionPlan] = useActivateSubscriptionPlanMutation({
+        onError,
     })
 
     const createOrganizationAction = useCallback(async (values) => {
@@ -293,6 +302,25 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
             await onOrganizationCreated(registeredOrganization)
         }
         const organizationId = registeredOrganization?.id
+
+        try {
+            if (defaultTrialPlanId) {
+                await activateSubscriptionPlan({
+                    variables: {
+                        data: {
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: 'create-organization-auto-trial' },
+                            organization: { id: organizationId },
+                            subscriptionPlan: { id: defaultTrialPlanId },
+                            isTrial: true,
+                        },
+                    },
+                })
+            }
+        } catch (error) {
+            console.error('Failed to activate trial subscription:', error)
+        }
+
         const newOrganizationEmployeeData = await getOrganizationEmployee({
             variables: {
                 userId,
