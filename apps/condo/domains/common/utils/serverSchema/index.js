@@ -2,10 +2,14 @@ const { getItems } = require('@open-keystone/server-side-graphql-client')
 const { isFunction, isNil } = require('lodash')
 const get = require('lodash/get')
 
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
+const WebhookDelivery = generateServerUtils('WebhookDelivery')
+const WebhookDeliveryWhiteListItem = generateServerUtils('WebhookDeliveryWhiteListItem')
 
 const GLOBAL_QUERY_LIMIT = 1000
 const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 9000, 14900, 49000, 149000])
@@ -285,4 +289,6 @@ module.exports = {
     GqlWithKnexLoadList,
     loadListByChunks,
     filterBlankRelatedObjectsFrom,
+    WebhookDelivery,
+    WebhookDeliveryWhiteListItem,
 }
