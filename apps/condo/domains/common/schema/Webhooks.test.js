@@ -1,5 +1,6 @@
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { WebhookTests } = require('@open-condo/webhooks/schema/models/Webhook.test')
+const { WebhookPayloadTests } = require('@open-condo/webhooks/schema/models/WebhookPayload.test')
 const {
     WebhookSubscriptionBasicTests,
     WebhookSubscriptionModelSwitchTests, 
@@ -34,6 +35,7 @@ const secondModel = {
 // and its fields / filters must not intersect with User ones (see sample above)
 describe('External webhook tests', () => {
     WebhookTests('Condo', initializeActors)
+    WebhookPayloadTests('Condo', initializeActors)
     WebhookSubscriptionBasicTests('Condo', initializeActors)
     WebhookSubscriptionModelSwitchTests('Condo', initializeActors, secondModel)
 })

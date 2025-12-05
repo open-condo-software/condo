@@ -15462,8 +15462,8 @@ type BillingReceiptHistoryRecord {
   receiver: String
   file: String
   amountDistribution: JSON
-  statusChangeCallbackUrl: String
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: String
   id: ID!
   v: Int
   createdAt: String
@@ -15652,42 +15652,42 @@ input BillingReceiptHistoryRecordWhereInput {
   amountDistribution_not: JSON
   amountDistribution_in: [JSON]
   amountDistribution_not_in: [JSON]
-  statusChangeCallbackUrl: String
-  statusChangeCallbackUrl_not: String
-  statusChangeCallbackUrl_contains: String
-  statusChangeCallbackUrl_not_contains: String
-  statusChangeCallbackUrl_starts_with: String
-  statusChangeCallbackUrl_not_starts_with: String
-  statusChangeCallbackUrl_ends_with: String
-  statusChangeCallbackUrl_not_ends_with: String
-  statusChangeCallbackUrl_i: String
-  statusChangeCallbackUrl_not_i: String
-  statusChangeCallbackUrl_contains_i: String
-  statusChangeCallbackUrl_not_contains_i: String
-  statusChangeCallbackUrl_starts_with_i: String
-  statusChangeCallbackUrl_not_starts_with_i: String
-  statusChangeCallbackUrl_ends_with_i: String
-  statusChangeCallbackUrl_not_ends_with_i: String
-  statusChangeCallbackUrl_in: [String]
-  statusChangeCallbackUrl_not_in: [String]
-  statusChangeCallbackSecret: String
-  statusChangeCallbackSecret_not: String
-  statusChangeCallbackSecret_contains: String
-  statusChangeCallbackSecret_not_contains: String
-  statusChangeCallbackSecret_starts_with: String
-  statusChangeCallbackSecret_not_starts_with: String
-  statusChangeCallbackSecret_ends_with: String
-  statusChangeCallbackSecret_not_ends_with: String
-  statusChangeCallbackSecret_i: String
-  statusChangeCallbackSecret_not_i: String
-  statusChangeCallbackSecret_contains_i: String
-  statusChangeCallbackSecret_not_contains_i: String
-  statusChangeCallbackSecret_starts_with_i: String
-  statusChangeCallbackSecret_not_starts_with_i: String
-  statusChangeCallbackSecret_ends_with_i: String
-  statusChangeCallbackSecret_not_ends_with_i: String
-  statusChangeCallbackSecret_in: [String]
-  statusChangeCallbackSecret_not_in: [String]
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookUrl_not: String
+  paymentStatusChangeWebhookUrl_contains: String
+  paymentStatusChangeWebhookUrl_not_contains: String
+  paymentStatusChangeWebhookUrl_starts_with: String
+  paymentStatusChangeWebhookUrl_not_starts_with: String
+  paymentStatusChangeWebhookUrl_ends_with: String
+  paymentStatusChangeWebhookUrl_not_ends_with: String
+  paymentStatusChangeWebhookUrl_i: String
+  paymentStatusChangeWebhookUrl_not_i: String
+  paymentStatusChangeWebhookUrl_contains_i: String
+  paymentStatusChangeWebhookUrl_not_contains_i: String
+  paymentStatusChangeWebhookUrl_starts_with_i: String
+  paymentStatusChangeWebhookUrl_not_starts_with_i: String
+  paymentStatusChangeWebhookUrl_ends_with_i: String
+  paymentStatusChangeWebhookUrl_not_ends_with_i: String
+  paymentStatusChangeWebhookUrl_in: [String]
+  paymentStatusChangeWebhookUrl_not_in: [String]
+  paymentStatusChangeWebhookSecret: String
+  paymentStatusChangeWebhookSecret_not: String
+  paymentStatusChangeWebhookSecret_contains: String
+  paymentStatusChangeWebhookSecret_not_contains: String
+  paymentStatusChangeWebhookSecret_starts_with: String
+  paymentStatusChangeWebhookSecret_not_starts_with: String
+  paymentStatusChangeWebhookSecret_ends_with: String
+  paymentStatusChangeWebhookSecret_not_ends_with: String
+  paymentStatusChangeWebhookSecret_i: String
+  paymentStatusChangeWebhookSecret_not_i: String
+  paymentStatusChangeWebhookSecret_contains_i: String
+  paymentStatusChangeWebhookSecret_not_contains_i: String
+  paymentStatusChangeWebhookSecret_starts_with_i: String
+  paymentStatusChangeWebhookSecret_not_starts_with_i: String
+  paymentStatusChangeWebhookSecret_ends_with_i: String
+  paymentStatusChangeWebhookSecret_not_ends_with_i: String
+  paymentStatusChangeWebhookSecret_in: [String]
+  paymentStatusChangeWebhookSecret_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -15795,10 +15795,10 @@ enum SortBillingReceiptHistoryRecordsBy {
   balanceUpdatedAt_DESC
   paid_ASC
   paid_DESC
-  statusChangeCallbackUrl_ASC
-  statusChangeCallbackUrl_DESC
-  statusChangeCallbackSecret_ASC
-  statusChangeCallbackSecret_DESC
+  paymentStatusChangeWebhookUrl_ASC
+  paymentStatusChangeWebhookUrl_DESC
+  paymentStatusChangeWebhookSecret_ASC
+  paymentStatusChangeWebhookSecret_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -15841,8 +15841,8 @@ input BillingReceiptHistoryRecordUpdateInput {
   receiver: String
   file: String
   amountDistribution: JSON
-  statusChangeCallbackUrl: String
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -15886,8 +15886,8 @@ input BillingReceiptHistoryRecordCreateInput {
   receiver: String
   file: String
   amountDistribution: JSON
-  statusChangeCallbackUrl: String
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -16149,13 +16149,13 @@ type BillingReceipt {
   """
   amountDistribution: [AmountDistributionField!]
 
-  """ URL to call when payment status changes. When set, the system will send HTTP POST requests to this URL with payment status change details. Must be registered in PaymentWebhookSubscription for the organization. 
+  """ URL to call when payment status changes. When set, the system will send HTTP POST requests to this URL with payment status change details. Must be registered in PaymentStatusChangeWebhookUrl. 
   """
-  statusChangeCallbackUrl: String
+  paymentStatusChangeWebhookUrl: String
 
-  """ Secret key used to sign webhook payloads. Auto-generated when statusChangeCallbackUrl is set. The receiver should use this secret to verify the X-Condo-Signature header. 
+  """ Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Condo-Signature header. 
   """
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookSecret: String
   id: ID!
   v: Int
   createdAt: String
@@ -16340,42 +16340,42 @@ input BillingReceiptWhereInput {
   amountDistribution_not: [AmountDistributionFieldInput!]
   amountDistribution_in: [[AmountDistributionFieldInput!]]
   amountDistribution_not_in: [[AmountDistributionFieldInput!]]
-  statusChangeCallbackUrl: String
-  statusChangeCallbackUrl_not: String
-  statusChangeCallbackUrl_contains: String
-  statusChangeCallbackUrl_not_contains: String
-  statusChangeCallbackUrl_starts_with: String
-  statusChangeCallbackUrl_not_starts_with: String
-  statusChangeCallbackUrl_ends_with: String
-  statusChangeCallbackUrl_not_ends_with: String
-  statusChangeCallbackUrl_i: String
-  statusChangeCallbackUrl_not_i: String
-  statusChangeCallbackUrl_contains_i: String
-  statusChangeCallbackUrl_not_contains_i: String
-  statusChangeCallbackUrl_starts_with_i: String
-  statusChangeCallbackUrl_not_starts_with_i: String
-  statusChangeCallbackUrl_ends_with_i: String
-  statusChangeCallbackUrl_not_ends_with_i: String
-  statusChangeCallbackUrl_in: [String]
-  statusChangeCallbackUrl_not_in: [String]
-  statusChangeCallbackSecret: String
-  statusChangeCallbackSecret_not: String
-  statusChangeCallbackSecret_contains: String
-  statusChangeCallbackSecret_not_contains: String
-  statusChangeCallbackSecret_starts_with: String
-  statusChangeCallbackSecret_not_starts_with: String
-  statusChangeCallbackSecret_ends_with: String
-  statusChangeCallbackSecret_not_ends_with: String
-  statusChangeCallbackSecret_i: String
-  statusChangeCallbackSecret_not_i: String
-  statusChangeCallbackSecret_contains_i: String
-  statusChangeCallbackSecret_not_contains_i: String
-  statusChangeCallbackSecret_starts_with_i: String
-  statusChangeCallbackSecret_not_starts_with_i: String
-  statusChangeCallbackSecret_ends_with_i: String
-  statusChangeCallbackSecret_not_ends_with_i: String
-  statusChangeCallbackSecret_in: [String]
-  statusChangeCallbackSecret_not_in: [String]
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookUrl_not: String
+  paymentStatusChangeWebhookUrl_contains: String
+  paymentStatusChangeWebhookUrl_not_contains: String
+  paymentStatusChangeWebhookUrl_starts_with: String
+  paymentStatusChangeWebhookUrl_not_starts_with: String
+  paymentStatusChangeWebhookUrl_ends_with: String
+  paymentStatusChangeWebhookUrl_not_ends_with: String
+  paymentStatusChangeWebhookUrl_i: String
+  paymentStatusChangeWebhookUrl_not_i: String
+  paymentStatusChangeWebhookUrl_contains_i: String
+  paymentStatusChangeWebhookUrl_not_contains_i: String
+  paymentStatusChangeWebhookUrl_starts_with_i: String
+  paymentStatusChangeWebhookUrl_not_starts_with_i: String
+  paymentStatusChangeWebhookUrl_ends_with_i: String
+  paymentStatusChangeWebhookUrl_not_ends_with_i: String
+  paymentStatusChangeWebhookUrl_in: [String]
+  paymentStatusChangeWebhookUrl_not_in: [String]
+  paymentStatusChangeWebhookSecret: String
+  paymentStatusChangeWebhookSecret_not: String
+  paymentStatusChangeWebhookSecret_contains: String
+  paymentStatusChangeWebhookSecret_not_contains: String
+  paymentStatusChangeWebhookSecret_starts_with: String
+  paymentStatusChangeWebhookSecret_not_starts_with: String
+  paymentStatusChangeWebhookSecret_ends_with: String
+  paymentStatusChangeWebhookSecret_not_ends_with: String
+  paymentStatusChangeWebhookSecret_i: String
+  paymentStatusChangeWebhookSecret_not_i: String
+  paymentStatusChangeWebhookSecret_contains_i: String
+  paymentStatusChangeWebhookSecret_not_contains_i: String
+  paymentStatusChangeWebhookSecret_starts_with_i: String
+  paymentStatusChangeWebhookSecret_not_starts_with_i: String
+  paymentStatusChangeWebhookSecret_ends_with_i: String
+  paymentStatusChangeWebhookSecret_not_ends_with_i: String
+  paymentStatusChangeWebhookSecret_in: [String]
+  paymentStatusChangeWebhookSecret_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -16475,10 +16475,10 @@ enum SortBillingReceiptsBy {
   receiver_DESC
   file_ASC
   file_DESC
-  statusChangeCallbackUrl_ASC
-  statusChangeCallbackUrl_DESC
-  statusChangeCallbackSecret_ASC
-  statusChangeCallbackSecret_DESC
+  paymentStatusChangeWebhookUrl_ASC
+  paymentStatusChangeWebhookUrl_DESC
+  paymentStatusChangeWebhookSecret_ASC
+  paymentStatusChangeWebhookSecret_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -16521,8 +16521,8 @@ input BillingReceiptUpdateInput {
   receiver: BillingRecipientRelateToOneInput
   file: BillingReceiptFileRelateToOneInput
   amountDistribution: [AmountDistributionFieldInput!]
-  statusChangeCallbackUrl: String
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -16563,8 +16563,8 @@ input BillingReceiptCreateInput {
   receiver: BillingRecipientRelateToOneInput
   file: BillingReceiptFileRelateToOneInput
   amountDistribution: [AmountDistributionFieldInput!]
-  statusChangeCallbackUrl: String
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -64427,6 +64427,511 @@ input PaymentsCreateInput {
   data: PaymentCreateInput
 }
 
+enum PaymentStatusChangeWebhookUrlHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type PaymentStatusChangeWebhookUrlHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the PaymentStatusChangeWebhookUrlHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the PaymentStatusChangeWebhookUrlHistoryRecord List config, or
+   3. As an alias to a 'name' field on the PaymentStatusChangeWebhookUrlHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the PaymentStatusChangeWebhookUrlHistoryRecord List.
+  """
+  _label_: String
+  name: String
+  url: String
+  isEnabled: Boolean
+  description: String
+  organization: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PaymentStatusChangeWebhookUrlHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PaymentStatusChangeWebhookUrlHistoryRecordWhereInput {
+  AND: [PaymentStatusChangeWebhookUrlHistoryRecordWhereInput]
+  OR: [PaymentStatusChangeWebhookUrlHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  isEnabled: Boolean
+  isEnabled_not: Boolean
+  description: String
+  description_not: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  description_i: String
+  description_not_i: String
+  description_contains_i: String
+  description_not_contains_i: String
+  description_starts_with_i: String
+  description_not_starts_with_i: String
+  description_ends_with_i: String
+  description_not_ends_with_i: String
+  description_in: [String]
+  description_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: PaymentStatusChangeWebhookUrlHistoryRecordHistoryActionType
+  history_action_not: PaymentStatusChangeWebhookUrlHistoryRecordHistoryActionType
+  history_action_in: [PaymentStatusChangeWebhookUrlHistoryRecordHistoryActionType]
+  history_action_not_in: [PaymentStatusChangeWebhookUrlHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input PaymentStatusChangeWebhookUrlHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortPaymentStatusChangeWebhookUrlHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  url_ASC
+  url_DESC
+  isEnabled_ASC
+  isEnabled_DESC
+  description_ASC
+  description_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input PaymentStatusChangeWebhookUrlHistoryRecordUpdateInput {
+  name: String
+  url: String
+  isEnabled: Boolean
+  description: String
+  organization: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PaymentStatusChangeWebhookUrlHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PaymentStatusChangeWebhookUrlHistoryRecordsUpdateInput {
+  id: ID!
+  data: PaymentStatusChangeWebhookUrlHistoryRecordUpdateInput
+}
+
+input PaymentStatusChangeWebhookUrlHistoryRecordCreateInput {
+  name: String
+  url: String
+  isEnabled: Boolean
+  description: String
+  organization: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PaymentStatusChangeWebhookUrlHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PaymentStatusChangeWebhookUrlHistoryRecordsCreateInput {
+  data: PaymentStatusChangeWebhookUrlHistoryRecordCreateInput
+}
+
+""" Whitelist of approved webhook callback URLs for payment status change notifications. Only URLs registered here can be used as paymentStatusChangeWebhookUrl in Invoice or BillingReceipt. Managed by admin/support only. 
+"""
+type PaymentStatusChangeWebhookUrl {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the PaymentStatusChangeWebhookUrl List config, or
+   2. As an alias to the field set on 'labelField' in the PaymentStatusChangeWebhookUrl List config, or
+   3. As an alias to a 'name' field on the PaymentStatusChangeWebhookUrl List (if one exists), or
+   4. As an alias to the 'id' field on the PaymentStatusChangeWebhookUrl List.
+  """
+  _label_: String
+
+  """ Human-readable name for this webhook URL (e.g., "Production CRM Webhook") 
+  """
+  name: String
+
+  """ Approved webhook callback URL. Must be a valid HTTPS URL (HTTP allowed for localhost in testing). 
+  """
+  url: String
+
+  """ Whether this webhook URL is currently enabled. Disabled URLs cannot be used for new webhook deliveries. 
+  """
+  isEnabled: Boolean
+
+  """ Optional description of what this webhook is used for """
+  description: String
+
+  """ Related organization that owns this webhook URL. If set, only invoices/receipts from this organization can use this URL. 
+  """
+  organization: Organization
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input PaymentStatusChangeWebhookUrlWhereInput {
+  AND: [PaymentStatusChangeWebhookUrlWhereInput]
+  OR: [PaymentStatusChangeWebhookUrlWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  isEnabled: Boolean
+  isEnabled_not: Boolean
+  description: String
+  description_not: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  description_i: String
+  description_not_i: String
+  description_contains_i: String
+  description_not_contains_i: String
+  description_starts_with_i: String
+  description_not_starts_with_i: String
+  description_ends_with_i: String
+  description_not_ends_with_i: String
+  description_in: [String]
+  description_not_in: [String]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input PaymentStatusChangeWebhookUrlWhereUniqueInput {
+  id: ID!
+}
+
+enum SortPaymentStatusChangeWebhookUrlsBy {
+  name_ASC
+  name_DESC
+  url_ASC
+  url_DESC
+  isEnabled_ASC
+  isEnabled_DESC
+  description_ASC
+  description_DESC
+  organization_ASC
+  organization_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input PaymentStatusChangeWebhookUrlUpdateInput {
+  name: String
+  url: String
+  isEnabled: Boolean
+  description: String
+  organization: OrganizationRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input PaymentStatusChangeWebhookUrlsUpdateInput {
+  id: ID!
+  data: PaymentStatusChangeWebhookUrlUpdateInput
+}
+
+input PaymentStatusChangeWebhookUrlCreateInput {
+  name: String
+  url: String
+  isEnabled: Boolean
+  description: String
+  organization: OrganizationRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input PaymentStatusChangeWebhookUrlsCreateInput {
+  data: PaymentStatusChangeWebhookUrlCreateInput
+}
+
 enum PaymentsFilterTemplateHistoryRecordHistoryActionType {
   c
   u
@@ -66667,1251 +67172,6 @@ input PaymentsFileCreateInput {
 
 input PaymentsFilesCreateInput {
   data: PaymentsFileCreateInput
-}
-
-enum PaymentWebhookDeliveryHistoryRecordHistoryActionType {
-  c
-  u
-  d
-}
-
-""" A keystone list """
-type PaymentWebhookDeliveryHistoryRecord {
-  """
-  This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the PaymentWebhookDeliveryHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the PaymentWebhookDeliveryHistoryRecord List config, or
-   3. As an alias to a 'name' field on the PaymentWebhookDeliveryHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the PaymentWebhookDeliveryHistoryRecord List.
-  """
-  _label_: String
-  payment: String
-  previousStatus: String
-  newStatus: String
-  callbackUrl: String
-  status: String
-  attempt: Int
-  lastHttpStatusCode: Int
-  lastResponseBody: String
-  lastErrorMessage: String
-  expiresAt: String
-  nextRetryAt: String
-  lastSentAt: String
-  id: ID!
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: PaymentWebhookDeliveryHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input PaymentWebhookDeliveryHistoryRecordWhereInput {
-  AND: [PaymentWebhookDeliveryHistoryRecordWhereInput]
-  OR: [PaymentWebhookDeliveryHistoryRecordWhereInput]
-  payment: String
-  payment_not: String
-  payment_in: [String]
-  payment_not_in: [String]
-  previousStatus: String
-  previousStatus_not: String
-  previousStatus_contains: String
-  previousStatus_not_contains: String
-  previousStatus_starts_with: String
-  previousStatus_not_starts_with: String
-  previousStatus_ends_with: String
-  previousStatus_not_ends_with: String
-  previousStatus_i: String
-  previousStatus_not_i: String
-  previousStatus_contains_i: String
-  previousStatus_not_contains_i: String
-  previousStatus_starts_with_i: String
-  previousStatus_not_starts_with_i: String
-  previousStatus_ends_with_i: String
-  previousStatus_not_ends_with_i: String
-  previousStatus_in: [String]
-  previousStatus_not_in: [String]
-  newStatus: String
-  newStatus_not: String
-  newStatus_contains: String
-  newStatus_not_contains: String
-  newStatus_starts_with: String
-  newStatus_not_starts_with: String
-  newStatus_ends_with: String
-  newStatus_not_ends_with: String
-  newStatus_i: String
-  newStatus_not_i: String
-  newStatus_contains_i: String
-  newStatus_not_contains_i: String
-  newStatus_starts_with_i: String
-  newStatus_not_starts_with_i: String
-  newStatus_ends_with_i: String
-  newStatus_not_ends_with_i: String
-  newStatus_in: [String]
-  newStatus_not_in: [String]
-  callbackUrl: String
-  callbackUrl_not: String
-  callbackUrl_contains: String
-  callbackUrl_not_contains: String
-  callbackUrl_starts_with: String
-  callbackUrl_not_starts_with: String
-  callbackUrl_ends_with: String
-  callbackUrl_not_ends_with: String
-  callbackUrl_i: String
-  callbackUrl_not_i: String
-  callbackUrl_contains_i: String
-  callbackUrl_not_contains_i: String
-  callbackUrl_starts_with_i: String
-  callbackUrl_not_starts_with_i: String
-  callbackUrl_ends_with_i: String
-  callbackUrl_not_ends_with_i: String
-  callbackUrl_in: [String]
-  callbackUrl_not_in: [String]
-  status: String
-  status_not: String
-  status_contains: String
-  status_not_contains: String
-  status_starts_with: String
-  status_not_starts_with: String
-  status_ends_with: String
-  status_not_ends_with: String
-  status_i: String
-  status_not_i: String
-  status_contains_i: String
-  status_not_contains_i: String
-  status_starts_with_i: String
-  status_not_starts_with_i: String
-  status_ends_with_i: String
-  status_not_ends_with_i: String
-  status_in: [String]
-  status_not_in: [String]
-  attempt: Int
-  attempt_not: Int
-  attempt_lt: Int
-  attempt_lte: Int
-  attempt_gt: Int
-  attempt_gte: Int
-  attempt_in: [Int]
-  attempt_not_in: [Int]
-  lastHttpStatusCode: Int
-  lastHttpStatusCode_not: Int
-  lastHttpStatusCode_lt: Int
-  lastHttpStatusCode_lte: Int
-  lastHttpStatusCode_gt: Int
-  lastHttpStatusCode_gte: Int
-  lastHttpStatusCode_in: [Int]
-  lastHttpStatusCode_not_in: [Int]
-  lastResponseBody: String
-  lastResponseBody_not: String
-  lastResponseBody_contains: String
-  lastResponseBody_not_contains: String
-  lastResponseBody_starts_with: String
-  lastResponseBody_not_starts_with: String
-  lastResponseBody_ends_with: String
-  lastResponseBody_not_ends_with: String
-  lastResponseBody_i: String
-  lastResponseBody_not_i: String
-  lastResponseBody_contains_i: String
-  lastResponseBody_not_contains_i: String
-  lastResponseBody_starts_with_i: String
-  lastResponseBody_not_starts_with_i: String
-  lastResponseBody_ends_with_i: String
-  lastResponseBody_not_ends_with_i: String
-  lastResponseBody_in: [String]
-  lastResponseBody_not_in: [String]
-  lastErrorMessage: String
-  lastErrorMessage_not: String
-  lastErrorMessage_contains: String
-  lastErrorMessage_not_contains: String
-  lastErrorMessage_starts_with: String
-  lastErrorMessage_not_starts_with: String
-  lastErrorMessage_ends_with: String
-  lastErrorMessage_not_ends_with: String
-  lastErrorMessage_i: String
-  lastErrorMessage_not_i: String
-  lastErrorMessage_contains_i: String
-  lastErrorMessage_not_contains_i: String
-  lastErrorMessage_starts_with_i: String
-  lastErrorMessage_not_starts_with_i: String
-  lastErrorMessage_ends_with_i: String
-  lastErrorMessage_not_ends_with_i: String
-  lastErrorMessage_in: [String]
-  lastErrorMessage_not_in: [String]
-  expiresAt: String
-  expiresAt_not: String
-  expiresAt_lt: String
-  expiresAt_lte: String
-  expiresAt_gt: String
-  expiresAt_gte: String
-  expiresAt_in: [String]
-  expiresAt_not_in: [String]
-  nextRetryAt: String
-  nextRetryAt_not: String
-  nextRetryAt_lt: String
-  nextRetryAt_lte: String
-  nextRetryAt_gt: String
-  nextRetryAt_gte: String
-  nextRetryAt_in: [String]
-  nextRetryAt_not_in: [String]
-  lastSentAt: String
-  lastSentAt_not: String
-  lastSentAt_lt: String
-  lastSentAt_lte: String
-  lastSentAt_gt: String
-  lastSentAt_gte: String
-  lastSentAt_in: [String]
-  lastSentAt_not_in: [String]
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
-  v: Int
-  v_not: Int
-  v_lt: Int
-  v_lte: Int
-  v_gt: Int
-  v_gte: Int
-  v_in: [Int]
-  v_not_in: [Int]
-  createdAt: String
-  createdAt_not: String
-  createdAt_lt: String
-  createdAt_lte: String
-  createdAt_gt: String
-  createdAt_gte: String
-  createdAt_in: [String]
-  createdAt_not_in: [String]
-  updatedAt: String
-  updatedAt_not: String
-  updatedAt_lt: String
-  updatedAt_lte: String
-  updatedAt_gt: String
-  updatedAt_gte: String
-  updatedAt_in: [String]
-  updatedAt_not_in: [String]
-  createdBy: String
-  createdBy_not: String
-  createdBy_in: [String]
-  createdBy_not_in: [String]
-  updatedBy: String
-  updatedBy_not: String
-  updatedBy_in: [String]
-  updatedBy_not_in: [String]
-  deletedAt: String
-  deletedAt_not: String
-  deletedAt_lt: String
-  deletedAt_lte: String
-  deletedAt_gt: String
-  deletedAt_gte: String
-  deletedAt_in: [String]
-  deletedAt_not_in: [String]
-  newId: JSON
-  newId_not: JSON
-  newId_in: [JSON]
-  newId_not_in: [JSON]
-  dv: Int
-  dv_not: Int
-  dv_lt: Int
-  dv_lte: Int
-  dv_gt: Int
-  dv_gte: Int
-  dv_in: [Int]
-  dv_not_in: [Int]
-  sender: JSON
-  sender_not: JSON
-  sender_in: [JSON]
-  sender_not_in: [JSON]
-  history_date: String
-  history_date_not: String
-  history_date_lt: String
-  history_date_lte: String
-  history_date_gt: String
-  history_date_gte: String
-  history_date_in: [String]
-  history_date_not_in: [String]
-  history_action: PaymentWebhookDeliveryHistoryRecordHistoryActionType
-  history_action_not: PaymentWebhookDeliveryHistoryRecordHistoryActionType
-  history_action_in: [PaymentWebhookDeliveryHistoryRecordHistoryActionType]
-  history_action_not_in: [PaymentWebhookDeliveryHistoryRecordHistoryActionType]
-  history_id: String
-  history_id_not: String
-  history_id_in: [String]
-  history_id_not_in: [String]
-}
-
-input PaymentWebhookDeliveryHistoryRecordWhereUniqueInput {
-  id: ID!
-}
-
-enum SortPaymentWebhookDeliveryHistoryRecordsBy {
-  previousStatus_ASC
-  previousStatus_DESC
-  newStatus_ASC
-  newStatus_DESC
-  callbackUrl_ASC
-  callbackUrl_DESC
-  status_ASC
-  status_DESC
-  attempt_ASC
-  attempt_DESC
-  lastHttpStatusCode_ASC
-  lastHttpStatusCode_DESC
-  lastResponseBody_ASC
-  lastResponseBody_DESC
-  lastErrorMessage_ASC
-  lastErrorMessage_DESC
-  expiresAt_ASC
-  expiresAt_DESC
-  nextRetryAt_ASC
-  nextRetryAt_DESC
-  lastSentAt_ASC
-  lastSentAt_DESC
-  id_ASC
-  id_DESC
-  v_ASC
-  v_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  deletedAt_ASC
-  deletedAt_DESC
-  dv_ASC
-  dv_DESC
-  history_date_ASC
-  history_date_DESC
-  history_action_ASC
-  history_action_DESC
-}
-
-input PaymentWebhookDeliveryHistoryRecordUpdateInput {
-  payment: String
-  previousStatus: String
-  newStatus: String
-  callbackUrl: String
-  status: String
-  attempt: Int
-  lastHttpStatusCode: Int
-  lastResponseBody: String
-  lastErrorMessage: String
-  expiresAt: String
-  nextRetryAt: String
-  lastSentAt: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: PaymentWebhookDeliveryHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input PaymentWebhookDeliveryHistoryRecordsUpdateInput {
-  id: ID!
-  data: PaymentWebhookDeliveryHistoryRecordUpdateInput
-}
-
-input PaymentWebhookDeliveryHistoryRecordCreateInput {
-  payment: String
-  previousStatus: String
-  newStatus: String
-  callbackUrl: String
-  status: String
-  attempt: Int
-  lastHttpStatusCode: Int
-  lastResponseBody: String
-  lastErrorMessage: String
-  expiresAt: String
-  nextRetryAt: String
-  lastSentAt: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: PaymentWebhookDeliveryHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input PaymentWebhookDeliveryHistoryRecordsCreateInput {
-  data: PaymentWebhookDeliveryHistoryRecordCreateInput
-}
-
-input PaymentRelateToOneInput {
-  create: PaymentCreateInput
-  connect: PaymentWhereUniqueInput
-  disconnect: PaymentWhereUniqueInput
-  disconnectAll: Boolean
-}
-
-enum PaymentWebhookDeliveryPreviousStatusType {
-  CREATED
-  PROCESSING
-  DONE
-  ERROR
-  WITHDRAWN
-}
-
-enum PaymentWebhookDeliveryNewStatusType {
-  CREATED
-  PROCESSING
-  DONE
-  ERROR
-  WITHDRAWN
-}
-
-enum PaymentWebhookDeliveryStatusType {
-  pending
-  success
-  failed
-}
-
-""" Stores webhook delivery attempts for Payment status changes. Tracks delivery status, retries, and responses from external servers. 
-"""
-type PaymentWebhookDelivery {
-  """
-  This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the PaymentWebhookDelivery List config, or
-   2. As an alias to the field set on 'labelField' in the PaymentWebhookDelivery List config, or
-   3. As an alias to a 'name' field on the PaymentWebhookDelivery List (if one exists), or
-   4. As an alias to the 'id' field on the PaymentWebhookDelivery List.
-  """
-  _label_: String
-
-  """ Link to the payment whose status change triggered this webhook """
-  payment: Payment
-
-  """ Payment status before the change (null if payment was just created) """
-  previousStatus: PaymentWebhookDeliveryPreviousStatusType
-
-  """ Payment status after the change """
-  newStatus: PaymentWebhookDeliveryNewStatusType
-
-  """ Target URL for webhook delivery """
-  callbackUrl: String
-
-  """ Delivery status: pending (waiting for delivery/retry), success (delivered successfully), failed (permanently failed after TTL expired) 
-  """
-  status: PaymentWebhookDeliveryStatusType
-
-  """ Number of delivery attempts made (starts at 0) """
-  attempt: Int
-
-  """ HTTP status code from the last delivery attempt """
-  lastHttpStatusCode: Int
-
-  """ Response body from the last delivery attempt (truncated to 1000 chars) 
-  """
-  lastResponseBody: String
-
-  """ Error message from the last delivery attempt """
-  lastErrorMessage: String
-
-  """ Timestamp after which no more delivery attempts will be made """
-  expiresAt: String
-
-  """ Timestamp for the next delivery attempt """
-  nextRetryAt: String
-
-  """ Timestamp of the last delivery attempt """
-  lastSentAt: String
-  id: ID!
-  v: Int
-  createdAt: String
-  updatedAt: String
-
-  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
-  """
-  createdBy: User
-
-  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
-  """
-  updatedBy: User
-  deletedAt: String
-  newId: String
-
-  """ Data structure Version """
-  dv: Int
-
-  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
-  """
-  sender: SenderField
-}
-
-input PaymentWebhookDeliveryWhereInput {
-  AND: [PaymentWebhookDeliveryWhereInput]
-  OR: [PaymentWebhookDeliveryWhereInput]
-  payment: PaymentWhereInput
-  payment_is_null: Boolean
-  previousStatus: PaymentWebhookDeliveryPreviousStatusType
-  previousStatus_not: PaymentWebhookDeliveryPreviousStatusType
-  previousStatus_in: [PaymentWebhookDeliveryPreviousStatusType]
-  previousStatus_not_in: [PaymentWebhookDeliveryPreviousStatusType]
-  newStatus: PaymentWebhookDeliveryNewStatusType
-  newStatus_not: PaymentWebhookDeliveryNewStatusType
-  newStatus_in: [PaymentWebhookDeliveryNewStatusType]
-  newStatus_not_in: [PaymentWebhookDeliveryNewStatusType]
-  callbackUrl: String
-  callbackUrl_not: String
-  callbackUrl_contains: String
-  callbackUrl_not_contains: String
-  callbackUrl_starts_with: String
-  callbackUrl_not_starts_with: String
-  callbackUrl_ends_with: String
-  callbackUrl_not_ends_with: String
-  callbackUrl_i: String
-  callbackUrl_not_i: String
-  callbackUrl_contains_i: String
-  callbackUrl_not_contains_i: String
-  callbackUrl_starts_with_i: String
-  callbackUrl_not_starts_with_i: String
-  callbackUrl_ends_with_i: String
-  callbackUrl_not_ends_with_i: String
-  callbackUrl_in: [String]
-  callbackUrl_not_in: [String]
-  status: PaymentWebhookDeliveryStatusType
-  status_not: PaymentWebhookDeliveryStatusType
-  status_in: [PaymentWebhookDeliveryStatusType]
-  status_not_in: [PaymentWebhookDeliveryStatusType]
-  attempt: Int
-  attempt_not: Int
-  attempt_lt: Int
-  attempt_lte: Int
-  attempt_gt: Int
-  attempt_gte: Int
-  attempt_in: [Int]
-  attempt_not_in: [Int]
-  lastHttpStatusCode: Int
-  lastHttpStatusCode_not: Int
-  lastHttpStatusCode_lt: Int
-  lastHttpStatusCode_lte: Int
-  lastHttpStatusCode_gt: Int
-  lastHttpStatusCode_gte: Int
-  lastHttpStatusCode_in: [Int]
-  lastHttpStatusCode_not_in: [Int]
-  lastResponseBody: String
-  lastResponseBody_not: String
-  lastResponseBody_contains: String
-  lastResponseBody_not_contains: String
-  lastResponseBody_starts_with: String
-  lastResponseBody_not_starts_with: String
-  lastResponseBody_ends_with: String
-  lastResponseBody_not_ends_with: String
-  lastResponseBody_i: String
-  lastResponseBody_not_i: String
-  lastResponseBody_contains_i: String
-  lastResponseBody_not_contains_i: String
-  lastResponseBody_starts_with_i: String
-  lastResponseBody_not_starts_with_i: String
-  lastResponseBody_ends_with_i: String
-  lastResponseBody_not_ends_with_i: String
-  lastResponseBody_in: [String]
-  lastResponseBody_not_in: [String]
-  lastErrorMessage: String
-  lastErrorMessage_not: String
-  lastErrorMessage_contains: String
-  lastErrorMessage_not_contains: String
-  lastErrorMessage_starts_with: String
-  lastErrorMessage_not_starts_with: String
-  lastErrorMessage_ends_with: String
-  lastErrorMessage_not_ends_with: String
-  lastErrorMessage_i: String
-  lastErrorMessage_not_i: String
-  lastErrorMessage_contains_i: String
-  lastErrorMessage_not_contains_i: String
-  lastErrorMessage_starts_with_i: String
-  lastErrorMessage_not_starts_with_i: String
-  lastErrorMessage_ends_with_i: String
-  lastErrorMessage_not_ends_with_i: String
-  lastErrorMessage_in: [String]
-  lastErrorMessage_not_in: [String]
-  expiresAt: String
-  expiresAt_not: String
-  expiresAt_lt: String
-  expiresAt_lte: String
-  expiresAt_gt: String
-  expiresAt_gte: String
-  expiresAt_in: [String]
-  expiresAt_not_in: [String]
-  nextRetryAt: String
-  nextRetryAt_not: String
-  nextRetryAt_lt: String
-  nextRetryAt_lte: String
-  nextRetryAt_gt: String
-  nextRetryAt_gte: String
-  nextRetryAt_in: [String]
-  nextRetryAt_not_in: [String]
-  lastSentAt: String
-  lastSentAt_not: String
-  lastSentAt_lt: String
-  lastSentAt_lte: String
-  lastSentAt_gt: String
-  lastSentAt_gte: String
-  lastSentAt_in: [String]
-  lastSentAt_not_in: [String]
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
-  v: Int
-  v_not: Int
-  v_lt: Int
-  v_lte: Int
-  v_gt: Int
-  v_gte: Int
-  v_in: [Int]
-  v_not_in: [Int]
-  createdAt: String
-  createdAt_not: String
-  createdAt_lt: String
-  createdAt_lte: String
-  createdAt_gt: String
-  createdAt_gte: String
-  createdAt_in: [String]
-  createdAt_not_in: [String]
-  updatedAt: String
-  updatedAt_not: String
-  updatedAt_lt: String
-  updatedAt_lte: String
-  updatedAt_gt: String
-  updatedAt_gte: String
-  updatedAt_in: [String]
-  updatedAt_not_in: [String]
-  createdBy: UserWhereInput
-  createdBy_is_null: Boolean
-  updatedBy: UserWhereInput
-  updatedBy_is_null: Boolean
-  deletedAt: String
-  deletedAt_not: String
-  deletedAt_lt: String
-  deletedAt_lte: String
-  deletedAt_gt: String
-  deletedAt_gte: String
-  deletedAt_in: [String]
-  deletedAt_not_in: [String]
-  newId: String
-  newId_not: String
-  newId_in: [String]
-  newId_not_in: [String]
-  dv: Int
-  dv_not: Int
-  dv_lt: Int
-  dv_lte: Int
-  dv_gt: Int
-  dv_gte: Int
-  dv_in: [Int]
-  dv_not_in: [Int]
-  sender: SenderFieldInput
-  sender_not: SenderFieldInput
-  sender_in: [SenderFieldInput]
-  sender_not_in: [SenderFieldInput]
-}
-
-input PaymentWebhookDeliveryWhereUniqueInput {
-  id: ID!
-}
-
-enum SortPaymentWebhookDeliveriesBy {
-  payment_ASC
-  payment_DESC
-  previousStatus_ASC
-  previousStatus_DESC
-  newStatus_ASC
-  newStatus_DESC
-  callbackUrl_ASC
-  callbackUrl_DESC
-  status_ASC
-  status_DESC
-  attempt_ASC
-  attempt_DESC
-  lastHttpStatusCode_ASC
-  lastHttpStatusCode_DESC
-  lastResponseBody_ASC
-  lastResponseBody_DESC
-  lastErrorMessage_ASC
-  lastErrorMessage_DESC
-  expiresAt_ASC
-  expiresAt_DESC
-  nextRetryAt_ASC
-  nextRetryAt_DESC
-  lastSentAt_ASC
-  lastSentAt_DESC
-  id_ASC
-  id_DESC
-  v_ASC
-  v_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  createdBy_ASC
-  createdBy_DESC
-  updatedBy_ASC
-  updatedBy_DESC
-  deletedAt_ASC
-  deletedAt_DESC
-  dv_ASC
-  dv_DESC
-}
-
-input PaymentWebhookDeliveryUpdateInput {
-  payment: PaymentRelateToOneInput
-  previousStatus: PaymentWebhookDeliveryPreviousStatusType
-  newStatus: PaymentWebhookDeliveryNewStatusType
-  callbackUrl: String
-  status: PaymentWebhookDeliveryStatusType
-  attempt: Int
-  lastHttpStatusCode: Int
-  lastResponseBody: String
-  lastErrorMessage: String
-  expiresAt: String
-  nextRetryAt: String
-  lastSentAt: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: UserRelateToOneInput
-  updatedBy: UserRelateToOneInput
-  deletedAt: String
-  newId: String
-  dv: Int
-  sender: SenderFieldInput
-}
-
-input PaymentWebhookDeliveriesUpdateInput {
-  id: ID!
-  data: PaymentWebhookDeliveryUpdateInput
-}
-
-input PaymentWebhookDeliveryCreateInput {
-  payment: PaymentRelateToOneInput
-  previousStatus: PaymentWebhookDeliveryPreviousStatusType
-  newStatus: PaymentWebhookDeliveryNewStatusType
-  callbackUrl: String
-  status: PaymentWebhookDeliveryStatusType
-  attempt: Int
-  lastHttpStatusCode: Int
-  lastResponseBody: String
-  lastErrorMessage: String
-  expiresAt: String
-  nextRetryAt: String
-  lastSentAt: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: UserRelateToOneInput
-  updatedBy: UserRelateToOneInput
-  deletedAt: String
-  newId: String
-  dv: Int
-  sender: SenderFieldInput
-}
-
-input PaymentWebhookDeliveriesCreateInput {
-  data: PaymentWebhookDeliveryCreateInput
-}
-
-enum PaymentWebhookDeliveryWhiteListItemHistoryRecordHistoryActionType {
-  c
-  u
-  d
-}
-
-""" A keystone list """
-type PaymentWebhookDeliveryWhiteListItemHistoryRecord {
-  """
-  This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the PaymentWebhookDeliveryWhiteListItemHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the PaymentWebhookDeliveryWhiteListItemHistoryRecord List config, or
-   3. As an alias to a 'name' field on the PaymentWebhookDeliveryWhiteListItemHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the PaymentWebhookDeliveryWhiteListItemHistoryRecord List.
-  """
-  _label_: String
-  url: String
-  name: String
-  description: String
-  isEnabled: Boolean
-  id: ID!
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: PaymentWebhookDeliveryWhiteListItemHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input PaymentWebhookDeliveryWhiteListItemHistoryRecordWhereInput {
-  AND: [PaymentWebhookDeliveryWhiteListItemHistoryRecordWhereInput]
-  OR: [PaymentWebhookDeliveryWhiteListItemHistoryRecordWhereInput]
-  url: String
-  url_not: String
-  url_contains: String
-  url_not_contains: String
-  url_starts_with: String
-  url_not_starts_with: String
-  url_ends_with: String
-  url_not_ends_with: String
-  url_i: String
-  url_not_i: String
-  url_contains_i: String
-  url_not_contains_i: String
-  url_starts_with_i: String
-  url_not_starts_with_i: String
-  url_ends_with_i: String
-  url_not_ends_with_i: String
-  url_in: [String]
-  url_not_in: [String]
-  name: String
-  name_not: String
-  name_contains: String
-  name_not_contains: String
-  name_starts_with: String
-  name_not_starts_with: String
-  name_ends_with: String
-  name_not_ends_with: String
-  name_i: String
-  name_not_i: String
-  name_contains_i: String
-  name_not_contains_i: String
-  name_starts_with_i: String
-  name_not_starts_with_i: String
-  name_ends_with_i: String
-  name_not_ends_with_i: String
-  name_in: [String]
-  name_not_in: [String]
-  description: String
-  description_not: String
-  description_contains: String
-  description_not_contains: String
-  description_starts_with: String
-  description_not_starts_with: String
-  description_ends_with: String
-  description_not_ends_with: String
-  description_i: String
-  description_not_i: String
-  description_contains_i: String
-  description_not_contains_i: String
-  description_starts_with_i: String
-  description_not_starts_with_i: String
-  description_ends_with_i: String
-  description_not_ends_with_i: String
-  description_in: [String]
-  description_not_in: [String]
-  isEnabled: Boolean
-  isEnabled_not: Boolean
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
-  v: Int
-  v_not: Int
-  v_lt: Int
-  v_lte: Int
-  v_gt: Int
-  v_gte: Int
-  v_in: [Int]
-  v_not_in: [Int]
-  createdAt: String
-  createdAt_not: String
-  createdAt_lt: String
-  createdAt_lte: String
-  createdAt_gt: String
-  createdAt_gte: String
-  createdAt_in: [String]
-  createdAt_not_in: [String]
-  updatedAt: String
-  updatedAt_not: String
-  updatedAt_lt: String
-  updatedAt_lte: String
-  updatedAt_gt: String
-  updatedAt_gte: String
-  updatedAt_in: [String]
-  updatedAt_not_in: [String]
-  createdBy: String
-  createdBy_not: String
-  createdBy_in: [String]
-  createdBy_not_in: [String]
-  updatedBy: String
-  updatedBy_not: String
-  updatedBy_in: [String]
-  updatedBy_not_in: [String]
-  deletedAt: String
-  deletedAt_not: String
-  deletedAt_lt: String
-  deletedAt_lte: String
-  deletedAt_gt: String
-  deletedAt_gte: String
-  deletedAt_in: [String]
-  deletedAt_not_in: [String]
-  newId: JSON
-  newId_not: JSON
-  newId_in: [JSON]
-  newId_not_in: [JSON]
-  dv: Int
-  dv_not: Int
-  dv_lt: Int
-  dv_lte: Int
-  dv_gt: Int
-  dv_gte: Int
-  dv_in: [Int]
-  dv_not_in: [Int]
-  sender: JSON
-  sender_not: JSON
-  sender_in: [JSON]
-  sender_not_in: [JSON]
-  history_date: String
-  history_date_not: String
-  history_date_lt: String
-  history_date_lte: String
-  history_date_gt: String
-  history_date_gte: String
-  history_date_in: [String]
-  history_date_not_in: [String]
-  history_action: PaymentWebhookDeliveryWhiteListItemHistoryRecordHistoryActionType
-  history_action_not: PaymentWebhookDeliveryWhiteListItemHistoryRecordHistoryActionType
-  history_action_in: [PaymentWebhookDeliveryWhiteListItemHistoryRecordHistoryActionType]
-  history_action_not_in: [PaymentWebhookDeliveryWhiteListItemHistoryRecordHistoryActionType]
-  history_id: String
-  history_id_not: String
-  history_id_in: [String]
-  history_id_not_in: [String]
-}
-
-input PaymentWebhookDeliveryWhiteListItemHistoryRecordWhereUniqueInput {
-  id: ID!
-}
-
-enum SortPaymentWebhookDeliveryWhiteListItemHistoryRecordsBy {
-  url_ASC
-  url_DESC
-  name_ASC
-  name_DESC
-  description_ASC
-  description_DESC
-  isEnabled_ASC
-  isEnabled_DESC
-  id_ASC
-  id_DESC
-  v_ASC
-  v_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  deletedAt_ASC
-  deletedAt_DESC
-  dv_ASC
-  dv_DESC
-  history_date_ASC
-  history_date_DESC
-  history_action_ASC
-  history_action_DESC
-}
-
-input PaymentWebhookDeliveryWhiteListItemHistoryRecordUpdateInput {
-  url: String
-  name: String
-  description: String
-  isEnabled: Boolean
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: PaymentWebhookDeliveryWhiteListItemHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input PaymentWebhookDeliveryWhiteListItemHistoryRecordsUpdateInput {
-  id: ID!
-  data: PaymentWebhookDeliveryWhiteListItemHistoryRecordUpdateInput
-}
-
-input PaymentWebhookDeliveryWhiteListItemHistoryRecordCreateInput {
-  url: String
-  name: String
-  description: String
-  isEnabled: Boolean
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: PaymentWebhookDeliveryWhiteListItemHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input PaymentWebhookDeliveryWhiteListItemHistoryRecordsCreateInput {
-  data: PaymentWebhookDeliveryWhiteListItemHistoryRecordCreateInput
-}
-
-""" Whitelist of approved webhook callback URLs. Only URLs registered here can be used as statusChangeCallbackUrl in Invoice or BillingReceipt. Managed by admin/support only. 
-"""
-type PaymentWebhookDeliveryWhiteListItem {
-  """
-  This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the PaymentWebhookDeliveryWhiteListItem List config, or
-   2. As an alias to the field set on 'labelField' in the PaymentWebhookDeliveryWhiteListItem List config, or
-   3. As an alias to a 'name' field on the PaymentWebhookDeliveryWhiteListItem List (if one exists), or
-   4. As an alias to the 'id' field on the PaymentWebhookDeliveryWhiteListItem List.
-  """
-  _label_: String
-
-  """ Approved webhook callback URL. Must be a valid HTTPS URL. """
-  url: String
-
-  """ Human-readable name for this webhook subscription (e.g., "Production CRM Webhook") 
-  """
-  name: String
-
-  """ Optional description of what this webhook is used for """
-  description: String
-
-  """ Whether this webhook URL is currently enabled. Disabled URLs cannot be used for new invoices/receipts. 
-  """
-  isEnabled: Boolean
-  id: ID!
-  v: Int
-  createdAt: String
-  updatedAt: String
-
-  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
-  """
-  createdBy: User
-
-  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
-  """
-  updatedBy: User
-  deletedAt: String
-  newId: String
-
-  """ Data structure Version """
-  dv: Int
-
-  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
-  """
-  sender: SenderField
-}
-
-input PaymentWebhookDeliveryWhiteListItemWhereInput {
-  AND: [PaymentWebhookDeliveryWhiteListItemWhereInput]
-  OR: [PaymentWebhookDeliveryWhiteListItemWhereInput]
-  url: String
-  url_not: String
-  url_contains: String
-  url_not_contains: String
-  url_starts_with: String
-  url_not_starts_with: String
-  url_ends_with: String
-  url_not_ends_with: String
-  url_i: String
-  url_not_i: String
-  url_contains_i: String
-  url_not_contains_i: String
-  url_starts_with_i: String
-  url_not_starts_with_i: String
-  url_ends_with_i: String
-  url_not_ends_with_i: String
-  url_in: [String]
-  url_not_in: [String]
-  name: String
-  name_not: String
-  name_contains: String
-  name_not_contains: String
-  name_starts_with: String
-  name_not_starts_with: String
-  name_ends_with: String
-  name_not_ends_with: String
-  name_i: String
-  name_not_i: String
-  name_contains_i: String
-  name_not_contains_i: String
-  name_starts_with_i: String
-  name_not_starts_with_i: String
-  name_ends_with_i: String
-  name_not_ends_with_i: String
-  name_in: [String]
-  name_not_in: [String]
-  description: String
-  description_not: String
-  description_contains: String
-  description_not_contains: String
-  description_starts_with: String
-  description_not_starts_with: String
-  description_ends_with: String
-  description_not_ends_with: String
-  description_i: String
-  description_not_i: String
-  description_contains_i: String
-  description_not_contains_i: String
-  description_starts_with_i: String
-  description_not_starts_with_i: String
-  description_ends_with_i: String
-  description_not_ends_with_i: String
-  description_in: [String]
-  description_not_in: [String]
-  isEnabled: Boolean
-  isEnabled_not: Boolean
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
-  v: Int
-  v_not: Int
-  v_lt: Int
-  v_lte: Int
-  v_gt: Int
-  v_gte: Int
-  v_in: [Int]
-  v_not_in: [Int]
-  createdAt: String
-  createdAt_not: String
-  createdAt_lt: String
-  createdAt_lte: String
-  createdAt_gt: String
-  createdAt_gte: String
-  createdAt_in: [String]
-  createdAt_not_in: [String]
-  updatedAt: String
-  updatedAt_not: String
-  updatedAt_lt: String
-  updatedAt_lte: String
-  updatedAt_gt: String
-  updatedAt_gte: String
-  updatedAt_in: [String]
-  updatedAt_not_in: [String]
-  createdBy: UserWhereInput
-  createdBy_is_null: Boolean
-  updatedBy: UserWhereInput
-  updatedBy_is_null: Boolean
-  deletedAt: String
-  deletedAt_not: String
-  deletedAt_lt: String
-  deletedAt_lte: String
-  deletedAt_gt: String
-  deletedAt_gte: String
-  deletedAt_in: [String]
-  deletedAt_not_in: [String]
-  newId: String
-  newId_not: String
-  newId_in: [String]
-  newId_not_in: [String]
-  dv: Int
-  dv_not: Int
-  dv_lt: Int
-  dv_lte: Int
-  dv_gt: Int
-  dv_gte: Int
-  dv_in: [Int]
-  dv_not_in: [Int]
-  sender: SenderFieldInput
-  sender_not: SenderFieldInput
-  sender_in: [SenderFieldInput]
-  sender_not_in: [SenderFieldInput]
-}
-
-input PaymentWebhookDeliveryWhiteListItemWhereUniqueInput {
-  id: ID!
-}
-
-enum SortPaymentWebhookDeliveryWhiteListItemsBy {
-  url_ASC
-  url_DESC
-  name_ASC
-  name_DESC
-  description_ASC
-  description_DESC
-  isEnabled_ASC
-  isEnabled_DESC
-  id_ASC
-  id_DESC
-  v_ASC
-  v_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  createdBy_ASC
-  createdBy_DESC
-  updatedBy_ASC
-  updatedBy_DESC
-  deletedAt_ASC
-  deletedAt_DESC
-  dv_ASC
-  dv_DESC
-}
-
-input PaymentWebhookDeliveryWhiteListItemUpdateInput {
-  url: String
-  name: String
-  description: String
-  isEnabled: Boolean
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: UserRelateToOneInput
-  updatedBy: UserRelateToOneInput
-  deletedAt: String
-  newId: String
-  dv: Int
-  sender: SenderFieldInput
-}
-
-input PaymentWebhookDeliveryWhiteListItemsUpdateInput {
-  id: ID!
-  data: PaymentWebhookDeliveryWhiteListItemUpdateInput
-}
-
-input PaymentWebhookDeliveryWhiteListItemCreateInput {
-  url: String
-  name: String
-  description: String
-  isEnabled: Boolean
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: UserRelateToOneInput
-  updatedBy: UserRelateToOneInput
-  deletedAt: String
-  newId: String
-  dv: Int
-  sender: SenderFieldInput
-}
-
-input PaymentWebhookDeliveryWhiteListItemsCreateInput {
-  data: PaymentWebhookDeliveryWhiteListItemCreateInput
 }
 
 enum PropertyScopeHistoryRecordHistoryActionType {
@@ -83722,8 +82982,8 @@ type InvoiceHistoryRecord {
   paidAt: String
   canceledAt: String
   amountDistribution: JSON
-  statusChangeCallbackUrl: String
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: String
   id: ID!
   v: Int
   createdAt: String
@@ -83932,42 +83192,42 @@ input InvoiceHistoryRecordWhereInput {
   amountDistribution_not: JSON
   amountDistribution_in: [JSON]
   amountDistribution_not_in: [JSON]
-  statusChangeCallbackUrl: String
-  statusChangeCallbackUrl_not: String
-  statusChangeCallbackUrl_contains: String
-  statusChangeCallbackUrl_not_contains: String
-  statusChangeCallbackUrl_starts_with: String
-  statusChangeCallbackUrl_not_starts_with: String
-  statusChangeCallbackUrl_ends_with: String
-  statusChangeCallbackUrl_not_ends_with: String
-  statusChangeCallbackUrl_i: String
-  statusChangeCallbackUrl_not_i: String
-  statusChangeCallbackUrl_contains_i: String
-  statusChangeCallbackUrl_not_contains_i: String
-  statusChangeCallbackUrl_starts_with_i: String
-  statusChangeCallbackUrl_not_starts_with_i: String
-  statusChangeCallbackUrl_ends_with_i: String
-  statusChangeCallbackUrl_not_ends_with_i: String
-  statusChangeCallbackUrl_in: [String]
-  statusChangeCallbackUrl_not_in: [String]
-  statusChangeCallbackSecret: String
-  statusChangeCallbackSecret_not: String
-  statusChangeCallbackSecret_contains: String
-  statusChangeCallbackSecret_not_contains: String
-  statusChangeCallbackSecret_starts_with: String
-  statusChangeCallbackSecret_not_starts_with: String
-  statusChangeCallbackSecret_ends_with: String
-  statusChangeCallbackSecret_not_ends_with: String
-  statusChangeCallbackSecret_i: String
-  statusChangeCallbackSecret_not_i: String
-  statusChangeCallbackSecret_contains_i: String
-  statusChangeCallbackSecret_not_contains_i: String
-  statusChangeCallbackSecret_starts_with_i: String
-  statusChangeCallbackSecret_not_starts_with_i: String
-  statusChangeCallbackSecret_ends_with_i: String
-  statusChangeCallbackSecret_not_ends_with_i: String
-  statusChangeCallbackSecret_in: [String]
-  statusChangeCallbackSecret_not_in: [String]
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookUrl_not: String
+  paymentStatusChangeWebhookUrl_contains: String
+  paymentStatusChangeWebhookUrl_not_contains: String
+  paymentStatusChangeWebhookUrl_starts_with: String
+  paymentStatusChangeWebhookUrl_not_starts_with: String
+  paymentStatusChangeWebhookUrl_ends_with: String
+  paymentStatusChangeWebhookUrl_not_ends_with: String
+  paymentStatusChangeWebhookUrl_i: String
+  paymentStatusChangeWebhookUrl_not_i: String
+  paymentStatusChangeWebhookUrl_contains_i: String
+  paymentStatusChangeWebhookUrl_not_contains_i: String
+  paymentStatusChangeWebhookUrl_starts_with_i: String
+  paymentStatusChangeWebhookUrl_not_starts_with_i: String
+  paymentStatusChangeWebhookUrl_ends_with_i: String
+  paymentStatusChangeWebhookUrl_not_ends_with_i: String
+  paymentStatusChangeWebhookUrl_in: [String]
+  paymentStatusChangeWebhookUrl_not_in: [String]
+  paymentStatusChangeWebhookSecret: String
+  paymentStatusChangeWebhookSecret_not: String
+  paymentStatusChangeWebhookSecret_contains: String
+  paymentStatusChangeWebhookSecret_not_contains: String
+  paymentStatusChangeWebhookSecret_starts_with: String
+  paymentStatusChangeWebhookSecret_not_starts_with: String
+  paymentStatusChangeWebhookSecret_ends_with: String
+  paymentStatusChangeWebhookSecret_not_ends_with: String
+  paymentStatusChangeWebhookSecret_i: String
+  paymentStatusChangeWebhookSecret_not_i: String
+  paymentStatusChangeWebhookSecret_contains_i: String
+  paymentStatusChangeWebhookSecret_not_contains_i: String
+  paymentStatusChangeWebhookSecret_starts_with_i: String
+  paymentStatusChangeWebhookSecret_not_starts_with_i: String
+  paymentStatusChangeWebhookSecret_ends_with_i: String
+  paymentStatusChangeWebhookSecret_not_ends_with_i: String
+  paymentStatusChangeWebhookSecret_in: [String]
+  paymentStatusChangeWebhookSecret_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -84073,10 +83333,10 @@ enum SortInvoiceHistoryRecordsBy {
   paidAt_DESC
   canceledAt_ASC
   canceledAt_DESC
-  statusChangeCallbackUrl_ASC
-  statusChangeCallbackUrl_DESC
-  statusChangeCallbackSecret_ASC
-  statusChangeCallbackSecret_DESC
+  paymentStatusChangeWebhookUrl_ASC
+  paymentStatusChangeWebhookUrl_DESC
+  paymentStatusChangeWebhookSecret_ASC
+  paymentStatusChangeWebhookSecret_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -84115,8 +83375,8 @@ input InvoiceHistoryRecordUpdateInput {
   paidAt: String
   canceledAt: String
   amountDistribution: JSON
-  statusChangeCallbackUrl: String
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -84156,8 +83416,8 @@ input InvoiceHistoryRecordCreateInput {
   paidAt: String
   canceledAt: String
   amountDistribution: JSON
-  statusChangeCallbackUrl: String
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -84322,13 +83582,13 @@ type Invoice {
   """
   amountDistribution: [AmountDistributionField!]
 
-  """ URL to call when payment status changes. When set, the system will send HTTP POST requests to this URL with payment status change details. Must be registered in PaymentWebhookSubscription for the organization. 
+  """ URL to call when payment status changes. When set, the system will send HTTP POST requests to this URL with payment status change details. Must be registered in PaymentStatusChangeWebhookUrl. 
   """
-  statusChangeCallbackUrl: String
+  paymentStatusChangeWebhookUrl: String
 
-  """ Secret key used to sign webhook payloads. Auto-generated when statusChangeCallbackUrl is set. The receiver should use this secret to verify the X-Condo-Signature header. 
+  """ Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Condo-Signature header. 
   """
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookSecret: String
   id: ID!
   v: Int
   createdAt: String
@@ -84497,42 +83757,42 @@ input InvoiceWhereInput {
   amountDistribution_not: [AmountDistributionFieldInput!]
   amountDistribution_in: [[AmountDistributionFieldInput!]]
   amountDistribution_not_in: [[AmountDistributionFieldInput!]]
-  statusChangeCallbackUrl: String
-  statusChangeCallbackUrl_not: String
-  statusChangeCallbackUrl_contains: String
-  statusChangeCallbackUrl_not_contains: String
-  statusChangeCallbackUrl_starts_with: String
-  statusChangeCallbackUrl_not_starts_with: String
-  statusChangeCallbackUrl_ends_with: String
-  statusChangeCallbackUrl_not_ends_with: String
-  statusChangeCallbackUrl_i: String
-  statusChangeCallbackUrl_not_i: String
-  statusChangeCallbackUrl_contains_i: String
-  statusChangeCallbackUrl_not_contains_i: String
-  statusChangeCallbackUrl_starts_with_i: String
-  statusChangeCallbackUrl_not_starts_with_i: String
-  statusChangeCallbackUrl_ends_with_i: String
-  statusChangeCallbackUrl_not_ends_with_i: String
-  statusChangeCallbackUrl_in: [String]
-  statusChangeCallbackUrl_not_in: [String]
-  statusChangeCallbackSecret: String
-  statusChangeCallbackSecret_not: String
-  statusChangeCallbackSecret_contains: String
-  statusChangeCallbackSecret_not_contains: String
-  statusChangeCallbackSecret_starts_with: String
-  statusChangeCallbackSecret_not_starts_with: String
-  statusChangeCallbackSecret_ends_with: String
-  statusChangeCallbackSecret_not_ends_with: String
-  statusChangeCallbackSecret_i: String
-  statusChangeCallbackSecret_not_i: String
-  statusChangeCallbackSecret_contains_i: String
-  statusChangeCallbackSecret_not_contains_i: String
-  statusChangeCallbackSecret_starts_with_i: String
-  statusChangeCallbackSecret_not_starts_with_i: String
-  statusChangeCallbackSecret_ends_with_i: String
-  statusChangeCallbackSecret_not_ends_with_i: String
-  statusChangeCallbackSecret_in: [String]
-  statusChangeCallbackSecret_not_in: [String]
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookUrl_not: String
+  paymentStatusChangeWebhookUrl_contains: String
+  paymentStatusChangeWebhookUrl_not_contains: String
+  paymentStatusChangeWebhookUrl_starts_with: String
+  paymentStatusChangeWebhookUrl_not_starts_with: String
+  paymentStatusChangeWebhookUrl_ends_with: String
+  paymentStatusChangeWebhookUrl_not_ends_with: String
+  paymentStatusChangeWebhookUrl_i: String
+  paymentStatusChangeWebhookUrl_not_i: String
+  paymentStatusChangeWebhookUrl_contains_i: String
+  paymentStatusChangeWebhookUrl_not_contains_i: String
+  paymentStatusChangeWebhookUrl_starts_with_i: String
+  paymentStatusChangeWebhookUrl_not_starts_with_i: String
+  paymentStatusChangeWebhookUrl_ends_with_i: String
+  paymentStatusChangeWebhookUrl_not_ends_with_i: String
+  paymentStatusChangeWebhookUrl_in: [String]
+  paymentStatusChangeWebhookUrl_not_in: [String]
+  paymentStatusChangeWebhookSecret: String
+  paymentStatusChangeWebhookSecret_not: String
+  paymentStatusChangeWebhookSecret_contains: String
+  paymentStatusChangeWebhookSecret_not_contains: String
+  paymentStatusChangeWebhookSecret_starts_with: String
+  paymentStatusChangeWebhookSecret_not_starts_with: String
+  paymentStatusChangeWebhookSecret_ends_with: String
+  paymentStatusChangeWebhookSecret_not_ends_with: String
+  paymentStatusChangeWebhookSecret_i: String
+  paymentStatusChangeWebhookSecret_not_i: String
+  paymentStatusChangeWebhookSecret_contains_i: String
+  paymentStatusChangeWebhookSecret_not_contains_i: String
+  paymentStatusChangeWebhookSecret_starts_with_i: String
+  paymentStatusChangeWebhookSecret_not_starts_with_i: String
+  paymentStatusChangeWebhookSecret_ends_with_i: String
+  paymentStatusChangeWebhookSecret_not_ends_with_i: String
+  paymentStatusChangeWebhookSecret_in: [String]
+  paymentStatusChangeWebhookSecret_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -84630,10 +83890,10 @@ enum SortInvoicesBy {
   paidAt_DESC
   canceledAt_ASC
   canceledAt_DESC
-  statusChangeCallbackUrl_ASC
-  statusChangeCallbackUrl_DESC
-  statusChangeCallbackSecret_ASC
-  statusChangeCallbackSecret_DESC
+  paymentStatusChangeWebhookUrl_ASC
+  paymentStatusChangeWebhookUrl_DESC
+  paymentStatusChangeWebhookSecret_ASC
+  paymentStatusChangeWebhookSecret_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -84672,8 +83932,8 @@ input InvoiceUpdateInput {
   paidAt: String
   canceledAt: String
   amountDistribution: [AmountDistributionFieldInput!]
-  statusChangeCallbackUrl: String
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -84710,8 +83970,8 @@ input InvoiceCreateInput {
   paidAt: String
   canceledAt: String
   amountDistribution: [AmountDistributionFieldInput!]
-  statusChangeCallbackUrl: String
-  statusChangeCallbackSecret: String
+  paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -88913,6 +88173,866 @@ input WebhookSubscriptionCreateInput {
 
 input WebhookSubscriptionsCreateInput {
   data: WebhookSubscriptionCreateInput
+}
+
+enum WebhookPayloadHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type WebhookPayloadHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the WebhookPayloadHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the WebhookPayloadHistoryRecord List config, or
+   3. As an alias to a 'name' field on the WebhookPayloadHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the WebhookPayloadHistoryRecord List.
+  """
+  _label_: String
+  payload: JSON
+  url: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: String
+  status: String
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookPayloadHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookPayloadHistoryRecordWhereInput {
+  AND: [WebhookPayloadHistoryRecordWhereInput]
+  OR: [WebhookPayloadHistoryRecordWhereInput]
+  payload: JSON
+  payload_not: JSON
+  payload_in: [JSON]
+  payload_not_in: [JSON]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  secret: String
+  secret_not: String
+  secret_contains: String
+  secret_not_contains: String
+  secret_starts_with: String
+  secret_not_starts_with: String
+  secret_ends_with: String
+  secret_not_ends_with: String
+  secret_i: String
+  secret_not_i: String
+  secret_contains_i: String
+  secret_not_contains_i: String
+  secret_starts_with_i: String
+  secret_not_starts_with_i: String
+  secret_ends_with_i: String
+  secret_not_ends_with_i: String
+  secret_in: [String]
+  secret_not_in: [String]
+  eventType: String
+  eventType_not: String
+  eventType_contains: String
+  eventType_not_contains: String
+  eventType_starts_with: String
+  eventType_not_starts_with: String
+  eventType_ends_with: String
+  eventType_not_ends_with: String
+  eventType_i: String
+  eventType_not_i: String
+  eventType_contains_i: String
+  eventType_not_contains_i: String
+  eventType_starts_with_i: String
+  eventType_not_starts_with_i: String
+  eventType_ends_with_i: String
+  eventType_not_ends_with_i: String
+  eventType_in: [String]
+  eventType_not_in: [String]
+  modelName: String
+  modelName_not: String
+  modelName_contains: String
+  modelName_not_contains: String
+  modelName_starts_with: String
+  modelName_not_starts_with: String
+  modelName_ends_with: String
+  modelName_not_ends_with: String
+  modelName_i: String
+  modelName_not_i: String
+  modelName_contains_i: String
+  modelName_not_contains_i: String
+  modelName_starts_with_i: String
+  modelName_not_starts_with_i: String
+  modelName_ends_with_i: String
+  modelName_not_ends_with_i: String
+  modelName_in: [String]
+  modelName_not_in: [String]
+  itemId: String
+  itemId_not: String
+  itemId_contains: String
+  itemId_not_contains: String
+  itemId_starts_with: String
+  itemId_not_starts_with: String
+  itemId_ends_with: String
+  itemId_not_ends_with: String
+  itemId_i: String
+  itemId_not_i: String
+  itemId_contains_i: String
+  itemId_not_contains_i: String
+  itemId_starts_with_i: String
+  itemId_not_starts_with_i: String
+  itemId_ends_with_i: String
+  itemId_not_ends_with_i: String
+  itemId_in: [String]
+  itemId_not_in: [String]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  attempt: Int
+  attempt_not: Int
+  attempt_lt: Int
+  attempt_lte: Int
+  attempt_gt: Int
+  attempt_gte: Int
+  attempt_in: [Int]
+  attempt_not_in: [Int]
+  lastHttpStatusCode: Int
+  lastHttpStatusCode_not: Int
+  lastHttpStatusCode_lt: Int
+  lastHttpStatusCode_lte: Int
+  lastHttpStatusCode_gt: Int
+  lastHttpStatusCode_gte: Int
+  lastHttpStatusCode_in: [Int]
+  lastHttpStatusCode_not_in: [Int]
+  lastResponseBody: String
+  lastResponseBody_not: String
+  lastResponseBody_contains: String
+  lastResponseBody_not_contains: String
+  lastResponseBody_starts_with: String
+  lastResponseBody_not_starts_with: String
+  lastResponseBody_ends_with: String
+  lastResponseBody_not_ends_with: String
+  lastResponseBody_i: String
+  lastResponseBody_not_i: String
+  lastResponseBody_contains_i: String
+  lastResponseBody_not_contains_i: String
+  lastResponseBody_starts_with_i: String
+  lastResponseBody_not_starts_with_i: String
+  lastResponseBody_ends_with_i: String
+  lastResponseBody_not_ends_with_i: String
+  lastResponseBody_in: [String]
+  lastResponseBody_not_in: [String]
+  lastErrorMessage: String
+  lastErrorMessage_not: String
+  lastErrorMessage_contains: String
+  lastErrorMessage_not_contains: String
+  lastErrorMessage_starts_with: String
+  lastErrorMessage_not_starts_with: String
+  lastErrorMessage_ends_with: String
+  lastErrorMessage_not_ends_with: String
+  lastErrorMessage_i: String
+  lastErrorMessage_not_i: String
+  lastErrorMessage_contains_i: String
+  lastErrorMessage_not_contains_i: String
+  lastErrorMessage_starts_with_i: String
+  lastErrorMessage_not_starts_with_i: String
+  lastErrorMessage_ends_with_i: String
+  lastErrorMessage_not_ends_with_i: String
+  lastErrorMessage_in: [String]
+  lastErrorMessage_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  nextRetryAt: String
+  nextRetryAt_not: String
+  nextRetryAt_lt: String
+  nextRetryAt_lte: String
+  nextRetryAt_gt: String
+  nextRetryAt_gte: String
+  nextRetryAt_in: [String]
+  nextRetryAt_not_in: [String]
+  lastSentAt: String
+  lastSentAt_not: String
+  lastSentAt_lt: String
+  lastSentAt_lte: String
+  lastSentAt_gt: String
+  lastSentAt_gte: String
+  lastSentAt_in: [String]
+  lastSentAt_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: WebhookPayloadHistoryRecordHistoryActionType
+  history_action_not: WebhookPayloadHistoryRecordHistoryActionType
+  history_action_in: [WebhookPayloadHistoryRecordHistoryActionType]
+  history_action_not_in: [WebhookPayloadHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input WebhookPayloadHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortWebhookPayloadHistoryRecordsBy {
+  url_ASC
+  url_DESC
+  secret_ASC
+  secret_DESC
+  eventType_ASC
+  eventType_DESC
+  modelName_ASC
+  modelName_DESC
+  itemId_ASC
+  itemId_DESC
+  status_ASC
+  status_DESC
+  attempt_ASC
+  attempt_DESC
+  lastHttpStatusCode_ASC
+  lastHttpStatusCode_DESC
+  lastResponseBody_ASC
+  lastResponseBody_DESC
+  lastErrorMessage_ASC
+  lastErrorMessage_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  nextRetryAt_ASC
+  nextRetryAt_DESC
+  lastSentAt_ASC
+  lastSentAt_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input WebhookPayloadHistoryRecordUpdateInput {
+  payload: JSON
+  url: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: String
+  status: String
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookPayloadHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookPayloadHistoryRecordsUpdateInput {
+  id: ID!
+  data: WebhookPayloadHistoryRecordUpdateInput
+}
+
+input WebhookPayloadHistoryRecordCreateInput {
+  payload: JSON
+  url: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: String
+  status: String
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookPayloadHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookPayloadHistoryRecordsCreateInput {
+  data: WebhookPayloadHistoryRecordCreateInput
+}
+
+enum WebhookPayloadStatusType {
+  pending
+  success
+  failed
+}
+
+""" Stores webhook payloads for delivery. Contains ready-to-send payload, URL, and secret. Tracks delivery status, retries, and responses from external servers. 
+"""
+type WebhookPayload {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the WebhookPayload List config, or
+   2. As an alias to the field set on 'labelField' in the WebhookPayload List config, or
+   3. As an alias to a 'name' field on the WebhookPayload List (if one exists), or
+   4. As an alias to the 'id' field on the WebhookPayload List.
+  """
+  _label_: String
+
+  """ Ready-to-send JSON payload for the webhook """
+  payload: JSON
+
+  """ Target URL for webhook delivery """
+  url: String
+
+  """ Secret key for HMAC-SHA256 signature generation """
+  secret: String
+
+  """ Type of event that triggered this webhook (e.g., "payment.status.changed") 
+  """
+  eventType: String
+
+  """ Name of the model that triggered this webhook (e.g., "Payment") """
+  modelName: String
+
+  """ ID of the record that triggered this webhook """
+  itemId: String
+
+  """ Delivery status: pending (waiting for delivery/retry), success (delivered successfully), failed (permanently failed after TTL expired) 
+  """
+  status: WebhookPayloadStatusType
+
+  """ Number of delivery attempts made (starts at 0) """
+  attempt: Int
+
+  """ HTTP status code from the last delivery attempt """
+  lastHttpStatusCode: Int
+
+  """ Response body from the last delivery attempt (truncated to 1000 chars) 
+  """
+  lastResponseBody: String
+
+  """ Error message from the last delivery attempt """
+  lastErrorMessage: String
+
+  """ Timestamp after which no more delivery attempts will be made """
+  expiresAt: String
+
+  """ Timestamp for the next delivery attempt """
+  nextRetryAt: String
+
+  """ Timestamp of the last delivery attempt """
+  lastSentAt: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input WebhookPayloadWhereInput {
+  AND: [WebhookPayloadWhereInput]
+  OR: [WebhookPayloadWhereInput]
+  payload: JSON
+  payload_not: JSON
+  payload_in: [JSON]
+  payload_not_in: [JSON]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  secret: String
+  secret_not: String
+  secret_contains: String
+  secret_not_contains: String
+  secret_starts_with: String
+  secret_not_starts_with: String
+  secret_ends_with: String
+  secret_not_ends_with: String
+  secret_i: String
+  secret_not_i: String
+  secret_contains_i: String
+  secret_not_contains_i: String
+  secret_starts_with_i: String
+  secret_not_starts_with_i: String
+  secret_ends_with_i: String
+  secret_not_ends_with_i: String
+  secret_in: [String]
+  secret_not_in: [String]
+  eventType: String
+  eventType_not: String
+  eventType_contains: String
+  eventType_not_contains: String
+  eventType_starts_with: String
+  eventType_not_starts_with: String
+  eventType_ends_with: String
+  eventType_not_ends_with: String
+  eventType_i: String
+  eventType_not_i: String
+  eventType_contains_i: String
+  eventType_not_contains_i: String
+  eventType_starts_with_i: String
+  eventType_not_starts_with_i: String
+  eventType_ends_with_i: String
+  eventType_not_ends_with_i: String
+  eventType_in: [String]
+  eventType_not_in: [String]
+  modelName: String
+  modelName_not: String
+  modelName_contains: String
+  modelName_not_contains: String
+  modelName_starts_with: String
+  modelName_not_starts_with: String
+  modelName_ends_with: String
+  modelName_not_ends_with: String
+  modelName_i: String
+  modelName_not_i: String
+  modelName_contains_i: String
+  modelName_not_contains_i: String
+  modelName_starts_with_i: String
+  modelName_not_starts_with_i: String
+  modelName_ends_with_i: String
+  modelName_not_ends_with_i: String
+  modelName_in: [String]
+  modelName_not_in: [String]
+  itemId: String
+  itemId_not: String
+  itemId_contains: String
+  itemId_not_contains: String
+  itemId_starts_with: String
+  itemId_not_starts_with: String
+  itemId_ends_with: String
+  itemId_not_ends_with: String
+  itemId_i: String
+  itemId_not_i: String
+  itemId_contains_i: String
+  itemId_not_contains_i: String
+  itemId_starts_with_i: String
+  itemId_not_starts_with_i: String
+  itemId_ends_with_i: String
+  itemId_not_ends_with_i: String
+  itemId_in: [String]
+  itemId_not_in: [String]
+  status: WebhookPayloadStatusType
+  status_not: WebhookPayloadStatusType
+  status_in: [WebhookPayloadStatusType]
+  status_not_in: [WebhookPayloadStatusType]
+  attempt: Int
+  attempt_not: Int
+  attempt_lt: Int
+  attempt_lte: Int
+  attempt_gt: Int
+  attempt_gte: Int
+  attempt_in: [Int]
+  attempt_not_in: [Int]
+  lastHttpStatusCode: Int
+  lastHttpStatusCode_not: Int
+  lastHttpStatusCode_lt: Int
+  lastHttpStatusCode_lte: Int
+  lastHttpStatusCode_gt: Int
+  lastHttpStatusCode_gte: Int
+  lastHttpStatusCode_in: [Int]
+  lastHttpStatusCode_not_in: [Int]
+  lastResponseBody: String
+  lastResponseBody_not: String
+  lastResponseBody_contains: String
+  lastResponseBody_not_contains: String
+  lastResponseBody_starts_with: String
+  lastResponseBody_not_starts_with: String
+  lastResponseBody_ends_with: String
+  lastResponseBody_not_ends_with: String
+  lastResponseBody_i: String
+  lastResponseBody_not_i: String
+  lastResponseBody_contains_i: String
+  lastResponseBody_not_contains_i: String
+  lastResponseBody_starts_with_i: String
+  lastResponseBody_not_starts_with_i: String
+  lastResponseBody_ends_with_i: String
+  lastResponseBody_not_ends_with_i: String
+  lastResponseBody_in: [String]
+  lastResponseBody_not_in: [String]
+  lastErrorMessage: String
+  lastErrorMessage_not: String
+  lastErrorMessage_contains: String
+  lastErrorMessage_not_contains: String
+  lastErrorMessage_starts_with: String
+  lastErrorMessage_not_starts_with: String
+  lastErrorMessage_ends_with: String
+  lastErrorMessage_not_ends_with: String
+  lastErrorMessage_i: String
+  lastErrorMessage_not_i: String
+  lastErrorMessage_contains_i: String
+  lastErrorMessage_not_contains_i: String
+  lastErrorMessage_starts_with_i: String
+  lastErrorMessage_not_starts_with_i: String
+  lastErrorMessage_ends_with_i: String
+  lastErrorMessage_not_ends_with_i: String
+  lastErrorMessage_in: [String]
+  lastErrorMessage_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  nextRetryAt: String
+  nextRetryAt_not: String
+  nextRetryAt_lt: String
+  nextRetryAt_lte: String
+  nextRetryAt_gt: String
+  nextRetryAt_gte: String
+  nextRetryAt_in: [String]
+  nextRetryAt_not_in: [String]
+  lastSentAt: String
+  lastSentAt_not: String
+  lastSentAt_lt: String
+  lastSentAt_lte: String
+  lastSentAt_gt: String
+  lastSentAt_gte: String
+  lastSentAt_in: [String]
+  lastSentAt_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input WebhookPayloadWhereUniqueInput {
+  id: ID!
+}
+
+enum SortWebhookPayloadsBy {
+  url_ASC
+  url_DESC
+  secret_ASC
+  secret_DESC
+  eventType_ASC
+  eventType_DESC
+  modelName_ASC
+  modelName_DESC
+  itemId_ASC
+  itemId_DESC
+  status_ASC
+  status_DESC
+  attempt_ASC
+  attempt_DESC
+  lastHttpStatusCode_ASC
+  lastHttpStatusCode_DESC
+  lastResponseBody_ASC
+  lastResponseBody_DESC
+  lastErrorMessage_ASC
+  lastErrorMessage_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  nextRetryAt_ASC
+  nextRetryAt_DESC
+  lastSentAt_ASC
+  lastSentAt_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input WebhookPayloadUpdateInput {
+  payload: JSON
+  url: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: String
+  status: WebhookPayloadStatusType
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input WebhookPayloadsUpdateInput {
+  id: ID!
+  data: WebhookPayloadUpdateInput
+}
+
+input WebhookPayloadCreateInput {
+  payload: JSON
+  url: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: String
+  status: WebhookPayloadStatusType
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input WebhookPayloadsCreateInput {
+  data: WebhookPayloadCreateInput
 }
 
 enum FileRecordHistoryRecordHistoryActionType {
@@ -94620,6 +94740,37 @@ type Query {
   """ Retrieve the meta-data for the Payment list. """
   _PaymentsMeta: _ListMeta
 
+  """ Search for all PaymentStatusChangeWebhookUrlHistoryRecord items which match the where clause. 
+  """
+  allPaymentStatusChangeWebhookUrlHistoryRecords(where: PaymentStatusChangeWebhookUrlHistoryRecordWhereInput, search: String, sortBy: [SortPaymentStatusChangeWebhookUrlHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PaymentStatusChangeWebhookUrlHistoryRecord]
+
+  """ Search for the PaymentStatusChangeWebhookUrlHistoryRecord item with the matching ID. 
+  """
+  PaymentStatusChangeWebhookUrlHistoryRecord(where: PaymentStatusChangeWebhookUrlHistoryRecordWhereUniqueInput!): PaymentStatusChangeWebhookUrlHistoryRecord
+
+  """ Perform a meta-query on all PaymentStatusChangeWebhookUrlHistoryRecord items which match the where clause. 
+  """
+  _allPaymentStatusChangeWebhookUrlHistoryRecordsMeta(where: PaymentStatusChangeWebhookUrlHistoryRecordWhereInput, search: String, sortBy: [SortPaymentStatusChangeWebhookUrlHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the PaymentStatusChangeWebhookUrlHistoryRecord list. 
+  """
+  _PaymentStatusChangeWebhookUrlHistoryRecordsMeta: _ListMeta
+
+  """ Search for all PaymentStatusChangeWebhookUrl items which match the where clause. 
+  """
+  allPaymentStatusChangeWebhookUrls(where: PaymentStatusChangeWebhookUrlWhereInput, search: String, sortBy: [SortPaymentStatusChangeWebhookUrlsBy!], orderBy: String, first: Int, skip: Int): [PaymentStatusChangeWebhookUrl]
+
+  """ Search for the PaymentStatusChangeWebhookUrl item with the matching ID. 
+  """
+  PaymentStatusChangeWebhookUrl(where: PaymentStatusChangeWebhookUrlWhereUniqueInput!): PaymentStatusChangeWebhookUrl
+
+  """ Perform a meta-query on all PaymentStatusChangeWebhookUrl items which match the where clause. 
+  """
+  _allPaymentStatusChangeWebhookUrlsMeta(where: PaymentStatusChangeWebhookUrlWhereInput, search: String, sortBy: [SortPaymentStatusChangeWebhookUrlsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the PaymentStatusChangeWebhookUrl list. """
+  _PaymentStatusChangeWebhookUrlsMeta: _ListMeta
+
   """ Search for all PaymentsFilterTemplateHistoryRecord items which match the where clause. 
   """
   allPaymentsFilterTemplateHistoryRecords(where: PaymentsFilterTemplateHistoryRecordWhereInput, search: String, sortBy: [SortPaymentsFilterTemplateHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PaymentsFilterTemplateHistoryRecord]
@@ -94734,68 +94885,6 @@ type Query {
 
   """ Retrieve the meta-data for the PaymentsFile list. """
   _PaymentsFilesMeta: _ListMeta
-
-  """ Search for all PaymentWebhookDeliveryHistoryRecord items which match the where clause. 
-  """
-  allPaymentWebhookDeliveryHistoryRecords(where: PaymentWebhookDeliveryHistoryRecordWhereInput, search: String, sortBy: [SortPaymentWebhookDeliveryHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PaymentWebhookDeliveryHistoryRecord]
-
-  """ Search for the PaymentWebhookDeliveryHistoryRecord item with the matching ID. 
-  """
-  PaymentWebhookDeliveryHistoryRecord(where: PaymentWebhookDeliveryHistoryRecordWhereUniqueInput!): PaymentWebhookDeliveryHistoryRecord
-
-  """ Perform a meta-query on all PaymentWebhookDeliveryHistoryRecord items which match the where clause. 
-  """
-  _allPaymentWebhookDeliveryHistoryRecordsMeta(where: PaymentWebhookDeliveryHistoryRecordWhereInput, search: String, sortBy: [SortPaymentWebhookDeliveryHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the PaymentWebhookDeliveryHistoryRecord list. 
-  """
-  _PaymentWebhookDeliveryHistoryRecordsMeta: _ListMeta
-
-  """ Search for all PaymentWebhookDelivery items which match the where clause. 
-  """
-  allPaymentWebhookDeliveries(where: PaymentWebhookDeliveryWhereInput, search: String, sortBy: [SortPaymentWebhookDeliveriesBy!], orderBy: String, first: Int, skip: Int): [PaymentWebhookDelivery]
-
-  """ Search for the PaymentWebhookDelivery item with the matching ID. """
-  PaymentWebhookDelivery(where: PaymentWebhookDeliveryWhereUniqueInput!): PaymentWebhookDelivery
-
-  """ Perform a meta-query on all PaymentWebhookDelivery items which match the where clause. 
-  """
-  _allPaymentWebhookDeliveriesMeta(where: PaymentWebhookDeliveryWhereInput, search: String, sortBy: [SortPaymentWebhookDeliveriesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the PaymentWebhookDelivery list. """
-  _PaymentWebhookDeliveriesMeta: _ListMeta
-
-  """ Search for all PaymentWebhookDeliveryWhiteListItemHistoryRecord items which match the where clause. 
-  """
-  allPaymentWebhookDeliveryWhiteListItemHistoryRecords(where: PaymentWebhookDeliveryWhiteListItemHistoryRecordWhereInput, search: String, sortBy: [SortPaymentWebhookDeliveryWhiteListItemHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PaymentWebhookDeliveryWhiteListItemHistoryRecord]
-
-  """ Search for the PaymentWebhookDeliveryWhiteListItemHistoryRecord item with the matching ID. 
-  """
-  PaymentWebhookDeliveryWhiteListItemHistoryRecord(where: PaymentWebhookDeliveryWhiteListItemHistoryRecordWhereUniqueInput!): PaymentWebhookDeliveryWhiteListItemHistoryRecord
-
-  """ Perform a meta-query on all PaymentWebhookDeliveryWhiteListItemHistoryRecord items which match the where clause. 
-  """
-  _allPaymentWebhookDeliveryWhiteListItemHistoryRecordsMeta(where: PaymentWebhookDeliveryWhiteListItemHistoryRecordWhereInput, search: String, sortBy: [SortPaymentWebhookDeliveryWhiteListItemHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the PaymentWebhookDeliveryWhiteListItemHistoryRecord list. 
-  """
-  _PaymentWebhookDeliveryWhiteListItemHistoryRecordsMeta: _ListMeta
-
-  """ Search for all PaymentWebhookDeliveryWhiteListItem items which match the where clause. 
-  """
-  allPaymentWebhookDeliveryWhiteListItems(where: PaymentWebhookDeliveryWhiteListItemWhereInput, search: String, sortBy: [SortPaymentWebhookDeliveryWhiteListItemsBy!], orderBy: String, first: Int, skip: Int): [PaymentWebhookDeliveryWhiteListItem]
-
-  """ Search for the PaymentWebhookDeliveryWhiteListItem item with the matching ID. 
-  """
-  PaymentWebhookDeliveryWhiteListItem(where: PaymentWebhookDeliveryWhiteListItemWhereUniqueInput!): PaymentWebhookDeliveryWhiteListItem
-
-  """ Perform a meta-query on all PaymentWebhookDeliveryWhiteListItem items which match the where clause. 
-  """
-  _allPaymentWebhookDeliveryWhiteListItemsMeta(where: PaymentWebhookDeliveryWhiteListItemWhereInput, search: String, sortBy: [SortPaymentWebhookDeliveryWhiteListItemsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the PaymentWebhookDeliveryWhiteListItem list. 
-  """
-  _PaymentWebhookDeliveryWhiteListItemsMeta: _ListMeta
 
   """ Search for all PropertyScopeHistoryRecord items which match the where clause. 
   """
@@ -95894,6 +95983,34 @@ type Query {
 
   """ Retrieve the meta-data for the WebhookSubscription list. """
   _WebhookSubscriptionsMeta: _ListMeta
+
+  """ Search for all WebhookPayloadHistoryRecord items which match the where clause. 
+  """
+  allWebhookPayloadHistoryRecords(where: WebhookPayloadHistoryRecordWhereInput, search: String, sortBy: [SortWebhookPayloadHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookPayloadHistoryRecord]
+
+  """ Search for the WebhookPayloadHistoryRecord item with the matching ID. 
+  """
+  WebhookPayloadHistoryRecord(where: WebhookPayloadHistoryRecordWhereUniqueInput!): WebhookPayloadHistoryRecord
+
+  """ Perform a meta-query on all WebhookPayloadHistoryRecord items which match the where clause. 
+  """
+  _allWebhookPayloadHistoryRecordsMeta(where: WebhookPayloadHistoryRecordWhereInput, search: String, sortBy: [SortWebhookPayloadHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the WebhookPayloadHistoryRecord list. """
+  _WebhookPayloadHistoryRecordsMeta: _ListMeta
+
+  """ Search for all WebhookPayload items which match the where clause. """
+  allWebhookPayloads(where: WebhookPayloadWhereInput, search: String, sortBy: [SortWebhookPayloadsBy!], orderBy: String, first: Int, skip: Int): [WebhookPayload]
+
+  """ Search for the WebhookPayload item with the matching ID. """
+  WebhookPayload(where: WebhookPayloadWhereUniqueInput!): WebhookPayload
+
+  """ Perform a meta-query on all WebhookPayload items which match the where clause. 
+  """
+  _allWebhookPayloadsMeta(where: WebhookPayloadWhereInput, search: String, sortBy: [SortWebhookPayloadsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the WebhookPayload list. """
+  _WebhookPayloadsMeta: _ListMeta
 
   """ Search for all FileRecordHistoryRecord items which match the where clause. 
   """
@@ -99991,6 +100108,46 @@ type Mutation {
   """ Delete multiple Payment items by ID. """
   deletePayments(ids: [ID!]): [Payment]
 
+  """ Create a single PaymentStatusChangeWebhookUrlHistoryRecord item. """
+  createPaymentStatusChangeWebhookUrlHistoryRecord(data: PaymentStatusChangeWebhookUrlHistoryRecordCreateInput): PaymentStatusChangeWebhookUrlHistoryRecord
+
+  """ Create multiple PaymentStatusChangeWebhookUrlHistoryRecord items. """
+  createPaymentStatusChangeWebhookUrlHistoryRecords(data: [PaymentStatusChangeWebhookUrlHistoryRecordsCreateInput]): [PaymentStatusChangeWebhookUrlHistoryRecord]
+
+  """ Update a single PaymentStatusChangeWebhookUrlHistoryRecord item by ID. 
+  """
+  updatePaymentStatusChangeWebhookUrlHistoryRecord(id: ID!, data: PaymentStatusChangeWebhookUrlHistoryRecordUpdateInput): PaymentStatusChangeWebhookUrlHistoryRecord
+
+  """ Update multiple PaymentStatusChangeWebhookUrlHistoryRecord items by ID. 
+  """
+  updatePaymentStatusChangeWebhookUrlHistoryRecords(data: [PaymentStatusChangeWebhookUrlHistoryRecordsUpdateInput]): [PaymentStatusChangeWebhookUrlHistoryRecord]
+
+  """ Delete a single PaymentStatusChangeWebhookUrlHistoryRecord item by ID. 
+  """
+  deletePaymentStatusChangeWebhookUrlHistoryRecord(id: ID!): PaymentStatusChangeWebhookUrlHistoryRecord
+
+  """ Delete multiple PaymentStatusChangeWebhookUrlHistoryRecord items by ID. 
+  """
+  deletePaymentStatusChangeWebhookUrlHistoryRecords(ids: [ID!]): [PaymentStatusChangeWebhookUrlHistoryRecord]
+
+  """ Create a single PaymentStatusChangeWebhookUrl item. """
+  createPaymentStatusChangeWebhookUrl(data: PaymentStatusChangeWebhookUrlCreateInput): PaymentStatusChangeWebhookUrl
+
+  """ Create multiple PaymentStatusChangeWebhookUrl items. """
+  createPaymentStatusChangeWebhookUrls(data: [PaymentStatusChangeWebhookUrlsCreateInput]): [PaymentStatusChangeWebhookUrl]
+
+  """ Update a single PaymentStatusChangeWebhookUrl item by ID. """
+  updatePaymentStatusChangeWebhookUrl(id: ID!, data: PaymentStatusChangeWebhookUrlUpdateInput): PaymentStatusChangeWebhookUrl
+
+  """ Update multiple PaymentStatusChangeWebhookUrl items by ID. """
+  updatePaymentStatusChangeWebhookUrls(data: [PaymentStatusChangeWebhookUrlsUpdateInput]): [PaymentStatusChangeWebhookUrl]
+
+  """ Delete a single PaymentStatusChangeWebhookUrl item by ID. """
+  deletePaymentStatusChangeWebhookUrl(id: ID!): PaymentStatusChangeWebhookUrl
+
+  """ Delete multiple PaymentStatusChangeWebhookUrl items by ID. """
+  deletePaymentStatusChangeWebhookUrls(ids: [ID!]): [PaymentStatusChangeWebhookUrl]
+
   """ Create a single PaymentsFilterTemplateHistoryRecord item. """
   createPaymentsFilterTemplateHistoryRecord(data: PaymentsFilterTemplateHistoryRecordCreateInput): PaymentsFilterTemplateHistoryRecord
 
@@ -100134,84 +100291,6 @@ type Mutation {
 
   """ Delete multiple PaymentsFile items by ID. """
   deletePaymentsFiles(ids: [ID!]): [PaymentsFile]
-
-  """ Create a single PaymentWebhookDeliveryHistoryRecord item. """
-  createPaymentWebhookDeliveryHistoryRecord(data: PaymentWebhookDeliveryHistoryRecordCreateInput): PaymentWebhookDeliveryHistoryRecord
-
-  """ Create multiple PaymentWebhookDeliveryHistoryRecord items. """
-  createPaymentWebhookDeliveryHistoryRecords(data: [PaymentWebhookDeliveryHistoryRecordsCreateInput]): [PaymentWebhookDeliveryHistoryRecord]
-
-  """ Update a single PaymentWebhookDeliveryHistoryRecord item by ID. """
-  updatePaymentWebhookDeliveryHistoryRecord(id: ID!, data: PaymentWebhookDeliveryHistoryRecordUpdateInput): PaymentWebhookDeliveryHistoryRecord
-
-  """ Update multiple PaymentWebhookDeliveryHistoryRecord items by ID. """
-  updatePaymentWebhookDeliveryHistoryRecords(data: [PaymentWebhookDeliveryHistoryRecordsUpdateInput]): [PaymentWebhookDeliveryHistoryRecord]
-
-  """ Delete a single PaymentWebhookDeliveryHistoryRecord item by ID. """
-  deletePaymentWebhookDeliveryHistoryRecord(id: ID!): PaymentWebhookDeliveryHistoryRecord
-
-  """ Delete multiple PaymentWebhookDeliveryHistoryRecord items by ID. """
-  deletePaymentWebhookDeliveryHistoryRecords(ids: [ID!]): [PaymentWebhookDeliveryHistoryRecord]
-
-  """ Create a single PaymentWebhookDelivery item. """
-  createPaymentWebhookDelivery(data: PaymentWebhookDeliveryCreateInput): PaymentWebhookDelivery
-
-  """ Create multiple PaymentWebhookDelivery items. """
-  createPaymentWebhookDeliveries(data: [PaymentWebhookDeliveriesCreateInput]): [PaymentWebhookDelivery]
-
-  """ Update a single PaymentWebhookDelivery item by ID. """
-  updatePaymentWebhookDelivery(id: ID!, data: PaymentWebhookDeliveryUpdateInput): PaymentWebhookDelivery
-
-  """ Update multiple PaymentWebhookDelivery items by ID. """
-  updatePaymentWebhookDeliveries(data: [PaymentWebhookDeliveriesUpdateInput]): [PaymentWebhookDelivery]
-
-  """ Delete a single PaymentWebhookDelivery item by ID. """
-  deletePaymentWebhookDelivery(id: ID!): PaymentWebhookDelivery
-
-  """ Delete multiple PaymentWebhookDelivery items by ID. """
-  deletePaymentWebhookDeliveries(ids: [ID!]): [PaymentWebhookDelivery]
-
-  """ Create a single PaymentWebhookDeliveryWhiteListItemHistoryRecord item. 
-  """
-  createPaymentWebhookDeliveryWhiteListItemHistoryRecord(data: PaymentWebhookDeliveryWhiteListItemHistoryRecordCreateInput): PaymentWebhookDeliveryWhiteListItemHistoryRecord
-
-  """ Create multiple PaymentWebhookDeliveryWhiteListItemHistoryRecord items. 
-  """
-  createPaymentWebhookDeliveryWhiteListItemHistoryRecords(data: [PaymentWebhookDeliveryWhiteListItemHistoryRecordsCreateInput]): [PaymentWebhookDeliveryWhiteListItemHistoryRecord]
-
-  """ Update a single PaymentWebhookDeliveryWhiteListItemHistoryRecord item by ID. 
-  """
-  updatePaymentWebhookDeliveryWhiteListItemHistoryRecord(id: ID!, data: PaymentWebhookDeliveryWhiteListItemHistoryRecordUpdateInput): PaymentWebhookDeliveryWhiteListItemHistoryRecord
-
-  """ Update multiple PaymentWebhookDeliveryWhiteListItemHistoryRecord items by ID. 
-  """
-  updatePaymentWebhookDeliveryWhiteListItemHistoryRecords(data: [PaymentWebhookDeliveryWhiteListItemHistoryRecordsUpdateInput]): [PaymentWebhookDeliveryWhiteListItemHistoryRecord]
-
-  """ Delete a single PaymentWebhookDeliveryWhiteListItemHistoryRecord item by ID. 
-  """
-  deletePaymentWebhookDeliveryWhiteListItemHistoryRecord(id: ID!): PaymentWebhookDeliveryWhiteListItemHistoryRecord
-
-  """ Delete multiple PaymentWebhookDeliveryWhiteListItemHistoryRecord items by ID. 
-  """
-  deletePaymentWebhookDeliveryWhiteListItemHistoryRecords(ids: [ID!]): [PaymentWebhookDeliveryWhiteListItemHistoryRecord]
-
-  """ Create a single PaymentWebhookDeliveryWhiteListItem item. """
-  createPaymentWebhookDeliveryWhiteListItem(data: PaymentWebhookDeliveryWhiteListItemCreateInput): PaymentWebhookDeliveryWhiteListItem
-
-  """ Create multiple PaymentWebhookDeliveryWhiteListItem items. """
-  createPaymentWebhookDeliveryWhiteListItems(data: [PaymentWebhookDeliveryWhiteListItemsCreateInput]): [PaymentWebhookDeliveryWhiteListItem]
-
-  """ Update a single PaymentWebhookDeliveryWhiteListItem item by ID. """
-  updatePaymentWebhookDeliveryWhiteListItem(id: ID!, data: PaymentWebhookDeliveryWhiteListItemUpdateInput): PaymentWebhookDeliveryWhiteListItem
-
-  """ Update multiple PaymentWebhookDeliveryWhiteListItem items by ID. """
-  updatePaymentWebhookDeliveryWhiteListItems(data: [PaymentWebhookDeliveryWhiteListItemsUpdateInput]): [PaymentWebhookDeliveryWhiteListItem]
-
-  """ Delete a single PaymentWebhookDeliveryWhiteListItem item by ID. """
-  deletePaymentWebhookDeliveryWhiteListItem(id: ID!): PaymentWebhookDeliveryWhiteListItem
-
-  """ Delete multiple PaymentWebhookDeliveryWhiteListItem items by ID. """
-  deletePaymentWebhookDeliveryWhiteListItems(ids: [ID!]): [PaymentWebhookDeliveryWhiteListItem]
 
   """ Create a single PropertyScopeHistoryRecord item. """
   createPropertyScopeHistoryRecord(data: PropertyScopeHistoryRecordCreateInput): PropertyScopeHistoryRecord
@@ -101625,6 +101704,42 @@ type Mutation {
 
   """ Delete multiple WebhookSubscription items by ID. """
   deleteWebhookSubscriptions(ids: [ID!]): [WebhookSubscription]
+
+  """ Create a single WebhookPayloadHistoryRecord item. """
+  createWebhookPayloadHistoryRecord(data: WebhookPayloadHistoryRecordCreateInput): WebhookPayloadHistoryRecord
+
+  """ Create multiple WebhookPayloadHistoryRecord items. """
+  createWebhookPayloadHistoryRecords(data: [WebhookPayloadHistoryRecordsCreateInput]): [WebhookPayloadHistoryRecord]
+
+  """ Update a single WebhookPayloadHistoryRecord item by ID. """
+  updateWebhookPayloadHistoryRecord(id: ID!, data: WebhookPayloadHistoryRecordUpdateInput): WebhookPayloadHistoryRecord
+
+  """ Update multiple WebhookPayloadHistoryRecord items by ID. """
+  updateWebhookPayloadHistoryRecords(data: [WebhookPayloadHistoryRecordsUpdateInput]): [WebhookPayloadHistoryRecord]
+
+  """ Delete a single WebhookPayloadHistoryRecord item by ID. """
+  deleteWebhookPayloadHistoryRecord(id: ID!): WebhookPayloadHistoryRecord
+
+  """ Delete multiple WebhookPayloadHistoryRecord items by ID. """
+  deleteWebhookPayloadHistoryRecords(ids: [ID!]): [WebhookPayloadHistoryRecord]
+
+  """ Create a single WebhookPayload item. """
+  createWebhookPayload(data: WebhookPayloadCreateInput): WebhookPayload
+
+  """ Create multiple WebhookPayload items. """
+  createWebhookPayloads(data: [WebhookPayloadsCreateInput]): [WebhookPayload]
+
+  """ Update a single WebhookPayload item by ID. """
+  updateWebhookPayload(id: ID!, data: WebhookPayloadUpdateInput): WebhookPayload
+
+  """ Update multiple WebhookPayload items by ID. """
+  updateWebhookPayloads(data: [WebhookPayloadsUpdateInput]): [WebhookPayload]
+
+  """ Delete a single WebhookPayload item by ID. """
+  deleteWebhookPayload(id: ID!): WebhookPayload
+
+  """ Delete multiple WebhookPayload items by ID. """
+  deleteWebhookPayloads(ids: [ID!]): [WebhookPayload]
 
   """ Create a single FileRecordHistoryRecord item. """
   createFileRecordHistoryRecord(data: FileRecordHistoryRecordCreateInput): FileRecordHistoryRecord

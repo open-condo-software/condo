@@ -2833,11 +2833,11 @@ describe('Invoice', () => {
 
             // Create invoice with whitelisted URL
             const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
-                statusChangeCallbackUrl: callbackUrl,
+                paymentStatusChangeWebhookUrl: callbackUrl,
             })
 
-            expect(invoice.statusChangeCallbackUrl).toBe(callbackUrl)
-            expect(invoice.statusChangeCallbackSecret).toBeTruthy()
+            expect(invoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(invoice.paymentStatusChangeWebhookSecret).toBeTruthy()
         })
 
         test('cannot create invoice with non-whitelisted callback URL', async () => {
@@ -2846,12 +2846,13 @@ describe('Invoice', () => {
             await expectToThrowGQLError(
                 async () => {
                     await createTestInvoice(adminClient, dummyOrganization, {
-                        statusChangeCallbackUrl: callbackUrl,
+                        paymentStatusChangeWebhookUrl: callbackUrl,
                     })
                 },
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
                 },
                 'obj'
             )
@@ -2869,12 +2870,13 @@ describe('Invoice', () => {
             await expectToThrowGQLError(
                 async () => {
                     await createTestInvoice(adminClient, dummyOrganization, {
-                        statusChangeCallbackUrl: callbackUrl,
+                        paymentStatusChangeWebhookUrl: callbackUrl,
                     })
                 },
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
                 },
                 'obj'
             )
@@ -2883,8 +2885,8 @@ describe('Invoice', () => {
         test('can create invoice without callback URL', async () => {
             const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
 
-            expect(invoice.statusChangeCallbackUrl).toBeNull()
-            expect(invoice.statusChangeCallbackSecret).toBeNull()
+            expect(invoice.paymentStatusChangeWebhookUrl).toBeNull()
+            expect(invoice.paymentStatusChangeWebhookSecret).toBeNull()
         })
 
         test('staff with permission can create invoice with whitelisted callback URL', async () => {
@@ -2903,10 +2905,10 @@ describe('Invoice', () => {
             })
 
             const [invoice] = await createTestInvoice(client, dummyOrganization, {
-                statusChangeCallbackUrl: callbackUrl,
+                paymentStatusChangeWebhookUrl: callbackUrl,
             })
 
-            expect(invoice.statusChangeCallbackUrl).toBe(callbackUrl)
+            expect(invoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
         })
 
         test('staff with permission cannot create invoice with non-whitelisted callback URL', async () => {
@@ -2921,12 +2923,13 @@ describe('Invoice', () => {
             await expectToThrowGQLError(
                 async () => {
                     await createTestInvoice(client, dummyOrganization, {
-                        statusChangeCallbackUrl: callbackUrl,
+                        paymentStatusChangeWebhookUrl: callbackUrl,
                     })
                 },
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
                 },
                 'obj'
             )
@@ -2937,7 +2940,7 @@ describe('Invoice', () => {
 
             // Create invoice without callback URL
             const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
-            expect(invoice.statusChangeCallbackUrl).toBeNull()
+            expect(invoice.paymentStatusChangeWebhookUrl).toBeNull()
 
             // Add URL to whitelist
             await createTestPaymentStatusChangeWebhookUrl(adminClient, {
@@ -2947,11 +2950,11 @@ describe('Invoice', () => {
 
             // Update invoice with whitelisted URL
             const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
-                statusChangeCallbackUrl: callbackUrl,
+                paymentStatusChangeWebhookUrl: callbackUrl,
             })
 
-            expect(updatedInvoice.statusChangeCallbackUrl).toBe(callbackUrl)
-            expect(updatedInvoice.statusChangeCallbackSecret).toBeTruthy()
+            expect(updatedInvoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(updatedInvoice.paymentStatusChangeWebhookSecret).toBeTruthy()
         })
 
         test('cannot update invoice to add non-whitelisted callback URL', async () => {
@@ -2963,12 +2966,13 @@ describe('Invoice', () => {
             await expectToThrowGQLError(
                 async () => {
                     await updateTestInvoice(adminClient, invoice.id, {
-                        statusChangeCallbackUrl: callbackUrl,
+                        paymentStatusChangeWebhookUrl: callbackUrl,
                     })
                 },
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'CALLBACK_URL_NOT_IN_WHITELIST',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
                 },
                 'obj'
             )

@@ -4,11 +4,9 @@
  */
 
 const { _internalScheduleTaskByNameService } = require('./_internalScheduleTaskByNameService')
-const { WebhookPayload } = require('./WebhookPayload')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     _internalScheduleTaskByNameService,
-    WebhookPayload,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

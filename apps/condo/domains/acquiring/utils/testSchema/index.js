@@ -74,7 +74,7 @@ const {
     WebhookPayload,
     createTestWebhookPayload,
     updateTestWebhookPayload,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@open-condo/webhooks/schema/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)

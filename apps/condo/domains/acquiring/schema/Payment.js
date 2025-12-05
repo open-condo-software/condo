@@ -11,6 +11,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
+const { sendWebhookPayload } = require('@open-condo/webhooks/utils')
 
 const access = require('@condo/domains/acquiring/access/Payment')
 const {
@@ -49,16 +50,13 @@ const {
 } = require('@condo/domains/acquiring/utils/serverSchema/paymentWebhookHelpers')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
-const { WEBHOOK_DELIVERY_TTL_DAYS } = require('@condo/domains/common/constants/webhook')
 const {
     CURRENCY_CODE_FIELD,
     POSITIVE_MONEY_AMOUNT_FIELD,
     NON_NEGATIVE_MONEY_FIELD,
     IMPORT_ID_FIELD,
 } = require('@condo/domains/common/schema/fields')
-const { sendWebhookPayload } = require('@condo/domains/common/tasks/sendWebhookPayload')
 const { getCurrencyDecimalPlaces } = require('@condo/domains/common/utils/currencies')
-const { WebhookPayload } = require('@condo/domains/common/utils/serverSchema')
 const { INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 
@@ -528,28 +526,17 @@ const Payment = new GQLListSchema('Payment', {
                 const secret = await getWebhookSecret(updatedItem)
 
                 if (url && secret) {
-                    const dayjs = require('dayjs')
-                    // Build the complete payload at creation time
                     const payload = await buildPaymentWebhookPayload(updatedItem, previousStatus, newStatus)
 
-                    // Use sudo context because WebhookPayload access is restricted to admin/support only,
-                    // but this internal operation should work regardless of who triggered the payment update
-                    const sudoContext = context.sudo()
-                    const webhookPayload = await WebhookPayload.create(sudoContext, {
-                        dv: 1,
-                        sender: { dv: 1, fingerprint: 'Payment_webhookTrigger' },
-                        payload,
+                    await sendWebhookPayload(context, {
                         url,
+                        payload,
                         secret,
                         eventType: 'payment.status.changed',
                         modelName: 'Payment',
                         itemId: updatedItem.id,
-                        expiresAt: dayjs().add(WEBHOOK_DELIVERY_TTL_DAYS, 'day').toISOString(),
-                        nextRetryAt: dayjs().toISOString(),
+                        sender: { dv: 1, fingerprint: 'Payment_webhookTrigger' },
                     })
-
-                    // Queue the webhook payload delivery task
-                    await sendWebhookPayload.delay(webhookPayload.id)
                 }
             }
         },

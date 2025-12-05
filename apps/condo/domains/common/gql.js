@@ -6,24 +6,15 @@
 
 const gql = require('graphql-tag')
 
-const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
-
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
-
 const _INTERNAL_SCHEDULE_TASK_BY_NAME_MUTATION = gql`
     mutation _internalScheduleTaskByName ($data: _internalScheduleTaskByNameInput!) {
         result: _internalScheduleTaskByName(data: $data) { id }
     }
 `
 
-const WEBHOOK_PAYLOAD_FIELDS = `{ payload url secret eventType modelName itemId status attempt lastHttpStatusCode lastResponseBody lastErrorMessage expiresAt nextRetryAt lastSentAt ${COMMON_FIELDS} }`
-const WebhookPayload = generateGqlQueries('WebhookPayload', WEBHOOK_PAYLOAD_FIELDS)
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     _INTERNAL_SCHEDULE_TASK_BY_NAME_MUTATION,
-    WEBHOOK_PAYLOAD_FIELDS,
-    WebhookPayload,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

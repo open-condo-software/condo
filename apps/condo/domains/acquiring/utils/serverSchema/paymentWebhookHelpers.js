@@ -15,16 +15,16 @@ async function getWebhookSecret (payment) {
     // Try to get secret from invoice first
     if (payment.invoice) {
         const invoice = await getById('Invoice', payment.invoice)
-        if (invoice && invoice.statusChangeCallbackSecret) {
-            return invoice.statusChangeCallbackSecret
+        if (invoice && invoice.paymentStatusChangeWebhookSecret) {
+            return invoice.paymentStatusChangeWebhookSecret
         }
     }
 
     // Try to get secret from receipt
     if (payment.receipt) {
         const receipt = await getById('BillingReceipt', payment.receipt)
-        if (receipt && receipt.statusChangeCallbackSecret) {
-            return receipt.statusChangeCallbackSecret
+        if (receipt && receipt.paymentStatusChangeWebhookSecret) {
+            return receipt.paymentStatusChangeWebhookSecret
         }
     }
 
@@ -40,16 +40,16 @@ async function getWebhookCallbackUrl (payment) {
     // Try to get callback URL from invoice first
     if (payment.invoice) {
         const invoice = await getById('Invoice', payment.invoice)
-        if (invoice && invoice.statusChangeCallbackUrl) {
-            return invoice.statusChangeCallbackUrl
+        if (invoice && invoice.paymentStatusChangeWebhookUrl) {
+            return invoice.paymentStatusChangeWebhookUrl
         }
     }
 
     // Try to get callback URL from receipt
     if (payment.receipt) {
         const receipt = await getById('BillingReceipt', payment.receipt)
-        if (receipt && receipt.statusChangeCallbackUrl) {
-            return receipt.statusChangeCallbackUrl
+        if (receipt && receipt.paymentStatusChangeWebhookUrl) {
+            return receipt.paymentStatusChangeWebhookUrl
         }
     }
 

@@ -19,7 +19,6 @@ const set = require('lodash/set')
 const conf = require('@open-condo/config')
 const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, getByCondition, find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
@@ -27,8 +26,8 @@ const { webHooked } = require('@open-condo/webhooks/plugins')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const {
-    STATUS_CHANGE_CALLBACK_URL_FIELD,
-    STATUS_CHANGE_CALLBACK_SECRET_FIELD,
+    PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
+    PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     applyWebhookSecretGeneration,
     validateCallbackUrlInWhitelist,
 } = require('@condo/domains/acquiring/schema/fields/webhookCallback')
@@ -70,8 +69,6 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const { TICKET_SOURCE_TYPES } = require('@condo/domains/ticket/constants/common')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-
-const logger = getLogger()
 
 const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context }) => {
     if (originalInput.status === INVOICE_STATUS_PUBLISHED && userId && propertyId && unitName && unitType) {
@@ -433,9 +430,9 @@ const Invoice = new GQLListSchema('Invoice', {
 
         amountDistribution: AMOUNT_DISTRIBUTION_FIELD(),
 
-        statusChangeCallbackUrl: STATUS_CHANGE_CALLBACK_URL_FIELD,
+        paymentStatusChangeWebhookUrl: PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
 
-        statusChangeCallbackSecret: STATUS_CHANGE_CALLBACK_SECRET_FIELD,
+        paymentStatusChangeWebhookSecret: PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, context, originalInput }) => {
@@ -525,7 +522,7 @@ const Invoice = new GQLListSchema('Invoice', {
             }
 
             // Validate callback URL is in whitelist
-            const callbackUrl = get(resolvedData, 'statusChangeCallbackUrl')
+            const callbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
             if (callbackUrl) {
                 await validateCallbackUrlInWhitelist(callbackUrl, context)
             }
