@@ -10,7 +10,7 @@ shell:
   - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
   - "apt update -qq"
   - "apt install -qq -y curl"
-  - "curl -fsSL https://deb.nodesource.com/setup_22.x | bash"
+  - "curl -fsSL https://deb.nodesource.com/setup_24.x | bash"
   - "apt install -qq -y --no-install-recommends
       g++
       automake
