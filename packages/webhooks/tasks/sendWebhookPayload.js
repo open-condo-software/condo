@@ -9,7 +9,7 @@ const {
 } = require('@open-condo/webhooks/constants')
 const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const {
-    tryDeliverWebhookPayload,
+    trySendWebhookPayload,
     calculateNextRetryAt,
 } = require('@open-condo/webhooks/utils/webhookPayload.utils')
 
@@ -52,7 +52,7 @@ async function sendWebhookPayload (payloadId) {
     }
 
     // Attempt delivery
-    const result = await tryDeliverWebhookPayload(webhookPayload)
+    const result = await trySendWebhookPayload(webhookPayload)
     const newAttempt = webhookPayload.attempt + 1
 
     if (result.success) {

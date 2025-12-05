@@ -535,7 +535,7 @@ const Payment = new GQLListSchema('Payment', {
                         eventType: 'payment.status.changed',
                         modelName: 'Payment',
                         itemId: updatedItem.id,
-                        sender: { dv: 1, fingerprint: 'Payment_webhookTrigger' },
+                        sender: { dv: 1, fingerprint: 'payment-webhook-trigger' },
                     })
                 }
             }
