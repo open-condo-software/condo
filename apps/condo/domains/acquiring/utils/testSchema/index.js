@@ -67,8 +67,14 @@ const path = require("path");
 const conf = require("@open-condo/config");
 const { PAYMENTS_FILE_NEW_STATUS } = require("@condo/domains/acquiring/constants/constants");
 const { SET_PAYMENT_POS_RECEIPT_URL_MUTATION } = require('@condo/domains/acquiring/gql')
-const { PaymentWebhookDelivery: PaymentWebhookDeliveryGQL } = require('@condo/domains/acquiring/gql')
-const { PaymentWebhookDeliveryWhiteListItem: PaymentWebhookDeliveryWhiteListItemGQL } = require('@condo/domains/acquiring/gql')
+const {
+    WebhookDelivery,
+    createTestWebhookDelivery,
+    updateTestWebhookDelivery,
+    WebhookDeliveryWhiteListItem,
+    createTestWebhookDeliveryWhiteListItem,
+    updateTestWebhookDeliveryWhiteListItem,
+} = require('@condo/domains/common/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -82,8 +88,6 @@ const PaymentsFilterTemplate = generateGQLTestUtils(PaymentsFilterTemplateGQL)
 const RecurrentPaymentContext = generateGQLTestUtils(RecurrentPaymentContextGQL)
 const RecurrentPayment = generateGQLTestUtils(RecurrentPaymentGQL)
 const PaymentsFile = generateGQLTestUtils(PaymentsFileGQL)
-const PaymentWebhookDelivery = generateGQLTestUtils(PaymentWebhookDeliveryGQL)
-const PaymentWebhookDeliveryWhiteListItem = generateGQLTestUtils(PaymentWebhookDeliveryWhiteListItemGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const RecurrentPaymentContextLiteGQL = generateGqlQueries('RecurrentPaymentContext', '{ id }')
@@ -880,70 +884,6 @@ function generateQRCode (qrCodeData = {}, { version = '0001', encodingTag = '2' 
     return [Buffer.from(`ST${version}${encodingTag}|${Object.keys(qrCodeObj).map((k) => `${k}=${qrCodeObj[k]}`).join('|')}`).toString('base64'), qrCodeObj]
 }
 
-async function createTestPaymentWebhookDelivery (client, payment, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!payment || !payment.id) throw new Error('no payment')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        payment: { connect: { id: payment.id } },
-        previousStatus: 'CREATED',
-        newStatus: 'PROCESSING',
-        callbackUrl: 'https://example.com/webhook',
-        expiresAt: dayjs().add(7, 'day').toISOString(),
-        nextRetryAt: dayjs().toISOString(),
-        ...extraAttrs,
-    }
-    const obj = await PaymentWebhookDelivery.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestPaymentWebhookDelivery (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await PaymentWebhookDelivery.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-async function createTestPaymentWebhookDeliveryWhiteListItem (client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        url: `https://example-${faker.random.alphaNumeric(8)}.com/webhook`,
-        name: `Test Webhook ${faker.random.alphaNumeric(4)}`,
-        isEnabled: true,
-        ...extraAttrs,
-    }
-    const obj = await PaymentWebhookDeliveryWhiteListItem.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestPaymentWebhookDeliveryWhiteListItem (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await PaymentWebhookDeliveryWhiteListItem.update(client, id, attrs)
-    return [obj, attrs]
-}
-
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
@@ -978,7 +918,7 @@ module.exports = {
     generateQRCode,
     PaymentsFile, createTestPaymentsFile, updateTestPaymentsFile,
     setPaymentPosReceiptUrlByTestClient,
-    PaymentWebhookDelivery, createTestPaymentWebhookDelivery, updateTestPaymentWebhookDelivery,
-    PaymentWebhookDeliveryWhiteListItem, createTestPaymentWebhookDeliveryWhiteListItem, updateTestPaymentWebhookDeliveryWhiteListItem,
+    WebhookDelivery, createTestWebhookDelivery, updateTestWebhookDelivery,
+    WebhookDeliveryWhiteListItem, createTestWebhookDeliveryWhiteListItem, updateTestWebhookDeliveryWhiteListItem,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }

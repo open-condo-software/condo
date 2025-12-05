@@ -4,7 +4,7 @@
 
 The Payment Webhook Delivery System allows API users to receive HTTP callbacks when a Payment's status changes. Users specify a callback URL when creating an Invoice or BillingReceipt, and the system sends webhooks when payments for those items change status.
 
-**Important**: Callback URLs must be pre-approved by adding them to the `PaymentWebhookDeliveryWhiteListItem` whitelist. Only admin/support users can manage this whitelist.
+**Important**: Callback URLs must be pre-approved by adding them to the `WebhookDeliveryWhiteListItem` whitelist. Only admin/support users can manage this whitelist.
 
 ## Use Case
 
@@ -12,19 +12,21 @@ When an external system creates an Invoice or BillingReceipt via GraphQL API, it
 
 ## Architecture
 
+The system uses a generic webhook delivery infrastructure from the `common` domain, with payment-specific payload building in the `acquiring` domain.
+
 ```
 ┌─────────────────┐     ┌──────────────────────┐     ┌─────────────────────┐
-│  Payment        │     │ PaymentWebhookDelivery│     │  External Server    │
-│  (status change)│────▶│ (delivery record)     │────▶│  (callback URL)     │
+│  Payment        │     │  WebhookDelivery     │     │  External Server    │
+│  (status change)│────▶│  (generic delivery)  │────▶│  (callback URL)     │
 └─────────────────┘     └──────────────────────┘     └─────────────────────┘
         │                       │      ▲
-        │                       │      │ retry
+        │ builds payload        │      │ retry
         ▼                       ▼      │
 ┌─────────────────┐      ┌──────────────────────┐
 │  Invoice or     │      │  Cron Task           │
-│  BillingReceipt │      │  (every 5 minutes)   │
-│  (callback URL) │      └──────────────────────┘
-└─────────────────┘
+│  BillingReceipt │      │  (retryFailedWebhooks│
+│  (callback URL) │      │   every 5 minutes)   │
+└─────────────────┘      └──────────────────────┘
 ```
 
 ## Data Models
@@ -43,14 +45,14 @@ When an external system creates an Invoice or BillingReceipt via GraphQL API, it
 | `statusChangeCallbackUrl` | Url (optional) | URL to call when payment status changes |
 | `statusChangeCallbackSecret` | Text (read-only) | Auto-generated secret for webhook signature verification |
 
-### PaymentWebhookDeliveryWhiteListItem
+### WebhookDeliveryWhiteListItem (common domain)
 
-Stores approved webhook callback URLs. Only URLs in this whitelist can be used as `statusChangeCallbackUrl` in Invoice or BillingReceipt.
+Stores approved webhook callback URLs. Only URLs in this whitelist can be used as `statusChangeCallbackUrl` in Invoice or BillingReceipt. This is a generic model in the `common` domain that can be reused for other webhook types.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `id` | UUID | Yes | Unique identifier |
-| `url` | Url | Yes | Approved webhook callback URL (must be unique) |
+| `url` | Url | Yes | Approved webhook callback URL (must be unique, HTTPS required except localhost) |
 | `name` | Text | No | Human-readable name (e.g., "Production CRM Webhook") |
 | `description` | Text | No | Optional description of what this webhook is used for |
 | `isEnabled` | Checkbox | Yes | Whether this URL is currently enabled (default: true) |
@@ -60,25 +62,32 @@ Stores approved webhook callback URLs. Only URLs in this whitelist can be used a
 - **Create/Update**: Admin, Support only
 - **Delete**: Not allowed (use soft delete)
 
-### PaymentWebhookDelivery
+### WebhookDelivery (common domain)
 
-Stores webhook delivery attempts and their results:
+Generic webhook delivery record that stores ready-to-send payloads. This model is in the `common` domain and can be reused for any webhook type.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `id` | UUID | Yes | Unique identifier |
-| `payment` | Relationship:Payment | Yes | Link to the payment |
-| `previousStatus` | Text | No | Status before the change |
-| `newStatus` | Text | Yes | Status after the change |
-| `callbackUrl` | Url | Yes | Target URL for webhook delivery |
+| `payload` | Json | Yes | Ready-to-send JSON payload (built at creation time) |
+| `url` | Url | Yes | Target URL for webhook delivery |
+| `secret` | Text | Yes | Secret key for HMAC-SHA256 signature generation |
+| `eventType` | Text | Yes | Type of event (e.g., "payment.status.changed") |
+| `modelName` | Text | No | Name of the model that triggered this webhook (e.g., "Payment") |
+| `itemId` | Text | No | ID of the record that triggered this webhook |
 | `status` | Select | Yes | `pending`, `success`, `failed` |
 | `attempt` | Integer | Yes | Current attempt number (starts at 0) |
-| `httpStatusCode` | Integer | No | HTTP response status code |
-| `responseBody` | Text | No | Response body (truncated to 1000 chars) |
-| `errorMessage` | Text | No | Error description if delivery failed |
-| `expiresAt` | DateTimeUtc | Yes | Stop retrying after this timestamp |
+| `lastHttpStatusCode` | Integer | No | HTTP response status code from last attempt |
+| `lastResponseBody` | Text | No | Response body from last attempt (truncated to 1000 chars) |
+| `lastErrorMessage` | Text | No | Error description from last attempt |
+| `expiresAt` | DateTimeUtc | Yes | Stop retrying after this timestamp (default: 7 days) |
 | `nextRetryAt` | DateTimeUtc | Yes | When to attempt next delivery |
-| `sentAt` | DateTimeUtc | No | When the last request was sent |
+| `lastSentAt` | DateTimeUtc | No | When the last request was sent |
+
+**Access Control**:
+- **Read**: Admin, Support only
+- **Create/Update**: Admin, Support only
+- **Delete**: Not allowed (use soft delete)
 
 ## Webhook Payload
 
@@ -219,7 +228,7 @@ Before using a callback URL, it must be added to the whitelist:
 
 ```graphql
 mutation {
-  createPaymentWebhookDeliveryWhiteListItem(data: {
+  createWebhookDeliveryWhiteListItem(data: {
     dv: 1
     sender: { dv: 1, fingerprint: "admin-panel" }
     url: "https://my-app.com/webhooks/payment"
@@ -239,7 +248,7 @@ mutation {
 
 ```graphql
 query {
-  allPaymentWebhookDeliveryWhiteListItems(where: { isEnabled: true }) {
+  allWebhookDeliveryWhiteListItems(where: { isEnabled: true }) {
     id
     url
     name
@@ -279,7 +288,7 @@ mutation {
 
 ```graphql
 mutation {
-  updatePaymentWebhookDeliveryWhiteListItem(
+  updateWebhookDeliveryWhiteListItem(
     id: "whitelist-item-uuid"
     data: {
       dv: 1
@@ -296,46 +305,56 @@ mutation {
 
 ## Configuration
 
-### Constants
+### Constants (common domain)
 
 | Constant | Default | Description |
 |----------|---------|-------------|
-| `PAYMENT_WEBHOOK_DELIVERY_TTL_DAYS` | `7` | Days to retry before giving up |
-| `PAYMENT_WEBHOOK_RETRY_INTERVALS` | See above | Retry delays in seconds |
-| `PAYMENT_WEBHOOK_TIMEOUT_MS` | `30000` | HTTP request timeout in milliseconds |
-| `PAYMENT_WEBHOOK_MAX_RESPONSE_LENGTH` | `1000` | Maximum response body length to store |
+| `WEBHOOK_DELIVERY_TTL_DAYS` | `7` | Days to retry before giving up |
+| `WEBHOOK_RETRY_INTERVALS` | See above | Retry delays in seconds |
+| `WEBHOOK_TIMEOUT_MS` | `5000` | HTTP request timeout in milliseconds |
+| `WEBHOOK_MAX_RESPONSE_LENGTH` | `1000` | Maximum response body length to store |
 
 ## File Structure
 
+The webhook system is split between the `common` domain (generic infrastructure) and `acquiring` domain (payment-specific logic):
+
 ```
-apps/condo/domains/acquiring/
+apps/condo/domains/common/                      # Generic webhook infrastructure
 ├── constants/
-│   └── webhook.js                              # Webhook constants
+│   └── webhook.js                              # Webhook constants (TTL, timeouts, etc.)
 ├── schema/
-│   ├── PaymentWebhookDelivery.js               # Delivery tracking schema
-│   ├── PaymentWebhookDeliveryWhiteListItem.js  # URL whitelist schema
-│   └── fields/
-│       └── webhookCallback.js                  # Shared webhook fields & validation
+│   ├── WebhookDelivery.js                      # Generic delivery tracking schema
+│   └── WebhookDeliveryWhiteListItem.js         # URL whitelist schema
 ├── tasks/
-│   ├── sendPaymentWebhook.js                   # Delivery task
-│   └── retryFailedPaymentWebhooks.js           # Retry cron task
+│   ├── sendWebhook.js                          # Generic delivery task
+│   └── retryFailedWebhooks.js                  # Retry cron task
 ├── utils/
 │   └── serverSchema/
-│       └── webhookDelivery.js                  # tryDeliverWebhook, buildWebhookPayload
-├── access/
-│   ├── PaymentWebhookDelivery.js               # Delivery access control
-│   └── PaymentWebhookDeliveryWhiteListItem.js  # Whitelist access control
-└── docs/
-    └── PaymentWebhookDelivery.md               # This documentation
+│       └── webhookDelivery.js                  # tryDeliverWebhook, generateSignature
+└── access/
+    ├── WebhookDelivery.js                      # Delivery access control
+    └── WebhookDeliveryWhiteListItem.js         # Whitelist access control
+
+apps/condo/domains/common/docs/
+└── WebhookDelivery.md                          # This documentation
+
+apps/condo/domains/acquiring/                   # Payment-specific webhook logic
+├── schema/
+│   ├── Payment.js                              # afterChange hook triggers webhooks
+│   └── fields/
+│       └── webhookCallback.js                  # Shared webhook fields & validation
+└── utils/
+    └── serverSchema/
+        └── paymentWebhookHelpers.js            # buildPaymentWebhookPayload, getWebhookCallbackUrl
 ```
 
 ## Security Considerations
 
-1. **URL Whitelist**: Callback URLs must be pre-approved in `PaymentWebhookDeliveryWhiteListItem` by admin/support
-2. **URL Validation**: Callback URLs must be valid HTTPS URLs
+1. **URL Whitelist**: Callback URLs must be pre-approved in `WebhookDeliveryWhiteListItem` by admin/support
+2. **URL Validation**: Callback URLs must be valid HTTPS URLs (HTTP allowed only for localhost/127.0.0.1 for testing)
 3. **Per-Invoice/Receipt Secrets**: Each invoice/receipt has its own unique webhook secret
 4. **Signature Verification**: All webhooks include HMAC-SHA256 signature for authenticity
-5. **Timeout**: 30-second timeout prevents hanging connections
+5. **Timeout**: 5-second timeout prevents hanging connections
 6. **Response Truncation**: Response bodies are truncated to 1000 characters
 
 ## Idempotency
