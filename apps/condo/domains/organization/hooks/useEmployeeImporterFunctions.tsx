@@ -166,7 +166,8 @@ export const useEmployeeImporterFunctions = (): [Columns, RowNormalizer, RowVali
         }
 
         const email = row?.addons?.email
-        if (email === null) {
+        const emailValue = String(row?.row?.[5]?.value ?? '').trim()
+        if (emailValue && email === null) {
             errors.push(IncorrectEmailMessage)
         }
 
