@@ -11,22 +11,22 @@ const { find } = require('@open-condo/keystone/schema')
  */
 
 const ERRORS = {
-    CALLBACK_URL_NOT_IN_WHITELIST: {
+    WEBHOOK_URL_NOT_IN_WHITELIST: {
         code: BAD_USER_INPUT,
-        type: 'CALLBACK_URL_NOT_IN_WHITELIST',
-        message: 'The callback URL must be registered in PaymentStatusChangeWebhookUrl',
-        messageForUser: 'api.acquiring.webhook.CALLBACK_URL_NOT_IN_WHITELIST',
+        type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+        message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+        messageForUser: 'api.acquiring.webhook.WEBHOOK_URL_NOT_IN_WHITELIST',
     },
 }
 
-const STATUS_CHANGE_CALLBACK_URL_FIELD = {
+const PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD = {
     schemaDoc: 'URL to call when payment status changes. When set, the system will send HTTP POST requests to this URL with payment status change details. Must be registered in PaymentStatusChangeWebhookUrl.',
     type: 'Url',
     isRequired: false,
 }
 
-const STATUS_CHANGE_CALLBACK_SECRET_FIELD = {
-    schemaDoc: 'Secret key used to sign webhook payloads. Auto-generated when statusChangeCallbackUrl is set. The receiver should use this secret to verify the X-Condo-Signature header.',
+const PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD = {
+    schemaDoc: 'Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Condo-Signature header.',
     type: 'Text',
     isRequired: false,
     access: {
@@ -58,7 +58,7 @@ async function validateCallbackUrlInWhitelist (callbackUrl, context) {
     })
 
     if (approvedUrls.length === 0) {
-        throw new GQLError(ERRORS.CALLBACK_URL_NOT_IN_WHITELIST, context)
+        throw new GQLError(ERRORS.WEBHOOK_URL_NOT_IN_WHITELIST, context)
     }
 }
 
@@ -71,24 +71,24 @@ async function validateCallbackUrlInWhitelist (callbackUrl, context) {
  * @returns {Object} Updated resolvedData with secret generation logic applied
  */
 function applyWebhookSecretGeneration (resolvedData, existingItem) {
-    const existingCallbackUrl = get(existingItem, 'statusChangeCallbackUrl')
-    const newCallbackUrl = get(resolvedData, 'statusChangeCallbackUrl')
-    const existingSecret = get(existingItem, 'statusChangeCallbackSecret')
+    const existingCallbackUrl = get(existingItem, 'paymentStatusChangeWebhookUrl')
+    const newCallbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
+    const existingSecret = get(existingItem, 'paymentStatusChangeWebhookSecret')
 
     if (newCallbackUrl && !existingSecret) {
         // Generate a new secret only if URL is being set and no secret exists
-        resolvedData['statusChangeCallbackSecret'] = crypto.randomBytes(32).toString('hex')
+        resolvedData['paymentStatusChangeWebhookSecret'] = crypto.randomBytes(32).toString('hex')
     } else if (newCallbackUrl === null && existingCallbackUrl) {
         // Clear secret when callback URL is removed
-        resolvedData['statusChangeCallbackSecret'] = null
+        resolvedData['paymentStatusChangeWebhookSecret'] = null
     }
 
     return resolvedData
 }
 
 module.exports = {
-    STATUS_CHANGE_CALLBACK_URL_FIELD,
-    STATUS_CHANGE_CALLBACK_SECRET_FIELD,
+    PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
+    PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     validateCallbackUrlInWhitelist,
     applyWebhookSecretGeneration,
 }
