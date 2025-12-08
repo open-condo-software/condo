@@ -11,88 +11,87 @@ const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-c
 
 const { TICKET_COMMENT_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { NO_TELEGRAM_CHAT_FOR_USER } = require('@condo/domains/notification/constants/errors')
-const { Message, createTestTelegramUserChat, TelegramUserChat } = require('@condo/domains/notification/utils/testSchema')
+const { 
+    Message,
+    createTestTelegramUserChat,
+    updateTestNotificationUserSetting,
+    NotificationUserSetting,
+    syncRemoteClientWithPushTokenByTestClient,
+} = require('@condo/domains/notification/utils/testSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestTicket, createTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { sendTicketCommentCreatedNotifications } = require('./sendTicketCommentCreatedNotifications')
-
 
 describe('sendTicketCommentCreatedNotifications', ()  => {
     setFakeClientMode(index)
 
-    let admin,
-        organization,
-        employeeClient,
-        commentAuthorClient,
-        ticket
+    let admin
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
-        const [testOrganization] = await createTestOrganization(admin)
-        organization = testOrganization
-
-        const activeEmployeeData = {
-            isRejected: false,
-            isAccepted: true,
-            isBlocked: false,
-        }
-
-        employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [role] = await createTestOrganizationEmployeeRole(admin, organization)
-        await createTestOrganizationEmployee(admin, organization, employeeClient.user, role, activeEmployeeData)
-
-        commentAuthorClient = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [roleWithCanManageComments] = await createTestOrganizationEmployeeRole(admin, organization, { canManageTicketComments: true })
-        await createTestOrganizationEmployee(admin, organization, commentAuthorClient.user, roleWithCanManageComments, activeEmployeeData)
-
-        const [property] = await createTestProperty(admin, organization)
-        const [tempTicket] = await createTestTicket(admin, organization, property)
-        ticket = tempTicket
     })
 
     beforeEach(async () => {
-        const telegramUserChats = await TelegramUserChat.getAll(admin, {
-            user: { id: employeeClient.user.id },
+        const globalSettings = await NotificationUserSetting.getAll(admin, {
+            user_is_null: true,
             deletedAt: null,
         })
-
-        for (const chat of telegramUserChats) {
-            await TelegramUserChat.softDelete(admin, chat.id)
+        for (const setting of globalSettings) {
+            await updateTestNotificationUserSetting(admin, setting.id, {
+                deletedAt: new Date(),
+            })
         }
     })
 
     it('Sends notification if employee has TelegramUserChat and he is not comment author', async () => {
-        const telegramChatId = faker.random.alphaNumeric(8)
-        await createTestTelegramUserChat(admin, employeeClient.user, {
-            telegramChatId,
+        const [organization] = await createTestOrganization(admin)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true, canManageTickets: true } )
+        
+        const employeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
+        await createTestOrganizationEmployee(admin, organization, employeeUser.user, role, {
+            isRejected: false,
+            isAccepted: true,
+            isBlocked: false,
+        })
+        
+        const employeeUser2 = await makeClientWithNewRegisteredAndLoggedInUser()
+        await createTestOrganizationEmployee(admin, organization, employeeUser2.user, role, {
+            isRejected: false,
+            isAccepted: true,
+            isBlocked: false,
         })
 
-        const [ticketComment] = await createTestTicketComment(commentAuthorClient, ticket, commentAuthorClient.user)
+        const [property] = await createTestProperty(admin, organization)
 
-        await sendTicketCommentCreatedNotifications(ticketComment.id, ticket.id)
+        const telegramChatId1 = faker.random.alphaNumeric(8)
+        await createTestTelegramUserChat(admin, employeeUser.user, {
+            telegramChatId: telegramChatId1,
+        })
 
-        const messagesForCommentAuthor = await Message.getAll(admin, {
-            type: TICKET_COMMENT_CREATED_TYPE,
-            user: { id: commentAuthorClient.user.id },
-            deletedAt: null,
-        }, { sortBy: 'createdAt_DESC' })
+        const telegramChatId2 = faker.random.alphaNumeric(8)
+        await createTestTelegramUserChat(admin, employeeUser2.user, {
+            telegramChatId: telegramChatId2,
+        })
+        await syncRemoteClientWithPushTokenByTestClient(employeeUser2)
 
-        expect(messagesForCommentAuthor).toHaveLength(0)
+        const [ticket] = await createTestTicket(employeeUser, organization, property)
+        const [ticketComment] = await createTestTicketComment(employeeUser, ticket, employeeUser.user)
 
         await waitFor(async () => {
             const messages = await Message.getAll(admin, {
                 type: TICKET_COMMENT_CREATED_TYPE,
-                user: { id: employeeClient.user.id },
+                user: { id_in: [employeeUser.user.id, employeeUser2.user.id] },
                 deletedAt: null,
             }, { sortBy: 'createdAt_DESC' })
 
+            expect(messages).toHaveLength(1)
+            // send message only to employee who not created comment
             expect(messages[0].status).toEqual('sent')
-            expect(messages[0].processingMeta.messageContext.telegramChatId).toEqual(telegramChatId)
-            expect(messages[0].processingMeta.messageContext.userId).toEqual(employeeClient.user.id)
+            expect(messages[0].processingMeta.transportsMeta[0].messageContext.telegramChatId).toEqual(telegramChatId2)
+            expect(messages[0].processingMeta.transportsMeta[0].messageContext.userId).toEqual(employeeUser2.user.id)
 
             expect(messages[0]).toHaveProperty('meta', expect.objectContaining({
                 dv: 1,
@@ -111,7 +110,7 @@ describe('sendTicketCommentCreatedNotifications', ()  => {
                     ticketStatus: expect.stringContaining(''),
                     ticketAddress: ticket.propertyAddress,
                     ticketUnit: expect.stringContaining(ticket.unitName),
-                    userId: employeeClient.user.id,
+                    userId: employeeUser2.user.id,
                     url: `${conf.SERVER_URL}/ticket/${ticket.id}`,
                 }),
             }))
@@ -119,19 +118,40 @@ describe('sendTicketCommentCreatedNotifications', ()  => {
     })
 
     it('Does not send notification if employee has not TelegramUserChat', async () => {
-        const [ticketComment] = await createTestTicketComment(commentAuthorClient, ticket, commentAuthorClient.user)
+        const [organization] = await createTestOrganization(admin)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true, canManageTickets: true } )
+        
+        const employeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
+        await createTestOrganizationEmployee(admin, organization, employeeUser.user, role, {
+            isRejected: false,
+            isAccepted: true,
+            isBlocked: false,
+        })
+        
+        const employeeUser2 = await makeClientWithNewRegisteredAndLoggedInUser()
+        await createTestOrganizationEmployee(admin, organization, employeeUser2.user, role, {
+            isRejected: false,
+            isAccepted: true,
+            isBlocked: false,
+        })
 
-        await sendTicketCommentCreatedNotifications(ticketComment.id, ticket.id)
+        const [property] = await createTestProperty(admin, organization)
+        const [ticket] = await createTestTicket(employeeUser, organization, property)
+        const [ticketComment] = await createTestTicketComment(employeeUser, ticket, employeeUser.user)
 
         await waitFor(async () => {
             const messages = await Message.getAll(admin, {
                 type: TICKET_COMMENT_CREATED_TYPE,
-                user: { id: employeeClient.user.id },
+                user: { id_in: [employeeUser.user.id, employeeUser2.user.id] },
                 deletedAt: null,
             }, { sortBy: 'createdAt_DESC' })
 
+            expect(messages).toHaveLength(1)
             expect(messages[0].status).toEqual('error')
             expect(messages[0].processingMeta.transportsMeta[0].exception.message).toEqual(NO_TELEGRAM_CHAT_FOR_USER)
+            expect(messages[0].meta.data.organizationId).toEqual(organization.id)
+            expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
+            expect(messages[0].meta.data.userId).toEqual(employeeUser2.user.id)
         })
     })
 })

@@ -1652,6 +1652,8 @@
   "notification.messages.NEWS_ITEM_COMMON_MESSAGE_TYPE.push.title": "{title}",
   "notification.messages.NEWS_ITEM_EMERGENCY_MESSAGE_TYPE.push.title": "{title}",
   "notification.messages.PASS_TICKET_COMMENT_CREATED.push.title": "Pass ticket news 💡",
+  "notification.messages.TICKET_CREATED.push.title": "New ticket",
+  "notification.messages.TICKET_COMMENT_CREATED.push.title": "New ticket comment",
   "notification.messages.PASS_TICKET_CREATED.push.title": "New pass ticket",
   "notification.messages.PASS_TICKET_CREATED.telegram.urlMessage": "Open pass",
   "notification.messages.RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE.push.title": "Autopayment error 🚨",

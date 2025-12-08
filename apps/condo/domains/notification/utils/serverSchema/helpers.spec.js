@@ -11,8 +11,10 @@ const {
     DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
+    NotificationUserSetting,
     createTestNotificationAnonymousSetting,
     createTestNotificationUserSetting,
+    updateTestNotificationUserSetting,
     createTestMessage,
 } = require('@condo/domains/notification/utils/testSchema')
 const { createTestUser, createTestEmail } = require('@condo/domains/user/utils/testSchema')
@@ -28,6 +30,18 @@ describe('Transport settings for message', () => {
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
+    })
+
+    beforeEach(async () => {
+        const globalSettings = await NotificationUserSetting.getAll(adminClient, {
+            user_is_null: true,
+            deletedAt: null,
+        })
+        for (const setting of globalSettings) {
+            await updateTestNotificationUserSetting(adminClient, setting.id, {
+                deletedAt: new Date(),
+            })
+        }
     })
 
     test('user disabled all messages of particular type', async () => {
