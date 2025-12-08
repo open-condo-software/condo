@@ -50,6 +50,7 @@ const SubscriptionPlanPricingRule = new GQLListSchema('SubscriptionPlanPricingRu
             type: 'Relationship',
             ref: 'SubscriptionPlan',
             isRequired: true,
+            knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
