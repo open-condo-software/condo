@@ -23,6 +23,11 @@ class JsonController extends FieldController {
             // Forcibly return null if empty string
             return null
         }
+
+        if (Array.isArray(data[path])) {
+            data[path] = JSON.stringify(data[path])
+        }
+
         return omitRecursively(JSON.parse(data[path]), '__typename')
     }
 
