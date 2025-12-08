@@ -24,13 +24,13 @@ const { GQLListSchema, getById, getByCondition, find } = require('@open-condo/ke
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const {
     PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
     PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     applyWebhookSecretGeneration,
     validateCallbackUrlInWhitelist,
-} = require('@condo/domains/acquiring/schema/fields/webhookCallback')
+} = require('@condo/domains/acquiring/schema/fields/paymentChangeWebhook')
+const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { AMOUNT_DISTRIBUTION_FIELD } = require('@condo/domains/billing/schema/fields/AmountDistribution')
 const { MONEY_AMOUNT_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD } = require('@condo/domains/common/schema/fields')
