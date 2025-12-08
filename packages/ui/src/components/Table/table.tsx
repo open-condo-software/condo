@@ -137,7 +137,7 @@ function TableComponent<TData extends RowData = RowData> (
                     return c.header(info.table)
                 }
             }
-            const colCell = (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index) ?? renderTextWithTooltip()(info.getValue())
+            const colCell = (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index, globalFilter ?? '') ?? renderTextWithTooltip()(info.getValue())
             let filterComponent: FilterComponent | undefined
             if (typeof c.filterComponent === 'function') {
                 filterComponent = c.filterComponent

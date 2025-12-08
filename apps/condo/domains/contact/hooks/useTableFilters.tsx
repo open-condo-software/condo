@@ -109,9 +109,6 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
                         placeholder: EnterAddressMessage,
                         infinityScroll: true,
                     },
-                    columnFilterComponentWrapper: {
-                        width: '400px',
-                    },
                 },
             },
             {

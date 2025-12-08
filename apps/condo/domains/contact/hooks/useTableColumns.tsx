@@ -20,9 +20,8 @@ import { getFilterComponentByKey, OpenFiltersMeta } from '@condo/domains/common/
 
 type UseTableColumns = (
     filterMetas: Array<OpenFiltersMeta<ContactWhereInput>>,
-    search?: string,
 ) => TableColumn<GetContactsForTableQuery['contacts'][number]>[]
-export const useTableColumns: UseTableColumns = (filterMetas, search = '') => {
+export const useTableColumns: UseTableColumns = (filterMetas) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
@@ -39,47 +38,48 @@ export const useTableColumns: UseTableColumns = (filterMetas, search = '') => {
     const NoMessage = intl.formatMessage({ id: 'No' })
 
 
-    const renderCell = useMemo(
-        () => getTableCellRenderer({ search, ellipsis: true }), 
-        [search])
+    const renderName = useCallback(
+        (name, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(name)
+        , [])
 
     const renderAddress = useCallback(
-        (_, contact) => getAddressRender(contact?.property, DeletedMessage, search), 
-        [search, DeletedMessage])
-
-    const renderUnitName = useCallback(
-        (text, contact) => getUnitNameRender<Contact>(intl, text, contact, search), 
-        [search, intl])
-
-    const renderUnitType = useCallback(
-        (text, contact) => getUnitTypeRender<Contact>(intl, text, contact, search), 
-        [search, intl])
+        (_, contact, __, globalFilter) => getAddressRender(contact?.property, DeletedMessage, globalFilter)
+        , [DeletedMessage])
 
     const renderRole = useCallback(
-        (role: ContactRole) => renderCell(role?.name ?? '—'), 
-        [renderCell])
+        (role: ContactRole, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(role?.name ?? '—')
+        , [])
+
+    const renderUnitName = useCallback(
+        (text, contact, _, globalFilter) => getUnitNameRender<Contact>(intl, text, contact, globalFilter)
+        , [intl])
+
+    const renderUnitType = useCallback(
+        (text, contact, _, globalFilter) => getUnitTypeRender<Contact>(intl, text, contact, globalFilter)
+        , [intl])
 
     const renderDate = useCallback(
-        (date) => getDateRender(intl, search)(date),
-        [search, intl])
+        (date, _, __, globalFilter) => getDateRender(intl, String(globalFilter))(date),
+        [intl])
 
-    const renderPhone = useCallback((phone, contact) => {
-        const phonePrefix = contact?.organization?.phoneNumberPrefix
+    const renderPhone = useCallback(
+        (phone, contact, _, globalFilter) => {
+            const phonePrefix = contact?.organization?.phoneNumberPrefix
 
-        return getTableCellRenderer({ search, href: `tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}` })(phone)
-    }, [search])
-
-    const renderEmail = useCallback(
-        (email) => getTableCellRenderer({ search, href: email ? `mailto:${email}` : undefined })(email ?? '—'), 
-        [search])
+            return getTableCellRenderer({ search: globalFilter, href: `tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}` })(phone)
+        }, [])
 
     const renderIsVerified = useCallback(
-        (isVerified) => renderCell(isVerified ? YesMessage : NoMessage), 
-        [NoMessage, YesMessage, renderCell])
+        (isVerified, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(isVerified ? YesMessage : NoMessage),
+        [NoMessage, YesMessage])
+
+    const renderEmail = useCallback(
+        (email, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, href: email ? `mailto:${email}` : undefined, ellipsis: true })(email ?? '—')
+        , [])
 
     const renderCommunityFee = useCallback(
-        (communityFee) => renderCell(communityFee ?? '—'), 
-        [renderCell])
+        (communityFee, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(communityFee)
+        , [])
 
 
     return useMemo(() => {
@@ -88,7 +88,7 @@ export const useTableColumns: UseTableColumns = (filterMetas, search = '') => {
                 header: NameMessage,
                 dataKey: 'name',
                 id: 'name',
-                render: renderCell,
+                render: renderName,
                 filterComponent: getFilterComponentByKey(filterMetas, 'name'),
                 initialSize: '15%',
             },
@@ -181,6 +181,7 @@ export const useTableColumns: UseTableColumns = (filterMetas, search = '') => {
         UnitTypeMessage, 
         EmailMessage, 
         CommunityFeeMessage,
+        renderName,
         renderRole,
         renderAddress, 
         renderUnitName, 
@@ -190,6 +191,5 @@ export const useTableColumns: UseTableColumns = (filterMetas, search = '') => {
         renderCommunityFee,
         renderIsVerified,
         renderDate,
-        renderCell,
     ])
 }

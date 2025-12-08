@@ -408,6 +408,8 @@ export const getGQLSelectFilterDropdown: GetGQLSelectFilterDropdownType = ({ gql
     }
 }
 
+const GRAPHQL_SEARCH_COMPONENT_STYLE: CSSProperties = { width: '400px', display: 'flex', flexDirection: 'column' }
+
 export const getGQLSelectFilterComponent: GetGQLSelectFilterComponentType = ({ gqlSelectProps } = {}) => {
     const GQLSelectFilterDropdown = ({ 
         setFilterValue, 
@@ -431,7 +433,7 @@ export const getGQLSelectFilterComponent: GetGQLSelectFilterComponentType = ({ g
                 {...gqlSelectProps}
                 value={Array.isArray(filterValue) ? filterValue : filterValue ? [filterValue] : undefined}
                 onChange={handleChange}
-                style={GRAPHQL_SEARCH_INPUT_STYLE}
+                style={GRAPHQL_SEARCH_COMPONENT_STYLE}
             />
         )
     }

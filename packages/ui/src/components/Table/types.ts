@@ -90,11 +90,11 @@ type TableColumnBase<TData extends RowData = RowData> = {
 export type TableColumn<TData extends RowData = RowData> = 
     | (TableColumnBase<TData> & {
         dataKey: DeepKeys<TData>
-        render?: (value: unknown, record: TData, index: number) => ReactNode
+        render?: (value: unknown, record: TData, index: number, globalFilter: string) => ReactNode
     })
     | (TableColumnBase<TData> & {
         dataKey?: never
-        render: (value: unknown, record: TData, index: number) => ReactNode
+        render: (value: unknown, record: TData, index: number, globalFilter: string) => ReactNode
     })
 
 export type TableState = {

@@ -60,7 +60,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { ANALYTICS_RESIDENT_IN_CONTACT_PAGE } from '@condo/domains/common/constants/featureflags'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
-// import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useNewQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useNewSearch } from '@condo/domains/common/hooks/useSearch'
 import { PageComponentType } from '@condo/domains/common/types'
@@ -665,19 +665,19 @@ export const ContactPageContentWrapper: React.FC<ContactPageContentProps> = (pro
 
 const ContactsPage: PageComponentType = () => {
     const filterMeta = useContactsTableFilters()
-    const { organization, role, isLoading } = useOrganization()
+    const { organization, role, isLoading, employee } = useOrganization()
     const userOrganizationId = useMemo(() => organization?.id, [organization?.id])
-    // const employeeId = useMemo(() => employee?.id, [employee?.id])
+    const employeeId = useMemo(() => employee?.id, [employee?.id])
 
     const tableRef = useRef<TableRef | null>(null)
     const [search, handleSearchChange] = useNewSearch(tableRef.current)
-    const tableColumns = useTableColumns(filterMeta, search)
+    const tableColumns = useTableColumns(filterMeta)
 
     const baseSearchQuery: ContactBaseSearchQuery = useMemo(() => ({
         organization: { id: userOrganizationId },
     }), [userOrganizationId])
 
-    // usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
+    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     return (
         <ContactPageContentWrapper
