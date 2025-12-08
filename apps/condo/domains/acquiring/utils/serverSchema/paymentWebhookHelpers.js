@@ -75,7 +75,6 @@ async function buildPaymentWebhookPayload (payment, previousStatus, newStatus) {
             invoiceData = {
                 id: invoice.id,
                 number: invoice.number,
-                status: invoice.status,
                 toPay: invoice.toPay,
             }
         }
@@ -90,6 +89,7 @@ async function buildPaymentWebhookPayload (payment, previousStatus, newStatus) {
                 id: receipt.id,
                 toPay: receipt.toPay,
                 period: receipt.period,
+                accountNumber: payment.accountNumber,
             }
         }
     }
@@ -103,7 +103,6 @@ async function buildPaymentWebhookPayload (payment, previousStatus, newStatus) {
             newStatus,
             amount: payment.amount,
             currencyCode: payment.currencyCode,
-            accountNumber: payment.accountNumber,
             organization: {
                 id: organization.id,
                 name: organization.name,
