@@ -169,6 +169,17 @@ module.exports = {
                 patterns: ['@open-keystone/fields*', '@open-condo/keystone/fields'],
             },
         ],
+        'no-restricted-syntax': [
+            'warn',
+            {
+                selector: 'ImportDeclaration[source.value="lodash"] > ImportSpecifier',
+                message: 'Use default import from "lodash/{method}" instead of named import from "lodash". Example: import set from "lodash/set"',
+            },
+            {
+                selector: 'VariableDeclarator[id.type="ObjectPattern"][init.type="CallExpression"][init.callee.name="require"][init.arguments.0.value="lodash"]',
+                message: 'Use require("lodash/{method}") instead of destructuring from require("lodash"). Example: const get = require("lodash/get")',
+            },
+        ],
         'import/order': [
             'error',
             {

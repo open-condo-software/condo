@@ -35,6 +35,7 @@ type UserHistoryRecord {
   customAccess: JSON
   showGlobalHints: Boolean
   rightsSet: String
+  isTwoFactorAuthenticationEnabled: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -247,6 +248,8 @@ input UserHistoryRecordWhereInput {
   rightsSet_not: String
   rightsSet_in: [String]
   rightsSet_not_in: [String]
+  isTwoFactorAuthenticationEnabled: Boolean
+  isTwoFactorAuthenticationEnabled_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -364,6 +367,8 @@ enum SortUserHistoryRecordsBy {
   locale_DESC
   showGlobalHints_ASC
   showGlobalHints_DESC
+  isTwoFactorAuthenticationEnabled_ASC
+  isTwoFactorAuthenticationEnabled_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -404,6 +409,7 @@ input UserHistoryRecordUpdateInput {
   customAccess: JSON
   showGlobalHints: Boolean
   rightsSet: String
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -445,6 +451,7 @@ input UserHistoryRecordCreateInput {
   customAccess: JSON
   showGlobalHints: Boolean
   rightsSet: String
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -631,6 +638,10 @@ type User {
   """ A set of permissions that allow the user to directly read or manage certain schemas as well as run certain mutations. 
   """
   rightsSet: UserRightsSet
+
+  """ If true then Two-factor authentication is enabled. Value can only be changed via "changeTwoFactorAuthentication" mutation. 
+  """
+  isTwoFactorAuthenticationEnabled: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -804,6 +815,8 @@ input UserWhereInput {
   showGlobalHints_not: Boolean
   rightsSet: UserRightsSetWhereInput
   rightsSet_is_null: Boolean
+  isTwoFactorAuthenticationEnabled: Boolean
+  isTwoFactorAuthenticationEnabled_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -901,6 +914,8 @@ enum SortUsersBy {
   showGlobalHints_DESC
   rightsSet_ASC
   rightsSet_DESC
+  isTwoFactorAuthenticationEnabled_ASC
+  isTwoFactorAuthenticationEnabled_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -941,6 +956,7 @@ input UserUpdateInput {
   customAccess: CustomAccessInput
   showGlobalHints: Boolean
   rightsSet: UserRightsSetRelateToOneInput
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -979,6 +995,7 @@ input UserCreateInput {
   customAccess: CustomAccessInput
   showGlobalHints: Boolean
   rightsSet: UserRightsSetRelateToOneInput
+  isTwoFactorAuthenticationEnabled: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3018,6 +3035,7 @@ type UserRightsSetHistoryRecord {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
   canManageUserHasMarketingConsentField: Boolean
@@ -3152,6 +3170,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
+  canManageTicketSentToAuthoritiesAtField_not: Boolean
   canReadUserEmailField: Boolean
   canReadUserEmailField_not: Boolean
   canReadUserPhoneField: Boolean
@@ -3339,6 +3359,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecute_allBillingReceiptsSum_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
+  canManageTicketSentToAuthoritiesAtField_ASC
+  canManageTicketSentToAuthoritiesAtField_DESC
   canReadUserEmailField_ASC
   canReadUserEmailField_DESC
   canReadUserPhoneField_ASC
@@ -3414,6 +3436,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
   canManageUserHasMarketingConsentField: Boolean
@@ -3486,6 +3509,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
   canManageUserHasMarketingConsentField: Boolean
@@ -3712,6 +3736,10 @@ type UserRightsSet {
   """
   canManageOrganizationIsApprovedField: Boolean
 
+  """ Enables a user with the given UserRightsSet to update "sentToAuthoritiesAt" field of model "Ticket" 
+  """
+  canManageTicketSentToAuthoritiesAtField: Boolean
+
   """ Enables a user with the given UserRightsSet to read "email" field of model "User" 
   """
   canReadUserEmailField: Boolean
@@ -3865,6 +3893,8 @@ input UserRightsSetWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
+  canManageTicketSentToAuthoritiesAtField_not: Boolean
   canReadUserEmailField: Boolean
   canReadUserEmailField_not: Boolean
   canReadUserPhoneField: Boolean
@@ -4032,6 +4062,8 @@ enum SortUserRightsSetsBy {
   canExecute_allBillingReceiptsSum_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
+  canManageTicketSentToAuthoritiesAtField_ASC
+  canManageTicketSentToAuthoritiesAtField_DESC
   canReadUserEmailField_ASC
   canReadUserEmailField_DESC
   canReadUserPhoneField_ASC
@@ -4107,6 +4139,7 @@ input UserRightsSetUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
   canManageUserHasMarketingConsentField: Boolean
@@ -4176,6 +4209,7 @@ input UserRightsSetCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
   canManageUserHasMarketingConsentField: Boolean
@@ -4447,6 +4481,7 @@ enum ResetUserLimitActionTypeType {
   checkUserExistence
   changeUserPassword
   changeOrVerifyUserEmail
+  ChangeTwoFactorAuthentication
 }
 
 """ A model for resetting user counters limit. To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset. 
@@ -4461,7 +4496,7 @@ type ResetUserLimitAction {
   """
   _label_: String
 
-  """ Type of limit to reset. Possible values: ["email", "sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence", "changeUserPassword", "changeOrVerifyUserEmail"] 
+  """ Type of limit to reset. Possible values: ["email", "sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence", "changeUserPassword", "changeOrVerifyUserEmail", "ChangeTwoFactorAuthentication"] 
   """
   type: ResetUserLimitActionTypeType
 
@@ -4474,7 +4509,8 @@ type ResetUserLimitAction {
   auth: ["ip", "uuid", "phone", "email"], 
   checkUserExistence: ["ip", "phone"], 
   changeUserPassword: ["ip"], 
-  changeOrVerifyUserEmail: ["ip", "uuid", "email"] 
+  changeOrVerifyUserEmail: ["ip", "uuid", "email"], 
+  ChangeTwoFactorAuthentication: ["ip", "uuid"] 
   """
   identifier: String
 
@@ -25313,6 +25349,7 @@ type TicketHistoryRecord {
   sourceMeta: JSON
   deferredUntil: String
   isCompletedAfterDeadline: Boolean
+  sentToAuthoritiesAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -25919,6 +25956,14 @@ input TicketHistoryRecordWhereInput {
   deferredUntil_not_in: [String]
   isCompletedAfterDeadline: Boolean
   isCompletedAfterDeadline_not: Boolean
+  sentToAuthoritiesAt: String
+  sentToAuthoritiesAt_not: String
+  sentToAuthoritiesAt_lt: String
+  sentToAuthoritiesAt_lte: String
+  sentToAuthoritiesAt_gt: String
+  sentToAuthoritiesAt_gte: String
+  sentToAuthoritiesAt_in: [String]
+  sentToAuthoritiesAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -26090,6 +26135,8 @@ enum SortTicketHistoryRecordsBy {
   deferredUntil_DESC
   isCompletedAfterDeadline_ASC
   isCompletedAfterDeadline_DESC
+  sentToAuthoritiesAt_ASC
+  sentToAuthoritiesAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -26173,6 +26220,7 @@ input TicketHistoryRecordUpdateInput {
   sourceMeta: JSON
   deferredUntil: String
   isCompletedAfterDeadline: Boolean
+  sentToAuthoritiesAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -26257,6 +26305,7 @@ input TicketHistoryRecordCreateInput {
   sourceMeta: JSON
   deferredUntil: String
   isCompletedAfterDeadline: Boolean
+  sentToAuthoritiesAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -26615,6 +26664,9 @@ type Ticket {
   """ (Auto-set) Used to filter tickets that were completed (,closed or cancelled) after the deadline.  
   """
   isCompletedAfterDeadline: Boolean
+
+  """ Date and time when the ticket was sent to the authorities """
+  sentToAuthoritiesAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -27121,6 +27173,14 @@ input TicketWhereInput {
   deferredUntil_not_in: [String]
   isCompletedAfterDeadline: Boolean
   isCompletedAfterDeadline_not: Boolean
+  sentToAuthoritiesAt: String
+  sentToAuthoritiesAt_not: String
+  sentToAuthoritiesAt_lt: String
+  sentToAuthoritiesAt_lte: String
+  sentToAuthoritiesAt_gt: String
+  sentToAuthoritiesAt_gte: String
+  sentToAuthoritiesAt_in: [String]
+  sentToAuthoritiesAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -27302,6 +27362,8 @@ enum SortTicketsBy {
   deferredUntil_DESC
   isCompletedAfterDeadline_ASC
   isCompletedAfterDeadline_DESC
+  sentToAuthoritiesAt_ASC
+  sentToAuthoritiesAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -27385,6 +27447,7 @@ input TicketUpdateInput {
   sourceMeta: JSON
   deferredUntil: String
   isCompletedAfterDeadline: Boolean
+  sentToAuthoritiesAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -27466,6 +27529,7 @@ input TicketCreateInput {
   sourceMeta: JSON
   deferredUntil: String
   isCompletedAfterDeadline: Boolean
+  sentToAuthoritiesAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -27500,6 +27564,7 @@ type TicketSourceHistoryRecord {
   organization: String
   type: String
   name: String
+  isDefault: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -27558,6 +27623,8 @@ input TicketSourceHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  isDefault: Boolean
+  isDefault_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -27645,6 +27712,8 @@ enum SortTicketSourceHistoryRecordsBy {
   type_DESC
   name_ASC
   name_DESC
+  isDefault_ASC
+  isDefault_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -27667,6 +27736,7 @@ input TicketSourceHistoryRecordUpdateInput {
   organization: String
   type: String
   name: String
+  isDefault: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -27690,6 +27760,7 @@ input TicketSourceHistoryRecordCreateInput {
   organization: String
   type: String
   name: String
+  isDefault: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -27744,6 +27815,9 @@ type TicketSource {
   """ Localized Ticket source name """
   name: String
   nameNonLocalized: String
+
+  """ (Read-only) Indicates whether a ticket source is default or custom. """
+  isDefault: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -27794,6 +27868,8 @@ input TicketSourceWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  isDefault: Boolean
+  isDefault_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -27863,6 +27939,8 @@ enum SortTicketSourcesBy {
   type_DESC
   name_ASC
   name_DESC
+  isDefault_ASC
+  isDefault_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -27885,6 +27963,7 @@ input TicketSourceUpdateInput {
   organization: OrganizationRelateToOneInput
   type: TicketSourceTypeType
   name: String
+  isDefault: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -27905,6 +27984,7 @@ input TicketSourceCreateInput {
   organization: OrganizationRelateToOneInput
   type: TicketSourceTypeType
   name: String
+  isDefault: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -29085,6 +29165,12 @@ type TicketChange {
   """ Date until which the ticket is deferred """
   deferredUntilTo: String
 
+  """ Date and time when the ticket was sent to the authorities """
+  sentToAuthoritiesAtFrom: String
+
+  """ Date and time when the ticket was sent to the authorities """
+  sentToAuthoritiesAtTo: String
+
   """ Old id of related entity. Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
   organizationIdFrom: ID
@@ -30004,6 +30090,22 @@ input TicketChangeWhereInput {
   deferredUntilTo_gte: String
   deferredUntilTo_in: [String]
   deferredUntilTo_not_in: [String]
+  sentToAuthoritiesAtFrom: String
+  sentToAuthoritiesAtFrom_not: String
+  sentToAuthoritiesAtFrom_lt: String
+  sentToAuthoritiesAtFrom_lte: String
+  sentToAuthoritiesAtFrom_gt: String
+  sentToAuthoritiesAtFrom_gte: String
+  sentToAuthoritiesAtFrom_in: [String]
+  sentToAuthoritiesAtFrom_not_in: [String]
+  sentToAuthoritiesAtTo: String
+  sentToAuthoritiesAtTo_not: String
+  sentToAuthoritiesAtTo_lt: String
+  sentToAuthoritiesAtTo_lte: String
+  sentToAuthoritiesAtTo_gt: String
+  sentToAuthoritiesAtTo_gte: String
+  sentToAuthoritiesAtTo_in: [String]
+  sentToAuthoritiesAtTo_not_in: [String]
   organizationIdFrom: ID
   organizationIdFrom_not: ID
   organizationIdFrom_in: [ID]
@@ -30633,6 +30735,10 @@ enum SortTicketChangesBy {
   deferredUntilFrom_DESC
   deferredUntilTo_ASC
   deferredUntilTo_DESC
+  sentToAuthoritiesAtFrom_ASC
+  sentToAuthoritiesAtFrom_DESC
+  sentToAuthoritiesAtTo_ASC
+  sentToAuthoritiesAtTo_DESC
   organizationIdFrom_ASC
   organizationIdFrom_DESC
   organizationIdTo_ASC
@@ -30807,6 +30913,8 @@ input TicketChangeUpdateInput {
   sourceMetaTo: JSON
   deferredUntilFrom: String
   deferredUntilTo: String
+  sentToAuthoritiesAtFrom: String
+  sentToAuthoritiesAtTo: String
   organizationIdFrom: ID
   organizationIdTo: ID
   organizationDisplayNameFrom: String
@@ -30938,6 +31046,8 @@ input TicketChangeCreateInput {
   sourceMetaTo: JSON
   deferredUntilFrom: String
   deferredUntilTo: String
+  sentToAuthoritiesAtFrom: String
+  sentToAuthoritiesAtTo: String
   organizationIdFrom: ID
   organizationIdTo: ID
   organizationDisplayNameFrom: String
@@ -44829,7 +44939,12 @@ type NotificationUserSetting {
   """
   _label_: String
 
-  """ The user the settings will apply for """
+  """
+  The user the settings will apply for. 
+  If null - settings are global. 
+  If not null - settings are user specific, which overrides global settings.
+  By default all notifications are enabled for all users.
+  """
   user: User
 
   """ Affected message type """
@@ -60369,6 +60484,13 @@ enum MultiPaymentStatusType {
   WITHDRAWN
 }
 
+type PayerInfo {
+  id: ID!
+  name: String
+  email: String
+  phone: String
+}
+
 input PaymentRelateToManyInput {
   create: [PaymentCreateInput]
   connect: [PaymentWhereUniqueInput]
@@ -60454,6 +60576,10 @@ type MultiPayment {
 
   """ Link to user """
   user: User
+
+  """ Personal information for service account about user, who made this payment 
+  """
+  payerInfo: PayerInfo
 
   """ Link to all related payments """
   payments(where: PaymentWhereInput, search: String, sortBy: [SortPaymentsBy!], orderBy: String, first: Int, skip: Int): [Payment!]!
@@ -69231,6 +69357,7 @@ enum B2BAppIconType {
   FloorParking
   Frown
   Globe
+  GripHorizontal
   Guide
   History
   Home
@@ -86545,6 +86672,17 @@ type VerifyUserEmailOutput {
   status: String!
 }
 
+input ChangeTwoFactorAuthenticationInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  token: String!
+  isEnabled: Boolean!
+}
+
+type ChangeTwoFactorAuthenticationOutput {
+  status: String!
+}
+
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
@@ -87104,7 +87242,7 @@ input SendMessageInput {
 
 type SendMessageOutput {
   status: String!
-  id: String!
+  id: String
   isDuplicateMessage: Boolean
 }
 
@@ -98862,6 +99000,73 @@ type Mutation {
   }`
   """
   verifyUserEmail(data: VerifyUserEmailInput!): VerifyUserEmailOutput
+
+  """
+  This mutation changes the "isTwoFactorAuthenticationEnabled" field in the "User" schema. 
+  To perform this operation, you must obtain and pass a sudo token.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_TOKEN",
+    "message": "Invalid token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNSUPPORTED_TOKEN",
+    "message": "Unsupported token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOKEN_NOT_FOUND",
+    "message": "Unable to find non-expired UserSudoToken by specified token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_NOT_FOUND",
+    "message": "User not found",
+    "messageForUser": "User not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "OPERATION_FAILED",
+    "message": "The operation failed",
+    "messageForUser": "Operation failed"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INSUFFICIENT_AUTHENTICATION_FACTORS",
+    "message": "Insufficient authentication factors. At least three must be specified. For example, password, verified phone and verified email.",
+    "messageForUser": "Insufficient authentication factors"
+  }`
+  """
+  changeTwoFactorAuthentication(data: ChangeTwoFactorAuthenticationInput!): ChangeTwoFactorAuthenticationOutput
 
   """
   Registers new Organization for current user

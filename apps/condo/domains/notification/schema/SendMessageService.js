@@ -2,7 +2,7 @@ const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getByCondition, find } = require('@open-condo/keystone/schema')
 
 const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
@@ -15,6 +15,8 @@ const {
     MESSAGE_DELIVERY_OPTIONS,
     MESSAGE_DELIVERY_DEFAULT_PRIORITY,
     MESSAGE_DELIVERY_PRIORITY_TO_TASK_QUEUE_MAP,
+    MESSAGE_DISABLED_BY_USER_STATUS,
+    DEFAULT_MESSAGE_DELIVERY_OPTIONS,
 } = require('@condo/domains/notification/constants/constants')
 const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { deliverMessage } = require('@condo/domains/notification/tasks')
@@ -149,7 +151,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'type SendMessageOutput { status: String!, id: String!, isDuplicateMessage: Boolean }',
+            type: 'type SendMessageOutput { status: String!, id: String, isDuplicateMessage: Boolean }',
         },
         {
             access: true,
@@ -191,8 +193,49 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 if (to.user) messageAttrs.user = { connect: to.user }
                 if (to.remoteClient) messageAttrs.remoteClient = { connect: to.remoteClient }
 
-                let messageWithSameUniqKey
+                // NOTE: Check user notification settings before creating Message.
+                // We don't create Message if user has disabled this notification type for all transports.
+                // This prevents creating unnecessary Message objects that won't be delivered anyway.
+                // Settings priority: user-specific settings override global settings (where user is null).
+                if (to.user) {
+                    const messageTransports = MESSAGE_DELIVERY_OPTIONS[type]?.defaultTransports ?? DEFAULT_MESSAGE_DELIVERY_OPTIONS.defaultTransports
+                    const messageSettings = await find('NotificationUserSetting', {
+                        OR: [
+                            { user: to.user },
+                            { user_is_null: true },
+                        ],
+                        messageTransport_in: messageTransports,
+                        messageType: type,
+                        deletedAt: null,
+                    })
+                    
+                    const globalSettings = messageSettings.filter((setting) => !setting.user)
+                    const userSettings = messageSettings.filter((setting) => setting.user)
+                    
+                    const transportEnabledMap = new Map()
+                    messageTransports.forEach(transport => {
+                        transportEnabledMap.set(transport, true)
+                    })
+                    globalSettings.forEach(setting => {
+                        transportEnabledMap.set(setting.messageTransport, setting.isEnabled)
+                    })
+                    userSettings.forEach(setting => {
+                        transportEnabledMap.set(setting.messageTransport, setting.isEnabled)
+                    })
+                    const allTransportsDisabled = Array.from(transportEnabledMap.values()).every(isEnabled => !isEnabled)
+                    
+                    if (allTransportsDisabled) {
+                        logger.info({ msg: 'Message disabled by user for all transports', data: { user: to.user?.id, type } })
+                            
+                        return {
+                            status: MESSAGE_DISABLED_BY_USER_STATUS,
+                            id: null,
+                            isDuplicateMessage: false,
+                        }
+                    }
+                }
 
+                let messageWithSameUniqKey
                 if (uniqKey) {
                     messageWithSameUniqKey = await getByCondition('Message', {
                         uniqKey,

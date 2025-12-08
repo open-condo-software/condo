@@ -47,7 +47,7 @@ const B2CAppPublishRequest = generateGQLTestUtils(B2CAppPublishRequestGQL)
 const FAKE_BUILD_ASSET_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/build.zip')
 const FAKE_B2C_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/logo.png')
 
-const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl filename } currentBuild { id } importId importRemoteSystem deletedAt v }'))
+const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl filename } currentBuild { id } importId importRemoteSystem deletedAt v oidcClient { id } }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl } importId importRemoteSystem }'))
 const CondoB2CAppProperty = generateGQLTestUtils(generateGqlQueries('B2CAppProperty', '{ id address }'))
 const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id clientId payload isEnabled name importId importRemoteSystem }'))

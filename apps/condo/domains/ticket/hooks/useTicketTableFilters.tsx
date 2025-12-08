@@ -32,7 +32,7 @@ import {
 import { searchOrganizationPropertyScope } from '@condo/domains/scope/utils/clientSchema/search'
 import { FEEDBACK_VALUES_BY_KEY } from '@condo/domains/ticket/constants/feedback'
 import { QUALITY_CONTROL_VALUES_BY_KEY } from '@condo/domains/ticket/constants/qualityControl'
-import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/sourceTypes'
+import { VISIBLE_TICKET_SOURCE_IDS } from '@condo/domains/ticket/constants/sources'
 import { TicketCategoryClassifier } from '@condo/domains/ticket/utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import {
@@ -186,6 +186,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const FavoriteTicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.favorite' })
 
     const { user } = useAuth()
+    const userOrganization = useOrganization()
+    const userOrganizationId = userOrganization?.organization?.id
+
     const { persistor } = useCachePersistor()
 
     const { data: statusesData } = useGetTicketStatusesQuery({ skip: !persistor })
@@ -193,12 +196,24 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const statusOptions = useMemo(() => convertToOptions(statuses, 'name', 'type'), [statuses])
 
     const { data: sourcesData } = useGetTicketSourcesQuery({
-        variables: {
-            types: VISIBLE_TICKET_SOURCE_TYPES,
-        },
         skip: !persistor,
+        variables: {
+            where: {
+                OR: [
+                    {
+                        id_in: VISIBLE_TICKET_SOURCE_IDS,
+                    },
+                    {
+                        isDefault: false,
+                    },
+                ],
+            },
+        },
     })
-    const sources = useMemo(() => sourcesData?.sources?.filter(Boolean) || [], [sourcesData?.sources])
+    const sources = useMemo(
+        () => sourcesData?.sources?.filter(Boolean) || [],
+        [sourcesData?.sources]
+    )
     const sourceOptions = useMemo(() => convertToOptions(sources, 'name', 'id'), [sources])
 
     const attributeOptions = useMemo(() => [
@@ -233,9 +248,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     ], [ResidentComment, OrganizationComment])
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = useMemo(() => convertToOptions(categoryClassifiers, 'name', 'id'), [categoryClassifiers])
-
-    const userOrganization = useOrganization()
-    const userOrganizationId = userOrganization?.organization?.id
 
     const ticketTypeOptions = useMemo(
         () => [

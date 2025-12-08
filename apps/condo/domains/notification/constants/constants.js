@@ -171,6 +171,8 @@ const APP_RESIDENT_ID_IOS = get(APP_IDS, [APP_RESIDENT_KEY, DEVICE_PLATFORM_IOS]
 const APP_MASTER_ID_ANDROID = get(APP_IDS, [APP_MASTER_KEY, DEVICE_PLATFORM_ANDROID]) || 'ai.doma.master'
 const APP_MASTER_ID_IOS = get(APP_IDS, [APP_MASTER_KEY, DEVICE_PLATFORM_IOS]) || 'ai.doma.master'
 
+const FIREBASE_DEFAULT_APP_ID = 'default'
+
 const HUAWEI_SUPPORTED_APP_NAMES = [APP_RESIDENT_ID_ANDROID, APP_RESIDENT_ID_IOS, APP_MASTER_ID_ANDROID]
 const HUAWEI_APP_TYPE_BY_APP_ID = {
     [APP_RESIDENT_ID_ANDROID]: APP_RESIDENT_KEY,
@@ -872,15 +874,15 @@ const MESSAGE_DELIVERY_OPTIONS = {
     [TICKET_CREATED_TYPE]: {
         ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
         strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
-        allowedTransports: [TELEGRAM_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT],
+        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
     [TICKET_COMMENT_CREATED_TYPE]: {
         ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
         strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
-        allowedTransports: [TELEGRAM_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT],
+        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
     [DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE]: {
@@ -1095,14 +1097,15 @@ const MESSAGE_DELIVERY_OPTIONS = {
         isAllowedToChangeDefaultTransport: false,
     },
     [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
-        allowedTransports: [TELEGRAM_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT],
+        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
         isAllowedToChangeDefaultTransport: false,
     },
     [PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE]: {
-        // TODO DOMA-12361 Add push transport
-        allowedTransports: [TELEGRAM_TRANSPORT],
-        defaultTransports: [TELEGRAM_TRANSPORT],
+        allowedTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT, PUSH_TRANSPORT],
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
         isAllowedToChangeDefaultTransport: false,
     },
 }
@@ -1258,5 +1261,6 @@ module.exports = {
     PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
     B2B_APP_MESSAGE_TYPES,
     VERIFY_USER_EMAIL_MESSAGE_TYPE,
+    FIREBASE_DEFAULT_APP_ID,
 }
 

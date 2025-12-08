@@ -38,6 +38,7 @@ const {
     createOIDCClientByTestClient,
     registerAppUserServiceByTestClient,
     createCondoB2CApp,
+    updateCondoB2CApp,
     createCondoB2CAppAccessRight,
     importB2CAppByTestClient,
 } = require('@dev-portal-api/domains/miniapp/utils/testSchema')
@@ -49,7 +50,7 @@ const {
     verifyEmailByTestClient,
 } = require('@dev-portal-api/domains/user/utils/testSchema')
 
-const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl } currentBuild { id } importId importRemoteSystem deletedAt v }'))
+const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl } currentBuild { id } importId importRemoteSystem deletedAt v oidcClient { id importId importRemoteSystem } }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version app { id } importId importRemoteSystem deletedAt }'))
 const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id deletedAt isEnabled clientId payload }'))
 const CondoB2CAppAccessRight = generateGQLTestUtils(generateGqlQueries('B2CAppAccessRight', '{ id user { id } app { id } importId importRemoteSystem v deletedAt }'))
@@ -475,6 +476,109 @@ describe('PublishB2CAppService', () => {
                 expect(condoClientAfter).toHaveProperty('deletedAt', null)
                 expect(condoClientAfter).toHaveProperty('clientId', condoClientBefore.clientId)
                 expect(condoClientAfter).toHaveProperty('payload', condoClientBefore.payload)
+            })
+            test('B2CApp must be linked to OIDC client if not linked before', async () => {
+                const [result] = await publishB2CAppByTestClient(user, app)
+                expect(result).toHaveProperty('success', true)
+
+                const exportField = `${DEV_ENVIRONMENT}ExportId`
+
+                const apiApp = await B2CApp.getOne(admin, { id: app.id })
+                expect(apiApp).toHaveProperty(exportField)
+                expect(apiApp[exportField]).not.toBeNull()
+
+
+                const condoAppAfter = await CondoB2CApp.getOne(condoAdmin, { id: apiApp[exportField] })
+                expect(condoAppAfter).toHaveProperty('oidcClient')
+                expect(condoAppAfter.oidcClient).toEqual(expect.objectContaining({
+                    id: oidcClient.id,
+                    importId: app.id,
+                    importRemoteSystem: REMOTE_SYSTEM,
+                }))
+            })
+            test('B2CApp.oidcClient must not be set, if already manually linked', async () => {
+                const [anotherApp] = await createTestB2CApp(user)
+                const [result] = await publishB2CAppByTestClient(user, anotherApp)
+                expect(result).toHaveProperty('success', true)
+
+                const exportField = `${DEV_ENVIRONMENT}ExportId`
+
+                const apiApp = await B2CApp.getOne(admin, { id: anotherApp.id })
+                expect(apiApp).toHaveProperty(exportField)
+                expect(apiApp[exportField]).not.toBeNull()
+
+                const condoAppId = apiApp[exportField]
+
+                const condoAppBefore = await CondoB2CApp.getOne(condoAdmin, { id: condoAppId })
+                expect(condoAppBefore).toHaveProperty('oidcClient', null)
+
+                const [updatedCondoApp] = await updateCondoB2CApp(condoAdmin, { id: condoAppId }, {
+                    oidcClient: { connect: { id: oidcClient.id } },
+                })
+
+                expect(updatedCondoApp).toHaveProperty(['oidcClient', 'id'], oidcClient.id)
+
+                const [apiClient] = await createOIDCClientByTestClient(user, anotherApp)
+                expect(apiClient).toHaveProperty('id')
+
+                const [secondResult] = await publishB2CAppByTestClient(user, anotherApp)
+                expect(secondResult).toHaveProperty('success', true)
+
+                const updatedCondoAppAfter = await CondoB2CApp.getOne(condoAdmin, { id: condoAppId })
+                expect(updatedCondoAppAfter).toHaveProperty(['oidcClient', 'id'], oidcClient.id)
+
+            })
+            test('B2CApp.oidcClient can be overwritten if linked client is deleted', async () => {
+                const [anotherApp] = await createTestB2CApp(user)
+                const [result] = await publishB2CAppByTestClient(user, anotherApp)
+                expect(result).toHaveProperty('success', true)
+
+                const exportField = `${DEV_ENVIRONMENT}ExportId`
+
+                const apiApp = await B2CApp.getOne(admin, { id: anotherApp.id })
+                expect(apiApp).toHaveProperty(exportField)
+                expect(apiApp[exportField]).not.toBeNull()
+
+                const condoAppId = apiApp[exportField]
+
+                const condoAppBefore = await CondoB2CApp.getOne(condoAdmin, { id: condoAppId })
+                expect(condoAppBefore).toHaveProperty('oidcClient', null)
+
+                const [updatedCondoApp] = await updateCondoB2CApp(condoAdmin, { id: condoAppId }, {
+                    oidcClient: { connect: { id: oidcClient.id } },
+                })
+
+                expect(updatedCondoApp).toHaveProperty(['oidcClient', 'id'], oidcClient.id)
+
+                await CondoOIDCClient.update(condoAdmin, oidcClient.id, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    deletedAt: dayjs().toISOString(),
+                })
+
+                const [apiClient] = await createOIDCClientByTestClient(user, anotherApp)
+                expect(apiClient).toHaveProperty('id')
+
+                const [secondResult] = await publishB2CAppByTestClient(user, anotherApp)
+                expect(secondResult).toHaveProperty('success', true)
+
+                const updatedCondoAppAfter = await CondoB2CApp.getOne(condoAdmin, { id: condoAppId })
+                expect(updatedCondoAppAfter).toHaveProperty(['oidcClient', 'id'], apiClient.id)
+            })
+            test('B2CApp remains linked to same OIDC client after multiple publishes', async () => {
+                const [firstResult] = await publishB2CAppByTestClient(user, app, { info: true })
+                expect(firstResult).toHaveProperty('success', true)
+
+                const apiApp = await B2CApp.getOne(admin, { id: app.id })
+                const condoAppAfterFirst = await CondoB2CApp.getOne(condoAdmin, { id: apiApp.developmentExportId })
+                expect(condoAppAfterFirst.oidcClient.id).toBe(oidcClient.id)
+
+                // Second publish should keep the same OIDC client link
+                const [secondResult] = await publishB2CAppByTestClient(user, app)
+                expect(secondResult).toHaveProperty('success', true)
+
+                const condoAppAfterSecond = await CondoB2CApp.getOne(condoAdmin, { id: apiApp.developmentExportId })
+                expect(condoAppAfterSecond.oidcClient.id).toBe(oidcClient.id)
             })
         })
         describe('B2CAppAccessRight', () => {

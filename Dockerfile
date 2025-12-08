@@ -1,7 +1,7 @@
 ARG REGISTRY=docker.io
 
-FROM ${REGISTRY}/python:3.13-slim-bookworm AS python
-FROM ${REGISTRY}/node:22-bookworm-slim AS node
+FROM ${REGISTRY}/python:3.14-slim-bookworm AS python
+FROM ${REGISTRY}/node:24-bookworm-slim AS node
 
 FROM ${REGISTRY}/buildpack-deps:bookworm AS base
 

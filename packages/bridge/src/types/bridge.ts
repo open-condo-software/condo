@@ -35,7 +35,8 @@ export type WebBridge = {
 
 export type PromisifiedSendType = <Method extends AnyRequestMethodName>(
     method: Method,
-    params?: RequestParams<Method> & RequestId
+    params?: RequestParams<Method> & RequestId,
+    timeout?: number
 ) => Promise<Method extends AnyResponseMethodName ? ResultResponseData<Method> : void>
 
 export interface CondoBridge {

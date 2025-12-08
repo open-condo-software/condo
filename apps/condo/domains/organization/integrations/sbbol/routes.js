@@ -88,7 +88,15 @@ class SbbolRoutes {
                 user,
                 organization,
                 organizationEmployee,
-            } = await sync({ keystone, userInfo, tokenSet, reqId, features, useExtendedConfig })
+            } = await sync({ 
+                keystone,
+                userInfo,
+                tokenSet,
+                authedUser: req.user,
+                reqId,
+                features,
+                useExtendedConfig,
+            })
             await keystone._sessionManager.startAuthedSession(req, {
                 item: { id: user.id },
                 list: keystone.lists['User'],

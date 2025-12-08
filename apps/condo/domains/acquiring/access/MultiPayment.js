@@ -6,7 +6,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { checkAcquiringIntegrationAccessRights } = require(
     '@condo/domains/acquiring/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 async function canReadMultiPayments ({ authentication: { item: user } }) {
@@ -45,6 +45,13 @@ async function canReadMultiPaymentsSensitiveData ({ authentication: { item: user
     return !!(await checkAcquiringIntegrationAccessRights(user.id, [existingItem.integration]))
 }
 
+async function canReadPayerInfoField ({ authentication: { item: user }, existingItem }) {
+    if (!user || user.deletedAt) return false
+    if (user.isAdmin) return true
+    if (user.type !== SERVICE) return false
+
+    return !!(await checkAcquiringIntegrationAccessRights(user.id, [existingItem.integration]))
+}
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -53,4 +60,5 @@ module.exports = {
     canReadMultiPayments,
     canManageMultiPayments,
     canReadMultiPaymentsSensitiveData,
+    canReadPayerInfoField,
 }

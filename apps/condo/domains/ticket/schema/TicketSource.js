@@ -1,8 +1,10 @@
+const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { TICKET_SOURCE_TYPES } = require('@condo/domains/ticket/constants/common')
+
 
 const READ_ONLY_ACCESS = {
     read: true,
@@ -28,6 +30,15 @@ const TicketSource = new GQLListSchema('TicketSource', {
             type: 'LocalizedText',
             isRequired: true,
             template: 'ticket.source.*.name',
+        },
+
+        isDefault: {
+            schemaDoc: '(Read-only) Indicates whether a ticket source is default or custom.',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+            kmigratorOptions: { default: false },
+            access: readOnlyFieldAccess,
         },
 
     },

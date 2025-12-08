@@ -5,7 +5,6 @@
 const { get, isEmpty, isUndefined, isNull } = require('lodash')
 const { z } = require('zod')
 
-const userAccess = require('@open-condo/keystone/access')
 const { GQLError } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -356,6 +355,15 @@ const User = new GQLListSchema('User', {
             knexOptions: { isNotNullable: false }, // Required relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             access: access.canAccessRightsSet,
+        },
+
+        isTwoFactorAuthenticationEnabled: {
+            schemaDoc: 'If true then Two-factor authentication is enabled. Value can only be changed via "changeTwoFactorAuthentication" mutation.',
+            type: 'Checkbox',
+            isRequired: false,
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+            access: access.canAccessIsTwoFactorAuthenticationEnabledField,
         },
     },
     kmigratorOptions: {

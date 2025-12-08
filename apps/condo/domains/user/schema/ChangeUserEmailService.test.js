@@ -133,7 +133,7 @@ describe('ChangeUserEmailService', () => {
             expect(updatedUser.isEmailVerified).toBeFalsy()
         })
 
-        test('Should be marked ConfirmEmailAction as used after operation', async () => {
+        test('Should be marked sudo token as used after operation', async () => {
             const staffClient = await makeClientWithStaffUser()
             const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
                 captcha: getCaptcha(),

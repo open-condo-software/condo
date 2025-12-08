@@ -400,6 +400,18 @@ query getTicketsWithSamePropertyAndClassifierExistence ($propertyId: ID!, $place
     }
 }
 
+query checkTicketExistenceWithSourceAndOrganization ($sourceId: ID!, $organizationIds: [ID!]) {
+    tickets: allTickets(
+        where: {
+            organization: { id_in: $organizationIds },
+            source: { id: $sourceId },
+        },
+        first: 1,
+    ) {
+        id
+    }
+}
+
 mutation createTicket ($data: TicketCreateInput!) {
     ticket: createTicket(data: $data) {
         id
