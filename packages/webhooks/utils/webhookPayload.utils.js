@@ -74,7 +74,7 @@ async function trySendWebhookPayload (webhookPayload) {
                 'Content-Type': 'application/json',
                 'X-Webhook-Signature': signature,
                 'X-Webhook-Event': eventType || 'unknown',
-                'X-Webhook-Delivery-Id': webhookPayload.id,
+                'X-Webhook-Id': webhookPayload.id,
             },
             body,
             abortRequestTimeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,

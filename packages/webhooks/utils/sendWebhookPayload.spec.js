@@ -58,7 +58,7 @@ describe('sendWebhookPayload utility', () => {
                 expect.objectContaining({
                     dv: 1,
                     url: options.url,
-                    payload: options.payload,
+                    payload: JSON.stringify(options.payload), // payload is stringified for EncryptedText
                     secret: options.secret,
                     eventType: options.eventType,
                 })

@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const {
@@ -9,34 +10,56 @@ const {
     WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH,
 } = require('@open-condo/webhooks/constants')
 const access = require('@open-condo/webhooks/schema/access/WebhookPayload')
+const { encryptionManager } = require('@open-condo/webhooks/utils/encryption')
+const { validateEventType } = require('@open-condo/webhooks/utils/validation')
 
+const ERRORS = {
+    INVALID_EVENT_TYPE: {
+        code: BAD_USER_INPUT,
+        type: 'INVALID_EVENT_TYPE',
+        message: 'Invalid event type format',
+    },
+}
 
 const WebhookPayload = new GQLListSchema('WebhookPayload', {
-    schemaDoc: 'Stores webhook payloads for delivery. Contains ready-to-send payload, URL, and secret. Tracks delivery status, retries, and responses from external servers.',
+    schemaDoc: 'Stores webhook payloads for sending. Contains ready-to-send payload, URL, and secret. Tracks sending status, retries, and responses from external servers.',
     fields: {
 
-        payload: {
-            schemaDoc: 'Ready-to-send JSON payload for the webhook',
-            type: 'Json',
-            isRequired: true,
-        },
-
         url: {
-            schemaDoc: 'Target URL for webhook delivery',
+            schemaDoc: 'Target URL for sending webhook',
             type: 'Url',
             isRequired: true,
         },
 
+        payload: {
+            schemaDoc: 'Ready-to-send JSON payload for the webhook. Encrypted at rest for security.',
+            type: 'EncryptedText',
+            encryptionManager,
+            isRequired: true,
+        },
+
         secret: {
-            schemaDoc: 'Secret key for HMAC-SHA256 signature generation',
-            type: 'Text',
+            schemaDoc: 'Secret key for HMAC-SHA256 signature generation. Encrypted at rest for security.',
+            type: 'EncryptedText',
+            encryptionManager,
             isRequired: true,
         },
 
         eventType: {
-            schemaDoc: 'Type of event that triggered this webhook (e.g., "payment.status.changed")',
+            schemaDoc: 'Type of event that triggered this webhook. Use dot-notation format: "{resource}.{action}" or "{resource}.{sub-resource}.{action}". Examples: "payment.created", "payment.status.changed", "invoice.paid", "user.deleted". Use lowercase with dots as separators.',
             type: 'Text',
             isRequired: true,
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, context }) => {
+                    const value = resolvedData[fieldPath]
+                    if (value) {
+                        const { isValid, error } = validateEventType(value)
+                        if (!isValid) {
+                            throw new GQLError({ ...ERRORS.INVALID_EVENT_TYPE, message: error }, context)
+                        }
+                    }
+                },
+            },
         },
 
         modelName: {
@@ -52,7 +75,7 @@ const WebhookPayload = new GQLListSchema('WebhookPayload', {
         },
 
         status: {
-            schemaDoc: 'Delivery status: pending (waiting for delivery/retry), success (delivered successfully), failed (permanently failed after TTL expired)',
+            schemaDoc: 'Sending status: pending (waiting to send/retry), success (sent successfully), failed (permanently failed after TTL expired)',
             type: 'Select',
             dataType: 'string',
             options: WEBHOOK_PAYLOAD_STATUSES,
@@ -61,32 +84,32 @@ const WebhookPayload = new GQLListSchema('WebhookPayload', {
         },
 
         attempt: {
-            schemaDoc: 'Number of delivery attempts made (starts at 0)',
+            schemaDoc: 'Number of send attempts made (starts at 0)',
             type: 'Integer',
             defaultValue: 0,
             isRequired: true,
         },
 
         lastHttpStatusCode: {
-            schemaDoc: 'HTTP status code from the last delivery attempt',
+            schemaDoc: 'HTTP status code from the last send attempt',
             type: 'Integer',
             isRequired: false,
         },
 
         lastResponseBody: {
-            schemaDoc: `Response body from the last delivery attempt (truncated to ${WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH} chars)`,
+            schemaDoc: `Response body from the last send attempt (truncated to ${WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH} chars)`,
             type: 'Text',
             isRequired: false,
         },
 
         lastErrorMessage: {
-            schemaDoc: 'Error message from the last delivery attempt',
+            schemaDoc: 'Error message from the last send attempt',
             type: 'Text',
             isRequired: false,
         },
 
         expiresAt: {
-            schemaDoc: 'Timestamp after which no more delivery attempts will be made',
+            schemaDoc: 'Timestamp after which no more send attempts will be made',
             type: 'DateTimeUtc',
             isRequired: true,
             hooks: {
@@ -100,7 +123,7 @@ const WebhookPayload = new GQLListSchema('WebhookPayload', {
         },
 
         nextRetryAt: {
-            schemaDoc: 'Timestamp for the next delivery attempt',
+            schemaDoc: 'Timestamp for the next send attempt',
             type: 'DateTimeUtc',
             isRequired: true,
             hooks: {
@@ -114,7 +137,7 @@ const WebhookPayload = new GQLListSchema('WebhookPayload', {
         },
 
         lastSentAt: {
-            schemaDoc: 'Timestamp of the last delivery attempt',
+            schemaDoc: 'Timestamp of the last send attempt',
             type: 'DateTimeUtc',
             isRequired: false,
         },
