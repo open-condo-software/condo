@@ -372,7 +372,7 @@ async function createWorker (keystoneModule, config, processWrapper = undefined)
 
     // we needed to prepare keystone to use it inside tasks logic!
     if (keystoneModule) {
-        await prepareKeystoneExpressApp(keystoneModule)
+        await prepareKeystoneExpressApp(keystoneModule, { excludeApps: ['NextApp', 'AdminUIApp'] })
     } else {
         createTaskQueue(DEFAULT_QUEUE_NAME)
         logger.warn('Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!')
