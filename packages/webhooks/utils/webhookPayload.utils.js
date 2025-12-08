@@ -1,4 +1,5 @@
-const crypto = require('crypto')
+const crypto = require('node:crypto')
+const { randomUUID } = require('node:crypto')
 
 const dayjs = require('dayjs')
 
@@ -45,9 +46,10 @@ function calculateNextRetryAt (attempt) {
  */
 async function trySendWebhookPayload (webhookPayload) {
     const { url, payload, secret, eventType } = webhookPayload
+    const reqId = randomUUID()
 
     if (!url || !payload || !secret) {
-        logger.error({ msg: 'Missing required payload fields', data: { payloadId: webhookPayload.id, hasUrl: !!url, hasPayload: !!payload, hasSecret: !!secret } })
+        logger.error({ msg: 'Missing required payload fields', reqId, data: { payloadId: webhookPayload.id, hasUrl: !!url, hasPayload: !!payload, hasSecret: !!secret } })
         return {
             success: false,
             error: 'Missing required payload fields (url, payload, or secret)',
@@ -60,6 +62,7 @@ async function trySendWebhookPayload (webhookPayload) {
     try {
         logger.info({
             msg: 'Sending webhook payload',
+            reqId,
             data: {
                 payloadId: webhookPayload.id,
                 url,
@@ -89,13 +92,14 @@ async function trySendWebhookPayload (webhookPayload) {
                 responseBody = responseBody.substring(0, WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH)
             }
         } catch (e) {
-            responseBody = '[Could not read response body]'
+            responseBody = `[Could not read response body: ${e.message || String(e)}]`
         }
 
         // Determine success (2xx status codes)
         if (response.ok) {
             logger.info({
                 msg: 'Webhook payload delivered successfully',
+                reqId,
                 data: {
                     payloadId: webhookPayload.id,
                     statusCode: response.status,
@@ -109,6 +113,7 @@ async function trySendWebhookPayload (webhookPayload) {
         } else {
             logger.warn({
                 msg: 'Webhook payload delivery failed with HTTP error',
+                reqId,
                 data: {
                     payloadId: webhookPayload.id,
                     statusCode: response.status,
@@ -128,6 +133,7 @@ async function trySendWebhookPayload (webhookPayload) {
         if (isTimeout) {
             logger.warn({
                 msg: 'Webhook payload delivery timed out',
+                reqId,
                 data: {
                     payloadId: webhookPayload.id,
                     timeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,
@@ -141,6 +147,7 @@ async function trySendWebhookPayload (webhookPayload) {
 
         logger.error({
             msg: 'Webhook payload delivery failed with network error',
+            reqId,
             data: { payloadId: webhookPayload.id },
             err,
         })
