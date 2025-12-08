@@ -30,6 +30,7 @@ import type {
     FilterComponent,
     TableColumnMeta,
     ColumnDefWithId,
+    FullTableState,
 } from '@open-condo/ui/src/components/Table/types'
 import '@open-condo/ui/src/components/Table/types'
 import { getFilterComponentByKey } from '@open-condo/ui/src/components/Table/utils/filterComponents'
@@ -88,7 +89,7 @@ function TableComponent<TData extends RowData = RowData> (
         columnLabels = {},
         onRowClick,
         rowSelectionOptions,
-        onGridReady,
+        onTableReady,
         getRowId,
     } = props
 
@@ -238,6 +239,15 @@ function TableComponent<TData extends RowData = RowData> (
                     return acc
                 }, {} as FilterState)
 
+                console.log('onTableStateChange in table', {
+                    startRow,
+                    endRow,
+                    filterState,
+                    sortState: sorting,
+                    globalFilter,
+                    rowSelectionState: Object.keys(rowSelection),
+                })
+
                 onTableStateChange({
                     startRow,
                     endRow,
@@ -362,7 +372,7 @@ function TableComponent<TData extends RowData = RowData> (
         },
     })
 
-    const stableOnGridReady = useRef<((tableRef: TableRef) => void) | undefined>(onGridReady)
+    const stableOnGridReady = useRef<((tableRef: TableRef) => void) | undefined>(onTableReady)
 
     useEffect(() => {
         if (stableOnGridReady.current && ref && 'current' in ref && ref.current) {
@@ -424,12 +434,32 @@ function TableComponent<TData extends RowData = RowData> (
             refetchData: async () => {
                 await fetchData(true)
             },
+            getFullTableState: () => ({
+                startRow: table.getState().pagination.pageIndex * table.getState().pagination.pageSize,
+                filterState: table.getState().columnFilters.reduce((acc, filter) => {
+                    acc[filter.id] = filter.value
+                    return acc
+                }, {} as FilterState),
+                sortState: table.getState().sorting,
+                rowSelectionState: table.getSelectedRowModel().flatRows.map(row => row.id),
+                globalFilter: table.getState().globalFilter,
+            }),
+            setFullTableState: (tableState: FullTableState) => {
+                setPagination({ pageIndex: getPageIndexFromStartRow(tableState.startRow, pageSize), pageSize: pageSize })
+                setColumnFilters(Object.entries(tableState.filterState).map(([key, value]) => ({ id: key, value: value })))
+                setSorting(tableState.sortState)
+                setGlobalFilter(tableState.globalFilter)
+                setRowSelection(tableState.rowSelectionState.reduce((acc, selectedRow) => {
+                    acc[selectedRow] = true
+                    return acc
+                }, {} as RowSelectionState))
+            },
         }
 
         const tableRef = { api }
 
         return tableRef
-    }, [table, fetchData])
+    }, [table, fetchData, pageSize])
 
     const tableContainerRef = useRef<HTMLDivElement>(null)
 

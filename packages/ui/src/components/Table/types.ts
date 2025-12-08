@@ -129,6 +129,8 @@ export type TableApi = {
     getSorting: () => SortState
     getRowSelection: () => string[]
     resetRowSelection: () => void
+    getFullTableState: () => FullTableState
+    setFullTableState: (tableState: FullTableState) => void
 }
 
 export type TableRef = { api: TableApi }
@@ -148,7 +150,7 @@ export interface TableProps<TData extends RowData = RowData> {
     columnLabels?: TableLabels
     onRowClick?: (record: TData) => void
     rowSelectionOptions?: RowSelectionOptions
-    onGridReady?: (tableRef: TableRef) => void
+    onTableReady?: (tableRef: TableRef) => void
 }
 
 declare module '@tanstack/react-table' {

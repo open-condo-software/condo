@@ -1,6 +1,7 @@
 import { Row, Col } from 'antd'
 import Head from 'next/head'
-import React from 'react'
+import { useRouter } from 'next/router'
+import React, { useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
@@ -14,6 +15,16 @@ import { ContactsReadAndManagePermissionRequired } from '@condo/domains/contact/
 const CreateContactPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'contact.AddContact' })
+
+    const router = useRouter()
+
+    useEffect(() => {
+        console.log('🟢 CreateContactPage mounted/updated', {
+            pathname: router.pathname,
+            asPath: router.asPath,
+            route: router.route,
+        })
+    }, [router.pathname, router.asPath, router.route])
 
     return (
         <>

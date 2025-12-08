@@ -171,7 +171,7 @@ const isValidFilterValue = (value: unknown): boolean => {
 }
 
 const normalizeFilters = (filterState: FilterState | undefined, globalFilter: string | undefined): FiltersFromQueryType | null => {
-    if (!filterState || Object.keys(filterState).length === 0) {
+    if ((!filterState || Object.keys(filterState).length === 0) && !globalFilter) {
         return null
     }
     

@@ -153,6 +153,10 @@ const getTableData: GetTableData<TableData> = (tableState) => {
                         }
                     }
                 })
+            } else if (typeof tableState.globalFilter === 'string' && tableState.globalFilter.trim() !== '') {
+                data.forEach(item => {
+                    item.firstName === tableState.globalFilter && resultData.push(item)
+                })
             } else {
                 data.forEach(item => {
                     resultData.push(item)
@@ -216,6 +220,7 @@ const Template: StoryObj<TableProps<TableData>>['render'] = (args: TableProps<Ta
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <Input type='text' placeholder='Search' onChange={(e) => {
+                console.log(tableRef.current?.api.getGlobalFilter())
                 tableRef.current?.api.setGlobalFilter(e.target.value)
             }} />
             <Table

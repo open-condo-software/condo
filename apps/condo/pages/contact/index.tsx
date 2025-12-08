@@ -88,6 +88,8 @@ type ContactPageContentProps = {
     tableRef: React.RefObject<TableRef | null>
     role?: Pick<OrganizationEmployeeRole, 'canManageContacts'>
     loading?: boolean
+    search: string
+    handleSearchChange: (search: string) => void
 }
 
 
@@ -399,6 +401,8 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
     role,
     tableRef,
     tableColumns,
+    search,
+    handleSearchChange,
 }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -409,8 +413,43 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
     const { filtersToWhere, sortersToSortBy } = useNewQueryMappers(filterMeta)
     const canManageContacts = role?.canManageContacts ?? false
 
-    const [fetchContacts, { refetch }] = useGetContactsForTableLazyQuery()
+    const [fetchContacts] = useGetContactsForTableLazyQuery()
     const initialTableState = useMemo(() => defaultParseUrlQuery(router.query, CONTACT_PAGE_SIZE), [router.query])
+
+    useEffect(() => {
+        console.log('🔵 ContactsPage mounted/updated', {
+            pathname: router.pathname,
+            asPath: router.asPath,
+            route: router.route,
+        })
+    }, [router.pathname, router.asPath, router.route])
+
+    useEffect(() => {
+        const handleRouteChangeComplete = (url: string) => {
+            // Извлекаем pathname из URL (убираем query параметры)
+            const pathname = url.split('?')[0]
+            // Проверяем, что мы на странице /contact (не /contact/create или /contact/[id])
+            if (pathname === '/contact' || pathname === '/contact/') {
+                if (tableRef.current) {
+                    const fullTableState = defaultParseUrlQuery(router.query, CONTACT_PAGE_SIZE)
+                    tableRef.current.api?.setFullTableState(fullTableState)
+                    handleSearchChange(String(fullTableState.globalFilter || ''))
+                }
+            }
+        }
+        
+        router.events.on('routeChangeComplete', handleRouteChangeComplete)
+        
+        return () => {
+            router.events.off('routeChangeComplete', handleRouteChangeComplete)
+        }
+    }, [router.events, tableRef, router.query, handleSearchChange])
+
+    useEffect(() => {
+        if (tableRef.current) {
+            tableRef.current.api?.refetchData()
+        }
+    }, [baseSearchQuery, tableRef])
 
     const getContactsWhere = useCallback((filterState: FilterState) => {
         if (!filterState) {
@@ -431,7 +470,13 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         return sortersToSortBy(sortState) as SortContactsBy[]
     }, [sortersToSortBy])
 
-    const dataSource: GetTableData<GetContactsForTableQuery['contacts'][number]> = useCallback(async ({ filterState, sortState, startRow, endRow, globalFilter }, isRefetch) => {
+    const dataSource: GetTableData<GetContactsForTableQuery['contacts'][number]> = useCallback(async ({ 
+        filterState, 
+        sortState, 
+        startRow, 
+        endRow, 
+        globalFilter,
+    }, isRefetch) => {
         const sortBy = getContactsSortBy(sortState)
         const where = {
             ...baseSearchQuery,
@@ -440,35 +485,22 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         const skip = startRow
         const first = endRow - startRow
 
-        if (isRefetch) {
-            const { data: { contacts, meta: { count } } } = await refetch({
-                sortBy,
-                where,
-                first,
-                skip,
-            })
-            return {
-                rowData: contacts?.filter(Boolean) ?? [],
-                rowCount: count,
-            }
+        const payload = {
+            sortBy,
+            where,
+            first,
+            skip,
         }
 
+        // Всегда используем fetchContacts, но с разными fetchPolicy в зависимости от isRefetch
         const { data: { contacts, meta: { count } } } = await fetchContacts({
-            variables: {
-                sortBy,
-                where,
-                first,
-                skip,
-            },
+            variables: payload,
+            fetchPolicy: isRefetch ? 'network-only' : 'cache-first',
+            nextFetchPolicy: 'cache-first',
         })
-
-        return {
-            rowData: contacts?.filter(Boolean) ?? [],
-            rowCount: count,
-        }
-    }, [fetchContacts, refetch, filtersToWhere, baseSearchQuery, getContactsSortBy])
-
-    const [search, handleSearchChange] = useNewSearch(tableRef.current)
+        
+        return { rowData: contacts?.filter(Boolean) ?? [], rowCount: count }
+    }, [fetchContacts, filtersToWhere, baseSearchQuery, getContactsSortBy])
 
     const menuLabels = useMemo(() => ({
         sortDescLabel: intl.formatMessage({ id: 'Table.Sort' }),
@@ -478,7 +510,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         sortedDescLabel: intl.formatMessage({ id: 'Table.Sorted' }),
         sortedAscLabel: intl.formatMessage({ id: 'Table.Sorted' }),
         filteredLabel: intl.formatMessage({ id: 'Table.Filtered' }),
-        noData: intl.formatMessage({ id: 'Table.NoData' }),
+        noDataLabel: intl.formatMessage({ id: 'Table.NoData' }),
         defaultSettingsLabel: intl.formatMessage({ id: 'Table.DefaultSettingsLabel' }),
         resetFilterLabel: intl.formatMessage({ id: 'Table.ResetFilter' }),
     }), [intl])
@@ -496,7 +528,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
 
     const getRowId = useCallback((row: GetContactsForTableQuery['contacts'][number]) => row.id, [])
 
-    const onGridReady = useCallback((tableRef: TableRef) => {
+    const onTableReady = useCallback((tableRef: TableRef) => {
         handleSearchChange(String(tableRef.api.getGlobalFilter() || ''))
         setSelectedRowsCount(tableRef.api.getRowSelection().length)
     }, [handleSearchChange])
@@ -528,7 +560,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
                     columnLabels={menuLabels}
                     rowSelectionOptions={rowSelectionOptions}
                     getRowId={getRowId}
-                    onGridReady={onGridReady}
+                    onTableReady={onTableReady}
                     ref={tableRef}
                 />
             </Col>
@@ -638,17 +670,12 @@ const ContactsPage: PageComponentType = () => {
     // const employeeId = useMemo(() => employee?.id, [employee?.id])
 
     const tableRef = useRef<TableRef | null>(null)
-    const tableColumns = useTableColumns(filterMeta, tableRef.current)
+    const [search, handleSearchChange] = useNewSearch(tableRef.current)
+    const tableColumns = useTableColumns(filterMeta, search)
 
     const baseSearchQuery: ContactBaseSearchQuery = useMemo(() => ({
         organization: { id: userOrganizationId },
     }), [userOrganizationId])
-
-    useEffect(() => {
-        if (tableRef.current) {
-            tableRef.current.api?.refetchData()
-        }
-    }, [baseSearchQuery])
 
     // usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
@@ -660,6 +687,8 @@ const ContactsPage: PageComponentType = () => {
             filterMeta={filterMeta}
             tableColumns={tableColumns}
             tableRef={tableRef}
+            search={search}
+            handleSearchChange={handleSearchChange}
         />
     )
 }

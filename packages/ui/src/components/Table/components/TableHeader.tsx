@@ -138,7 +138,8 @@ function FilterMenuDropdown <TData> ({
         debouncedConfirm()
     }, [debouncedConfirm])
 
-    const handleClear = useCallback(() => {
+    const handleClear = useCallback((e: React.MouseEvent) => {
+        e?.stopPropagation()
         clearFilters()
         confirm({ closeDropdown: true })
     }, [clearFilters, confirm])
@@ -155,12 +156,12 @@ function FilterMenuDropdown <TData> ({
                 setShowResetButton={setShowResetButton}
             />}
             <ResetButton
-                onClick={handleClear}
+                onClick={clearFilters}
                 resetLabel={columnLabels.resetFilterLabel || 'Reset Filter'}
                 showResetButton={showResetButton}
             />
         </div>
-    ), [FilterComponent, tempValue, setTempValue, confirm, handleClear, columnLabels, showResetButton, clearFilters])
+    ), [FilterComponent, tempValue, setTempValue, confirm, columnLabels, showResetButton, clearFilters])
 
 
     return (
@@ -173,24 +174,24 @@ function FilterMenuDropdown <TData> ({
             onOpenChange={setOpen}
             dropdownRender={dropdownRender}
         >
-            {
-                header.column.getIsFiltered() ? (
-                    <div className='condo-dropdown-menu-item-inner'>
-                        <div className='condo-dropdown-menu-item-inner-left condo-dropdown-menu-item-inner-left-active'>
-                            <Filter size='small' className='condo-table-icon condo-table-icon-green'/>
-                            {columnLabels?.filteredLabel || 'Filtered'}
-                        </div>
-                        <Close size='small' onClick={clearFilters} className='condo-table-icon condo-table-icon-black'/>
-                    </div>
-                ) : (
-                    <div className='condo-dropdown-menu-item-inner'>
-                        <div className='condo-dropdown-menu-item-inner-left'>
-                            <Filter size='small' className='condo-table-icon condo-table-icon-gray'/>
-                            {columnLabels?.filterLabel || 'Filter'}
-                        </div>
-                    </div>
-                )
-            }
+            <div className='condo-dropdown-menu-item-inner' onClick={(e) => e.stopPropagation()}>
+                <div className={classNames(
+                    'condo-dropdown-menu-item-inner-left',
+                    header.column.getIsFiltered() && 'condo-dropdown-menu-item-inner-left-active'
+                )}>
+                    <Filter size='small' className={classNames(
+                        'condo-table-icon', 
+                        header.column.getIsFiltered() ? 'condo-table-icon-green' : 'condo-table-icon-gray'
+                    )} />
+                    {header.column.getIsFiltered() 
+                        ? 
+                        (columnLabels?.filteredLabel || 'Filtered') 
+                        : 
+                        (columnLabels?.filterLabel || 'Filter')
+                    }
+                </div>
+                {header.column.getIsFiltered() && <Close size='small' onClick={handleClear} className='condo-table-icon condo-table-icon-black'/>}
+            </div>
         </Dropdown>
     )
 }

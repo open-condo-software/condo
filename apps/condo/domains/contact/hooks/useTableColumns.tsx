@@ -7,7 +7,7 @@ import {
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { TableColumn, TableRef } from '@open-condo/ui'
+import { TableColumn } from '@open-condo/ui'
 
 import {
     getAddressRender, 
@@ -18,8 +18,11 @@ import {
 } from '@condo/domains/common/components/Table/Renders'
 import { getFilterComponentByKey, OpenFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 
-type UseTableColumns = (filterMetas: Array<OpenFiltersMeta<ContactWhereInput>>, tableRef: TableRef | null) => TableColumn<GetContactsForTableQuery['contacts'][number]>[]
-export const useTableColumns: UseTableColumns = (filterMetas, tableRef) => {
+type UseTableColumns = (
+    filterMetas: Array<OpenFiltersMeta<ContactWhereInput>>,
+    search?: string,
+) => TableColumn<GetContactsForTableQuery['contacts'][number]>[]
+export const useTableColumns: UseTableColumns = (filterMetas, search = '') => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
@@ -35,32 +38,29 @@ export const useTableColumns: UseTableColumns = (filterMetas, tableRef) => {
     const YesMessage = intl.formatMessage({ id: 'Yes' })
     const NoMessage = intl.formatMessage({ id: 'No' })
 
-    const search = useMemo(() => {
-        if (!tableRef) return undefined
-        const filterValue = tableRef.api.getGlobalFilter()
-        return typeof filterValue === 'string' ? filterValue : undefined
-    }, [tableRef])
 
-    const renderCell = useMemo(() => getTableCellRenderer({ search, ellipsis: true }), [search])
+    const renderCell = useMemo(
+        () => getTableCellRenderer({ search, ellipsis: true }), 
+        [search])
 
     const renderAddress = useCallback(
-        (_, contact) => getAddressRender(contact?.property, DeletedMessage, search)
-        , [DeletedMessage, search])
+        (_, contact) => getAddressRender(contact?.property, DeletedMessage, search), 
+        [search, DeletedMessage])
 
     const renderUnitName = useCallback(
-        (text, contact) => getUnitNameRender<Contact>(intl, text, contact, search)
-        , [search, intl])
+        (text, contact) => getUnitNameRender<Contact>(intl, text, contact, search), 
+        [search, intl])
 
     const renderUnitType = useCallback(
-        (text, contact) => getUnitTypeRender<Contact>(intl, text, contact, search)
-        , [search, intl])
+        (text, contact) => getUnitTypeRender<Contact>(intl, text, contact, search), 
+        [search, intl])
 
     const renderRole = useCallback(
-        (role: ContactRole) => renderCell(role?.name ?? '—')
-        , [renderCell])
+        (role: ContactRole) => renderCell(role?.name ?? '—'), 
+        [renderCell])
 
     const renderDate = useCallback(
-        (date) => getDateRender(intl, String(search))(date),
+        (date) => getDateRender(intl, search)(date),
         [search, intl])
 
     const renderPhone = useCallback((phone, contact) => {
@@ -70,16 +70,16 @@ export const useTableColumns: UseTableColumns = (filterMetas, tableRef) => {
     }, [search])
 
     const renderEmail = useCallback(
-        (email) => getTableCellRenderer({ search, href: email ? `mailto:${email}` : undefined })(email ?? '—')
-        , [search])
+        (email) => getTableCellRenderer({ search, href: email ? `mailto:${email}` : undefined })(email ?? '—'), 
+        [search])
 
     const renderIsVerified = useCallback(
-        (isVerified) => renderCell(isVerified ? YesMessage : NoMessage)
-        , [NoMessage, YesMessage, renderCell])
+        (isVerified) => renderCell(isVerified ? YesMessage : NoMessage), 
+        [NoMessage, YesMessage, renderCell])
 
     const renderCommunityFee = useCallback(
-        (communityFee) => renderCell(communityFee ?? '—')
-        , [renderCell])
+        (communityFee) => renderCell(communityFee ?? '—'), 
+        [renderCell])
 
 
     return useMemo(() => {
