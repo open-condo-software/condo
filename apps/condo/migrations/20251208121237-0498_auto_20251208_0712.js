@@ -27,6 +27,10 @@ exports.down = async (knex) => {
 --
 ALTER TABLE "NotificationUserSetting" DROP CONSTRAINT "global_setting_requires_messageType_and_messageTransport";
 --
+-- Delete all global settings (user IS NULL) before adding NOT NULL constraint
+--
+DELETE FROM "NotificationUserSetting" WHERE "user" IS NULL;
+--
 -- Alter field user on notificationusersetting
 --
 SET CONSTRAINTS "NotificationUserSetting_user_fd06883d_fk_User_id" IMMEDIATE; ALTER TABLE "NotificationUserSetting" DROP CONSTRAINT "NotificationUserSetting_user_fd06883d_fk_User_id";
