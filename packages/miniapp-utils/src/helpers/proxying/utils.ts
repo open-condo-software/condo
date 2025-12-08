@@ -18,7 +18,7 @@ export type TrustProxyFunction = (proxyAddr: string, idx: number) => boolean
 const _ipSchema = z.union([z.ipv4(), z.ipv6()])
 const _timeStampBasicRegexp = /^\d+$/
 
-const DEFAULT_PROXY_TIMEOUT_IN_MS = 30_000 // 5 sec to pass request is enough
+const DEFAULT_PROXY_TIMEOUT_IN_MS = 5_000 // 5 sec to pass request is enough
 const X_PROXY_ID_HEADER = 'x-proxy-id' as const
 const X_PROXY_IP_HEADER = 'x-proxy-ip' as const
 const X_PROXY_TIMESTAMP_HEADER = 'x-proxy-timestamp' as const
@@ -107,20 +107,6 @@ export function getRequestIp (req: IncomingMessage, trustProxyFn: TrustProxyFunc
 
 export function getProxyHeadersForIp (method: string, url: string, ip: string, proxyId: string, secret: string): ProxyHeaders {
     const timestampString = String(Date.now())
-
-    console.log('getProxyHeadersForIp', {
-        method,
-        url,
-        ip,
-        proxyId,
-        secret,
-        timestampString,
-    })
-
-    console.log({
-        expiresIn: Math.round(DEFAULT_PROXY_TIMEOUT_IN_MS / 1000),
-        algorithm: 'HS256',
-    })
 
     return {
         [X_PROXY_IP_HEADER]: ip,

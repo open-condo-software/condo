@@ -183,7 +183,18 @@ const MenuItems: React.FC = () => {
                 },
             ].filter(checkItemAccess),
         },
-
+        {
+            key: SETTINGS_CATEGORY,
+            items: [
+                {
+                    id: 'menu-item-settings',
+                    path: 'settings',
+                    icon: AllIcons['Settings'],
+                    label: 'global.section.settings',
+                    access: hasAccessToSettings,
+                },
+            ].filter(checkItemAccess),
+        },
     ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToContacts, hasAccessToEmployees, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
 
 

@@ -105,6 +105,17 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                 <Col lg={18} xs={12} offset={1}>
                     <NotDefinedField value={get(employee, ['position'])} />
                 </Col>
+                <Col lg={5} xs={10}>
+                    <Typography.Text type='secondary'>
+                        {RoleMessage}
+                    </Typography.Text>
+                </Col>
+                <Col lg={18} xs={12} offset={1}>
+                    <NotDefinedField
+                        value={get(employee, ['role', 'name'])}
+                        render={(roleName) => (<Tag children={roleName as string} />)}
+                    />
+                </Col>
             </Row>
         </Col>
     )
