@@ -95,7 +95,7 @@ async function buildPaymentWebhookPayload (payment, previousStatus, newStatus) {
     }
 
     return {
-        event: 'payment.status.changed',
+        eventType: 'payment.status.changed',
         timestamp: new Date().toISOString(),
         data: {
             paymentId: payment.id,

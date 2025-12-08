@@ -94,7 +94,7 @@ describe('webhookDelivery utilities', () => {
         const mockDelivery = {
             id: 'test-delivery-id',
             url: 'https://example.com/webhook',
-            payload: { event: 'test.event', data: { test: true } },
+            payload: { eventType: 'test.event', data: { test: true } },
             secret: 'test-secret',
             eventType: 'test.event',
             attempt: 0,
