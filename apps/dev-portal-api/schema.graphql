@@ -1918,6 +1918,7 @@ type File {
   mimetype: String
   encoding: String
   publicUrl: String
+  meta: JSON
 }
 
 """ B2B application """
@@ -2260,7 +2261,7 @@ input B2BAppUpdateInput {
   name: String
   developer: String
   developerUrl: String
-  logo: Upload
+  logo: FileMeta
   shortDescription: String
   detailedDescription: String
   developmentAppUrl: String
@@ -2287,7 +2288,7 @@ input B2BAppCreateInput {
   name: String
   developer: String
   developerUrl: String
-  logo: Upload
+  logo: FileMeta
   shortDescription: String
   detailedDescription: String
   developmentAppUrl: String
@@ -2803,7 +2804,7 @@ enum SortB2CAppsBy {
 
 input B2CAppUpdateInput {
   name: String
-  logo: Upload
+  logo: FileMeta
   developer: String
   v: Int
   createdAt: String
@@ -2825,7 +2826,7 @@ input B2CAppsUpdateInput {
 
 input B2CAppCreateInput {
   name: String
-  logo: Upload
+  logo: FileMeta
   developer: String
   v: Int
   createdAt: String
@@ -3618,7 +3619,7 @@ type B2CAppBuild {
   """ Link to B2C application """
   app: B2CApp
 
-  """ Version of build which used to control builds inside B2CApp model. Must follow sem-ver notation format: <MAJOR>.<MINOR>.<PATCH> (E.g. 1.0.27, 3.6.0) 
+  """ Version of build which used to control builds inside B2CApp model. Must follow semantic versioning (semver) format: <MAJOR>.<MINOR>.<PATCH> with optional pre-release and build metadata (E.g. 1.0.27, 3.6.0, 1.2.3-alpha.1, 1.0.0+20130313144700) 
   """
   version: String
 
@@ -3810,7 +3811,7 @@ enum SortB2CAppBuildsBy {
 input B2CAppBuildUpdateInput {
   app: B2CAppRelateToOneInput
   version: String
-  data: Upload
+  data: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -3832,7 +3833,7 @@ input B2CAppBuildsUpdateInput {
 input B2CAppBuildCreateInput {
   app: B2CAppRelateToOneInput
   version: String
-  data: Upload
+  data: FileMeta
   v: Int
   createdAt: String
   updatedAt: String
@@ -5385,6 +5386,866 @@ input WebhookSubscriptionsCreateInput {
   data: WebhookSubscriptionCreateInput
 }
 
+enum WebhookPayloadHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type WebhookPayloadHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the WebhookPayloadHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the WebhookPayloadHistoryRecord List config, or
+   3. As an alias to a 'name' field on the WebhookPayloadHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the WebhookPayloadHistoryRecord List.
+  """
+  _label_: String
+  payload: JSON
+  url: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: String
+  status: String
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookPayloadHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookPayloadHistoryRecordWhereInput {
+  AND: [WebhookPayloadHistoryRecordWhereInput]
+  OR: [WebhookPayloadHistoryRecordWhereInput]
+  payload: JSON
+  payload_not: JSON
+  payload_in: [JSON]
+  payload_not_in: [JSON]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  secret: String
+  secret_not: String
+  secret_contains: String
+  secret_not_contains: String
+  secret_starts_with: String
+  secret_not_starts_with: String
+  secret_ends_with: String
+  secret_not_ends_with: String
+  secret_i: String
+  secret_not_i: String
+  secret_contains_i: String
+  secret_not_contains_i: String
+  secret_starts_with_i: String
+  secret_not_starts_with_i: String
+  secret_ends_with_i: String
+  secret_not_ends_with_i: String
+  secret_in: [String]
+  secret_not_in: [String]
+  eventType: String
+  eventType_not: String
+  eventType_contains: String
+  eventType_not_contains: String
+  eventType_starts_with: String
+  eventType_not_starts_with: String
+  eventType_ends_with: String
+  eventType_not_ends_with: String
+  eventType_i: String
+  eventType_not_i: String
+  eventType_contains_i: String
+  eventType_not_contains_i: String
+  eventType_starts_with_i: String
+  eventType_not_starts_with_i: String
+  eventType_ends_with_i: String
+  eventType_not_ends_with_i: String
+  eventType_in: [String]
+  eventType_not_in: [String]
+  modelName: String
+  modelName_not: String
+  modelName_contains: String
+  modelName_not_contains: String
+  modelName_starts_with: String
+  modelName_not_starts_with: String
+  modelName_ends_with: String
+  modelName_not_ends_with: String
+  modelName_i: String
+  modelName_not_i: String
+  modelName_contains_i: String
+  modelName_not_contains_i: String
+  modelName_starts_with_i: String
+  modelName_not_starts_with_i: String
+  modelName_ends_with_i: String
+  modelName_not_ends_with_i: String
+  modelName_in: [String]
+  modelName_not_in: [String]
+  itemId: String
+  itemId_not: String
+  itemId_contains: String
+  itemId_not_contains: String
+  itemId_starts_with: String
+  itemId_not_starts_with: String
+  itemId_ends_with: String
+  itemId_not_ends_with: String
+  itemId_i: String
+  itemId_not_i: String
+  itemId_contains_i: String
+  itemId_not_contains_i: String
+  itemId_starts_with_i: String
+  itemId_not_starts_with_i: String
+  itemId_ends_with_i: String
+  itemId_not_ends_with_i: String
+  itemId_in: [String]
+  itemId_not_in: [String]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  attempt: Int
+  attempt_not: Int
+  attempt_lt: Int
+  attempt_lte: Int
+  attempt_gt: Int
+  attempt_gte: Int
+  attempt_in: [Int]
+  attempt_not_in: [Int]
+  lastHttpStatusCode: Int
+  lastHttpStatusCode_not: Int
+  lastHttpStatusCode_lt: Int
+  lastHttpStatusCode_lte: Int
+  lastHttpStatusCode_gt: Int
+  lastHttpStatusCode_gte: Int
+  lastHttpStatusCode_in: [Int]
+  lastHttpStatusCode_not_in: [Int]
+  lastResponseBody: String
+  lastResponseBody_not: String
+  lastResponseBody_contains: String
+  lastResponseBody_not_contains: String
+  lastResponseBody_starts_with: String
+  lastResponseBody_not_starts_with: String
+  lastResponseBody_ends_with: String
+  lastResponseBody_not_ends_with: String
+  lastResponseBody_i: String
+  lastResponseBody_not_i: String
+  lastResponseBody_contains_i: String
+  lastResponseBody_not_contains_i: String
+  lastResponseBody_starts_with_i: String
+  lastResponseBody_not_starts_with_i: String
+  lastResponseBody_ends_with_i: String
+  lastResponseBody_not_ends_with_i: String
+  lastResponseBody_in: [String]
+  lastResponseBody_not_in: [String]
+  lastErrorMessage: String
+  lastErrorMessage_not: String
+  lastErrorMessage_contains: String
+  lastErrorMessage_not_contains: String
+  lastErrorMessage_starts_with: String
+  lastErrorMessage_not_starts_with: String
+  lastErrorMessage_ends_with: String
+  lastErrorMessage_not_ends_with: String
+  lastErrorMessage_i: String
+  lastErrorMessage_not_i: String
+  lastErrorMessage_contains_i: String
+  lastErrorMessage_not_contains_i: String
+  lastErrorMessage_starts_with_i: String
+  lastErrorMessage_not_starts_with_i: String
+  lastErrorMessage_ends_with_i: String
+  lastErrorMessage_not_ends_with_i: String
+  lastErrorMessage_in: [String]
+  lastErrorMessage_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  nextRetryAt: String
+  nextRetryAt_not: String
+  nextRetryAt_lt: String
+  nextRetryAt_lte: String
+  nextRetryAt_gt: String
+  nextRetryAt_gte: String
+  nextRetryAt_in: [String]
+  nextRetryAt_not_in: [String]
+  lastSentAt: String
+  lastSentAt_not: String
+  lastSentAt_lt: String
+  lastSentAt_lte: String
+  lastSentAt_gt: String
+  lastSentAt_gte: String
+  lastSentAt_in: [String]
+  lastSentAt_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: WebhookPayloadHistoryRecordHistoryActionType
+  history_action_not: WebhookPayloadHistoryRecordHistoryActionType
+  history_action_in: [WebhookPayloadHistoryRecordHistoryActionType]
+  history_action_not_in: [WebhookPayloadHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input WebhookPayloadHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortWebhookPayloadHistoryRecordsBy {
+  url_ASC
+  url_DESC
+  secret_ASC
+  secret_DESC
+  eventType_ASC
+  eventType_DESC
+  modelName_ASC
+  modelName_DESC
+  itemId_ASC
+  itemId_DESC
+  status_ASC
+  status_DESC
+  attempt_ASC
+  attempt_DESC
+  lastHttpStatusCode_ASC
+  lastHttpStatusCode_DESC
+  lastResponseBody_ASC
+  lastResponseBody_DESC
+  lastErrorMessage_ASC
+  lastErrorMessage_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  nextRetryAt_ASC
+  nextRetryAt_DESC
+  lastSentAt_ASC
+  lastSentAt_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input WebhookPayloadHistoryRecordUpdateInput {
+  payload: JSON
+  url: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: String
+  status: String
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookPayloadHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookPayloadHistoryRecordsUpdateInput {
+  id: ID!
+  data: WebhookPayloadHistoryRecordUpdateInput
+}
+
+input WebhookPayloadHistoryRecordCreateInput {
+  payload: JSON
+  url: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: String
+  status: String
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookPayloadHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookPayloadHistoryRecordsCreateInput {
+  data: WebhookPayloadHistoryRecordCreateInput
+}
+
+enum WebhookPayloadStatusType {
+  pending
+  success
+  failed
+}
+
+""" Stores webhook payloads for delivery. Contains ready-to-send payload, URL, and secret. Tracks delivery status, retries, and responses from external servers. 
+"""
+type WebhookPayload {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the WebhookPayload List config, or
+   2. As an alias to the field set on 'labelField' in the WebhookPayload List config, or
+   3. As an alias to a 'name' field on the WebhookPayload List (if one exists), or
+   4. As an alias to the 'id' field on the WebhookPayload List.
+  """
+  _label_: String
+
+  """ Ready-to-send JSON payload for the webhook """
+  payload: JSON
+
+  """ Target URL for webhook delivery """
+  url: String
+
+  """ Secret key for HMAC-SHA256 signature generation """
+  secret: String
+
+  """ Type of event that triggered this webhook (e.g., "payment.status.changed") 
+  """
+  eventType: String
+
+  """ Name of the model that triggered this webhook (e.g., "Payment") """
+  modelName: String
+
+  """ ID of the record that triggered this webhook """
+  itemId: String
+
+  """ Delivery status: pending (waiting for delivery/retry), success (delivered successfully), failed (permanently failed after TTL expired) 
+  """
+  status: WebhookPayloadStatusType
+
+  """ Number of delivery attempts made (starts at 0) """
+  attempt: Int
+
+  """ HTTP status code from the last delivery attempt """
+  lastHttpStatusCode: Int
+
+  """ Response body from the last delivery attempt (truncated to 1000 chars) 
+  """
+  lastResponseBody: String
+
+  """ Error message from the last delivery attempt """
+  lastErrorMessage: String
+
+  """ Timestamp after which no more delivery attempts will be made """
+  expiresAt: String
+
+  """ Timestamp for the next delivery attempt """
+  nextRetryAt: String
+
+  """ Timestamp of the last delivery attempt """
+  lastSentAt: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input WebhookPayloadWhereInput {
+  AND: [WebhookPayloadWhereInput]
+  OR: [WebhookPayloadWhereInput]
+  payload: JSON
+  payload_not: JSON
+  payload_in: [JSON]
+  payload_not_in: [JSON]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  secret: String
+  secret_not: String
+  secret_contains: String
+  secret_not_contains: String
+  secret_starts_with: String
+  secret_not_starts_with: String
+  secret_ends_with: String
+  secret_not_ends_with: String
+  secret_i: String
+  secret_not_i: String
+  secret_contains_i: String
+  secret_not_contains_i: String
+  secret_starts_with_i: String
+  secret_not_starts_with_i: String
+  secret_ends_with_i: String
+  secret_not_ends_with_i: String
+  secret_in: [String]
+  secret_not_in: [String]
+  eventType: String
+  eventType_not: String
+  eventType_contains: String
+  eventType_not_contains: String
+  eventType_starts_with: String
+  eventType_not_starts_with: String
+  eventType_ends_with: String
+  eventType_not_ends_with: String
+  eventType_i: String
+  eventType_not_i: String
+  eventType_contains_i: String
+  eventType_not_contains_i: String
+  eventType_starts_with_i: String
+  eventType_not_starts_with_i: String
+  eventType_ends_with_i: String
+  eventType_not_ends_with_i: String
+  eventType_in: [String]
+  eventType_not_in: [String]
+  modelName: String
+  modelName_not: String
+  modelName_contains: String
+  modelName_not_contains: String
+  modelName_starts_with: String
+  modelName_not_starts_with: String
+  modelName_ends_with: String
+  modelName_not_ends_with: String
+  modelName_i: String
+  modelName_not_i: String
+  modelName_contains_i: String
+  modelName_not_contains_i: String
+  modelName_starts_with_i: String
+  modelName_not_starts_with_i: String
+  modelName_ends_with_i: String
+  modelName_not_ends_with_i: String
+  modelName_in: [String]
+  modelName_not_in: [String]
+  itemId: String
+  itemId_not: String
+  itemId_contains: String
+  itemId_not_contains: String
+  itemId_starts_with: String
+  itemId_not_starts_with: String
+  itemId_ends_with: String
+  itemId_not_ends_with: String
+  itemId_i: String
+  itemId_not_i: String
+  itemId_contains_i: String
+  itemId_not_contains_i: String
+  itemId_starts_with_i: String
+  itemId_not_starts_with_i: String
+  itemId_ends_with_i: String
+  itemId_not_ends_with_i: String
+  itemId_in: [String]
+  itemId_not_in: [String]
+  status: WebhookPayloadStatusType
+  status_not: WebhookPayloadStatusType
+  status_in: [WebhookPayloadStatusType]
+  status_not_in: [WebhookPayloadStatusType]
+  attempt: Int
+  attempt_not: Int
+  attempt_lt: Int
+  attempt_lte: Int
+  attempt_gt: Int
+  attempt_gte: Int
+  attempt_in: [Int]
+  attempt_not_in: [Int]
+  lastHttpStatusCode: Int
+  lastHttpStatusCode_not: Int
+  lastHttpStatusCode_lt: Int
+  lastHttpStatusCode_lte: Int
+  lastHttpStatusCode_gt: Int
+  lastHttpStatusCode_gte: Int
+  lastHttpStatusCode_in: [Int]
+  lastHttpStatusCode_not_in: [Int]
+  lastResponseBody: String
+  lastResponseBody_not: String
+  lastResponseBody_contains: String
+  lastResponseBody_not_contains: String
+  lastResponseBody_starts_with: String
+  lastResponseBody_not_starts_with: String
+  lastResponseBody_ends_with: String
+  lastResponseBody_not_ends_with: String
+  lastResponseBody_i: String
+  lastResponseBody_not_i: String
+  lastResponseBody_contains_i: String
+  lastResponseBody_not_contains_i: String
+  lastResponseBody_starts_with_i: String
+  lastResponseBody_not_starts_with_i: String
+  lastResponseBody_ends_with_i: String
+  lastResponseBody_not_ends_with_i: String
+  lastResponseBody_in: [String]
+  lastResponseBody_not_in: [String]
+  lastErrorMessage: String
+  lastErrorMessage_not: String
+  lastErrorMessage_contains: String
+  lastErrorMessage_not_contains: String
+  lastErrorMessage_starts_with: String
+  lastErrorMessage_not_starts_with: String
+  lastErrorMessage_ends_with: String
+  lastErrorMessage_not_ends_with: String
+  lastErrorMessage_i: String
+  lastErrorMessage_not_i: String
+  lastErrorMessage_contains_i: String
+  lastErrorMessage_not_contains_i: String
+  lastErrorMessage_starts_with_i: String
+  lastErrorMessage_not_starts_with_i: String
+  lastErrorMessage_ends_with_i: String
+  lastErrorMessage_not_ends_with_i: String
+  lastErrorMessage_in: [String]
+  lastErrorMessage_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  nextRetryAt: String
+  nextRetryAt_not: String
+  nextRetryAt_lt: String
+  nextRetryAt_lte: String
+  nextRetryAt_gt: String
+  nextRetryAt_gte: String
+  nextRetryAt_in: [String]
+  nextRetryAt_not_in: [String]
+  lastSentAt: String
+  lastSentAt_not: String
+  lastSentAt_lt: String
+  lastSentAt_lte: String
+  lastSentAt_gt: String
+  lastSentAt_gte: String
+  lastSentAt_in: [String]
+  lastSentAt_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input WebhookPayloadWhereUniqueInput {
+  id: ID!
+}
+
+enum SortWebhookPayloadsBy {
+  url_ASC
+  url_DESC
+  secret_ASC
+  secret_DESC
+  eventType_ASC
+  eventType_DESC
+  modelName_ASC
+  modelName_DESC
+  itemId_ASC
+  itemId_DESC
+  status_ASC
+  status_DESC
+  attempt_ASC
+  attempt_DESC
+  lastHttpStatusCode_ASC
+  lastHttpStatusCode_DESC
+  lastResponseBody_ASC
+  lastResponseBody_DESC
+  lastErrorMessage_ASC
+  lastErrorMessage_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  nextRetryAt_ASC
+  nextRetryAt_DESC
+  lastSentAt_ASC
+  lastSentAt_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input WebhookPayloadUpdateInput {
+  payload: JSON
+  url: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: String
+  status: WebhookPayloadStatusType
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input WebhookPayloadsUpdateInput {
+  id: ID!
+  data: WebhookPayloadUpdateInput
+}
+
+input WebhookPayloadCreateInput {
+  payload: JSON
+  url: String
+  secret: String
+  eventType: String
+  modelName: String
+  itemId: String
+  status: WebhookPayloadStatusType
+  attempt: Int
+  lastHttpStatusCode: Int
+  lastResponseBody: String
+  lastErrorMessage: String
+  expiresAt: String
+  nextRetryAt: String
+  lastSentAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input WebhookPayloadsCreateInput {
+  data: WebhookPayloadCreateInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -5564,6 +6425,9 @@ input _ksListsMetaInput {
 input _ListSchemaFieldsInput {
   type: String
 }
+
+"""File, that could be loaded through new file server or by legacy way"""
+scalar FileMeta
 
 input AuthenticateUserWithPhoneAndPasswordInput {
   phone: String!
@@ -6100,6 +6964,34 @@ type Query {
   """ Retrieve the meta-data for the WebhookSubscription list. """
   _WebhookSubscriptionsMeta: _ListMeta
 
+  """ Search for all WebhookPayloadHistoryRecord items which match the where clause. 
+  """
+  allWebhookPayloadHistoryRecords(where: WebhookPayloadHistoryRecordWhereInput, search: String, sortBy: [SortWebhookPayloadHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookPayloadHistoryRecord]
+
+  """ Search for the WebhookPayloadHistoryRecord item with the matching ID. 
+  """
+  WebhookPayloadHistoryRecord(where: WebhookPayloadHistoryRecordWhereUniqueInput!): WebhookPayloadHistoryRecord
+
+  """ Perform a meta-query on all WebhookPayloadHistoryRecord items which match the where clause. 
+  """
+  _allWebhookPayloadHistoryRecordsMeta(where: WebhookPayloadHistoryRecordWhereInput, search: String, sortBy: [SortWebhookPayloadHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the WebhookPayloadHistoryRecord list. """
+  _WebhookPayloadHistoryRecordsMeta: _ListMeta
+
+  """ Search for all WebhookPayload items which match the where clause. """
+  allWebhookPayloads(where: WebhookPayloadWhereInput, search: String, sortBy: [SortWebhookPayloadsBy!], orderBy: String, first: Int, skip: Int): [WebhookPayload]
+
+  """ Search for the WebhookPayload item with the matching ID. """
+  WebhookPayload(where: WebhookPayloadWhereUniqueInput!): WebhookPayload
+
+  """ Perform a meta-query on all WebhookPayload items which match the where clause. 
+  """
+  _allWebhookPayloadsMeta(where: WebhookPayloadWhereInput, search: String, sortBy: [SortWebhookPayloadsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the WebhookPayload list. """
+  _WebhookPayloadsMeta: _ListMeta
+
   """ Retrieve the meta-data for all lists. """
   _ksListsMeta(where: _ksListsMetaInput): [_ListMeta]
   allB2CAppProperties(data: AllB2CAppPropertiesInput!): AllB2CAppPropertiesOutput
@@ -6471,6 +7363,42 @@ type Mutation {
 
   """ Delete multiple WebhookSubscription items by ID. """
   deleteWebhookSubscriptions(ids: [ID!]): [WebhookSubscription]
+
+  """ Create a single WebhookPayloadHistoryRecord item. """
+  createWebhookPayloadHistoryRecord(data: WebhookPayloadHistoryRecordCreateInput): WebhookPayloadHistoryRecord
+
+  """ Create multiple WebhookPayloadHistoryRecord items. """
+  createWebhookPayloadHistoryRecords(data: [WebhookPayloadHistoryRecordsCreateInput]): [WebhookPayloadHistoryRecord]
+
+  """ Update a single WebhookPayloadHistoryRecord item by ID. """
+  updateWebhookPayloadHistoryRecord(id: ID!, data: WebhookPayloadHistoryRecordUpdateInput): WebhookPayloadHistoryRecord
+
+  """ Update multiple WebhookPayloadHistoryRecord items by ID. """
+  updateWebhookPayloadHistoryRecords(data: [WebhookPayloadHistoryRecordsUpdateInput]): [WebhookPayloadHistoryRecord]
+
+  """ Delete a single WebhookPayloadHistoryRecord item by ID. """
+  deleteWebhookPayloadHistoryRecord(id: ID!): WebhookPayloadHistoryRecord
+
+  """ Delete multiple WebhookPayloadHistoryRecord items by ID. """
+  deleteWebhookPayloadHistoryRecords(ids: [ID!]): [WebhookPayloadHistoryRecord]
+
+  """ Create a single WebhookPayload item. """
+  createWebhookPayload(data: WebhookPayloadCreateInput): WebhookPayload
+
+  """ Create multiple WebhookPayload items. """
+  createWebhookPayloads(data: [WebhookPayloadsCreateInput]): [WebhookPayload]
+
+  """ Update a single WebhookPayload item by ID. """
+  updateWebhookPayload(id: ID!, data: WebhookPayloadUpdateInput): WebhookPayload
+
+  """ Update multiple WebhookPayload items by ID. """
+  updateWebhookPayloads(data: [WebhookPayloadsUpdateInput]): [WebhookPayload]
+
+  """ Delete a single WebhookPayload item by ID. """
+  deleteWebhookPayload(id: ID!): WebhookPayload
+
+  """ Delete multiple WebhookPayload items by ID. """
+  deleteWebhookPayloads(ids: [ID!]): [WebhookPayload]
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
   startConfirmEmailAction(data: StartConfirmEmailActionInput!): StartConfirmEmailActionOutput
   completeConfirmEmailAction(data: CompleteConfirmEmailActionInput!): CompleteConfirmEmailActionOutput
