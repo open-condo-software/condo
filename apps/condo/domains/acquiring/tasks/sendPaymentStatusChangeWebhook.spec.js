@@ -27,7 +27,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
     const mockNewStatus = 'PROCESSING'
     const mockUrl = 'https://example.com/webhook'
     const mockSecret = 'test-secret-key'
-    const mockPayload = { event: 'payment.status.changed', data: {} }
+    const mockPayload = { eventType: 'payment.status.changed', data: {} }
     const mockPayment = { id: mockPaymentId, invoice: faker.datatype.uuid() }
 
     beforeEach(() => {

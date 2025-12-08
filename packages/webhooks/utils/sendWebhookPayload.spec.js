@@ -3,7 +3,7 @@ const { faker } = require('@faker-js/faker')
 const mockWebhookPayload = {
     id: 'test-payload-id',
     url: 'https://example.com/webhook',
-    payload: { event: 'test.event' },
+    payload: { eventType: 'test.event' },
     secret: 'test-secret',
     eventType: 'test.event',
 }
@@ -44,7 +44,7 @@ describe('sendWebhookPayload utility', () => {
         test('should create WebhookPayload and queue delivery task', async () => {
             const options = {
                 url: 'https://example.com/webhook',
-                payload: { event: 'test.event', data: { test: true } },
+                payload: { eventType: 'test.event', data: { test: true } },
                 secret: 'test-secret',
                 eventType: 'test.event',
             }
@@ -91,7 +91,7 @@ describe('sendWebhookPayload utility', () => {
             const customSender = { dv: 1, fingerprint: 'Payment_webhookTrigger' }
             const options = {
                 url: 'https://example.com/webhook',
-                payload: { event: 'test.event' },
+                payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
                 sender: customSender,
@@ -110,7 +110,7 @@ describe('sendWebhookPayload utility', () => {
         test('should use default sender when not provided', async () => {
             const options = {
                 url: 'https://example.com/webhook',
-                payload: { event: 'test.event' },
+                payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
             }
@@ -128,7 +128,7 @@ describe('sendWebhookPayload utility', () => {
         test('should set expiresAt and nextRetryAt timestamps', async () => {
             const options = {
                 url: 'https://example.com/webhook',
-                payload: { event: 'test.event' },
+                payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
             }
@@ -159,7 +159,7 @@ describe('sendWebhookPayload utility', () => {
         test('should use custom ttlDays when provided', async () => {
             const options = {
                 url: 'https://example.com/webhook',
-                payload: { event: 'test.event' },
+                payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
                 ttlDays: 14,
@@ -180,7 +180,7 @@ describe('sendWebhookPayload utility', () => {
     describe('parameter validation', () => {
         test('should throw error when url is missing', async () => {
             const options = {
-                payload: { event: 'test.event' },
+                payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
             }
@@ -203,7 +203,7 @@ describe('sendWebhookPayload utility', () => {
         test('should throw error when secret is missing', async () => {
             const options = {
                 url: 'https://example.com/webhook',
-                payload: { event: 'test.event' },
+                payload: { eventType: 'test.event' },
                 eventType: 'test.event',
             }
 
@@ -214,7 +214,7 @@ describe('sendWebhookPayload utility', () => {
         test('should throw error when eventType is missing', async () => {
             const options = {
                 url: 'https://example.com/webhook',
-                payload: { event: 'test.event' },
+                payload: { eventType: 'test.event' },
                 secret: 'test-secret',
             }
 
@@ -227,7 +227,7 @@ describe('sendWebhookPayload utility', () => {
         test('should set modelName to null when not provided', async () => {
             const options = {
                 url: 'https://example.com/webhook',
-                payload: { event: 'test.event' },
+                payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
             }
@@ -248,7 +248,7 @@ describe('sendWebhookPayload utility', () => {
         test('should call getWebhookTasks to get the task', async () => {
             const options = {
                 url: 'https://example.com/webhook',
-                payload: { event: 'test.event' },
+                payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
             }
@@ -261,7 +261,7 @@ describe('sendWebhookPayload utility', () => {
         test('should queue task with created payload id', async () => {
             const options = {
                 url: 'https://example.com/webhook',
-                payload: { event: 'test.event' },
+                payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
             }
