@@ -8,6 +8,7 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
 const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
@@ -15,7 +16,7 @@ const {
     PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
     PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     applyWebhookSecretGeneration,
-    validateCallbackUrlInWhitelist,
+    isWebhookUrlInWhitelist,
 } = require('@condo/domains/acquiring/schema/fields/paymentChangeWebhook')
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { DEFAULT_BILLING_CATEGORY_ID, CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
@@ -29,6 +30,14 @@ const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
 const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
+
+const ERRORS = {
+    WEBHOOK_URL_NOT_IN_WHITELIST: {
+        code: BAD_USER_INPUT,
+        type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+        message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+    },
+}
 
 const findAcquiringContext = async (item) => {
     const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
@@ -373,8 +382,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
             // Validate callback URL is in whitelist
             const callbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
-            if (callbackUrl) {
-                await validateCallbackUrlInWhitelist(callbackUrl, context)
+            if (callbackUrl && !await isWebhookUrlInWhitelist(callbackUrl)) {
+                throw new GQLError(ERRORS.WEBHOOK_URL_NOT_IN_WHITELIST, context)
             }
         },
         resolveInput: ({ resolvedData, existingItem }) => {
