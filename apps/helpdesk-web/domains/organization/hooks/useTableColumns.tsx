@@ -104,17 +104,6 @@ export const useTableColumns = (
                 width: '15%',
             },
             {
-                title: RoleMessage,
-                filteredValue: getFilteredValue<IFilters>(filters, 'role'),
-                dataIndex: 'role',
-                key: 'role',
-                sorter: true,
-                width: '10%',
-                render: (role) => render(get(role, 'name')),
-                filterDropdown: renderCheckboxFilterDropdown,
-                filterIcon: getFilterIcon,
-            },
-            {
                 title: PositionMessage,
                 filteredValue: getFilteredValue<IFilters>(filters, 'position'),
                 dataIndex: 'position',

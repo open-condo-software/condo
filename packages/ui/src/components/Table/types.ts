@@ -1,0 +1,148 @@
+import { RowData, DeepKeys, SortingState, Table, ColumnDef } from '@tanstack/react-table'
+import '@tanstack/react-table'
+
+import type { 
+    TextColumnFilterConfig, 
+    SelectColumnFilterConfig, 
+    CheckboxGroupColumnFilterConfig,
+} from './utils/filterComponents'
+
+export type ColumnSettings = {
+    visibility: boolean
+    order: number
+    size: number | string
+}
+
+export type TableSettings<TData extends RowData = RowData> = Record<TableColumn<TData>['id'], ColumnSettings>
+
+export type ColumnDefWithId<TData extends RowData = RowData, TValue = unknown> = 
+    ColumnDef<TData, TValue> & { id: string }
+
+export type TableLabels = {
+    sortDescLabel?: string
+    sortAscLabel?: string
+    filterLabel?: string
+    settingsLabel?: string
+    sortedDescLabel?: string
+    sortedAscLabel?: string
+    filteredLabel?: string
+    noDataLabel?: string
+    defaultSettingsLabel?: string
+    resetFilterLabel?: string
+}
+
+export type DefaultColumn = {
+    enableSorting?: boolean
+    enableColumnSettings?: boolean
+    initialVisibility?: boolean
+    initialSize?: string | number
+    minSize?: number
+}
+
+export type RowSelectionState = string[]
+
+export type RowSelectionOptions = {
+    enableRowSelection: boolean
+    onRowSelectionChange?: (rowSelectionState: RowSelectionState) => void
+}
+
+export type FilterComponentProps = {
+    setFilterValue: (value: unknown) => void
+    filterValue: unknown
+    confirm: (opts?: { closeDropdown?: boolean }) => void
+    setShowResetButton: (showResetButton: boolean) => void
+    clearFilters: () => void
+}
+
+export type FilterConfig = 
+    | TextColumnFilterConfig
+    | SelectColumnFilterConfig
+    | CheckboxGroupColumnFilterConfig
+
+export type FilterComponent = (props: FilterComponentProps) => React.ReactNode
+
+export type TableColumnMeta = {
+    filterComponent?: FilterComponent
+    enableColumnSettings?: boolean
+    enableColumnMenu?: boolean
+    initialVisibility?: boolean
+    initialSize?: string | number
+    initialOrder?: number
+}
+
+type TableColumnBase<TData extends RowData = RowData> = {
+    id: string
+    header: string | ((table: Table<TData>) => React.ReactNode)
+    filterComponent?: FilterConfig | FilterComponent
+    enableSorting?: boolean
+    enableColumnSettings?: boolean
+    initialVisibility?: boolean
+    initialSize?: string | number
+    initialOrder?: number
+    minSize?: number
+}
+
+export type TableColumn<TData extends RowData = RowData> = 
+    | (TableColumnBase<TData> & {
+        dataKey: DeepKeys<TData>
+        render?: (value: unknown, record: TData, index: number) => React.ReactNode
+    })
+    | (TableColumnBase<TData> & {
+        dataKey?: never
+        render: (value: unknown, record: TData, index: number) => React.ReactNode
+    })
+
+export type TableState = {
+    startRow: number
+    endRow?: number
+    filterState: FilterState
+    sortState: SortState
+}
+
+export type FilterState = {
+    [colId: string]: unknown
+}
+
+export type SortState = SortingState
+
+export type FullTableState = TableState & {
+    rowSelectionState: RowSelectionState
+}
+
+export type TableApi = {
+    setFilterState: (filterState: FilterState) => void
+    getFilterState: () => FilterState
+    setColumnFilter: (columnId: string, value: unknown) => void
+    getColumnFilter: (columnId: string) => unknown
+    refetchData: () => Promise<void>
+    setPagination: ({ startRow, endRow }: { startRow: number, endRow: number }) => void
+    getPagination: () => { startRow: number, endRow: number }
+    setSorting: (sorting: SortState) => void
+    getSorting: () => SortState
+    getRowSelection: () => string[]
+    resetRowSelection: () => void
+}
+
+export type TableRef = { api: TableApi }
+
+export type GetTableData<TData extends RowData = RowData> = (tableState: TableState, isRefetch?: boolean) => Promise<{ rowData: TData[], rowCount: number }>
+
+export interface TableProps<TData extends RowData = RowData> {
+    id: string
+    dataSource: GetTableData<TData>
+    columns: TableColumn<TData>[]
+    getRowId: (row: TData) => string
+    defaultColumn?: DefaultColumn
+    pageSize?: number
+    onTableStateChange?: (tableState: FullTableState) => void
+    initialTableState?: FullTableState
+    storageKey?: string
+    columnLabels?: TableLabels
+    onRowClick?: (record: TData) => void
+    rowSelectionOptions?: RowSelectionOptions
+    onGridReady?: (tableRef: TableRef) => void
+}
+
+declare module '@tanstack/react-table' {
+    interface ColumnMeta<TData extends RowData, TValue> extends TableColumnMeta {}
+}

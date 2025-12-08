@@ -195,21 +195,6 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
                                                         fieldValue={phone}
                                                         href={`tel:${phonePrefix ? `${phonePrefix}${phone}` : phone}`}
                                                     />
-                                                    <Col lg={4} xs={10}>
-                                                        <Typography.Text type='secondary'>
-                                                            {RoleMessage}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col lg={18} xs={13} offset={1}>
-                                                        <NotDefinedField
-                                                            value={get(employee, ['role', 'name'])}
-                                                            render={
-                                                                (roleName: string) => (
-                                                                    <Tag color='default'>{roleName}</Tag>
-                                                                )
-                                                            }
-                                                        />
-                                                    </Col>
 
                                                     <Col lg={4} xs={10}>
                                                         <Typography.Text type='secondary'>

@@ -196,16 +196,7 @@ export const UpdateEmployeeForm: React.FC = () => {
                                 <Row gutter={[0, 60]}>
                                     <Col>
                                         <Row gutter={[0, 40]}>
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    {...INPUT_LAYOUT_PROPS}
-                                                    labelAlign='left'
-                                                    name='role'
-                                                    label={RoleLabel}
-                                                >
-                                                    <EmployeeRoleSelect employeeRoles={employeeRoles} disabled={isMyEmployee} />
-                                                </Form.Item>
-                                            </Col>
+
                                             <Col span={24}>
                                                 <Form.Item
                                                     {...INPUT_LAYOUT_PROPS}
@@ -271,25 +262,7 @@ export const UpdateEmployeeForm: React.FC = () => {
                                     </Col>
                                 </Row>
                             </Col>
-                            {breakpoints.TABLET_LARGE && (
-                                <Col lg={9}>
-                                    <Form.Item dependencies={['role']}>
-                                        {({ getFieldValue }) => {
-                                            const roleId = getFieldValue('role')
-                                            const role = employeeRoles.find(x => x.id === roleId)
-                                            if (!role) return null
-                                            return (
-                                                <Alert
-                                                    type='info'
-                                                    showIcon
-                                                    message={role.name}
-                                                    description={role.description}
-                                                />
-                                            )
-                                        }}
-                                    </Form.Item>
-                                </Col>
-                            )}
+                            
                         </Row>
                     </>
                 )

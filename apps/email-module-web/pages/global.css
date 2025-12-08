@@ -1,0 +1,14 @@
+@import "https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@400;600;700&display=swap";
+
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  font-family: "Wix Madefor Display", -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+  line-height: 1.5;
+  text-rendering: optimizelegibility;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  font-feature-settings: "liga on";
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
