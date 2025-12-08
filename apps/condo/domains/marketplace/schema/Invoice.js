@@ -28,7 +28,7 @@ const {
     PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD,
     PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     applyWebhookSecretGeneration,
-    validateCallbackUrlInWhitelist,
+    isWebhookUrlInWhitelist,
 } = require('@condo/domains/acquiring/schema/fields/paymentChangeWebhook')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { AMOUNT_DISTRIBUTION_FIELD } = require('@condo/domains/billing/schema/fields/AmountDistribution')
@@ -240,6 +240,11 @@ const ERRORS = {
         type: ERROR_PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN,
         message: 'Can\'t publish invoice without defined prices',
         messageForUser: 'api.marketplace.invoice.PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN',
+    },
+    WEBHOOK_URL_NOT_IN_WHITELIST: {
+        code: BAD_USER_INPUT,
+        type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+        message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
     },
 }
 
@@ -523,8 +528,8 @@ const Invoice = new GQLListSchema('Invoice', {
 
             // Validate callback URL is in whitelist
             const callbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
-            if (callbackUrl) {
-                await validateCallbackUrlInWhitelist(callbackUrl, context)
+            if (callbackUrl && !await isWebhookUrlInWhitelist(callbackUrl)) {
+                throw new GQLError(ERRORS.WEBHOOK_URL_NOT_IN_WHITELIST, context)
             }
         },
 
