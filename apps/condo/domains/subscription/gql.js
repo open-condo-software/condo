@@ -21,7 +21,10 @@ const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTI
 
 const ACTIVATE_SUBSCRIPTION_PLAN_MUTATION = gql`
     mutation activateSubscriptionPlan ($data: ActivateSubscriptionPlanInput!) {
-        result: activateSubscriptionPlan(data: $data) { subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial } }
+        result: activateSubscriptionPlan(data: $data) { 
+            subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial }
+            userHelpRequest { id type organization { id } subscriptionPlanPricingRule { id } }
+        }
     }
 `
 

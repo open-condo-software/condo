@@ -4,6 +4,7 @@
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
+
 const { GQLError } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -34,6 +35,14 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
             schemaDoc: 'ID of the billing integration that is configured to receive data for the organization',
             type: 'Relationship',
             ref: 'BillingIntegration',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+        subscriptionPlanPricingRule: {
+            schemaDoc: 'Pricing rule for subscription activation',
+            type: 'Relationship',
+            ref: 'SubscriptionPlanPricingRule',
             isRequired: false,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },

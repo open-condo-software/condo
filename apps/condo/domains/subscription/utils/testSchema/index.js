@@ -7,6 +7,7 @@ const { faker } = require('@faker-js/faker')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     SubscriptionPlan: SubscriptionPlanGQL,
     SubscriptionPlanPricingRule: SubscriptionPlanPricingRuleGQL,
@@ -14,7 +15,6 @@ const {
     ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
     GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
 } = require('@condo/domains/subscription/gql')
-const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const SubscriptionPlan = generateGQLTestUtils(SubscriptionPlanGQL)
@@ -116,17 +116,17 @@ async function updateTestSubscriptionContext (client, id, extraAttrs = {}) {
 }
 
 
-async function activateSubscriptionPlanByTestClient (client, organization, subscriptionPlan, extraAttrs = {}) {
+async function activateSubscriptionPlanByTestClient (client, organization, pricingRule, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
-    if (!subscriptionPlan || !subscriptionPlan.id) throw new Error('no subscriptionPlan.id')
+    if (!pricingRule || !pricingRule.id) throw new Error('no pricingRule.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
         organization: { id: organization.id },
-        subscriptionPlan: { id: subscriptionPlan.id },
+        pricingRule: pricingRule.id,
         isTrial: true,
         ...extraAttrs,
     }

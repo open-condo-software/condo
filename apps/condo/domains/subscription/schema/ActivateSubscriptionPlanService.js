@@ -24,12 +24,12 @@ const ERRORS = {
         type: 'ORGANIZATION_NOT_FOUND',
         message: 'Organization not found',
     },
-    PLAN_NOT_FOUND: {
+    PRICING_RULE_NOT_FOUND: {
         mutation: 'activateSubscriptionPlan',
-        variable: ['data', 'subscriptionPlan'],
+        variable: ['data', 'pricingRule'],
         code: BAD_USER_INPUT,
-        type: 'PLAN_NOT_FOUND',
-        message: 'Subscription plan not found or inactive',
+        type: 'PRICING_RULE_NOT_FOUND',
+        message: 'Pricing rule not found or inactive',
     },
     INVALID_ORGANIZATION_TYPE: {
         mutation: 'activateSubscriptionPlan',
@@ -40,14 +40,14 @@ const ERRORS = {
     },
     TRIAL_ALREADY_USED: {
         mutation: 'activateSubscriptionPlan',
-        variable: ['data', 'subscriptionPlan'],
+        variable: ['data', 'pricingRule'],
         code: BAD_USER_INPUT,
         type: 'TRIAL_ALREADY_USED',
         message: 'Trial subscription for this plan has already been used',
     },
     TRIAL_NOT_AVAILABLE: {
         mutation: 'activateSubscriptionPlan',
-        variable: ['data', 'subscriptionPlan'],
+        variable: ['data', 'pricingRule'],
         code: BAD_USER_INPUT,
         type: 'TRIAL_NOT_AVAILABLE',
         message: 'Trial is not available for this subscription plan',
@@ -58,11 +58,11 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
     types: [
         {
             access: true,
-            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, subscriptionPlan: SubscriptionPlanWhereUniqueInput!, isTrial: Boolean! }',
+            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, pricingRule: ID!, isTrial: Boolean! }',
         },
         {
             access: true,
-            type: 'type ActivateSubscriptionPlanOutput { subscriptionContext: SubscriptionContext }',
+            type: 'type ActivateSubscriptionPlanOutput { subscriptionContext: SubscriptionContext, userHelpRequest: UserHelpRequest }',
         },
     ],
 
@@ -76,7 +76,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, organization: organizationInput, subscriptionPlan: planInput, isTrial } = data
+                const { dv, sender, organization: organizationInput, pricingRule: pricingRuleId, isTrial } = data
 
                 const [organization] = await find('Organization', {
                     id: organizationInput.id,
@@ -86,13 +86,20 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
 
-                const [plan] = await find('SubscriptionPlan', {
-                    id: planInput.id,
+                // Get pricing rule with subscription plan
+                const [pricingRule] = await find('SubscriptionPlanPricingRule', {
+                    id: pricingRuleId,
                     isHidden: false,
                     deletedAt: null,
                 })
-                if (!plan) {
-                    throw new GQLError(ERRORS.PLAN_NOT_FOUND, context)
+                if (!pricingRule) {
+                    throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
+                }
+
+                // Get the subscription plan from the pricing rule
+                const plan = await getById('SubscriptionPlan', pricingRule.subscriptionPlan)
+                if (!plan || plan.isHidden || plan.deletedAt) {
+                    throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
                 }
 
                 if (plan.organizationType && plan.organizationType !== organization.type) {
@@ -101,18 +108,16 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
 
                 const user = await getById('User', context.authedItem.id)
                 if (!isTrial) {
-                    await UserHelpRequest.create(context, {
+                    const createdHelpRequest = await UserHelpRequest.create(context, {
                         dv,
                         sender,
                         type: ACTIVATE_SUBSCRIPTION_TYPE,
                         organization: { connect: { id: organization.id } },
+                        subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
                         phone: user.phone,
-                        meta: {
-                            subscriptionPlanId: plan.id,
-                            subscriptionPlanName: plan.name,
-                        },
                     })
-                    return { subscriptionContext: null }
+                    const userHelpRequest = await getById('UserHelpRequest', createdHelpRequest.id)
+                    return { subscriptionContext: null, userHelpRequest }
                 }
 
                 if (plan.trialDays <= 0) {
@@ -142,7 +147,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                 })
                 const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
 
-                return { subscriptionContext }
+                return { subscriptionContext, userHelpRequest: null }
             },
         },
     ],

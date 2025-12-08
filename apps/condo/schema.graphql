@@ -49496,6 +49496,7 @@ type UserHelpRequestHistoryRecord {
   type: String
   organization: String
   billingIntegration: String
+  subscriptionPlanPricingRule: String
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -49544,6 +49545,10 @@ input UserHelpRequestHistoryRecordWhereInput {
   billingIntegration_not: String
   billingIntegration_in: [String]
   billingIntegration_not_in: [String]
+  subscriptionPlanPricingRule: String
+  subscriptionPlanPricingRule_not: String
+  subscriptionPlanPricingRule_in: [String]
+  subscriptionPlanPricingRule_not_in: [String]
   phone: String
   phone_not: String
   phone_contains: String
@@ -49699,6 +49704,7 @@ input UserHelpRequestHistoryRecordUpdateInput {
   type: String
   organization: String
   billingIntegration: String
+  subscriptionPlanPricingRule: String
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -49726,6 +49732,7 @@ input UserHelpRequestHistoryRecordCreateInput {
   type: String
   organization: String
   billingIntegration: String
+  subscriptionPlanPricingRule: String
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -49755,6 +49762,13 @@ enum UserHelpRequestTypeType {
   activateSubscription
 }
 
+input SubscriptionPlanPricingRuleRelateToOneInput {
+  create: SubscriptionPlanPricingRuleCreateInput
+  connect: SubscriptionPlanPricingRuleWhereUniqueInput
+  disconnect: SubscriptionPlanPricingRuleWhereUniqueInput
+  disconnectAll: Boolean
+}
+
 """ Request from the user to help him with some functionality """
 type UserHelpRequest {
   """
@@ -49777,6 +49791,9 @@ type UserHelpRequest {
   """ ID of the billing integration that is configured to receive data for the organization 
   """
   billingIntegration: BillingIntegration
+
+  """ Pricing rule for subscription activation """
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRule
 
   """ Specified phone in request for callback """
   phone: String
@@ -49825,6 +49842,8 @@ input UserHelpRequestWhereInput {
   organization_is_null: Boolean
   billingIntegration: BillingIntegrationWhereInput
   billingIntegration_is_null: Boolean
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereInput
+  subscriptionPlanPricingRule_is_null: Boolean
   phone: String
   phone_not: String
   phone_contains: String
@@ -49936,6 +49955,8 @@ enum SortUserHelpRequestsBy {
   organization_DESC
   billingIntegration_ASC
   billingIntegration_DESC
+  subscriptionPlanPricingRule_ASC
+  subscriptionPlanPricingRule_DESC
   phone_ASC
   phone_DESC
   email_ASC
@@ -49964,6 +49985,7 @@ input UserHelpRequestUpdateInput {
   type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
   billingIntegration: BillingIntegrationRelateToOneInput
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -49988,6 +50010,7 @@ input UserHelpRequestCreateInput {
   type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
   billingIntegration: BillingIntegrationRelateToOneInput
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -89070,12 +89093,13 @@ input ActivateSubscriptionPlanInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
-  subscriptionPlan: SubscriptionPlanWhereUniqueInput!
+  pricingRule: ID!
   isTrial: Boolean!
 }
 
 type ActivateSubscriptionPlanOutput {
   subscriptionContext: SubscriptionContext
+  userHelpRequest: UserHelpRequest
 }
 
 input RegisterMultiPaymentReceiptAmountInput {
@@ -103179,8 +103203,8 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "PLAN_NOT_FOUND",
-    "message": "Subscription plan not found or inactive"
+    "type": "PRICING_RULE_NOT_FOUND",
+    "message": "Pricing rule not found or inactive"
   }`
   
   `{
