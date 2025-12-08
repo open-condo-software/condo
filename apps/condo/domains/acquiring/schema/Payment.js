@@ -11,7 +11,6 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
-const { sendWebhookPayload } = require('@open-condo/webhooks/utils')
 
 const access = require('@condo/domains/acquiring/access/Payment')
 const {
@@ -42,12 +41,8 @@ const {
 } = require('@condo/domains/acquiring/constants/payment')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
+const { sendPaymentStatusChangeWebhook } = require('@condo/domains/acquiring/tasks')
 const { AcquiringIntegrationContext, Payment: PaymentGQL } = require('@condo/domains/acquiring/utils/serverSchema')
-const {
-    getWebhookCallbackUrl,
-    getWebhookSecret,
-    buildPaymentWebhookPayload,
-} = require('@condo/domains/acquiring/utils/serverSchema/paymentWebhookHelpers')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const {
@@ -500,30 +495,16 @@ const Payment = new GQLListSchema('Payment', {
             }
         },
         afterChange: async ({ context, operation, existingItem, updatedItem }) => {
-            // Trigger webhook on status change FIRST - this must always happen
+            // Trigger webhook task on status change FIRST - this must always happen
             // regardless of any subsequent operations that might fail
             const previousStatus = get(existingItem, 'status')
             const newStatus = get(updatedItem, 'status')
             const statusChanged = operation === 'update' && previousStatus !== newStatus
 
             if (statusChanged) {
-                // Get callback URL and secret from invoice or receipt
-                const url = await getWebhookCallbackUrl(updatedItem)
-                const secret = await getWebhookSecret(updatedItem)
-
-                if (url && secret) {
-                    const payload = await buildPaymentWebhookPayload(updatedItem, previousStatus, newStatus)
-
-                    await sendWebhookPayload(context, {
-                        url,
-                        payload,
-                        secret,
-                        eventType: 'payment.status.changed',
-                        modelName: 'Payment',
-                        itemId: updatedItem.id,
-                        sender: { dv: 1, fingerprint: 'payment-webhook-trigger' },
-                    })
-                }
+                // Queue background task to build and send webhook
+                // This minimizes async operations in the hook
+                await sendPaymentStatusChangeWebhook.delay(updatedItem.id, previousStatus, newStatus)
             }
 
             // Update invoice status when payment is done
