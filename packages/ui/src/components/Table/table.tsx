@@ -93,6 +93,28 @@ function TableComponent<TData extends RowData = RowData> (
         getRowId,
     } = props
 
+    const [sorting, setSorting] = useState<SortingState>(
+        initialTableState.sortState
+            .filter(sortCol => tableColumns.find(col => sortCol.id === col.id)?.enableSorting)
+    )
+
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+        Object.entries(initialTableState.filterState)
+            .map(([key, value]) => ({ id: key, value: value }))
+            .filter(filterCol => tableColumns.find(col => filterCol.id === col.id)?.enableColumnFilter)
+    )
+    const [globalFilter, setGlobalFilter] = useState<string | undefined>(initialTableState.globalFilter)
+    const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
+    const [tableData, setTableData] = useState<TData[]>([])
+    const [rowCount, setRowCount] = useState<number>(0)
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>(
+        initialTableState.rowSelectionState
+            ?.reduce((acc, selectedRow) => {
+                acc[selectedRow] = true
+                return acc
+            }, {} as RowSelectionState) || {})
+    const [internalLoading, setInternalLoading] = useState<boolean>(true)
+
     const columnHelper = createColumnHelper<TData>()
     const tableColumns = useMemo(() => {
         const resultColumns: ColumnDefWithId<TData>[] = []
@@ -184,7 +206,7 @@ function TableComponent<TData extends RowData = RowData> (
         })
 
         return resultColumns
-    }, [columns, columnHelper, defaultColumn, rowSelectionOptions?.enableRowSelection])
+    }, [columns, columnHelper, defaultColumn, rowSelectionOptions?.enableRowSelection, globalFilter])
     
     const {
         columnVisibility,
@@ -205,28 +227,6 @@ function TableComponent<TData extends RowData = RowData> (
         }
         return tableColumns
     }, [tableColumns, columnOrder])
-
-    const [sorting, setSorting] = useState<SortingState>(
-        initialTableState.sortState
-            .filter(sortCol => tableColumns.find(col => sortCol.id === col.id)?.enableSorting)
-    )
-
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-        Object.entries(initialTableState.filterState)
-            .map(([key, value]) => ({ id: key, value: value }))
-            .filter(filterCol => tableColumns.find(col => filterCol.id === col.id)?.enableColumnFilter)
-    )
-    const [globalFilter, setGlobalFilter] = useState<string | undefined>(initialTableState.globalFilter)
-    const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
-    const [tableData, setTableData] = useState<TData[]>([])
-    const [rowCount, setRowCount] = useState<number>(0)
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>(
-        initialTableState.rowSelectionState
-            ?.reduce((acc, selectedRow) => {
-                acc[selectedRow] = true
-                return acc
-            }, {} as RowSelectionState) || {})
-    const [internalLoading, setInternalLoading] = useState<boolean>(true)
 
     // NOTE: This effect should be first, because if we have error in this effect, we don't want to change the table state and fetch new data
     useEffect(() => {
