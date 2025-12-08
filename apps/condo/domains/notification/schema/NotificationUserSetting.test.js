@@ -392,5 +392,59 @@ describe('NotificationUserSetting', () => {
             expect(obj.messageTransport).toEqual(PUSH_TRANSPORT)
             expect(obj.isEnabled).toBe(false)
         })
+
+        test('can have multiple deleted global settings without messageType or messageTransport', async () => {
+            // Create and soft-delete first global setting without messageType
+            const [obj1] = await createTestNotificationUserSetting(supportClient, {
+                user: null,
+                messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+                messageTransport: PUSH_TRANSPORT,
+            })
+            await updateTestNotificationUserSetting(supportClient, obj1.id, {
+                deletedAt: 'true',
+            })
+
+            // Create and soft-delete second global setting
+            const [obj2] = await createTestNotificationUserSetting(supportClient, {
+                user: null,
+                messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+                messageTransport: PUSH_TRANSPORT,
+            })
+            await updateTestNotificationUserSetting(supportClient, obj2.id, {
+                deletedAt: 'true',
+            })
+
+            // Both should exist as deleted
+            const deletedSettings = await NotificationUserSetting.getAll(adminClient, {
+                id_in: [obj1.id, obj2.id],
+                deletedAt_not: null,
+            })
+
+            expect(deletedSettings).toHaveLength(2)
+        })
+
+        test('user setting can have only messageType (without messageTransport)', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [obj] = await createTestNotificationUserSetting(client, {
+                messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE,
+                messageTransport: null,
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.messageType).toEqual(NEWS_ITEM_COMMON_MESSAGE_TYPE)
+            expect(obj.messageTransport).toBeNull()
+        })
+
+        test('user setting can have only messageTransport (without messageType)', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [obj] = await createTestNotificationUserSetting(client, {
+                messageType: null,
+                messageTransport: PUSH_TRANSPORT,
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.messageType).toBeNull()
+            expect(obj.messageTransport).toEqual(PUSH_TRANSPORT)
+        })
     })
 })
