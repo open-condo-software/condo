@@ -6129,8 +6129,8 @@ input OrganizationLinkRelateToManyInput {
 
 enum OrganizationFeature {
   SPP
-  active_banking
-  high_revenue_customer
+  ACTIVE_BANKING
+  HIGH_REVENUE_CUSTOMER
 }
 
 """ B2B customer of the service, a legal entity or an association of legal entities (holding/group) 

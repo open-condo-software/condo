@@ -95,13 +95,13 @@ CREATE INDEX "SubscriptionContext_updatedBy_a00d428c" ON "SubscriptionContext" (
 UPDATE "OrganizationEmployeeRole" SET "canManageSubscriptions" = true WHERE "name" = 'employee.role.Administrator.name';
 
 --
--- [CUSTOM] Add active_banking feature to all SBBOL organizations
+-- [CUSTOM] Add ACTIVE_BANKING feature to all SBBOL organizations
 --
 UPDATE "Organization" 
-SET features = COALESCE(features, '[]'::jsonb) || '"active_banking"'::jsonb
+SET features = COALESCE(features, '[]'::jsonb) || '"ACTIVE_BANKING"'::jsonb
 WHERE "importRemoteSystem" = 'sbbol' 
   AND "deletedAt" IS NULL
-  AND NOT (COALESCE(features, '[]'::jsonb) @> '"active_banking"'::jsonb);
+  AND NOT (COALESCE(features, '[]'::jsonb) @> '"ACTIVE_BANKING"'::jsonb);
 
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs

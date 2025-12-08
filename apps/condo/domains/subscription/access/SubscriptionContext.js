@@ -12,7 +12,7 @@ async function canReadSubscriptionContexts ({ authentication: { item: user }, co
 
     if (user.isAdmin || user.isSupport) return {}
 
-    // Employee can read their organization's subscription contextsx
+    // Employee can read their organization's subscription contexts
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
     
     return {

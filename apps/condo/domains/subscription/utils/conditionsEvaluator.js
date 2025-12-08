@@ -8,7 +8,7 @@
  * }
  * 
  * Single condition:
- * { fact: 'organizationFeatures', operator: 'contains', value: 'active_banking' }
+ * { fact: 'organizationFeatures', operator: 'contains', value: 'ACTIVE_BANKING' }
  * 
  * Facts (from organization):
  * - organizationIds (array) - [organization.id]
