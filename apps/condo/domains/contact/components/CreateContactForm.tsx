@@ -23,6 +23,7 @@ import {
 import Input from '@condo/domains/common/components/antd/Input'
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -63,6 +64,8 @@ export const CreateContactForm: React.FC = () => {
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
+    const NoteLabel = intl.formatMessage({ id: 'Note' })
+    const NoteVisibilityHint = intl.formatMessage({ id: 'contact.note.visibility.hint' })
     const SubmitButtonLabel = intl.formatMessage({ id: 'AddContact' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholderMessage = intl.formatMessage({ id: 'placeholder.Address' })
@@ -308,6 +311,16 @@ export const CreateContactForm: React.FC = () => {
                                             {...INPUT_LAYOUT_PROPS}
                                         >
                                             <Input placeholder={ExampleEmailMessage} />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col lg={18} xs={24}>
+                                        <Form.Item
+                                            name='note'
+                                            label={<LabelWithInfo message={NoteLabel} title={NoteVisibilityHint} />}
+                                            labelAlign='left'
+                                            {...INPUT_LAYOUT_PROPS}
+                                        >
+                                            <Input />
                                         </Form.Item>
                                     </Col>
                                     <Col lg={18} xs={24}>

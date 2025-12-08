@@ -191,6 +191,8 @@
   "NoPermissionToSettings": "You have no permission to view this tab content...",
   "NoReceiptsLoaded": "There's no data in our system, or it's currently loading",
   "NotFound": "Not found",
+  "Note": "Note",
+  "contact.note.visibility.hint": "Only visible to your organization",
   "NotImplementedYet": "We don't know how to do this yet, but we will definitely learn",
   "Now": "Now",
   "NumberIsNotValid": "Please enter the correct number",
