@@ -500,22 +500,8 @@ const Payment = new GQLListSchema('Payment', {
             }
         },
         afterChange: async ({ context, operation, existingItem, updatedItem }) => {
-            // Update invoice status when payment is done
-            if (
-                updatedItem.invoice
-                && [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS].includes(get(updatedItem, 'status'))
-            ) {
-                const invoice = await getById('Invoice', updatedItem.invoice)
-                if (get(invoice, 'status') === INVOICE_STATUS_PUBLISHED) {
-                    await Invoice.update(context, invoice.id, {
-                        dv: updatedItem.dv,
-                        sender: updatedItem.sender,
-                        status: INVOICE_STATUS_PAID,
-                    })
-                }
-            }
-
-            // Trigger webhook on status change
+            // Trigger webhook on status change FIRST - this must always happen
+            // regardless of any subsequent operations that might fail
             const previousStatus = get(existingItem, 'status')
             const newStatus = get(updatedItem, 'status')
             const statusChanged = operation === 'update' && previousStatus !== newStatus
@@ -536,6 +522,21 @@ const Payment = new GQLListSchema('Payment', {
                         modelName: 'Payment',
                         itemId: updatedItem.id,
                         sender: { dv: 1, fingerprint: 'payment-webhook-trigger' },
+                    })
+                }
+            }
+
+            // Update invoice status when payment is done
+            if (
+                updatedItem.invoice
+                && [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS].includes(get(updatedItem, 'status'))
+            ) {
+                const invoice = await getById('Invoice', updatedItem.invoice)
+                if (get(invoice, 'status') === INVOICE_STATUS_PUBLISHED) {
+                    await Invoice.update(context, invoice.id, {
+                        dv: updatedItem.dv,
+                        sender: updatedItem.sender,
+                        status: INVOICE_STATUS_PAID,
                     })
                 }
             }
