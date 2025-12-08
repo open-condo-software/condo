@@ -16,7 +16,7 @@ const {
     PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     applyWebhookSecretGeneration,
     validateCallbackUrlInWhitelist,
-} = require('@condo/domains/acquiring/schema/fields/webhookCallback')
+} = require('@condo/domains/acquiring/schema/fields/paymentChangeWebhook')
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { DEFAULT_BILLING_CATEGORY_ID, CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
 const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')

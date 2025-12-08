@@ -51,6 +51,9 @@ async function sendWebhookPayload (context, options) {
         throw new Error('Missing required parameters: url, payload, secret, and eventType are required')
     }
 
+    // Stringify payload if it's an object (EncryptedText field requires string)
+    const payloadString = typeof payload === 'string' ? payload : JSON.stringify(payload)
+
     // Use sudo context because WebhookPayload access is restricted to admin/support only,
     // but this internal operation should work regardless of who triggered it
     const sudoContext = context.sudo()
@@ -58,7 +61,7 @@ async function sendWebhookPayload (context, options) {
     const webhookPayload = await WebhookPayload.create(sudoContext, {
         dv: 1,
         sender,
-        payload,
+        payload: payloadString,
         url,
         secret,
         eventType,

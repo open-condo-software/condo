@@ -88191,9 +88191,9 @@ type WebhookPayloadHistoryRecord {
    4. As an alias to the 'id' field on the WebhookPayloadHistoryRecord List.
   """
   _label_: String
-  payload: JSON
   url: String
-  secret: String
+  payload: JSON
+  secret: JSON
   eventType: String
   modelName: String
   itemId: String
@@ -88223,10 +88223,6 @@ type WebhookPayloadHistoryRecord {
 input WebhookPayloadHistoryRecordWhereInput {
   AND: [WebhookPayloadHistoryRecordWhereInput]
   OR: [WebhookPayloadHistoryRecordWhereInput]
-  payload: JSON
-  payload_not: JSON
-  payload_in: [JSON]
-  payload_not_in: [JSON]
   url: String
   url_not: String
   url_contains: String
@@ -88245,24 +88241,14 @@ input WebhookPayloadHistoryRecordWhereInput {
   url_not_ends_with_i: String
   url_in: [String]
   url_not_in: [String]
-  secret: String
-  secret_not: String
-  secret_contains: String
-  secret_not_contains: String
-  secret_starts_with: String
-  secret_not_starts_with: String
-  secret_ends_with: String
-  secret_not_ends_with: String
-  secret_i: String
-  secret_not_i: String
-  secret_contains_i: String
-  secret_not_contains_i: String
-  secret_starts_with_i: String
-  secret_not_starts_with_i: String
-  secret_ends_with_i: String
-  secret_not_ends_with_i: String
-  secret_in: [String]
-  secret_not_in: [String]
+  payload: JSON
+  payload_not: JSON
+  payload_in: [JSON]
+  payload_not_in: [JSON]
+  secret: JSON
+  secret_not: JSON
+  secret_in: [JSON]
+  secret_not_in: [JSON]
   eventType: String
   eventType_not: String
   eventType_contains: String
@@ -88496,8 +88482,6 @@ input WebhookPayloadHistoryRecordWhereUniqueInput {
 enum SortWebhookPayloadHistoryRecordsBy {
   url_ASC
   url_DESC
-  secret_ASC
-  secret_DESC
   eventType_ASC
   eventType_DESC
   modelName_ASC
@@ -88539,9 +88523,9 @@ enum SortWebhookPayloadHistoryRecordsBy {
 }
 
 input WebhookPayloadHistoryRecordUpdateInput {
-  payload: JSON
   url: String
-  secret: String
+  payload: JSON
+  secret: JSON
   eventType: String
   modelName: String
   itemId: String
@@ -88573,9 +88557,9 @@ input WebhookPayloadHistoryRecordsUpdateInput {
 }
 
 input WebhookPayloadHistoryRecordCreateInput {
-  payload: JSON
   url: String
-  secret: String
+  payload: JSON
+  secret: JSON
   eventType: String
   modelName: String
   itemId: String
@@ -88611,7 +88595,7 @@ enum WebhookPayloadStatusType {
   failed
 }
 
-""" Stores webhook payloads for delivery. Contains ready-to-send payload, URL, and secret. Tracks delivery status, retries, and responses from external servers. 
+""" Stores webhook payloads for sending. Contains ready-to-send payload, URL, and secret. Tracks sending status, retries, and responses from external servers. 
 """
 type WebhookPayload {
   """
@@ -88623,16 +88607,18 @@ type WebhookPayload {
   """
   _label_: String
 
-  """ Ready-to-send JSON payload for the webhook """
-  payload: JSON
-
-  """ Target URL for webhook delivery """
+  """ Target URL for sending webhook """
   url: String
 
-  """ Secret key for HMAC-SHA256 signature generation """
+  """ Ready-to-send JSON payload for the webhook. Encrypted at rest for security. 
+  """
+  payload: String
+
+  """ Secret key for HMAC-SHA256 signature generation. Encrypted at rest for security. 
+  """
   secret: String
 
-  """ Type of event that triggered this webhook (e.g., "payment.status.changed") 
+  """ Type of event that triggered this webhook. Use dot-notation format: "{resource}.{action}" or "{resource}.{sub-resource}.{action}". Examples: "payment.created", "payment.status.changed", "invoice.paid", "user.deleted". Use lowercase with dots as separators. 
   """
   eventType: String
 
@@ -88642,30 +88628,29 @@ type WebhookPayload {
   """ ID of the record that triggered this webhook """
   itemId: String
 
-  """ Delivery status: pending (waiting for delivery/retry), success (delivered successfully), failed (permanently failed after TTL expired) 
+  """ Sending status: pending (waiting to send/retry), success (sent successfully), failed (permanently failed after TTL expired) 
   """
   status: WebhookPayloadStatusType
 
-  """ Number of delivery attempts made (starts at 0) """
+  """ Number of send attempts made (starts at 0) """
   attempt: Int
 
-  """ HTTP status code from the last delivery attempt """
+  """ HTTP status code from the last send attempt """
   lastHttpStatusCode: Int
 
-  """ Response body from the last delivery attempt (truncated to 1000 chars) 
-  """
+  """ Response body from the last send attempt (truncated to 1000 chars) """
   lastResponseBody: String
 
-  """ Error message from the last delivery attempt """
+  """ Error message from the last send attempt """
   lastErrorMessage: String
 
-  """ Timestamp after which no more delivery attempts will be made """
+  """ Timestamp after which no more send attempts will be made """
   expiresAt: String
 
-  """ Timestamp for the next delivery attempt """
+  """ Timestamp for the next send attempt """
   nextRetryAt: String
 
-  """ Timestamp of the last delivery attempt """
+  """ Timestamp of the last send attempt """
   lastSentAt: String
   id: ID!
   v: Int
@@ -88693,10 +88678,6 @@ type WebhookPayload {
 input WebhookPayloadWhereInput {
   AND: [WebhookPayloadWhereInput]
   OR: [WebhookPayloadWhereInput]
-  payload: JSON
-  payload_not: JSON
-  payload_in: [JSON]
-  payload_not_in: [JSON]
   url: String
   url_not: String
   url_contains: String
@@ -88715,6 +88696,24 @@ input WebhookPayloadWhereInput {
   url_not_ends_with_i: String
   url_in: [String]
   url_not_in: [String]
+  payload: String
+  payload_not: String
+  payload_contains: String
+  payload_not_contains: String
+  payload_starts_with: String
+  payload_not_starts_with: String
+  payload_ends_with: String
+  payload_not_ends_with: String
+  payload_i: String
+  payload_not_i: String
+  payload_contains_i: String
+  payload_not_contains_i: String
+  payload_starts_with_i: String
+  payload_not_starts_with_i: String
+  payload_ends_with_i: String
+  payload_not_ends_with_i: String
+  payload_in: [String]
+  payload_not_in: [String]
   secret: String
   secret_not: String
   secret_contains: String
@@ -88932,6 +88931,8 @@ input WebhookPayloadWhereUniqueInput {
 enum SortWebhookPayloadsBy {
   url_ASC
   url_DESC
+  payload_ASC
+  payload_DESC
   secret_ASC
   secret_DESC
   eventType_ASC
@@ -88975,8 +88976,8 @@ enum SortWebhookPayloadsBy {
 }
 
 input WebhookPayloadUpdateInput {
-  payload: JSON
   url: String
+  payload: String
   secret: String
   eventType: String
   modelName: String
@@ -89006,8 +89007,8 @@ input WebhookPayloadsUpdateInput {
 }
 
 input WebhookPayloadCreateInput {
-  payload: JSON
   url: String
+  payload: String
   secret: String
   eventType: String
   modelName: String

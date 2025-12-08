@@ -121,7 +121,7 @@ describe('webhookDelivery utilities', () => {
                         'Content-Type': 'application/json',
                         'X-Webhook-Signature': expect.any(String),
                         'X-Webhook-Event': 'test.event',
-                        'X-Webhook-Delivery-Id': 'test-delivery-id',
+                        'X-Webhook-Id': 'test-delivery-id',
                     }),
                     abortRequestTimeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,
                 })

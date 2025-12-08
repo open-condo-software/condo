@@ -29,6 +29,9 @@ const WEBHOOK_PAYLOAD_RETRY_INTERVALS = [
 // HTTP request timeout for webhook payload delivery (in milliseconds)
 const WEBHOOK_PAYLOAD_TIMEOUT_MS = 30000
 
+// How long to keep webhook payload records before hard deletion (in days)
+const WEBHOOK_PAYLOAD_RETENTION_DAYS = 42
+
 // Maximum length of response body to store
 const WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH = 1000
 
@@ -43,5 +46,6 @@ module.exports = {
     WEBHOOK_PAYLOAD_TTL_DAYS,
     WEBHOOK_PAYLOAD_RETRY_INTERVALS,
     WEBHOOK_PAYLOAD_TIMEOUT_MS,
+    WEBHOOK_PAYLOAD_RETENTION_DAYS,
     WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH,
 }
