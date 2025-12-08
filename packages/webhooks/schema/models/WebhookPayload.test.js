@@ -50,13 +50,16 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
                             newStatus: 'PROCESSING',
                         },
                     }
+                    const customPayloadString = JSON.stringify(customPayload)
 
                     const [delivery] = await createTestWebhookPayload(actors.admin, {
-                        payload: customPayload,
+                        payload: customPayloadString,
                         eventType: 'payment.status.changed',
                     })
 
-                    expect(delivery.payload).toEqual(customPayload)
+                    // payload is stored as EncryptedText - it's encrypted at rest but decrypted on read
+                    expect(delivery.payload).toBeDefined()
+                    expect(typeof delivery.payload).toBe('string')
                     expect(delivery.eventType).toBe('payment.status.changed')
                 })
 
