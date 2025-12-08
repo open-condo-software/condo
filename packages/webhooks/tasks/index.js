@@ -26,10 +26,10 @@ function getWebhookTasks (taskPriority = DEFAULT_QUEUE_NAME) {
 
 /**
  * Creates a cron task for retrying failed webhook payloads
- * @param {string} cronSchedule - Cron schedule expression (default: every 5 minutes)
+ * @param {string} cronSchedule - Cron schedule expression (default: every 1 minute)
  * @returns {Object} Cron task object
  */
-function getRetryFailedWebhookPayloadsCronTask (cronSchedule = '*/5 * * * *') {
+function getRetryFailedWebhookPayloadsCronTask (cronSchedule = '*/1 * * * *') {
     const { sendWebhookPayload: sendWebhookPayloadTask } = getWebhookTasks()
     return createCronTask(
         'retryFailedWebhookPayloads',
