@@ -21,7 +21,7 @@ const {
     createTestPaymentStatusChangeWebhookUrl,
     updateTestPaymentStatusChangeWebhookUrl,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('PaymentStatusChangeWebhookUrl', () => {
@@ -77,6 +77,16 @@ describe('PaymentStatusChangeWebhookUrl', () => {
                     await createTestPaymentStatusChangeWebhookUrl(userClient)
                 })
             })
+
+            test('support: can create PaymentStatusChangeWebhookUrl', async () => {
+                const supportClient = await makeClientWithSupportUser()
+
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(supportClient)
+
+                expect(item.id).toMatch(UUID_RE)
+                expect(item.url).toContain('https://')
+                expect(item.isEnabled).toBe(true)
+            })
         })
 
         describe('Read', () => {
@@ -105,6 +115,16 @@ describe('PaymentStatusChangeWebhookUrl', () => {
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
                     await PaymentStatusChangeWebhookUrl.getOne(userClient, { id: item.id })
                 })
+            })
+
+            test('support: can read PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
+                const supportClient = await makeClientWithSupportUser()
+
+                const readItem = await PaymentStatusChangeWebhookUrl.getOne(supportClient, { id: item.id })
+
+                expect(readItem.id).toBe(item.id)
+                expect(readItem.url).toBe(item.url)
             })
         })
 
@@ -153,6 +173,19 @@ describe('PaymentStatusChangeWebhookUrl', () => {
                     })
                 })
             })
+
+            test('support: can update PaymentStatusChangeWebhookUrl', async () => {
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient)
+                const supportClient = await makeClientWithSupportUser()
+
+                const [updatedItem] = await updateTestPaymentStatusChangeWebhookUrl(supportClient, item.id, {
+                    isEnabled: false,
+                    name: 'Updated by Support',
+                })
+
+                expect(updatedItem.isEnabled).toBe(false)
+                expect(updatedItem.name).toBe('Updated by Support')
+            })
         })
 
         describe('Delete', () => {
@@ -176,6 +209,17 @@ describe('PaymentStatusChangeWebhookUrl', () => {
                 // Should not be found in normal queries
                 const found = await PaymentStatusChangeWebhookUrl.getOne(adminClient, { id: item.id })
                 expect(found).toBeUndefined()
+            })
+
+            test('support: can soft delete PaymentStatusChangeWebhookUrl', async () => {
+                const supportClient = await makeClientWithSupportUser()
+                const [item] = await createTestPaymentStatusChangeWebhookUrl(supportClient)
+
+                const [deletedItem] = await updateTestPaymentStatusChangeWebhookUrl(supportClient, item.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+
+                expect(deletedItem.deletedAt).not.toBeNull()
             })
         })
     })
