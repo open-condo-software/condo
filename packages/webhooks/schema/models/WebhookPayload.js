@@ -70,7 +70,7 @@ const WebhookPayload = new GQLListSchema('WebhookPayload', {
 
         itemId: {
             schemaDoc: 'ID of the record that triggered this webhook',
-            type: 'Text',
+            type: 'Uuid',
             isRequired: false,
         },
 
