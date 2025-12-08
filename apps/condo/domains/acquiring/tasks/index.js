@@ -16,6 +16,9 @@ const {
     removeOrphansRecurrentPaymentContexts,
     removeOutdatedRecurrentPayments,
 } = require('@condo/domains/acquiring/tasks/removeRecurrentPayments')
+const {
+    sendPaymentStatusChangeWebhook,
+} = require('@condo/domains/acquiring/tasks/sendPaymentStatusChangeWebhook')
 
 /**
  * There are a list of jobs that main should have at list one sequence:
@@ -46,4 +49,5 @@ module.exports = {
 
     removeOrphansRecurrentPaymentContexts: createTask('removeOrphansRecurrentPaymentContexts', removeOrphansRecurrentPaymentContexts),
     removeOutdatedRecurrentPayments: createTask('removeOutdatedRecurrentPayments', removeOutdatedRecurrentPayments),
+    sendPaymentStatusChangeWebhook: createTask('sendPaymentStatusChangeWebhook', sendPaymentStatusChangeWebhook),
 }
