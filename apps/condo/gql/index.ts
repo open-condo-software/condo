@@ -1145,6 +1145,7 @@ export const GetContactsForTableDocument = gql`
     organization {
       id
       name
+      phoneNumberPrefix
     }
     property {
       id

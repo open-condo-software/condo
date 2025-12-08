@@ -114,6 +114,7 @@ query getContactsForTable ($where: ContactWhereInput, $first: Int, $skip: Int, $
         organization {
             id
             name
+            phoneNumberPrefix
         }
         property {
             id

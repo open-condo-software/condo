@@ -1,13 +1,9 @@
 import { GetContactsForTableQuery } from '@app/condo/gql'
-import { 
-    Contact, 
-    ContactWhereInput, 
-    ContactRole,
-} from '@app/condo/schema'
+import { ContactWhereInput } from '@app/condo/schema'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { TableColumn } from '@open-condo/ui'
+import { TableColumn, RenderTableCell } from '@open-condo/ui'
 
 import {
     getAddressRender, 
@@ -18,9 +14,11 @@ import {
 } from '@condo/domains/common/components/Table/Renders'
 import { getFilterComponentByKey, OpenFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 
+type TData = GetContactsForTableQuery['contacts'][number]
+
 type UseTableColumns = (
     filterMetas: Array<OpenFiltersMeta<ContactWhereInput>>,
-) => TableColumn<GetContactsForTableQuery['contacts'][number]>[]
+) => TableColumn<TData>[]
 export const useTableColumns: UseTableColumns = (filterMetas) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
@@ -38,46 +36,43 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
     const NoMessage = intl.formatMessage({ id: 'No' })
 
 
-    const renderName = useCallback(
+    const renderName = useCallback<RenderTableCell<TData, TData['name']>>(
         (name, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(name)
         , [])
 
-    const renderAddress = useCallback(
+    const renderAddress = useCallback<RenderTableCell<TData>>(
         (_, contact, __, globalFilter) => getAddressRender(contact?.property, DeletedMessage, globalFilter)
         , [DeletedMessage])
 
-    const renderRole = useCallback(
-        (role: ContactRole, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(role?.name ?? '—')
+    const renderRole = useCallback<RenderTableCell<TData, TData['role']>>(
+        (role, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(role?.name ?? '—')
         , [])
 
-    const renderUnitName = useCallback(
-        (text, contact, _, globalFilter) => getUnitNameRender<Contact>(intl, text, contact, globalFilter)
+    const renderUnitName = useCallback<RenderTableCell<TData, TData['unitName']>>(
+        (text, contact, _, globalFilter) => getUnitNameRender<TData>(intl, text, contact, globalFilter)
         , [intl])
 
-    const renderUnitType = useCallback(
-        (text, contact, _, globalFilter) => getUnitTypeRender<Contact>(intl, text, contact, globalFilter)
+    const renderUnitType = useCallback<RenderTableCell<TData, TData['unitType']>>(
+        (text, contact, _, globalFilter) => getUnitTypeRender<TData>(intl, text, contact, globalFilter)
         , [intl])
 
-    const renderDate = useCallback(
-        (date, _, __, globalFilter) => getDateRender(intl, String(globalFilter))(date),
-        [intl])
+    const renderDate = useCallback<RenderTableCell<TData, TData['createdAt']>>(
+        (date, _, __, globalFilter) => getDateRender(intl, globalFilter)(date)
+        , [intl])
 
-    const renderPhone = useCallback(
-        (phone, contact, _, globalFilter) => {
-            const phonePrefix = contact?.organization?.phoneNumberPrefix
+    const renderPhone = useCallback<RenderTableCell<TData, TData['phone']>>(
+        (phone, contact, _, globalFilter) => getTableCellRenderer({ search: globalFilter, href: `tel:${contact?.organization?.phoneNumberPrefix ?? ''}${phone}` })(phone)
+        , [])
 
-            return getTableCellRenderer({ search: globalFilter, href: `tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}` })(phone)
-        }, [])
+    const renderIsVerified = useCallback<RenderTableCell<TData, TData['isVerified']>>(
+        (isVerified, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(isVerified ? YesMessage : NoMessage)
+        , [NoMessage, YesMessage])
 
-    const renderIsVerified = useCallback(
-        (isVerified, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(isVerified ? YesMessage : NoMessage),
-        [NoMessage, YesMessage])
-
-    const renderEmail = useCallback(
+    const renderEmail = useCallback<RenderTableCell<TData, TData['email']>>(
         (email, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, href: email ? `mailto:${email}` : undefined, ellipsis: true })(email ?? '—')
         , [])
 
-    const renderCommunityFee = useCallback(
+    const renderCommunityFee = useCallback<RenderTableCell<TData, TData['communityFee']>>(
         (communityFee, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(communityFee)
         , [])
 

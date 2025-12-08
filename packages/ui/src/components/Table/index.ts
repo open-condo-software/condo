@@ -11,6 +11,7 @@ import './style.less'
 export type { 
     TableProps, 
     TableColumn, 
+    RenderTableCell,
     TableLabels, 
     GetTableData, 
     TableState, 

@@ -16,6 +16,7 @@ import {
 import { Col, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import chunk from 'lodash/chunk'
+import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -39,14 +40,13 @@ import {
     Typography,
     GetTableData,
     Input,
-    defaultParseUrlQuery,
-    defaultUpdateUrlQuery,
     TableRef,
     RowSelectionState,
     FilterState,
     SortState,
     TableColumn,
     Table,
+    FullTableState,
 } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
@@ -60,11 +60,12 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { ANALYTICS_RESIDENT_IN_CONTACT_PAGE } from '@condo/domains/common/constants/featureflags'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
-import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useNewQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useNewSearch } from '@condo/domains/common/hooks/useSearch'
+import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
 import { PageComponentType } from '@condo/domains/common/types'
 import { OpenFiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { defaultParseUrlQuery, defaultUpdateUrlQuery } from '@condo/domains/common/utils/tableUrls'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { useContactExportToExcelTask } from '@condo/domains/contact/hooks/useContactExportToExcelTask'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
@@ -135,7 +136,7 @@ const useContactImportIsVerifiedCheckbox = () => {
 type DefaultActionBarProps = {
     getContactsWhere: (filterState: FilterState) => ContactWhereInput
     getContactsSortBy: (sortState: SortState) => SortContactsBy[]
-    tableRef: TableRef
+    tableRef: TableRef | null
 }
 const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, tableRef, getContactsSortBy }) => {
     const intl = useIntl()
@@ -149,8 +150,8 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, t
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions({ isVerifiedRef })
 
     const { ExportButton } = useContactExportToExcelTask({
-        where: getContactsWhere(tableRef?.api?.getFilterState() ?? {}),
-        sortBy: getContactsSortBy(tableRef?.api?.getSorting() ?? []),
+        where: getContactsWhere(tableRef?.api?.getFilterState()),
+        sortBy: getContactsSortBy(tableRef?.api?.getSorting()),
         format: ContactExportTaskFormatType.Excel,
         user,
         timeZone: intl.formatters.getDateTimeFormat().resolvedOptions().timeZone,
@@ -193,7 +194,7 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, t
 }
 
 type ActionBarWithSelectedItemsProps = {
-    tableRef: TableRef
+    tableRef: TableRef | null
     selectedRowsCount: number
 }
 const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({ tableRef, selectedRowsCount }) => {
@@ -415,23 +416,16 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
 
     const [fetchContacts] = useGetContactsForTableLazyQuery()
     const initialTableState = useMemo(() => defaultParseUrlQuery(router.query, CONTACT_PAGE_SIZE), [router.query])
-
-    useEffect(() => {
-        console.log('🔵 ContactsPage mounted/updated', {
-            pathname: router.pathname,
-            asPath: router.asPath,
-            route: router.route,
-        })
-    }, [router.pathname, router.asPath, router.route])
+    const updateUrlQuery = useCallback((params: FullTableState) => defaultUpdateUrlQuery(router, params), [router])
 
     useEffect(() => {
         const handleRouteChangeComplete = (url: string) => {
-            // Извлекаем pathname из URL (убираем query параметры)
             const pathname = url.split('?')[0]
-            // Проверяем, что мы на странице /contact (не /contact/create или /contact/[id])
             if (pathname === '/contact' || pathname === '/contact/') {
                 if (tableRef.current) {
                     const fullTableState = defaultParseUrlQuery(router.query, CONTACT_PAGE_SIZE)
+                    const currentState = tableRef.current.api?.getFullTableState?.()
+                    if (currentState && isEqual(currentState, fullTableState)) return
                     tableRef.current.api?.setFullTableState(fullTableState)
                     handleSearchChange(String(fullTableState.globalFilter || ''))
                 }
@@ -502,18 +496,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         return { rowData: contacts?.filter(Boolean) ?? [], rowCount: count }
     }, [fetchContacts, filtersToWhere, baseSearchQuery, getContactsSortBy])
 
-    const menuLabels = useMemo(() => ({
-        sortDescLabel: intl.formatMessage({ id: 'Table.Sort' }),
-        sortAscLabel: intl.formatMessage({ id: 'Table.Sort' }),
-        filterLabel: intl.formatMessage({ id: 'Table.Filter' }),
-        settingsLabel: intl.formatMessage({ id: 'Table.Settings' }),
-        sortedDescLabel: intl.formatMessage({ id: 'Table.Sorted' }),
-        sortedAscLabel: intl.formatMessage({ id: 'Table.Sorted' }),
-        filteredLabel: intl.formatMessage({ id: 'Table.Filtered' }),
-        noDataLabel: intl.formatMessage({ id: 'Table.NoData' }),
-        defaultSettingsLabel: intl.formatMessage({ id: 'Table.DefaultSettingsLabel' }),
-        resetFilterLabel: intl.formatMessage({ id: 'Table.ResetFilter' }),
-    }), [intl])
+    const menuLabels = useTableTranslations()
 
     const handleRowAction = useCallback((record: GetContactsForTableQuery['contacts'][number]) => {
         router.push(`/contact/${record.id}`)
@@ -555,7 +538,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
                     columns={tableColumns}
                     onRowClick={handleRowAction}
                     pageSize={CONTACT_PAGE_SIZE}
-                    onTableStateChange={defaultUpdateUrlQuery}
+                    onTableStateChange={updateUrlQuery}
                     initialTableState={initialTableState}
                     columnLabels={menuLabels}
                     rowSelectionOptions={rowSelectionOptions}
@@ -665,9 +648,8 @@ export const ContactPageContentWrapper: React.FC<ContactPageContentProps> = (pro
 
 const ContactsPage: PageComponentType = () => {
     const filterMeta = useContactsTableFilters()
-    const { organization, role, isLoading, employee } = useOrganization()
+    const { organization, role, isLoading } = useOrganization()
     const userOrganizationId = useMemo(() => organization?.id, [organization?.id])
-    const employeeId = useMemo(() => employee?.id, [employee?.id])
 
     const tableRef = useRef<TableRef | null>(null)
     const [search, handleSearchChange] = useNewSearch(tableRef.current)
@@ -676,8 +658,6 @@ const ContactsPage: PageComponentType = () => {
     const baseSearchQuery: ContactBaseSearchQuery = useMemo(() => ({
         organization: { id: userOrganizationId },
     }), [userOrganizationId])
-
-    usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     return (
         <ContactPageContentWrapper

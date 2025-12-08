@@ -87,14 +87,16 @@ type TableColumnBase<TData extends RowData = RowData> = {
     minSize?: number
 }
 
+export type RenderTableCell<TData extends RowData = RowData, TValue = unknown> = (value: TValue, record: TData, index: number, globalFilter?: string) => ReactNode
+
 export type TableColumn<TData extends RowData = RowData> = 
     | (TableColumnBase<TData> & {
         dataKey: DeepKeys<TData>
-        render?: (value: unknown, record: TData, index: number, globalFilter: string) => ReactNode
+        render?: RenderTableCell<TData>
     })
     | (TableColumnBase<TData> & {
         dataKey?: never
-        render: (value: unknown, record: TData, index: number, globalFilter: string) => ReactNode
+        render: RenderTableCell<TData>
     })
 
 export type TableState = {

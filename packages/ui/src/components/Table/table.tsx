@@ -93,28 +93,7 @@ function TableComponent<TData extends RowData = RowData> (
         getRowId,
     } = props
 
-    const [sorting, setSorting] = useState<SortingState>(
-        initialTableState.sortState
-            .filter(sortCol => tableColumns.find(col => sortCol.id === col.id)?.enableSorting)
-    )
-
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-        Object.entries(initialTableState.filterState)
-            .map(([key, value]) => ({ id: key, value: value }))
-            .filter(filterCol => tableColumns.find(col => filterCol.id === col.id)?.enableColumnFilter)
-    )
     const [globalFilter, setGlobalFilter] = useState<string | undefined>(initialTableState.globalFilter)
-    const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
-    const [tableData, setTableData] = useState<TData[]>([])
-    const [rowCount, setRowCount] = useState<number>(0)
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>(
-        initialTableState.rowSelectionState
-            ?.reduce((acc, selectedRow) => {
-                acc[selectedRow] = true
-                return acc
-            }, {} as RowSelectionState) || {})
-    const [internalLoading, setInternalLoading] = useState<boolean>(true)
-
     const columnHelper = createColumnHelper<TData>()
     const tableColumns = useMemo(() => {
         const resultColumns: ColumnDefWithId<TData>[] = []
@@ -159,7 +138,7 @@ function TableComponent<TData extends RowData = RowData> (
                     return c.header(info.table)
                 }
             }
-            const colCell = (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index, globalFilter ?? '') ?? renderTextWithTooltip()(info.getValue())
+            const colCell = (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index, globalFilter) ?? renderTextWithTooltip()(info.getValue())
             let filterComponent: FilterComponent | undefined
             if (typeof c.filterComponent === 'function') {
                 filterComponent = c.filterComponent
@@ -207,6 +186,27 @@ function TableComponent<TData extends RowData = RowData> (
 
         return resultColumns
     }, [columns, columnHelper, defaultColumn, rowSelectionOptions?.enableRowSelection, globalFilter])
+
+    const [sorting, setSorting] = useState<SortingState>(
+        initialTableState.sortState
+            .filter(sortCol => tableColumns.find(col => sortCol.id === col.id)?.enableSorting)
+    )
+
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+        Object.entries(initialTableState.filterState)
+            .map(([key, value]) => ({ id: key, value: value }))
+            .filter(filterCol => tableColumns.find(col => filterCol.id === col.id)?.enableColumnFilter)
+    )
+    const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
+    const [tableData, setTableData] = useState<TData[]>([])
+    const [rowCount, setRowCount] = useState<number>(0)
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>(
+        initialTableState.rowSelectionState
+            ?.reduce((acc, selectedRow) => {
+                acc[selectedRow] = true
+                return acc
+            }, {} as RowSelectionState) || {})
+    const [internalLoading, setInternalLoading] = useState<boolean>(true)
     
     const {
         columnVisibility,
@@ -238,15 +238,6 @@ function TableComponent<TData extends RowData = RowData> (
                     acc[filter.id] = filter.value
                     return acc
                 }, {} as FilterState)
-
-                console.log('onTableStateChange in table', {
-                    startRow,
-                    endRow,
-                    filterState,
-                    sortState: sorting,
-                    globalFilter,
-                    rowSelectionState: Object.keys(rowSelection),
-                })
 
                 onTableStateChange({
                     startRow,
@@ -488,7 +479,6 @@ function TableComponent<TData extends RowData = RowData> (
             </div>
             <TablePagination<TData> table={table} />
         </div>
-        
     )
 }
 

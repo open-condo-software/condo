@@ -781,7 +781,7 @@
   "contact.Verify": "Верифицировать",
   "contact.column.header.isVerified": "Верифицирован",
   "contact.column.header.email": "E-mail",
-  "contact.column.header.ownershipPercentage": "Доля владения",
+  "contact.column.header.ownershipPercentage": "Доля собственности",
   "contact.column.header.note": "Примечание",
   "contact.column.header.communityFee": "Коммунальные платежи",
   "contact.form.prompt.message": "Контакт не сохранится, если вы уйдете со страницы.",
