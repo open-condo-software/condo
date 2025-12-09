@@ -38,7 +38,7 @@ export interface PromoAppConfig {
     modalBannerPromoImageUrl: string
     appDisconnectedImageUrl: string
     appBeingConnectedImageUrl: string
-    titleHightlightColor: string
+    titleHighlightColor: string
     backgroundColor: string
     i18n: Record<string, PromoAppConfigI18n>
 }
@@ -160,7 +160,7 @@ const useSelectBillingPromoBanner = () => {
                             {localizedTexts?.tag}
                         </Tag>
                         <Typography.Title level={2}>
-                            <TitleWithHighlightedWords title={title} color={promoB2BAppConfig.titleHightlightColor}/>
+                            <TitleWithHighlightedWords title={title} color={promoB2BAppConfig.titleHighlightColor}/>
                         </Typography.Title>
                     </Space>
                 </Col>
@@ -171,7 +171,7 @@ const useSelectBillingPromoBanner = () => {
                 </Col>}
             </Row>
         </div>
-    }, [ButtonLabel, appIsBeingConnected, handleBannerClick, localizedTexts?.tag, promoB2BAppConfig.appBeingConnectedImageUrl, promoB2BAppConfig.appDisconnectedImageUrl, promoB2BAppConfig.backgroundColor, promoB2BAppConfig.titleHightlightColor, title])
+    }, [ButtonLabel, appIsBeingConnected, handleBannerClick, localizedTexts?.tag, promoB2BAppConfig.appBeingConnectedImageUrl, promoB2BAppConfig.appDisconnectedImageUrl, promoB2BAppConfig.backgroundColor, promoB2BAppConfig.titleHighlightColor, title])
 
     return {
         Banner,
