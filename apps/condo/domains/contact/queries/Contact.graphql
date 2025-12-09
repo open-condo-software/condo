@@ -44,11 +44,10 @@ query getContactByUnit ($propertyId: ID!, $unitName: String!, $unitType: Contact
 }
 
 query getContactsExistence ($where: ContactWhereInput) {
-    contacts: allContacts(
-        first: 1
+    count: _allContactsMeta(
         where: $where
     ) {
-        id
+        count
     }
 }
 
@@ -114,6 +113,7 @@ query getContactsForTable ($where: ContactWhereInput, $first: Int, $skip: Int, $
         organization {
             id
             name
+            phoneNumberPrefix
         }
         property {
             id

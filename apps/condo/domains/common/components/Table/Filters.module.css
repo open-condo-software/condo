@@ -1,0 +1,15 @@
+.filter-component-checkbox-group-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-component-select-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-component-gql-select-container {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+}

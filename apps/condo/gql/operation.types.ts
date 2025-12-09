@@ -146,7 +146,7 @@ export type GetContactsExistenceQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetContactsExistenceQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string } | null> | null };
+export type GetContactsExistenceQuery = { __typename?: 'Query', count?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type GetContactForClientCardQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.ContactWhereInput>;
@@ -166,7 +166,7 @@ export type GetContactsForTableQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetContactsForTableQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, phone?: string | null, email?: string | null, ownershipPercentage?: string | null, note?: string | null, communityFee?: string | null, createdAt?: string | null, isVerified?: boolean | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null, property?: { __typename?: 'Property', id: string, deletedAt?: string | null, address?: string | null, addressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null } | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+export type GetContactsForTableQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, phone?: string | null, email?: string | null, ownershipPercentage?: string | null, note?: string | null, communityFee?: string | null, createdAt?: string | null, isVerified?: boolean | null, organization?: { __typename?: 'Organization', id: string, name?: string | null, phoneNumberPrefix?: string | null } | null, property?: { __typename?: 'Property', id: string, deletedAt?: string | null, address?: string | null, addressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null } | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type GetContactEditorContactsQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.ContactWhereInput>;

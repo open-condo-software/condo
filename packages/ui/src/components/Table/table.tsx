@@ -30,6 +30,7 @@ import type {
     FilterComponent,
     TableColumnMeta,
     ColumnDefWithId,
+    FullTableState,
 } from '@open-condo/ui/src/components/Table/types'
 import '@open-condo/ui/src/components/Table/types'
 import { getFilterComponentByKey } from '@open-condo/ui/src/components/Table/utils/filterComponents'
@@ -42,20 +43,27 @@ function getPageIndexFromStartRow (startRow: number, pageSize: number): number {
 }
 
 type SelectionCheckboxProps = {
-    checked?: boolean
-    disabled?: boolean
+    checked: boolean
     indeterminate?: boolean
-    onChange?: (event: CheckboxChangeEvent) => void
+    disabled?: boolean
+    onChange: (event: CheckboxChangeEvent) => void
 }
 
 function SelectionCheckbox ({ checked, disabled, indeterminate, onChange }: SelectionCheckboxProps) {
     return (
-        <Checkbox
-            checked={checked}
-            indeterminate={indeterminate}
-            disabled={disabled}
-            onChange={onChange}
-        />
+        <span 
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            role='button'
+        >
+            <Checkbox
+                checked={checked}
+                indeterminate={indeterminate}
+                disabled={disabled}
+                onChange={onChange}
+            />
+        </span>
     )
 }
 
@@ -81,19 +89,20 @@ function TableComponent<TData extends RowData = RowData> (
         defaultColumn,
         pageSize = DEFAULT_PAGE_SIZE,
         onTableStateChange,
-        initialTableState = { filterState: {}, startRow: 0, endRow: pageSize, sortState: [], rowSelectionState: [] },
+        initialTableState = { filterState: {}, startRow: 0, endRow: pageSize, sortState: [], rowSelectionState: [], globalFilter: undefined },
         storageKey = `table-settings-${id}`,
         columnLabels = {},
         onRowClick,
         rowSelectionOptions,
-        onGridReady,
+        onTableReady,
         getRowId,
     } = props
 
+    const [globalFilter, setGlobalFilter] = useState<string | undefined>(initialTableState.globalFilter)
     const columnHelper = createColumnHelper<TData>()
     const tableColumns = useMemo(() => {
         const resultColumns: ColumnDefWithId<TData>[] = []
-        if (rowSelectionOptions) {
+        if (rowSelectionOptions?.enableRowSelection) {
             resultColumns.push(columnHelper.display({
                 id: COLUMN_ID_SELECTION,
                 header: ({ table }) => (
@@ -115,6 +124,7 @@ function TableComponent<TData extends RowData = RowData> (
                 enableColumnFilter: false,
                 meta: {
                     initialVisibility: true,
+                    enableColumnResize: false,
                     initialSize: 48,
                     initialOrder: 0,
                     enableColumnSettings: false,
@@ -133,7 +143,7 @@ function TableComponent<TData extends RowData = RowData> (
                     return c.header(info.table)
                 }
             }
-            const colCell = (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index) ?? renderTextWithTooltip()(info.getValue())
+            const colCell = (info: CellContext<TData, unknown>) => c.render?.(info.getValue(), info.row.original, info.row.index, globalFilter) ?? renderTextWithTooltip()(info.getValue())
             let filterComponent: FilterComponent | undefined
             if (typeof c.filterComponent === 'function') {
                 filterComponent = c.filterComponent
@@ -145,7 +155,8 @@ function TableComponent<TData extends RowData = RowData> (
             }
             const enableColumnFilter = !!filterComponent
             const enableColumnSettings = c.enableColumnSettings ?? (defaultColumn?.enableColumnSettings ?? true)
-            const enableSorting = c.enableSorting ?? (defaultColumn?.enableSorting ?? false)
+            const enableSorting = c.enableSorting ?? (defaultColumn?.enableSorting ?? true)
+            const enableColumnResize = c.enableColumnResize ?? (defaultColumn?.enableColumnResize ?? true)
             const enableColumnMenu = enableSorting || enableColumnFilter || enableColumnSettings
             const colMinSize = c.minSize ?? (defaultColumn?.minSize ?? DEFAULT_MIN_SIZE)
             const initialSize = c.initialSize ?? (defaultColumn?.initialSize ?? undefined)
@@ -155,6 +166,7 @@ function TableComponent<TData extends RowData = RowData> (
                 filterComponent,
                 enableColumnSettings,
                 enableColumnMenu,
+                enableColumnResize,
                 initialSize,
                 initialVisibility,
                 initialOrder,
@@ -178,7 +190,28 @@ function TableComponent<TData extends RowData = RowData> (
         })
 
         return resultColumns
-    }, [columns, columnHelper, defaultColumn, rowSelectionOptions])
+    }, [columns, columnHelper, defaultColumn, rowSelectionOptions?.enableRowSelection, globalFilter])
+
+    const [sorting, setSorting] = useState<SortingState>(
+        initialTableState.sortState
+            .filter(sortCol => tableColumns.find(col => sortCol.id === col.id)?.enableSorting)
+    )
+
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+        Object.entries(initialTableState.filterState)
+            .map(([key, value]) => ({ id: key, value: value }))
+            .filter(filterCol => tableColumns.find(col => filterCol.id === col.id)?.enableColumnFilter)
+    )
+    const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
+    const [tableData, setTableData] = useState<TData[]>([])
+    const [rowCount, setRowCount] = useState<number>(0)
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>(
+        initialTableState.rowSelectionState
+            ?.reduce((acc, selectedRow) => {
+                acc[selectedRow] = true
+                return acc
+            }, {} as RowSelectionState) || {})
+    const [internalLoading, setInternalLoading] = useState<boolean>(true)
     
     const {
         columnVisibility,
@@ -200,26 +233,6 @@ function TableComponent<TData extends RowData = RowData> (
         return tableColumns
     }, [tableColumns, columnOrder])
 
-    const [sorting, setSorting] = useState<SortingState>(
-        initialTableState.sortState
-            .filter(sortCol => tableColumns.find(col => sortCol.id === col.id)?.enableSorting)
-    )
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-        Object.entries(initialTableState.filterState)
-            .map(([key, value]) => ({ id: key, value: value }))
-            .filter(filterCol => tableColumns.find(col => filterCol.id === col.id)?.enableColumnFilter)
-    )
-    const [pagination, setPagination] = useState<PaginationState>({ pageIndex: getPageIndexFromStartRow(initialTableState.startRow, pageSize), pageSize: pageSize })
-    const [tableData, setTableData] = useState<TData[]>([])
-    const [rowCount, setRowCount] = useState<number>(0)
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>(
-        initialTableState.rowSelectionState
-            ?.reduce((acc, selectedRow) => {
-                acc[selectedRow] = true
-                return acc
-            }, {} as RowSelectionState) || {})
-    const [internalLoading, setInternalLoading] = useState<boolean>(true)
-
     // NOTE: This effect should be first, because if we have error in this effect, we don't want to change the table state and fetch new data
     useEffect(() => {
         const handleTableStateChange = async () => {
@@ -236,13 +249,14 @@ function TableComponent<TData extends RowData = RowData> (
                     endRow,
                     filterState,
                     sortState: sorting,
+                    globalFilter,
                     rowSelectionState: Object.keys(rowSelection),
                 })
             }
         }
         
         handleTableStateChange()
-    }, [sorting, pagination, columnFilters, onTableStateChange, rowSelection])
+    }, [sorting, pagination, columnFilters, onTableStateChange, rowSelection, globalFilter])
 
     const stableDataSource = useRef(dataSource)
     
@@ -265,6 +279,7 @@ function TableComponent<TData extends RowData = RowData> (
                 endRow,
                 filterState,
                 sortState: sorting,
+                globalFilter,
             }, isRefetch)
             setTableData(rowData)
             setRowCount(rowCount)
@@ -274,7 +289,7 @@ function TableComponent<TData extends RowData = RowData> (
         } finally {
             setInternalLoading(false)
         }
-    }, [pagination, columnFilters, sorting])
+    }, [pagination, columnFilters, sorting, globalFilter])
 
     useEffect(() => {
         fetchData()
@@ -325,6 +340,7 @@ function TableComponent<TData extends RowData = RowData> (
             }
             setRowSelection(newRowSelection)
         },
+        onGlobalFilterChange: setGlobalFilter,
         manualSorting: true,
         manualFiltering: true,
         manualPagination: true,
@@ -336,6 +352,7 @@ function TableComponent<TData extends RowData = RowData> (
             columnOrder,
             rowSelection,
             columnSizing,
+            globalFilter,
         },
         rowCount: rowCount,
         enableMultiSort: false,
@@ -351,7 +368,7 @@ function TableComponent<TData extends RowData = RowData> (
         },
     })
 
-    const stableOnGridReady = useRef<((tableRef: TableRef) => void) | undefined>(onGridReady)
+    const stableOnGridReady = useRef<((tableRef: TableRef) => void) | undefined>(onTableReady)
 
     useEffect(() => {
         if (stableOnGridReady.current && ref && 'current' in ref && ref.current) {
@@ -390,6 +407,12 @@ function TableComponent<TData extends RowData = RowData> (
                     }
                 })
             },
+            getGlobalFilter: () => table.getState().globalFilter,
+            setGlobalFilter: (newGlobalFilter: string | undefined) => {
+                // NOTE: If we change global filter, we need to reset pagination to the first page
+                setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
+                setGlobalFilter(newGlobalFilter)
+            },
             getPagination: () => ({ startRow: table.getState().pagination.pageIndex * table.getState().pagination.pageSize, endRow: table.getState().pagination.pageIndex * table.getState().pagination.pageSize + table.getState().pagination.pageSize }),
             setPagination: ({ startRow, endRow }: { startRow: number, endRow: number }) => {
                 setPagination({ pageIndex: Math.floor(startRow / table.getState().pagination.pageSize), pageSize: endRow - startRow })
@@ -407,12 +430,32 @@ function TableComponent<TData extends RowData = RowData> (
             refetchData: async () => {
                 await fetchData(true)
             },
+            getFullTableState: () => ({
+                startRow: table.getState().pagination.pageIndex * table.getState().pagination.pageSize,
+                filterState: table.getState().columnFilters.reduce((acc, filter) => {
+                    acc[filter.id] = filter.value
+                    return acc
+                }, {} as FilterState),
+                sortState: table.getState().sorting,
+                rowSelectionState: table.getSelectedRowModel().flatRows.map(row => row.id),
+                globalFilter: table.getState().globalFilter,
+            }),
+            setFullTableState: (tableState: FullTableState) => {
+                setPagination({ pageIndex: getPageIndexFromStartRow(tableState.startRow, pageSize), pageSize: pageSize })
+                setColumnFilters(Object.entries(tableState.filterState).map(([key, value]) => ({ id: key, value: value })))
+                setSorting(tableState.sortState)
+                setGlobalFilter(tableState.globalFilter)
+                setRowSelection(tableState.rowSelectionState.reduce((acc, selectedRow) => {
+                    acc[selectedRow] = true
+                    return acc
+                }, {} as RowSelectionState))
+            },
         }
 
         const tableRef = { api }
 
         return tableRef
-    }, [table, fetchData])
+    }, [table, fetchData, pageSize])
 
     const tableContainerRef = useRef<HTMLDivElement>(null)
 
@@ -441,7 +484,6 @@ function TableComponent<TData extends RowData = RowData> (
             </div>
             <TablePagination<TData> table={table} />
         </div>
-        
     )
 }
 
