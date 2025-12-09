@@ -18,6 +18,8 @@ const {
     PUSH_TRANSPORT_REDSTORE,
     TICKET_CREATED_TYPE,
     TICKET_COMMENT_CREATED_TYPE,
+    PASS_TICKET_CREATED_MESSAGE_TYPE,
+    PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
@@ -28,6 +30,8 @@ const logger = getLogger()
 const TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS = [
     TICKET_CREATED_TYPE,
     TICKET_COMMENT_CREATED_TYPE,
+    PASS_TICKET_CREATED_MESSAGE_TYPE,
+    PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
 ]
 
 const ADAPTERS = {
@@ -164,7 +168,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
     let _isOk = false
 
     if (TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS.includes(get(data, 'type'))) {
-        return [false, { error: 'Temporrary disabled types for push notifications' }]
+        return [false, { error: 'Disabled type for push transport' }]
     }
     if (!count) return [false, { error: 'No pushTokens available.' }]
 
