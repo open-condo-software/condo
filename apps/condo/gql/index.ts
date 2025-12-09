@@ -2696,6 +2696,7 @@ export const GetNotificationUserSettingsDocument = gql`
     query getNotificationUserSettings($userId: ID!, $types: [MessageType!]) {
   allNotificationUserSettings(
     where: {OR: [{user: {id: $userId}}, {user_is_null: true}], messageType_in: $types}
+    first: 100
   ) {
     id
     user {

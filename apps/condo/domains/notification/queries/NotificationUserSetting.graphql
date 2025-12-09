@@ -5,7 +5,7 @@ query getNotificationUserSettings ($userId: ID!, $types: [MessageType!]) {
             { user_is_null: true },
         ],
         messageType_in: $types
-    }) {
+    }, first: 100) {
         id
         user { id }
         messageType
