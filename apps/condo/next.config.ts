@@ -75,6 +75,7 @@ const nextConfig: NextConfig = {
         '@open-condo/featureflags',
         '@condo/domains',
     ],
+    experimental: {},
     compiler: {
         emotion: true,
     },
