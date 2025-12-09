@@ -11,5 +11,5 @@
 .filter-component-gql-select-container {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 400px;
 }

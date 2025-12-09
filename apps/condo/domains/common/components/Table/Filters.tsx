@@ -4,7 +4,6 @@ import { Space } from 'antd'
 import { CheckboxGroupProps } from 'antd/es/checkbox/Group'
 import { PickerProps, RangePickerProps } from 'antd/es/date-picker/generatePicker'
 import { FilterValue, FilterDropdownProps } from 'antd/es/table/interface'
-import classNames from 'classnames'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
@@ -29,9 +28,10 @@ import AntSelect, { CustomSelectProps as AntCustomSelectProps, SelectValueType a
 import { GraphQlSearchInput, ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
-import styles from '@condo/domains/common/components/Table/Filters.module.css'
 import { colors } from '@condo/domains/common/constants/style'
 import { QueryArgType, OptionType } from '@condo/domains/common/utils/tables.utils'
+
+import styles from './Filters.module.css'
 
 import { Button } from '../Button'
 
@@ -254,7 +254,7 @@ export const getOptionFilterDropdown: GetOptionFilterDropdownType = ({ container
             >
                 <Checkbox.Group
                     {...checkboxGroupProps}
-                    className={classNames(styles.filterComponentCheckboxGroupContainer)}
+                    className={styles.filterComponentCheckboxGroupContainer}
                     value={selectedKeys.map(key => String(key))}
                     onChange={handleChange}
                 />
@@ -286,7 +286,7 @@ export const getCheckboxGroupFilterComponent: GetCheckboxGroupFilterComponentTyp
         return (
             <Checkbox.Group
                 {...checkboxGroupProps}
-                className={classNames(styles.filterComponentCheckboxGroupContainer)}
+                className={styles.filterComponentCheckboxGroupContainer}
                 value={checkboxGroupValue}
                 onChange={handleChangeCheckboxGroup}
             />
@@ -325,7 +325,7 @@ export const getSelectFilterDropdown = <ValueType extends AntSelectValueType>({ 
                     showArrow
                     optionFilterProp='label'
                     {...selectProps}
-                    className={classNames(styles.filterComponentSelectContainer)}
+                    className={styles.filterComponentSelectContainer}
                     // NOTE: Type casting problem
                     // @ts-ignore
                     value={selectedKeys}
@@ -411,7 +411,6 @@ export const getGQLSelectFilterDropdown: GetGQLSelectFilterDropdownType = ({ gql
                         // @ts-ignore
                         value={selectedKeys}
                         onChange={handleChange}
-                        className={classNames(styles.filterComponenGQLSelectContainer)}
                     />
                 </SelectFilterContainer>
             )
@@ -444,13 +443,14 @@ export const getGQLSelectFilterComponent: GetGQLSelectFilterComponentType = ({ g
         }
 
         return (
-            <GraphQlSearchInput
-                showArrow
-                {...gqlSelectProps}
-                value={gqlSelectValue}
-                onChange={handleChangeGQLSelect}
-                className={classNames(styles.filterComponenGQLSelectContainer)}
-            />
+            <div className={styles.filterComponentGqlSelectContainer}>
+                <GraphQlSearchInput
+                    showArrow
+                    {...gqlSelectProps}
+                    value={gqlSelectValue}
+                    onChange={handleChangeGQLSelect}
+                />
+            </div>
         )
     }
 

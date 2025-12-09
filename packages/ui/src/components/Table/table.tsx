@@ -43,27 +43,25 @@ function getPageIndexFromStartRow (startRow: number, pageSize: number): number {
 }
 
 type SelectionCheckboxProps = {
-    checked?: boolean
-    disabled?: boolean
+    checked: boolean
     indeterminate?: boolean
-    onChange?: (event: CheckboxChangeEvent) => void
+    disabled?: boolean
+    onChange: (event: CheckboxChangeEvent) => void
 }
 
 function SelectionCheckbox ({ checked, disabled, indeterminate, onChange }: SelectionCheckboxProps) {
+    const handleChange = useCallback((event: CheckboxChangeEvent) => {
+        event.stopPropagation()
+        onChange(event)
+    }, [onChange])
+
     return (
-        <span 
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            role='button'
-        >
-            <Checkbox
-                checked={checked}
-                indeterminate={indeterminate}
-                disabled={disabled}
-                onChange={onChange}
-            />
-        </span>
+        <Checkbox
+            checked={checked}
+            indeterminate={indeterminate}
+            disabled={disabled}
+            onChange={handleChange}
+        />
     )
 }
 
@@ -408,7 +406,7 @@ function TableComponent<TData extends RowData = RowData> (
                 })
             },
             getGlobalFilter: () => table.getState().globalFilter,
-            setGlobalFilter: (newGlobalFilter: string) => {
+            setGlobalFilter: (newGlobalFilter: string | undefined) => {
                 // NOTE: If we change global filter, we need to reset pagination to the first page
                 setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
                 setGlobalFilter(newGlobalFilter)

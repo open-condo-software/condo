@@ -421,8 +421,9 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
     useEffect(() => {
         const handleRouteChangeComplete = (url: string) => {
             const pathname = url.split('?')[0]
+            const query = url.split('?')[1]
             if (pathname === '/contact' || pathname === '/contact/') {
-                if (tableRef.current) {
+                if (tableRef.current && !query) {
                     const fullTableState = defaultParseUrlQuery(router.query, CONTACT_PAGE_SIZE)
                     const currentState = tableRef.current.api?.getFullTableState?.()
                     if (currentState && isEqual(currentState, fullTableState)) return
@@ -486,7 +487,6 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
             skip,
         }
 
-        // Всегда используем fetchContacts, но с разными fetchPolicy в зависимости от isRefetch
         const { data: { contacts, meta: { count } } } = await fetchContacts({
             variables: payload,
             fetchPolicy: isRefetch ? 'network-only' : 'cache-first',

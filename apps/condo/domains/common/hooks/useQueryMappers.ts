@@ -60,8 +60,11 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
                     .filter(Boolean)
             }
 
-            const sorters = convertSortersToSortBy(querySorts)
-                .filter((sortLine) => validSorts.includes(sortLine))
+            const sorters = validSorts 
+                ? 
+                convertSortersToSortBy(querySorts).filter((sortLine) => validSorts.includes(sortLine)) 
+                : 
+                []
 
             return sorters.length ? sorters : defaultSorters
         }
