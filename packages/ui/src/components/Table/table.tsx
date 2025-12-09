@@ -51,7 +51,12 @@ type SelectionCheckboxProps = {
 
 function SelectionCheckbox ({ checked, disabled, indeterminate, onChange }: SelectionCheckboxProps) {
     return (
-        <span onClick={(e) => e.stopPropagation()}>
+        <span 
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            role='button'
+        >
             <Checkbox
                 checked={checked}
                 indeterminate={indeterminate}

@@ -349,9 +349,11 @@ export function getFilterComponentByKey <FilterType> (filterMetas: Array<TableFi
 
     switch (component.type) {
         case ComponentType.Input: {
+            const inputProps = component?.props ?? {}
+
             return getTextFilterComponent({
                 inputProps: {
-                    ...(component.props ?? {}),
+                    ...inputProps,
                     id,
                 },
             })
@@ -359,14 +361,14 @@ export function getFilterComponentByKey <FilterType> (filterMetas: Array<TableFi
 
         case ComponentType.CheckboxGroup: {
             const options = component.options ?? []
-            const checkboxGroupPropsFromMeta = component.props ?? {}
+            const checkboxGroupProps = component?.props ?? {}
             type CheckboxGroupComponentProps = NonNullable<Parameters<typeof getCheckboxGroupFilterComponent>[0]>['checkboxGroupProps']
 
             const resolvedCheckboxGroupProps: CheckboxGroupComponentProps = {
                 options,
                 id,
-                className: checkboxGroupPropsFromMeta.className,
-                disabled: checkboxGroupPropsFromMeta.disabled,
+                className: checkboxGroupProps.className,
+                disabled: checkboxGroupProps.disabled,
                 onChange: (e: CheckboxChangeEvent) => {
                     const keys = e.target.checked ? [e.target.value] : []
                     return keys as React.Key[]
@@ -381,7 +383,7 @@ export function getFilterComponentByKey <FilterType> (filterMetas: Array<TableFi
         case ComponentType.Select: {
             const options = component.options ?? []
             const loading = component.props?.loading ?? false
-            const selectProps = component.props ?? {}
+            const selectProps = component?.props ?? {}
 
             return getSelectFilterComponent({
                 selectProps: {
@@ -394,15 +396,15 @@ export function getFilterComponentByKey <FilterType> (filterMetas: Array<TableFi
         }
 
         case ComponentType.Date: {
-            const props = component?.props ?? {}
+            const dateProps = component?.props ?? {}
 
-            return getDateFilterComponent({ datePickerProps: { ...props, id } })
+            return getDateFilterComponent({ datePickerProps: { ...dateProps, id } })
         }
 
         case ComponentType.DateRange: {
-            const props = component?.props ?? {}
+            const dateRangeProps = component?.props ?? {}
             
-            return getDateRangeFilterComponent({ datePickerProps: { ...props, id } })
+            return getDateRangeFilterComponent({ datePickerProps: { ...dateRangeProps, id } })
         }
 
         case ComponentType.GQLSelect: {

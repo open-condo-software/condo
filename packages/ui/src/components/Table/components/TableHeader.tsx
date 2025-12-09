@@ -174,7 +174,13 @@ function FilterMenuDropdown <TData> ({
             onOpenChange={setOpen}
             dropdownRender={dropdownRender}
         >
-            <div className='condo-dropdown-menu-item-inner' onClick={(e) => e.stopPropagation()}>
+            <div 
+                className='condo-dropdown-menu-item-inner' 
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                role='button'
+            >
                 <div className={classNames(
                     'condo-dropdown-menu-item-inner-left',
                     header.column.getIsFiltered() && 'condo-dropdown-menu-item-inner-left-active'

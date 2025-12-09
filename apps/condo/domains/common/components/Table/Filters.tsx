@@ -25,7 +25,7 @@ import {
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import AntInput, { InputProps as AntInputProps } from '@condo/domains/common/components/antd/Input'
-import AntSelect, { CustomSelectProps as CustomSelectProps, SelectValueType as AntSelectValueType } from '@condo/domains/common/components/antd/Select'
+import AntSelect, { CustomSelectProps as AntCustomSelectProps, SelectValueType as AntSelectValueType } from '@condo/domains/common/components/antd/Select'
 import { GraphQlSearchInput, ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
@@ -50,7 +50,7 @@ type GetTextFilterComponentType = GetCommonFilterComponentType<{ inputProps?: In
 type GetOptionFilterDropdownType = GetCommonFilterDropdownType<{ checkboxGroupProps?: CheckboxGroupProps & { id?: string } } & CommonFilterDropdownProps>
 type GetCheckboxGroupFilterComponentType = GetCommonFilterComponentType<{ checkboxGroupProps?: CheckboxProps & { id?: string, options?: OptionType[] } }>
 
-type GetSelectFilterDropdownProps<ValueType> = { selectProps?: CustomSelectProps<ValueType> } & CommonFilterDropdownProps
+type GetSelectFilterDropdownProps<ValueType> = { selectProps?: AntCustomSelectProps<ValueType> } & CommonFilterDropdownProps
 type GetSelectFilterDropdownType<ValueType> = GetCommonFilterDropdownType<GetSelectFilterDropdownProps<ValueType>>
 type GetSelectFilterComponentType = GetCommonFilterComponentType<{ selectProps?: Omit<SelectProps, 'value' | 'onChange' | 'defaultValue'> }>
 
@@ -281,7 +281,7 @@ export const getCheckboxGroupFilterComponent: GetCheckboxGroupFilterComponentTyp
             confirm({ closeDropdown: false })
         }, [setFilterValue, confirm])
 
-        const checkboxGroupValue = (Array.isArray(filterValue) ? filterValue : []).map(key => String(key))
+        const checkboxGroupValue = (Array.isArray(filterValue) ? filterValue : []).map(String)
 
         return (
             <Checkbox.Group
@@ -307,7 +307,7 @@ export const getSelectFilterDropdown = <ValueType extends AntSelectValueType>({ 
             confirm({ closeDropdown: true })
         }, [clearFilters, confirm, setSelectedKeys])
 
-        const handleChange: CustomSelectProps<ValueType>['onChange'] = useCallback((value, opt) => {
+        const handleChange: AntCustomSelectProps<ValueType>['onChange'] = useCallback((value, opt) => {
             // NOTE: Type casting problem
             // @ts-ignore
             setSelectedKeys(value)
