@@ -50,18 +50,20 @@ type SelectionCheckboxProps = {
 }
 
 function SelectionCheckbox ({ checked, disabled, indeterminate, onChange }: SelectionCheckboxProps) {
-    const handleChange = useCallback((event: CheckboxChangeEvent) => {
-        event.stopPropagation()
-        onChange(event)
-    }, [onChange])
-
     return (
-        <Checkbox
-            checked={checked}
-            indeterminate={indeterminate}
-            disabled={disabled}
-            onChange={handleChange}
-        />
+        <span 
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            role='button'
+        >
+            <Checkbox
+                checked={checked}
+                indeterminate={indeterminate}
+                disabled={disabled}
+                onChange={onChange}
+            />
+        </span>
     )
 }
 

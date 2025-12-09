@@ -429,6 +429,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
                     if (currentState && isEqual(currentState, fullTableState)) return
                     tableRef.current.api?.setFullTableState(fullTableState)
                     handleSearchChange(String(fullTableState.globalFilter || ''))
+                    setSelectedRowsCount(tableRef.current.api?.getRowSelection().length || 0)
                 }
             }
         }
@@ -490,7 +491,6 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         const { data: { contacts, meta: { count } } } = await fetchContacts({
             variables: payload,
             fetchPolicy: isRefetch ? 'network-only' : 'cache-first',
-            nextFetchPolicy: 'cache-first',
         })
         
         return { rowData: contacts?.filter(Boolean) ?? [], rowCount: count }
