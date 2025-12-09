@@ -19,7 +19,6 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 const filterName = getStringContainsFilter('name')
 const filterPhone = getStringContainsFilter('phone')
 const filterEmail = getStringContainsFilter('email')
-const filterCommunityFee = getStringContainsFilter('communityFee')
 const filterUnitType = getFilter('unitType', 'array', 'string', 'in')
 const filterAddressStringContains = getStringContainsFilter(['property', 'address'])
 const filterAddress = getFilter(['property', 'id'], 'array', 'string', 'in')
@@ -36,7 +35,6 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
     const EmailMessage = intl.formatMessage({ id: 'Email' })
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
-    const CommunityFeeMessage = intl.formatMessage({ id: 'contact.column.header.communityFee' })
     const StartDateMessage = intl.formatMessage({ id: 'global.filters.dateRange.start' })
     const EndDateMessage = intl.formatMessage({ id: 'global.filters.dateRange.end' })
     const YesMessage = intl.formatMessage({ id: 'Yes' })
@@ -182,19 +180,8 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
                     },
                 },
             },
-            {
-                keyword: 'communityFee',
-                filters: [filterCommunityFee],
-                component: {
-                    type: ComponentType.Input,
-                    props: {
-                        placeholder: CommunityFeeMessage,
-                    },
-                },
-            },
         ]
     }, [
-        CommunityFeeMessage,
         EnterAddressMessage,
         contactRoleOptions,
         EndDateMessage, 

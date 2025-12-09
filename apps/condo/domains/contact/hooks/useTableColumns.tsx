@@ -30,7 +30,6 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const IsVerifiedMessage = intl.formatMessage({ id: 'contact.column.header.isVerified' })
     const EmailMessage = intl.formatMessage({ id: 'Email' })
-    const CommunityFeeMessage = intl.formatMessage({ id: 'contact.column.header.communityFee' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const YesMessage = intl.formatMessage({ id: 'Yes' })
     const NoMessage = intl.formatMessage({ id: 'No' })
@@ -70,10 +69,6 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
 
     const renderEmail = useCallback<RenderTableCell<TData, TData['email']>>(
         (email, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, href: email ? `mailto:${email}` : undefined, ellipsis: true })(email ?? '—')
-        , [])
-
-    const renderCommunityFee = useCallback<RenderTableCell<TData, TData['communityFee']>>(
-        (communityFee, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(communityFee)
         , [])
 
 
@@ -154,15 +149,6 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
                 initialSize: '10%',
                 initialVisibility: false,
             },
-            {
-                header: CommunityFeeMessage,
-                dataKey: 'communityFee',
-                id: 'communityFee',
-                render: renderCommunityFee,
-                filterComponent: getFilterComponentByKey(filterMetas, 'communityFee'),
-                initialSize: '10%',
-                initialVisibility: false,
-            },
         ]
     }, [
         filterMetas,
@@ -175,7 +161,6 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
         IsVerifiedMessage, 
         UnitTypeMessage, 
         EmailMessage, 
-        CommunityFeeMessage,
         renderName,
         renderRole,
         renderAddress, 
@@ -183,7 +168,6 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
         renderUnitType,
         renderPhone,
         renderEmail,
-        renderCommunityFee,
         renderIsVerified,
         renderDate,
     ])
