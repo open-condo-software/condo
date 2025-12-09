@@ -1,0 +1,42 @@
+query getB2BAppContext ($organizationId: ID!, $appId: ID!) {
+    contexts: allB2BAppContexts (
+        where: {
+            app: { id: $appId },
+            organization: { id: $organizationId },
+        },
+        first: 1,
+        sortBy: [createdAt_DESC],
+    ) {
+        id
+        status
+    }
+}
+
+query getB2BAppContextsByOrg ($organizationId: ID!) {
+    contexts: allB2BAppContexts (
+        where: {
+            organization: { id: $organizationId },
+        },
+        first: 100,
+        sortBy: [createdAt_DESC],
+    ) {
+        id
+        status
+        app {
+            id
+        }
+    }
+}
+
+
+mutation createB2BAppContext ($data: B2BAppContextCreateInput!) {
+    b2bAppContext: createB2BAppContext (data: $data) {
+        id
+    }
+}
+
+mutation softDeleteB2BAppContext ($id: ID!, $deletedAt: String!, $sender: SenderFieldInput!) {
+    b2bAppContext: updateB2BAppContext (id: $id, data: { deletedAt: $deletedAt, dv: 1, sender: $sender }) {
+        id
+    }
+}
