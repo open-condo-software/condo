@@ -15442,7 +15442,7 @@ type BillingReceiptHistoryRecord {
   file: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
-  paymentStatusChangeWebhookSecret: String
+  paymentStatusChangeWebhookSecret: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -15649,24 +15649,10 @@ input BillingReceiptHistoryRecordWhereInput {
   paymentStatusChangeWebhookUrl_not_ends_with_i: String
   paymentStatusChangeWebhookUrl_in: [String]
   paymentStatusChangeWebhookUrl_not_in: [String]
-  paymentStatusChangeWebhookSecret: String
-  paymentStatusChangeWebhookSecret_not: String
-  paymentStatusChangeWebhookSecret_contains: String
-  paymentStatusChangeWebhookSecret_not_contains: String
-  paymentStatusChangeWebhookSecret_starts_with: String
-  paymentStatusChangeWebhookSecret_not_starts_with: String
-  paymentStatusChangeWebhookSecret_ends_with: String
-  paymentStatusChangeWebhookSecret_not_ends_with: String
-  paymentStatusChangeWebhookSecret_i: String
-  paymentStatusChangeWebhookSecret_not_i: String
-  paymentStatusChangeWebhookSecret_contains_i: String
-  paymentStatusChangeWebhookSecret_not_contains_i: String
-  paymentStatusChangeWebhookSecret_starts_with_i: String
-  paymentStatusChangeWebhookSecret_not_starts_with_i: String
-  paymentStatusChangeWebhookSecret_ends_with_i: String
-  paymentStatusChangeWebhookSecret_not_ends_with_i: String
-  paymentStatusChangeWebhookSecret_in: [String]
-  paymentStatusChangeWebhookSecret_not_in: [String]
+  paymentStatusChangeWebhookSecret: JSON
+  paymentStatusChangeWebhookSecret_not: JSON
+  paymentStatusChangeWebhookSecret_in: [JSON]
+  paymentStatusChangeWebhookSecret_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -15776,8 +15762,6 @@ enum SortBillingReceiptHistoryRecordsBy {
   paid_DESC
   paymentStatusChangeWebhookUrl_ASC
   paymentStatusChangeWebhookUrl_DESC
-  paymentStatusChangeWebhookSecret_ASC
-  paymentStatusChangeWebhookSecret_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -15821,7 +15805,7 @@ input BillingReceiptHistoryRecordUpdateInput {
   file: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
-  paymentStatusChangeWebhookSecret: String
+  paymentStatusChangeWebhookSecret: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -15866,7 +15850,7 @@ input BillingReceiptHistoryRecordCreateInput {
   file: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
-  paymentStatusChangeWebhookSecret: String
+  paymentStatusChangeWebhookSecret: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -82460,7 +82444,7 @@ type InvoiceHistoryRecord {
   canceledAt: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
-  paymentStatusChangeWebhookSecret: String
+  paymentStatusChangeWebhookSecret: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -82687,24 +82671,10 @@ input InvoiceHistoryRecordWhereInput {
   paymentStatusChangeWebhookUrl_not_ends_with_i: String
   paymentStatusChangeWebhookUrl_in: [String]
   paymentStatusChangeWebhookUrl_not_in: [String]
-  paymentStatusChangeWebhookSecret: String
-  paymentStatusChangeWebhookSecret_not: String
-  paymentStatusChangeWebhookSecret_contains: String
-  paymentStatusChangeWebhookSecret_not_contains: String
-  paymentStatusChangeWebhookSecret_starts_with: String
-  paymentStatusChangeWebhookSecret_not_starts_with: String
-  paymentStatusChangeWebhookSecret_ends_with: String
-  paymentStatusChangeWebhookSecret_not_ends_with: String
-  paymentStatusChangeWebhookSecret_i: String
-  paymentStatusChangeWebhookSecret_not_i: String
-  paymentStatusChangeWebhookSecret_contains_i: String
-  paymentStatusChangeWebhookSecret_not_contains_i: String
-  paymentStatusChangeWebhookSecret_starts_with_i: String
-  paymentStatusChangeWebhookSecret_not_starts_with_i: String
-  paymentStatusChangeWebhookSecret_ends_with_i: String
-  paymentStatusChangeWebhookSecret_not_ends_with_i: String
-  paymentStatusChangeWebhookSecret_in: [String]
-  paymentStatusChangeWebhookSecret_not_in: [String]
+  paymentStatusChangeWebhookSecret: JSON
+  paymentStatusChangeWebhookSecret_not: JSON
+  paymentStatusChangeWebhookSecret_in: [JSON]
+  paymentStatusChangeWebhookSecret_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -82812,8 +82782,6 @@ enum SortInvoiceHistoryRecordsBy {
   canceledAt_DESC
   paymentStatusChangeWebhookUrl_ASC
   paymentStatusChangeWebhookUrl_DESC
-  paymentStatusChangeWebhookSecret_ASC
-  paymentStatusChangeWebhookSecret_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -82853,7 +82821,7 @@ input InvoiceHistoryRecordUpdateInput {
   canceledAt: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
-  paymentStatusChangeWebhookSecret: String
+  paymentStatusChangeWebhookSecret: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -82894,7 +82862,7 @@ input InvoiceHistoryRecordCreateInput {
   canceledAt: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
-  paymentStatusChangeWebhookSecret: String
+  paymentStatusChangeWebhookSecret: JSON
   v: Int
   createdAt: String
   updatedAt: String
