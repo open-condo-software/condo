@@ -12,12 +12,12 @@ import {
     getUnitNameRender,
     getUnitTypeRender,
 } from '@condo/domains/common/components/Table/Renders'
-import { getFilterComponentByKey, OpenFiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { getFilterComponentByKey, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 
 type TData = GetContactsForTableQuery['contacts'][number]
 
 type UseTableColumns = (
-    filterMetas: Array<OpenFiltersMeta<ContactWhereInput>>,
+    filterMetas: Array<TableFiltersMeta<ContactWhereInput>>,
 ) => TableColumn<TData>[]
 export const useTableColumns: UseTableColumns = (filterMetas) => {
     const intl = useIntl()

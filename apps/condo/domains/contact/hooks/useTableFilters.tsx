@@ -6,7 +6,7 @@ import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { ComponentType, convertToOptions, OpenFiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { ComponentType, convertToOptions, TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import {
     getBooleanFilter,
     getDayRangeFilter,
@@ -27,7 +27,7 @@ const filterRole = getFilter(['role', 'id'], 'array', 'string', 'in')
 const filterIsVerified = getBooleanFilter(['isVerified'])
 const filterCreatedAtRange = getDayRangeFilter('createdAt')
 
-type UseContactsTableFilters = () => Array<OpenFiltersMeta<ContactWhereInput>>
+type UseContactsTableFilters = () => Array<TableFiltersMeta<ContactWhereInput>>
 
 export const useContactsTableFilters: UseContactsTableFilters = () => {
     const intl = useIntl()

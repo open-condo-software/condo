@@ -4,6 +4,7 @@ import { Space } from 'antd'
 import { CheckboxGroupProps } from 'antd/es/checkbox/Group'
 import { PickerProps, RangePickerProps } from 'antd/es/date-picker/generatePicker'
 import { FilterValue, FilterDropdownProps } from 'antd/es/table/interface'
+import classNames from 'classnames'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
@@ -13,21 +14,22 @@ import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import {
-    Select as OpenSelect,
-    Input as OpenInput,
+    Select,
+    Input,
+    InputProps,
+    SelectProps,
+    CheckboxProps,
     FilterComponent,
-    InputProps as OpenInputProps,
-    SelectProps as OpenSelectProps,
-    CheckboxProps as OpenCheckboxProps,
     FilterComponentProps,
 } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import Input, { InputProps } from '@condo/domains/common/components/antd/Input'
-import Select, { CustomSelectProps, SelectValueType } from '@condo/domains/common/components/antd/Select'
+import AntInput, { InputProps as AntInputProps } from '@condo/domains/common/components/antd/Input'
+import AntSelect, { CustomSelectProps as CustomSelectProps, SelectValueType as AntSelectValueType } from '@condo/domains/common/components/antd/Select'
 import { GraphQlSearchInput, ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
+import styles from '@condo/domains/common/components/Table/Filters.module.css'
 import { colors } from '@condo/domains/common/constants/style'
 import { QueryArgType, OptionType } from '@condo/domains/common/utils/tables.utils'
 
@@ -42,18 +44,18 @@ type CommonFilterDropdownProps = { containerStyles?: CSSProperties }
 type GetCommonFilterDropdownType<P> = (props?: P) => (props: FilterDropdownProps) => React.ReactNode
 type GetCommonFilterComponentType<P> = (props?: P) => FilterComponent
 
-type GetTextFilterDropdownType = GetCommonFilterDropdownType<{ inputProps?: InputProps } & CommonFilterDropdownProps>
-type GetTextFilterComponentType = GetCommonFilterComponentType<{ inputProps?: OpenInputProps }>
+type GetTextFilterDropdownType = GetCommonFilterDropdownType<{ inputProps?: AntInputProps } & CommonFilterDropdownProps>
+type GetTextFilterComponentType = GetCommonFilterComponentType<{ inputProps?: InputProps }>
 
 type GetOptionFilterDropdownType = GetCommonFilterDropdownType<{ checkboxGroupProps?: CheckboxGroupProps & { id?: string } } & CommonFilterDropdownProps>
-type GetCheckboxGroupFilterComponentType = GetCommonFilterComponentType<{ checkboxGroupProps?: OpenCheckboxProps & { id?: string, options?: OptionType[] } }>
+type GetCheckboxGroupFilterComponentType = GetCommonFilterComponentType<{ checkboxGroupProps?: CheckboxProps & { id?: string, options?: OptionType[] } }>
 
 type GetSelectFilterDropdownProps<ValueType> = { selectProps?: CustomSelectProps<ValueType> } & CommonFilterDropdownProps
 type GetSelectFilterDropdownType<ValueType> = GetCommonFilterDropdownType<GetSelectFilterDropdownProps<ValueType>>
-type GetSelectFilterComponentType = GetCommonFilterComponentType<{ selectProps?: Omit<OpenSelectProps, 'value' | 'onChange' | 'defaultValue'> }>
+type GetSelectFilterComponentType = GetCommonFilterComponentType<{ selectProps?: Omit<SelectProps, 'value' | 'onChange' | 'defaultValue'> }>
 
 type GetGQLSelectFilterDropdownType = GetCommonFilterDropdownType<{ gqlSelectProps?: ISearchInputProps } & CommonFilterDropdownProps>
-type GetGQLSelectFilterComponentType = GetCommonFilterComponentType<{ gqlSelectProps?: ISearchInputProps } & CommonFilterDropdownProps>
+type GetGQLSelectFilterComponentType = GetCommonFilterComponentType<{ gqlSelectProps?: ISearchInputProps }>
 
 type GetDateFilterDropdownType = GetCommonFilterDropdownType<{ datePickerProps?: PickerProps<Dayjs> } & CommonFilterDropdownProps>
 type GetDateFilterComponentType = GetCommonFilterComponentType<{ datePickerProps?: PickerProps<Dayjs> }>
@@ -131,8 +133,6 @@ const SelectFilterContainer: React.FC<React.PropsWithChildren<IFilterContainerPr
 }
 
 
-const FILTER_DROPDOWN_CHECKBOX_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
-
 export const getFilterIcon: FilterIconType = (filtered) => <FilterFilled style={{ color: filtered ? colors.sberPrimary[5] : undefined }} />
 export const getFilterValue: FilterValueType = (path, filters) => get(filters, path, null)
 
@@ -173,7 +173,7 @@ export const getTextFilterDropdown: GetTextFilterDropdownType = ({ containerStyl
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
-                <Input
+                <AntInput
                     {...inputProps}
                     // NOTE: Type casting problem
                     // @ts-ignore
@@ -202,10 +202,12 @@ export const getTextFilterComponent: GetTextFilterComponentType = ({ inputProps 
             confirm({ closeDropdown: false })
         }, [confirm, setFilterValue])
 
+        const inputValue = typeof filterValue === 'string' ? filterValue : ''
+
         return (
-            <OpenInput
+            <Input
                 {...inputProps}
-                value={typeof filterValue === 'string' ? filterValue : ''}
+                value={inputValue}
                 onChange={handleChangeInput}
             />
         )
@@ -252,7 +254,7 @@ export const getOptionFilterDropdown: GetOptionFilterDropdownType = ({ container
             >
                 <Checkbox.Group
                     {...checkboxGroupProps}
-                    style={FILTER_DROPDOWN_CHECKBOX_STYLES}
+                    className={classNames(styles.filterComponentCheckboxGroupContainer)}
                     value={selectedKeys.map(key => String(key))}
                     onChange={handleChange}
                 />
@@ -268,22 +270,25 @@ export const getCheckboxGroupFilterComponent: GetCheckboxGroupFilterComponentTyp
         confirm, 
         setShowResetButton,
     }: FilterComponentProps) => {
+
         useEffect(() => {
             setShowResetButton(Array.isArray(filterValue) && filterValue.length > 0)
         }, [filterValue, setShowResetButton])
 
-        const handleChange = useCallback((checked: Array<string | number | boolean>) => {
+        const handleChangeCheckboxGroup = useCallback((checked: Array<string | number | boolean>) => {
             const keys = checked.filter((v): v is string | number => typeof v !== 'boolean')
             setFilterValue(keys as React.Key[])
             confirm({ closeDropdown: false })
         }, [setFilterValue, confirm])
 
+        const checkboxGroupValue = (Array.isArray(filterValue) ? filterValue : []).map(key => String(key))
+
         return (
             <Checkbox.Group
                 {...checkboxGroupProps}
-                style={FILTER_DROPDOWN_CHECKBOX_STYLES}
-                value={(Array.isArray(filterValue) ? filterValue : []).map(key => String(key))}
-                onChange={handleChange}
+                className={classNames(styles.filterComponentCheckboxGroupContainer)}
+                value={checkboxGroupValue}
+                onChange={handleChangeCheckboxGroup}
             />
         )
     }
@@ -291,12 +296,10 @@ export const getCheckboxGroupFilterComponent: GetCheckboxGroupFilterComponentTyp
     return CheckboxGroupFilterDropdown
 }
 
-const DROPDOWN_SELECT_STYLE: CSSProperties = { display: 'flex', flexDirection: 'column' }
-
 /**
  * @deprecated use getSelectFilterComponent
  */
-export const getSelectFilterDropdown = <ValueType extends SelectValueType>({ selectProps, containerStyles }: GetSelectFilterDropdownProps<ValueType> = {}): ReturnType<GetSelectFilterDropdownType<ValueType>> => {
+export const getSelectFilterDropdown = <ValueType extends AntSelectValueType>({ selectProps, containerStyles }: GetSelectFilterDropdownProps<ValueType> = {}): ReturnType<GetSelectFilterDropdownType<ValueType>> => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const handleClear = useCallback(() => {
             isFunction(clearFilters) && clearFilters()
@@ -317,12 +320,12 @@ export const getSelectFilterDropdown = <ValueType extends SelectValueType>({ sel
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
-                <Select
+                <AntSelect
                     <ValueType>
                     showArrow
                     optionFilterProp='label'
                     {...selectProps}
-                    style={DROPDOWN_SELECT_STYLE}
+                    className={classNames(styles.filterComponentSelectContainer)}
                     // NOTE: Type casting problem
                     // @ts-ignore
                     value={selectedKeys}
@@ -346,20 +349,27 @@ export const getSelectFilterComponent: GetSelectFilterComponentType = ({ selectP
             setShowResetButton(!isEmpty(filterValue) || (isArray(filterValue) && filterValue.length > 0))
         }, [filterValue, setShowResetButton])
 
-        const handleChange = useCallback<NonNullable<OpenSelectProps['onChange']>>((value)  => {
+        const handleChangeSelect = useCallback<NonNullable<SelectProps['onChange']>>((value)  => {
             setFilterValue(value)
             confirm({ closeDropdown: false })
         }, [confirm, setFilterValue])
 
+        let selectValue = undefined
+        if (Array.isArray(filterValue)) {
+            selectValue = filterValue
+        } else if (typeof filterValue === 'string' || typeof filterValue === 'number') {
+            selectValue = [filterValue]
+        }
+
         return (
-            <OpenSelect
+            <Select
                 {...restSelectProps}
                 options={options}
                 mode={mode}
                 showArrow
                 optionFilterProp='label'
-                value={Array.isArray(filterValue) ? filterValue : typeof filterValue === 'string' || typeof filterValue === 'number' ? [filterValue] : undefined}
-                onChange={handleChange}
+                value={selectValue}
+                onChange={handleChangeSelect}
             />
         )
     }
@@ -367,8 +377,9 @@ export const getSelectFilterComponent: GetSelectFilterComponentType = ({ selectP
     return SelectFilterDropdown
 }
 
-const GRAPHQL_SEARCH_INPUT_STYLE: CSSProperties = { width: '100%', display: 'flex', flexDirection: 'column' }
-
+/**
+ * @deprecated use getGQLSelectFilterComponent
+ */
 export const getGQLSelectFilterDropdown: GetGQLSelectFilterDropdownType = ({ gqlSelectProps, containerStyles } = {}) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters, visible }) => {
         const handleClear = useCallback(() => {
@@ -400,15 +411,13 @@ export const getGQLSelectFilterDropdown: GetGQLSelectFilterDropdownType = ({ gql
                         // @ts-ignore
                         value={selectedKeys}
                         onChange={handleChange}
-                        style={GRAPHQL_SEARCH_INPUT_STYLE}
+                        className={classNames(styles.filterComponenGQLSelectContainer)}
                     />
                 </SelectFilterContainer>
             )
         )
     }
 }
-
-const GRAPHQL_SEARCH_COMPONENT_STYLE: CSSProperties = { width: '400px', display: 'flex', flexDirection: 'column' }
 
 export const getGQLSelectFilterComponent: GetGQLSelectFilterComponentType = ({ gqlSelectProps } = {}) => {
     const GQLSelectFilterDropdown = ({ 
@@ -422,18 +431,25 @@ export const getGQLSelectFilterComponent: GetGQLSelectFilterComponentType = ({ g
             setShowResetButton(Array.isArray(filterValue) && filterValue.length > 0)
         }, [filterValue, setShowResetButton])
 
-        const handleChange = useCallback<NonNullable<OpenSelectProps['onChange']>>((value)  => {
+        const handleChangeGQLSelect = useCallback<NonNullable<SelectProps['onChange']>>((value)  => {
             setFilterValue(value)
             confirm({ closeDropdown: false })
         }, [confirm, setFilterValue])
+
+        let gqlSelectValue = undefined
+        if (Array.isArray(filterValue)) {
+            gqlSelectValue = filterValue
+        } else if (typeof filterValue === 'string' || typeof filterValue === 'number') {
+            gqlSelectValue = [filterValue]
+        }
 
         return (
             <GraphQlSearchInput
                 showArrow
                 {...gqlSelectProps}
-                value={Array.isArray(filterValue) ? filterValue : filterValue ? [filterValue] : undefined}
-                onChange={handleChange}
-                style={GRAPHQL_SEARCH_COMPONENT_STYLE}
+                value={gqlSelectValue}
+                onChange={handleChangeGQLSelect}
+                className={classNames(styles.filterComponenGQLSelectContainer)}
             />
         )
     }

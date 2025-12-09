@@ -12,6 +12,9 @@ import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/he
 
 type UseSearchOutputType = [string, (search: string) => void, () => void]
 
+/**
+ * @deprecated use useTableSearch
+ */
 export const useSearch = <F> (debounceTime: number = 400): UseSearchOutputType => {
     const router = useRouter()
     const filtersFromQuery = useMemo(() => getFiltersFromQuery<F>(router.query), [router.query])
@@ -41,7 +44,7 @@ export const useSearch = <F> (debounceTime: number = 400): UseSearchOutputType =
     return [search, handleSearchChange, handleResetSearch]
 }
 
-export const useNewSearch = (tableRef: TableRef, debounceTime: number = 400): UseSearchOutputType => {
+export const useTableSearch = (tableRef: TableRef, debounceTime: number = 400): UseSearchOutputType => {
     const [search, setSearch] = useState<string>('')
 
     const searchChange = useMemo(() => debounce((value: string) => {

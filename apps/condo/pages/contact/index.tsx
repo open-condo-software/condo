@@ -60,11 +60,11 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { ANALYTICS_RESIDENT_IN_CONTACT_PAGE } from '@condo/domains/common/constants/featureflags'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
-import { useNewQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { useNewSearch } from '@condo/domains/common/hooks/useSearch'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { useTableSearch } from '@condo/domains/common/hooks/useSearch'
 import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
 import { PageComponentType } from '@condo/domains/common/types'
-import { OpenFiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { defaultParseUrlQuery, defaultUpdateUrlQuery } from '@condo/domains/common/utils/tableUrls'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { useContactExportToExcelTask } from '@condo/domains/contact/hooks/useContactExportToExcelTask'
@@ -84,7 +84,7 @@ type ContactBaseSearchQuery = { organization: { id: string } } | { organization:
 
 type ContactPageContentProps = {
     baseSearchQuery: ContactBaseSearchQuery
-    filterMeta: OpenFiltersMeta<ContactWhereInput>[]
+    filterMeta: TableFiltersMeta<ContactWhereInput>[]
     tableColumns: TableColumn<GetContactsForTableQuery['contacts'][number]>[]
     tableRef: React.RefObject<TableRef | null>
     role?: Pick<OrganizationEmployeeRole, 'canManageContacts'>
@@ -411,7 +411,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
     const router = useRouter()
     const [selectedRowsCount, setSelectedRowsCount] = useState(0)
     
-    const { filtersToWhere, sortersToSortBy } = useNewQueryMappers(filterMeta)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMeta, null)
     const canManageContacts = role?.canManageContacts ?? false
 
     const [fetchContacts] = useGetContactsForTableLazyQuery()
@@ -652,7 +652,7 @@ const ContactsPage: PageComponentType = () => {
     const userOrganizationId = useMemo(() => organization?.id, [organization?.id])
 
     const tableRef = useRef<TableRef | null>(null)
-    const [search, handleSearchChange] = useNewSearch(tableRef.current)
+    const [search, handleSearchChange] = useTableSearch(tableRef.current)
     const tableColumns = useTableColumns(filterMeta)
 
     const baseSearchQuery: ContactBaseSearchQuery = useMemo(() => ({
