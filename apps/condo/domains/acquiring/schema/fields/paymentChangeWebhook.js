@@ -17,7 +17,7 @@ const PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD = {
 
 const PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD = {
     schemaDoc: 'Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Condo-Signature header.',
-    type: 'Text',
+    type: 'EncryptedText',
     isRequired: false,
     access: {
         read: true,
