@@ -1,24 +1,29 @@
 import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
 import pickBy from 'lodash/pickBy'
 
-import { FilterState, FullTableState, RowSelectionState, SortState } from '@open-condo/ui/src'
+import type {
+    FilterState,
+    FullTableState,
+    RowSelectionState,
+    SortState,
+} from '@open-condo/ui'
+
+import type { NextRouter } from 'next/router'
 
 type ParsedUrlQuery = Record<string, string | string[]>
-
-type QueryArgType = string | string[]
-type FiltersFromQueryType = { [key: string]: QueryArgType }
 
 const DESC = 'DESC'
 const ASC = 'ASC'
 
-const getFiltersFromQuery = (query: ParsedUrlQuery): [{ [x: string]: QueryArgType }, string | undefined] => {
+const getFiltersFromQuery = (query: ParsedUrlQuery): [{ [x: string]: string | string[] }, string | undefined] => {
     const { filters } = query
     if (!filters || typeof filters !== 'string') {
         return [{}, undefined]
     }
     try {
         const json = JSON.parse(filters)
-        const result: { [x: string]: QueryArgType } = {}
+        const result: { [x: string]: string | string[] } = {}
         let globalFilter: string | undefined = undefined
         Object.keys(json).forEach((key) => {
             const value = json[key]
@@ -37,7 +42,7 @@ const getFiltersFromQuery = (query: ParsedUrlQuery): [{ [x: string]: QueryArgTyp
 
 const getSortersFromQuery = (query: ParsedUrlQuery): SortState => {
     const sorters = query?.sort || []
-    
+
     let sortArray: string[] = []
     if (Array.isArray(sorters)) {
         sortArray = sorters
@@ -58,8 +63,8 @@ const getSortersFromQuery = (query: ParsedUrlQuery): SortState => {
         .map((sorter) => {
             const [column, order] = sorter.split('_')
             if (!column || (order !== ASC && order !== DESC)) return undefined
-            return { 
-                id: column, 
+            return {
+                id: column,
                 desc: order === DESC,
             }
         })
@@ -84,75 +89,8 @@ const getRowSelectionFromQuery = (query: ParsedUrlQuery): RowSelectionState => {
             selectedRowsArray = selectedRows.split(',').filter(id => id.trim() !== '').map(id => id.trim())
         }
     }
-        
+
     return selectedRowsArray
-}
-
-const updateUrl = (
-    newParams: Record<string, unknown>, 
-    options?: { 
-        resetOldParameters?: boolean 
-        shallow?: boolean 
-    }
-) => {
-    if (typeof window === 'undefined') return
-
-    const url = new URL(window.location.href)
-    
-    if (options?.resetOldParameters) {
-        url.search = ''
-    }
-
-    Object.entries(newParams).forEach(([key, value]) => {
-        if (!value) {
-            url.searchParams.delete(key)
-        } else {
-            const query = typeof value === 'string' ? value : JSON.stringify(value)
-            if (query === '{}' || query === '[]' || query === '""') {
-                url.searchParams.delete(key)
-            } else {
-                url.searchParams.set(key, query)
-            }
-        }
-    })
-
-    if (options?.shallow) {
-        window.history.replaceState({}, '', url.toString())
-    } else {
-        window.history.pushState({}, '', url.toString())
-    }
-}
-
-/**
- * @deprecated This function is experimental. API may change at any time without notice.
- * 
- * @experimental
- * 
- * This function is in experimental stage of development.
- * API may be changed at any moment without prior notice.
- * Use with caution in production.
- * 
- * @param query - Query object to parse
- * @param pageSize - Page size to use
- * @returns Full table state parsed from query
- */
-export const defaultParseUrlQuery = (query: Record<string, string | string[]>, pageSize: number): FullTableState => {
-    const [filters, globalFilter] = getFiltersFromQuery(query)
-    const sorters = getSortersFromQuery(query)
-    const rowSelection = getRowSelectionFromQuery(query)
-    
-    const offset = Number(query?.offset) ? Number(query?.offset) : 0
-    const pageIndex = Math.floor(offset / pageSize)
-    const newStartRow = pageIndex * pageSize
-
-    return { 
-        filterState: filters, 
-        sortState: sorters,
-        startRow: newStartRow, 
-        endRow: newStartRow + pageSize,
-        globalFilter,
-        rowSelectionState: rowSelection,
-    }
 }
 
 const normalizeOffset = (startRow: number | undefined): number | null => {
@@ -170,19 +108,19 @@ const isValidFilterValue = (value: unknown): boolean => {
     return false
 }
 
-const normalizeFilters = (filterState: FilterState | undefined, globalFilter: string | undefined): FiltersFromQueryType | null => {
+const normalizeFilters = (filterState: FilterState | undefined, globalFilter: string | undefined): Record<string, unknown> | null => {
     if ((!filterState || Object.keys(filterState).length === 0) && !globalFilter) {
         return null
     }
-    
-    const validFilters = pickBy(filterState, (value, key) => 
+
+    const validFilters = pickBy(filterState, (value, key) =>
         typeof key === 'string' && isValidFilterValue(value)
-    ) as FiltersFromQueryType
+    )
 
     if (globalFilter && isValidFilterValue(globalFilter)) {
         validFilters.search = globalFilter
     }
-    
+
     return Object.keys(validFilters).length > 0 ? validFilters : null
 }
 
@@ -190,10 +128,10 @@ const normalizeSorters = (sortState: SortState | undefined): string | null => {
     if (!sortState || sortState.length === 0) {
         return null
     }
-    
+
     const sorter = sortState[0]
     const order = sorter?.desc ? DESC : ASC
-    
+
     return sorter ? `${sorter.id}_${order}` : null
 }
 
@@ -204,27 +142,56 @@ const normalizeSelectedRows = (rowSelectionState: RowSelectionState | undefined)
     return [...rowSelectionState]
 }
 
-/**
- * @deprecated This function is experimental. API may change at any time without notice.
- * 
- * @experimental
- * 
- * This function is in experimental stage of development.
- * API may be changed at any moment without prior notice.
- * Use with caution in production.
- * 
- * @param params - Full table state to update
- * @returns void
- */
-export const defaultUpdateUrlQuery = (params: FullTableState) => {
+export const defaultParseUrlQuery = (query: ParsedUrlQuery, pageSize: number): FullTableState => {
+    const [filters, globalFilter] = getFiltersFromQuery(query)
+    const sorters = getSortersFromQuery(query)
+    const rowSelection = getRowSelectionFromQuery(query)
+
+    const offset = Number(query?.offset) ? Number(query?.offset) : 0
+    const pageIndex = Math.floor(offset / pageSize)
+    const newStartRow = pageIndex * pageSize
+
+    return {
+        filterState: filters,
+        sortState: sorters,
+        startRow: newStartRow,
+        endRow: newStartRow + pageSize,
+        globalFilter,
+        rowSelectionState: rowSelection,
+    }
+}
+
+export const defaultUpdateUrlQuery = (router: NextRouter, params: FullTableState): void => {
     const { startRow, filterState, sortState, rowSelectionState, globalFilter } = params
 
-    const newParameters = { 
-        offset: normalizeOffset(startRow), 
-        filters: normalizeFilters(filterState, globalFilter), 
-        sort: normalizeSorters(sortState), 
+    const newParameters = {
+        offset: normalizeOffset(startRow),
+        filters: normalizeFilters(filterState, globalFilter),
+        sort: normalizeSorters(sortState),
         selectedRows: normalizeSelectedRows(rowSelectionState),
     }
 
-    return updateUrl(newParameters, { resetOldParameters: false, shallow: true })
+    const nextQuery: Record<string, string | number> = {}
+    Object.entries(newParameters).forEach(([key, value]) => {
+        if (value === null || value === undefined) return
+        if (typeof value === 'object') {
+            const stringified = JSON.stringify(value)
+            if (stringified === '{}' || stringified === '[]' || stringified === '""') return
+            nextQuery[key] = stringified
+            return
+        }
+        nextQuery[key] = value as number | string
+    })
+
+    if (router && isEqual(router.query, nextQuery)) {
+        return
+    }
+
+    if (router) {
+        router.replace({
+            pathname: router.pathname || '/contact',
+            query: nextQuery as Record<string, string | string[]>,
+        }, undefined, { shallow: true })
+    }
 }
+
