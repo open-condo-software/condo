@@ -14,7 +14,7 @@ import { colors } from '@open-condo/ui/colors'
 
 import { BillingDescriptionModalContent } from '@condo/domains/billing/components/OnBoarding/BillingDescriptionModalContent'
 import { INTEGRATION_TYPE_B2B_APP } from '@condo/domains/billing/constants/constants'
-import styles from '@condo/domains/billing/useSelectBillingPromoBanner.module.css'
+import styles from '@condo/domains/billing/hooks/useSelectBillingPromoBanner.module.css'
 import { useMarkdownTemplate } from '@condo/domains/common/hooks/useMarkdownTemplate'
 import { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 
