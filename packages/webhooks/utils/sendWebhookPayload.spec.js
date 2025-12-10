@@ -31,10 +31,7 @@ const { getWebhookTasks } = require('../tasks')
 
 
 describe('sendWebhookPayload utility', () => {
-    const mockSudoContext = { sudo: true }
-    const mockContext = {
-        sudo: jest.fn(() => mockSudoContext),
-    }
+    const mockContext = {}
 
     beforeEach(() => {
         jest.clearAllMocks()
@@ -52,9 +49,8 @@ describe('sendWebhookPayload utility', () => {
             const result = await sendWebhookPayload(mockContext, options)
 
             expect(result).toEqual(mockWebhookPayload)
-            expect(mockContext.sudo).toHaveBeenCalled()
             expect(WebhookPayload.create).toHaveBeenCalledWith(
-                mockSudoContext,
+                mockContext,
                 expect.objectContaining({
                     dv: 1,
                     url: options.url,
@@ -79,7 +75,7 @@ describe('sendWebhookPayload utility', () => {
             await sendWebhookPayload(mockContext, options)
 
             expect(WebhookPayload.create).toHaveBeenCalledWith(
-                mockSudoContext,
+                mockContext,
                 expect.objectContaining({
                     modelName: options.modelName,
                     itemId: options.itemId,
@@ -100,7 +96,7 @@ describe('sendWebhookPayload utility', () => {
             await sendWebhookPayload(mockContext, options)
 
             expect(WebhookPayload.create).toHaveBeenCalledWith(
-                mockSudoContext,
+                mockContext,
                 expect.objectContaining({
                     sender: customSender,
                 })
@@ -118,7 +114,7 @@ describe('sendWebhookPayload utility', () => {
             await sendWebhookPayload(mockContext, options)
 
             expect(WebhookPayload.create).toHaveBeenCalledWith(
-                mockSudoContext,
+                mockContext,
                 expect.objectContaining({
                     sender: { dv: 1, fingerprint: 'webhooks-package' },
                 })
@@ -136,7 +132,7 @@ describe('sendWebhookPayload utility', () => {
             await sendWebhookPayload(mockContext, options)
 
             expect(WebhookPayload.create).toHaveBeenCalledWith(
-                mockSudoContext,
+                mockContext,
                 expect.objectContaining({
                     expiresAt: expect.any(String),
                     nextRetryAt: expect.any(String),
@@ -235,7 +231,7 @@ describe('sendWebhookPayload utility', () => {
             await sendWebhookPayload(mockContext, options)
 
             expect(WebhookPayload.create).toHaveBeenCalledWith(
-                mockSudoContext,
+                mockContext,
                 expect.objectContaining({
                     modelName: null,
                     itemId: null,
