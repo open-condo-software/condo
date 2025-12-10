@@ -54,11 +54,7 @@ async function sendWebhookPayload (context, options) {
     // Stringify payload if it's an object (EncryptedText field requires string)
     const payloadString = typeof payload === 'string' ? payload : JSON.stringify(payload)
 
-    // Use sudo context because WebhookPayload access is restricted to admin/support only,
-    // but this internal operation should work regardless of who triggered it
-    const sudoContext = context.sudo()
-
-    const webhookPayload = await WebhookPayload.create(sudoContext, {
+    const webhookPayload = await WebhookPayload.create(context, {
         dv: 1,
         sender,
         payload: payloadString,

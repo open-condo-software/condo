@@ -504,7 +504,7 @@ const Payment = new GQLListSchema('Payment', {
             if (statusChanged) {
                 // Queue background task to build and send webhook
                 // This minimizes async operations in the hook
-                await sendPaymentStatusChangeWebhook.delay(updatedItem.id, previousStatus, newStatus)
+                await sendPaymentStatusChangeWebhook.delay(updatedItem.id)
             }
 
             // Update invoice status when payment is done

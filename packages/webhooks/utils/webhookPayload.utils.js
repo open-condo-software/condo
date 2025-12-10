@@ -39,8 +39,8 @@ function calculateNextRetryAt (attempt) {
 }
 
 /**
- * Attempts to deliver webhook payload to the target URL
- * Uses stored payload, url, and secret from the delivery record
+ * Attempts to send webhook payload to the target URL
+ * Uses stored payload, url, and secret from the WebhookPayload record
  * @param {Object} webhookPayload - WebhookPayload record with payload, url, secret, eventType
  * @returns {Promise<Object>} { success: boolean, statusCode?: number, body?: string, error?: string }
  */
@@ -76,7 +76,6 @@ async function trySendWebhookPayload (webhookPayload) {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Webhook-Signature': signature,
-                'X-Webhook-Event': eventType || 'unknown',
                 'X-Webhook-Id': webhookPayload.id,
             },
             body,
@@ -112,7 +111,7 @@ async function trySendWebhookPayload (webhookPayload) {
             }
         } else {
             logger.warn({
-                msg: 'Webhook payload delivery failed with HTTP error',
+                msg: 'Webhook payload sending failed with HTTP error',
                 reqId,
                 data: {
                     payloadId: webhookPayload.id,
@@ -132,7 +131,7 @@ async function trySendWebhookPayload (webhookPayload) {
         const isTimeout = err.message && err.message.includes('Abort request by timeout')
         if (isTimeout) {
             logger.warn({
-                msg: 'Webhook payload delivery timed out',
+                msg: 'Webhook payload sending timed out',
                 reqId,
                 data: {
                     payloadId: webhookPayload.id,
@@ -146,7 +145,7 @@ async function trySendWebhookPayload (webhookPayload) {
         }
 
         logger.error({
-            msg: 'Webhook payload delivery failed with network error',
+            msg: 'Webhook payload sending failed with network error',
             reqId,
             data: { payloadId: webhookPayload.id },
             err,
