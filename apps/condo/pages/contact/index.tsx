@@ -134,7 +134,7 @@ const useContactImportIsVerifiedCheckbox = () => {
 }
 
 type DefaultActionBarProps = {
-    getContactsWhere: (filterState: FilterState, globalFilter: string) => ContactWhereInput
+    getContactsWhere: (filterState: FilterState, globalFilter: string | undefined) => ContactWhereInput
     getContactsSortBy: (sortState: SortState) => SortContactsBy[]
     tableRef: TableRef | null
 }
@@ -451,12 +451,18 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         }
     }, [baseSearchQuery, tableRef])
 
-    const getContactsWhere = useCallback((filterState: FilterState, globalFilter: string) => {
-        if (!filterState && !globalFilter) {
+    const getContactsWhere = useCallback((filterState: FilterState, globalFilter: string | undefined) => {
+        const hasFilters = filterState && Object.keys(filterState).length > 0
+        const hasGlobalFilter = globalFilter && globalFilter.trim() !== ''
+
+        if (!hasFilters && !hasGlobalFilter) {
             return baseSearchQuery
         }
 
-        const queryFilters = { ...filterState, search: globalFilter }
+        const queryFilters = { ...filterState }
+        if (hasGlobalFilter) {
+            queryFilters.search = globalFilter
+        }
 
         return {
             ...baseSearchQuery,
