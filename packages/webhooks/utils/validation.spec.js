@@ -12,6 +12,9 @@ describe('validateEventType', () => {
             'resource1.action2',
             'my-resource.my-action',
             'payment.status-change.completed',
+            'Payment.Created',
+            'test.event.7v5619fr',
+            'myResource.myAction',
         ]
 
         test.each(validCases)('should accept valid event type: %s', (eventType) => {
@@ -48,12 +51,6 @@ describe('validateEventType', () => {
 
         test('should reject event types without dots', () => {
             const result = validateEventType('paymentcreated')
-            expect(result.isValid).toBe(false)
-            expect(result.error).toContain('dot-notation format')
-        })
-
-        test('should reject event types with uppercase letters', () => {
-            const result = validateEventType('Payment.Created')
             expect(result.isValid).toBe(false)
             expect(result.error).toContain('dot-notation format')
         })
@@ -96,9 +93,14 @@ describe('EVENT_TYPE_PATTERN', () => {
         expect(EVENT_TYPE_PATTERN.test('a.b.c.d.e')).toBe(true)
     })
 
+    test('should match camelCase patterns', () => {
+        expect(EVENT_TYPE_PATTERN.test('Payment.Created')).toBe(true)
+        expect(EVENT_TYPE_PATTERN.test('myResource.myAction')).toBe(true)
+        expect(EVENT_TYPE_PATTERN.test('test.event.7v5619fr')).toBe(true)
+    })
+
     test('should not match invalid patterns', () => {
         expect(EVENT_TYPE_PATTERN.test('payment')).toBe(false)
-        expect(EVENT_TYPE_PATTERN.test('Payment.Created')).toBe(false)
         expect(EVENT_TYPE_PATTERN.test('1.2')).toBe(false)
     })
 })

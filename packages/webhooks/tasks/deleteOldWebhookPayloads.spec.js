@@ -27,7 +27,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
             const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day').toISOString()
             const [oldPayload] = await createTestWebhookPayload(actors.admin, {
                 url: 'https://example.com/old-webhook',
-                payload: { test: 'old' },
+                payload: JSON.stringify({ test: 'old' }),
                 secret: 'old-secret',
                 eventType: 'test.old',
             })
@@ -42,7 +42,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
             // Create a recent payload (should not be deleted)
             const [recentPayload] = await createTestWebhookPayload(actors.admin, {
                 url: 'https://example.com/recent-webhook',
-                payload: { test: 'recent' },
+                payload: JSON.stringify({ test: 'recent' }),
                 secret: 'recent-secret',
                 eventType: 'test.recent',
             })
@@ -67,7 +67,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
             // Create a payload within retention period
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'https://example.com/webhook',
-                payload: { test: 'data' },
+                payload: JSON.stringify({ test: 'data' }),
                 secret: 'secret',
                 eventType: 'test.event',
             })

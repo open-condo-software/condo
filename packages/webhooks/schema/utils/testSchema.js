@@ -97,6 +97,7 @@ async function softDeleteTestWebhookSubscription (client, id) {
 
 async function createTestWebhookPayload (client, extraAttrs = {}) {
     if (!client) throw new Error('No client!')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {

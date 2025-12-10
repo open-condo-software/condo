@@ -52,7 +52,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer, entryPointPath) => 
         it('should successfully deliver webhook payload and update status', async () => {
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: faker.internet.url(),
-                payload: { eventType: 'test.event', data: { id: '123' } },
+                payload: JSON.stringify({ eventType: 'test.event', data: { id: '123' } }),
                 secret: faker.random.alphaNumeric(32),
                 eventType: 'test.event',
                 status: WEBHOOK_PAYLOAD_STATUS_PENDING,
@@ -79,7 +79,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer, entryPointPath) => 
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: faker.internet.url(),
-                payload: { eventType: 'test.event', data: { id: '123' } },
+                payload: JSON.stringify({ eventType: 'test.event', data: { id: '123' } }),
                 secret: faker.random.alphaNumeric(32),
                 eventType: 'test.event',
                 status: WEBHOOK_PAYLOAD_STATUS_PENDING,
@@ -106,7 +106,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer, entryPointPath) => 
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: faker.internet.url(),
-                payload: { eventType: 'test.event', data: { id: '123' } },
+                payload: JSON.stringify({ eventType: 'test.event', data: { id: '123' } }),
                 secret: faker.random.alphaNumeric(32),
                 eventType: 'test.event',
                 status: WEBHOOK_PAYLOAD_STATUS_PENDING,
@@ -130,7 +130,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer, entryPointPath) => 
         it('should skip already processed payloads', async () => {
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: faker.internet.url(),
-                payload: { eventType: 'test.event', data: { id: '123' } },
+                payload: JSON.stringify({ eventType: 'test.event', data: { id: '123' } }),
                 secret: faker.random.alphaNumeric(32),
                 eventType: 'test.event',
                 status: WEBHOOK_PAYLOAD_STATUS_SUCCESS, // Already successful
@@ -156,7 +156,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer, entryPointPath) => 
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: faker.internet.url(),
-                payload: { eventType: 'test.event', data: { id: '123' } },
+                payload: JSON.stringify({ eventType: 'test.event', data: { id: '123' } }),
                 secret: faker.random.alphaNumeric(32),
                 eventType: 'test.event',
                 status: WEBHOOK_PAYLOAD_STATUS_PENDING,
