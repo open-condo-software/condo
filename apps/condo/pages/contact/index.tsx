@@ -134,7 +134,7 @@ const useContactImportIsVerifiedCheckbox = () => {
 }
 
 type DefaultActionBarProps = {
-    getContactsWhere: (filterState: FilterState) => ContactWhereInput
+    getContactsWhere: (filterState: FilterState, globalFilter: string | undefined) => ContactWhereInput
     getContactsSortBy: (sortState: SortState) => SortContactsBy[]
     tableRef: TableRef | null
 }
@@ -150,7 +150,7 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, t
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions({ isVerifiedRef })
 
     const { ExportButton } = useContactExportToExcelTask({
-        where: getContactsWhere(tableRef?.api?.getFilterState()),
+        where: getContactsWhere(tableRef?.api?.getFilterState(), tableRef?.api?.getGlobalFilter()),
         sortBy: getContactsSortBy(tableRef?.api?.getSorting()),
         format: ContactExportTaskFormatType.Excel,
         user,
@@ -424,12 +424,16 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
             const query = url.split('?')[1]
             if (pathname === '/contact' || pathname === '/contact/') {
                 if (tableRef.current && !query) {
-                    const fullTableState = defaultParseUrlQuery(router.query, CONTACT_PAGE_SIZE)
-                    const currentState = tableRef.current.api?.getFullTableState?.()
-                    if (currentState && isEqual(currentState, fullTableState)) return
-                    tableRef.current.api?.setFullTableState(fullTableState)
-                    handleSearchChange(String(fullTableState.globalFilter || ''))
-                    setSelectedRowsCount(tableRef.current.api?.getRowSelection().length || 0)
+                    tableRef.current.api?.setFullTableState({
+                        filterState: {},
+                        sortState: [],
+                        startRow: 0,
+                        endRow: CONTACT_PAGE_SIZE,
+                        globalFilter: '',
+                        rowSelectionState: [],
+                    })
+                    handleSearchChange('')
+                    setSelectedRowsCount(0)
                 }
             }
         }
@@ -447,14 +451,22 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         }
     }, [baseSearchQuery, tableRef])
 
-    const getContactsWhere = useCallback((filterState: FilterState) => {
-        if (!filterState) {
+    const getContactsWhere = useCallback((filterState: FilterState, globalFilter: string | undefined) => {
+        const hasFilters = filterState && Object.keys(filterState).length > 0
+        const hasGlobalFilter = globalFilter && globalFilter.trim() !== ''
+
+        if (!hasFilters && !hasGlobalFilter) {
             return baseSearchQuery
+        }
+
+        const queryFilters = { ...filterState }
+        if (hasGlobalFilter) {
+            queryFilters.search = globalFilter
         }
 
         return {
             ...baseSearchQuery,
-            ...filtersToWhere(filterState),
+            ...filtersToWhere(queryFilters),
         }
     }, [baseSearchQuery, filtersToWhere])
 
@@ -472,7 +484,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         startRow, 
         endRow, 
         globalFilter,
-    }, isRefetch) => {
+    }) => {
         const sortBy = getContactsSortBy(sortState)
         const where = {
             ...baseSearchQuery,
@@ -490,7 +502,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
 
         const { data: { contacts, meta: { count } } } = await fetchContacts({
             variables: payload,
-            fetchPolicy: isRefetch ? 'network-only' : 'cache-first',
+            fetchPolicy: 'network-only',
         })
         
         return { rowData: contacts?.filter(Boolean) ?? [], rowCount: count }

@@ -31,8 +31,6 @@ import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangeP
 import { colors } from '@condo/domains/common/constants/style'
 import { QueryArgType, OptionType } from '@condo/domains/common/utils/tables.utils'
 
-import styles from './Filters.module.css'
-
 import { Button } from '../Button'
 
 
@@ -73,6 +71,14 @@ interface IFilterContainerProps {
 }
 
 const FILTER_CONTAINER_STYLES: CSSProperties = { padding: 16 }
+const FILTER_COMPONENT_BASE_CONTAINER_STYLE: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+}
+const FILTER_COMPONENT_GQL_SELECT_CONTAINER_STYLE: CSSProperties = {
+    ...FILTER_COMPONENT_BASE_CONTAINER_STYLE,
+    width: '400px',
+}
 
 const handleStopPropagation = (e) => e.stopPropagation()
 
@@ -254,7 +260,7 @@ export const getOptionFilterDropdown: GetOptionFilterDropdownType = ({ container
             >
                 <Checkbox.Group
                     {...checkboxGroupProps}
-                    className={styles.filterComponentCheckboxGroupContainer}
+                    style={FILTER_COMPONENT_BASE_CONTAINER_STYLE}
                     value={selectedKeys.map(key => String(key))}
                     onChange={handleChange}
                 />
@@ -286,7 +292,7 @@ export const getCheckboxGroupFilterComponent: GetCheckboxGroupFilterComponentTyp
         return (
             <Checkbox.Group
                 {...checkboxGroupProps}
-                className={styles.filterComponentCheckboxGroupContainer}
+                style={FILTER_COMPONENT_BASE_CONTAINER_STYLE}
                 value={checkboxGroupValue}
                 onChange={handleChangeCheckboxGroup}
             />
@@ -325,7 +331,7 @@ export const getSelectFilterDropdown = <ValueType extends AntSelectValueType>({ 
                     showArrow
                     optionFilterProp='label'
                     {...selectProps}
-                    className={styles.filterComponentSelectContainer}
+                    style={FILTER_COMPONENT_BASE_CONTAINER_STYLE}
                     // NOTE: Type casting problem
                     // @ts-ignore
                     value={selectedKeys}
@@ -443,14 +449,13 @@ export const getGQLSelectFilterComponent: GetGQLSelectFilterComponentType = ({ g
         }
 
         return (
-            <div className={styles.filterComponentGqlSelectContainer}>
-                <GraphQlSearchInput
-                    showArrow
-                    {...gqlSelectProps}
-                    value={gqlSelectValue}
-                    onChange={handleChangeGQLSelect}
-                />
-            </div>
+            <GraphQlSearchInput
+                showArrow
+                style={FILTER_COMPONENT_GQL_SELECT_CONTAINER_STYLE}
+                {...gqlSelectProps}
+                value={gqlSelectValue}
+                onChange={handleChangeGQLSelect}
+            />
         )
     }
 
