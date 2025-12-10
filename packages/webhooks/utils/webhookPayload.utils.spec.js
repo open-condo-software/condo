@@ -120,7 +120,6 @@ describe('webhookDelivery utilities', () => {
                     headers: expect.objectContaining({
                         'Content-Type': 'application/json',
                         'X-Webhook-Signature': expect.any(String),
-                        'X-Webhook-Event': 'test.event',
                         'X-Webhook-Id': 'test-delivery-id',
                     }),
                     abortRequestTimeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,

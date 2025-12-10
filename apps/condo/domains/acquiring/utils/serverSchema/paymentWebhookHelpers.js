@@ -3,20 +3,25 @@
  * These functions help build webhook payloads for payment status changes
  */
 
+const { EncryptionManager } = require('@open-condo/keystone/crypto/EncryptionManager')
 const { getById } = require('@open-condo/keystone/schema')
 
+// Encryption manager for decrypting EncryptedText fields when using getById
+const encryptionManager = new EncryptionManager()
 
 /**
  * Gets the webhook secret from invoice or receipt
+ * Decrypts the EncryptedText field since getById returns raw encrypted value
  * @param {Object} payment - Payment record
- * @returns {Promise<string|null>} Secret or null if not found
+ * @returns {Promise<string|null>} Decrypted secret or null if not found
  */
 async function getWebhookSecret (payment) {
     // Try to get secret from invoice first
     if (payment.invoice) {
         const invoice = await getById('Invoice', payment.invoice)
         if (invoice && invoice.paymentStatusChangeWebhookSecret) {
-            return invoice.paymentStatusChangeWebhookSecret
+            // Decrypt the EncryptedText field
+            return encryptionManager.decrypt(invoice.paymentStatusChangeWebhookSecret)
         }
     }
 
@@ -24,7 +29,8 @@ async function getWebhookSecret (payment) {
     if (payment.receipt) {
         const receipt = await getById('BillingReceipt', payment.receipt)
         if (receipt && receipt.paymentStatusChangeWebhookSecret) {
-            return receipt.paymentStatusChangeWebhookSecret
+            // Decrypt the EncryptedText field
+            return encryptionManager.decrypt(receipt.paymentStatusChangeWebhookSecret)
         }
     }
 
@@ -57,14 +63,12 @@ async function getWebhookCallbackUrl (payment) {
 }
 
 /**
- * Builds the webhook payload for a payment status change
- * This payload is ready to be stored in WebhookDelivery and sent
- * @param {Object} payment - Payment record
- * @param {string} previousStatus - Payment status before the change
- * @param {string} newStatus - Payment status after the change
- * @returns {Promise<Object>} Webhook payload
+ * Builds a snapshot of the Payment model for webhook body.
+ * Returns a Payment-like object that can be sent as JSON.
+ * @param {Object} payment - Payment record (must include current status)
+ * @returns {Promise<Object>} Payment-like object
  */
-async function buildPaymentWebhookPayload (payment, previousStatus, newStatus) {
+async function buildPaymentWebhookPayload (payment) {
     const organization = await getById('Organization', payment.organization)
 
     // Get related invoice if exists
@@ -73,6 +77,7 @@ async function buildPaymentWebhookPayload (payment, previousStatus, newStatus) {
         const invoice = await getById('Invoice', payment.invoice)
         if (invoice) {
             invoiceData = {
+                __typename: 'Invoice',
                 id: invoice.id,
                 number: invoice.number,
                 toPay: invoice.toPay,
@@ -86,6 +91,7 @@ async function buildPaymentWebhookPayload (payment, previousStatus, newStatus) {
         const receipt = await getById('BillingReceipt', payment.receipt)
         if (receipt) {
             receiptData = {
+                __typename: 'BillingReceipt',
                 id: receipt.id,
                 toPay: receipt.toPay,
                 period: receipt.period,
@@ -95,21 +101,22 @@ async function buildPaymentWebhookPayload (payment, previousStatus, newStatus) {
     }
 
     return {
-        eventType: 'payment.status.changed',
-        timestamp: new Date().toISOString(),
-        data: {
-            paymentId: payment.id,
-            previousStatus,
-            newStatus,
-            amount: payment.amount,
-            currencyCode: payment.currencyCode,
-            organization: {
-                id: organization.id,
-                name: organization.name,
-            },
-            invoice: invoiceData,
-            receipt: receiptData,
+        __typename: 'Payment',
+        id: payment.id,
+        v: payment.v,
+        dv: payment.dv,
+        status: payment.status,
+        amount: payment.amount,
+        currencyCode: payment.currencyCode,
+        organization: organization && {
+            __typename: 'Organization',
+            id: organization.id,
+            name: organization.name,
         },
+        invoice: invoiceData,
+        receipt: receiptData,
+        createdAt: payment.createdAt,
+        updatedAt: payment.updatedAt,
     }
 }
 

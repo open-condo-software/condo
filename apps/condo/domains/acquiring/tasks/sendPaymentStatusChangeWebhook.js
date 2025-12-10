@@ -1,7 +1,6 @@
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { sendWebhookPayload } = require('@open-condo/webhooks/utils/sendWebhookPayload')
 
-const { Payment } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getWebhookSecret,
     getWebhookCallbackUrl,
@@ -14,15 +13,13 @@ const {
  * async operations in the hook itself.
  *
  * @param {string} paymentId - ID of the payment
- * @param {string} previousStatus - Payment status before the change
- * @param {string} newStatus - Payment status after the change
  */
-async function sendPaymentStatusChangeWebhook (paymentId, previousStatus, newStatus) {
+async function sendPaymentStatusChangeWebhook (paymentId) {
     const { keystone: context } = await getSchemaCtx('Payment')
 
-    // Get the payment record
-    const payment = await Payment.getOne(context, { id: paymentId, deletedAt: null })
-    if (!payment) {
+    // Get the payment record using getById (direct adapter access, works in tests)
+    const payment = await getById('Payment', paymentId)
+    if (!payment || payment.deletedAt) {
         return
     }
 
@@ -34,8 +31,8 @@ async function sendPaymentStatusChangeWebhook (paymentId, previousStatus, newSta
         return
     }
 
-    // Build the webhook payload
-    const payload = await buildPaymentWebhookPayload(payment, previousStatus, newStatus)
+    // Build the webhook payload (snapshot of current Payment state)
+    const payload = await buildPaymentWebhookPayload(payment)
 
     // Send the webhook
     await sendWebhookPayload(context, {
