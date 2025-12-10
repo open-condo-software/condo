@@ -23,8 +23,6 @@ const { sendPaymentStatusChangeWebhook } = require('./sendPaymentStatusChangeWeb
 
 describe('sendPaymentStatusChangeWebhook', () => {
     const mockPaymentId = faker.datatype.uuid()
-    const mockPreviousStatus = 'CREATED'
-    const mockNewStatus = 'PROCESSING'
     const mockUrl = 'https://example.com/webhook'
     const mockSecret = 'test-secret-key'
     const mockPayload = { eventType: 'payment.status.changed', data: {} }
@@ -40,7 +38,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
     })
 
     test('should send webhook when payment has URL and secret', async () => {
-        await sendPaymentStatusChangeWebhook(mockPaymentId, mockPreviousStatus, mockNewStatus)
+        await sendPaymentStatusChangeWebhook(mockPaymentId)
 
         expect(Payment.getOne).toHaveBeenCalledWith(
             expect.anything(),
@@ -48,7 +46,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
         )
         expect(getWebhookCallbackUrl).toHaveBeenCalledWith(mockPayment)
         expect(getWebhookSecret).toHaveBeenCalledWith(mockPayment)
-        expect(buildPaymentWebhookPayload).toHaveBeenCalledWith(mockPayment, mockPreviousStatus, mockNewStatus)
+        expect(buildPaymentWebhookPayload).toHaveBeenCalledWith(mockPayment)
         expect(sendWebhookPayload).toHaveBeenCalledWith(
             expect.anything(),
             {
@@ -66,7 +64,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
     test('should not send webhook when payment not found', async () => {
         Payment.getOne.mockResolvedValue(null)
 
-        await sendPaymentStatusChangeWebhook(mockPaymentId, mockPreviousStatus, mockNewStatus)
+        await sendPaymentStatusChangeWebhook(mockPaymentId)
 
         expect(sendWebhookPayload).not.toHaveBeenCalled()
     })
@@ -74,7 +72,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
     test('should not send webhook when URL is missing', async () => {
         getWebhookCallbackUrl.mockResolvedValue(null)
 
-        await sendPaymentStatusChangeWebhook(mockPaymentId, mockPreviousStatus, mockNewStatus)
+        await sendPaymentStatusChangeWebhook(mockPaymentId)
 
         expect(sendWebhookPayload).not.toHaveBeenCalled()
     })
@@ -82,7 +80,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
     test('should not send webhook when secret is missing', async () => {
         getWebhookSecret.mockResolvedValue(null)
 
-        await sendPaymentStatusChangeWebhook(mockPaymentId, mockPreviousStatus, mockNewStatus)
+        await sendPaymentStatusChangeWebhook(mockPaymentId)
 
         expect(sendWebhookPayload).not.toHaveBeenCalled()
     })

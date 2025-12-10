@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
 
+const { EncryptionManager } = require('@open-condo/keystone/crypto/EncryptionManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const {
@@ -14,7 +15,10 @@ const {
 } = require('@open-condo/webhooks/utils/webhookPayload.utils')
 
 
-const logger = getLogger('sendWebhookPayload')
+const logger = getLogger()
+
+// Encryption manager for decrypting EncryptedText fields when using getById
+const encryptionManager = new EncryptionManager()
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendWebhookPayload' } }
 
@@ -51,8 +55,15 @@ async function sendWebhookPayload (payloadId) {
         return
     }
 
+    // Decrypt EncryptedText fields (getById returns raw encrypted values)
+    const decryptedPayload = {
+        ...webhookPayload,
+        payload: encryptionManager.decrypt(webhookPayload.payload),
+        secret: encryptionManager.decrypt(webhookPayload.secret),
+    }
+
     // Attempt delivery
-    const result = await trySendWebhookPayload(webhookPayload)
+    const result = await trySendWebhookPayload(decryptedPayload)
     const newAttempt = webhookPayload.attempt + 1
 
     if (result.success) {
