@@ -127,6 +127,19 @@ describe('SubscriptionPlanPricingRule', () => {
                     await updateTestSubscriptionPlanPricingRule(client, objCreated.id, { name: 'Hacked' })
                 })
             })
+
+            test('regular user cannot update', async () => {
+                const [objCreated] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                    price: '1000.00',
+                    currencyCode: 'RUB',
+                })
+
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestSubscriptionPlanPricingRule(user, objCreated.id, { name: 'Hacked' })
+                })
+            })
         })
 
         describe('read', () => {
@@ -186,16 +199,19 @@ describe('SubscriptionPlanPricingRule', () => {
 
     describe('Validation tests', () => {
         test('can create multiple rules for same plan with different periods', async () => {
+            const priority = 100
             const [monthlyRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
                 period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '1000.00',
                 currencyCode: 'RUB',
+                priority,
             })
 
             const [yearlyRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
                 period: SUBSCRIPTION_PERIOD.YEAR,
                 price: '10000.00',
                 currencyCode: 'RUB',
+                priority,
             })
 
             expect(monthlyRule.id).toMatch(UUID_RE)
@@ -205,24 +221,26 @@ describe('SubscriptionPlanPricingRule', () => {
         })
 
         test('can create multiple rules for same plan and period with different priorities', async () => {
+            const highPriority = 100
+            const lowPriority = 50
             const [highPriorityRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
                 period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '1000.00',
                 currencyCode: 'RUB',
-                priority: 100,
+                priority: highPriority,
             })
 
             const [lowPriorityRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
                 period: SUBSCRIPTION_PERIOD.MONTH,
                 price: '500.00',
                 currencyCode: 'RUB',
-                priority: 50,
+                priority: lowPriority,
             })
 
             expect(highPriorityRule.id).toMatch(UUID_RE)
             expect(lowPriorityRule.id).toMatch(UUID_RE)
-            expect(highPriorityRule.priority).toBe(100)
-            expect(lowPriorityRule.priority).toBe(50)
+            expect(highPriorityRule.priority).toBe(highPriority)
+            expect(lowPriorityRule.priority).toBe(lowPriority)
         })
 
         test('isHidden defaults to false', async () => {

@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, expectToThrowGQLError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -17,6 +17,8 @@ const {
     updateTestSubscriptionPlan,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+
+const { ERRORS } = require('./SubscriptionPlan')
 
 describe('SubscriptionPlan', () => {
     let admin, support
@@ -78,7 +80,7 @@ describe('SubscriptionPlan', () => {
         })
 
         describe('update', () => {
-            test('admin can update name', async () => {
+            test('admin can update', async () => {
                 const [objCreated] = await createTestSubscriptionPlan(admin, {
                     name: faker.commerce.productName(),
                     organizationType: SERVICE_PROVIDER_TYPE,
@@ -314,6 +316,32 @@ describe('SubscriptionPlan', () => {
             })
 
             expect(obj.trialDays).toBe(30)
+        })
+
+        test('cannot create plan with negative trialDays', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionPlan(admin, {
+                    name: faker.commerce.productName(),
+                    organizationType: SERVICE_PROVIDER_TYPE,
+                    isHidden: false,
+                    trialDays: -1,
+                })
+            }, ERRORS.TRIAL_DAYS_MUST_BE_NON_NEGATIVE, 'obj')
+        })
+
+        test('cannot update plan with negative trialDays', async () => {
+            const [objCreated] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                isHidden: false,
+                trialDays: 7,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestSubscriptionPlan(admin, objCreated.id, {
+                    trialDays: -5,
+                })
+            }, ERRORS.TRIAL_DAYS_MUST_BE_NON_NEGATIVE, 'obj')
         })
     })
 })

@@ -108,9 +108,9 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
         daysRemaining: {
             schemaDoc: 'Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired',
             type: 'Virtual',
-            graphQLReturnType: 'Int!',
+            graphQLReturnType: 'Int',
             resolver: (item) => {
-                if (!item.endAt) return 0
+                if (!item.endAt) return null
 
                 const now = new Date()
                 const endAt = new Date(item.endAt)

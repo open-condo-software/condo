@@ -12,16 +12,6 @@ const { SUBSCRIPTION_PERIODS } = require('@condo/domains/subscription/constants'
 const { validateConditions } = require('@condo/domains/subscription/utils/conditionsEvaluator')
 
 const ERRORS = {
-    PRICE_REQUIRED: {
-        code: 'BAD_USER_INPUT',
-        type: 'PRICE_REQUIRED',
-        message: 'price is required',
-    },
-    CURRENCY_REQUIRED: {
-        code: 'BAD_USER_INPUT',
-        type: 'CURRENCY_REQUIRED',
-        message: 'currencyCode is required',
-    },
     INVALID_CONDITIONS: {
         code: 'BAD_USER_INPUT',
         type: 'INVALID_CONDITIONS',
@@ -97,7 +87,7 @@ const SubscriptionPlanPricingRule = new GQLListSchema('SubscriptionPlanPricingRu
         priority: {
             schemaDoc: 'Rule priority. Higher priority rules are applied first. Default is 100',
             type: 'Integer',
-            defaultValue: 100,
+            defaultValue: 0,
             isRequired: true,
         },
 
@@ -108,20 +98,6 @@ const SubscriptionPlanPricingRule = new GQLListSchema('SubscriptionPlanPricingRu
             isRequired: true,
         },
 
-    },
-    hooks: {
-        validateInput: async ({ resolvedData, existingItem, operation }) => {
-            const price = resolvedData.price !== undefined ? resolvedData.price : existingItem?.price
-            const currencyCode = resolvedData.currencyCode !== undefined ? resolvedData.currencyCode : existingItem?.currencyCode
-
-            if (price === null || price === undefined) {
-                throw new GQLError(ERRORS.PRICE_REQUIRED, { operation })
-            }
-
-            if (!currencyCode) {
-                throw new GQLError(ERRORS.CURRENCY_REQUIRED, { operation })
-            }
-        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

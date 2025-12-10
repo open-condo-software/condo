@@ -1,5 +1,5 @@
 /**
- * Utility function to calculate subscription price based on pricing rules
+ * Utility function to find matching pricing rule for an organization
  */
 
 const { itemsQuery } = require('@open-condo/keystone/schema')
@@ -7,15 +7,19 @@ const { itemsQuery } = require('@open-condo/keystone/schema')
 const { evaluateConditions } = require('./conditionsEvaluator')
 
 /**
- * Calculate subscription price for a plan and period.
+ * Find matching pricing rule for a plan, period and organization.
  * Returns the first matching rule's price based on priority and conditions.
  *
  * @param {string} subscriptionPlanId - Subscription plan ID
- * @param {string} period - Subscription period (monthly/yearly)
- * @param {Object} organization - Organization
- * @returns {Object|null} { basePrice, finalPrice, currencyCode, appliedRules } or null if no price configured
+ * @param {string} period - Subscription period (month/year)
+ * @param {Object} organization - Organization (required)
+ * @returns {Object|null} { ruleId, basePrice, finalPrice, currencyCode, appliedRules } or null if no matching rule found
  */
-async function calculateSubscriptionPrice (subscriptionPlanId, period, organization = null) {
+async function findMatchingPricingRule (subscriptionPlanId, period, organization) {
+    if (!organization) {
+        throw new Error('organization is required')
+    }
+
     const rules = await itemsQuery('SubscriptionPlanPricingRule', {
         where: {
             subscriptionPlan: { id: subscriptionPlanId },
@@ -26,12 +30,11 @@ async function calculateSubscriptionPrice (subscriptionPlanId, period, organizat
         sortBy: ['priority_DESC'],
     })
 
-    // Build context for conditions evaluation (facts: organizationIds, organizationFeatures)
     const context = {
-        organization: organization ? {
+        organization: {
             id: organization.id,
             features: organization.features || [],
-        } : null,
+        },
     }
 
     for (const rule of rules) {
@@ -57,5 +60,5 @@ async function calculateSubscriptionPrice (subscriptionPlanId, period, organizat
 }
 
 module.exports = {
-    calculateSubscriptionPrice,
+    findMatchingPricingRule,
 }

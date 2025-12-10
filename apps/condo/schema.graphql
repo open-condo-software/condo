@@ -58999,7 +58999,7 @@ type SubscriptionContext {
 
   """ Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired 
   """
-  daysRemaining: Int!
+  daysRemaining: Int
   id: ID!
   v: Int
   createdAt: String

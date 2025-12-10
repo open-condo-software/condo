@@ -7,7 +7,7 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/subscription/access/GetAvailableSubscriptionPlansService')
 const { SUBSCRIPTION_PERIODS } = require('@condo/domains/subscription/constants')
-const { calculateSubscriptionPrice } = require('@condo/domains/subscription/utils/calculateSubscriptionPrice')
+const { findMatchingPricingRule } = require('@condo/domains/subscription/utils/findMatchingPricingRule')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -69,7 +69,7 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
                 for (const plan of plans) {
                     const prices = []
                     for (const period of SUBSCRIPTION_PERIODS) {
-                        const priceData = await calculateSubscriptionPrice(plan.id, period, organization)
+                        const priceData = await findMatchingPricingRule(plan.id, period, organization)
                         if (priceData) {
                             prices.push({
                                 id: priceData.ruleId,

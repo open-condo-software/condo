@@ -10,7 +10,6 @@ async function canReadSubscriptionPlanPricingRules ({ authentication: { item: us
 
     if (user.isAdmin || user.isSupport) return {}
 
-    // Regular users can only read visible pricing rules
     return {
         isHidden: false,
     }
@@ -24,10 +23,6 @@ async function canManageSubscriptionPlanPricingRules ({ authentication: { item: 
     return false
 }
 
-/*
-  Rules are logical functions that used for list access, and may return a boolean (meaning
-  all or no items are available) or a set of filters that limit the available items.
-*/
 module.exports = {
     canReadSubscriptionPlanPricingRules,
     canManageSubscriptionPlanPricingRules,

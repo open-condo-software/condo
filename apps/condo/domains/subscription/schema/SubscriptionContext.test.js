@@ -252,6 +252,18 @@ describe('SubscriptionContext', () => {
 
             expect(obj.daysRemaining).toBe(0)
         })
+
+        test('daysRemaining returns null for unlimited subscription', async () => {
+            const startAt = dayjs().toISOString()
+
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt,
+                endAt: null,
+                isTrial: false,
+            })
+
+            expect(obj.daysRemaining).toBeNull()
+        })
     })
 
     describe('Field access restrictions', () => {
