@@ -233,10 +233,16 @@ function TableComponent<TData extends RowData = RowData> (
         return tableColumns
     }, [tableColumns, columnOrder])
 
+    const onTableStateChangeRef = useRef(onTableStateChange)
+    
+    useEffect(() => {
+        onTableStateChangeRef.current = onTableStateChange
+    }, [onTableStateChange])
+
     // NOTE: This effect should be first, because if we have error in this effect, we don't want to change the table state and fetch new data
     useEffect(() => {
         const handleTableStateChange = async () => {
-            if (onTableStateChange) {
+            if (onTableStateChangeRef.current) {
                 const startRow = pagination.pageIndex * pagination.pageSize
                 const endRow = startRow + pagination.pageSize
                 const filterState = columnFilters.reduce((acc, filter) => {
@@ -244,7 +250,7 @@ function TableComponent<TData extends RowData = RowData> (
                     return acc
                 }, {} as FilterState)
 
-                onTableStateChange({
+                onTableStateChangeRef.current({
                     startRow,
                     endRow,
                     filterState,
@@ -256,7 +262,7 @@ function TableComponent<TData extends RowData = RowData> (
         }
         
         handleTableStateChange()
-    }, [sorting, pagination, columnFilters, onTableStateChange, rowSelection, globalFilter])
+    }, [sorting, pagination, columnFilters, rowSelection, globalFilter])
 
     const stableDataSource = useRef(dataSource)
     

@@ -93,9 +93,9 @@ const getRowSelectionFromQuery = (query: ParsedUrlQuery): RowSelectionState => {
     return selectedRowsArray
 }
 
-const normalizeOffset = (startRow: number | undefined): number | null => {
+const normalizeOffset = (startRow: number | undefined): string | null => {
     if (startRow === undefined) return null
-    return startRow > 0 ? startRow : null
+    return startRow > 0 ? String(startRow) : null
 }
 
 const isValidFilterValue = (value: unknown): boolean => {
@@ -189,7 +189,7 @@ export const defaultUpdateUrlQuery = (router: NextRouter, params: FullTableState
 
     if (router) {
         router.replace({
-            pathname: router.pathname || '/contact',
+            pathname: router.pathname,
             query: nextQuery as Record<string, string | string[]>,
         }, undefined, { shallow: true })
     }
