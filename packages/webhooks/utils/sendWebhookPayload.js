@@ -9,13 +9,13 @@ const { getWebhookTasks } = require('../tasks')
 const logger = getLogger('sendWebhookPayload')
 
 /**
- * Creates a WebhookPayload record and queues it for delivery.
+ * Creates a WebhookPayload record and queues it for sending.
  * This is a convenience function that handles both creating the payload record
- * and scheduling the delivery task.
+ * and scheduling the sending task.
  *
  * @param {Object} context - Keystone context (will be sudo'd internally)
  * @param {Object} options - Webhook payload options
- * @param {string} options.url - Target URL for webhook delivery
+ * @param {string} options.url - Target URL for webhook sending
  * @param {Object|string} options.payload - JSON payload to send
  * @param {string} options.secret - Secret key for HMAC-SHA256 signature
  * @param {string} options.eventType - Type of event (e.g., 'payment.status.changed')
@@ -68,7 +68,7 @@ async function sendWebhookPayload (context, options) {
     })
 
     logger.info({
-        msg: 'WebhookPayload created and queued for delivery',
+        msg: 'WebhookPayload created and queued for sending',
         payloadId: webhookPayload.id,
         eventType,
         modelName,
@@ -76,7 +76,7 @@ async function sendWebhookPayload (context, options) {
         url,
     })
 
-    // Queue the webhook payload delivery task
+    // Queue the webhook payload sending task
     const { sendWebhookPayload: sendWebhookPayloadTask } = getWebhookTasks()
     await sendWebhookPayloadTask.delay(webhookPayload.id)
 
