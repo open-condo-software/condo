@@ -57,11 +57,13 @@ export type B2BAppCreateInput = {
   detailedDescription?: InputMaybe<Scalars['String']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
   developerUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   logo?: InputMaybe<Scalars['Upload']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
@@ -77,6 +79,7 @@ export type B2BAppHistoryRecordCreateInput = {
   detailedDescription?: InputMaybe<Scalars['JSON']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
   developerUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   history_action?: InputMaybe<B2BAppHistoryRecordHistoryActionType>;
@@ -85,6 +88,7 @@ export type B2BAppHistoryRecordCreateInput = {
   logo?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
@@ -106,6 +110,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   detailedDescription?: InputMaybe<Scalars['JSON']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
   developerUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   history_action?: InputMaybe<B2BAppHistoryRecordHistoryActionType>;
@@ -114,6 +119,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   logo?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['JSON']['input']>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<Scalars['JSON']['input']>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
@@ -185,6 +191,24 @@ export type B2BAppHistoryRecordWhereInput = {
   developer_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentAppUrl_not?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentAppUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -257,6 +281,24 @@ export type B2BAppHistoryRecordWhereInput = {
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
   newId_not?: InputMaybe<Scalars['JSON']['input']>;
   newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionAppUrl_not?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionAppUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -339,11 +381,13 @@ export type B2BAppUpdateInput = {
   detailedDescription?: InputMaybe<Scalars['String']['input']>;
   developer?: InputMaybe<Scalars['String']['input']>;
   developerUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
   logo?: InputMaybe<Scalars['Upload']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   sender?: InputMaybe<SenderFieldInput>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
@@ -427,6 +471,24 @@ export type B2BAppWhereInput = {
   developer_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with?: InputMaybe<Scalars['String']['input']>;
   developer_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentAppUrl_not?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  developmentAppUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  developmentAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
   developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -483,6 +545,24 @@ export type B2BAppWhereInput = {
   newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   newId_not?: InputMaybe<Scalars['String']['input']>;
   newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionAppUrl?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_contains?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionAppUrl_not?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_contains?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  productionAppUrl_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_starts_with?: InputMaybe<Scalars['String']['input']>;
+  productionAppUrl_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
   productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
@@ -2815,6 +2895,8 @@ export enum SortB2BAppHistoryRecordsBy {
   DeveloperUrlDesc = 'developerUrl_DESC',
   DeveloperAsc = 'developer_ASC',
   DeveloperDesc = 'developer_DESC',
+  DevelopmentAppUrlAsc = 'developmentAppUrl_ASC',
+  DevelopmentAppUrlDesc = 'developmentAppUrl_DESC',
   DevelopmentExportIdAsc = 'developmentExportId_ASC',
   DevelopmentExportIdDesc = 'developmentExportId_DESC',
   DvAsc = 'dv_ASC',
@@ -2827,6 +2909,8 @@ export enum SortB2BAppHistoryRecordsBy {
   IdDesc = 'id_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ProductionAppUrlAsc = 'productionAppUrl_ASC',
+  ProductionAppUrlDesc = 'productionAppUrl_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
@@ -2850,6 +2934,8 @@ export enum SortB2BAppsBy {
   DeveloperUrlDesc = 'developerUrl_DESC',
   DeveloperAsc = 'developer_ASC',
   DeveloperDesc = 'developer_DESC',
+  DevelopmentAppUrlAsc = 'developmentAppUrl_ASC',
+  DevelopmentAppUrlDesc = 'developmentAppUrl_DESC',
   DevelopmentExportIdAsc = 'developmentExportId_ASC',
   DevelopmentExportIdDesc = 'developmentExportId_DESC',
   DvAsc = 'dv_ASC',
@@ -2858,6 +2944,8 @@ export enum SortB2BAppsBy {
   IdDesc = 'id_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  ProductionAppUrlAsc = 'productionAppUrl_ASC',
+  ProductionAppUrlDesc = 'productionAppUrl_DESC',
   ProductionExportIdAsc = 'productionExportId_ASC',
   ProductionExportIdDesc = 'productionExportId_DESC',
   ShortDescriptionAsc = 'shortDescription_ASC',
