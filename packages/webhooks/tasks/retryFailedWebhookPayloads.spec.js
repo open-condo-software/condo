@@ -36,7 +36,7 @@ const RetryFailedWebhookPayloadsTests = (appName, actorsInitializer, entryPointP
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: faker.internet.url(),
-                payload: { eventType: 'test.event', data: { id: '123' } },
+                payload: JSON.stringify({ eventType: 'test.event', data: { id: '123' } }),
                 secret: faker.random.alphaNumeric(32),
                 eventType: 'test.event',
                 status: WEBHOOK_PAYLOAD_STATUS_PENDING,
@@ -67,7 +67,7 @@ const RetryFailedWebhookPayloadsTests = (appName, actorsInitializer, entryPointP
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: faker.internet.url(),
-                payload: { eventType: 'test.event', data: { id: '123' } },
+                payload: JSON.stringify({ eventType: 'test.event', data: { id: '123' } }),
                 secret: faker.random.alphaNumeric(32),
                 eventType: 'test.event',
                 status: WEBHOOK_PAYLOAD_STATUS_PENDING,
@@ -97,7 +97,7 @@ const RetryFailedWebhookPayloadsTests = (appName, actorsInitializer, entryPointP
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: faker.internet.url(),
-                payload: { eventType: 'test.event', data: { id: '123' } },
+                payload: JSON.stringify({ eventType: 'test.event', data: { id: '123' } }),
                 secret: faker.random.alphaNumeric(32),
                 eventType: 'test.event',
                 status: WEBHOOK_PAYLOAD_STATUS_PENDING,
