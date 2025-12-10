@@ -1,12 +1,12 @@
 /**
  * Regex pattern for eventType validation.
  * Format: {resource}.{action} or {resource}.{sub-resource}.{action}
- * - Must be lowercase
+ * - Supports lowercase or camelCase
  * - Use dots as separators
- * - Each segment must start with a letter and contain only lowercase letters, numbers, and hyphens
- * Examples: "payment.created", "payment.status.changed", "invoice.paid"
+ * - Each segment must start with a letter and contain only letters, numbers, and hyphens
+ * Examples: "payment.created", "payment.status.changed", "test.event.7v5619fr"
  */
-const EVENT_TYPE_PATTERN = /^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+$/
+const EVENT_TYPE_PATTERN = /^[a-zA-Z][a-zA-Z0-9-]*(\.[a-zA-Z0-9][a-zA-Z0-9-]*)+$/
 
 /**
  * Validates eventType value.
@@ -29,7 +29,7 @@ function validateEventType (eventType) {
     if (!EVENT_TYPE_PATTERN.test(eventType)) {
         return {
             isValid: false,
-            error: 'Event type must use dot-notation format (e.g., "payment.created", "payment.status.changed"). Use lowercase letters, numbers, hyphens, with dots as separators.',
+            error: 'Event type must use dot-notation format (e.g., "payment.created", "payment.status.changed"). Use letters, numbers, hyphens, with dots as separators.',
         }
     }
 
