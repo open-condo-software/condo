@@ -74,7 +74,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer, entryPointPath) => 
             await knex('WebhookPayload').where({ id: payload.id }).del()
         })
 
-        it('should schedule retry on delivery failure', async () => {
+        it('should schedule retry on sending failure', async () => {
             SEND_SHOULD_SUCCEED = false
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
@@ -118,7 +118,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer, entryPointPath) => 
             const updatedPayload = await WebhookPayload.getOne(actors.admin, { id: payload.id })
             expect(updatedPayload.status).toBe(WEBHOOK_PAYLOAD_STATUS_FAILED)
             expect(updatedPayload.lastErrorMessage).toBe('Payload expired after TTL')
-            expect(SEND_CALLS).toHaveLength(0) // Should not attempt delivery
+            expect(SEND_CALLS).toHaveLength(0) // Should not attempt to send
 
             // Cleanup
             const { keystone } = await appEntryPoint
@@ -138,7 +138,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer, entryPointPath) => 
 
             await sendWebhookPayloadTask.delay.fn(payload.id)
 
-            // Should not attempt delivery
+            // Should not attempt to send
             expect(SEND_CALLS).toHaveLength(0)
 
             // Cleanup

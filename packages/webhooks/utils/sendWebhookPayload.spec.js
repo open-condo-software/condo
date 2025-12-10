@@ -38,7 +38,7 @@ describe('sendWebhookPayload utility', () => {
     })
 
     describe('successful webhook creation', () => {
-        test('should create WebhookPayload and queue delivery task', async () => {
+        test('should create WebhookPayload and queue sending task', async () => {
             const options = {
                 url: 'https://example.com/webhook',
                 payload: { eventType: 'test.event', data: { test: true } },

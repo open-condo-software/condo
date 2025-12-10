@@ -97,7 +97,7 @@ async function trySendWebhookPayload (webhookPayload) {
         // Determine success (2xx status codes)
         if (response.ok) {
             logger.info({
-                msg: 'Webhook payload delivered successfully',
+                msg: 'Webhook payload sent successfully',
                 reqId,
                 data: {
                     payloadId: webhookPayload.id,

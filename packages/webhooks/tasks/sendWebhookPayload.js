@@ -24,7 +24,7 @@ const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendWebhookPayload' } 
 
 /**
  * Sends a webhook payload
- * Handles delivery, retries with exponential backoff, and expiration
+ * Handles sending, retries with exponential backoff, and expiration
  * @param {string} payloadId - ID of the WebhookPayload record
  */
 async function sendWebhookPayload (payloadId) {
@@ -62,12 +62,12 @@ async function sendWebhookPayload (payloadId) {
         secret: encryptionManager.decrypt(webhookPayload.secret),
     }
 
-    // Attempt delivery
+    // Attempt to send
     const result = await trySendWebhookPayload(decryptedPayload)
     const newAttempt = webhookPayload.attempt + 1
 
     if (result.success) {
-        // Success - mark as delivered
+        // Success - means sent
         await WebhookPayload.update(context, payloadId, {
             status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
             lastHttpStatusCode: result.statusCode,
@@ -77,7 +77,7 @@ async function sendWebhookPayload (payloadId) {
             lastErrorMessage: null,
             ...DV_SENDER,
         })
-        logger.info({ msg: 'Webhook payload delivered successfully', data: { payloadId, attempt: newAttempt } })
+        logger.info({ msg: 'Webhook payload sent successfully', data: { payloadId, attempt: newAttempt } })
     } else {
         // Failure - calculate next retry
         const nextRetryAt = calculateNextRetryAt(newAttempt)
