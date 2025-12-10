@@ -44,9 +44,7 @@ export function TablePagination<TData> ({ table }: TablePaginationProps<TData>) 
             pageSize={pageSize}
             size='small'
             hideOnSinglePage
-            showLessItems
             showSizeChanger={false}
-            showQuickJumper={false}
             disabled={isDisabled}
             onChange={handlePageChange}
         />

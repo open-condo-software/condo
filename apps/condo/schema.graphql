@@ -44939,7 +44939,12 @@ type NotificationUserSetting {
   """
   _label_: String
 
-  """ The user the settings will apply for """
+  """
+  The user the settings will apply for. 
+  If null - settings are global. 
+  If not null - settings are user specific, which overrides global settings.
+  By default all notifications are enabled for all users.
+  """
   user: User
 
   """ Affected message type """
@@ -87237,7 +87242,7 @@ input SendMessageInput {
 
 type SendMessageOutput {
   status: String!
-  id: String!
+  id: String
   isDuplicateMessage: Boolean
 }
 

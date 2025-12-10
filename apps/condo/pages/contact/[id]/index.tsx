@@ -21,6 +21,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { PageComponentType } from '@condo/domains/common/types'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
@@ -49,11 +50,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
 }) => {
     const intl = useIntl()
     
-    const {
-        loading: customValuesLoading,
-        error: customValuesError,
-        customValues,
-    } = useCustomValues({
+    const { customValues } = useCustomValues({
         modelName: CustomFieldModelNameType.Contact,
         objectId: contact?.id || '',
         skip: !contact?.id,
@@ -68,6 +65,8 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
     const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
+    const NoteLabel = intl.formatMessage({ id: 'Note' })
+    const NoteVisibilityHint = intl.formatMessage({ id: 'contact.note.visibility.hint' })
     const VerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
     const HasResident = intl.formatMessage({ id: 'pages.condo.contact.HasResident' })
     const ResidentRegistred = intl.formatMessage({ id: 'pages.condo.contact.ResidentRegistered' })
@@ -83,6 +82,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const unitSuffix = useMemo(() => contactUnitName ? `${UnitTypeMessage.toLowerCase()} ${contactUnitName}` : '', [UnitTypeMessage, contactUnitName])
     const contactAddress = useMemo(() => `${contact?.property?.address ?? DeletedMessage} ${unitSuffix}`, [contact, DeletedMessage, unitSuffix])
     const contactRoleName = useMemo(() => contact?.role?.name ?? '—', [contact])
+    const contactNote = useMemo(() => contact?.note?.trim() || '—', [contact])
     const isVerified = useMemo(() => contact?.isVerified, [contact])
     const hasResident = useMemo(() => contact?.hasResident, [contact])
     const phonePrefix = useMemo(() => organizationPhonePrefix ?? '', [organizationPhonePrefix])
@@ -124,6 +124,18 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                         fieldTitle={ContactRoleTitle}
                                         fieldValue={contactRoleName}
                                     />
+                                    <>
+                                        <Col {...CONTACT_FIELD_PAIR_PROPS.titleColProps}>
+                                            <Typography.Text type='secondary'>
+                                                <LabelWithInfo title={NoteVisibilityHint} message={NoteLabel} />
+                                            </Typography.Text>
+                                        </Col>
+                                        <Col {...CONTACT_FIELD_PAIR_PROPS.valueColProps}>
+                                            <Typography.Text>
+                                                {contactNote}
+                                            </Typography.Text>
+                                        </Col>
+                                    </>
                                     <>
                                         <Col span={8}>
                                             <Typography.Text type='secondary'>

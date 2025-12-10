@@ -36,6 +36,7 @@ export type TableLabels = {
 export type DefaultColumn = {
     enableSorting?: boolean
     enableColumnSettings?: boolean
+    enableColumnResize?: boolean
     initialVisibility?: boolean
     initialSize?: string | number
     minSize?: number
@@ -67,6 +68,7 @@ export type TableColumnMeta = {
     filterComponent?: FilterComponent
     enableColumnSettings?: boolean
     enableColumnMenu?: boolean
+    enableColumnResize?: boolean
     initialVisibility?: boolean
     initialSize?: string | number
     initialOrder?: number
@@ -78,20 +80,23 @@ type TableColumnBase<TData extends RowData = RowData> = {
     filterComponent?: FilterConfig | FilterComponent
     enableSorting?: boolean
     enableColumnSettings?: boolean
+    enableColumnResize?: boolean
     initialVisibility?: boolean
     initialSize?: string | number
     initialOrder?: number
     minSize?: number
 }
 
+export type RenderTableCell<TData extends RowData = RowData, TValue = unknown> = (value: TValue, record: TData, index: number, globalFilter?: string) => ReactNode
+
 export type TableColumn<TData extends RowData = RowData> = 
     | (TableColumnBase<TData> & {
         dataKey: DeepKeys<TData>
-        render?: (value: unknown, record: TData, index: number) => ReactNode
+        render?: RenderTableCell<TData>
     })
     | (TableColumnBase<TData> & {
         dataKey?: never
-        render: (value: unknown, record: TData, index: number) => ReactNode
+        render: RenderTableCell<TData>
     })
 
 export type TableState = {
@@ -99,6 +104,7 @@ export type TableState = {
     endRow?: number
     filterState: FilterState
     sortState: SortState
+    globalFilter?: string
 }
 
 export type FilterState = {
@@ -116,6 +122,8 @@ export type TableApi = {
     getFilterState: () => FilterState
     setColumnFilter: (columnId: string, value: unknown) => void
     getColumnFilter: (columnId: string) => unknown
+    setGlobalFilter: (globalFilter: string) => void
+    getGlobalFilter: () => string | undefined
     refetchData: () => Promise<void>
     setPagination: ({ startRow, endRow }: { startRow: number, endRow: number }) => void
     getPagination: () => { startRow: number, endRow: number }
@@ -123,6 +131,8 @@ export type TableApi = {
     getSorting: () => SortState
     getRowSelection: () => string[]
     resetRowSelection: () => void
+    getFullTableState: () => FullTableState
+    setFullTableState: (tableState: FullTableState) => void
 }
 
 export type TableRef = { api: TableApi }
@@ -142,7 +152,7 @@ export interface TableProps<TData extends RowData = RowData> {
     columnLabels?: TableLabels
     onRowClick?: (record: TData) => void
     rowSelectionOptions?: RowSelectionOptions
-    onGridReady?: (tableRef: TableRef) => void
+    onTableReady?: (tableRef: TableRef) => void
 }
 
 declare module '@tanstack/react-table' {

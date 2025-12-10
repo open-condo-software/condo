@@ -139,14 +139,14 @@ export type GetContactByUnitQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetContactByUnitQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, email?: string | null, phone?: string | null, isVerified?: boolean | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null };
+export type GetContactByUnitQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, email?: string | null, phone?: string | null, note?: string | null, isVerified?: boolean | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null };
 
 export type GetContactsExistenceQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.ContactWhereInput>;
 }>;
 
 
-export type GetContactsExistenceQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string } | null> | null };
+export type GetContactsExistenceQuery = { __typename?: 'Query', count?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type GetContactForClientCardQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.ContactWhereInput>;
@@ -166,7 +166,7 @@ export type GetContactsForTableQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetContactsForTableQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, phone?: string | null, email?: string | null, ownershipPercentage?: string | null, note?: string | null, communityFee?: string | null, createdAt?: string | null, isVerified?: boolean | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null, property?: { __typename?: 'Property', id: string, deletedAt?: string | null, address?: string | null, addressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null } | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+export type GetContactsForTableQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, phone?: string | null, email?: string | null, ownershipPercentage?: string | null, note?: string | null, communityFee?: string | null, createdAt?: string | null, isVerified?: boolean | null, organization?: { __typename?: 'Organization', id: string, name?: string | null, phoneNumberPrefix?: string | null } | null, property?: { __typename?: 'Property', id: string, deletedAt?: string | null, address?: string | null, addressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null } | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type GetContactEditorContactsQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.ContactWhereInput>;
@@ -412,6 +412,33 @@ export type GetUserMessagesQueryVariables = Types.Exact<{
 
 
 export type GetUserMessagesQuery = { __typename?: 'Query', messages?: Array<{ __typename?: 'Message', id: string, type?: Types.MessageType | null, createdAt?: string | null, meta?: any | null, defaultContent?: { __typename?: 'MessageDefaultContentField', content?: string | null } | null } | null> | null };
+
+export type GetNotificationUserSettingsQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+  types?: Types.InputMaybe<Array<Types.MessageType> | Types.MessageType>;
+}>;
+
+
+export type GetNotificationUserSettingsQuery = { __typename?: 'Query', allNotificationUserSettings?: Array<{ __typename?: 'NotificationUserSetting', id: string, messageType?: Types.MessageType | null, messageTransport?: Types.NotificationUserSettingMessageTransportType | null, isEnabled?: boolean | null, user?: { __typename?: 'User', id: string } | null } | null> | null };
+
+export type CreateNotificationUserSettingMutationVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+  messageType: Types.MessageType;
+  isEnabled: Types.Scalars['Boolean']['input'];
+  sender: Types.SenderFieldInput;
+}>;
+
+
+export type CreateNotificationUserSettingMutation = { __typename?: 'Mutation', createNotificationUserSetting?: { __typename?: 'NotificationUserSetting', id: string } | null };
+
+export type UpdateNotificationUserSettingMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  isEnabled: Types.Scalars['Boolean']['input'];
+  sender: Types.SenderFieldInput;
+}>;
+
+
+export type UpdateNotificationUserSettingMutation = { __typename?: 'Mutation', updateNotificationUserSetting?: { __typename?: 'NotificationUserSetting', id: string } | null };
 
 export type SyncTourStepsMutationVariables = Types.Exact<{
   data: Types.SyncTourStepsInput;

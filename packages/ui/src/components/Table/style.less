@@ -166,6 +166,10 @@
   }
 }
 
+.condo-table-th-resize-handle .condo-table-th-resize-handle-active {
+  background-color: @condo-global-color-gray-1;
+}
+
 .condo-table-th-resizing .condo-table-th-resize-handle::after {
   position: absolute;
   top: 0;
@@ -373,6 +377,67 @@
     }
   }
 
+  .condo-jump-prev,
+  .condo-jump-next {
+    .condo-item-link {
+      position: relative;
+      padding: 0;
+
+      .condo-item-link-icon {
+        color: @condo-global-color-green-5;
+        font-size: 12px;
+        vertical-align: 0;
+        opacity: 0;
+        transition: opacity @condo-global-transition-duration-default ease;
+      }
+
+      .condo-item-link-icon-svg {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 12px;
+        height: 12px;
+        margin: auto;
+      }
+
+      .condo-item-ellipsis {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        color: rgb(0 0 0 / 25%);
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1;
+        text-align: center;
+        text-indent: 0;
+        background: transparent;
+        border: none;
+        opacity: 1;
+        transition: opacity @condo-global-transition-duration-default ease;
+      }
+
+      &:hover .condo-item-link-icon,
+      &:focus-visible .condo-item-link-icon {
+        opacity: 1;
+      }
+
+      &:hover .condo-item-ellipsis,
+      &:focus-visible .condo-item-ellipsis {
+        opacity: 0;
+      }
+    }
+  }
+
   .condo-prev.condo-disabled .condo-item-link,
   .condo-next.condo-disabled .condo-item-link {
     color: @condo-global-color-gray-5;
@@ -380,11 +445,11 @@
     border-color: @condo-global-color-gray-3;
   }
 
+  .condo-item:hover,
   .condo-jump-prev .condo-item-link:hover,
   .condo-jump-next .condo-item-link:hover,
   .condo-prev:not(.condo-disabled) .condo-item-link:hover,
-  .condo-next:not(.condo-disabled) .condo-item-link:hover,
-  .condo-item:hover {
+  .condo-next:not(.condo-disabled) .condo-item-link:hover {
     color: @condo-global-color-green-5;
     border-color: @condo-global-color-green-5;
   }
@@ -397,15 +462,6 @@
     a {
       color: @condo-global-color-green-5;
     }
-  }
-
-  .condo-item-ellipsis {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: @condo-global-color-gray-5;
-    background: transparent;
-    border: none;
   }
 }
 

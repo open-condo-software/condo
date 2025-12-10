@@ -57,6 +57,7 @@ export {
 export type { 
     TableProps, 
     TableColumn, 
+    RenderTableCell,
     TableLabels, 
     GetTableData, 
     TableState, 

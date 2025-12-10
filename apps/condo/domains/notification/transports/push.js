@@ -16,12 +16,23 @@ const {
     PUSH_TRANSPORT_APPLE,
     PUSH_TRANSPORT_HUAWEI,
     PUSH_TRANSPORT_REDSTORE,
+    TICKET_CREATED_TYPE,
+    TICKET_COMMENT_CREATED_TYPE,
+    PASS_TICKET_CREATED_MESSAGE_TYPE,
+    PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const { getPreferredPushTypeByMessageType } = require('@condo/domains/notification/utils/serverSchema/helpers')
 
 const logger = getLogger()
+
+const TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS = [
+    TICKET_CREATED_TYPE,
+    TICKET_COMMENT_CREATED_TYPE,
+    PASS_TICKET_CREATED_MESSAGE_TYPE,
+    PASS_TICKET_COMMENT_CREATED_MESSAGE_TYPE,
+]
 
 const ADAPTERS = {
     [PUSH_TRANSPORT_FIREBASE]: new FirebaseAdapter(),
@@ -156,6 +167,9 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
     let container = {}
     let _isOk = false
 
+    if (TEMPORARY_DISABLED_TYPES_FOR_PUSH_NOTIFICATIONS.includes(get(data, 'type'))) {
+        return [false, { error: 'Disabled type for push transport' }]
+    }
     if (!count) return [false, { error: 'No pushTokens available.' }]
 
     for (const transport in tokensByTransport) {
