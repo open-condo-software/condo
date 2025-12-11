@@ -19,11 +19,10 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 
 
 const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
-    schemaDoc: 'Request from the user to help him with some functionality',
+    schemaDoc: 'Represents a user request for assistance with platform functionality.',
     fields: {
         type: {
-            schemaDoc: 'Type of request. It\'s can be, for example, request for callback or request to help with import' +
-                'or integration setup',
+            schemaDoc: 'Type of assistance requested (for example, a callback or help with import or integration setup).',
             type: 'Select',
             dataType: 'string',
             options: USER_HELP_REQUEST_TYPES,
@@ -31,7 +30,7 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
         },
         organization: ORGANIZATION_OWNED_FIELD,
         billingIntegration: {
-            schemaDoc: 'ID of the billing integration that is configured to receive data for the organization',
+            schemaDoc: 'Billing integration configured to receive data for the organization.',
             type: 'Relationship',
             ref: 'BillingIntegration',
             isRequired: false,
@@ -39,7 +38,7 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         phone: {
-            schemaDoc: 'Specified phone in request for callback',
+            schemaDoc: 'Phone number provided in the request (used for callbacks).',
             type: 'Text',
             isRequired: true,
             hooks: {
@@ -60,7 +59,7 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
             },
         },
         email: {
-            schemaDoc: 'Specified email in request for assisted setup of integration',
+            schemaDoc: 'Email address provided for assisted setup or follow-up.',
             type: 'Text',
             isRequired: false,
             hooks: {
@@ -82,12 +81,12 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
             },
         },
         isReadyToSend: {
-            schemaDoc: 'Shows if the request is ready to send. False value can be, for example, if files are not synced with help request yet',
+            schemaDoc: 'Indicates whether the request is ready to be processed (for example, all files are uploaded).',
             type: 'Checkbox',
             defaultValue: true,
         },
         meta: {
-            schemaDoc: 'Additional info about request. May contain information about file urls, page where user made request or import type',
+            schemaDoc: 'Additional request details such as file URLs, the page where the request was made, or the import type.',
             type: 'Json',
             hooks: {
                 resolveInput: async ({ resolvedData, fieldPath, existingItem, context }) => {

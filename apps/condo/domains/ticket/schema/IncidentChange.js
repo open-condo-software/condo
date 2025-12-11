@@ -31,11 +31,11 @@ const getTranslation = (translations, key) => {
 const keysOfLocalizedTextFields = new Map()
 
 const IncidentChange = new GQLListSchema('IncidentChange', {
-    schemaDoc: 'Incremental changes of Incident',
+    schemaDoc: 'Logs incremental changes made to an incident.',
     fields: {
 
         incident: {
-            schemaDoc: 'Related incident, whose change is logged in this entity',
+            schemaDoc: 'Incident whose changes are recorded.',
             type: 'Relationship',
             ref: 'Incident',
             isRequired: true,
@@ -52,7 +52,7 @@ const IncidentChange = new GQLListSchema('IncidentChange', {
 
         // TODO(DOMA-2567) duplicate from TicketChange
         changedByRole: {
-            schemaDoc: 'Type of user who changed the incident, can be employee role from same organization or related, resident or deleted employee',
+            schemaDoc: 'Role of the user who changed the incident (organization employee, related organization employee, resident, or deleted employee).',
             type: 'Virtual',
             resolver: async (item, args, context) => {
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE

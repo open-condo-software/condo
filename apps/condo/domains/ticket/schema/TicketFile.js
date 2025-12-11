@@ -18,16 +18,16 @@ const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
 // TODO(zuch): find a way to upload images in jest tests
 // and make file field required
 const TicketFile = new GQLListSchema('TicketFile', {
-    schemaDoc: 'File attached to the ticket',
+    schemaDoc: 'Represents a file attached to a ticket.',
     fields: {
         file: {
-            schemaDoc: 'File object with meta information and publicUrl',
+            schemaDoc: 'Uploaded file metadata, including the public URL.',
             type: 'File',
             adapter: Adapter,
             isRequired: false,
         },
         ticket: {
-            schemaDoc: 'Link to ticket',
+            schemaDoc: 'Ticket associated with this file.',
             type: 'Relationship',
             ref: 'Ticket',
             many: false,

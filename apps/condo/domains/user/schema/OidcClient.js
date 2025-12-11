@@ -38,15 +38,15 @@ const payloadJsonSchema = {
 const jsonPayloadValidator = ajv.compile(payloadJsonSchema)
 
 const OidcClient = new GQLListSchema('OidcClient', {
-    schemaDoc: 'The OIDC clients list',
+    schemaDoc: 'Represents an OIDC client registered in the system.',
     fields: {
         clientId: {
-            schemaDoc: 'The clientId',
+            schemaDoc: 'OIDC client identifier.',
             type: 'Text',
             isRequired: true,
         },
         payload: {
-            schemaDoc: 'The payload of the client (clientId, clientSecret, callbackUrl, ...)',
+            schemaDoc: 'OIDC client configuration (clientId, clientSecret, redirect URIs, etc.).',
             type: 'Json',
             isRequired: true,
             hooks: {
@@ -59,7 +59,7 @@ const OidcClient = new GQLListSchema('OidcClient', {
             },
         },
         name: {
-            schemaDoc: 'The human readable name for client',
+            schemaDoc: 'Human-readable name of the client.',
             type: 'Text',
         },
         isEnabled: {
@@ -84,11 +84,11 @@ const OidcClient = new GQLListSchema('OidcClient', {
             defaultValue: false,
         },
         meta: {
-            schemaDoc: 'The additional client data',
+            schemaDoc: 'Additional client data.',
             type: 'Json',
         },
         expiresAt: {
-            schemaDoc: 'The timestamp of the client expiration',
+            schemaDoc: 'Timestamp when the client expires.',
             type: 'DateTimeUtc',
         },
     },

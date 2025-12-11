@@ -9,10 +9,10 @@ const access = require('@condo/domains/ticket/access/UserTicketCommentReadTime')
 
 
 const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime', {
-    schemaDoc: 'Time when a comment from a resident was last read by a specific user in a specific ticket',
+    schemaDoc: 'Tracks when a user last read comments within a ticket.',
     fields: {
         user: {
-            schemaDoc: 'The user who read the comment',
+            schemaDoc: 'User whose read times are tracked.',
             type: 'Relationship',
             ref: 'User',
             isRequired: true,
@@ -21,7 +21,7 @@ const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime',
         },
 
         ticket: {
-            schemaDoc: 'Ticket in which the user read the comment',
+            schemaDoc: 'Ticket for which the read times are recorded.',
             type: 'Relationship',
             ref: 'Ticket',
             isRequired: true,
@@ -30,7 +30,7 @@ const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime',
         },
 
         readCommentAt: {
-            schemaDoc: 'Time when the user last read any comment',
+            schemaDoc: 'Timestamp when the user last read any comment.',
             type: 'DateTimeUtc',
             hooks: {
                 resolveInput: async ({ resolvedData, fieldPath }) => {
@@ -50,12 +50,12 @@ const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime',
         },
 
         readResidentCommentAt: {
-            schemaDoc: 'Time when the user last read a comment of type `resident`',
+            schemaDoc: 'Timestamp when the user last read a resident comment.',
             type: 'DateTimeUtc',
         },
 
         readOrganizationCommentAt: {
-            schemaDoc: 'Time when the user last read a comment of type `organization`',
+            schemaDoc: 'Timestamp when the user last read an organization comment.',
             type: 'DateTimeUtc',
         },
     },

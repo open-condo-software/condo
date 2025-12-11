@@ -14,14 +14,16 @@ const Adapter = new FileAdapter(USER_HELP_REQUEST_FOLDER_NAME)
 const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
 
 const UserHelpRequestFile = new GQLListSchema('UserHelpRequestFile', {
-    schemaDoc: 'File related to user help request',
+    schemaDoc: 'Stores files attached to user help requests.',
     fields: {
         userHelpRequest: {
+            schemaDoc: 'User help request that the file belongs to.',
             type: 'Relationship',
             ref: 'UserHelpRequest',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
         file: {
+            schemaDoc: 'Uploaded file metadata associated with the help request.',
             adapter: Adapter,
             type: 'File',
         },

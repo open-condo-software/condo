@@ -9,11 +9,11 @@ const access = require('@condo/domains/banking/access/BankIntegration')
 
 
 const BankIntegration = new GQLListSchema('BankIntegration', {
-    schemaDoc: 'Determines way of obtaining banking data',
+    schemaDoc: 'Describes a method of retrieving banking data.',
     fields: {
 
         name: {
-            schemaDoc: 'Name of integration',
+            schemaDoc: 'Localized name of the integration.',
             type: 'LocalizedText',
             isRequired: true,
             template: 'banking.integration.*.name',

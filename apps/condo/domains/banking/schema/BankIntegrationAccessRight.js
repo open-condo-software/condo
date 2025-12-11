@@ -10,11 +10,11 @@ const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/acc
 
 
 const BankIntegrationAccessRight = new GQLListSchema('BankIntegrationAccessRight', {
-    schemaDoc: 'Gives ability to service-user to access all schema records, connected to specified integration',
+    schemaDoc: 'Grants a service user access to all records linked to a specific bank integration.',
     fields: {
 
         integration: {
-            schemaDoc: 'Specified integration, whose connected entities will be available for specified service user',
+            schemaDoc: 'Bank integration whose related entities the service user can access.',
             type: 'Relationship',
             ref: 'BankIntegration.accessRights',
             isRequired: true,

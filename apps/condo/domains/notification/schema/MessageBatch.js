@@ -41,10 +41,10 @@ const ERRORS = {
 }
 
 const MessageBatch = new GQLListSchema('MessageBatch', {
-    schemaDoc: 'Message batch. Adding record here will cause sending message to all targets (user, phone or email) listed in targets via transport detected based on target type.',
+    schemaDoc: 'Batch of notifications. Creating a record sends the message to every target (user, phone, or email) using the transport that matches the target type.',
     fields: {
         messageType: {
-            schemaDoc: 'Message type to use for sending notification',
+            schemaDoc: 'Notification template or message type used to deliver the batch.',
             type: 'Select',
             options: MESSAGE_BATCH_TYPE_OPTIONS,
             defaultValue: CUSTOM_CONTENT_MESSAGE_TYPE,
@@ -55,7 +55,7 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
         },
 
         title: {
-            schemaDoc: 'Common title for messages to be sent. Single line, shouldn\'t be very long.',
+            schemaDoc: 'Shared title for all messages in the batch. Should be short and single-line.',
             type: 'Text',
             hooks: {
                 validateInput: operationForbiddenValidator,
@@ -63,7 +63,7 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
         },
 
         message: {
-            schemaDoc: 'Common body for messages to be sent. Can be multiline, but shouldn\'t be very long in case of SMS or Push.',
+            schemaDoc: 'Shared body for all messages in the batch. Can be multiline, but keep it brief for SMS or push notifications.',
             type: 'Text',
             hooks: {
                 validateInput: operationForbiddenValidator,
@@ -71,7 +71,7 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
         },
 
         deepLink: {
-            schemaDoc: 'A link to bring user to specified position within a mobile app. Used ONLY for push notifications',
+            schemaDoc: 'Deep link that opens a specific screen in the mobile app. Used only for push notifications.',
             type: 'Text',
             hooks: {
                 validateInput: operationForbiddenValidator,
@@ -79,7 +79,7 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
         },
 
         targets: {
-            schemaDoc: 'List of ids for "push", "email", "sms" message types; list of emails for "email" message types; list of phone numbers for "sms" message types. Can be mixed. For each entry an appropriate message type will be used.',
+            schemaDoc: 'List of recipients. Provide user IDs for push/email/SMS templates, email addresses for email messages, and phone numbers for SMS messages. Different target types can be mixed.',
             type: 'Json',
             isRequired: true,
             hooks: {
@@ -95,7 +95,7 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
         },
 
         status: {
-            schemaDoc: 'Batch processing status',
+            schemaDoc: 'Processing status of the batch.',
             type: 'Select',
             options: MESSAGE_BATCH_STATUSES,
             defaultValue: MESSAGE_BATCH_CREATED_STATUS,
@@ -103,7 +103,7 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
         },
 
         processingMeta: {
-            schemaDoc: 'Batch processing results will be stored here',
+            schemaDoc: 'Processing results or metadata for the batch.',
             type: 'Json',
             isRequired: false,
             hooks: {

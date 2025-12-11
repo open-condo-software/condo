@@ -15,17 +15,17 @@ const { ServiceSubscription: ServiceSubscriptionAPI } = require('../utils/server
 
 
 const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
-    schemaDoc: 'Availability time period of service features for client organization. Can be trial or payed.',
+    schemaDoc: 'Defines the availability period of service features for an organization. Can be trial or paid.',
     fields: {
         type: {
-            schemaDoc: 'System, from where subscription was created (our or external)',
+            schemaDoc: 'System from which the subscription was created (internal or external).',
             type: 'Select',
             options: 'default,sbbol',
             isRequired: true,
         },
 
         isTrial: {
-            schemaDoc: 'Trial mode of subscription',
+            schemaDoc: 'Indicates whether the subscription is a trial.',
             type: 'Checkbox',
             isRequired: true,
         },
@@ -33,24 +33,24 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
         organization: ORGANIZATION_OWNED_FIELD,
 
         startAt: {
-            schemaDoc: 'When subscription was started',
+            schemaDoc: 'Subscription start date and time.',
             type: 'DateTimeUtc',
             isRequired: true,
         },
 
         finishAt: {
-            schemaDoc: 'When subscription should be ended',
+            schemaDoc: 'Subscription end date and time.',
             type: 'DateTimeUtc',
             isRequired: true,
         },
 
         unitsCount: {
-            schemaDoc: 'How much units are payed for this subscription',
+            schemaDoc: 'Number of units purchased for the subscription.',
             type: 'Integer',
         },
 
         unitPrice: {
-            schemaDoc: 'How much one unit cost in Rubles for this subscription',
+            schemaDoc: 'Price of a single unit in rubles.',
             type: 'Decimal',
             knexOptions: {
                 scale: 2,
@@ -58,7 +58,7 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
         },
 
         totalPrice: {
-            schemaDoc: 'Total price of this subscription, calculated as unitCost * unitsPayed',
+            schemaDoc: 'Total subscription price calculated as unitPrice × unitsCount.',
             type: 'Decimal',
             knexOptions: {
                 scale: 2,
@@ -66,7 +66,7 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
         },
 
         currency: {
-            schemaDoc: 'Currency of values for all price fields',
+            schemaDoc: 'Currency used for all price fields.',
             type: 'Text',
             // There is possible a bug in Knex, that creates `NOT NULL` constraint if `defaultValue` field config is provided
             // Because it does not needs to be required, the line below is commented
