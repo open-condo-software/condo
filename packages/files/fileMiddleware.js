@@ -88,6 +88,11 @@ class FileMiddleware {
             fileAttachHandler({ keystone, appClients })
         )
 
+        // Handle 404 for unmatched routes within this middleware
+        app.use((req, res) => {
+            res.status(404).json({ error: 'Not Found' })
+        })
+
         // catch gql errors, that thrown from main handler
         app.use(expressErrorHandler)
 
