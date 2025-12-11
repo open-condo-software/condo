@@ -49760,6 +49760,7 @@ enum UserHelpRequestTypeType {
   importFile
   integrationSetup
   activateSubscription
+  activateBanking
 }
 
 input SubscriptionPlanPricingRuleRelateToOneInput {
@@ -57328,6 +57329,7 @@ type SubscriptionPlanHistoryRecord {
   support: Boolean
   ai: Boolean
   passTickets: Boolean
+  canBePromoted: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -57428,6 +57430,8 @@ input SubscriptionPlanHistoryRecordWhereInput {
   ai_not: Boolean
   passTickets: Boolean
   passTickets_not: Boolean
+  canBePromoted: Boolean
+  canBePromoted_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57533,6 +57537,8 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   ai_DESC
   passTickets_ASC
   passTickets_DESC
+  canBePromoted_ASC
+  canBePromoted_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57563,6 +57569,7 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   support: Boolean
   ai: Boolean
   passTickets: Boolean
+  canBePromoted: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -57594,6 +57601,7 @@ input SubscriptionPlanHistoryRecordCreateInput {
   support: Boolean
   ai: Boolean
   passTickets: Boolean
+  canBePromoted: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -57664,6 +57672,9 @@ type SubscriptionPlan {
 
   """ Whether pass tickets feature is included in this plan """
   passTickets: Boolean
+
+  """ Whether this plan can be promoted to users """
+  canBePromoted: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -57758,6 +57769,8 @@ input SubscriptionPlanWhereInput {
   ai_not: Boolean
   passTickets: Boolean
   passTickets_not: Boolean
+  canBePromoted: Boolean
+  canBePromoted_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57843,6 +57856,8 @@ enum SortSubscriptionPlansBy {
   ai_DESC
   passTickets_ASC
   passTickets_DESC
+  canBePromoted_ASC
+  canBePromoted_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57873,6 +57888,7 @@ input SubscriptionPlanUpdateInput {
   support: Boolean
   ai: Boolean
   passTickets: Boolean
+  canBePromoted: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -57901,6 +57917,7 @@ input SubscriptionPlanCreateInput {
   support: Boolean
   ai: Boolean
   passTickets: Boolean
+  canBePromoted: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -58450,7 +58467,8 @@ type SubscriptionPlanPricingRule {
   """
   conditions: JSON
 
-  """ Price for this rule """
+  """ Price for this rule. Null means custom price (requires manual processing) 
+  """
   price: String
 
   """ Currency code (ISO-4217) """

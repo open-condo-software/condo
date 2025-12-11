@@ -111,6 +111,13 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             isRequired: true,
         },
 
+        canBePromoted: {
+            schemaDoc: 'Whether this plan can be promoted to users',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

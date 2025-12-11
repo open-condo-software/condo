@@ -21,6 +21,8 @@ const {
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
+const { ERRORS } = require('./SubscriptionPlanPricingRule')
+
 describe('SubscriptionPlanPricingRule', () => {
     let admin, support
     let subscriptionPlan
@@ -444,6 +446,96 @@ describe('SubscriptionPlanPricingRule', () => {
             })
 
             expect(obj.conditions).toEqual(newConditions)
+        })
+    })
+
+    describe('Price and currencyCode validation', () => {
+        test('can create rule with null price and null currencyCode (custom price)', async () => {
+            const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: null,
+                currencyCode: null,
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.price).toBeNull()
+            expect(obj.currencyCode).toBeNull()
+        })
+
+        test('can create rule with price and currencyCode', async () => {
+            const [obj] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '1500.00',
+                currencyCode: 'USD',
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.price).toBe('1500.00000000')
+            expect(obj.currencyCode).toBe('USD')
+        })
+
+        test('cannot create rule with price but without currencyCode', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                    price: '1000.00',
+                    currencyCode: null,
+                })
+            }, ERRORS.PRICE_AND_CURRENCY_MUST_BE_SET_TOGETHER, 'obj')
+        })
+
+        test('cannot create rule with currencyCode but without price', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                    price: null,
+                    currencyCode: 'RUB',
+                })
+            }, ERRORS.PRICE_AND_CURRENCY_MUST_BE_SET_TOGETHER, 'obj')
+        })
+
+        test('cannot update rule to have price without currencyCode', async () => {
+            const [objCreated] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '1000.00',
+                currencyCode: 'RUB',
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestSubscriptionPlanPricingRule(admin, objCreated.id, {
+                    currencyCode: null,
+                })
+            }, ERRORS.PRICE_AND_CURRENCY_MUST_BE_SET_TOGETHER, 'obj')
+        })
+
+        test('cannot update rule to have currencyCode without price', async () => {
+            const [objCreated] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '1000.00',
+                currencyCode: 'RUB',
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestSubscriptionPlanPricingRule(admin, objCreated.id, {
+                    price: null,
+                })
+            }, ERRORS.PRICE_AND_CURRENCY_MUST_BE_SET_TOGETHER, 'obj')
+        })
+
+        test('can update rule to have both null price and currencyCode', async () => {
+            const [objCreated] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '1000.00',
+                currencyCode: 'RUB',
+            })
+
+            const [obj] = await updateTestSubscriptionPlanPricingRule(admin, objCreated.id, {
+                price: null,
+                currencyCode: null,
+            })
+
+            expect(obj.price).toBeNull()
+            expect(obj.currencyCode).toBeNull()
         })
     })
 
