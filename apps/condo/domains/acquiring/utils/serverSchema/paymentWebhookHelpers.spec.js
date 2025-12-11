@@ -3,12 +3,15 @@
  */
 const { faker } = require('@faker-js/faker')
 
+const { EncryptionManager } = require('@open-condo/keystone/crypto/EncryptionManager')
 jest.mock('@open-condo/keystone/schema', () => ({
     getSchemaCtx: jest.fn().mockResolvedValue({ keystone: {} }),
     getById: jest.fn(),
 }))
-
 const { getById } = require('@open-condo/keystone/schema')
+
+// Use real EncryptionManager to encrypt test secrets
+const encryptionManager = new EncryptionManager()
 
 const {
     getWebhookSecret,
@@ -24,8 +27,9 @@ describe('paymentWebhookHelpers', () => {
     describe('getWebhookSecret', () => {
         test('should return secret from invoice when payment has invoice', async () => {
             const mockSecret = faker.random.alphaNumeric(32)
+            const encryptedSecret = encryptionManager.encrypt(mockSecret)
             const payment = { invoice: faker.datatype.uuid() }
-            const invoice = { paymentStatusChangeWebhookSecret: mockSecret }
+            const invoice = { paymentStatusChangeWebhookSecret: encryptedSecret }
 
             getById.mockResolvedValue(invoice)
 
@@ -37,8 +41,9 @@ describe('paymentWebhookHelpers', () => {
 
         test('should return secret from receipt when payment has receipt', async () => {
             const mockSecret = faker.random.alphaNumeric(32)
+            const encryptedSecret = encryptionManager.encrypt(mockSecret)
             const payment = { receipt: faker.datatype.uuid() }
-            const receipt = { paymentStatusChangeWebhookSecret: mockSecret }
+            const receipt = { paymentStatusChangeWebhookSecret: encryptedSecret }
 
             getById.mockResolvedValue(receipt)
 
