@@ -86347,6 +86347,16 @@ input RegisterNewUserInput {
   meta: JSON
 }
 
+enum AuthenticateUserWithPhoneAndPasswordSecondFactorType {
+  confirmEmailToken
+  confirmPhoneToken
+}
+
+input AuthenticateUserWithPhoneAndPasswordSecondFactorInput {
+  value: String!
+  type: AuthenticateUserWithPhoneAndPasswordSecondFactorType!
+}
+
 input AuthenticateUserWithPhoneAndPasswordInput {
   dv: Int
   sender: SenderFieldInput
@@ -86354,6 +86364,7 @@ input AuthenticateUserWithPhoneAndPasswordInput {
   userType: UserTypeType
   phone: String!
   password: String!
+  secondFactor: AuthenticateUserWithPhoneAndPasswordSecondFactorInput
 }
 
 type AuthenticateUserWithPhoneAndPasswordOutput {
@@ -86387,7 +86398,8 @@ input StartConfirmPhoneActionInput {
   dv: Int!
   sender: SenderFieldInput!
   captcha: String!
-  phone: String!
+  phone: String
+  user: UserWhereUniqueInput
 }
 
 type StartConfirmPhoneActionOutput {
@@ -86560,10 +86572,22 @@ input AuthenticateOrRegisterUserWithTokenUserDataInput {
   hasMarketingConsent: Boolean
 }
 
+enum AuthenticateOrRegisterUserWithTokenSecondFactorType {
+  confirmEmailToken
+  confirmPhoneToken
+  password
+}
+
+input AuthenticateOrRegisterUserWithTokenSecondFactorInput {
+  value: String!
+  type: AuthenticateOrRegisterUserWithTokenSecondFactorType!
+}
+
 input AuthenticateOrRegisterUserWithTokenInput {
   dv: Int!
   sender: SenderFieldInput!
   token: String!
+  secondFactor: AuthenticateOrRegisterUserWithTokenSecondFactorInput
   userType: UserTypeType!
   captcha: String!
   userData: AuthenticateOrRegisterUserWithTokenUserDataInput
@@ -86595,8 +86619,9 @@ input StartConfirmEmailActionInput {
   dv: Int!
   sender: SenderFieldInput!
   captcha: String!
-  email: String!
+  email: String
   messageType: ConfirmEmailActionMessageType
+  user: UserWhereUniqueInput
 }
 
 type StartConfirmEmailActionOutput {
@@ -86626,6 +86651,16 @@ type CompleteConfirmEmailActionOutput {
   status: String!
 }
 
+enum AuthenticateUserWithEmailAndPasswordSecondFactorType {
+  confirmEmailToken
+  confirmPhoneToken
+}
+
+input AuthenticateUserWithEmailAndPasswordSecondFactorInput {
+  value: String!
+  type: AuthenticateUserWithEmailAndPasswordSecondFactorType!
+}
+
 input AuthenticateUserWithEmailAndPasswordInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -86633,6 +86668,7 @@ input AuthenticateUserWithEmailAndPasswordInput {
   userType: UserTypeType!
   email: String!
   password: String!
+  secondFactor: AuthenticateUserWithEmailAndPasswordSecondFactorInput
 }
 
 type AuthenticateUserWithEmailAndPasswordOutput {
@@ -98003,6 +98039,12 @@ type Mutation {
     "message": "Invalid format of \"sender\" field value. Please, check the example for details",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_ENOUGH_AUTH_FACTORS",
+    "message": "Not enough auth factors"
+  }`
   """
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
 
@@ -98421,6 +98463,12 @@ type Mutation {
     "type": "USER_IDENTITY_INVALID",
     "message": "Email or phone cannot be empty"
   }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_ENOUGH_AUTH_FACTORS",
+    "message": "Not enough auth factors"
+  }`
   """
   generateSudoToken(data: GenerateSudoTokenInput!): GenerateSudoTokenOutput
 
@@ -98573,6 +98621,18 @@ type Mutation {
     "type": "PASSWORD_CONTAINS_PHONE",
     "message": "Password must not contain phone",
     "messageForUser": "Password must not contain phone"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_ENOUGH_AUTH_FACTORS",
+    "message": "Not enough auth factors"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNEXPECTED_SECOND_FACTOR",
+    "message": "Unexpected second factor"
   }`
   """
   authenticateOrRegisterUserWithToken(data: AuthenticateOrRegisterUserWithTokenInput!): AuthenticateOrRegisterUserWithTokenOutput
@@ -98768,6 +98828,12 @@ type Mutation {
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value. Please, check the example for details",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "NOT_ENOUGH_AUTH_FACTORS",
+    "message": "Not enough auth factors"
   }`
   """
   authenticateUserWithEmailAndPassword(data: AuthenticateUserWithEmailAndPasswordInput!): AuthenticateUserWithEmailAndPasswordOutput
