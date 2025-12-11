@@ -1,10 +1,9 @@
 const dayjs = require('dayjs')
 
 const { getLogger } = require('@open-condo/keystone/logging')
-
-const { WEBHOOK_PAYLOAD_TTL_DAYS } = require('../constants')
-const { WebhookPayload } = require('../schema/utils/serverSchema')
-const { getWebhookTasks } = require('../tasks')
+const { WEBHOOK_PAYLOAD_TTL_DAYS } = require('@open-condo/webhooks/constants')
+const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/serverSchema')
+const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const logger = getLogger('sendWebhookPayload')
 
@@ -69,11 +68,13 @@ async function sendWebhookPayload (context, options) {
 
     logger.info({
         msg: 'WebhookPayload created and queued for sending',
-        payloadId: webhookPayload.id,
-        eventType,
-        modelName,
-        itemId,
-        url,
+        data: {
+            payloadId: webhookPayload.id,
+            eventType,
+            modelName,
+            itemId,
+            url,
+        },
     })
 
     // Queue the webhook payload sending task
