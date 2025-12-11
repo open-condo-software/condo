@@ -12,6 +12,7 @@ jest.mock('@open-condo/keystone/logging', () => ({
 }))
 
 const { fetch } = require('@open-condo/keystone/fetch')
+const { WEBHOOK_PAYLOAD_TIMEOUT_MS, WEBHOOK_PAYLOAD_RETRY_INTERVALS } = require('@open-condo/webhooks/constants')
 
 const {
     generateSignature,
@@ -19,7 +20,6 @@ const {
     trySendWebhookPayload,
 } = require('./webhookPayload.utils')
 
-const { WEBHOOK_PAYLOAD_TIMEOUT_MS, WEBHOOK_PAYLOAD_RETRY_INTERVALS } = require('../constants')
 
 
 describe('webhookPayload utilities', () => {
