@@ -1,5 +1,3 @@
 const { cancelOldInvoicesCronTask } = require('./cancelOldInvoices')
 
-module.exports = {
-    cancelOldInvoicesCronTask,
-}
+module.exports = { cancelOldInvoicesCronTask }
