@@ -13,6 +13,8 @@ const PLUGIN_OPTIONS_SCHEMA = {
         nonAuthedQuota: { type: 'number' },
         whereScalingFactor: { type: 'number' },
         pageLimit: { type: 'number' },
+        customQueryWeights: { type: 'object', additionalProperties: { type: 'number' } },
+        customMutationWeights: { type: 'object', additionalProperties: { type: 'number' } },
     },
     additionalProperties: false,
 }
