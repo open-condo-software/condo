@@ -1,0 +1,372 @@
+Condo API relies on a signature-based REST flow powered by `/api/files` endpoints
+
+<Alert type="warning">
+    GraphQL Upload is deprecated and will be removed in the future. Please migrate to the signature-based flow.
+</Alert>
+
+---
+
+## File API
+
+The signature flow relies on dedicated REST endpoints (`/api/files`) and requires a `client_id` that was pre-registered on the file server. It brings better security, rate limiting and allows reusing previously uploaded files.
+
+### Getting started
+
+To use the new flow, you need a `fileClientId`. The `fileClientId` is a unique identifier for your application provided by your partner.
+
+On the client side, you only need the `fileClientId` (usually available from `next/config` or environment variables). You don't need to know about the secret or signature validation — this is handled by the Condo API.
+
+If your application has its own backend and you need to verify signatures received from the Condo API, you should place the `FILE_SECRET` environment variable on your backend. The `FILE_SECRET` is used for encryption and decryption of file metadata signatures.
+
+### Uploading files
+
+Use the `@open-condo/files` package to upload files:
+
+<Tabs labels={['TypeScript example', 'JavaScript example', 'cURL example']}>
+```typescript
+import { upload, buildMeta } from '@open-condo/files'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+import getConfig from 'next/config'
+
+const { publicRuntimeConfig: { fileClientId } } = getConfig()
+
+async function uploadFile(file: File, userId: string, organizationId?: string) {
+  const senderInfo = getClientSideSenderInfo()
+
+  const uploadResult = await upload({
+    files: [file],
+    meta: buildMeta({
+      userId, // User who will link the file to a model
+      fileClientId, // client_id that will own this file
+      modelNames: ['Document'], // Models allowed to reference this file
+      fingerprint: senderInfo.fingerprint,
+      organizationId, // Organization that will own the uploaded file
+    }),
+  })
+
+  // uploadResult.files[0].signature contains the JWT signature
+  // Use this signature in your GraphQL mutation
+  return uploadResult.files[0].signature
+}
+```
+
+```javascript
+import { upload, buildMeta } from '@open-condo/files'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+import getConfig from 'next/config'
+
+const { publicRuntimeConfig: { fileClientId } } = getConfig()
+
+async function uploadFile(file, userId, organizationId) {
+  const senderInfo = getClientSideSenderInfo()
+
+  const uploadResult = await upload({
+    files: [file],
+    meta: buildMeta({
+      userId, // User who will link the file to a model
+      fileClientId, // client_id that will own this file
+      modelNames: ['Document'], // Models allowed to reference this file
+      fingerprint: senderInfo.fingerprint,
+      organizationId, // Organization that will own the uploaded file
+    }),
+  })
+
+  return uploadResult.files[0].signature
+}
+```
+
+```bash
+SERVER="https://condo.d.doma.ai"
+AUTHORIZATION="Bearer ..."
+META_JSON='{"dv":1,"sender":{"dv":1,"fingerprint":"<fingerprint>"},"user":{"id":"<user-id>"},"fileClientId":"<client-id>","modelNames":["Document"],"organization":{"id":"<organization-id>"}}'
+ATTACH_JSON='{"dv":1,"sender":{"dv":1,"fingerprint":"<fingerprint>"},"modelName":"Document","itemId":"existing-document-id"}'
+
+curl -X POST "$SERVER/api/files/upload" \
+  -H "Authorization: $AUTHORIZATION" \
+  -F "meta=$META_JSON" \
+  -F "attach=$ATTACH_JSON" \
+  -F "files=@/path/to/file.pdf;type=application/pdf"
+```
+</Tabs>
+
+### Upload meta structure
+
+Each upload request sends a `meta` JSON field (built via `buildMeta`) that describes the file and provides authorization context:
+
+```json
+{
+  "dv": 1,
+  "sender": { "dv": 1, "fingerprint": "<client-fingerprint>" },
+  "user": { "id": "<current-user-id>" },
+  "fileClientId": "<your-client-id>",
+  "modelNames": ["Document", "..."],
+  "organization": { "id": "<organization-id>" }
+}
+```
+
+- `dv` – data version (always `1` right now)
+- `sender` – identifies the origin of the request on the client
+- `user` – the authenticated user that owns the file
+- `fileClientId` – the application identifier that was issued to you
+- `modelNames` – list of GraphQL models that are allowed to reference this file
+- `organization` – organization scope for the upload
+
+If you pass the optional `attach` field, it must include:
+
+```json
+{
+  "dv": 1,
+  "sender": { "dv": 1, "fingerprint": "<client-fingerprint>" },
+  "modelName": "Document",
+  "itemId": "<model-record-id>"
+}
+```
+
+This lets the API append the uploaded files to the specified record immediately and return `publicSignature` values — encrypted metadata that you can reuse for subsequent calls.
+
+### Signature internals
+
+Every uploaded file receives JWT tokens signed with your `FILE_SECRET` using the `HS256` algorithm. Both `signature` and `publicSignature` have a 5‑minute TTL (`exp = iat + 300` seconds).
+
+Payload example for `signature`:
+
+```json
+{
+  "id": "<storage-id>",
+  "recordId": "<FileRecord.id>",
+  "filename": "<generated-name>",
+  "originalFilename": "<original name>",
+  "mimetype": "<mime>",
+  "encoding": "<encoding>",
+  "meta": {
+    "dv": 1,
+    "sender": { "dv": 1, "fingerprint": "<string>" },
+    "user": { "id": "<uuid>" },
+    "fileClientId": "<client_id>",
+    "modelNames": ["Document"],
+    "sourceFileClientId": "<string|null>"
+  },
+  "iat": 1700000000,
+  "exp": 1700000300
+}
+```
+
+`publicSignature` contains the same public metadata you would get from `/api/files/attach` and is safe to persist in your application database.
+
+If you run your own backend and need to validate a signature:
+
+1. Store `FILE_SECRET` in the backend environment
+2. Run `jwt.verify(signature, process.env.FILE_SECRET, { algorithms: ['HS256'] })`
+3. Inspect the decoded payload (for example, ensure `modelNames` matches the target model or that `user.id` matches the current user)
+
+Never expose `FILE_SECRET` to browsers; frontend clients should use the tokens returned by the Condo API without attempting to validate them locally.
+
+### Attaching files to models
+
+After uploading, use the `signature` in your GraphQL mutation:
+
+<Tabs labels={['GraphQL mutation', 'Response']}>
+```graphql
+mutation CreateDocument($data: DocumentCreateInput!) {
+  obj: createDocument(data: $data) {
+    id
+    file {
+      filename
+      mimetype
+      publicUrl
+    }
+  }
+}
+```
+
+```json
+{
+  "data": {
+    "createDocument": {
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "file": {
+        "filename": "document.pdf",
+        "mimetype": "application/pdf",
+        "publicUrl": "https://..."
+      }
+    }
+  }
+}
+```
+</Tabs>
+
+The mutation input should include:
+
+```json
+{
+  "data": {
+    "file": {
+      "signature": "<jwt-signature-from-upload>",
+      "originalFilename": "document.pdf"
+    },
+    "name": "My Document",
+    "organization": { "connect": { "id": "..." } }
+  }
+}
+```
+
+### Inline attachment
+
+You can attach a file to a model during upload in a single request:
+
+<Tabs labels={['TypeScript example']}>
+```typescript
+import { upload, buildMeta } from '@open-condo/files'
+
+const uploadResult = await upload({
+  files: [file],
+  meta: buildMeta({
+    userId,
+    fileClientId,
+    modelNames: ['Document'],
+    fingerprint: senderInfo.fingerprint,
+    organizationId,
+  }),
+  attach: {
+    dv: 1,
+    sender: { dv: 1, fingerprint: senderInfo.fingerprint },
+    modelName: 'Document',
+    itemId: 'existing-document-id',
+  },
+})
+
+// uploadResult.files[0].publicSignature can be used directly
+// No need to call /api/files/attach separately
+```
+</Tabs>
+
+### Sharing files
+
+Share an uploaded file with another user or app:
+
+<Tabs labels={['TypeScript example', 'cURL example']}>
+```typescript
+import { share } from '@open-condo/files'
+
+const shareResult = await share({
+  payload: {
+    dv: 1,
+    sender: { dv: 1, fingerprint: senderInfo.fingerprint },
+    id: 'existing-file-id',
+    user: { id: 'target-user-id' },
+    fileClientId: 'target-app-id',
+    modelNames: ['Document'],
+  },
+})
+
+// shareResult.file.signature contains the new signature
+```
+
+```bash
+SERVER="https://condo.d.doma.ai"
+AUTHORIZATION="Bearer ..."
+
+curl -X POST "$SERVER/api/files/share" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: $AUTHORIZATION" \
+  -d '{
+    "payload": {
+      "dv": 1,
+      "sender": { "dv": 1, "fingerprint": "<fingerprint>" },
+      "id": "existing-file-id",
+      "user": { "id": "target-user-id" },
+      "fileClientId": "target-app-id",
+      "modelNames": ["Document"]
+    }
+  }'
+```
+</Tabs>
+
+### Attaching existing files
+
+Attach a previously uploaded file to a model:
+
+<Tabs labels={['TypeScript example', 'cURL example']}>
+```typescript
+import { attach } from '@open-condo/files'
+
+const attachResult = await attach({
+  payload: {
+    dv: 1,
+    sender: { dv: 1, fingerprint: senderInfo.fingerprint },
+    modelName: 'Document',
+    itemId: 'document-id',
+    fileClientId,
+    signature: 'upload-or-share-signature',
+  },
+})
+
+// attachResult.file.signature contains the public signature
+```
+
+```bash
+SERVER="https://condo.d.doma.ai"
+AUTHORIZATION="Bearer ..."
+
+curl -X POST "$SERVER/api/files/attach" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: $AUTHORIZATION" \
+  -d '{
+    "payload": {
+      "dv": 1,
+      "sender": { "dv": 1, "fingerprint": "<fingerprint>" },
+      "modelName": "Document",
+      "itemId": "document-id",
+      "fileClientId": "<client-id>",
+      "signature": "upload-or-share-signature"
+    }
+  }'
+```
+</Tabs>
+
+### Downloading files
+
+Files can be downloaded in two ways:
+
+1. **Using publicUrl from GraphQL response** — when you query a model with a file field, you get a `publicUrl` that can be used directly:
+
+<Tabs labels={['GraphQL query', 'Usage']}>
+```graphql
+query GetDocument($id: ID!) {
+  obj: document(where: { id: $id }) {
+    id
+    file {
+      filename
+      mimetype
+      publicUrl
+    }
+  }
+}
+```
+
+```typescript
+// The publicUrl can be used directly in <img src>, <a href>, etc.
+const fileUrl = document.file.publicUrl
+```
+</Tabs>
+
+2. **Using file API endpoint** — download a file directly using its ID and signature:
+
+```
+GET /api/files/<file_id>?sign=<file_signature>
+```
+
+The signature can be obtained from the upload response or from the file's metadata.
+
+### API endpoints
+
+The new flow uses the following REST endpoints:
+
+* `POST /api/files/upload` — upload one or multiple files
+* `POST /api/files/share` — share an existing file
+* `POST /api/files/attach` — attach a file to a model
+* `GET /api/files/<file_id>?sign=<signature>` — download a file
+
+<Alert type="warning">
+    All endpoints require authentication via session cookie / Authorization header (same as GraphQL API).
+</Alert>
