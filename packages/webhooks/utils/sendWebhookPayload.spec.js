@@ -12,22 +12,23 @@ const mockSendWebhookPayloadTask = {
     delay: jest.fn(),
 }
 
-jest.mock('../schema/utils/serverSchema', () => ({
+jest.mock('@open-condo/webhooks/schema/utils/serverSchema', () => ({
     WebhookPayload: {
         create: jest.fn(() => Promise.resolve(mockWebhookPayload)),
     },
 }))
 
-jest.mock('../tasks', () => ({
+jest.mock('@open-condo/webhooks/tasks', () => ({
     getWebhookTasks: jest.fn(() => ({
         sendWebhookPayload: mockSendWebhookPayloadTask,
     })),
 }))
 
-const { sendWebhookPayload } = require('./sendWebhookPayload')
 
-const { WebhookPayload } = require('../schema/utils/serverSchema')
-const { getWebhookTasks } = require('../tasks')
+const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/serverSchema')
+const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
+
+const { sendWebhookPayload } = require('./sendWebhookPayload')
 
 
 describe('sendWebhookPayload utility', () => {
