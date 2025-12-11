@@ -9,6 +9,7 @@ const { versioned, uuided, tracked, dvAndSender } = require('@open-condo/keyston
 const { GQLListSchema, find, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { getTranslations } = require('@open-condo/locales/loader')
+const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { generateChangeTrackableFieldsFrom, buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const access = require('@condo/domains/ticket/access/TicketChange')
@@ -124,7 +125,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
             return resolvedData
         },
     },
-    plugins: [uuided(), versioned(), tracked(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), dvAndSender(), webHooked()],
     access: {
         read: access.canReadTicketChanges,
         create: access.canManageTicketChanges,
