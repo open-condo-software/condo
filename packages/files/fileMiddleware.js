@@ -88,8 +88,8 @@ class FileMiddleware {
             fileAttachHandler({ keystone, appClients })
         )
 
-        // Handle 404 for unmatched routes within this middleware
-        app.use((req, res) => {
+        // Handle 404 for unmatched routes within this middleware's API prefix
+        app.use(this.apiPrefix, (req, res) => {
             res.status(404).json({ error: 'Not Found' })
         })
 
