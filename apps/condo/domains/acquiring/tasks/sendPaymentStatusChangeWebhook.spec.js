@@ -5,14 +5,14 @@ const { faker } = require('@faker-js/faker')
 
 jest.mock('@open-condo/keystone/schema', () => ({
     getSchemaCtx: jest.fn().mockResolvedValue({ keystone: {} }),
+    getById: jest.fn(),
 }))
 jest.mock('@open-condo/webhooks/utils/sendWebhookPayload')
-jest.mock('@condo/domains/acquiring/utils/serverSchema')
 jest.mock('@condo/domains/acquiring/utils/serverSchema/paymentWebhookHelpers')
 
+const { getById } = require('@open-condo/keystone/schema')
 const { sendWebhookPayload } = require('@open-condo/webhooks/utils/sendWebhookPayload')
 
-const { Payment } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getWebhookSecret,
     getWebhookCallbackUrl,
@@ -30,7 +30,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
 
     beforeEach(() => {
         jest.clearAllMocks()
-        Payment.getOne = jest.fn().mockResolvedValue(mockPayment)
+        getById.mockResolvedValue(mockPayment)
         getWebhookCallbackUrl.mockResolvedValue(mockUrl)
         getWebhookSecret.mockResolvedValue(mockSecret)
         buildPaymentWebhookPayload.mockResolvedValue(mockPayload)
@@ -40,10 +40,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
     test('should send webhook when payment has URL and secret', async () => {
         await sendPaymentStatusChangeWebhook(mockPaymentId)
 
-        expect(Payment.getOne).toHaveBeenCalledWith(
-            expect.anything(),
-            { id: mockPaymentId, deletedAt: null }
-        )
+        expect(getById).toHaveBeenCalledWith('Payment', mockPaymentId)
         expect(getWebhookCallbackUrl).toHaveBeenCalledWith(mockPayment)
         expect(getWebhookSecret).toHaveBeenCalledWith(mockPayment)
         expect(buildPaymentWebhookPayload).toHaveBeenCalledWith(mockPayment)
@@ -62,7 +59,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
     })
 
     test('should not send webhook when payment not found', async () => {
-        Payment.getOne.mockResolvedValue(null)
+        getById.mockResolvedValue(null)
 
         await sendPaymentStatusChangeWebhook(mockPaymentId)
 
