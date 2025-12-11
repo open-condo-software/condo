@@ -5,6 +5,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
         '(by plan priority, then by latest startAt). Returns null if no active subscription',
     type: 'Virtual',
     graphQLReturnType: 'SubscriptionContext',
+    graphQLReturnFragment: '{ id organization { id } subscriptionPlan { id name } startAt endAt isTrial }',
     resolver: async (organization) => {
         const now = new Date().toISOString()
 

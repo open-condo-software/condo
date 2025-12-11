@@ -58,7 +58,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
     types: [
         {
             access: true,
-            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, pricingRule: ID!, isTrial: Boolean! }',
+            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean }',
         },
         {
             access: true,
@@ -76,7 +76,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, organization: organizationInput, pricingRule: pricingRuleId, isTrial } = data
+                const { dv, sender, organization: organizationInput, pricingRule: pricingRuleInput, isTrial } = data
 
                 const [organization] = await find('Organization', {
                     id: organizationInput.id,
@@ -88,7 +88,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
 
                 // Get pricing rule with subscription plan
                 const [pricingRule] = await find('SubscriptionPlanPricingRule', {
-                    id: pricingRuleId,
+                    id: pricingRuleInput.id,
                     isHidden: false,
                     deletedAt: null,
                 })

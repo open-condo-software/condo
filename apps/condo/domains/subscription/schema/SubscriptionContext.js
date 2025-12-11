@@ -76,7 +76,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             isRequired: false,
             access: {
                 read: true,
-                create: true,
+                create: false,
                 update: false,
             },
         },
@@ -88,7 +88,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             defaultValue: [],
             access: {
                 read: true,
-                create: true,
+                create: false,
                 update: false,
             },
         },

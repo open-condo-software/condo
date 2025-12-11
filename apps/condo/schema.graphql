@@ -89111,8 +89111,8 @@ input ActivateSubscriptionPlanInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
-  pricingRule: ID!
-  isTrial: Boolean!
+  pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
+  isTrial: Boolean
 }
 
 type ActivateSubscriptionPlanOutput {

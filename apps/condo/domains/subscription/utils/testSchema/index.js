@@ -126,8 +126,7 @@ async function activateSubscriptionPlanByTestClient (client, organization, prici
         dv: 1,
         sender,
         organization: { id: organization.id },
-        pricingRule: pricingRule.id,
-        isTrial: true,
+        pricingRule: { id: pricingRule.id },
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(ACTIVATE_SUBSCRIPTION_PLAN_MUTATION, { data: attrs })
