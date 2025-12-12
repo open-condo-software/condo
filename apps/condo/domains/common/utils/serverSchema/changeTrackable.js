@@ -156,7 +156,11 @@ function generateChangeTrackableFieldsFrom (
         (acc, value, key) => mapRelationSingle(acc, value, key, keysOfLocalizedRelationSingleDisplayNameTextFields),
         {}
     )
-    const mappedFieldsOfManyRelationships = transform(fieldsOfManyRelations, mapRelationMany, {})
+    const mappedFieldsOfManyRelationships = transform(
+        fieldsOfManyRelations, 
+        mapRelationMany, 
+        {}
+    )
 
     return {
         ...scalars,
@@ -444,21 +448,25 @@ const mapRelationMany = (acc, value, key) => {
         schemaDoc: `Old list of ids of related entities. ${value.schemaDoc}`,
         type: 'Json',
         defaultValue: [],
+        kmigratorOptions: { null: true },
     }
     acc[`${key}IdsTo`] = {
         schemaDoc: `New list of ids of related entities. ${value.schemaDoc}`,
         type: 'Json',
         defaultValue: [],
+        kmigratorOptions: { null: true },
     }
     acc[`${key}DisplayNamesFrom`] = {
         schemaDoc: `Old version of display names of related entities. ${value.schemaDoc}`,
         type: 'Json',
         defaultValue: [],
+        kmigratorOptions: { null: true },
     }
     acc[`${key}DisplayNamesTo`] = {
         schemaDoc: `New version of display names of related entities. ${value.schemaDoc}`,
         type: 'Json',
         defaultValue: [],
+        kmigratorOptions: { null: true },
     }
 }
 
