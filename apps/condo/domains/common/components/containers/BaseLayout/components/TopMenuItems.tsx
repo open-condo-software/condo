@@ -7,6 +7,7 @@ import { Space } from '@open-condo/ui'
 import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
+import { SubscriptionDaysIndicator, UpgradePlanButton } from '@condo/domains/subscription/components'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 
@@ -24,6 +25,8 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
         <>
             {props.headerAction ? props.headerAction : null}
             <Space direction='horizontal' size={40} className='top-menu-items'>
+                <SubscriptionDaysIndicator />
+                <UpgradePlanButton />
                 <div style={{ maxHeight: '24px' }}>
                     <UserMessagesList />
                 </div>
