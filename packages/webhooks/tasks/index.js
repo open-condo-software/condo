@@ -32,11 +32,10 @@ function getWebhookTasks (taskPriority = DEFAULT_QUEUE_NAME, cronSchedules = {})
 
     // Cron tasks
     if (!WEBHOOK_TASKS.has('retryFailedWebhookPayloads')) {
-        const sendWebhookPayloadTask = WEBHOOK_TASKS.get('sendWebhookPayload')
         WEBHOOK_TASKS.set('retryFailedWebhookPayloads', createCronTask(
             'retryFailedWebhookPayloads',
             retrySchedule,
-            () => retryFailedWebhookPayloads(sendWebhookPayloadTask)
+            retryFailedWebhookPayloads
         ))
     }
     if (!WEBHOOK_TASKS.has('deleteOldWebhookPayloads')) {
