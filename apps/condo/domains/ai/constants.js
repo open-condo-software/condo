@@ -7,6 +7,7 @@ const TASK_STATUSES = {
 
 const FLOW_ADAPTERS = {
     FLOWISE: 'flowise',
+    N8N: 'n8n',
 }
 
 const CUSTOM_FLOW_TYPE = 'custom_flow'
