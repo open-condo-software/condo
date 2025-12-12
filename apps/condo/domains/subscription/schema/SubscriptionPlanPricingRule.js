@@ -15,7 +15,7 @@ const ERRORS = {
     INVALID_CONDITIONS: {
         code: BAD_USER_INPUT,
         type: 'INVALID_CONDITIONS',
-        message: 'Invalid conditions format. Expected { all: [...] } or { any: [...] } with conditions like { fact: "organizationId", operator: "in", value: [...] }',
+        message: 'Invalid conditions format. Expected { all: [...] } or { any: [...] } with conditions like { "all": [{ "fact": "organizationIds", "operator": "in", "value": ["org-id-1", "org-id-2"] }] }',
     },
     PRICE_AND_CURRENCY_MUST_BE_SET_TOGETHER: {
         code: BAD_USER_INPUT,
@@ -57,12 +57,12 @@ const SubscriptionPlanPricingRule = new GQLListSchema('SubscriptionPlanPricingRu
         },
 
         conditions: {
-            schemaDoc: 'JSON conditions for rule matching (json-rules-engine format). Format: { all: [...] } or { any: [...] }. Each condition: { fact, operator, value }. Facts: organizationIds, organizationFeatures. Operators: equal, notEqual, in, notIn, contains. Example: { "all": [{ "fact": "organizationId", "operator": "in", "value": ["org-id-1", "org-id-2"] }] }',
+            schemaDoc: 'JSON conditions for rule matching (json-rules-engine format). Format: { all: [...] } or { any: [...] }. Each condition: { fact, operator, value }. Facts: organizationIds, organizationFeatures. Operators: equal, notEqual, in, notIn, contains. Example: { "all": [{ "fact": "organizationIds", "operator": "in", "value": ["org-id-1", "org-id-2"] }] }',
             type: 'Json',
             isRequired: false,
             defaultValue: null,
             hooks: {
-                validateInput: async ({ resolvedData, fieldPath, operation }) => {
+                validateInput: async ({ resolvedData, fieldPath, context }) => {
                     const conditions = resolvedData[fieldPath]
                     if (conditions === null || conditions === undefined) return
 
@@ -71,7 +71,7 @@ const SubscriptionPlanPricingRule = new GQLListSchema('SubscriptionPlanPricingRu
                         throw new GQLError({
                             ...ERRORS.INVALID_CONDITIONS,
                             message: validationResult.error,
-                        }, { operation })
+                        }, context)
                     }
                 },
             },

@@ -58463,7 +58463,7 @@ type SubscriptionPlanPricingRule {
   """ Subscription period this rule applies to (month, year) """
   period: SubscriptionPlanPricingRulePeriodType
 
-  """ JSON conditions for rule matching (json-rules-engine format). Format: { all: [...] } or { any: [...] }. Each condition: { fact, operator, value }. Facts: organizationIds, organizationFeatures. Operators: equal, notEqual, in, notIn, contains. Example: { "all": [{ "fact": "organizationId", "operator": "in", "value": ["org-id-1", "org-id-2"] }] } 
+  """ JSON conditions for rule matching (json-rules-engine format). Format: { all: [...] } or { any: [...] }. Each condition: { fact, operator, value }. Facts: organizationIds, organizationFeatures. Operators: equal, notEqual, in, notIn, contains. Example: { "all": [{ "fact": "organizationIds", "operator": "in", "value": ["org-id-1", "org-id-2"] }] } 
   """
   conditions: JSON
 
