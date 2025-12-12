@@ -11,8 +11,14 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
+const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest, createTestUserHelpRequest, updateTestUserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
+const {
+    createTestSubscriptionPlan,
+    createTestSubscriptionPlanPricingRule,
+} = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
@@ -306,5 +312,83 @@ describe('UserHelpRequest', () => {
             expect(updatedHelpRequest.meta).toEqual(updatePayload.meta)
         })
 
+    })
+
+    describe('SubscriptionPlanPricingRule field', () => {
+        let subscriptionPlan, pricingRule
+
+        beforeAll(async () => {
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                isHidden: false,
+                trialDays: 14,
+            })
+            subscriptionPlan = plan
+
+            const [rule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                period: SUBSCRIPTION_PERIOD.MONTH,
+                price: '1000.00',
+                currencyCode: 'RUB',
+            })
+            pricingRule = rule
+        })
+
+        it('can create with subscriptionPlanPricingRule when type is activateSubscription', async () => {
+            const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            expect(helpRequest).toBeDefined()
+            expect(helpRequest.type).toBe(ACTIVATE_SUBSCRIPTION_TYPE)
+            expect(helpRequest.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
+        })
+
+        it('can create with type activateSubscription without subscriptionPlanPricingRule', async () => {
+            const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+            })
+
+            expect(helpRequest).toBeDefined()
+            expect(helpRequest.type).toBe(ACTIVATE_SUBSCRIPTION_TYPE)
+            expect(helpRequest.subscriptionPlanPricingRule).toBeNull()
+        })
+
+        it('can create with subscriptionPlanPricingRule for any type', async () => {
+            const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
+                type: 'callback',
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            expect(helpRequest).toBeDefined()
+            expect(helpRequest.type).toBe('callback')
+            expect(helpRequest.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
+        })
+
+        it('employees can read ACTIVATE_SUBSCRIPTION_TYPE requests from their organization', async () => {
+            const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            const readHelpRequest = await UserHelpRequest.getOne(employeeUser, { id: helpRequest.id })
+            expect(readHelpRequest).toBeDefined()
+            expect(readHelpRequest.id).toBe(helpRequest.id)
+        })
+
+        it('employees cannot read ACTIVATE_SUBSCRIPTION_TYPE requests from other organizations', async () => {
+            const otherUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [otherOrg] = await createTestOrganization(admin)
+            const [otherRole] = await createTestOrganizationEmployeeRole(admin, otherOrg, {})
+            await createTestOrganizationEmployee(admin, otherOrg, otherUser.user, otherRole, { isAccepted: true })
+
+            const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            const readHelpRequest = await UserHelpRequest.getOne(otherUser, { id: helpRequest.id })
+            expect(readHelpRequest).toBeUndefined()
+        })
     })
 })

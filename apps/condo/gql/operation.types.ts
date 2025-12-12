@@ -760,22 +760,6 @@ export type GetPropertyScopeOrganizationEmployeesQueryVariables = Types.Exact<{
 
 export type GetPropertyScopeOrganizationEmployeesQuery = { __typename?: 'Query', propertyScopeOrganizationEmployees?: Array<{ __typename?: 'PropertyScopeOrganizationEmployee', id: string, propertyScope?: { __typename?: 'PropertyScope', id: string } | null, employee?: { __typename?: 'OrganizationEmployee', id: string } | null } | null> | null };
 
-export type GetServiceSubscriptionQueryVariables = Types.Exact<{
-  organizationId: Types.Scalars['ID']['input'];
-}>;
-
-
-export type GetServiceSubscriptionQuery = { __typename?: 'Query', subscriptions?: Array<{ __typename?: 'ServiceSubscription', id: string, isTrial?: boolean | null, finishAt?: string | null, type?: Types.ServiceSubscriptionTypeType | null } | null> | null };
-
-export type GetTrialServiceSubscriptionQueryVariables = Types.Exact<{
-  organizationId: Types.Scalars['ID']['input'];
-  finishAtLte?: Types.InputMaybe<Types.Scalars['String']['input']>;
-  finishAtGte?: Types.InputMaybe<Types.Scalars['String']['input']>;
-}>;
-
-
-export type GetTrialServiceSubscriptionQuery = { __typename?: 'Query', subscriptions?: Array<{ __typename?: 'ServiceSubscription', id: string, finishAt?: string | null } | null> | null };
-
 export type GetCallRecordFragmentExistenceQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
 }>;

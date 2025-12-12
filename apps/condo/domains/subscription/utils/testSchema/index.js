@@ -5,75 +5,150 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
-const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/subscription/gql')
-const dayjs = require('dayjs')
-const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const {
+    SubscriptionPlan: SubscriptionPlanGQL,
+    SubscriptionPlanPricingRule: SubscriptionPlanPricingRuleGQL,
+    SubscriptionContext: SubscriptionContextGQL,
+    ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
+    GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
+} = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const ServiceSubscription = generateGQLTestUtils(ServiceSubscriptionGQL)
+const SubscriptionPlan = generateGQLTestUtils(SubscriptionPlanGQL)
+const SubscriptionPlanPricingRule = generateGQLTestUtils(SubscriptionPlanPricingRuleGQL)
+const SubscriptionContext = generateGQLTestUtils(SubscriptionContextGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestServiceSubscription (client, organization, extraAttrs = {}) {
+async function createTestSubscriptionPlan (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const type = 'default'
-    const isTrial = false
-    const startAt = dayjs()
-    const finishAt = dayjs().add(15, 'days')
-    const unitsCount = faker.datatype.number()
-    const unitPrice = faker.datatype.float({ precision: 0.01 })
-    const totalPrice = unitsCount * unitPrice
-    const currency = 'RUB'
-
     const attrs = {
+        name: faker.lorem.word(),
+        organizationType: MANAGING_COMPANY_TYPE,
         dv: 1,
         sender,
-        type,
-        isTrial,
-        startAt,
-        finishAt,
-        unitsCount,
-        unitPrice: String(unitPrice),
-        totalPrice: String(totalPrice),
-        currency,
-        organization: { connect: { id: organization.id } },
         ...extraAttrs,
     }
-    const obj = await ServiceSubscription.create(client, attrs)
+    const obj = await SubscriptionPlan.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestServiceSubscription (client, id, extraAttrs = {}) {
+async function updateTestSubscriptionPlan (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestServiceSubscription logic for generate fields
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await SubscriptionPlan.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestSubscriptionPlanPricingRule (client, subscriptionPlan, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!subscriptionPlan || !subscriptionPlan.id) throw new Error('no subscriptionPlan.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        name: faker.commerce.productName(),
+        subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+        period: 'month',
+        price: '1000.00',
+        currencyCode: 'RUB',
+        ...extraAttrs,
+    }
+    const obj = await SubscriptionPlanPricingRule.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestSubscriptionPlanPricingRule (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
         ...extraAttrs,
     }
-    const obj = await ServiceSubscription.update(client, id, attrs)
+    const obj = await SubscriptionPlanPricingRule.update(client, id, attrs)
     return [obj, attrs]
 }
 
-const expectOverlappingFor = async (action, ...args) => (
-    await catchErrorFrom(async () => {
-        await action(...args)
-    }, ({ errors, data }) => {
-        expect(errors[0].data.messages[0]).toMatch('[overlapping]')
-        expect(data).toEqual({ 'obj': null })
-    })
-)
+async function createTestSubscriptionContext (client, organization, subscriptionPlan, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!subscriptionPlan || !subscriptionPlan.id) throw new Error('no subscriptionPlan.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+        ...extraAttrs,
+    }
+    const obj = await SubscriptionContext.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestSubscriptionContext (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await SubscriptionContext.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+
+async function activateSubscriptionPlanByTestClient (client, organization, pricingRule, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!pricingRule || !pricingRule.id) throw new Error('no pricingRule.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { id: organization.id },
+        pricingRule: { id: pricingRule.id },
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(ACTIVATE_SUBSCRIPTION_PLAN_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function getAvailableSubscriptionPlansByTestClient (client, organization) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+
+    const { data, errors } = await client.query(GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY, { organization: { id: organization.id } })
+    throwIfError(data, errors, { query: GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY, variables: { organization: { id: organization.id } } })
+    return [data.result, {}]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    ServiceSubscription, createTestServiceSubscription, updateTestServiceSubscription, expectOverlappingFor,
+    SubscriptionPlan, createTestSubscriptionPlan, updateTestSubscriptionPlan,
+    SubscriptionPlanPricingRule, createTestSubscriptionPlanPricingRule, updateTestSubscriptionPlanPricingRule,
+    SubscriptionContext, createTestSubscriptionContext, updateTestSubscriptionContext,
+    activateSubscriptionPlanByTestClient,
+    getAvailableSubscriptionPlansByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

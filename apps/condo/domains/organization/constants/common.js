@@ -104,6 +104,7 @@ const DEFAULT_ROLES = {
         'canManageMarketSetting': true,
         'canManageTicketAutoAssignments': true,
         'canManageOrganizationEmployeeRequests': true,
+        'canManageSubscriptions': true,
     },
     'Dispatcher': {
         'isDefault': true,

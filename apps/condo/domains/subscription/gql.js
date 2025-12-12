@@ -4,16 +4,43 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const { gql } = require('graphql-tag')
+
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const SERVICE_SUBSCRIPTION_FIELDS = `{ type isTrial organization { id } startAt finishAt unitsCount unitPrice totalPrice currency ${COMMON_FIELDS} }`
-const ServiceSubscription = generateGqlQueries('ServiceSubscription', SERVICE_SUBSCRIPTION_FIELDS)
+const SUBSCRIPTION_PLAN_FIELDS = `{ name description organizationType trialDays news marketplace support ai passTickets isHidden priority canBePromoted ${COMMON_FIELDS} }`
+const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
+
+const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden ${COMMON_FIELDS} }`
+const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
+
+const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } startAt endAt basePrice calculatedPrice appliedRules isTrial daysRemaining ${COMMON_FIELDS} }`
+const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
+
+const ACTIVATE_SUBSCRIPTION_PLAN_MUTATION = gql`
+    mutation activateSubscriptionPlan ($data: ActivateSubscriptionPlanInput!) {
+        result: activateSubscriptionPlan(data: $data) { 
+            subscriptionContext { id organization { id } subscriptionPlan { id } startAt endAt isTrial }
+            userHelpRequest { id type organization { id } subscriptionPlanPricingRule { id } }
+        }
+    }
+`
+
+const GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY = gql`
+    query getAvailableSubscriptionPlans ($organization: OrganizationWhereUniqueInput!) {
+        result: getAvailableSubscriptionPlans(organization: $organization) { plans { plan { id name priority trialDays } prices { id period price currencyCode } } }
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    ServiceSubscription,
+    SubscriptionPlan,
+    SubscriptionPlanPricingRule,
+    SubscriptionContext,
+    ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
+    GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

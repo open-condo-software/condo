@@ -17,6 +17,7 @@ const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/organization/access/Organization')
 const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
+const { ORGANIZATION_SUBSCRIPTION_FIELD } = require('@condo/domains/organization/schema/fields/subscription')
 const { resetOrganizationEmployeesCache } = require('@condo/domains/organization/utils/accessSchema')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -210,6 +211,8 @@ const Organization = new GQLListSchema('Organization', {
             type: 'Checkbox',
             defaultValue: true,
         },
+
+        subscription: ORGANIZATION_SUBSCRIPTION_FIELD,
     },
     hooks: {
         async afterChange ({ originalInput, existingItem, operation }) {

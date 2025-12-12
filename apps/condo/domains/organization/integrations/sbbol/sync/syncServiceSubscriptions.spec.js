@@ -2,140 +2,122 @@
  * @jest-environment node
  */
 
-const mockWarn = jest.fn()
-
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, setFeatureFlag, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
+const { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } = require('@condo/domains/common/constants/featureflags')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { SUBSCRIPTION_TYPE, SUBSCRIPTION_SBBOL_PERIOD_DAYS } = require('@condo/domains/subscription/constants')
-const { ServiceSubscription, createTestServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
+const { createTestSubscriptionPlan, SubscriptionContext, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
 
 const { syncServiceSubscriptions } = require('./syncServiceSubscriptions')
 
+const { keystone } = index
 
-jest.mock('@open-condo/keystone/logging', () => {
-    const originalModule = jest.requireActual('@open-condo/keystone/logging')
-    const loggerMock = {
-        warn: mockWarn,
-        info: jest.fn(),
-        error: jest.fn(),
-    }
-    return {
-        ...originalModule,
-        getLogger: () => ({
-            ...loggerMock,
-            child: () => loggerMock,
-        }),
-    }
-})
-
-let adminClient
-
-describe('syncSubscriptions', () => {
+describe('syncServiceSubscriptions', () => {
     setFakeClientMode(index)
+
+    let adminClient
+    let context
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
+        const adminContext = await keystone.createContext({ skipAccessControl: true })
+        context = adminContext
     })
 
-    describe('One active ServiceSubscription with type "default" exist', () => {
-        it('stops it and creates new ServiceSubscription with type "sbbol"', async () => {
+    beforeEach(() => {
+        setFeatureFlag(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, null)
+    })
+
+    describe('Feature flag not configured', () => {
+        it('does not create SubscriptionContext when feature flag is not configured', async () => {
             const [organization] = await createTestOrganization(adminClient)
 
-            const [defaultServiceSubscription] = await createTestServiceSubscription(adminClient, organization, {
-                type: SUBSCRIPTION_TYPE.DEFAULT,
-            })
+            await syncServiceSubscriptions({ context: context, organization })
 
-            await syncServiceSubscriptions(organization.tin)
-
-            const now = dayjs()
-
-            const subscriptions = await ServiceSubscription.getAll(adminClient, {
+            const contexts = await SubscriptionContext.getAll(adminClient, {
                 organization: { id: organization.id },
-            }, { sortBy: ['createdAt_ASC'] })
-
-            expect(subscriptions).toHaveLength(2)
-
-            const [defaultServiceSubscriptionAfterSync, newSbbolSubscription] = subscriptions
-            expect(defaultServiceSubscriptionAfterSync.type).toEqual(SUBSCRIPTION_TYPE.DEFAULT)
-            // Check reset ending of subscription via setting `finishAt` to current time instead of finishing time, that was initially supposed
-            expect(dayjs(defaultServiceSubscriptionAfterSync.finishAt).isBefore(dayjs(defaultServiceSubscription.finishAt))).toBeTruthy()
-            // Suppose that on a second frame the function
-            expect(dayjs(defaultServiceSubscriptionAfterSync.finishAt).diff(now, 'second')).toEqual(0)
-
-            expect(newSbbolSubscription.type).toEqual(SUBSCRIPTION_TYPE.SBBOL)
-            expect(dayjs(newSbbolSubscription.finishAt).diff(dayjs(newSbbolSubscription.startAt), 'day')).toEqual(SUBSCRIPTION_SBBOL_PERIOD_DAYS)
-        })
-
-        it('does not affects subscriptions of other organization', async () => {
-            const [organization] = await createTestOrganization(adminClient)
-            const [otherOrganization] = await createTestOrganization(adminClient)
-
-            await createTestServiceSubscription(adminClient, organization, {
-                type: SUBSCRIPTION_TYPE.DEFAULT,
+                deletedAt: null,
             })
 
-            const [otherOrganizationSubscription] = await createTestServiceSubscription(adminClient, otherOrganization, {
-                type: SUBSCRIPTION_TYPE.DEFAULT,
-            })
-
-            await syncServiceSubscriptions(organization.tin)
-
-            const otherOrganizationSubscriptionsAfterSync = await ServiceSubscription.getAll(adminClient, {
-                organization: { id: otherOrganization.id },
-            }, { sortBy: ['createdAt_ASC'] })
-
-            expect(otherOrganizationSubscriptionsAfterSync).toHaveLength(1)
-            expect(otherOrganizationSubscriptionsAfterSync[0]).toMatchObject(otherOrganizationSubscription)
+            expect(contexts).toHaveLength(0)
         })
     })
 
-    describe('Active ServiceSubscription with type "sbbol" exist', () => {
-        it('does nothing', async () => {
+    describe('SubscriptionContext creation', () => {
+        it('creates SubscriptionContext when feature flag returns plan ID', async () => {
             const [organization] = await createTestOrganization(adminClient)
+            const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient)
 
-            const [sbbolServiceSubscription] = await createTestServiceSubscription(adminClient, organization, {
-                type: SUBSCRIPTION_TYPE.SBBOL,
-            })
+            setFeatureFlag(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, subscriptionPlan.id)
 
-            await syncServiceSubscriptions(organization.tin)
+            await syncServiceSubscriptions({ context, organization })
 
-            const subscriptions = await ServiceSubscription.getAll(adminClient, {
+            const contexts = await SubscriptionContext.getAll(adminClient, {
                 organization: { id: organization.id },
-            }, { sortBy: ['createdAt_ASC'] })
+                subscriptionPlan: { id: subscriptionPlan.id },
+                deletedAt: null,
+            })
 
-            expect(subscriptions).toHaveLength(1)
-            expect(subscriptions[0]).toEqual(sbbolServiceSubscription)
+            expect(contexts).toHaveLength(1)
+            expect(contexts[0]).toMatchObject({
+                organization: { id: organization.id },
+                subscriptionPlan: { id: subscriptionPlan.id },
+                isTrial: false,
+            })
+            expect(contexts[0].endAt).toBeNull()
+            expect(contexts[0].startAt).toBeDefined()
         })
-    })
 
-    describe('Organization not found', () => {
-        it('logs warning and does nothing', async () => {
-            const now = dayjs()
+        it('does not duplicate SubscriptionContext if active one already exists (endAt: null)', async () => {
             const [organization] = await createTestOrganization(adminClient)
+            const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient)
 
-            const tin = organization.tin + '-9999999'
-            await syncServiceSubscriptions(tin)
+            setFeatureFlag(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, subscriptionPlan.id)
 
-            expect(mockWarn).lastCalledWith(
-                expect.objectContaining({
-                    msg: 'not found organization to sync ServiceSubscription for',
-                    data: { tin },
-                }),
-            )
+            // First sync - should create context
+            await syncServiceSubscriptions({ context, organization })
 
-            const updatedSubscriptions = await ServiceSubscription.getAll(adminClient, {
-                updatedAt_gt: now.toISOString(),
-            })
-            const createdSubscriptions = await ServiceSubscription.getAll(adminClient, {
-                createdAt_gt: now.toISOString(),
+            // Second sync - should not create duplicate
+            await syncServiceSubscriptions({ context, organization })
+
+            const contexts = await SubscriptionContext.getAll(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlan: { id: subscriptionPlan.id },
+                deletedAt: null,
             })
 
-            expect(updatedSubscriptions).toHaveLength(0)
-            expect(createdSubscriptions).toHaveLength(0)
+            expect(contexts).toHaveLength(1)
+        })
+
+        it('creates new SubscriptionContext if existing one is expired (endAt < now)', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient)
+
+            // Create existing expired context
+            await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
+                startAt: dayjs().subtract(60, 'days').toISOString(),
+                endAt: dayjs().subtract(30, 'days').toISOString(),
+                isTrial: true,
+            })
+
+            setFeatureFlag(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, subscriptionPlan.id)
+
+            await syncServiceSubscriptions({ context, organization })
+
+            const contexts = await SubscriptionContext.getAll(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlan: { id: subscriptionPlan.id },
+                deletedAt: null,
+            })
+
+            // Should have 2 contexts: expired one and new one
+            expect(contexts).toHaveLength(2)
+
+            const activeContexts = contexts.filter(c => c.endAt === null)
+            expect(activeContexts).toHaveLength(1)
         })
     })
 })

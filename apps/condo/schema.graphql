@@ -6129,6 +6129,8 @@ input OrganizationLinkRelateToManyInput {
 
 enum OrganizationFeature {
   SPP
+  ACTIVE_BANKING
+  HIGH_REVENUE_CUSTOMER
 }
 
 """ B2B customer of the service, a legal entity or an association of legal entities (holding/group) 
@@ -6206,6 +6208,10 @@ type Organization {
   This is a service field, you should not implement logic using it. 
   """
   isApproved: Boolean
+
+  """ Active subscription context for this organization. Returns the best active subscription (by plan priority, then by latest startAt). Returns null if no active subscription 
+  """
+  subscription: SubscriptionContext
   id: ID!
   v: Int
   createdAt: String
@@ -7307,6 +7313,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageOrganizationEmployeeRequests: Boolean
+  canManageSubscriptions: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -7515,6 +7522,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageTicketAutoAssignments_not: Boolean
   canManageOrganizationEmployeeRequests: Boolean
   canManageOrganizationEmployeeRequests_not: Boolean
+  canManageSubscriptions: Boolean
+  canManageSubscriptions_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -7726,6 +7735,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageTicketAutoAssignments_DESC
   canManageOrganizationEmployeeRequests_ASC
   canManageOrganizationEmployeeRequests_DESC
+  canManageSubscriptions_ASC
+  canManageSubscriptions_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -7814,6 +7825,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageOrganizationEmployeeRequests: Boolean
+  canManageSubscriptions: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -7903,6 +7915,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageOrganizationEmployeeRequests: Boolean
+  canManageSubscriptions: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -8040,6 +8053,7 @@ type OrganizationEmployeeRole {
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageOrganizationEmployeeRequests: Boolean
+  canManageSubscriptions: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -8242,6 +8256,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageTicketAutoAssignments_not: Boolean
   canManageOrganizationEmployeeRequests: Boolean
   canManageOrganizationEmployeeRequests_not: Boolean
+  canManageSubscriptions: Boolean
+  canManageSubscriptions_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -8447,6 +8463,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageTicketAutoAssignments_DESC
   canManageOrganizationEmployeeRequests_ASC
   canManageOrganizationEmployeeRequests_DESC
+  canManageSubscriptions_ASC
+  canManageSubscriptions_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -8537,6 +8555,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageOrganizationEmployeeRequests: Boolean
+  canManageSubscriptions: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -8625,6 +8644,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageOrganizationEmployeeRequests: Boolean
+  canManageSubscriptions: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -49476,6 +49496,7 @@ type UserHelpRequestHistoryRecord {
   type: String
   organization: String
   billingIntegration: String
+  subscriptionPlanPricingRule: String
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -49524,6 +49545,10 @@ input UserHelpRequestHistoryRecordWhereInput {
   billingIntegration_not: String
   billingIntegration_in: [String]
   billingIntegration_not_in: [String]
+  subscriptionPlanPricingRule: String
+  subscriptionPlanPricingRule_not: String
+  subscriptionPlanPricingRule_in: [String]
+  subscriptionPlanPricingRule_not_in: [String]
   phone: String
   phone_not: String
   phone_contains: String
@@ -49679,6 +49704,7 @@ input UserHelpRequestHistoryRecordUpdateInput {
   type: String
   organization: String
   billingIntegration: String
+  subscriptionPlanPricingRule: String
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -49706,6 +49732,7 @@ input UserHelpRequestHistoryRecordCreateInput {
   type: String
   organization: String
   billingIntegration: String
+  subscriptionPlanPricingRule: String
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -49732,6 +49759,15 @@ enum UserHelpRequestTypeType {
   callback
   importFile
   integrationSetup
+  activateSubscription
+  activateBanking
+}
+
+input SubscriptionPlanPricingRuleRelateToOneInput {
+  create: SubscriptionPlanPricingRuleCreateInput
+  connect: SubscriptionPlanPricingRuleWhereUniqueInput
+  disconnect: SubscriptionPlanPricingRuleWhereUniqueInput
+  disconnectAll: Boolean
 }
 
 """ Request from the user to help him with some functionality """
@@ -49756,6 +49792,9 @@ type UserHelpRequest {
   """ ID of the billing integration that is configured to receive data for the organization 
   """
   billingIntegration: BillingIntegration
+
+  """ Pricing rule for subscription activation """
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRule
 
   """ Specified phone in request for callback """
   phone: String
@@ -49804,6 +49843,8 @@ input UserHelpRequestWhereInput {
   organization_is_null: Boolean
   billingIntegration: BillingIntegrationWhereInput
   billingIntegration_is_null: Boolean
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereInput
+  subscriptionPlanPricingRule_is_null: Boolean
   phone: String
   phone_not: String
   phone_contains: String
@@ -49915,6 +49956,8 @@ enum SortUserHelpRequestsBy {
   organization_DESC
   billingIntegration_ASC
   billingIntegration_DESC
+  subscriptionPlanPricingRule_ASC
+  subscriptionPlanPricingRule_DESC
   phone_ASC
   phone_DESC
   email_ASC
@@ -49943,6 +49986,7 @@ input UserHelpRequestUpdateInput {
   type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
   billingIntegration: BillingIntegrationRelateToOneInput
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -49967,6 +50011,7 @@ input UserHelpRequestCreateInput {
   type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
   billingIntegration: BillingIntegrationRelateToOneInput
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -57257,31 +57302,34 @@ input MeterUserSettingsCreateInput {
   data: MeterUserSettingCreateInput
 }
 
-enum ServiceSubscriptionHistoryRecordHistoryActionType {
+enum SubscriptionPlanHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type ServiceSubscriptionHistoryRecord {
+type SubscriptionPlanHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the ServiceSubscriptionHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the ServiceSubscriptionHistoryRecord List config, or
-   3. As an alias to a 'name' field on the ServiceSubscriptionHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the ServiceSubscriptionHistoryRecord List.
+   1. Execution of 'labelResolver' set on the SubscriptionPlanHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the SubscriptionPlanHistoryRecord List config, or
+   3. As an alias to a 'name' field on the SubscriptionPlanHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the SubscriptionPlanHistoryRecord List.
   """
   _label_: String
-  type: String
-  isTrial: Boolean
-  organization: String
-  startAt: String
-  finishAt: String
-  unitsCount: Int
-  unitPrice: String
-  totalPrice: String
-  currency: String
+  name: String
+  description: String
+  organizationType: String
+  isHidden: Boolean
+  trialDays: Int
+  priority: Int
+  news: Boolean
+  marketplace: Boolean
+  support: Boolean
+  ai: Boolean
+  passTickets: Boolean
+  canBePromoted: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -57293,95 +57341,97 @@ type ServiceSubscriptionHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: ServiceSubscriptionHistoryRecordHistoryActionType
+  history_action: SubscriptionPlanHistoryRecordHistoryActionType
   history_id: String
 }
 
-input ServiceSubscriptionHistoryRecordWhereInput {
-  AND: [ServiceSubscriptionHistoryRecordWhereInput]
-  OR: [ServiceSubscriptionHistoryRecordWhereInput]
-  type: String
-  type_not: String
-  type_contains: String
-  type_not_contains: String
-  type_starts_with: String
-  type_not_starts_with: String
-  type_ends_with: String
-  type_not_ends_with: String
-  type_i: String
-  type_not_i: String
-  type_contains_i: String
-  type_not_contains_i: String
-  type_starts_with_i: String
-  type_not_starts_with_i: String
-  type_ends_with_i: String
-  type_not_ends_with_i: String
-  type_in: [String]
-  type_not_in: [String]
-  isTrial: Boolean
-  isTrial_not: Boolean
-  organization: String
-  organization_not: String
-  organization_in: [String]
-  organization_not_in: [String]
-  startAt: String
-  startAt_not: String
-  startAt_lt: String
-  startAt_lte: String
-  startAt_gt: String
-  startAt_gte: String
-  startAt_in: [String]
-  startAt_not_in: [String]
-  finishAt: String
-  finishAt_not: String
-  finishAt_lt: String
-  finishAt_lte: String
-  finishAt_gt: String
-  finishAt_gte: String
-  finishAt_in: [String]
-  finishAt_not_in: [String]
-  unitsCount: Int
-  unitsCount_not: Int
-  unitsCount_lt: Int
-  unitsCount_lte: Int
-  unitsCount_gt: Int
-  unitsCount_gte: Int
-  unitsCount_in: [Int]
-  unitsCount_not_in: [Int]
-  unitPrice: String
-  unitPrice_not: String
-  unitPrice_lt: String
-  unitPrice_lte: String
-  unitPrice_gt: String
-  unitPrice_gte: String
-  unitPrice_in: [String]
-  unitPrice_not_in: [String]
-  totalPrice: String
-  totalPrice_not: String
-  totalPrice_lt: String
-  totalPrice_lte: String
-  totalPrice_gt: String
-  totalPrice_gte: String
-  totalPrice_in: [String]
-  totalPrice_not_in: [String]
-  currency: String
-  currency_not: String
-  currency_contains: String
-  currency_not_contains: String
-  currency_starts_with: String
-  currency_not_starts_with: String
-  currency_ends_with: String
-  currency_not_ends_with: String
-  currency_i: String
-  currency_not_i: String
-  currency_contains_i: String
-  currency_not_contains_i: String
-  currency_starts_with_i: String
-  currency_not_starts_with_i: String
-  currency_ends_with_i: String
-  currency_not_ends_with_i: String
-  currency_in: [String]
-  currency_not_in: [String]
+input SubscriptionPlanHistoryRecordWhereInput {
+  AND: [SubscriptionPlanHistoryRecordWhereInput]
+  OR: [SubscriptionPlanHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  description: String
+  description_not: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  description_i: String
+  description_not_i: String
+  description_contains_i: String
+  description_not_contains_i: String
+  description_starts_with_i: String
+  description_not_starts_with_i: String
+  description_ends_with_i: String
+  description_not_ends_with_i: String
+  description_in: [String]
+  description_not_in: [String]
+  organizationType: String
+  organizationType_not: String
+  organizationType_contains: String
+  organizationType_not_contains: String
+  organizationType_starts_with: String
+  organizationType_not_starts_with: String
+  organizationType_ends_with: String
+  organizationType_not_ends_with: String
+  organizationType_i: String
+  organizationType_not_i: String
+  organizationType_contains_i: String
+  organizationType_not_contains_i: String
+  organizationType_starts_with_i: String
+  organizationType_not_starts_with_i: String
+  organizationType_ends_with_i: String
+  organizationType_not_ends_with_i: String
+  organizationType_in: [String]
+  organizationType_not_in: [String]
+  isHidden: Boolean
+  isHidden_not: Boolean
+  trialDays: Int
+  trialDays_not: Int
+  trialDays_lt: Int
+  trialDays_lte: Int
+  trialDays_gt: Int
+  trialDays_gte: Int
+  trialDays_in: [Int]
+  trialDays_not_in: [Int]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  news: Boolean
+  news_not: Boolean
+  marketplace: Boolean
+  marketplace_not: Boolean
+  support: Boolean
+  support_not: Boolean
+  ai: Boolean
+  ai_not: Boolean
+  passTickets: Boolean
+  passTickets_not: Boolean
+  canBePromoted: Boolean
+  canBePromoted_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57450,37 +57500,45 @@ input ServiceSubscriptionHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: ServiceSubscriptionHistoryRecordHistoryActionType
-  history_action_not: ServiceSubscriptionHistoryRecordHistoryActionType
-  history_action_in: [ServiceSubscriptionHistoryRecordHistoryActionType]
-  history_action_not_in: [ServiceSubscriptionHistoryRecordHistoryActionType]
+  history_action: SubscriptionPlanHistoryRecordHistoryActionType
+  history_action_not: SubscriptionPlanHistoryRecordHistoryActionType
+  history_action_in: [SubscriptionPlanHistoryRecordHistoryActionType]
+  history_action_not_in: [SubscriptionPlanHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input ServiceSubscriptionHistoryRecordWhereUniqueInput {
+input SubscriptionPlanHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortServiceSubscriptionHistoryRecordsBy {
-  type_ASC
-  type_DESC
-  isTrial_ASC
-  isTrial_DESC
-  startAt_ASC
-  startAt_DESC
-  finishAt_ASC
-  finishAt_DESC
-  unitsCount_ASC
-  unitsCount_DESC
-  unitPrice_ASC
-  unitPrice_DESC
-  totalPrice_ASC
-  totalPrice_DESC
-  currency_ASC
-  currency_DESC
+enum SortSubscriptionPlanHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  description_ASC
+  description_DESC
+  organizationType_ASC
+  organizationType_DESC
+  isHidden_ASC
+  isHidden_DESC
+  trialDays_ASC
+  trialDays_DESC
+  priority_ASC
+  priority_DESC
+  news_ASC
+  news_DESC
+  marketplace_ASC
+  marketplace_DESC
+  support_ASC
+  support_DESC
+  ai_ASC
+  ai_DESC
+  passTickets_ASC
+  passTickets_DESC
+  canBePromoted_ASC
+  canBePromoted_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57499,16 +57557,19 @@ enum SortServiceSubscriptionHistoryRecordsBy {
   history_action_DESC
 }
 
-input ServiceSubscriptionHistoryRecordUpdateInput {
-  type: String
-  isTrial: Boolean
-  organization: String
-  startAt: String
-  finishAt: String
-  unitsCount: Int
-  unitPrice: String
-  totalPrice: String
-  currency: String
+input SubscriptionPlanHistoryRecordUpdateInput {
+  name: String
+  description: String
+  organizationType: String
+  isHidden: Boolean
+  trialDays: Int
+  priority: Int
+  news: Boolean
+  marketplace: Boolean
+  support: Boolean
+  ai: Boolean
+  passTickets: Boolean
+  canBePromoted: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -57519,25 +57580,28 @@ input ServiceSubscriptionHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: ServiceSubscriptionHistoryRecordHistoryActionType
+  history_action: SubscriptionPlanHistoryRecordHistoryActionType
   history_id: String
 }
 
-input ServiceSubscriptionHistoryRecordsUpdateInput {
+input SubscriptionPlanHistoryRecordsUpdateInput {
   id: ID!
-  data: ServiceSubscriptionHistoryRecordUpdateInput
+  data: SubscriptionPlanHistoryRecordUpdateInput
 }
 
-input ServiceSubscriptionHistoryRecordCreateInput {
-  type: String
-  isTrial: Boolean
-  organization: String
-  startAt: String
-  finishAt: String
-  unitsCount: Int
-  unitPrice: String
-  totalPrice: String
-  currency: String
+input SubscriptionPlanHistoryRecordCreateInput {
+  name: String
+  description: String
+  organizationType: String
+  isHidden: Boolean
+  trialDays: Int
+  priority: Int
+  news: Boolean
+  marketplace: Boolean
+  support: Boolean
+  ai: Boolean
+  passTickets: Boolean
+  canBePromoted: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -57548,59 +57612,70 @@ input ServiceSubscriptionHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: ServiceSubscriptionHistoryRecordHistoryActionType
+  history_action: SubscriptionPlanHistoryRecordHistoryActionType
   history_id: String
 }
 
-input ServiceSubscriptionHistoryRecordsCreateInput {
-  data: ServiceSubscriptionHistoryRecordCreateInput
+input SubscriptionPlanHistoryRecordsCreateInput {
+  data: SubscriptionPlanHistoryRecordCreateInput
 }
 
-enum ServiceSubscriptionTypeType {
-  default
-  sbbol
+enum SubscriptionPlanOrganizationTypeType {
+  MANAGING_COMPANY
+  HOLDING
+  SERVICE_PROVIDER
 }
 
-""" Availability time period of service features for client organization. Can be trial or payed. 
+""" Subscription plan that defines a product with features. Prices are defined via SubscriptionPlanPricingRule 
 """
-type ServiceSubscription {
+type SubscriptionPlan {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the ServiceSubscription List config, or
-   2. As an alias to the field set on 'labelField' in the ServiceSubscription List config, or
-   3. As an alias to a 'name' field on the ServiceSubscription List (if one exists), or
-   4. As an alias to the 'id' field on the ServiceSubscription List.
+   1. Execution of 'labelResolver' set on the SubscriptionPlan List config, or
+   2. As an alias to the field set on 'labelField' in the SubscriptionPlan List config, or
+   3. As an alias to a 'name' field on the SubscriptionPlan List (if one exists), or
+   4. As an alias to the 'id' field on the SubscriptionPlan List.
   """
   _label_: String
 
-  """ System, from where subscription was created (our or external) """
-  type: ServiceSubscriptionTypeType
+  """ Human-readable name of the subscription plan """
+  name: String
 
-  """ Trial mode of subscription """
-  isTrial: Boolean
-
-  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """ Detailed description of the subscription plan. Displayed to end users in the subscription selection UI 
   """
-  organization: Organization
+  description: String
 
-  """ When subscription was started """
-  startAt: String
+  """ Type of organization this plan is available for """
+  organizationType: SubscriptionPlanOrganizationTypeType
 
-  """ When subscription should be ended """
-  finishAt: String
+  """ Whether this plan is hidden and not available for purchase """
+  isHidden: Boolean
 
-  """ How much units are payed for this subscription """
-  unitsCount: Int
-
-  """ How much one unit cost in Rubles for this subscription """
-  unitPrice: String
-
-  """ Total price of this subscription, calculated as unitCost * unitsPayed 
+  """ Number of trial days for this plan. If 0, trial activation is not available for this plan 
   """
-  totalPrice: String
+  trialDays: Int
 
-  """ Currency of values for all price fields """
-  currency: String
+  """ Priority for sorting plans on frontend and selecting active subscription (higher values = higher priority) 
+  """
+  priority: Int
+
+  """ Whether news feature is included in this plan """
+  news: Boolean
+
+  """ Whether marketplace feature is included in this plan """
+  marketplace: Boolean
+
+  """ Whether support feature is included in this plan """
+  support: Boolean
+
+  """ Whether AI feature is included in this plan """
+  ai: Boolean
+
+  """ Whether pass tickets feature is included in this plan """
+  passTickets: Boolean
+
+  """ Whether this plan can be promoted to users """
+  canBePromoted: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -57624,75 +57699,79 @@ type ServiceSubscription {
   sender: SenderField
 }
 
-input ServiceSubscriptionWhereInput {
-  AND: [ServiceSubscriptionWhereInput]
-  OR: [ServiceSubscriptionWhereInput]
-  type: ServiceSubscriptionTypeType
-  type_not: ServiceSubscriptionTypeType
-  type_in: [ServiceSubscriptionTypeType]
-  type_not_in: [ServiceSubscriptionTypeType]
-  isTrial: Boolean
-  isTrial_not: Boolean
-  organization: OrganizationWhereInput
-  organization_is_null: Boolean
-  startAt: String
-  startAt_not: String
-  startAt_lt: String
-  startAt_lte: String
-  startAt_gt: String
-  startAt_gte: String
-  startAt_in: [String]
-  startAt_not_in: [String]
-  finishAt: String
-  finishAt_not: String
-  finishAt_lt: String
-  finishAt_lte: String
-  finishAt_gt: String
-  finishAt_gte: String
-  finishAt_in: [String]
-  finishAt_not_in: [String]
-  unitsCount: Int
-  unitsCount_not: Int
-  unitsCount_lt: Int
-  unitsCount_lte: Int
-  unitsCount_gt: Int
-  unitsCount_gte: Int
-  unitsCount_in: [Int]
-  unitsCount_not_in: [Int]
-  unitPrice: String
-  unitPrice_not: String
-  unitPrice_lt: String
-  unitPrice_lte: String
-  unitPrice_gt: String
-  unitPrice_gte: String
-  unitPrice_in: [String]
-  unitPrice_not_in: [String]
-  totalPrice: String
-  totalPrice_not: String
-  totalPrice_lt: String
-  totalPrice_lte: String
-  totalPrice_gt: String
-  totalPrice_gte: String
-  totalPrice_in: [String]
-  totalPrice_not_in: [String]
-  currency: String
-  currency_not: String
-  currency_contains: String
-  currency_not_contains: String
-  currency_starts_with: String
-  currency_not_starts_with: String
-  currency_ends_with: String
-  currency_not_ends_with: String
-  currency_i: String
-  currency_not_i: String
-  currency_contains_i: String
-  currency_not_contains_i: String
-  currency_starts_with_i: String
-  currency_not_starts_with_i: String
-  currency_ends_with_i: String
-  currency_not_ends_with_i: String
-  currency_in: [String]
-  currency_not_in: [String]
+input SubscriptionPlanWhereInput {
+  AND: [SubscriptionPlanWhereInput]
+  OR: [SubscriptionPlanWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  description: String
+  description_not: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  description_i: String
+  description_not_i: String
+  description_contains_i: String
+  description_not_contains_i: String
+  description_starts_with_i: String
+  description_not_starts_with_i: String
+  description_ends_with_i: String
+  description_not_ends_with_i: String
+  description_in: [String]
+  description_not_in: [String]
+  organizationType: SubscriptionPlanOrganizationTypeType
+  organizationType_not: SubscriptionPlanOrganizationTypeType
+  organizationType_in: [SubscriptionPlanOrganizationTypeType]
+  organizationType_not_in: [SubscriptionPlanOrganizationTypeType]
+  isHidden: Boolean
+  isHidden_not: Boolean
+  trialDays: Int
+  trialDays_not: Int
+  trialDays_lt: Int
+  trialDays_lte: Int
+  trialDays_gt: Int
+  trialDays_gte: Int
+  trialDays_in: [Int]
+  trialDays_not_in: [Int]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  news: Boolean
+  news_not: Boolean
+  marketplace: Boolean
+  marketplace_not: Boolean
+  support: Boolean
+  support_not: Boolean
+  ai: Boolean
+  ai_not: Boolean
+  passTickets: Boolean
+  passTickets_not: Boolean
+  canBePromoted: Boolean
+  canBePromoted_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57751,29 +57830,35 @@ input ServiceSubscriptionWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input ServiceSubscriptionWhereUniqueInput {
+input SubscriptionPlanWhereUniqueInput {
   id: ID!
 }
 
-enum SortServiceSubscriptionsBy {
-  type_ASC
-  type_DESC
-  isTrial_ASC
-  isTrial_DESC
-  organization_ASC
-  organization_DESC
-  startAt_ASC
-  startAt_DESC
-  finishAt_ASC
-  finishAt_DESC
-  unitsCount_ASC
-  unitsCount_DESC
-  unitPrice_ASC
-  unitPrice_DESC
-  totalPrice_ASC
-  totalPrice_DESC
-  currency_ASC
-  currency_DESC
+enum SortSubscriptionPlansBy {
+  name_ASC
+  name_DESC
+  description_ASC
+  description_DESC
+  organizationType_ASC
+  organizationType_DESC
+  isHidden_ASC
+  isHidden_DESC
+  trialDays_ASC
+  trialDays_DESC
+  priority_ASC
+  priority_DESC
+  news_ASC
+  news_DESC
+  marketplace_ASC
+  marketplace_DESC
+  support_ASC
+  support_DESC
+  ai_ASC
+  ai_DESC
+  passTickets_ASC
+  passTickets_DESC
+  canBePromoted_ASC
+  canBePromoted_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57792,16 +57877,19 @@ enum SortServiceSubscriptionsBy {
   dv_DESC
 }
 
-input ServiceSubscriptionUpdateInput {
-  type: ServiceSubscriptionTypeType
-  isTrial: Boolean
-  organization: OrganizationRelateToOneInput
-  startAt: String
-  finishAt: String
-  unitsCount: Int
-  unitPrice: String
-  totalPrice: String
-  currency: String
+input SubscriptionPlanUpdateInput {
+  name: String
+  description: String
+  organizationType: SubscriptionPlanOrganizationTypeType
+  isHidden: Boolean
+  trialDays: Int
+  priority: Int
+  news: Boolean
+  marketplace: Boolean
+  support: Boolean
+  ai: Boolean
+  passTickets: Boolean
+  canBePromoted: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -57813,21 +57901,24 @@ input ServiceSubscriptionUpdateInput {
   sender: SenderFieldInput
 }
 
-input ServiceSubscriptionsUpdateInput {
+input SubscriptionPlansUpdateInput {
   id: ID!
-  data: ServiceSubscriptionUpdateInput
+  data: SubscriptionPlanUpdateInput
 }
 
-input ServiceSubscriptionCreateInput {
-  type: ServiceSubscriptionTypeType
-  isTrial: Boolean
-  organization: OrganizationRelateToOneInput
-  startAt: String
-  finishAt: String
-  unitsCount: Int
-  unitPrice: String
-  totalPrice: String
-  currency: String
+input SubscriptionPlanCreateInput {
+  name: String
+  description: String
+  organizationType: SubscriptionPlanOrganizationTypeType
+  isHidden: Boolean
+  trialDays: Int
+  priority: Int
+  news: Boolean
+  marketplace: Boolean
+  support: Boolean
+  ai: Boolean
+  passTickets: Boolean
+  canBePromoted: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -57839,8 +57930,1305 @@ input ServiceSubscriptionCreateInput {
   sender: SenderFieldInput
 }
 
-input ServiceSubscriptionsCreateInput {
-  data: ServiceSubscriptionCreateInput
+input SubscriptionPlansCreateInput {
+  data: SubscriptionPlanCreateInput
+}
+
+enum SubscriptionPlanPricingRuleHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type SubscriptionPlanPricingRuleHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the SubscriptionPlanPricingRuleHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the SubscriptionPlanPricingRuleHistoryRecord List config, or
+   3. As an alias to a 'name' field on the SubscriptionPlanPricingRuleHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the SubscriptionPlanPricingRuleHistoryRecord List.
+  """
+  _label_: String
+  name: String
+  description: String
+  subscriptionPlan: String
+  period: String
+  conditions: JSON
+  price: String
+  currencyCode: String
+  priority: Int
+  isHidden: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: SubscriptionPlanPricingRuleHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input SubscriptionPlanPricingRuleHistoryRecordWhereInput {
+  AND: [SubscriptionPlanPricingRuleHistoryRecordWhereInput]
+  OR: [SubscriptionPlanPricingRuleHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  description: String
+  description_not: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  description_i: String
+  description_not_i: String
+  description_contains_i: String
+  description_not_contains_i: String
+  description_starts_with_i: String
+  description_not_starts_with_i: String
+  description_ends_with_i: String
+  description_not_ends_with_i: String
+  description_in: [String]
+  description_not_in: [String]
+  subscriptionPlan: String
+  subscriptionPlan_not: String
+  subscriptionPlan_in: [String]
+  subscriptionPlan_not_in: [String]
+  period: String
+  period_not: String
+  period_contains: String
+  period_not_contains: String
+  period_starts_with: String
+  period_not_starts_with: String
+  period_ends_with: String
+  period_not_ends_with: String
+  period_i: String
+  period_not_i: String
+  period_contains_i: String
+  period_not_contains_i: String
+  period_starts_with_i: String
+  period_not_starts_with_i: String
+  period_ends_with_i: String
+  period_not_ends_with_i: String
+  period_in: [String]
+  period_not_in: [String]
+  conditions: JSON
+  conditions_not: JSON
+  conditions_in: [JSON]
+  conditions_not_in: [JSON]
+  price: String
+  price_not: String
+  price_lt: String
+  price_lte: String
+  price_gt: String
+  price_gte: String
+  price_in: [String]
+  price_not_in: [String]
+  currencyCode: String
+  currencyCode_not: String
+  currencyCode_contains: String
+  currencyCode_not_contains: String
+  currencyCode_starts_with: String
+  currencyCode_not_starts_with: String
+  currencyCode_ends_with: String
+  currencyCode_not_ends_with: String
+  currencyCode_i: String
+  currencyCode_not_i: String
+  currencyCode_contains_i: String
+  currencyCode_not_contains_i: String
+  currencyCode_starts_with_i: String
+  currencyCode_not_starts_with_i: String
+  currencyCode_ends_with_i: String
+  currencyCode_not_ends_with_i: String
+  currencyCode_in: [String]
+  currencyCode_not_in: [String]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  isHidden: Boolean
+  isHidden_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: SubscriptionPlanPricingRuleHistoryRecordHistoryActionType
+  history_action_not: SubscriptionPlanPricingRuleHistoryRecordHistoryActionType
+  history_action_in: [SubscriptionPlanPricingRuleHistoryRecordHistoryActionType]
+  history_action_not_in: [SubscriptionPlanPricingRuleHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input SubscriptionPlanPricingRuleHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortSubscriptionPlanPricingRuleHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  description_ASC
+  description_DESC
+  period_ASC
+  period_DESC
+  price_ASC
+  price_DESC
+  currencyCode_ASC
+  currencyCode_DESC
+  priority_ASC
+  priority_DESC
+  isHidden_ASC
+  isHidden_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input SubscriptionPlanPricingRuleHistoryRecordUpdateInput {
+  name: String
+  description: String
+  subscriptionPlan: String
+  period: String
+  conditions: JSON
+  price: String
+  currencyCode: String
+  priority: Int
+  isHidden: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: SubscriptionPlanPricingRuleHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input SubscriptionPlanPricingRuleHistoryRecordsUpdateInput {
+  id: ID!
+  data: SubscriptionPlanPricingRuleHistoryRecordUpdateInput
+}
+
+input SubscriptionPlanPricingRuleHistoryRecordCreateInput {
+  name: String
+  description: String
+  subscriptionPlan: String
+  period: String
+  conditions: JSON
+  price: String
+  currencyCode: String
+  priority: Int
+  isHidden: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: SubscriptionPlanPricingRuleHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input SubscriptionPlanPricingRuleHistoryRecordsCreateInput {
+  data: SubscriptionPlanPricingRuleHistoryRecordCreateInput
+}
+
+input SubscriptionPlanRelateToOneInput {
+  create: SubscriptionPlanCreateInput
+  connect: SubscriptionPlanWhereUniqueInput
+  disconnect: SubscriptionPlanWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+enum SubscriptionPlanPricingRulePeriodType {
+  month
+  year
+}
+
+enum SubscriptionPlanPricingRuleCurrencyCodeType {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYN
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRU
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SHP
+  SLL
+  SOS
+  SRD
+  SSP
+  STN
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  USN
+  UYI
+  UYU
+  UYW
+  UZS
+  VES
+  VND
+  VUV
+  WST
+  XAF
+  XAG
+  XAU
+  XBA
+  XBB
+  XBC
+  XBD
+  XCD
+  XDR
+  XOF
+  XPD
+  XPF
+  XPT
+  XSU
+  XTS
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
+}
+
+""" Pricing rule for subscription plan. Defines price for specific period and conditions 
+"""
+type SubscriptionPlanPricingRule {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the SubscriptionPlanPricingRule List config, or
+   2. As an alias to the field set on 'labelField' in the SubscriptionPlanPricingRule List config, or
+   3. As an alias to a 'name' field on the SubscriptionPlanPricingRule List (if one exists), or
+   4. As an alias to the 'id' field on the SubscriptionPlanPricingRule List.
+  """
+  _label_: String
+
+  """ Human-readable name of the pricing rule """
+  name: String
+
+  """ Detailed description of the pricing rule """
+  description: String
+
+  """ Subscription plan this rule applies to """
+  subscriptionPlan: SubscriptionPlan
+
+  """ Subscription period this rule applies to (month, year) """
+  period: SubscriptionPlanPricingRulePeriodType
+
+  """ JSON conditions for rule matching (json-rules-engine format). Format: { all: [...] } or { any: [...] }. Each condition: { fact, operator, value }. Facts: organizationIds, organizationFeatures. Operators: equal, notEqual, in, notIn, contains. Example: { "all": [{ "fact": "organizationIds", "operator": "in", "value": ["org-id-1", "org-id-2"] }] } 
+  """
+  conditions: JSON
+
+  """ Price for this rule. Null means custom price (requires manual processing) 
+  """
+  price: String
+
+  """ Currency code (ISO-4217) """
+  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
+
+  """ Rule priority. Higher priority rules are applied first """
+  priority: Int
+
+  """ Whether this pricing rule is hidden from regular users. Hidden rules are only visible to admins and are not applied in price calculations. 
+  """
+  isHidden: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input SubscriptionPlanPricingRuleWhereInput {
+  AND: [SubscriptionPlanPricingRuleWhereInput]
+  OR: [SubscriptionPlanPricingRuleWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  description: String
+  description_not: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  description_i: String
+  description_not_i: String
+  description_contains_i: String
+  description_not_contains_i: String
+  description_starts_with_i: String
+  description_not_starts_with_i: String
+  description_ends_with_i: String
+  description_not_ends_with_i: String
+  description_in: [String]
+  description_not_in: [String]
+  subscriptionPlan: SubscriptionPlanWhereInput
+  subscriptionPlan_is_null: Boolean
+  period: SubscriptionPlanPricingRulePeriodType
+  period_not: SubscriptionPlanPricingRulePeriodType
+  period_in: [SubscriptionPlanPricingRulePeriodType]
+  period_not_in: [SubscriptionPlanPricingRulePeriodType]
+  conditions: JSON
+  conditions_not: JSON
+  conditions_in: [JSON]
+  conditions_not_in: [JSON]
+  price: String
+  price_not: String
+  price_lt: String
+  price_lte: String
+  price_gt: String
+  price_gte: String
+  price_in: [String]
+  price_not_in: [String]
+  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
+  currencyCode_not: SubscriptionPlanPricingRuleCurrencyCodeType
+  currencyCode_in: [SubscriptionPlanPricingRuleCurrencyCodeType]
+  currencyCode_not_in: [SubscriptionPlanPricingRuleCurrencyCodeType]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  isHidden: Boolean
+  isHidden_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input SubscriptionPlanPricingRuleWhereUniqueInput {
+  id: ID!
+}
+
+enum SortSubscriptionPlanPricingRulesBy {
+  name_ASC
+  name_DESC
+  description_ASC
+  description_DESC
+  subscriptionPlan_ASC
+  subscriptionPlan_DESC
+  period_ASC
+  period_DESC
+  price_ASC
+  price_DESC
+  currencyCode_ASC
+  currencyCode_DESC
+  priority_ASC
+  priority_DESC
+  isHidden_ASC
+  isHidden_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input SubscriptionPlanPricingRuleUpdateInput {
+  name: String
+  description: String
+  subscriptionPlan: SubscriptionPlanRelateToOneInput
+  period: SubscriptionPlanPricingRulePeriodType
+  conditions: JSON
+  price: String
+  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
+  priority: Int
+  isHidden: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input SubscriptionPlanPricingRulesUpdateInput {
+  id: ID!
+  data: SubscriptionPlanPricingRuleUpdateInput
+}
+
+input SubscriptionPlanPricingRuleCreateInput {
+  name: String
+  description: String
+  subscriptionPlan: SubscriptionPlanRelateToOneInput
+  period: SubscriptionPlanPricingRulePeriodType
+  conditions: JSON
+  price: String
+  currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
+  priority: Int
+  isHidden: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input SubscriptionPlanPricingRulesCreateInput {
+  data: SubscriptionPlanPricingRuleCreateInput
+}
+
+enum SubscriptionContextHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type SubscriptionContextHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the SubscriptionContextHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the SubscriptionContextHistoryRecord List config, or
+   3. As an alias to a 'name' field on the SubscriptionContextHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the SubscriptionContextHistoryRecord List.
+  """
+  _label_: String
+  organization: String
+  subscriptionPlan: String
+  startAt: String
+  endAt: String
+  basePrice: String
+  calculatedPrice: String
+  appliedRules: JSON
+  isTrial: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: SubscriptionContextHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input SubscriptionContextHistoryRecordWhereInput {
+  AND: [SubscriptionContextHistoryRecordWhereInput]
+  OR: [SubscriptionContextHistoryRecordWhereInput]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  subscriptionPlan: String
+  subscriptionPlan_not: String
+  subscriptionPlan_in: [String]
+  subscriptionPlan_not_in: [String]
+  startAt: String
+  startAt_not: String
+  startAt_lt: String
+  startAt_lte: String
+  startAt_gt: String
+  startAt_gte: String
+  startAt_in: [String]
+  startAt_not_in: [String]
+  endAt: String
+  endAt_not: String
+  endAt_lt: String
+  endAt_lte: String
+  endAt_gt: String
+  endAt_gte: String
+  endAt_in: [String]
+  endAt_not_in: [String]
+  basePrice: String
+  basePrice_not: String
+  basePrice_lt: String
+  basePrice_lte: String
+  basePrice_gt: String
+  basePrice_gte: String
+  basePrice_in: [String]
+  basePrice_not_in: [String]
+  calculatedPrice: String
+  calculatedPrice_not: String
+  calculatedPrice_lt: String
+  calculatedPrice_lte: String
+  calculatedPrice_gt: String
+  calculatedPrice_gte: String
+  calculatedPrice_in: [String]
+  calculatedPrice_not_in: [String]
+  appliedRules: JSON
+  appliedRules_not: JSON
+  appliedRules_in: [JSON]
+  appliedRules_not_in: [JSON]
+  isTrial: Boolean
+  isTrial_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: SubscriptionContextHistoryRecordHistoryActionType
+  history_action_not: SubscriptionContextHistoryRecordHistoryActionType
+  history_action_in: [SubscriptionContextHistoryRecordHistoryActionType]
+  history_action_not_in: [SubscriptionContextHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input SubscriptionContextHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortSubscriptionContextHistoryRecordsBy {
+  startAt_ASC
+  startAt_DESC
+  endAt_ASC
+  endAt_DESC
+  basePrice_ASC
+  basePrice_DESC
+  calculatedPrice_ASC
+  calculatedPrice_DESC
+  isTrial_ASC
+  isTrial_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input SubscriptionContextHistoryRecordUpdateInput {
+  organization: String
+  subscriptionPlan: String
+  startAt: String
+  endAt: String
+  basePrice: String
+  calculatedPrice: String
+  appliedRules: JSON
+  isTrial: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: SubscriptionContextHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input SubscriptionContextHistoryRecordsUpdateInput {
+  id: ID!
+  data: SubscriptionContextHistoryRecordUpdateInput
+}
+
+input SubscriptionContextHistoryRecordCreateInput {
+  organization: String
+  subscriptionPlan: String
+  startAt: String
+  endAt: String
+  basePrice: String
+  calculatedPrice: String
+  appliedRules: JSON
+  isTrial: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: SubscriptionContextHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input SubscriptionContextHistoryRecordsCreateInput {
+  data: SubscriptionContextHistoryRecordCreateInput
+}
+
+""" Subscription context linking organization to a subscription plan with calculated pricing. When changing subscription plan, a new context must be created 
+"""
+type SubscriptionContext {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the SubscriptionContext List config, or
+   2. As an alias to the field set on 'labelField' in the SubscriptionContext List config, or
+   3. As an alias to a 'name' field on the SubscriptionContext List (if one exists), or
+   4. As an alias to the 'id' field on the SubscriptionContext List.
+  """
+  _label_: String
+
+  """ Organization that has this subscription """
+  organization: Organization
+
+  """ Subscription plan selected by the organization """
+  subscriptionPlan: SubscriptionPlan
+
+  """ Subscription start date """
+  startAt: String
+
+  """ Subscription end date. If null, subscription is unlimited """
+  endAt: String
+
+  """ Base price from the subscription plan (before any rules applied). Not required for trial subscriptions 
+  """
+  basePrice: String
+
+  """ Final calculated price after applying all pricing rules. Not required for trial subscriptions 
+  """
+  calculatedPrice: String
+
+  """ JSON array of applied pricing rules with audit information """
+  appliedRules: JSON
+
+  """ Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays) 
+  """
+  isTrial: Boolean
+
+  """ Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired 
+  """
+  daysRemaining: Int
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input SubscriptionContextWhereInput {
+  AND: [SubscriptionContextWhereInput]
+  OR: [SubscriptionContextWhereInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  subscriptionPlan: SubscriptionPlanWhereInput
+  subscriptionPlan_is_null: Boolean
+  startAt: String
+  startAt_not: String
+  startAt_lt: String
+  startAt_lte: String
+  startAt_gt: String
+  startAt_gte: String
+  startAt_in: [String]
+  startAt_not_in: [String]
+  endAt: String
+  endAt_not: String
+  endAt_lt: String
+  endAt_lte: String
+  endAt_gt: String
+  endAt_gte: String
+  endAt_in: [String]
+  endAt_not_in: [String]
+  basePrice: String
+  basePrice_not: String
+  basePrice_lt: String
+  basePrice_lte: String
+  basePrice_gt: String
+  basePrice_gte: String
+  basePrice_in: [String]
+  basePrice_not_in: [String]
+  calculatedPrice: String
+  calculatedPrice_not: String
+  calculatedPrice_lt: String
+  calculatedPrice_lte: String
+  calculatedPrice_gt: String
+  calculatedPrice_gte: String
+  calculatedPrice_in: [String]
+  calculatedPrice_not_in: [String]
+  appliedRules: JSON
+  appliedRules_not: JSON
+  appliedRules_in: [JSON]
+  appliedRules_not_in: [JSON]
+  isTrial: Boolean
+  isTrial_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input SubscriptionContextWhereUniqueInput {
+  id: ID!
+}
+
+enum SortSubscriptionContextsBy {
+  organization_ASC
+  organization_DESC
+  subscriptionPlan_ASC
+  subscriptionPlan_DESC
+  startAt_ASC
+  startAt_DESC
+  endAt_ASC
+  endAt_DESC
+  basePrice_ASC
+  basePrice_DESC
+  calculatedPrice_ASC
+  calculatedPrice_DESC
+  isTrial_ASC
+  isTrial_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input SubscriptionContextUpdateInput {
+  organization: OrganizationRelateToOneInput
+  subscriptionPlan: SubscriptionPlanRelateToOneInput
+  startAt: String
+  endAt: String
+  basePrice: String
+  calculatedPrice: String
+  appliedRules: JSON
+  isTrial: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input SubscriptionContextsUpdateInput {
+  id: ID!
+  data: SubscriptionContextUpdateInput
+}
+
+input SubscriptionContextCreateInput {
+  organization: OrganizationRelateToOneInput
+  subscriptionPlan: SubscriptionPlanRelateToOneInput
+  startAt: String
+  endAt: String
+  basePrice: String
+  calculatedPrice: String
+  appliedRules: JSON
+  isTrial: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input SubscriptionContextsCreateInput {
+  data: SubscriptionContextCreateInput
 }
 
 enum AcquiringIntegrationHistoryRecordHistoryActionType {
@@ -87704,6 +89092,35 @@ type RegisterPropertyMetersReadingsOutput {
   meter: RegisterPropertyMetersReadingsMeterOutput!
 }
 
+type SubscriptionPlanPrice {
+  id: ID!
+  period: String!
+  price: String
+  currencyCode: String
+}
+
+type AvailableSubscriptionPlan {
+  plan: SubscriptionPlan!
+  prices: [SubscriptionPlanPrice!]!
+}
+
+type GetAvailableSubscriptionPlansOutput {
+  plans: [AvailableSubscriptionPlan]!
+}
+
+input ActivateSubscriptionPlanInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  organization: OrganizationWhereUniqueInput!
+  pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
+  isTrial: Boolean
+}
+
+type ActivateSubscriptionPlanOutput {
+  subscriptionContext: SubscriptionContext
+  userHelpRequest: UserHelpRequest
+}
+
 input RegisterMultiPaymentReceiptAmountInput {
   receipt: BillingReceiptWhereUniqueInput!
   amount: String!
@@ -90907,35 +92324,94 @@ type Query {
   """ Retrieve the meta-data for the MeterUserSetting list. """
   _MeterUserSettingsMeta: _ListMeta
 
-  """ Search for all ServiceSubscriptionHistoryRecord items which match the where clause. 
+  """ Search for all SubscriptionPlanHistoryRecord items which match the where clause. 
   """
-  allServiceSubscriptionHistoryRecords(where: ServiceSubscriptionHistoryRecordWhereInput, search: String, sortBy: [SortServiceSubscriptionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ServiceSubscriptionHistoryRecord]
+  allSubscriptionPlanHistoryRecords(where: SubscriptionPlanHistoryRecordWhereInput, search: String, sortBy: [SortSubscriptionPlanHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [SubscriptionPlanHistoryRecord]
 
-  """ Search for the ServiceSubscriptionHistoryRecord item with the matching ID. 
+  """ Search for the SubscriptionPlanHistoryRecord item with the matching ID. 
   """
-  ServiceSubscriptionHistoryRecord(where: ServiceSubscriptionHistoryRecordWhereUniqueInput!): ServiceSubscriptionHistoryRecord
+  SubscriptionPlanHistoryRecord(where: SubscriptionPlanHistoryRecordWhereUniqueInput!): SubscriptionPlanHistoryRecord
 
-  """ Perform a meta-query on all ServiceSubscriptionHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all SubscriptionPlanHistoryRecord items which match the where clause. 
   """
-  _allServiceSubscriptionHistoryRecordsMeta(where: ServiceSubscriptionHistoryRecordWhereInput, search: String, sortBy: [SortServiceSubscriptionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allSubscriptionPlanHistoryRecordsMeta(where: SubscriptionPlanHistoryRecordWhereInput, search: String, sortBy: [SortSubscriptionPlanHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the ServiceSubscriptionHistoryRecord list. 
+  """ Retrieve the meta-data for the SubscriptionPlanHistoryRecord list. """
+  _SubscriptionPlanHistoryRecordsMeta: _ListMeta
+
+  """ Search for all SubscriptionPlan items which match the where clause. """
+  allSubscriptionPlans(where: SubscriptionPlanWhereInput, search: String, sortBy: [SortSubscriptionPlansBy!], orderBy: String, first: Int, skip: Int): [SubscriptionPlan]
+
+  """ Search for the SubscriptionPlan item with the matching ID. """
+  SubscriptionPlan(where: SubscriptionPlanWhereUniqueInput!): SubscriptionPlan
+
+  """ Perform a meta-query on all SubscriptionPlan items which match the where clause. 
   """
-  _ServiceSubscriptionHistoryRecordsMeta: _ListMeta
+  _allSubscriptionPlansMeta(where: SubscriptionPlanWhereInput, search: String, sortBy: [SortSubscriptionPlansBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Search for all ServiceSubscription items which match the where clause. 
+  """ Retrieve the meta-data for the SubscriptionPlan list. """
+  _SubscriptionPlansMeta: _ListMeta
+
+  """ Search for all SubscriptionPlanPricingRuleHistoryRecord items which match the where clause. 
   """
-  allServiceSubscriptions(where: ServiceSubscriptionWhereInput, search: String, sortBy: [SortServiceSubscriptionsBy!], orderBy: String, first: Int, skip: Int): [ServiceSubscription]
+  allSubscriptionPlanPricingRuleHistoryRecords(where: SubscriptionPlanPricingRuleHistoryRecordWhereInput, search: String, sortBy: [SortSubscriptionPlanPricingRuleHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [SubscriptionPlanPricingRuleHistoryRecord]
 
-  """ Search for the ServiceSubscription item with the matching ID. """
-  ServiceSubscription(where: ServiceSubscriptionWhereUniqueInput!): ServiceSubscription
-
-  """ Perform a meta-query on all ServiceSubscription items which match the where clause. 
+  """ Search for the SubscriptionPlanPricingRuleHistoryRecord item with the matching ID. 
   """
-  _allServiceSubscriptionsMeta(where: ServiceSubscriptionWhereInput, search: String, sortBy: [SortServiceSubscriptionsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  SubscriptionPlanPricingRuleHistoryRecord(where: SubscriptionPlanPricingRuleHistoryRecordWhereUniqueInput!): SubscriptionPlanPricingRuleHistoryRecord
 
-  """ Retrieve the meta-data for the ServiceSubscription list. """
-  _ServiceSubscriptionsMeta: _ListMeta
+  """ Perform a meta-query on all SubscriptionPlanPricingRuleHistoryRecord items which match the where clause. 
+  """
+  _allSubscriptionPlanPricingRuleHistoryRecordsMeta(where: SubscriptionPlanPricingRuleHistoryRecordWhereInput, search: String, sortBy: [SortSubscriptionPlanPricingRuleHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the SubscriptionPlanPricingRuleHistoryRecord list. 
+  """
+  _SubscriptionPlanPricingRuleHistoryRecordsMeta: _ListMeta
+
+  """ Search for all SubscriptionPlanPricingRule items which match the where clause. 
+  """
+  allSubscriptionPlanPricingRules(where: SubscriptionPlanPricingRuleWhereInput, search: String, sortBy: [SortSubscriptionPlanPricingRulesBy!], orderBy: String, first: Int, skip: Int): [SubscriptionPlanPricingRule]
+
+  """ Search for the SubscriptionPlanPricingRule item with the matching ID. 
+  """
+  SubscriptionPlanPricingRule(where: SubscriptionPlanPricingRuleWhereUniqueInput!): SubscriptionPlanPricingRule
+
+  """ Perform a meta-query on all SubscriptionPlanPricingRule items which match the where clause. 
+  """
+  _allSubscriptionPlanPricingRulesMeta(where: SubscriptionPlanPricingRuleWhereInput, search: String, sortBy: [SortSubscriptionPlanPricingRulesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the SubscriptionPlanPricingRule list. """
+  _SubscriptionPlanPricingRulesMeta: _ListMeta
+
+  """ Search for all SubscriptionContextHistoryRecord items which match the where clause. 
+  """
+  allSubscriptionContextHistoryRecords(where: SubscriptionContextHistoryRecordWhereInput, search: String, sortBy: [SortSubscriptionContextHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [SubscriptionContextHistoryRecord]
+
+  """ Search for the SubscriptionContextHistoryRecord item with the matching ID. 
+  """
+  SubscriptionContextHistoryRecord(where: SubscriptionContextHistoryRecordWhereUniqueInput!): SubscriptionContextHistoryRecord
+
+  """ Perform a meta-query on all SubscriptionContextHistoryRecord items which match the where clause. 
+  """
+  _allSubscriptionContextHistoryRecordsMeta(where: SubscriptionContextHistoryRecordWhereInput, search: String, sortBy: [SortSubscriptionContextHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the SubscriptionContextHistoryRecord list. 
+  """
+  _SubscriptionContextHistoryRecordsMeta: _ListMeta
+
+  """ Search for all SubscriptionContext items which match the where clause. 
+  """
+  allSubscriptionContexts(where: SubscriptionContextWhereInput, search: String, sortBy: [SortSubscriptionContextsBy!], orderBy: String, first: Int, skip: Int): [SubscriptionContext]
+
+  """ Search for the SubscriptionContext item with the matching ID. """
+  SubscriptionContext(where: SubscriptionContextWhereUniqueInput!): SubscriptionContext
+
+  """ Perform a meta-query on all SubscriptionContext items which match the where clause. 
+  """
+  _allSubscriptionContextsMeta(where: SubscriptionContextWhereInput, search: String, sortBy: [SortSubscriptionContextsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the SubscriptionContext list. """
+  _SubscriptionContextsMeta: _ListMeta
 
   """ Search for all AcquiringIntegrationHistoryRecord items which match the where clause. 
   """
@@ -92607,6 +94083,23 @@ type Query {
   }`
   """
   exportPropertyMeterReadings(data: ExportPropertyMeterReadingsInput!): ExportPropertyMeterReadingsOutput
+
+  """
+  Returns available subscription plans with calculated prices for the organization based on pricing rules and conditions.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "ORGANIZATION_NOT_FOUND",
+    "message": "Organization not found"
+  }`
+  """
+  getAvailableSubscriptionPlans(organization: OrganizationWhereUniqueInput!): GetAvailableSubscriptionPlansOutput
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
 
@@ -96043,41 +97536,115 @@ type Mutation {
   """ Delete multiple MeterUserSetting items by ID. """
   deleteMeterUserSettings(ids: [ID!]): [MeterUserSetting]
 
-  """ Create a single ServiceSubscriptionHistoryRecord item. """
-  createServiceSubscriptionHistoryRecord(data: ServiceSubscriptionHistoryRecordCreateInput): ServiceSubscriptionHistoryRecord
+  """ Create a single SubscriptionPlanHistoryRecord item. """
+  createSubscriptionPlanHistoryRecord(data: SubscriptionPlanHistoryRecordCreateInput): SubscriptionPlanHistoryRecord
 
-  """ Create multiple ServiceSubscriptionHistoryRecord items. """
-  createServiceSubscriptionHistoryRecords(data: [ServiceSubscriptionHistoryRecordsCreateInput]): [ServiceSubscriptionHistoryRecord]
+  """ Create multiple SubscriptionPlanHistoryRecord items. """
+  createSubscriptionPlanHistoryRecords(data: [SubscriptionPlanHistoryRecordsCreateInput]): [SubscriptionPlanHistoryRecord]
 
-  """ Update a single ServiceSubscriptionHistoryRecord item by ID. """
-  updateServiceSubscriptionHistoryRecord(id: ID!, data: ServiceSubscriptionHistoryRecordUpdateInput): ServiceSubscriptionHistoryRecord
+  """ Update a single SubscriptionPlanHistoryRecord item by ID. """
+  updateSubscriptionPlanHistoryRecord(id: ID!, data: SubscriptionPlanHistoryRecordUpdateInput): SubscriptionPlanHistoryRecord
 
-  """ Update multiple ServiceSubscriptionHistoryRecord items by ID. """
-  updateServiceSubscriptionHistoryRecords(data: [ServiceSubscriptionHistoryRecordsUpdateInput]): [ServiceSubscriptionHistoryRecord]
+  """ Update multiple SubscriptionPlanHistoryRecord items by ID. """
+  updateSubscriptionPlanHistoryRecords(data: [SubscriptionPlanHistoryRecordsUpdateInput]): [SubscriptionPlanHistoryRecord]
 
-  """ Delete a single ServiceSubscriptionHistoryRecord item by ID. """
-  deleteServiceSubscriptionHistoryRecord(id: ID!): ServiceSubscriptionHistoryRecord
+  """ Delete a single SubscriptionPlanHistoryRecord item by ID. """
+  deleteSubscriptionPlanHistoryRecord(id: ID!): SubscriptionPlanHistoryRecord
 
-  """ Delete multiple ServiceSubscriptionHistoryRecord items by ID. """
-  deleteServiceSubscriptionHistoryRecords(ids: [ID!]): [ServiceSubscriptionHistoryRecord]
+  """ Delete multiple SubscriptionPlanHistoryRecord items by ID. """
+  deleteSubscriptionPlanHistoryRecords(ids: [ID!]): [SubscriptionPlanHistoryRecord]
 
-  """ Create a single ServiceSubscription item. """
-  createServiceSubscription(data: ServiceSubscriptionCreateInput): ServiceSubscription
+  """ Create a single SubscriptionPlan item. """
+  createSubscriptionPlan(data: SubscriptionPlanCreateInput): SubscriptionPlan
 
-  """ Create multiple ServiceSubscription items. """
-  createServiceSubscriptions(data: [ServiceSubscriptionsCreateInput]): [ServiceSubscription]
+  """ Create multiple SubscriptionPlan items. """
+  createSubscriptionPlans(data: [SubscriptionPlansCreateInput]): [SubscriptionPlan]
 
-  """ Update a single ServiceSubscription item by ID. """
-  updateServiceSubscription(id: ID!, data: ServiceSubscriptionUpdateInput): ServiceSubscription
+  """ Update a single SubscriptionPlan item by ID. """
+  updateSubscriptionPlan(id: ID!, data: SubscriptionPlanUpdateInput): SubscriptionPlan
 
-  """ Update multiple ServiceSubscription items by ID. """
-  updateServiceSubscriptions(data: [ServiceSubscriptionsUpdateInput]): [ServiceSubscription]
+  """ Update multiple SubscriptionPlan items by ID. """
+  updateSubscriptionPlans(data: [SubscriptionPlansUpdateInput]): [SubscriptionPlan]
 
-  """ Delete a single ServiceSubscription item by ID. """
-  deleteServiceSubscription(id: ID!): ServiceSubscription
+  """ Delete a single SubscriptionPlan item by ID. """
+  deleteSubscriptionPlan(id: ID!): SubscriptionPlan
 
-  """ Delete multiple ServiceSubscription items by ID. """
-  deleteServiceSubscriptions(ids: [ID!]): [ServiceSubscription]
+  """ Delete multiple SubscriptionPlan items by ID. """
+  deleteSubscriptionPlans(ids: [ID!]): [SubscriptionPlan]
+
+  """ Create a single SubscriptionPlanPricingRuleHistoryRecord item. """
+  createSubscriptionPlanPricingRuleHistoryRecord(data: SubscriptionPlanPricingRuleHistoryRecordCreateInput): SubscriptionPlanPricingRuleHistoryRecord
+
+  """ Create multiple SubscriptionPlanPricingRuleHistoryRecord items. """
+  createSubscriptionPlanPricingRuleHistoryRecords(data: [SubscriptionPlanPricingRuleHistoryRecordsCreateInput]): [SubscriptionPlanPricingRuleHistoryRecord]
+
+  """ Update a single SubscriptionPlanPricingRuleHistoryRecord item by ID. """
+  updateSubscriptionPlanPricingRuleHistoryRecord(id: ID!, data: SubscriptionPlanPricingRuleHistoryRecordUpdateInput): SubscriptionPlanPricingRuleHistoryRecord
+
+  """ Update multiple SubscriptionPlanPricingRuleHistoryRecord items by ID. 
+  """
+  updateSubscriptionPlanPricingRuleHistoryRecords(data: [SubscriptionPlanPricingRuleHistoryRecordsUpdateInput]): [SubscriptionPlanPricingRuleHistoryRecord]
+
+  """ Delete a single SubscriptionPlanPricingRuleHistoryRecord item by ID. """
+  deleteSubscriptionPlanPricingRuleHistoryRecord(id: ID!): SubscriptionPlanPricingRuleHistoryRecord
+
+  """ Delete multiple SubscriptionPlanPricingRuleHistoryRecord items by ID. 
+  """
+  deleteSubscriptionPlanPricingRuleHistoryRecords(ids: [ID!]): [SubscriptionPlanPricingRuleHistoryRecord]
+
+  """ Create a single SubscriptionPlanPricingRule item. """
+  createSubscriptionPlanPricingRule(data: SubscriptionPlanPricingRuleCreateInput): SubscriptionPlanPricingRule
+
+  """ Create multiple SubscriptionPlanPricingRule items. """
+  createSubscriptionPlanPricingRules(data: [SubscriptionPlanPricingRulesCreateInput]): [SubscriptionPlanPricingRule]
+
+  """ Update a single SubscriptionPlanPricingRule item by ID. """
+  updateSubscriptionPlanPricingRule(id: ID!, data: SubscriptionPlanPricingRuleUpdateInput): SubscriptionPlanPricingRule
+
+  """ Update multiple SubscriptionPlanPricingRule items by ID. """
+  updateSubscriptionPlanPricingRules(data: [SubscriptionPlanPricingRulesUpdateInput]): [SubscriptionPlanPricingRule]
+
+  """ Delete a single SubscriptionPlanPricingRule item by ID. """
+  deleteSubscriptionPlanPricingRule(id: ID!): SubscriptionPlanPricingRule
+
+  """ Delete multiple SubscriptionPlanPricingRule items by ID. """
+  deleteSubscriptionPlanPricingRules(ids: [ID!]): [SubscriptionPlanPricingRule]
+
+  """ Create a single SubscriptionContextHistoryRecord item. """
+  createSubscriptionContextHistoryRecord(data: SubscriptionContextHistoryRecordCreateInput): SubscriptionContextHistoryRecord
+
+  """ Create multiple SubscriptionContextHistoryRecord items. """
+  createSubscriptionContextHistoryRecords(data: [SubscriptionContextHistoryRecordsCreateInput]): [SubscriptionContextHistoryRecord]
+
+  """ Update a single SubscriptionContextHistoryRecord item by ID. """
+  updateSubscriptionContextHistoryRecord(id: ID!, data: SubscriptionContextHistoryRecordUpdateInput): SubscriptionContextHistoryRecord
+
+  """ Update multiple SubscriptionContextHistoryRecord items by ID. """
+  updateSubscriptionContextHistoryRecords(data: [SubscriptionContextHistoryRecordsUpdateInput]): [SubscriptionContextHistoryRecord]
+
+  """ Delete a single SubscriptionContextHistoryRecord item by ID. """
+  deleteSubscriptionContextHistoryRecord(id: ID!): SubscriptionContextHistoryRecord
+
+  """ Delete multiple SubscriptionContextHistoryRecord items by ID. """
+  deleteSubscriptionContextHistoryRecords(ids: [ID!]): [SubscriptionContextHistoryRecord]
+
+  """ Create a single SubscriptionContext item. """
+  createSubscriptionContext(data: SubscriptionContextCreateInput): SubscriptionContext
+
+  """ Create multiple SubscriptionContext items. """
+  createSubscriptionContexts(data: [SubscriptionContextsCreateInput]): [SubscriptionContext]
+
+  """ Update a single SubscriptionContext item by ID. """
+  updateSubscriptionContext(id: ID!, data: SubscriptionContextUpdateInput): SubscriptionContext
+
+  """ Update multiple SubscriptionContext items by ID. """
+  updateSubscriptionContexts(data: [SubscriptionContextsUpdateInput]): [SubscriptionContext]
+
+  """ Delete a single SubscriptionContext item by ID. """
+  deleteSubscriptionContext(id: ID!): SubscriptionContext
+
+  """ Delete multiple SubscriptionContext items by ID. """
+  deleteSubscriptionContexts(ids: [ID!]): [SubscriptionContext]
 
   """ Create a single AcquiringIntegrationHistoryRecord item. """
   createAcquiringIntegrationHistoryRecord(data: AcquiringIntegrationHistoryRecordCreateInput): AcquiringIntegrationHistoryRecord
@@ -99071,7 +100638,7 @@ type Mutation {
   """
   Registers new Organization for current user
   
-  Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole, creates trial ServiceSubscription for organization
+  Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole
   """
   registerNewOrganization(data: RegisterNewOrganizationInput!): Organization
 
@@ -101637,6 +103204,47 @@ type Mutation {
   }`
   """
   registerPropertyMetersReadings(data: RegisterPropertyMetersReadingsInput!): [RegisterPropertyMetersReadingsOutput]
+
+  """
+  Activates a subscription plan for an organization. For trial subscriptions (isTrial=true), creates SubscriptionContext. For paid subscriptions (isTrial=false), creates UserHelpRequest for manual processing.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "ORGANIZATION_NOT_FOUND",
+    "message": "Organization not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PRICING_RULE_NOT_FOUND",
+    "message": "Pricing rule not found or inactive"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_ORGANIZATION_TYPE",
+    "message": "Plan is not available for this organization type"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TRIAL_ALREADY_USED",
+    "message": "Trial subscription for this plan has already been used"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TRIAL_NOT_AVAILABLE",
+    "message": "Trial is not available for this subscription plan"
+  }`
+  """
+  activateSubscriptionPlan(data: ActivateSubscriptionPlanInput!): ActivateSubscriptionPlanOutput
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

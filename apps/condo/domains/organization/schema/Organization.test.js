@@ -34,6 +34,7 @@ const {
     INVALID_RU_TIN_12,
     SOME_RANDOM_LETTERS,
 } = require('@condo/domains/organization/utils/tin.utils.spec')
+const { createTestSubscriptionPlan, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const {
     makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser, makeClientWithSupportUser, createTestUser,
@@ -529,6 +530,112 @@ describe('Organization', () => {
                 const [updatedOrg, attrs2] = await updateTestOrganization(admin, org.id, { name: '     ' + faker.company.name() + '     ' })
                 expect(updatedOrg.name).toBe(attrs2.name.trim())
             })
+        })
+    })
+
+    describe('subscription field', () => {
+        test('returns null when no subscription context exists', async () => {
+            const [organization] = await createTestOrganization(admin)
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).toBeNull()
+        })
+
+        test('returns active subscription context with all fields resolved', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const planName = faker.commerce.productName()
+            const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
+                name: planName,
+                organizationType: SERVICE_PROVIDER_TYPE,
+                priority: 10,
+                news: true,
+                marketplace: true,
+            })
+            const [subscriptionContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().subtract(1, 'day').toISOString(),
+                endAt: dayjs().add(30, 'days').toISOString(),
+                isTrial: true,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.id).toBe(subscriptionContext.id)
+            expect(org.subscription.isTrial).toBe(true)
+            expect(org.subscription.subscriptionPlan).not.toBeNull()
+            expect(org.subscription.subscriptionPlan.id).toBe(subscriptionPlan.id)
+            expect(org.subscription.subscriptionPlan.name).toBe(planName)
+            expect(org.subscription.subscriptionPlan.priority).toBe(10)
+            expect(org.subscription.subscriptionPlan.news).toBe(true)
+            expect(org.subscription.subscriptionPlan.marketplace).toBe(true)
+        })
+
+        test('returns subscription with endAt: null (unlimited)', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+            })
+            const [subscriptionContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().subtract(1, 'day').toISOString(),
+                endAt: null,
+                isTrial: false,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.id).toBe(subscriptionContext.id)
+            expect(org.subscription.endAt).toBeNull()
+        })
+
+        test('returns subscription with highest priority when multiple active contexts exist', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [lowPriorityPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                priority: 1,
+            })
+            const [highPriorityPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                priority: 100,
+            })
+
+            await createTestSubscriptionContext(admin, organization, lowPriorityPlan, {
+                startAt: dayjs().subtract(1, 'day').toISOString(),
+                endAt: dayjs().add(30, 'days').toISOString(),
+                isTrial: false,
+            })
+            const [highPriorityContext] = await createTestSubscriptionContext(admin, organization, highPriorityPlan, {
+                startAt: dayjs().subtract(2, 'days').toISOString(),
+                endAt: dayjs().add(30, 'days').toISOString(),
+                isTrial: false,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.id).toBe(highPriorityContext.id)
+            expect(org.subscription.subscriptionPlan.priority).toBe(100)
+        })
+
+        test('does not return expired subscription context', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+            })
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().subtract(30, 'days').toISOString(),
+                endAt: dayjs().subtract(1, 'day').toISOString(),
+                isTrial: true,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).toBeNull()
         })
     })
 })

@@ -20,7 +20,7 @@ const SYNC_TOUR_STEPS_MUTATION = gql`
     }
 `
 
-const USER_HELP_REQUEST_FIELDS = `{ type organization { id } phone meta isReadyToSend ${COMMON_FIELDS} }`
+const USER_HELP_REQUEST_FIELDS = `{ type organization { id } subscriptionPlanPricingRule { id subscriptionPlan { id name } } phone meta isReadyToSend ${COMMON_FIELDS} }`
 const UserHelpRequest = generateGqlQueries('UserHelpRequest', USER_HELP_REQUEST_FIELDS)
 
 const USER_HELP_REQUEST_FILE_FIELDS = `{ userHelpRequest { id } file { id publicUrl } ${COMMON_FIELDS} }`

@@ -4,14 +4,47 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
+const { ACTIVATE_SUBSCRIPTION_PLAN_MUTATION } = require('@condo/domains/subscription/gql')
+const { GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const ServiceSubscription = generateServerUtils('ServiceSubscription')
+const SubscriptionPlan = generateServerUtils('SubscriptionPlan')
+const SubscriptionPlanPricingRule = generateServerUtils('SubscriptionPlanPricingRule')
+const SubscriptionContext = generateServerUtils('SubscriptionContext')
+async function activateSubscriptionPlan (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: ACTIVATE_SUBSCRIPTION_PLAN_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to activateSubscriptionPlan',
+        dataPath: 'obj',
+    })
+}
+
+async function getAvailableSubscriptionPlans (context, organizationId) {
+    if (!context) throw new Error('no context')
+    if (!organizationId) throw new Error('no organizationId')
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_AVAILABLE_SUBSCRIPTION_PLANS_QUERY,
+        variables: { organization: { id: organizationId } },
+        errorMessage: '[error] Unable to getAvailableSubscriptionPlans',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    ServiceSubscription,
+    SubscriptionPlan,
+    SubscriptionPlanPricingRule,
+    SubscriptionContext,
+    activateSubscriptionPlan,
+    getAvailableSubscriptionPlans,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

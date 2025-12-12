@@ -9,17 +9,37 @@ const omit = require('lodash/omit')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { checkUserEmploymentInOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
+const { checkUserEmploymentInOrganizations, getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
 
 const AVAILABLE_TO_UPDATE_USER_HELP_REQUEST_FIELDS = ['dv', 'sender', 'isReadyToSend']
 
-async function canReadUserHelpRequests ({ authentication: { item: user } }) {
+async function canReadUserHelpRequests ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
+
+    if (user.type !== STAFF) {
+        return { createdBy: { id: user.id } }
+    }
+
+    const employedOrganizationIds = await getEmployedOrganizationsByPermissions(context, user, [])
+    if (employedOrganizationIds.length > 0) {
+        return {
+            OR: [
+                { createdBy: { id: user.id } },
+                {
+                    AND: [
+                        { type: ACTIVATE_SUBSCRIPTION_TYPE },
+                        { organization: { id_in: employedOrganizationIds } },
+                    ],
+                },
+            ],
+        }
+    }
 
     return { createdBy: { id: user.id } }
 }

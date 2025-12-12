@@ -89,6 +89,7 @@
     "jose": "2.0.5",
     "js-cookie": "^2.2.1",
     "jschardet": "^3.0.0",
+    "json-rules-engine": "^7.3.1",
     "jsonwebtoken": "^9.0.0",
     "jspdf": "^2.3.1",
     "jszip": "^3.10.1",

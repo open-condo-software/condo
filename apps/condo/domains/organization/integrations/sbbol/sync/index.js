@@ -140,17 +140,8 @@ const sync = async ({ keystone, userInfo, tokenSet, authedUser, features, useExt
     const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
     await sbbolSecretStorage.setOrganization(organization.id)
     await syncTokens(tokenSet, user.id, organization.id, useExtendedConfig)
-    try {
-        await syncServiceSubscriptions(userInfo.inn)
-    } catch (err) {
-        logger.error({
-            msg: 'failed to sync service subscriptions',
-            err,
-            data: { userInfo },
-        })
-        // we do not need to throw an error here as syncServiceSubscriptions needs to be removed
-    }
     await syncFeatures({ context, organization, features })
+    await syncServiceSubscriptions({ context: adminContext, organization })
 
     const syncBankAccountFeatureEnabled = await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL, { organization: organization.id })
     if (syncBankAccountFeatureEnabled) {
