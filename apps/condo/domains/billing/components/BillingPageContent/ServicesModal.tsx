@@ -5,14 +5,13 @@ import { Typography, Space, Table, Row, Col } from 'antd'
 import get from 'lodash/get'
 import React, { useMemo, useState } from 'react'
 
-import { PlusCircle, MinusCircle } from '@open-condo/icons'
+import { ChevronDown, ChevronUp } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal } from '@open-condo/ui'
 
 import { useServicesTableColumns } from '@condo/domains/billing/hooks/useServicesTableColumns'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
-import { colors } from '@condo/domains/common/constants/style'
 
 interface IServicesModalProps {
     receipt: BillingReceipt
@@ -45,12 +44,9 @@ const splitServices = (receipt: BillingReceipt) => {
 }
 
 const ExpandIconWrapper = styled.div`
-    font-size: 20px;
     margin-right: 12px;
-    width: 20px;
-    color: ${colors.green[6]};
-    transform: translateY(2px);
-    display: inline-block;
+    display: inline-flex;
+    vertical-align: bottom;
 `
 
 const WideModalStyles = css`
@@ -174,19 +170,11 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                             pagination={false}
                             expandable={{
                                 indentSize: 0,
-                                // eslint-disable-next-line react/display-name
-                                expandIcon: ({ expanded, onExpand, record }) => {
+                                expandIcon: ({ expanded, record }) => {
                                     if (record.name !== ExpandMessage) return
-                                    if (expanded) return (
-                                        <ExpandIconWrapper>
-                                            <MinusCircle onClick={(e) => onExpand(record, e)}/>
-                                        </ExpandIconWrapper>
-                                    )
-                                    return (
-                                        <ExpandIconWrapper>
-                                            <PlusCircle onClick={(e) => onExpand(record, e)}/>
-                                        </ExpandIconWrapper>
-                                    )
+                                    return <ExpandIconWrapper>
+                                        {expanded ? <ChevronUp /> : <ChevronDown />}
+                                    </ExpandIconWrapper>
                                 },
                             }}
                             onExpand={handleRowExpand}

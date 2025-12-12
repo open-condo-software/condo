@@ -1,12 +1,13 @@
 import styled from '@emotion/styled'
 import get from 'lodash/get'
 import Head from 'next/head'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Tag } from '@open-condo/ui'
+import { Typography, Tag, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
+import { useBreakpoints } from '@open-condo/ui/hooks'
 
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -25,15 +26,14 @@ const StyledPageWrapper = styled(PageWrapper)`
 `
 
 export const BillingPageContent: React.FC = () => {
-    const { billingContexts } = useBillingAndAcquiringContexts()
-    const billingName = billingContexts.map(({ integration }) => get(integration, 'name')).join(', ')
-
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
-    const ConnectedStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.connected' }, { name: billingName })
-    const ErrorStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.error' }, { name: billingName })
 
+    const { billingContexts } = useBillingAndAcquiringContexts()
+    const breakpoints = useBreakpoints()
     const userOrganization = useOrganization()
+
+    const isSmallScreen = !breakpoints.TABLET_LARGE
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
 
@@ -41,7 +41,20 @@ export const BillingPageContent: React.FC = () => {
     const currentProblem =  problemContext ? get(problemContext, 'currentProblem') : null
 
     const tagBg = currentProblem ? colors.red['5'] : colors.green['5']
-    const tagMessage = currentProblem ? ErrorStatusMessage : ConnectedStatusMessage
+
+    const Tags = useMemo(() =>{
+        const billingNames = billingContexts.map(({ integration }) => get(integration, 'name'))
+        return (
+            <Space size={4} direction={isSmallScreen ? 'vertical' : 'horizontal'}>
+                {billingNames.map((name) => {
+                    const ErrorStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.error' }, { name })
+                    const tagMessage = currentProblem ? ErrorStatusMessage : name
+
+                    return <Tag key={name} bgColor={tagBg} textColor={colors.white}>{tagMessage}</Tag>
+                })}
+            </Space>
+        )
+    }, [billingContexts, currentProblem, intl, isSmallScreen, tagBg])
 
     if (!canReadBillingReceipts && !canReadPayments) {
         return <AccessDeniedPage />
@@ -53,7 +66,7 @@ export const BillingPageContent: React.FC = () => {
                 <title>{PageTitle}</title>
             </Head>
             <StyledPageWrapper>
-                <PageHeader tags={<Tag bgColor={tagBg} textColor={colors.white}>{tagMessage}</Tag>} title={<Typography.Title>{PageTitle}</Typography.Title>} />
+                <PageHeader tags={Tags} title={<Typography.Title>{PageTitle}</Typography.Title>} />
                 <MainContent />
             </StyledPageWrapper>
         </>

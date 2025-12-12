@@ -63,6 +63,10 @@
   white-space: normal;
 }
 
+.page-header :global(.ant-page-header-heading-tags) {
+  align-self: flex-start;
+}
+
 .spaced-page-header {
   padding: 0 0 60px !important;
   background: var(--condo-global-color-white);
