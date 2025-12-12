@@ -3,7 +3,7 @@ query getBillingIntegrationOrganizationContexts ($integration: BillingIntegratio
         where: {
             integration: $integration,
             organization: $organization,
-    },
+        },
         first: 1,
     ) {
         id
@@ -46,8 +46,9 @@ query getBillingIntegrationOrganizationContextsByOrg ($organization: Organizatio
     contexts: allBillingIntegrationOrganizationContexts(
         where: {
             organization: $organization,
-    },
+        },
         first: 100,
+        sortBy: [createdAt_DESC]
     ) {
         id
         lastReport

@@ -43,20 +43,47 @@ export interface PromoAppConfig {
     i18n: Record<string, PromoAppConfigI18n>
 }
 
+const HIGHLIGHT_TEXT_OPENING_BRACKETS = '{{'
+const HIGHLIGHT_TEXT_CLOSING_BRACKETS = '}}'
+
 // NOTE(@abshnko): highlights parts of title that look like {{ words to highlight }} 
 function TitleWithHighlightedWords ({ title = '', color = 'black' }) {
-    const regex = /{{(.*?)}}/g
-    const parts = title.split(regex) 
+    const parts = []
+    let i = 0
+    const len = title.length
 
-    return parts.map((part, index) => {
-        if (index % 2 === 0) return <span key={index}>{part}</span>
+    while (i < len) {
+        const openIdx = title.indexOf(HIGHLIGHT_TEXT_OPENING_BRACKETS, i)
+        if (openIdx === -1) {
+            parts.push({ text: title.slice(i), highlight: false })
+            break
+        }
 
-        return (
-            <span key={index} style={{ color }}>
-                {part}
+        if (openIdx > i) {
+            parts.push({ text: title.slice(i, openIdx), highlight: false })
+        }
+
+        const closeIdx = title.indexOf(HIGHLIGHT_TEXT_CLOSING_BRACKETS, openIdx + 2)
+        if (closeIdx === -1) {
+            parts.push({ text: title.slice(openIdx), highlight: false })
+            break
+        }
+
+        const inner = title.slice(openIdx + 2, closeIdx)
+        parts.push({ text: inner, highlight: true })
+
+        i = closeIdx + 2
+    }
+
+    return parts.map((p, idx) =>
+        p.highlight ? (
+            <span key={idx} style={{ color }}>
+                {p.text}
             </span>
+        ) : (
+            <span key={idx}>{p.text}</span>
         )
-    })
+    )
 }
 
 const ITEMS_GUTTER: RowProps['gutter'] = [0, 56]

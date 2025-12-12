@@ -902,6 +902,7 @@ export const GetBillingIntegrationOrganizationContextsByOrgDocument = gql`
   contexts: allBillingIntegrationOrganizationContexts(
     where: {organization: $organization}
     first: 100
+    sortBy: [createdAt_DESC]
   ) {
     id
     lastReport
