@@ -30,6 +30,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer, entryPointPath) => 
         let actors
 
         // Create test HTTP server for webhook endpoints
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.use(express.json())
 
