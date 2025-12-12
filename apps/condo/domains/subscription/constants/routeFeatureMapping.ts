@@ -1,12 +1,14 @@
 import { FEATURE_KEY } from './features'
 
+import { AvailableFeature } from '../hooks/useOrganizationSubscription'
+
 /**
  * Mapping of routes to subscription features
  * - null: requires active subscription but no specific feature
  * - FEATURE_KEY.*: requires active subscription AND specific feature
  * - undefined/not in map: no subscription check needed
  */
-export const ROUTE_FEATURE_MAPPING: Record<string, string | null> = {
+export const ROUTE_FEATURE_MAPPING: Record<string, AvailableFeature | null> = {
     // Pages that require active subscription
     '/reports': null,
     '/ticket': null,
@@ -18,8 +20,7 @@ export const ROUTE_FEATURE_MAPPING: Record<string, string | null> = {
     '/service-provider-profile': null,
     '/meter': null,
     '/miniapps': null,
-    '/settings': null,
-    
+
     // Pages that require specific features
     '/news': FEATURE_KEY.NEWS,
     '/marketplace': FEATURE_KEY.MARKETPLACE,
@@ -43,7 +44,7 @@ export function requiresSubscriptionAccess (pathname: string): boolean {
  * Get required feature for a route
  * Returns null if only subscription is required, undefined if no check needed
  */
-export function getRequiredFeature (pathname: string): string | null | undefined {
+export function getRequiredFeature (pathname: string): AvailableFeature | null | undefined {
     // Check exact match first
     if (pathname in ROUTE_FEATURE_MAPPING) {
         return ROUTE_FEATURE_MAPPING[pathname]
