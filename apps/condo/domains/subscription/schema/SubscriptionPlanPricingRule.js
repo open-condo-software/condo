@@ -90,7 +90,7 @@ const SubscriptionPlanPricingRule = new GQLListSchema('SubscriptionPlanPricingRu
         },
 
         priority: {
-            schemaDoc: 'Rule priority. Higher priority rules are applied first. Default is 100',
+            schemaDoc: 'Rule priority. Higher priority rules are applied first',
             type: 'Integer',
             defaultValue: 0,
             isRequired: true,

@@ -58474,8 +58474,7 @@ type SubscriptionPlanPricingRule {
   """ Currency code (ISO-4217) """
   currencyCode: SubscriptionPlanPricingRuleCurrencyCodeType
 
-  """ Rule priority. Higher priority rules are applied first. Default is 100 
-  """
+  """ Rule priority. Higher priority rules are applied first """
   priority: Int
 
   """ Whether this pricing rule is hidden from regular users. Hidden rules are only visible to admins and are not applied in price calculations. 

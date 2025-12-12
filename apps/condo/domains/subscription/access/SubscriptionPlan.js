@@ -18,6 +18,7 @@ async function canManageSubscriptionPlans ({ authentication: { item: user } }) {
 
     return user.isAdmin || user.isSupport
 }
+
 module.exports = {
     canReadSubscriptionPlans,
     canManageSubscriptionPlans,
