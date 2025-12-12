@@ -3,7 +3,7 @@
  */
 
 const Big = require('big.js')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { split } = require('@open-condo/billing/utils/paymentSplitter')
 const conf = require('@open-condo/config')
@@ -41,6 +41,7 @@ const {
 } = require('@condo/domains/acquiring/constants/payment')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
+const { sendPaymentStatusChangeWebhook } = require('@condo/domains/acquiring/tasks')
 const { AcquiringIntegrationContext, Payment: PaymentGQL } = require('@condo/domains/acquiring/utils/serverSchema')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
@@ -494,6 +495,19 @@ const Payment = new GQLListSchema('Payment', {
             }
         },
         afterChange: async ({ context, operation, existingItem, updatedItem }) => {
+            // Trigger webhook task on status change FIRST - this must always happen
+            // regardless of any subsequent operations that might fail
+            const previousStatus = get(existingItem, 'status')
+            const newStatus = get(updatedItem, 'status')
+            const statusChanged = operation === 'update' && previousStatus !== newStatus
+
+            if (statusChanged) {
+                // Queue background task to build and send webhook
+                // This minimizes async operations in the hook
+                await sendPaymentStatusChangeWebhook.delay(updatedItem.id)
+            }
+
+            // Update invoice status when payment is done
             if (
                 updatedItem.invoice
                 && [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS].includes(get(updatedItem, 'status'))
