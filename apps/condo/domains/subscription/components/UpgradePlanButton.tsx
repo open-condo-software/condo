@@ -30,7 +30,7 @@ export const UpgradePlanButton: React.FC = () => {
     const shouldShowUpgradeButton = useMemo(() => {
         if (!subscription || isExpired || plansLoading) return false
         
-        const currentPlanId = subscription.subscriptionPlan.id
+        const currentPlanId = subscription.subscriptionPlan?.id
         const currentPlan = availablePlans.find(p => p.plan.id === currentPlanId)
         
         if (!currentPlan) return false
