@@ -1,6 +1,5 @@
 import { PaymentStatusType } from '@app/condo/schema'
 import get from 'lodash/get'
-import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -8,12 +7,10 @@ import { Typography } from '@open-condo/ui'
 
 import PaymentsTable from '@condo/domains/acquiring/components/payments/PaymentsTable'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { Loader } from '@condo/domains/common/components/Loader'
 
 const SEARCHING_DINO_IMG = '/dino/searching@2x.png'
-const IMG_STYLES: CSSProperties = { marginBottom: 24 }
-const TEXT_GAP = 16
 
 const Payments = (): JSX.Element => {
     const intl = useIntl()
@@ -41,10 +38,11 @@ const Payments = (): JSX.Element => {
 
     if (!anyPayments.length) {
         return (
-            <BasicEmptyListView image={SEARCHING_DINO_IMG} imageStyle={IMG_STYLES} spaceSize={TEXT_GAP}>
-                <Typography.Title level={3}>{NoPaymentsTitle}</Typography.Title>
-                <Typography.Text type='secondary'>{NoPaymentsMessage}</Typography.Text>
-            </BasicEmptyListView>
+            <EmptyListContent
+                image={SEARCHING_DINO_IMG}
+                label={NoPaymentsTitle}
+                message={NoPaymentsMessage}
+            />
         )
     }
 

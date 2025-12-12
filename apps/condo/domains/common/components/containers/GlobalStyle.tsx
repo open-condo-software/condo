@@ -514,6 +514,12 @@ export default function GlobalStyle () {
                   }
                 }
               }
+
+              .condo-alert {
+                .condo-alert-icon {
+                  height: auto !important;
+                }
+              }
             `}
         />
     )
