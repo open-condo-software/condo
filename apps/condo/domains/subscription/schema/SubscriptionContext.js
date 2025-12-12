@@ -57,6 +57,11 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             schemaDoc: 'Subscription end date. If null, subscription is unlimited',
             type: 'DateTimeUtc',
             isRequired: false,
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
         basePrice: {

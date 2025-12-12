@@ -158,6 +158,30 @@ describe('SubscriptionPlanPricingRule', () => {
                 expect(objs[0].id).toBe(obj.id)
             })
 
+            test('support can read all rules including hidden', async () => {
+                const [visibleRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                    period: SUBSCRIPTION_PERIOD.MONTH,
+                    price: '1000.00',
+                    currencyCode: 'RUB',
+                    isHidden: false,
+                })
+
+                const [hiddenRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+                    period: SUBSCRIPTION_PERIOD.YEAR,
+                    price: '500.00',
+                    currencyCode: 'RUB',
+                    isHidden: true,
+                })
+
+                const supportRules = await SubscriptionPlanPricingRule.getAll(support, {
+                    subscriptionPlan: { id: subscriptionPlan.id },
+                })
+
+                const supportRuleIds = supportRules.map(r => r.id)
+                expect(supportRuleIds).toContain(visibleRule.id)
+                expect(supportRuleIds).toContain(hiddenRule.id)
+            })
+
             test('regular user can read only visible rules (isHidden=false)', async () => {
                 const [visibleRule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
                     period: SUBSCRIPTION_PERIOD.MONTH,

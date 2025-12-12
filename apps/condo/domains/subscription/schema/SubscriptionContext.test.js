@@ -96,33 +96,20 @@ describe('SubscriptionContext', () => {
         })
 
         describe('update', () => {
-            test('admin can update endAt', async () => {
+            test('support can soft delete', async () => {
                 const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                     startAt: dayjs().toISOString(),
                     endAt: dayjs().add(14, 'day').toISOString(),
                     isTrial: true,
                 })
 
-                const newEndAt = dayjs().add(30, 'day').toISOString()
-                const [obj] = await updateTestSubscriptionContext(admin, objCreated.id, { endAt: newEndAt })
+                const deletedAt = dayjs().toISOString()
+                const [obj] = await updateTestSubscriptionContext(support, objCreated.id, { deletedAt })
 
-                expect(obj.endAt).toBe(newEndAt)
+                expect(obj.deletedAt).toBe(deletedAt)
             })
 
-            test('support can update endAt', async () => {
-                const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
-                    isTrial: true,
-                })
-
-                const newEndAt = dayjs().add(30, 'day').toISOString()
-                const [obj] = await updateTestSubscriptionContext(support, objCreated.id, { endAt: newEndAt })
-
-                expect(obj.endAt).toBe(newEndAt)
-            })
-
-            test('employee cannot update', async () => {
+            test('employee cannot update (soft delete)', async () => {
                 const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                     startAt: dayjs().toISOString(),
                     endAt: dayjs().add(14, 'day').toISOString(),
@@ -131,12 +118,12 @@ describe('SubscriptionContext', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestSubscriptionContext(employee, objCreated.id, {
-                        endAt: dayjs().add(30, 'day').toISOString(),
+                        deletedAt: dayjs().toISOString(),
                     })
                 })
             })
 
-            test('anonymous cannot update', async () => {
+            test('anonymous cannot update (soft delete)', async () => {
                 const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                     startAt: dayjs().toISOString(),
                     endAt: dayjs().add(14, 'day').toISOString(),
@@ -146,7 +133,7 @@ describe('SubscriptionContext', () => {
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestSubscriptionContext(client, objCreated.id, {
-                        endAt: dayjs().add(30, 'day').toISOString(),
+                        deletedAt: dayjs().toISOString(),
                     })
                 })
             })
@@ -312,6 +299,22 @@ describe('SubscriptionContext', () => {
                 })
             }, ({ errors }) => {
                 expect(errors[0].message).toContain('Field "isTrial" is not defined by type "SubscriptionContextUpdateInput"')
+            })
+        })
+
+        test('cannot update endAt', async () => {
+            const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().toISOString(),
+                endAt: dayjs().add(14, 'day').toISOString(),
+                isTrial: true,
+            })
+
+            await catchErrorFrom(async () => {
+                await updateTestSubscriptionContext(admin, objCreated.id, {
+                    endAt: dayjs().add(30, 'day').toISOString(),
+                })
+            }, ({ errors }) => {
+                expect(errors[0].message).toContain('Field "endAt" is not defined by type "SubscriptionContextUpdateInput"')
             })
         })
     })
