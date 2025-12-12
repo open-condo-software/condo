@@ -24,6 +24,28 @@ const getEscaped = (text) => String(text).replace(ESCAPABLE_SYMBOLS_REGEX, ESCAP
  */
 const compareStrI = (str1, str2, lang = 'ru') => str1.trim().toLocaleLowerCase(lang) === str2.trim().toLocaleLowerCase(lang)
 
+
+/**
+ * Replaces {{ placeholders }} inside a template string using values from an object.
+ * Supports nested keys, e.g. {{ user.phone }}.
+ *
+ * Example:
+ *   interpolate("Call {{ user.phone }}", { user: { phone: "123" } })
+ *   → "Call 123"
+ * @param {string} template - The string containing placeholders in {{ key }} format.
+ * @param {Object.<string, any>} values - An object containing replacement values.
+ * @returns {string} - The template with replaced placeholders.
+ */
+function interpolate (template, values) {
+    if (typeof template !== 'string') return null
+
+    return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => {
+        const value = key.split('.').reduce((obj, k) => (obj ? obj[k] : undefined), values)
+
+        return value != null ? String(value) : ''
+    })
+}
+
 module.exports = {
     getEscaped,
     ESCAPABLE_SYMBOLS,
@@ -31,4 +53,5 @@ module.exports = {
     SPACE_SYMBOL_LABLES,
     SPACE_SYMBOLS,
     compareStrI,
+    interpolate,
 }

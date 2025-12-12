@@ -549,6 +549,214 @@ export function useUpdateBankSyncTaskMutation(baseOptions?: Apollo.MutationHookO
 export type UpdateBankSyncTaskMutationHookResult = ReturnType<typeof useUpdateBankSyncTaskMutation>;
 export type UpdateBankSyncTaskMutationResult = Apollo.MutationResult<Types.UpdateBankSyncTaskMutation>;
 export type UpdateBankSyncTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateBankSyncTaskMutation, Types.UpdateBankSyncTaskMutationVariables>;
+export const GetB2BAppByIdDocument = gql`
+    query getB2BAppById($id: ID!) {
+  b2bApp: B2BApp(where: {id: $id}) {
+    id
+    name
+    detailedDescription
+    shortDescription
+  }
+}
+    `;
+
+/**
+ * __useGetB2BAppByIdQuery__
+ *
+ * To run a query within a React component, call `useGetB2BAppByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2BAppByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2BAppByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetB2BAppByIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetB2BAppByIdQuery, Types.GetB2BAppByIdQueryVariables> & ({ variables: Types.GetB2BAppByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetB2BAppByIdQuery, Types.GetB2BAppByIdQueryVariables>(GetB2BAppByIdDocument, options);
+      }
+export function useGetB2BAppByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetB2BAppByIdQuery, Types.GetB2BAppByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetB2BAppByIdQuery, Types.GetB2BAppByIdQueryVariables>(GetB2BAppByIdDocument, options);
+        }
+export function useGetB2BAppByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppByIdQuery, Types.GetB2BAppByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetB2BAppByIdQuery, Types.GetB2BAppByIdQueryVariables>(GetB2BAppByIdDocument, options);
+        }
+export type GetB2BAppByIdQueryHookResult = ReturnType<typeof useGetB2BAppByIdQuery>;
+export type GetB2BAppByIdLazyQueryHookResult = ReturnType<typeof useGetB2BAppByIdLazyQuery>;
+export type GetB2BAppByIdSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppByIdSuspenseQuery>;
+export type GetB2BAppByIdQueryResult = Apollo.QueryResult<Types.GetB2BAppByIdQuery, Types.GetB2BAppByIdQueryVariables>;
+export const GetB2BAppContextDocument = gql`
+    query getB2BAppContext($organizationId: ID!, $appId: ID!) {
+  contexts: allB2BAppContexts(
+    where: {app: {id: $appId}, organization: {id: $organizationId}}
+    first: 1
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    status
+  }
+}
+    `;
+
+/**
+ * __useGetB2BAppContextQuery__
+ *
+ * To run a query within a React component, call `useGetB2BAppContextQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2BAppContextQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2BAppContextQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *      appId: // value for 'appId'
+ *   },
+ * });
+ */
+export function useGetB2BAppContextQuery(baseOptions: Apollo.QueryHookOptions<Types.GetB2BAppContextQuery, Types.GetB2BAppContextQueryVariables> & ({ variables: Types.GetB2BAppContextQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetB2BAppContextQuery, Types.GetB2BAppContextQueryVariables>(GetB2BAppContextDocument, options);
+      }
+export function useGetB2BAppContextLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetB2BAppContextQuery, Types.GetB2BAppContextQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetB2BAppContextQuery, Types.GetB2BAppContextQueryVariables>(GetB2BAppContextDocument, options);
+        }
+export function useGetB2BAppContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppContextQuery, Types.GetB2BAppContextQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetB2BAppContextQuery, Types.GetB2BAppContextQueryVariables>(GetB2BAppContextDocument, options);
+        }
+export type GetB2BAppContextQueryHookResult = ReturnType<typeof useGetB2BAppContextQuery>;
+export type GetB2BAppContextLazyQueryHookResult = ReturnType<typeof useGetB2BAppContextLazyQuery>;
+export type GetB2BAppContextSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppContextSuspenseQuery>;
+export type GetB2BAppContextQueryResult = Apollo.QueryResult<Types.GetB2BAppContextQuery, Types.GetB2BAppContextQueryVariables>;
+export const GetB2BAppContextsByOrgDocument = gql`
+    query getB2BAppContextsByOrg($organizationId: ID!) {
+  contexts: allB2BAppContexts(
+    where: {organization: {id: $organizationId}}
+    first: 100
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    status
+    app {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetB2BAppContextsByOrgQuery__
+ *
+ * To run a query within a React component, call `useGetB2BAppContextsByOrgQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2BAppContextsByOrgQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2BAppContextsByOrgQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetB2BAppContextsByOrgQuery(baseOptions: Apollo.QueryHookOptions<Types.GetB2BAppContextsByOrgQuery, Types.GetB2BAppContextsByOrgQueryVariables> & ({ variables: Types.GetB2BAppContextsByOrgQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetB2BAppContextsByOrgQuery, Types.GetB2BAppContextsByOrgQueryVariables>(GetB2BAppContextsByOrgDocument, options);
+      }
+export function useGetB2BAppContextsByOrgLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetB2BAppContextsByOrgQuery, Types.GetB2BAppContextsByOrgQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetB2BAppContextsByOrgQuery, Types.GetB2BAppContextsByOrgQueryVariables>(GetB2BAppContextsByOrgDocument, options);
+        }
+export function useGetB2BAppContextsByOrgSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppContextsByOrgQuery, Types.GetB2BAppContextsByOrgQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetB2BAppContextsByOrgQuery, Types.GetB2BAppContextsByOrgQueryVariables>(GetB2BAppContextsByOrgDocument, options);
+        }
+export type GetB2BAppContextsByOrgQueryHookResult = ReturnType<typeof useGetB2BAppContextsByOrgQuery>;
+export type GetB2BAppContextsByOrgLazyQueryHookResult = ReturnType<typeof useGetB2BAppContextsByOrgLazyQuery>;
+export type GetB2BAppContextsByOrgSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppContextsByOrgSuspenseQuery>;
+export type GetB2BAppContextsByOrgQueryResult = Apollo.QueryResult<Types.GetB2BAppContextsByOrgQuery, Types.GetB2BAppContextsByOrgQueryVariables>;
+export const CreateB2BAppContextDocument = gql`
+    mutation createB2BAppContext($data: B2BAppContextCreateInput!) {
+  b2bAppContext: createB2BAppContext(data: $data) {
+    id
+  }
+}
+    `;
+export type CreateB2BAppContextMutationFn = Apollo.MutationFunction<Types.CreateB2BAppContextMutation, Types.CreateB2BAppContextMutationVariables>;
+
+/**
+ * __useCreateB2BAppContextMutation__
+ *
+ * To run a mutation, you first call `useCreateB2BAppContextMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateB2BAppContextMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createB2BAppContextMutation, { data, loading, error }] = useCreateB2BAppContextMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateB2BAppContextMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateB2BAppContextMutation, Types.CreateB2BAppContextMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateB2BAppContextMutation, Types.CreateB2BAppContextMutationVariables>(CreateB2BAppContextDocument, options);
+      }
+export type CreateB2BAppContextMutationHookResult = ReturnType<typeof useCreateB2BAppContextMutation>;
+export type CreateB2BAppContextMutationResult = Apollo.MutationResult<Types.CreateB2BAppContextMutation>;
+export type CreateB2BAppContextMutationOptions = Apollo.BaseMutationOptions<Types.CreateB2BAppContextMutation, Types.CreateB2BAppContextMutationVariables>;
+export const SoftDeleteB2BAppContextDocument = gql`
+    mutation softDeleteB2BAppContext($id: ID!, $deletedAt: String!, $sender: SenderFieldInput!) {
+  b2bAppContext: updateB2BAppContext(
+    id: $id
+    data: {deletedAt: $deletedAt, dv: 1, sender: $sender}
+  ) {
+    id
+  }
+}
+    `;
+export type SoftDeleteB2BAppContextMutationFn = Apollo.MutationFunction<Types.SoftDeleteB2BAppContextMutation, Types.SoftDeleteB2BAppContextMutationVariables>;
+
+/**
+ * __useSoftDeleteB2BAppContextMutation__
+ *
+ * To run a mutation, you first call `useSoftDeleteB2BAppContextMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSoftDeleteB2BAppContextMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [softDeleteB2BAppContextMutation, { data, loading, error }] = useSoftDeleteB2BAppContextMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      deletedAt: // value for 'deletedAt'
+ *      sender: // value for 'sender'
+ *   },
+ * });
+ */
+export function useSoftDeleteB2BAppContextMutation(baseOptions?: Apollo.MutationHookOptions<Types.SoftDeleteB2BAppContextMutation, Types.SoftDeleteB2BAppContextMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.SoftDeleteB2BAppContextMutation, Types.SoftDeleteB2BAppContextMutationVariables>(SoftDeleteB2BAppContextDocument, options);
+      }
+export type SoftDeleteB2BAppContextMutationHookResult = ReturnType<typeof useSoftDeleteB2BAppContextMutation>;
+export type SoftDeleteB2BAppContextMutationResult = Apollo.MutationResult<Types.SoftDeleteB2BAppContextMutation>;
+export type SoftDeleteB2BAppContextMutationOptions = Apollo.BaseMutationOptions<Types.SoftDeleteB2BAppContextMutation, Types.SoftDeleteB2BAppContextMutationVariables>;
 export const GetBillingIntegrationOrganizationContextsDocument = gql`
     query getBillingIntegrationOrganizationContexts($integration: BillingIntegrationWhereInput!, $organization: OrganizationWhereInput!) {
   contexts: allBillingIntegrationOrganizationContexts(
@@ -689,6 +897,125 @@ export type HasBillingIntegrationsQueryHookResult = ReturnType<typeof useHasBill
 export type HasBillingIntegrationsLazyQueryHookResult = ReturnType<typeof useHasBillingIntegrationsLazyQuery>;
 export type HasBillingIntegrationsSuspenseQueryHookResult = ReturnType<typeof useHasBillingIntegrationsSuspenseQuery>;
 export type HasBillingIntegrationsQueryResult = Apollo.QueryResult<Types.HasBillingIntegrationsQuery, Types.HasBillingIntegrationsQueryVariables>;
+export const GetBillingIntegrationOrganizationContextsByOrgDocument = gql`
+    query getBillingIntegrationOrganizationContextsByOrg($organization: OrganizationWhereInput!) {
+  contexts: allBillingIntegrationOrganizationContexts(
+    where: {organization: $organization}
+    first: 100
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    lastReport
+    integration {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetBillingIntegrationOrganizationContextsByOrgQuery__
+ *
+ * To run a query within a React component, call `useGetBillingIntegrationOrganizationContextsByOrgQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillingIntegrationOrganizationContextsByOrgQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillingIntegrationOrganizationContextsByOrgQuery({
+ *   variables: {
+ *      organization: // value for 'organization'
+ *   },
+ * });
+ */
+export function useGetBillingIntegrationOrganizationContextsByOrgQuery(baseOptions: Apollo.QueryHookOptions<Types.GetBillingIntegrationOrganizationContextsByOrgQuery, Types.GetBillingIntegrationOrganizationContextsByOrgQueryVariables> & ({ variables: Types.GetBillingIntegrationOrganizationContextsByOrgQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetBillingIntegrationOrganizationContextsByOrgQuery, Types.GetBillingIntegrationOrganizationContextsByOrgQueryVariables>(GetBillingIntegrationOrganizationContextsByOrgDocument, options);
+      }
+export function useGetBillingIntegrationOrganizationContextsByOrgLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetBillingIntegrationOrganizationContextsByOrgQuery, Types.GetBillingIntegrationOrganizationContextsByOrgQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetBillingIntegrationOrganizationContextsByOrgQuery, Types.GetBillingIntegrationOrganizationContextsByOrgQueryVariables>(GetBillingIntegrationOrganizationContextsByOrgDocument, options);
+        }
+export function useGetBillingIntegrationOrganizationContextsByOrgSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetBillingIntegrationOrganizationContextsByOrgQuery, Types.GetBillingIntegrationOrganizationContextsByOrgQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetBillingIntegrationOrganizationContextsByOrgQuery, Types.GetBillingIntegrationOrganizationContextsByOrgQueryVariables>(GetBillingIntegrationOrganizationContextsByOrgDocument, options);
+        }
+export type GetBillingIntegrationOrganizationContextsByOrgQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsByOrgQuery>;
+export type GetBillingIntegrationOrganizationContextsByOrgLazyQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsByOrgLazyQuery>;
+export type GetBillingIntegrationOrganizationContextsByOrgSuspenseQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsByOrgSuspenseQuery>;
+export type GetBillingIntegrationOrganizationContextsByOrgQueryResult = Apollo.QueryResult<Types.GetBillingIntegrationOrganizationContextsByOrgQuery, Types.GetBillingIntegrationOrganizationContextsByOrgQueryVariables>;
+export const CreateBillingIntegrationOrganizationContextDocument = gql`
+    mutation createBillingIntegrationOrganizationContext($data: BillingIntegrationOrganizationContextCreateInput!) {
+  billingContext: createBillingIntegrationOrganizationContext(data: $data) {
+    id
+  }
+}
+    `;
+export type CreateBillingIntegrationOrganizationContextMutationFn = Apollo.MutationFunction<Types.CreateBillingIntegrationOrganizationContextMutation, Types.CreateBillingIntegrationOrganizationContextMutationVariables>;
+
+/**
+ * __useCreateBillingIntegrationOrganizationContextMutation__
+ *
+ * To run a mutation, you first call `useCreateBillingIntegrationOrganizationContextMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateBillingIntegrationOrganizationContextMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createBillingIntegrationOrganizationContextMutation, { data, loading, error }] = useCreateBillingIntegrationOrganizationContextMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateBillingIntegrationOrganizationContextMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateBillingIntegrationOrganizationContextMutation, Types.CreateBillingIntegrationOrganizationContextMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateBillingIntegrationOrganizationContextMutation, Types.CreateBillingIntegrationOrganizationContextMutationVariables>(CreateBillingIntegrationOrganizationContextDocument, options);
+      }
+export type CreateBillingIntegrationOrganizationContextMutationHookResult = ReturnType<typeof useCreateBillingIntegrationOrganizationContextMutation>;
+export type CreateBillingIntegrationOrganizationContextMutationResult = Apollo.MutationResult<Types.CreateBillingIntegrationOrganizationContextMutation>;
+export type CreateBillingIntegrationOrganizationContextMutationOptions = Apollo.BaseMutationOptions<Types.CreateBillingIntegrationOrganizationContextMutation, Types.CreateBillingIntegrationOrganizationContextMutationVariables>;
+export const SoftDeleteBillingContextDocument = gql`
+    mutation softDeleteBillingContext($id: ID!, $deletedAt: String!, $sender: SenderFieldInput!) {
+  billingContext: updateBillingIntegrationOrganizationContext(
+    id: $id
+    data: {deletedAt: $deletedAt, dv: 1, sender: $sender}
+  ) {
+    id
+  }
+}
+    `;
+export type SoftDeleteBillingContextMutationFn = Apollo.MutationFunction<Types.SoftDeleteBillingContextMutation, Types.SoftDeleteBillingContextMutationVariables>;
+
+/**
+ * __useSoftDeleteBillingContextMutation__
+ *
+ * To run a mutation, you first call `useSoftDeleteBillingContextMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSoftDeleteBillingContextMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [softDeleteBillingContextMutation, { data, loading, error }] = useSoftDeleteBillingContextMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      deletedAt: // value for 'deletedAt'
+ *      sender: // value for 'sender'
+ *   },
+ * });
+ */
+export function useSoftDeleteBillingContextMutation(baseOptions?: Apollo.MutationHookOptions<Types.SoftDeleteBillingContextMutation, Types.SoftDeleteBillingContextMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.SoftDeleteBillingContextMutation, Types.SoftDeleteBillingContextMutationVariables>(SoftDeleteBillingContextDocument, options);
+      }
+export type SoftDeleteBillingContextMutationHookResult = ReturnType<typeof useSoftDeleteBillingContextMutation>;
+export type SoftDeleteBillingContextMutationResult = Apollo.MutationResult<Types.SoftDeleteBillingContextMutation>;
+export type SoftDeleteBillingContextMutationOptions = Apollo.BaseMutationOptions<Types.SoftDeleteBillingContextMutation, Types.SoftDeleteBillingContextMutationVariables>;
 export const GetBillingReceiptsByPropertyCountDocument = gql`
     query getBillingReceiptsByPropertyCount($context: BillingIntegrationOrganizationContextWhereInput!, $property: BillingPropertyWhereInput!, $period_gte: String!) {
   count: _allBillingReceiptsMeta(

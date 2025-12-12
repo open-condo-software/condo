@@ -312,6 +312,7 @@
   "accrualsAndPayments.billing.statusTag.error": "{name}: error",
   "accrualsAndPayments.billing.uploadReceiptsAction.defaultMessage": "Subir recibos",
   "accrualsAndPayments.billingModal.receiptAwaitingTime": "Fecha límite para cargar recibos a la aplicación Doma:",
+  "accrualsAndPayments.billingModal.price": "Coste del Servicio:",
   "accrualsAndPayments.billingModal.setupButtonLabel": "Ajustar",
   "accrualsAndPayments.onBoardingModal.closeButton.message": "Gracias por compartir",
   "accrualsAndPayments.onBoardingModal.text": "Para que los vecinos puedan pagar los recibos a través de la app móvil Doma, selecciona el método de descarga y firma la oferta. A partir de ahora, todos los pagos se mostrarán en esta sección.",

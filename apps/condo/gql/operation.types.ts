@@ -86,6 +86,44 @@ export type UpdateBankSyncTaskMutationVariables = Types.Exact<{
 
 export type UpdateBankSyncTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BankSyncTask', id: string, status?: Types.BankSyncTaskStatusType | null, processedCount?: number | null, totalCount?: number | null, meta?: any | null, property?: { __typename?: 'Property', id: string } | null, options?: { __typename?: 'BankSyncTaskOptions', type?: string | null } | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null };
 
+export type GetB2BAppByIdQueryVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetB2BAppByIdQuery = { __typename?: 'Query', b2bApp?: { __typename?: 'B2BApp', id: string, name?: string | null, detailedDescription?: string | null, shortDescription?: string | null } | null };
+
+export type GetB2BAppContextQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+  appId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetB2BAppContextQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'B2BAppContext', id: string, status?: Types.B2BAppContextStatusType | null } | null> | null };
+
+export type GetB2BAppContextsByOrgQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetB2BAppContextsByOrgQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'B2BAppContext', id: string, status?: Types.B2BAppContextStatusType | null, app?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
+
+export type CreateB2BAppContextMutationVariables = Types.Exact<{
+  data: Types.B2BAppContextCreateInput;
+}>;
+
+
+export type CreateB2BAppContextMutation = { __typename?: 'Mutation', b2bAppContext?: { __typename?: 'B2BAppContext', id: string } | null };
+
+export type SoftDeleteB2BAppContextMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  deletedAt: Types.Scalars['String']['input'];
+  sender: Types.SenderFieldInput;
+}>;
+
+
+export type SoftDeleteB2BAppContextMutation = { __typename?: 'Mutation', b2bAppContext?: { __typename?: 'B2BAppContext', id: string } | null };
+
 export type GetBillingIntegrationOrganizationContextsQueryVariables = Types.Exact<{
   integration: Types.BillingIntegrationWhereInput;
   organization: Types.OrganizationWhereInput;
@@ -107,6 +145,29 @@ export type HasBillingIntegrationsQueryVariables = Types.Exact<{
 
 
 export type HasBillingIntegrationsQuery = { __typename?: 'Query', integrations?: Array<{ __typename?: 'BillingIntegrationOrganizationContext', id: string } | null> | null, acquiring?: Array<{ __typename?: 'AcquiringIntegrationContext', id: string } | null> | null };
+
+export type GetBillingIntegrationOrganizationContextsByOrgQueryVariables = Types.Exact<{
+  organization: Types.OrganizationWhereInput;
+}>;
+
+
+export type GetBillingIntegrationOrganizationContextsByOrgQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'BillingIntegrationOrganizationContext', id: string, lastReport?: any | null, integration?: { __typename?: 'BillingIntegration', id: string } | null } | null> | null };
+
+export type CreateBillingIntegrationOrganizationContextMutationVariables = Types.Exact<{
+  data: Types.BillingIntegrationOrganizationContextCreateInput;
+}>;
+
+
+export type CreateBillingIntegrationOrganizationContextMutation = { __typename?: 'Mutation', billingContext?: { __typename?: 'BillingIntegrationOrganizationContext', id: string } | null };
+
+export type SoftDeleteBillingContextMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  deletedAt: Types.Scalars['String']['input'];
+  sender: Types.SenderFieldInput;
+}>;
+
+
+export type SoftDeleteBillingContextMutation = { __typename?: 'Mutation', billingContext?: { __typename?: 'BillingIntegrationOrganizationContext', id: string } | null };
 
 export type GetBillingReceiptsByPropertyCountQueryVariables = Types.Exact<{
   context: Types.BillingIntegrationOrganizationContextWhereInput;
