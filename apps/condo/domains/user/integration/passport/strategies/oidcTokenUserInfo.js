@@ -1,4 +1,6 @@
 // @ts-check
+const https = require('https')
+
 const set = require('lodash/set')
 const { Strategy: CustomStrategy } = require('passport-custom')
 
@@ -148,6 +150,7 @@ class OidcTokenUserInfoAuthStrategy {
                 userInfoURL,
                 requireConfirmPhoneAction,
                 requireConfirmEmailAction,
+                rejectUnauthorized,
             } = clients[client_id]
 
             const providerInfo = {
@@ -157,6 +160,8 @@ class OidcTokenUserInfoAuthStrategy {
             }
 
             try {
+                const agent = new https.Agent({ rejectUnauthorized })
+
                 // Step 1. Getting user info
                 const response = await fetch(userInfoURL, {
                     maxRetries: 1,
@@ -165,6 +170,7 @@ class OidcTokenUserInfoAuthStrategy {
                         'Authorization': `Bearer ${access_token}`,
                         'Accept': 'application/json',
                     },
+                    agent,
                 })
                 if (response.status !== 200) {
                     return done(new GQLError(ERRORS.AUTHORIZATION_FAILED, errorContext, [new Error('userInfo request was not successful')]))
