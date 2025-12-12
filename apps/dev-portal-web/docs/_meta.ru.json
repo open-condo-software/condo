@@ -6,6 +6,7 @@
   "ui": "Condo UI",
   "bridge": "Condo Bridge",
   "api": "Condo API",
+  "accruals-gateway": "Шлюз начислений",
   "g-doc-link": {
     "title": "Старая документация",
     "href": "https://docs.google.com/document/d/1pTMq0Qi9307uUIfHK4eGi6T1xtUvrK4Asz9j5Eoo8bI/edit?usp=sharing"

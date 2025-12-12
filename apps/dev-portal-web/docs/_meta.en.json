@@ -9,5 +9,6 @@
   },
   "ui": "Condo UI",
   "bridge": "Condo Bridge",
-  "api": "Condo API"
+  "api": "Condo API",
+  "accruals-gateway": "Accruals gateway"
 }

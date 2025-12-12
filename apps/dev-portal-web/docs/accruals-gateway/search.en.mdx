@@ -1,0 +1,51 @@
+`GET /api/search`
+
+Searches for organizations by partial name or TIN. The `name` field in the response contains service categories provided by the organization.
+
+## 🔐Authentication
+
+[View authentication documentation →](/docs/accruals-gateway/auth)
+
+## Query parameters
+
+| Field  | Type/Format                   | Required | Description                                          | Example      |
+|--------|-------------------------------|----------|------------------------------------------------------|--------------|
+| search | string\<3 to 100 characters\> | ✅        | Search string: partial organization name or full TIN | `9731062087` |
+
+## Request example
+
+```
+GET /api/search?uid=b6118eed-9ff2-4632-a663-7e6eb4e8b5d6&search=9731062087
+```
+
+## Response
+
+| Parameter   | Type/Format    | Required | Description                                  | Example                                 |
+|-------------|----------------|----------|----------------------------------------------|-----------------------------------------|
+| id          | string\<uuid\> | ✅        | Unique organization identifier               | `452f081a-7612-48e1-bc4e-89d6cea366e7`  |
+| name        | string         | ✅        | **Service categories**, comma-separated      | `Utilities`,`Water supply, Electricity` |
+| tin         | string         | ✅        | Organization TIN (Tax Identification Number) | `0323340678`                            |
+| bankAccount | string         | ✅        | Organization bank account                    | `40702810430901955407`                  |
+
+## Response example
+
+```json
+{
+    "data": [
+        {
+            "id": "452f081a-7612-48e1-bc4e-89d6cea366e7",
+            "name": "Utilities",
+            "tin": "0323340678",
+            "bankAccount": "40702810430901955407"
+        }
+    ]
+}
+```
+
+## Коды ошибок
+
+| Код ошибки               | HTTP статус | Сообщение                 | Причина                     | Решение                             |
+|--------------------------|-------------|---------------------------|-----------------------------|-------------------------------------|
+| `VALIDATION_FAILED`      | 400         | Invalid format of input   | Parameter validation error	 | Check the search format             |
+| `ORGANIZATION_NOT_FOUND` | 404         | Organization is not found | Organization not found      | Refine your search query            |
+| `INTERNAL_SERVER_ERROR`  | 500         | Internal server error     | 	Internal server error      | 	Try again later or contact support |

@@ -1,0 +1,70 @@
+`GET /api/check`
+
+Returns a list of accruals by organization TIN and personal account. The response is always an array (may be empty, but in this case a 404 error is returned).
+
+## 🔐Authentication
+
+[View authentication documentation →](/docs/accruals-gateway/auth)
+
+## Query parameters
+
+| Parameter | Type/Format                   | Required | Description             | Example      |
+|-----------|-------------------------------|----------|-------------------------|--------------|
+| tin       | string\<10 to 12 characters\> | ✅        | Organization TIN        | `9731062087` |
+| account   | string\<1 to 100 characters\> | ✅        | Personal account number | `1234567890` |
+
+## Request example
+
+```
+GET /api/check?uid=b6118eed-9ff2-4632-a663-7e6eb4e8b5d6&tin=9731062087&account=1234567890
+```
+
+## Response
+
+| Parameter      | Type/Format          | Required | Description                                     | Example                                      |
+|----------------|----------------------|----------|-------------------------------------------------|----------------------------------------------|
+| id             | string\<uuid\>       | ✅        | Unique accrual identifier                       | `75b12bb4-a87b-4c5d-8e4d-900802c67ed3`       |
+| category       | string               | ✅        | Accrual category                                | `Utilities`, `Electricity`                   |
+| account        | string               | ✅        | Payer's personal account                        | `1234567890`                                 |
+| toPay          | string               | ✅        | Amount to pay                                   | `18373.40000000`                             |
+| period         | string\<YYYY-MM-01\> | ✅        | Accrual period                                  | `2025-08-01`                                 |
+| address        | string               | ✅        | Property address                                | `Krasnodar Krai, Sochi, Makarenko str., 30`  |
+| organization   | string               | ✅        | Recipient organization name                     | `ООО УК "ЮЖУРАЛЖКХ"`                         |
+| tin            | string               | ✅        | Organization TIN                                | `9731062087`                                 |
+| iec            | string               | ✅        | Organization IEC (Tax Registration Reason Code) | `745101001`                                  |
+| routingNumber  | string               | ✅        | Recipient bank BIC (Bank Identification Code)   | `043735650`                                  |
+| bankAccount    | string               | ✅        | Organization bank account                       | `40701810032000000067`                       |
+| receiptFileUrl | string               | ❌        | Link to the receipt                             | `https://example.com/receipt.pdf`            |
+| purpose        | string               | ✅        | Payment purpose for bank transfer               | `Account 1234567890, Bank Account 043735650` |
+
+## Response example
+
+```json
+{   
+    "data": [
+        {
+            "id": "75b12bb4-a87b-4c5d-8e4d-900802c67ed3",
+            "category": "Квартплата",
+            "account": "1234567890",
+            "toPay": "18373.40000000",
+            "period": "2025-08-01",
+            "address": "Краснодарский край, г Сочи, ул Макаренко, д 30",
+            "organization": "ООО УК \"ЮЖУРАЛЖКХ\"",
+            "tin": "9731062087",
+            "iec": "745101001",
+            "routingNumber": "043735650",
+            "bankAccount": "40701810032000000067",
+            "receiptFileUrl": "https://example.com",
+            "purpose": "ЛС 1234567890, Р/С 043735650"
+        }
+    ]
+}
+```
+
+## Коды ошибок
+
+| Код ошибки              | HTTP статус | Сообщение                   | Причина                            | Решение                            |
+|-------------------------|-------------|-----------------------------|------------------------------------|------------------------------------|
+| `VALIDATION_FAILED`     | 400         | Invalid format of input     | Parameter validation error         | Check the parameter format         |
+| `ACCOUNT_NOT_FOUND`     | 404         | Account number is not found | Accrual for this account not found | Verify the account number          |
+| `INTERNAL_SERVER_ERROR` | 500         | Internal server error       | 	Internal server error             | Try again later or contact support |
