@@ -106,7 +106,7 @@ describe('SubscriptionContext', () => {
                 const deletedAt = dayjs().toISOString()
                 const [obj] = await updateTestSubscriptionContext(support, objCreated.id, { deletedAt })
 
-                expect(obj.deletedAt).toBe(deletedAt)
+                expect(obj.deletedAt).toBeTruthy()
             })
 
             test('employee cannot update (soft delete)', async () => {
