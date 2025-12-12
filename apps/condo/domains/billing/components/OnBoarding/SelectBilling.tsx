@@ -90,9 +90,11 @@ export const SelectBilling: React.FC = () => {
     return (
         <>
             <Row gutter={ROW_GUTTER} ref={setRef}>
-                {shouldShowBanner && <Col span={FULL_SPAN / cardsPerRow}>
-                    {Banner}
-                </Col>}
+                {shouldShowBanner && (
+                    <Col span={FULL_SPAN / cardsPerRow}>
+                        {Banner}
+                    </Col>
+                )}
                 {billings.map((billing) => (
                     <Col key={billing.id} span={FULL_SPAN / cardsPerRow}>
                         <AppCard

@@ -1,5 +1,5 @@
 import { useGetB2BAppByIdQuery, useGetB2BAppContextQuery } from '@app/condo/gql'
-import { Col, Row, Image } from 'antd'
+import { Col, Row, Image, type RowProps } from 'antd'
 import classNames from 'classnames'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
@@ -59,6 +59,7 @@ function TitleWithHighlightedWords ({ title = '', color = 'black' }) {
     })
 }
 
+const ITEMS_GUTTER: RowProps['gutter'] = [0, 56]
 
 const useSelectBillingPromoBanner = () => {
     const intl = useIntl()
@@ -95,7 +96,7 @@ const useSelectBillingPromoBanner = () => {
     const appIsBeingConnected = contextStatus === CONTEXT_IN_PROGRESS_STATUS
     const localizedTexts = promoB2BAppConfig?.i18n?.[locale]
     const title = appIsBeingConnected ? localizedTexts?.appBeingConnectedTitle : localizedTexts?.appDisconnectedTitle
-    const detailedDescription = useMarkdownTemplate(localizedTexts?.detailedDescription, {
+    const detailedDescription = useMarkdownTemplate(localizedTexts?.detailedDescription || '', {
         phoneNumber: user?.phone,
     })
     const shouldShowBanner = !appAlreadyConnected && Boolean(localizedTexts?.appDisconnectedTitle) && Boolean(localizedTexts?.detailedDescription)
@@ -153,12 +154,14 @@ const useSelectBillingPromoBanner = () => {
                     [styles.imageVisible]: appIsBeingConnected,
                 })}
             />
-            <Row gutter={[0, 56]}>
+            <Row gutter={ITEMS_GUTTER}>
                 <Col span={24}>
                     <Space direction='vertical' size={24} className={styles.title}>
-                        <Tag textColor={colors.white} bgColor={colors.blue[5]}>
-                            {localizedTexts?.tag}
-                        </Tag>
+                        {localizedTexts?.tag && (
+                            <Tag textColor={colors.white} bgColor={colors.blue[5]}>
+                                {localizedTexts?.tag}
+                            </Tag>
+                        )}
                         <Typography.Title level={2}>
                             <TitleWithHighlightedWords title={title} color={promoB2BAppConfig.titleHighlightColor}/>
                         </Typography.Title>

@@ -37,7 +37,7 @@ const compareStrI = (str1, str2, lang = 'ru') => str1.trim().toLocaleLowerCase(l
  * @returns {string} - The template with replaced placeholders.
  */
 function interpolate (template, values) {
-    if (typeof template !== 'string') return ''
+    if (typeof template !== 'string') return null
 
     return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => {
         const value = key.split('.').reduce((obj, k) => (obj ? obj[k] : undefined), values)

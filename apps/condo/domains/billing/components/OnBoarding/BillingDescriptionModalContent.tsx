@@ -78,10 +78,12 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
             </Col>
             <Col span={FULL_SPAN / cols}>
                 <Space size={SETUP_BUTTON_GAP} direction='vertical' width='100%'>
-                    <div>
-                        <Typography.Title level={4}>{isBilling ? ReceiptsAwaitingTitle : ServicePriceTitle}</Typography.Title>
-                        <Typography.Text type='secondary'>{isBilling ? receiptsLoadingTime : servicePrice}</Typography.Text>
-                    </div>
+                    {((isBilling && receiptsLoadingTime) || (!isBilling && servicePrice )) && (
+                        <div>
+                            <Typography.Title level={4}>{isBilling ? ReceiptsAwaitingTitle : ServicePriceTitle}</Typography.Title>
+                            <Typography.Text type='secondary'>{isBilling ? receiptsLoadingTime : servicePrice}</Typography.Text>
+                        </div>
+                    )}
                     <Button type='primary' onClick={handleSetup} disabled={loading}>
                         {setupButtonLabel || SetupButtonLabel}
                     </Button>

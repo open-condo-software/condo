@@ -1,7 +1,7 @@
 import { useCreateB2BAppContextMutation, useCreateBillingIntegrationOrganizationContextMutation, useGetB2BAppContextsByOrgQuery, useGetBillingIntegrationOrganizationContextsByOrgQuery, useSoftDeleteB2BAppContextMutation, useSoftDeleteBillingContextMutation } from '@app/condo/gql'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
@@ -26,10 +26,12 @@ export const useIntegrationContext = ({ integrationType, integrationId }: UseInt
     const router = useRouter()
     const { organization } = useOrganization()
     const persistor = useCachePersistor()
-    const { route } = useRouter()
+    const { route } = router
 
     const orgId = organization?.id
-    const promoB2BAppConfig: PromoAppConfig = globalHints?.pages?.find(page => page?.routeTemplate === route)?.promoB2BApp || {}
+    const promoB2BAppConfig: PromoAppConfig = useMemo(() => {
+        return globalHints?.pages?.find(page => page?.routeTemplate === route)?.promoB2BApp || {}
+    }, [route])
     const isBilling = integrationType === INTEGRATION_TYPE_BILLING
     const isB2BApp = integrationType === INTEGRATION_TYPE_B2B_APP
 
@@ -90,7 +92,6 @@ export const useIntegrationContext = ({ integrationType, integrationId }: UseInt
 
     const handleSetupClick = useCallback(async () => {
         if (!ctx) {
-            console.log('!ctx')
             if (isB2BApp && promoB2BAppConfig?.appId){
                 await createB2BAppContextMutation()
             }
