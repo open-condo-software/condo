@@ -2,44 +2,38 @@ import { useMemo, useCallback } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
 
-import { GetActiveOrganizationEmployeeQuery, useGetSubscriptionContextQuery } from '../../../gql'
+export type AvailableFeature = 'news' | 'marketplace' | 'support' | 'ai' | 'passTickets'
 
-//export type Subscription = GetActiveOrganizationEmployeeQuery['employees'][number]['organization']
-//export type SubscriptionPlan = Subscription['subscriptionPlan']
-//export type AvailableFeature = keyof Pick<SubscriptionPlan, 'news' | 'marketplace' | 'support' | 'ai' | 'passTickets'>
+interface SubscriptionPlan {
+    id: string
+    name: string
+    news?: boolean
+    marketplace?: boolean
+    support?: boolean
+    ai?: boolean
+    passTickets?: boolean
+    trialDays?: number
+    priority?: number
+    canBePromoted?: boolean
+}
+
+interface Subscription {
+    id: string
+    subscriptionPlan: SubscriptionPlan | null
+    startAt: string
+    endAt: string | null
+    isTrial: boolean
+}
 
 /**
- * Hook to get subscription from organization
- * Returns subscription and tariff (subscriptionPlan) from organization.subscription field
+ * Hook to get subscription from organization.subscription field
+ * No additional GraphQL query needed - data comes from organization context
  */
 export const useOrganizationSubscription = () => {
-    const { organization } = useOrganization()
+    const { organization, isLoading } = useOrganization()
 
-    const { data, loading, refetch } = useGetSubscriptionContextQuery({
-        variables: {
-            id: organization?.subscription?.id,
-        },
-        skip: !organization?.subscription?.id,
-    })
-
-    const subscription = useMemo<any | null>(() => {
-        // Prefer data from GraphQL query if available
-        if (data?.subscriptionContext) {
-            const context = data.subscriptionContext
-            return {
-                id: context.id,
-                subscriptionPlan: context.subscriptionPlan,
-                startAt: context.startAt,
-                endAt: context.endAt,
-                isTrial: context.isTrial,
-                daysRemaining: context.daysRemaining,
-                basePrice: context.basePrice,
-                calculatedPrice: context.calculatedPrice,
-                appliedRules: context.appliedRules,
-            }
-        }
-
-        // Fallback to organization data while loading or if query is skipped
+    const subscription = useMemo<Subscription | null>(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const orgSubscription = (organization as any)?.subscription
         
         if (!orgSubscription) {
@@ -52,15 +46,15 @@ export const useOrganizationSubscription = () => {
             startAt: orgSubscription.startAt,
             endAt: orgSubscription.endAt,
             isTrial: orgSubscription.isTrial,
-            daysRemaining: orgSubscription.daysRemaining,
         }
-    }, [data, organization])
+    }, [organization])
 
     const isExpired = useMemo(() => {
-        return subscription ? subscription.daysRemaining <= 0 && !!subscription.endAt : false
+        if (!subscription || !subscription.endAt) return false
+        return new Date(subscription.endAt) < new Date()
     }, [subscription])
 
-    const isFeatureAvailable = useCallback((feature: any): boolean => {
+    const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
         // If no subscription, block all features
         if (!subscription || isExpired) {
             return false
@@ -82,6 +76,8 @@ export const useOrganizationSubscription = () => {
                 return plan.support === true
             case 'ai':
                 return plan.ai === true
+            case 'passTickets':
+                return plan.passTickets === true
             default:
                 // By default, features are available if not explicitly defined
                 return true
@@ -98,7 +94,6 @@ export const useOrganizationSubscription = () => {
         subscription,
         tariff,
         organization,
-        loading,
-        refetch,
+        loading: isLoading,
     }
 }
