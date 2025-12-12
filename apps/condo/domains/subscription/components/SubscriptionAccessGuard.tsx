@@ -5,9 +5,12 @@ import React, { useMemo, useCallback } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Button, Space } from '@open-condo/ui'
 
+import styles from './SubscriptionAccessGuard.module.css'
+
 import { PageHeader, PageWrapper } from '../../common/components/containers/BaseLayout'
 import { requiresSubscriptionAccess, getRequiredFeature } from '../constants/routeFeatureMapping'
 import { useOrganizationSubscription } from '../hooks/useOrganizationSubscription'
+
 
 const { Title, Paragraph } = Typography
 
@@ -81,7 +84,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     }, [router.pathname, subscription, isExpired, isFeatureAvailable, loading])
 
     const handleGoToPlans = useCallback(() => {
-        router.push('/subscription')
+        router.push('/settings?tab=subscription')
     }, [router])
 
     const handleLearnMore = useCallback(() => {
@@ -97,8 +100,8 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                 </Head>
                 <PageWrapper>
                     <PageHeader title={<Typography.Title>{pageTitle}</Typography.Title>} />
-                    <div className='default-blocked-container'>
-                        <div className='default-blocked-content-wrapper'>
+                    <div className={styles['blocked-container']}>
+                        <div className={styles['blocked-content-wrapper']}>
                             <Space
                                 direction='vertical'
                                 align='center'
@@ -122,7 +125,6 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                                         })}
                                     </Paragraph>
                                 </Space>
-
 
                                 <Space size={16} direction='vertical'>
                                     <Button type='primary' onClick={handleGoToPlans}>
