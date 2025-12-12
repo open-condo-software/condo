@@ -3,10 +3,10 @@ const dayjs = require('dayjs')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { find } = require('@open-condo/keystone/schema')
 const { WEBHOOK_PAYLOAD_STATUS_PENDING } = require('@open-condo/webhooks/constants')
-const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
+const { getWebhookRegularTasks } = require('@open-condo/webhooks/tasks/regularTasks')
 
 
-const logger = getLogger('retryFailedWebhookPayloads')
+const logger = getLogger()
 
 /**
  * Finds pending webhook payloads that are due for retry
@@ -14,7 +14,7 @@ const logger = getLogger('retryFailedWebhookPayloads')
  * This function is used by the cron task
  */
 async function retryFailedWebhookPayloads () {
-    const sendWebhookPayloadTask = getWebhookTasks()['sendWebhookPayload']
+    const { sendWebhookPayload: sendWebhookPayloadTask } = getWebhookRegularTasks()
 
     const now = dayjs().toISOString()
 

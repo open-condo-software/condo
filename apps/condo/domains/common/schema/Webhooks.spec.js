@@ -5,6 +5,7 @@
 const dayjs = require('dayjs')
 
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { RetryFailedWebhookPayloadsTests } = require('@open-condo/webhooks/tasks/retryFailedWebhookPayloads.spec')
 const { SendWebhookTests } = require('@open-condo/webhooks/tasks/sendWebhook.spec')
 const { SendWebhookPayloadTests } = require('@open-condo/webhooks/tasks/sendWebhookPayload.spec')
 
@@ -35,4 +36,5 @@ async function userDeleter (client, user) {
 describe('External webhook specifications', () => {
     SendWebhookTests('Condo', initializeActors, userCreator, userDeleter, '@app/condo/index')
     SendWebhookPayloadTests('Condo', initializeActors, '@app/condo/index')
+    RetryFailedWebhookPayloadsTests('Condo', initializeActors, '@app/condo/index')
 })
