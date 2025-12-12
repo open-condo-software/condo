@@ -5,7 +5,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { WEBHOOK_PAYLOAD_RETENTION_DAYS } = require('@open-condo/webhooks/constants')
 
 
-const logger = getLogger('deleteOldWebhookPayloads')
+const logger = getLogger()
 
 const BATCH_SIZE = 100
 
