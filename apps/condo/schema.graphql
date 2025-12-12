@@ -57641,7 +57641,8 @@ type SubscriptionPlan {
   """ Human-readable name of the subscription plan """
   name: String
 
-  """ Detailed description of the subscription plan """
+  """ Detailed description of the subscription plan. Displayed to end users in the subscription selection UI 
+  """
   description: String
 
   """ Type of organization this plan is available for """
@@ -58976,7 +58977,7 @@ input SubscriptionContextHistoryRecordsCreateInput {
   data: SubscriptionContextHistoryRecordCreateInput
 }
 
-""" Subscription context linking organization to a subscription plan with calculated pricing 
+""" Subscription context linking organization to a subscription plan with calculated pricing. When changing subscription plan, a new context must be created 
 """
 type SubscriptionContext {
   """
@@ -59011,7 +59012,8 @@ type SubscriptionContext {
   """ JSON array of applied pricing rules with audit information """
   appliedRules: JSON
 
-  """ Whether this is a trial subscription """
+  """ Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays) 
+  """
   isTrial: Boolean
 
   """ Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired 

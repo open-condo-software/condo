@@ -20,7 +20,7 @@ const ERRORS = {
 
 
 const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
-    schemaDoc: 'Subscription context linking organization to a subscription plan with calculated pricing',
+    schemaDoc: 'Subscription context linking organization to a subscription plan with calculated pricing. When changing subscription plan, a new context must be created',
     fields: {
 
         organization: {
@@ -94,7 +94,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
         },
 
         isTrial: {
-            schemaDoc: 'Whether this is a trial subscription',
+            schemaDoc: 'Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays)',
             type: 'Checkbox',
             defaultValue: false,
             isRequired: true,

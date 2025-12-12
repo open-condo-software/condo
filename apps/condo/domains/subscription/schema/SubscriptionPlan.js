@@ -28,7 +28,7 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
         },
 
         description: {
-            schemaDoc: 'Detailed description of the subscription plan',
+            schemaDoc: 'Detailed description of the subscription plan. Displayed to end users in the subscription selection UI',
             type: 'Text',
             isRequired: false,
         },
@@ -104,6 +104,7 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             isRequired: true,
         },
 
+        // TODO(DOMA-12735): think about move feature checkboxes in separate schema
         passTickets: {
             schemaDoc: 'Whether pass tickets feature is included in this plan',
             type: 'Checkbox',
