@@ -7,4 +7,5 @@ export type GetLaunchParamsData = {
     condoLocale: string
     condoContextEntity: 'Organization' | 'Resident'
     condoContextEntityId: string | null
+    condoSubscriptionContextId: string | null
 }
