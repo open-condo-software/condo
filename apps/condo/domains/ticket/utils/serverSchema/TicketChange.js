@@ -237,7 +237,11 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
  *     }
  * }
  */
-const relatedManyToManyResolvers = {}
+const relatedManyToManyResolvers = {
+    'observers': async (args) => {
+        return resolveManyToManyField('observers', 'User', 'name', args)
+    },
+}
 
 module.exports = {
     createTicketChange,

@@ -375,6 +375,15 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
+        observers: {
+            schemaDoc: 'Observers employees/users who will be notified about the ticket',
+            type: 'Relationship',
+            ref: 'TicketObserver.ticket',
+            many: true, 
+            isRequired: false,
+            access: { create: false, update: false, read: false },
+            kmigratorOptions: { null: true },
+        },
         // TODO(zuch): make it required
         categoryClassifier: {
             schemaDoc: '@deprecated',
