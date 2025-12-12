@@ -24,7 +24,7 @@
     "antd": "5.28.0",
     "classnames": "^2.5.1",
     "cookies-next": "^4.2.1",
-    "glob": "8.1.0",
+    "glob": "9.0.0",
     "graphql": "^16.10.0",
     "gray-matter": "4.0.3",
     "lodash": "^4.17.21",

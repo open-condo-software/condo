@@ -43,7 +43,7 @@
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^4.2.0",
     "execa": "^5",
-    "glob": "^11.0.1",
+    "glob": "^9.0.0",
     "husky": "7.0.4",
     "knip": "^4",
     "mono-pub": "^2.0.0",
