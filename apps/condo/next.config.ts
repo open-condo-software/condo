@@ -48,6 +48,7 @@ const telegramEmployeeBotName = conf['TELEGRAM_EMPLOYEE_BOT_NAME']
 const isDisabledSsr = conf['DISABLE_SSR'] === 'true'
 const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
+const cookiesUrl = conf['LEGAL_COOKIES_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
 const isSnowfallDisabled = conf['IS_SNOWFALL_DISABLED'] === 'true'
 const proxyName = conf['API_PROXY_NAME'] || 'Next'
@@ -126,6 +127,7 @@ const nextConfig: NextConfig = {
         isDisabledSsr,
         termsOfUseUrl,
         privacyPolicyUrl,
+        cookiesUrl,
         dataProcessingConsentUrl,
         isSnowfallDisabled,
         posthogApiHost,
