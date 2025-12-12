@@ -1,5 +1,5 @@
 const pick = require('lodash/pick')
-const toString = require('lodash/toString')
+const _toString = require('lodash/toString')
 const stdSerializers = require('pino-std-serializers')
 
 const { normalizeVariables } = require('./normalize')
@@ -19,6 +19,41 @@ function raw (data) {
 function pickSerializer (...fields) {
     return function (data) {
         return pick(data, ...fields)
+    }
+}
+
+// NOTE: lodash toString does not handle objects well "[object Object]"
+function toString (data) {
+    if (data === null || data === undefined) return data
+    if (typeof data === 'object') return JSON.stringify(data)
+    return _toString(data)
+}
+
+function propertyStringifySerializer (...fields) {
+    return function (data) {
+        if (typeof data !== 'object' || data === null) return data
+        for (const field of fields) {
+            if (Object.hasOwn(data, field)) {
+                const value = data[field]
+                if (Array.isArray(value)) {
+                    data[field] = value.map(toString)
+                } else if (typeof value === 'object') {
+                    data[field] = toString(value)
+                }
+            }
+        }
+
+        return data
+    }
+}
+
+function combineSerializers (...serializers) {
+    return function (data) {
+        let result = data
+        for (const serializer of serializers) {
+            result = serializer(result)
+        }
+        return result
     }
 }
 
@@ -52,15 +87,20 @@ const SERIALIZERS = {
     /** HTTP status code, task status, or any other status you want to pass */
     status: toString,
 
-    /** Generic error object */
-    err: stdSerializers.err,
+    /**
+     * Generic error object
+     * NOTE 1: stdSerializers.err does not handler nested arrays of errors well, so we use our serializer here
+     * NOTE 2: safeFormatError works, but omits unknown fields (stdSerializers.err has "for key in err"),
+     * right now seems like it's ok, but if we need to add more fields, we should modify our serializer
+     *  */
+    err: combineSerializers(safeFormatError, propertyStringifySerializer('errors')),
 
     /**
      * @deprecated used by graphql-error logger to format errors,
      * for generic errors consider using err instead
      * (you don't need safeFormat on bots / clients, since it'll be already formatted by API)
      * */
-    error: safeFormatError,
+    error: combineSerializers(safeFormatError, propertyStringifySerializer('errors')),
 
     /** Used to collect memory usage via getHeapFree */
     mem: raw,
