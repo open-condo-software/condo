@@ -29,6 +29,7 @@ const OIDC_TOKEN_VERIFICATION_CONFIG_SCHEMA = z.object({
         requireConfirmEmailAction: z.boolean().optional().default(true),
         // Strategy-related part
         userInfoURL: z.string(),
+        rejectUnauthorized: z.boolean().optional().default(true),
     })),
 }).strict()
 
