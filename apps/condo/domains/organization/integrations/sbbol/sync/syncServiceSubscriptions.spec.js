@@ -92,30 +92,6 @@ describe('syncServiceSubscriptions', () => {
             expect(contexts).toHaveLength(1)
         })
 
-        it('does not duplicate SubscriptionContext if active one already exists (endAt > now)', async () => {
-            const [organization] = await createTestOrganization(adminClient)
-            const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient)
-
-            // Create existing context with future endAt
-            await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(30, 'days').toISOString(),
-                isTrial: true,
-            })
-
-            setFeatureFlag(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, subscriptionPlan.id)
-
-            await syncServiceSubscriptions({ context, organization })
-
-            const contexts = await SubscriptionContext.getAll(adminClient, {
-                organization: { id: organization.id },
-                subscriptionPlan: { id: subscriptionPlan.id },
-                deletedAt: null,
-            })
-
-            expect(contexts).toHaveLength(1)
-        })
-
         it('creates new SubscriptionContext if existing one is expired (endAt < now)', async () => {
             const [organization] = await createTestOrganization(adminClient)
             const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient)

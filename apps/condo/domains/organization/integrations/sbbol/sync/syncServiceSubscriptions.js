@@ -56,10 +56,7 @@ const syncServiceSubscriptions = async ({ context, organization }) => {
         organization: { id: organization.id },
         subscriptionPlan: { id: subscriptionPlanId },
         deletedAt: null,
-        OR: [
-            { endAt: null },
-            { endAt_gt: now.toISOString() },
-        ],
+        endAt: null,
     })
     if (existingContexts.length > 0) {
         return
