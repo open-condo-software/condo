@@ -20,13 +20,6 @@ const logger = getLogger('sbbol-sync-subscriptions')
  * @return {Promise<void>}
  */
 const syncServiceSubscriptions = async ({ context, organization }) => {
-    if (!organization || !organization.id) {
-        logger.warn({
-            msg: 'no organization provided to sync SubscriptionContext for',
-        })
-        return
-    }
-
     const subscriptionPlanId = await featureToggleManager.getFeatureValue(context, ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
     if (!subscriptionPlanId) {
         logger.info({

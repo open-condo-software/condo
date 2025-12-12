@@ -10,7 +10,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
-const { checkUserEmploymentInOrganizations, getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema') // eslint-disable-line no-unused-vars
+const { checkUserEmploymentInOrganizations, getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
 

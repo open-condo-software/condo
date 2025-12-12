@@ -27,7 +27,7 @@ async function createTestSubscriptionPlan (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
-        name: 'Test Plan',
+        name: faker.lorem.word(),
         organizationType: MANAGING_COMPANY_TYPE,
         dv: 1,
         sender,
