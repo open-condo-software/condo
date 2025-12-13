@@ -23,7 +23,7 @@ API загрузки файлов использует специальные RE
 
 Используйте пакет `@open-condo/files` для загрузки файлов:
 
-<Tabs labels={['Пример TypeScript', 'Пример JavaScript', 'Пример cURL']}>
+<Tabs labels={['Пример TypeScript', 'Пример JavaScript', 'Пример cURL', 'Ответ']}>
 ```typescript
 import { upload, buildMeta } from '@open-condo/files'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -87,6 +87,20 @@ curl -X POST "$SERVER/api/files/upload" \
   -F "meta=$META_JSON" \
   -F "attach=$ATTACH_JSON" \
   -F "files=@/path/to/file.pdf;type=application/pdf"
+```
+
+```json
+{
+    "data": {
+        "files": [
+            {
+                "id": "<uuid>",
+                "signature": "<jwt>",
+                "publicSignature": "<jwt>"
+            }
+        ]
+    }
+}
 ```
 </Tabs>
 

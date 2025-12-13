@@ -22,7 +22,7 @@ If your application has its own backend and you need to verify signatures receiv
 
 Use the `@open-condo/files` package to upload files:
 
-<Tabs labels={['TypeScript example', 'JavaScript example', 'cURL example']}>
+<Tabs labels={['TypeScript example', 'JavaScript example', 'cURL example', 'Response']}>
 ```typescript
 import { upload, buildMeta } from '@open-condo/files'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -86,6 +86,20 @@ curl -X POST "$SERVER/api/files/upload" \
   -F "meta=$META_JSON" \
   -F "attach=$ATTACH_JSON" \
   -F "files=@/path/to/file.pdf;type=application/pdf"
+```
+
+```json
+{
+    "data": {
+        "files": [
+            {
+                "id": "<uuid>",
+                "signature": "<jwt>",
+                "publicSignature": "<jwt>"
+            }
+        ]
+    }
+}
 ```
 </Tabs>
 
