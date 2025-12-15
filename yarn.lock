@@ -12122,7 +12122,6 @@ __metadata:
     lodash: ^4.17.21
     pluralize: ^8.0.0
     redlock: ^5.0.0-beta.2
-    uuid: ^8.3.0
   peerDependencies:
     "@graphql-tools/graphql-file-loader": ^7.5.17
     "@graphql-tools/load": ^8.1.0
