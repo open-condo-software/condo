@@ -1,6 +1,4 @@
 const { createCronTask } = require('@open-condo/keystone/tasks')
-const { deleteOldWebhookPayloads } = require('@open-condo/webhooks/tasks/deleteOldWebhookPayloads')
-const { retryFailedWebhookPayloads } = require('@open-condo/webhooks/tasks/retryFailedWebhookPayloads')
 
 const CRON_TASKS_CACHE = new Map()
 
@@ -11,6 +9,8 @@ function getWebhookCronTasks (cronSchedules = {}) {
     } = cronSchedules
 
     if (!CRON_TASKS_CACHE.has('retryFailedWebhookPayloads')) {
+        // Lazy import to prevent side effects at module load time and avoid test pollution
+        const { retryFailedWebhookPayloads } = require('@open-condo/webhooks/tasks/retryFailedWebhookPayloads')
         CRON_TASKS_CACHE.set('retryFailedWebhookPayloads', createCronTask(
             'retryFailedWebhookPayloads',
             retrySchedule,
@@ -18,6 +18,8 @@ function getWebhookCronTasks (cronSchedules = {}) {
         ))
     }
     if (!CRON_TASKS_CACHE.has('deleteOldWebhookPayloads')) {
+        // Lazy import to prevent side effects at module load time and avoid test pollution
+        const { deleteOldWebhookPayloads } = require('@open-condo/webhooks/tasks/deleteOldWebhookPayloads')
         CRON_TASKS_CACHE.set('deleteOldWebhookPayloads', createCronTask(
             'deleteOldWebhookPayloads',
             deleteSchedule,

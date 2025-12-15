@@ -1,6 +1,5 @@
 const dayjs = require('dayjs')
 
-const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const {
     WEBHOOK_PAYLOAD_STATUS_PENDING,
     WEBHOOK_PAYLOAD_STATUS_SUCCESS,
@@ -10,22 +9,19 @@ const {
     createTestWebhookPayload,
     softDeleteTestWebhookPayload,
 } = require('@open-condo/webhooks/schema/utils/testSchema')
-const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
+const { getWebhookCronTasks } = require('@open-condo/webhooks/tasks/cronTasks')
+const { getWebhookRegularTasks } = require('@open-condo/webhooks/tasks/regularTasks')
 
-const RetryFailedWebhookPayloadsTests = (appName, actorsInitializer, entryPointPath) => {
+const RetryFailedWebhookPayloadsTests = (appName, actorsInitializer) => {
     describe(`retryFailedWebhookPayloads cron task tests for ${appName} app`, () => {
-        const appEntryPoint = require(entryPointPath)
-        setFakeClientMode(appEntryPoint, { excludeApps: ['OIDCMiddleware'] })
-
         let retryFailedWebhookPayloads
         let sendWebhookPayload
         let actors
 
         beforeAll(async () => {
             actors = await actorsInitializer()
-            const tasks = getWebhookTasks()
-            retryFailedWebhookPayloads = tasks['retryFailedWebhookPayloads']
-            sendWebhookPayload = tasks['sendWebhookPayload']
+            retryFailedWebhookPayloads = getWebhookCronTasks()['retryFailedWebhookPayloads']
+            sendWebhookPayload = getWebhookRegularTasks()['sendWebhookPayload']
         })
 
         it('Must find and queue pending payloads that are due for retry', async () => {

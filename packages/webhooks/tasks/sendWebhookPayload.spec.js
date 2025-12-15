@@ -12,7 +12,7 @@ const {
     createTestWebhookPayload,
     softDeleteTestWebhookPayload,
 } = require('@open-condo/webhooks/schema/utils/testSchema')
-const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
+const { getWebhookRegularTasks } = require('@open-condo/webhooks/tasks/regularTasks')
 
 let SUCCESS_URL
 let SUCCESS_CALLS = []
@@ -50,7 +50,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
 
         beforeAll(async () => {
             actors = await actorsInitializer()
-            sendWebhookPayload = getWebhookTasks()['sendWebhookPayload']
+            sendWebhookPayload = getWebhookRegularTasks()['sendWebhookPayload']
 
             // Get server info after it's started by initTestExpressApp
             const serverInfo = getTestExpressApp('webhookTestServer')
