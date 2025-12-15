@@ -35,6 +35,7 @@ const { TicketSource } = require('./TicketSource')
 const { TicketStatus } = require('./TicketStatus')
 const { UserFavoriteTicket } = require('./UserFavoriteTicket')
 const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
+const { TicketObserver } = require('./TicketObserver')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -69,5 +70,6 @@ module.exports = {
     TicketMultipleUpdateService,
     TicketAutoAssignment,
     TicketDocumentGenerationTask,
+    TicketObserver,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
