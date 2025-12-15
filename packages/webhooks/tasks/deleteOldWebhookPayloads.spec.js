@@ -63,12 +63,8 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/history-test',
-                status: 'pending',
+                status: 'success',
             })
-
-            await knex('WebhookPayload')
-                .where({ id: payload.id })
-                .update({ status: 'success' })
 
             await knex('WebhookPayloadHistoryRecord')
                 .where({ history_id: payload.id })
