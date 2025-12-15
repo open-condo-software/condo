@@ -380,8 +380,7 @@ const Ticket = new GQLListSchema('Ticket', {
             type: 'Relationship',
             ref: 'TicketObserver.ticket',
             many: true, 
-            isRequired: false,
-            access: { create: false, update: false, read: false },
+            access: { create: false, update: false, read: false }, // Что по доступам?
             kmigratorOptions: { null: true },
         },
         // TODO(zuch): make it required

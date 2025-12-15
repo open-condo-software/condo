@@ -266,6 +266,9 @@ const TicketAutoAssignment = generateGqlQueries('TicketAutoAssignment', TICKET_A
 const TICKET_DOCUMENT_GENERATION_TASK_FIELDS = `{ ticket { id } status format progress user { id } timeZone file { id originalFilename publicUrl mimetype } documentType meta ${COMMON_FIELDS} }`
 const TicketDocumentGenerationTask = generateGqlQueries('TicketDocumentGenerationTask', TICKET_DOCUMENT_GENERATION_TASK_FIELDS)
 
+const TICKET_OBSERVER_FIELDS = `{ ticket { id } user { id } ${COMMON_FIELDS} }`
+const TicketObserver = generateGqlQueries('TicketObserver', TICKET_OBSERVER_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -306,5 +309,6 @@ module.exports = {
     TicketAutoAssignment,
     TicketDocumentGenerationTask,
     TICKET_EXPORT_TASK_OPTIONS_FIELDS,
+    TicketObserver,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

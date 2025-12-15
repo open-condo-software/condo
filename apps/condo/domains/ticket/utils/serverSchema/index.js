@@ -75,6 +75,7 @@ async function ticketMultipleUpdate (context, data) {
 
 const TicketAutoAssignment = generateServerUtils('TicketAutoAssignment')
 const TicketDocumentGenerationTask = generateServerUtils('TicketDocumentGenerationTask')
+const TicketObserver = generateServerUtils('TicketObserver')
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -304,5 +305,6 @@ module.exports = {
     ticketMultipleUpdate,
     TicketAutoAssignment,
     TicketDocumentGenerationTask,
+    TicketObserver,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
