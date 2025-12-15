@@ -149,8 +149,8 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, t
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions({ isVerifiedRef })
 
     const { ExportButton } = useContactExportToExcelTask({
-        where: getContactsWhere(tableRef.current?.api.getFilterState(), tableRef.current?.api.getGlobalFilter()),
-        sortBy: getContactsSortBy(tableRef.current?.api.getSorting()),
+        where: getContactsWhere(tableRef.current?.api?.getFilterState(), tableRef.current?.api?.getGlobalFilter()),
+        sortBy: getContactsSortBy(tableRef.current?.api?.getSorting()),
         format: ContactExportTaskFormatType.Excel,
         user,
         timeZone: intl.formatters.getDateTimeFormat().resolvedOptions().timeZone,
@@ -173,7 +173,7 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, t
                         <ImportWrapper
                             key='import'
                             accessCheck={true}
-                            onFinish={tableRef.current?.api.refetchData}
+                            onFinish={tableRef.current?.api?.refetchData}
                             columns={columns}
                             rowNormalizer={contactNormalizer}
                             rowValidator={contactValidator}
@@ -240,7 +240,7 @@ const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({
     const handleDeleteButtonClick = useCallback(async () => {
         const now = new Date().toISOString()
         await updateSelectedContactsByChunks({ deletedAt: now })
-        tableRef.current.api.setPagination({ startRow: 0, endRow: CONTACT_PAGE_SIZE })
+        tableRef.current?.api?.setPagination({ startRow: 0, endRow: CONTACT_PAGE_SIZE })
     }, [tableRef, updateSelectedContactsByChunks])
 
     const handleVerifyButtonClick = useCallback(async () => {
@@ -270,7 +270,7 @@ const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({
         <Button
             key='cancelContactsSelection'
             type='secondary'
-            onClick={tableRef.current?.api.resetRowSelection}
+            onClick={() => tableRef.current?.api?.resetRowSelection()}
         >
             {CancelSelectionMessage}
         </Button>,

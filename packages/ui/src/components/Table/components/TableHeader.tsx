@@ -198,7 +198,7 @@ function SettingsMenuDropdown <TData> ({
 }: SettingsMenuDropdownProps<TData>) {
 
     const handleResetSettings = useCallback(() => {
-        // NOTE: If we reset settings to default, we need to reset filter and sorting state of all hiddent columns
+        // NOTE: If we reset settings to default, we need to reset filter and sorting state of all hidden columns
         const columnsToReset = new Set<string>()
         table.getAllColumns().forEach(columnItem => {
             if (!columnItem.columnDef.meta?.initialVisibility) {

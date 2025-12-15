@@ -397,7 +397,7 @@ function TableComponent<TData extends RowData = RowData> (
             setFilterState: (newFilterState: FilterState) => {
                 // NOTE: If we change filter state, we need to reset pagination to the first page and reset row selection
                 setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
-                handleRowSelectionChange({})
+                table.resetRowSelection()
                 const newFilter = ([key, value]: [string, unknown]): ColumnFiltersState[number] => ({ id: key, value: value })
                 setColumnFilters(() => {
                     return [...Object.entries(newFilterState).map(newFilter).filter(Boolean)] as ColumnFiltersState
@@ -407,7 +407,7 @@ function TableComponent<TData extends RowData = RowData> (
             setColumnFilter: (columnId: string, value: unknown) => {
                 // NOTE: If we change column filter, we need to reset pagination to the first page and reset row selection
                 setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
-                handleRowSelectionChange({})
+                table.resetRowSelection()
                 const findIndex = (filter: ColumnFiltersState[number]) => filter.id === columnId
                 setColumnFilters((prev) => {                    
                     const existingFilterIndex = prev.findIndex(findIndex)
@@ -424,7 +424,7 @@ function TableComponent<TData extends RowData = RowData> (
             setGlobalFilter: (newGlobalFilter: string | undefined) => {
                 // NOTE: If we change global filter, we need to reset pagination to the first page and reset row selection
                 setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
-                handleRowSelectionChange({})
+                table.resetRowSelection()
                 setGlobalFilter(newGlobalFilter)
             },
             getPagination: () => ({ startRow: table.getState().pagination.pageIndex * table.getState().pagination.pageSize, endRow: table.getState().pagination.pageIndex * table.getState().pagination.pageSize + table.getState().pagination.pageSize }),
@@ -435,7 +435,7 @@ function TableComponent<TData extends RowData = RowData> (
             setSorting: (newSorting: SortingState) => {
                 // NOTE: If we change sorting, we need to reset pagination to the first page and reset row selection
                 setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
-                handleRowSelectionChange({})
+                table.resetRowSelection()
                 setSorting(newSorting)
             },
             getRowSelection: () => table.getSelectedRowModel().flatRows.map(row => row.id),
