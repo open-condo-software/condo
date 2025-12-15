@@ -36,7 +36,7 @@ async function userDeleter (client, user) {
 // NOTE 2: Passing init function for actors, since their creation may differ from app to app
 // NOTE 3: Passing creator / deleter for testing sending objects with deletedAt
 describe('External webhook specifications', () => {
-    setFakeClientMode('@app/condo/index', { excludeApps: ['OIDCMiddleware'] })
+    setFakeClientMode('@app/condo/index', { excludeApps: ['OIDCMiddleware', 'NextApp'] })
 
     SendWebhookTests('Condo', initializeActors, userCreator, userDeleter)
     SendWebhookPayloadTests('Condo', initializeActors)
