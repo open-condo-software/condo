@@ -1,6 +1,6 @@
 `GET /api/search`
 
-Searches for organizations by partial name or TIN. The `name` field in the response contains service categories provided by the organization.
+Searches for organizations by partial name or TIN.
 
 ## 🔐Authentication
 
@@ -8,24 +8,25 @@ Searches for organizations by partial name or TIN. The `name` field in the respo
 
 ## Query parameters
 
-| Field  | Type/Format                   | Required | Description                                          | Example      |
-|--------|-------------------------------|----------|------------------------------------------------------|--------------|
-| search | string\<3 to 100 characters\> | ✅        | Search string: partial organization name or full TIN | `9731062087` |
+| Field  | Type/Format                   | Required | Description                                          | Example                   |
+|--------|-------------------------------|----------|------------------------------------------------------|---------------------------|
+| search | string\<3 to 100 characters\> | ✅        | Search string: partial organization name or full TIN | `9731062087`, `Столичный` |
 
 ## Request example
 
 ```
-GET /api/search?uid=b6118eed-9ff2-4632-a663-7e6eb4e8b5d6&search=9731062087
+GET /api/search?search=9731062087
 ```
 
 ## Response
 
-| Parameter   | Type/Format    | Required | Description                                  | Example                                 |
-|-------------|----------------|----------|----------------------------------------------|-----------------------------------------|
-| id          | string\<uuid\> | ✅        | Unique organization identifier               | `452f081a-7612-48e1-bc4e-89d6cea366e7`  |
-| name        | string         | ✅        | **Service categories**, comma-separated      | `Utilities`,`Water supply, Electricity` |
-| tin         | string         | ✅        | Organization TIN (Tax Identification Number) | `0323340678`                            |
-| bankAccount | string         | ✅        | Organization bank account                    | `40702810430901955407`                  |
+| Parameter    | Type/Format    | Required | Description                                  | Example                                        |
+|--------------|----------------|----------|----------------------------------------------|------------------------------------------------|
+| id           | string\<uuid\> | ✅        | Unique organization identifier               | `452f081a-7612-48e1-bc4e-89d6cea366e7`         |
+| organization | string         | ✅        | Organization name                            | `ООО УК "Столичный дом"`                       |
+| categories   | string         | ✅        | **Service categories**, comma-separated      | `Квартплата`,`Водоснабжение, Электроснабжение` |
+| tin          | string         | ✅        | Organization TIN (Tax Identification Number) | `7712345678`                                   |
+| bankAccount  | string         | ✅        | Organization bank account                    | `40702810500000001234`                         |
 
 ## Response example
 
@@ -34,17 +35,18 @@ GET /api/search?uid=b6118eed-9ff2-4632-a663-7e6eb4e8b5d6&search=9731062087
     "data": [
         {
             "id": "452f081a-7612-48e1-bc4e-89d6cea366e7",
-            "name": "Utilities",
-            "tin": "0323340678",
-            "bankAccount": "40702810430901955407"
+            "organization": "ООО УК \"Столичный дом\"",
+            "categories": "Квартплата",
+            "tin": "7712345678",
+            "bankAccount": "40702810500000001234"
         }
     ]
 }
 ```
 
-## Коды ошибок
+## Error Codes
 
-| Код ошибки               | HTTP статус | Сообщение                 | Причина                     | Решение                             |
+| Error Code               | HTTP Status | Message                   | Cause                       | Solution                            |
 |--------------------------|-------------|---------------------------|-----------------------------|-------------------------------------|
 | `VALIDATION_FAILED`      | 400         | Invalid format of input   | Parameter validation error	 | Check the search format             |
 | `ORGANIZATION_NOT_FOUND` | 404         | Organization is not found | Organization not found      | Refine your search query            |

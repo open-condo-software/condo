@@ -2,9 +2,9 @@
 All API requests require Basic Authentication and must be executed **only from IP addresses registered in the agent**.
 
 <Alert type={'warning'}>
-  - Your IP addresses are registered in the system
-  - You have valid `username` and `password` credentials
-  - You know your unique `uid`
+**For operation, ensure that:**
+- Your IP addresses are registered in the system
+- You have valid `username` and `password` credentials
 </Alert>
 
 ## Mandatory Requirements
@@ -20,33 +20,15 @@ Authorization: Basic <base64_encoded_credentials>
 
 ### Example
 ```bash
-curl -X GET "https://accruals-gateway.doma.ai/api/search?uid=b6118eed-9ff2-4632-a663-7e6eb4e8b5d6&search=Utilities" \
+curl -X GET "https://accruals-gateway.doma.ai/api/search?search=Столичный" \
   -H "Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ="
 ```
 
-### 3.  User Identifier (uid)
-A unique user identifier must be passed in each request using one of the following methods:
-
-#### For GET requests (query parameters):
-```
-GET /api/search?uid=b6118eed-9ff2-4632-a663-7e6eb4e8b5d6&search=Utilities
-```
-
-#### For POST requests (body parameters):
-```json
-{
-  "uid": "b6118eed-9ff2-4632-a663-7e6eb4e8b5d6",
-  "id": "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8",
-  "txnId": "12345",
-  "txnDate": "2024-01-01T12:00:00Z",
-  "amount": "1500.75"
-}
-```
 ## Authorization Errors
 
 | Error Code	            | 	HTTP Status | 	Message                 | 	Cause                                                |
 |------------------------|--------------|--------------------------|-------------------------------------------------------|
-| AGENT_NOT_FOUND        | 404          | Agent is not found       | 	The provided uid does not match any registered agent |
+| AGENT_NOT_FOUND        | 404          | Agent is not found       | 	The provided `username` does not match any registered agent |
 | AGENT_DISABLED         | 403          | Agent is disabled        | The agent exists but is disabled in the system        |
 | IP_NOT_ALLOWED         | 403          | IP address not allowed   | 	Request was made from an unregistered IP address     |
 | INVALID_HEADERS        | 403          | Invalid headers provided | Invalid headers are present                           |

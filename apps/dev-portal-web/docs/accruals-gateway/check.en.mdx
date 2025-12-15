@@ -1,6 +1,6 @@
 `GET /api/check`
 
-Returns a list of accruals by organization TIN and personal account. The response is always an array (may be empty, but in this case a 404 error is returned).
+Returns a list of accruals by organization TIN and personal account. The response is always an array if accruals are found, otherwise a 404 error is returned..
 
 ## 🔐Authentication
 
@@ -8,34 +8,34 @@ Returns a list of accruals by organization TIN and personal account. The respons
 
 ## Query parameters
 
-| Parameter | Type/Format                   | Required | Description             | Example      |
-|-----------|-------------------------------|----------|-------------------------|--------------|
-| tin       | string\<10 to 12 characters\> | ✅        | Organization TIN        | `9731062087` |
-| account   | string\<1 to 100 characters\> | ✅        | Personal account number | `1234567890` |
+| Parameter | Type/Format                   | Required | Description             | Example         |
+|-----------|-------------------------------|----------|-------------------------|-----------------|
+| tin       | string\<10 to 12 characters\> | ✅        | Organization TIN        | `7712345678`    |
+| account   | string\<1 to 100 characters\> | ✅        | Personal account number | `ЛС-1234567890` |
 
 ## Request example
 
 ```
-GET /api/check?uid=b6118eed-9ff2-4632-a663-7e6eb4e8b5d6&tin=9731062087&account=1234567890
+GET /api/check?tin=9731062087&account=ЛС-1234567890
 ```
 
 ## Response
 
-| Parameter      | Type/Format          | Required | Description                                     | Example                                      |
-|----------------|----------------------|----------|-------------------------------------------------|----------------------------------------------|
-| id             | string\<uuid\>       | ✅        | Unique accrual identifier                       | `75b12bb4-a87b-4c5d-8e4d-900802c67ed3`       |
-| category       | string               | ✅        | Accrual category                                | `Utilities`, `Electricity`                   |
-| account        | string               | ✅        | Payer's personal account                        | `1234567890`                                 |
-| toPay          | string               | ✅        | Amount to pay                                   | `18373.40000000`                             |
-| period         | string\<YYYY-MM-01\> | ✅        | Accrual period                                  | `2025-08-01`                                 |
-| address        | string               | ✅        | Property address                                | `Krasnodar Krai, Sochi, Makarenko str., 30`  |
-| organization   | string               | ✅        | Recipient organization name                     | `ООО УК "ЮЖУРАЛЖКХ"`                         |
-| tin            | string               | ✅        | Organization TIN                                | `9731062087`                                 |
-| iec            | string               | ✅        | Organization IEC (Tax Registration Reason Code) | `745101001`                                  |
-| routingNumber  | string               | ✅        | Recipient bank BIC (Bank Identification Code)   | `043735650`                                  |
-| bankAccount    | string               | ✅        | Organization bank account                       | `40701810032000000067`                       |
-| receiptFileUrl | string               | ❌        | Link to the receipt                             | `https://example.com/receipt.pdf`            |
-| purpose        | string               | ✅        | Payment purpose for bank transfer               | `Account 1234567890, Bank Account 043735650` |
+| Parameter      | Type/Format          | Required | Description                                     | Example                                                        |
+|----------------|----------------------|----------|-------------------------------------------------|----------------------------------------------------------------|
+| id             | string\<uuid\>       | ✅        | Unique accrual identifier                       | `75b12bb4-a87b-4c5d-8e4d-900802c67ed3`                         |
+| category       | string               | ✅        | Accrual category                                | `Квартплата`, `Электроэнергия`                                 |
+| account        | string               | ✅        | Payer's personal account                        | `ЛС-1234567890`                                                |
+| toPay          | string               | ✅        | Amount to pay                                   | `15620.50`                                                     |
+| period         | string\<YYYY-MM-01\> | ✅        | Accrual period                                  | `2025-08-01`                                                   |
+| address        | string               | ✅        | Property address                                | `г Москва, ул Тверская, д 15, кв 42`                           |
+| organization   | string               | ✅        | Recipient organization name                     | `ООО УК "Столичный дом"`                                       |
+| tin            | string               | ✅        | Organization TIN                                | `7712345678`                                                   |
+| iec            | string               | ❌        | Organization IEC (Tax Registration Reason Code) | `770101001`                                                    |
+| routingNumber  | string               | ✅        | Recipient bank BIC (Bank Identification Code)   | `044525555`                                                    |
+| bankAccount    | string               | ✅        | Organization bank account                       | `40702810500000001234`                                         |
+| receiptFileUrl | string               | ❌        | Link to the receipt                             | `https://example.com/receipt.pdf`                              |
+| purpose        | string               | ✅        | Payment purpose for bank transfer               | `Квартплата за август 2025 г. по лицевому счету ЛС-1234567890` |
 
 ## Response example
 
@@ -43,25 +43,25 @@ GET /api/check?uid=b6118eed-9ff2-4632-a663-7e6eb4e8b5d6&tin=9731062087&account=1
 {   
     "data": [
         {
-            "id": "75b12bb4-a87b-4c5d-8e4d-900802c67ed3",
+            "id": "c7f3a892-e5b1-4d6c-8a9f-1234567890ab",
             "category": "Квартплата",
-            "account": "1234567890",
-            "toPay": "18373.40000000",
+            "account": "ЛС-7845123690",
+            "toPay": "15620.50",
             "period": "2025-08-01",
-            "address": "Краснодарский край, г Сочи, ул Макаренко, д 30",
-            "organization": "ООО УК \"ЮЖУРАЛЖКХ\"",
-            "tin": "9731062087",
-            "iec": "745101001",
-            "routingNumber": "043735650",
-            "bankAccount": "40701810032000000067",
-            "receiptFileUrl": "https://example.com",
-            "purpose": "ЛС 1234567890, Р/С 043735650"
-        }
+            "address": "г Москва, ул Тверская, д 15, кв 42",
+            "organization": "ООО УК \"Столичный дом\"",
+            "tin": "7712345678",
+            "iec": "770101001",
+            "routingNumber": "044525555",
+            "bankAccount": "40702810500000001234",
+            "receiptFileUrl": "https://teststorage.com/receipts/august-2025.pdf",
+            "purpose": "Оплата жилищно-коммунальных услуг за август 2025"
+        },
     ]
 }
 ```
 
-## Коды ошибок
+## Error Codes
 
 | Код ошибки              | HTTP статус | Сообщение                   | Причина                            | Решение                            |
 |-------------------------|-------------|-----------------------------|------------------------------------|------------------------------------|
