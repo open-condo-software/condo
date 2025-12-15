@@ -302,44 +302,52 @@ function TableComponent<TData extends RowData = RowData> (
         fetchData()
     }, [fetchData])
 
-    const handleRowSelectionChange = useCallback((updaterOrValue: Updater<RowSelectionState>) => {
-        const newRowSelection = typeof updaterOrValue === 'function' ? updaterOrValue(rowSelection) : updaterOrValue
-        if (rowSelectionOptions?.onRowSelectionChange) {
-            rowSelectionOptions.onRowSelectionChange(Object.keys(newRowSelection))
-        }
-        setRowSelection(newRowSelection)
-    }, [rowSelectionOptions, rowSelection])
+    const handlePaginationChange = useCallback((updaterOrValue: Updater<PaginationState>) => {
+        setPagination(prev => {
+            const newPagination = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue
+            return newPagination
+        })
+    }, [])
 
-    const table = useReactTable<TData>({
-        data: tableData,
-        columns: tableColumns,
-        getCoreRowModel: getCoreRowModel(),
-        onSortingChange: (updaterOrValue) => {
-            // NOTE: If we change sorting, we need to reset pagination to the first page and reset row selection
-            setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
-            handleRowSelectionChange({})
-            const newSorting = typeof updaterOrValue === 'function' ? updaterOrValue(sorting) : updaterOrValue
-            
+    const handleRowSelectionChange = useCallback((updaterOrValue: Updater<RowSelectionState>) => {
+        setRowSelection(prev => {
+            const newRowSelection = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue
+            if (rowSelectionOptions?.onRowSelectionChange) {
+                rowSelectionOptions.onRowSelectionChange(Object.keys(newRowSelection))
+            }
+            return newRowSelection
+        })
+    }, [rowSelectionOptions])
+
+    const handleSortingChange = useCallback((updaterOrValue: Updater<SortingState>) => {
+        // NOTE: If we change sorting, we need to reset pagination to the first page and reset row selection
+        handlePaginationChange({ pageIndex: 0, pageSize: pagination.pageSize })
+        handleRowSelectionChange({})
+        setSorting(prev => {
+            const newSorting = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue
+        
             const validatedSorting = newSorting.filter(sortItem => {
                 const column = tableColumns.find(col => col.id === sortItem.id)
                 if (!column) return false
                 
                 return column.enableSorting !== false
             })
-            
-            setSorting(validatedSorting)
-        },
-        onColumnFiltersChange: (updaterOrValue) => {
-            // NOTE: If we change column filters, we need to reset pagination to the first page and reset row selection
-            setPagination(prev => prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 })
-            handleRowSelectionChange({})
+            return validatedSorting
+        })
+    }, [handlePaginationChange, handleRowSelectionChange, pagination.pageSize, tableColumns])
+    
+    const handleColumnFiltersChange = useCallback((updaterOrValue: Updater<ColumnFiltersState>) => {
+        // NOTE: If we change column filters, we need to reset pagination to the first page and reset row selection
+        handlePaginationChange({ pageIndex: 0, pageSize: pagination.pageSize })
+        handleRowSelectionChange({})
 
-            const newFilters = typeof updaterOrValue === 'function' ? updaterOrValue(columnFilters) : updaterOrValue
+        setColumnFilters(prev => {
+            const newFilters = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue
 
             const filteredFilters = newFilters.filter(filter => {
                 const column = tableColumns.find(col => col.id === filter.id)
                 if (!column?.enableColumnFilter) return false
-
+    
                 const value = filter.value
                 if (value === null || value === undefined) return false
                 if (typeof value === 'string') return value.trim() !== ''
@@ -347,11 +355,29 @@ function TableComponent<TData extends RowData = RowData> (
                 if (typeof value === 'object') return Object.keys(value).length > 0
                 return true
             })
-            setColumnFilters(filteredFilters)
-        },
+            return filteredFilters
+        })
+    }, [handlePaginationChange, handleRowSelectionChange, pagination.pageSize, tableColumns])
+
+    const handleGlobalFilterChange = useCallback((updaterOrValue: Updater<string | undefined>) => {
+        // NOTE: If we change global filter, we need to reset pagination to the first page and reset row selection
+        handlePaginationChange({ pageIndex: 0, pageSize: pagination.pageSize })
+        handleRowSelectionChange({})
+        setGlobalFilter(prev => {
+            const newGlobalFilter = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue
+            return newGlobalFilter
+        })
+    }, [handlePaginationChange, handleRowSelectionChange, pagination.pageSize])
+
+    const table = useReactTable<TData>({
+        data: tableData,
+        columns: tableColumns,
+        getCoreRowModel: getCoreRowModel(),
+        onSortingChange: handleSortingChange,
+        onColumnFiltersChange: handleColumnFiltersChange,
         onRowSelectionChange: handleRowSelectionChange,
-        onGlobalFilterChange: setGlobalFilter,
-        onPaginationChange: setPagination,
+        onGlobalFilterChange: handleGlobalFilterChange,
+        onPaginationChange: handlePaginationChange,
         manualSorting: true,
         manualFiltering: true,
         manualPagination: true,
