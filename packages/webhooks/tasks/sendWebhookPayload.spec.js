@@ -1,6 +1,7 @@
 const dayjs = require('dayjs')
 const express = require('express')
 
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { initTestExpressApp, getTestExpressApp } = require('@open-condo/keystone/test.utils')
 const {
     WEBHOOK_PAYLOAD_STATUS_PENDING,
@@ -91,6 +92,50 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
             expect(SUCCESS_CALLS).toHaveLength(1)
             expect(SUCCESS_CALLS[0].headers).toHaveProperty('x-webhook-id', payload.id)
             expect(SUCCESS_CALLS[0].headers).toHaveProperty('x-webhook-signature')
+
+            await softDeleteTestWebhookPayload(actors.admin, payload.id)
+        })
+
+        it('Must skip processing if payload is locked', async () => {
+            const kvClient = getKVClient('sendWebhookPayload', 'lock')
+            const expiresAt = dayjs().add(7, 'day').toISOString()
+            const [payload] = await createTestWebhookPayload(actors.admin, {
+                url: SUCCESS_URL,
+                status: WEBHOOK_PAYLOAD_STATUS_PENDING,
+                expiresAt,
+                attempt: 0,
+            })
+
+            const lockKey = `sendWebhookPayload:${payload.id}`
+            await kvClient.set(lockKey, 'test-lock', 'EX', 60)
+
+            await sendWebhookPayload.delay.fn(payload.id)
+
+            const updated = await WebhookPayload.getOne(actors.admin, { id: payload.id })
+            expect(updated).toHaveProperty('status', WEBHOOK_PAYLOAD_STATUS_PENDING)
+            expect(updated).toHaveProperty('attempt', 0)
+            expect(SUCCESS_CALLS).toHaveLength(0)
+
+            await kvClient.del(lockKey)
+            await softDeleteTestWebhookPayload(actors.admin, payload.id)
+        })
+
+        it('Must release lock after processing', async () => {
+            const kvClient = getKVClient('sendWebhookPayload', 'lock')
+            const expiresAt = dayjs().add(7, 'day').toISOString()
+            const [payload] = await createTestWebhookPayload(actors.admin, {
+                url: SUCCESS_URL,
+                status: WEBHOOK_PAYLOAD_STATUS_PENDING,
+                expiresAt,
+                attempt: 0,
+            })
+
+            const lockKey = `sendWebhookPayload:${payload.id}`
+
+            await sendWebhookPayload.delay.fn(payload.id)
+
+            const lockValueAfter = await kvClient.get(lockKey)
+            expect(lockValueAfter).toBeNull()
 
             await softDeleteTestWebhookPayload(actors.admin, payload.id)
         })
