@@ -53,6 +53,7 @@ const SettingsPage: PageComponentType = () => {
     const EmployeeRolesTitle = intl.formatMessage({ id: 'EmployeeRoles' })
     const MobileFeatureConfigTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig' })
     const MarketSettingTitle = intl.formatMessage({ id: 'global.section.marketplace' })
+    const SubscriptionsTitle = intl.formatMessage({ id: 'Subscriptions' })
 
     const { useFlag } = useFeatureFlags()
 
@@ -98,7 +99,7 @@ const SettingsPage: PageComponentType = () => {
             //todo fix condition
             isManagingCompany && {
                 key: SETTINGS_TAB_SUBSCRIPTION,
-                label: 'SubscriptionTitle',
+                label: SubscriptionsTitle,
                 children: <SubscriptionSettingsContent />,
             },
             isManagingCompany && {

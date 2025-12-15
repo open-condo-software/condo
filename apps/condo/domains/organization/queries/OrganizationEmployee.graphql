@@ -33,7 +33,23 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
             importRemoteSystem
             meta
             subscription {
-                id
+                id 
+                subscriptionPlan { 
+                    id
+                    name
+                    trialDays
+                    priority
+                    news
+                    marketplace
+                    support
+                    ai
+                    passTickets
+                    canBePromoted
+                }
+                startAt
+                endAt
+                isTrial
+                daysRemaining
             }
         }
         role {
@@ -110,6 +126,7 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
             canReadMarketSetting
             canManageMarketSetting
             canManageTicketAutoAssignments
+            canManageSubscriptions
         }
     }
 }
