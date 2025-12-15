@@ -66,10 +66,10 @@ export type FilterComponent = (props: FilterComponentProps) => ReactNode
 
 export type TableColumnMeta = {
     filterComponent?: FilterComponent
-    enableColumnSettings?: boolean
-    enableColumnMenu?: boolean
+    enableColumnSettings: boolean
+    enableColumnMenu: boolean
     enableColumnResize?: boolean
-    initialVisibility?: boolean
+    initialVisibility: boolean
     initialSize?: string | number
     initialOrder?: number
 }

@@ -25,6 +25,7 @@ const filterAddress = getFilter(['property', 'id'], 'array', 'string', 'in')
 const filterRole = getFilter(['role', 'id'], 'array', 'string', 'in')
 const filterIsVerified = getBooleanFilter(['isVerified'])
 const filterCreatedAtRange = getDayRangeFilter('createdAt')
+const filterNote = getStringContainsFilter('note')
 
 type UseContactsTableFilters = () => Array<TableFiltersMeta<ContactWhereInput>>
 
@@ -40,6 +41,7 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
     const YesMessage = intl.formatMessage({ id: 'Yes' })
     const NoMessage = intl.formatMessage({ id: 'No' })
     const SelectMessage = intl.formatMessage({ id: 'Select' })
+    const NoteMessage = intl.formatMessage({ id: 'contact.column.header.note' })
 
     const { organization } = useOrganization()
     const organizationId = organization?.id || null
@@ -180,6 +182,16 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
                     },
                 },
             },
+            {
+                keyword: 'note',
+                filters: [filterNote],
+                component: {
+                    type: ComponentType.Input,
+                    props: {
+                        placeholder: NoteMessage,
+                    },
+                },
+            },
         ]
     }, [
         EnterAddressMessage,
@@ -196,5 +208,6 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
         organizationId,
         unitTypeOptions,
         contactRolesLoading,
+        NoteMessage,
     ])
 }

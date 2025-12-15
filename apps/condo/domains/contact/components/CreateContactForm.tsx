@@ -177,6 +177,7 @@ export const CreateContactForm: React.FC = () => {
         })
 
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allContactsMeta' })
         client.cache.gc()
 
         if (redirectToClientCard) {

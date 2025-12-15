@@ -16,11 +16,10 @@ import {
 import { Col, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import chunk from 'lodash/chunk'
-import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -136,7 +135,7 @@ const useContactImportIsVerifiedCheckbox = () => {
 type DefaultActionBarProps = {
     getContactsWhere: (filterState: FilterState, globalFilter: string | undefined) => ContactWhereInput
     getContactsSortBy: (sortState: SortState) => SortContactsBy[]
-    tableRef: TableRef | null
+    tableRef: RefObject<TableRef | null>
 }
 const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, tableRef, getContactsSortBy }) => {
     const intl = useIntl()
@@ -150,8 +149,8 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, t
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions({ isVerifiedRef })
 
     const { ExportButton } = useContactExportToExcelTask({
-        where: getContactsWhere(tableRef?.api?.getFilterState(), tableRef?.api?.getGlobalFilter()),
-        sortBy: getContactsSortBy(tableRef?.api?.getSorting()),
+        where: getContactsWhere(tableRef.current?.api.getFilterState(), tableRef.current?.api.getGlobalFilter()),
+        sortBy: getContactsSortBy(tableRef.current?.api.getSorting()),
         format: ContactExportTaskFormatType.Excel,
         user,
         timeZone: intl.formatters.getDateTimeFormat().resolvedOptions().timeZone,
@@ -174,7 +173,7 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, t
                         <ImportWrapper
                             key='import'
                             accessCheck={true}
-                            onFinish={tableRef?.api?.refetchData}
+                            onFinish={tableRef.current?.api.refetchData}
                             columns={columns}
                             rowNormalizer={contactNormalizer}
                             rowValidator={contactValidator}
@@ -194,7 +193,7 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, t
 }
 
 type ActionBarWithSelectedItemsProps = {
-    tableRef: TableRef | null
+    tableRef: RefObject<TableRef | null>
     selectedRowsCount: number
 }
 const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({ tableRef, selectedRowsCount }) => {
@@ -215,9 +214,9 @@ const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({
     })
 
     const updateSelectedContactsByChunks = useCallback(async (payload) => {
-        if (!selectedRowsCount || !tableRef.api) return
+        if (!selectedRowsCount || !tableRef.current?.api) return
 
-        const itemsToDeleteByChunks = chunk(tableRef?.api?.getRowSelection().map((key) => ({
+        const itemsToDeleteByChunks = chunk(tableRef.current.api.getRowSelection().map((key) => ({
             id: key,
             data: {
                 dv: 1,
@@ -234,15 +233,15 @@ const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({
             })
         }
 
-        tableRef?.api?.resetRowSelection()
-        await tableRef?.api?.refetchData()
-    }, [selectedRowsCount, tableRef.api, updateContactsMutation])
+        tableRef.current.api.resetRowSelection()
+        await tableRef.current.api.refetchData()
+    }, [selectedRowsCount, tableRef, updateContactsMutation])
 
     const handleDeleteButtonClick = useCallback(async () => {
         const now = new Date().toISOString()
         await updateSelectedContactsByChunks({ deletedAt: now })
-        tableRef?.api?.setPagination({ startRow: 0, endRow: CONTACT_PAGE_SIZE })
-    }, [tableRef?.api, updateSelectedContactsByChunks])
+        tableRef.current.api.setPagination({ startRow: 0, endRow: CONTACT_PAGE_SIZE })
+    }, [tableRef, updateSelectedContactsByChunks])
 
     const handleVerifyButtonClick = useCallback(async () => {
         await updateSelectedContactsByChunks({ isVerified: true })
@@ -271,13 +270,13 @@ const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({
         <Button
             key='cancelContactsSelection'
             type='secondary'
-            onClick={tableRef?.api?.resetRowSelection}
+            onClick={tableRef.current?.api.resetRowSelection}
         >
             {CancelSelectionMessage}
         </Button>,
     ], [
         ConfirmDeleteManyContactsTitle, ConfirmDeleteManyContactsMessage, DeleteMessage, handleDeleteButtonClick,
-        DontDeleteMessage, handleVerifyButtonClick, tableRef?.api?.resetRowSelection, CancelSelectionMessage, VerifyMessage,
+        DontDeleteMessage, handleVerifyButtonClick, tableRef, CancelSelectionMessage, VerifyMessage,
     ])
 
     return (
@@ -419,22 +418,19 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
     const updateUrlQuery = useCallback((params: FullTableState) => defaultUpdateUrlQuery(router, params), [router])
 
     useEffect(() => {
-        const handleRouteChangeComplete = (url: string) => {
-            const pathname = url.split('?')[0]
-            const query = url.split('?')[1]
-            if (pathname === '/contact' || pathname === '/contact/') {
-                if (tableRef.current && !query) {
-                    tableRef.current.api?.setFullTableState({
-                        filterState: {},
-                        sortState: [],
-                        startRow: 0,
-                        endRow: CONTACT_PAGE_SIZE,
-                        globalFilter: '',
-                        rowSelectionState: [],
-                    })
-                    handleSearchChange('')
-                    setSelectedRowsCount(0)
-                }
+        const handleRouteChangeComplete = (_: string, { shallow }: { shallow: boolean }) => {
+            // NOTE: We need to reset table state only if we full routing to the page, not just a shallow change
+            if (!shallow && tableRef.current) {
+                tableRef.current.api?.setFullTableState({
+                    filterState: {},
+                    sortState: [],
+                    startRow: 0,
+                    endRow: CONTACT_PAGE_SIZE,
+                    globalFilter: '',
+                    rowSelectionState: [],
+                })
+                handleSearchChange('')
+                setSelectedRowsCount(0)
             }
         }
         
@@ -563,14 +559,14 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
                 canManageContacts && (
                     selectedRowsCount > 0 ? (
                         <ActionBarWithSelectedItems
-                            tableRef={tableRef?.current}
+                            tableRef={tableRef}
                             selectedRowsCount={selectedRowsCount}
                         />
                     ) : (
                         <DefaultActionBar
                             getContactsWhere={getContactsWhere}
                             getContactsSortBy={getContactsSortBy}
-                            tableRef={tableRef?.current}
+                            tableRef={tableRef}
                         />
                     )
                 )
@@ -588,7 +584,7 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
     const {
         data: contactExistenceData,
         loading: contactExistenceDataLoading,
-        refetch,
+        refetch: contactExistenceRefetch,
     } = useGetContactsExistenceQuery({
         variables: {
             where: {
@@ -596,7 +592,6 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
             },
         },
         skip: loading,
-
     })
     const contactExistenceCount = contactExistenceData?.count?.count || 0
     const canManageContacts = role?.canManageContacts
@@ -616,7 +611,7 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
                     manualCreateDescription: EmptyListManualBodyDescription,
                     importCreateEmoji: EMOJI.FAMILY,
                     importWrapper: {
-                        onFinish: refetch,
+                        onFinish: contactExistenceRefetch,
                         columns: columns,
                         rowNormalizer: contactNormalizer,
                         rowValidator: contactValidator,
@@ -664,7 +659,7 @@ const ContactsPage: PageComponentType = () => {
     const userOrganizationId = useMemo(() => organization?.id, [organization?.id])
 
     const tableRef = useRef<TableRef | null>(null)
-    const [search, handleSearchChange] = useTableSearch(tableRef.current)
+    const [search, handleSearchChange] = useTableSearch(tableRef)
     const tableColumns = useTableColumns(filterMeta)
 
     const baseSearchQuery: ContactBaseSearchQuery = useMemo(() => ({

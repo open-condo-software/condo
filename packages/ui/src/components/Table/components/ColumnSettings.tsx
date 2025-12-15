@@ -48,8 +48,8 @@ export const ColumnSettings = <TData extends RowData = RowData>({ columns, table
         }
     }, [columns, table])
 
-    const handleToggleVisibility = useCallback((columnKey: string, checked: boolean) => {
-        const column = table.getColumn(columnKey)
+    const handleToggleVisibility = useCallback((columnId: string, checked: boolean) => {
+        const column = table.getColumn(columnId)
         
         // NOTE: If column is hidden - reset filter and sorting state
         if (!checked && column) {

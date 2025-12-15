@@ -124,10 +124,11 @@ export const EditContactForm: React.FC = () => {
                 })
             }
         } else {
-            await router.push('/contact')
+            await router.push(`/contact/${contactId}`)
         }
 
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allContactsMeta' })
         client.cache.gc()
     }, [client.cache, contactId, redirectToClientCard, router, updateContactMutation])
 
