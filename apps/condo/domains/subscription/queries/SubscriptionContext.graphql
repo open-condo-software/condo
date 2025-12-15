@@ -62,6 +62,7 @@ query getOrganizationTrialSubscriptions($organizationId: ID!) {
         }
         isTrial
         startAt
+        daysRemaining
         endAt
         createdAt
     }

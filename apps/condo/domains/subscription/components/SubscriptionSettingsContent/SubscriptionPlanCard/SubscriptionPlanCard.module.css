@@ -1,0 +1,22 @@
+.subscription-plan-card {
+  width: 380px;
+}
+
+.main-content {
+  min-height: 320px;
+}
+
+.description {
+  height: 72px;
+  overflow: hidden;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header {
+  justify-content: space-between;
+}

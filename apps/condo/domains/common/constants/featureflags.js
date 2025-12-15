@@ -88,9 +88,6 @@ module.exports = {
     UI_AI_REWRITE_NEWS_TEXT,
     UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT,
     ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID,
-<<<<<<< HEAD
     TICKET_OBSERVERS,
-=======
     DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID,
->>>>>>> 5ae8d02de9 (fix(condo): DOMA-12733 add front for subscription)
 }

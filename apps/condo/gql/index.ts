@@ -3402,6 +3402,22 @@ export const GetActiveOrganizationEmployeeDocument = gql`
       meta
       subscription {
         id
+        subscriptionPlan {
+          id
+          name
+          trialDays
+          priority
+          news
+          marketplace
+          support
+          ai
+          passTickets
+          canBePromoted
+        }
+        startAt
+        endAt
+        isTrial
+        daysRemaining
       }
     }
     role {
@@ -3478,6 +3494,7 @@ export const GetActiveOrganizationEmployeeDocument = gql`
       canReadMarketSetting
       canManageMarketSetting
       canManageTicketAutoAssignments
+      canManageSubscriptions
     }
   }
 }
@@ -4847,6 +4864,8 @@ export const GetAvailableSubscriptionPlansDocument = gql`
         passTickets
       }
       prices {
+        id
+        name
         period
         price
         currencyCode
@@ -4984,6 +5003,7 @@ export const GetOrganizationTrialSubscriptionsDocument = gql`
     }
     isTrial
     startAt
+    daysRemaining
     endAt
     createdAt
   }

@@ -89583,6 +89583,7 @@ type RegisterPropertyMetersReadingsOutput {
 
 type SubscriptionPlanPrice {
   id: ID!
+  name: String!
   period: String!
   price: String
   currencyCode: String
