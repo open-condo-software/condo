@@ -76257,6 +76257,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canManageBillingReceiptFiles: Boolean
   canReadBillingAccounts: Boolean
   canManageBillingAccounts: Boolean
   canReadBillingProperties: Boolean
@@ -76367,6 +76369,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadBillingReceipts_not: Boolean
   canManageBillingReceipts: Boolean
   canManageBillingReceipts_not: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canReadBillingReceiptFiles_not: Boolean
+  canManageBillingReceiptFiles: Boolean
+  canManageBillingReceiptFiles_not: Boolean
   canReadBillingAccounts: Boolean
   canReadBillingAccounts_not: Boolean
   canManageBillingAccounts: Boolean
@@ -76546,6 +76552,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadBillingReceipts_DESC
   canManageBillingReceipts_ASC
   canManageBillingReceipts_DESC
+  canReadBillingReceiptFiles_ASC
+  canReadBillingReceiptFiles_DESC
+  canManageBillingReceiptFiles_ASC
+  canManageBillingReceiptFiles_DESC
   canReadBillingAccounts_ASC
   canReadBillingAccounts_DESC
   canManageBillingAccounts_ASC
@@ -76654,6 +76664,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canManageBillingReceiptFiles: Boolean
   canReadBillingAccounts: Boolean
   canManageBillingAccounts: Boolean
   canReadBillingProperties: Boolean
@@ -76723,6 +76735,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canManageBillingReceiptFiles: Boolean
   canReadBillingAccounts: Boolean
   canManageBillingAccounts: Boolean
   canReadBillingProperties: Boolean
@@ -76821,6 +76835,11 @@ type B2BAppAccessRightSet {
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
   """
   canManageBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageBillingReceiptFiles: Boolean
   canReadBillingAccounts: Boolean
 
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
@@ -76944,6 +76963,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadBillingReceipts_not: Boolean
   canManageBillingReceipts: Boolean
   canManageBillingReceipts_not: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canReadBillingReceiptFiles_not: Boolean
+  canManageBillingReceiptFiles: Boolean
+  canManageBillingReceiptFiles_not: Boolean
   canReadBillingAccounts: Boolean
   canReadBillingAccounts_not: Boolean
   canManageBillingAccounts: Boolean
@@ -77105,6 +77128,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadBillingReceipts_DESC
   canManageBillingReceipts_ASC
   canManageBillingReceipts_DESC
+  canReadBillingReceiptFiles_ASC
+  canReadBillingReceiptFiles_DESC
+  canManageBillingReceiptFiles_ASC
+  canManageBillingReceiptFiles_DESC
   canReadBillingAccounts_ASC
   canReadBillingAccounts_DESC
   canManageBillingAccounts_ASC
@@ -77213,6 +77240,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canManageBillingReceiptFiles: Boolean
   canReadBillingAccounts: Boolean
   canManageBillingAccounts: Boolean
   canReadBillingProperties: Boolean
@@ -77279,6 +77308,8 @@ input B2BAppAccessRightSetCreateInput {
   canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
+  canReadBillingReceiptFiles: Boolean
+  canManageBillingReceiptFiles: Boolean
   canReadBillingAccounts: Boolean
   canManageBillingAccounts: Boolean
   canReadBillingProperties: Boolean

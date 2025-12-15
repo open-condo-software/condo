@@ -23,6 +23,9 @@ const {
     createTestBillingRecipient,
     updateTestBillingRecipient,
     BillingRecipient,
+    createTestBillingReceiptFile,
+    BillingReceiptFile,
+    updateTestBillingReceiptFile,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestContact, Contact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
@@ -1541,6 +1544,46 @@ describe('B2BApp permissions for service user', () => {
             const recipient = await BillingRecipient.getOne(serviceUser, { id: recipientCreated.id })
 
             expect(recipient).toBeDefined()
+        })
+
+        test('cannot create BillingReceiptFile', async () => {
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canManageBillingReceiptFiles: true })
+            }, 'Field "canManageBillingReceiptFiles" is not defined')
+
+            const [receipt] = await createTestBillingReceipt(admin, context, property, account)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestBillingReceiptFile(serviceUser, receipt, context)
+            })
+        })
+
+        test('cannot update BillingReceiptFile', async () => {
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canManageBillingReceiptFiles: true })
+            }, 'Field "canManageBillingReceiptFiles" is not defined')
+
+            const [receipt] = await createTestBillingReceipt(admin, context, property, account)
+            const [receiptFile] = await createTestBillingReceiptFile(admin, receipt, context)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestBillingReceiptFile(serviceUser, receiptFile.id)
+            })
+        })
+
+        test('can read BillingReceiptFile', async () => {
+            const [receipt] = await createTestBillingReceipt(admin, context, property, account)
+            const [receiptFileCreated] = await createTestBillingReceiptFile(admin, receipt, context)
+
+            // Without rights
+            const receiptWithoutRights = await BillingReceiptFile.getOne(serviceUser, { id: receiptFileCreated.id })
+            expect(receiptWithoutRights).not.toBeDefined()
+
+            await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canReadBillingReceiptFiles: true })
+
+            // With rights
+            const receiptFile = await BillingReceiptFile.getOne(serviceUser, { id: receiptFileCreated.id })
+            expect(receiptFile).toBeDefined()
         })
 
         test('cannot create BillingReceipt', async () => {
