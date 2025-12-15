@@ -16,6 +16,8 @@ query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!
                 passTickets
             }
             prices {
+                id
+                name
                 period
                 price
                 currencyCode
