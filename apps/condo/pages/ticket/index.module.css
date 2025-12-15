@@ -1,3 +1,7 @@
 .custom-page-header {
   padding: 0 !important;
 }
+
+.checkbox-label-nowrap {
+  white-space: nowrap;
+}

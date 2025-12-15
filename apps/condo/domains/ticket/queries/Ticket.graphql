@@ -12,6 +12,7 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
         isPayable
         isWarranty
         statusReopenedCounter
+        sentToAuthoritiesAt
         statusUpdatedAt
         completedAt
         deadline
@@ -113,6 +114,7 @@ query getTicketsForClientCard ($where: TicketWhereInput!, $sortBy: [SortTicketsB
         clientName
         clientPhone
         clientEmail
+        sentToAuthoritiesAt
         classifier {
             id
             category {
@@ -155,6 +157,9 @@ query getTicketsForClientCard ($where: TicketWhereInput!, $sortBy: [SortTicketsB
                 primary
                 secondary
             }
+        }
+        source {
+            id
         }
     }
 }
@@ -246,7 +251,7 @@ query getTicketById ($id: ID!) {
         clientPhone
         details
         isPayable
-
+        sentToAuthoritiesAt
         organization {
             id
             type

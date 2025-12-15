@@ -87,6 +87,7 @@ import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibi
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
+import { useSupervisedTickets } from '@condo/domains/ticket/hooks/useSupervisedTickets'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicketExportToExcelTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
@@ -523,7 +524,7 @@ const TicketsTableContainer = ({
 
 const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
 const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
-const ATTRIBUTE_NAMES_To_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPayable']
+const ATTRIBUTE_NAMES_TO_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPayable']
 const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [8, 16]
 // todo(doma-5776): update amplitude
 const DETAILED_LOGGING = ['status', 'source', 'attributes', 'feedbackValue', 'qualityControlValue', 'unitType', 'contactIsNull']
@@ -647,17 +648,35 @@ const FiltersContainer = ({ filterMetas }) => {
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
     const PayableLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PayableLabel' })
     const ExpiredLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ExpiredLabel' })
+    const SupervisedTicketMessage = intl.formatMessage({ id: 'ticket.tags.supervised' })
+
+    const { organization } = useOrganization()
 
     const [{ width: contentWidth }, setRef] = useContainerSize()
 
+    const { hasSupervisedTicketsInOrganization } = useSupervisedTickets()
+    const [hasSupervisedTickets, setHasSupervisedTickets] = useState<boolean>(false)
+    useEffect(() => {
+        hasSupervisedTicketsInOrganization(organization?.id).then((res) => setHasSupervisedTickets(res))
+    }, [organization?.id, hasSupervisedTicketsInOrganization])
+    const attributeNames = useMemo(() => {
+        const attrNames = [...ATTRIBUTE_NAMES_TO_FILTERS]
+        if (hasSupervisedTickets) attrNames.push('isSupervised')
+        return attrNames
+    }, [hasSupervisedTickets])
+    console.log({
+        hasSupervisedTickets, attributeNames,
+    })
+
     const [search, changeSearch, handleResetSearch] = useSearch<IFilters>(1500)
-    const [attributes, handleChangeAttribute, handleResetAllAttributes, handleFilterChangesAllAttributes] = useBooleanAttributesSearch(ATTRIBUTE_NAMES_To_FILTERS)
+    const [attributes, handleChangeAttribute, handleResetAllAttributes, handleFilterChangesAllAttributes] = useBooleanAttributesSearch(attributeNames)
     const {
         isEmergency: emergency,
         isRegular: regular,
         isWarranty: warranty,
         statusReopenedCounter: returned,
         isPayable: payable,
+        isSupervised: supervised,
     } = attributes
     const {
         value: isCompletedAfterDeadline,
@@ -789,6 +808,20 @@ const FiltersContainer = ({ filterMetas }) => {
                                             children={ExpiredLabel}
                                         />
                                     </Col>
+                                    {
+                                        hasSupervisedTickets && (
+                                            <Col>
+                                                <Checkbox
+                                                    onChange={handleAttributeCheckboxChange('isSupervised')}
+                                                    checked={supervised}
+                                                    id='ticket-filter-supervised'
+                                                    data-cy='ticket__filter-isSupervised'
+                                                    className={styles.checkboxLabelNowrap}
+                                                    children={SupervisedTicketMessage}
+                                                />
+                                            </Col>
+                                        )
+                                    }
                                 </Row>
                             </Col>
                         </Row>

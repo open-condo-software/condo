@@ -19,6 +19,8 @@ import {
 } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
+import { useSupervisedTickets } from './useSupervisedTickets'
+
 
 const renderCell = getTableCellRenderer()
 const renderTicketDetails = getTicketDetailsRender()
@@ -38,6 +40,7 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsForClientCar
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
+    const { isSupervisedTicketSource } = useSupervisedTickets()
 
     const hasComments = tickets?.map(ticket => ticket.lastCommentAt).some(Boolean)
 
@@ -97,7 +100,7 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsForClientCar
             {
                 title: StatusMessage,
                 sortOrder: sorterMap?.status,
-                render: getStatusRender(intl),
+                render: getStatusRender(intl, undefined, isSupervisedTicketSource),
                 dataIndex: 'status',
                 key: 'status',
                 width: '10%',
@@ -154,5 +157,6 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsForClientCar
         ClassifierTitle, DescriptionMessage, LastCommentMessage,
         filters, intl, sorterMap, currentTableTab,
         renderCell, renderTicketDetails, renderLastComment, getFilterIcon,
+        isSupervisedTicketSource,
     ])
 }

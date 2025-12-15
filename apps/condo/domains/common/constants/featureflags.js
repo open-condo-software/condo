@@ -34,6 +34,7 @@ const SKIP_SEARCH_ORGANIZATION_BY_TIN = 'skip-search-organization-by-tin'
 const ANALYTICS_RESIDENT_IN_CONTACT_PAGE = 'analytics-resident-in-contact-page'
 const SKIP_DAILY_TICKET_LIMIT = 'skip-daily-ticket-limit'
 const SKIP_DAILY_SAME_TICKET_LIMIT = 'skip-daily-same-ticket-limit'
+const SUPERVISED_TICKET_SOURCE = 'supervised-ticket-source'
 const UI_AI_GENERATE_NEWS_BY_INCIDENT = 'ui-ai-generation-news-by-incident'
 const UI_AI_REWRITE_TICKET_COMMENT = 'ui-ai-ticket-rewrite-comment'
 const UI_AI_REWRITE_TEXT = 'ui-ai-rewrite-text'
@@ -78,6 +79,7 @@ module.exports = {
     ANALYTICS_RESIDENT_IN_CONTACT_PAGE,
     SKIP_DAILY_TICKET_LIMIT,
     SKIP_DAILY_SAME_TICKET_LIMIT,
+    SUPERVISED_TICKET_SOURCE,
     UI_AI_GENERATE_NEWS_BY_INCIDENT,
     UI_AI_REWRITE_TICKET_COMMENT,
     UI_AI_REWRITE_TEXT,
