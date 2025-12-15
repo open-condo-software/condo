@@ -1,7 +1,6 @@
 const dayjs = require('dayjs')
-const { get } = require('lodash')
+const get = require('lodash/get')
 const { default: RedLock } = require('redlock')
-const { v4: uuid } = require('uuid')
 
 const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')

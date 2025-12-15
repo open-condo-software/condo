@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 const express = require('express')
 
-const { setFakeClientMode, initTestExpressApp, getTestExpressApp } = require('@open-condo/keystone/test.utils')
+const { initTestExpressApp, getTestExpressApp } = require('@open-condo/keystone/test.utils')
 const {
     WEBHOOK_PAYLOAD_STATUS_PENDING,
     WEBHOOK_PAYLOAD_STATUS_SUCCESS,
@@ -21,11 +21,8 @@ let FAILURE_CALLS = []
 let TIMEOUT_URL
 let TIMEOUT_CALLS = []
 
-const SendWebhookPayloadTests = (appName, actorsInitializer, entryPointPath) => {
+const SendWebhookPayloadTests = (appName, actorsInitializer) => {
     describe(`sendWebhookPayload task basic tests for ${appName} app`, () => {
-        const appEntryPoint = require(entryPointPath)
-        setFakeClientMode(appEntryPoint, { excludeApps: ['OIDCMiddleware'] })
-
         let sendWebhookPayload
         let actors
 
