@@ -1,7 +1,6 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const {
     WebhookSubscription,
     createTestWebhook,
@@ -39,11 +38,8 @@ jest.spyOn(utils, 'trySendData').mockImplementation((url, objs) => {
 // eslint-disable-next-line import/order
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
-const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer, entryPointPath) => {
+const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {
-        const appEntryPoint = require(entryPointPath)
-        setFakeClientMode(appEntryPoint, { excludeApps: ['OIDCMiddleware'] })
-
         let sendWebhook
         let actors
         let firstUser
