@@ -85,10 +85,6 @@ export const useSupervisedTickets = () => {
     }, [supervisedTicketSourceIdFromFeatureFlag])
 
     const isSupervisedTicketSource = useCallback((sourceId: string) => {
-        console.log('isSupervisedTicketSource', {
-            sourceId,
-            supervisedTicketSourceId,
-        })
         return supervisedTicketSourceId && sourceId && supervisedTicketSourceId === sourceId
     }, [supervisedTicketSourceId])
 
@@ -101,10 +97,6 @@ export const useSupervisedTickets = () => {
         if (!organizationId || typeof organizationId !== 'string') return false
         if (relatedOrganizationIds && (!Array.isArray(relatedOrganizationIds) || relatedOrganizationIds.length < 1)) return false
 
-        console.log('hasSupervisedTicketsInOrganization:1', {
-
-        })
-
         // NOTE: Tickets ttl in Apollo is 1 minute. It is very short.
         // Because we use custom logic to cache this check.
         const cachedResult = LocalStorageManager.getHasSupervisedTicketsInOrganization(organizationId)
@@ -115,21 +107,11 @@ export const useSupervisedTickets = () => {
             const isValidCachedResult = cachedResult.createdAt && dayjs(cachedResult.createdAt).isValid() && !cachedResultIsExpired
                 && typeof cachedResult.value === 'boolean'
 
-
-            console.log('hasSupervisedTicketsInOrganization:1/2', {
-                cachedResultIsExpired, isValidCachedResult, cachedResult,
-            })
             if (isValidCachedResult) return cachedResult.value
         }
 
-        console.log('hasSupervisedTicketsInOrganization:2', {
-            cachedResult,
-        })
         LocalStorageManager.deleteHasSupervisedTicketsInOrganization(organizationId)
 
-        console.log('hasSupervisedTicketsInOrganization:3', {
-            asd: LocalStorageManager.getHasSupervisedTicketsInOrganization(organizationId),
-        })
         const organizationIdsForSearch = relatedOrganizationIds ? relatedOrganizationIds : [organizationId]
 
         const res = await checkTicketExistenceWithSourceAndOrganization({
@@ -142,10 +124,6 @@ export const useSupervisedTickets = () => {
         const hasTickets = res?.data?.tickets?.length > 0
         LocalStorageManager.setHasSupervisedTicketsInOrganization(organizationId, hasTickets)
 
-        console.log('hasSupervisedTicketsInOrganization:4', {
-            hasTickets,
-            asd: LocalStorageManager.getHasSupervisedTicketsInOrganization(organizationId),
-        })
         return hasTickets
     }, [supervisedTicketSourceId])
 

@@ -304,11 +304,7 @@ export const getStatusRender = (intl, search?: FilterValue, isSupervisedTicketSo
         const highlightedContent = getHighlightedContents({ search, extraProps })(status.name)
 
         const isSupervised = isSupervisedTicketSource ? isSupervisedTicketSource(record?.source?.id) : false
-        console.log({
-            isSupervisedTicketSource,
-            isSupervised,
-            record,
-        })
+
         return (
             <Space direction='vertical' size={7}>
                 {

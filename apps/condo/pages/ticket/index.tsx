@@ -664,9 +664,6 @@ const FiltersContainer = ({ filterMetas }) => {
         if (hasSupervisedTickets) attrNames.push('isSupervised')
         return attrNames
     }, [hasSupervisedTickets])
-    console.log({
-        hasSupervisedTickets, attributeNames,
-    })
 
     const [search, changeSearch, handleResetSearch] = useSearch<IFilters>(1500)
     const [attributes, handleChangeAttribute, handleResetAllAttributes, handleFilterChangesAllAttributes] = useBooleanAttributesSearch(attributeNames)
