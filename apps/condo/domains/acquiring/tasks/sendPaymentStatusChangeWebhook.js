@@ -15,7 +15,7 @@ const {
  * @param {string} paymentId - ID of the payment
  */
 async function sendPaymentStatusChangeWebhook (paymentId) {
-    const { keystone: context } = await getSchemaCtx('Payment')
+    const { keystone: context } = getSchemaCtx('Payment')
 
     // Get the payment record using getById (direct adapter access, works in tests)
     const payment = await getById('Payment', paymentId)
