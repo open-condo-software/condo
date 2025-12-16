@@ -157,6 +157,12 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, t
         locale: intl.locale,
     })
 
+    const handleOnFinish = useCallback(() => {
+        if (tableRef.current) {
+            tableRef.current.api.refetchData()
+        }
+    }, [tableRef])
+
     return (
         <Col span={24}>
             <ActionBar
@@ -173,7 +179,7 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ getContactsWhere, t
                         <ImportWrapper
                             key='import'
                             accessCheck={true}
-                            onFinish={tableRef.current?.api?.refetchData}
+                            onFinish={handleOnFinish}
                             columns={columns}
                             rowNormalizer={contactNormalizer}
                             rowValidator={contactValidator}
@@ -439,7 +445,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
         return () => {
             router.events.off('routeChangeComplete', handleRouteChangeComplete)
         }
-    }, [router.events, tableRef, router.query, handleSearchChange])
+    }, [router.events, tableRef, handleSearchChange])
 
     useEffect(() => {
         if (tableRef.current) {
