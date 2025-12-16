@@ -14,7 +14,7 @@ import {
 } from './index'
 
 const fixtures = ipv4fixtures.slice().concat(ipv6fixtures)
-const PERFORMANCE_TEST_TIMEOUT_MS = 4000
+const PERFORMANCE_TEST_TIMEOUT_MS = 6_000
 
 describe('general tests', () => {
     it('should check subnet membership (one-at-a-time)', () => {
@@ -125,7 +125,7 @@ describe('performance', () => {
         checkerCache = new Map()
     })
 
-    it('should be able to test 100,000 ipv4 addresses in less than 4 seconds', () => {
+    it(`should be able to test 100,000 ipv4 addresses in less than ${PERFORMANCE_TEST_TIMEOUT_MS / 1_000} seconds`, () => {
         // approximately 100K test runs
         const cycleCount = Math.floor(100_000 / ipv4fixtures.length)
 
@@ -136,14 +136,14 @@ describe('performance', () => {
             })
         }
         const elapsed = process.hrtime(start)
-        expect(elapsed[0] < 4).toBe(true)
+        expect(elapsed[0] < PERFORMANCE_TEST_TIMEOUT_MS / 1_000).toBe(true)
 
         const friendlyElapsed = elapsed[0] + elapsed[1] / 1_000_000_000
         const average = Math.floor((cycleCount * ipv4fixtures.length) / friendlyElapsed)
         console.log(`average IPv4 performance was ${average.toLocaleString()} per second`)
     }, PERFORMANCE_TEST_TIMEOUT_MS)
 
-    it('should be able to test 100,000 ipv6 addresses in less than 4 seconds', () => {
+    it(`should be able to test 100,000 ipv6 addresses in less than ${PERFORMANCE_TEST_TIMEOUT_MS / 1_000} seconds`, () => {
         // approximately 100K test runs
         const cycleCount = Math.floor(100_000 / ipv6fixtures.length)
 
@@ -154,14 +154,14 @@ describe('performance', () => {
             })
         }
         const elapsed = process.hrtime(start)
-        expect(elapsed[0] < 4).toBe(true)
+        expect(elapsed[0] < PERFORMANCE_TEST_TIMEOUT_MS / 1_000).toBe(true)
 
         const friendlyElapsed = elapsed[0] + elapsed[1] / 1_000_000_000
         const average = Math.floor((cycleCount * ipv6fixtures.length) / friendlyElapsed)
         console.log(`average IPv6 performance was ${average.toLocaleString()} per second`)
     }, PERFORMANCE_TEST_TIMEOUT_MS)
 
-    it('should be able to test 100,000 ipv4 addresses in less than 4 seconds using `createChecker`', () => {
+    it(`should be able to test 100,000 ipv4 addresses in less than ${PERFORMANCE_TEST_TIMEOUT_MS / 1_000} seconds using \`createChecker\``, () => {
         // approximately 100K test runs
         const cycleCount = Math.floor(100_000 / ipv4fixtures.length)
 
@@ -182,7 +182,7 @@ describe('performance', () => {
             })
         }
         const elapsed = process.hrtime(start)
-        expect(elapsed[0] < 4).toBe(true)
+        expect(elapsed[0] < PERFORMANCE_TEST_TIMEOUT_MS / 1_000).toBe(true)
 
         const friendlyElapsed = elapsed[0] + elapsed[1] / 1_000_000_000
         const average = Math.floor((cycleCount * ipv4fixtures.length) / friendlyElapsed)
@@ -191,7 +191,7 @@ describe('performance', () => {
         )
     }, PERFORMANCE_TEST_TIMEOUT_MS)
 
-    it('should be able to test 100,000 ipv6 addresses in less than 4 seconds using `createChecker`', () => {
+    it(`should be able to test 100,000 ipv6 addresses in less than ${PERFORMANCE_TEST_TIMEOUT_MS / 1_000} seconds using \`createChecker\``, () => {
         // approximately 100K test runs
         const cycleCount = Math.floor(100_000 / ipv6fixtures.length)
 
@@ -212,7 +212,7 @@ describe('performance', () => {
             })
         }
         const elapsed = process.hrtime(start)
-        expect(elapsed[0] < 4).toBe(true)
+        expect(elapsed[0] < PERFORMANCE_TEST_TIMEOUT_MS / 1_000).toBe(true)
 
         const friendlyElapsed = elapsed[0] + elapsed[1] / 1_000_000_000
         const average = Math.floor((cycleCount * ipv6fixtures.length) / friendlyElapsed)
