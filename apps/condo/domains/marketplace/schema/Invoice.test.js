@@ -39,6 +39,7 @@ const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
     createTestPaymentStatusChangeWebhookUrl,
+    updateTestPaymentStatusChangeWebhookUrl,
     createTestPayment,
     WebhookPayload,
 } = require('@condo/domains/acquiring/utils/testSchema')
@@ -2876,6 +2877,33 @@ describe('Invoice', () => {
             await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                 url: callbackUrl,
                 isEnabled: false,
+            })
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestInvoice(adminClient, dummyOrganization, {
+                        paymentStatusChangeWebhookUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+                },
+                'obj'
+            )
+        })
+
+        test('cannot create invoice with soft-deleted whitelist URL', async () => {
+            const callbackUrl = `https://deleted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            const [webhookUrl] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            await updateTestPaymentStatusChangeWebhookUrl(adminClient, webhookUrl.id, {
+                deletedAt: dayjs().toISOString(),
             })
 
             await expectToThrowGQLError(
