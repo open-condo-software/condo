@@ -4,7 +4,7 @@
 const { faker } = require('@faker-js/faker')
 
 jest.mock('@open-condo/keystone/schema', () => ({
-    getSchemaCtx: jest.fn().mockResolvedValue({ keystone: {} }),
+    getSchemaCtx: jest.fn().mockReturnValue({ keystone: {} }),
     getById: jest.fn(),
 }))
 jest.mock('@open-condo/webhooks/utils/sendWebhookPayload')
