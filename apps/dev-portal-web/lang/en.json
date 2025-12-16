@@ -6,6 +6,8 @@
   "global.service.sections.docs": "Docs",
   "global.service.sections.apps": "My apps",
 
+  "global.socials.condo.name": "Condo",
+
   "global.actions.signIn": "Sign in",
   "global.actions.signOut": "Sign out",
   "global.actions.signUp": "Sign up",
@@ -43,7 +45,6 @@
   "components.common.authForm.items.password.label": "Password",
   "components.common.authForm.divider.text": "or",
   "components.common.authForm.socials.text": "Sign in with {service}",
-  "components.common.authForm.socials.condo.name": "Condo",
 
   "components.common.registerForm.items.code.label": "SMS code",
   "components.common.registerForm.items.name.label": "User name",
