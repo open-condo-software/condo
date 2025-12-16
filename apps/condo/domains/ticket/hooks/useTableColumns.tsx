@@ -1,19 +1,12 @@
-import {
-    useGetTicketStatusesQuery,
-    useGetUserTicketCommentsReadTimeQuery,
-} from '@app/condo/gql'
+import { useGetTicketStatusesQuery } from '@app/condo/gql'
 import { Ticket as ITicket, Property as IProperty, UserTicketCommentReadTime } from '@app/condo/schema'
 import { ColumnsType } from 'antd/lib/table'
 import { ColumnType } from 'antd/lib/table/interface'
 import get from 'lodash/get'
 import identity from 'lodash/identity'
-import isEmpty from 'lodash/isEmpty'
-import map from 'lodash/map'
 import { useRouter } from 'next/router'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
-import { useCachePersistor } from '@open-condo/apollo'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -26,7 +19,6 @@ import {
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { useAutoRefetchTickets } from '@condo/domains/ticket/contexts/AutoRefetchTicketsContext'
 import {
     FavoriteTicketIndicator,
     getClassifierRender,
@@ -38,6 +30,8 @@ import {
     getUnitRender,
 } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
+import { useSupervisedTickets } from './useSupervisedTickets'
 
 
 const COLUMNS_WIDTH = {
@@ -99,6 +93,8 @@ export function useTableColumns<T> ({
             },
         })(filterProps)
     }, [statusesLoading, ticketStatuses])
+
+    const { isSupervisedTicketSource } = useSupervisedTickets()
 
     const renderAddress = useCallback(
         (property: IProperty, ticket: ITicket) => {
@@ -170,7 +166,7 @@ export function useTableColumns<T> ({
             title: StatusMessage,
             sortOrder: get(sorterMap, 'status'),
             filteredValue: getFilteredValue<IFilters>(filters, 'status'),
-            render: getStatusRender(intl, search),
+            render: getStatusRender(intl, search, isSupervisedTicketSource),
             dataIndex: 'status',
             key: 'status',
             sorter: true,
@@ -268,6 +264,7 @@ export function useTableColumns<T> ({
         filters, filterMetas, search, DateMessage, StatusMessage, renderStatusFilterDropdown, 
         AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, 
         ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee,
+        isSupervisedTicketSource,
     ])
 }
 

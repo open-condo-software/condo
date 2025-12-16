@@ -4,7 +4,7 @@ import {
     Ticket,
     TicketWhereInput,
 } from '@app/condo/schema'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { QuestionCircle } from '@open-condo/icons'
@@ -52,6 +52,7 @@ import {
     FilterModalPlaceClassifierSelect,
     FilterModalProblemClassifierSelect,
 } from './useModalFilterClassifiers'
+import { useSupervisedTickets } from './useSupervisedTickets'
 
 
 const filterNumber = getNumberFilter('number')
@@ -71,7 +72,6 @@ const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
-const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPayable', 'isWarranty', 'statusReopenedCounter', 'isRegular'])
 const filterIsResidentContact = getIsResidentContactFilter()
 const filterFeedbackValue = getFilter('feedbackValue', 'array', 'string', 'in')
 const filterQualityControlValue = getFilter('qualityControlValue', 'array', 'string', 'in')
@@ -173,7 +173,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const QualityControlValueMessage = intl.formatMessage({ id: 'ticket.qualityControl.filter.label' })
     const GoodQualityControlMessage = intl.formatMessage({ id: 'ticket.qualityControl.good' })
     const BadQualityControlMessage = intl.formatMessage({ id: 'ticket.qualityControl.bad' })
-    const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
+    const ReturnedMessage = intl.formatMessage({ id: 'Returned' }).toLowerCase()
+    const SupervisedTicketMessage = intl.formatMessage({ id: 'ticket.tags.supervised' })
+    const SupervisedTicketFormattedMessage = useMemo(() => SupervisedTicketMessage.slice(0, 1).toLowerCase() + SupervisedTicketMessage.slice(1), [SupervisedTicketMessage])
     const IsResidentContactLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact' })
     const IsResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.true' })
     const IsNotResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
@@ -190,6 +192,12 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const userOrganizationId = userOrganization?.organization?.id
 
     const { persistor } = useCachePersistor()
+
+    const { hasSupervisedTicketsInOrganization, supervisedTicketSourceId } = useSupervisedTickets()
+    const [hasSupervisedTickets, setHasSupervisedTickets] = useState<boolean>(false)
+    useEffect(() => {
+        hasSupervisedTicketsInOrganization(userOrganizationId).then((res) => setHasSupervisedTickets(res))
+    }, [userOrganizationId, hasSupervisedTicketsInOrganization])
 
     const { data: statusesData } = useGetTicketStatusesQuery({ skip: !persistor })
     const statuses = useMemo(() => statusesData?.statuses?.filter(Boolean) || [], [statusesData?.statuses])
@@ -221,8 +229,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
         { label: PayableMessage, value: 'isPayable' },
         { label: EmergencyMessage, value: 'isEmergency' },
         { label: WarrantyMessage, value: 'isWarranty' },
-        { label: ReturnedMessage.toLowerCase(), value: 'statusReopenedCounter' },
-    ], [EmergencyMessage, PayableMessage, RegularMessage, ReturnedMessage, WarrantyMessage])
+        { label: ReturnedMessage, value: 'statusReopenedCounter' },
+        hasSupervisedTickets && { label: SupervisedTicketFormattedMessage, value: 'isSupervised' },
+    ].filter(Boolean), [EmergencyMessage, PayableMessage, RegularMessage, ReturnedMessage, WarrantyMessage, SupervisedTicketFormattedMessage, hasSupervisedTickets])
     const feedbackValueOptions = useMemo(() => [
         { label: GoodFeedbackMessage, value: FEEDBACK_VALUES_BY_KEY.GOOD },
         { label: BadFeedbackMessage, value: FEEDBACK_VALUES_BY_KEY.BAD },
@@ -259,6 +268,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const filterTicketType = useMemo(
         () => getTicketTypeFilter(user.id),
         [user.id]
+    )
+    const filterAttribute = useMemo(
+        () => getTicketAttributesFilter(['isEmergency', 'isPayable', 'isWarranty', 'statusReopenedCounter', 'isRegular', hasSupervisedTickets && 'isSupervised'].filter(Boolean), supervisedTicketSourceId),
+        [hasSupervisedTickets, supervisedTicketSourceId],
     )
 
     return useMemo(() => {
@@ -771,5 +784,5 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                 filters: [filterTicketContact],
             },
         ]
-    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, ExpiredTickets, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, feedbackValueOptions, FeedbackValueMessage, qualityControlValueOptions, QualityControlValueMessage, commentsTypeOptions, HasComments, OnlyUnansweredComments, OnlyUnansweredCommentsTooltipHelp, StartDateMessage, EndDateMessage, LastCommentAtMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
+    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, ExpiredTickets, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, feedbackValueOptions, FeedbackValueMessage, qualityControlValueOptions, QualityControlValueMessage, commentsTypeOptions, HasComments, OnlyUnansweredComments, OnlyUnansweredCommentsTooltipHelp, StartDateMessage, EndDateMessage, LastCommentAtMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage, filterAttribute])
 }

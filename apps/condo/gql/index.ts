@@ -5717,6 +5717,7 @@ export const GetTicketsDocument = gql`
     isPayable
     isWarranty
     statusReopenedCounter
+    sentToAuthoritiesAt
     statusUpdatedAt
     completedAt
     deadline
@@ -5855,6 +5856,7 @@ export const GetTicketsForClientCardDocument = gql`
     clientName
     clientPhone
     clientEmail
+    sentToAuthoritiesAt
     classifier {
       id
       category {
@@ -5899,6 +5901,9 @@ export const GetTicketsForClientCardDocument = gql`
         primary
         secondary
       }
+    }
+    source {
+      id
     }
   }
 }
@@ -6125,6 +6130,7 @@ export const GetTicketByIdDocument = gql`
     clientPhone
     details
     isPayable
+    sentToAuthoritiesAt
     organization {
       id
       type
@@ -6812,6 +6818,46 @@ export type GetTicketChangesQueryHookResult = ReturnType<typeof useGetTicketChan
 export type GetTicketChangesLazyQueryHookResult = ReturnType<typeof useGetTicketChangesLazyQuery>;
 export type GetTicketChangesSuspenseQueryHookResult = ReturnType<typeof useGetTicketChangesSuspenseQuery>;
 export type GetTicketChangesQueryResult = Apollo.QueryResult<Types.GetTicketChangesQuery, Types.GetTicketChangesQueryVariables>;
+export const CheckTicketChangesExistenceByTicketIdDocument = gql`
+    query checkTicketChangesExistenceByTicketId($ticketId: ID!) {
+  ticketChanges: allTicketChanges(where: {ticket: {id: $ticketId}}, first: 1) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCheckTicketChangesExistenceByTicketIdQuery__
+ *
+ * To run a query within a React component, call `useCheckTicketChangesExistenceByTicketIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckTicketChangesExistenceByTicketIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckTicketChangesExistenceByTicketIdQuery({
+ *   variables: {
+ *      ticketId: // value for 'ticketId'
+ *   },
+ * });
+ */
+export function useCheckTicketChangesExistenceByTicketIdQuery(baseOptions: Apollo.QueryHookOptions<Types.CheckTicketChangesExistenceByTicketIdQuery, Types.CheckTicketChangesExistenceByTicketIdQueryVariables> & ({ variables: Types.CheckTicketChangesExistenceByTicketIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.CheckTicketChangesExistenceByTicketIdQuery, Types.CheckTicketChangesExistenceByTicketIdQueryVariables>(CheckTicketChangesExistenceByTicketIdDocument, options);
+      }
+export function useCheckTicketChangesExistenceByTicketIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.CheckTicketChangesExistenceByTicketIdQuery, Types.CheckTicketChangesExistenceByTicketIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.CheckTicketChangesExistenceByTicketIdQuery, Types.CheckTicketChangesExistenceByTicketIdQueryVariables>(CheckTicketChangesExistenceByTicketIdDocument, options);
+        }
+export function useCheckTicketChangesExistenceByTicketIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.CheckTicketChangesExistenceByTicketIdQuery, Types.CheckTicketChangesExistenceByTicketIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.CheckTicketChangesExistenceByTicketIdQuery, Types.CheckTicketChangesExistenceByTicketIdQueryVariables>(CheckTicketChangesExistenceByTicketIdDocument, options);
+        }
+export type CheckTicketChangesExistenceByTicketIdQueryHookResult = ReturnType<typeof useCheckTicketChangesExistenceByTicketIdQuery>;
+export type CheckTicketChangesExistenceByTicketIdLazyQueryHookResult = ReturnType<typeof useCheckTicketChangesExistenceByTicketIdLazyQuery>;
+export type CheckTicketChangesExistenceByTicketIdSuspenseQueryHookResult = ReturnType<typeof useCheckTicketChangesExistenceByTicketIdSuspenseQuery>;
+export type CheckTicketChangesExistenceByTicketIdQueryResult = Apollo.QueryResult<Types.CheckTicketChangesExistenceByTicketIdQuery, Types.CheckTicketChangesExistenceByTicketIdQueryVariables>;
 export const GetTicketCommentsDocument = gql`
     query getTicketComments($ticketId: ID!) {
   ticketComments: allTicketComments(
@@ -6963,6 +7009,46 @@ export type GetTicketCommentsForClientCardQueryHookResult = ReturnType<typeof us
 export type GetTicketCommentsForClientCardLazyQueryHookResult = ReturnType<typeof useGetTicketCommentsForClientCardLazyQuery>;
 export type GetTicketCommentsForClientCardSuspenseQueryHookResult = ReturnType<typeof useGetTicketCommentsForClientCardSuspenseQuery>;
 export type GetTicketCommentsForClientCardQueryResult = Apollo.QueryResult<Types.GetTicketCommentsForClientCardQuery, Types.GetTicketCommentsForClientCardQueryVariables>;
+export const CheckTicketCommentsExistenceDocument = gql`
+    query checkTicketCommentsExistence($where: TicketCommentWhereInput!) {
+  ticketComments: allTicketComments(where: $where, first: 1) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCheckTicketCommentsExistenceQuery__
+ *
+ * To run a query within a React component, call `useCheckTicketCommentsExistenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckTicketCommentsExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckTicketCommentsExistenceQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useCheckTicketCommentsExistenceQuery(baseOptions: Apollo.QueryHookOptions<Types.CheckTicketCommentsExistenceQuery, Types.CheckTicketCommentsExistenceQueryVariables> & ({ variables: Types.CheckTicketCommentsExistenceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.CheckTicketCommentsExistenceQuery, Types.CheckTicketCommentsExistenceQueryVariables>(CheckTicketCommentsExistenceDocument, options);
+      }
+export function useCheckTicketCommentsExistenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.CheckTicketCommentsExistenceQuery, Types.CheckTicketCommentsExistenceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.CheckTicketCommentsExistenceQuery, Types.CheckTicketCommentsExistenceQueryVariables>(CheckTicketCommentsExistenceDocument, options);
+        }
+export function useCheckTicketCommentsExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.CheckTicketCommentsExistenceQuery, Types.CheckTicketCommentsExistenceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.CheckTicketCommentsExistenceQuery, Types.CheckTicketCommentsExistenceQueryVariables>(CheckTicketCommentsExistenceDocument, options);
+        }
+export type CheckTicketCommentsExistenceQueryHookResult = ReturnType<typeof useCheckTicketCommentsExistenceQuery>;
+export type CheckTicketCommentsExistenceLazyQueryHookResult = ReturnType<typeof useCheckTicketCommentsExistenceLazyQuery>;
+export type CheckTicketCommentsExistenceSuspenseQueryHookResult = ReturnType<typeof useCheckTicketCommentsExistenceSuspenseQuery>;
+export type CheckTicketCommentsExistenceQueryResult = Apollo.QueryResult<Types.CheckTicketCommentsExistenceQuery, Types.CheckTicketCommentsExistenceQueryVariables>;
 export const UpdateTicketCommentDocument = gql`
     mutation updateTicketComment($id: ID!, $data: TicketCommentUpdateInput!) {
   ticketComment: updateTicketComment(id: $id, data: $data) {

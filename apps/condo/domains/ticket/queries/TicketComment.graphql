@@ -43,6 +43,15 @@ query getTicketCommentsForClientCard ($where: TicketCommentWhereInput!, $first: 
     }
 }
 
+query checkTicketCommentsExistence ($where: TicketCommentWhereInput!) {
+    ticketComments: allTicketComments (
+        where: $where,
+        first: 1,
+    ) {
+        id
+    }
+}
+
 mutation updateTicketComment ($id: ID!, $data: TicketCommentUpdateInput!) {
     ticketComment: updateTicketComment (id: $id, data: $data) {
         id

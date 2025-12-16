@@ -110,3 +110,14 @@ query getTicketChanges ($ticketId: ID!) {
         qualityControlAdditionalOptionsTo
     }
 }
+
+query checkTicketChangesExistenceByTicketId ($ticketId: ID!) {
+    ticketChanges: allTicketChanges (
+        where: {
+            ticket: { id: $ticketId }
+        },
+        first: 1,
+    ) {
+        id
+    }
+}

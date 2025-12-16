@@ -24,7 +24,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
-
 import { useCachePersistor } from '@open-condo/apollo'
 import { Link as LinkIcon } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -89,6 +88,7 @@ import {
 } from '@condo/domains/ticket/contexts/TicketQualityControlContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { usePollTicketComments } from '@condo/domains/ticket/hooks/usePollTicketComments'
+import { useSupervisedTickets } from '@condo/domains/ticket/hooks/useSupervisedTickets'
 import { hasTicketChangeDiff, useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
 import { useTicketDocumentGenerationTask } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
@@ -102,6 +102,7 @@ import {
 import { prefetchTicket } from '@condo/domains/ticket/utils/next/Ticket'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
+
 
 const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
@@ -117,6 +118,7 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
     const PayableMessage = intl.formatMessage({ id: 'Payable' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
     const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
+    const SupervisedTicketMessage = intl.formatMessage({ id: 'ticket.tags.supervised' })
     const ChangedMessage = intl.formatMessage({ id: 'Changed' })
     const TimeHasPassedMessage = intl.formatMessage({ id: 'TimeHasPassed' })
     const DaysShortMessage = intl.formatMessage({ id: 'DaysShort' })
@@ -138,6 +140,9 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
 
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
     const canReadByResident = useMemo(() => get(ticket, 'canReadByResident'), [ticket])
+
+    const { isSupervisedTicketSource } = useSupervisedTickets()
+    const isSupervised = useMemo(() => isSupervisedTicketSource(ticket?.source?.id), [ticket, isSupervisedTicketSource])
 
     const createdBy = useMemo(() => get(ticket, ['createdBy']), [ticket])
     const formattedStatusUpdatedAt = useMemo(() => dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm'), [statusUpdatedAt])
@@ -310,35 +315,34 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                 <Col span={24}>
                     <Row justify='space-between' align='middle' gutter={[0, 24]}>
                         <Col span={!breakpoints.TABLET_LARGE && 24}
-                            hidden={!isEmergency && !isPayable && !isWarranty && statusReopenedCounter === 0}>
+                            hidden={!isEmergency && !isPayable && !isWarranty && statusReopenedCounter === 0 && !isSupervised}>
                             <Space id='ticket__field-status' direction='horizontal'>
                                 {isEmergency && (
-                                    <TicketTag
-                                        style={TICKET_TYPE_TAG_STYLE.emergency}
-                                    >
+                                    <TicketTag style={TICKET_TYPE_TAG_STYLE.emergency}>
                                         {EmergencyMessage}
                                     </TicketTag>
                                 )}
                                 {isPayable && (
-                                    <TicketTag
-                                        style={TICKET_TYPE_TAG_STYLE.payable}
-                                    >
+                                    <TicketTag style={TICKET_TYPE_TAG_STYLE.payable}>
                                         {PayableMessage}
                                     </TicketTag>
                                 )}
                                 {isWarranty && (
-                                    <TicketTag
-                                        style={TICKET_TYPE_TAG_STYLE.warranty}
-                                    >
+                                    <TicketTag style={TICKET_TYPE_TAG_STYLE.warranty}>
                                         {WarrantyMessage}
                                     </TicketTag>
                                 )}
                                 {
                                     statusReopenedCounter > 0 && (
-                                        <TicketTag
-                                            style={TICKET_TYPE_TAG_STYLE.returned}
-                                        >
+                                        <TicketTag style={TICKET_TYPE_TAG_STYLE.returned}>
                                             {ReturnedMessage} {statusReopenedCounter > 1 && `(${statusReopenedCounter})`}
+                                        </TicketTag>
+                                    )
+                                }
+                                {
+                                    isSupervised && (
+                                        <TicketTag style={TICKET_TYPE_TAG_STYLE.supervised}>
+                                            {SupervisedTicketMessage}
                                         </TicketTag>
                                     )
                                 }
@@ -562,17 +566,48 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
     )
 }
 
+const DEFAULT_DAYS_TO_ESCALATION_DEADLINE = 3
+
 export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, organization, employee, TicketContent }) => {
     const intl = useIntl()
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
     const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
+    const EscalatedTicketAlertTitle = intl.formatMessage({ id: 'pages.condo.ticket.alert.EscalatedTicket.title' }, {
+        // @ts-ignore runtime translation
+        authorityName: intl.formatMessage({ id: 'ticket.authorities.StateHousingInspectorate.name.short' }),
+    })
+    const EscalatedTicketAlertDescription = intl.formatMessage({ id: 'pages.condo.ticket.alert.EscalatedTicket.description' }, {
+        // @ts-ignore runtime translation
+        authorityName: intl.formatMessage({ id: 'ticket.authorities.StateHousingInspectorate.name.short' }),
+        days: DEFAULT_DAYS_TO_ESCALATION_DEADLINE,
+    })
+    const TicketEscalationWarningAlertDescription = intl.formatMessage({ id: 'pages.condo.ticket.alert.TicketEscalationWarning.description' }, {
+        // @ts-ignore runtime translation
+        authorityName: intl.formatMessage({ id: 'ticket.authorities.StateHousingInspectorate.name.short' }),
+        days: DEFAULT_DAYS_TO_ESCALATION_DEADLINE,
+    })
 
     const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
     const { persistor } = useCachePersistor()
 
     const id = useMemo(() => ticket?.id, [ticket?.id])
+
+    const { isSupervisedTicketSource, shouldShowTicketEscalationWarning, calculateDeadlineToEscalationTicket } = useSupervisedTickets()
+    const isSupervised = useMemo(() => isSupervisedTicketSource(ticket?.source?.id), [ticket, isSupervisedTicketSource])
+    const [showTicketEscalationWarning, setShowTicketEscalationWarning] = useState<boolean>(false)
+    useEffect(() => {
+        shouldShowTicketEscalationWarning(ticket).then((res) => setShowTicketEscalationWarning(res))
+    }, [ticket, shouldShowTicketEscalationWarning])
+    const deadlineToEscalationTicket = useMemo(() => {
+        const deadlineToEscalation = calculateDeadlineToEscalationTicket(ticket, DEFAULT_DAYS_TO_ESCALATION_DEADLINE)
+        const isEqualYears = dayjs(deadlineToEscalation).year() === dayjs(ticket?.createdAt).year()
+            && dayjs(deadlineToEscalation).year() === dayjs().year()
+        const formatTemplate = isEqualYears ? 'DD MMMM' : 'DD MMMM YYYY'
+        return deadlineToEscalation?.format(formatTemplate)
+    }, [ticket, calculateDeadlineToEscalationTicket])
+    const TicketEscalationWarningAlertTitle = intl.formatMessage({ id: 'pages.condo.ticket.alert.TicketEscalationWarning.title' }, { deadlineToEscalationTicket })
 
     const [ticketDetails, setTicketDetails] = useState(ticket?.details)
 
@@ -762,6 +797,30 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                                         showIcon
                                         message={BlockedEditingTitleMessage}
                                         description={BlockedEditingDescriptionMessage}
+                                    />
+                                </Col>
+                            )
+                        }
+                        {
+                            isSupervised && ticket?.sentToAuthoritiesAt && (
+                                <Col span={24}>
+                                    <Alert
+                                        type='error'
+                                        showIcon
+                                        message={EscalatedTicketAlertTitle}
+                                        description={EscalatedTicketAlertDescription}
+                                    />
+                                </Col>
+                            )
+                        }
+                        {
+                            isSupervised && !ticket?.sentToAuthoritiesAt && showTicketEscalationWarning && (
+                                <Col span={24}>
+                                    <Alert
+                                        type='warning'
+                                        showIcon
+                                        message={TicketEscalationWarningAlertTitle}
+                                        description={TicketEscalationWarningAlertDescription}
                                     />
                                 </Col>
                             )

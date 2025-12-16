@@ -87,6 +87,7 @@ import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibi
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
+import { useSupervisedTickets } from '@condo/domains/ticket/hooks/useSupervisedTickets'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicketExportToExcelTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
@@ -523,7 +524,7 @@ const TicketsTableContainer = ({
 
 const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
 const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
-const ATTRIBUTE_NAMES_To_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPayable']
+const ATTRIBUTE_NAMES_TO_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPayable']
 const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [8, 16]
 // todo(doma-5776): update amplitude
 const DETAILED_LOGGING = ['status', 'source', 'attributes', 'feedbackValue', 'qualityControlValue', 'unitType', 'contactIsNull']
@@ -638,7 +639,7 @@ const FILTERS_BUTTON_ROW_GUTTER: RowProps['gutter'] = [16, 10]
 const FILTERS_BUTTON_ROW_STYLES: CSSProperties = { flexWrap: 'nowrap' }
 const RESET_FILTERS_BUTTON_STYLES: CSSProperties = { padding: 0 }
 
-const FiltersContainer = ({ filterMetas }) => {
+const FiltersContainer = ({ filterMetas, hasSupervisedTickets }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
@@ -647,17 +648,25 @@ const FiltersContainer = ({ filterMetas }) => {
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
     const PayableLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PayableLabel' })
     const ExpiredLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ExpiredLabel' })
+    const SupervisedTicketMessage = intl.formatMessage({ id: 'ticket.tags.supervised' })
 
     const [{ width: contentWidth }, setRef] = useContainerSize()
 
+    const attributeNames = useMemo(() => {
+        const attrNames = [...ATTRIBUTE_NAMES_TO_FILTERS]
+        if (hasSupervisedTickets) attrNames.push('isSupervised')
+        return attrNames
+    }, [hasSupervisedTickets])
+
     const [search, changeSearch, handleResetSearch] = useSearch<IFilters>(1500)
-    const [attributes, handleChangeAttribute, handleResetAllAttributes, handleFilterChangesAllAttributes] = useBooleanAttributesSearch(ATTRIBUTE_NAMES_To_FILTERS)
+    const [attributes, handleChangeAttribute, handleResetAllAttributes, handleFilterChangesAllAttributes] = useBooleanAttributesSearch(attributeNames)
     const {
         isEmergency: emergency,
         isRegular: regular,
         isWarranty: warranty,
         statusReopenedCounter: returned,
         isPayable: payable,
+        isSupervised: supervised,
     } = attributes
     const {
         value: isCompletedAfterDeadline,
@@ -789,6 +798,20 @@ const FiltersContainer = ({ filterMetas }) => {
                                             children={ExpiredLabel}
                                         />
                                     </Col>
+                                    {
+                                        hasSupervisedTickets && (
+                                            <Col>
+                                                <Checkbox
+                                                    onChange={handleAttributeCheckboxChange('isSupervised')}
+                                                    checked={supervised}
+                                                    id='ticket-filter-supervised'
+                                                    data-cy='ticket__filter-isSupervised'
+                                                    className={styles.checkboxLabelNowrap}
+                                                    children={SupervisedTicketMessage}
+                                                />
+                                            </Col>
+                                        )
+                                    }
                                 </Row>
                             </Col>
                         </Row>
@@ -829,6 +852,7 @@ export const TicketsPageContent = ({
     playSoundOnNewTickets = false,
     error,
     refetchTicketTypeCountersRef,
+    hasSupervisedTickets = false,
 }): JSX.Element => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
@@ -909,6 +933,7 @@ export const TicketsPageContent = ({
                 <Col span={24}>
                     <FiltersContainer
                         filterMetas={filterMetas}
+                        hasSupervisedTickets={hasSupervisedTickets}
                     />
                 </Col>
                 <Col span={24}>
@@ -1094,6 +1119,12 @@ const TicketsPage: PageComponentType = () => {
 
     const refetchTicketTypeCountersRef = useRef()
 
+    const { hasSupervisedTicketsInOrganization } = useSupervisedTickets()
+    const [hasSupervisedTickets, setHasSupervisedTickets] = useState<boolean>(false)
+    useEffect(() => {
+        hasSupervisedTicketsInOrganization(userOrganizationId).then((res) => setHasSupervisedTickets(res))
+    }, [userOrganizationId, hasSupervisedTicketsInOrganization])
+
     return (
         <>
             <Head>
@@ -1151,6 +1182,7 @@ const TicketsPage: PageComponentType = () => {
                                             isTicketsExists={isTicketsExists}
                                             error={error}
                                             refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
+                                            hasSupervisedTickets={hasSupervisedTickets}
                                         />
                                     </MultipleFilterContextProvider>
                                 </TablePageContent>

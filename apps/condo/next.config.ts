@@ -66,6 +66,7 @@ const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
 const defaultStaffAuthMethods = conf['DEFAULT_STAFF_AUTH_METHODS'] ? JSON.parse(conf['DEFAULT_STAFF_AUTH_METHODS']) : []
 const verifyUserEmailWithMarketingConsentEnabled = conf['VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED'] === 'true'
 const fileClientId = conf['FILE_CLIENT_ID']
+const RUNTIME_TRANSLATIONS = JSON.parse(conf['RUNTIME_TRANSLATIONS'] || '{}')
 
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
 
@@ -142,6 +143,7 @@ const nextConfig: NextConfig = {
         defaultStaffAuthMethods,
         verifyUserEmailWithMarketingConsentEnabled,
         fileClientId,
+        runtimeTranslations: RUNTIME_TRANSLATIONS,
     },
     serverRuntimeConfig: {
         proxyName,
