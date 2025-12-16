@@ -1124,8 +1124,8 @@ const TicketsPage: PageComponentType = () => {
     const { hasSupervisedTicketsInOrganization } = useSupervisedTickets()
     const [hasSupervisedTickets, setHasSupervisedTickets] = useState<boolean>(false)
     useEffect(() => {
-        hasSupervisedTicketsInOrganization(organization?.id).then((res) => setHasSupervisedTickets(res))
-    }, [organization?.id, hasSupervisedTicketsInOrganization])
+        hasSupervisedTicketsInOrganization(userOrganizationId).then((res) => setHasSupervisedTickets(res))
+    }, [userOrganizationId, hasSupervisedTicketsInOrganization])
 
     return (
         <>
