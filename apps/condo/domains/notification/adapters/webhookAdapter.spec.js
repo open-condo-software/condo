@@ -146,7 +146,7 @@ describe('WebhookAdapter', () => {
             expect(calledUrl).toBe(URL)
             expect(calledOpts.method).toBe('POST')
             expect(calledOpts.headers).toEqual({
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/jwt',
             })
 
             const parsed = jwt.verify(calledOpts.body, SECRET).items

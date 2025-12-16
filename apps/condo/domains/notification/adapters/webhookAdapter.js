@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const { isEmpty, get } = require('lodash')
+const { z } = require('zod')
 
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
@@ -20,12 +21,40 @@ class WebhookAdapter {
     isConfigured = false
     #config = null
 
+    #configSchema = z.record(
+        z.string().min(1),
+        z.object({
+            urls: z.array(
+                z.object({
+                    url: z.string(),
+                    secret: z.string().optional(),
+                    messageTypes: z.array(z.string().min(1)),
+                })
+            ).min(1),
+        })
+    )
+
     constructor (config = WEBHOOK_CONFIG) {
-        if (isEmpty(config)) {
-            logger.error( { msg: 'webhookAdapter сonfiguration error', error: EMPTY_WEBHOOK_CONFIG_ERROR })
+        try {
+            if (isEmpty(config)) {
+                throw new Error(EMPTY_WEBHOOK_CONFIG_ERROR)
+            }
+            
+            const result = this.#configSchema.safeParse(config)
+            if (!result.success) {
+                const error = new Error('Invalid webhook configuration')
+                throw error
+            }
+            
+            this.#config = result.data
+            this.isConfigured = true
+        } catch (error) {
+            logger.error({ 
+                msg: 'webhookAdapter configuration error', 
+                error: error.message,
+            })
+            this.isConfigured = false
         }
-        this.#config = config
-        this.isConfigured = true
     }
 
     /**
@@ -146,16 +175,20 @@ class WebhookAdapter {
 
                 // We need to use { items: <> } here, because with jwt it is only possible to encrypt a plain object
                 let body
+                let contentType
                 if (!webhookConfig.secret) {
+                    logger.warn({ msg: 'Sending decrypted push message webhooks, please do not use this in production', data: { appId, messageType } })
                     body = JSON.stringify({ items: typeNotifications })
+                    contentType = 'application/json'
                 } else {
                     body = jwt.sign({ items: typeNotifications }, webhookConfig.secret, { algorithm: 'HS256' })
+                    contentType = 'application/jwt'
                 }
 
                 try {
                     const response = await fetch(webhookConfig.url, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': contentType },
                         body,
                     })
 
