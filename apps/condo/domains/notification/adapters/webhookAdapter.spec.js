@@ -1,6 +1,6 @@
 const { faker } = require('@faker-js/faker')
-const jwt = require('jsonwebtoken')
 const dayjs = require('dayjs')
+const jwt = require('jsonwebtoken')
 
 jest.mock('@open-condo/keystone/fetch', () => ({ fetch: jest.fn() }))
 jest.mock('@open-condo/config',  () => {
