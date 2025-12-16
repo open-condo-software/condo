@@ -9,57 +9,33 @@ const { getById } = require('@open-condo/keystone/schema')
 // Encryption manager for decrypting EncryptedText fields when using getById
 const encryptionManager = new EncryptionManager()
 
-/**
- * Gets the webhook secret from invoice or receipt
- * Decrypts the EncryptedText field since getById returns raw encrypted value
- * @param {Object} payment - Payment record
- * @returns {Promise<string|null>} Decrypted secret or null if not found
- */
-async function getWebhookSecret (payment) {
-    // Try to get secret from invoice first
+async function getWebhookConfig (payment) {
+    let url = null
+    let secret = null
+
     if (payment.invoice) {
         const invoice = await getById('Invoice', payment.invoice)
-        if (invoice && invoice.paymentStatusChangeWebhookSecret) {
-            // Decrypt the EncryptedText field
-            return encryptionManager.decrypt(invoice.paymentStatusChangeWebhookSecret)
+        if (invoice) {
+            if (invoice.paymentStatusChangeWebhookUrl) {
+                url = invoice.paymentStatusChangeWebhookUrl
+            }
+            if (invoice.paymentStatusChangeWebhookSecret) {
+                secret = encryptionManager.decrypt(invoice.paymentStatusChangeWebhookSecret)
+            }
         }
-    }
-
-    // Try to get secret from receipt
-    if (payment.receipt) {
+    } else if (payment.receipt) {
         const receipt = await getById('BillingReceipt', payment.receipt)
-        if (receipt && receipt.paymentStatusChangeWebhookSecret) {
-            // Decrypt the EncryptedText field
-            return encryptionManager.decrypt(receipt.paymentStatusChangeWebhookSecret)
+        if (receipt) {
+            if (receipt.paymentStatusChangeWebhookUrl) {
+                url = receipt.paymentStatusChangeWebhookUrl
+            }
+            if (receipt.paymentStatusChangeWebhookSecret) {
+                secret = encryptionManager.decrypt(receipt.paymentStatusChangeWebhookSecret)
+            }
         }
     }
 
-    return null
-}
-
-/**
- * Gets the webhook callback URL from invoice or receipt
- * @param {Object} payment - Payment record
- * @returns {Promise<string|null>} Callback URL or null if not found
- */
-async function getWebhookCallbackUrl (payment) {
-    // Try to get callback URL from invoice first
-    if (payment.invoice) {
-        const invoice = await getById('Invoice', payment.invoice)
-        if (invoice && invoice.paymentStatusChangeWebhookUrl) {
-            return invoice.paymentStatusChangeWebhookUrl
-        }
-    }
-
-    // Try to get callback URL from receipt
-    if (payment.receipt) {
-        const receipt = await getById('BillingReceipt', payment.receipt)
-        if (receipt && receipt.paymentStatusChangeWebhookUrl) {
-            return receipt.paymentStatusChangeWebhookUrl
-        }
-    }
-
-    return null
+    return { url, secret }
 }
 
 /**
@@ -121,7 +97,6 @@ async function buildPaymentWebhookPayload (payment) {
 }
 
 module.exports = {
-    getWebhookSecret,
-    getWebhookCallbackUrl,
+    getWebhookConfig,
     buildPaymentWebhookPayload,
 }

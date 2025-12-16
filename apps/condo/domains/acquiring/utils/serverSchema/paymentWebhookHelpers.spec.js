@@ -14,8 +14,7 @@ const { getById } = require('@open-condo/keystone/schema')
 const encryptionManager = new EncryptionManager()
 
 const {
-    getWebhookSecret,
-    getWebhookCallbackUrl,
+    getWebhookConfig,
     buildPaymentWebhookPayload,
 } = require('./paymentWebhookHelpers')
 
@@ -24,79 +23,54 @@ describe('paymentWebhookHelpers', () => {
         jest.clearAllMocks()
     })
 
-    describe('getWebhookSecret', () => {
-        test('should return secret from invoice when payment has invoice', async () => {
+    describe('getWebhookConfig', () => {
+        test('should return url and secret from invoice when payment has invoice', async () => {
+            const mockUrl = faker.internet.url()
             const mockSecret = faker.random.alphaNumeric(32)
             const encryptedSecret = encryptionManager.encrypt(mockSecret)
-            const payment = { invoice: faker.datatype.uuid() }
-            const invoice = { paymentStatusChangeWebhookSecret: encryptedSecret }
+
+            const payment = { invoice: faker.datatype.uuid(), receipt: faker.datatype.uuid() }
+            const invoice = {
+                paymentStatusChangeWebhookUrl: mockUrl,
+                paymentStatusChangeWebhookSecret: encryptedSecret,
+            }
 
             getById.mockResolvedValue(invoice)
 
-            const result = await getWebhookSecret(payment)
+            const result = await getWebhookConfig(payment)
 
+            expect(getById).toHaveBeenCalledTimes(1)
             expect(getById).toHaveBeenCalledWith('Invoice', payment.invoice)
-            expect(result).toBe(mockSecret)
+            expect(result).toEqual({ url: mockUrl, secret: mockSecret })
         })
 
-        test('should return secret from receipt when payment has receipt', async () => {
+        test('should return url and secret from receipt when payment has receipt and no invoice', async () => {
+            const mockUrl = faker.internet.url()
             const mockSecret = faker.random.alphaNumeric(32)
             const encryptedSecret = encryptionManager.encrypt(mockSecret)
+
             const payment = { receipt: faker.datatype.uuid() }
-            const receipt = { paymentStatusChangeWebhookSecret: encryptedSecret }
+            const receipt = {
+                paymentStatusChangeWebhookUrl: mockUrl,
+                paymentStatusChangeWebhookSecret: encryptedSecret,
+            }
 
             getById.mockResolvedValue(receipt)
 
-            const result = await getWebhookSecret(payment)
+            const result = await getWebhookConfig(payment)
 
+            expect(getById).toHaveBeenCalledTimes(1)
             expect(getById).toHaveBeenCalledWith('BillingReceipt', payment.receipt)
-            expect(result).toBe(mockSecret)
+            expect(result).toEqual({ url: mockUrl, secret: mockSecret })
         })
 
-        test('should return null when payment has neither invoice nor receipt', async () => {
+        test('should return nulls when payment has neither invoice nor receipt', async () => {
             const payment = {}
 
-            const result = await getWebhookSecret(payment)
+            const result = await getWebhookConfig(payment)
 
             expect(getById).not.toHaveBeenCalled()
-            expect(result).toBeNull()
-        })
-    })
-
-    describe('getWebhookCallbackUrl', () => {
-        test('should return URL from invoice when payment has invoice', async () => {
-            const mockUrl = faker.internet.url()
-            const payment = { invoice: faker.datatype.uuid() }
-            const invoice = { paymentStatusChangeWebhookUrl: mockUrl }
-
-            getById.mockResolvedValue(invoice)
-
-            const result = await getWebhookCallbackUrl(payment)
-
-            expect(getById).toHaveBeenCalledWith('Invoice', payment.invoice)
-            expect(result).toBe(mockUrl)
-        })
-
-        test('should return URL from receipt when payment has receipt', async () => {
-            const mockUrl = faker.internet.url()
-            const payment = { receipt: faker.datatype.uuid() }
-            const receipt = { paymentStatusChangeWebhookUrl: mockUrl }
-
-            getById.mockResolvedValue(receipt)
-
-            const result = await getWebhookCallbackUrl(payment)
-
-            expect(getById).toHaveBeenCalledWith('BillingReceipt', payment.receipt)
-            expect(result).toBe(mockUrl)
-        })
-
-        test('should return null when payment has neither invoice nor receipt', async () => {
-            const payment = {}
-
-            const result = await getWebhookCallbackUrl(payment)
-
-            expect(getById).not.toHaveBeenCalled()
-            expect(result).toBeNull()
+            expect(result).toEqual({ url: null, secret: null })
         })
     })
 
@@ -112,6 +86,8 @@ describe('paymentWebhookHelpers', () => {
                 number: 123,
                 toPay: '1000.00',
             }
+            const createdAt = new Date().toISOString()
+            const updatedAt = new Date().toISOString()
             const payment = {
                 id: faker.datatype.uuid(),
                 status: 'PROCESSING',
@@ -120,6 +96,8 @@ describe('paymentWebhookHelpers', () => {
                 organization: faker.datatype.uuid(),
                 invoice: faker.datatype.uuid(),
                 receipt: null,
+                createdAt,
+                updatedAt,
             }
 
             getById
@@ -128,12 +106,16 @@ describe('paymentWebhookHelpers', () => {
 
             const result = await buildPaymentWebhookPayload(payment)
 
-            expect(result).toEqual({
+            expect(result).toMatchObject({
                 __typename: 'Payment',
                 id: payment.id,
                 status: 'PROCESSING',
                 amount: payment.amount,
                 currencyCode: payment.currencyCode,
+                v: undefined,
+                dv: undefined,
+                createdAt: expect.any(String),
+                updatedAt: expect.any(String),
                 organization: {
                     __typename: 'Organization',
                     id: mockOrganization.id,
@@ -155,6 +137,8 @@ describe('paymentWebhookHelpers', () => {
                 toPay: '2000.00',
                 period: '2024-01-01',
             }
+            const createdAt = new Date().toISOString()
+            const updatedAt = new Date().toISOString()
             const payment = {
                 id: faker.datatype.uuid(),
                 status: 'DONE',
@@ -164,6 +148,8 @@ describe('paymentWebhookHelpers', () => {
                 organization: faker.datatype.uuid(),
                 invoice: null,
                 receipt: faker.datatype.uuid(),
+                createdAt,
+                updatedAt,
             }
 
             getById
@@ -172,12 +158,16 @@ describe('paymentWebhookHelpers', () => {
 
             const result = await buildPaymentWebhookPayload(payment)
 
-            expect(result).toEqual({
+            expect(result).toMatchObject({
                 __typename: 'Payment',
                 id: payment.id,
                 status: 'DONE',
                 amount: payment.amount,
                 currencyCode: payment.currencyCode,
+                v: undefined,
+                dv: undefined,
+                createdAt: expect.any(String),
+                updatedAt: expect.any(String),
                 organization: {
                     __typename: 'Organization',
                     id: mockOrganization.id,
