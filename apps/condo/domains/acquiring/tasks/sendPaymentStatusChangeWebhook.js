@@ -3,8 +3,7 @@ const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { sendWebhookPayload } = require('@open-condo/webhooks/utils/sendWebhookPayload')
 
 const {
-    getWebhookSecret,
-    getWebhookCallbackUrl,
+    getWebhookConfig,
     buildPaymentWebhookPayload,
 } = require('@condo/domains/acquiring/utils/serverSchema/paymentWebhookHelpers')
 
@@ -29,8 +28,7 @@ async function sendPaymentStatusChangeWebhook (paymentId) {
     }
 
     // Get callback URL and secret from invoice or receipt
-    const url = await getWebhookCallbackUrl(payment)
-    const secret = await getWebhookSecret(payment)
+    const { url, secret } = await getWebhookConfig(payment)
 
     if (!url || !secret) {
         logger.info({ msg: 'No callback URL or secret found for payment', data: { paymentId, url } })

@@ -14,8 +14,7 @@ const { getById } = require('@open-condo/keystone/schema')
 const { sendWebhookPayload } = require('@open-condo/webhooks/utils/sendWebhookPayload')
 
 const {
-    getWebhookSecret,
-    getWebhookCallbackUrl,
+    getWebhookConfig,
     buildPaymentWebhookPayload,
 } = require('@condo/domains/acquiring/utils/serverSchema/paymentWebhookHelpers')
 
@@ -31,8 +30,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
     beforeEach(() => {
         jest.clearAllMocks()
         getById.mockResolvedValue(mockPayment)
-        getWebhookCallbackUrl.mockResolvedValue(mockUrl)
-        getWebhookSecret.mockResolvedValue(mockSecret)
+        getWebhookConfig.mockResolvedValue({ url: mockUrl, secret: mockSecret })
         buildPaymentWebhookPayload.mockResolvedValue(mockPayload)
         sendWebhookPayload.mockResolvedValue(undefined)
     })
@@ -41,8 +39,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
         await sendPaymentStatusChangeWebhook(mockPaymentId)
 
         expect(getById).toHaveBeenCalledWith('Payment', mockPaymentId)
-        expect(getWebhookCallbackUrl).toHaveBeenCalledWith(mockPayment)
-        expect(getWebhookSecret).toHaveBeenCalledWith(mockPayment)
+        expect(getWebhookConfig).toHaveBeenCalledWith(mockPayment)
         expect(buildPaymentWebhookPayload).toHaveBeenCalledWith(mockPayment)
         expect(sendWebhookPayload).toHaveBeenCalledWith(
             expect.anything(),
@@ -67,7 +64,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
     })
 
     test('should not send webhook when URL is missing', async () => {
-        getWebhookCallbackUrl.mockResolvedValue(null)
+        getWebhookConfig.mockResolvedValue({ url: null, secret: mockSecret })
 
         await sendPaymentStatusChangeWebhook(mockPaymentId)
 
@@ -75,7 +72,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
     })
 
     test('should not send webhook when secret is missing', async () => {
-        getWebhookSecret.mockResolvedValue(null)
+        getWebhookConfig.mockResolvedValue({ url: mockUrl, secret: null })
 
         await sendPaymentStatusChangeWebhook(mockPaymentId)
 
