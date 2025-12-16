@@ -125,9 +125,9 @@ class WebhookAdapter {
         for (const [appId, notificationsByType] of Object.entries(notificationsByAppAndType)) {
             const configForApp = this.#config[appId]
 
-            if (!configForApp) {
+            if (!configForApp || !Array.isArray(configForApp.urls)) {
                 const count = Object.values(notificationsByType).flat().length
-                logger.error({ msg: 'Unknown appId. Config was not found', data: { appId } })
+                logger.error({ msg: 'Config was not found or was in incorrect format for this appId.', data: { appId } })
                 failureCount += count
                 errors[appId] = (errors[appId] || 0) + count
                 continue
