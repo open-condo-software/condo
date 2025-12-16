@@ -105,6 +105,60 @@ describe('WebhookAdapter', () => {
             expect(posted.data._body).toBe(notification.body)
         })
 
+        it('sends one encrypted notification and posts correct payload', async () => {
+            const notification = {
+                title: faker.company.name(),
+                body: `${dayjs().format()} ${faker.lorem.sentence()}`,
+            }
+            const ticketNumber = faker.datatype.number({ min: 1, max: 999999 })
+
+            const data = {
+                type: NOTIFICATION_TYPE,
+                ticketNumber,
+            }
+
+            const tokens = [TOKEN]
+            const pushTypes = {} // default
+            const appIds = { [TOKEN]: APP_ID }
+
+            const [isOk, result] = await adapter.sendNotification({
+                notification,
+                data,
+                tokens,
+                pushTypes,
+                appIds,
+            })
+
+            expect(isOk).toBe(true)
+            expect(result).toBeDefined()
+            expect(result.successCount).toBe(1)
+            expect(result.failureCount).toBe(0)
+            expect(result.errors).toEqual({})
+
+            expect(fetch).toHaveBeenCalledTimes(1)
+            const [calledUrl, calledOpts] = fetch.mock.calls[0]
+            expect(calledUrl).toBe(URL)
+            expect(calledOpts.method).toBe('POST')
+            expect(calledOpts.headers).toEqual({
+                'Content-Type': 'application/json',
+            })
+
+            const parsed = JSON.parse(calledOpts.body)
+            expect(Array.isArray(parsed)).toBe(true)
+            expect(parsed).toHaveLength(1)
+
+            const posted = parsed[0]
+            expect(posted.token).toBe(TOKEN)
+            expect(posted.appId).toBe(APP_ID)
+            expect(posted.type).toBe(PUSH_TYPE_DEFAULT)
+
+            expect(posted.data).toBeDefined()
+            expect(posted.data.type).toBe(NOTIFICATION_TYPE)
+            expect(posted.data.ticketNumber).toBe(String(ticketNumber))
+            expect(posted.data._title).toBe(notification.title)
+            expect(posted.data._body).toBe(notification.body)
+        })
+
         it('sends multiple tokens (same app) in one batch', async () => {
             const tokens = Array.from({ length: 3 }, () => `tok_${faker.random.alphaNumeric({ length: 12 })}`)
             const appIds = Object.fromEntries(tokens.map(t => [t, APP_ID]))
