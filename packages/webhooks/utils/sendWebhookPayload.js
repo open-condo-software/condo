@@ -12,7 +12,7 @@ const logger = getLogger('sendWebhookPayload')
  * This is a convenience function that handles both creating the payload record
  * and scheduling the sending task.
  *
- * @param {Object} context - Keystone context (will be sudo'd internally)
+ * @param {Object} context - Keystone context
  * @param {Object} options - Webhook payload options
  * @param {string} options.url - Target URL for webhook sending
  * @param {Object|string} options.payload - JSON payload to send

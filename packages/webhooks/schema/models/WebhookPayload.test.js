@@ -81,6 +81,12 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
                     })
                 })
 
+                test('support: cannot create WebhookPayload', async () => {
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestWebhookPayload(actors.support)
+                    })
+                })
+
                 test('user: cannot create WebhookPayload', async () => {
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await createTestWebhookPayload(actors.user)
@@ -93,6 +99,15 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
                     const [webhookPayload] = await createTestWebhookPayload(actors.admin)
 
                     const foundWebhookPayload = await WebhookPayload.getOne(actors.admin, { id: webhookPayload.id })
+
+                    expect(foundWebhookPayload.id).toBe(webhookPayload.id)
+                    expect(foundWebhookPayload.status).toBe(WEBHOOK_PAYLOAD_STATUS_PENDING)
+                })
+
+                test('support: can read WebhookPayload', async () => {
+                    const [webhookPayload] = await createTestWebhookPayload(actors.admin)
+
+                    const foundWebhookPayload = await WebhookPayload.getOne(actors.support, { id: webhookPayload.id })
 
                     expect(foundWebhookPayload.id).toBe(webhookPayload.id)
                     expect(foundWebhookPayload.status).toBe(WEBHOOK_PAYLOAD_STATUS_PENDING)
@@ -167,6 +182,16 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
 
                     await expectToThrowAuthenticationErrorToObj(async () => {
                         await updateTestWebhookPayload(actors.anonymous, webhookPayload.id, {
+                            status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
+                        })
+                    })
+                })
+
+                test('support: cannot update WebhookPayload', async () => {
+                    const [webhookPayload] = await createTestWebhookPayload(actors.admin)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestWebhookPayload(actors.support, webhookPayload.id, {
                             status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
                         })
                     })
