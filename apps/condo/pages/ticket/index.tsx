@@ -650,8 +650,6 @@ const FiltersContainer = ({ filterMetas, hasSupervisedTickets }) => {
     const ExpiredLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ExpiredLabel' })
     const SupervisedTicketMessage = intl.formatMessage({ id: 'ticket.tags.supervised' })
 
-    const { organization } = useOrganization()
-
     const [{ width: contentWidth }, setRef] = useContainerSize()
 
     const attributeNames = useMemo(() => {
