@@ -164,6 +164,7 @@ class UserMessagesListSettingsStorage {
 
 type UseUserMessagesListSettingsStorageReturnType = {
     userMessagesSettingsStorage: UserMessagesListSettingsStorage
+    loading: boolean
 }
 type UseUserMessagesListSettingsStorageType = () => UseUserMessagesListSettingsStorageReturnType
 
@@ -173,13 +174,15 @@ export const useUserMessagesListSettingsStorage: UseUserMessagesListSettingsStor
     const { persistor } = useCachePersistor()
     const sender = useMemo(() => getClientSideSenderInfo(), [])
 
-    const { data, refetch } = useGetNotificationUserSettingsQuery({
+    const { data, loading, refetch } = useGetNotificationUserSettingsQuery({
         variables: {
             userId: user?.id,
             types: [...USER_MESSAGE_TYPES_FILTER_ON_CLIENT],
         },
         skip: !persistor || !isAuthenticated,
     })
+
+    const isDataLoading = !data || loading
 
     const [createNotificationUserSetting] = useCreateNotificationUserSettingMutation()
     const [updateNotificationUserSetting] = useUpdateNotificationUserSettingMutation()
@@ -222,5 +225,6 @@ export const useUserMessagesListSettingsStorage: UseUserMessagesListSettingsStor
 
     return {
         userMessagesSettingsStorage,
+        loading: isDataLoading,
     }
 }
