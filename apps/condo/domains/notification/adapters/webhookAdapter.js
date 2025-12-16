@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken')
 const { isEmpty, get } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -73,6 +74,9 @@ class WebhookAdapter {
                     '_body': notification.body,
                 },
                 type: pushType,
+                userExternalIdentityIds: [],
+                userId: '',
+                context: '',
                 appId: get(appIds, pushToken),
             }
 
@@ -83,76 +87,101 @@ class WebhookAdapter {
     }
 
     /**
-     * Manages to send notification to all available pushTokens of the user.
-     * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes
-     * Would try to send request to Apple only if Apple is initialized and `tokens` array contains real (non-fake) items.
-     * Would succeed if at least one real token succeeds in delivering notification through Apple push, or
-     * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
-     * @param notification
-     * @param tokens
-     * @param data
-     * @param pushTypes
-     * @param appIds
-     * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
+     * Sends notification via webhook with message type based routing
+     * @param {Object} options - Notification options
+     * @param {Object} options.notification - Notification data
+     * @param {Object} options.data - Additional data including message type
+     * @param {Array} options.tokens - Array of push tokens
+     * @param {Object} options.pushTypes - Push types for tokens
+     * @param {Object} options.appIds - App IDs for tokens
+     * @returns {Promise<Array>} [success, result] - Returns [isSuccess, {successCount, failureCount, errors}]
      */
     async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [ notifications, pushContext] = WebhookAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds)
+        const [notifications] = WebhookAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds)
 
-        const notificationsByAppId = {}
+        // Group notifications by appId and message type
+        // WEBHOOK_CONFIG_JSON='{"appId": { "urls": [{ "secret": "***", "http://example.com/webhook/ticket", messageTypes: ["TICKET_STATUS_DONE"]}]}}'
+        // { "appId": { "TICKET_STATUS_DONE": [<notification1>, <notification2>] } 
+        const notificationsByAppAndType = {}
         for (const notification of notifications) {
             const appId = notification.appId
-            notificationsByAppId[appId] ||= []
-            notificationsByAppId[appId].push(notification)
+            const messageType = notification.data.type
+
+            if (!notificationsByAppAndType[appId]) {
+                notificationsByAppAndType[appId] = {}
+            }
+            if (!notificationsByAppAndType[appId][messageType]) {
+                notificationsByAppAndType[appId][messageType] = []
+            }
+            notificationsByAppAndType[appId][messageType].push(notification)
         }
 
         let successCount = 0
         let failureCount = 0
         const errors = {}
 
-        for (const [appId, notificationsBatchForApp] of Object.entries(notificationsByAppId)) {
+        for (const [appId, notificationsByType] of Object.entries(notificationsByAppAndType)) {
             const configForApp = this.#config[appId]
+
             if (!configForApp) {
-                logger.error({ msg: 'unknown appId. Config was not found', data: { appId } })
-                failureCount += notificationsBatchForApp.length
-                errors[appId] = (errors[appId] || 0) + notificationsBatchForApp.length
+                const count = Object.values(notificationsByType).flat().length
+                logger.error({ msg: 'Unknown appId. Config was not found', data: { appId } })
+                failureCount += count
+                errors[appId] = (errors[appId] || 0) + count
                 continue
             }
 
-            const secret = configForApp.secret
-            const url = configForApp.url
-            const requestBody = { notifications: notificationsBatchForApp }
+            for (const [messageType, typeNotifications] of Object.entries(notificationsByType)) {
+                const webhookConfig = configForApp.urls?.find(urlConfig => urlConfig.messageTypes?.includes(messageType))
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': secret,
-                    },
-                    body: JSON.stringify(requestBody),
-                })
-
-                if (response.ok) {
-                    logger.info({ msg: 'sendNotification success', data: { appId, count: notificationsBatchForApp.length } })
-                    successCount += notificationsBatchForApp.length
-                } else {
-                    let bodyText = ''
-                    try {
-                        bodyText = await response.text()
-                        logger.error({ msg: 'sendNotification bad response', data: { appId, status: response.status } })
-                    } catch {
-                        logger.error({ msg: 'sendNotification bad response', data: { appId, status: response.status, body: bodyText } })
-                    } finally {
-                        failureCount += notificationsBatchForApp.length
-                        errors[appId] = (errors[appId] || 0) + notificationsBatchForApp.length
-                    }
+                if (!webhookConfig.url) {
+                    logger.warn({ msg: 'No webhook URL configured for message type', data: { appId, messageType } })
+                    continue
                 }
-            } catch (err) {
-                logger.error({ msg: 'sendNotification error', err, data: { appId } })
-                failureCount += notificationsBatchForApp.length
-                errors[appId] = (errors[appId] || 0) + notificationsBatchForApp.length
+
+                let body
+                if (!webhookConfig.secret) {
+                    body = JSON.stringify(typeNotifications)
+                } else {
+                    body = jwt.sign(typeNotifications, webhookConfig.secret, { algorithm: 'HS256' })
+                }
+
+                try {
+                    const response = await fetch(webhookConfig.url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body,
+                    })
+
+                    if (response.ok) {
+                        logger.info({
+                            msg: 'Webhook notification sent successfully',
+                            data: {
+                                appId,
+                                messageType,
+                                count: typeNotifications.length,
+                            },
+                        })
+                        successCount += typeNotifications.length
+                    } else {
+                        const errorText = await response.text().catch(() => 'Failed to read error response')
+                        throw new Error(`HTTP ${response.status}: ${errorText}`)
+                    }
+                } catch (error) {
+                    logger.error({
+                        msg: 'Failed to send webhook notification',
+                        error: error.message,
+                        data: {
+                            appId,
+                            messageType,
+                            url: webhookConfig.url,
+                        },
+                    })
+                    failureCount += typeNotifications.length
+                    errors[appId] = (errors[appId] || 0) + typeNotifications.length
+                }
             }
         }
 
@@ -164,7 +193,7 @@ class WebhookAdapter {
             errors,
         }
 
-        return [isOk, { ...result, pushContext }]
+        return [isOk, { ...result }]
     }
 }
 
