@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken'
 import proxyAddr from 'proxy-addr'
 import { z } from 'zod'
 
+import { isInSubnet } from '../ip'
+
 import type { IncomingMessage } from 'http'
 
 type ProxyConfig = {
@@ -34,6 +36,26 @@ export type ProxyHeaders = {
 function _getTimestampFromHeader (timestamp: string) {
     if (!_timeStampBasicRegexp.test(timestamp)) return Number.NaN
     return (new Date(parseInt(timestamp))).getTime()
+}
+
+function _isProxyIP (ip: string, proxyConfig: KnownProxies[string]) {
+    const addresses = Array.isArray(proxyConfig.address) ? proxyConfig.address : [proxyConfig.address]
+    const config = addresses.reduce((acc, addr) => {
+        const isSubnet = addr.split('/').length > 1
+        if (isSubnet) {
+            acc.subnets.push(addr)
+        } else {
+            acc.ips.push(addr)
+        }
+
+        return acc
+    }, { ips: [] as Array<string>, subnets: [] as Array<string> })
+
+    if (config.ips.length && config.ips.includes(ip)) {
+        return true
+    }
+
+    return !!(config.subnets.length && isInSubnet(ip, config.subnets))
 }
 
 export function getRequestIp (req: IncomingMessage, trustProxyFn: TrustProxyFunction, knownProxies?: KnownProxies): string {
@@ -79,10 +101,8 @@ export function getRequestIp (req: IncomingMessage, trustProxyFn: TrustProxyFunc
         return originalIP
     }
     const proxyConfig = knownProxies[xProxyId]
-    const isRequestFromProxy = Array.isArray(proxyConfig.address)
-        ? proxyConfig.address.includes(originalIP)
-        : proxyConfig.address === originalIP
-    if (!isRequestFromProxy) {
+
+    if (!proxyConfig || !_isProxyIP(originalIP, proxyConfig)) {
         return originalIP
     }
 
