@@ -143,16 +143,17 @@ class WebhookAdapter {
             for (const [messageType, typeNotifications] of Object.entries(notificationsByType)) {
                 const webhookConfig = configForApp.urls?.find(urlConfig => urlConfig.messageTypes?.includes(messageType))
 
-                if (!webhookConfig.url) {
-                    logger.warn({ msg: 'No webhook URL configured for message type', data: { appId, messageType } })
+                if (!webhookConfig || !webhookConfig.url) {
+                    logger.warn({ msg: 'no webhookConfig is configured for message type', data: { appId, messageType } })
                     continue
                 }
 
+                // We need to use { items: <> } here, because with jwt it is only possible to encrypt a plain object
                 let body
                 if (!webhookConfig.secret) {
-                    body = JSON.stringify(typeNotifications)
+                    body = JSON.stringify({ items: typeNotifications })
                 } else {
-                    body = jwt.sign(typeNotifications, webhookConfig.secret, { algorithm: 'HS256' })
+                    body = jwt.sign({ items: typeNotifications }, webhookConfig.secret, { algorithm: 'HS256' })
                 }
 
                 try {

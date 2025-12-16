@@ -1,4 +1,5 @@
 const { faker } = require('@faker-js/faker')
+const jwt = require('jsonwebtoken')
 const dayjs = require('dayjs')
 
 jest.mock('@open-condo/keystone/fetch', () => ({ fetch: jest.fn() }))
@@ -89,7 +90,7 @@ describe('WebhookAdapter', () => {
                 'Content-Type': 'application/json',
             })
 
-            const parsed = JSON.parse(calledOpts.body)
+            const parsed = JSON.parse(calledOpts.body).items
             expect(Array.isArray(parsed)).toBe(true)
             expect(parsed).toHaveLength(1)
 
@@ -106,6 +107,11 @@ describe('WebhookAdapter', () => {
         })
 
         it('sends one encrypted notification and posts correct payload', async () => {
+            const SECRET = faker.random.alphaNumeric(10)
+            adapter = new WebhookAdapter({
+                [APP_ID]: { urls: [{ url: URL, secret: SECRET, messageTypes: [NOTIFICATION_TYPE] } ] },
+            })
+
             const notification = {
                 title: faker.company.name(),
                 body: `${dayjs().format()} ${faker.lorem.sentence()}`,
@@ -143,7 +149,8 @@ describe('WebhookAdapter', () => {
                 'Content-Type': 'application/json',
             })
 
-            const parsed = JSON.parse(calledOpts.body)
+            const parsed = jwt.verify(calledOpts.body, SECRET).items
+
             expect(Array.isArray(parsed)).toBe(true)
             expect(parsed).toHaveLength(1)
 
@@ -176,7 +183,7 @@ describe('WebhookAdapter', () => {
             expect(result.failureCount).toBe(0)
             expect(fetch).toHaveBeenCalledTimes(1) // one appId -> 1 HTTP call
 
-            const parsed = JSON.parse(fetch.mock.calls[0][1].body)
+            const parsed = JSON.parse(fetch.mock.calls[0][1].body).items
             expect(parsed).toHaveLength(tokens.length)
         })
 
@@ -213,6 +220,8 @@ describe('WebhookAdapter', () => {
 
         it('sends tokens across two messageTypes -> two HTTP calls and aggregated counts', async () => {
 
+            const NON_EXISTING_NOTIFICATION_TYPE = faker.random.alphaNumeric(12)
+
             const NOTIFICATION_TYPE2 = faker.random.alphaNumeric(12)
             const URL2 = `https://${faker.internet.domainName()}/notify`
 
@@ -222,19 +231,18 @@ describe('WebhookAdapter', () => {
             })
 
             const tokenA = `tok_${faker.random.alphaNumeric(12)}`
-            const tokenB = `tok_${faker.random.alphaNumeric(12)}`
-            const appIds = { [tokenA]: APP_ID, [tokenB]: APP_ID }
+            const appIds = { [tokenA]: APP_ID }
 
             const [isOk, result] = await adapter.sendNotification({
                 notification: { title: 'multi', body: 'apps' },
                 data: { type: NOTIFICATION_TYPE },
-                tokens: [tokenA, tokenB],
+                tokens: [tokenA],
                 pushTypes: {},
                 appIds,
             })
 
             expect(isOk).toBe(true)
-            expect(result.successCount).toBe(2)
+            expect(result.successCount).toBe(1)
             expect(result.failureCount).toBe(0)
             expect(fetch).toHaveBeenCalledTimes(1)
 
@@ -244,18 +252,31 @@ describe('WebhookAdapter', () => {
             const [isOk2, result2] = await adapter.sendNotification({
                 notification: { title: 'multi', body: 'apps' },
                 data: { type: NOTIFICATION_TYPE2 },
-                tokens: [tokenA, tokenB],
+                tokens: [tokenA],
                 pushTypes: {},
                 appIds,
             })
 
             expect(isOk2).toBe(true)
-            expect(result2.successCount).toBe(2)
+            expect(result2.successCount).toBe(1)
             expect(result2.failureCount).toBe(0)
-            expect(fetch).toHaveBeenCalledTimes(1)
+            expect(fetch).toHaveBeenCalledTimes(2)
+
+            const [isOk3, result3] = await adapter.sendNotification({
+                notification: { title: 'multi', body: 'apps' },
+                data: { type: NON_EXISTING_NOTIFICATION_TYPE },
+                tokens: [tokenA],
+                pushTypes: {},
+                appIds,
+            })
+
+            expect(isOk3).toBe(false)
+            expect(result3.successCount).toBe(0)
+            expect(result3.failureCount).toBe(0)
+            expect(fetch).toHaveBeenCalledTimes(2)
 
             const urls2 = fetch.mock.calls.map(c => c[0]).sort()
-            expect(urls2).toEqual([URL2].sort())
+            expect(urls2).toEqual([URL, URL2].sort())
         })
     })
 
