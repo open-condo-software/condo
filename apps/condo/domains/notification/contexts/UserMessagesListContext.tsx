@@ -71,6 +71,7 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [readUserMessagesAt, setReadUserMessagesAt] = useState<string>()
     const [excludedMessageTypes, setExcludedMessageTypes] = useState<Array<MessageTypeAllowedToFilterType>>([])
+    const [isExcludedMessageTypesSetted, setIsExcludedMessageTypesSetted] = useState<boolean>(false)
     const [isNotificationSoundEnabled, setIsNotificationSoundEnabled] = useState<boolean>()
 
     const { user, isAuthenticated, isLoading: userIsLoading } = useAuth()
@@ -79,14 +80,16 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
     const userId = useMemo(() => user?.id, [user?.id])
     const organizationId = useMemo(() => organization?.id, [organization?.id])
 
-    const { messageTypes, loading: allowedMessageTypesLoading } = useAllowedToFilterMessageTypes()
-    const messageTypesToFilter = useMemo(
-        () => messageTypes.filter(type => !excludedMessageTypes?.includes(type)),
-        [excludedMessageTypes, messageTypes])
-
     const {
         userMessagesSettingsStorage,
+        loading: userMessagesSettingsLoading,
     } = useUserMessagesListSettingsStorage()
+
+    const { messageTypes, loading: allowedMessageTypesLoading } = useAllowedToFilterMessageTypes()
+    const messageTypesToFilter = useMemo(() => {
+        if (userMessagesSettingsLoading || !isExcludedMessageTypesSetted) return []
+        return messageTypes.filter(type => !excludedMessageTypes?.includes(type))
+    }, [excludedMessageTypes, messageTypes, userMessagesSettingsLoading, isExcludedMessageTypesSetted])
 
     const {
         userMessages, messagesListRef, clearLoadedMessages,
@@ -96,7 +99,7 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         messageTypesToFilter,
         organizationIdsToFilter,
         skipQueryMessagesCondition: userIsLoading || organizationIsLoading || !isAuthenticated || 
-        !organizationId || allowedMessageTypesLoading || !readUserMessagesAt || 
+        !organizationId || userMessagesSettingsLoading || allowedMessageTypesLoading || !readUserMessagesAt || 
         messageTypesToFilter.length === 0 || organizationIdsToFilter.length === 0,
     })
 
@@ -115,6 +118,8 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
 
     // Set initial settings to state
     useEffect(() => {
+        if (!userMessagesSettingsStorage || userMessagesSettingsLoading) return
+
         let lastReadUserMessagesAt = userMessagesSettingsStorage.getReadUserMessagesAt()
         if (!lastReadUserMessagesAt) {
             lastReadUserMessagesAt = new Date().toISOString()
@@ -124,10 +129,11 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
 
         const excludedMessageTypesToFilter = userMessagesSettingsStorage.getExcludedUserMessagesTypes()
         setExcludedMessageTypes(excludedMessageTypesToFilter)
+        setIsExcludedMessageTypesSetted(true)
 
         const isSoundEnabled = userMessagesSettingsStorage.getIsNotificationSoundEnabled()
         setIsNotificationSoundEnabled(isSoundEnabled)
-    }, [organizationId, userId, userMessagesSettingsStorage])
+    }, [organizationId, userId, userMessagesSettingsStorage, userMessagesSettingsLoading])
 
     const { sendMessageToBroadcastChannel: sendReadUserMessagesAtToBroadcast } = useBroadcastChannel<string>(
         READ_USER_MESSAGES_AT_BROADCAST_CHANNEL,
