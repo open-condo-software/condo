@@ -1,3 +1,4 @@
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { sendWebhookPayload } = require('@open-condo/webhooks/utils/sendWebhookPayload')
 
@@ -6,6 +7,9 @@ const {
     getWebhookCallbackUrl,
     buildPaymentWebhookPayload,
 } = require('@condo/domains/acquiring/utils/serverSchema/paymentWebhookHelpers')
+
+
+const logger = getLogger()
 
 /**
  * Task to build and send webhook payload for payment status change.
@@ -20,7 +24,8 @@ async function sendPaymentStatusChangeWebhook (paymentId) {
     // Get the payment record using getById (direct adapter access, works in tests)
     const payment = await getById('Payment', paymentId)
     if (!payment || payment.deletedAt) {
-        return
+        logger.info({ msg: 'Payment was deleted or is not available', data: { paymentId } })
+        return 'payment-deleted'
     }
 
     // Get callback URL and secret from invoice or receipt
@@ -28,7 +33,8 @@ async function sendPaymentStatusChangeWebhook (paymentId) {
     const secret = await getWebhookSecret(payment)
 
     if (!url || !secret) {
-        return
+        logger.info({ msg: 'No callback URL or secret found for payment', data: { paymentId, url } })
+        return 'no-url-or-secret'
     }
 
     // Build the webhook payload (snapshot of current Payment state)
