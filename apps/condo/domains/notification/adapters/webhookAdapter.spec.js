@@ -22,6 +22,7 @@ describe('WebhookAdapter', () => {
     let APP_ID
     let TOKEN
     let URL
+    let SECRET
     let adapter
     let NOTIFICATION_TYPE
 

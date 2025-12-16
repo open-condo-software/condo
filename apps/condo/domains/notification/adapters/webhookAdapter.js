@@ -74,6 +74,9 @@ class WebhookAdapter {
                     '_body': notification.body,
                 },
                 type: pushType,
+                userExternalIdentityIds: [],
+                userId: '',
+                context: '',
                 appId: get(appIds, pushToken),
             }
 
