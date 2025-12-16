@@ -95,7 +95,8 @@ const useSelectBillingPromoBanner = () => {
     const { organization } = useOrganization()
     const { user } = useAuth()
     const persistor = useCachePersistor()
-    const ButtonLabel = intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
+    const CardButtonLabel = intl.formatMessage({ id: 'miniapps.appCard.notConnected.label' })
+    const ModalButtonLabel = intl.formatMessage({ id: 'accrualsAndPayments.billingModal.leaveApplicationLabel' })
     const [spawnModal, SetupPromoAppModal] = Modal.useModal()
     const promoB2BAppConfig: PromoAppConfig = useMemo(() => {
         return globalHints?.pages?.find(page => page?.routeTemplate === route)?.promoB2BApp || {}
@@ -144,6 +145,7 @@ const useSelectBillingPromoBanner = () => {
                     detailedDescription={detailedDescription}
                     integrationType={INTEGRATION_TYPE_B2B_APP}
                     servicePrice={localizedTexts?.price}
+                    setupButtonLabel={ModalButtonLabel}
                     onCompleted={async () => {
                         modal.destroy()
                         await refetch()
@@ -151,7 +153,7 @@ const useSelectBillingPromoBanner = () => {
                 />
             ),
         })
-    }, [detailedDescription, localizedTexts?.price, promoB2BApp, promoB2BAppConfig.bannerTextColor, promoB2BAppConfig.modalBannerColor, promoB2BAppConfig.modalBannerPromoImageUrl, refetch, shouldShowModal, spawnModal])
+    }, [ModalButtonLabel, detailedDescription, localizedTexts?.price, promoB2BApp, promoB2BAppConfig.bannerTextColor, promoB2BAppConfig.modalBannerColor, promoB2BAppConfig.modalBannerPromoImageUrl, refetch, shouldShowModal, spawnModal])
 
     const Banner = useMemo(() => {
         return <div
@@ -196,12 +198,12 @@ const useSelectBillingPromoBanner = () => {
                 </Col>
                 {!appIsBeingConnected && <Col span={24} onClick={handleBannerClick}>
                     <Button type='primary' block>
-                        {ButtonLabel}
+                        {CardButtonLabel}
                     </Button>
                 </Col>}
             </Row>
         </div>
-    }, [ButtonLabel, appIsBeingConnected, handleBannerClick, localizedTexts?.tag, promoB2BAppConfig.appBeingConnectedImageUrl, promoB2BAppConfig.appDisconnectedImageUrl, promoB2BAppConfig.backgroundColor, promoB2BAppConfig.titleHighlightColor, title])
+    }, [CardButtonLabel, appIsBeingConnected, handleBannerClick, localizedTexts?.tag, promoB2BAppConfig.appBeingConnectedImageUrl, promoB2BAppConfig.appDisconnectedImageUrl, promoB2BAppConfig.backgroundColor, promoB2BAppConfig.titleHighlightColor, title])
 
     return {
         Banner,
