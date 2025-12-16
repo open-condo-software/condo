@@ -156,6 +156,53 @@ describe('WebhookAdapter', () => {
             const urls = fetch.mock.calls.map(c => c[0]).sort()
             expect(urls).toEqual([URL, URL2].sort())
         })
+
+        it('sends tokens across two messageTypes -> two HTTP calls and aggregated counts', async () => {
+
+            const NOTIFICATION_TYPE2 = faker.random.alphaNumeric(12)
+            const URL2 = `https://${faker.internet.domainName()}/notify`
+
+            // Recreate adapter with 2 app configs
+            adapter = new WebhookAdapter({
+                [APP_ID]: { urls: [{ url: URL, messageTypes: [NOTIFICATION_TYPE] }, { url: URL2, messageTypes: [NOTIFICATION_TYPE2] }] },
+            })
+
+            const tokenA = `tok_${faker.random.alphaNumeric(12)}`
+            const tokenB = `tok_${faker.random.alphaNumeric(12)}`
+            const appIds = { [tokenA]: APP_ID, [tokenB]: APP_ID }
+
+            const [isOk, result] = await adapter.sendNotification({
+                notification: { title: 'multi', body: 'apps' },
+                data: { type: NOTIFICATION_TYPE },
+                tokens: [tokenA, tokenB],
+                pushTypes: {},
+                appIds,
+            })
+
+            expect(isOk).toBe(true)
+            expect(result.successCount).toBe(2)
+            expect(result.failureCount).toBe(0)
+            expect(fetch).toHaveBeenCalledTimes(1)
+
+            const urls = fetch.mock.calls.map(c => c[0]).sort()
+            expect(urls).toEqual([URL].sort())
+
+            const [isOk2, result2] = await adapter.sendNotification({
+                notification: { title: 'multi', body: 'apps' },
+                data: { type: NOTIFICATION_TYPE2 },
+                tokens: [tokenA, tokenB],
+                pushTypes: {},
+                appIds,
+            })
+
+            expect(isOk2).toBe(true)
+            expect(result2.successCount).toBe(2)
+            expect(result2.failureCount).toBe(0)
+            expect(fetch).toHaveBeenCalledTimes(1)
+
+            const urls2 = fetch.mock.calls.map(c => c[0]).sort()
+            expect(urls2).toEqual([URL2].sort())
+        })
     })
 
     describe('disabled apps', () => {

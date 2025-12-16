@@ -10,6 +10,7 @@ const {
     APPS_WITH_DISABLED_NOTIFICATIONS_ENV, PUSH_TYPE_DEFAULT,
 } = require('@condo/domains/notification/constants/constants')
 const { EMPTY_WEBHOOK_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
+const {EMPTY_APPLE_CONFIG_ERROR} = require("../constants/errors");
 
 const WEBHOOK_CONFIG = conf[WEBHOOK_CONFIG_ENV] ? JSON.parse(conf[WEBHOOK_CONFIG_ENV]) : null
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
@@ -17,11 +18,15 @@ const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_E
 const logger = getLogger()
 
 class WebhookAdapter {
+    isConfigured = false
     #config = null
 
     constructor (config = WEBHOOK_CONFIG) {
-        if (isEmpty(config)) throw new Error(EMPTY_WEBHOOK_CONFIG_ERROR)
+        if (isEmpty(config)) {
+            logger.error( { msg: 'webhookAdapter error', error: EMPTY_WEBHOOK_CONFIG_ERROR })
+        }
         this.#config = config
+        this.isConfigured = true
     }
 
     /**
@@ -97,6 +102,8 @@ class WebhookAdapter {
      * @returns {Promise<Array>} [success, result] - Returns [isSuccess, {successCount, failureCount, errors}]
      */
     async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}) {
+        if (!this.isConfigured) return [false, { error: 'webhookAdapter is not configured' }]
+
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
         const [notifications] = WebhookAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds)
