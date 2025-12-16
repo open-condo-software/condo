@@ -17,22 +17,22 @@ const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_E
 
 const logger = getLogger()
 
+const CONFIG_SCHEMA = z.record(
+    z.string().min(1),
+    z.object({
+        urls: z.array(
+            z.object({
+                url: z.string(),
+                secret: z.string().optional(),
+                messageTypes: z.array(z.string().min(1)),
+            })
+        ).min(1),
+    })
+)
+
 class WebhookAdapter {
     #isConfigured = false
     #config = null
-
-    #configSchema = z.record(
-        z.string().min(1),
-        z.object({
-            urls: z.array(
-                z.object({
-                    url: z.string(),
-                    secret: z.string().optional(),
-                    messageTypes: z.array(z.string().min(1)),
-                })
-            ).min(1),
-        })
-    )
 
     constructor (config = WEBHOOK_CONFIG) {
         try {
@@ -40,19 +40,15 @@ class WebhookAdapter {
                 throw new Error(EMPTY_WEBHOOK_CONFIG_ERROR)
             }
             
-            const result = this.#configSchema.safeParse(config)
+            const result = CONFIG_SCHEMA.safeParse(config)
             if (!result.success) {
-                const error = new Error('Invalid webhook configuration')
-                throw error
+                throw new Error('Invalid webhook configuration')
             }
             
             this.#config = result.data
             this.#isConfigured = true
         } catch (error) {
-            logger.error({ 
-                msg: 'webhookAdapter configuration error', 
-                error: error.message,
-            })
+            // Fails silently. Probably this feature is not configured in this environment
             this.#isConfigured = false
         }
     }
@@ -92,7 +88,7 @@ class WebhookAdapter {
      * @param appIds
      * @returns {*[][]}
      */
-    static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds) {
+    static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds = {}) {
         const notification = WebhookAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
 
@@ -176,48 +172,31 @@ class WebhookAdapter {
                 // We need to use { items: <> } here, because with jwt it is only possible to encrypt a plain object
                 let body
                 let contentType
-                if (!webhookConfig.secret) {
-                    logger.warn({ msg: 'Sending decrypted push message webhooks, please do not use this in production', data: { appId, messageType } })
-                    body = JSON.stringify({ items: typeNotifications })
-                    contentType = 'application/json'
-                } else {
+
+                if (webhookConfig.secret) {
                     body = jwt.sign({ items: typeNotifications }, webhookConfig.secret, { algorithm: 'HS256' })
                     contentType = 'application/jwt'
+                } else {
+                    logger.warn({ msg: 'push message webhooks are send without encryption, this should not be used in production', data: { appId, messageType } })
+                    body = JSON.stringify({ items: typeNotifications })
+                    contentType = 'application/json'
                 }
 
-                try {
-                    const response = await fetch(webhookConfig.url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': contentType },
-                        body,
-                    })
+                const [success, result] = await this.trySendData({
+                    url: webhookConfig.url,
+                    contentType,
+                    body,
+                    appId,
+                    messageType,
+                    typeNotifications,
+                    errors,
+                })
 
-                    if (response.ok) {
-                        logger.info({
-                            msg: 'Webhook notification sent successfully',
-                            data: {
-                                appId,
-                                messageType,
-                                count: typeNotifications.length,
-                            },
-                        })
-                        successCount += typeNotifications.length
-                    } else {
-                        const errorText = await response.text().catch(() => 'Failed to read error response')
-                        throw new Error(`HTTP ${response.status}: ${errorText}`)
-                    }
-                } catch (error) {
-                    logger.error({
-                        msg: 'Failed to send webhook notification',
-                        error: error.message,
-                        data: {
-                            appId,
-                            messageType,
-                            url: webhookConfig.url,
-                        },
-                    })
-                    failureCount += typeNotifications.length
-                    errors[appId] = (errors[appId] || 0) + typeNotifications.length
+                if (success) {
+                    successCount += result.count
+                } else {
+                    failureCount += result.count
+                    errors[appId] = (errors[appId] || 0) + result.count
                 }
             }
         }
@@ -231,6 +210,54 @@ class WebhookAdapter {
         }
 
         return [isOk, { ...result }]
+    }
+
+    /**
+     * Tries to send data to a webhook URL
+     * @param {Object} params
+     * @param {string} params.url - The webhook URL
+     * @param {string} params.contentType - Content type header
+     * @param {string} params.body - Request body
+     * @param {string} params.appId - Application ID
+     * @param {string} params.messageType - Type of the message
+     * @param {Array} params.typeNotifications - Array of notifications
+     * @param {Object} errors - Errors object to update
+     * @returns {Promise<[boolean, Object]>} - [success, {count, errors?}]
+     */
+    async trySendData ({ url, contentType, body, appId, messageType, typeNotifications, errors }) {
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': contentType },
+                body,
+            })
+
+            if (response.ok) {
+                logger.info({
+                    msg: 'Webhook notification sent successfully',
+                    data: {
+                        appId,
+                        messageType,
+                        count: typeNotifications.length,
+                    },
+                })
+                return [true, { count: typeNotifications.length }]
+            } else {
+                const errorText = await response.text().catch(() => 'Failed to read error response')
+                throw new Error(`HTTP ${response.status}: ${errorText}`)
+            }
+        } catch (error) {
+            logger.error({
+                msg: 'Failed to send webhook notification',
+                error: error.message,
+                data: {
+                    appId,
+                    messageType,
+                    url,
+                },
+            })
+            return [false, { count: typeNotifications.length, errors }]
+        }
     }
 }
 
