@@ -18,7 +18,7 @@ const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_E
 const logger = getLogger()
 
 class WebhookAdapter {
-    isConfigured = false
+    #isConfigured = false
     #config = null
 
     #configSchema = z.record(
@@ -47,13 +47,13 @@ class WebhookAdapter {
             }
             
             this.#config = result.data
-            this.isConfigured = true
+            this.#isConfigured = true
         } catch (error) {
             logger.error({ 
                 msg: 'webhookAdapter configuration error', 
                 error: error.message,
             })
-            this.isConfigured = false
+            this.#isConfigured = false
         }
     }
 
@@ -127,7 +127,7 @@ class WebhookAdapter {
      * @returns {Promise<Array>} [success, result] - Returns [isSuccess, {successCount, failureCount, errors}]
      */
     async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}) {
-        if (!this.isConfigured) return [false, { error: 'webhookAdapter is not configured' }]
+        if (!this.#isConfigured) return [false, { error: 'webhookAdapter is not configured' }]
 
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
