@@ -314,6 +314,7 @@
   "accrualsAndPayments.billingModal.receiptAwaitingTime": "Time to load receipts into the Doma app:",
   "accrualsAndPayments.billingModal.price": "The cost of the service:",
   "accrualsAndPayments.billingModal.setupButtonLabel": "Set up",
+  "accrualsAndPayments.billingModal.leaveApplicationLabel": "Leave an application",
   "accrualsAndPayments.onBoardingModal.closeButton.message": "Thank you for sharing",
   "accrualsAndPayments.onBoardingModal.text": "For residents to pay their receipts via the Doma mobile app, select the download method and sign the offer. From then on, all payments will be displayed in this section.",
   "accrualsAndPayments.onBoardingModal.title": "About the section",

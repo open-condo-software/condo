@@ -314,6 +314,7 @@
   "accrualsAndPayments.billingModal.receiptAwaitingTime": "Срок загрузки квитанций в приложение Doma:",
   "accrualsAndPayments.billingModal.price": "Стоимость услуги:",
   "accrualsAndPayments.billingModal.setupButtonLabel": "Настроить",
+  "accrualsAndPayments.billingModal.leaveApplicationLabel": "Оставить заявку",
   "accrualsAndPayments.onBoardingModal.closeButton.message": "Спасибо, что рассказали",
   "accrualsAndPayments.onBoardingModal.text": "Чтобы жители оплачивали квитанции через мобильное приложение Doma, выберите способ загрузки и подпишите оферту. С этого момента все оплаты будут отображаться в этом разделе.",
   "accrualsAndPayments.onBoardingModal.title": "О разделе",
