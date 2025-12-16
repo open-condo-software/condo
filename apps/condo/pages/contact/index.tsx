@@ -423,9 +423,10 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
     const updateUrlQuery = useCallback((params: FullTableState) => defaultUpdateUrlQuery(router, params), [router])
 
     useEffect(() => {
-        const handleRouteChangeComplete = (_: string, { shallow }: { shallow: boolean }) => {
-            // NOTE: We need to reset table state only if we full routing to the page, not just a shallow change
-            if (!shallow && tableRef.current) {
+        const handleRouteChangeComplete = (url: string, { shallow }: { shallow: boolean }) => {
+            const query = url.split('?')[1]
+            // NOTE: We need to reset table state only if we full routing to the page without query, not just a shallow change
+            if (!query && !shallow && tableRef.current) {
                 tableRef.current.api?.setFullTableState({
                     filterState: {},
                     sortState: [],
@@ -527,7 +528,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
     const onTableReady = useCallback((tableRef: TableRef) => {
         setSearch(String(tableRef.api.getGlobalFilter() || ''))
         setSelectedRowsCount(tableRef.api.getRowSelection().length)
-    }, [handleSearchChange])
+    }, [setSearch])
 
     return (
         <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start'>
