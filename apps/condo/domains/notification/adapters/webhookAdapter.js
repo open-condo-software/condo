@@ -10,7 +10,6 @@ const {
     APPS_WITH_DISABLED_NOTIFICATIONS_ENV, PUSH_TYPE_DEFAULT,
 } = require('@condo/domains/notification/constants/constants')
 const { EMPTY_WEBHOOK_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
-const {EMPTY_APPLE_CONFIG_ERROR} = require("../constants/errors");
 
 const WEBHOOK_CONFIG = conf[WEBHOOK_CONFIG_ENV] ? JSON.parse(conf[WEBHOOK_CONFIG_ENV]) : null
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
@@ -23,7 +22,7 @@ class WebhookAdapter {
 
     constructor (config = WEBHOOK_CONFIG) {
         if (isEmpty(config)) {
-            logger.error( { msg: 'webhookAdapter error', error: EMPTY_WEBHOOK_CONFIG_ERROR })
+            logger.error( { msg: 'webhookAdapter сonfiguration error', error: EMPTY_WEBHOOK_CONFIG_ERROR })
         }
         this.#config = config
         this.isConfigured = true
@@ -79,9 +78,6 @@ class WebhookAdapter {
                     '_body': notification.body,
                 },
                 type: pushType,
-                userExternalIdentityIds: [],
-                userId: '',
-                context: '',
                 appId: get(appIds, pushToken),
             }
 
@@ -110,7 +106,7 @@ class WebhookAdapter {
 
         // Group notifications by appId and message type
         // WEBHOOK_CONFIG_JSON='{"appId": { "urls": [{ "secret": "***", "http://example.com/webhook/ticket", messageTypes: ["TICKET_STATUS_DONE"]}]}}'
-        // { "appId": { "TICKET_STATUS_DONE": [<notification1>, <notification2>] } 
+        // { "appId": { "TICKET_STATUS_DONE": [<notification1>, <notification2>], "TICKET_STATUS_IN_PROGRESS": [<notification2>] }
         const notificationsByAppAndType = {}
         for (const notification of notifications) {
             const appId = notification.appId
