@@ -64695,7 +64695,7 @@ type PaymentStatusChangeWebhookUrl {
   """ Optional description of what this webhook is used for """
   description: String
 
-  """ Related organization that owns this webhook URL. If set, only invoices/receipts from this organization can use this URL. 
+  """ Related organization that owns this webhook URL. Only for information now. In future: if set, only invoices/receipts from this organization can use this URL. 
   """
   organization: Organization
   id: ID!
