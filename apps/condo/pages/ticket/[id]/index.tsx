@@ -566,14 +566,27 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
     )
 }
 
+const DEFAULT_DAYS_TO_ESCALATION_DEADLINE = 3
+
 export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, organization, employee, TicketContent }) => {
     const intl = useIntl()
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
     const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
-    const EscalatedTicketAlertTitle = intl.formatMessage({ id: 'pages.condo.ticket.alert.EscalatedTicket.title' })
-    const EscalatedTicketAlertDescription = intl.formatMessage({ id: 'pages.condo.ticket.alert.EscalatedTicket.description' })
-    const TicketEscalationWarningAlertDescription = intl.formatMessage({ id: 'pages.condo.ticket.alert.TicketEscalationWarning.description' })
+    const EscalatedTicketAlertTitle = intl.formatMessage({ id: 'pages.condo.ticket.alert.EscalatedTicket.title' }, {
+        // @ts-ignore runtime translation
+        authorityName: intl.formatMessage({ id: 'ticket.authorities.StateHousingInspectorate.name.short' }),
+    })
+    const EscalatedTicketAlertDescription = intl.formatMessage({ id: 'pages.condo.ticket.alert.EscalatedTicket.description' }, {
+        // @ts-ignore runtime translation
+        authorityName: intl.formatMessage({ id: 'ticket.authorities.StateHousingInspectorate.name.short' }),
+        days: DEFAULT_DAYS_TO_ESCALATION_DEADLINE,
+    })
+    const TicketEscalationWarningAlertDescription = intl.formatMessage({ id: 'pages.condo.ticket.alert.TicketEscalationWarning.description' }, {
+        // @ts-ignore runtime translation
+        authorityName: intl.formatMessage({ id: 'ticket.authorities.StateHousingInspectorate.name.short' }),
+        days: DEFAULT_DAYS_TO_ESCALATION_DEADLINE,
+    })
 
     const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
@@ -588,7 +601,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
         shouldShowTicketEscalationWarning(ticket).then((res) => setShowTicketEscalationWarning(res))
     }, [ticket, shouldShowTicketEscalationWarning])
     const deadlineToEscalationTicket = useMemo(() => {
-        const deadlineToEscalation = calculateDeadlineToEscalationTicket(ticket)
+        const deadlineToEscalation = calculateDeadlineToEscalationTicket(ticket, DEFAULT_DAYS_TO_ESCALATION_DEADLINE)
         const isEqualYears = dayjs(deadlineToEscalation).year() === dayjs(ticket?.createdAt).year()
             && dayjs(deadlineToEscalation).year() === dayjs().year()
         const formatTemplate = isEqualYears ? 'DD MMMM' : 'DD MMMM YYYY'

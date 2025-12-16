@@ -639,7 +639,7 @@ const FILTERS_BUTTON_ROW_GUTTER: RowProps['gutter'] = [16, 10]
 const FILTERS_BUTTON_ROW_STYLES: CSSProperties = { flexWrap: 'nowrap' }
 const RESET_FILTERS_BUTTON_STYLES: CSSProperties = { padding: 0 }
 
-const FiltersContainer = ({ filterMetas }) => {
+const FiltersContainer = ({ filterMetas, hasSupervisedTickets }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
@@ -654,11 +654,6 @@ const FiltersContainer = ({ filterMetas }) => {
 
     const [{ width: contentWidth }, setRef] = useContainerSize()
 
-    const { hasSupervisedTicketsInOrganization } = useSupervisedTickets()
-    const [hasSupervisedTickets, setHasSupervisedTickets] = useState<boolean>(false)
-    useEffect(() => {
-        hasSupervisedTicketsInOrganization(organization?.id).then((res) => setHasSupervisedTickets(res))
-    }, [organization?.id, hasSupervisedTicketsInOrganization])
     const attributeNames = useMemo(() => {
         const attrNames = [...ATTRIBUTE_NAMES_TO_FILTERS]
         if (hasSupervisedTickets) attrNames.push('isSupervised')
@@ -859,6 +854,7 @@ export const TicketsPageContent = ({
     playSoundOnNewTickets = false,
     error,
     refetchTicketTypeCountersRef,
+    hasSupervisedTickets = false,
 }): JSX.Element => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
@@ -939,6 +935,7 @@ export const TicketsPageContent = ({
                 <Col span={24}>
                     <FiltersContainer
                         filterMetas={filterMetas}
+                        hasSupervisedTickets={hasSupervisedTickets}
                     />
                 </Col>
                 <Col span={24}>
@@ -1124,6 +1121,12 @@ const TicketsPage: PageComponentType = () => {
 
     const refetchTicketTypeCountersRef = useRef()
 
+    const { hasSupervisedTicketsInOrganization } = useSupervisedTickets()
+    const [hasSupervisedTickets, setHasSupervisedTickets] = useState<boolean>(false)
+    useEffect(() => {
+        hasSupervisedTicketsInOrganization(organization?.id).then((res) => setHasSupervisedTickets(res))
+    }, [organization?.id, hasSupervisedTicketsInOrganization])
+
     return (
         <>
             <Head>
@@ -1181,6 +1184,7 @@ const TicketsPage: PageComponentType = () => {
                                             isTicketsExists={isTicketsExists}
                                             error={error}
                                             refetchTicketTypeCountersRef={refetchTicketTypeCountersRef}
+                                            hasSupervisedTickets={hasSupervisedTickets}
                                         />
                                     </MultipleFilterContextProvider>
                                 </TablePageContent>
