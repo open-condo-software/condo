@@ -27,13 +27,20 @@ function isValidWebhookUrl (url) {
         return false
     }
 
+    let parsedUrl
+    try {
+        parsedUrl = new URL(url)
+    } catch {
+        return false
+    }
+
     // Allow HTTPS URLs
-    if (url.startsWith('https://')) {
+    if (parsedUrl.protocol === 'https:') {
         return true
     }
 
     // Allow HTTP only for localhost (for testing purposes)
-    if (url.startsWith('http://localhost') || url.startsWith('http://127.0.0.1')) {
+    if (parsedUrl.protocol === 'http:' && (parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1')) {
         return true
     }
 
@@ -53,7 +60,7 @@ const PaymentStatusChangeWebhookUrl = new GQLListSchema('PaymentStatusChangeWebh
 
         url: {
             schemaDoc: 'Approved webhook callback URL. Must be a valid HTTPS URL (HTTP allowed for localhost in testing).',
-            type: 'Url',
+            type: 'Text',
             isRequired: true,
         },
 
@@ -71,7 +78,7 @@ const PaymentStatusChangeWebhookUrl = new GQLListSchema('PaymentStatusChangeWebh
         },
 
         organization: {
-            schemaDoc: 'Related organization that owns this webhook URL. If set, only invoices/receipts from this organization can use this URL.',
+            schemaDoc: 'Related organization that owns this webhook URL. Only for information now. In future: if set, only invoices/receipts from this organization can use this URL.',
             type: 'Relationship',
             ref: 'Organization',
             isRequired: false,

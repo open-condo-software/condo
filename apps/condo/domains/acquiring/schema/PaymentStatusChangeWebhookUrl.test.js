@@ -280,6 +280,37 @@ describe('PaymentStatusChangeWebhookUrl', () => {
                 })
             }).rejects.toThrow()
         })
+
+        test('should reject http URL for localhost subdomain (not real localhost)', async () => {
+            const uniqueSubdomain = faker.random.alphaNumeric(10)
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                        url: `http://localhost.${uniqueSubdomain}.evil.com/callback`,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_URL',
+                },
+                'obj'
+            )
+        })
+
+        test('should reject unsupported protocol', async () => {
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                        url: 'ftp://example.com/callback',
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_URL',
+                },
+                'obj'
+            )
+        })
     })
 
     describe('Unique constraint', () => {
