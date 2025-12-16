@@ -501,10 +501,45 @@ const Payment = new GQLListSchema('Payment', {
             const newStatus = get(updatedItem, 'status')
             const statusChanged = operation === 'update' && previousStatus !== newStatus
 
+            // Use a small closure to cache invoice loading within this hook execution.
+            // This avoids multiple getById('Invoice', ...) calls when both webhook enqueueing
+            // logic and invoice status update logic need the invoice.
+            let invoice = null
+            let invoiceFetched = false
+            const getInvoice = async () => {
+                if (invoiceFetched) return invoice
+                const fetchedInvoice = await getById('Invoice', updatedItem.invoice)
+                invoice = fetchedInvoice
+                invoiceFetched = true
+                return fetchedInvoice
+            }
+
             if (statusChanged) {
-                // Queue background task to build and send webhook
-                // This minimizes async operations in the hook
-                await sendPaymentStatusChangeWebhook.delay(updatedItem.id)
+                // Avoid queueing background tasks for payments that have no webhook configured.
+                // We only enqueue the task if invoice/receipt has paymentStatusChangeWebhookUrl.
+                let shouldEnqueueWebhookTask = false
+
+                try {
+                    if (updatedItem.invoice) {
+                        invoice = await getInvoice()
+                        shouldEnqueueWebhookTask = !!get(invoice, 'paymentStatusChangeWebhookUrl')
+                    }
+
+                    if (!shouldEnqueueWebhookTask && updatedItem.receipt) {
+                        const receipt = await getById('BillingReceipt', updatedItem.receipt)
+                        shouldEnqueueWebhookTask = !!get(receipt, 'paymentStatusChangeWebhookUrl')
+                    }
+                } catch {
+                    // Fail-open: if we can't read invoice/receipt right now (transient DB error, etc.),
+                    // enqueue the task anyway to avoid missing a webhook that *is* configured.
+                    shouldEnqueueWebhookTask = true
+                }
+
+                if (shouldEnqueueWebhookTask) {
+                    // Queue background task to build and send webhook
+                    // This minimizes async operations in the hook itself
+                    await sendPaymentStatusChangeWebhook.delay(updatedItem.id)
+                }
             }
 
             // Update invoice status when payment is done
@@ -512,7 +547,7 @@ const Payment = new GQLListSchema('Payment', {
                 updatedItem.invoice
                 && [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS].includes(get(updatedItem, 'status'))
             ) {
-                const invoice = await getById('Invoice', updatedItem.invoice)
+                invoice = invoiceFetched ? invoice : await getInvoice()
                 if (get(invoice, 'status') === INVOICE_STATUS_PUBLISHED) {
                     await Invoice.update(context, invoice.id, {
                         dv: updatedItem.dv,
