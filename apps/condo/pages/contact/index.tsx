@@ -60,7 +60,7 @@ import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { ANALYTICS_RESIDENT_IN_CONTACT_PAGE } from '@condo/domains/common/constants/featureflags'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { useTableSearch } from '@condo/domains/common/hooks/useSearch'
+import { useTableSearch, UseTableSearchOutputType } from '@condo/domains/common/hooks/useSearch'
 import { useTableTranslations } from '@condo/domains/common/hooks/useTableTranslations'
 import { PageComponentType } from '@condo/domains/common/types'
 import { TableFiltersMeta } from '@condo/domains/common/utils/filters.utils'
@@ -88,8 +88,7 @@ type ContactPageContentProps = {
     tableRef: React.RefObject<TableRef | null>
     role?: Pick<OrganizationEmployeeRole, 'canManageContacts'>
     loading?: boolean
-    search: string
-    handleSearchChange: (search: string) => void
+    searchHookResult: UseTableSearchOutputType
 }
 
 
@@ -407,14 +406,14 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
     role,
     tableRef,
     tableColumns,
-    search,
-    handleSearchChange,
+    searchHookResult,
 }) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
 
     const router = useRouter()
     const [selectedRowsCount, setSelectedRowsCount] = useState(0)
+    const [search, handleSearchChange, setSearch] = searchHookResult
     
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMeta, null)
     const canManageContacts = role?.canManageContacts ?? false
@@ -526,7 +525,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = ({
     const getRowId = useCallback((row: GetContactsForTableQuery['contacts'][number]) => row.id, [])
 
     const onTableReady = useCallback((tableRef: TableRef) => {
-        handleSearchChange(String(tableRef.api.getGlobalFilter() || ''))
+        setSearch(String(tableRef.api.getGlobalFilter() || ''))
         setSelectedRowsCount(tableRef.api.getRowSelection().length)
     }, [handleSearchChange])
 
@@ -665,7 +664,7 @@ const ContactsPage: PageComponentType = () => {
     const userOrganizationId = useMemo(() => organization?.id, [organization?.id])
 
     const tableRef = useRef<TableRef | null>(null)
-    const [search, handleSearchChange] = useTableSearch(tableRef)
+    const searchHookResult = useTableSearch(tableRef)
     const tableColumns = useTableColumns(filterMeta)
 
     const baseSearchQuery: ContactBaseSearchQuery = useMemo(() => ({
@@ -680,8 +679,7 @@ const ContactsPage: PageComponentType = () => {
             filterMeta={filterMeta}
             tableColumns={tableColumns}
             tableRef={tableRef}
-            search={search}
-            handleSearchChange={handleSearchChange}
+            searchHookResult={searchHookResult}
         />
     )
 }
