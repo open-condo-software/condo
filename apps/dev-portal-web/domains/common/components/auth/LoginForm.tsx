@@ -38,7 +38,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onComplete }) => {
     const PhoneLabel = intl.formatMessage({ id: 'components.common.authForm.items.phone.label' })
     const PasswordLabel = intl.formatMessage({ id: 'components.common.authForm.items.password.label' })
     const DividerText = intl.formatMessage({ id: 'components.common.authForm.divider.text' })
-    const SignInWithCondoLabel = intl.formatMessage({ id: 'components.common.authForm.socials.text' }, { service: intl.formatMessage({ id: 'components.common.authForm.socials.condo.name' }) })
+    const SignInWithCondoLabel = intl.formatMessage({ id: 'components.common.authForm.socials.text' }, { service: intl.formatMessage({ id: 'global.socials.condo.name' }) })
 
     const router = useRouter()
 

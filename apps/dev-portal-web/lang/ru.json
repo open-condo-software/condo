@@ -6,6 +6,8 @@
   "global.service.sections.docs": "Документация",
   "global.service.sections.apps": "Мои приложения",
 
+  "global.socials.condo.name": "Condo",
+
   "global.actions.signIn": "Войти",
   "global.actions.signOut": "Выйти",
   "global.actions.signUp": "Зарегистрироваться",
@@ -43,7 +45,6 @@
   "components.common.authForm.items.password.label": "Пароль",
   "components.common.authForm.divider.text": "или",
   "components.common.authForm.socials.text": "Войти через {service}",
-  "components.common.authForm.socials.condo.name": "Condo",
 
   "components.common.registerForm.items.code.label": "Код из SMS",
   "components.common.registerForm.items.name.label": "Имя пользователя",
