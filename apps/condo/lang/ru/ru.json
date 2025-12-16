@@ -783,7 +783,7 @@
   "contact.column.header.isVerified": "Верифицирован",
   "contact.column.header.email": "E-mail",
   "contact.column.header.ownershipPercentage": "Доля собственности",
-  "contact.column.header.note": "Примечание",
+  "contact.column.header.note": "Заметка",
   "contact.column.header.communityFee": "Коммунальные платежи",
   "contact.form.prompt.message": "Контакт не сохранится, если вы уйдете со страницы.",
   "contact.form.prompt.title": "Не сохранять контакт?",

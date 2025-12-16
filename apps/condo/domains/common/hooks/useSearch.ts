@@ -2,7 +2,7 @@ import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Dispatch, RefObject, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { TableRef } from '@open-condo/ui/src'
 
@@ -11,6 +11,7 @@ import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/he
 
 
 type UseSearchOutputType = [string, (search: string) => void, () => void]
+export type UseTableSearchOutputType = [string, (search: string) => void, Dispatch<SetStateAction<string>>, () => void] 
 
 /**
  * @deprecated use useTableSearch
@@ -44,12 +45,14 @@ export const useSearch = <F> (debounceTime: number = 400): UseSearchOutputType =
     return [search, handleSearchChange, handleResetSearch]
 }
 
-export const useTableSearch = (tableRef: TableRef, debounceTime: number = 400): UseSearchOutputType => {
+export const useTableSearch = (tableRef: RefObject<TableRef | null>, debounceTime: number = 400): UseTableSearchOutputType => {
     const [search, setSearch] = useState<string>('')
 
     const searchChange = useMemo(() => debounce((value: string) => {
-        tableRef?.api?.setGlobalFilter(value)
-    }, debounceTime), [tableRef?.api, debounceTime])
+        if (tableRef.current?.api) {
+            tableRef.current.api.setGlobalFilter(value)
+        }
+    }, debounceTime), [tableRef, debounceTime])
 
     const handleSearchChange = useCallback((value: string): void => {
         setSearch(value)
@@ -61,5 +64,5 @@ export const useTableSearch = (tableRef: TableRef, debounceTime: number = 400): 
         searchChange('')
     }, [searchChange])
 
-    return [search, handleSearchChange, handleResetSearch]
+    return [search, handleSearchChange, setSearch, handleResetSearch]
 }

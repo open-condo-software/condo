@@ -39,13 +39,6 @@ type FilterMenuDropdownProps<TData> = Readonly<{
     columnLabels: TableLabels
 }>
 
-type SettingsDropdownContentProps<TData> = Readonly<{
-    columns: ColumnDefWithId<TData>[]
-    table: Table<TData>
-    resetSettings: () => void
-    columnLabels: TableLabels
-}>
-
 type SettingsMenuDropdownProps<TData> = Readonly<{
     columnLabels: TableLabels
     columns: ColumnDefWithId<TData>[]
@@ -115,7 +108,7 @@ function FilterMenuDropdown <TData> ({
                     activeElement.focus()
                     if (activeElement instanceof HTMLInputElement) {
                         const length = activeElement.value.length
-                        activeElement.setSelectionRange(length, length)
+                        activeElement.selectionEnd !== null && activeElement.setSelectionRange(length, length)
                     }
                 }
             })
@@ -196,22 +189,6 @@ function FilterMenuDropdown <TData> ({
     )
 }
 
-function SettingsDropdownContent <TData> ({
-    columns,
-    table,
-    resetSettings,
-    columnLabels,
-}: SettingsDropdownContentProps<TData>) {
-    return (
-        <div className='condo-dropdown-menu-item-wrapper'>
-            <ColumnSettings columns={columns} table={table} />
-            <ResetButton
-                onClick={resetSettings}
-                resetLabel={columnLabels?.defaultSettingsLabel || 'Restore default settings'}
-            />
-        </div>
-    )
-}
 
 function SettingsMenuDropdown <TData> ({ 
     columnLabels,
@@ -219,6 +196,30 @@ function SettingsMenuDropdown <TData> ({
     table,
     resetSettings,
 }: SettingsMenuDropdownProps<TData>) {
+
+    const handleResetSettings = useCallback(() => {
+        // NOTE: If we reset settings to default, we need to reset filter and sorting state of all hidden columns
+        const columnsToReset = new Set<string>()
+        table.getAllColumns().forEach(columnItem => {
+            if (!columnItem.columnDef.meta?.initialVisibility) {
+                columnsToReset.add(columnItem.id)
+            }
+        })
+        table.setColumnFilters((prev) => [...prev].filter(filter => !columnsToReset.has(filter.id)))
+        table.setSorting((prev) => [...prev].filter(sorting => !columnsToReset.has(sorting.id)))
+
+        resetSettings()
+    }, [table, resetSettings])
+
+    const dropdownSettingRender = useCallback(() => (
+        <div className='condo-dropdown-menu-item-wrapper'>
+            <ColumnSettings columns={columns} table={table} />
+            <ResetButton
+                onClick={handleResetSettings}
+                resetLabel={columnLabels?.defaultSettingsLabel || 'Restore default settings'}
+            />
+        </div>
+    ), [columns, table, handleResetSettings, columnLabels])
     
     return (
         <Dropdown
@@ -227,14 +228,7 @@ function SettingsMenuDropdown <TData> ({
                 offset: [8, 0],
             }}
             trigger={[DROPDOWN_TRIGGER_CLICK]}
-            dropdownRender={() => (
-                <SettingsDropdownContent
-                    columns={columns}
-                    table={table}
-                    resetSettings={resetSettings}
-                    columnLabels={columnLabels}
-                />
-            )}
+            dropdownRender={dropdownSettingRender}
         >
             <div className='condo-dropdown-menu-item-inner'>
                 <div className='condo-dropdown-menu-item-inner-left'>

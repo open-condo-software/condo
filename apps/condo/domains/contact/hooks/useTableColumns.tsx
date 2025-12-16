@@ -30,6 +30,7 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const IsVerifiedMessage = intl.formatMessage({ id: 'contact.column.header.isVerified' })
     const EmailMessage = intl.formatMessage({ id: 'Email' })
+    const NoteMessage = intl.formatMessage({ id: 'contact.column.header.note' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const YesMessage = intl.formatMessage({ id: 'Yes' })
     const NoMessage = intl.formatMessage({ id: 'No' })
@@ -69,6 +70,10 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
 
     const renderEmail = useCallback<RenderTableCell<TData, TData['email']>>(
         (email, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, href: email ? `mailto:${email}` : undefined, ellipsis: true })(email ?? '—')
+        , [])
+
+    const renderNote = useCallback<RenderTableCell<TData, TData['note']>>(
+        (note, _, __, globalFilter) => getTableCellRenderer({ search: globalFilter, ellipsis: true })(note ?? '—')
         , [])
 
 
@@ -149,6 +154,15 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
                 initialSize: '10%',
                 initialVisibility: false,
             },
+            {
+                header: NoteMessage,
+                dataKey: 'note',
+                id: 'note',
+                render: renderNote,
+                filterComponent: getFilterComponentByKey(filterMetas, 'note'),
+                initialSize: '10%',
+                initialVisibility: false,
+            },
         ]
     }, [
         filterMetas,
@@ -161,6 +175,7 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
         IsVerifiedMessage, 
         UnitTypeMessage, 
         EmailMessage, 
+        NoteMessage,
         renderName,
         renderRole,
         renderAddress, 
@@ -170,5 +185,6 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
         renderEmail,
         renderIsVerified,
         renderDate,
+        renderNote,
     ])
 }
