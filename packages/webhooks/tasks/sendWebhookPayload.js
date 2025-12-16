@@ -51,7 +51,7 @@ async function sendWebhookPayload (payloadId) {
     }
 
     const lockKey = `sendWebhookPayload:${payloadId}`
-    const lockValue = crypto.randomUUID ? crypto.randomUUID() : crypto.randomBytes(16).toString('hex')
+    const lockValue = crypto.randomUUID()
     const lockResult = await kvClient.set(lockKey, lockValue, 'EX', LOCK_DURATION_IN_SEC, 'NX')
     if (lockResult !== 'OK') {
         logger.info({ msg: 'Payload already in progress', data: { payloadId } })
