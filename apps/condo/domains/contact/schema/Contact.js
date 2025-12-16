@@ -212,6 +212,9 @@ const Contact = new GQLListSchema('Contact', {
             isRequired: false,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
+                    if (resolvedData['note'] === '') {
+                        return ''
+                    }
                     return normalizeText(resolvedData['note'])
                 },
             },
