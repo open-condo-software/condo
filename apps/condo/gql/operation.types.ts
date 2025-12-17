@@ -782,13 +782,6 @@ export type GetAvailableSubscriptionPlansQueryVariables = Types.Exact<{
 
 export type GetAvailableSubscriptionPlansQuery = { __typename?: 'Query', result?: { __typename?: 'GetAvailableSubscriptionPlansOutput', plans: Array<{ __typename?: 'AvailableSubscriptionPlan', plan: { __typename?: 'SubscriptionPlan', id: string, priority?: number | null, name?: string | null, description?: string | null, organizationType?: Types.SubscriptionPlanOrganizationTypeType | null, isHidden?: boolean | null, trialDays?: number | null, canBePromoted?: boolean | null, news?: boolean | null, marketplace?: boolean | null, support?: boolean | null, ai?: boolean | null, passTickets?: boolean | null, customization?: boolean | null }, prices: Array<{ __typename?: 'SubscriptionPlanPrice', id: string, name: string, period: string, price?: string | null, currencyCode?: string | null }> } | null> } | null };
 
-export type GetPendingSubscriptionRequestsQueryVariables = Types.Exact<{
-  organizationId: Types.Scalars['ID']['input'];
-}>;
-
-
-export type GetPendingSubscriptionRequestsQuery = { __typename?: 'Query', pendingRequests?: Array<{ __typename?: 'UserHelpRequest', id: string, createdAt?: string | null, subscriptionPlanPricingRule?: { __typename?: 'SubscriptionPlanPricingRule', id: string, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string } | null } | null } | null> | null };
-
 export type GetSubscriptionContextQueryVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];
 }>;
@@ -809,6 +802,20 @@ export type GetSubscriptionPlanQueryVariables = Types.Exact<{
 
 
 export type GetSubscriptionPlanQuery = { __typename?: 'Query', subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, description?: string | null, organizationType?: Types.SubscriptionPlanOrganizationTypeType | null, trialDays?: number | null, priority?: number | null, news?: boolean | null, marketplace?: boolean | null, support?: boolean | null, ai?: boolean | null, passTickets?: boolean | null, isHidden?: boolean | null, dv?: number | null, v?: number | null, deletedAt?: string | null, newId?: string | null, createdAt?: string | null, updatedAt?: string | null, sender?: { __typename?: 'SenderField', dv: number, fingerprint: string } | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, updatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
+
+export type GetPendingSubscriptionRequestsQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetPendingSubscriptionRequestsQuery = { __typename?: 'Query', pendingRequests?: Array<{ __typename?: 'UserHelpRequest', id: string, createdAt?: string | null, subscriptionPlanPricingRule?: { __typename?: 'SubscriptionPlanPricingRule', id: string, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string } | null } | null } | null> | null };
+
+export type GetPendingBankingRequestQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetPendingBankingRequestQuery = { __typename?: 'Query', pendingBankingRequest?: Array<{ __typename?: 'UserHelpRequest', id: string, createdAt?: string | null } | null> | null };
 
 export type GetCallRecordFragmentExistenceQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];

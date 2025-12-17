@@ -16,3 +16,17 @@ query getPendingSubscriptionRequests($organizationId: ID!) {
         createdAt
     }
 }
+
+query getPendingBankingRequest($organizationId: ID!) {
+    pendingBankingRequest: allUserHelpRequests(
+        where: {
+            organization: { id: $organizationId }
+            type: activateBanking
+            deletedAt: null
+        }
+        first: 1
+    ) {
+        id
+        createdAt
+    }
+}
