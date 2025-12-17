@@ -39,12 +39,13 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
                     name
                     trialDays
                     priority
+                    canBePromoted
                     news
                     marketplace
                     support
                     ai
                     passTickets
-                    canBePromoted
+                    customization
                 }
                 startAt
                 endAt

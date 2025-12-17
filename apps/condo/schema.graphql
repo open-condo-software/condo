@@ -57326,12 +57326,13 @@ type SubscriptionPlanHistoryRecord {
   isHidden: Boolean
   trialDays: Int
   priority: Int
+  canBePromoted: Boolean
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
   passTickets: Boolean
-  canBePromoted: Boolean
+  customization: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -57422,6 +57423,8 @@ input SubscriptionPlanHistoryRecordWhereInput {
   priority_gte: Int
   priority_in: [Int]
   priority_not_in: [Int]
+  canBePromoted: Boolean
+  canBePromoted_not: Boolean
   news: Boolean
   news_not: Boolean
   marketplace: Boolean
@@ -57432,8 +57435,8 @@ input SubscriptionPlanHistoryRecordWhereInput {
   ai_not: Boolean
   passTickets: Boolean
   passTickets_not: Boolean
-  canBePromoted: Boolean
-  canBePromoted_not: Boolean
+  customization: Boolean
+  customization_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57529,6 +57532,8 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   trialDays_DESC
   priority_ASC
   priority_DESC
+  canBePromoted_ASC
+  canBePromoted_DESC
   news_ASC
   news_DESC
   marketplace_ASC
@@ -57539,8 +57544,8 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   ai_DESC
   passTickets_ASC
   passTickets_DESC
-  canBePromoted_ASC
-  canBePromoted_DESC
+  customization_ASC
+  customization_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57566,12 +57571,13 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   isHidden: Boolean
   trialDays: Int
   priority: Int
+  canBePromoted: Boolean
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
   passTickets: Boolean
-  canBePromoted: Boolean
+  customization: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -57598,12 +57604,13 @@ input SubscriptionPlanHistoryRecordCreateInput {
   isHidden: Boolean
   trialDays: Int
   priority: Int
+  canBePromoted: Boolean
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
   passTickets: Boolean
-  canBePromoted: Boolean
+  customization: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -57660,6 +57667,9 @@ type SubscriptionPlan {
   """
   priority: Int
 
+  """ Whether this plan can be promoted to users """
+  canBePromoted: Boolean
+
   """ Whether news feature is included in this plan """
   news: Boolean
 
@@ -57675,8 +57685,8 @@ type SubscriptionPlan {
   """ Whether pass tickets feature is included in this plan """
   passTickets: Boolean
 
-  """ Whether this plan can be promoted to users """
-  canBePromoted: Boolean
+  """ Whether customization feature is included in this plan """
+  customization: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -57761,6 +57771,8 @@ input SubscriptionPlanWhereInput {
   priority_gte: Int
   priority_in: [Int]
   priority_not_in: [Int]
+  canBePromoted: Boolean
+  canBePromoted_not: Boolean
   news: Boolean
   news_not: Boolean
   marketplace: Boolean
@@ -57771,8 +57783,8 @@ input SubscriptionPlanWhereInput {
   ai_not: Boolean
   passTickets: Boolean
   passTickets_not: Boolean
-  canBePromoted: Boolean
-  canBePromoted_not: Boolean
+  customization: Boolean
+  customization_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57848,6 +57860,8 @@ enum SortSubscriptionPlansBy {
   trialDays_DESC
   priority_ASC
   priority_DESC
+  canBePromoted_ASC
+  canBePromoted_DESC
   news_ASC
   news_DESC
   marketplace_ASC
@@ -57858,8 +57872,8 @@ enum SortSubscriptionPlansBy {
   ai_DESC
   passTickets_ASC
   passTickets_DESC
-  canBePromoted_ASC
-  canBePromoted_DESC
+  customization_ASC
+  customization_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -57885,12 +57899,13 @@ input SubscriptionPlanUpdateInput {
   isHidden: Boolean
   trialDays: Int
   priority: Int
+  canBePromoted: Boolean
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
   passTickets: Boolean
-  canBePromoted: Boolean
+  customization: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -57914,12 +57929,13 @@ input SubscriptionPlanCreateInput {
   isHidden: Boolean
   trialDays: Int
   priority: Int
+  canBePromoted: Boolean
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
   passTickets: Boolean
-  canBePromoted: Boolean
+  customization: Boolean
   v: Int
   createdAt: String
   updatedAt: String

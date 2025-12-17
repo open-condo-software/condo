@@ -4,8 +4,10 @@
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
 
+const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
+const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/SubscriptionContext')
 const { freezePricingRule } = require('@condo/domains/subscription/utils/subscriptionFridge')
@@ -173,6 +175,27 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 resolvedData.frozenPricingRule = await freezePricingRule(resolvedData.pricingRule)
             }
             return resolvedData
+        },
+        afterChange: async ({ operation, updatedItem, context }) => {
+            // Only delete pending requests when a non-trial subscription context is created
+            if (operation === 'create' && !updatedItem.isTrial) {
+                const organizationId = updatedItem.organization
+                
+                // Soft delete all pending UserHelpRequests for this organization with activateSubscription type
+                const pendingRequests = await find('UserHelpRequest', {
+                    organization: { id: organizationId },
+                    type: ACTIVATE_SUBSCRIPTION_TYPE,
+                    deletedAt: null,
+                })
+
+                for (const request of pendingRequests) {
+                    await UserHelpRequest.update(context, request.id, {
+                        dv: 1,
+                        sender: updatedItem.sender,
+                        deletedAt: new Date().toISOString(),
+                    })
+                }
+            }
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
