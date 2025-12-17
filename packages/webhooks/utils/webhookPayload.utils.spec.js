@@ -120,6 +120,7 @@ describe('webhookPayload utilities', () => {
                     headers: expect.objectContaining({
                         'Content-Type': 'application/json',
                         'X-Webhook-Signature': expect.any(String),
+                        'X-Webhook-Signature-Algorithm': 'sha256',
                         'X-Webhook-Id': 'test-webhook-payload-id',
                     }),
                     abortRequestTimeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,

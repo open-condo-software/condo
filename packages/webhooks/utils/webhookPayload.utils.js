@@ -11,7 +11,11 @@ const {
     WEBHOOK_PAYLOAD_RETRY_INTERVALS,
 } = require('@open-condo/webhooks/constants')
 
+
 const logger = getLogger()
+
+// Possible values (RFC 7518 HS* family): 'sha256', 'sha384', 'sha512'
+const WEBHOOK_SIGNATURE_HASH_ALGORITHM = 'sha256'
 
 
 /**
@@ -22,7 +26,7 @@ const logger = getLogger()
  */
 function generateSignature (body, secret) {
     return crypto
-        .createHmac('sha256', secret)
+        .createHmac(WEBHOOK_SIGNATURE_HASH_ALGORITHM, secret)
         .update(body)
         .digest('hex')
 }
@@ -68,6 +72,7 @@ async function trySendWebhookPayload (webhookPayload) {
                 url,
                 eventType,
                 attempt: webhookPayload.attempt + 1,
+                algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
             },
         })
 
@@ -76,6 +81,7 @@ async function trySendWebhookPayload (webhookPayload) {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Webhook-Signature': signature,
+                'X-Webhook-Signature-Algorithm': WEBHOOK_SIGNATURE_HASH_ALGORITHM,
                 'X-Webhook-Id': webhookPayload.id,
             },
             body,
@@ -102,6 +108,7 @@ async function trySendWebhookPayload (webhookPayload) {
                 data: {
                     payloadId: webhookPayload.id,
                     statusCode: response.status,
+                    algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
                 },
             })
             return {
@@ -116,6 +123,7 @@ async function trySendWebhookPayload (webhookPayload) {
                 data: {
                     payloadId: webhookPayload.id,
                     statusCode: response.status,
+                    algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
                     responseBody,
                 },
             })
@@ -136,6 +144,7 @@ async function trySendWebhookPayload (webhookPayload) {
                 data: {
                     payloadId: webhookPayload.id,
                     timeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,
+                    algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
                 },
             })
             return {
@@ -147,7 +156,7 @@ async function trySendWebhookPayload (webhookPayload) {
         logger.error({
             msg: 'Webhook payload sending failed with network error',
             reqId,
-            data: { payloadId: webhookPayload.id },
+            data: { payloadId: webhookPayload.id, algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM },
             err,
         })
         return {
