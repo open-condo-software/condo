@@ -1,6 +1,7 @@
 import { LockOutlined, UnlockOutlined } from '@ant-design/icons'
 import { GetAvailableSubscriptionPlansQueryResult, useActivateSubscriptionPlanMutation } from '@app/condo/gql'
 import { Collapse } from 'antd'
+import classnames from 'classnames'
 import React, { useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -11,6 +12,7 @@ import { colors } from '@open-condo/ui/colors'
 
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
+import { useGetOrganizationTrialSubscriptionsQuery } from '@condo/domains/subscription/gql'
 
 import styles from './SubscriptionPlanCard.module.css'
 
@@ -51,6 +53,19 @@ interface FeatureItemProps {
     available: boolean
 }
 
+type ActivatedTrial = ReturnType<typeof useGetOrganizationTrialSubscriptionsQuery>['data']['trialSubscriptions']['number']
+
+interface SubscriptionPlanCardProps {
+    planInfo: PlanType
+    activatedTrial?: ActivatedTrial
+    handleActivatePlan: (priceId: string, isTrial: boolean) => void
+}
+
+interface SubscriptionPlanBadgeProps {
+    plan: PlanType['plan']
+    activatedTrial?: ActivatedTrial
+}
+
 const FeatureItem: React.FC<FeatureItemProps> = ({ label, available }) => {
     const intl = useIntl()
     const featureLabel = intl.formatMessage({ id: label as FormatjsIntl.Message['ids'] })
@@ -69,7 +84,7 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ label, available }) => {
     )
 }
 
-const SubscriptionPlanBadge: React.FC<{ plan: PlanType['plan'], activatedTrial }> = ({ plan, activatedTrial }) => {
+const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, activatedTrial }) => {
     const intl = useIntl()
     const ActiveMessage = intl.formatMessage({ id: 'subscription.planCard.badge.active' })
     const TrialExpiredMessage = intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' })
@@ -89,16 +104,19 @@ const SubscriptionPlanBadge: React.FC<{ plan: PlanType['plan'], activatedTrial }
     }
 
     if (activePlanId === plan?.id) {
+        bgColor = colors.green[5]
+         
         if (daysRemaining !== null && daysRemaining < 30) {
             badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemaining })
-            bgColor = colors.orange[5]
-
+          
+            if (daysRemaining < 7) {
+                bgColor = colors.orange[5]
+            }
             if (daysRemaining < 2) {
                 bgColor = colors.red[5]
             }
         } else {
             badgeMessage = ActiveMessage
-            bgColor = colors.green[5]
         }
     }
 
@@ -113,7 +131,7 @@ const SubscriptionPlanBadge: React.FC<{ plan: PlanType['plan'], activatedTrial }
     )
 }
 
-export const SubscriptionPlanCard: React.FC<{ planInfo: PlanType, activatedTrial, handleActivatePlan: (priceId: string, isTrial: boolean) => void }> = ({ planInfo, activatedTrial, handleActivatePlan }) => {
+export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, handleActivatePlan }) => {
     const intl = useIntl()
 
     const { plan, prices } = planInfo
@@ -135,8 +153,15 @@ export const SubscriptionPlanCard: React.FC<{ planInfo: PlanType, activatedTrial
         setTrialActivateLoading(false)
     }
 
+    const cardClassName = classnames(
+        styles['subscription-plan-card'],
+        {
+            [styles['subscription-plan-card-promoted']]: plan.canBePromoted,
+        }
+    )
+
     return (
-        <Card className={styles['subscription-plan-card']}>
+        <Card className={cardClassName}>
             <div className={styles['main-content']}>
                 <Space size={60} direction='vertical'>
                     <Space size={12} direction='vertical'>
