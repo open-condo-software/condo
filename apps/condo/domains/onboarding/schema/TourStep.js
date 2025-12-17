@@ -43,10 +43,10 @@ const TourStep = new GQLListSchema('TourStep', {
         validateInput: async ({ existingItem, operation, context }) => {
             if (operation !== 'update') return
 
-            const existedStatus = existingItem.status
-            if (existedStatus === COMPLETED_STEP_STATUS) {
-                throw new GQLError(ERRORS.UPDATE_COMPLETED_STEP_TYPE, context)
-            }
+            // const existedStatus = existingItem.status
+            // if (existedStatus === COMPLETED_STEP_STATUS) {
+            //     throw new GQLError(ERRORS.UPDATE_COMPLETED_STEP_TYPE, context)
+            // }
         },
         afterChange: async ({ context, operation, existingItem, updatedItem }) => {
             const isCompleteStepOperation = operation === 'update' &&
