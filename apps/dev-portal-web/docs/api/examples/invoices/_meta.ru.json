@@ -1,5 +1,6 @@
 {
   "prepare": "Подготовка",
   "work-with-invoices": "Работа со счетами",
-  "amount-distribution": "Распределение"
+  "amount-distribution": "Распределение",
+  "webhooks": "Вебхуки"
 }
