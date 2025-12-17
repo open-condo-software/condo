@@ -15,6 +15,7 @@ query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!
                 support
                 ai
                 passTickets
+                customization
             }
             prices {
                 id
