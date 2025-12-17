@@ -20,3 +20,7 @@
 .header {
   justify-content: space-between;
 }
+
+.subscription-plan-card-promoted {
+  border: 2px solid green;
+}
