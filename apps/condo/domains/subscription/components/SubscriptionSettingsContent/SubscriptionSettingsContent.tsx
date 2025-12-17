@@ -5,8 +5,9 @@ import React, { useState, useMemo } from 'react'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Card, Typography, Space, Radio } from '@open-condo/ui'
+import { Space, Radio } from '@open-condo/ui'
 
+import { PromoBanner } from './PromoBanner/PromoBanner'
 import { SubscriptionPlanCard } from './SubscriptionPlanCard/SubscriptionPlanCard'
 import styles from './SubscriptionSettingsContent.module.css'
 
@@ -15,16 +16,6 @@ import { Loader } from '../../../common/components/Loader'
 
 type PlanPeriod = 'month' | 'year' // TODO: do as type from SubscriptionPlanPricingRule
 type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plans'][number]
-
-const PromoBanner: React.FC = () => {
-    return (
-        <Card title='Promo Banner'>
-            <Typography.Paragraph>
-                Promo banner content
-            </Typography.Paragraph>
-        </Card>
-    )
-}
 
 export const SubscriptionSettingsContent: React.FC = () => {
     const intl = useIntl()

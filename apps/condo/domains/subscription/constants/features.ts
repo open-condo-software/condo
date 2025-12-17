@@ -9,5 +9,5 @@ export const FEATURE_KEY: Record<string, any> = {
     SUPPORT: 'support',
     AI: 'ai',
     PASS_TICKETS: 'passTickets',
-    CUSTOMIZATION: 'customization'
+    CUSTOMIZATION: 'customization',
 } as const
