@@ -9,6 +9,7 @@ query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!
                 organizationType
                 isHidden
                 trialDays
+                canBePromoted
                 news
                 marketplace
                 support
