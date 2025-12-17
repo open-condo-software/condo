@@ -4882,9 +4882,14 @@ export const GetSubscriptionContextDocument = gql`
     }
     startAt
     endAt
-    basePrice
-    calculatedPrice
-    appliedRules
+    pricingRule {
+      id
+      name
+      price
+      currencyCode
+      period
+    }
+    frozenPricingRule
     isTrial
     daysRemaining
     dv

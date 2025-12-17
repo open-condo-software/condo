@@ -57677,8 +57677,7 @@ type SubscriptionPlan {
   """ Human-readable name of the subscription plan """
   name: String
 
-  """ Detailed description of the subscription plan. Displayed to end users in the subscription selection UI 
-  """
+  """ Detailed description of the subscription plan. Shown to end users. """
   description: String
 
   """ Type of organization this plan is available for """
@@ -58779,9 +58778,8 @@ type SubscriptionContextHistoryRecord {
   subscriptionPlan: String
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  pricingRule: String
+  frozenPricingRule: JSON
   isTrial: Boolean
   id: ID!
   v: Int
@@ -58825,26 +58823,14 @@ input SubscriptionContextHistoryRecordWhereInput {
   endAt_gte: String
   endAt_in: [String]
   endAt_not_in: [String]
-  basePrice: String
-  basePrice_not: String
-  basePrice_lt: String
-  basePrice_lte: String
-  basePrice_gt: String
-  basePrice_gte: String
-  basePrice_in: [String]
-  basePrice_not_in: [String]
-  calculatedPrice: String
-  calculatedPrice_not: String
-  calculatedPrice_lt: String
-  calculatedPrice_lte: String
-  calculatedPrice_gt: String
-  calculatedPrice_gte: String
-  calculatedPrice_in: [String]
-  calculatedPrice_not_in: [String]
-  appliedRules: JSON
-  appliedRules_not: JSON
-  appliedRules_in: [JSON]
-  appliedRules_not_in: [JSON]
+  pricingRule: String
+  pricingRule_not: String
+  pricingRule_in: [String]
+  pricingRule_not_in: [String]
+  frozenPricingRule: JSON
+  frozenPricingRule_not: JSON
+  frozenPricingRule_in: [JSON]
+  frozenPricingRule_not_in: [JSON]
   isTrial: Boolean
   isTrial_not: Boolean
   id: ID
@@ -58934,10 +58920,6 @@ enum SortSubscriptionContextHistoryRecordsBy {
   startAt_DESC
   endAt_ASC
   endAt_DESC
-  basePrice_ASC
-  basePrice_DESC
-  calculatedPrice_ASC
-  calculatedPrice_DESC
   isTrial_ASC
   isTrial_DESC
   id_ASC
@@ -58963,9 +58945,8 @@ input SubscriptionContextHistoryRecordUpdateInput {
   subscriptionPlan: String
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  pricingRule: String
+  frozenPricingRule: JSON
   isTrial: Boolean
   v: Int
   createdAt: String
@@ -58991,9 +58972,8 @@ input SubscriptionContextHistoryRecordCreateInput {
   subscriptionPlan: String
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  pricingRule: String
+  frozenPricingRule: JSON
   isTrial: Boolean
   v: Int
   createdAt: String
@@ -59037,16 +59017,13 @@ type SubscriptionContext {
   """ Subscription end date. If null, subscription is unlimited """
   endAt: String
 
-  """ Base price from the subscription plan (before any rules applied). Not required for trial subscriptions 
+  """ Pricing rule that defines the subscription price. Required for non-trial subscriptions. Must belong to the same subscriptionPlan 
   """
-  basePrice: String
+  pricingRule: SubscriptionPlanPricingRule
 
-  """ Final calculated price after applying all pricing rules. Not required for trial subscriptions 
+  """ Frozen snapshot of the pricing rule at the moment of subscription creation. Stored for audit purposes 
   """
-  calculatedPrice: String
-
-  """ JSON array of applied pricing rules with audit information """
-  appliedRules: JSON
+  frozenPricingRule: JSON
 
   """ Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays) 
   """
@@ -59101,26 +59078,12 @@ input SubscriptionContextWhereInput {
   endAt_gte: String
   endAt_in: [String]
   endAt_not_in: [String]
-  basePrice: String
-  basePrice_not: String
-  basePrice_lt: String
-  basePrice_lte: String
-  basePrice_gt: String
-  basePrice_gte: String
-  basePrice_in: [String]
-  basePrice_not_in: [String]
-  calculatedPrice: String
-  calculatedPrice_not: String
-  calculatedPrice_lt: String
-  calculatedPrice_lte: String
-  calculatedPrice_gt: String
-  calculatedPrice_gte: String
-  calculatedPrice_in: [String]
-  calculatedPrice_not_in: [String]
-  appliedRules: JSON
-  appliedRules_not: JSON
-  appliedRules_in: [JSON]
-  appliedRules_not_in: [JSON]
+  pricingRule: SubscriptionPlanPricingRuleWhereInput
+  pricingRule_is_null: Boolean
+  frozenPricingRule: JSON
+  frozenPricingRule_not: JSON
+  frozenPricingRule_in: [JSON]
+  frozenPricingRule_not_in: [JSON]
   isTrial: Boolean
   isTrial_not: Boolean
   id: ID
@@ -59194,10 +59157,8 @@ enum SortSubscriptionContextsBy {
   startAt_DESC
   endAt_ASC
   endAt_DESC
-  basePrice_ASC
-  basePrice_DESC
-  calculatedPrice_ASC
-  calculatedPrice_DESC
+  pricingRule_ASC
+  pricingRule_DESC
   isTrial_ASC
   isTrial_DESC
   id_ASC
@@ -59223,9 +59184,8 @@ input SubscriptionContextUpdateInput {
   subscriptionPlan: SubscriptionPlanRelateToOneInput
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  pricingRule: SubscriptionPlanPricingRuleRelateToOneInput
+  frozenPricingRule: JSON
   isTrial: Boolean
   v: Int
   createdAt: String
@@ -59248,9 +59208,8 @@ input SubscriptionContextCreateInput {
   subscriptionPlan: SubscriptionPlanRelateToOneInput
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  pricingRule: SubscriptionPlanPricingRuleRelateToOneInput
+  frozenPricingRule: JSON
   isTrial: Boolean
   v: Int
   createdAt: String
