@@ -3,48 +3,54 @@ import { FEATURE_KEY } from './features'
 import { AvailableFeature } from '../hooks/useOrganizationSubscription'
 
 /**
- * Mapping of routes to subscription features
- * - null: requires active subscription but no specific feature
- * - FEATURE_KEY.*: requires active subscription AND specific feature
- * - undefined/not in map: no subscription check needed
+ * Routes that are always accessible without subscription
+ * These are public pages, auth pages, error pages, and user settings
  */
-export const ROUTE_FEATURE_MAPPING: Record<string, AvailableFeature | null> = {
-    // Pages that require active subscription
-    '/reports': null,
-    '/ticket': null,
-    '/incident': null,
-    '/property': null,
-    '/contact': null,
-    '/employee': null,
-    '/billing': null,
-    '/service-provider-profile': null,
-    '/meter': null,
-    '/miniapps': null,
+const ALLOWED_WITHOUT_SUBSCRIPTION: string[] = [
+    '/user',
+    '/settings',
+    '/auth',
+    '/404',
+    '/404-paymentLinkNoHandler',
+    '/429',
+    '/500',
+    '/initial',
+    '/share',
+    '/tls',
+    '/unsubscribed',
+]
 
-    // Pages that require specific features
+/**
+ * Mapping of routes to specific subscription features
+ * Routes not in this map require only active subscription (no specific feature)
+ */
+export const ROUTE_FEATURE_MAPPING: Record<string, AvailableFeature> = {
     '/news': FEATURE_KEY.NEWS,
     '/marketplace': FEATURE_KEY.MARKETPLACE,
 }
 
 /**
+ * Check if a route is allowed without subscription
+ */
+function isAllowedWithoutSubscription (pathname: string): boolean {
+    return ALLOWED_WITHOUT_SUBSCRIPTION.some(route => 
+        pathname === route || pathname.startsWith(route + '/')
+    )
+}
+
+/**
  * Check if a route requires subscription access
+ * By default all routes require subscription except those in ALLOWED_WITHOUT_SUBSCRIPTION
  */
 export function requiresSubscriptionAccess (pathname: string): boolean {
-    // Check exact match first
-    if (pathname in ROUTE_FEATURE_MAPPING) {
-        return true
-    }
-    
-    // Check if pathname starts with any of the mapped routes
-    const routes = Object.keys(ROUTE_FEATURE_MAPPING)
-    return routes.some(route => pathname.startsWith(route + '/'))
+    return !isAllowedWithoutSubscription(pathname)
 }
 
 /**
  * Get required feature for a route
- * Returns null if only subscription is required, undefined if no check needed
+ * Returns AvailableFeature if specific feature is required, null otherwise
  */
-export function getRequiredFeature (pathname: string): AvailableFeature | null | undefined {
+export function getRequiredFeature (pathname: string): AvailableFeature | null {
     // Check exact match first
     if (pathname in ROUTE_FEATURE_MAPPING) {
         return ROUTE_FEATURE_MAPPING[pathname]
@@ -58,5 +64,5 @@ export function getRequiredFeature (pathname: string): AvailableFeature | null |
         }
     }
     
-    return undefined
+    return null
 }
