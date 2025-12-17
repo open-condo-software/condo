@@ -793,7 +793,7 @@
   "contact.import.column.Role": "Rol",
   "contact.import.column.Unit": "Número de propiedad",
   "contact.import.column.UnitType": "Tipo de propiedad",
-  "contact.note.visibility.hint": "Solo visible para su organización",
+  "contact.note.visibility.hint": "No visible para el residente",
   "contact.role.guest.name": "Invitado",
   "contact.role.owner.name": "Propietario",
   "contact.role.resident.name": "Vecino",

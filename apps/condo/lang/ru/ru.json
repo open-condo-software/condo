@@ -793,7 +793,7 @@
   "contact.import.column.Role": "Роль",
   "contact.import.column.Unit": "Номер помещения",
   "contact.import.column.UnitType": "Тип помещения",
-  "contact.note.visibility.hint": "Видно только вам и вашим коллегам",
+  "contact.note.visibility.hint": "Заметка скрыта от жителя",
   "contact.role.guest.name": "Гость",
   "contact.role.owner.name": "Собственник",
   "contact.role.resident.name": "Резидент",
