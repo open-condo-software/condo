@@ -15,12 +15,13 @@ const { FileRecord } = require('@open-condo/files/schema/utils/serverSchema')
 const { GQLError } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getKVClient } = require('@open-condo/keystone/kv')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
 const { ERRORS } = require('./errors')
-
 const DEFAULT_USER_HOUR_QUOTA = 100
 const fileMetaSymbol = Symbol.for('fileMeta')
+const logger = getLogger('file-utils')
 
 const AppClientSchema = z.object({
     name: z.string().min(3).optional(),
@@ -262,6 +263,7 @@ function parserHandler ({ processRequestOptions } = {}) {
         form.parse(req, (err, fields, files) => {
             if (err) {
                 if (err.code === 'ETOOBIG') return next(new GQLError(ERRORS.PAYLOAD_TOO_LARGE, { req }))
+                logger.error({ msg: 'unexpected file parsing error', data: { req, err, fields } })
                 return next(new GQLError(ERRORS.UNABLE_TO_PARSE_FILE_CONTENT, { req }, [err]))
             }
 
