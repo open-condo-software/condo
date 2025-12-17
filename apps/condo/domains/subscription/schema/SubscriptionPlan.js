@@ -28,7 +28,7 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
         },
 
         description: {
-            schemaDoc: 'Detailed description of the subscription plan. Displayed to end users in the subscription selection UI',
+            schemaDoc: 'Detailed description of the subscription plan. Shown to end users.',
             type: 'Text',
             isRequired: false,
         },

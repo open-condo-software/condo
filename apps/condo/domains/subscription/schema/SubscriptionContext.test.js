@@ -18,12 +18,13 @@ const {
     createTestSubscriptionContext,
     updateTestSubscriptionContext,
     createTestSubscriptionPlan,
+    createTestSubscriptionPlanPricingRule,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('SubscriptionContext', () => {
     let admin, support, employee
-    let organization, subscriptionPlan
+    let organization, subscriptionPlan, pricingRule
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -35,6 +36,14 @@ describe('SubscriptionContext', () => {
             isHidden: false,
         })
         subscriptionPlan = plan
+
+        const [rule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+            name: 'Default pricing',
+            period: 'month',
+            price: '1000.00',
+            currencyCode: 'RUB',
+        })
+        pricingRule = rule
     })
 
     beforeEach(async () => {
@@ -45,7 +54,7 @@ describe('SubscriptionContext', () => {
 
     describe('CRUD tests', () => {
         describe('create', () => {
-            test('admin can create subscription without prices', async () => {
+            test('admin can create paid subscription with pricingRule', async () => {
                 const startAt = dayjs().toISOString()
                 const endAt = dayjs().add(30, 'day').toISOString()
 
@@ -53,13 +62,37 @@ describe('SubscriptionContext', () => {
                     startAt,
                     endAt,
                     isTrial: false,
+                    pricingRule: { connect: { id: pricingRule.id } },
                 })
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.isTrial).toBe(false)
+                expect(obj.pricingRule.id).toBe(pricingRule.id)
+                expect(obj.frozenPricingRule).toBeDefined()
+                expect(obj.frozenPricingRule.dv).toBe(1)
+                expect(obj.frozenPricingRule.data.id).toBe(pricingRule.id)
+                expect(obj.frozenPricingRule.data.price).toBe('1000.00')
+                expect(obj.frozenPricingRule.data.currencyCode).toBe('RUB')
+                expect(obj.frozenPricingRule.data.subscriptionPlan.id).toBe(subscriptionPlan.id)
             })
 
-            test('support can create subscription without prices', async () => {
+            test('admin can create trial subscription without pricingRule', async () => {
+                const startAt = dayjs().toISOString()
+                const endAt = dayjs().add(14, 'day').toISOString()
+
+                const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt,
+                    endAt,
+                    isTrial: true,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.isTrial).toBe(true)
+                expect(obj.pricingRule).toBeNull()
+                expect(obj.frozenPricingRule).toBeNull()
+            })
+
+            test('support can create subscription with pricingRule', async () => {
                 const startAt = dayjs().toISOString()
                 const endAt = dayjs().add(30, 'day').toISOString()
 
@@ -67,9 +100,11 @@ describe('SubscriptionContext', () => {
                     startAt,
                     endAt,
                     isTrial: false,
+                    pricingRule: { connect: { id: pricingRule.id } },
                 })
 
                 expect(obj.id).toMatch(UUID_RE)
+                expect(obj.pricingRule.id).toBe(pricingRule.id)
             })
 
             test('employee cannot create', async () => {
@@ -140,17 +175,19 @@ describe('SubscriptionContext', () => {
         })
 
         describe('read', () => {
-            test('admin can read', async () => {
+            test('admin can read with pricingRule', async () => {
                 const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                     startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
-                    isTrial: true,
+                    endAt: dayjs().add(30, 'day').toISOString(),
+                    isTrial: false,
+                    pricingRule: { connect: { id: pricingRule.id } },
                 })
 
                 const objs = await SubscriptionContext.getAll(admin, { id: obj.id })
 
                 expect(objs).toHaveLength(1)
                 expect(objs[0].id).toBe(obj.id)
+                expect(objs[0].pricingRule.id).toBe(pricingRule.id)
             })
 
             test('employee can read own organization subscription', async () => {
@@ -213,6 +250,58 @@ describe('SubscriptionContext', () => {
             }, 'obj')
         })
 
+        test('pricingRule is required for non-trial subscription', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().toISOString(),
+                    endAt: dayjs().add(30, 'day').toISOString(),
+                    isTrial: false,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'PRICING_RULE_REQUIRED_FOR_NON_TRIAL',
+            }, 'obj')
+        })
+
+        test('pricingRule is not allowed for trial subscription', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().toISOString(),
+                    endAt: dayjs().add(14, 'day').toISOString(),
+                    isTrial: true,
+                    pricingRule: { connect: { id: pricingRule.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'PRICING_RULE_NOT_ALLOWED_FOR_TRIAL',
+            }, 'obj')
+        })
+
+        test('pricingRule must belong to the same subscriptionPlan', async () => {
+            const [otherPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: HOLDING_TYPE,
+            })
+            const [otherRule] = await createTestSubscriptionPlanPricingRule(admin, otherPlan, {
+                name: 'Other pricing',
+                period: 'month',
+                price: '2000.00',
+                currencyCode: 'RUB',
+            })
+
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().toISOString(),
+                    endAt: dayjs().add(30, 'day').toISOString(),
+                    isTrial: false,
+                    pricingRule: { connect: { id: otherRule.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'PRICING_RULE_PLAN_MISMATCH',
+            }, 'obj')
+        })
+
         test('daysRemaining is calculated correctly', async () => {
             const startAt = dayjs().toISOString()
             const endAt = dayjs().add(10, 'day').toISOString()
@@ -240,13 +329,14 @@ describe('SubscriptionContext', () => {
             expect(obj.daysRemaining).toBe(0)
         })
 
-        test('daysRemaining returns null for unlimited subscription', async () => {
+        test('daysRemaining returns null for unlimited subscription with pricingRule', async () => {
             const startAt = dayjs().toISOString()
 
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt,
                 endAt: null,
                 isTrial: false,
+                pricingRule: { connect: { id: pricingRule.id } },
             })
 
             expect(obj.daysRemaining).toBeNull()
@@ -267,6 +357,23 @@ describe('SubscriptionContext', () => {
                 })
             }, ({ errors }) => {
                 expect(errors[0].message).toContain('Field "subscriptionPlan" is not defined by type "SubscriptionContextUpdateInput"')
+            })
+        })
+
+        test('cannot update pricingRule', async () => {
+            const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().toISOString(),
+                endAt: dayjs().add(30, 'day').toISOString(),
+                isTrial: false,
+                pricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            await catchErrorFrom(async () => {
+                await updateTestSubscriptionContext(admin, objCreated.id, {
+                    pricingRule: { connect: { id: pricingRule.id } },
+                })
+            }, ({ errors }) => {
+                expect(errors[0].message).toContain('Field "pricingRule" is not defined by type "SubscriptionContextUpdateInput"')
             })
         })
 
