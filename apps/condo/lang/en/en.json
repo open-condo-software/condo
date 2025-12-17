@@ -793,7 +793,7 @@
   "contact.import.column.Role": "Role",
   "contact.import.column.Unit": "Unit Name",
   "contact.import.column.UnitType": "Unit Type",
-  "contact.note.visibility.hint": "Only visible to your organization",
+  "contact.note.visibility.hint": "Not visible to resident",
   "contact.role.guest.name": "Guest",
   "contact.role.owner.name": "Owner",
   "contact.role.resident.name": "Resident",
