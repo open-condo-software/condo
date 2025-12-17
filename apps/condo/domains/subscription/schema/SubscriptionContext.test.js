@@ -11,6 +11,8 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
+const { UserHelpRequest, createTestUserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
@@ -423,6 +425,98 @@ describe('SubscriptionContext', () => {
             }, ({ errors }) => {
                 expect(errors[0].message).toContain('Field "endAt" is not defined by type "SubscriptionContextUpdateInput"')
             })
+        })
+    })
+
+    describe('UserHelpRequest cleanup', () => {
+        test('creating non-trial SubscriptionContext soft deletes pending UserHelpRequests for the organization', async () => {
+            // Create a pending UserHelpRequest
+            const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            expect(helpRequest.deletedAt).toBeNull()
+
+            // Create a non-trial SubscriptionContext
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().toISOString(),
+                endAt: dayjs().add(30, 'day').toISOString(),
+                isTrial: false,
+                pricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            // Check that the UserHelpRequest is now soft deleted
+            const updatedHelpRequest = await UserHelpRequest.getOne(admin, { id: helpRequest.id }, { deleted: true })
+            expect(updatedHelpRequest.deletedAt).not.toBeNull()
+        })
+
+        test('creating trial SubscriptionContext does NOT delete pending UserHelpRequests', async () => {
+            // Create a pending UserHelpRequest
+            const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            expect(helpRequest.deletedAt).toBeNull()
+
+            // Create a trial SubscriptionContext
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().toISOString(),
+                endAt: dayjs().add(14, 'day').toISOString(),
+                isTrial: true,
+            })
+
+            // Check that the UserHelpRequest is NOT deleted
+            const updatedHelpRequest = await UserHelpRequest.getOne(admin, { id: helpRequest.id })
+            expect(updatedHelpRequest.deletedAt).toBeNull()
+        })
+
+        test('creating non-trial SubscriptionContext soft deletes multiple pending UserHelpRequests', async () => {
+            // Create multiple pending UserHelpRequests
+            const [helpRequest1] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+            const [helpRequest2] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+            })
+
+            // Create a non-trial SubscriptionContext
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().toISOString(),
+                endAt: dayjs().add(30, 'day').toISOString(),
+                isTrial: false,
+                pricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            // Check that both UserHelpRequests are soft deleted
+            const updated1 = await UserHelpRequest.getOne(admin, { id: helpRequest1.id }, { deleted: true })
+            const updated2 = await UserHelpRequest.getOne(admin, { id: helpRequest2.id }, { deleted: true })
+            expect(updated1.deletedAt).not.toBeNull()
+            expect(updated2.deletedAt).not.toBeNull()
+        })
+
+        test('creating non-trial SubscriptionContext does not affect UserHelpRequests from other organizations', async () => {
+            const otherUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [otherOrg] = await registerNewOrganization(otherUser, { type: HOLDING_TYPE })
+
+            // Create UserHelpRequest for other organization
+            const [otherHelpRequest] = await createTestUserHelpRequest(admin, otherOrg, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+            })
+
+            // Create non-trial SubscriptionContext for original organization
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().toISOString(),
+                endAt: dayjs().add(30, 'day').toISOString(),
+                isTrial: false,
+                pricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            // Check that the other organization's UserHelpRequest is not affected
+            const otherUpdated = await UserHelpRequest.getOne(admin, { id: otherHelpRequest.id })
+            expect(otherUpdated.deletedAt).toBeNull()
         })
     })
 })

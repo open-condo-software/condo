@@ -3178,6 +3178,7 @@
   "subscription.planCard.badge.activeDays": "{days, plural, one {Остался # день} few {Осталось # дня} many {Осталось # дней} other {Осталось # дней}}",
   "subscription.planCard.badge.trialExpired": "Пробный период истек",
   "subscription.planCard.badge.notActive": "Не активен",
+  "subscription.planCard.requestPending": "Заявка обрабатывается",
   "tasks.BankReportTask.progress.description.completed": "Отчет создан",
   "tasks.BankReportTask.progress.description.processing": "Собираем данные для отображения",
   "tasks.BankReportTask.progress.title": "Создание отчета",
