@@ -10,6 +10,8 @@ import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndi
 import { SubscriptionDaysIndicator, UpgradePlanButton } from '@condo/domains/subscription/components'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
+import { useOrganizationSubscription } from '../../../../../subscription/hooks'
+
 
 export interface ITopMenuItemsProps {
     headerAction?: React.ElementType
@@ -18,6 +20,7 @@ export interface ITopMenuItemsProps {
 export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const auth = useAuth()
     const { organization } = useOrganization()
+    const { subscription } = useOrganizationSubscription()
 
     if (auth.isLoading) return null
 
@@ -28,7 +31,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                 <SubscriptionDaysIndicator />
                 <UpgradePlanButton />
                 <div style={{ maxHeight: '24px' }}>
-                    <UserMessagesList />
+                    <UserMessagesList disabled={!subscription} />
                 </div>
                 <Space size={12}>
                     <SBBOLIndicator organization={organization} />
