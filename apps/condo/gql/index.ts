@@ -4857,6 +4857,7 @@ export const GetAvailableSubscriptionPlansDocument = gql`
         organizationType
         isHidden
         trialDays
+        canBePromoted
         news
         marketplace
         support
