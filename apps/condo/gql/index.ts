@@ -4861,55 +4861,6 @@ export type GetAvailableSubscriptionPlansQueryHookResult = ReturnType<typeof use
 export type GetAvailableSubscriptionPlansLazyQueryHookResult = ReturnType<typeof useGetAvailableSubscriptionPlansLazyQuery>;
 export type GetAvailableSubscriptionPlansSuspenseQueryHookResult = ReturnType<typeof useGetAvailableSubscriptionPlansSuspenseQuery>;
 export type GetAvailableSubscriptionPlansQueryResult = Apollo.QueryResult<Types.GetAvailableSubscriptionPlansQuery, Types.GetAvailableSubscriptionPlansQueryVariables>;
-export const GetPendingSubscriptionRequestsDocument = gql`
-    query getPendingSubscriptionRequests($organizationId: ID!) {
-  pendingRequests: allUserHelpRequests(
-    where: {organization: {id: $organizationId}, type: activateSubscription, deletedAt: null}
-  ) {
-    id
-    subscriptionPlanPricingRule {
-      id
-      subscriptionPlan {
-        id
-      }
-    }
-    createdAt
-  }
-}
-    `;
-
-/**
- * __useGetPendingSubscriptionRequestsQuery__
- *
- * To run a query within a React component, call `useGetPendingSubscriptionRequestsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPendingSubscriptionRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetPendingSubscriptionRequestsQuery({
- *   variables: {
- *      organizationId: // value for 'organizationId'
- *   },
- * });
- */
-export function useGetPendingSubscriptionRequestsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables> & ({ variables: Types.GetPendingSubscriptionRequestsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>(GetPendingSubscriptionRequestsDocument, options);
-      }
-export function useGetPendingSubscriptionRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>(GetPendingSubscriptionRequestsDocument, options);
-        }
-export function useGetPendingSubscriptionRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>(GetPendingSubscriptionRequestsDocument, options);
-        }
-export type GetPendingSubscriptionRequestsQueryHookResult = ReturnType<typeof useGetPendingSubscriptionRequestsQuery>;
-export type GetPendingSubscriptionRequestsLazyQueryHookResult = ReturnType<typeof useGetPendingSubscriptionRequestsLazyQuery>;
-export type GetPendingSubscriptionRequestsSuspenseQueryHookResult = ReturnType<typeof useGetPendingSubscriptionRequestsSuspenseQuery>;
-export type GetPendingSubscriptionRequestsQueryResult = Apollo.QueryResult<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>;
 export const GetSubscriptionContextDocument = gql`
     query getSubscriptionContext($id: ID!) {
   subscriptionContext: SubscriptionContext(where: {id: $id}) {
@@ -5119,6 +5070,99 @@ export type GetSubscriptionPlanQueryHookResult = ReturnType<typeof useGetSubscri
 export type GetSubscriptionPlanLazyQueryHookResult = ReturnType<typeof useGetSubscriptionPlanLazyQuery>;
 export type GetSubscriptionPlanSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionPlanSuspenseQuery>;
 export type GetSubscriptionPlanQueryResult = Apollo.QueryResult<Types.GetSubscriptionPlanQuery, Types.GetSubscriptionPlanQueryVariables>;
+export const GetPendingSubscriptionRequestsDocument = gql`
+    query getPendingSubscriptionRequests($organizationId: ID!) {
+  pendingRequests: allUserHelpRequests(
+    where: {organization: {id: $organizationId}, type: activateSubscription, deletedAt: null}
+  ) {
+    id
+    subscriptionPlanPricingRule {
+      id
+      subscriptionPlan {
+        id
+      }
+    }
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useGetPendingSubscriptionRequestsQuery__
+ *
+ * To run a query within a React component, call `useGetPendingSubscriptionRequestsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPendingSubscriptionRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPendingSubscriptionRequestsQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetPendingSubscriptionRequestsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables> & ({ variables: Types.GetPendingSubscriptionRequestsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>(GetPendingSubscriptionRequestsDocument, options);
+      }
+export function useGetPendingSubscriptionRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>(GetPendingSubscriptionRequestsDocument, options);
+        }
+export function useGetPendingSubscriptionRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>(GetPendingSubscriptionRequestsDocument, options);
+        }
+export type GetPendingSubscriptionRequestsQueryHookResult = ReturnType<typeof useGetPendingSubscriptionRequestsQuery>;
+export type GetPendingSubscriptionRequestsLazyQueryHookResult = ReturnType<typeof useGetPendingSubscriptionRequestsLazyQuery>;
+export type GetPendingSubscriptionRequestsSuspenseQueryHookResult = ReturnType<typeof useGetPendingSubscriptionRequestsSuspenseQuery>;
+export type GetPendingSubscriptionRequestsQueryResult = Apollo.QueryResult<Types.GetPendingSubscriptionRequestsQuery, Types.GetPendingSubscriptionRequestsQueryVariables>;
+export const GetPendingBankingRequestDocument = gql`
+    query getPendingBankingRequest($organizationId: ID!) {
+  pendingBankingRequest: allUserHelpRequests(
+    where: {organization: {id: $organizationId}, type: activateBanking, deletedAt: null}
+    first: 1
+  ) {
+    id
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useGetPendingBankingRequestQuery__
+ *
+ * To run a query within a React component, call `useGetPendingBankingRequestQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPendingBankingRequestQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPendingBankingRequestQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetPendingBankingRequestQuery(baseOptions: Apollo.QueryHookOptions<Types.GetPendingBankingRequestQuery, Types.GetPendingBankingRequestQueryVariables> & ({ variables: Types.GetPendingBankingRequestQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetPendingBankingRequestQuery, Types.GetPendingBankingRequestQueryVariables>(GetPendingBankingRequestDocument, options);
+      }
+export function useGetPendingBankingRequestLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetPendingBankingRequestQuery, Types.GetPendingBankingRequestQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetPendingBankingRequestQuery, Types.GetPendingBankingRequestQueryVariables>(GetPendingBankingRequestDocument, options);
+        }
+export function useGetPendingBankingRequestSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPendingBankingRequestQuery, Types.GetPendingBankingRequestQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetPendingBankingRequestQuery, Types.GetPendingBankingRequestQueryVariables>(GetPendingBankingRequestDocument, options);
+        }
+export type GetPendingBankingRequestQueryHookResult = ReturnType<typeof useGetPendingBankingRequestQuery>;
+export type GetPendingBankingRequestLazyQueryHookResult = ReturnType<typeof useGetPendingBankingRequestLazyQuery>;
+export type GetPendingBankingRequestSuspenseQueryHookResult = ReturnType<typeof useGetPendingBankingRequestSuspenseQuery>;
+export type GetPendingBankingRequestQueryResult = Apollo.QueryResult<Types.GetPendingBankingRequestQuery, Types.GetPendingBankingRequestQueryVariables>;
 export const GetCallRecordFragmentExistenceDocument = gql`
     query getCallRecordFragmentExistence($organizationId: ID!) {
   callRecordFragments: allCallRecordFragments(

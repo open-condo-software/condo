@@ -96,12 +96,6 @@ const SettingsPage: PageComponentType = () => {
                 label: EmployeeRolesTitle,
                 children: <EmployeeRolesSettingsContent useEmployeeRolesTableData={useEmployeeRolesPermissionsGroups} />,
             },
-            //todo fix condition
-            isManagingCompany && {
-                key: SETTINGS_TAB_SUBSCRIPTION,
-                label: SubscriptionsTitle,
-                children: <SubscriptionSettingsContent />,
-            },
             isManagingCompany && {
                 key: SETTINGS_TAB_PAYMENT_DETAILS,
                 label: DetailsTitle,
@@ -126,6 +120,11 @@ const SettingsPage: PageComponentType = () => {
                 key: SETTINGS_TAB_MARKETPLACE,
                 label: MarketSettingTitle,
                 children: <MarketplaceSettingsPage/>,
+            },
+            isManagingCompany && {
+                key: SETTINGS_TAB_SUBSCRIPTION,
+                label: SubscriptionsTitle,
+                children: <SubscriptionSettingsContent />,
             },
         ].filter(Boolean),
         [hasSubscriptionFeature, isManagingCompany, SubscriptionTitle, canManageEmployeeRoles, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, acquiringIntegrationContext, loading, MarketSettingTitle],
