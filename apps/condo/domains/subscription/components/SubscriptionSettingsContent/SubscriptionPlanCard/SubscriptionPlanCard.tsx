@@ -106,9 +106,6 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     const ActiveMessage = intl.formatMessage({ id: 'subscription.planCard.badge.active' })
     const TrialExpiredMessage = intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' })
 
-    // TODO: DOMA-12733 Check non active by contexts
-    // const NonActiveMessage = intl.formatMessage({ id: 'subscription.planCard.badge.notActive' })
-
     const { organization } = useOrganization()
     const activePlanId = organization?.subscription?.subscriptionPlan?.id
     const daysRemaining = organization?.subscription?.daysRemaining
