@@ -1,4 +1,4 @@
-import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetOrganizationTrialSubscriptionsQuery, useActivateSubscriptionPlanMutation } from '@app/condo/gql'
+import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetOrganizationTrialSubscriptionsQuery, useActivateSubscriptionPlanMutation, useGetPendingSubscriptionRequestsQuery } from '@app/condo/gql'
 import { notification } from 'antd'
 import React, { useState, useMemo } from 'react'
 
@@ -28,7 +28,7 @@ const PromoBanner: React.FC = () => {
 
 export const SubscriptionSettingsContent: React.FC = () => {
     const intl = useIntl()
-    const { organization } = useOrganization()
+    const { organization, employee, selectEmployee } = useOrganization()
 
     const [planPeriod, setPlanPeriod] = useState<PlanPeriod>('year')
 
@@ -63,6 +63,18 @@ export const SubscriptionSettingsContent: React.FC = () => {
     })
     const trialSubscriptions = trialSubscriptionsData?.trialSubscriptions || []
 
+    const {
+        data: pendingRequestsData,
+        loading: pendingRequestsLoading,
+        refetch: refetchPendingRequests,
+    } = useGetPendingSubscriptionRequestsQuery({
+        variables: {
+            organizationId: organization?.id,
+        },
+        skip: !organization?.id,
+    })
+    const pendingRequests = pendingRequestsData?.pendingRequests || []
+
     const [activateSubscriptionPlan] = useActivateSubscriptionPlanMutation()
 
     const handleActivatePlan = async (priceId: string, isTrial: boolean = true) => {
@@ -83,6 +95,11 @@ export const SubscriptionSettingsContent: React.FC = () => {
 
             if (isTrial) {
                 await refetchTrialSubscriptions()
+                await refetchPendingRequests()
+                // Refetch organization data to update subscription state across the app
+                if (employee?.id) {
+                    await selectEmployee(employee.id)
+                }
                 notification.success({
                     message: intl.formatMessage({ id: 'subscription.activation.success' }),
                     description: isTrial 
@@ -94,6 +111,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                     duration: 5,
                 })
             } else {
+                await refetchPendingRequests()
                 notification.success({
                     message: intl.formatMessage({ id: 'subscription.activation.requestSent' }),
                     description: intl.formatMessage({ id: 'subscription.activation.requestSentDescription' }),
@@ -113,7 +131,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
     }
     
 
-    if (plansLoading || trialSubscriptionsLoading) {
+    if (plansLoading || trialSubscriptionsLoading || pendingRequestsLoading) {
         return <Loader />
     }
 
@@ -135,6 +153,9 @@ export const SubscriptionSettingsContent: React.FC = () => {
                     const activatedTrial = trialSubscriptions.find(
                         trial => trial.subscriptionPlan.id === planInfo?.plan?.id
                     )
+                    const pendingRequest = pendingRequests.find(
+                        request => request.subscriptionPlanPricingRule?.subscriptionPlan?.id === planInfo?.plan?.id
+                    )
 
                     return (
                         <SubscriptionPlanCard 
@@ -142,6 +163,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                             planInfo={planInfo}
                             handleActivatePlan={handleActivatePlan}
                             activatedTrial={activatedTrial}
+                            pendingRequest={pendingRequest}
                         />
                     )
                 })}

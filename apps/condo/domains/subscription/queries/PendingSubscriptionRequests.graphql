@@ -1,0 +1,18 @@
+query getPendingSubscriptionRequests($organizationId: ID!) {
+    pendingRequests: allUserHelpRequests(
+        where: {
+            organization: { id: $organizationId }
+            type: activateSubscription
+            deletedAt: null
+        }
+    ) {
+        id
+        subscriptionPlanPricingRule {
+            id
+            subscriptionPlan {
+                id
+            }
+        }
+        createdAt
+    }
+}
