@@ -65,9 +65,10 @@ const READ_USER_MESSAGES_AT_BROADCAST_CHANNEL = 'read-user-messages-at'
 type UserMessagesListContextProviderProps = {
     children: ReactNode
     organizationIdsToFilter: Array<string>
+    disabled?: boolean
 }
 
-export const UserMessagesListContextProvider: React.FC<UserMessagesListContextProviderProps> = ({ children, organizationIdsToFilter }) => {
+export const UserMessagesListContextProvider: React.FC<UserMessagesListContextProviderProps> = ({ disabled, children, organizationIdsToFilter }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [readUserMessagesAt, setReadUserMessagesAt] = useState<string>()
     const [excludedMessageTypes, setExcludedMessageTypes] = useState<Array<MessageTypeAllowedToFilterType>>([])
@@ -98,7 +99,7 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         isDropdownOpen,
         messageTypesToFilter,
         organizationIdsToFilter,
-        skipQueryMessagesCondition: userIsLoading || organizationIsLoading || !isAuthenticated || 
+        skipQueryMessagesCondition: disabled || userIsLoading || organizationIsLoading || !isAuthenticated || 
         !organizationId || userMessagesSettingsLoading || allowedMessageTypesLoading || !readUserMessagesAt || 
         messageTypesToFilter.length === 0 || organizationIdsToFilter.length === 0,
     })

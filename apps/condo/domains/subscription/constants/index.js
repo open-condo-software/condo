@@ -1,7 +1,3 @@
-const SUBSCRIPTION_PAYMENT_CURRENCY = {
-    RUB: 'RUB',
-}
-
 // Subscription periods
 const SUBSCRIPTION_PERIOD = {
     MONTH: 'month',
@@ -10,7 +6,6 @@ const SUBSCRIPTION_PERIOD = {
 const SUBSCRIPTION_PERIODS = Object.values(SUBSCRIPTION_PERIOD)
 
 module.exports = {
-    SUBSCRIPTION_PAYMENT_CURRENCY,
     SUBSCRIPTION_PERIOD,
     SUBSCRIPTION_PERIODS,
 }

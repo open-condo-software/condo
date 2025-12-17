@@ -17,10 +17,11 @@ import { UserMessagesSettingsModal } from './UserMessagesSettingsModal'
 
 
 type UserMessagesListProps = {
+    disabled?: boolean
     MessageCard?: React.FC<MessageCardProps>
 }
 
-export const UserMessagesList: React.FC<UserMessagesListProps> = ({ MessageCard = DefaultMessageCard }) => {
+export const UserMessagesList: React.FC<UserMessagesListProps> = ({ disabled, MessageCard = DefaultMessageCard }) => {
     const intl = useIntl()
     const UserMessagesListTitle = intl.formatMessage({ id: 'notification.UserMessagesList.title' })
     const ViewedMessage = intl.formatMessage({ id: 'notification.UserMessagesList.viewed' })
@@ -115,6 +116,7 @@ export const UserMessagesList: React.FC<UserMessagesListProps> = ({ MessageCard 
                 trigger={['hover']}
                 onOpenChange={setIsDropdownOpen}
                 placement='bottomCenter'
+                disabled={disabled}
             >
                 <div>
                     <MessagesCounter count={unreadMessages?.length}/>
