@@ -42817,6 +42817,7 @@ enum RemoteClientPushTransportType {
   apple
   huawei
   redstore
+  webhook
 }
 
 enum RemoteClientDevicePlatformType {
@@ -42835,6 +42836,7 @@ enum RemoteClientPushTransportVoIPType {
   apple
   huawei
   redstore
+  webhook
 }
 
 enum RemoteClientPushTypeVoIPType {
@@ -88681,6 +88683,7 @@ enum PushTransportType {
   apple
   huawei
   redstore
+  webhook
 }
 
 enum DevicePlatformType {
