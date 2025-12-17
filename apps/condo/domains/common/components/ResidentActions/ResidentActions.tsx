@@ -15,6 +15,8 @@ import { searchByPhone } from '@condo/domains/ticket/utils/clientSchema/clientCa
 
 import styles from './ResidentActions.module.css'
 
+import { useOrganizationSubscription } from '../../../subscription/hooks'
+
 export const ResidentAppealDropDownMenuItemWrapperProps = {
     labelFontSize: fontSizes.label,
     className: 'width-full',
@@ -36,6 +38,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const { minified } = props
     const { organization, employee } = useOrganization()
     const organizationId = organization?.id
+    const { subscription } = useOrganizationSubscription()
 
     const { ticketFilterQuery } = useTicketVisibility()
 
@@ -114,6 +117,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
                 trigger={trigger}
                 open={dropdownVisible}
                 onOpenChange={setDropdownVisible}
+                disabled={!subscription}
             >
                 <Button type='accent' className={styles.accentButton} block icon={<Plus size={iconSize}/>}>
                     {!minified && ResidentAppealMessage}
