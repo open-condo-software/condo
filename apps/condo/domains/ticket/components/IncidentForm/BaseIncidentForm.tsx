@@ -55,6 +55,8 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
+import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
+import { useOrganizationSubscription, useNoSubscriptionToolTip } from '@condo/domains/subscription/hooks'
 import { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY } from '@condo/domains/ticket/constants/incident'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { IncidentClassifiersQueryLocal, Option } from '@condo/domains/ticket/utils/clientSchema/incidentClassifierSearch'
@@ -335,6 +337,11 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
         rewriteIncidentTextForResident: rewriteIncidentTextForResidentEnabled,
     } } = useAIConfig()
 
+    // Subscription check for AI feature
+    const { isFeatureAvailable } = useOrganizationSubscription()
+    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
+    const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
+
     useEffect(() => {
         setRewriteText(rewriteTextData?.answer)
     }, [rewriteTextData?.answer])
@@ -477,19 +484,39 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
                                         </Tooltip>,
                                         ...(
                                             aiEnabled && rewriteIncidentTextForResidentEnabled ? [
-                                                <Button
-                                                    key='improveButton'
-                                                    compact
-                                                    minimal
-                                                    type='secondary'
-                                                    size='medium'
-                                                    disabled={!value || rewriteTextLoading}
-                                                    loading={rewriteTextLoading}
-                                                    icon={<Sparkles size='small' />}
-                                                    onClick={handleRewriteNewsTextClick}
-                                                >
-                                                    {UpdateTextMessage}
-                                                </Button>,
+                                                hasAiFeature ? (
+                                                    <Button
+                                                        key='improveButton'
+                                                        compact
+                                                        minimal
+                                                        type='secondary'
+                                                        size='medium'
+                                                        disabled={!value || rewriteTextLoading}
+                                                        loading={rewriteTextLoading}
+                                                        icon={<Sparkles size='small' />}
+                                                        onClick={handleRewriteNewsTextClick}
+                                                    >
+                                                        {UpdateTextMessage}
+                                                    </Button>
+                                                ) : (
+                                                    wrapElementIntoNoSubscriptionToolTip({
+                                                        key: 'improveButton',
+                                                        element: (
+                                                            <div>
+                                                                <Button
+                                                                    compact
+                                                                    minimal
+                                                                    type='secondary'
+                                                                    size='medium'
+                                                                    disabled
+                                                                    icon={<Sparkles size='small' />}
+                                                                >
+                                                                    {UpdateTextMessage}
+                                                                </Button>
+                                                            </div>
+                                                        ),
+                                                    })
+                                                ),
                                             ] : []
                                         ),
                                     ]}
