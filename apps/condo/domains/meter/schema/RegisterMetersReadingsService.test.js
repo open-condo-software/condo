@@ -1174,8 +1174,6 @@ describe('RegisterMetersReadingsService', () => {
         const archiveDate = dayjs().subtract(2, 'week').toISOString()
         const anotherReadings = [{
             ...readings[0],
-            value1: faker.random.numeric(3),
-            value2: faker.random.numeric(4),
             meterMeta: {
                 ...readings[0].meterMeta,
                 place: 'place2',
@@ -1205,8 +1203,6 @@ describe('RegisterMetersReadingsService', () => {
         // and set isAutomatic to false
         const thirdReadings = [{
             ...readings[0],
-            value1: faker.random.numeric(3),
-            value2: faker.random.numeric(4),
             meterMeta: {
                 isAutomatic: false,
                 place: '',

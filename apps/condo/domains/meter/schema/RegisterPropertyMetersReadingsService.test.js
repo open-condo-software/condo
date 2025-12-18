@@ -914,8 +914,6 @@ describe('RegisterPropertyMetersReadingsService', () => {
         const archiveDate = dayjs().subtract(2, 'week').toISOString()
         const anotherReadings = [{
             ...readings[0],
-            value1: faker.random.numeric(3),
-            value2: faker.random.numeric(4),
             meterMeta: {
                 ...readings[0].meterMeta,
                 verificationDate: verificationDate2,
@@ -944,8 +942,6 @@ describe('RegisterPropertyMetersReadingsService', () => {
         // sent third readings with isAutomatic = false, 'verificationDate' must stay the same
         const thirdReadings = [{
             ...readings[0],
-            value1: faker.random.numeric(3),
-            value2: faker.random.numeric(4),
             meterMeta: {
                 isAutomatic: false,
             },
