@@ -2,7 +2,6 @@ const get = require('lodash/get')
 
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { GoogleSearchProvider } = require('@address-service/domains/common/utils/services/search/providers')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
@@ -42,7 +41,7 @@ class SearchByGooglePlaceId extends AbstractSearchPlugin {
             return null
         }
 
-        const addressKey = generateAddressKey(searchResult)
+        const addressKey = googleProvider.generateAddressKey(searchResult)
 
         const addressData = {
             address: searchResult.value,

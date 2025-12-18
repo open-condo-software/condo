@@ -45,6 +45,17 @@ class DadataSearchProvider extends AbstractSearchProvider {
     async getAddressByFiasId (fiasId) {
         return await this.suggestionProvider.getAddressByFiasId(fiasId)
     }
+
+    /**
+     * Generates a unique address key from normalized building data.
+     * Delegates to the suggestion provider's implementation.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {string}
+     * @public
+     */
+    generateAddressKey (normalizedBuilding) {
+        return this.suggestionProvider.generateAddressKey(normalizedBuilding)
+    }
 }
 
 module.exports = { DadataSearchProvider }

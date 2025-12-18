@@ -7,6 +7,16 @@ const SPACE_REPLACER = '_'
 const SPECIAL_SYMBOLS_TO_REMOVE_REGEX = /[!@#$%^&*)(+=.,_:;"'`[\]{}№|<>~]/g
 
 /**
+ * @deprecated Use provider.generateAddressKey(normalizedBuilding) instead.
+ * The address key generation logic has been moved to the provider classes:
+ * - AbstractSuggestionProvider.generateAddressKey() - fallback logic
+ * - AbstractSearchProvider.generateAddressKey() - fallback logic
+ * - DadataSuggestionProvider.generateAddressKey() - uses house_fias_id
+ * - PullentiSuggestionProvider.generateAddressKey() - uses house_fias_id
+ * - DadataSearchProvider.generateAddressKey() - delegates to suggestion provider
+ * - PullentiSearchProvider.generateAddressKey() - uses house_fias_id
+ * - InjectionsSeeker.generateAddressKey() - fallback logic
+ *
  * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
  * @returns {string}
  */

@@ -1,7 +1,6 @@
 const get = require('lodash/get')
 
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 
@@ -41,7 +40,7 @@ class SearchByProvider extends AbstractSearchPlugin {
         // Use the first result for a while
         const searchResult = searchResults[0]
 
-        const addressKey = generateAddressKey(searchResult)
+        const addressKey = searchProvider.generateAddressKey(searchResult)
 
         if (!addressKey) {
             throw new Error('Impossible to build addressKey')
