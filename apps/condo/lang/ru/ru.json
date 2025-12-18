@@ -1526,7 +1526,7 @@
   "news.CancelSendMessage": "Не отправлять",
   "news.ConfirmDeleteMessage": "Восстановить ее будет нельзя. Но можно создать заново.",
   "news.ConfirmDeleteTitle": "Удалить новость?",
-  "news.ConfirmDeprecateMessage": "Новость больше не будет показываться на главном экране приложения, её можно будет увидеть только в ленте или разделе уведомлений. Информация в приложении обновится  в течение суток.",
+  "news.ConfirmDeprecateMessage": "Новость больше не будет показываться на главном экране приложения, её можно будет увидеть только в ленте или разделе уведомлений. Информация в приложении обновится в течение суток.",
   "news.ConfirmDeprecateTitle": "Сделать новость неактуальной",
   "news.ConfirmSendMessage": "Отменить отправку будет нельзя",
   "news.ConfirmSendTitle": "Вы точно хотите отправить новость?",
@@ -1534,10 +1534,10 @@
   "news.component.RecipientCounter.error.loading": "Не удалось загрузить количество получателей",
   "news.component.RecipientCounter.label.properties": "выбрано \nдомов",
   "news.component.RecipientCounter.statistics": "Статистика",
-  "news.component.RecipientCounter.willNotReceive.hint": "В {count, plural, one {# помещении} other {# помещениях}} помещениях нет пользователей  мобильного приложения Doma. Скачайте  список, чтобы узнать, в каких помещениях есть пользователи.",
+  "news.component.RecipientCounter.willNotReceive.hint": "В {count, plural, one {# помещении} other {# помещениях}} помещениях нет пользователей мобильного приложения Doma. Скачайте список, чтобы узнать, в каких помещениях есть пользователи.",
   "news.component.RecipientCounter.willNotReceive.hintZero": "В помещениях нет пользователей мобильного приложения Doma. Скачайте список, чтобы узнать, в каких помещениях есть пользователи.",
   "news.component.RecipientCounter.willNotReceive.label": "не получат \nпомещений",
-  "news.component.RecipientCounter.willReceive.hint": "В {count, plural, one {# помещении} other {# помещениях}} есть  пользователи мобильного  приложения Doma — они получат  новость.",
+  "news.component.RecipientCounter.willReceive.hint": "В {count, plural, one {# помещении} other {# помещениях}} есть пользователи мобильного приложения Doma — они получат новость.",
   "news.component.RecipientCounter.willReceive.hintZero": "Нет помещений, где есть пользователи мобильного приложения Doma.",
   "news.component.RecipientCounter.willReceive.label": "получат \nпомещений",
   "news.create.title": "Новая новость",
@@ -1791,7 +1791,7 @@
   "pages.auth.TooManyRequests": "Повторите попытку позже",
   "pages.auth.TwoPasswordDontMatch": "Введенные вами пароли не совпадают",
   "pages.auth.WeMustMakeSureThatYouAreHuman": "Нам нужно убедиться, что вы человек",
-  "pages.auth.Welcome": "Добро пожаловать  на платформу Doma.ai",
+  "pages.auth.Welcome": "Добро пожаловать на платформу Doma.ai",
   "pages.auth.WhatDoYouWantOthersToCallYou": "Как вас будут называть другие?",
   "pages.auth.register.AllFieldsAreRequired": "Все поля обязательны для заполнения",
   "pages.auth.register.PhoneConfirmTokenErrorLabel": "Не получилось",
@@ -2951,7 +2951,7 @@
   "pages.condo.tls.guide.title": "Как установить сертификат",
   "pages.condo.tls.poster.alreadyHaveCert": "Продолжить с сертификатом",
   "pages.condo.tls.poster.card1.cta": "Скачать браузер",
-  "pages.condo.tls.poster.card1.description": "Скачайте и используйте Яндекс Браузер  с поддержкой российских сертификатов",
+  "pages.condo.tls.poster.card1.description": "Скачайте и используйте Яндекс Браузер с поддержкой российских сертификатов",
   "pages.condo.tls.poster.card2.cta": "Установить сертификат",
   "pages.condo.tls.poster.card2.description": "Скачайте и установите сертификат самостоятельно с помощью инструкции",
   "pages.condo.tls.poster.more": "Подробнее о сертификате НУЦ Минцифры",
