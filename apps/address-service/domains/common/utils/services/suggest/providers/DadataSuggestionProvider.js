@@ -420,6 +420,24 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
             }
         ))
     }
+
+    /**
+     * Generates a unique address key from normalized building data.
+     * Dadata provider uses house_fias_id as unique identifier when available.
+     * Falls back to parent implementation if house_fias_id is not present.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {string}
+     * @public
+     */
+    generateAddressKey (normalizedBuilding) {
+        const houseFiasId = get(normalizedBuilding, ['data', 'house_fias_id'])
+
+        if (houseFiasId) {
+            return `fias:${houseFiasId}`
+        }
+
+        return super.generateAddressKey(normalizedBuilding)
+    }
 }
 
 module.exports = { DadataSuggestionProvider }

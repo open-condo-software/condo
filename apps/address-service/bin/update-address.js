@@ -14,7 +14,6 @@ const { v4 } = require('uuid')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 
 const dv = 1
@@ -64,7 +63,7 @@ async function main (args) {
     // Use the first result for a while
     const searchResult = searchResults[0]
 
-    const addressKey = generateAddressKey(searchResult)
+    const addressKey = searchProvider.generateAddressKey(searchResult)
     console.log(`Generate address key: ${addressKey}`)
 
     const addressData = {
