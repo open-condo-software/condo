@@ -12,6 +12,8 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
+import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
+import { useOrganizationSubscription, useNoSubscriptionToolTip } from '@condo/domains/subscription/hooks'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
 import styles from './Comments.module.css'
@@ -151,6 +153,12 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     setAiNotificationShow,
 }) => {
     const intl = useIntl()
+    
+    // Subscription check for AI feature
+    const { isFeatureAvailable } = useOrganizationSubscription()
+    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
+    const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
+    const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
     const UploadTooltipText = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
     const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
@@ -399,14 +407,35 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     />
                                 </Tooltip>,
                                 ...(rewriteCommentEnabled ? [
-                                    <RewriteTextButton
-                                        commentsContainerRef={commentsContainerRef}
-                                        key='rewriteButton'
-                                        hasText={hasText}
-                                        isInputDisable={isInputDisable}
-                                        rewriteTextLoading={rewriteTextLoading}
-                                        onClick={handleUpdateComment}
-                                    />,
+                                    hasAiFeature ? (
+                                        <RewriteTextButton
+                                            commentsContainerRef={commentsContainerRef}
+                                            key='rewriteButton'
+                                            hasText={hasText}
+                                            isInputDisable={isInputDisable}
+                                            rewriteTextLoading={rewriteTextLoading}
+                                            onClick={handleUpdateComment}
+                                        />
+                                    ) : (
+                                        wrapElementIntoNoSubscriptionToolTip({
+                                            key: 'rewriteButton',
+                                            element: (
+                                                <div>
+                                                    <Button
+                                                        compact
+                                                        minimal
+                                                        type='secondary'
+                                                        size='medium'
+                                                        disabled
+                                                        icon={<Sparkles size='small' />}
+                                                        className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
+                                                    >
+                                                        {UpdateTextMessage}
+                                                    </Button>
+                                                </div>
+                                            ),
+                                        })
+                                    ),
                                 ] : []),
                             ]}
                         />
