@@ -1,3 +1,4 @@
+const get = require('lodash/get')
 const uniqBy = require('lodash/uniqBy')
 
 const { createInstance } = require('@open-condo/clients/pullenti-client')
@@ -70,6 +71,24 @@ class PullentiSuggestionProvider extends AbstractSuggestionProvider {
         const uniqNorm = uniqBy(norm.filter(Boolean), (item) => item.value)
 
         return uniqNorm
+    }
+
+    /**
+     * Generates a unique address key from normalized building data.
+     * Pullenti provider uses house_fias_id as unique identifier when available.
+     * Falls back to parent implementation if house_fias_id is not present.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {string}
+     * @public
+     */
+    generateAddressKey (normalizedBuilding) {
+        const houseFiasId = get(normalizedBuilding, ['data', 'house_fias_id'])
+
+        if (houseFiasId) {
+            return `fias:${houseFiasId}`
+        }
+
+        return super.generateAddressKey(normalizedBuilding)
     }
 }
 
