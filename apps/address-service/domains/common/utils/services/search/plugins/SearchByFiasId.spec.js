@@ -4,14 +4,12 @@
 const { faker } = require('@faker-js/faker')
 
 const { DADATA_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 
 const { SearchByFiasId } = require('./SearchByFiasId')
 
 // Mock the dependencies
-jest.mock('@address-service/domains/common/utils/addressKeyUtils')
 jest.mock('@address-service/domains/common/utils/services/providerDetectors', () => {
     const original = jest.requireActual('@address-service/domains/common/utils/services/providerDetectors')
     return {
@@ -100,21 +98,23 @@ describe('SearchByFiasId', () => {
         let mockGenerateAddressKey
 
         beforeEach(() => {
+            // Mock generateAddressKey function for the provider
+            mockGenerateAddressKey = jest.fn()
+
             // Mock search provider
             mockSearchProvider = {
                 getProviderName: jest.fn(),
                 getAddressByFiasId: jest.fn(),
                 normalize: jest.fn(),
+                generateAddressKey: mockGenerateAddressKey,
             }
 
             // Mock utility functions
             mockCreateOrUpdateAddressWithSource = jest.fn()
             mockGetSearchProvider = jest.fn().mockReturnValue(mockSearchProvider)
-            mockGenerateAddressKey = jest.fn()
 
             // Setup the mocked functions
             getSearchProvider.mockImplementation(mockGetSearchProvider)
-            generateAddressKey.mockImplementation(mockGenerateAddressKey)
             createOrUpdateAddressWithSource.mockImplementation(mockCreateOrUpdateAddressWithSource)
         })
 
@@ -172,7 +172,7 @@ describe('SearchByFiasId', () => {
             expect(mockGetSearchProvider).toHaveBeenCalledWith({ req: mockReq })
             expect(mockSearchProvider.getAddressByFiasId).toHaveBeenCalledWith(validFiasId)
             expect(mockSearchProvider.normalize).toHaveBeenCalledWith([mockRawData])
-            expect(mockGenerateAddressKey).toHaveBeenCalledWith(mockNormalizedResult)
+            expect(mockSearchProvider.generateAddressKey).toHaveBeenCalledWith(mockNormalizedResult)
             expect(mockCreateOrUpdateAddressWithSource).toHaveBeenCalledWith(
                 mockSudoContext,
                 expect.anything(), // Address
@@ -294,7 +294,7 @@ describe('SearchByFiasId', () => {
             expect(mockSearchProvider.getProviderName).toHaveBeenCalled()
             expect(mockSearchProvider.getAddressByFiasId).toHaveBeenCalledWith(validFiasId)
             expect(mockSearchProvider.normalize).toHaveBeenCalledWith([mockRawData])
-            expect(mockGenerateAddressKey).toHaveBeenCalledWith(mockNormalizedResult)
+            expect(mockSearchProvider.generateAddressKey).toHaveBeenCalledWith(mockNormalizedResult)
             expect(mockCreateOrUpdateAddressWithSource).toHaveBeenCalledWith(
                 mockSudoContext,
                 expect.anything(),
