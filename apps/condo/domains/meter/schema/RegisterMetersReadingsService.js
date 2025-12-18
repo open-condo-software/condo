@@ -177,8 +177,6 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         continue
                     }
 
-                    const dateISO = tryToISO(reading.date)
-                    const startOfDayISO = dateISO ? dayjs(dateISO).startOf('day').toISOString() : undefined
                     const property = properties.find((p) => p.addressKey === addressKey)
 
                     if (!property) {
@@ -227,10 +225,14 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                     context,
                                     foundMeter.id,
                                     { dv, sender, ...fieldsToUpdate },
-                                    'id property { id } unitName unitType accountNumber number resource { id }'
+                                    'id property { id address addressKey } unitName unitType accountNumber number resource { id }'
                                 )
-                                const meterIndex = meters.indexOf(meter => meter.id === updatedMeter.id)
+                                const meterIndex = meters.findIndex(meter => meter.id === updatedMeter.id)
                                 meters[meterIndex] = transformToPlainObject(updatedMeter)
+                                const key = createMeterReadingKey(meterId, getSortedValues(reading))
+                                if (meterReadingForSearchingDuplicates[key]) {
+                                    meterReadingForSearchingDuplicates[key]['meter'] = updatedMeter
+                                }
                             }
                         } else {
                             const meterFieldsGetter = getMeterFields()
