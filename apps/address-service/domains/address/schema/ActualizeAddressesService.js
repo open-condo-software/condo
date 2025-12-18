@@ -10,7 +10,6 @@ const { GQLCustomSchema, getById, find, getByCondition } = require('@open-condo/
 const access = require('@address-service/domains/address/access/ActualizeAddressesService')
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { DADATA_PROVIDER, GOOGLE_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 
 const logger = getLogger()
@@ -74,7 +73,7 @@ const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService
                         }
 
                         const [searchResult] = provider.normalize([denormalizedResult])
-                        const addressKey = generateAddressKey(searchResult)
+                        const addressKey = provider.generateAddressKey(searchResult)
 
                         dataForLog.denormalizedResult = denormalizedResult
                         dataForLog.addressKey = addressKey
