@@ -9,6 +9,7 @@ import {
     SendOrganizationEmployeeRequestMutationResult,
     GetActualOrganizationEmployeesDocument,
     useActivateSubscriptionPlanMutation,
+    useGetAvailableSubscriptionPlansLazyQuery,
 } from '@app/condo/gql'
 import { Col, Form, FormInstance, Row } from 'antd'
 import getConfig from 'next/config'
@@ -180,10 +181,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const locale = useMemo(() => organization?.country || defaultLocale, [organization?.country])
     const { useFlag, useFlagValue } = useFeatureFlags()
     const skipSearchOrganizationByTin = useFlag(SKIP_SEARCH_ORGANIZATION_BY_TIN)
-
-    // todo fix
-    //const defaultTrialPlanId = useFlagValue(DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID) as string
-    const defaultTrialPlanId = 'eb835e7e-6cff-4880-b599-d516813e5acf'
+    const defaultTrialPlanId = useFlagValue(DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID) as string
 
     const [isFoundOrganizationModalOpen, setIsFoundOrganizationModalOpen] = useState<boolean>(false)
     const [isSearchByTinLimitReached, setIsSearchByTinLimitReached] = useState<boolean>(false)
@@ -216,6 +214,9 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         fetchPolicy: 'network-only',
     })
     const [activateSubscriptionPlan] = useActivateSubscriptionPlanMutation({
+        onError,
+    })
+    const [getAvailableSubscriptionPlans] = useGetAvailableSubscriptionPlansLazyQuery({
         onError,
     })
 
@@ -305,17 +306,29 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
 
         try {
             if (defaultTrialPlanId) {
-                await activateSubscriptionPlan({
+                const plansData = await getAvailableSubscriptionPlans({
                     variables: {
-                        data: {
-                            dv: 1,
-                            sender: { dv: 1, fingerprint: 'create-organization-auto-trial' },
-                            organization: { id: organizationId },
-                            subscriptionPlan: { id: defaultTrialPlanId },
-                            isTrial: true,
-                        },
+                        organization: { id: organizationId },
                     },
                 })
+                
+                const plans = plansData?.data?.result?.plans || []
+                const targetPlan = plans.find(p => p.plan.id === defaultTrialPlanId)
+                const pricingRuleId = targetPlan?.prices?.[0]?.id
+                
+                if (pricingRuleId) {
+                    await activateSubscriptionPlan({
+                        variables: {
+                            data: {
+                                dv: 1,
+                                sender: getClientSideSenderInfo(),
+                                organization: { id: organizationId },
+                                pricingRule: { id: pricingRuleId },
+                                isTrial: true,
+                            },
+                        },
+                    })
+                }
             }
         } catch (error) {
             console.error('Failed to activate trial subscription:', error)
@@ -341,7 +354,8 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         }
         setIsOrganizationCreating(false)
     }, [
-        client, findOrganizationsByTin, getLastActiveOrganizationEmployeeRequest,
+        activateSubscriptionPlan, client, defaultTrialPlanId, findOrganizationsByTin,
+        getAvailableSubscriptionPlans, getLastActiveOrganizationEmployeeRequest,
         getOrganizationEmployee, onEmployeeSelected, onOrganizationCreated, onSendOrganizationRequest,
         registerNewOrganization, selectEmployee, skipSearchOrganizationByTin, type, userId,
     ])
