@@ -93,7 +93,7 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-import { SubscriptionAccessGuard, OrganizationInfoModal } from '@condo/domains/subscription/components'
+import { SubscriptionAccessGuard } from '@condo/domains/subscription/components'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
@@ -537,7 +537,6 @@ const MyApp = ({ Component, pageProps }) => {
                                         <TourProvider>
                                             <GlobalAppsFeaturesProvider>
                                                 <GlobalAppsContainer/>
-                                                <OrganizationInfoModal />
                                                 <TicketVisibilityContextProvider>
                                                     <ActiveCallContextProvider>
                                                         <ConnectedAppsWithIconsContextProvider>
