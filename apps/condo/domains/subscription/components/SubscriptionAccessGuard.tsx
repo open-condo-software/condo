@@ -6,6 +6,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography, Button, Space } from '@open-condo/ui'
 
 import styles from './SubscriptionAccessGuard.module.css'
+import { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
 
 import { PageHeader, PageWrapper } from '../../common/components/containers/BaseLayout'
 import { requiresSubscriptionAccess, getRequiredFeature } from '../constants/routeFeatureMapping'
@@ -146,5 +147,10 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         )
     }
 
-    return <>{children}</>
+    return (
+        <>
+            <SubscriptionWelcomeModal />
+            {children}
+        </>
+    )
 }

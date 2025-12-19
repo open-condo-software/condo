@@ -1,5 +1,5 @@
 export { SubscriptionAccessGuard } from './SubscriptionAccessGuard'
-export { OrganizationInfoModal } from './OrganizationInfoModal'
+export { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
 export { SubscriptionSettingsContent } from './SubscriptionSettingsContent/SubscriptionSettingsContent'
 export { SubscriptionDaysIndicator } from './SubscriptionDaysIndicator'
 export { UpgradePlanButton } from './UpgradePlanButton'
