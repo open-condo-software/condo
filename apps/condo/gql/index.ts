@@ -5001,6 +5001,58 @@ export type GetOrganizationTrialSubscriptionsQueryHookResult = ReturnType<typeof
 export type GetOrganizationTrialSubscriptionsLazyQueryHookResult = ReturnType<typeof useGetOrganizationTrialSubscriptionsLazyQuery>;
 export type GetOrganizationTrialSubscriptionsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationTrialSubscriptionsSuspenseQuery>;
 export type GetOrganizationTrialSubscriptionsQueryResult = Apollo.QueryResult<Types.GetOrganizationTrialSubscriptionsQuery, Types.GetOrganizationTrialSubscriptionsQueryVariables>;
+export const GetLastExpiredSubscriptionContextDocument = gql`
+    query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
+  lastExpiredContext: allSubscriptionContexts(
+    where: {organization: {id: $organizationId}, endAt_lt: $now, deletedAt: null}
+    sortBy: [endAt_DESC]
+    first: 1
+  ) {
+    id
+    subscriptionPlan {
+      id
+      name
+    }
+    isTrial
+    startAt
+    endAt
+  }
+}
+    `;
+
+/**
+ * __useGetLastExpiredSubscriptionContextQuery__
+ *
+ * To run a query within a React component, call `useGetLastExpiredSubscriptionContextQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLastExpiredSubscriptionContextQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLastExpiredSubscriptionContextQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *      now: // value for 'now'
+ *   },
+ * });
+ */
+export function useGetLastExpiredSubscriptionContextQuery(baseOptions: Apollo.QueryHookOptions<Types.GetLastExpiredSubscriptionContextQuery, Types.GetLastExpiredSubscriptionContextQueryVariables> & ({ variables: Types.GetLastExpiredSubscriptionContextQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetLastExpiredSubscriptionContextQuery, Types.GetLastExpiredSubscriptionContextQueryVariables>(GetLastExpiredSubscriptionContextDocument, options);
+      }
+export function useGetLastExpiredSubscriptionContextLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetLastExpiredSubscriptionContextQuery, Types.GetLastExpiredSubscriptionContextQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetLastExpiredSubscriptionContextQuery, Types.GetLastExpiredSubscriptionContextQueryVariables>(GetLastExpiredSubscriptionContextDocument, options);
+        }
+export function useGetLastExpiredSubscriptionContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastExpiredSubscriptionContextQuery, Types.GetLastExpiredSubscriptionContextQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetLastExpiredSubscriptionContextQuery, Types.GetLastExpiredSubscriptionContextQueryVariables>(GetLastExpiredSubscriptionContextDocument, options);
+        }
+export type GetLastExpiredSubscriptionContextQueryHookResult = ReturnType<typeof useGetLastExpiredSubscriptionContextQuery>;
+export type GetLastExpiredSubscriptionContextLazyQueryHookResult = ReturnType<typeof useGetLastExpiredSubscriptionContextLazyQuery>;
+export type GetLastExpiredSubscriptionContextSuspenseQueryHookResult = ReturnType<typeof useGetLastExpiredSubscriptionContextSuspenseQuery>;
+export type GetLastExpiredSubscriptionContextQueryResult = Apollo.QueryResult<Types.GetLastExpiredSubscriptionContextQuery, Types.GetLastExpiredSubscriptionContextQueryVariables>;
 export const GetSubscriptionPlanDocument = gql`
     query getSubscriptionPlan($id: ID!) {
   subscriptionPlan: SubscriptionPlan(where: {id: $id}) {
