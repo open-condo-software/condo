@@ -1,5 +1,6 @@
 export { SubscriptionAccessGuard } from './SubscriptionAccessGuard'
 export { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
+export { SubscriptionTrialEndedModal } from './SubscriptionTrialEndedModal'
 export { SubscriptionSettingsContent } from './SubscriptionSettingsContent/SubscriptionSettingsContent'
 export { SubscriptionDaysIndicator } from './SubscriptionDaysIndicator'
 export { UpgradePlanButton } from './UpgradePlanButton'

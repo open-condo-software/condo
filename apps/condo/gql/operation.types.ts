@@ -788,6 +788,14 @@ export type GetOrganizationTrialSubscriptionsQueryVariables = Types.Exact<{
 
 export type GetOrganizationTrialSubscriptionsQuery = { __typename?: 'Query', trialSubscriptions?: Array<{ __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, startAt?: string | null, daysRemaining?: number | null, endAt?: string | null, createdAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null } | null } | null> | null };
 
+export type GetLastExpiredSubscriptionContextQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+  now: Types.Scalars['String']['input'];
+}>;
+
+
+export type GetLastExpiredSubscriptionContextQuery = { __typename?: 'Query', lastExpiredContext?: Array<{ __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, startAt?: string | null, endAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null } | null } | null> | null };
+
 export type GetSubscriptionPlanQueryVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];
 }>;
