@@ -8,6 +8,5 @@ export const FEATURE_KEY: Record<string, any> = {
     MARKETPLACE: 'marketplace',
     SUPPORT: 'support',
     AI: 'ai',
-    PASS_TICKETS: 'passTickets',
     CUSTOMIZATION: 'customization',
 } as const

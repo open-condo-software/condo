@@ -14,7 +14,8 @@ query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!
                 marketplace
                 support
                 ai
-                passTickets
+                disabledB2BApps
+                disabledB2CApps
                 customization
             }
             prices {

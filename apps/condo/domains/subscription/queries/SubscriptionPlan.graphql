@@ -10,7 +10,8 @@ query getSubscriptionPlan($id: ID!) {
         marketplace
         support
         ai
-        passTickets
+        disabledB2BApps
+        disabledB2CApps
         isHidden
         dv
         sender {

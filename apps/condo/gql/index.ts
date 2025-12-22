@@ -3412,8 +3412,9 @@ export const GetActiveOrganizationEmployeeDocument = gql`
           marketplace
           support
           ai
-          passTickets
           customization
+          disabledB2BApps
+          disabledB2CApps
         }
         startAt
         endAt
@@ -4761,7 +4762,8 @@ export const ActivateSubscriptionPlanDocument = gql`
         marketplace
         support
         ai
-        passTickets
+        disabledB2BApps
+        disabledB2CApps
       }
       startAt
       endAt
@@ -4814,7 +4816,8 @@ export const GetAvailableSubscriptionPlansDocument = gql`
         marketplace
         support
         ai
-        passTickets
+        disabledB2BApps
+        disabledB2CApps
         customization
       }
       prices {
@@ -4880,7 +4883,8 @@ export const GetSubscriptionContextDocument = gql`
       marketplace
       support
       ai
-      passTickets
+      disabledB2BApps
+      disabledB2CApps
       isHidden
     }
     startAt
@@ -5066,7 +5070,8 @@ export const GetSubscriptionPlanDocument = gql`
     marketplace
     support
     ai
-    passTickets
+    disabledB2BApps
+    disabledB2CApps
     isHidden
     dv
     sender {

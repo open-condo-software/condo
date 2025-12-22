@@ -1494,6 +1494,8 @@
   "miniapps.addDescription.action.connected": "Подключено",
   "miniapps.addDescription.action.inProgress": "Заявка обрабатывается",
   "miniapps.addDescription.action.open": "Открыть",
+  "miniapps.addDescription.action.unavailableForTariff": "Недоступно для вашего тарифа",
+  "miniapps.addDescription.action.unavailableForTariff.tooltip": "Данное приложение недоступно в вашем текущем тарифном плане. Перейдите в настройки подписки, чтобы выбрать подходящий тариф.",
   "miniapps.appCard.connected.label": "Открыть",
   "miniapps.appCard.notConnected.label": "Подробнее",
   "miniapps.appDescription.moreAppsInThisCategory": "Другие сервисы в этой категории",
