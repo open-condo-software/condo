@@ -43,6 +43,7 @@ describe('isValidWebhookUrl', () => {
 
         test('should reject unsupported protocols', () => {
             expect(isValidWebhookUrl('ftp://example.com/file')).toBe(false)
+            // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
             expect(isValidWebhookUrl('ws://example.com/socket')).toBe(false)
             expect(isValidWebhookUrl('file:///path/to/file')).toBe(false)
         })
@@ -95,6 +96,7 @@ describe('isValidWebhookUrl', () => {
 
         test('should reject unsupported protocols', () => {
             expect(isValidWebhookUrl('ftp://example.com/file')).toBe(false)
+            // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
             expect(isValidWebhookUrl('ws://example.com/socket')).toBe(false)
         })
 
