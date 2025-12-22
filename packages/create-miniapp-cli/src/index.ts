@@ -52,6 +52,7 @@ const main = async () => {
     ) as PackageJson
     pkgJson.name = `@app/${scopedAppName}`
     replaceTextInFiles(projectDir, '@app/template', `@app/${scopedAppName}`)
+    replaceTextInFiles(projectDir, 'template', scopedAppName)
 
     fs.writeJSONSync(path.join(projectDir, 'package.json'), pkgJson, {
         spaces: 2,
