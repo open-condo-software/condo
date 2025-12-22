@@ -117,8 +117,8 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
                 receivedBody = req.rawBody || (typeof req.body === 'string' ? req.body : JSON.stringify(req.body))
 
                 // Verify signature using the test secret and raw body bytes
+                // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
                 const expectedSignature = crypto
-                    // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
                     .createHmac('sha256', testSecret)
                     .update(receivedBody)
                     .digest('hex')
@@ -151,8 +151,8 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
             expect(signatureValid).toBe(true)
 
             // Manually verify the signature again to ensure correctness
+            // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
             const manualSignature = crypto
-                // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
                 .createHmac('sha256', testSecret)
                 .update(receivedBody)
                 .digest('hex')
