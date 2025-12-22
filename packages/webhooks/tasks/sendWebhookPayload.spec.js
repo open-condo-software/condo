@@ -1,3 +1,5 @@
+const crypto = require('node:crypto')
+
 const dayjs = require('dayjs')
 const express = require('express')
 
@@ -92,6 +94,61 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
             expect(SUCCESS_CALLS).toHaveLength(1)
             expect(SUCCESS_CALLS[0].headers).toHaveProperty('x-webhook-id', payload.id)
             expect(SUCCESS_CALLS[0].headers).toHaveProperty('x-webhook-signature')
+
+            await softDeleteTestWebhookPayload(actors.admin, payload.id)
+        })
+
+        it('Must send webhook with valid HMAC-SHA256 signature that can be verified', async () => {
+            const testSecret = 'test-webhook-secret-123'
+            let receivedSignature = null
+            let receivedBody = null
+            let signatureValid = false
+
+            // Create endpoint that verifies signature
+            // Store secret in closure so endpoint can access it
+            app.post('/verify-signature', (req, res) => {
+                receivedSignature = req.headers['x-webhook-signature']
+                receivedBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body)
+                
+                // Verify signature using the test secret
+                const expectedSignature = crypto
+                    .createHmac('sha256', testSecret)
+                    .update(receivedBody)
+                    .digest('hex')
+                signatureValid = receivedSignature === expectedSignature
+                
+                res.status(200).json({ verified: signatureValid })
+            })
+
+            const serverInfo = getTestExpressApp('webhookTestServer')
+            const verifyUrl = `${serverInfo.baseUrl}/verify-signature`
+            
+            const expiresAt = dayjs().add(7, 'day').toISOString()
+            const [payload] = await createTestWebhookPayload(actors.admin, {
+                url: verifyUrl,
+                secret: testSecret,
+                status: WEBHOOK_PAYLOAD_STATUS_PENDING,
+                expiresAt,
+                attempt: 0,
+            })
+
+            await sendWebhookPayload.delay.fn(payload.id)
+
+            const updated = await WebhookPayload.getOne(actors.admin, { id: payload.id })
+            expect(updated).toHaveProperty('status', WEBHOOK_PAYLOAD_STATUS_SUCCESS)
+            expect(updated).toHaveProperty('lastHttpStatusCode', 200)
+
+            // Verify signature was sent and is valid
+            expect(receivedSignature).toBeTruthy()
+            expect(receivedBody).toBeTruthy()
+            expect(signatureValid).toBe(true)
+
+            // Manually verify the signature again to ensure correctness
+            const manualSignature = crypto
+                .createHmac('sha256', testSecret)
+                .update(receivedBody)
+                .digest('hex')
+            expect(receivedSignature).toBe(manualSignature)
 
             await softDeleteTestWebhookPayload(actors.admin, payload.id)
         })
