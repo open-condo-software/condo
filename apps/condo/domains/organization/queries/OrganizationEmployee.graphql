@@ -44,8 +44,9 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
                     marketplace
                     support
                     ai
-                    passTickets
                     customization
+                    disabledB2BApps
+                    disabledB2CApps
                 }
                 startAt
                 endAt

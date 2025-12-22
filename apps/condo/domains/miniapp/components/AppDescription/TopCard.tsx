@@ -15,6 +15,7 @@ import { colors } from '@open-condo/ui/colors'
 
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
+import { useOrganizationSubscription, useNoSubscriptionToolTip } from '@condo/domains/subscription/hooks'
 
 import { AppLabelTag } from '../AppLabelTag'
 
@@ -121,8 +122,12 @@ const TopCard = React.memo<TopCardProps>(({
 }) => {
     const intl = useIntl()
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` as FormatjsIntl.Message['ids'] })
+    const UnavailableForTariffMessage = intl.formatMessage({ id: 'miniapps.addDescription.action.unavailableForTariff' })
     const userOrganization = useOrganization()
     const canManageB2BApps = get(userOrganization, ['link', 'role', 'canManageB2BApps'], false)
+    const { isB2BAppEnabled } = useOrganizationSubscription()
+    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
+    const isAppAvailableForTariff = isB2BAppEnabled(id)
 
     const router = useRouter()
     const [{ width: contentWidth }, setContentRef] = useContainerSize()
@@ -130,6 +135,14 @@ const TopCard = React.memo<TopCardProps>(({
 
     const buttonProps = useMemo<ButtonProps>(() => {
         const btnProps: ButtonProps = { type: 'primary' }
+
+        // Check if app is disabled by subscription plan
+        if (!isAppAvailableForTariff) {
+            btnProps.children = UnavailableForTariffMessage
+            btnProps.disabled = true
+            return btnProps
+        }
+
         if (!contextStatus) {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connect' })
             btnProps.disabled = !canManageB2BApps
@@ -152,7 +165,7 @@ const TopCard = React.memo<TopCardProps>(({
         }
 
         return btnProps
-    }, [id, appUrl, contextStatus, connectAction, intl, router, canManageB2BApps, accessible])
+    }, [id, appUrl, contextStatus, connectAction, intl, router, canManageB2BApps, accessible, isAppAvailableForTariff, UnavailableForTariffMessage])
 
     const images = gallery || []
     const imagesAmount = images.length
@@ -217,7 +230,13 @@ const TopCard = React.memo<TopCardProps>(({
                             </Typography.Title>
                         )}
                     </Space>
-                    <Button {...buttonProps}/>
+                    {!isAppAvailableForTariff ? (
+                        wrapElementIntoNoSubscriptionToolTip({
+                            element: <span><Button {...buttonProps}/></span>,
+                        })
+                    ) : (
+                        <Button {...buttonProps}/>
+                    )}
                 </Space>
             </Col>
             <Col span={sectionSpan} style={VERT_ALIGN_STYLES} ref={setCarouselColRef}>

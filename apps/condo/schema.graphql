@@ -57786,7 +57786,8 @@ type SubscriptionPlanHistoryRecord {
   marketplace: Boolean
   support: Boolean
   ai: Boolean
-  passTickets: Boolean
+  disabledB2BApps: JSON
+  disabledB2CApps: JSON
   customization: Boolean
   id: ID!
   v: Int
@@ -57888,8 +57889,14 @@ input SubscriptionPlanHistoryRecordWhereInput {
   support_not: Boolean
   ai: Boolean
   ai_not: Boolean
-  passTickets: Boolean
-  passTickets_not: Boolean
+  disabledB2BApps: JSON
+  disabledB2BApps_not: JSON
+  disabledB2BApps_in: [JSON]
+  disabledB2BApps_not_in: [JSON]
+  disabledB2CApps: JSON
+  disabledB2CApps_not: JSON
+  disabledB2CApps_in: [JSON]
+  disabledB2CApps_not_in: [JSON]
   customization: Boolean
   customization_not: Boolean
   id: ID
@@ -57997,8 +58004,6 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   support_DESC
   ai_ASC
   ai_DESC
-  passTickets_ASC
-  passTickets_DESC
   customization_ASC
   customization_DESC
   id_ASC
@@ -58031,7 +58036,8 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   marketplace: Boolean
   support: Boolean
   ai: Boolean
-  passTickets: Boolean
+  disabledB2BApps: JSON
+  disabledB2CApps: JSON
   customization: Boolean
   v: Int
   createdAt: String
@@ -58064,7 +58070,8 @@ input SubscriptionPlanHistoryRecordCreateInput {
   marketplace: Boolean
   support: Boolean
   ai: Boolean
-  passTickets: Boolean
+  disabledB2BApps: JSON
+  disabledB2CApps: JSON
   customization: Boolean
   v: Int
   createdAt: String
@@ -58137,8 +58144,11 @@ type SubscriptionPlan {
   """ Whether AI feature is included in this plan """
   ai: Boolean
 
-  """ Whether pass tickets feature is included in this plan """
-  passTickets: Boolean
+  """ JSON array of B2B miniapp IDs that are disabled in this plan """
+  disabledB2BApps: JSON
+
+  """ JSON array of B2C miniapp IDs that are disabled in this plan """
+  disabledB2CApps: JSON
 
   """ Whether customization feature is included in this plan """
   customization: Boolean
@@ -58236,8 +58246,14 @@ input SubscriptionPlanWhereInput {
   support_not: Boolean
   ai: Boolean
   ai_not: Boolean
-  passTickets: Boolean
-  passTickets_not: Boolean
+  disabledB2BApps: JSON
+  disabledB2BApps_not: JSON
+  disabledB2BApps_in: [JSON]
+  disabledB2BApps_not_in: [JSON]
+  disabledB2CApps: JSON
+  disabledB2CApps_not: JSON
+  disabledB2CApps_in: [JSON]
+  disabledB2CApps_not_in: [JSON]
   customization: Boolean
   customization_not: Boolean
   id: ID
@@ -58325,8 +58341,6 @@ enum SortSubscriptionPlansBy {
   support_DESC
   ai_ASC
   ai_DESC
-  passTickets_ASC
-  passTickets_DESC
   customization_ASC
   customization_DESC
   id_ASC
@@ -58359,7 +58373,8 @@ input SubscriptionPlanUpdateInput {
   marketplace: Boolean
   support: Boolean
   ai: Boolean
-  passTickets: Boolean
+  disabledB2BApps: JSON
+  disabledB2CApps: JSON
   customization: Boolean
   v: Int
   createdAt: String
@@ -58389,7 +58404,8 @@ input SubscriptionPlanCreateInput {
   marketplace: Boolean
   support: Boolean
   ai: Boolean
-  passTickets: Boolean
+  disabledB2BApps: JSON
+  disabledB2CApps: JSON
   customization: Boolean
   v: Int
   createdAt: String

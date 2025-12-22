@@ -9,11 +9,19 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/subscription/access/SubscriptionPlan')
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 const ERRORS = {
     TRIAL_DAYS_MUST_BE_NON_NEGATIVE: {
         code: BAD_USER_INPUT,
         type: 'TRIAL_DAYS_MUST_BE_NON_NEGATIVE',
         message: 'trialDays must be >= 0',
+    },
+    DISABLED_APPS_MUST_BE_ARRAY_OF_IDS: {
+        code: BAD_USER_INPUT,
+        type: 'DISABLED_APPS_MUST_BE_ARRAY_OF_IDS',
+        message: 'disabledB2BApps and disabledB2CApps must be arrays of valid UUIDs',
+        messageForUser: 'disabledB2BApps and disabledB2CApps must be arrays of valid UUIDs',
     },
 }
 
@@ -111,19 +119,57 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             isRequired: true,
         },
 
-        // TODO(DOMA-12735): think about move feature checkboxes in separate schema
-        passTickets: {
-            schemaDoc: 'Whether pass tickets feature is included in this plan',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
-        },
-
         customization: {
             schemaDoc: 'Whether customization feature is included in this plan',
             type: 'Checkbox',
             defaultValue: false,
             isRequired: true,
+        },
+
+        disabledB2BApps: {
+            schemaDoc: 'JSON array of B2B miniapp IDs that are disabled in this plan',
+            type: 'Json',
+            defaultValue: [],
+            isRequired: true,
+            hooks: {
+                validateInput: async ({ resolvedData, fieldPath, context }) => {
+                    const value = resolvedData[fieldPath]
+                    if (value === undefined) return
+
+                    if (!Array.isArray(value)) {
+                        throw new GQLError(ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                    }
+
+                    for (const id of value) {
+                        if (typeof id !== 'string' || !UUID_REGEX.test(id)) {
+                            throw new GQLError(ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                        }
+                    }
+                },
+            },
+        },
+
+        disabledB2CApps: {
+            schemaDoc: 'JSON array of B2C miniapp IDs that are disabled in this plan',
+            type: 'Json',
+            defaultValue: [],
+            isRequired: true,
+            hooks: {
+                validateInput: async ({ resolvedData, fieldPath, context }) => {
+                    const value = resolvedData[fieldPath]
+                    if (value === undefined) return
+
+                    if (!Array.isArray(value)) {
+                        throw new GQLError(ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                    }
+
+                    for (const id of value) {
+                        if (typeof id !== 'string' || !UUID_REGEX.test(id)) {
+                            throw new GQLError(ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                        }
+                    }
+                },
+            },
         },
 
     },
