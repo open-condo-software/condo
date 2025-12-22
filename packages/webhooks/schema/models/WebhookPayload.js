@@ -26,20 +26,20 @@ const WebhookPayload = new GQLListSchema('WebhookPayload', {
     fields: {
 
         url: {
-            schemaDoc: 'Target URL for sending webhook',
+            schemaDoc: 'Where to send the webhook',
             type: 'Url',
             isRequired: true,
         },
 
         payload: {
-            schemaDoc: 'Ready-to-send JSON payload for the webhook. Encrypted at rest for security.',
+            schemaDoc: 'JSON data to send. Stored encrypted in database.',
             type: 'EncryptedText',
             encryptionManager,
             isRequired: true,
         },
 
         secret: {
-            schemaDoc: 'Secret key for HMAC-SHA256 signature generation. Encrypted at rest for security.',
+            schemaDoc: 'Secret key for signing requests (HMAC). Stored encrypted in database.',
             type: 'EncryptedText',
             encryptionManager,
             isRequired: true,
