@@ -5,11 +5,12 @@ import { runCli } from '@cli/runCli.js'
 import fs from 'fs-extra'
 import { type PackageJson } from 'type-fest'
 
+import { ENVS_TYPE } from './consts.js'
 import { createProject } from './helpers/createProject.js'
 import { installDependencies } from './helpers/installDependencies.js'
 import { logNextSteps } from './helpers/logNextSteps.js'
 import { replaceTextInFiles, setImportAlias } from './helpers/setImportAlias.js'
-import { addSubmoduleEntry } from './installers/git.js'
+import { addDeployEnvVar, addSubmoduleEntry } from './installers/git.js'
 import { setupHelm } from './installers/helm'
 import { prepareApp } from './installers/prepare.js'
 import { getUserPkgManager } from './utils/getUserPkgManager.js'
@@ -58,6 +59,7 @@ const main = async () => {
     fs.writeJSONSync(path.join(projectDir, 'package.json'), pkgJson, {
         spaces: 2,
     })
+
     // update import alias in any generated files if not using the default
     if (importAlias !== '~/') {
         setImportAlias(projectDir, importAlias, appName)
@@ -65,7 +67,14 @@ const main = async () => {
         replaceTextInFiles(projectDir, '@app/~/', `@app/${scopedAppName}`)
     }
 
+    // update github related files
     await addSubmoduleEntry(appName)
+    const deployEnvs: Array<ENVS_TYPE> = ['prod', 'dev']
+    if (hasReview) deployEnvs.push('review')
+
+    for (const env of deployEnvs) {
+        await addDeployEnvVar(appName, env)
+    }
 
     if (!noInstall) {
         await installDependencies({ projectDir })
