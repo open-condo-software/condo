@@ -2,7 +2,7 @@ import { useMemo, useCallback } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
 
-export type AvailableFeature = 'news' | 'marketplace' | 'support' | 'ai' | 'passTickets'
+export type AvailableFeature = 'news' | 'marketplace' | 'support' | 'ai'
 
 interface SubscriptionPlan {
     id: string
@@ -11,7 +11,8 @@ interface SubscriptionPlan {
     marketplace?: boolean
     support?: boolean
     ai?: boolean
-    passTickets?: boolean
+    disabledB2BApps?: string[]
+    disabledB2CApps?: string[]
     trialDays?: number
     priority?: number
     canBePromoted?: boolean
@@ -70,8 +71,6 @@ export const useOrganizationSubscription = () => {
                 return plan.support === true
             case 'ai':
                 return plan.ai === true
-            case 'passTickets':
-                return plan.passTickets === true
             default:
                 // By default, features are available if not explicitly defined
                 return true
@@ -81,9 +80,27 @@ export const useOrganizationSubscription = () => {
     const tariff = useMemo(() => {
         return subscription?.subscriptionPlan || null
     }, [subscription])
+
+    const isB2BAppEnabled = useCallback((appId: string): boolean => {
+        if (!subscription || isExpired) return false
+        const plan = subscription.subscriptionPlan
+        if (!plan) return false
+        const disabledApps = plan.disabledB2BApps || []
+        return !disabledApps.includes(appId)
+    }, [subscription, isExpired])
+
+    const isB2CAppEnabled = useCallback((appId: string): boolean => {
+        if (!subscription || isExpired) return false
+        const plan = subscription.subscriptionPlan
+        if (!plan) return false
+        const disabledApps = plan.disabledB2CApps || []
+        return !disabledApps.includes(appId)
+    }, [subscription, isExpired])
     
     return {
         isFeatureAvailable,
+        isB2BAppEnabled,
+        isB2CAppEnabled,
         isExpired,
         subscription,
         tariff,

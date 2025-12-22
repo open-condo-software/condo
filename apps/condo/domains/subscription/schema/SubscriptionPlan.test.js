@@ -281,6 +281,140 @@ describe('SubscriptionPlan', () => {
         })
     })
 
+    describe('disabledB2BApps and disabledB2CApps field tests', () => {
+        test('disabledB2BApps defaults to empty array', async () => {
+            const [obj] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                isHidden: false,
+            })
+
+            expect(obj.disabledB2BApps).toEqual([])
+        })
+
+        test('disabledB2CApps defaults to empty array', async () => {
+            const [obj] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                isHidden: false,
+            })
+
+            expect(obj.disabledB2CApps).toEqual([])
+        })
+
+        test('can create plan with disabledB2BApps', async () => {
+            const appIds = [faker.datatype.uuid(), faker.datatype.uuid()]
+            const [obj] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                isHidden: false,
+                disabledB2BApps: appIds,
+            })
+
+            expect(obj.disabledB2BApps).toEqual(appIds)
+        })
+
+        test('can create plan with disabledB2CApps', async () => {
+            const appIds = [faker.datatype.uuid(), faker.datatype.uuid()]
+            const [obj] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                isHidden: false,
+                disabledB2CApps: appIds,
+            })
+
+            expect(obj.disabledB2CApps).toEqual(appIds)
+        })
+
+        test('can update disabledB2BApps', async () => {
+            const [objCreated] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                isHidden: false,
+            })
+
+            const appIds = [faker.datatype.uuid()]
+            const [obj] = await updateTestSubscriptionPlan(admin, objCreated.id, {
+                disabledB2BApps: appIds,
+            })
+
+            expect(obj.disabledB2BApps).toEqual(appIds)
+        })
+
+        test('can update disabledB2CApps', async () => {
+            const [objCreated] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                isHidden: false,
+            })
+
+            const appIds = [faker.datatype.uuid()]
+            const [obj] = await updateTestSubscriptionPlan(admin, objCreated.id, {
+                disabledB2CApps: appIds,
+            })
+
+            expect(obj.disabledB2CApps).toEqual(appIds)
+        })
+
+        test('cannot create plan with non-array disabledB2BApps', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionPlan(admin, {
+                    name: faker.commerce.productName(),
+                    organizationType: SERVICE_PROVIDER_TYPE,
+                    isHidden: false,
+                    disabledB2BApps: 'not-an-array',
+                })
+            }, ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, 'obj')
+        })
+
+        test('cannot create plan with non-array disabledB2CApps', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionPlan(admin, {
+                    name: faker.commerce.productName(),
+                    organizationType: SERVICE_PROVIDER_TYPE,
+                    isHidden: false,
+                    disabledB2CApps: { id: 'object' },
+                })
+            }, ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, 'obj')
+        })
+
+        test('cannot create plan with invalid UUID in disabledB2BApps', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionPlan(admin, {
+                    name: faker.commerce.productName(),
+                    organizationType: SERVICE_PROVIDER_TYPE,
+                    isHidden: false,
+                    disabledB2BApps: ['not-a-valid-uuid'],
+                })
+            }, ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, 'obj')
+        })
+
+        test('cannot create plan with invalid UUID in disabledB2CApps', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionPlan(admin, {
+                    name: faker.commerce.productName(),
+                    organizationType: SERVICE_PROVIDER_TYPE,
+                    isHidden: false,
+                    disabledB2CApps: [faker.datatype.uuid(), 'invalid'],
+                })
+            }, ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, 'obj')
+        })
+
+        test('cannot update plan with invalid disabledB2BApps', async () => {
+            const [objCreated] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                isHidden: false,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestSubscriptionPlan(admin, objCreated.id, {
+                    disabledB2BApps: [123],
+                })
+            }, ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, 'obj')
+        })
+    })
+
     describe('trialDays field tests', () => {
         test('trialDays defaults to 0', async () => {
             const [obj] = await createTestSubscriptionPlan(admin, {
