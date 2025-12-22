@@ -32,7 +32,12 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
         // Create test HTTP server for webhook endpoints
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
-        app.use(express.json())
+        app.use(express.json({
+            verify: (req, res, buf, encoding) => {
+                // Store raw body buffer for signature verification
+                req.rawBody = buf.toString(encoding || 'utf8')
+            },
+        }))
 
         app.post('/success', (req, res) => {
             SUCCESS_CALLS.push({ url: req.url, body: req.body, headers: req.headers })
@@ -108,9 +113,10 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
             // Store secret in closure so endpoint can access it
             app.post('/verify-signature', (req, res) => {
                 receivedSignature = req.headers['x-webhook-signature']
-                receivedBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body)
+                // Use raw body captured by express.json verify hook, fall back to stringified body
+                receivedBody = req.rawBody || (typeof req.body === 'string' ? req.body : JSON.stringify(req.body))
 
-                // Verify signature using the test secret
+                // Verify signature using the test secret and raw body bytes
                 const expectedSignature = crypto
                     // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
                     .createHmac('sha256', testSecret)
