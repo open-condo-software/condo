@@ -115,7 +115,7 @@ export const UserMessagesList: React.FC<UserMessagesListProps> = ({ disabled, Me
                 overlayClassName={!breakpoints.TABLET_LARGE && styles.userMessagesListMobileOverlay}
                 trigger={['hover']}
                 onOpenChange={setIsDropdownOpen}
-                placement='bottomCenter'
+                placement='bottomLeft'
                 disabled={disabled}
             >
                 <div>
