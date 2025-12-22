@@ -234,22 +234,16 @@ describe('PaymentStatusChangeWebhookUrl', () => {
             expect(item.url).toBe(uniqueUrl)
         })
 
-        test('should reject HTTP URLs (non-HTTPS)', async () => {
-            await expectToThrowGQLError(
-                async () => {
-                    await createTestPaymentStatusChangeWebhookUrl(adminClient, {
-                        url: 'http://insecure-webhook.com/callback',
-                    })
-                },
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'INVALID_URL',
-                },
-                'obj'
-            )
+        test('should allow HTTP URLs in test environment', async () => {
+            const uniqueUrl = `http://webhook-${faker.random.alphaNumeric(10)}.com/callback`
+            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                url: uniqueUrl,
+            })
+
+            expect(item.url).toBe(uniqueUrl)
         })
 
-        test('should allow HTTP for localhost (testing purposes)', async () => {
+        test('should allow HTTP for localhost in test environment', async () => {
             const port = faker.datatype.number({ min: 3000, max: 9999 })
             const path = faker.random.alphaNumeric(10)
             const url = `http://localhost:${port}/${path}`
@@ -261,7 +255,7 @@ describe('PaymentStatusChangeWebhookUrl', () => {
             expect(item.url).toBe(url)
         })
 
-        test('should allow HTTP for 127.0.0.1 (testing purposes)', async () => {
+        test('should allow HTTP for 127.0.0.1 in test environment', async () => {
             const port = faker.datatype.number({ min: 3000, max: 9999 })
             const path = faker.random.alphaNumeric(10)
             const url = `http://127.0.0.1:${port}/${path}`
@@ -281,20 +275,15 @@ describe('PaymentStatusChangeWebhookUrl', () => {
             }).rejects.toThrow()
         })
 
-        test('should reject http URL for localhost subdomain (not real localhost)', async () => {
+        test('should allow http URL for localhost subdomain in test environment', async () => {
             const uniqueSubdomain = faker.random.alphaNumeric(10)
-            await expectToThrowGQLError(
-                async () => {
-                    await createTestPaymentStatusChangeWebhookUrl(adminClient, {
-                        url: `http://localhost.${uniqueSubdomain}.evil.com/callback`,
-                    })
-                },
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'INVALID_URL',
-                },
-                'obj'
-            )
+            const url = `http://localhost.${uniqueSubdomain}.evil.com/callback`
+            
+            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                url,
+            })
+
+            expect(item.url).toBe(url)
         })
 
         test('should reject unsupported protocol', async () => {
@@ -311,6 +300,7 @@ describe('PaymentStatusChangeWebhookUrl', () => {
                 'obj'
             )
         })
+
     })
 
     describe('Unique constraint', () => {
