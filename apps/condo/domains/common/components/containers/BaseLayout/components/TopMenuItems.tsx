@@ -30,14 +30,14 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
             <Space direction='horizontal' size={40} className='top-menu-items'>
                 <SubscriptionDaysIndicator />
                 <UpgradePlanButton />
-                <div style={{ maxHeight: '24px' }}>
-                    <UserMessagesList disabled={!subscription} />
-                </div>
                 <Space size={12}>
                     <SBBOLIndicator organization={organization} />
                     <InlineOrganizationSelect />
                 </Space>
                 <UserMenu />
+                <div style={{ maxHeight: '24px' }}>
+                    <UserMessagesList disabled={!subscription} />
+                </div>
             </Space>
         </>
     )
