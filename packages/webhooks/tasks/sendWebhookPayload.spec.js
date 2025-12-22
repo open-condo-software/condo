@@ -109,20 +109,21 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
             app.post('/verify-signature', (req, res) => {
                 receivedSignature = req.headers['x-webhook-signature']
                 receivedBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body)
-                
+
                 // Verify signature using the test secret
                 const expectedSignature = crypto
+                    // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
                     .createHmac('sha256', testSecret)
                     .update(receivedBody)
                     .digest('hex')
                 signatureValid = receivedSignature === expectedSignature
-                
+
                 res.status(200).json({ verified: signatureValid })
             })
 
             const serverInfo = getTestExpressApp('webhookTestServer')
             const verifyUrl = `${serverInfo.baseUrl}/verify-signature`
-            
+
             const expiresAt = dayjs().add(7, 'day').toISOString()
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: verifyUrl,
@@ -145,6 +146,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
 
             // Manually verify the signature again to ensure correctness
             const manualSignature = crypto
+                // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
                 .createHmac('sha256', testSecret)
                 .update(receivedBody)
                 .digest('hex')
