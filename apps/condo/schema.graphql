@@ -88561,14 +88561,13 @@ type WebhookPayload {
   """
   _label_: String
 
-  """ Target URL for sending webhook """
+  """ Where to send the webhook """
   url: String
 
-  """ Ready-to-send JSON payload for the webhook. Encrypted at rest for security. 
-  """
+  """ JSON data to send. Stored encrypted in database. """
   payload: String
 
-  """ Secret key for HMAC-SHA256 signature generation. Encrypted at rest for security. 
+  """ Secret key for signing requests (HMAC). Stored encrypted in database. 
   """
   secret: String
 

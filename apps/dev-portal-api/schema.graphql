@@ -5407,7 +5407,7 @@ type WebhookPayloadHistoryRecord {
   secret: JSON
   eventType: String
   modelName: String
-  itemId: String
+  itemId: ID
   status: String
   attempt: Int
   lastHttpStatusCode: Int
@@ -5496,24 +5496,10 @@ input WebhookPayloadHistoryRecordWhereInput {
   modelName_not_ends_with_i: String
   modelName_in: [String]
   modelName_not_in: [String]
-  itemId: String
-  itemId_not: String
-  itemId_contains: String
-  itemId_not_contains: String
-  itemId_starts_with: String
-  itemId_not_starts_with: String
-  itemId_ends_with: String
-  itemId_not_ends_with: String
-  itemId_i: String
-  itemId_not_i: String
-  itemId_contains_i: String
-  itemId_not_contains_i: String
-  itemId_starts_with_i: String
-  itemId_not_starts_with_i: String
-  itemId_ends_with_i: String
-  itemId_not_ends_with_i: String
-  itemId_in: [String]
-  itemId_not_in: [String]
+  itemId: ID
+  itemId_not: ID
+  itemId_in: [ID]
+  itemId_not_in: [ID]
   status: String
   status_not: String
   status_contains: String
@@ -5739,7 +5725,7 @@ input WebhookPayloadHistoryRecordUpdateInput {
   secret: JSON
   eventType: String
   modelName: String
-  itemId: String
+  itemId: ID
   status: String
   attempt: Int
   lastHttpStatusCode: Int
@@ -5773,7 +5759,7 @@ input WebhookPayloadHistoryRecordCreateInput {
   secret: JSON
   eventType: String
   modelName: String
-  itemId: String
+  itemId: ID
   status: String
   attempt: Int
   lastHttpStatusCode: Int
@@ -5818,14 +5804,13 @@ type WebhookPayload {
   """
   _label_: String
 
-  """ Target URL for sending webhook """
+  """ Where to send the webhook """
   url: String
 
-  """ Ready-to-send JSON payload for the webhook. Encrypted at rest for security. 
-  """
+  """ JSON data to send. Stored encrypted in database. """
   payload: String
 
-  """ Secret key for HMAC-SHA256 signature generation. Encrypted at rest for security. 
+  """ Secret key for signing requests (HMAC). Stored encrypted in database. 
   """
   secret: String
 
@@ -5837,7 +5822,7 @@ type WebhookPayload {
   modelName: String
 
   """ ID of the record that triggered this webhook """
-  itemId: String
+  itemId: ID
 
   """ Sending status: pending (waiting to send/retry), success (sent successfully), failed (permanently failed after TTL expired) 
   """
@@ -5979,24 +5964,10 @@ input WebhookPayloadWhereInput {
   modelName_not_ends_with_i: String
   modelName_in: [String]
   modelName_not_in: [String]
-  itemId: String
-  itemId_not: String
-  itemId_contains: String
-  itemId_not_contains: String
-  itemId_starts_with: String
-  itemId_not_starts_with: String
-  itemId_ends_with: String
-  itemId_not_ends_with: String
-  itemId_i: String
-  itemId_not_i: String
-  itemId_contains_i: String
-  itemId_not_contains_i: String
-  itemId_starts_with_i: String
-  itemId_not_starts_with_i: String
-  itemId_ends_with_i: String
-  itemId_not_ends_with_i: String
-  itemId_in: [String]
-  itemId_not_in: [String]
+  itemId: ID
+  itemId_not: ID
+  itemId_in: [ID]
+  itemId_not_in: [ID]
   status: WebhookPayloadStatusType
   status_not: WebhookPayloadStatusType
   status_in: [WebhookPayloadStatusType]
@@ -6192,7 +6163,7 @@ input WebhookPayloadUpdateInput {
   secret: String
   eventType: String
   modelName: String
-  itemId: String
+  itemId: ID
   status: WebhookPayloadStatusType
   attempt: Int
   lastHttpStatusCode: Int
@@ -6223,7 +6194,7 @@ input WebhookPayloadCreateInput {
   secret: String
   eventType: String
   modelName: String
-  itemId: String
+  itemId: ID
   status: WebhookPayloadStatusType
   attempt: Int
   lastHttpStatusCode: Int
