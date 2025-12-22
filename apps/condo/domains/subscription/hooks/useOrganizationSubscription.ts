@@ -40,13 +40,7 @@ export const useOrganizationSubscription = () => {
             return null
         }
 
-        return {
-            id: orgSubscription.id,
-            subscriptionPlan: orgSubscription.subscriptionPlan,
-            startAt: orgSubscription.startAt,
-            endAt: orgSubscription.endAt,
-            isTrial: orgSubscription.isTrial,
-        }
+        return orgSubscription
     }, [organization])
 
     const isExpired = useMemo(() => {
