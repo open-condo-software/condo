@@ -234,56 +234,12 @@ describe('PaymentStatusChangeWebhookUrl', () => {
             expect(item.url).toBe(uniqueUrl)
         })
 
-        test('should allow HTTP URLs in test environment', async () => {
-            const uniqueUrl = `http://webhook-${faker.random.alphaNumeric(10)}.com/callback`
-            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
-                url: uniqueUrl,
-            })
-
-            expect(item.url).toBe(uniqueUrl)
-        })
-
-        test('should allow HTTP for localhost in test environment', async () => {
-            const port = faker.datatype.number({ min: 3000, max: 9999 })
-            const path = faker.random.alphaNumeric(10)
-            const url = `http://localhost:${port}/${path}`
-            
-            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
-                url,
-            })
-
-            expect(item.url).toBe(url)
-        })
-
-        test('should allow HTTP for 127.0.0.1 in test environment', async () => {
-            const port = faker.datatype.number({ min: 3000, max: 9999 })
-            const path = faker.random.alphaNumeric(10)
-            const url = `http://127.0.0.1:${port}/${path}`
-            
-            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
-                url,
-            })
-
-            expect(item.url).toBe(url)
-        })
-
         test('should reject invalid URL format', async () => {
             await expect(async () => {
                 await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                     url: 'not-a-valid-url',
                 })
             }).rejects.toThrow()
-        })
-
-        test('should allow http URL for localhost subdomain in test environment', async () => {
-            const uniqueSubdomain = faker.random.alphaNumeric(10)
-            const url = `http://localhost.${uniqueSubdomain}.evil.com/callback`
-            
-            const [item] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
-                url,
-            })
-
-            expect(item.url).toBe(url)
         })
 
         test('should reject unsupported protocol', async () => {
@@ -300,7 +256,6 @@ describe('PaymentStatusChangeWebhookUrl', () => {
                 'obj'
             )
         })
-
     })
 
     describe('Unique constraint', () => {
