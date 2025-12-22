@@ -35,6 +35,8 @@ export const DEFAULT_MAX_OLD_SPACE = {
     production: 768,
 }
 
+export type ENVS_TYPE = 'prod' | 'dev' | 'review'
+
 export const TITLE_TEXT = `
  ▗▄▄▖▗▄▄▖ ▗▄▄▄▖ ▗▄▖▗▄▄▄▖▗▄▄▄▖     ▗▄▄▖ ▗▄▖ ▗▖  ▗▖▗▄▄▄   ▗▄▖     ▗▖  ▗▖▗▄▄▄▖▗▖  ▗▖▗▄▄▄▖ ▗▄▖ ▗▄▄▖ ▗▄▄▖ 
 ▐▌   ▐▌ ▐▌▐▌   ▐▌ ▐▌ █  ▐▌       ▐▌   ▐▌ ▐▌▐▛▚▖▐▌▐▌  █ ▐▌ ▐▌    ▐▛▚▞▜▌  █  ▐▛▚▖▐▌  █  ▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌
