@@ -4,7 +4,15 @@ const { normalizeText } = require('./text')
 
 describe('normalizeText()', () => {
     test('empty text', () => {
-        expect(normalizeText('')).toBeUndefined()
+        expect(normalizeText('')).toEqual('')
+    })
+
+    test('not a text', () => {
+        expect(normalizeText(null)).toBeUndefined()
+        expect(normalizeText(undefined)).toBeUndefined()
+        expect(normalizeText(123)).toBeUndefined()
+        expect(normalizeText({})).toBeUndefined()
+        expect(normalizeText(new Date())).toBeUndefined()
     })
 
     test('returns normalized text as is', () => {

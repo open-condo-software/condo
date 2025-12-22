@@ -21,7 +21,8 @@ function getImmutableRanges (text) {
 }
 
 function normalizeText (text) {
-    if (!text) return
+    if (typeof text !== 'string') return 
+    if (text === '') return ''
     String(text).normalize()
 
     const immutableRanges = getImmutableRanges(text)
