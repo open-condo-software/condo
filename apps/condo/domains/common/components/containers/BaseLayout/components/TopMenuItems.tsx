@@ -28,8 +28,8 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
         <>
             {props.headerAction ? props.headerAction : null}
             <Space direction='horizontal' size={40} className='top-menu-items'>
-                <SubscriptionDaysIndicator />
                 <UpgradePlanButton />
+                <SubscriptionDaysIndicator />
                 <Space size={12}>
                     <SBBOLIndicator organization={organization} />
                     <InlineOrganizationSelect />

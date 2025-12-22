@@ -16,7 +16,6 @@ export const UpgradePlanButton: React.FC = () => {
     const { organization } = useOrganization()
     const { subscription, isExpired } = useOrganizationSubscription()
 
-    // Load available plans to check if there's a better plan
     const { data: plansData, loading: plansLoading } = useGetAvailableSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id },
@@ -26,31 +25,43 @@ export const UpgradePlanButton: React.FC = () => {
 
     const availablePlans = plansData?.result?.plans || []
 
-    // Check if current plan is basic or trial and there's a better plan available
-    const shouldShowUpgradeButton = useMemo(() => {
-        if (!subscription || isExpired || plansLoading) return false
-        
-        const currentPlanId = subscription.subscriptionPlan?.id
-        const currentPlan = availablePlans.find(p => p.plan.id === currentPlanId)
-        
-        if (!currentPlan) return false
-        
-        const currentPriority = currentPlan.plan.priority ?? 999
-        
-        // Check if there are plans with higher priority (lower number = higher priority)
-        const hasBetterPlan = availablePlans.some(p => {
-            const planPriority = p.plan.priority ?? 999
-            return planPriority < currentPriority
-        })
-        
-        return hasBetterPlan
+    const buttonConfig = useMemo(() => {
+        if (!subscription || isExpired || plansLoading) return null
+
+        const currentPlan = subscription.subscriptionPlan
+        const isTrial = subscription.isTrial
+        const currentPriority = currentPlan?.priority
+
+        if (isTrial && currentPlan?.canBePromoted) {
+            return {
+                textId: 'subscription.upgradePlan.payForPlan',
+                planName: currentPlan.name,
+            }
+        }
+
+        const betterPlan = availablePlans
+            .filter(p => {
+                if (!p.plan.canBePromoted) return false
+                if (currentPriority === undefined || currentPriority === null) return true
+                return p.plan.priority !== undefined && p.plan.priority !== null && p.plan.priority > currentPriority
+            })
+            .sort((a, b) => (b.plan.priority ?? 0) - (a.plan.priority ?? 0))[0]
+
+        if (betterPlan) {
+            return {
+                textId: 'subscription.upgradePlan.tryPlan',
+                planName: betterPlan.plan.name,
+            }
+        }
+
+        return null
     }, [subscription, isExpired, plansLoading, availablePlans])
 
     const handleUpgradeClick = () => {
         router.push('/settings?tab=subscription')
     }
 
-    if (!shouldShowUpgradeButton) return null
+    if (!buttonConfig) return null
 
     return (
         <Button
@@ -60,7 +71,7 @@ export const UpgradePlanButton: React.FC = () => {
             icon={<CrownOutlined />}
             onClick={handleUpgradeClick}
         >
-            {intl.formatMessage({ id: 'subscription.upgradePlan' })}
+            {intl.formatMessage({ id: buttonConfig.textId }, { planName: buttonConfig.planName })}
         </Button>
     )
 }
