@@ -9,8 +9,9 @@ const SERVICES_URLS = path.join(TEMPLATES_DIR, '000-services-urls.yaml')
 
 export async function updateServicesUrls (appName: string) {
     const content = await fs.readFile(SERVICES_URLS, 'utf8')
-    const upperUnderscoredAppName = appName.replace(/-/g, '_').toUpperCase()
-    const line = `${upperUnderscoredAppName}_DOMAIN: {{ ( printf "https://%s" $.Values.global.ci_${upperUnderscoredAppName}_url ) | b64enc }}`
+    const underscoredAppName = appName.replace(/-/g, '_')
+    const upperUnderscoredAppName = underscoredAppName.toUpperCase()
+    const line = `${upperUnderscoredAppName}_DOMAIN: {{ ( printf "https://%s" $.Values.global.ci_${underscoredAppName}_url ) | b64enc }}`
     const idx = content.lastIndexOf('{{- end')
     
     let out = ''
