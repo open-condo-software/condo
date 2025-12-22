@@ -9,6 +9,7 @@ import { createProject } from './helpers/createProject.js'
 import { installDependencies } from './helpers/installDependencies.js'
 import { logNextSteps } from './helpers/logNextSteps.js'
 import { replaceTextInFiles, setImportAlias } from './helpers/setImportAlias.js'
+import { addSubmoduleEntry } from './installers/git.js'
 import { setupHelm } from './installers/helm'
 import { prepareApp } from './installers/prepare.js'
 import { getUserPkgManager } from './utils/getUserPkgManager.js'
@@ -63,6 +64,8 @@ const main = async () => {
     } else {
         replaceTextInFiles(projectDir, '@app/~/', `@app/${scopedAppName}`)
     }
+
+    await addSubmoduleEntry(appName)
 
     if (!noInstall) {
         await installDependencies({ projectDir })
