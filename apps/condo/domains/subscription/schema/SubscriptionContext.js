@@ -4,34 +4,19 @@
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
+const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/SubscriptionContext')
-const { freezePricingRule } = require('@condo/domains/subscription/utils/subscriptionFridge')
 
 const ERRORS = {
     END_DATE_MUST_BE_AFTER_START_DATE: {
         code: BAD_USER_INPUT,
         type: 'END_DATE_MUST_BE_AFTER_START_DATE',
         message: 'endAt must be after startAt',
-    },
-    PRICING_RULE_REQUIRED_FOR_NON_TRIAL: {
-        code: BAD_USER_INPUT,
-        type: 'PRICING_RULE_REQUIRED_FOR_NON_TRIAL',
-        message: 'pricingRule is required for non-trial subscriptions',
-    },
-    PRICING_RULE_PLAN_MISMATCH: {
-        code: BAD_USER_INPUT,
-        type: 'PRICING_RULE_PLAN_MISMATCH',
-        message: 'pricingRule must belong to the same subscriptionPlan',
-    },
-    PRICING_RULE_NOT_ALLOWED_FOR_TRIAL: {
-        code: BAD_USER_INPUT,
-        type: 'PRICING_RULE_NOT_ALLOWED_FOR_TRIAL',
-        message: 'pricingRule cannot be specified for trial subscriptions',
     },
 }
 
@@ -81,12 +66,10 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        pricingRule: {
-            schemaDoc: 'Pricing rule that defines the subscription price. Required for non-trial subscriptions. Must belong to the same subscriptionPlan',
-            type: 'Relationship',
-            ref: 'SubscriptionPlanPricingRule',
+        basePrice: {
+            ...MONEY_AMOUNT_FIELD,
+            schemaDoc: 'Base price from the subscription plan (before any rules applied). Not required for trial subscriptions',
             isRequired: false,
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
             access: {
                 read: true,
                 create: true,
@@ -94,11 +77,22 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        frozenPricingRule: {
-            schemaDoc: 'Frozen snapshot of the pricing rule at the moment of subscription creation. Stored for audit purposes',
+        calculatedPrice: {
+            ...MONEY_AMOUNT_FIELD,
+            schemaDoc: 'Final calculated price after applying all pricing rules. Not required for trial subscriptions',
+            isRequired: false,
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
+        },
+
+        appliedRules: {
+            schemaDoc: 'JSON array of applied pricing rules with audit information',
             type: 'Json',
             isRequired: false,
-            defaultValue: null,
+            defaultValue: [],
             access: {
                 read: true,
                 create: false,
@@ -137,44 +131,13 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
 
     },
     hooks: {
-        validateInput: async ({ resolvedData, existingItem, operation, context }) => {
+        validateInput: async ({ resolvedData, existingItem, context }) => {
             const startAt = resolvedData.startAt || existingItem?.startAt
             const endAt = resolvedData.endAt || existingItem?.endAt
 
             if (startAt && endAt && new Date(startAt) >= new Date(endAt)) {
                 throw new GQLError(ERRORS.END_DATE_MUST_BE_AFTER_START_DATE, context)
             }
-
-            if (operation === 'create') {
-                const isTrial = resolvedData.isTrial
-                const pricingRuleId = resolvedData.pricingRule
-
-                // pricingRule is required for non-trial subscriptions
-                if (!isTrial && !pricingRuleId) {
-                    throw new GQLError(ERRORS.PRICING_RULE_REQUIRED_FOR_NON_TRIAL, context)
-                }
-
-                // pricingRule is not allowed for trial subscriptions
-                if (isTrial && pricingRuleId) {
-                    throw new GQLError(ERRORS.PRICING_RULE_NOT_ALLOWED_FOR_TRIAL, context)
-                }
-
-                // If pricingRule is provided, validate it belongs to the same plan
-                if (pricingRuleId) {
-                    const pricingRule = await getById('SubscriptionPlanPricingRule', pricingRuleId)
-                    const subscriptionPlanId = resolvedData.subscriptionPlan
-
-                    if (pricingRule.subscriptionPlan !== subscriptionPlanId) {
-                        throw new GQLError(ERRORS.PRICING_RULE_PLAN_MISMATCH, context)
-                    }
-                }
-            }
-        },
-        resolveInput: async ({ resolvedData, operation }) => {
-            if (operation === 'create' && resolvedData.pricingRule) {
-                resolvedData.frozenPricingRule = await freezePricingRule(resolvedData.pricingRule)
-            }
-            return resolvedData
         },
         afterChange: async ({ operation, updatedItem, context }) => {
             // Only delete pending requests when a non-trial subscription context is created

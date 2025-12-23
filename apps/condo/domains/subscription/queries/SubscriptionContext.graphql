@@ -22,14 +22,9 @@ query getSubscriptionContext($id: ID!) {
         }
         startAt
         endAt
-        pricingRule {
-            id
-            name
-            price
-            currencyCode
-            period
-        }
-        frozenPricingRule
+        basePrice
+        calculatedPrice
+        appliedRules
         isTrial
         daysRemaining
         dv
@@ -115,7 +110,20 @@ query getActiveSubscriptionContexts($organizationId: ID!, $now: String!) {
             trialDays
             priority
             canBePromoted
+            payments
+            meters
+            tickets
+            news
+            marketplace
+            support
+            ai
+            customization
+            disabledB2BApps
+            disabledB2CApps
         }
+        basePrice
+        calculatedPrice
+        appliedRules
         isTrial
         startAt
         endAt

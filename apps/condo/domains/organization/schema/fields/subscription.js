@@ -80,7 +80,18 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             return null
         }
 
-        return plan
+        return {
+            payments: plan.payments,
+            meters: plan.meters,
+            tickets: plan.tickets,
+            news: plan.news,
+            marketplace: plan.marketplace,
+            support: plan.support,
+            ai: plan.ai,
+            customization: plan.customization,
+            disabledB2BApps: plan.disabledB2BApps || [],
+            disabledB2CApps: plan.disabledB2CApps || [],
+        }
     },
 }
 
