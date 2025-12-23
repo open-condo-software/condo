@@ -630,8 +630,8 @@ Look for real-world usage patterns in the codebase:
 
 **Recommended approach:** Use CSS Modules for custom component styles, but keep styles minimal. Only add styles that cannot be achieved using `@open-condo/ui` components.
 
-```typescript
-// MyComponent.module.css
+```css
+/* MyComponent.module.css */
 .container {
     /* Only add styles not available in UI kit */
     display: grid;
@@ -639,7 +639,7 @@ Look for real-world usage patterns in the codebase:
     gap: 16px;
 }
 
-.customElement {
+.custom-element {
     /* Minimal custom styling */
     transform: rotate(45deg);
 }
@@ -667,6 +667,8 @@ export const MyComponent = () => {
     )
 }
 ```
+
+**Note:** CSS Modules automatically convert kebab-case class names (`.custom-element`) to camelCase properties (`styles.customElement`) for convenient access in TypeScript/JavaScript.
 
 **Key principles:**
 - Prefer UI kit components over custom CSS
