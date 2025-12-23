@@ -9,14 +9,13 @@ const access = require('@condo/domains/ticket/access/TicketObserver')
 
 
 const TicketObserver = new GQLListSchema('TicketObserver', {
-    // TODO(codegen): write doc for the TicketObserver domain model!
     schemaDoc: 'Employee/user who will be notified about the ticket',
     fields: {
 
         ticket: {
             schemaDoc: 'Link to ticket',
             type: 'Relationship',
-            ref: 'Ticket',
+            ref: 'Ticket.observers',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
@@ -31,8 +30,11 @@ const TicketObserver = new GQLListSchema('TicketObserver', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
-        // Нужна ссылка на OrganizationEmployee?
-
+    },
+    hooks: {
+        afterChange: () => {
+            // 1. When do I need to create a TicketChange and when not?
+        },
     },
     kmigratorOptions: {
         constraints: [

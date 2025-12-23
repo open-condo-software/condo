@@ -2,6 +2,7 @@ import {
     useGetTicketSourcesQuery,
     useGetPropertyByIdQuery,
     useGetInvoicesByIdsQuery,
+    CreateTicketMutation,
 } from '@app/condo/gql'
 import {
     BuildingUnitSubType,
@@ -703,10 +704,10 @@ const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px',
 export interface ITicketFormProps {
     organization?: Pick<Organization, 'id'>
     initialValues?: ITicketFormState
-    action?: (...args) => Promise<Ticket>
+    action?: (...args) => Promise<CreateTicketMutation['ticket']>
     files?: TicketFileType[]
-    afterActionCompleted?: (ticket: Ticket) => void
-    OnCompletedMsg?: OnCompletedMsgType<Ticket>
+    afterActionCompleted?: (ticket: CreateTicketMutation['ticket']) => void
+    OnCompletedMsg?: OnCompletedMsgType<CreateTicketMutation['ticket']>
     autoAssign?: boolean
     isExisted?: boolean
     children: React.ReactNode | IFormWithActionChildren
@@ -830,6 +831,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
         // NOTE: update queries, related to objects, which may be created in ticket form
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTickets' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketObservers' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allTicketsMeta' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketChanges' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketFiles' })

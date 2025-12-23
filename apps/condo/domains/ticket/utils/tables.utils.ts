@@ -174,7 +174,7 @@ export const getTicketTypeFilter = (userId) => {
         if (isEmpty(option)) return
 
         if (option === 'own') {
-            return { OR: [{ executor: { id: userId }, assignee: { id: userId } }] }
+            return { OR: [{ executor: { id: userId }, assignee: { id: userId }, observers_some: { user: { id: userId } } }] }
         }
 
         if (option === 'favorite') {

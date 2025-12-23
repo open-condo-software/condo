@@ -40,6 +40,7 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
         payload.actualCreationDate = dayjs(newItem.statusUpdatedAt).toISOString()
     }
 
+
     await TicketChange.create(
         context.createContext({ skipAccessControl: true }),
         payload,
@@ -238,8 +239,13 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
  * }
  */
 const relatedManyToManyResolvers = {
+    // NOTE: No need to implement resolver for observers, 
+    // NOTE: Because they are stored in SyncTicketObserversService schema
     'observers': async (args) => {
-        return resolveManyToManyField('observers', 'User', 'name', args)
+        return {
+            existing: { ids: [] },
+            updated: { ids: [] },
+        }
     },
 }
 

@@ -99,6 +99,7 @@ const BASE_TICKET_CHANGE_FIELDS: Array<TicketChangeFieldDefinition> = [
     { field: 'qualityControlValue', messageId: 'pages.condo.ticket.TicketChanges.qualityControlValue' },
     { field: 'qualityControlAdditionalOptions', messageId: 'pages.condo.ticket.TicketChanges.qualityControlAdditionalOptions' },
     { field: 'qualityControlComment', messageId: 'pages.condo.ticket.TicketChanges.qualityControlComment', customMessages: { add: 'pages.condo.ticket.TicketChanges.qualityControlComment.add' } },
+    { field: 'observersDisplayNames', messageId: 'pages.condo.ticket.TicketChanges.observers', customMessages: { add: 'pages.condo.ticket.TicketChanges.observers.add', remove: 'pages.condo.ticket.TicketChanges.observers.remove' } },
 ]
 
 const PRIORITY_FIELDS = ['statusReopenedCounter']
@@ -202,6 +203,8 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
 
         return [field, message]
     })
+
+    console.log('!useTicketChangedFieldMessagesOf - fields', fields)
 
     const BooleanToString = {
         canReadByResident: {
@@ -341,6 +344,11 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
     }
 
     const formatDiffMessage = (field, message, ticketChange, customMessages: ITicketChangeFieldMessages = {}) => {
+        console.log('!formatDiffMessage - field', field)
+        console.log('!formatDiffMessage - message', message)
+        console.log('!formatDiffMessage - ticketChange', ticketChange)
+        console.log('!formatDiffMessage - customMessages', customMessages)
+
         if (typeof ticketChange[`${field}To`] === 'boolean') {
             const valueTo = BooleanToString[field][ticketChange[`${field}To`]]
             const formattedValueTo = formatField(field, valueTo, TicketChangeFieldMessageType.To)
@@ -369,6 +377,9 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
             from: formattedValueFrom,
             to: formattedValueTo,
         }
+
+        console.log('!formatDiffMessage - values', values)
+
 
         if (isAutoCloseTicketChanges(ticketChange)) {
             return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoCloseTicket' }, { status: formattedValueTo })

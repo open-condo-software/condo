@@ -70,6 +70,7 @@ const filterAddressForSearch = getFilterAddressForSearch('propertyAddress', null
 const filterClientName = getClientNameFilter()
 const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
+const filterObserver = getFilter(['observers_some', 'user', 'id_in'], 'array', 'string')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
 const filterIsResidentContact = getIsResidentContactFilter()
@@ -159,6 +160,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const OnlyUnansweredComments = intl.formatMessage({ id: 'pages.condo.ticket.filters.OnlyUnansweredComments' })
     const OnlyUnansweredCommentsTooltipHelp = intl.formatMessage({ id: 'pages.condo.ticket.filters.OnlyUnansweredCommentsTooltipHelp' })
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const ObserverMessage = intl.formatMessage({ id: 'field.Observer' })
     const SelectMessage = intl.formatMessage({ id: 'Select' })
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
@@ -715,6 +717,23 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     },
                     modalFilterComponentWrapper: {
                         label: AssigneeMessage,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'observer',
+                filters: [filterObserver],
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: searchEmployeeUser(userOrganizationId),
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: EnterFullNameMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: ObserverMessage,
                         size: FilterComponentSize.Small,
                     },
                 },
