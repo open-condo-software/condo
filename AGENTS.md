@@ -279,8 +279,10 @@ yarn lint:deps
 ```
 
 ### Static Analysis
+
+**Run Semgrep SAST analysis:**
 ```bash
-# Run Semgrep SAST analysis (runs on CI)
+# Run analysis (runs on CI)
 yarn analysis
 
 # Analyze specific directory
@@ -292,6 +294,71 @@ yarn analysis -d apps/condo
 brew install semgrep
 # or
 python3 -m pip install semgrep
+```
+
+**Semgrep Rules:** The project uses multiple security rulesets including `p/default`, `p/security-audit`, `p/owasp-top-ten`, `p/secrets`, `p/sql-injection`, and others.
+
+### Semgrep Exclusions
+
+When Semgrep flags code that is intentionally safe but triggers a rule, use `// nosemgrep:` comments to suppress false positives. **Always include a comment explaining why the code is safe.**
+
+**Format:**
+```javascript
+// [Explanation why this is safe]
+// nosemgrep: rule-id
+const result = potentiallyFlaggedCode()
+```
+
+**Common use cases:**
+
+**1. Path traversal in template/config paths:**
+```javascript
+// templatePath is a configured template path - not a user input
+// all results of export file generation will be accessible only for authorized end users
+// nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+const fileContent = await render(path.resolve(templatePath), replaces)
+```
+
+**2. HTTP server in tests:**
+```javascript
+// tests express for a fake gql client
+// nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+__expressServer = http.createServer(__expressApp).listen(0)
+```
+
+**3. Disabled TLS in test environment:**
+```javascript
+// test apollo client with disabled tls
+// nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
+const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
+```
+
+**4. Dynamic RegExp from controlled input:**
+```javascript
+// Not a ReDoS case. We generate a specific RE from controlled input
+// nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+return new RegExp((sol ? '^' : '') + regexString + (eol ? '$' : ''))
+```
+
+**5. Unsafe format string in logging:**
+```javascript
+// Safe logging in test environment with controlled input
+// nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
+console.error(`[catchError !!!]${testName}:`, thrownError)
+```
+
+**Best practices:**
+- **Always explain why** the flagged code is safe before the `nosemgrep` comment
+- Use the **full rule ID** from Semgrep output
+- Only suppress **false positives** - never ignore real security issues
+- Keep explanations **concise but clear**
+- Review suppressions during code review
+
+**Finding rule IDs:**
+Run Semgrep to see the rule ID in the output:
+```bash
+yarn analysis
+# Output will show: rule-id: javascript.lang.security.audit.path-traversal...
 ```
 
 ## Commit Message Convention
