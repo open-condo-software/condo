@@ -5,6 +5,8 @@ import React, { useMemo, useCallback } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Button, Space } from '@open-condo/ui'
 
+import { Loader } from '@condo/domains/common/components/Loader'
+
 import styles from './SubscriptionAccessGuard.module.css'
 import { SubscriptionTrialEndedModal } from './SubscriptionTrialEndedModal'
 import { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
@@ -12,7 +14,6 @@ import { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
 import { PageHeader, PageWrapper } from '../../common/components/containers/BaseLayout'
 import { requiresSubscriptionAccess, getRequiredFeature } from '../constants/routeFeatureMapping'
 import { useOrganizationSubscription } from '../hooks'
-
 
 const { Title, Paragraph } = Typography
 
@@ -52,7 +53,7 @@ const getPageTitle = (pathname: string, intl: any): string => {
 export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = ({ children }) => {
     const router = useRouter()
     const intl = useIntl()
-    const { isFeatureAvailable, loading } = useOrganizationSubscription()
+    const { isFeatureAvailable, hasSubscription, loading } = useOrganizationSubscription()
 
     const pageTitle = useMemo(() => {
         return getPageTitle(router.pathname, intl)
@@ -60,25 +61,21 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
 
     const isBlocked = useMemo(() => {
         const currentPath = router.pathname
-
-        // Skip check if route doesn't require subscription
         if (!requiresSubscriptionAccess(currentPath)) {
             return false
         }
-        
-        // Skip check if subscription data is still loading
-        if (loading) {
-            return false
+
+        if (loading || !hasSubscription) {
+            return true
         }
-        
-        // Check if specific feature is required
+
         const requiredFeature = getRequiredFeature(currentPath)
         if (requiredFeature && !isFeatureAvailable(requiredFeature)) {
             return true
         }
 
         return false
-    }, [router.pathname, isFeatureAvailable, loading])
+    }, [router.pathname, loading, hasSubscription, isFeatureAvailable])
 
     const handleGoToPlans = useCallback(() => {
         router.push('/settings?tab=subscription')
@@ -88,6 +85,10 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         // TODO: Replace with actual external link
         window.open('https://doma.ai/features', '_blank')
     }, [])
+
+    if (loading) {
+        return <Loader />
+    }
 
     if (isBlocked) {
         return (

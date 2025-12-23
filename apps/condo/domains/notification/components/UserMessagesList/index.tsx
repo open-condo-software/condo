@@ -119,7 +119,10 @@ export const UserMessagesList: React.FC<UserMessagesListProps> = ({ disabled, Me
                 disabled={disabled}
             >
                 <div>
-                    <MessagesCounter count={unreadMessages?.length}/>
+                    <MessagesCounter 
+                        count={unreadMessages?.length}
+                        disabled={disabled}
+                    />
                 </div>
             </Dropdown>
             <UserMessagesSettingsModal
