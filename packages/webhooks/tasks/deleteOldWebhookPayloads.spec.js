@@ -1,8 +1,9 @@
 const dayjs = require('dayjs')
 
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const { WEBHOOK_PAYLOAD_RETENTION_DAYS } = require('@open-condo/webhooks/constants')
-const { WebhookPayload, createTestWebhookPayload } = require('@open-condo/webhooks/schema/utils/testSchema')
+const { WebhookPayload, createTestWebhookPayload, softDeleteTestWebhookPayload } = require('@open-condo/webhooks/schema/utils/testSchema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPath) => {
@@ -12,24 +13,20 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
 
         let deleteOldWebhookPayloads
         let actors
+        let knex
 
         beforeAll(async () => {
             actors = await actorsInitializer()
             const tasks = getWebhookTasks()
             deleteOldWebhookPayloads = tasks['deleteOldWebhookPayloads']
-        })
-
-        afterEach(() => {
-            jest.useRealTimers()
+            const { keystone } = getSchemaCtx('WebhookPayload')
+            knex = keystone.adapter.knex
         })
 
         it('Must hard delete old webhook payloads from database', async () => {
-            const now = dayjs()
-            const oldPayloadsCreatedAt = now.subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day')
-            const recentPayloadCreatedAt = now.subtract(1, 'day')
+            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day').toISOString()
+            const recentDate = dayjs().subtract(1, 'day').toISOString()
 
-            jest.useFakeTimers()
-            jest.setSystemTime(oldPayloadsCreatedAt.toDate())
             const [oldPayload1] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/old1',
                 status: 'success',
@@ -38,14 +35,14 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
                 url: 'http://example.com/old2',
                 status: 'failed',
             })
-
-            jest.setSystemTime(recentPayloadCreatedAt.toDate())
             const [recentPayload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/recent',
                 status: 'success',
             })
 
-            jest.setSystemTime(now.toDate())
+            await knex('WebhookPayload').where({ id: oldPayload1.id }).update({ updatedAt: oldDate })
+            await knex('WebhookPayload').where({ id: oldPayload2.id }).update({ updatedAt: oldDate })
+            await knex('WebhookPayload').where({ id: recentPayload.id }).update({ updatedAt: recentDate })
 
             const result = await deleteOldWebhookPayloads.delay.fn()
 
@@ -62,17 +59,14 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
         })
 
         it('Must not delete payloads within retention period', async () => {
-            const now = dayjs()
-            const withinRetentionCreatedAt = now.subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS - 1, 'day')
+            const withinRetentionDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS - 1, 'day').toISOString()
 
-            jest.useFakeTimers()
-            jest.setSystemTime(withinRetentionCreatedAt.toDate())
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/within-retention',
                 status: 'success',
             })
 
-            jest.setSystemTime(now.toDate())
+            await knex('WebhookPayload').where({ id: payload.id }).update({ updatedAt: withinRetentionDate })
 
             await deleteOldWebhookPayloads.delay.fn()
 
@@ -83,17 +77,14 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
         })
 
         it('Must delete payloads exactly at retention boundary', async () => {
-            const now = dayjs()
-            const boundaryCreatedAt = now.subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS, 'day').subtract(1, 'second')
+            const boundaryDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS, 'day').subtract(1, 'second').toISOString()
 
-            jest.useFakeTimers()
-            jest.setSystemTime(boundaryCreatedAt.toDate())
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/boundary',
                 status: 'success',
             })
 
-            jest.setSystemTime(now.toDate())
+            await knex('WebhookPayload').where({ id: payload.id }).update({ updatedAt: boundaryDate })
 
             const result = await deleteOldWebhookPayloads.delay.fn()
 
@@ -112,21 +103,17 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
         })
 
         it('Must delete payloads in batches when count exceeds batch size', async () => {
-            const now = dayjs()
-            const oldCreatedAt = now.subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day')
+            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day').toISOString()
             const payloadIds = []
 
-            jest.useFakeTimers()
-            jest.setSystemTime(oldCreatedAt.toDate())
             for (let i = 0; i < 5; i++) {
                 const [payload] = await createTestWebhookPayload(actors.admin, {
                     url: `http://example.com/batch-${i}`,
                     status: 'success',
                 })
+                await knex('WebhookPayload').where({ id: payload.id }).update({ updatedAt: oldDate })
                 payloadIds.push(payload.id)
             }
-
-            jest.setSystemTime(now.toDate())
 
             const result = await deleteOldWebhookPayloads.delay.fn()
 
@@ -139,11 +126,8 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
         })
 
         it('Must delete payloads regardless of status', async () => {
-            const now = dayjs()
-            const oldCreatedAt = now.subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day')
+            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day').toISOString()
 
-            jest.useFakeTimers()
-            jest.setSystemTime(oldCreatedAt.toDate())
             const [pendingPayload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/pending',
                 status: 'pending',
@@ -157,7 +141,9 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
                 status: 'failed',
             })
 
-            jest.setSystemTime(now.toDate())
+            await knex('WebhookPayload').where({ id: pendingPayload.id }).update({ updatedAt: oldDate })
+            await knex('WebhookPayload').where({ id: successPayload.id }).update({ updatedAt: oldDate })
+            await knex('WebhookPayload').where({ id: failedPayload.id }).update({ updatedAt: oldDate })
 
             const result = await deleteOldWebhookPayloads.delay.fn()
 
@@ -173,19 +159,16 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
         })
 
         it('Must delete soft-deleted payloads if they are old enough', async () => {
-            const now = dayjs()
-            const oldCreatedAt = now.subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day')
+            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day').toISOString()
 
-            jest.useFakeTimers()
-            jest.setSystemTime(oldCreatedAt.toDate())
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/soft-deleted',
                 status: 'success',
             })
 
-            await actors.admin.softDelete(payload.id)
+            await softDeleteTestWebhookPayload(actors.admin, payload.id)
 
-            jest.setSystemTime(now.toDate())
+            await knex('WebhookPayload').where({ id: payload.id }).update({ updatedAt: oldDate })
 
             const result = await deleteOldWebhookPayloads.delay.fn()
 
