@@ -38,7 +38,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const { minified } = props
     const { organization, employee } = useOrganization()
     const organizationId = organization?.id
-    const { subscription } = useOrganizationSubscription()
+    const { hasSubscription } = useOrganizationSubscription()
 
     const { ticketFilterQuery } = useTicketVisibility()
 
@@ -117,7 +117,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
                 trigger={trigger}
                 open={dropdownVisible}
                 onOpenChange={setDropdownVisible}
-                disabled={!subscription}
+                disabled={!hasSubscription}
             >
                 <Button type='accent' className={styles.accentButton} block icon={<Plus size={iconSize}/>}>
                     {!minified && ResidentAppealMessage}
