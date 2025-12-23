@@ -21,7 +21,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'DISABLED_APPS_MUST_BE_ARRAY_OF_IDS',
         message: 'disabledB2BApps and disabledB2CApps must be arrays of valid UUIDs',
-        messageForUser: 'disabledB2BApps and disabledB2CApps must be arrays of valid UUIDs',
     },
 }
 
