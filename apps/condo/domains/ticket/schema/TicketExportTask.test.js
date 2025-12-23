@@ -23,7 +23,8 @@ const {
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask, TicketStatus, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('TicketExportTask', () => {
     describe('validations', () => {
@@ -250,6 +251,31 @@ describe('TicketExportTask', () => {
             expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
+        })
+
+        it('can be created by support', async () => {
+            const supportClient = await makeClientWithSupportUser()
+
+            const [obj, attrs] = await createTestTicketExportTask(supportClient, supportClient.user)
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
+            expect(obj.createdAt).toMatch(DATETIME_RE)
+            expect(obj.updatedAt).toMatch(DATETIME_RE)
+        })
+
+        it('cannot be created by support with other user', async () => {
+            const supportClient = await makeClientWithSupportUser()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestTicketExportTask(supportClient, userClient.user)
+            })
         })
     })
 
