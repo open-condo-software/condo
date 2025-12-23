@@ -36,6 +36,11 @@ const WebhookPayload = new GQLListSchema('WebhookPayload', {
             type: 'EncryptedText',
             encryptionManager,
             isRequired: true,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
         },
 
         secret: {
@@ -43,6 +48,11 @@ const WebhookPayload = new GQLListSchema('WebhookPayload', {
             type: 'EncryptedText',
             encryptionManager,
             isRequired: true,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
         },
 
         eventType: {

@@ -3,6 +3,7 @@ const dayjs = require('dayjs')
 
 const {
     UUID_RE,
+    catchErrorFrom,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
@@ -204,6 +205,34 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
                         await updateTestWebhookPayload(actors.user, webhookPayload.id, {
                             status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
                         })
+                    })
+                })
+
+                test('admin: cannot update payload field (read-only)', async () => {
+                    const [webhookPayload] = await createTestWebhookPayload(actors.admin)
+                    const newPayload = JSON.stringify({ event: 'new.event', data: { test: true } })
+
+                    // Field with update: false is excluded from UpdateInput type, causing GraphQL validation error
+                    await catchErrorFrom(async () => {
+                        await updateTestWebhookPayload(actors.admin, webhookPayload.id, {
+                            payload: newPayload,
+                        })
+                    }, (caught) => {
+                        expect(caught.errors[0].message).toContain('Field "payload" is not defined by type "WebhookPayloadUpdateInput"')
+                    })
+                })
+
+                test('admin: cannot update secret field (read-only)', async () => {
+                    const [webhookPayload] = await createTestWebhookPayload(actors.admin)
+                    const newSecret = faker.datatype.uuid()
+
+                    // Field with update: false is excluded from UpdateInput type, causing GraphQL validation error
+                    await catchErrorFrom(async () => {
+                        await updateTestWebhookPayload(actors.admin, webhookPayload.id, {
+                            secret: newSecret,
+                        })
+                    }, (caught) => {
+                        expect(caught.errors[0].message).toContain('Field "secret" is not defined by type "WebhookPayloadUpdateInput"')
                     })
                 })
             })
