@@ -44,7 +44,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
 
     const { isAuthenticated } = useAuth()
     const { organization } = useOrganization()
-    const { subscription } = useOrganizationSubscription()
+    const { hasSubscription } = useOrganizationSubscription()
 
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
     const organizationIdsToFilterMessages = useMemo(() => [organization?.id], [organization?.id])
@@ -77,7 +77,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     }, [isAuthenticated, router])
 
     return (
-        <UserMessagesListContextProvider disabled={!subscription} organizationIdsToFilter={organizationIdsToFilterMessages}>
+        <UserMessagesListContextProvider disabled={!hasSubscription} organizationIdsToFilter={organizationIdsToFilterMessages}>
             {ChooseEmployeeRoleModal}
             {
                 isMobileView ?
@@ -85,7 +85,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                         <div id='tasks-container' className='tasks-container' />
                         <Layout.Header className='header mobile-header'>
                             <div className='context-bar'>
-                                <UserMessagesList disabled={!!subscription} />
+                                <UserMessagesList disabled={!hasSubscription} />
                                 <div className='organization-user-block'>
                                     <Space direction='horizontal' size={4}>
                                         <SBBOLIndicator organization={organization} />

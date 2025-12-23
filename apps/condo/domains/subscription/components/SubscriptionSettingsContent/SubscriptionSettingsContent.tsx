@@ -12,6 +12,7 @@ import { SubscriptionPlanCard } from './SubscriptionPlanCard/SubscriptionPlanCar
 import styles from './SubscriptionSettingsContent.module.css'
 
 import { Loader } from '../../../common/components/Loader'
+import { useOrganizationSubscription } from '../../hooks/useOrganizationSubscription'
 
 
 type PlanPeriod = 'month' | 'year' // TODO: do as type from SubscriptionPlanPricingRule
@@ -20,6 +21,7 @@ type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plan
 export const SubscriptionSettingsContent: React.FC = () => {
     const intl = useIntl()
     const { organization, employee, selectEmployee } = useOrganization()
+    const { refetchSubscriptionContexts } = useOrganizationSubscription()
 
     const [planPeriod, setPlanPeriod] = useState<PlanPeriod>('year')
 
@@ -87,6 +89,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
             if (isTrial) {
                 await refetchTrialSubscriptions()
                 await refetchPendingRequests()
+                await refetchSubscriptionContexts()
                 // Refetch organization data to update subscription state across the app
                 if (employee?.id) {
                     await selectEmployee(employee.id)

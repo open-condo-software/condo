@@ -8,7 +8,7 @@ import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 export const SubscriptionDaysIndicator: React.FC = () => {
     const intl = useIntl()
-    const { subscriptionContext, isExpired } = useOrganizationSubscription()
+    const { subscriptionContext } = useOrganizationSubscription()
 
     const isTrial = subscriptionContext?.isTrial
     const daysRemaining = subscriptionContext?.daysRemaining
@@ -19,7 +19,7 @@ export const SubscriptionDaysIndicator: React.FC = () => {
     // 1. Trial: show when 30 days or less remain
     // 2. Paid: show when 7 days or less remain
     const shouldShow = useMemo(() => {
-        if (!subscriptionContext || isExpired || daysRemaining === undefined || daysRemaining === null) return false
+        if (!subscriptionContext || daysRemaining === undefined || daysRemaining === null) return false
         
         // Show when 30 or fewer days remain for trial
         if (isTrial && daysRemaining <= 30 && daysRemaining >= 0) {
@@ -32,7 +32,7 @@ export const SubscriptionDaysIndicator: React.FC = () => {
         }
         
         return false
-    }, [subscriptionContext, isExpired, isTrial, daysRemaining])
+    }, [subscriptionContext, isTrial, daysRemaining])
 
     // Calculate progress percentage
     const progressPercent = useMemo(() => {
