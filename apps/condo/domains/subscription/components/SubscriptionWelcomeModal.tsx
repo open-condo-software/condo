@@ -26,16 +26,18 @@ const STORAGE_KEY_PREFIX = 'subscription_welcome_modal_shown_'
  * Hook that returns modal content based on subscription state
  * Returns null if no modal should be shown
  */
-const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
+const useSubscriptionWelcomeModalContent = (): { content: ModalContent | null, loading: boolean } => {
     const intl = useIntl()
-    const { organization } = useOrganization()
-    const { subscriptionContext } = useOrganizationSubscription()
+    const { organization, isLoading: organizationLoading } = useOrganization()
+    const { subscriptionContext, loading: subscriptionLoading } = useOrganizationSubscription()
     const { useFlagValue } = useFeatureFlags()
     
     const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
     const defaultTrialPlanId = useFlagValue(DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID)
 
-    return useMemo(() => {
+    const loading = organizationLoading || subscriptionLoading
+
+    const content = useMemo(() => {
         if (!organization || !subscriptionContext) {
             return null
         }
@@ -48,7 +50,6 @@ const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
         const isActiveBankingPlan = activeBankingPlanId && planId === activeBankingPlanId
         const isDefaultTrialPlan = defaultTrialPlanId && planId === defaultTrialPlanId
 
-        // 1. Не триальный контекст с endAt (оплаченная подписка)
         if (!subscriptionContext.isTrial && subscriptionContext.endAt) {
             return {
                 title: intl.formatMessage({ id: 'subscription.welcomeModal.paidPlan.title' }),
@@ -60,7 +61,6 @@ const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
             }
         }
 
-        // 2. Триал, но план не из фичафлагов (не banking и не default trial)
         if (subscriptionContext.isTrial && !isActiveBankingPlan && !isDefaultTrialPlan) {
             return {
                 title: intl.formatMessage({ id: 'subscription.welcomeModal.trialAllFeatures.title' }),
@@ -72,7 +72,6 @@ const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
             }
         }
 
-        // 3. Клиент Сбера с бессрочным доступом (endAt null + active_banking + activeBankingPlanId)
         if (!subscriptionContext.endAt && !subscriptionContext.isTrial && hasActiveBanking && isActiveBankingPlan) {
             return {
                 title: intl.formatMessage({ id: 'subscription.welcomeModal.sberClient.title' }),
@@ -84,7 +83,6 @@ const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
             }
         }
 
-        // 4. Триал на default trial план (показываем только если есть фичафлаг)
         if (subscriptionContext.isTrial && isDefaultTrialPlan) {
             return {
                 title: intl.formatMessage({ id: 'subscription.welcomeModal.trialBasic.title' }),
@@ -98,6 +96,8 @@ const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
 
         return null
     }, [organization, subscriptionContext, intl, activeBankingPlanId, defaultTrialPlanId])
+
+    return { content, loading }
 }
 
 /**
@@ -107,7 +107,7 @@ const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
 export const SubscriptionWelcomeModal: React.FC = () => {
     const router = useRouter()
     const { organization } = useOrganization()
-    const content = useSubscriptionWelcomeModalContent()
+    const { content, loading } = useSubscriptionWelcomeModalContent()
     const [isVisible, setIsVisible] = useState(false)
 
     const organizationId = organization?.id
@@ -121,7 +121,7 @@ export const SubscriptionWelcomeModal: React.FC = () => {
     }, [organizationId])
 
     useEffect(() => {
-        if (!organizationId) {
+        if (!organizationId || loading) {
             return
         }
 
@@ -138,7 +138,7 @@ export const SubscriptionWelcomeModal: React.FC = () => {
         if (content) {
             setIsVisible(true)
         }
-    }, [organizationId, content, markAsSeen])
+    }, [organizationId, content, loading, markAsSeen])
 
     const handleClose = useCallback(() => {
         setIsVisible(false)
