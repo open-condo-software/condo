@@ -39,28 +39,13 @@ export interface SubscriptionContext {
 
 /**
  * Hook to get subscription features and context for the current organization.
- * - Features come from organization.subscription field (no extra query)
- * - Context is fetched via GraphQL query for components that need full context data
  */
 export const useOrganizationSubscription = () => {
     const { organization, isLoading: orgLoading } = useOrganization()
+    const subscriptionFeatures = useMemo<SubscriptionFeatures | null>(() => organization?.subscription, [organization])
 
-    // Get subscription features from organization.subscription field
-    const subscriptionFeatures = useMemo<SubscriptionFeatures | null>(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const features = (organization as any)?.subscription
-        
-        if (!features) {
-            return null
-        }
-
-        return features
-    }, [organization])
-
-    // Fetch subscription contexts for components that need full context data
     const now = useMemo(() => new Date().toISOString(), [])
-
-    const { data, loading: contextsLoading } = useGetActiveSubscriptionContextsQuery({
+    const { data, loading: contextsLoading, refetch: refetchSubscriptionContexts } = useGetActiveSubscriptionContextsQuery({
         variables: {
             organizationId: organization?.id || '',
             now,
@@ -76,18 +61,11 @@ export const useOrganizationSubscription = () => {
         return selectBestSubscriptionContext(activeContexts) as SubscriptionContext | null
     }, [activeContexts])
 
-    const isExpired = useMemo(() => {
-        if (!subscriptionContext || !subscriptionContext.endAt) return false
-        return new Date(subscriptionContext.endAt) < new Date()
-    }, [subscriptionContext])
-
     const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
-        // If no subscription features, block all features
         if (!subscriptionFeatures) {
             return false
         }
         
-        // Map feature keys to subscription fields
         switch (feature) {
             case 'payments':
                 return subscriptionFeatures.payments === true
@@ -117,10 +95,11 @@ export const useOrganizationSubscription = () => {
     }, [subscriptionFeatures])
 
     return {
+        hasSubscription: !!subscriptionFeatures,
         isFeatureAvailable,
         isB2BAppEnabled,
         subscriptionContext,
-        isExpired,
         loading: orgLoading || contextsLoading,
+        refetchSubscriptionContexts,
     }
 }

@@ -20,7 +20,7 @@ export interface ITopMenuItemsProps {
 export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const auth = useAuth()
     const { organization } = useOrganization()
-    const { subscription } = useOrganizationSubscription()
+    const { hasSubscription } = useOrganizationSubscription()
 
     if (auth.isLoading) return null
 
@@ -36,7 +36,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                 </Space>
                 <UserMenu />
                 <div style={{ maxHeight: '24px' }}>
-                    <UserMessagesList disabled={!subscription} />
+                    <UserMessagesList disabled={!hasSubscription} />
                 </div>
             </Space>
         </>
