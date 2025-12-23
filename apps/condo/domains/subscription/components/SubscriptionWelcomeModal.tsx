@@ -29,27 +29,27 @@ const STORAGE_KEY_PREFIX = 'subscription_welcome_modal_shown_'
 const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
     const intl = useIntl()
     const { organization } = useOrganization()
-    const { subscription } = useOrganizationSubscription()
+    const { subscriptionContext } = useOrganizationSubscription()
     const { useFlagValue } = useFeatureFlags()
     
     const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
     const defaultTrialPlanId = useFlagValue(DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID)
 
     return useMemo(() => {
-        if (!organization || !subscription) {
+        if (!organization || !subscriptionContext) {
             return null
         }
 
-        const plan = subscription.subscriptionPlan
+        const plan = subscriptionContext.subscriptionPlan
         const planId = plan?.id
         const planName = plan?.name || ''
-        const endDate = subscription.endAt ? dayjs(subscription.endAt).format('DD.MM.YYYY') : null
+        const endDate = subscriptionContext.endAt ? dayjs(subscriptionContext.endAt).format('DD.MM.YYYY') : null
         const hasActiveBanking = organization.features?.includes(OrganizationFeature.ActiveBanking)
         const isActiveBankingPlan = activeBankingPlanId && planId === activeBankingPlanId
         const isDefaultTrialPlan = defaultTrialPlanId && planId === defaultTrialPlanId
 
         // 1. Не триальный контекст с endAt (оплаченная подписка)
-        if (!subscription.isTrial && subscription.endAt) {
+        if (!subscriptionContext.isTrial && subscriptionContext.endAt) {
             return {
                 title: intl.formatMessage({ id: 'subscription.welcomeModal.paidPlan.title' }),
                 description: intl.formatMessage(
@@ -61,7 +61,7 @@ const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
         }
 
         // 2. Триал, но план не из фичафлагов (не banking и не default trial)
-        if (subscription.isTrial && !isActiveBankingPlan && !isDefaultTrialPlan) {
+        if (subscriptionContext.isTrial && !isActiveBankingPlan && !isDefaultTrialPlan) {
             return {
                 title: intl.formatMessage({ id: 'subscription.welcomeModal.trialAllFeatures.title' }),
                 description: intl.formatMessage(
@@ -73,7 +73,7 @@ const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
         }
 
         // 3. Клиент Сбера с бессрочным доступом (endAt null + active_banking + activeBankingPlanId)
-        if (!subscription.endAt && !subscription.isTrial && hasActiveBanking && isActiveBankingPlan) {
+        if (!subscriptionContext.endAt && !subscriptionContext.isTrial && hasActiveBanking && isActiveBankingPlan) {
             return {
                 title: intl.formatMessage({ id: 'subscription.welcomeModal.sberClient.title' }),
                 description: intl.formatMessage(
@@ -85,7 +85,7 @@ const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
         }
 
         // 4. Триал на default trial план (показываем только если есть фичафлаг)
-        if (subscription.isTrial && isDefaultTrialPlan) {
+        if (subscriptionContext.isTrial && isDefaultTrialPlan) {
             return {
                 title: intl.formatMessage({ id: 'subscription.welcomeModal.trialBasic.title' }),
                 description: intl.formatMessage(
@@ -97,7 +97,7 @@ const useSubscriptionWelcomeModalContent = (): ModalContent | null => {
         }
 
         return null
-    }, [organization, subscription, intl, activeBankingPlanId, defaultTrialPlanId])
+    }, [organization, subscriptionContext, intl, activeBankingPlanId, defaultTrialPlanId])
 }
 
 /**

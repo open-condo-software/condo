@@ -94,3 +94,31 @@ query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
         endAt
     }
 }
+
+query getActiveSubscriptionContexts($organizationId: ID!, $now: String!) {
+    activeContexts: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            startAt_lte: $now
+            deletedAt: null
+            OR: [
+                { endAt: null }
+                { endAt_gt: $now }
+            ]
+        }
+        sortBy: [startAt_DESC]
+    ) {
+        id
+        subscriptionPlan {
+            id
+            name
+            trialDays
+            priority
+            canBePromoted
+        }
+        isTrial
+        startAt
+        endAt
+        daysRemaining
+    }
+}

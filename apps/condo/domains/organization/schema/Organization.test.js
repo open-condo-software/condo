@@ -534,25 +534,35 @@ describe('Organization', () => {
     })
 
     describe('subscription field', () => {
-        test('returns null when no subscription context exists', async () => {
+        test('returns null when plans exist but no subscription context', async () => {
             const [organization] = await createTestOrganization(admin)
+            await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+            })
 
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).toBeNull()
         })
 
-        test('returns active subscription context with all fields resolved', async () => {
+        test('returns feature flags from active subscription', async () => {
             const [organization] = await createTestOrganization(admin)
-            const planName = faker.commerce.productName()
             const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
-                name: planName,
+                name: faker.commerce.productName(),
                 organizationType: SERVICE_PROVIDER_TYPE,
                 priority: 10,
+                payments: true,
+                meters: false,
+                tickets: true,
                 news: true,
                 marketplace: true,
+                support: false,
+                ai: true,
+                disabledB2BApps: ['app-1', 'app-2'],
+                disabledB2CApps: ['app-3'],
             })
-            const [subscriptionContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().subtract(1, 'day').toISOString(),
                 endAt: dayjs().add(30, 'days').toISOString(),
                 isTrial: true,
@@ -561,46 +571,32 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.id).toBe(subscriptionContext.id)
-            expect(org.subscription.isTrial).toBe(true)
-            expect(org.subscription.subscriptionPlan).not.toBeNull()
-            expect(org.subscription.subscriptionPlan.id).toBe(subscriptionPlan.id)
-            expect(org.subscription.subscriptionPlan.name).toBe(planName)
-            expect(org.subscription.subscriptionPlan.priority).toBe(10)
-            expect(org.subscription.subscriptionPlan.news).toBe(true)
-            expect(org.subscription.subscriptionPlan.marketplace).toBe(true)
+            expect(org.subscription.payments).toBe(true)
+            expect(org.subscription.meters).toBe(false)
+            expect(org.subscription.tickets).toBe(true)
+            expect(org.subscription.news).toBe(true)
+            expect(org.subscription.marketplace).toBe(true)
+            expect(org.subscription.support).toBe(false)
+            expect(org.subscription.ai).toBe(true)
+            expect(org.subscription.disabledB2BApps).toEqual(['app-1', 'app-2'])
+            expect(org.subscription.disabledB2CApps).toEqual(['app-3'])
         })
 
-        test('returns subscription with endAt: null (unlimited)', async () => {
-            const [organization] = await createTestOrganization(admin)
-            const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
-                name: faker.commerce.productName(),
-                organizationType: SERVICE_PROVIDER_TYPE,
-            })
-            const [subscriptionContext] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().subtract(1, 'day').toISOString(),
-                endAt: null,
-                isTrial: false,
-            })
-
-            const org = await Organization.getOne(admin, { id: organization.id })
-
-            expect(org.subscription).not.toBeNull()
-            expect(org.subscription.id).toBe(subscriptionContext.id)
-            expect(org.subscription.endAt).toBeNull()
-        })
-
-        test('returns subscription with highest priority when multiple active contexts exist', async () => {
+        test('returns features from highest priority plan when multiple active contexts exist', async () => {
             const [organization] = await createTestOrganization(admin)
             const [lowPriorityPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: SERVICE_PROVIDER_TYPE,
                 priority: 1,
+                news: false,
+                marketplace: false,
             })
             const [highPriorityPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: SERVICE_PROVIDER_TYPE,
                 priority: 100,
+                news: true,
+                marketplace: true,
             })
 
             await createTestSubscriptionContext(admin, organization, lowPriorityPlan, {
@@ -608,7 +604,7 @@ describe('Organization', () => {
                 endAt: dayjs().add(30, 'days').toISOString(),
                 isTrial: false,
             })
-            const [highPriorityContext] = await createTestSubscriptionContext(admin, organization, highPriorityPlan, {
+            await createTestSubscriptionContext(admin, organization, highPriorityPlan, {
                 startAt: dayjs().subtract(2, 'days').toISOString(),
                 endAt: dayjs().add(30, 'days').toISOString(),
                 isTrial: false,
@@ -617,11 +613,11 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.id).toBe(highPriorityContext.id)
-            expect(org.subscription.subscriptionPlan.priority).toBe(100)
+            expect(org.subscription.news).toBe(true)
+            expect(org.subscription.marketplace).toBe(true)
         })
 
-        test('does not return expired subscription context', async () => {
+        test('returns null when subscription context is expired', async () => {
             const [organization] = await createTestOrganization(admin)
             const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
@@ -636,6 +632,26 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).toBeNull()
+        })
+
+        test('returns full access when no subscription plans exist for organization type', async () => {
+            // Create organization with a type that has no plans
+            const [organization] = await createTestOrganization(admin, {
+                type: 'MANAGING_COMPANY',
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.payments).toBe(true)
+            expect(org.subscription.meters).toBe(true)
+            expect(org.subscription.tickets).toBe(true)
+            expect(org.subscription.news).toBe(true)
+            expect(org.subscription.marketplace).toBe(true)
+            expect(org.subscription.support).toBe(true)
+            expect(org.subscription.ai).toBe(true)
+            expect(org.subscription.disabledB2BApps).toEqual([])
+            expect(org.subscription.disabledB2CApps).toEqual([])
         })
     })
 })

@@ -34,7 +34,7 @@ type ModalType = 'trialEnded' | 'subscriptionEnded'
 const useTrialEndedModalContent = (): { content: ModalContent | null, type: ModalType | null, loading: boolean } => {
     const intl = useIntl()
     const { organization } = useOrganization()
-    const { subscription } = useOrganizationSubscription()
+    const { subscriptionContext } = useOrganizationSubscription()
 
     const organizationId = organization?.id
 
@@ -61,8 +61,8 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
         // Case 1: Trial ended
         if (lastExpiredWasTrial && !trialEndedShown) {
             // 1.1: Trial ended but has current subscription
-            if (subscription) {
-                const planName = subscription.subscriptionPlan?.name || ''
+            if (subscriptionContext) {
+                const planName = subscriptionContext.subscriptionPlan?.name || ''
                 return {
                     content: {
                         title: intl.formatMessage({ id: 'subscription.trialEndedModal.hasSubscription.title' }),
@@ -90,7 +90,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
         }
 
         // Case 2: No subscription AND (last expired was not trial OR trial modal already shown)
-        if (!subscription && !subscriptionEndedShown && (!lastExpiredWasTrial || trialEndedShown)) {
+        if (!subscriptionContext && !subscriptionEndedShown && (!lastExpiredWasTrial || trialEndedShown)) {
             return {
                 content: {
                     title: intl.formatMessage({ id: 'subscription.subscriptionEndedModal.title' }),
@@ -103,7 +103,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
         }
 
         return { content: null, type: null, loading }
-    }, [organization, organizationId, subscription, expiredData, loading, intl])
+    }, [organization, organizationId, subscriptionContext, expiredData, loading, intl])
 }
 
 /**

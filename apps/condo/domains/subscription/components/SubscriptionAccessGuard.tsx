@@ -11,7 +11,7 @@ import { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
 
 import { PageHeader, PageWrapper } from '../../common/components/containers/BaseLayout'
 import { requiresSubscriptionAccess, getRequiredFeature } from '../constants/routeFeatureMapping'
-import { useOrganizationSubscription } from '../hooks/useOrganizationSubscription'
+import { useOrganizationSubscription } from '../hooks'
 
 
 const { Title, Paragraph } = Typography
@@ -52,7 +52,7 @@ const getPageTitle = (pathname: string, intl: any): string => {
 export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = ({ children }) => {
     const router = useRouter()
     const intl = useIntl()
-    const { subscription, isExpired, isFeatureAvailable, loading } = useOrganizationSubscription()
+    const { isFeatureAvailable, loading } = useOrganizationSubscription()
 
     const pageTitle = useMemo(() => {
         return getPageTitle(router.pathname, intl)
@@ -71,11 +71,6 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
             return false
         }
         
-        // Check if user has active subscription
-        if (!subscription || isExpired) {
-            return true
-        }
-        
         // Check if specific feature is required
         const requiredFeature = getRequiredFeature(currentPath)
         if (requiredFeature && !isFeatureAvailable(requiredFeature)) {
@@ -83,7 +78,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         }
 
         return false
-    }, [router.pathname, subscription, isExpired, isFeatureAvailable, loading])
+    }, [router.pathname, isFeatureAvailable, loading])
 
     const handleGoToPlans = useCallback(() => {
         router.push('/settings?tab=subscription')

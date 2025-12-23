@@ -36,7 +36,9 @@ interface SubscriptionExpirationNotification {
 export const useSubscriptionExpirationNotification = (): SubscriptionExpirationNotification => {
     const intl = useIntl()
     const { organization } = useOrganization()
-    const { subscription, daysRemaining } = useOrganizationSubscription()
+    const { subscriptionContext } = useOrganizationSubscription()
+
+    const daysRemaining = subscriptionContext?.daysRemaining ?? null
 
     const organizationId = organization?.id
 
@@ -68,8 +70,8 @@ export const useSubscriptionExpirationNotification = (): SubscriptionExpirationN
             return null
         }
 
-        const isTrial = subscription?.isTrial
-        const planName = subscription?.subscriptionPlan?.name || ''
+        const isTrial = subscriptionContext?.isTrial
+        const planName = subscriptionContext?.subscriptionPlan?.name || ''
 
         if (isTrial) {
             if (daysRemaining <= 1) {
@@ -104,9 +106,9 @@ export const useSubscriptionExpirationNotification = (): SubscriptionExpirationN
                 { planName }
             ),
         }
-    }, [daysRemaining, subscription?.isTrial, subscription?.subscriptionPlan?.name, intl])
+    }, [daysRemaining, subscriptionContext?.isTrial, subscriptionContext?.subscriptionPlan?.name, intl])
 
-    if (!organizationId || !subscription || !messageContent) {
+    if (!organizationId || !subscriptionContext || !messageContent) {
         return {}
     }
 
