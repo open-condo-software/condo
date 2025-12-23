@@ -34,7 +34,7 @@ const {
     INVALID_RU_TIN_12,
     SOME_RANDOM_LETTERS,
 } = require('@condo/domains/organization/utils/tin.utils.spec')
-const { createTestSubscriptionPlan, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
+const { SubscriptionPlan, createTestSubscriptionPlan, createTestSubscriptionContext } = require('@condo/domains/subscription/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const {
     makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser, makeClientWithSupportUser, createTestUser,
@@ -548,6 +548,8 @@ describe('Organization', () => {
 
         test('returns feature flags from active subscription', async () => {
             const [organization] = await createTestOrganization(admin)
+            const disabledB2BApps = [faker.datatype.uuid(), faker.datatype.uuid()]
+            const disabledB2CApps = [faker.datatype.uuid()]
             const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: SERVICE_PROVIDER_TYPE,
@@ -559,8 +561,8 @@ describe('Organization', () => {
                 marketplace: true,
                 support: false,
                 ai: true,
-                disabledB2BApps: ['app-1', 'app-2'],
-                disabledB2CApps: ['app-3'],
+                disabledB2BApps,
+                disabledB2CApps,
             })
             await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().subtract(1, 'day').toISOString(),
@@ -578,8 +580,8 @@ describe('Organization', () => {
             expect(org.subscription.marketplace).toBe(true)
             expect(org.subscription.support).toBe(false)
             expect(org.subscription.ai).toBe(true)
-            expect(org.subscription.disabledB2BApps).toEqual(['app-1', 'app-2'])
-            expect(org.subscription.disabledB2CApps).toEqual(['app-3'])
+            expect(org.subscription.disabledB2BApps).toEqual(disabledB2BApps)
+            expect(org.subscription.disabledB2CApps).toEqual(disabledB2CApps)
         })
 
         test('returns features from highest priority plan when multiple active contexts exist', async () => {
@@ -635,9 +637,15 @@ describe('Organization', () => {
         })
 
         test('returns full access when no subscription plans exist for organization type', async () => {
+            // Delete all existing plans for HOLDING type to ensure clean state
+            const existingPlans = await SubscriptionPlan.getAll(admin, { organizationType: 'HOLDING', deletedAt: null })
+            for (const plan of existingPlans) {
+                await SubscriptionPlan.softDelete(admin, plan.id)
+            }
+
             // Create organization with a type that has no plans
             const [organization] = await createTestOrganization(admin, {
-                type: 'MANAGING_COMPANY',
+                type: 'HOLDING',
             })
 
             const org = await Organization.getOne(admin, { id: organization.id })
