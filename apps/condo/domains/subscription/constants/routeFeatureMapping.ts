@@ -25,6 +25,9 @@ const ALLOWED_WITHOUT_SUBSCRIPTION: string[] = [
  * Routes not in this map require only active subscription (no specific feature)
  */
 export const ROUTE_FEATURE_MAPPING: Record<string, AvailableFeature> = {
+    '/payments': FEATURE_KEY.PAYMENTS,
+    '/meter': FEATURE_KEY.METERS,
+    '/ticket': FEATURE_KEY.TICKETS,
     '/news': FEATURE_KEY.NEWS,
     '/marketplace': FEATURE_KEY.MARKETPLACE,
 }

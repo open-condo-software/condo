@@ -91,6 +91,27 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             isRequired: true,
         },
 
+        payments: {
+            schemaDoc: 'Whether payments feature is included in this plan',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
+
+        meters: {
+            schemaDoc: 'Whether meters feature is included in this plan',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
+
+        tickets: {
+            schemaDoc: 'Whether tickets feature is included in this plan',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
+
         news: {
             schemaDoc: 'Whether news feature is included in this plan',
             type: 'Checkbox',

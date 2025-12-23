@@ -33,25 +33,16 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
             importRemoteSystem
             meta
             subscription {
-                id 
-                subscriptionPlan { 
-                    id
-                    name
-                    trialDays
-                    priority
-                    canBePromoted
-                    news
-                    marketplace
-                    support
-                    ai
-                    customization
-                    disabledB2BApps
-                    disabledB2CApps
-                }
-                startAt
-                endAt
-                isTrial
-                daysRemaining
+                payments
+                meters
+                tickets
+                news
+                marketplace
+                support
+                ai
+                customization
+                disabledB2BApps
+                disabledB2CApps
             }
         }
         role {

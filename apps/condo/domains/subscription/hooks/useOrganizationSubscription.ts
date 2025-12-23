@@ -1,110 +1,126 @@
+import { useGetActiveSubscriptionContextsQuery } from '@app/condo/gql'
 import { useMemo, useCallback } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
 
-export type AvailableFeature = 'news' | 'marketplace' | 'support' | 'ai'
+import { selectBestSubscriptionContext } from '@condo/domains/subscription/utils/subscriptionContext'
+
+export type AvailableFeature = 'payments' | 'meters' | 'tickets' | 'news' | 'marketplace' | 'support' | 'ai' | 'customization'
+
+interface SubscriptionFeatures {
+    payments: boolean
+    meters: boolean
+    tickets: boolean
+    news: boolean
+    marketplace: boolean
+    support: boolean
+    ai: boolean
+    customization: boolean
+    disabledB2BApps: string[]
+    disabledB2CApps: string[]
+}
 
 interface SubscriptionPlan {
     id: string
     name: string
-    news?: boolean
-    marketplace?: boolean
-    support?: boolean
-    ai?: boolean
-    disabledB2BApps?: string[]
-    disabledB2CApps?: string[]
     trialDays?: number
     priority?: number
     canBePromoted?: boolean
 }
 
-interface Subscription {
+export interface SubscriptionContext {
     id: string
     subscriptionPlan: SubscriptionPlan | null
+    isTrial: boolean
     startAt: string
     endAt: string | null
-    isTrial: boolean
+    daysRemaining: number | null
 }
 
 /**
- * Hook to get subscription from organization.subscription field
- * No additional GraphQL query needed - data comes from organization context
+ * Hook to get subscription features and context for the current organization.
+ * - Features come from organization.subscription field (no extra query)
+ * - Context is fetched via GraphQL query for components that need full context data
  */
 export const useOrganizationSubscription = () => {
-    const { organization, isLoading } = useOrganization()
+    const { organization, isLoading: orgLoading } = useOrganization()
 
-    const subscription = useMemo<Subscription | null>(() => {
+    // Get subscription features from organization.subscription field
+    const subscriptionFeatures = useMemo<SubscriptionFeatures | null>(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const orgSubscription = (organization as any)?.subscription
+        const features = (organization as any)?.subscription
         
-        if (!orgSubscription) {
+        if (!features) {
             return null
         }
 
-        return orgSubscription
+        return features
     }, [organization])
 
+    // Fetch subscription contexts for components that need full context data
+    const now = useMemo(() => new Date().toISOString(), [])
+
+    const { data, loading: contextsLoading } = useGetActiveSubscriptionContextsQuery({
+        variables: {
+            organizationId: organization?.id || '',
+            now,
+        },
+        skip: !organization?.id,
+    })
+
+    const activeContexts = useMemo(() => {
+        return (data?.activeContexts || []) as SubscriptionContext[]
+    }, [data])
+
+    const subscriptionContext = useMemo(() => {
+        return selectBestSubscriptionContext(activeContexts) as SubscriptionContext | null
+    }, [activeContexts])
+
     const isExpired = useMemo(() => {
-        if (!subscription || !subscription.endAt) return false
-        return new Date(subscription.endAt) < new Date()
-    }, [subscription])
+        if (!subscriptionContext || !subscriptionContext.endAt) return false
+        return new Date(subscriptionContext.endAt) < new Date()
+    }, [subscriptionContext])
 
     const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
-        // If no subscription, block all features
-        if (!subscription || isExpired) {
+        // If no subscription features, block all features
+        if (!subscriptionFeatures) {
             return false
         }
         
-        // Check if feature is available in subscription plan
-        const plan = subscription.subscriptionPlan
-        if (!plan) {
-            return false
-        }
-        
-        // Map feature keys to plan fields
+        // Map feature keys to subscription fields
         switch (feature) {
+            case 'payments':
+                return subscriptionFeatures.payments === true
+            case 'meters':
+                return subscriptionFeatures.meters === true
+            case 'tickets':
+                return subscriptionFeatures.tickets === true
             case 'news':
-                return plan.news === true
+                return subscriptionFeatures.news === true
             case 'marketplace':
-                return plan.marketplace === true
+                return subscriptionFeatures.marketplace === true
             case 'support':
-                return plan.support === true
+                return subscriptionFeatures.support === true
             case 'ai':
-                return plan.ai === true
+                return subscriptionFeatures.ai === true
+            case 'customization':
+                return subscriptionFeatures.customization === true
             default:
-                // By default, features are available if not explicitly defined
                 return true
         }
-    }, [subscription, isExpired])
-    
-    const tariff = useMemo(() => {
-        return subscription?.subscriptionPlan || null
-    }, [subscription])
+    }, [subscriptionFeatures])
 
     const isB2BAppEnabled = useCallback((appId: string): boolean => {
-        if (!subscription || isExpired) return false
-        const plan = subscription.subscriptionPlan
-        if (!plan) return false
-        const disabledApps = plan.disabledB2BApps || []
+        if (!subscriptionFeatures) return false
+        const disabledApps = subscriptionFeatures.disabledB2BApps || []
         return !disabledApps.includes(appId)
-    }, [subscription, isExpired])
+    }, [subscriptionFeatures])
 
-    const isB2CAppEnabled = useCallback((appId: string): boolean => {
-        if (!subscription || isExpired) return false
-        const plan = subscription.subscriptionPlan
-        if (!plan) return false
-        const disabledApps = plan.disabledB2CApps || []
-        return !disabledApps.includes(appId)
-    }, [subscription, isExpired])
-    
     return {
         isFeatureAvailable,
         isB2BAppEnabled,
-        isB2CAppEnabled,
+        subscriptionContext,
         isExpired,
-        subscription,
-        tariff,
-        organization,
-        loading: isLoading,
+        loading: orgLoading || contextsLoading,
     }
 }
