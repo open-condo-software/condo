@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const {
     WEBHOOK_PAYLOAD_STATUSES,
@@ -153,7 +153,7 @@ const WebhookPayload = new GQLListSchema('WebhookPayload', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender()],
     access: {
         read: access.canReadWebhookPayloads,
         create: access.canManageWebhookPayloads,

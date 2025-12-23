@@ -58,37 +58,6 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
             expect(recentPayloadInDb.id).toBe(recentPayload.id)
         })
 
-        it('Must hard delete old webhook payload history records', async () => {
-            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day').toISOString()
-
-            const [payload] = await createTestWebhookPayload(actors.admin, {
-                url: 'http://example.com/history-test',
-                status: 'success',
-            })
-
-            await knex('WebhookPayloadHistoryRecord')
-                .where({ history_id: payload.id })
-                .update({ updatedAt: oldDate })
-
-            const historyCountBefore = await knex('WebhookPayloadHistoryRecord')
-                .where({ history_id: payload.id })
-                .count('* as count')
-                .first()
-
-            expect(parseInt(historyCountBefore.count)).toBeGreaterThan(0)
-
-            const result = await deleteOldWebhookPayloads.delay.fn()
-
-            expect(result.totalHistoryDeleted).toBeGreaterThanOrEqual(parseInt(historyCountBefore.count))
-
-            const historyCountAfter = await knex('WebhookPayloadHistoryRecord')
-                .where({ history_id: payload.id })
-                .count('* as count')
-                .first()
-
-            expect(parseInt(historyCountAfter.count)).toBe(0)
-        })
-
         it('Must not delete payloads within retention period', async () => {
             const withinRetentionDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS - 1, 'day').toISOString()
 
@@ -132,15 +101,11 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
             await knex('WebhookPayload')
                 .whereRaw('"updatedAt" < ?', [oldDate])
                 .del()
-            await knex('WebhookPayloadHistoryRecord')
-                .whereRaw('"updatedAt" < ?', [oldDate])
-                .del()
 
             const result = await deleteOldWebhookPayloads.delay.fn()
 
             expect(result).toBeDefined()
             expect(result.totalDeleted).toBe(0)
-            expect(result.totalHistoryDeleted).toBe(0)
         })
 
         it('Must delete payloads in batches when count exceeds batch size', async () => {
