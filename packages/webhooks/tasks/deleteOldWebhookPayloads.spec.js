@@ -23,6 +23,10 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
             knex = keystone.adapter.knex
         })
 
+        async function setPayloadUpdatedAt (payloadId, updatedAt) {
+            await knex('WebhookPayload').where({ id: payloadId }).update({ updatedAt })
+        }
+
         it('Must hard delete old webhook payloads from database', async () => {
             const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day').toISOString()
             const recentDate = dayjs().subtract(1, 'day').toISOString()
@@ -40,9 +44,9 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
                 status: 'success',
             })
 
-            await knex('WebhookPayload').where({ id: oldPayload1.id }).update({ updatedAt: oldDate })
-            await knex('WebhookPayload').where({ id: oldPayload2.id }).update({ updatedAt: oldDate })
-            await knex('WebhookPayload').where({ id: recentPayload.id }).update({ updatedAt: recentDate })
+            await setPayloadUpdatedAt(oldPayload1.id, oldDate)
+            await setPayloadUpdatedAt(oldPayload2.id, oldDate)
+            await setPayloadUpdatedAt(recentPayload.id, recentDate)
 
             const result = await deleteOldWebhookPayloads.delay.fn()
 
@@ -66,7 +70,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
                 status: 'success',
             })
 
-            await knex('WebhookPayload').where({ id: payload.id }).update({ updatedAt: withinRetentionDate })
+            await setPayloadUpdatedAt(payload.id, withinRetentionDate)
 
             await deleteOldWebhookPayloads.delay.fn()
 
@@ -84,7 +88,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
                 status: 'success',
             })
 
-            await knex('WebhookPayload').where({ id: payload.id }).update({ updatedAt: boundaryDate })
+            await setPayloadUpdatedAt(payload.id, boundaryDate)
 
             const result = await deleteOldWebhookPayloads.delay.fn()
 
@@ -111,7 +115,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
                     url: `http://example.com/batch-${i}`,
                     status: 'success',
                 })
-                await knex('WebhookPayload').where({ id: payload.id }).update({ updatedAt: oldDate })
+                await setPayloadUpdatedAt(payload.id, oldDate)
                 payloadIds.push(payload.id)
             }
 
@@ -141,9 +145,9 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
                 status: 'failed',
             })
 
-            await knex('WebhookPayload').where({ id: pendingPayload.id }).update({ updatedAt: oldDate })
-            await knex('WebhookPayload').where({ id: successPayload.id }).update({ updatedAt: oldDate })
-            await knex('WebhookPayload').where({ id: failedPayload.id }).update({ updatedAt: oldDate })
+            await setPayloadUpdatedAt(pendingPayload.id, oldDate)
+            await setPayloadUpdatedAt(successPayload.id, oldDate)
+            await setPayloadUpdatedAt(failedPayload.id, oldDate)
 
             const result = await deleteOldWebhookPayloads.delay.fn()
 
@@ -168,7 +172,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
 
             await softDeleteTestWebhookPayload(actors.admin, payload.id)
 
-            await knex('WebhookPayload').where({ id: payload.id }).update({ updatedAt: oldDate })
+            await setPayloadUpdatedAt(payload.id, oldDate)
 
             const result = await deleteOldWebhookPayloads.delay.fn()
 
