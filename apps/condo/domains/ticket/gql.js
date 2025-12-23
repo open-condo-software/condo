@@ -269,6 +269,14 @@ const TicketDocumentGenerationTask = generateGqlQueries('TicketDocumentGeneratio
 const TICKET_OBSERVER_FIELDS = `{ ticket { id } user { id } ${COMMON_FIELDS} }`
 const TicketObserver = generateGqlQueries('TicketObserver', TICKET_OBSERVER_FIELDS)
 
+// TODO(codegen): write return type result!
+
+const SYNC_TICKET_OBSERVERS_MUTATION = gql`
+    mutation syncTicketObservers ($data: SyncTicketObserversInput!) {
+        result: syncTicketObservers(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -310,5 +318,6 @@ module.exports = {
     TicketDocumentGenerationTask,
     TICKET_EXPORT_TASK_OPTIONS_FIELDS,
     TicketObserver,
+    SYNC_TICKET_OBSERVERS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

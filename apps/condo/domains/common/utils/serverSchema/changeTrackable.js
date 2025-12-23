@@ -444,6 +444,7 @@ const mapRelationSingle = (acc, value, key, keysOfLocalizedDisplayNameTextFields
  * @param {String} key - key of a field being iterated
  */
 const mapRelationMany = (acc, value, key) => {
+    // 2. For many: true Ticket fields, JSON is used by default. Should I leave it that way or do it as for a single relationship?
     acc[`${key}IdsFrom`] = {
         schemaDoc: `Old list of ids of related entities. ${value.schemaDoc}`,
         type: 'Json',

@@ -1,4 +1,4 @@
-import { TicketFile as TicketFileType } from '@app/condo/schema'
+import { GetTicketFilesQuery } from '@app/condo/gql'
 import { css } from '@emotion/react'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 import UploadList from 'antd/lib/upload/UploadList'
@@ -9,7 +9,7 @@ import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownlo
 
 
 interface ITicketFileListProps {
-    files?: TicketFileType[]
+    files?: GetTicketFilesQuery['ticketFiles']
 }
 
 const UploadListWrapperStyles = css`

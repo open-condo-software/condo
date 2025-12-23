@@ -994,7 +994,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery, refetchTicketTypeCou
 
     // NOTE: we have index "ticket_org_assign_exec_deletedAt" for this filter
     // If you change filter condition, you need to change index
-    const ownTicketsQuery = { OR: [{ executor: { id: user.id }, assignee: { id: user.id } }] }
+    const ownTicketsQuery = { OR: [{ executor: { id: user.id }, assignee: { id: user.id }, observers_some: { user: { id: user.id } } }] }
     const { data: ownTicketsCountData, refetch: refetchOwnTickets } = useGetTicketsCountQuery({
         variables: {
             where: {

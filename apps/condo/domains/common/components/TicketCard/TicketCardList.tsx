@@ -1,5 +1,8 @@
-import { useGetTicketsByContactQuery } from '@app/condo/gql'
-import { SortTicketsBy, Ticket as TicketSchema } from '@app/condo/schema'
+import { 
+    useGetTicketsByContactQuery,
+    GetTicketsByContactQuery,
+} from '@app/condo/gql'
+import { SortTicketsBy } from '@app/condo/schema'
 import { Row, RowProps } from 'antd'
 import pickBy from 'lodash/pickBy'
 import qs, { IStringifyOptions } from 'qs'
@@ -21,7 +24,7 @@ interface ITicketCardListProps {
 }
 interface ITicketCardProps {
     contactId: string
-    tickets: TicketSchema[]
+    tickets: GetTicketsByContactQuery['tickets']
 }
 
 const TICKETS_ON_CARD = 3

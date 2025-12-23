@@ -380,8 +380,11 @@ const Ticket = new GQLListSchema('Ticket', {
             type: 'Relationship',
             ref: 'TicketObserver.ticket',
             many: true, 
-            access: { create: false, update: false, read: false }, // Что по доступам?
-            kmigratorOptions: { null: true },
+            access: {
+                read: ({ authentication: { item: user } }) => (user.isAdmin || user.isSupport),
+                create: false,
+                update: false,
+            },
         },
         // TODO(zuch): make it required
         categoryClassifier: {

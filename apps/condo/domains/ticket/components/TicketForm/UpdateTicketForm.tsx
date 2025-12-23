@@ -1,5 +1,8 @@
 import {
+    useSyncTicketObserversMutation,
+    useGetTicketObserversByTicketIdQuery,
     useUpdateTicketMutation,
+    useGetEmployeesByOrganizationIdAndUserIdsQuery,
 } from '@app/condo/gql'
 import { Form, Typography } from 'antd'
 import get from 'lodash/get'
@@ -10,6 +13,7 @@ import reduce from 'lodash/reduce'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
@@ -100,16 +104,44 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const intl = useIntl()
 
     const { replace } = useRouter()
+    const { persistor } = useCachePersistor()
     const { obj, loading: ticketLoading, refetch, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
     const { objs: invoices, loading: invoicesLoading } = Invoice.useObjects({ where: { ticket: { id } } })
+    const {
+        data: observersData,
+        loading: observersLoading,
+    } = useGetTicketObserversByTicketIdQuery({
+        variables: {
+            ticketId: id,
+        },
+        skip: !id || !persistor,
+    })
+    const observers = useMemo(() => observersData?.observers?.filter(Boolean) || [], [observersData?.observers])
+
+    const ticketOrganizationId = useMemo(() => get(obj, ['organization', 'id']) || null, [obj])
+
+    const { data: employeesData } = useGetEmployeesByOrganizationIdAndUserIdsQuery({
+        variables: {
+            organizationId: ticketOrganizationId,
+            userIds: observers.map(o => o?.user?.id).filter(Boolean),
+        },
+        skip: !ticketOrganizationId || !persistor || observers.length === 0,
+    })
+
+    const allowedObserverUserIds = useMemo(() => {
+        const employees = employeesData?.employees?.filter(Boolean) || []
+        return new Set(employees.map(e => e?.user?.id).filter(Boolean))
+    }, [employeesData])
 
     // no redirect after mutation as we need to wait for ticket files to save
     const [action] = useUpdateTicketMutation({})
     const createInvoiceAction = Invoice.useCreate({})
     const updateInvoiceAction = Invoice.useUpdate({})
+    const [syncTicketObservers] = useSyncTicketObserversMutation()
+
     const updateAction = async (values) => {
-        const { existedInvoices, newInvoices, ...ticketValues } = values
+        const { existedInvoices, newInvoices, observers: newObserverIds, ...ticketValues } = values
 
         const ticketData = await action({
             variables: {
@@ -175,6 +207,20 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             }
         }
 
+        if (!isEmpty(newObserverIds)) {
+            await syncTicketObservers({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        ticketId: ticket.id,
+                        userIds: newObserverIds,
+                        shouldCreateTicketChange: true,
+                    },
+                },
+            })
+        }
+
         return ticket
     }
 
@@ -195,10 +241,16 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             result['invoices'] = invoices.map(invoice => invoice.id)
         }
 
-        return result
-    }, [invoices, obj])
+        if (observers.length > 0) {
+            result['observers'] = observers
+                .map(o => o?.user?.id)
+                .filter((userId) => userId && allowedObserverUserIds.has(userId))
+        }
 
-    const loading = ticketLoading || invoicesLoading
+        return result
+    }, [observers, allowedObserverUserIds, invoices, obj])
+
+    const loading = ticketLoading || invoicesLoading || observersLoading
     if (error || loading) {
         return (
             <>

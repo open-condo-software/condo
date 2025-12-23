@@ -1,0 +1,21 @@
+mutation syncTicketObservers ($data: SyncTicketObserversInput!) {
+    status: syncTicketObservers (data: $data) {
+        status
+    }
+}
+
+query getTicketObserversByTicketId ($ticketId: ID!) {
+    observers: allTicketObservers (
+        where: {
+            ticket: {
+                id: $ticketId
+            }
+        }
+    ) {
+        user {
+            id
+        }
+    }
+}
+
+ 

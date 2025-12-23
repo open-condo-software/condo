@@ -71,6 +71,7 @@ import { TicketDetailsField } from '@condo/domains/ticket/components/TicketId/Ti
 import { TicketExecutorField } from '@condo/domains/ticket/components/TicketId/TicketExecutorField'
 import { TicketFeedbackFields } from '@condo/domains/ticket/components/TicketId/TicketFeedbackFields'
 import { TicketFileListField } from '@condo/domains/ticket/components/TicketId/TicketFileListField'
+import { TicketObserversField } from '@condo/domains/ticket/components/TicketId/TicketObserversField'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 import { TicketQualityControlFields } from '@condo/domains/ticket/components/TicketId/TicketQualityControlFields'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
@@ -372,6 +373,7 @@ const TicketContent = ({ ticket, ticketDetails, updateTicketDetails }) => {
                 <TicketClassifierField ticket={ticket}/>
                 <TicketExecutorField ticket={ticket}/>
                 <TicketAssigneeField ticket={ticket}/>
+                <TicketObserversField ticket={ticket}/>
             </Row>
         </Col>
     )

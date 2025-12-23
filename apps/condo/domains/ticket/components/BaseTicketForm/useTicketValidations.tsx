@@ -60,5 +60,6 @@ export function useTicketValidations (): ITicketFieldsRuleMap {
         ],
         executor: [],
         assignee: [],
+        observers: [],
     }), [ClassifierIsRequiredMessage, DescriptionInvalidLengthMessage, EmailErrorMessage, FullNameInvalidCharMessage, FullNameRequiredMessage, PropertyIsRequired, SelectIsRequiredMessage, changeMessage, emailValidator, phoneValidator, requiredValidator, specCharValidator, trimValidator])
 }
