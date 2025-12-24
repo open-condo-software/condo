@@ -86,7 +86,7 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
 
     const lastComment = useMemo(() => comments?.[0], [comments])
     const showGenerateAnswerButton = useMemo(() =>
-        generateCommentEnabled, //&& lastComment?.user?.type === UserTypeType.Resident,
+        generateCommentEnabled && lastComment?.user?.type === UserTypeType.Resident,
     [generateCommentEnabled, lastComment?.user?.type])
 
     const commentsToRender = useMemo(() =>
