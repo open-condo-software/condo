@@ -21,6 +21,14 @@ export const SubscriptionSettingsContent: React.FC = () => {
     const intl = useIntl()
     const { organization, employee, selectEmployee } = useOrganization()
 
+    const YearlyLabel = intl.formatMessage({ id: 'subscription.period.yearly' })
+    const MonthlyLabel = intl.formatMessage({ id: 'subscription.period.monthly' })
+    const ActivationSuccessMessage = intl.formatMessage({ id: 'subscription.activation.success' })
+    const ActivationErrorTitle = intl.formatMessage({ id: 'subscription.activation.errorTitle' })
+    const ActivationErrorMessage = intl.formatMessage({ id: 'subscription.activation.error' })
+    const RequestSentMessage = intl.formatMessage({ id: 'subscription.activation.requestSent' })
+    const RequestSentDescription = intl.formatMessage({ id: 'subscription.activation.requestSentDescription' })
+
     const [planPeriod, setPlanPeriod] = useState<PlanPeriod>('year')
 
     const { data: plansData, loading: plansLoading } = useGetAvailableSubscriptionPlansQuery({
@@ -42,28 +50,17 @@ export const SubscriptionSettingsContent: React.FC = () => {
             .sort((a, b) => (a.plan?.priority ?? 0) - (b.plan?.priority ?? 0))
     }, [plansData, planPeriod])
 
-    const {
-        data: trialSubscriptionsData,
-        loading: trialSubscriptionsLoading,
-        refetch: refetchTrialSubscriptions, 
-    } = useGetOrganizationTrialSubscriptionsQuery({
-        variables: {
-            organizationId: organization?.id,
-        },
+    const { data: trialSubscriptionsData, loading: trialSubscriptionsLoading, refetch: refetchTrialSubscriptions } = useGetOrganizationTrialSubscriptionsQuery({
+        variables: { organizationId: organization?.id },
         skip: !organization?.id,
     })
-    const trialSubscriptions = trialSubscriptionsData?.trialSubscriptions || []
 
-    const {
-        data: pendingRequestsData,
-        loading: pendingRequestsLoading,
-        refetch: refetchPendingRequests,
-    } = useGetPendingSubscriptionRequestsQuery({
-        variables: {
-            organizationId: organization?.id,
-        },
+    const { data: pendingRequestsData, loading: pendingRequestsLoading, refetch: refetchPendingRequests } = useGetPendingSubscriptionRequestsQuery({
+        variables: { organizationId: organization?.id },
         skip: !organization?.id,
     })
+
+    const trialSubscriptions = trialSubscriptionsData?.trialSubscriptions || []
     const pendingRequests = pendingRequestsData?.pendingRequests || []
 
     const [activateSubscriptionPlan] = useActivateSubscriptionPlanMutation()
@@ -85,46 +82,41 @@ export const SubscriptionSettingsContent: React.FC = () => {
             })
 
             if (isTrial) {
-                await refetchTrialSubscriptions()
-                await refetchPendingRequests()
-                // Refetch organization data to update subscription state across the app
-                if (employee?.id) {
-                    await selectEmployee(employee.id)
-                }
+                await Promise.all([
+                    refetchTrialSubscriptions(),
+                    refetchPendingRequests(),
+                    employee?.id ? selectEmployee(employee.id) : Promise.resolve(),
+                ])
+
+                const trialDays = result.data.result.subscriptionContext.subscriptionPlan.trialDays
+                const description = intl.formatMessage({ id: 'subscription.activation.trialSuccess' }, { days: trialDays })
+
                 notification.success({
-                    message: intl.formatMessage({ id: 'subscription.activation.success' }),
-                    description: isTrial 
-                        ? intl.formatMessage(
-                            { id: 'subscription.activation.trialSuccess' },
-                            { days: result.data.result.subscriptionContext.subscriptionPlan.trialDays }
-                        )
-                        : intl.formatMessage({ id: 'subscription.activation.paidSuccess' }),
+                    message: ActivationSuccessMessage,
+                    description,
                     duration: 5,
                 })
             } else {
                 await refetchPendingRequests()
                 notification.success({
-                    message: intl.formatMessage({ id: 'subscription.activation.requestSent' }),
-                    description: intl.formatMessage({ id: 'subscription.activation.requestSentDescription' }),
+                    message: RequestSentMessage,
+                    description: RequestSentDescription,
                     duration: 5,
                 })
             }
         } catch (error) {
             console.error('Failed to activate subscription:', error)
-
-            const errorMessage = error?.message || intl.formatMessage({ id: 'subscription.activation.error' })
             notification.error({
-                message: intl.formatMessage({ id: 'subscription.activation.errorTitle' }),
-                description: errorMessage,
+                message: ActivationErrorTitle,
+                description: error?.message || ActivationErrorMessage,
                 duration: 5,
             })
         }
     }
     
 
-    if (plansLoading || trialSubscriptionsLoading || pendingRequestsLoading) {
-        return <Loader />
-    }
+    const isLoading = plansLoading || trialSubscriptionsLoading || pendingRequestsLoading
+    if (isLoading) return <Loader />
 
     return (
         <Space size={40} direction='vertical' width='100%'>
@@ -135,8 +127,8 @@ export const SubscriptionSettingsContent: React.FC = () => {
                     value={planPeriod}
                     onChange={(e) => setPlanPeriod(e.target.value as PlanPeriod)}
                 >
-                    <Radio value='year' label={intl.formatMessage({ id: 'subscription.period.yearly' })} />
-                    <Radio value='month' label={intl.formatMessage({ id: 'subscription.period.monthly' })} />
+                    <Radio value='year' label={YearlyLabel} />
+                    <Radio value='month' label={MonthlyLabel} />
                 </Radio.Group>
             </Space>
             <div className={styles['plan-list']}>
