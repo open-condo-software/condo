@@ -1,19 +1,23 @@
-import { LockOutlined, UnlockOutlined } from '@ant-design/icons'
-import { GetAvailableSubscriptionPlansQueryResult, useActivateSubscriptionPlanMutation, GetPendingSubscriptionRequestsQueryResult } from '@app/condo/gql'
+import {
+    GetAvailableSubscriptionPlansQueryResult,
+    GetPendingSubscriptionRequestsQueryResult,
+    GetOrganizationTrialSubscriptionsQuery,
+} from '@app/condo/gql'
+import { OrganizationFeature } from '@app/condo/schema'
 import { Collapse } from 'antd'
 import classnames from 'classnames'
 import getConfig from 'next/config'
 import React, { useState } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+import { Unlock, Lock, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Card, Typography, Space, Button, Tag } from '@open-condo/ui'
+import { Card, Typography, Space, Button, Tooltip, Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
-import { useGetOrganizationTrialSubscriptionsQuery } from '@condo/domains/subscription/gql'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import styles from './SubscriptionPlanCard.module.css'
 
@@ -24,29 +28,30 @@ const { Panel } = Collapse
 
 // Base features available in all plans
 const BASE_FEATURES = [
-    'subscription.features.profile',
-    'subscription.features.notifications',
-    'subscription.features.guide',
-    'subscription.features.services',
-    'subscription.features.settings',
-    'subscription.features.analytics',
-    'subscription.features.properties',
-    'subscription.features.employees',
-    'subscription.features.residents',
-    'subscription.features.mobileApp',
-    'subscription.features.outages',
+    { label: 'subscription.features.profile', hint: null },
+    { label: 'subscription.features.notifications', hint: null },
+    { label: 'subscription.features.guide', hint: null },
+    { label: 'subscription.features.services', hint: null },
+    { label: 'subscription.features.settings', hint: null },
+    { label: 'subscription.features.analytics', hint: null },
+    { label: 'subscription.features.tickets', hint: null },
+    { label: 'subscription.features.properties', hint: 'subscription.features.properties.hint' },
+    { label: 'subscription.features.employees', hint: null },
+    { label: 'subscription.features.residents', hint: 'subscription.features.residents.hint' },
+    { label: 'subscription.features.meters', hint: null },
+    { label: 'subscription.features.payments', hint: null },
+    { label: 'subscription.features.mobileApp', hint: null },
+    { label: 'subscription.features.outages', hint: null },
 ]
 
 // Premium features that need backend checks
 const PREMIUM_FEATURES = [
-    { key: FEATURE_KEY.TICKETS, label: 'subscription.features.tickets' },
-    { key: FEATURE_KEY.METERS, label: 'subscription.features.meters' },
-    { key: FEATURE_KEY.PAYMENTS, label: 'subscription.features.payments' },
-    { key: FEATURE_KEY.NEWS, label: 'subscription.features.news' },
-    { key: FEATURE_KEY.MARKETPLACE, label: 'subscription.features.marketplace' },
-    { key: FEATURE_KEY.SUPPORT, label: 'subscription.features.personalManager' },
-    { key: FEATURE_KEY.AI, label: 'subscription.features.ai' },
-    { key: FEATURE_KEY.CUSTOMIZATION, label: 'subscription.features.customization' },
+    { key: FEATURE_KEY.NEWS, label: 'subscription.features.news', hint: null },
+    { key: FEATURE_KEY.MARKETPLACE, label: 'subscription.features.marketplace', hint: null },
+    { key: FEATURE_KEY.SUPPORT, label: 'subscription.features.personalManager', hint: 'subscription.features.personalManager.hint' },
+    { key: FEATURE_KEY.AI, label: 'subscription.features.ai', hint: null },
+    { key: FEATURE_KEY.PASS_TICKETS, label: 'subscription.features.passTickets', hint: null },
+    { key: FEATURE_KEY.CUSTOMIZATION, label: 'subscription.features.customization', hint: 'subscription.features.customization.hint' },
 ]
 
 const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {} } } = getConfig()
@@ -55,97 +60,86 @@ interface FeatureItemProps {
     label: string
     available: boolean
     helpLink?: string
+    hint?: string | null
 }
 
-type ActivatedTrial = ReturnType<typeof useGetOrganizationTrialSubscriptionsQuery>['data']['trialSubscriptions'][number]
 type PendingRequest = GetPendingSubscriptionRequestsQueryResult['data']['pendingRequests'][number]
+type TrialContextType = GetOrganizationTrialSubscriptionsQuery['trialSubscriptions'][number]
 
 interface SubscriptionPlanCardProps {
     planInfo: PlanType
-    activatedTrial?: ActivatedTrial
+    activatedTrial?: TrialContextType
     pendingRequest?: PendingRequest
     handleActivatePlan: (priceId: string, isTrial: boolean) => void
-    b2bAppsMap: Map<string, { id: string, name: string }>
+    b2bAppsMap: Map<string, { id: string, name?: string }>
     allB2BAppIds: string[]
 }
 
 interface SubscriptionPlanBadgeProps {
     plan: PlanType['plan']
-    activatedTrial?: ActivatedTrial
+    activatedTrial?: TrialContextType
 }
 
-const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink }) => {
+const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink, hint }) => {
     const intl = useIntl()
-    
-    // Try to format as intl message, fallback to raw label if not found
-    let featureLabel: string
-    try {
-        featureLabel = intl.formatMessage({ id: label as FormatjsIntl.Message['ids'] })
-    } catch {
-        featureLabel = label
-    }
-    
+    const featureLabel = intl.formatMessage({ id: label as FormatjsIntl.Message['ids'] })
+    const hintText = hint ? intl.formatMessage({ id: hint as FormatjsIntl.Message['ids'] }) : null
+
+    const icon = available ? <Lock color={colors.green[5]} size='small' /> : <Unlock color={colors.red[5]} size='small' />
+    const textType = available ? undefined : 'secondary'
+
     const textContent = helpLink ? (
         <Typography.Link href={helpLink} target='_blank' rel='noopener noreferrer'>
-            <Typography.Text type={available ? undefined : 'secondary'}>
-                {featureLabel}
-            </Typography.Text>
+            <Typography.Text type={textType}>{featureLabel}</Typography.Text>
         </Typography.Link>
     ) : (
-        <Typography.Text type={available ? undefined : 'secondary'}>
-            {featureLabel}
-        </Typography.Text>
+        <Typography.Text type={textType}>{featureLabel}</Typography.Text>
     )
-    
+
     return (
         <Space size={8} direction='horizontal'>
-            {available ? (
-                <UnlockOutlined style={{ color: colors.green[5], fontSize: 16 }} />
-            ) : (
-                <LockOutlined style={{ color: colors.red[5], fontSize: 16 }} />
-            )}
+            {icon}
             {textContent}
+            {hintText && (
+                <Tooltip title={hintText}>
+                    <QuestionCircle color={colors.gray[7]} size='small' />
+                </Tooltip>
+            )}
         </Space>
     )
 }
 
 const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, activatedTrial }) => {
     const intl = useIntl()
-    const ActiveMessage = intl.formatMessage({ id: 'subscription.planCard.badge.active' })
-    const TrialExpiredMessage = intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' })
+    const { subscriptionContext } = useOrganizationSubscription()
 
-    const { organization } = useOrganization()
-    const activePlanId = organization?.subscription?.subscriptionPlan?.id
-    const daysRemaining = organization?.subscription?.daysRemaining
+    const activePlanId = subscriptionContext.subscriptionPlan?.id
+    const daysRemaining = subscriptionContext.daysRemaining
+    const isActivePlan = activePlanId === plan?.id
+    const isTrialExpired = activatedTrial?.daysRemaining === 0
 
-    let badgeMessage
+    let badgeMessage: string | null = null
     let bgColor = colors.gray[7]
 
-    if (activatedTrial && activatedTrial.daysRemaining === 0) {
-        badgeMessage = TrialExpiredMessage
+    if (isTrialExpired) {
+        badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' })
     }
 
-    if (activePlanId === plan?.id) {
+    if (isActivePlan) {
         bgColor = colors.green[5]
-         
+
         if (daysRemaining !== null && daysRemaining < 30) {
             badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemaining })
-          
-            if (daysRemaining < 7) {
-                bgColor = colors.orange[5]
-            }
-            if (daysRemaining < 2) {
-                bgColor = colors.red[5]
-            }
+
+            if (daysRemaining < 7) bgColor = colors.orange[5]
+            if (daysRemaining < 2) bgColor = colors.red[5]
         } else {
-            badgeMessage = ActiveMessage
+            badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.active' })
         }
     }
 
-    if (!badgeMessage) {
-        return null
-    }
-    
+    if (!badgeMessage) return null
+
     return (
         <Tag bgColor={bgColor} textColor={colors.white}>
             {badgeMessage}
@@ -156,31 +150,55 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
 export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, handleActivatePlan, b2bAppsMap, allB2BAppIds }) => {
     const intl = useIntl()
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
+    const FreeForPartnerMessage = intl.formatMessage({ id: 'subscription.planCard.freeForPartner' })
+    const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
+    const BuyMessage = intl.formatMessage({ id: 'subscription.planCard.buy' })
+    const CustomPriceMessage = intl.formatMessage({ id: 'subscription.planCard.customPrice' })
+    const FeaturesTitle = intl.formatMessage({ id: 'subscription.features.title' })
+
+    const { organization } = useOrganization()
 
     const { plan, prices } = planInfo
     const price = prices?.[0]
-    const isCustomPrice = !price?.price
-    const hasPendingRequest = !!pendingRequest
+
+    const TryFreeMessage = intl.formatMessage({ id: 'subscription.planCard.tryFree' }, { currency: CURRENCY_SYMBOLS[price?.currencyCode] })
+    const PeriodMessage = intl.formatMessage({ id: `subscription.planCard.planPrice.${price?.period}` as FormatjsIntl.Message['ids'] })
+
+    const hasActiveBanking = organization?.features?.includes(OrganizationFeature.ActiveBanking)
+    const isCustomPrice = price?.price === null || price?.price === undefined
+    const priceInteger = price?.price !== null && price?.price !== undefined ? Math.floor(Number(price.price)) : -1
+    const formattedPrice = priceInteger >= 0 ? priceInteger.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
+    const isFreeForPartner = hasActiveBanking && priceInteger === 0
+    const canActivateTrial = !activatedTrial && plan.trialDays > 0
 
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
     const [trialActivateLoading, setTrialActivateLoading] = useState<boolean>(false)
 
     const handleActivePlanClick = async () => {
         setActivateLoading(true)
-        await handleActivatePlan(price.id, false)
-        setActivateLoading(false)
+        try {
+            await handleActivatePlan(price.id, false)
+        } finally {
+            setActivateLoading(false)
+        }
     }
 
     const handleTrialActivateClick = async () => {
         setTrialActivateLoading(true)
-        await handleActivatePlan(price.id, true)
-        setTrialActivateLoading(false)
+        try {
+            await handleActivatePlan(price.id, true)
+        } finally {
+            setTrialActivateLoading(false)
+        }
     }
 
+    const hasPendingRequest = !!pendingRequest
+    const primaryButtonLabel = hasPendingRequest ? RequestPendingMessage : (isCustomPrice ? SubmitRequestMessage : BuyMessage)
+
     const cardClassName = classnames(
-        styles['subscription-plan-card'],
+        styles.subscriptionPlanCard,
         {
-            [styles['subscription-plan-card-promoted']]: plan.canBePromoted,
+            [styles.subscriptionPlanCardPromoted]: plan.canBePromoted,
         }
     )
 
@@ -205,70 +223,73 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                         </div>
                     </Space>
                     <Space size={24} direction='vertical'>
-                        <Space size={4} direction='horizontal'>
-                            <Typography.Title level={3}>
-                                {isCustomPrice ? price.name : `${price.price} ${CURRENCY_SYMBOLS[price.currencyCode]}`}
-                            </Typography.Title>
-                            {
-                                !isCustomPrice && (
-                                    <Typography.Text type='secondary'>
-                                        {intl.formatMessage({ id: `subscription.planCard.planPrice.${price.period}` })}
-                                    </Typography.Text> 
-                                )
-                            }
+                        <Space size={4} direction='vertical'>
+                            {isFreeForPartner ? (
+                                <Typography.Title level={3}>
+                                    {FreeForPartnerMessage}
+                                </Typography.Title>
+                            ) : (
+                                <Space size={4} direction='horizontal'>
+                                    <Typography.Title level={3}>
+                                        {isCustomPrice ? CustomPriceMessage : `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`}
+                                    </Typography.Title>
+                                    {!isCustomPrice && (
+                                        <Typography.Text type='secondary'>
+                                            / {PeriodMessage}
+                                        </Typography.Text>
+                                    )}
+                                </Space>
+                            )}
                         </Space>
-                        <div className={styles.buttons}>
-                            <Button 
-                                type='primary' 
-                                onClick={handleActivePlanClick} 
-                                loading={activateLoading}
-                                disabled={hasPendingRequest}
-                            >
-                                {hasPendingRequest ? RequestPendingMessage : (isCustomPrice ? 'Оставить заявку' : 'Купить')}
-                            </Button>
-                            {
-                                !activatedTrial && plan.trialDays > 0 && (
-                                    <Button type='secondary' onClick={handleTrialActivateClick} loading={trialActivateLoading}>
-                                        {`Попробовать за 0${CURRENCY_SYMBOLS[price.currencyCode]}`}
+                        {!isFreeForPartner && (
+                            <div className={styles.buttons}>
+                                <Button
+                                    type='primary'
+                                    onClick={handleActivePlanClick}
+                                    loading={activateLoading}
+                                    disabled={hasPendingRequest}
+                                >
+                                    {primaryButtonLabel}
+                                </Button>
+                                {canActivateTrial && (
+                                    <Button type='accent' onClick={handleTrialActivateClick} loading={trialActivateLoading}>
+                                        {TryFreeMessage}
                                     </Button>
-                                )
-                            }
-                        </div>
+                                )}
+                            </div>
+                        )}
                     </Space>
                 </Space>
             </div>
-            <Collapse ghost>
+            <Collapse ghost className={styles.collapse}>
                 <Panel
-                    header={
-                        <Typography.Text strong>
-                            {intl.formatMessage({ id: 'subscription.features.title' })}
-                        </Typography.Text>
-                    }
+                    header={<Typography.Text strong>{FeaturesTitle}</Typography.Text>}
                     key='features'
                 >
                     <Space direction='vertical' size={8}>
-                        {BASE_FEATURES.map((label) => (
-                            <FeatureItem key={label} label={label} available />
+                        {BASE_FEATURES.map(({ label, hint }) => (
+                            <FeatureItem key={label} label={label} available hint={hint} />
                         ))}
-                        {PREMIUM_FEATURES.map(({ key, label }) => (
+                        {PREMIUM_FEATURES.map(({ key, label, hint }) => (
                             <FeatureItem 
                                 key={key} 
                                 label={label} 
                                 available={plan[key] === true} 
                                 helpLink={subscriptionFeatureHelpLinks[key]}
+                                hint={hint}
                             />
                         ))}
                         {allB2BAppIds.map((appId) => {
                             const app = b2bAppsMap.get(appId)
-                            if (!app) return null
-                            
+                            if (!app || !app.name) return null
+
                             const disabledApps = plan.disabledB2BApps || []
                             const isAvailable = !disabledApps.includes(appId)
-                            
+
                             return (
-                                <FeatureItem 
-                                    key={appId} 
-                                    label={app.name} 
+                                <FeatureItem
+                                    key={appId}
+                                    label={app.name}
                                     available={isAvailable}
                                 />
                             )
