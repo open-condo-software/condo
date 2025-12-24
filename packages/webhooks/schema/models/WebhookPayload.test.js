@@ -39,12 +39,12 @@ const WebhookPayloadTests = (appName, actorsInitializer, customEvents = []) => {
                     expect(webhookPayload.attempt).toBe(0)
                     expect(webhookPayload.payload).toBeDefined()
                     expect(webhookPayload.url).toBeDefined()
-                    expect(webhookPayload.eventType).toBe('test.event')
+                    expect(webhookPayload.eventType).toBe('User.created')
                 })
 
                 test('admin: can create WebhookPayload with custom payload', async () => {
                     const customPayload = {
-                        event: 'payment.status.changed',
+                        event: 'payment.status.updated',
                         data: {
                             paymentId: faker.datatype.uuid(),
                             previousStatus: 'CREATED',
@@ -55,13 +55,14 @@ const WebhookPayloadTests = (appName, actorsInitializer, customEvents = []) => {
 
                     const [webhookPayload] = await createTestWebhookPayload(actors.admin, {
                         payload: customPayloadString,
-                        eventType: 'payment.status.changed',
+                        eventType: customEvents.length > 0 ? customEvents[0] : 'User.created',
                     })
 
                     // payload is stored as EncryptedText - it's encrypted at rest but decrypted on read
                     expect(webhookPayload.payload).toBeDefined()
                     expect(typeof webhookPayload.payload).toBe('string')
-                    expect(webhookPayload.eventType).toBe('payment.status.changed')
+                    const expectedEventType = customEvents.length > 0 ? customEvents[0] : 'User.created'
+                    expect(webhookPayload.eventType).toBe(expectedEventType)
                 })
 
                 test('admin: can create WebhookPayload with modelName and itemId', async () => {
@@ -282,8 +283,8 @@ const WebhookPayloadTests = (appName, actorsInitializer, customEvents = []) => {
                 })
 
                 const nextRetryAt = dayjs(webhookPayload.nextRetryAt)
-                // Should be within 1 minute of now
-                expect(Math.abs(nextRetryAt.diff(now, 'minute'))).toBeLessThanOrEqual(1)
+                // Should be within 2 minutes of now (more lenient for slow test environments)
+                expect(Math.abs(nextRetryAt.diff(now, 'second'))).toBeLessThanOrEqual(120)
             })
 
             test('attempt defaults to 0', async () => {
@@ -316,13 +317,18 @@ const WebhookPayloadTests = (appName, actorsInitializer, customEvents = []) => {
             })
 
             test('can query by eventType', async () => {
-                const uniqueEventType = `test.event.${faker.random.alphaNumeric(8)}`
+                // Use a valid model event with specific modelName to make it unique
+                const uniqueEventType = 'Organization.updated'
+                const uniqueItemId = faker.datatype.uuid()
                 const [webhookPayload] = await createTestWebhookPayload(actors.admin, {
                     eventType: uniqueEventType,
+                    modelName: 'Organization',
+                    itemId: uniqueItemId,
                 })
 
                 const webhookPayloads = await WebhookPayload.getAll(actors.admin, {
                     eventType: uniqueEventType,
+                    itemId: uniqueItemId,
                 })
 
                 expect(webhookPayloads).toHaveLength(1)

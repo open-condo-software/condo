@@ -59,8 +59,7 @@ async function trySendWebhookPayload (webhookPayload) {
         }
     }
 
-    const body = typeof payload === 'string' ? payload : JSON.stringify(payload)
-    const signature = generateSignature(body, secret)
+    const signature = generateSignature(payload, secret)
 
     logger.info({
         msg: 'Sending webhook payload',
@@ -83,7 +82,7 @@ async function trySendWebhookPayload (webhookPayload) {
                 'X-Webhook-Signature-Algorithm': WEBHOOK_SIGNATURE_HASH_ALGORITHM,
                 'X-Webhook-Id': webhookPayload.id,
             },
-            body,
+            body: payload,
             maxRetries: 0,
             abortRequestTimeout: WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
         })
