@@ -245,6 +245,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
         message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+        messageForUser: 'api.marketplace.invoice.WEBHOOK_URL_NOT_IN_WHITELIST',
     },
 }
 
@@ -527,7 +528,12 @@ const Invoice = new GQLListSchema('Invoice', {
             }
 
             // Validate callback URL is in whitelist
-            const callbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
+            // Normalize empty string to null
+            let callbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
+            if (callbackUrl === '') {
+                callbackUrl = null
+                resolvedData['paymentStatusChangeWebhookUrl'] = null
+            }
             if (callbackUrl && !await isWebhookUrlInWhitelist(callbackUrl)) {
                 throw new GQLError(ERRORS.WEBHOOK_URL_NOT_IN_WHITELIST, context)
             }
