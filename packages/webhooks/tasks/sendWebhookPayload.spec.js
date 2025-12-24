@@ -8,6 +8,7 @@ const {
     WEBHOOK_PAYLOAD_STATUS_PENDING,
     WEBHOOK_PAYLOAD_STATUS_SENT,
     WEBHOOK_PAYLOAD_STATUS_ERROR,
+    WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
 } = require('@open-condo/webhooks/constants')
 const {
     WebhookPayload,
@@ -321,25 +322,18 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
             await softDeleteTestWebhookPayload(actors.admin, payload.id)
         })
 
-        // NOTE: This test takes ~30 seconds due to the webhook timeout.
+        // NOTE: This test takes ~10 seconds due to the WEBHOOK_PAYLOAD_TIMEOUT_IN_MS (10s) timeout.
+        // We use a non-routable IP address because nock's delay() doesn't properly trigger
+        // the timeout - it delays the response but the request still completes successfully.
         it('Must handle timeout errors correctly', async () => {
-            nock(BASE_URL)
-                .post(TIMEOUT_PATH)
-                .delay(35000) // Delay longer than the 30s timeout
-                .reply(function (uri, requestBody) {
-                    TIMEOUT_CALLS.push({ url: uri, body: requestBody, headers: this.req.headers })
-                    return [200, { received: true }]
-                })
-
+            // Use a non-routable IP address (RFC 5737 TEST-NET-1) to trigger real network timeout
             const expiresAt = dayjs().add(7, 'day').toISOString()
             const [payload] = await createTestWebhookPayload(actors.admin, {
-                url: `${BASE_URL}${TIMEOUT_PATH}`,
+                url: 'http://192.0.2.1:9999/webhook',
                 status: WEBHOOK_PAYLOAD_STATUS_PENDING,
                 expiresAt,
                 attempt: 0,
             })
-
-            const initialCallsLength = TIMEOUT_CALLS.length
 
             await sendWebhookPayload.delay.fn(payload.id)
 
@@ -347,15 +341,12 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
             expect(updated).toHaveProperty('status', WEBHOOK_PAYLOAD_STATUS_PENDING)
             expect(updated).toHaveProperty('attempt', 1)
             expect(updated).toHaveProperty('lastErrorMessage')
-            expect(updated.lastErrorMessage).toContain('timeout')
+            expect(updated.lastErrorMessage).toMatch(/timeout|Abort request by timeout/)
             expect(updated).toHaveProperty('nextRetryAt')
             expect(updated).toHaveProperty('lastHttpStatusCode', null)
 
-            // Note: TIMEOUT_CALLS may not be incremented because the request times out before reaching the handler
-            expect(TIMEOUT_CALLS.length).toBeGreaterThanOrEqual(initialCallsLength)
-
             await softDeleteTestWebhookPayload(actors.admin, payload.id)
-        }, 45000)
+        }, 20000)
 
         it('Must increment attempt counter on each retry', async () => {
             nock(BASE_URL)
