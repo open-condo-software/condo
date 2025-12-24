@@ -21,6 +21,14 @@
   justify-content: space-between;
 }
 
-.subscription-plan-card-promoted {
-  border: 2px solid green;
+.subscription-plan-card-promoted > div {
+  background: var(--condo-global-color-brand-gradient-1) !important;
+}
+
+.collapse :global(.ant-collapse-content > .ant-collapse-content-box) {
+  padding: 0;
+}
+
+.collapse > :global(.ant-collapse-item > .ant-collapse-header) {
+  padding: 0 !important;
 }
