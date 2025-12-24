@@ -10,6 +10,9 @@ query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!
                 isHidden
                 trialDays
                 canBePromoted
+                tickets
+                meters
+                payments
                 news
                 marketplace
                 support

@@ -1,4 +1,4 @@
-import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetOrganizationTrialSubscriptionsQuery, useActivateSubscriptionPlanMutation, useGetPendingSubscriptionRequestsQuery } from '@app/condo/gql'
+import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetOrganizationTrialSubscriptionsQuery, useActivateSubscriptionPlanMutation, useGetPendingSubscriptionRequestsQuery, useGetB2BAppsByIdsQuery } from '@app/condo/gql'
 import { notification } from 'antd'
 import React, { useState, useMemo } from 'react'
 
@@ -43,6 +43,33 @@ export const SubscriptionSettingsContent: React.FC = () => {
             .filter((p) => p?.prices?.length > 0)
             .sort((a, b) => (a.plan?.priority ?? 0) - (b.plan?.priority ?? 0))
     }, [plansData, planPeriod])
+
+    // Collect all unique B2B app IDs that appear in at least one plan's disabledB2BApps
+    const allB2BAppIds = useMemo(() => {
+        const plans = plansData?.result?.plans ?? []
+        const appIdsSet = new Set<string>()
+        
+        plans.forEach(p => {
+            const disabledApps = p?.plan?.disabledB2BApps || []
+            disabledApps.forEach(appId => appIdsSet.add(appId))
+        })
+        
+        return Array.from(appIdsSet)
+    }, [plansData])
+
+    // Fetch B2B apps data for those IDs
+    const { data: b2bAppsData, loading: b2bAppsLoading } = useGetB2BAppsByIdsQuery({
+        variables: { ids: allB2BAppIds },
+        skip: allB2BAppIds.length === 0,
+    })
+
+    console.log('b2bAppsData', allB2BAppIds, b2bAppsData)
+
+    const b2bAppsMap = useMemo(() => {
+        const apps = b2bAppsData?.b2bApps || []
+        console.log('apps', apps)
+        return new Map(apps.map(app => [app.id, app]))
+    }, [b2bAppsData])
 
     const {
         data: trialSubscriptionsData,
@@ -90,7 +117,6 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 await refetchTrialSubscriptions()
                 await refetchPendingRequests()
                 await refetchSubscriptionContexts()
-                // Refetch organization data to update subscription state across the app
                 if (employee?.id) {
                     await selectEmployee(employee.id)
                 }
@@ -125,7 +151,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
     }
     
 
-    if (plansLoading || trialSubscriptionsLoading || pendingRequestsLoading) {
+    if (plansLoading || trialSubscriptionsLoading || pendingRequestsLoading || b2bAppsLoading) {
         return <Loader />
     }
 
@@ -158,6 +184,8 @@ export const SubscriptionSettingsContent: React.FC = () => {
                             handleActivatePlan={handleActivatePlan}
                             activatedTrial={activatedTrial}
                             pendingRequest={pendingRequest}
+                            b2bAppsMap={b2bAppsMap}
+                            allB2BAppIds={allB2BAppIds}
                         />
                     )
                 })}
