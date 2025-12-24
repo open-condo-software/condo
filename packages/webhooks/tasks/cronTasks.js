@@ -9,7 +9,8 @@ function getWebhookCronTasks (cronSchedules = {}) {
     } = cronSchedules
 
     if (!CRON_TASKS_CACHE.has('retryFailedWebhookPayloads')) {
-        // Lazy import to prevent side effects at module load time and avoid test pollution
+        // Lazy import allows tests to get task references in beforeAll() and spy on their methods with jest.spyOn()
+        // If tasks were created at module load time, tests couldn't properly spy on them
         const { retryFailedWebhookPayloads } = require('@open-condo/webhooks/tasks/retryFailedWebhookPayloads')
         CRON_TASKS_CACHE.set('retryFailedWebhookPayloads', createCronTask(
             'retryFailedWebhookPayloads',
@@ -18,7 +19,8 @@ function getWebhookCronTasks (cronSchedules = {}) {
         ))
     }
     if (!CRON_TASKS_CACHE.has('deleteOldWebhookPayloads')) {
-        // Lazy import to prevent side effects at module load time and avoid test pollution
+        // Lazy import allows tests to get task references in beforeAll() and spy on their methods with jest.spyOn()
+        // If tasks were created at module load time, tests couldn't properly spy on them
         const { deleteOldWebhookPayloads } = require('@open-condo/webhooks/tasks/deleteOldWebhookPayloads')
         CRON_TASKS_CACHE.set('deleteOldWebhookPayloads', createCronTask(
             'deleteOldWebhookPayloads',
