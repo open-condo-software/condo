@@ -6,7 +6,7 @@ const dayjs = require('dayjs')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const {
-    WEBHOOK_PAYLOAD_TIMEOUT_MS,
+    WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
     WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH,
     WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC,
 } = require('@open-condo/webhooks/constants')
@@ -76,7 +76,7 @@ async function trySendWebhookPayload (webhookPayload) {
     })
 
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), WEBHOOK_PAYLOAD_TIMEOUT_MS)
+    const timeoutId = setTimeout(() => controller.abort(), WEBHOOK_PAYLOAD_TIMEOUT_IN_MS)
 
     try {
         const response = await fetch(url, {
@@ -137,7 +137,7 @@ async function trySendWebhookPayload (webhookPayload) {
         if (isTimeout) {
             const result = {
                 success: false,
-                error: `Request timeout after ${WEBHOOK_PAYLOAD_TIMEOUT_MS}ms`,
+                error: `Request timeout after ${WEBHOOK_PAYLOAD_TIMEOUT_IN_MS}ms`,
             }
 
             logger.info({
@@ -146,7 +146,7 @@ async function trySendWebhookPayload (webhookPayload) {
                 data: {
                     payloadId: webhookPayload.id,
                     success: false,
-                    timeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,
+                    timeout: WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
                     algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
                     error: result.error,
                 },
