@@ -1,3 +1,4 @@
+import { useGetB2BAppQuery } from '@app/condo/gql'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo, useCallback } from 'react'
@@ -12,7 +13,7 @@ import { SubscriptionTrialEndedModal } from './SubscriptionTrialEndedModal'
 import { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
 
 import { PageHeader, PageWrapper } from '../../common/components/containers/BaseLayout'
-import { requiresSubscriptionAccess, getRequiredFeature } from '../constants/routeFeatureMapping'
+import { requiresSubscriptionAccess, getRequiredFeature, isMiniappPage, getMiniappId } from '../constants/routeFeatureMapping'
 import { useOrganizationSubscription } from '../hooks'
 
 const { Title, Paragraph } = Typography
@@ -53,29 +54,59 @@ const getPageTitle = (pathname: string, intl: any): string => {
 export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = ({ children }) => {
     const router = useRouter()
     const intl = useIntl()
-    const { isFeatureAvailable, hasSubscription, loading } = useOrganizationSubscription()
+    const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading } = useOrganizationSubscription()
+
+    // Check if this is a miniapp page and get its ID
+    const isMiniapp = isMiniappPage(router.pathname)
+    const miniappId = isMiniapp ? getMiniappId(router.query) : null
+
+    // Fetch B2BApp data if on miniapp page
+    const { data: b2bAppData, loading: b2bAppLoading } = useGetB2BAppQuery({
+        variables: { id: miniappId || '' },
+        skip: !miniappId,
+    })
+
+    const b2bApp = b2bAppData?.b2bApp
 
     const pageTitle = useMemo(() => {
+        // Use B2BApp name for miniapp pages
+        if (isMiniapp && b2bApp?.name) {
+            return b2bApp.name
+        }
         return getPageTitle(router.pathname, intl)
-    }, [router.pathname, intl])
+    }, [router.pathname, intl, isMiniapp, b2bApp])
 
     const isBlocked = useMemo(() => {
         const currentPath = router.pathname
+
+        // Check if route requires subscription access
         if (!requiresSubscriptionAccess(currentPath)) {
             return false
         }
 
+        // Check subscription status
         if (loading || !hasSubscription) {
             return true
         }
 
+        // Check miniapp access (if on miniapp page)
+        if (isMiniapp && miniappId) {
+            if (b2bAppLoading) {
+                return true
+            }
+            if (!isB2BAppEnabled(miniappId)) {
+                return true
+            }
+        }
+
+        // Check feature access
         const requiredFeature = getRequiredFeature(currentPath)
         if (requiredFeature && !isFeatureAvailable(requiredFeature)) {
             return true
         }
 
         return false
-    }, [router.pathname, loading, hasSubscription, isFeatureAvailable])
+    }, [router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, isB2BAppEnabled])
 
     const handleGoToPlans = useCallback(() => {
         router.push('/settings?tab=subscription')
@@ -86,7 +117,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         window.open('https://doma.ai/features', '_blank')
     }, [])
 
-    if (loading) {
+    if (loading || (isMiniapp && b2bAppLoading)) {
         return <Loader />
     }
 

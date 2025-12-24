@@ -22,3 +22,10 @@ query getCountB2BAppsWithNewsSharingConfig {
         count
     }
 }
+
+query getB2BApp($id: ID!) {
+    b2bApp: B2BApp(where: { id: $id }) {
+        id
+        name
+    }
+}
