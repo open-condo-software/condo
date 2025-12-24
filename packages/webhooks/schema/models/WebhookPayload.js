@@ -6,7 +6,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const {
     WEBHOOK_PAYLOAD_STATUSES,
     WEBHOOK_PAYLOAD_STATUS_PENDING,
-    WEBHOOK_PAYLOAD_TTL_DAYS,
+    WEBHOOK_PAYLOAD_TTL_IN_SEC,
     WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH,
 } = require('@open-condo/webhooks/constants')
 const { getModelValidator } = require('@open-condo/webhooks/model-validator')
@@ -190,7 +190,7 @@ function getWebhookPayloadModel (appWebhooksEventsTypes = []) {
                 hooks: {
                     resolveInput: ({ resolvedData, operation, fieldPath }) => {
                         if (operation === 'create' && !resolvedData[fieldPath]) {
-                            return dayjs().add(WEBHOOK_PAYLOAD_TTL_DAYS, 'day').toISOString()
+                            return dayjs().add(WEBHOOK_PAYLOAD_TTL_IN_SEC, 'second').toISOString()
                         }
                         return resolvedData[fieldPath]
                     },
