@@ -69,3 +69,18 @@ export function getRequiredFeature (pathname: string): AvailableFeature | null {
     
     return null
 }
+
+/**
+ * Check if pathname is a miniapp page (not about page)
+ */
+export function isMiniappPage (pathname: string): boolean {
+    return pathname === '/miniapps/[id]'
+}
+
+/**
+ * Extract miniapp ID from router query
+ */
+export function getMiniappId (query: Record<string, string | string[] | undefined>): string | null {
+    const id = query.id
+    return typeof id === 'string' ? id : null
+}
