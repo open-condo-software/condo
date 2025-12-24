@@ -74,15 +74,15 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
     commentType,
 }) => {
     const intl = useIntl()
-    const { isFeatureAvailable } = useOrganizationSubscription()
-    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
-    const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
-
     const GenerateResponseMessage = intl.formatMessage({ id: 'ai.generateResponse' })
     const GenerateResponseTooltipMessage = intl.formatMessage({ id: 'ai.generateResponseWithAI' })
     const GenerateCommentMessage = intl.formatMessage({ id: 'ai.generateComment' })
     const GenerateCommentTourStepTitle = intl.formatMessage({ id: 'ai.generateComment.tourStepTitle' })
     const GenerateCommentTourStepDescription = intl.formatMessage({ id: 'ai.generateComment.tourStepDescription' })
+
+    const { isFeatureAvailable } = useOrganizationSubscription()
+    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
+    const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
 
     const lastComment = useMemo(() => comments?.[0], [comments])
     const showGenerateAnswerButton = useMemo(() =>

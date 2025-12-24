@@ -23,12 +23,10 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } from '@condo/domains/organization/gql'
 import { useOrganizationEmployeeRequests } from '@condo/domains/organization/hooks/useOrganizationEmployeeRequests'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
-
-import { useOrganizationSubscription } from '../../../../subscription/hooks'
-
 
 const ORGANIZATION_TYPES: Array<OrganizationTypeType> = [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider]
 

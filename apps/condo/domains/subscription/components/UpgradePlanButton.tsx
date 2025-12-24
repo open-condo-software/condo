@@ -1,4 +1,5 @@
 import { CrownOutlined } from '@ant-design/icons'
+import { useGetAvailableSubscriptionPlansQuery } from '@app/condo/gql'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
@@ -8,7 +9,6 @@ import { Button } from '@open-condo/ui'
 
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
-import { useGetAvailableSubscriptionPlansQuery } from '../../../gql'
 
 export const UpgradePlanButton: React.FC = () => {
     const intl = useIntl()

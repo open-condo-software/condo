@@ -153,16 +153,15 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     setAiNotificationShow,
 }) => {
     const intl = useIntl()
-    
-    // Subscription check for AI feature
-    const { isFeatureAvailable } = useOrganizationSubscription()
-    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
-    const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
     const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
     const UploadTooltipText = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
     const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
     const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
+
+    const { isFeatureAvailable } = useOrganizationSubscription()
+    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
+    const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
 
     const editableCommentFiles = editableComment?.files
     const [commentValue, setCommentValue] = useState('')

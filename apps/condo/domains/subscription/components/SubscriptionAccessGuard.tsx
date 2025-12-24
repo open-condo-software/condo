@@ -31,19 +31,16 @@ const getPageTitle = (pathname: string, intl: any): string => {
         '/marketplace': intl.formatMessage({ id: 'global.section.marketplace' }),
     }
 
-    // Check exact match first
     if (routeTitleMap[pathname]) {
         return routeTitleMap[pathname]
     }
 
-    // Check if pathname starts with any of the mapped routes
     for (const route in routeTitleMap) {
         if (pathname.startsWith(route + '/')) {
             return routeTitleMap[route]
         }
     }
 
-    // Default fallback
     return intl.formatMessage({ id: 'subscription.accessGuard.defaultPageTitle' })
 }
 
@@ -56,11 +53,9 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const intl = useIntl()
     const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading } = useOrganizationSubscription()
 
-    // Check if this is a miniapp page and get its ID
     const isMiniapp = isMiniappPage(router.pathname)
     const miniappId = isMiniapp ? getMiniappId(router.query) : null
 
-    // Fetch B2BApp data if on miniapp page
     const { data: b2bAppData, loading: b2bAppLoading } = useGetB2BAppQuery({
         variables: { id: miniappId || '' },
         skip: !miniappId,
@@ -69,7 +64,6 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const b2bApp = b2bAppData?.b2bApp
 
     const pageTitle = useMemo(() => {
-        // Use B2BApp name for miniapp pages
         if (isMiniapp && b2bApp?.name) {
             return b2bApp.name
         }
@@ -79,17 +73,14 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const isBlocked = useMemo(() => {
         const currentPath = router.pathname
 
-        // Check if route requires subscription access
         if (!requiresSubscriptionAccess(currentPath)) {
             return false
         }
 
-        // Check subscription status
         if (loading || !hasSubscription) {
             return true
         }
 
-        // Check miniapp access (if on miniapp page)
         if (isMiniapp && miniappId) {
             if (b2bAppLoading) {
                 return true
@@ -99,7 +90,6 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
             }
         }
 
-        // Check feature access
         const requiredFeature = getRequiredFeature(currentPath)
         if (requiredFeature && !isFeatureAvailable(requiredFeature)) {
             return true

@@ -33,9 +33,7 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
     const messageType = useMemo(() => message?.type, [message?.type])
 
     const intl = useIntl()
-    // Use custom title if provided (for subscription expiration), otherwise use intl
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const customTitle = (message as any)?.customTitle
+    const customTitle = message?.customTitle
     const MessageTitle = customTitle || intl.formatMessage({ id: `notification.UserMessagesList.message.${messageType}.label` })
 
     const { setIsDropdownOpen } = useUserMessagesList()

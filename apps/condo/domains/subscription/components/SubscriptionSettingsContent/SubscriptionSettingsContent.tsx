@@ -7,15 +7,15 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Space, Radio } from '@open-condo/ui'
 
+import { Loader } from '@condo/domains/common/components/Loader'
+import { useOrganizationSubscription } from '@condo/domains/hooks/useOrganizationSubscription'
+
 import { PromoBanner } from './PromoBanner/PromoBanner'
 import { SubscriptionPlanCard } from './SubscriptionPlanCard/SubscriptionPlanCard'
 import styles from './SubscriptionSettingsContent.module.css'
 
-import { Loader } from '../../../common/components/Loader'
-import { useOrganizationSubscription } from '../../hooks/useOrganizationSubscription'
 
-
-type PlanPeriod = 'month' | 'year' // TODO: do as type from SubscriptionPlanPricingRule
+type PlanPeriod = 'month' | 'year'
 type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plans'][number]
 
 export const SubscriptionSettingsContent: React.FC = () => {
