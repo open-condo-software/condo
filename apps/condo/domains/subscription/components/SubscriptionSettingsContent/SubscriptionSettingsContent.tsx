@@ -52,14 +52,14 @@ export const SubscriptionSettingsContent: React.FC = () => {
             .sort((a, b) => (a.plan?.priority ?? 0) - (b.plan?.priority ?? 0))
     }, [plansData, planPeriod])
 
-    // Collect all unique B2B app IDs that appear in at least one plan's disabledB2BApps
+    // Collect all unique B2B app IDs that appear in at least one plan's enabledB2BApps
     const allB2BAppIds = useMemo(() => {
         const plans = plansData?.result?.plans ?? []
         const appIdsSet = new Set<string>()
 
         plans.forEach(p => {
-            const disabledApps = p?.plan?.disabledB2BApps || []
-            disabledApps.forEach(appId => appIdsSet.add(appId))
+            const enabledApps = p?.plan?.enabledB2BApps || []
+            enabledApps.forEach(appId => appIdsSet.add(appId))
         })
 
         return Array.from(appIdsSet)

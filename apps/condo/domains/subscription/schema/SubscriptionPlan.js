@@ -17,10 +17,10 @@ const ERRORS = {
         type: 'TRIAL_DAYS_MUST_BE_NON_NEGATIVE',
         message: 'trialDays must be >= 0',
     },
-    DISABLED_APPS_MUST_BE_ARRAY_OF_IDS: {
+    ENABLED_APPS_MUST_BE_ARRAY_OF_IDS: {
         code: BAD_USER_INPUT,
-        type: 'DISABLED_APPS_MUST_BE_ARRAY_OF_IDS',
-        message: 'disabledB2BApps and disabledB2CApps must be arrays of valid UUIDs',
+        type: 'ENABLED_APPS_MUST_BE_ARRAY_OF_IDS',
+        message: 'enabledB2BApps and enabledB2CApps must be arrays of valid UUIDs',
     },
 }
 
@@ -146,8 +146,8 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             isRequired: true,
         },
 
-        disabledB2BApps: {
-            schemaDoc: 'JSON array of B2B miniapp IDs that are disabled in this plan',
+        enabledB2BApps: {
+            schemaDoc: 'JSON array of B2B miniapp IDs that are enabled in this plan',
             type: 'Json',
             defaultValue: [],
             isRequired: true,
@@ -157,20 +157,20 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
                     if (value === undefined) return
 
                     if (!Array.isArray(value)) {
-                        throw new GQLError(ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                        throw new GQLError(ERRORS.ENABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
                     }
 
                     for (const id of value) {
                         if (typeof id !== 'string' || !UUID_REGEX.test(id)) {
-                            throw new GQLError(ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                            throw new GQLError(ERRORS.ENABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
                         }
                     }
                 },
             },
         },
 
-        disabledB2CApps: {
-            schemaDoc: 'JSON array of B2C miniapp IDs that are disabled in this plan',
+        enabledB2CApps: {
+            schemaDoc: 'JSON array of B2C miniapp IDs that are enabled in this plan',
             type: 'Json',
             defaultValue: [],
             isRequired: true,
@@ -180,12 +180,12 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
                     if (value === undefined) return
 
                     if (!Array.isArray(value)) {
-                        throw new GQLError(ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                        throw new GQLError(ERRORS.ENABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
                     }
 
                     for (const id of value) {
                         if (typeof id !== 'string' || !UUID_REGEX.test(id)) {
-                            throw new GQLError(ERRORS.DISABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                            throw new GQLError(ERRORS.ENABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
                         }
                     }
                 },

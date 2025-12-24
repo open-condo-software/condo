@@ -70,8 +70,8 @@ query getActiveSubscriptionContexts($organizationId: ID!, $now: String!) {
             support
             ai
             customization
-            disabledB2BApps
-            disabledB2CApps
+            enabledB2BApps
+            enabledB2CApps
         }
         basePrice
         calculatedPrice

@@ -283,8 +283,8 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                             const app = b2bAppsMap.get(appId)
                             if (!app || !app.name) return null
 
-                            const disabledApps = plan.disabledB2BApps || []
-                            const isAvailable = !disabledApps.includes(appId)
+                            const enabledApps = plan.enabledB2BApps || []
+                            const isAvailable = enabledApps.includes(appId)
 
                             return (
                                 <FeatureItem
