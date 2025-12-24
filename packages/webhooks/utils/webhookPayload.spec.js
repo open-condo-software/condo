@@ -94,7 +94,7 @@ describe('webhookPayload utilities', () => {
         const mockWebhookPayload = {
             id: 'test-webhook-payload-id',
             url: 'https://example.com/webhook',
-            payload: { eventType: 'test.event', data: { test: true } },
+            payload: '{"eventType":"test.event","data":{"test":true}}',
             secret: 'test-secret',
             eventType: 'test.event',
             attempt: 0,
