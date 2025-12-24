@@ -15,6 +15,7 @@ type LoginWithSBBOLButtonProps = {
     redirect?: string
     checkTlsCert: boolean
     tabIndex?: number
+    className?: string
 }
 
 export const LoginWithSBBOLButton: React.FC<LoginWithSBBOLButtonProps> = ({
@@ -23,6 +24,7 @@ export const LoginWithSBBOLButton: React.FC<LoginWithSBBOLButtonProps> = ({
     redirect,
     checkTlsCert = true,
     tabIndex,
+    className,
 }) => {
     const intl = useIntl()
     const LoginLabel = intl.formatMessage({ id: 'LoginBySBBOL' })
@@ -43,11 +45,13 @@ export const LoginWithSBBOLButton: React.FC<LoginWithSBBOLButtonProps> = ({
         onFail: redirectToTlsPage,
     })
 
+    const buttonClassName = className ? `condo-btn-sbbol ${className}` : 'condo-btn-sbbol'
+
     return (
         <Button
             key='submit'
             type='secondary'
-            className='condo-btn-sbbol'
+            className={buttonClassName}
             icon={<Sber color={colors.teal['5']}/>}
             onClick={() => checkTlsCert ? checkSSLClientCert() : redirectToAuth()}
             loading={loading}

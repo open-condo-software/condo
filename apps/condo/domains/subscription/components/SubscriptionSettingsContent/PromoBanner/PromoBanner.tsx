@@ -1,28 +1,30 @@
 import { useGetPendingBankingRequestQuery } from '@app/condo/gql'
-import { UserHelpRequestTypeType } from '@app/condo/schema'
+import { OrganizationFeature, UserHelpRequestTypeType } from '@app/condo/schema'
 import getConfig from 'next/config'
 import React, { useCallback, useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Card, Typography, Space, Button } from '@open-condo/ui'
+import { Typography, Space, Button } from '@open-condo/ui'
 
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { UserHelpRequest } from '@condo/domains/onboarding/utils/clientSchema'
+
+import styles from './PromoBanner.module.css'
 
 
 const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
 
 export const PromoBanner: React.FC = () => {
     const intl = useIntl()
-    const BannerTitle = intl.formatMessage({ id: 'subscription.promoBanner.title' })
-    const BannerDescription = intl.formatMessage({ id: 'subscription.promoBanner.description' })
-    const RkoButtonLabel = intl.formatMessage({ id: 'subscription.promoBanner.rkoButton' })
-    const RequestPendingMessage = intl.formatMessage({ id: 'subscription.promoBanner.requestPending' })
-
     const { user } = useAuth()
     const { organization } = useOrganization()
+
+    const BannerTitle = intl.formatMessage({ id: 'subscription.promoBanner.title' })
+    const BannerDescription = intl.formatMessage({ id: 'subscription.promoBanner.description' })
+    const ActivateButtonLabel = intl.formatMessage({ id: 'subscription.promoBanner.activateButton' })
+    const RequestPendingMessage = intl.formatMessage({ id: 'subscription.promoBanner.requestPending' })
 
     const [loading, setLoading] = useState(false)
 
@@ -33,6 +35,7 @@ export const PromoBanner: React.FC = () => {
         variables: { organizationId: organization?.id },
         skip: !organization?.id,
     })
+
     const hasPendingRequest = (pendingRequestData?.pendingBankingRequest?.length ?? 0) > 0
 
     const createHelpRequestAction = UserHelpRequest.useCreate({
@@ -57,39 +60,35 @@ export const PromoBanner: React.FC = () => {
         }
     }, [createHelpRequestAction, organization?.id, user?.phone, user?.email, refetchPendingRequest])
 
-    // Don't show banner if organization already has ACTIVE_BANKING feature or no SBBOL auth
-    const organizationFeatures: string[] = organization?.features || []
-    const hasBankingFeature = organizationFeatures.includes('ACTIVE_BANKING')
-    // if (!hasSbbolAuth || hasBankingFeature) {
-    //     return null
-    // }
-    if (hasBankingFeature) {
-        return null
-    }
+    const hasBankingFeature = organization?.features?.includes(OrganizationFeature.ActiveBanking)
+    if (hasBankingFeature && !hasSbbolAuth) return null
 
     return (
-        <Card>
-            <Space size={16} direction='vertical'>
-                <Space size={8} direction='vertical'>
+        <div className={styles.bannerWrapper}>
+            <div className={styles.bannerCard}>
+                <Space size={16} direction='vertical'>
                     <Typography.Title level={4}>
                         {BannerTitle}
                     </Typography.Title>
-                    <Typography.Text type='secondary'>
+                    <Typography.Text type='secondary' size='medium'>
                         {BannerDescription}
                     </Typography.Text>
+                    <Space size={12} direction='horizontal'>
+                        <LoginWithSBBOLButton checkTlsCert className={styles.greenButton} />
+                        <Button
+                            type='primary'
+                            onClick={handleActivateBankingRequest}
+                            loading={loading}
+                            disabled={hasPendingRequest}
+                        >
+                            {hasPendingRequest ? RequestPendingMessage : ActivateButtonLabel}
+                        </Button>
+                    </Space>
                 </Space>
-                <Space size={12} direction='horizontal'>
-                    <LoginWithSBBOLButton checkTlsCert={true} />
-                    <Button
-                        type='secondary'
-                        onClick={handleActivateBankingRequest}
-                        loading={loading}
-                        disabled={hasPendingRequest}
-                    >
-                        {hasPendingRequest ? RequestPendingMessage : RkoButtonLabel}
-                    </Button>
-                </Space>
-            </Space>
-        </Card>
+                <div className={styles.imageWrapper}>
+                    <img src='/global-hints/subscriptions/bankLogo.png' alt='Bank logo' />
+                </div>
+            </div>
+        </div>
     )
 }
