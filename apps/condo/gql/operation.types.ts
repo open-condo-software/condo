@@ -412,6 +412,13 @@ export type GetB2BAppQueryVariables = Types.Exact<{
 
 export type GetB2BAppQuery = { __typename?: 'Query', b2bApp?: { __typename?: 'B2BApp', id: string, name?: string | null } | null };
 
+export type GetB2BAppsByIdsQueryVariables = Types.Exact<{
+  ids: Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetB2BAppsByIdsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, name?: string | null } | null> | null };
+
 export type GetEmployeeB2BAppRolesForSpecificAppsQueryVariables = Types.Exact<{
   employeeRoleId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
   b2bAppIds?: Types.InputMaybe<Array<Types.InputMaybe<Types.Scalars['ID']['input']>> | Types.InputMaybe<Types.Scalars['ID']['input']>>;
@@ -779,7 +786,7 @@ export type GetAvailableSubscriptionPlansQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetAvailableSubscriptionPlansQuery = { __typename?: 'Query', result?: { __typename?: 'GetAvailableSubscriptionPlansOutput', plans: Array<{ __typename?: 'AvailableSubscriptionPlan', plan: { __typename?: 'SubscriptionPlan', id: string, priority?: number | null, name?: string | null, description?: string | null, organizationType?: Types.SubscriptionPlanOrganizationTypeType | null, isHidden?: boolean | null, trialDays?: number | null, canBePromoted?: boolean | null, news?: boolean | null, marketplace?: boolean | null, support?: boolean | null, ai?: boolean | null, disabledB2BApps?: any | null, disabledB2CApps?: any | null, customization?: boolean | null }, prices: Array<{ __typename?: 'SubscriptionPlanPrice', id: string, name: string, period: string, price?: string | null, currencyCode?: string | null }> } | null> } | null };
+export type GetAvailableSubscriptionPlansQuery = { __typename?: 'Query', result?: { __typename?: 'GetAvailableSubscriptionPlansOutput', plans: Array<{ __typename?: 'AvailableSubscriptionPlan', plan: { __typename?: 'SubscriptionPlan', id: string, priority?: number | null, name?: string | null, description?: string | null, organizationType?: Types.SubscriptionPlanOrganizationTypeType | null, isHidden?: boolean | null, trialDays?: number | null, canBePromoted?: boolean | null, tickets?: boolean | null, meters?: boolean | null, payments?: boolean | null, news?: boolean | null, marketplace?: boolean | null, support?: boolean | null, ai?: boolean | null, disabledB2BApps?: any | null, disabledB2CApps?: any | null, customization?: boolean | null }, prices: Array<{ __typename?: 'SubscriptionPlanPrice', id: string, name: string, period: string, price?: string | null, currencyCode?: string | null }> } | null> } | null };
 
 export type GetSubscriptionContextQueryVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];

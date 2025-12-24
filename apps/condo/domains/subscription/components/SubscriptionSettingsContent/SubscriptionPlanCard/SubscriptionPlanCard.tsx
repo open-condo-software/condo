@@ -30,23 +30,22 @@ const BASE_FEATURES = [
     'subscription.features.services',
     'subscription.features.settings',
     'subscription.features.analytics',
-    'subscription.features.tickets',
     'subscription.features.properties',
     'subscription.features.employees',
     'subscription.features.residents',
-    'subscription.features.meters',
-    'subscription.features.payments',
     'subscription.features.mobileApp',
     'subscription.features.outages',
 ]
 
 // Premium features that need backend checks
 const PREMIUM_FEATURES = [
+    { key: FEATURE_KEY.TICKETS, label: 'subscription.features.tickets' },
+    { key: FEATURE_KEY.METERS, label: 'subscription.features.meters' },
+    { key: FEATURE_KEY.PAYMENTS, label: 'subscription.features.payments' },
     { key: FEATURE_KEY.NEWS, label: 'subscription.features.news' },
     { key: FEATURE_KEY.MARKETPLACE, label: 'subscription.features.marketplace' },
     { key: FEATURE_KEY.SUPPORT, label: 'subscription.features.personalManager' },
     { key: FEATURE_KEY.AI, label: 'subscription.features.ai' },
-    { key: FEATURE_KEY.PASS_TICKETS, label: 'subscription.features.passTickets' },
     { key: FEATURE_KEY.CUSTOMIZATION, label: 'subscription.features.customization' },
 ]
 
@@ -66,6 +65,8 @@ interface SubscriptionPlanCardProps {
     activatedTrial?: ActivatedTrial
     pendingRequest?: PendingRequest
     handleActivatePlan: (priceId: string, isTrial: boolean) => void
+    b2bAppsMap: Map<string, { id: string, name: string }>
+    allB2BAppIds: string[]
 }
 
 interface SubscriptionPlanBadgeProps {
@@ -75,7 +76,14 @@ interface SubscriptionPlanBadgeProps {
 
 const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink }) => {
     const intl = useIntl()
-    const featureLabel = intl.formatMessage({ id: label as FormatjsIntl.Message['ids'] })
+    
+    // Try to format as intl message, fallback to raw label if not found
+    let featureLabel: string
+    try {
+        featureLabel = intl.formatMessage({ id: label as FormatjsIntl.Message['ids'] })
+    } catch {
+        featureLabel = label
+    }
     
     const textContent = helpLink ? (
         <Typography.Link href={helpLink} target='_blank' rel='noopener noreferrer'>
@@ -145,7 +153,7 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     )
 }
 
-export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, handleActivatePlan }) => {
+export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, handleActivatePlan, b2bAppsMap, allB2BAppIds }) => {
     const intl = useIntl()
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
 
@@ -250,6 +258,21 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                 helpLink={subscriptionFeatureHelpLinks[key]}
                             />
                         ))}
+                        {allB2BAppIds.map((appId) => {
+                            const app = b2bAppsMap.get(appId)
+                            if (!app) return null
+                            
+                            const disabledApps = plan.disabledB2BApps || []
+                            const isAvailable = !disabledApps.includes(appId)
+                            
+                            return (
+                                <FeatureItem 
+                                    key={appId} 
+                                    label={app.name} 
+                                    available={isAvailable}
+                                />
+                            )
+                        })}
                     </Space>
                 </Panel>
             </Collapse>

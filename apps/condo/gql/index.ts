@@ -2653,6 +2653,47 @@ export type GetB2BAppQueryHookResult = ReturnType<typeof useGetB2BAppQuery>;
 export type GetB2BAppLazyQueryHookResult = ReturnType<typeof useGetB2BAppLazyQuery>;
 export type GetB2BAppSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppSuspenseQuery>;
 export type GetB2BAppQueryResult = Apollo.QueryResult<Types.GetB2BAppQuery, Types.GetB2BAppQueryVariables>;
+export const GetB2BAppsByIdsDocument = gql`
+    query getB2BAppsByIds($ids: [ID!]!) {
+  b2bApps: allB2BApps(where: {id_in: $ids}, first: 100) {
+    id
+    name
+  }
+}
+    `;
+
+/**
+ * __useGetB2BAppsByIdsQuery__
+ *
+ * To run a query within a React component, call `useGetB2BAppsByIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2BAppsByIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2BAppsByIdsQuery({
+ *   variables: {
+ *      ids: // value for 'ids'
+ *   },
+ * });
+ */
+export function useGetB2BAppsByIdsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetB2BAppsByIdsQuery, Types.GetB2BAppsByIdsQueryVariables> & ({ variables: Types.GetB2BAppsByIdsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetB2BAppsByIdsQuery, Types.GetB2BAppsByIdsQueryVariables>(GetB2BAppsByIdsDocument, options);
+      }
+export function useGetB2BAppsByIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetB2BAppsByIdsQuery, Types.GetB2BAppsByIdsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetB2BAppsByIdsQuery, Types.GetB2BAppsByIdsQueryVariables>(GetB2BAppsByIdsDocument, options);
+        }
+export function useGetB2BAppsByIdsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppsByIdsQuery, Types.GetB2BAppsByIdsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetB2BAppsByIdsQuery, Types.GetB2BAppsByIdsQueryVariables>(GetB2BAppsByIdsDocument, options);
+        }
+export type GetB2BAppsByIdsQueryHookResult = ReturnType<typeof useGetB2BAppsByIdsQuery>;
+export type GetB2BAppsByIdsLazyQueryHookResult = ReturnType<typeof useGetB2BAppsByIdsLazyQuery>;
+export type GetB2BAppsByIdsSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppsByIdsSuspenseQuery>;
+export type GetB2BAppsByIdsQueryResult = Apollo.QueryResult<Types.GetB2BAppsByIdsQuery, Types.GetB2BAppsByIdsQueryVariables>;
 export const GetEmployeeB2BAppRolesForSpecificAppsDocument = gql`
     query getEmployeeB2BAppRolesForSpecificApps($employeeRoleId: ID, $b2bAppIds: [ID]) {
   b2bRoles: allB2BAppRoles(
@@ -4844,6 +4885,9 @@ export const GetAvailableSubscriptionPlansDocument = gql`
         isHidden
         trialDays
         canBePromoted
+        tickets
+        meters
+        payments
         news
         marketplace
         support
