@@ -58,14 +58,30 @@ async function isWebhookUrlInWhitelist (url) {
  */
 function applyWebhookSecretGeneration (resolvedData, existingItem) {
     const existingCallbackUrl = get(existingItem, 'paymentStatusChangeWebhookUrl')
-    const newCallbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
-    const existingSecret = get(existingItem, 'paymentStatusChangeWebhookSecret')
+    
+    // Check if the webhook URL field is present in resolvedData
+    const hasWebhookUrlField = 'paymentStatusChangeWebhookUrl' in resolvedData
+    
+    if (!hasWebhookUrlField) {
+        // Field not being updated, do nothing
+        return resolvedData
+    }
+    
+    let newCallbackUrl = resolvedData.paymentStatusChangeWebhookUrl
 
-    if (newCallbackUrl && !existingSecret) {
-        // Generate a new secret only if URL is being set and no secret exists
+    // Normalize empty string to null
+    if (newCallbackUrl === '') {
+        newCallbackUrl = null
+        resolvedData['paymentStatusChangeWebhookUrl'] = null
+    }
+
+    // Generate new secret when:
+    // 1. URL is being set for the first time (no existing URL, new URL provided)
+    // 2. URL is being changed to a different URL (existing URL differs from new URL)
+    if (newCallbackUrl && newCallbackUrl !== existingCallbackUrl) {
         resolvedData['paymentStatusChangeWebhookSecret'] = crypto.randomBytes(32).toString('hex')
-    } else if (newCallbackUrl === null && existingCallbackUrl) {
-        // Clear secret when callback URL is removed
+    } else if ((newCallbackUrl === null || newCallbackUrl === undefined) && existingCallbackUrl) {
+        // Clear secret when callback URL is explicitly removed
         resolvedData['paymentStatusChangeWebhookSecret'] = null
     }
 
