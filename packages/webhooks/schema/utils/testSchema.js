@@ -103,10 +103,10 @@ async function createTestWebhookPayload (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        payload: JSON.stringify({ eventType: 'test.event', data: { test: true } }),
+        payload: JSON.stringify({ eventType: 'User.created', data: { test: true } }),
         url: faker.internet.url(),
         secret: faker.random.alphaNumeric(32),
-        eventType: 'test.event',
+        eventType: 'User.created',
         ...extraAttrs,
     }
 
