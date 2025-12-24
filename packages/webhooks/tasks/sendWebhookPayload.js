@@ -15,7 +15,7 @@ const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/serverSche
 const {
     trySendWebhookPayload,
     calculateNextRetryAt,
-} = require('@open-condo/webhooks/utils/webhookPayload.utils')
+} = require('@open-condo/webhooks/utils/webhookPayload')
 
 
 const LOCK_DURATION_IN_SEC = 5 * 60 // 5 minutes - prevents multiple concurrent executions for the same payload to avoid duplicate sends

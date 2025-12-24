@@ -1,5 +1,4 @@
 const crypto = require('node:crypto')
-const { randomUUID } = require('node:crypto')
 
 const dayjs = require('dayjs')
 
@@ -50,7 +49,7 @@ function calculateNextRetryAt (attempt) {
  */
 async function trySendWebhookPayload (webhookPayload) {
     const { url, payload, secret, eventType } = webhookPayload
-    const reqId = randomUUID()
+    const reqId = crypto.randomUUID()
 
     if (!url || !payload || !secret) {
         logger.error({ msg: 'Missing required payload fields', reqId, data: { payloadId: webhookPayload.id, hasUrl: !!url, hasPayload: !!payload, hasSecret: !!secret } })

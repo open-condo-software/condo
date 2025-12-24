@@ -18,7 +18,7 @@ const {
     generateSignature,
     calculateNextRetryAt,
     trySendWebhookPayload,
-} = require('./webhookPayload.utils')
+} = require('./webhookPayload')
 
 
 
