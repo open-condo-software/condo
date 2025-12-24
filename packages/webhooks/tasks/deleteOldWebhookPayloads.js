@@ -2,7 +2,7 @@ const dayjs = require('dayjs')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { itemsQuery, getSchemaCtx } = require('@open-condo/keystone/schema')
-const { WEBHOOK_PAYLOAD_RETENTION_DAYS } = require('@open-condo/webhooks/constants')
+const { WEBHOOK_PAYLOAD_RETENTION_IN_SEC } = require('@open-condo/webhooks/constants')
 const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/serverSchema')
 
 const logger = getLogger()
@@ -11,15 +11,15 @@ const BATCH_SIZE = 100
 
 /**
  * Hard deletes old WebhookPayload records from the database.
- * Deletes records not updated for more than WEBHOOK_PAYLOAD_RETENTION_DAYS (default: 42 days).
+ * Deletes records not updated for more than WEBHOOK_PAYLOAD_RETENTION_IN_SEC (default: 42 days).
  * This helps keep the database clean and prevents unbounded growth of stored data.
  */
 async function deleteOldWebhookPayloads () {
     const { keystone } = getSchemaCtx('WebhookPayload')
     const context = await keystone.createContext({ skipAccessControl: true })
-    const cutoffDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS, 'day').toISOString()
+    const cutoffDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_IN_SEC, 'second').toISOString()
 
-    logger.info({ msg: 'Starting cleanup of old webhook payloads', data: { cutoffDate, retentionDays: WEBHOOK_PAYLOAD_RETENTION_DAYS } })
+    logger.info({ msg: 'Starting cleanup of old webhook payloads', data: { cutoffDate, retentionInSec: WEBHOOK_PAYLOAD_RETENTION_IN_SEC } })
 
     let totalDeleted = 0
 
