@@ -405,6 +405,13 @@ export type GetCountB2BAppsWithNewsSharingConfigQueryVariables = Types.Exact<{ [
 
 export type GetCountB2BAppsWithNewsSharingConfigQuery = { __typename?: 'Query', _allB2BAppsMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
+export type GetB2BAppQueryVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetB2BAppQuery = { __typename?: 'Query', b2bApp?: { __typename?: 'B2BApp', id: string, name?: string | null } | null };
+
 export type GetEmployeeB2BAppRolesForSpecificAppsQueryVariables = Types.Exact<{
   employeeRoleId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
   b2bAppIds?: Types.InputMaybe<Array<Types.InputMaybe<Types.Scalars['ID']['input']>> | Types.InputMaybe<Types.Scalars['ID']['input']>>;
