@@ -2,7 +2,7 @@ const dayjs = require('dayjs')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
-const { WEBHOOK_PAYLOAD_RETENTION_DAYS } = require('@open-condo/webhooks/constants')
+const { WEBHOOK_PAYLOAD_RETENTION_IN_SEC } = require('@open-condo/webhooks/constants')
 const { WebhookPayload, createTestWebhookPayload, softDeleteTestWebhookPayload } = require('@open-condo/webhooks/schema/utils/testSchema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
@@ -28,7 +28,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
         }
 
         it('Must hard delete old webhook payloads from database', async () => {
-            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day').toISOString()
+            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_IN_SEC + 24 * 60 * 60, 'second').toISOString()
             const recentDate = dayjs().subtract(1, 'day').toISOString()
 
             const [oldPayload1] = await createTestWebhookPayload(actors.admin, {
@@ -63,7 +63,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
         })
 
         it('Must not delete payloads within retention period', async () => {
-            const withinRetentionDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS - 1, 'day').toISOString()
+            const withinRetentionDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_IN_SEC - 24 * 60 * 60, 'second').toISOString()
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/within-retention',
@@ -81,7 +81,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
         })
 
         it('Must delete payloads exactly at retention boundary', async () => {
-            const boundaryDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS, 'day').subtract(1, 'second').toISOString()
+            const boundaryDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_IN_SEC, 'second').subtract(1, 'second').toISOString()
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/boundary',
@@ -107,7 +107,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
         })
 
         it('Must delete payloads in batches when count exceeds batch size', async () => {
-            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day').toISOString()
+            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_IN_SEC + 24 * 60 * 60, 'second').toISOString()
             const payloadIds = []
 
             for (let i = 0; i < 5; i++) {
@@ -130,7 +130,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
         })
 
         it('Must delete payloads regardless of status', async () => {
-            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day').toISOString()
+            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_IN_SEC + 24 * 60 * 60, 'second').toISOString()
 
             const [pendingPayload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/pending',
@@ -163,7 +163,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
         })
 
         it('Must delete soft-deleted payloads if they are old enough', async () => {
-            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_DAYS + 1, 'day').toISOString()
+            const oldDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_IN_SEC + 24 * 60 * 60, 'second').toISOString()
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/soft-deleted',
