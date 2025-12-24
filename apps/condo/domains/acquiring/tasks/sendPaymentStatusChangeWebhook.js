@@ -6,6 +6,7 @@ const {
     getWebhookConfig,
     buildPaymentWebhookPayload,
 } = require('@condo/domains/acquiring/utils/serverSchema/paymentWebhookHelpers')
+const { WEBHOOK_EVENT_PAYMENT_STATUS_UPDATED } = require('@condo/domains/common/constants/webhooks')
 
 
 const logger = getLogger()
@@ -43,7 +44,7 @@ async function sendPaymentStatusChangeWebhook (paymentId) {
         url,
         payload,
         secret,
-        eventType: 'payment.status.changed',
+        eventType: WEBHOOK_EVENT_PAYMENT_STATUS_UPDATED,
         modelName: 'Payment',
         itemId: payment.id,
         sender: { dv: 1, fingerprint: 'payment-webhook-task' },
