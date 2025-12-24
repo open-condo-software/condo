@@ -21,7 +21,7 @@ const {
 } = require('@open-condo/webhooks/schema/utils/testSchema')
 
 
-const WebhookPayloadTests = (appName, actorsInitializer) => {
+const WebhookPayloadTests = (appName, actorsInitializer, customEvents = []) => {
     describe(`WebhookPayload tests for ${appName} app`, () => {
         let actors
 
@@ -364,6 +364,88 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
 
                 expect(pendingWebhookPayloads).toHaveLength(1)
                 expect(pendingWebhookPayloads[0].id).toBe(webhookPayload.id)
+            })
+        })
+
+        describe('eventType validation', () => {
+            customEvents.forEach((customEventType) => {
+                test(`admin: can create WebhookPayload with custom event type: ${customEventType}`, async () => {
+                    const [webhookPayload] = await createTestWebhookPayload(actors.admin, {
+                        eventType: customEventType,
+                    })
+
+                    expect(webhookPayload.id).toMatch(UUID_RE)
+                    expect(webhookPayload.eventType).toBe(customEventType)
+                })
+            })
+
+            test('admin: can create WebhookPayload with auto-generated model event (created)', async () => {
+                const [webhookPayload] = await createTestWebhookPayload(actors.admin, {
+                    eventType: 'User.created',
+                })
+
+                expect(webhookPayload.id).toMatch(UUID_RE)
+                expect(webhookPayload.eventType).toBe('User.created')
+            })
+
+            test('admin: can create WebhookPayload with auto-generated model event (updated)', async () => {
+                const [webhookPayload] = await createTestWebhookPayload(actors.admin, {
+                    eventType: 'Ticket.updated',
+                })
+
+                expect(webhookPayload.id).toMatch(UUID_RE)
+                expect(webhookPayload.eventType).toBe('Ticket.updated')
+            })
+
+            test('admin: can create WebhookPayload with auto-generated model event (deleted)', async () => {
+                const [webhookPayload] = await createTestWebhookPayload(actors.admin, {
+                    eventType: 'Organization.deleted',
+                })
+
+                expect(webhookPayload.id).toMatch(UUID_RE)
+                expect(webhookPayload.eventType).toBe('Organization.deleted')
+            })
+
+            test('admin: cannot create WebhookPayload with invalid event type (unknown model)', async () => {
+                await catchErrorFrom(async () => {
+                    await createTestWebhookPayload(actors.admin, {
+                        eventType: 'UnknownModel.created',
+                    })
+                }, (error) => {
+                    expect(error.errors).toBeDefined()
+                    expect(error.errors[0]).toMatchObject({
+                        message: expect.stringContaining('Invalid event type'),
+                    })
+                    expect(error.errors[0].message).toContain('UnknownModel.created')
+                })
+            })
+
+            test('admin: cannot create WebhookPayload with invalid event type (not in custom events or models)', async () => {
+                await catchErrorFrom(async () => {
+                    await createTestWebhookPayload(actors.admin, {
+                        eventType: 'invalid.event.type',
+                    })
+                }, (error) => {
+                    expect(error.errors).toBeDefined()
+                    expect(error.errors[0]).toMatchObject({
+                        message: expect.stringContaining('Invalid event type'),
+                    })
+                    expect(error.errors[0].message).toContain('invalid.event.type')
+                })
+            })
+
+            test('admin: cannot create WebhookPayload with event type for model without webHooked plugin', async () => {
+                await catchErrorFrom(async () => {
+                    await createTestWebhookPayload(actors.admin, {
+                        eventType: 'TourStep.created',
+                    })
+                }, (error) => {
+                    expect(error.errors).toBeDefined()
+                    expect(error.errors[0]).toMatchObject({
+                        message: expect.stringContaining('Invalid event type'),
+                    })
+                    expect(error.errors[0].message).toContain('TourStep.created')
+                })
             })
         })
     })

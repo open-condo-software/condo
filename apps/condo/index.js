@@ -23,6 +23,7 @@ const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
+const { WEBHOOK_EVENTS } = require('@condo/domains/common/constants/webhooks')
 const { VersioningMiddleware } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { ACCESS_TOKEN_SESSION_ID_PREFIX } = require('@condo/domains/miniapp/constants')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
@@ -64,7 +65,7 @@ const schemas = () => [
     require('@condo/domains/marketplace/schema'),
     require('@condo/domains/document/schema'),
     require('@condo/domains/ai/schema'),
-    getWebhookModels('@app/condo/schema.graphql'),
+    getWebhookModels('@app/condo/schema.graphql', WEBHOOK_EVENTS),
     require('@open-condo/files/schema'),
 ]
 

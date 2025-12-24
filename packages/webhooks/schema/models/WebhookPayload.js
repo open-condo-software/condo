@@ -9,186 +9,226 @@ const {
     WEBHOOK_PAYLOAD_TTL_DAYS,
     WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH,
 } = require('@open-condo/webhooks/constants')
+const { getModelValidator } = require('@open-condo/webhooks/model-validator')
 const access = require('@open-condo/webhooks/schema/access/WebhookPayload')
 const { encryptionManager } = require('@open-condo/webhooks/utils/encryption')
-const { validateEventType } = require('@open-condo/webhooks/utils/validation')
+
 
 const ERRORS = {
-    INVALID_EVENT_TYPE: {
-        code: BAD_USER_INPUT,
-        type: 'INVALID_EVENT_TYPE',
-        message: 'Invalid event type format',
-    },
     INVALID_JSON_PAYLOAD: {
         code: BAD_USER_INPUT,
         type: 'INVALID_JSON_PAYLOAD',
         message: 'Payload must be valid JSON',
     },
+    INVALID_EVENT_TYPE: {
+        code: BAD_USER_INPUT,
+        type: 'INVALID_EVENT_TYPE',
+        message: 'Invalid event type',
+    },
 }
 
-const WebhookPayload = new GQLListSchema('WebhookPayload', {
-    schemaDoc: 'Stores webhook payloads for sending. Contains ready-to-send payload, URL, and secret. Tracks sending status, retries, and responses from external servers.',
-    fields: {
+/**
+ * Creates a WebhookPayload model with validation for event types
+ * @param {Array<string>} [appWebhooksEventsTypes] - Array of event types supported by the application
+ * @returns {GQLListSchema} WebhookPayload model
+ */
+function getWebhookPayloadModel (appWebhooksEventsTypes = []) {
+    // Build documentation for eventType field
+    const customEventsDoc = appWebhooksEventsTypes.length > 0
+        ? `Custom events: ${appWebhooksEventsTypes.join(', ')}.`
+        : ''
+    const autoEventsDoc = 'Auto-generated events from models with webHooked() plugin: ModelName.created, ModelName.updated, ModelName.deleted (e.g., Payment.created, Ticket.updated).'
 
-        url: {
-            schemaDoc: 'Where to send the webhook',
-            type: 'Url',
-            isRequired: true,
-        },
+    return new GQLListSchema('WebhookPayload', {
+        schemaDoc: 'Stores webhook payloads for sending. Contains ready-to-send payload, URL, and secret. Tracks sending status, retries, and responses from external servers.',
+        fields: {
 
-        payload: {
-            schemaDoc: 'JSON data to send. Stored encrypted in database.',
-            type: 'EncryptedText',
-            encryptionManager,
-            isRequired: true,
-            access: {
-                create: true,
-                read: true,
-                update: false,
+            url: {
+                schemaDoc: 'Where to send the webhook',
+                type: 'Url',
+                isRequired: true,
             },
-            hooks: {
-                validateInput: ({ resolvedData, fieldPath, context }) => {
-                    const value = resolvedData[fieldPath]
-                    if (value) {
-                        try {
-                            JSON.parse(value)
-                        } catch (e) {
-                            throw new GQLError(ERRORS.INVALID_JSON_PAYLOAD, context)
+
+            payload: {
+                schemaDoc: 'JSON data to send. Stored encrypted in database.',
+                type: 'EncryptedText',
+                encryptionManager,
+                isRequired: true,
+                access: {
+                    create: true,
+                    read: true,
+                    update: false,
+                },
+                hooks: {
+                    validateInput: ({ resolvedData, fieldPath, context }) => {
+                        const value = resolvedData[fieldPath]
+                        if (value) {
+                            try {
+                                JSON.parse(value)
+                            } catch (e) {
+                                throw new GQLError(ERRORS.INVALID_JSON_PAYLOAD, context)
+                            }
                         }
-                    }
+                    },
                 },
             },
-        },
 
-        secret: {
-            schemaDoc: 'Secret key for signing requests (HMAC). Stored encrypted in database.',
-            type: 'EncryptedText',
-            encryptionManager,
-            isRequired: true,
-            access: {
-                create: true,
-                read: true,
-                update: false,
+            secret: {
+                schemaDoc: 'Secret key for signing requests (HMAC). Stored encrypted in database.',
+                type: 'EncryptedText',
+                encryptionManager,
+                isRequired: true,
+                access: {
+                    create: true,
+                    read: true,
+                    update: false,
+                },
             },
-        },
 
-        eventType: {
-            schemaDoc: 'Type of event that triggered this webhook. Use dot-notation format: "{resource}.{action}" or "{resource}.{sub-resource}.{action}". Examples: "payment.created", "payment.status.changed", "invoice.paid", "user.deleted". Use lowercase with dots as separators.',
-            type: 'Text',
-            isRequired: true,
-            hooks: {
-                validateInput: ({ resolvedData, fieldPath, context }) => {
-                    const value = resolvedData[fieldPath]
-                    if (value) {
-                        const { isValid, error } = validateEventType(value)
-                        if (!isValid) {
-                            throw new GQLError({ ...ERRORS.INVALID_EVENT_TYPE, message: error }, context)
+            eventType: {
+                schemaDoc: `Type of event that triggered this webhook. ${customEventsDoc} ${autoEventsDoc}`,
+                type: 'Text',
+                isRequired: true,
+                hooks: {
+                    validateInput: ({ resolvedData, fieldPath, context }) => {
+                        const value = resolvedData[fieldPath]
+                        if (value) {
+                            // At this point, all models are loaded and registered
+                            const validator = getModelValidator()
+                            
+                            // Check if it's a custom event type
+                            if (appWebhooksEventsTypes.includes(value)) {
+                                return // Valid custom event
+                            }
+                            
+                            // Generate valid event types on the fly for validation
+                            const validModelEvents = validator && validator.models.length > 0
+                                ? validator.models.flatMap(model => [
+                                    `${model}.created`,
+                                    `${model}.updated`,
+                                    `${model}.deleted`,
+                                ])
+                                : []
+                            
+                            // Check if the event type is valid
+                            if (!validModelEvents.includes(value)) {
+                                const availableModels = validator && validator.models.length > 0
+                                    ? validator.models.join(', ')
+                                    : 'none'
+                                const customEvents = appWebhooksEventsTypes.length > 0
+                                    ? appWebhooksEventsTypes.join(', ')
+                                    : 'none'
+                                throw new GQLError({
+                                    ...ERRORS.INVALID_EVENT_TYPE,
+                                    message: `Invalid event type "${value}". Must be either a custom event (${customEvents}) or a model event from models with webHooked() plugin (${availableModels}).`,
+                                }, context)
+                            }
                         }
-                    }
+                    },
                 },
             },
-        },
 
-        modelName: {
-            schemaDoc: 'Name of the model that triggered this webhook (e.g., "Payment")',
-            type: 'Text',
-            isRequired: false,
-        },
+            modelName: {
+                schemaDoc: 'Name of the model that triggered this webhook (e.g., "Payment")',
+                type: 'Text',
+                isRequired: false,
+            },
 
-        itemId: {
-            schemaDoc: 'ID of the record that triggered this webhook',
-            type: 'Uuid',
-            isRequired: false,
-        },
+            itemId: {
+                schemaDoc: 'ID of the record that triggered this webhook',
+                type: 'Uuid',
+                isRequired: false,
+            },
 
-        webhookSubscription: {
-            schemaDoc: 'Optional reference to WebhookSubscription that triggered this webhook (for debugging)',
-            type: 'Relationship',
-            ref: 'WebhookSubscription',
-            isRequired: false,
-            knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-        },
+            webhookSubscription: {
+                schemaDoc: 'Optional reference to WebhookSubscription that triggered this webhook (for debugging)',
+                type: 'Relationship',
+                ref: 'WebhookSubscription',
+                isRequired: false,
+                knexOptions: { isNotNullable: false },
+                kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            },
 
-        status: {
-            schemaDoc: 'Sending status: pending (waiting to send/retry), success (sent successfully), failed (permanently failed after TTL expired)',
-            type: 'Select',
-            dataType: 'string',
-            options: WEBHOOK_PAYLOAD_STATUSES,
-            defaultValue: WEBHOOK_PAYLOAD_STATUS_PENDING,
-            isRequired: true,
-        },
+            status: {
+                schemaDoc: 'Sending status: pending (waiting to send/retry), success (sent successfully), failed (permanently failed after TTL expired)',
+                type: 'Select',
+                dataType: 'string',
+                options: WEBHOOK_PAYLOAD_STATUSES,
+                defaultValue: WEBHOOK_PAYLOAD_STATUS_PENDING,
+                isRequired: true,
+            },
 
-        attempt: {
-            schemaDoc: 'Number of send attempts made (starts at 0)',
-            type: 'Integer',
-            defaultValue: 0,
-            isRequired: true,
-        },
+            attempt: {
+                schemaDoc: 'Number of send attempts made (starts at 0)',
+                type: 'Integer',
+                defaultValue: 0,
+                isRequired: true,
+            },
 
-        lastHttpStatusCode: {
-            schemaDoc: 'HTTP status code from the last send attempt',
-            type: 'Integer',
-            isRequired: false,
-        },
+            lastHttpStatusCode: {
+                schemaDoc: 'HTTP status code from the last send attempt',
+                type: 'Integer',
+                isRequired: false,
+            },
 
-        lastResponseBody: {
-            schemaDoc: `Response body from the last send attempt (truncated to ${WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH} chars)`,
-            type: 'Text',
-            isRequired: false,
-        },
+            lastResponseBody: {
+                schemaDoc: `Response body from the last send attempt (truncated to ${WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH} chars)`,
+                type: 'Text',
+                isRequired: false,
+            },
 
-        lastErrorMessage: {
-            schemaDoc: 'Error message from the last send attempt',
-            type: 'Text',
-            isRequired: false,
-        },
+            lastErrorMessage: {
+                schemaDoc: 'Error message from the last send attempt',
+                type: 'Text',
+                isRequired: false,
+            },
 
-        expiresAt: {
-            schemaDoc: 'Timestamp after which no more send attempts will be made',
-            type: 'DateTimeUtc',
-            isRequired: true,
-            hooks: {
-                resolveInput: ({ resolvedData, operation, fieldPath }) => {
-                    if (operation === 'create' && !resolvedData[fieldPath]) {
-                        return dayjs().add(WEBHOOK_PAYLOAD_TTL_DAYS, 'day').toISOString()
-                    }
-                    return resolvedData[fieldPath]
+            expiresAt: {
+                schemaDoc: 'Timestamp after which no more send attempts will be made',
+                type: 'DateTimeUtc',
+                isRequired: true,
+                hooks: {
+                    resolveInput: ({ resolvedData, operation, fieldPath }) => {
+                        if (operation === 'create' && !resolvedData[fieldPath]) {
+                            return dayjs().add(WEBHOOK_PAYLOAD_TTL_DAYS, 'day').toISOString()
+                        }
+                        return resolvedData[fieldPath]
+                    },
                 },
             },
-        },
 
-        nextRetryAt: {
-            schemaDoc: 'Timestamp for the next send attempt',
-            type: 'DateTimeUtc',
-            isRequired: true,
-            hooks: {
-                resolveInput: ({ resolvedData, operation, fieldPath }) => {
-                    if (operation === 'create' && !resolvedData[fieldPath]) {
-                        return dayjs().toISOString()
-                    }
-                    return resolvedData[fieldPath]
+            nextRetryAt: {
+                schemaDoc: 'Timestamp for the next send attempt',
+                type: 'DateTimeUtc',
+                isRequired: true,
+                hooks: {
+                    resolveInput: ({ resolvedData, operation, fieldPath }) => {
+                        if (operation === 'create' && !resolvedData[fieldPath]) {
+                            return dayjs().toISOString()
+                        }
+                        return resolvedData[fieldPath]
+                    },
                 },
             },
-        },
 
-        lastSentAt: {
-            schemaDoc: 'Timestamp of the last send attempt',
-            type: 'DateTimeUtc',
-            isRequired: false,
-        },
+            lastSentAt: {
+                schemaDoc: 'Timestamp of the last send attempt',
+                type: 'DateTimeUtc',
+                isRequired: false,
+            },
 
-    },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender()],
-    access: {
-        read: access.canReadWebhookPayloads,
-        create: access.canManageWebhookPayloads,
-        update: access.canManageWebhookPayloads,
-        delete: false,
-        auth: true,
-    },
-})
+        },
+        plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender()],
+        access: {
+            read: access.canReadWebhookPayloads,
+            create: access.canManageWebhookPayloads,
+            update: access.canManageWebhookPayloads,
+            delete: false,
+            auth: true,
+        },
+    })
+}
 
 module.exports = {
-    WebhookPayload,
+    getWebhookPayloadModel,
 }
