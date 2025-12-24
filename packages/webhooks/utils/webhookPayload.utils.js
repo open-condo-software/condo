@@ -63,19 +63,22 @@ async function trySendWebhookPayload (webhookPayload) {
     const body = typeof payload === 'string' ? payload : JSON.stringify(payload)
     const signature = generateSignature(body, secret)
 
-    try {
-        logger.info({
-            msg: 'Sending webhook payload',
-            reqId,
-            data: {
-                payloadId: webhookPayload.id,
-                url,
-                eventType,
-                attempt: webhookPayload.attempt + 1,
-                algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
-            },
-        })
+    logger.info({
+        msg: 'Sending webhook payload',
+        reqId,
+        data: {
+            payloadId: webhookPayload.id,
+            url,
+            eventType,
+            attempt: webhookPayload.attempt + 1,
+            algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
+        },
+    })
 
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), WEBHOOK_PAYLOAD_TIMEOUT_MS)
+
+    try {
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -85,9 +88,11 @@ async function trySendWebhookPayload (webhookPayload) {
                 'X-Webhook-Id': webhookPayload.id,
             },
             body,
-            abortRequestTimeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,
+            signal: controller.signal,
             maxRetries: 0,
         })
+
+        clearTimeout(timeoutId)
 
         // Read response body
         let responseBody = null
@@ -100,69 +105,74 @@ async function trySendWebhookPayload (webhookPayload) {
             responseBody = `[Could not read response body: ${e.message || String(e)}]`
         }
 
-        // Determine success (2xx status codes)
-        if (response.ok) {
-            logger.info({
-                msg: 'Webhook payload sent successfully',
-                reqId,
-                data: {
-                    payloadId: webhookPayload.id,
-                    statusCode: response.status,
-                    algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
-                },
-            })
-            return {
-                success: true,
-                statusCode: response.status,
-                body: responseBody,
-            }
-        } else {
-            logger.warn({
-                msg: 'Webhook payload sending failed with HTTP error',
-                reqId,
-                data: {
-                    payloadId: webhookPayload.id,
-                    statusCode: response.status,
-                    algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
-                    responseBody,
-                },
-            })
-            return {
-                success: false,
-                statusCode: response.status,
-                body: responseBody,
-                error: `HTTP ${response.status}: ${response.statusText}`,
-            }
+        const success = response.ok
+        const result = {
+            success,
+            statusCode: response.status,
+            body: responseBody,
         }
+
+        if (!success) {
+            result.error = `HTTP ${response.status}: ${response.statusText}`
+        }
+
+        logger.info({
+            msg: 'Webhook payload send result',
+            reqId,
+            data: {
+                payloadId: webhookPayload.id,
+                statusCode: response.status,
+                success,
+                algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
+                error: result.error || null,
+            },
+        })
+
+        return result
     } catch (err) {
+        clearTimeout(timeoutId)
+
         // Handle timeout and network errors
-        const isTimeout = err.message && err.message.includes('Abort request by timeout')
+        const isTimeout = controller.signal.aborted || err.name === 'AbortError'
         if (isTimeout) {
-            logger.warn({
-                msg: 'Webhook payload sending timed out',
-                reqId,
-                data: {
-                    payloadId: webhookPayload.id,
-                    timeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,
-                    algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
-                },
-            })
-            return {
+            const result = {
                 success: false,
                 error: `Request timeout after ${WEBHOOK_PAYLOAD_TIMEOUT_MS}ms`,
             }
+
+            logger.info({
+                msg: 'Webhook payload send result',
+                reqId,
+                data: {
+                    payloadId: webhookPayload.id,
+                    success: false,
+                    timeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,
+                    algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
+                    error: result.error,
+                },
+            })
+
+            return result
         }
 
-        logger.error({
-            msg: 'Webhook payload sending failed with network error',
-            reqId,
-            data: { payloadId: webhookPayload.id, algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM },
-            err,
-        })
-        return {
+        const result = {
             success: false,
             error: err.message || 'Unknown network error',
         }
+
+        logger.info({
+            msg: 'Webhook payload send result',
+            reqId,
+            data: {
+                payloadId: webhookPayload.id,
+                success: false,
+                algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
+                error: result.error,
+            },
+            err,
+        })
+
+        return result
     }
 }
 

@@ -11,8 +11,8 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const {
     WEBHOOK_PAYLOAD_STATUS_PENDING,
-    WEBHOOK_PAYLOAD_STATUS_SUCCESS,
-    WEBHOOK_PAYLOAD_STATUS_FAILED,
+    WEBHOOK_PAYLOAD_STATUS_SENT,
+    WEBHOOK_PAYLOAD_STATUS_ERROR,
 } = require('@open-condo/webhooks/constants')
 const {
     WebhookPayload,
@@ -136,14 +136,14 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
                     const [webhookPayload] = await createTestWebhookPayload(actors.admin)
 
                     const [updatedWebhookPayload] = await updateTestWebhookPayload(actors.admin, webhookPayload.id, {
-                        status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
+                        status: WEBHOOK_PAYLOAD_STATUS_SENT,
                         lastHttpStatusCode: 200,
                         lastResponseBody: '{"received":true}',
                         lastSentAt: dayjs().toISOString(),
                         attempt: 1,
                     })
 
-                    expect(updatedWebhookPayload.status).toBe(WEBHOOK_PAYLOAD_STATUS_SUCCESS)
+                    expect(updatedWebhookPayload.status).toBe(WEBHOOK_PAYLOAD_STATUS_SENT)
                     expect(updatedWebhookPayload.lastHttpStatusCode).toBe(200)
                     expect(updatedWebhookPayload.lastResponseBody).toBe('{"received":true}')
                     expect(updatedWebhookPayload.attempt).toBe(1)
@@ -153,12 +153,12 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
                     const [webhookPayload] = await createTestWebhookPayload(actors.admin)
 
                     const [updatedWebhookPayload] = await updateTestWebhookPayload(actors.admin, webhookPayload.id, {
-                        status: WEBHOOK_PAYLOAD_STATUS_FAILED,
+                        status: WEBHOOK_PAYLOAD_STATUS_ERROR,
                         lastErrorMessage: 'Connection refused',
                         attempt: 5,
                     })
 
-                    expect(updatedWebhookPayload.status).toBe(WEBHOOK_PAYLOAD_STATUS_FAILED)
+                    expect(updatedWebhookPayload.status).toBe(WEBHOOK_PAYLOAD_STATUS_ERROR)
                     expect(updatedWebhookPayload.lastErrorMessage).toBe('Connection refused')
                     expect(updatedWebhookPayload.attempt).toBe(5)
                 })
@@ -183,7 +183,7 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
 
                     await expectToThrowAuthenticationErrorToObj(async () => {
                         await updateTestWebhookPayload(actors.anonymous, webhookPayload.id, {
-                            status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
+                            status: WEBHOOK_PAYLOAD_STATUS_SENT,
                         })
                     })
                 })
@@ -193,7 +193,7 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await updateTestWebhookPayload(actors.support, webhookPayload.id, {
-                            status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
+                            status: WEBHOOK_PAYLOAD_STATUS_SENT,
                         })
                     })
                 })
@@ -203,7 +203,7 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await updateTestWebhookPayload(actors.user, webhookPayload.id, {
-                            status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
+                            status: WEBHOOK_PAYLOAD_STATUS_SENT,
                         })
                     })
                 })
@@ -303,11 +303,11 @@ const WebhookPayloadTests = (appName, actorsInitializer) => {
             test('can query by status', async () => {
                 const [webhookPayload] = await createTestWebhookPayload(actors.admin)
                 await updateTestWebhookPayload(actors.admin, webhookPayload.id, {
-                    status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
+                    status: WEBHOOK_PAYLOAD_STATUS_SENT,
                 })
 
                 const successWebhookPayloads = await WebhookPayload.getAll(actors.admin, {
-                    status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
+                    status: WEBHOOK_PAYLOAD_STATUS_SENT,
                     id: webhookPayload.id,
                 })
 

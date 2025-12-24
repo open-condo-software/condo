@@ -8,8 +8,8 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const {
     WEBHOOK_PAYLOAD_STATUS_PENDING,
-    WEBHOOK_PAYLOAD_STATUS_SUCCESS,
-    WEBHOOK_PAYLOAD_STATUS_FAILED,
+    WEBHOOK_PAYLOAD_STATUS_SENT,
+    WEBHOOK_PAYLOAD_STATUS_ERROR,
 } = require('@open-condo/webhooks/constants')
 const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const {
@@ -77,7 +77,7 @@ async function sendWebhookPayload (payloadId) {
         if (now.isAfter(webhookPayload.expiresAt)) {
             logger.warn({ msg: 'Payload expired', data: { now, payloadId, expiresAt: webhookPayload.expiresAt } })
             await WebhookPayload.update(context, payloadId, {
-                status: WEBHOOK_PAYLOAD_STATUS_FAILED,
+                status: WEBHOOK_PAYLOAD_STATUS_ERROR,
                 lastErrorMessage: 'Payload expired after TTL',
                 ...DV_SENDER,
             })
@@ -98,7 +98,7 @@ async function sendWebhookPayload (payloadId) {
         if (result.success) {
             // Success - means sent
             await WebhookPayload.update(context, payloadId, {
-                status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
+                status: WEBHOOK_PAYLOAD_STATUS_SENT,
                 lastHttpStatusCode: result.statusCode,
                 lastResponseBody: result.body,
                 lastSentAt: now.toISOString(),
@@ -116,7 +116,7 @@ async function sendWebhookPayload (payloadId) {
             if (nextRetryTime.isAfter(webhookPayload.expiresAt)) {
                 // Mark as permanently failed
                 await WebhookPayload.update(context, payloadId, {
-                    status: WEBHOOK_PAYLOAD_STATUS_FAILED,
+                    status: WEBHOOK_PAYLOAD_STATUS_ERROR,
                     lastHttpStatusCode: result.statusCode || null,
                     lastResponseBody: result.body || null,
                     lastErrorMessage: result.error,

@@ -19,6 +19,11 @@ const ERRORS = {
         type: 'INVALID_EVENT_TYPE',
         message: 'Invalid event type format',
     },
+    INVALID_JSON_PAYLOAD: {
+        code: BAD_USER_INPUT,
+        type: 'INVALID_JSON_PAYLOAD',
+        message: 'Payload must be valid JSON',
+    },
 }
 
 const WebhookPayload = new GQLListSchema('WebhookPayload', {
@@ -40,6 +45,18 @@ const WebhookPayload = new GQLListSchema('WebhookPayload', {
                 create: true,
                 read: true,
                 update: false,
+            },
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, context }) => {
+                    const value = resolvedData[fieldPath]
+                    if (value) {
+                        try {
+                            JSON.parse(value)
+                        } catch (e) {
+                            throw new GQLError(ERRORS.INVALID_JSON_PAYLOAD, context)
+                        }
+                    }
+                },
             },
         },
 
@@ -82,6 +99,15 @@ const WebhookPayload = new GQLListSchema('WebhookPayload', {
             schemaDoc: 'ID of the record that triggered this webhook',
             type: 'Uuid',
             isRequired: false,
+        },
+
+        webhookSubscription: {
+            schemaDoc: 'Optional reference to WebhookSubscription that triggered this webhook (for debugging)',
+            type: 'Relationship',
+            ref: 'WebhookSubscription',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         status: {

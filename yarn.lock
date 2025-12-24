@@ -12113,13 +12113,13 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     ajv: 8.11.0
     dayjs: ^1.11.10
-    express: ^4.17.1
     graphql: ^16.10.0
     graphql-2-json-schema: ^0.9.1
     graphql-tag: ^2.12.6
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
+    nock: ^14.0.5
     pluralize: ^8.0.0
     redlock: ^5.0.0-beta.2
   peerDependencies:
