@@ -8,7 +8,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const {
     WEBHOOK_PAYLOAD_TIMEOUT_MS,
     WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH,
-    WEBHOOK_PAYLOAD_RETRY_INTERVALS,
+    WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC,
 } = require('@open-condo/webhooks/constants')
 
 
@@ -37,7 +37,7 @@ function generateSignature (body, secret) {
  * @returns {string} ISO timestamp for next retry
  */
 function calculateNextRetryAt (attempt) {
-    const intervals = WEBHOOK_PAYLOAD_RETRY_INTERVALS
+    const intervals = WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC
     const delaySeconds = intervals[Math.min(attempt, intervals.length - 1)]
     return dayjs().add(delaySeconds, 'second').toISOString()
 }

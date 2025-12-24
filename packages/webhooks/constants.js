@@ -16,7 +16,7 @@ const WEBHOOK_PAYLOAD_STATUSES = [
 const WEBHOOK_PAYLOAD_TTL_DAYS = 7
 
 // Retry intervals in seconds (exponential backoff)
-const WEBHOOK_PAYLOAD_RETRY_INTERVALS = [
+const WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC = [
     0,              // Attempt 1: immediate
     60,             // Attempt 2: 1 minute
     5 * 60,         // Attempt 3: 5 minutes
@@ -43,7 +43,7 @@ module.exports = {
     WEBHOOK_PAYLOAD_STATUS_ERROR,
     WEBHOOK_PAYLOAD_STATUSES,
     WEBHOOK_PAYLOAD_TTL_DAYS,
-    WEBHOOK_PAYLOAD_RETRY_INTERVALS,
+    WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC,
     WEBHOOK_PAYLOAD_TIMEOUT_MS,
     WEBHOOK_PAYLOAD_RETENTION_DAYS,
     WEBHOOK_PAYLOAD_MAX_RESPONSE_LENGTH,
