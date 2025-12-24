@@ -16,21 +16,11 @@ interface ModalContent {
     buttonText: string
 }
 
-const TRIAL_ENDED_STORAGE_KEY_PREFIX = 'subscription_trial_ended_modal_shown_'
-const SUBSCRIPTION_ENDED_STORAGE_KEY_PREFIX = 'subscription_ended_modal_shown_'
+const TRIAL_ENDED_STORAGE_KEY = 'subscription_trial_ended_modal_shown'
+const SUBSCRIPTION_ENDED_STORAGE_KEY = 'subscription_ended_modal_shown'
 
 type ModalType = 'trialEnded' | 'subscriptionEnded'
 
-/**
- * Hook that determines trial/subscription ended modal content
- * Queries for last expired subscription context to determine what message to show
- * 
- * Logic:
- * 1. Trial ended:
- *    1.1 Has current subscription → "Пробный период тарифа подошёл к концу" (with current plan name)
- *    1.2 No current subscription → "Пробный доступ к платформе Doma.ai истек"
- * 2. No subscription AND (last expired was not trial OR trial modal already shown) → "Доступ к платформе временно приостановлен"
- */
 const useTrialEndedModalContent = (): { content: ModalContent | null, type: ModalType | null, loading: boolean } => {
     const intl = useIntl()
     const { organization } = useOrganization()
@@ -52,8 +42,13 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
             return { content: null, type: null, loading }
         }
 
-        const trialEndedShown = typeof window !== 'undefined' && localStorage.getItem(`${TRIAL_ENDED_STORAGE_KEY_PREFIX}${organizationId}`)
-        const subscriptionEndedShown = typeof window !== 'undefined' && localStorage.getItem(`${SUBSCRIPTION_ENDED_STORAGE_KEY_PREFIX}${organizationId}`)
+        const trialEndedStored = typeof window !== 'undefined' ? localStorage.getItem(TRIAL_ENDED_STORAGE_KEY) : null
+        const trialEndedOrgs = trialEndedStored ? JSON.parse(trialEndedStored) : {}
+        const trialEndedShown = trialEndedOrgs[organizationId]
+
+        const subscriptionEndedStored = typeof window !== 'undefined' ? localStorage.getItem(SUBSCRIPTION_ENDED_STORAGE_KEY) : null
+        const subscriptionEndedOrgs = subscriptionEndedStored ? JSON.parse(subscriptionEndedStored) : {}
+        const subscriptionEndedShown = subscriptionEndedOrgs[organizationId]
 
         const lastExpiredContext = expiredData?.lastExpiredContext?.[0]
         const lastExpiredWasTrial = lastExpiredContext?.isTrial === true
@@ -125,9 +120,15 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
 
         // Save correct localStorage key based on modal type
         if (type === 'trialEnded') {
-            localStorage.setItem(`${TRIAL_ENDED_STORAGE_KEY_PREFIX}${organizationId}`, 'true')
+            const stored = localStorage.getItem(TRIAL_ENDED_STORAGE_KEY)
+            const shownOrgs = stored ? JSON.parse(stored) : {}
+            shownOrgs[organizationId] = true
+            localStorage.setItem(TRIAL_ENDED_STORAGE_KEY, JSON.stringify(shownOrgs))
         } else if (type === 'subscriptionEnded') {
-            localStorage.setItem(`${SUBSCRIPTION_ENDED_STORAGE_KEY_PREFIX}${organizationId}`, 'true')
+            const stored = localStorage.getItem(SUBSCRIPTION_ENDED_STORAGE_KEY)
+            const shownOrgs = stored ? JSON.parse(stored) : {}
+            shownOrgs[organizationId] = true
+            localStorage.setItem(SUBSCRIPTION_ENDED_STORAGE_KEY, JSON.stringify(shownOrgs))
         }
         setIsVisible(true)
     }, [organizationId, content, type, loading])
