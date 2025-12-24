@@ -12,7 +12,7 @@ jest.mock('@open-condo/keystone/logging', () => ({
 }))
 
 const { fetch } = require('@open-condo/keystone/fetch')
-const { WEBHOOK_PAYLOAD_RETRY_INTERVALS } = require('@open-condo/webhooks/constants')
+const { WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC } = require('@open-condo/webhooks/constants')
 
 const {
     generateSignature,
@@ -74,7 +74,7 @@ describe('webhookPayload utilities', () => {
             const nextRetryAt = calculateNextRetryAt(1)
             const retryTime = dayjs(nextRetryAt)
 
-            const expectedDelay = WEBHOOK_PAYLOAD_RETRY_INTERVALS[1] // 60 seconds
+            const expectedDelay = WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC[1] // 60 seconds
             expect(retryTime.diff(before, 'second')).toBeGreaterThanOrEqual(expectedDelay - 1)
             expect(retryTime.diff(before, 'second')).toBeLessThanOrEqual(expectedDelay + 1)
         })
@@ -84,7 +84,7 @@ describe('webhookPayload utilities', () => {
             const nextRetryAt = calculateNextRetryAt(100)
             const retryTime = dayjs(nextRetryAt)
 
-            const lastInterval = WEBHOOK_PAYLOAD_RETRY_INTERVALS[WEBHOOK_PAYLOAD_RETRY_INTERVALS.length - 1]
+            const lastInterval = WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC[WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC.length - 1]
             expect(retryTime.diff(before, 'second')).toBeGreaterThanOrEqual(lastInterval - 1)
             expect(retryTime.diff(before, 'second')).toBeLessThanOrEqual(lastInterval + 1)
         })
