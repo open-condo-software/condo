@@ -199,9 +199,15 @@ jobs:
               - 'apps/rb'
               - 'apps/condo/domains/acquiring/**'
               - 'apps/condo/domains/billing/**'
+              - 'apps/condo/domains/organization/**'
+              - 'apps/condo/domains/user/**'
               - 'packages/**'
             registry-importer:
               - 'apps/registry-importer/**'
+              - 'apps/condo/domains/acquiring/**'
+              - 'apps/condo/domains/billing/**'
+              - 'apps/condo/domains/organization/**'
+              - 'apps/condo/domains/user/**'
               - 'apps/rb'
               - 'packages/**'
             resident-app:
