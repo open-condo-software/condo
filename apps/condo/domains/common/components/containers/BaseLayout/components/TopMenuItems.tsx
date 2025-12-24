@@ -8,9 +8,8 @@ import { UserMessagesList } from '@condo/domains/notification/components/UserMes
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
 import { SubscriptionDaysIndicator, UpgradePlanButton } from '@condo/domains/subscription/components'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
-
-import { useOrganizationSubscription } from '../../../../../subscription/hooks'
 
 
 export interface ITopMenuItemsProps {

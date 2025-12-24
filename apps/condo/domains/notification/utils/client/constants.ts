@@ -31,4 +31,5 @@ export type CustomClientMessageTypes = typeof EMAIL_CONFIRMATION_CUSTOM_CLIENT_M
 
 export type UserMessageType = Omit<GetUserMessagesQueryResult['data']['messages'][number], 'type'> & {
     type: MessageTypeAllowedToFilterType | CustomClientMessageTypes
+    customTitle?: string
 }

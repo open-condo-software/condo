@@ -21,7 +21,6 @@ const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
     }
 `
 
-// Full access features returned when no subscription plans exist for organization type
 const FULL_ACCESS_FEATURES = {
     payments: true,
     meters: true,

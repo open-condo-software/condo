@@ -135,7 +135,6 @@ export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchP
     const { organization } = useOrganization()
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
-    const subscriptionContextId = get(organization, 'subscription.id', null)
     return useCallback(() => {
         return {
             condoUserId: userId,
@@ -143,9 +142,8 @@ export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchP
             condoLocale: locale,
             condoContextEntity: 'Organization',
             condoContextEntityId: organizationId,
-            condoSubscriptionContextId: subscriptionContextId,
         }
-    }, [userId, organizationId, locale, subscriptionContextId])
+    }, [userId, organizationId, locale])
 }
 
 export const useShowProgressBarHandler: () => RequestHandler<'CondoWebAppShowProgressBar'> = () => {

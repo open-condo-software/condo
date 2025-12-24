@@ -6,10 +6,9 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/subscription/access/SubscriptionPlan')
-
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 const ERRORS = {
     TRIAL_DAYS_MUST_BE_NON_NEGATIVE: {
@@ -161,7 +160,7 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
                     }
 
                     for (const id of value) {
-                        if (typeof id !== 'string' || !UUID_REGEX.test(id)) {
+                        if (typeof id !== 'string' || !UUID_REGEXP.test(id)) {
                             throw new GQLError(ERRORS.ENABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
                         }
                     }
@@ -184,7 +183,7 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
                     }
 
                     for (const id of value) {
-                        if (typeof id !== 'string' || !UUID_REGEX.test(id)) {
+                        if (typeof id !== 'string' || !UUID_REGEXP.test(id)) {
                             throw new GQLError(ERRORS.ENABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
                         }
                     }

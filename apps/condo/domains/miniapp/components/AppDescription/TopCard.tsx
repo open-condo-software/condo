@@ -135,8 +135,7 @@ const TopCard = React.memo<TopCardProps>(({
 
     const buttonProps = useMemo<ButtonProps>(() => {
         const btnProps: ButtonProps = { type: 'primary' }
-
-        // Check if app is disabled by subscription plan
+        
         if (!isAppAvailableForTariff) {
             btnProps.children = UnavailableForTariffMessage
             btnProps.disabled = true
