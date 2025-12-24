@@ -3491,8 +3491,8 @@ export const GetActiveOrganizationEmployeeDocument = gql`
         support
         ai
         customization
-        disabledB2BApps
-        disabledB2CApps
+        enabledB2BApps
+        enabledB2CApps
       }
     }
     role {
@@ -4872,25 +4872,6 @@ export const ActivateSubscriptionPlanDocument = gql`
   result: activateSubscriptionPlan(data: $data) {
     subscriptionContext {
       id
-      organization {
-        id
-      }
-      subscriptionPlan {
-        id
-        name
-        description
-        trialDays
-        news
-        marketplace
-        support
-        ai
-        disabledB2BApps
-        disabledB2CApps
-      }
-      startAt
-      endAt
-      isTrial
-      daysRemaining
     }
   }
 }
@@ -4941,8 +4922,8 @@ export const GetAvailableSubscriptionPlansDocument = gql`
         marketplace
         support
         ai
-        disabledB2BApps
-        disabledB2CApps
+        enabledB2BApps
+        enabledB2CApps
         customization
       }
       prices {
@@ -5116,8 +5097,8 @@ export const GetActiveSubscriptionContextsDocument = gql`
       support
       ai
       customization
-      disabledB2BApps
-      disabledB2CApps
+      enabledB2BApps
+      enabledB2CApps
     }
     basePrice
     calculatedPrice
