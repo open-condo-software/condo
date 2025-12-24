@@ -4989,95 +4989,12 @@ export type GetAvailableSubscriptionPlansQueryHookResult = ReturnType<typeof use
 export type GetAvailableSubscriptionPlansLazyQueryHookResult = ReturnType<typeof useGetAvailableSubscriptionPlansLazyQuery>;
 export type GetAvailableSubscriptionPlansSuspenseQueryHookResult = ReturnType<typeof useGetAvailableSubscriptionPlansSuspenseQuery>;
 export type GetAvailableSubscriptionPlansQueryResult = Apollo.QueryResult<Types.GetAvailableSubscriptionPlansQuery, Types.GetAvailableSubscriptionPlansQueryVariables>;
-export const GetSubscriptionContextDocument = gql`
-    query getSubscriptionContext($id: ID!) {
-  subscriptionContext: SubscriptionContext(where: {id: $id}) {
-    id
-    organization {
-      id
-      name
-    }
-    subscriptionPlan {
-      id
-      name
-      description
-      organizationType
-      trialDays
-      priority
-      news
-      marketplace
-      support
-      ai
-      disabledB2BApps
-      disabledB2CApps
-      isHidden
-    }
-    startAt
-    endAt
-    basePrice
-    calculatedPrice
-    appliedRules
-    isTrial
-    daysRemaining
-    dv
-    sender {
-      dv
-      fingerprint
-    }
-    v
-    deletedAt
-    newId
-    createdBy {
-      id
-      name
-    }
-    updatedBy {
-      id
-      name
-    }
-    createdAt
-    updatedAt
-  }
-}
-    `;
-
-/**
- * __useGetSubscriptionContextQuery__
- *
- * To run a query within a React component, call `useGetSubscriptionContextQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetSubscriptionContextQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetSubscriptionContextQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetSubscriptionContextQuery(baseOptions: Apollo.QueryHookOptions<Types.GetSubscriptionContextQuery, Types.GetSubscriptionContextQueryVariables> & ({ variables: Types.GetSubscriptionContextQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetSubscriptionContextQuery, Types.GetSubscriptionContextQueryVariables>(GetSubscriptionContextDocument, options);
-      }
-export function useGetSubscriptionContextLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetSubscriptionContextQuery, Types.GetSubscriptionContextQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetSubscriptionContextQuery, Types.GetSubscriptionContextQueryVariables>(GetSubscriptionContextDocument, options);
-        }
-export function useGetSubscriptionContextSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetSubscriptionContextQuery, Types.GetSubscriptionContextQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetSubscriptionContextQuery, Types.GetSubscriptionContextQueryVariables>(GetSubscriptionContextDocument, options);
-        }
-export type GetSubscriptionContextQueryHookResult = ReturnType<typeof useGetSubscriptionContextQuery>;
-export type GetSubscriptionContextLazyQueryHookResult = ReturnType<typeof useGetSubscriptionContextLazyQuery>;
-export type GetSubscriptionContextSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionContextSuspenseQuery>;
-export type GetSubscriptionContextQueryResult = Apollo.QueryResult<Types.GetSubscriptionContextQuery, Types.GetSubscriptionContextQueryVariables>;
 export const GetOrganizationTrialSubscriptionsDocument = gql`
     query getOrganizationTrialSubscriptions($organizationId: ID!) {
   trialSubscriptions: allSubscriptionContexts(
     where: {organization: {id: $organizationId}, isTrial: true}
     sortBy: [createdAt_DESC]
+    first: 100
   ) {
     id
     subscriptionPlan {
@@ -5181,6 +5098,7 @@ export const GetActiveSubscriptionContextsDocument = gql`
     query getActiveSubscriptionContexts($organizationId: ID!, $now: String!) {
   activeContexts: allSubscriptionContexts(
     where: {organization: {id: $organizationId}, startAt_lte: $now, deletedAt: null, OR: [{endAt: null}, {endAt_gt: $now}]}
+    first: 100
     sortBy: [startAt_DESC]
   ) {
     id
@@ -5245,76 +5163,6 @@ export type GetActiveSubscriptionContextsQueryHookResult = ReturnType<typeof use
 export type GetActiveSubscriptionContextsLazyQueryHookResult = ReturnType<typeof useGetActiveSubscriptionContextsLazyQuery>;
 export type GetActiveSubscriptionContextsSuspenseQueryHookResult = ReturnType<typeof useGetActiveSubscriptionContextsSuspenseQuery>;
 export type GetActiveSubscriptionContextsQueryResult = Apollo.QueryResult<Types.GetActiveSubscriptionContextsQuery, Types.GetActiveSubscriptionContextsQueryVariables>;
-export const GetSubscriptionPlanDocument = gql`
-    query getSubscriptionPlan($id: ID!) {
-  subscriptionPlan: SubscriptionPlan(where: {id: $id}) {
-    id
-    name
-    description
-    organizationType
-    trialDays
-    priority
-    news
-    marketplace
-    support
-    ai
-    disabledB2BApps
-    disabledB2CApps
-    isHidden
-    dv
-    sender {
-      dv
-      fingerprint
-    }
-    v
-    deletedAt
-    newId
-    createdBy {
-      id
-      name
-    }
-    updatedBy {
-      id
-      name
-    }
-    createdAt
-    updatedAt
-  }
-}
-    `;
-
-/**
- * __useGetSubscriptionPlanQuery__
- *
- * To run a query within a React component, call `useGetSubscriptionPlanQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetSubscriptionPlanQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetSubscriptionPlanQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetSubscriptionPlanQuery(baseOptions: Apollo.QueryHookOptions<Types.GetSubscriptionPlanQuery, Types.GetSubscriptionPlanQueryVariables> & ({ variables: Types.GetSubscriptionPlanQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetSubscriptionPlanQuery, Types.GetSubscriptionPlanQueryVariables>(GetSubscriptionPlanDocument, options);
-      }
-export function useGetSubscriptionPlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetSubscriptionPlanQuery, Types.GetSubscriptionPlanQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetSubscriptionPlanQuery, Types.GetSubscriptionPlanQueryVariables>(GetSubscriptionPlanDocument, options);
-        }
-export function useGetSubscriptionPlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetSubscriptionPlanQuery, Types.GetSubscriptionPlanQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetSubscriptionPlanQuery, Types.GetSubscriptionPlanQueryVariables>(GetSubscriptionPlanDocument, options);
-        }
-export type GetSubscriptionPlanQueryHookResult = ReturnType<typeof useGetSubscriptionPlanQuery>;
-export type GetSubscriptionPlanLazyQueryHookResult = ReturnType<typeof useGetSubscriptionPlanLazyQuery>;
-export type GetSubscriptionPlanSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionPlanSuspenseQuery>;
-export type GetSubscriptionPlanQueryResult = Apollo.QueryResult<Types.GetSubscriptionPlanQuery, Types.GetSubscriptionPlanQueryVariables>;
 export const GetPendingSubscriptionRequestsDocument = gql`
     query getPendingSubscriptionRequests($organizationId: ID!) {
   pendingRequests: allUserHelpRequests(

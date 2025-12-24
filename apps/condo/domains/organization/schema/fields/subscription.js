@@ -41,6 +41,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
     type: 'Virtual',
     extendGraphQLTypes: SUBSCRIPTION_FEATURES_GRAPHQL_TYPES,
     graphQLReturnType: SUBSCRIPTION_FEATURES_TYPE_NAME,
+    graphQLReturnFragment: '{ payments meters tickets news marketplace support ai customization disabledB2BApps disabledB2CApps }',
     resolver: async (organization) => {
         const plansForType = await find('SubscriptionPlan', {
             organizationType: organization.type,

@@ -1,4 +1,6 @@
+import { useApolloClient } from '@apollo/client'
 import { useGetActiveSubscriptionContextsQuery } from '@app/condo/gql'
+import dayjs from 'dayjs'
 import { useMemo, useCallback } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
@@ -41,11 +43,12 @@ export interface SubscriptionContext {
  * Hook to get subscription features and context for the current organization.
  */
 export const useOrganizationSubscription = () => {
+    const apolloClient = useApolloClient()
     const { organization, isLoading: orgLoading } = useOrganization()
     const subscriptionFeatures = useMemo<SubscriptionFeatures | null>(() => organization?.subscription, [organization])
 
-    const now = useMemo(() => new Date().toISOString(), [])
-    const { data, loading: contextsLoading, refetch: refetchSubscriptionContexts } = useGetActiveSubscriptionContextsQuery({
+    const now = useMemo(() => dayjs().endOf('day').toISOString(), [])
+    const { data, loading: contextsLoading } = useGetActiveSubscriptionContextsQuery({
         variables: {
             organizationId: organization?.id || '',
             now,
@@ -61,31 +64,14 @@ export const useOrganizationSubscription = () => {
         return selectBestSubscriptionContext(activeContexts) as SubscriptionContext | null
     }, [activeContexts])
 
+    const refetchSubscriptionContexts = useCallback(async () => {
+        apolloClient.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allSubscriptionContexts' })
+        apolloClient.cache.gc()
+    }, [apolloClient])
+
     const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
-        if (!subscriptionFeatures) {
-            return false
-        }
-        
-        switch (feature) {
-            case 'payments':
-                return subscriptionFeatures.payments === true
-            case 'meters':
-                return subscriptionFeatures.meters === true
-            case 'tickets':
-                return subscriptionFeatures.tickets === true
-            case 'news':
-                return subscriptionFeatures.news === true
-            case 'marketplace':
-                return subscriptionFeatures.marketplace === true
-            case 'support':
-                return subscriptionFeatures.support === true
-            case 'ai':
-                return subscriptionFeatures.ai === true
-            case 'customization':
-                return subscriptionFeatures.customization === true
-            default:
-                return true
-        }
+        if (!subscriptionFeatures) return false
+        return subscriptionFeatures[feature] === true
     }, [subscriptionFeatures])
 
     const isB2BAppEnabled = useCallback((appId: string): boolean => {

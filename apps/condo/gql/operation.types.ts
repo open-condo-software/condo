@@ -796,13 +796,6 @@ export type GetAvailableSubscriptionPlansQueryVariables = Types.Exact<{
 
 export type GetAvailableSubscriptionPlansQuery = { __typename?: 'Query', result?: { __typename?: 'GetAvailableSubscriptionPlansOutput', plans: Array<{ __typename?: 'AvailableSubscriptionPlan', plan: { __typename?: 'SubscriptionPlan', id: string, priority?: number | null, name?: string | null, description?: string | null, organizationType?: Types.SubscriptionPlanOrganizationTypeType | null, isHidden?: boolean | null, trialDays?: number | null, canBePromoted?: boolean | null, tickets?: boolean | null, meters?: boolean | null, payments?: boolean | null, news?: boolean | null, marketplace?: boolean | null, support?: boolean | null, ai?: boolean | null, disabledB2BApps?: any | null, disabledB2CApps?: any | null, customization?: boolean | null }, prices: Array<{ __typename?: 'SubscriptionPlanPrice', id: string, name: string, period: string, price?: string | null, currencyCode?: string | null }> } | null> } | null };
 
-export type GetSubscriptionContextQueryVariables = Types.Exact<{
-  id: Types.Scalars['ID']['input'];
-}>;
-
-
-export type GetSubscriptionContextQuery = { __typename?: 'Query', subscriptionContext?: { __typename?: 'SubscriptionContext', id: string, startAt?: string | null, endAt?: string | null, basePrice?: string | null, calculatedPrice?: string | null, appliedRules?: any | null, isTrial?: boolean | null, daysRemaining?: number | null, dv?: number | null, v?: number | null, deletedAt?: string | null, newId?: string | null, createdAt?: string | null, updatedAt?: string | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, description?: string | null, organizationType?: Types.SubscriptionPlanOrganizationTypeType | null, trialDays?: number | null, priority?: number | null, news?: boolean | null, marketplace?: boolean | null, support?: boolean | null, ai?: boolean | null, disabledB2BApps?: any | null, disabledB2CApps?: any | null, isHidden?: boolean | null } | null, sender?: { __typename?: 'SenderField', dv: number, fingerprint: string } | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, updatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
-
 export type GetOrganizationTrialSubscriptionsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
 }>;
@@ -825,13 +818,6 @@ export type GetActiveSubscriptionContextsQueryVariables = Types.Exact<{
 
 
 export type GetActiveSubscriptionContextsQuery = { __typename?: 'Query', activeContexts?: Array<{ __typename?: 'SubscriptionContext', id: string, basePrice?: string | null, calculatedPrice?: string | null, appliedRules?: any | null, isTrial?: boolean | null, startAt?: string | null, endAt?: string | null, daysRemaining?: number | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, trialDays?: number | null, priority?: number | null, canBePromoted?: boolean | null, payments?: boolean | null, meters?: boolean | null, tickets?: boolean | null, news?: boolean | null, marketplace?: boolean | null, support?: boolean | null, ai?: boolean | null, customization?: boolean | null, disabledB2BApps?: any | null, disabledB2CApps?: any | null } | null } | null> | null };
-
-export type GetSubscriptionPlanQueryVariables = Types.Exact<{
-  id: Types.Scalars['ID']['input'];
-}>;
-
-
-export type GetSubscriptionPlanQuery = { __typename?: 'Query', subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, description?: string | null, organizationType?: Types.SubscriptionPlanOrganizationTypeType | null, trialDays?: number | null, priority?: number | null, news?: boolean | null, marketplace?: boolean | null, support?: boolean | null, ai?: boolean | null, disabledB2BApps?: any | null, disabledB2CApps?: any | null, isHidden?: boolean | null, dv?: number | null, v?: number | null, deletedAt?: string | null, newId?: string | null, createdAt?: string | null, updatedAt?: string | null, sender?: { __typename?: 'SenderField', dv: number, fingerprint: string } | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, updatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null };
 
 export type GetPendingSubscriptionRequestsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
