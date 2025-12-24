@@ -25,7 +25,7 @@ export const UpgradePlanButton: React.FC = () => {
 
     const availablePlans = plansData?.result?.plans || []
 
-    const buttonConfig = useMemo(() => {
+    const buttonText = useMemo(() => {
         if (!subscriptionContext || plansLoading) return null
 
         const currentPlan = subscriptionContext.subscriptionPlan
@@ -33,10 +33,7 @@ export const UpgradePlanButton: React.FC = () => {
         const currentPriority = currentPlan?.priority
 
         if (isTrial && currentPlan?.canBePromoted) {
-            return {
-                textId: 'subscription.upgradePlan.payForPlan',
-                planName: currentPlan.name,
-            }
+            return intl.formatMessage({ id: 'subscription.upgradePlan.payForPlan' }, { planName: currentPlan.name })
         }
 
         const betterPlan = availablePlans
@@ -48,20 +45,17 @@ export const UpgradePlanButton: React.FC = () => {
             .sort((a, b) => (b.plan.priority ?? 0) - (a.plan.priority ?? 0))[0]
 
         if (betterPlan) {
-            return {
-                textId: 'subscription.upgradePlan.tryPlan',
-                planName: betterPlan.plan.name,
-            }
+            return intl.formatMessage({ id: 'subscription.upgradePlan.tryPlan' }, { planName: betterPlan.plan.name })
         }
 
         return null
-    }, [subscriptionContext, plansLoading, availablePlans])
+    }, [subscriptionContext, plansLoading, availablePlans, intl])
 
     const handleUpgradeClick = () => {
         router.push('/settings?tab=subscription')
     }
 
-    if (!buttonConfig) return null
+    if (!buttonText) return null
 
     return (
         <Button
@@ -71,7 +65,7 @@ export const UpgradePlanButton: React.FC = () => {
             icon={<CrownOutlined />}
             onClick={handleUpgradeClick}
         >
-            {intl.formatMessage({ id: buttonConfig.textId }, { planName: buttonConfig.planName })}
+            {buttonText}
         </Button>
     )
 }
