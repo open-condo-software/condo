@@ -3019,6 +3019,8 @@ type UserRightsSetHistoryRecord {
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadResetUserLimitActions: Boolean
@@ -3138,6 +3140,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadTicketAutoAssignments_not: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
   canReadOidcClients: Boolean
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
@@ -3327,6 +3333,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadTicketAutoAssignments_DESC
   canManageTicketAutoAssignments_ASC
   canManageTicketAutoAssignments_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
   canReadOidcClients_ASC
   canReadOidcClients_DESC
   canManageOidcClients_ASC
@@ -3420,6 +3430,8 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadResetUserLimitActions: Boolean
@@ -3493,6 +3505,8 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadResetUserLimitActions: Boolean
@@ -3671,6 +3685,14 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "TicketAutoAssignment" similar to support users 
   """
   canManageTicketAutoAssignments: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "Property" as support / admin users do 
+  """
+  canReadProperties: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Property" similar to support users 
+  """
+  canManageProperties: Boolean
 
   """ Enables a user with the given UserRightsSet to view all entities of model "OidcClient" as support / admin users do 
   """
@@ -3861,6 +3883,10 @@ input UserRightsSetWhereInput {
   canReadTicketAutoAssignments_not: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
   canReadOidcClients: Boolean
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
@@ -4030,6 +4056,10 @@ enum SortUserRightsSetsBy {
   canReadTicketAutoAssignments_DESC
   canManageTicketAutoAssignments_ASC
   canManageTicketAutoAssignments_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
   canReadOidcClients_ASC
   canReadOidcClients_DESC
   canManageOidcClients_ASC
@@ -4123,6 +4153,8 @@ input UserRightsSetUpdateInput {
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadResetUserLimitActions: Boolean
@@ -4193,6 +4225,8 @@ input UserRightsSetCreateInput {
   canManageTickets: Boolean
   canReadTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadResetUserLimitActions: Boolean
@@ -70747,7 +70781,6 @@ enum B2BAppIconType {
   FloorParking
   Frown
   Globe
-  GripHorizontal
   Guide
   History
   Home
