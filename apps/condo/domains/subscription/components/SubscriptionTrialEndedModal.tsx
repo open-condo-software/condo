@@ -27,12 +27,13 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
     const { subscriptionContext } = useOrganizationSubscription()
 
     const organizationId = organization?.id
+    const now = useMemo(() => new Date().toISOString(), [])
 
     // Query for last expired subscription context (including trials)
     const { data: expiredData, loading } = useGetLastExpiredSubscriptionContextQuery({
         variables: {
             organizationId: organizationId || '',
-            now: new Date().toISOString(),
+            now,
         },
         skip: !organizationId,
     })
