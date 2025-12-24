@@ -141,8 +141,8 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     sender,
                     organization: { connect: { id: organization.id } },
                     subscriptionPlan: { connect: { id: plan.id } },
-                    startAt: startAt.toISOString(),
-                    endAt: endAt.toISOString(),
+                    startAt: startAt.format('YYYY-MM-DD'),
+                    endAt: endAt.format('YYYY-MM-DD'),
                     isTrial: true,
                 })
                 const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)

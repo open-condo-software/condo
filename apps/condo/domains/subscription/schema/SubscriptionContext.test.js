@@ -57,8 +57,8 @@ describe('SubscriptionContext', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can create paid subscription', async () => {
-                const startAt = dayjs().toISOString()
-                const endAt = dayjs().add(30, 'day').toISOString()
+                const startAt = dayjs().format('YYYY-MM-DD')
+                const endAt = dayjs().add(30, 'day').format('YYYY-MM-DD')
 
                 const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                     startAt,
@@ -75,8 +75,8 @@ describe('SubscriptionContext', () => {
             })
 
             test('admin can create trial subscription', async () => {
-                const startAt = dayjs().toISOString()
-                const endAt = dayjs().add(14, 'day').toISOString()
+                const startAt = dayjs().format('YYYY-MM-DD')
+                const endAt = dayjs().add(14, 'day').format('YYYY-MM-DD')
 
                 const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                     startAt,
@@ -89,8 +89,8 @@ describe('SubscriptionContext', () => {
             })
 
             test('support can create subscription', async () => {
-                const startAt = dayjs().toISOString()
-                const endAt = dayjs().add(30, 'day').toISOString()
+                const startAt = dayjs().format('YYYY-MM-DD')
+                const endAt = dayjs().add(30, 'day').format('YYYY-MM-DD')
 
                 const [obj] = await createTestSubscriptionContext(support, organization, subscriptionPlan, {
                     startAt,
@@ -104,8 +104,8 @@ describe('SubscriptionContext', () => {
             test('employee cannot create', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestSubscriptionContext(employee, organization, subscriptionPlan, {
-                        startAt: dayjs().toISOString(),
-                        endAt: dayjs().add(14, 'day').toISOString(),
+                        startAt: dayjs().format('YYYY-MM-DD'),
+                        endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                         isTrial: true,
                     })
                 })
@@ -116,8 +116,8 @@ describe('SubscriptionContext', () => {
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestSubscriptionContext(client, organization, subscriptionPlan, {
-                        startAt: dayjs().toISOString(),
-                        endAt: dayjs().add(14, 'day').toISOString(),
+                        startAt: dayjs().format('YYYY-MM-DD'),
+                        endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                         isTrial: true,
                     })
                 })
@@ -127,8 +127,8 @@ describe('SubscriptionContext', () => {
         describe('update', () => {
             test('support can soft delete', async () => {
                 const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -140,8 +140,8 @@ describe('SubscriptionContext', () => {
 
             test('employee cannot update (soft delete)', async () => {
                 const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -154,8 +154,8 @@ describe('SubscriptionContext', () => {
 
             test('anonymous cannot update (soft delete)', async () => {
                 const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -171,8 +171,8 @@ describe('SubscriptionContext', () => {
         describe('read', () => {
             test('admin can read subscription context', async () => {
                 const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(30, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
                     isTrial: false,
                 })
 
@@ -184,8 +184,8 @@ describe('SubscriptionContext', () => {
 
             test('employee can read own organization subscription', async () => {
                 const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -200,8 +200,8 @@ describe('SubscriptionContext', () => {
                 const [otherOrg] = await registerNewOrganization(otherUser, { type: HOLDING_TYPE })
 
                 const [obj] = await createTestSubscriptionContext(admin, otherOrg, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -212,8 +212,8 @@ describe('SubscriptionContext', () => {
 
             test('anonymous cannot read', async () => {
                 await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -227,8 +227,8 @@ describe('SubscriptionContext', () => {
 
     describe('Validation tests', () => {
         test('endAt must be after startAt', async () => {
-            const startAt = dayjs().toISOString()
-            const endAt = dayjs().subtract(1, 'day').toISOString()
+            const startAt = dayjs().format('YYYY-MM-DD')
+            const endAt = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
 
             await expectToThrowGQLError(async () => {
                 await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
@@ -244,8 +244,8 @@ describe('SubscriptionContext', () => {
 
 
         test('daysRemaining is calculated correctly', async () => {
-            const startAt = dayjs().toISOString()
-            const endAt = dayjs().add(10, 'day').toISOString()
+            const startAt = dayjs().format('YYYY-MM-DD')
+            const endAt = dayjs().add(10, 'day').format('YYYY-MM-DD')
 
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt,
@@ -258,8 +258,8 @@ describe('SubscriptionContext', () => {
         })
 
         test('daysRemaining returns 0 for expired subscription', async () => {
-            const startAt = dayjs().subtract(20, 'day').toISOString()
-            const endAt = dayjs().subtract(5, 'day').toISOString()
+            const startAt = dayjs().subtract(20, 'day').format('YYYY-MM-DD')
+            const endAt = dayjs().subtract(5, 'day').format('YYYY-MM-DD')
 
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt,
@@ -271,7 +271,7 @@ describe('SubscriptionContext', () => {
         })
 
         test('daysRemaining returns null for unlimited subscription', async () => {
-            const startAt = dayjs().toISOString()
+            const startAt = dayjs().format('YYYY-MM-DD')
 
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt,
@@ -286,8 +286,8 @@ describe('SubscriptionContext', () => {
     describe('Field access restrictions', () => {
         test('cannot update subscriptionPlan', async () => {
             const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(14, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
@@ -303,14 +303,14 @@ describe('SubscriptionContext', () => {
 
         test('cannot update startAt', async () => {
             const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(14, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
             await catchErrorFrom(async () => {
                 await updateTestSubscriptionContext(admin, objCreated.id, {
-                    startAt: dayjs().add(5, 'day').toISOString(),
+                    startAt: dayjs().add(5, 'day').format('YYYY-MM-DD'),
                 })
             }, ({ errors }) => {
                 expect(errors[0].message).toContain('Field "startAt" is not defined by type "SubscriptionContextUpdateInput"')
@@ -319,8 +319,8 @@ describe('SubscriptionContext', () => {
 
         test('cannot update isTrial', async () => {
             const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(14, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
@@ -335,14 +335,14 @@ describe('SubscriptionContext', () => {
 
         test('cannot update endAt', async () => {
             const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(14, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
             await catchErrorFrom(async () => {
                 await updateTestSubscriptionContext(admin, objCreated.id, {
-                    endAt: dayjs().add(30, 'day').toISOString(),
+                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
                 })
             }, ({ errors }) => {
                 expect(errors[0].message).toContain('Field "endAt" is not defined by type "SubscriptionContextUpdateInput"')
@@ -362,8 +362,8 @@ describe('SubscriptionContext', () => {
 
             // Create a non-trial SubscriptionContext
             await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(30, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
                 isTrial: false,
             })
 
@@ -384,8 +384,8 @@ describe('SubscriptionContext', () => {
 
             // Create a trial SubscriptionContext
             await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(14, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
@@ -406,8 +406,8 @@ describe('SubscriptionContext', () => {
 
             // Create a non-trial SubscriptionContext
             await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(30, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
                 isTrial: false,
             })
 
@@ -431,8 +431,8 @@ describe('SubscriptionContext', () => {
 
             // Create non-trial SubscriptionContext for original organization
             await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(30, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
                 isTrial: false,
             })
 

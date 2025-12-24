@@ -113,8 +113,8 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     const intl = useIntl()
     const { subscriptionContext } = useOrganizationSubscription()
 
-    const activePlanId = subscriptionContext.subscriptionPlan?.id
-    const daysRemaining = subscriptionContext.daysRemaining
+    const activePlanId = subscriptionContext?.subscriptionPlan?.id
+    const daysRemaining = subscriptionContext?.daysRemaining
     const isActivePlan = activePlanId === plan?.id
     const isTrialExpired = activatedTrial?.daysRemaining === 0
 
