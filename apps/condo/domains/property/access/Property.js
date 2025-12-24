@@ -17,8 +17,7 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
-
-const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('../../user/utils/directAccess')
+const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
 async function canReadProperties (args) {
