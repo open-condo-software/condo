@@ -18,8 +18,7 @@ import {
 } from '@condo/domains/onboarding/utils/clientSchema/constants'
 import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription, useNoSubscriptionToolTip } from '@condo/domains/subscription/hooks'
-
-import { AvailableFeature } from '../../../subscription/hooks/useOrganizationSubscription'
+import { AvailableFeature } from '@condo/domains/subscription/hooks/useOrganizationSubscription'
 
 /**
  * Mapping of step types to required subscription features
@@ -101,7 +100,6 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     const hasPermission = useMemo(() => stepStatus !== TourStepStatusType.Completed && TOUR_STEP_ACTION_PERMISSION[stepType] ?
         get(role, TOUR_STEP_ACTION_PERMISSION[stepType]) : true, [role, stepStatus, stepType])
     
-    // Check if step requires a subscription feature
     const requiredFeature = TOUR_STEP_REQUIRED_FEATURE[stepType]
     const hasRequiredFeature = useMemo(() => {
         if (!requiredFeature) return true

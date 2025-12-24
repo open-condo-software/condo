@@ -119,7 +119,6 @@ export const useSubscriptionExpirationNotification = (): SubscriptionExpirationN
             createdAt,
             meta: { data: { url: `${serverUrl}/settings?tab=subscription` } },
             defaultContent: { content: messageContent.content },
-            // Store title in meta for custom rendering
             customTitle: messageContent.title,
         } as UserMessageType,
         markAsRead,

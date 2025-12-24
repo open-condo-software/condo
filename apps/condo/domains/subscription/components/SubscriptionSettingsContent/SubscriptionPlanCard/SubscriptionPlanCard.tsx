@@ -26,7 +26,6 @@ type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plan
 
 const { Panel } = Collapse
 
-// Base features available in all plans
 const BASE_FEATURES = [
     { label: 'subscription.features.profile', hint: null },
     { label: 'subscription.features.notifications', hint: null },
@@ -48,7 +47,6 @@ const BASE_FEATURES = [
     { featureKey: FEATURE_KEY.AI, label: 'subscription.features.ai', hint: null },
 ]
 
-// Premium features that need backend checks
 const PREMIUM_FEATURES = [
     { featureKey: FEATURE_KEY.CUSTOMIZATION, label: 'subscription.features.customization', hint: 'subscription.features.customization.hint' },
 ]

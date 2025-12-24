@@ -1,3 +1,4 @@
+import { OrganizationFeature } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -8,9 +9,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Typography } from '@open-condo/ui'
 
 import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
-
-import { OrganizationFeature } from '../../../schema'
-import { useOrganizationSubscription } from '../hooks'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 const { Paragraph } = Typography
 
@@ -112,7 +111,6 @@ export const SubscriptionWelcomeModal: React.FC = () => {
 
     const organizationId = organization?.id
 
-    // Mark organization as "seen" in localStorage
     const markAsSeen = useCallback(() => {
         if (!organizationId) return
 
@@ -135,9 +133,7 @@ export const SubscriptionWelcomeModal: React.FC = () => {
             return
         }
 
-        // Always mark as seen, even if no modal content
         markAsSeen()
-
         if (content) {
             setIsVisible(true)
         }
