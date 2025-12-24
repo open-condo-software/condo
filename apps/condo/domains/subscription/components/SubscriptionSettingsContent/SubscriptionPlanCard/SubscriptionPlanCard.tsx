@@ -7,7 +7,7 @@ import { OrganizationFeature } from '@app/condo/schema'
 import { Collapse } from 'antd'
 import classnames from 'classnames'
 import getConfig from 'next/config'
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 
 import { Unlock, Lock, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -34,24 +34,23 @@ const BASE_FEATURES = [
     { label: 'subscription.features.services', hint: null },
     { label: 'subscription.features.settings', hint: null },
     { label: 'subscription.features.analytics', hint: null },
-    { label: 'subscription.features.tickets', hint: null },
+    { featureKey: FEATURE_KEY.TICKETS, label: 'subscription.features.tickets', hint: null },
     { label: 'subscription.features.properties', hint: 'subscription.features.properties.hint' },
     { label: 'subscription.features.employees', hint: null },
     { label: 'subscription.features.residents', hint: 'subscription.features.residents.hint' },
-    { label: 'subscription.features.meters', hint: null },
-    { label: 'subscription.features.payments', hint: null },
+    { featureKey: FEATURE_KEY.METERS, label: 'subscription.features.meters', hint: null },
+    { featureKey: FEATURE_KEY.PAYMENTS, label: 'subscription.features.payments', hint: null },
     { label: 'subscription.features.mobileApp', hint: null },
     { label: 'subscription.features.outages', hint: null },
+    { featureKey: FEATURE_KEY.NEWS, label: 'subscription.features.news', hint: null },
+    { featureKey: FEATURE_KEY.MARKETPLACE, label: 'subscription.features.marketplace', hint: null },
+    { featureKey: FEATURE_KEY.SUPPORT, label: 'subscription.features.personalManager', hint: 'subscription.features.personalManager.hint' },
+    { featureKey: FEATURE_KEY.AI, label: 'subscription.features.ai', hint: null },
 ]
 
 // Premium features that need backend checks
 const PREMIUM_FEATURES = [
-    { key: FEATURE_KEY.NEWS, label: 'subscription.features.news', hint: null },
-    { key: FEATURE_KEY.MARKETPLACE, label: 'subscription.features.marketplace', hint: null },
-    { key: FEATURE_KEY.SUPPORT, label: 'subscription.features.personalManager', hint: 'subscription.features.personalManager.hint' },
-    { key: FEATURE_KEY.AI, label: 'subscription.features.ai', hint: null },
-    { key: FEATURE_KEY.PASS_TICKETS, label: 'subscription.features.passTickets', hint: null },
-    { key: FEATURE_KEY.CUSTOMIZATION, label: 'subscription.features.customization', hint: 'subscription.features.customization.hint' },
+    { featureKey: FEATURE_KEY.CUSTOMIZATION, label: 'subscription.features.customization', hint: 'subscription.features.customization.hint' },
 ]
 
 const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {} } } = getConfig()
@@ -192,6 +191,16 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         }
     }
 
+    const renderFeature = useCallback(({ featureKey, label, hint }) => (
+        <FeatureItem 
+            key={featureKey || label} 
+            label={label} 
+            available={!featureKey ? true : plan[featureKey] === true} 
+            helpLink={featureKey && subscriptionFeatureHelpLinks[featureKey]}
+            hint={hint}
+        />
+    ), [plan])
+
     const hasPendingRequest = !!pendingRequest
     const primaryButtonLabel = hasPendingRequest ? RequestPendingMessage : (isCustomPrice ? SubmitRequestMessage : BuyMessage)
 
@@ -267,18 +276,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                     key='features'
                 >
                     <Space direction='vertical' size={8}>
-                        {BASE_FEATURES.map(({ label, hint }) => (
-                            <FeatureItem key={label} label={label} available hint={hint} />
-                        ))}
-                        {PREMIUM_FEATURES.map(({ key, label, hint }) => (
-                            <FeatureItem 
-                                key={key} 
-                                label={label} 
-                                available={plan[key] === true} 
-                                helpLink={subscriptionFeatureHelpLinks[key]}
-                                hint={hint}
-                            />
-                        ))}
+                        {BASE_FEATURES.map(renderFeature)}
                         {allB2BAppIds.map((appId) => {
                             const app = b2bAppsMap.get(appId)
                             if (!app || !app.name) return null
@@ -294,6 +292,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                 />
                             )
                         })}
+                        {PREMIUM_FEATURES.map(renderFeature)}
                     </Space>
                 </Panel>
             </Collapse>
