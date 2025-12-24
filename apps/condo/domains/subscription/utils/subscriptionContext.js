@@ -2,6 +2,8 @@
  * Utility functions for working with subscription contexts
  */
 
+const dayjs = require('dayjs')
+
 /**
  * Selects the best subscription context from an array of contexts.
  * Selection criteria:
@@ -29,7 +31,7 @@ function selectBestSubscriptionContext (contexts) {
             return priorityB - priorityA
         }
 
-        return new Date(b.startAt).getTime() - new Date(a.startAt).getTime()
+        return dayjs(b.startAt).diff(dayjs(a.startAt))
     })
 
     return sorted[0]
@@ -44,7 +46,9 @@ function selectBestSubscriptionContext (contexts) {
 function isSubscriptionContextActive (context) {
     if (!context) return false
     if (!context.endAt) return true
-    return new Date(context.endAt) > new Date()
+    const now = dayjs().startOf('day')
+    const endAt = dayjs(context.endAt)
+    return endAt.isSameOrAfter(now, 'day')
 }
 
 /**

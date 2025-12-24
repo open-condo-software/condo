@@ -66,16 +66,13 @@ export const SubscriptionSettingsContent: React.FC = () => {
     }, [plansData])
 
     // Fetch B2B apps data for those IDs
-    const { data: b2bAppsData, loading: b2bAppsLoading } = useGetB2BAppsByIdsQuery({
+    const { data: b2bAppsData } = useGetB2BAppsByIdsQuery({
         variables: { ids: allB2BAppIds },
         skip: allB2BAppIds.length === 0,
     })
 
-    console.log('b2bAppsData', allB2BAppIds, b2bAppsData)
-
     const b2bAppsMap = useMemo(() => {
         const apps = b2bAppsData?.b2bApps || []
-        console.log('apps', apps)
         return new Map(apps.map(app => [app.id, app]))
     }, [b2bAppsData])
 
@@ -104,7 +101,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
         if (!organization) return
 
         try {
-            const result = await activateSubscriptionPlan({
+            await activateSubscriptionPlan({
                 variables: {
                     data: {
                         dv: 1,
