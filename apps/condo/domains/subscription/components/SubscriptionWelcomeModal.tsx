@@ -20,7 +20,7 @@ interface ModalContent {
     buttonText: string
 }
 
-const STORAGE_KEY_PREFIX = 'subscription_welcome_modal_shown_'
+const STORAGE_KEY = 'subscription_welcome_modal_shown'
 
 /**
  * Hook that returns modal content based on subscription state
@@ -114,10 +114,12 @@ export const SubscriptionWelcomeModal: React.FC = () => {
 
     // Mark organization as "seen" in localStorage
     const markAsSeen = useCallback(() => {
-        if (organizationId) {
-            const storageKey = `${STORAGE_KEY_PREFIX}${organizationId}`
-            localStorage.setItem(storageKey, 'true')
-        }
+        if (!organizationId) return
+
+        const stored = localStorage.getItem(STORAGE_KEY)
+        const shownOrgs = stored ? JSON.parse(stored) : {}
+        shownOrgs[organizationId] = true
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(shownOrgs))
     }, [organizationId])
 
     useEffect(() => {
@@ -125,8 +127,9 @@ export const SubscriptionWelcomeModal: React.FC = () => {
             return
         }
 
-        const storageKey = `${STORAGE_KEY_PREFIX}${organizationId}`
-        const wasShown = localStorage.getItem(storageKey)
+        const stored = localStorage.getItem(STORAGE_KEY)
+        const shownOrgs = stored ? JSON.parse(stored) : {}
+        const wasShown = shownOrgs[organizationId]
 
         if (wasShown) {
             return
