@@ -12,7 +12,7 @@ jest.mock('@open-condo/keystone/logging', () => ({
 }))
 
 const { fetch } = require('@open-condo/keystone/fetch')
-const { WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC } = require('@open-condo/webhooks/constants')
+const { WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC, WEBHOOK_PAYLOAD_TIMEOUT_IN_MS } = require('@open-condo/webhooks/constants')
 
 const {
     generateSignature,
@@ -123,7 +123,8 @@ describe('webhookPayload utilities', () => {
                         'X-Webhook-Signature-Algorithm': 'sha256',
                         'X-Webhook-Id': 'test-webhook-payload-id',
                     }),
-                    signal: expect.any(Object),
+                    maxRetries: 0,
+                    abortRequestTimeout: WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
                 })
             )
         })
@@ -145,15 +146,7 @@ describe('webhookPayload utilities', () => {
         })
 
         test('should return failure for timeout', async () => {
-            const abortError = new Error('The operation was aborted')
-            abortError.name = 'AbortError'
-            
-            // Mock fetch to simulate timeout by delaying and then rejecting
-            fetch.mockImplementation(() => {
-                return new Promise((resolve, reject) => {
-                    setTimeout(() => reject(abortError), 100)
-                })
-            })
+            fetch.mockRejectedValue(new Error('Abort request by timeout'))
 
             const result = await trySendWebhookPayload(mockWebhookPayload)
 

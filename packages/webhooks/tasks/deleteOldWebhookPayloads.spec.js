@@ -33,15 +33,15 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
 
             const [oldPayload1] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/old1',
-                status: 'success',
+                status: 'sent',
             })
             const [oldPayload2] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/old2',
-                status: 'failed',
+                status: 'error',
             })
             const [recentPayload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/recent',
-                status: 'success',
+                status: 'sent',
             })
 
             await setPayloadUpdatedAt(oldPayload1.id, oldDate)
@@ -67,7 +67,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/within-retention',
-                status: 'success',
+                status: 'sent',
             })
 
             await setPayloadUpdatedAt(payload.id, withinRetentionDate)
@@ -85,7 +85,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/boundary',
-                status: 'success',
+                status: 'sent',
             })
 
             await setPayloadUpdatedAt(payload.id, boundaryDate)
@@ -113,7 +113,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
             for (let i = 0; i < 5; i++) {
                 const [payload] = await createTestWebhookPayload(actors.admin, {
                     url: `http://example.com/batch-${i}`,
-                    status: 'success',
+                    status: 'sent',
                 })
                 await setPayloadUpdatedAt(payload.id, oldDate)
                 payloadIds.push(payload.id)
@@ -138,11 +138,11 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
             })
             const [successPayload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/success',
-                status: 'success',
+                status: 'sent',
             })
             const [failedPayload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/failed',
-                status: 'failed',
+                status: 'error',
             })
 
             await setPayloadUpdatedAt(pendingPayload.id, oldDate)
@@ -167,7 +167,7 @@ const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPat
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/soft-deleted',
-                status: 'success',
+                status: 'sent',
             })
 
             await softDeleteTestWebhookPayload(actors.admin, payload.id)

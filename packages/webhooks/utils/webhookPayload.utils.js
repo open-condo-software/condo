@@ -75,9 +75,6 @@ async function trySendWebhookPayload (webhookPayload) {
         },
     })
 
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), WEBHOOK_PAYLOAD_TIMEOUT_IN_MS)
-
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -88,11 +85,9 @@ async function trySendWebhookPayload (webhookPayload) {
                 'X-Webhook-Id': webhookPayload.id,
             },
             body,
-            signal: controller.signal,
             maxRetries: 0,
+            abortRequestTimeout: WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
         })
-
-        clearTimeout(timeoutId)
 
         // Read response body
         let responseBody = null
@@ -130,10 +125,9 @@ async function trySendWebhookPayload (webhookPayload) {
 
         return result
     } catch (err) {
-        clearTimeout(timeoutId)
-
         // Handle timeout and network errors
-        const isTimeout = controller.signal.aborted || err.name === 'AbortError'
+        // The fetch wrapper throws "Abort request by timeout" when abortRequestTimeout is exceeded
+        const isTimeout = err.message && err.message.includes('timeout')
         if (isTimeout) {
             const result = {
                 success: false,
