@@ -12,8 +12,8 @@ const WEBHOOK_PAYLOAD_STATUSES = [
     WEBHOOK_PAYLOAD_STATUS_ERROR,
 ]
 
-// How long to keep retrying webhook payload sending (in days)
-const WEBHOOK_PAYLOAD_TTL_DAYS = 7
+// How long to keep retrying webhook payload sending (in seconds)
+const WEBHOOK_PAYLOAD_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days
 
 // Retry intervals in seconds (exponential backoff)
 const WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC = [
@@ -42,7 +42,7 @@ module.exports = {
     WEBHOOK_PAYLOAD_STATUS_SENT,
     WEBHOOK_PAYLOAD_STATUS_ERROR,
     WEBHOOK_PAYLOAD_STATUSES,
-    WEBHOOK_PAYLOAD_TTL_DAYS,
+    WEBHOOK_PAYLOAD_TTL_IN_SEC,
     WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC,
     WEBHOOK_PAYLOAD_TIMEOUT_MS,
     WEBHOOK_PAYLOAD_RETENTION_DAYS,

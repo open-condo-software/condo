@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 
 const { getLogger } = require('@open-condo/keystone/logging')
-const { WEBHOOK_PAYLOAD_TTL_DAYS } = require('@open-condo/webhooks/constants')
+const { WEBHOOK_PAYLOAD_TTL_IN_SEC } = require('@open-condo/webhooks/constants')
 const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
@@ -20,7 +20,7 @@ const logger = getLogger('sendWebhookPayload')
  * @param {string} options.eventType - Type of event (e.g., 'payment.status.changed')
  * @param {string} [options.modelName] - Name of the model that triggered this webhook
  * @param {string} [options.itemId] - ID of the record that triggered this webhook
- * @param {number} [options.ttlDays] - Days until expiration (default: WEBHOOK_PAYLOAD_TTL_DAYS)
+ * @param {number} [options.ttlInSec] - Seconds until expiration (default: WEBHOOK_PAYLOAD_TTL_IN_SEC)
  * @param {Object} [options.sender] - Sender info for audit (default: auto-generated)
  * @returns {Promise<Object>} Created WebhookPayload record
  *
@@ -42,7 +42,7 @@ async function sendWebhookPayload (context, options) {
         eventType,
         modelName = null,
         itemId = null,
-        ttlDays = WEBHOOK_PAYLOAD_TTL_DAYS,
+        ttlInSec = WEBHOOK_PAYLOAD_TTL_IN_SEC,
         sender = { dv: 1, fingerprint: 'webhooks-package' },
     } = options
 
@@ -62,7 +62,7 @@ async function sendWebhookPayload (context, options) {
         eventType,
         modelName,
         itemId,
-        expiresAt: dayjs().add(ttlDays, 'day').toISOString(),
+        expiresAt: dayjs().add(ttlInSec, 'second').toISOString(),
         nextRetryAt: dayjs().toISOString(),
     })
 
