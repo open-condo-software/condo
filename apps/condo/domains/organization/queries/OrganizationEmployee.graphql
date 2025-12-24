@@ -41,8 +41,8 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
                 support
                 ai
                 customization
-                disabledB2BApps
-                disabledB2CApps
+                enabledB2BApps
+                enabledB2CApps
             }
         }
         role {

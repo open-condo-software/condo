@@ -16,8 +16,8 @@ const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
         support: Boolean!
         ai: Boolean!
         customization: Boolean!
-        disabledB2BApps: [String!]!
-        disabledB2CApps: [String!]!
+        enabledB2BApps: [String!]!
+        enabledB2CApps: [String!]!
     }
 `
 
@@ -31,8 +31,8 @@ const FULL_ACCESS_FEATURES = {
     support: true,
     ai: true,
     customization: true,
-    disabledB2BApps: [],
-    disabledB2CApps: [],
+    enabledB2BApps: [],
+    enabledB2CApps: [],
 }
 
 const ORGANIZATION_SUBSCRIPTION_FIELD = {
@@ -41,7 +41,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
     type: 'Virtual',
     extendGraphQLTypes: SUBSCRIPTION_FEATURES_GRAPHQL_TYPES,
     graphQLReturnType: SUBSCRIPTION_FEATURES_TYPE_NAME,
-    graphQLReturnFragment: '{ payments meters tickets news marketplace support ai customization disabledB2BApps disabledB2CApps }',
+    graphQLReturnFragment: '{ payments meters tickets news marketplace support ai customization enabledB2BApps enabledB2CApps }',
     resolver: async (organization) => {
         const plansForType = await find('SubscriptionPlan', {
             organizationType: organization.type,
@@ -90,8 +90,8 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             support: plan.support,
             ai: plan.ai,
             customization: plan.customization,
-            disabledB2BApps: plan.disabledB2BApps || [],
-            disabledB2CApps: plan.disabledB2CApps || [],
+            enabledB2BApps: plan.enabledB2BApps || [],
+            enabledB2CApps: plan.enabledB2CApps || [],
         }
     },
 }

@@ -6176,8 +6176,8 @@ type OrganizationSubscriptionFeatures {
   support: Boolean!
   ai: Boolean!
   customization: Boolean!
-  disabledB2BApps: [String!]!
-  disabledB2CApps: [String!]!
+  enabledB2BApps: [String!]!
+  enabledB2CApps: [String!]!
 }
 
 """ B2B customer of the service, a legal entity or an association of legal entities (holding/group) 
@@ -57382,8 +57382,8 @@ type SubscriptionPlanHistoryRecord {
   support: Boolean
   ai: Boolean
   customization: Boolean
-  disabledB2BApps: JSON
-  disabledB2CApps: JSON
+  enabledB2BApps: JSON
+  enabledB2CApps: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -57492,14 +57492,14 @@ input SubscriptionPlanHistoryRecordWhereInput {
   ai_not: Boolean
   customization: Boolean
   customization_not: Boolean
-  disabledB2BApps: JSON
-  disabledB2BApps_not: JSON
-  disabledB2BApps_in: [JSON]
-  disabledB2BApps_not_in: [JSON]
-  disabledB2CApps: JSON
-  disabledB2CApps_not: JSON
-  disabledB2CApps_in: [JSON]
-  disabledB2CApps_not_in: [JSON]
+  enabledB2BApps: JSON
+  enabledB2BApps_not: JSON
+  enabledB2BApps_in: [JSON]
+  enabledB2BApps_not_in: [JSON]
+  enabledB2CApps: JSON
+  enabledB2CApps_not: JSON
+  enabledB2CApps_in: [JSON]
+  enabledB2CApps_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57647,8 +57647,8 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   support: Boolean
   ai: Boolean
   customization: Boolean
-  disabledB2BApps: JSON
-  disabledB2CApps: JSON
+  enabledB2BApps: JSON
+  enabledB2CApps: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -57684,8 +57684,8 @@ input SubscriptionPlanHistoryRecordCreateInput {
   support: Boolean
   ai: Boolean
   customization: Boolean
-  disabledB2BApps: JSON
-  disabledB2CApps: JSON
+  enabledB2BApps: JSON
+  enabledB2CApps: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -57769,11 +57769,11 @@ type SubscriptionPlan {
   """ Whether customization feature is included in this plan """
   customization: Boolean
 
-  """ JSON array of B2B miniapp IDs that are disabled in this plan """
-  disabledB2BApps: JSON
+  """ JSON array of B2B miniapp IDs that are enabled in this plan """
+  enabledB2BApps: JSON
 
-  """ JSON array of B2C miniapp IDs that are disabled in this plan """
-  disabledB2CApps: JSON
+  """ JSON array of B2C miniapp IDs that are enabled in this plan """
+  enabledB2CApps: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -57876,14 +57876,14 @@ input SubscriptionPlanWhereInput {
   ai_not: Boolean
   customization: Boolean
   customization_not: Boolean
-  disabledB2BApps: JSON
-  disabledB2BApps_not: JSON
-  disabledB2BApps_in: [JSON]
-  disabledB2BApps_not_in: [JSON]
-  disabledB2CApps: JSON
-  disabledB2CApps_not: JSON
-  disabledB2CApps_in: [JSON]
-  disabledB2CApps_not_in: [JSON]
+  enabledB2BApps: JSON
+  enabledB2BApps_not: JSON
+  enabledB2BApps_in: [JSON]
+  enabledB2BApps_not_in: [JSON]
+  enabledB2CApps: JSON
+  enabledB2CApps_not: JSON
+  enabledB2CApps_in: [JSON]
+  enabledB2CApps_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -58011,8 +58011,8 @@ input SubscriptionPlanUpdateInput {
   support: Boolean
   ai: Boolean
   customization: Boolean
-  disabledB2BApps: JSON
-  disabledB2CApps: JSON
+  enabledB2BApps: JSON
+  enabledB2CApps: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -58045,8 +58045,8 @@ input SubscriptionPlanCreateInput {
   support: Boolean
   ai: Boolean
   customization: Boolean
-  disabledB2BApps: JSON
-  disabledB2CApps: JSON
+  enabledB2BApps: JSON
+  enabledB2CApps: JSON
   v: Int
   createdAt: String
   updatedAt: String
