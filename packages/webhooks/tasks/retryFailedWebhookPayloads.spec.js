@@ -2,8 +2,8 @@ const dayjs = require('dayjs')
 
 const {
     WEBHOOK_PAYLOAD_STATUS_PENDING,
-    WEBHOOK_PAYLOAD_STATUS_SUCCESS,
-    WEBHOOK_PAYLOAD_STATUS_FAILED,
+    WEBHOOK_PAYLOAD_STATUS_SENT,
+    WEBHOOK_PAYLOAD_STATUS_ERROR,
 } = require('@open-condo/webhooks/constants')
 const {
     createTestWebhookPayload,
@@ -120,7 +120,7 @@ const RetryFailedWebhookPayloadsTests = (appName, actorsInitializer) => {
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/webhook',
-                status: WEBHOOK_PAYLOAD_STATUS_SUCCESS,
+                status: WEBHOOK_PAYLOAD_STATUS_SENT,
                 expiresAt,
                 nextRetryAt,
                 attempt: 1,
@@ -145,7 +145,7 @@ const RetryFailedWebhookPayloadsTests = (appName, actorsInitializer) => {
 
             const [payload] = await createTestWebhookPayload(actors.admin, {
                 url: 'http://example.com/webhook',
-                status: WEBHOOK_PAYLOAD_STATUS_FAILED,
+                status: WEBHOOK_PAYLOAD_STATUS_ERROR,
                 expiresAt,
                 nextRetryAt,
                 attempt: 5,

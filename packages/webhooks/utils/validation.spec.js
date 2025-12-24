@@ -13,7 +13,6 @@ describe('validateEventType', () => {
             'my-resource.my-action',
             'payment.status-change.completed',
             'Payment.Created',
-            'test.event.7v5619fr',
             'myResource.myAction',
         ]
 
@@ -96,7 +95,6 @@ describe('EVENT_TYPE_PATTERN', () => {
     test('should match camelCase patterns', () => {
         expect(EVENT_TYPE_PATTERN.test('Payment.Created')).toBe(true)
         expect(EVENT_TYPE_PATTERN.test('myResource.myAction')).toBe(true)
-        expect(EVENT_TYPE_PATTERN.test('test.event.7v5619fr')).toBe(true)
     })
 
     test('should not match invalid patterns', () => {

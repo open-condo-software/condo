@@ -36,9 +36,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
-    "express": "^4.17.1",
     "jest": "^29.7.0",
-    "jest-jasmine2": "^29.7.0"
+    "jest-jasmine2": "^29.7.0",
+    "nock": "^14.0.5"
   },
   "peerDependencies": {
     "@graphql-tools/graphql-file-loader": "^7.5.17",

@@ -6,7 +6,7 @@
  * - Each segment must start with a letter and contain only letters, numbers, and hyphens
  * Examples: "payment.created", "payment.status.changed", "test.event.7v5619fr"
  */
-const EVENT_TYPE_PATTERN = /^[a-zA-Z][a-zA-Z0-9-]*(\.[a-zA-Z0-9][a-zA-Z0-9-]*)+$/
+const EVENT_TYPE_PATTERN = /^[a-zA-Z][a-zA-Z0-9-]*(\.[a-zA-Z][a-zA-Z0-9-]*)+$/
 
 /**
  * Validates eventType value.

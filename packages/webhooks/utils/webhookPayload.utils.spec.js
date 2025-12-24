@@ -12,7 +12,7 @@ jest.mock('@open-condo/keystone/logging', () => ({
 }))
 
 const { fetch } = require('@open-condo/keystone/fetch')
-const { WEBHOOK_PAYLOAD_TIMEOUT_MS, WEBHOOK_PAYLOAD_RETRY_INTERVALS } = require('@open-condo/webhooks/constants')
+const { WEBHOOK_PAYLOAD_RETRY_INTERVALS } = require('@open-condo/webhooks/constants')
 
 const {
     generateSignature,
@@ -123,7 +123,7 @@ describe('webhookPayload utilities', () => {
                         'X-Webhook-Signature-Algorithm': 'sha256',
                         'X-Webhook-Id': 'test-webhook-payload-id',
                     }),
-                    abortRequestTimeout: WEBHOOK_PAYLOAD_TIMEOUT_MS,
+                    signal: expect.any(Object),
                 })
             )
         })
@@ -145,7 +145,15 @@ describe('webhookPayload utilities', () => {
         })
 
         test('should return failure for timeout', async () => {
-            fetch.mockRejectedValue(new Error('Abort request by timeout'))
+            const abortError = new Error('The operation was aborted')
+            abortError.name = 'AbortError'
+            
+            // Mock fetch to simulate timeout by delaying and then rejecting
+            fetch.mockImplementation(() => {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => reject(abortError), 100)
+                })
+            })
 
             const result = await trySendWebhookPayload(mockWebhookPayload)
 
@@ -245,12 +253,15 @@ describe('webhookPayload utilities', () => {
             )
             expect(mockLogger.info).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    msg: 'Webhook payload sent successfully',
+                    msg: 'Webhook payload send result',
+                    data: expect.objectContaining({
+                        success: true,
+                    }),
                 })
             )
         })
 
-        test('should log warning on HTTP error', async () => {
+        test('should log info on HTTP error', async () => {
             fetch.mockResolvedValue({
                 ok: false,
                 status: 500,
@@ -260,21 +271,27 @@ describe('webhookPayload utilities', () => {
 
             await trySendWebhookPayload(mockWebhookPayload)
 
-            expect(mockLogger.warn).toHaveBeenCalledWith(
+            expect(mockLogger.info).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    msg: 'Webhook payload sending failed with HTTP error',
+                    msg: 'Webhook payload send result',
+                    data: expect.objectContaining({
+                        success: false,
+                    }),
                 })
             )
         })
 
-        test('should log error on network error', async () => {
+        test('should log info on network error', async () => {
             fetch.mockRejectedValue(new Error('Connection refused'))
 
             await trySendWebhookPayload(mockWebhookPayload)
 
-            expect(mockLogger.error).toHaveBeenCalledWith(
+            expect(mockLogger.info).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    msg: 'Webhook payload sending failed with network error',
+                    msg: 'Webhook payload send result',
+                    data: expect.objectContaining({
+                        success: false,
+                    }),
                 })
             )
         })
