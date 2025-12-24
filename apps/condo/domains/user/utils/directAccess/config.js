@@ -56,6 +56,9 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'Ticket',
         'TicketAutoAssignment',
 
+        // Property domain
+        'Property',
+
         // User domain
         'OidcClient',
         'ResetUserLimitAction',
