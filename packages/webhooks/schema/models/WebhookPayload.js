@@ -150,7 +150,7 @@ function getWebhookPayloadModel (appWebhooksEventsTypes = []) {
             },
 
             status: {
-                schemaDoc: 'Sending status: pending (waiting to send/retry), success (sent successfully), failed (permanently failed after TTL expired)',
+                schemaDoc: `Sending status. Possible values: ${WEBHOOK_PAYLOAD_STATUSES.join(', ')}`,
                 type: 'Select',
                 dataType: 'string',
                 options: WEBHOOK_PAYLOAD_STATUSES,

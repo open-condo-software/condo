@@ -5435,8 +5435,7 @@ type WebhookPayload {
   """
   webhookSubscription: WebhookSubscription
 
-  """ Sending status: pending (waiting to send/retry), success (sent successfully), failed (permanently failed after TTL expired) 
-  """
+  """ Sending status. Possible values: pending, sent, error """
   status: WebhookPayloadStatusType
 
   """ Number of send attempts made (starts at 0) """
