@@ -50,19 +50,14 @@ async function retryFailedWebhookPayloads () {
         for (const payload of pendingPayloadsChunk) {
             try {
                 await sendWebhookPayloadTask.delay(payload.id)
-                logger.info({ msg: 'Queued webhook payload for retry', data: { payloadId: payload.id } })
+                logger.info({ msg: 'Queued webhook payload for retry', entity: 'WebhookPayload', entityId: payload.id })
             } catch (err) {
-                logger.error({ msg: 'Failed to queue webhook payload', err, data: { payloadId: payload.id } })
+                logger.error({ msg: 'Failed to queue webhook payload', entity: 'WebhookPayload', entityId: payload.id, err })
             }
         }
     }
 
-    if (queuedCount === 0) {
-        logger.info({ msg: 'No pending webhook payloads to retry', data: { now } })
-        return
-    }
-
-    logger.info({ msg: 'Found pending webhook payloads', data: { now, queuedCount } })
+    logger.info({ msg: 'Finished retrying webhook payloads', data: { now, queuedCount } })
 }
 
 module.exports = {
