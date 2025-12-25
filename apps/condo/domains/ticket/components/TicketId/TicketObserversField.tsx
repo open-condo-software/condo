@@ -53,7 +53,7 @@ export const TicketObserversField: FC<TicketObserversFieldProps> = ({ ticket }) 
 
     const renderObservers = useMemo(() => {
         return observers.map((observer, i) => (
-            <div key={i}>
+            <div key={observer.id}>
                 <UserNameField user={{ name: observer?.name, id: observer?.user?.id }} key={observer?.id}>
                     {({ name: userName, postfix }) => (
                         <>
