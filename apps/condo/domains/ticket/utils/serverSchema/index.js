@@ -77,19 +77,6 @@ async function ticketMultipleUpdate (context, data) {
 const TicketAutoAssignment = generateServerUtils('TicketAutoAssignment')
 const TicketDocumentGenerationTask = generateServerUtils('TicketDocumentGenerationTask')
 const TicketObserver = generateServerUtils('TicketObserver')
-async function syncTicketObservers (context, data) {
-    if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write syncTicketObservers serverSchema guards
-
-    return await execGqlWithoutAccess(context, {
-        query: SYNC_TICKET_OBSERVERS_MUTATION,
-        variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to syncTicketObservers',
-        dataPath: 'obj',
-    })
-}
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -321,6 +308,5 @@ module.exports = {
     TicketAutoAssignment,
     TicketDocumentGenerationTask,
     TicketObserver,
-    syncTicketObservers,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

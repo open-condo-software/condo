@@ -51,7 +51,6 @@ const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
 const { TICKET_STATUS_TYPES, ORGANIZATION_COMMENT_TYPE } = require('../../constants')
 const { TicketObserver: TicketObserverGQL } = require('@condo/domains/ticket/gql')
-const { SYNC_TICKET_OBSERVERS_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -1010,8 +1009,6 @@ async function createTestTicketObserver (client, ticket, user, extraAttrs = {}) 
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestTicketObserver logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -1028,8 +1025,6 @@ async function updateTestTicketObserver (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestTicketObserver logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -1039,20 +1034,6 @@ async function updateTestTicketObserver (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-
-async function syncTicketObserversByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(SYNC_TICKET_OBSERVERS_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -1109,6 +1090,5 @@ module.exports = {
     TicketAutoAssignment, createTestTicketAutoAssignment, updateTestTicketAutoAssignment,
     TicketDocumentGenerationTask, createTestTicketDocumentGenerationTask, updateTestTicketDocumentGenerationTask,
     TicketObserver, createTestTicketObserver, updateTestTicketObserver,
-    syncTicketObserversByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

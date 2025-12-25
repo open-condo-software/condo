@@ -1,8 +1,7 @@
 import {
-    useSyncTicketObserversMutation,
-    useGetTicketObserversByTicketIdQuery,
     useUpdateTicketMutation,
     useGetEmployeesByOrganizationIdAndUserIdsQuery,
+    useGetTicketObserversByTicketIdQuery,
 } from '@app/condo/gql'
 import { Form, Typography } from 'antd'
 import get from 'lodash/get'
@@ -138,16 +137,36 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const [action] = useUpdateTicketMutation({})
     const createInvoiceAction = Invoice.useCreate({})
     const updateInvoiceAction = Invoice.useUpdate({})
-    const [syncTicketObservers] = useSyncTicketObserversMutation()
 
     const updateAction = async (values) => {
-        const { existedInvoices, newInvoices, observers: newObserverIds, ...ticketValues } = values
+        const { existedInvoices, newInvoices, observers: newObserverUserIds, ...ticketValues } = values
+
+        const newObserverUserIdsArray = Array.isArray(newObserverUserIds) ? newObserverUserIds.filter((userId) => typeof userId === 'string') : []
+
+        const existingAllowedUserIdSet = new Set(observers.map((o) => o?.user?.id).filter(Boolean))
+        const newObserverUserIdSet = new Set(newObserverUserIdsArray)
+
+        const observerUserIdsToCreate = newObserverUserIdsArray.filter((userId) => !existingAllowedUserIdSet.has(userId))
+        const observerIdsToDisconnect = observers
+            .filter((o) => o?.user?.id && !newObserverUserIdSet.has(o.user.id))
+            .map((o) => o.id)
+
+        const observersUpdatePayload = (observerUserIdsToCreate.length > 0 || observerIdsToDisconnect.length > 0) ? {
+            create: observerUserIdsToCreate.map((userId) => ({
+                user: { connect: { id: userId } },
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+            })),
+            disconnect: observerIdsToDisconnect.map((ticketObserverId) => ({ id: ticketObserverId })),
+        } : undefined
+
 
         const ticketData = await action({
             variables: {
                 id: obj.id,
                 data: {
                     ...Ticket.formValuesProcessor(ticketValues),
+                    ...(observersUpdatePayload ? { observers: observersUpdatePayload } : {}),
                     dv: 1,
                     sender: getClientSideSenderInfo(),
                 },
@@ -205,20 +224,6 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
                     await updateInvoiceAction(pick(existedInvoice, editedFields), existedInvoice)
                 }
             }
-        }
-
-        if (!isEmpty(newObserverIds)) {
-            await syncTicketObservers({
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender: getClientSideSenderInfo(),
-                        ticketId: ticket.id,
-                        userIds: newObserverIds,
-                        shouldCreateTicketChange: true,
-                    },
-                },
-            })
         }
 
         return ticket

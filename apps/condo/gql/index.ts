@@ -7532,42 +7532,10 @@ export type GetTicketFilesQueryHookResult = ReturnType<typeof useGetTicketFilesQ
 export type GetTicketFilesLazyQueryHookResult = ReturnType<typeof useGetTicketFilesLazyQuery>;
 export type GetTicketFilesSuspenseQueryHookResult = ReturnType<typeof useGetTicketFilesSuspenseQuery>;
 export type GetTicketFilesQueryResult = Apollo.QueryResult<Types.GetTicketFilesQuery, Types.GetTicketFilesQueryVariables>;
-export const SyncTicketObserversDocument = gql`
-    mutation syncTicketObservers($data: SyncTicketObserversInput!) {
-  status: syncTicketObservers(data: $data) {
-    status
-  }
-}
-    `;
-export type SyncTicketObserversMutationFn = Apollo.MutationFunction<Types.SyncTicketObserversMutation, Types.SyncTicketObserversMutationVariables>;
-
-/**
- * __useSyncTicketObserversMutation__
- *
- * To run a mutation, you first call `useSyncTicketObserversMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSyncTicketObserversMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [syncTicketObserversMutation, { data, loading, error }] = useSyncTicketObserversMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useSyncTicketObserversMutation(baseOptions?: Apollo.MutationHookOptions<Types.SyncTicketObserversMutation, Types.SyncTicketObserversMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<Types.SyncTicketObserversMutation, Types.SyncTicketObserversMutationVariables>(SyncTicketObserversDocument, options);
-      }
-export type SyncTicketObserversMutationHookResult = ReturnType<typeof useSyncTicketObserversMutation>;
-export type SyncTicketObserversMutationResult = Apollo.MutationResult<Types.SyncTicketObserversMutation>;
-export type SyncTicketObserversMutationOptions = Apollo.BaseMutationOptions<Types.SyncTicketObserversMutation, Types.SyncTicketObserversMutationVariables>;
 export const GetTicketObserversByTicketIdDocument = gql`
     query getTicketObserversByTicketId($ticketId: ID!) {
   observers: allTicketObservers(where: {ticket: {id: $ticketId}}) {
+    id
     user {
       id
     }

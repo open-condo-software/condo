@@ -6,7 +6,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/ticket/access/TicketObserver')
-
+const { TICKET_OBSERVER_TICKET_REQUIRED } = require('@condo/domains/ticket/constants/errors')
 
 const TicketObserver = new GQLListSchema('TicketObserver', {
     schemaDoc: 'Employee/user who will be notified about the ticket',
@@ -16,9 +16,9 @@ const TicketObserver = new GQLListSchema('TicketObserver', {
             schemaDoc: 'Link to ticket',
             type: 'Relationship',
             ref: 'Ticket.observers',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         user: {
@@ -32,9 +32,22 @@ const TicketObserver = new GQLListSchema('TicketObserver', {
 
     },
     hooks: {
-        afterChange: () => {
-            // 1. When do I need to create a TicketChange and when not?
+        validateInput: async ({ resolvedData, existingItem, addValidationError }) => {
+            if (existingItem) return
+        
+            const ticketRel = resolvedData.ticket
+            const hasTicket =
+                !!ticketRel &&
+                (
+                    (ticketRel.connect && ticketRel.connect.id) ||
+                    ticketRel.create
+                )
+        
+            if (!hasTicket) {
+                addValidationError(TICKET_OBSERVER_TICKET_REQUIRED)
+            }
         },
+        // NOTE: afterChange is not used for this list, because we need build a ticket change history
     },
     kmigratorOptions: {
         constraints: [

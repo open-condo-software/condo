@@ -89017,18 +89017,6 @@ input TicketMultipleUpdateInput {
   data: [TicketUpdateInput]!
 }
 
-input SyncTicketObserversInput {
-  dv: Int!
-  sender: JSON!
-  ticketId: ID!
-  userIds: [ID!]!
-  shouldCreateTicketChange: Boolean = true
-}
-
-type SyncTicketObserversOutput {
-  status: String!
-}
-
 enum SendMessageLang {
   ru
   en
@@ -101559,7 +101547,6 @@ type Mutation {
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
   ticketMultipleUpdate(data: TicketMultipleUpdateInput!): Ticket!
-  syncTicketObservers(data: SyncTicketObserversInput!): SyncTicketObserversOutput
 
   """
   Sends message of specified type to specified contact

@@ -140,7 +140,7 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
  * @param {KeystoneOperationArgsForTicketChange} args - variables, passed to Keystone afterChange hook
  * @return {Promise<{existing: {displayNames: *, ids: *}, updated: {displayNames: *, ids: *}}}|{}>}
  */
-const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', args) => {
+const resolveManyToManyField = async (fieldName, ref, displayNameRef = '', displayNameAttr = 'name', args) => {
     const { context, existingItem, originalInput } = args
     let updated
     const updatedResult = await context.executeGraphQL({
@@ -151,7 +151,7 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
                         id
                         ${fieldName} {
                             id
-                            name
+                            ${displayNameRef ? `${displayNameRef} { id ${displayNameAttr} }` : displayNameAttr }
                         }
                     }
                 }
@@ -169,7 +169,7 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
     if (updatedResult.data.ticket) {
         updated = {
             ids: map(updatedResult.data.ticket[fieldName], 'id'),
-            displayNames: map(updatedResult.data.ticket[fieldName], displayNameAttr),
+            displayNames: map(updatedResult.data.ticket[fieldName], displayNameRef ? `${displayNameRef}.${displayNameAttr}` : displayNameAttr),
         }
     }
 
@@ -196,6 +196,16 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
             // Perform opposite operation
             existing.ids = difference(existing.ids, map(originalInput[fieldName].connect, 'id'))
         }
+        if (originalInput[fieldName].create) {
+            // NOTE: We don't know the id of the created records, so we need to calculate them and delete them from the array of existing records.
+            let newConnectedDisplayNameRefIds = new Set(map(originalInput[fieldName].create, `${displayNameRef}.connect.id`))
+            if (newConnectedDisplayNameRefIds.size > 0) {
+                let createdRefIds = updatedResult.data.ticket[fieldName]
+                    .filter(item => item[displayNameRef]?.id && newConnectedDisplayNameRefIds.has(item[displayNameRef].id))
+                    .map(item => item.id)
+                existing.ids = difference(existing.ids, createdRefIds)
+            }
+        }
     }
     const existingResult = await context.executeGraphQL({
         context: context.createContext({ skipAccessControl: true }),
@@ -203,7 +213,7 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
                 query changeTrackable_find${ref}s($ids: [ID!]) {
                     items: all${ref}s(where: { id_in: $ids }) {
                         id
-                        ${displayNameAttr}
+                        ${displayNameRef ? `${displayNameRef} { ${displayNameAttr} }` : displayNameAttr }
                     }
                 }
             `,
@@ -214,7 +224,7 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
         return {}
     }
     if (existingResult.data.items) {
-        existing.displayNames = map(existingResult.data.items, 'name')
+        existing.displayNames = map(existingResult.data.items, displayNameRef ? `${displayNameRef}.${displayNameAttr}` : displayNameAttr)
     }
 
     return {
@@ -239,13 +249,8 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
  * }
  */
 const relatedManyToManyResolvers = {
-    // NOTE: No need to implement resolver for observers, 
-    // NOTE: Because they are stored in SyncTicketObserversService schema
     'observers': async (args) => {
-        return {
-            existing: { ids: [] },
-            updated: { ids: [] },
-        }
+        return resolveManyToManyField('observers', 'TicketObserver', 'user', 'name', args)
     },
 }
 
