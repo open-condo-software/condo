@@ -43,6 +43,12 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
                 customization
                 enabledB2BApps
                 enabledB2CApps
+                daysRemaining
+                planName
+                planId
+                isTrial
+                startAt
+                endAt
             }
         }
         role {

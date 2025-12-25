@@ -18,6 +18,12 @@ const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
         customization: Boolean!
         enabledB2BApps: [String!]!
         enabledB2CApps: [String!]!
+        daysRemaining: Int
+        planName: String
+        planId: String
+        isTrial: Boolean
+        startAt: String
+        endAt: String
     }
 `
 
@@ -32,6 +38,12 @@ const FULL_ACCESS_FEATURES = {
     customization: true,
     enabledB2BApps: [],
     enabledB2CApps: [],
+    daysRemaining: null,
+    planName: null,
+    planId: null,
+    isTrial: false,
+    startAt: null,
+    endAt: null,
 }
 
 const ORGANIZATION_SUBSCRIPTION_FIELD = {
@@ -40,7 +52,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
     type: 'Virtual',
     extendGraphQLTypes: SUBSCRIPTION_FEATURES_GRAPHQL_TYPES,
     graphQLReturnType: SUBSCRIPTION_FEATURES_TYPE_NAME,
-    graphQLReturnFragment: '{ payments meters tickets news marketplace support ai customization enabledB2BApps enabledB2CApps }',
+    graphQLReturnFragment: '{ payments meters tickets news marketplace support ai customization enabledB2BApps enabledB2CApps daysRemaining planName planId isTrial startAt endAt }',
     resolver: async (organization) => {
         const plansForType = await find('SubscriptionPlan', {
             organizationType: organization.type,
@@ -91,6 +103,12 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             customization: plan.customization,
             enabledB2BApps: plan.enabledB2BApps || [],
             enabledB2CApps: plan.enabledB2CApps || [],
+            daysRemaining: bestContext.daysRemaining,
+            planName: plan.name,
+            planId: plan.id,
+            isTrial: bestContext.isTrial,
+            startAt: bestContext.startAt,
+            endAt: bestContext.endAt,
         }
     },
 }

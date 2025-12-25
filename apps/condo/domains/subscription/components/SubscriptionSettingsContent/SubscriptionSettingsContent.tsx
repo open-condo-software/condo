@@ -8,7 +8,6 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Space, Radio } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
-import { useOrganizationSubscription } from '@condo/domains/hooks/useOrganizationSubscription'
 
 import { PromoBanner } from './PromoBanner/PromoBanner'
 import { SubscriptionPlanCard } from './SubscriptionPlanCard/SubscriptionPlanCard'
@@ -21,7 +20,6 @@ type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plan
 export const SubscriptionSettingsContent: React.FC = () => {
     const intl = useIntl()
     const { organization, employee, selectEmployee } = useOrganization()
-    const { refetchSubscriptionContexts } = useOrganizationSubscription()
 
     const YearlyLabel = intl.formatMessage({ id: 'subscription.period.yearly' })
     const MonthlyLabel = intl.formatMessage({ id: 'subscription.period.monthly' })
@@ -116,7 +114,6 @@ export const SubscriptionSettingsContent: React.FC = () => {
             if (isTrial) {
                 await refetchTrialSubscriptions()
                 await refetchPendingRequests()
-                await refetchSubscriptionContexts()
                 if (employee?.id) {
                     await selectEmployee(employee.id)
                 }
