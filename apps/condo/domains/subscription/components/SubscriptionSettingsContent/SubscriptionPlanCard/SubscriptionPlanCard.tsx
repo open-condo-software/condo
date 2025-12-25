@@ -147,10 +147,8 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
 export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, handleActivatePlan, b2bAppsMap, allB2BAppIds }) => {
     const intl = useIntl()
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
-    const FreeForPartnerMessage = intl.formatMessage({ id: 'subscription.planCard.freeForPartner' })
     const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
     const BuyMessage = intl.formatMessage({ id: 'subscription.planCard.buy' })
-    const CustomPriceMessage = intl.formatMessage({ id: 'subscription.planCard.customPrice' })
     const FeaturesTitle = intl.formatMessage({ id: 'subscription.features.title' })
 
     const { organization } = useOrganization()
@@ -231,22 +229,16 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                     </Space>
                     <Space size={24} direction='vertical'>
                         <Space size={4} direction='vertical'>
-                            {isFreeForPartner ? (
+                            <Space size={4} direction='horizontal'>
                                 <Typography.Title level={3}>
-                                    {FreeForPartnerMessage}
+                                    {isCustomPrice ? price.name : `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`}
                                 </Typography.Title>
-                            ) : (
-                                <Space size={4} direction='horizontal'>
-                                    <Typography.Title level={3}>
-                                        {isCustomPrice ? CustomPriceMessage : `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`}
-                                    </Typography.Title>
-                                    {!isCustomPrice && (
-                                        <Typography.Text type='secondary'>
+                                {!isCustomPrice && (
+                                    <Typography.Text type='secondary'>
                                             / {PeriodMessage}
-                                        </Typography.Text>
-                                    )}
-                                </Space>
-                            )}
+                                    </Typography.Text>
+                                )}
+                            </Space>
                         </Space>
                         {!isFreeForPartner && (
                             <div className={styles.buttons}>

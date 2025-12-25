@@ -66,7 +66,7 @@ export const PromoBanner: React.FC = () => {
     return (
         <div className={styles.bannerWrapper}>
             <div className={styles.bannerCard}>
-                <Space size={16} direction='vertical'>
+                <Space size={16} direction='vertical' className={styles.bannerContent}>
                     <Typography.Title level={4}>
                         {BannerTitle}
                     </Typography.Title>
@@ -86,7 +86,7 @@ export const PromoBanner: React.FC = () => {
                     </Space>
                 </Space>
                 <div className={styles.imageWrapper}>
-                    <img src='/global-hints/subscriptions/bankLogo.png' alt='Bank logo' />
+                    <img src='/global-hints/subscriptions/greenTick.png' alt='Bank logo' />
                 </div>
             </div>
         </div>
