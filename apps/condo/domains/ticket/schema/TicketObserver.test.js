@@ -21,6 +21,7 @@ const { TICKET_OBSERVER_TICKET_REQUIRED } = require('@condo/domains/ticket/const
 const {
     TicketObserver,
     createTestTicket,
+    updateTestTicket,
     createTestTicketObserver,
     updateTestTicketObserver,
 } = require('@condo/domains/ticket/utils/testSchema')
@@ -78,6 +79,26 @@ describe('TicketObserver', () => {
             await expectToThrowValidationFailureError(async () => {
                 await TicketObserver.create(admin, attrs)
             }, TICKET_OBSERVER_TICKET_REQUIRED)
+        })
+
+        test('nested create from Ticket.observers: should not require ticket field', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const staff = await makeClientWithProperty()
+            const observerClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [ticket] = await createTestTicket(staff, staff.organization, staff.property)
+
+            await expect(async () => {
+                await updateTestTicket(admin, ticket.id, {
+                    observers: {
+                        create: [{
+                            user: { connect: { id: observerClient.user.id } },
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                        }],
+                    },
+                })
+            }).not.toThrow()
         })
 
         test('update: ticket is not required', async () => {
