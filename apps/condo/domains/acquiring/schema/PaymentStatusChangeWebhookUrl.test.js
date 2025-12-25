@@ -1,7 +1,3 @@
-/**
- * @jest-environment node
- */
-
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
@@ -14,6 +10,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGQLError,
+    expectToThrowUniqueConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -235,11 +232,18 @@ describe('PaymentStatusChangeWebhookUrl', () => {
         })
 
         test('should reject invalid URL format', async () => {
-            await expect(async () => {
-                await createTestPaymentStatusChangeWebhookUrl(adminClient, {
-                    url: 'not-a-valid-url',
-                })
-            }).rejects.toThrow()
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                        url: 'not-a-valid-url',
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_URL',
+                },
+                'obj'
+            )
         })
 
         test('should reject unsupported protocol', async () => {
@@ -267,11 +271,11 @@ describe('PaymentStatusChangeWebhookUrl', () => {
             })
 
             // Trying to create another item with the same URL should fail
-            await expect(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestPaymentStatusChangeWebhookUrl(adminClient, {
                     url: uniqueUrl,
                 })
-            }).rejects.toThrow()
+            }, 'paymentStatusChangeWebhookUrl_unique_url')
         })
 
         test('should allow same URL after soft delete', async () => {

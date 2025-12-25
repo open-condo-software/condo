@@ -67,6 +67,14 @@ const PaymentStatusChangeWebhookUrl = new GQLListSchema('PaymentStatusChangeWebh
             schemaDoc: 'Approved webhook callback URL. Must be a valid HTTPS URL (HTTP allowed for localhost in testing).',
             type: 'Text',
             isRequired: true,
+            hooks: {
+                validateInput: ({ resolvedData, context }) => {
+                    const url = resolvedData.url
+                    if (url !== undefined && !isValidWebhookUrl(url)) {
+                        throw new GQLError(ERRORS.INVALID_URL, context)
+                    }
+                },
+            },
         },
 
         isEnabled: {
@@ -90,16 +98,6 @@ const PaymentStatusChangeWebhookUrl = new GQLListSchema('PaymentStatusChangeWebh
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
-    },
-    hooks: {
-        validateInput: async ({ resolvedData, context }) => {
-            const url = resolvedData['url']
-            if (url !== undefined) {
-                if (!isValidWebhookUrl(url)) {
-                    throw new GQLError(ERRORS.INVALID_URL, context)
-                }
-            }
-        },
     },
     kmigratorOptions: {
         constraints: [
