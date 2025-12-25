@@ -23,7 +23,7 @@ type TicketObserversFieldProps = {
 export const TicketObserversField: FC<TicketObserversFieldProps> = ({ ticket }) => {
     const intl = useIntl()
     const ObserversMessage = intl.formatMessage({ id: 'field.Observers' })
-    const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeeIsNullOrWasDeleted' })
+    const EmployeesIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeesIsNullOrWasDeleted' })
     const ticketOrganizationId = useMemo(() => ticket?.organization?.id || null, [ticket])
 
     const { persistor } = useCachePersistor()
@@ -37,7 +37,7 @@ export const TicketObserversField: FC<TicketObserversFieldProps> = ({ ticket }) 
         },
         skip: !ticket?.id || !persistor,
     })
-    const ticketObservers = useMemo(() => ticketObserversData?.observers?.filter(Boolean) || [], [ticketObserversData?.observers])
+    const ticketObservers = useMemo(() => ticketObserversData?.observers?.filter(Boolean)?.filter(observer => observer?.user?.id) || [], [ticketObserversData?.observers])
 
     const {
         data: observersData,
@@ -55,21 +55,19 @@ export const TicketObserversField: FC<TicketObserversFieldProps> = ({ ticket }) 
         return observers.map((observer, i) => (
             <div key={i}>
                 <UserNameField user={{ name: observer?.name, id: observer?.user?.id }} key={observer?.id}>
-                    {({ name: userName, postfix }) => {
-                        return (
-                            <>
-                                <Link href={`/employee/${observer?.id}`}>
-                                    {userName}
-                                </Link>
-                                {postfix && (
-                                    <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
-                                )}
-                                {i !== observers.length - 1 && (
-                                    <>,<br /></>
-                                )}
-                            </>
-                        )
-                    }}
+                    {({ name: userName, postfix }) => (
+                        <>
+                            <Link href={`/employee/${observer?.id}`}>
+                                {userName}
+                            </Link>
+                            {postfix && (
+                                <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
+                            )}
+                            {i !== observers.length - 1 && (
+                                <>,<br /></>
+                            )}
+                        </>
+                    )}
                 </UserNameField>
             </div>
             
@@ -88,7 +86,7 @@ export const TicketObserversField: FC<TicketObserversFieldProps> = ({ ticket }) 
                         {renderObservers}
                     </Typography.Text>
                     : <Typography.Text type='secondary'>
-                        {EmployeeIsNullOrWasDeletedMessage}
+                        {EmployeesIsNullOrWasDeletedMessage}
                     </Typography.Text>
             }
         </PageFieldRow>

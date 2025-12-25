@@ -1,5 +1,4 @@
 import {
-    useSyncTicketObserversMutation,
     useCreateTicketMutation,
     useGetTicketByCreatedByQuery,
     useCreateInvoiceMutation,
@@ -145,7 +144,6 @@ export const CreateTicketForm: React.FC = () => {
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
     const redirectToClientCard = useMemo(() => !!router?.query?.redirectToClientCard || null, [router])
 
-    const [syncTicketObservers] = useSyncTicketObserversMutation()
     const [createInvoiceAction] = useCreateInvoiceMutation()
     const [createTicketAction] = useCreateTicketMutation({
         onCompleted: async (ticketData) => {
@@ -210,7 +208,7 @@ export const CreateTicketForm: React.FC = () => {
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
-        const { newInvoices, observers: newObserverIds, ...ticketValues } = variables
+        const { newInvoices, observers, ...ticketValues } = variables
 
         const { data: ticketData } = await createTicketAction({
             variables: {
@@ -221,6 +219,15 @@ export const CreateTicketForm: React.FC = () => {
                         connect: { id: OPEN_STATUS },
                     },
                     organization: { connect: { id: organization.id } },
+                    observers: {
+                        create: observers.map(userId => ({
+                            user: {
+                                connect: { id: userId },
+                            },
+                            dv: 1,
+                            sender: getClientSideSenderInfo(),
+                        })),
+                    },
                     ...Ticket.formValuesProcessor({ ...ticketValues, deadline }),
                 },
             },
@@ -260,20 +267,6 @@ export const CreateTicketForm: React.FC = () => {
             paymentUrl = paymentLink
         }
 
-        if (!isEmpty(newObserverIds)) {
-            await syncTicketObservers({
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender: getClientSideSenderInfo(),
-                        ticketId,
-                        userIds: newObserverIds,
-                        shouldCreateTicketChange: false,
-                    },
-                },
-            })
-        }
-
         if (attachCallRecord) {
             requestFeature({
                 feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
@@ -295,7 +288,7 @@ export const CreateTicketForm: React.FC = () => {
         }
 
         return ticket
-    }, [createTicketAction, organization.id, getCompletedNotification, getPaymentLink, intl, createInvoiceAction, getPublishTicketInvoices, requestFeature, syncTicketObservers])
+    }, [createTicketAction, organization.id, getCompletedNotification, getPaymentLink, intl, createInvoiceAction, getPublishTicketInvoices, requestFeature])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,

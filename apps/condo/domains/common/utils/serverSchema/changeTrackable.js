@@ -309,7 +309,7 @@ const buildDataToStoreChangeFrom = async (args) => {
                     existingItem,
                     originalInput,
                 })
-                if (difference(existing.ids, updated.ids).length > 0) {
+                if (difference(existing.ids, updated.ids).length > 0 || difference(updated.ids, existing.ids).length > 0) {
                     data[`${ key }IdsFrom`] = existing.ids
                     data[`${ key }IdsTo`] = updated.ids
                     data[`${ key }DisplayNamesFrom`] = existing.displayNames
@@ -444,7 +444,6 @@ const mapRelationSingle = (acc, value, key, keysOfLocalizedDisplayNameTextFields
  * @param {String} key - key of a field being iterated
  */
 const mapRelationMany = (acc, value, key) => {
-    // 2. For many: true Ticket fields, JSON is used by default. Should I leave it that way or do it as for a single relationship?
     acc[`${key}IdsFrom`] = {
         schemaDoc: `Old list of ids of related entities. ${value.schemaDoc}`,
         type: 'Json',

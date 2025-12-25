@@ -1176,19 +1176,12 @@ export type GetTicketFilesQueryVariables = Types.Exact<{
 
 export type GetTicketFilesQuery = { __typename?: 'Query', ticketFiles?: Array<{ __typename?: 'TicketFile', id: string, ticket?: { __typename?: 'Ticket', id: string } | null, file?: { __typename?: 'File', id?: string | null, originalFilename?: string | null, publicUrl?: string | null } | null } | null> | null };
 
-export type SyncTicketObserversMutationVariables = Types.Exact<{
-  data: Types.SyncTicketObserversInput;
-}>;
-
-
-export type SyncTicketObserversMutation = { __typename?: 'Mutation', status?: { __typename?: 'SyncTicketObserversOutput', status: string } | null };
-
 export type GetTicketObserversByTicketIdQueryVariables = Types.Exact<{
   ticketId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetTicketObserversByTicketIdQuery = { __typename?: 'Query', observers?: Array<{ __typename?: 'TicketObserver', user?: { __typename?: 'User', id: string } | null } | null> | null };
+export type GetTicketObserversByTicketIdQuery = { __typename?: 'Query', observers?: Array<{ __typename?: 'TicketObserver', id: string, user?: { __typename?: 'User', id: string } | null } | null> | null };
 
 export type GetTicketPropertyHintByIdQueryVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];

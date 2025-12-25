@@ -113,8 +113,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         this.knex.client.runner = (builder) => {
             try {
                 const sqlObject = builder.toSQL()
-                console.log('sqlObject', sqlObject.sql)
-                console.log('sqlObject bindings', sqlObject.bindings)
 
                 // NOTE: Right now partial routing is not implemented.
                 // In real life there's no array cases at all, except few occurrences in migrations with length === 1

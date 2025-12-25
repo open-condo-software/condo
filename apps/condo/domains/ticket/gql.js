@@ -146,6 +146,10 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'qualityControlCommentTo',
     'qualityControlAdditionalOptionsFrom',
     'qualityControlAdditionalOptionsTo',
+    'observersIdsFrom',
+    'observersIdsTo',
+    'observersDisplayNamesFrom',
+    'observersDisplayNamesTo',
 ]
 const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } organization { id country } } actualCreationDate ${COMMON_CHANGE_HISTORY_FIELDS} ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
@@ -269,13 +273,6 @@ const TicketDocumentGenerationTask = generateGqlQueries('TicketDocumentGeneratio
 const TICKET_OBSERVER_FIELDS = `{ ticket { id } user { id } ${COMMON_FIELDS} }`
 const TicketObserver = generateGqlQueries('TicketObserver', TICKET_OBSERVER_FIELDS)
 
-// TODO(codegen): write return type result!
-
-const SYNC_TICKET_OBSERVERS_MUTATION = gql`
-    mutation syncTicketObservers ($data: SyncTicketObserversInput!) {
-        result: syncTicketObservers(data: $data) { id }
-    }
-`
 
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
@@ -318,6 +315,5 @@ module.exports = {
     TicketDocumentGenerationTask,
     TICKET_EXPORT_TASK_OPTIONS_FIELDS,
     TicketObserver,
-    SYNC_TICKET_OBSERVERS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

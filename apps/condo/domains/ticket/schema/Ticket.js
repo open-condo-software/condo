@@ -380,10 +380,11 @@ const Ticket = new GQLListSchema('Ticket', {
             type: 'Relationship',
             ref: 'TicketObserver.ticket',
             many: true, 
+            // NOTE: We need to allow create and update observers from ticket, because we need to create TicketChange
             access: {
-                read: ({ authentication: { item: user } }) => (user.isAdmin || user.isSupport),
-                create: false,
-                update: false,
+                read: false,
+                create: true,
+                update: true,
             },
         },
         // TODO(zuch): make it required

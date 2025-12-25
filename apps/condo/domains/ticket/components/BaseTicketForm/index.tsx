@@ -3,11 +3,11 @@ import {
     useGetPropertyByIdQuery,
     useGetInvoicesByIdsQuery,
     CreateTicketMutation,
+    UpdateTicketMutation,
 } from '@app/condo/gql'
 import {
     BuildingUnitSubType,
     Organization,
-    Ticket,
     TicketFile as TicketFileType,
     TicketStatusTypeType,
 } from '@app/condo/schema'
@@ -704,10 +704,10 @@ const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px',
 export interface ITicketFormProps {
     organization?: Pick<Organization, 'id'>
     initialValues?: ITicketFormState
-    action?: (...args) => Promise<CreateTicketMutation['ticket']>
+    action?: (...args) => Promise<CreateTicketMutation['ticket'] | UpdateTicketMutation['ticket']>
     files?: TicketFileType[]
-    afterActionCompleted?: (ticket: CreateTicketMutation['ticket']) => void
-    OnCompletedMsg?: OnCompletedMsgType<CreateTicketMutation['ticket']>
+    afterActionCompleted?: (ticket: CreateTicketMutation['ticket'] | UpdateTicketMutation['ticket']) => void
+    OnCompletedMsg?: OnCompletedMsgType<CreateTicketMutation['ticket'] | UpdateTicketMutation['ticket']>
     autoAssign?: boolean
     isExisted?: boolean
     children: React.ReactNode | IFormWithActionChildren
