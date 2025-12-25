@@ -1,11 +1,8 @@
 import { useApolloClient } from '@apollo/client'
-import { useGetActiveSubscriptionContextsQuery, useGetAvailableSubscriptionPlansQuery } from '@app/condo/gql'
-import dayjs from 'dayjs'
+import { useGetAvailableSubscriptionPlansQuery } from '@app/condo/gql'
 import { useMemo, useCallback } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
-
-import { selectBestSubscriptionContext } from '@condo/domains/subscription/utils/subscriptionContext'
 
 export type AvailableFeature = 'payments' | 'meters' | 'tickets' | 'news' | 'marketplace' | 'support' | 'ai' | 'customization'
 
@@ -20,6 +17,12 @@ interface SubscriptionFeatures {
     customization: boolean
     enabledB2BApps: string[]
     enabledB2CApps: string[]
+    daysRemaining: number | null
+    planName: string | null
+    planId: string | null
+    isTrial: boolean | null
+    startAt: string | null
+    endAt: string | null
 }
 
 interface SubscriptionPlan {
@@ -31,10 +34,9 @@ interface SubscriptionPlan {
 }
 
 export interface SubscriptionContext {
-    id: string
     subscriptionPlan: SubscriptionPlan | null
-    isTrial: boolean
-    startAt: string
+    isTrial: boolean | null
+    startAt: string | null
     endAt: string | null
     daysRemaining: number | null
 }
@@ -45,16 +47,10 @@ export interface SubscriptionContext {
 export const useOrganizationSubscription = () => {
     const apolloClient = useApolloClient()
     const { organization, isLoading: orgLoading } = useOrganization()
-    const subscriptionFeatures = useMemo<SubscriptionFeatures | null>(() => organization?.subscription, [organization])
-
-    const now = useMemo(() => dayjs().endOf('day').toISOString(), [])
-    const { data, loading: contextsLoading } = useGetActiveSubscriptionContextsQuery({
-        variables: {
-            organizationId: organization?.id || '',
-            now,
-        },
-        skip: !organization?.id,
-    })
+    const subscriptionFeatures = useMemo<SubscriptionFeatures | null>(() => {
+        if (!organization?.subscription) return null
+        return organization.subscription as SubscriptionFeatures
+    }, [organization])
 
     // Fetch all available plans for this organization to determine which apps are available
     const { data: allPlansData } = useGetAvailableSubscriptionPlansQuery({
@@ -64,18 +60,20 @@ export const useOrganizationSubscription = () => {
         skip: !organization?.id,
     })
 
-    const activeContexts = useMemo(() => {
-        return (data?.activeContexts || []) as SubscriptionContext[]
-    }, [data])
-
-    const subscriptionContext = useMemo(() => {
-        return selectBestSubscriptionContext(activeContexts) as SubscriptionContext | null
-    }, [activeContexts])
-
-    const refetchSubscriptionContexts = useCallback(async () => {
-        apolloClient.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allSubscriptionContexts' })
-        apolloClient.cache.gc()
-    }, [apolloClient])
+    const subscriptionContext = useMemo<SubscriptionContext | null>(() => {
+        if (!subscriptionFeatures) return null
+        
+        return {
+            subscriptionPlan: subscriptionFeatures.planId && subscriptionFeatures.planName ? {
+                id: subscriptionFeatures.planId,
+                name: subscriptionFeatures.planName,
+            } : null,
+            isTrial: subscriptionFeatures.isTrial,
+            startAt: subscriptionFeatures.startAt,
+            endAt: subscriptionFeatures.endAt,
+            daysRemaining: subscriptionFeatures.daysRemaining,
+        }
+    }, [subscriptionFeatures])
 
     const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
         if (!subscriptionFeatures) return false
@@ -109,7 +107,6 @@ export const useOrganizationSubscription = () => {
         isFeatureAvailable,
         isB2BAppEnabled,
         subscriptionContext,
-        loading: orgLoading || contextsLoading,
-        refetchSubscriptionContexts,
+        loading: orgLoading,
     }
 }

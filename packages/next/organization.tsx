@@ -75,6 +75,24 @@ const organizationToUserFragment = `
         publicUrl
       }
       importRemoteSystem
+      subscription {
+        payments
+        meters
+        tickets
+        news
+        marketplace
+        support
+        ai
+        customization
+        enabledB2BApps
+        enabledB2CApps
+        daysRemaining
+        planName
+        planId
+        isTrial
+        startAt
+        endAt
+      }
     }
     user {
       id
