@@ -33,12 +33,13 @@ function generateSignature (body, secret) {
 /**
  * Calculates the next retry timestamp based on attempt number
  * @param {number} attempt - Current attempt number (0-indexed)
+ * @param {string} lastSentAt - ISO timestamp of when the last attempt was made
  * @returns {string} ISO timestamp for next retry
  */
-function calculateNextRetryAt (attempt) {
+function calculateNextRetryAt (attempt, lastSentAt) {
     const intervals = WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC
     const delaySeconds = intervals[Math.min(attempt, intervals.length - 1)]
-    return dayjs().add(delaySeconds, 'second').toISOString()
+    return dayjs(lastSentAt).add(delaySeconds, 'second').toISOString()
 }
 
 /**
