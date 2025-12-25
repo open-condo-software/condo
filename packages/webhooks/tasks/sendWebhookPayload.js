@@ -112,7 +112,8 @@ async function sendWebhookPayload (payloadId) {
             })
         } else {
             // Failure - calculate next retry
-            const nextRetryAt = calculateNextRetryAt(newAttempt)
+            const lastSentAt = now.toISOString()
+            const nextRetryAt = calculateNextRetryAt(newAttempt, lastSentAt)
             const nextRetryTime = dayjs(nextRetryAt)
 
             // Check if next retry would be after expiration
