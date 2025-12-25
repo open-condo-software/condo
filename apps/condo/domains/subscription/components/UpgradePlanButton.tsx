@@ -23,11 +23,10 @@ export const UpgradePlanButton: React.FC = () => {
         skip: !organization?.id,
     })
 
-    const availablePlans = plansData?.result?.plans || []
-
     const buttonText = useMemo(() => {
-        if (!subscriptionContext || plansLoading) return null
-
+        if (!subscriptionContext?.subscriptionPlan || plansLoading) return null
+        
+        const availablePlans = plansData?.result?.plans || []
         const currentPlan = subscriptionContext.subscriptionPlan
         const isTrial = subscriptionContext.isTrial
         const currentPriority = currentPlan?.priority
@@ -49,7 +48,7 @@ export const UpgradePlanButton: React.FC = () => {
         }
 
         return null
-    }, [subscriptionContext, plansLoading, availablePlans, intl])
+    }, [subscriptionContext, plansLoading, plansData?.result?.plans, intl])
 
     const handleUpgradeClick = () => {
         router.push('/settings?tab=subscription')

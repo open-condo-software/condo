@@ -1,10 +1,16 @@
-import { useApolloClient } from '@apollo/client'
 import { useGetAvailableSubscriptionPlansQuery } from '@app/condo/gql'
+import getConfig from 'next/config'
 import { useMemo, useCallback } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { SUBSCRIPTION_BYPASS } from '@condo/domains/common/constants/featureFlags'
+
 export type AvailableFeature = 'payments' | 'meters' | 'tickets' | 'news' | 'marketplace' | 'support' | 'ai' | 'customization'
+
+
+const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
 interface SubscriptionFeatures {
     payments: boolean
@@ -45,20 +51,21 @@ export interface SubscriptionContext {
  * Hook to get subscription features and context for the current organization.
  */
 export const useOrganizationSubscription = () => {
-    const apolloClient = useApolloClient()
     const { organization, isLoading: orgLoading } = useOrganization()
     const subscriptionFeatures = useMemo<SubscriptionFeatures | null>(() => {
         if (!organization?.subscription) return null
         return organization.subscription as SubscriptionFeatures
     }, [organization])
 
-    // Fetch all available plans for this organization to determine which apps are available
     const { data: allPlansData } = useGetAvailableSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id || '' },
         },
         skip: !organization?.id,
     })
+
+    const { useFlag } = useFeatureFlags()
+    const hasSubscriptionByPass = useFlag(SUBSCRIPTION_BYPASS)
 
     const subscriptionContext = useMemo<SubscriptionContext | null>(() => {
         if (!subscriptionFeatures) return null
@@ -76,11 +83,11 @@ export const useOrganizationSubscription = () => {
     }, [subscriptionFeatures])
 
     const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
+        if (!enableSubscriptions || hasSubscriptionByPass) return true
         if (!subscriptionFeatures) return false
         return subscriptionFeatures[feature] === true
-    }, [subscriptionFeatures])
+    }, [subscriptionFeatures, hasSubscriptionByPass])
 
-    // Compute which apps are enabled in ANY plan for this organization type
     const allEnabledB2BApps = useMemo(() => {
         const plans = allPlansData?.result?.plans || []
         const appsSet = new Set<string>()
@@ -92,15 +99,13 @@ export const useOrganizationSubscription = () => {
     }, [allPlansData])
 
     const isB2BAppEnabled = useCallback((appId: string): boolean => {
+        if (!enableSubscriptions || hasSubscriptionByPass) return true
         if (!subscriptionFeatures) return false
-        
-        // If app is not enabled in any plan for this org type, it's not available at all
         if (!allEnabledB2BApps.has(appId)) return false
         
-        // If app is enabled in some plan, check if it's enabled in current subscription
         const currentEnabledApps = subscriptionFeatures.enabledB2BApps || []
         return currentEnabledApps.includes(appId)
-    }, [subscriptionFeatures, allEnabledB2BApps])
+    }, [subscriptionFeatures, allEnabledB2BApps, hasSubscriptionByPass])
 
     return {
         hasSubscription: !!subscriptionFeatures,
