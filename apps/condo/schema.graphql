@@ -6178,6 +6178,12 @@ type OrganizationSubscriptionFeatures {
   customization: Boolean!
   enabledB2BApps: [String!]!
   enabledB2CApps: [String!]!
+  daysRemaining: Int
+  planName: String
+  planId: String
+  isTrial: Boolean
+  startAt: String
+  endAt: String
 }
 
 """ B2B customer of the service, a legal entity or an association of legal entities (holding/group) 
