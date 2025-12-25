@@ -3,6 +3,8 @@ import dayjs from 'dayjs'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/colors'
 
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
@@ -36,12 +38,26 @@ export const SubscriptionDaysIndicator: React.FC = () => {
         }
     }, [daysRemaining, isTrial])
 
-    const strokeColor = useMemo(() => {
-        if (!daysRemaining) return '#52c41a'
+    const { strokeColor } = useMemo(() => {
+        if (!daysRemaining) {
+            return {
+                strokeColor: colors.green[5],
+            }
+        }
         
-        if (daysRemaining === 1) return '#ff4d4f' // red
-        if (daysRemaining <= 7) return '#faad14' // orange
-        return '#52c41a' // green
+        if (daysRemaining === 1) {
+            return {
+                strokeColor: colors.red[5],
+            }
+        }
+        if (daysRemaining <= 7) {
+            return {
+                strokeColor: colors.orange[5],
+            }
+        }
+        return {
+            strokeColor: colors.green[5],
+        }
     }, [daysRemaining])
 
     const tooltipText = useMemo(() => {
