@@ -116,6 +116,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                     method: 'GET',
                 })
                 expect(result.status).toEqual(404)
+
+                await expectGQLErrorResponse(result, {
+                    code: 'NOT_FOUND',
+                })
             })
 
             test('Strict match url pattern for POST', async () => {
@@ -123,6 +127,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                     method: 'POST',
                 })
                 expect(result.status).toEqual(404)
+
+                await expectGQLErrorResponse(result, {
+                    code: 'NOT_FOUND',
+                })
             })
 
             test('Strict match url pattern for GET', async () => {
@@ -130,6 +138,10 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
                     method: 'GET',
                 })
                 expect(result.status).toEqual(404)
+
+                await expectGQLErrorResponse(result, {
+                    code: 'NOT_FOUND',
+                })
             })
         })
 
