@@ -27,7 +27,7 @@ async function retryFailedWebhookPayloads () {
         const where = {
             status: WEBHOOK_PAYLOAD_STATUS_PENDING,
             nextRetryAt_lte: now,
-            expiresAt_gt: now,
+            expiresAt_gte: now,
             deletedAt: null,
         }
 
