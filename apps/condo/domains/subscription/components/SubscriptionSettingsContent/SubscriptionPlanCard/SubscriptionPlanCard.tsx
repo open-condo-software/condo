@@ -10,11 +10,13 @@ import getConfig from 'next/config'
 import React, { useState, useCallback } from 'react'
 
 import { Unlock, Lock, QuestionCircle } from '@open-condo/icons'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Card, Typography, Space, Button, Tooltip, Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
+import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
@@ -150,8 +152,10 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
     const BuyMessage = intl.formatMessage({ id: 'subscription.planCard.buy' })
     const FeaturesTitle = intl.formatMessage({ id: 'subscription.features.title' })
+    const FreeForPartnerMessage = intl.formatMessage({ id: 'subscription.planCard.freeForPartner' })
 
     const { organization } = useOrganization()
+    const { useFlagValue } = useFeatureFlags()
 
     const { plan, prices } = planInfo
     const price = prices?.[0]
@@ -159,11 +163,13 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const TryFreeMessage = intl.formatMessage({ id: 'subscription.planCard.tryFree' }, { currency: CURRENCY_SYMBOLS[price?.currencyCode] })
     const PeriodMessage = intl.formatMessage({ id: `subscription.planCard.planPrice.${price?.period}` as FormatjsIntl.Message['ids'] })
 
+    const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
     const hasActiveBanking = organization?.features?.includes(OrganizationFeature.ActiveBanking)
+    const isActiveBankingPlan = activeBankingPlanId && plan?.id === activeBankingPlanId
     const isCustomPrice = price?.price === null || price?.price === undefined
     const priceInteger = price?.price !== null && price?.price !== undefined ? Math.floor(Number(price.price)) : -1
     const formattedPrice = priceInteger >= 0 ? priceInteger.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
-    const isFreeForPartner = hasActiveBanking && priceInteger === 0
+    const isFreeForPartner = hasActiveBanking && isActiveBankingPlan
     const canActivateTrial = !activatedTrial && plan.trialDays > 0
 
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
@@ -231,9 +237,9 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                         <Space size={4} direction='vertical'>
                             <Space size={4} direction='horizontal'>
                                 <Typography.Title level={3}>
-                                    {isCustomPrice ? price.name : `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`}
+                                    {isFreeForPartner ? FreeForPartnerMessage : (isCustomPrice ? price.name : `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`)}
                                 </Typography.Title>
-                                {!isCustomPrice && (
+                                {!isCustomPrice && !isFreeForPartner && (
                                     <Typography.Text type='secondary'>
                                             / {PeriodMessage}
                                     </Typography.Text>
