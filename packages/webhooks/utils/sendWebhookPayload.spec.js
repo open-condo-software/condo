@@ -153,13 +153,13 @@ describe('sendWebhookPayload utility', () => {
             expect(Math.abs(expiresAt - now - sevenDaysMs)).toBeLessThan(5000)
         })
 
-        test('should use custom ttlDays when provided', async () => {
+        test('should use custom ttlInSec when provided', async () => {
             const options = {
                 url: 'https://example.com/webhook',
                 payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
-                ttlDays: 14,
+                ttlInSec: 14 * 24 * 60 * 60,
             }
 
             await sendWebhookPayload(mockContext, options)
