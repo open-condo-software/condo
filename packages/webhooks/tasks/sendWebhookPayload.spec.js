@@ -8,7 +8,6 @@ const {
     WEBHOOK_PAYLOAD_STATUS_PENDING,
     WEBHOOK_PAYLOAD_STATUS_SENT,
     WEBHOOK_PAYLOAD_STATUS_ERROR,
-    WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
 } = require('@open-condo/webhooks/constants')
 const {
     WebhookPayload,
@@ -20,12 +19,10 @@ const { getWebhookRegularTasks } = require('@open-condo/webhooks/tasks/regularTa
 const BASE_URL = 'http://test-webhook-server.local'
 const SUCCESS_PATH = '/success'
 const FAILURE_PATH = '/failure'
-const TIMEOUT_PATH = '/timeout'
 const VERIFY_SIGNATURE_PATH = '/verify-signature'
 
 let SUCCESS_CALLS = []
 let FAILURE_CALLS = []
-let TIMEOUT_CALLS = []
 
 const SendWebhookPayloadTests = (appName, actorsInitializer) => {
     describe(`sendWebhookPayload task basic tests for ${appName} app`, () => {
@@ -44,7 +41,6 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
         afterEach(() => {
             SUCCESS_CALLS = []
             FAILURE_CALLS = []
-            TIMEOUT_CALLS = []
             nock.cleanAll()
         })
 
