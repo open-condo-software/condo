@@ -17,6 +17,7 @@ const {
     getWebhookConfig,
     buildPaymentWebhookPayload,
 } = require('@condo/domains/acquiring/utils/serverSchema/paymentWebhookHelpers')
+const { WEBHOOK_EVENT_PAYMENT_STATUS_UPDATED } = require('@condo/domains/common/constants/webhooks')
 
 const { sendPaymentStatusChangeWebhook } = require('./sendPaymentStatusChangeWebhook')
 
@@ -24,7 +25,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
     const mockPaymentId = faker.datatype.uuid()
     const mockUrl = 'https://example.com/webhook'
     const mockSecret = 'test-secret-key'
-    const mockPayload = { eventType: 'payment.status.changed', data: {} }
+    const mockPayload = { eventType: WEBHOOK_EVENT_PAYMENT_STATUS_UPDATED, data: {} }
     const mockPayment = { id: mockPaymentId, invoice: faker.datatype.uuid() }
 
     beforeEach(() => {
@@ -47,7 +48,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
                 url: mockUrl,
                 payload: mockPayload,
                 secret: mockSecret,
-                eventType: 'payment.status.changed',
+                eventType: WEBHOOK_EVENT_PAYMENT_STATUS_UPDATED,
                 modelName: 'Payment',
                 itemId: mockPaymentId,
                 sender: { dv: 1, fingerprint: 'payment-webhook-task' },
