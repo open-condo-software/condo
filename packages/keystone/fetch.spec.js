@@ -73,7 +73,7 @@ describe('Fetch with retries', () => {
 
         await catchErrorFrom(async () => await fetch(URL, options), (err) => {
             expect(err).toMatchObject({
-                message: 'Error: Abort request by timeout',
+                message: 'Abort request by timeout',
             })
         })
 
