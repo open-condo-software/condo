@@ -45,6 +45,7 @@ describe('sendWebhookPayload utility', () => {
                 payload: { eventType: 'test.event', data: { test: true } },
                 secret: 'test-secret',
                 eventType: 'test.event',
+                sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
             const result = await sendWebhookPayload(mockContext, options)
@@ -71,6 +72,7 @@ describe('sendWebhookPayload utility', () => {
                 eventType: 'payment.status.changed',
                 modelName: 'Payment',
                 itemId: faker.datatype.uuid(),
+                sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
             await sendWebhookPayload(mockContext, options)
@@ -104,23 +106,6 @@ describe('sendWebhookPayload utility', () => {
             )
         })
 
-        test('should use default sender when not provided', async () => {
-            const options = {
-                url: 'https://example.com/webhook',
-                payload: { eventType: 'test.event' },
-                secret: 'test-secret',
-                eventType: 'test.event',
-            }
-
-            await sendWebhookPayload(mockContext, options)
-
-            expect(WebhookPayload.create).toHaveBeenCalledWith(
-                mockContext,
-                expect.objectContaining({
-                    sender: { dv: 1, fingerprint: 'webhooks-package' },
-                })
-            )
-        })
 
         test('should set expiresAt and nextRetryAt timestamps', async () => {
             const options = {
@@ -128,6 +113,7 @@ describe('sendWebhookPayload utility', () => {
                 payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
+                sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
             await sendWebhookPayload(mockContext, options)
@@ -160,6 +146,7 @@ describe('sendWebhookPayload utility', () => {
                 secret: 'test-secret',
                 eventType: 'test.event',
                 ttlInSec: 14 * 24 * 60 * 60,
+                sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
             await sendWebhookPayload(mockContext, options)
@@ -218,6 +205,18 @@ describe('sendWebhookPayload utility', () => {
             await expect(sendWebhookPayload(mockContext, options))
                 .rejects.toThrow('Missing required parameters')
         })
+
+        test('should throw error when sender is missing', async () => {
+            const options = {
+                url: 'https://example.com/webhook',
+                payload: { eventType: 'test.event' },
+                secret: 'test-secret',
+                eventType: 'test.event',
+            }
+
+            await expect(sendWebhookPayload(mockContext, options))
+                .rejects.toThrow('Missing required parameters')
+        })
     })
 
     describe('optional parameters', () => {
@@ -227,6 +226,7 @@ describe('sendWebhookPayload utility', () => {
                 payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
+                sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
             await sendWebhookPayload(mockContext, options)
@@ -248,6 +248,7 @@ describe('sendWebhookPayload utility', () => {
                 payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
+                sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
             await sendWebhookPayload(mockContext, options)
@@ -261,6 +262,7 @@ describe('sendWebhookPayload utility', () => {
                 payload: { eventType: 'test.event' },
                 secret: 'test-secret',
                 eventType: 'test.event',
+                sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
             await sendWebhookPayload(mockContext, options)
