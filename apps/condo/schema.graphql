@@ -70781,6 +70781,7 @@ enum B2BAppIconType {
   FloorParking
   Frown
   Globe
+  GripHorizontal
   Guide
   History
   Home
