@@ -2,6 +2,7 @@
   position: relative;
   width: 100%;
   overflow: visible;
+  container-type: inline-size;
 }
 
 .banner-card {
@@ -23,7 +24,7 @@
 .image-wrapper {
   position: absolute;
   top: 50%;
-  right: 80px;
+  right: 60px;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -52,18 +53,18 @@
   border-color: var(--condo-global-color-green-5) !important;
 }
 
-@media (max-width: 1200px) {
+@container (max-width: 1000px) {
   .image-wrapper {
     right: -100px;
-    transform: translateY(-50%) scale(0.7);
+    transform: translateY(-50%) scale(0.5);
   }
 
   .banner-content {
-    max-width: 70%;
+    max-width: 50%;
   }
 }
 
-@media (max-width: 991px) {
+@container (max-width: 800px) {
   .image-wrapper {
     display: none;
   }
