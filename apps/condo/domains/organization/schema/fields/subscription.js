@@ -1,3 +1,5 @@
+const dayjs = require('dayjs')
+
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { find } = require('@open-condo/keystone/schema')
@@ -101,6 +103,11 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             return null
         }
 
+        let daysRemaining = null
+        if (bestContext.endAt) {
+            daysRemaining = dayjs(bestContext.endAt).diff(dayjs(now), 'day')
+        }
+
         return {
             payments: plan.payments,
             meters: plan.meters,
@@ -112,7 +119,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             customization: plan.customization,
             enabledB2BApps: plan.enabledB2BApps || [],
             enabledB2CApps: plan.enabledB2CApps || [],
-            daysRemaining: bestContext.daysRemaining,
+            daysRemaining,
             planName: plan.name,
             planId: plan.id,
             isTrial: bestContext.isTrial,
