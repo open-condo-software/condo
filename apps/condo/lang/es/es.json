@@ -3069,7 +3069,7 @@
   "subscription.welcomeModal.sberClient.title": "Valoramos que estés con nosotros",
   "subscription.welcomeModal.sberClient.description": "Como cliente del banco, obtienes acceso ilimitado al plan «{planName}»",
   "subscription.welcomeModal.trialBasic.title": "Usa las ventajas de la plataforma Doma.ai gratis",
-  "subscription.welcomeModal.trialBasic.description": "Hemos abierto acceso al plan «{planName}» para ti hasta {endDate}. Después puedes elegir uno adecuado y suscribirte. Para clientes del banco, el acceso al plan «Básico» es gratuito — para aprovecharlo, inicia sesión en el sistema.",
+  "subscription.welcomeModal.trialBasic.description": "Hemos abierto acceso al plan «{planName}» para ti hasta {endDate}. Después puedes elegir uno adecuado y suscribirte. Para clientes del banco, el acceso al plan «{planName}» es gratuito — para aprovecharlo, inicia sesión en el sistema.",
   "subscription.welcomeModal.learnMoreAboutPlans": "Más información sobre los planes",
   "subscription.trialEndedModal.noSubscription.title": "El acceso de prueba a la plataforma Doma.ai ha expirado",
   "subscription.trialEndedModal.noSubscription.description": "Para continuar trabajando, conéctate a uno de los planes o inicia sesión a través del servicio bancario para obtener acceso a la funcionalidad básica. También puedes abrir una cuenta bancaria y obtener condiciones especiales de un socio.",
