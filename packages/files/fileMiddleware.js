@@ -1,6 +1,7 @@
 const express = require('express')
 
 const conf = require('@open-condo/config')
+const { GQLError, GQLErrorCode: { NOT_FOUND } } = require('@open-condo/keystone/errors')
 const { expressErrorHandler } = require('@open-condo/keystone/utils/errors/expressErrorHandler')
 
 const {
@@ -89,9 +90,16 @@ class FileMiddleware {
         )
 
         // Handle 404 for unmatched routes within this middleware's API prefix
-        app.use(this.apiPrefix, (req, res) => {
-            res.status(404).json({ error: 'Not Found' })
-        })
+        app.use(
+            this.apiPrefix,
+            (req, res, next) => next(
+                new GQLError({
+                    code: NOT_FOUND,
+                    type: 'ROUTE_NOT_FOUND',
+                    message: 'Route not found',
+                }, { req })
+            )
+        )
 
         // catch gql errors, that thrown from main handler
         app.use(expressErrorHandler)
