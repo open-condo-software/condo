@@ -9,15 +9,15 @@ import classnames from 'classnames'
 import getConfig from 'next/config'
 import React, { useState, useCallback } from 'react'
 
-import { Unlock, Lock, QuestionCircle } from '@open-condo/icons'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { Unlock, Lock, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Card, Typography, Space, Button, Tooltip, Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
-import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
+import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
 import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
@@ -285,6 +285,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                     key={appId}
                                     label={app.name}
                                     available={isAvailable}
+                                    helpLink={subscriptionFeatureHelpLinks[appId]}
                                 />
                             )
                         })}
