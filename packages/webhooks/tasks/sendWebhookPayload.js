@@ -53,6 +53,19 @@ async function sendWebhookPayload (payloadId) {
         return
     }
 
+    /**
+     * Tracks the execution outcome for final logging
+     * @type {'unknown' | 'not_found' | 'already_processed' | 'expired' | 'sent' | 'permanently_failed' | 'retry_scheduled' | 'error'}
+     * Possible values:
+     * - 'unknown': Initial state or unexpected flow
+     * - 'not_found': Payload record not found in database
+     * - 'already_processed': Payload already in final state (sent/error)
+     * - 'expired': Payload expired before processing
+     * - 'sent': Successfully sent to webhook URL
+     * - 'permanently_failed': Failed with no more retries (next retry after expiration)
+     * - 'retry_scheduled': Failed but retry scheduled
+     * - 'error': Unexpected exception during processing
+     */
     let executionOutcome = 'unknown'
     let executionData = {}
 
@@ -77,7 +90,6 @@ async function sendWebhookPayload (payloadId) {
         if (now.isAfter(webhookPayload.expiresAt)) {
             executionOutcome = 'expired'
             executionData = { now, expiresAt: webhookPayload.expiresAt }
-            logger.warn({ msg: 'Payload expired', entity: 'WebhookPayload', entityId: payloadId, data: executionData })
             await WebhookPayload.update(context, payloadId, {
                 status: WEBHOOK_PAYLOAD_STATUS_ERROR,
                 lastErrorMessage: 'Payload expired after TTL',
@@ -130,12 +142,6 @@ async function sendWebhookPayload (payloadId) {
                     attempt: newAttempt,
                     ...DV_SENDER,
                 })
-                logger.warn({
-                    msg: 'Webhook payload permanently failed (next retry after expiration)',
-                    entity: 'WebhookPayload',
-                    entityId: payloadId,
-                    data: executionData,
-                })
             } else {
                 // Schedule retry
                 executionOutcome = 'retry_scheduled'
@@ -154,21 +160,35 @@ async function sendWebhookPayload (payloadId) {
         }
     } catch (err) {
         executionOutcome = 'error'
-        executionData = { error: err.message }
-        logger.error({ msg: 'Error sending webhook payload', err, entity: 'WebhookPayload', entityId: payloadId })
+        executionData = { error: err.message, err }
     } finally {
         try {
             await kvClient.eval(RELEASE_LOCK_SCRIPT, 1, lockKey, lockValue)
-        } catch (err) {
-            logger.error({ msg: 'Error releasing lock', err, entity: 'WebhookPayload', entityId: payloadId })
+        } catch (lockErr) {
+            logger.error({ msg: 'Error releasing lock', err: lockErr, entity: 'WebhookPayload', entityId: payloadId })
         }
 
-        logger.info({
+        // Log with appropriate level based on outcome
+        const logEntry = {
             msg: 'Webhook payload processing completed',
             entity: 'WebhookPayload',
             entityId: payloadId,
             data: { outcome: executionOutcome, ...executionData },
-        })
+        }
+
+        // Include error object for proper stack trace logging
+        if (executionOutcome === 'error' && executionData.err) {
+            logEntry.err = executionData.err
+            delete logEntry.data.err
+        }
+
+        if (executionOutcome === 'not_found' || executionOutcome === 'error') {
+            logger.error(logEntry)
+        } else if (executionOutcome === 'permanently_failed' || executionOutcome === 'expired') {
+            logger.warn(logEntry)
+        } else {
+            logger.info(logEntry)
+        }
     }
 }
 

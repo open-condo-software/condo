@@ -36,6 +36,7 @@ async function deleteOldWebhookPayloads () {
         } else {
             let successCount = 0
             let failedCount = 0
+            let error = null
             try {
                 // Use Promise.allSettled instead of Promise.all to ensure all deletion attempts are made
                 // even if some individual deletions fail. This prevents one failed deletion from stopping
@@ -50,8 +51,9 @@ async function deleteOldWebhookPayloads () {
                 // Stop processing if Promise.allSettled itself fails (catastrophic error, not individual deletion failures)
                 hasMore = false
                 failedCount = oldPayloads.length
+                error = err
             } finally {
-                logger.info({ msg: 'Processed webhook payloads deletion batch', data: { successCount, failedCount, totalDeleted } })
+                logger.info({ msg: 'Processed webhook payloads deletion batch', err: error, data: { successCount, failedCount } })
             }
         }
     }

@@ -57,7 +57,7 @@ async function retryFailedWebhookPayloads () {
         }
     }
 
-    logger.info({ msg: 'Finished retrying webhook payloads', data: { now, queuedCount } })
+    logger.info({ msg: 'Finished retrying webhook payloads', count: queuedCount, data: { now } })
 }
 
 module.exports = {
