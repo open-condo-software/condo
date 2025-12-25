@@ -11,7 +11,7 @@ jest.mock('@open-condo/keystone/logging', () => ({
     getLogger: jest.fn(() => mockLogger),
 }))
 
-const { fetch } = require('@open-condo/keystone/fetch')
+const { fetch, TimeoutError } = require('@open-condo/keystone/fetch')
 const { WEBHOOK_PAYLOAD_RETRY_INTERVALS_IN_SEC, WEBHOOK_PAYLOAD_TIMEOUT_IN_MS } = require('@open-condo/webhooks/constants')
 
 const {
@@ -146,7 +146,7 @@ describe('webhookPayload utilities', () => {
         })
 
         test('should return failure for timeout', async () => {
-            fetch.mockRejectedValue(new Error('Abort request by timeout'))
+            fetch.mockRejectedValue(new TimeoutError())
 
             const result = await trySendWebhookPayload(mockWebhookPayload)
 

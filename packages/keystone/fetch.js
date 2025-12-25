@@ -1,4 +1,4 @@
-const { pickBy } = require('lodash')
+const pickBy = require('lodash/pickBy')
 const nodeFetch = require('node-fetch')
 
 const conf = require('@open-condo/config')
@@ -8,6 +8,31 @@ const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
 const { getXRemoteApp, getXRemoteClient, getXRemoteVersion } = require('./tracingUtils')
 
+/**
+ * Custom error class for request timeout errors.
+ * Thrown when a fetch request exceeds the abortRequestTimeout duration.
+ */
+class TimeoutError extends Error {
+    constructor (message = 'Abort request by timeout') {
+        super(message)
+        this.name = 'TimeoutError'
+        /**
+         * Capture stack trace excluding the constructor call itself.
+         * This is a V8-specific feature (Node.js, Chrome) that improves debugging by:
+         * - Removing the TimeoutError constructor from the stack trace
+         * - Starting the trace from where the error was actually thrown
+         * - Making stack traces cleaner and more useful for debugging
+         * 
+         * Without this: Stack shows "at new TimeoutError" followed by actual throw location
+         * With this: Stack directly shows the actual throw location
+         * 
+         * The if-check ensures compatibility with non-V8 JavaScript engines that don't support this method.
+         */
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, TimeoutError)
+        }
+    }
+}
 
 const logger = getLogger('fetch')
 
@@ -157,7 +182,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
                 new Promise((_, reject) =>
                     timeout = setTimeout(() => {
                         controller.abort()
-                        reject(new Error('Abort request by timeout'))
+                        reject(new TimeoutError())
                     }, abortRequestTimeout)
                 ),
             ])
@@ -179,11 +204,12 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
         }
     }  while (retries < maxRetries)
     if (lastError) {
-        throw new Error(lastError)
+        throw lastError
     }
     return lastResponse
 }
 
 module.exports = {
     fetch: fetchWithRetriesAndLogger,
+    TimeoutError,
 }

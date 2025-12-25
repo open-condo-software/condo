@@ -2,7 +2,7 @@ const crypto = require('node:crypto')
 
 const dayjs = require('dayjs')
 
-const { fetch } = require('@open-condo/keystone/fetch')
+const { fetch, TimeoutError } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const {
     WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
@@ -73,6 +73,11 @@ async function trySendWebhookPayload (webhookPayload) {
         },
     })
 
+    /** @type {{ success: boolean, statusCode?: number, body?: string, error?: string, timeout?: number }} */
+    let result
+    /** @type {Error | null} */
+    let error = null
+
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -99,7 +104,7 @@ async function trySendWebhookPayload (webhookPayload) {
         }
 
         const success = response.ok
-        const result = {
+        result = {
             success,
             statusCode: response.status,
             body: responseBody,
@@ -108,64 +113,54 @@ async function trySendWebhookPayload (webhookPayload) {
         if (!success) {
             result.error = `HTTP ${response.status}: ${response.statusText}`
         }
-
-        logger.info({
-            msg: 'Webhook payload send result',
-            reqId,
-            data: {
-                payloadId: webhookPayload.id,
-                statusCode: response.status,
-                success,
-                algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
-                error: result.error || null,
-            },
-        })
-
-        return result
     } catch (err) {
         // Handle timeout and network errors
-        // The fetch wrapper throws "Abort request by timeout" when abortRequestTimeout is exceeded
-        const isTimeout = err.message && err.message.includes('timeout')
+        // The fetch wrapper throws TimeoutError when abortRequestTimeout is exceeded
+        const isTimeout = err instanceof TimeoutError
         if (isTimeout) {
-            const result = {
+            result = {
                 success: false,
                 error: `Request timeout after ${WEBHOOK_PAYLOAD_TIMEOUT_IN_MS}ms`,
+                timeout: WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
             }
-
-            logger.info({
-                msg: 'Webhook payload send result',
-                reqId,
-                data: {
-                    payloadId: webhookPayload.id,
-                    success: false,
-                    timeout: WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
-                    algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
-                    error: result.error,
-                },
-            })
-
-            return result
-        }
-
-        const result = {
-            success: false,
-            error: err.message || 'Unknown network error',
-        }
-
-        logger.info({
-            msg: 'Webhook payload send result',
-            reqId,
-            data: {
-                payloadId: webhookPayload.id,
+        } else {
+            result = {
                 success: false,
-                algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
-                error: result.error,
-            },
-            err,
-        })
-
-        return result
+                error: err.message || 'Unknown network error',
+            }
+            error = err
+        }
     }
+
+    // Single consolidated result log
+    const logData = {
+        payloadId: webhookPayload.id,
+        success: result.success,
+        algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
+        error: result.error || null,
+    }
+
+    if (result.statusCode) {
+        logData.statusCode = result.statusCode
+    }
+
+    if (result.timeout) {
+        logData.timeout = result.timeout
+    }
+
+    const logEntry = {
+        msg: 'Webhook payload send result',
+        reqId,
+        data: logData,
+    }
+
+    if (error) {
+        logEntry.err = error
+    }
+
+    logger.info(logEntry)
+
+    return result
 }
 
 module.exports = {

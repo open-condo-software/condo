@@ -341,7 +341,7 @@ const SendWebhookPayloadTests = (appName, actorsInitializer) => {
             expect(updated).toHaveProperty('status', WEBHOOK_PAYLOAD_STATUS_PENDING)
             expect(updated).toHaveProperty('attempt', 1)
             expect(updated).toHaveProperty('lastErrorMessage')
-            expect(updated.lastErrorMessage).toMatch(/timeout|Abort request by timeout/)
+            expect(updated.lastErrorMessage).toContain('timeout')
             expect(updated).toHaveProperty('nextRetryAt')
             expect(updated).toHaveProperty('lastHttpStatusCode', null)
 
