@@ -140,7 +140,7 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
  * @param {KeystoneOperationArgsForTicketChange} args - variables, passed to Keystone afterChange hook
  * @return {Promise<{existing: {displayNames: *, ids: *}, updated: {displayNames: *, ids: *}}}|{}>}
  */
-const resolveManyToManyField = async (fieldName, ref, displayNameRef = '', displayNameAttr = 'name', args) => {
+const resolveManyToManyField = async (fieldName, ref, displayNameRef, displayNameAttr, args) => {
     const { context, existingItem, originalInput } = args
     let updated
     const updatedResult = await context.executeGraphQL({
