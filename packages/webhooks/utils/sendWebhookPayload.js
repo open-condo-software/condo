@@ -21,7 +21,7 @@ const logger = getLogger('sendWebhookPayload')
  * @param {string} [options.modelName] - Name of the model that triggered this webhook
  * @param {string} [options.itemId] - ID of the record that triggered this webhook
  * @param {number} [options.ttlInSec] - Seconds until expiration (default: WEBHOOK_PAYLOAD_TTL_IN_SEC)
- * @param {Object} [options.sender] - Sender info for audit (default: auto-generated)
+ * @param {Object} options.sender - Sender info for audit (required)
  * @returns {Promise<Object>} Created WebhookPayload record
  *
  * @example
@@ -32,6 +32,7 @@ const logger = getLogger('sendWebhookPayload')
  *     eventType: 'payment.status.changed',
  *     modelName: 'Payment',
  *     itemId: payment.id,
+ *     sender: { dv: 1, fingerprint: 'your-service-name' },
  * })
  */
 async function sendWebhookPayload (context, options) {
@@ -43,11 +44,11 @@ async function sendWebhookPayload (context, options) {
         modelName = null,
         itemId = null,
         ttlInSec = WEBHOOK_PAYLOAD_TTL_IN_SEC,
-        sender = { dv: 1, fingerprint: 'webhooks-package' },
+        sender,
     } = options
 
-    if (!url || !payload || !secret || !eventType) {
-        throw new Error('Missing required parameters: url, payload, secret, and eventType are required')
+    if (!url || !payload || !secret || !eventType || !sender) {
+        throw new Error('Missing required parameters: url, payload, secret, eventType, and sender are required')
     }
 
     // Stringify payload if it's an object (EncryptedText field requires string)
