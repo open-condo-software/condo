@@ -119,7 +119,7 @@ import '@condo/domains/common/components/containers/global-styles.css'
 import '@open-condo/next/logging/patchConsoleLogMethods'
 
 
-const { canEnableSubscriptions, publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
+const { publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
 
 const emotionCache = createCache({ key: 'css', prepend: true })
 

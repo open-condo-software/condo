@@ -2,7 +2,6 @@ import getConfig from 'next/config'
 import Head from 'next/head'
 import React, { useMemo } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { TabItem, Typography } from '@open-condo/ui'
@@ -13,7 +12,6 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
 import { TabsPageContent } from '@condo/domains/common/components/TabsPageContent'
-import { SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
     SETTINGS_TAB_PAYMENT_DETAILS,
@@ -40,14 +38,13 @@ import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import MarketplaceSettingsPage from './marketplace'
 
 
-const { canEnableSubscriptions } = getConfig()
+const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
 const ALWAYS_AVAILABLE_TABS = []
 
 const SettingsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.settings' })
-    const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
     const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
     const DetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
     const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
@@ -55,10 +52,6 @@ const SettingsPage: PageComponentType = () => {
     const MobileFeatureConfigTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig' })
     const MarketSettingTitle = intl.formatMessage({ id: 'global.section.marketplace' })
     const SubscriptionsTitle = intl.formatMessage({ id: 'Subscriptions' })
-
-    const { useFlag } = useFeatureFlags()
-
-    const hasSubscriptionFeature = useFlag(SUBSCRIPTION) && canEnableSubscriptions
 
     const userOrganization = useOrganization()
     const userOrganizationId = useMemo(() => userOrganization?.organization?.id || null, [userOrganization])
@@ -79,7 +72,7 @@ const SettingsPage: PageComponentType = () => {
     })
 
     const availableTabs = useMemo(() => {
-        if (!hasSubscription) return [SETTINGS_TAB_SUBSCRIPTION]
+        if (!hasSubscription && enableSubscriptions) return [SETTINGS_TAB_SUBSCRIPTION]
         const availableTabs = [...ALWAYS_AVAILABLE_TABS]
 
         if (canManageEmployeeRoles && isManagingCompany) availableTabs.push(SETTINGS_TAB_EMPLOYEE_ROLES)
@@ -88,7 +81,7 @@ const SettingsPage: PageComponentType = () => {
         if (isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTROL_ROOM)
         if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
         if (canManageMarketSettingRoles && Boolean(acquiringIntegrationContext) && !loading) availableTabs.push(SETTINGS_TAB_MARKETPLACE)
-        if (isManagingCompany) availableTabs.push(SETTINGS_TAB_SUBSCRIPTION)
+        if (enableSubscriptions) availableTabs.push(SETTINGS_TAB_SUBSCRIPTION)
     
         return availableTabs
     }, [hasSubscription, canManageEmployeeRoles, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageMarketSettingRoles, acquiringIntegrationContext, loading])
@@ -100,7 +93,7 @@ const SettingsPage: PageComponentType = () => {
             children: <SubscriptionSettingsContent />,
         }
             
-        if (!hasSubscription) return [subscriptionTab]
+        if (!hasSubscription && enableSubscriptions) return [subscriptionTab]
 
         return [
             canManageEmployeeRoles && isManagingCompany && {
@@ -133,7 +126,7 @@ const SettingsPage: PageComponentType = () => {
                 label: MarketSettingTitle,
                 children: <MarketplaceSettingsPage/>,
             },
-            isManagingCompany && subscriptionTab,
+            enableSubscriptions && subscriptionTab,
         ].filter(Boolean)
     }, [SubscriptionsTitle, hasSubscription, canManageEmployeeRoles, isManagingCompany, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, acquiringIntegrationContext, loading, MarketSettingTitle])
 

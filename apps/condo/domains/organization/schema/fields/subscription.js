@@ -1,8 +1,12 @@
+const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { find } = require('@open-condo/keystone/schema')
 
+const { SUBSCRIPTION_BYPASS } = require('@condo/domains/common/constants/featureflags')
 const { selectBestSubscriptionContext } = require('@condo/domains/subscription/utils/subscriptionContext')
 
-// GraphQL type name for subscription features
+const enableSubscriptions = conf['ENABLE_SUBSCRIPTIONS'] === 'true'
+
 const SUBSCRIPTION_FEATURES_TYPE_NAME = 'OrganizationSubscriptionFeatures'
 
 // GraphQL type definition for subscription features
@@ -53,12 +57,17 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
     extendGraphQLTypes: SUBSCRIPTION_FEATURES_GRAPHQL_TYPES,
     graphQLReturnType: SUBSCRIPTION_FEATURES_TYPE_NAME,
     graphQLReturnFragment: '{ payments meters tickets news marketplace support ai customization enabledB2BApps enabledB2CApps daysRemaining planName planId isTrial startAt endAt }',
-    resolver: async (organization) => {
+    resolver: async (organization, args, context) => {
+        const hasSubscriptionByPass = await featureToggleManager.isFeatureEnabled(context, SUBSCRIPTION_BYPASS, { 
+            userId: context.authedItem?.id || null,
+        })
+        if (!enableSubscriptions || hasSubscriptionByPass) {
+            return FULL_ACCESS_FEATURES
+        }
         const plansForType = await find('SubscriptionPlan', {
             organizationType: organization.type,
             deletedAt: null,
         })
-        // If no plans exist for this organization type, return full access
         if (plansForType.length === 0) {
             return FULL_ACCESS_FEATURES
         }
