@@ -35,7 +35,7 @@ async function retryFailedWebhookPayloads () {
             where,
             first: WEBHOOK_PAYLOADS_RETRY_BATCH_SIZE,
             skip,
-            sortBy: ['nextRetryAt_ASC'],
+            sortBy: ['nextRetryAt_ASC', 'id_ASC'],
         })
 
         if (pendingPayloadsChunk.length === 0) {
