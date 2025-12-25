@@ -384,7 +384,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             // Validate callback URL is in whitelist
             // Normalize empty string to null
             let callbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
-            if (callbackUrl === '') {
+            if (!callbackUrl) {
                 callbackUrl = null
                 resolvedData['paymentStatusChangeWebhookUrl'] = null
             }
