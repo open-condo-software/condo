@@ -1,4 +1,5 @@
 import { useGetB2BAppQuery } from '@app/condo/gql'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo, useCallback } from 'react'
@@ -6,17 +7,18 @@ import React, { useMemo, useCallback } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Button, Space } from '@open-condo/ui'
 
+import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
 
 import styles from './SubscriptionAccessGuard.module.css'
 import { SubscriptionTrialEndedModal } from './SubscriptionTrialEndedModal'
 import { SubscriptionWelcomeModal } from './SubscriptionWelcomeModal'
 
-import { PageHeader, PageWrapper } from '../../common/components/containers/BaseLayout'
 import { requiresSubscriptionAccess, getRequiredFeature, isMiniappPage, getMiniappId } from '../constants/routeFeatureMapping'
 import { useOrganizationSubscription } from '../hooks'
 
 const { Title, Paragraph } = Typography
+const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {} } } = getConfig()
 
 interface SubscriptionAccessGuardProps {
     children: React.ReactNode
@@ -61,7 +63,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         skip: !miniappId,
     })
 
-    const b2bApp = b2bAppData?.b2bApp
+    const b2bApp = b2bAppData?.b2bApp?.[0]
 
     const pageTitle = useMemo(() => {
         if (isMiniapp && b2bApp?.name) {
@@ -69,6 +71,19 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         }
         return getPageTitle(router.pathname, intl)
     }, [router.pathname, intl, isMiniapp, b2bApp])
+
+    const currentFeature = useMemo(() => {
+        return getRequiredFeature(router.pathname)
+    }, [router.pathname])
+
+    const helpLinkKey = useMemo(() => {
+        if (isMiniapp && miniappId) {
+            return miniappId
+        }
+        return currentFeature
+    }, [isMiniapp, miniappId, currentFeature])
+
+    const helpLink = useMemo(() => subscriptionFeatureHelpLinks[helpLinkKey], [helpLinkKey])
 
     const isBlocked = useMemo(() => {
         const currentPath = router.pathname
@@ -103,9 +118,10 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     }, [router])
 
     const handleLearnMore = useCallback(() => {
-        // TODO: Replace with actual external link
-        window.open('https://doma.ai/features', '_blank')
-    }, [])
+        if (helpLink) {
+            window.open(helpLink, '_blank')
+        }
+    }, [helpLink])
 
     if (loading || (isMiniapp && b2bAppLoading)) {
         return <Loader />
@@ -151,11 +167,15 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                                             id: 'subscription.accessGuard.goToPlans',
                                         })}
                                     </Button>
-                                    <Button type='secondary' onClick={handleLearnMore}>
-                                        {intl.formatMessage({
-                                            id: 'subscription.accessGuard.learnMore',
-                                        })}
-                                    </Button>
+                                    {
+                                        helpLink && (
+                                            <Button type='secondary' onClick={handleLearnMore}>
+                                                {intl.formatMessage({
+                                                    id: 'subscription.accessGuard.learnMore',
+                                                })}
+                                            </Button>
+                                        )
+                                    }
                                 </Space>
                             </Space>
                         </div>
