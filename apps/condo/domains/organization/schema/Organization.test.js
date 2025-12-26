@@ -538,7 +538,7 @@ describe('Organization', () => {
             const [organization] = await createTestOrganization(admin)
             await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
-                organizationType: SERVICE_PROVIDER_TYPE,
+                organizationType: MANAGING_COMPANY_TYPE,
             })
 
             const org = await Organization.getOne(admin, { id: organization.id })
@@ -552,7 +552,7 @@ describe('Organization', () => {
             const enabledB2CApps = [faker.datatype.uuid()]
             const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
-                organizationType: SERVICE_PROVIDER_TYPE,
+                organizationType: MANAGING_COMPANY_TYPE,
                 priority: 10,
                 payments: true,
                 meters: false,
@@ -623,7 +623,7 @@ describe('Organization', () => {
             const [organization] = await createTestOrganization(admin)
             const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
-                organizationType: SERVICE_PROVIDER_TYPE,
+                organizationType: MANAGING_COMPANY_TYPE,
             })
             await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().subtract(30, 'days').format('YYYY-MM-DD'),
