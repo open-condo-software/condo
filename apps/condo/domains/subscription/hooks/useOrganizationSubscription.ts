@@ -27,6 +27,7 @@ interface SubscriptionFeatures {
     planName: string | null
     planId: string | null
     isTrial: boolean | null
+    canBePromoted: boolean | null
     startAt: string | null
     endAt: string | null
 }
@@ -71,9 +72,10 @@ export const useOrganizationSubscription = () => {
         if (!subscriptionFeatures) return null
         
         return {
-            subscriptionPlan: subscriptionFeatures.planId && subscriptionFeatures.planName ? {
+            subscriptionPlan: subscriptionFeatures.planId ? {
                 id: subscriptionFeatures.planId,
                 name: subscriptionFeatures.planName,
+                canBePromoted: subscriptionFeatures.canBePromoted,
             } : null,
             isTrial: subscriptionFeatures.isTrial,
             startAt: subscriptionFeatures.startAt,

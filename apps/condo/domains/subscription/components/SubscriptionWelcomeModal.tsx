@@ -133,15 +133,15 @@ export const SubscriptionWelcomeModal: React.FC = () => {
             return
         }
 
-        markAsSeen()
         if (content) {
             setIsVisible(true)
         }
-    }, [organizationId, content, loading, markAsSeen])
+    }, [organizationId, content, loading])
 
     const handleClose = useCallback(() => {
+        markAsSeen()
         setIsVisible(false)
-    }, [])
+    }, [markAsSeen])
 
     const handleButtonClick = useCallback(() => {
         handleClose()

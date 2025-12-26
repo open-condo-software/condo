@@ -57,12 +57,10 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
 
     const isMiniapp = isMiniappPage(router.pathname)
     const miniappId = isMiniapp ? getMiniappId(router.query) : null
-
     const { data: b2bAppData, loading: b2bAppLoading } = useGetB2BAppQuery({
         variables: { id: miniappId || '' },
         skip: !miniappId,
     })
-
     const b2bApp = b2bAppData?.b2bApp?.[0]
 
     const pageTitle = useMemo(() => {
@@ -87,7 +85,6 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
 
     const isBlocked = useMemo(() => {
         const currentPath = router.pathname
-
         if (!requiresSubscriptionAccess(currentPath)) {
             return false
         }
@@ -130,6 +127,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     if (isBlocked) {
         return (
             <>
+                <SubscriptionTrialEndedModal />
                 <Head>
                     <title>{pageTitle}</title>
                 </Head>
