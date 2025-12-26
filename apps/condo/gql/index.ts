@@ -5034,7 +5034,7 @@ export type GetOrganizationTrialSubscriptionsQueryResult = Apollo.QueryResult<Ty
 export const GetLastExpiredSubscriptionContextDocument = gql`
     query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
   lastExpiredContext: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}, endAt_lt: $now, deletedAt: null}
+    where: {organization: {id: $organizationId}, endAt_lt: $now}
     sortBy: [endAt_DESC]
     first: 1
   ) {
@@ -5086,7 +5086,7 @@ export type GetLastExpiredSubscriptionContextQueryResult = Apollo.QueryResult<Ty
 export const GetPendingSubscriptionRequestsDocument = gql`
     query getPendingSubscriptionRequests($organizationId: ID!) {
   pendingRequests: allUserHelpRequests(
-    where: {organization: {id: $organizationId}, type: activateSubscription, deletedAt: null}
+    where: {organization: {id: $organizationId}, type: activateSubscription}
   ) {
     id
     subscriptionPlanPricingRule {
@@ -5135,7 +5135,7 @@ export type GetPendingSubscriptionRequestsQueryResult = Apollo.QueryResult<Types
 export const GetPendingBankingRequestDocument = gql`
     query getPendingBankingRequest($organizationId: ID!) {
   pendingBankingRequest: allUserHelpRequests(
-    where: {organization: {id: $organizationId}, type: activateBanking, deletedAt: null}
+    where: {organization: {id: $organizationId}, type: activateBanking}
     first: 1
   ) {
     id
