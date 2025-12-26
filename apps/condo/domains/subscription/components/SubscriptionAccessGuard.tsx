@@ -159,7 +159,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                                     </Paragraph>
                                 </Space>
 
-                                <Space size={16} direction='vertical'>
+                                <Space size={16} direction='vertical' align='center'>
                                     <Button type='primary' onClick={handleGoToPlans}>
                                         {intl.formatMessage({
                                             id: 'subscription.accessGuard.goToPlans',
