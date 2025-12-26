@@ -177,23 +177,27 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
     const [trialActivateLoading, setTrialActivateLoading] = useState<boolean>(false)
 
-    const handleActivePlanClick = async () => {
+    const handleActivePlanClick = useCallback(async () => {
+        if (!price?.id) return
+
         setActivateLoading(true)
         try {
             await handleActivatePlan(price.id, false)
         } finally {
             setActivateLoading(false)
         }
-    }
+    }, [handleActivatePlan, price?.id])
 
-    const handleTrialActivateClick = async () => {
+    const handleTrialActivateClick = useCallback(async () => {
+        if (!price?.id) return
+
         setTrialActivateLoading(true)
         try {
             await handleActivatePlan(price.id, true)
         } finally {
             setTrialActivateLoading(false)
         }
-    }
+    }, [handleActivatePlan, price?.id])
 
     const renderFeature = useCallback(({ featureKey, label, hint }) => (
         <FeatureItem 
@@ -254,7 +258,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                     type='primary'
                                     onClick={handleActivePlanClick}
                                     loading={activateLoading}
-                                    disabled={hasPendingRequest}
+                                    disabled={hasPendingRequest || !price?.id}
                                 >
                                     {primaryButtonLabel}
                                 </Button>

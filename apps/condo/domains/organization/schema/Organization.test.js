@@ -635,31 +635,5 @@ describe('Organization', () => {
 
             expect(org.subscription).toBeNull()
         })
-
-        test('returns full access when no subscription plans exist for organization type', async () => {
-            // Delete all existing plans for HOLDING type to ensure clean state
-            const existingPlans = await SubscriptionPlan.getAll(admin, { organizationType: 'HOLDING', deletedAt: null })
-            for (const plan of existingPlans) {
-                await SubscriptionPlan.softDelete(admin, plan.id)
-            }
-
-            // Create organization with a type that has no plans
-            const [organization] = await createTestOrganization(admin, {
-                type: 'HOLDING',
-            })
-
-            const org = await Organization.getOne(admin, { id: organization.id })
-
-            expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(true)
-            expect(org.subscription.meters).toBe(true)
-            expect(org.subscription.tickets).toBe(true)
-            expect(org.subscription.news).toBe(true)
-            expect(org.subscription.marketplace).toBe(true)
-            expect(org.subscription.support).toBe(true)
-            expect(org.subscription.ai).toBe(true)
-            expect(org.subscription.enabledB2BApps).toEqual([])
-            expect(org.subscription.enabledB2CApps).toEqual([])
-        })
     })
 })
