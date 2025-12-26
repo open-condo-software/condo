@@ -3499,6 +3499,8 @@ export const GetActiveOrganizationEmployeeDocument = gql`
         isTrial
         startAt
         endAt
+        canBePromoted
+        priority
       }
     }
     role {

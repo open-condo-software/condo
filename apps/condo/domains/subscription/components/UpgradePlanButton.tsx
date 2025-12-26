@@ -31,6 +31,8 @@ export const UpgradePlanButton: React.FC = () => {
         const isTrial = subscriptionContext.isTrial
         const currentPriority = currentPlan?.priority
 
+        console.log('isTrial, currentPlan?.canBePromoted', isTrial, currentPlan)
+
         if (isTrial && currentPlan?.canBePromoted) {
             return intl.formatMessage({ id: 'subscription.upgradePlan.payForPlan' }, { planName: currentPlan.name })
         }

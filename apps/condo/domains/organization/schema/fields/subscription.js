@@ -27,6 +27,8 @@ const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
         daysRemaining: Int
         planName: String
         planId: String
+        canBePromoted: Boolean
+        priority: Int
         isTrial: Boolean
         startAt: String
         endAt: String
@@ -47,6 +49,8 @@ const FULL_ACCESS_FEATURES = {
     daysRemaining: null,
     planName: null,
     planId: null,
+    canBePromoted: null,
+    priority: null,
     isTrial: false,
     startAt: null,
     endAt: null,
@@ -58,7 +62,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
     type: 'Virtual',
     extendGraphQLTypes: SUBSCRIPTION_FEATURES_GRAPHQL_TYPES,
     graphQLReturnType: SUBSCRIPTION_FEATURES_TYPE_NAME,
-    graphQLReturnFragment: '{ payments meters tickets news marketplace support ai customization enabledB2BApps enabledB2CApps daysRemaining planName planId isTrial startAt endAt }',
+    graphQLReturnFragment: '{ payments meters tickets news marketplace support ai customization enabledB2BApps enabledB2CApps daysRemaining planName planId canBePromoted priority isTrial startAt endAt }',
     resolver: async (organization, args, context) => {
         const hasSubscriptionByPass = await featureToggleManager.isFeatureEnabled(context, SUBSCRIPTION_BYPASS, { 
             userId: context.authedItem?.id || null,
@@ -105,7 +109,10 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
 
         let daysRemaining = null
         if (bestContext.endAt) {
-            daysRemaining = dayjs(bestContext.endAt).diff(dayjs(now), 'day')
+            const endDate = dayjs(bestContext.endAt)
+            const startDate = dayjs(now)
+            const diffInHours = endDate.diff(startDate, 'hour', true)
+            daysRemaining = Math.ceil(diffInHours / 24)
         }
 
         return {
@@ -122,9 +129,11 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             daysRemaining,
             planName: plan.name,
             planId: plan.id,
+            priority: plan.priority,
             isTrial: bestContext.isTrial,
             startAt: bestContext.startAt,
             endAt: bestContext.endAt,
+            canBePromoted: plan.canBePromoted,
         }
     },
 }

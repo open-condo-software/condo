@@ -121,9 +121,10 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             resolver: (item) => {
                 if (!item.endAt) return null
 
-                const now = dayjs().startOf('day')
+                const now = dayjs()
                 const endAt = dayjs(item.endAt)
-                const diffDays = endAt.diff(now, 'day')
+                const diffInHours = endAt.diff(now, 'hour', true)
+                const diffDays = Math.ceil(diffInHours / 24)
 
                 if (diffDays <= 0) return 0
 

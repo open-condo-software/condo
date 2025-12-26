@@ -6181,6 +6181,8 @@ type OrganizationSubscriptionFeatures {
   daysRemaining: Int
   planName: String
   planId: String
+  canBePromoted: Boolean
+  priority: Int
   isTrial: Boolean
   startAt: String
   endAt: String
