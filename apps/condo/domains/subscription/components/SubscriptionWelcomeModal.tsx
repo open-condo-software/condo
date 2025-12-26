@@ -73,9 +73,9 @@ const useSubscriptionWelcomeModalContent = (): { content: ModalContent | null, l
 
         if (!subscriptionContext.endAt && !subscriptionContext.isTrial && hasActiveBanking && isActiveBankingPlan) {
             return {
-                title: intl.formatMessage({ id: 'subscription.welcomeModal.sberClient.title' }),
+                title: intl.formatMessage({ id: 'subscription.welcomeModal.activeBanking.title' }),
                 description: intl.formatMessage(
-                    { id: 'subscription.welcomeModal.sberClient.description' },
+                    { id: 'subscription.welcomeModal.activeBanking.description' },
                     { planName }
                 ),
                 buttonText: intl.formatMessage({ id: 'subscription.welcomeModal.learnMoreAboutPlans' }),

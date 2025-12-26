@@ -101,7 +101,9 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink, h
             {textContent}
             {hintText && (
                 <Tooltip title={hintText}>
-                    <QuestionCircle color={colors.gray[7]} size='small' />
+                    <span>
+                        <QuestionCircle color={colors.gray[7]} size='small' />
+                    </span>
                 </Tooltip>
             )}
         </Space>
