@@ -26,6 +26,7 @@ interface SubscriptionFeatures {
     daysRemaining: number | null
     planName: string | null
     planId: string | null
+    priority: number | null
     isTrial: boolean | null
     canBePromoted: boolean | null
     startAt: string | null
@@ -75,6 +76,7 @@ export const useOrganizationSubscription = () => {
             subscriptionPlan: subscriptionFeatures.planId ? {
                 id: subscriptionFeatures.planId,
                 name: subscriptionFeatures.planName,
+                priority: subscriptionFeatures.priority,
                 canBePromoted: subscriptionFeatures.canBePromoted,
             } : null,
             isTrial: subscriptionFeatures.isTrial,

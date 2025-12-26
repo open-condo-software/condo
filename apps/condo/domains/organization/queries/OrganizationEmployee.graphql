@@ -49,6 +49,8 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
                 isTrial
                 startAt
                 endAt
+                canBePromoted
+                priority
             }
         }
         role {
