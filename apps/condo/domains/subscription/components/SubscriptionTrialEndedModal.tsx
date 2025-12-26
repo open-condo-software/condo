@@ -119,6 +119,15 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
             return
         }
 
+        setIsVisible(true)
+    }, [organizationId, content, type, loading])
+
+    const handleClose = useCallback(() => {
+        if (!organizationId || !type) {
+            setIsVisible(false)
+            return
+        }
+
         // Save correct localStorage key based on modal type
         if (type === 'trialEnded') {
             const stored = localStorage.getItem(TRIAL_ENDED_STORAGE_KEY)
@@ -131,12 +140,8 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
             shownOrgs[organizationId] = true
             localStorage.setItem(SUBSCRIPTION_ENDED_STORAGE_KEY, JSON.stringify(shownOrgs))
         }
-        setIsVisible(true)
-    }, [organizationId, content, type, loading])
-
-    const handleClose = useCallback(() => {
         setIsVisible(false)
-    }, [])
+    }, [organizationId, type])
 
     const handleButtonClick = useCallback(() => {
         handleClose()
