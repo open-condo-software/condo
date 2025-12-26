@@ -3,7 +3,6 @@ query getPendingSubscriptionRequests($organizationId: ID!) {
         where: {
             organization: { id: $organizationId }
             type: activateSubscription
-            deletedAt: null
         }
     ) {
         id
@@ -22,7 +21,6 @@ query getPendingBankingRequest($organizationId: ID!) {
         where: {
             organization: { id: $organizationId }
             type: activateBanking
-            deletedAt: null
         }
         first: 1
     ) {

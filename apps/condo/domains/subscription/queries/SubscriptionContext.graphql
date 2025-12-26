@@ -25,7 +25,6 @@ query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
         where: {
             organization: { id: $organizationId }
             endAt_lt: $now
-            deletedAt: null
         }
         sortBy: [endAt_DESC]
         first: 1

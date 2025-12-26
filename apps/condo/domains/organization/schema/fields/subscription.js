@@ -112,7 +112,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             const endDate = dayjs(bestContext.endAt)
             const startDate = dayjs(now)
             const diffInHours = endDate.diff(startDate, 'hour', true)
-            daysRemaining = Math.ceil(diffInHours / 24)
+            daysRemaining = Math.max(0, Math.ceil(diffInHours / 24))
         }
 
         return {

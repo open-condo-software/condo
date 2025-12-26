@@ -31,6 +31,11 @@ function selectBestSubscriptionContext (contexts) {
             return priorityB - priorityA
         }
 
+        // Handle missing startAt values
+        if (!a.startAt && !b.startAt) return 0
+        if (!a.startAt) return 1
+        if (!b.startAt) return -1
+
         return dayjs(b.startAt).diff(dayjs(a.startAt))
     })
 
