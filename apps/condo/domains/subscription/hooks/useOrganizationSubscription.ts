@@ -5,7 +5,7 @@ import { useMemo, useCallback } from 'react'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { SUBSCRIPTION_BYPASS } from '@condo/domains/common/constants/featureFlags'
+import { SUBSCRIPTION_BYPASS } from '@condo/domains/common/constants/featureflags'
 
 export type AvailableFeature = 'payments' | 'meters' | 'tickets' | 'news' | 'marketplace' | 'support' | 'ai' | 'customization'
 
