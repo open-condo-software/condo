@@ -548,8 +548,8 @@ describe('Organization', () => {
 
         test('returns feature flags from active subscription', async () => {
             const [organization] = await createTestOrganization(admin)
-            const disabledB2BApps = [faker.datatype.uuid(), faker.datatype.uuid()]
-            const disabledB2CApps = [faker.datatype.uuid()]
+            const enabledB2BApps = [faker.datatype.uuid(), faker.datatype.uuid()]
+            const enabledB2CApps = [faker.datatype.uuid()]
             const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: SERVICE_PROVIDER_TYPE,
@@ -561,12 +561,12 @@ describe('Organization', () => {
                 marketplace: true,
                 support: false,
                 ai: true,
-                disabledB2BApps,
-                disabledB2CApps,
+                enabledB2BApps,
+                enabledB2CApps,
             })
             await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().subtract(1, 'day').toISOString(),
-                endAt: dayjs().add(30, 'days').toISOString(),
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
@@ -580,8 +580,8 @@ describe('Organization', () => {
             expect(org.subscription.marketplace).toBe(true)
             expect(org.subscription.support).toBe(false)
             expect(org.subscription.ai).toBe(true)
-            expect(org.subscription.disabledB2BApps).toEqual(disabledB2BApps)
-            expect(org.subscription.disabledB2CApps).toEqual(disabledB2CApps)
+            expect(org.subscription.enabledB2BApps).toEqual(enabledB2BApps)
+            expect(org.subscription.enabledB2CApps).toEqual(enabledB2CApps)
         })
 
         test('returns features from highest priority plan when multiple active contexts exist', async () => {
@@ -602,13 +602,13 @@ describe('Organization', () => {
             })
 
             await createTestSubscriptionContext(admin, organization, lowPriorityPlan, {
-                startAt: dayjs().subtract(1, 'day').toISOString(),
-                endAt: dayjs().add(30, 'days').toISOString(),
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
                 isTrial: false,
             })
             await createTestSubscriptionContext(admin, organization, highPriorityPlan, {
-                startAt: dayjs().subtract(2, 'days').toISOString(),
-                endAt: dayjs().add(30, 'days').toISOString(),
+                startAt: dayjs().subtract(2, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
                 isTrial: false,
             })
 
@@ -626,8 +626,8 @@ describe('Organization', () => {
                 organizationType: SERVICE_PROVIDER_TYPE,
             })
             await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().subtract(30, 'days').toISOString(),
-                endAt: dayjs().subtract(1, 'day').toISOString(),
+                startAt: dayjs().subtract(30, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
@@ -658,8 +658,8 @@ describe('Organization', () => {
             expect(org.subscription.marketplace).toBe(true)
             expect(org.subscription.support).toBe(true)
             expect(org.subscription.ai).toBe(true)
-            expect(org.subscription.disabledB2BApps).toEqual([])
-            expect(org.subscription.disabledB2CApps).toEqual([])
+            expect(org.subscription.enabledB2BApps).toEqual([])
+            expect(org.subscription.enabledB2CApps).toEqual([])
         })
     })
 })
