@@ -32,18 +32,11 @@ const TicketObserver = new GQLListSchema('TicketObserver', {
 
     },
     hooks: {
-        validateInput: async ({ resolvedData, existingItem, addValidationError, context }) => {
+        validateInput: async ({ existingItem, resolvedData, context, addValidationError }) => {
             if (existingItem) return
         
             const ticketRel = resolvedData.ticket
-            const hasTicket =
-                !!ticketRel &&
-                (
-                    (ticketRel.connect && ticketRel.connect.id) ||
-                    ticketRel.create
-                )
-        
-            if (!hasTicket) {
+            if (!ticketRel) {
                 // We require `ticket` only for direct TicketObserver creation.
                 // When TicketObserver is created via nested mutation from Ticket.observers.create,
                 // Keystone doesn't pass `ticket` in resolvedData (it will be connected implicitly),
