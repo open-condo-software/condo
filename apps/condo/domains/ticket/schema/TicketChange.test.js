@@ -628,7 +628,7 @@ describe('TicketChange', () => {
                 const afterDirectCreateChanges = await TicketChange.getAll(admin, { ticket: { id: ticket.id } })
                 expect(afterDirectCreateChanges).toHaveLength(0)
 
-                await updateTestTicketObserver(admin, directObserver.id, { ticket: { disconnect: true } })
+                await updateTestTicketObserver(admin, directObserver.id, { ticket: { disconnect: { id: ticket.id } } })
 
                 const afterDirectUpdateChanges = await TicketChange.getAll(admin, { ticket: { id: ticket.id } })
                 expect(afterDirectUpdateChanges).toHaveLength(0)

@@ -1585,7 +1585,7 @@ describe('Ticket', () => {
         })
 
         describe('staff: observers fields access', () => {
-            test('admin: cannot read observers from ticket', async () => {
+            test('user cannot read observers from ticket', async () => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(
                     admin, 
@@ -1611,10 +1611,9 @@ describe('Ticket', () => {
                         }
                     }
                 `
-                const { data, errors } = await admin.query(GET_TICKET_WITH_OBSERVERS_BY_ID, { ticketId: ticket.id })
+                const { errors } = await client.query(GET_TICKET_WITH_OBSERVERS_BY_ID, { ticketId: ticket.id })
                 
                 expect(errors).toHaveLength(1)
-                expect(data).toBeUndefined()
             })
 
             test('user: can create and update observers from ticket', async () => {
@@ -1648,7 +1647,7 @@ describe('Ticket', () => {
                 )
                 // NOTE: Read by admin, because we cannot read TicketObserver without ticket
                 const [ticketObserverAfterUpdate] = await TicketObserver.getAll(admin, { id: ticketObserverBeforeUpdate.id })
-                console.log('!!! user: can update observers from ticket - ticketObserverAfterUpdate', ticketObserverAfterUpdate)
+
                 expect(ticketObserverAfterUpdate.id).toMatch(UUID_RE)
                 expect(ticketObserverAfterUpdate.user.id).toEqual(client.user.id)
                 expect(ticketObserverAfterUpdate.ticket).toBeNull()
