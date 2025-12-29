@@ -337,7 +337,6 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
         rewriteIncidentTextForResident: rewriteIncidentTextForResidentEnabled,
     } } = useAIConfig()
 
-    // Subscription check for AI feature
     const { isFeatureAvailable } = useOrganizationSubscription()
     const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
     const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)

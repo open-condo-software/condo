@@ -362,7 +362,6 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
 
         if (isEmpty(completedActionType)) return
 
-        // Use overridden buttonLabel/bodyText if provided, otherwise use translation
         const buttonLabelOverride = get(completedStepModalData, ['buttonLabel', currentActiveStep]) || get(completedStepModalData, ['buttonLabel', 'default'])
         const bodyTextOverride = get(completedStepModalData, ['bodyText', currentActiveStep]) || get(completedStepModalData, ['bodyText', 'default'])
 

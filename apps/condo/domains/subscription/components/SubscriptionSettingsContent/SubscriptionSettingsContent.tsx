@@ -50,7 +50,6 @@ export const SubscriptionSettingsContent: React.FC = () => {
             .sort((a, b) => (a.plan?.priority ?? 0) - (b.plan?.priority ?? 0))
     }, [plansData, planPeriod])
 
-    // Collect all unique B2B app IDs that appear in at least one plan's enabledB2BApps
     const allB2BAppIds = useMemo(() => {
         const plans = plansData?.result?.plans ?? []
         const appIdsSet = new Set<string>()
@@ -63,7 +62,6 @@ export const SubscriptionSettingsContent: React.FC = () => {
         return Array.from(appIdsSet)
     }, [plansData])
 
-    // Fetch B2B apps data for those IDs
     const { data: b2bAppsData } = useGetB2BAppsByIdsQuery({
         variables: { ids: allB2BAppIds },
         skip: allB2BAppIds.length === 0,

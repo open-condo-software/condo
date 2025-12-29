@@ -29,7 +29,6 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
     const organizationId = organization?.id
     const now = useMemo(() => new Date().toISOString(), [])
 
-    // Query for last expired subscription context (including trials)
     const { data: expiredData, loading } = useGetLastExpiredSubscriptionContextQuery({
         variables: {
             organizationId: organizationId || '',
@@ -54,9 +53,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
         const lastExpiredContext = expiredData?.lastExpiredContext?.[0]
         const lastExpiredWasTrial = lastExpiredContext?.isTrial === true
 
-        // Case 1: Trial ended
         if (lastExpiredWasTrial && !trialEndedShown) {
-            // 1.1: Trial ended but has current subscription
             if (subscriptionContext) {
                 const planName = subscriptionContext.subscriptionPlan?.name || ''
                 return {
@@ -73,7 +70,6 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
                 }
             }
 
-            // 1.2: Trial ended and no current subscription
             return {
                 content: {
                     title: intl.formatMessage({ id: 'subscription.trialEndedModal.noSubscription.title' }),
@@ -85,7 +81,6 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
             }
         }
 
-        // Case 2: No subscription AND (last expired was not trial OR trial modal already shown)
         if (!subscriptionContext && !subscriptionEndedShown && (!lastExpiredWasTrial || trialEndedShown)) {
             return {
                 content: {
@@ -128,7 +123,6 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
             return
         }
 
-        // Save correct localStorage key based on modal type
         if (type === 'trialEnded') {
             const stored = localStorage.getItem(TRIAL_ENDED_STORAGE_KEY)
             const shownOrgs = stored ? JSON.parse(stored) : {}
