@@ -3145,6 +3145,8 @@
   "subscription.promoBanner.description": "Войдите через банковский ID или оформите расчетно-кассовое обслуживание и получите скидку на подписку",
   "subscription.promoBanner.activateButton": "Оформить обслуживание и получить скидку",
   "subscription.promoBanner.requestPending": "Заявка обрабатывается",
+  "subscription.promoBanner.requestSent": "Заявка на банковское обслуживание отправлена",
+  "subscription.promoBanner.requestSentDescription": "Наш менеджер свяжется с вами, чтобы проконсультировать по условиям и помочь с оформлением.",
   "tasks.BankReportTask.progress.description.completed": "Отчет создан",
   "tasks.BankReportTask.progress.description.processing": "Собираем данные для отображения",
   "tasks.BankReportTask.progress.title": "Создание отчета",

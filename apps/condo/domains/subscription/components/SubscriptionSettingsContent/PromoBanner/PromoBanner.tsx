@@ -1,5 +1,6 @@
 import { useGetPendingBankingRequestQuery } from '@app/condo/gql'
 import { OrganizationFeature, UserHelpRequestTypeType } from '@app/condo/schema'
+import { notification } from 'antd'
 import getConfig from 'next/config'
 import React, { useCallback, useState } from 'react'
 
@@ -25,6 +26,8 @@ export const PromoBanner: React.FC = () => {
     const BannerDescription = intl.formatMessage({ id: 'subscription.promoBanner.description' })
     const ActivateButtonLabel = intl.formatMessage({ id: 'subscription.promoBanner.activateButton' })
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.promoBanner.requestPending' })
+    const RequestSentMessage = intl.formatMessage({ id: 'subscription.promoBanner.requestSent' })
+    const RequestSentDescription = intl.formatMessage({ id: 'subscription.promoBanner.requestSentDescription' })
 
     const [loading, setLoading] = useState(false)
 
@@ -53,12 +56,17 @@ export const PromoBanner: React.FC = () => {
                 email: user.email ?? null,
             })
             await refetchPendingRequest()
+            notification.success({
+                message: RequestSentMessage,
+                description: RequestSentDescription,
+                duration: 5,
+            })
         } catch (error) {
             console.error('Failed to create help request:', error)
         } finally {
             setLoading(false)
         }
-    }, [createHelpRequestAction, organization?.id, user?.phone, user?.email, refetchPendingRequest])
+    }, [organization?.id, user.phone, user.email, createHelpRequestAction, refetchPendingRequest, RequestSentMessage, RequestSentDescription])
 
     const hasBankingFeature = organization?.features?.includes(OrganizationFeature.ActiveBanking)
     if (hasBankingFeature || !hasSbbolAuth) return null
