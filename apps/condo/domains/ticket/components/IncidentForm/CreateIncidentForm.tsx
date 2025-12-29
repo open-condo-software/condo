@@ -30,7 +30,6 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
 
     const { enabled: aiEnabled, features: { generateNewsByIncident: generateNewsByIncidentEnabled } } = useAIConfig()
 
-    // Subscription check for AI and NEWS features
     const { isFeatureAvailable } = useOrganizationSubscription()
     const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
     const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)

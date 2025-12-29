@@ -11,7 +11,6 @@ const enableSubscriptions = conf['ENABLE_SUBSCRIPTIONS'] === 'true'
 
 const SUBSCRIPTION_FEATURES_TYPE_NAME = 'OrganizationSubscriptionFeatures'
 
-// GraphQL type definition for subscription features
 const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
     type ${SUBSCRIPTION_FEATURES_TYPE_NAME} {
         payments: Boolean!

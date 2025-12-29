@@ -45,7 +45,7 @@ export const SubscriptionDaysIndicator: React.FC = () => {
             }
         }
         
-        if (daysRemaining === 1) {
+        if (daysRemaining <= 1) {
             return {
                 strokeColor: colors.red[5],
             }

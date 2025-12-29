@@ -52,7 +52,6 @@ export const useSubscriptionExpirationNotification = (): SubscriptionExpirationN
         const storedData = storage?.getItem(READ_SUBSCRIPTION_EXPIRATION_MESSAGE_AT_KEY)?.[organizationId]
         if (!storedData) return undefined
         
-        // Check if stored data is from today - expires at end of day
         return isStoredToday(storedData) ? storedData : undefined
     }, [storage, organizationId])
 
@@ -89,7 +88,6 @@ export const useSubscriptionExpirationNotification = (): SubscriptionExpirationN
             }
         }
 
-        // Non-trial subscription
         if (daysRemaining <= 1) {
             return {
                 title: intl.formatMessage({ id: 'notification.UserMessagesList.message.SUBSCRIPTION_EXPIRATION.paid.lastDay.title' }),
