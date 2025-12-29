@@ -156,7 +156,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const FeaturesTitle = intl.formatMessage({ id: 'subscription.features.title' })
     const FreeForPartnerMessage = intl.formatMessage({ id: 'subscription.planCard.freeForPartner' })
 
-    const { organization } = useOrganization()
+    const { organization, role } = useOrganization()
     const { useFlagValue } = useFeatureFlags()
 
     const { plan, prices } = planInfo
@@ -211,6 +211,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
     const hasPendingRequest = !!pendingRequest
     const primaryButtonLabel = hasPendingRequest ? RequestPendingMessage : (isCustomPrice ? SubmitRequestMessage : BuyMessage)
+    const canManageSubscriptions = role?.canManageSubscriptions
 
     const cardClassName = classnames(
         styles.subscriptionPlanCard,
@@ -258,12 +259,17 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                     type='primary'
                                     onClick={handleActivePlanClick}
                                     loading={activateLoading}
-                                    disabled={hasPendingRequest || !price?.id}
+                                    disabled={hasPendingRequest || !price?.id || !canManageSubscriptions}
                                 >
                                     {primaryButtonLabel}
                                 </Button>
                                 {canActivateTrial && (
-                                    <Button type='accent' onClick={handleTrialActivateClick} loading={trialActivateLoading}>
+                                    <Button
+                                        type='accent'
+                                        onClick={handleTrialActivateClick} 
+                                        loading={trialActivateLoading}
+                                        disabled={!canManageSubscriptions}
+                                    >
                                         {TryFreeMessage}
                                     </Button>
                                 )}
