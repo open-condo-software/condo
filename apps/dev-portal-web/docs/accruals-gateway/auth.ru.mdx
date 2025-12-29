@@ -1,0 +1,35 @@
+## Basic Authentication
+Все запросы к API требуют Basic Authentication и должны выполняться **только с IP-адресов, зарегистрированных в агенте**.
+
+<Alert type={'warning'}>
+**Для работы убедитесь, что:**
+   - Ваши IP-адреса зарегистрированы в системе
+   - У вас есть корректные учетные данные `username` и `password`
+</Alert>
+
+## Обязательные требования
+
+### 1. IP-адреса
+Запросы должны поступать только с предварительно зарегистрированных IP-адресов. В противном случае доступ будет заблокирован.
+
+### 2. Basic Authentication
+Необходимо передавать учетные данные клиента в заголовке `Authorization`:
+```
+Authorization: Basic <base64_encoded_credentials>
+```
+
+### Пример
+```bash
+curl -X GET "https://accruals-gateway.doma.ai/api/search?search=Столичный" \
+  -H "Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ="
+```
+
+## Ошибки авторизации
+
+| Код ошибки             | 	HTTP статус | 	Сообщение               | 	Причина                                                                    |
+|------------------------|--------------|--------------------------|-----------------------------------------------------------------------------|
+| AGENT_NOT_FOUND        | 404          | Agent is not found       | Переданный `username` не соответствует ни одному зарегистрированному агенту |
+| AGENT_DISABLED         | 403          | Agent is disabled        | Агент существует, но отключен в системе                                     |
+| IP_NOT_ALLOWED         | 403          | IP address not allowed   | 	Запрос выполнен с незарегистрированного IP-адреса                          |
+| INVALID_HEADERS        | 403          | Invalid headers provided | Присутствуют некорректные загловки                                          |
+| AUTHORIZATION_REQUIRED | 403          | Authorization required   | Отсутствует заголовок `Authorization` или неверные учетные данные           |

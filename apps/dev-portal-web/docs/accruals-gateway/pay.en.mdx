@@ -1,0 +1,72 @@
+`POST /api/pay`
+
+Registers a payment for an accrual.
+
+## 🔐Authentication
+
+[View authentication documentation →](/docs/accruals-gateway/auth)
+
+## Body parameters
+
+| Parameter  | Type/Format                     | Required | Description                        | Example                                |
+|------------|---------------------------------|----------|------------------------------------|----------------------------------------|
+| id         | string\<uuid\>                  | ✅        | Accrual identifier                 | `452f081a-7612-48e1-bc4e-89d6cea366e7` |
+| txnId      | string\<1 to 100 characters\>   | ✅        | Client-side transaction identifier | `1`                                    |
+| txnDate    | string\<ISO 8601\>              | ✅        | Client-side transaction date       | `2024-01-01T12:00:00Z`                 |
+| amount     | string\<^\d{1,9}(\.\d{1,2})?$\> | ✅        | Payment amount                     | `1500.75`                              |
+| receiptUrl | string\<URL\>                   | ❌        | Link to receipt                    | `https://example.com/receipt.pdf`      |
+
+## Request example
+
+```bash
+curl -X POST "https://accruals-gateway.doma.ai/api/pay" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=" \
+  -d '{
+    "id": "452f081a-7612-48e1-bc4e-89d6cea366e7",
+    "txnId": "1234567891111",
+    "txnDate": "2024-01-01T12:00:00Z",
+    "amount": "1500.75",
+    "receiptUrl": "https://example.com/receipt.pdf"
+  }'
+```
+
+## Request body
+```json
+{
+  "id": "452f081a-7612-48e1-bc4e-89d6cea366e7",
+  "txnId": "1234567891111",
+  "txnDate": "2024-01-01T12:00:00Z",
+  "amount": "1500.75",
+  "receiptUrl": "https://example.com/receipt.pdf"
+}
+```
+
+## Response
+
+| Parameter | Type/Format	                   | Required | Description                                     | Example                    |
+|-----------|--------------------------------|----------|-------------------------------------------------|----------------------------|
+| txnId     | string\<1 to 100 characters\> | ✅        | Transaction identifier (as provided in request) | `1234567891111`            |
+| txnDate   | string\<datetime\>             | ✅        | 	Transaction date in ISO 8601 format            | `2025-12-04T22:25:01.243Z` |
+| regDate   | string\<datetime\>             | ✅        | Payment registration date in system (ISO 8601)  | `2025-12-09T12:59:34.887Z` |
+
+## Response example
+
+```json
+{
+  "data": {
+    "txnId": "1234567891111",
+    "txnDate": "2025-12-04T22:25:01.243Z",
+    "regDate": "2025-12-09T12:59:34.887Z"
+  }
+}
+```
+
+## Error Codes
+
+| Error Code               | HTTP Status | Message                 | Cause                                      | Solution                           |
+|--------------------------|-------------|-------------------------|--------------------------------------------|------------------------------------|
+| `VALIDATION_FAILED`      | 400         | Invalid format of input | Parameter validation error                 | 	Check parameter formats           |
+| `PAYMENT_ALREADY_EXISTS` | 400         | Payment already exists  | Payment with this txnId already registered | Use a different txnId              |
+| `ACCRUAL_NOT_FOUND`      | 404         | Accrual is not found    | Accrual with specified id not found        | 	Verify the accrual id             |
+| `INTERNAL_SERVER_ERROR`  | 500         | Internal server error   | 	Internal server error                     | Try again later or contact support |

@@ -1,0 +1,53 @@
+`GET /api/search`
+
+Searches for organizations by partial name or TIN.
+
+## 🔐Authentication
+
+[View authentication documentation →](/docs/accruals-gateway/auth)
+
+## Query parameters
+
+| Field  | Type/Format                   | Required | Description                                          | Example                   |
+|--------|-------------------------------|----------|------------------------------------------------------|---------------------------|
+| search | string\<3 to 100 characters\> | ✅        | Search string: partial organization name or full TIN | `9731062087`, `Столичный` |
+
+## Request example
+
+```
+GET /api/search?search=9731062087
+```
+
+## Response
+
+| Parameter    | Type/Format    | Required | Description                                  | Example                                        |
+|--------------|----------------|----------|----------------------------------------------|------------------------------------------------|
+| id           | string\<uuid\> | ✅        | Unique organization identifier               | `452f081a-7612-48e1-bc4e-89d6cea366e7`         |
+| organization | string         | ✅        | Organization name                            | `ООО УК "Столичный дом"`                       |
+| categories   | string         | ✅        | **Service categories**, comma-separated      | `Квартплата`,`Водоснабжение, Электроснабжение` |
+| tin          | string         | ✅        | Organization TIN (Tax Identification Number) | `7712345678`                                   |
+| bankAccount  | string         | ✅        | Organization bank account                    | `40702810500000001234`                         |
+
+## Response example
+
+```json
+{
+    "data": [
+        {
+            "id": "452f081a-7612-48e1-bc4e-89d6cea366e7",
+            "organization": "ООО УК \"Столичный дом\"",
+            "categories": "Квартплата",
+            "tin": "7712345678",
+            "bankAccount": "40702810500000001234"
+        }
+    ]
+}
+```
+
+## Error Codes
+
+| Error Code               | HTTP Status | Message                   | Cause                       | Solution                            |
+|--------------------------|-------------|---------------------------|-----------------------------|-------------------------------------|
+| `VALIDATION_FAILED`      | 400         | Invalid format of input   | Parameter validation error	 | Check the search format             |
+| `ORGANIZATION_NOT_FOUND` | 404         | Organization is not found | Organization not found      | Refine your search query            |
+| `INTERNAL_SERVER_ERROR`  | 500         | Internal server error     | 	Internal server error      | 	Try again later or contact support |
