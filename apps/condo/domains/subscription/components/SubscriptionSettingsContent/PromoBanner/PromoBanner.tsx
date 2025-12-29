@@ -61,7 +61,7 @@ export const PromoBanner: React.FC = () => {
     }, [createHelpRequestAction, organization?.id, user?.phone, user?.email, refetchPendingRequest])
 
     const hasBankingFeature = organization?.features?.includes(OrganizationFeature.ActiveBanking)
-    if (hasBankingFeature && !hasSbbolAuth) return null
+    if (hasBankingFeature || !hasSbbolAuth) return null
 
     return (
         <div className={styles.bannerWrapper}>

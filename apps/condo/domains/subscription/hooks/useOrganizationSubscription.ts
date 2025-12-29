@@ -105,7 +105,8 @@ export const useOrganizationSubscription = () => {
     const isB2BAppEnabled = useCallback((appId: string): boolean => {
         if (!enableSubscriptions || hasSubscriptionByPass) return true
         if (!subscriptionFeatures) return false
-        if (!allEnabledB2BApps.has(appId)) return false
+        // If app is not enabled in any plan => app is always enabled
+        if (!allEnabledB2BApps.has(appId)) return true
         
         const currentEnabledApps = subscriptionFeatures.enabledB2BApps || []
         return currentEnabledApps.includes(appId)
