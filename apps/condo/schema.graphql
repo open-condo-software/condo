@@ -58198,10 +58198,12 @@ type SubscriptionPlan {
   """ Whether customization feature is included in this plan """
   customization: Boolean
 
-  """ JSON array of B2B miniapp IDs that are enabled in this plan """
+  """ List of B2B miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type. 
+  """
   enabledB2BApps: JSON
 
-  """ JSON array of B2C miniapp IDs that are enabled in this plan """
+  """ List of B2C miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type. 
+  """
   enabledB2CApps: JSON
   id: ID!
   v: Int
