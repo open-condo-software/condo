@@ -53,7 +53,7 @@
   border-color: var(--condo-global-color-green-5) !important;
 }
 
-@container (max-width: 1000px) {
+@container (max-width: 1000px) { /* stylelint-disable-line at-rule-no-unknown */
   .image-wrapper {
     right: -100px;
     transform: translateY(-50%) scale(0.5);
@@ -64,7 +64,7 @@
   }
 }
 
-@container (max-width: 800px) {
+@container (max-width: 800px) { /* stylelint-disable-line at-rule-no-unknown */
   .image-wrapper {
     display: none;
   }
