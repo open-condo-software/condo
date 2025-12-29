@@ -146,7 +146,7 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
         },
 
         enabledB2BApps: {
-            schemaDoc: 'JSON array of B2B miniapp IDs that are enabled in this plan',
+            schemaDoc: 'List of B2B miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type.',
             type: 'Json',
             defaultValue: [],
             isRequired: true,
@@ -169,7 +169,7 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
         },
 
         enabledB2CApps: {
-            schemaDoc: 'JSON array of B2C miniapp IDs that are enabled in this plan',
+            schemaDoc: 'List of B2C miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type.',
             type: 'Json',
             defaultValue: [],
             isRequired: true,
