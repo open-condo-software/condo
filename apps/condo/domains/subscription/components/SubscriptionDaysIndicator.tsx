@@ -82,16 +82,12 @@ export const SubscriptionDaysIndicator: React.FC = () => {
                 percent={progressPercent}
                 strokeColor={strokeColor}
                 format={() => (
-                    <span style={{ 
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        color: strokeColor,
-                    }}>
+                    <Typography.Text type='secondary' size='small'>
                         {daysRemaining}
-                    </span>
+                    </Typography.Text>
                 )}
                 width={34}
-                strokeWidth={6}
+                strokeWidth={14}
             />
         </Tooltip>
     )
