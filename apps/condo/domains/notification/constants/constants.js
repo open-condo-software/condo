@@ -639,6 +639,7 @@ const MESSAGE_META = {
             B2CAppContext: { required: false },
             B2CAppName: { required: true },
             residentId: { required: true },
+            callId: { required: false },
             voipIncomingCallId: { required: true },
         },
     },
