@@ -66,7 +66,7 @@ const syncServiceSubscriptions = async ({ context, organization }) => {
         ...dvSenderFields,
         organization: { connect: { id: organization.id } },
         subscriptionPlan: { connect: { id: subscriptionPlanId } },
-        startAt: now.toISOString(),
+        startAt: now.format('YYYY-MM-DD'),
         endAt: null,
         isTrial: false,
     })
