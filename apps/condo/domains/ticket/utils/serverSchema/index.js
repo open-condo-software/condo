@@ -11,7 +11,6 @@ const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchem
 const { AddressMetaDataFields } = require('@condo/domains/property/schema/fields/AddressMetaField')
 const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
 const { TICKET_MULTIPLE_UPDATE_MUTATION } = require('@condo/domains/ticket/gql')
-const { SYNC_TICKET_OBSERVERS_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils('Ticket')

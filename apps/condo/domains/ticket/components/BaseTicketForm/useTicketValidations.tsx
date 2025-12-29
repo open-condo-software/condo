@@ -20,6 +20,7 @@ type TicketFieldsKeys = 'property'
 | 'details'
 | 'executor'
 | 'assignee'
+| 'observers'
 type ITicketFieldsRuleMap = {
     [Key in TicketFieldsKeys]: Rule[]
 }

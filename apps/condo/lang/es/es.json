@@ -1136,7 +1136,7 @@
   "field.Responsible": "Responsable",
   "field.Responsible.description": "Responsable: supervisa el trabajo del ejecutor",
   "field.Observer": "Observador",
-  "field.Observers": "Observadors",
+  "field.Observers": "Observadores",
   "field.Observers.description": "Este es un empleado que no realiza ni supervisa el trabajo, pero se mantiene informado sobre el proceso y el resultado de la solicitud.",
   "field.Role": "Rol",
   "field.Section": "Número de sección",
