@@ -120,7 +120,10 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
 
     const ticketOrganizationId = useMemo(() => get(obj, ['organization', 'id']) || null, [obj])
 
-    const { data: employeesData } = useGetEmployeesByOrganizationIdAndUserIdsQuery({
+    const { 
+        data: employeesData,
+        loading: employeesLoading,
+    } = useGetEmployeesByOrganizationIdAndUserIdsQuery({
         variables: {
             organizationId: ticketOrganizationId,
             userIds: observers.map(o => o?.user?.id).filter(Boolean),
@@ -255,7 +258,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
         return result
     }, [observers, allowedObserverUserIds, invoices, obj])
 
-    const loading = ticketLoading || invoicesLoading || observersLoading
+    const loading = ticketLoading || invoicesLoading || observersLoading || employeesLoading
     if (error || loading) {
         return (
             <>

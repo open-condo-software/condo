@@ -386,6 +386,10 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                 removedObservers: removedObservers.join(', '),
             }
 
+            if (addedObservers.length === 0 && removedObservers.length === 0) {
+                return null
+            }
+
             return (
                 <>
                     {addedObservers.length > 0 && (

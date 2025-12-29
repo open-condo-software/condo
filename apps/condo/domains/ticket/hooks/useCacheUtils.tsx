@@ -1,4 +1,5 @@
 import { ApolloCache } from '@apollo/client/cache'
+import { Ticket } from '@app/condo/schema'
 
 import { generateQueryVariables } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
@@ -6,7 +7,7 @@ import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import type { CreateTicketMutation } from '@app/condo/gql'
 
 interface ICachedData {
-    objs: CreateTicketMutation['ticket'][]
+    objs: Ticket[]
 }
 
 type TicketCacheUtilsHook = (cache: ApolloCache<unknown>) => {
