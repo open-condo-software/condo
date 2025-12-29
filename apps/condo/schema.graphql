@@ -102193,6 +102193,9 @@ type Mutation {
   			"residentId": {
   				"required": true
   			},
+  			"callId": {
+  				"required": false
+  			},
   			"voipIncomingCallId": {
   				"required": true
   			}
