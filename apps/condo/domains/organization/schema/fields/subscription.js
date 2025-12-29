@@ -4,7 +4,7 @@ const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { find } = require('@open-condo/keystone/schema')
 
-const { SUBSCRIPTION_BYPASS } = require('@condo/domains/common/constants/featureflags')
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const { selectBestSubscriptionContext } = require('@condo/domains/subscription/utils/subscriptionContext')
 
 const enableSubscriptions = conf['ENABLE_SUBSCRIPTIONS'] === 'true'
@@ -64,10 +64,10 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
     graphQLReturnType: SUBSCRIPTION_FEATURES_TYPE_NAME,
     graphQLReturnFragment: '{ payments meters tickets news marketplace support ai customization enabledB2BApps enabledB2CApps daysRemaining planName planId canBePromoted priority isTrial startAt endAt }',
     resolver: async (organization, args, context) => {
-        const hasSubscriptionByPass = await featureToggleManager.isFeatureEnabled(context, SUBSCRIPTION_BYPASS, { 
+        const hasSubscriptionFeature = await featureToggleManager.isFeatureEnabled(context, SUBSCRIPTIONS, { 
             userId: context.authedItem?.id || null,
         })
-        if (!enableSubscriptions || hasSubscriptionByPass) {
+        if (!enableSubscriptions || !hasSubscriptionFeature) {
             return FULL_ACCESS_FEATURES
         }
         const plansForType = await find('SubscriptionPlan', {

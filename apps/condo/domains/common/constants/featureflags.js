@@ -39,7 +39,7 @@ const UI_AI_REWRITE_TICKET_COMMENT = 'ui-ai-ticket-rewrite-comment'
 const UI_AI_REWRITE_TEXT = 'ui-ai-rewrite-text'
 const UI_AI_REWRITE_NEWS_TEXT = 'ui-ai-news-rewrite-text'
 const UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT = 'ui-ai-rewrite-incident-text-for-resident'
-const SUBSCRIPTION_BYPASS = 'subscription-bypass'
+const SUBSCRIPTIONS = 'subscriptions'
 const ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID = 'active-banking-subscription-plan-id'
 const DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID = 'default-trial-subscription-plan-id'
 
@@ -69,7 +69,7 @@ module.exports = {
     SNOWFLAKES_SETTINGS,
     USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN,
     METER_REPORTING_PERIOD_STRICT_RULE,
-    SUBSCRIPTION_BYPASS,
+    SUBSCRIPTIONS,
     CHECK_TLS_CLIENT_CERT,
     ADD_SECTION_FLOOR,
     ACQUIRING_PAYMENTS_FILES_TABLE,

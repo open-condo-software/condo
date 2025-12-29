@@ -5,7 +5,7 @@ import { useMemo, useCallback } from 'react'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { SUBSCRIPTION_BYPASS } from '@condo/domains/common/constants/featureflags'
+import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 
 export type AvailableFeature = 'payments' | 'meters' | 'tickets' | 'news' | 'marketplace' | 'support' | 'ai' | 'customization'
 
@@ -67,7 +67,7 @@ export const useOrganizationSubscription = () => {
     })
 
     const { useFlag } = useFeatureFlags()
-    const hasSubscriptionByPass = useFlag(SUBSCRIPTION_BYPASS)
+    const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
 
     const subscriptionContext = useMemo<SubscriptionContext | null>(() => {
         if (!subscriptionFeatures) return null
@@ -87,10 +87,10 @@ export const useOrganizationSubscription = () => {
     }, [subscriptionFeatures])
 
     const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
-        if (!enableSubscriptions || hasSubscriptionByPass) return true
+        if (!enableSubscriptions || !hasSubscriptionsFlag) return true
         if (!subscriptionFeatures) return false
         return subscriptionFeatures[feature] === true
-    }, [subscriptionFeatures, hasSubscriptionByPass])
+    }, [subscriptionFeatures, hasSubscriptionsFlag])
 
     const allEnabledB2BApps = useMemo(() => {
         const plans = allPlansData?.result?.plans || []
@@ -103,14 +103,14 @@ export const useOrganizationSubscription = () => {
     }, [allPlansData])
 
     const isB2BAppEnabled = useCallback((appId: string): boolean => {
-        if (!enableSubscriptions || hasSubscriptionByPass) return true
+        if (!enableSubscriptions || !hasSubscriptionsFlag) return true
         if (!subscriptionFeatures) return false
         // If app is not enabled in any plan => app is always enabled
         if (!allEnabledB2BApps.has(appId)) return true
         
         const currentEnabledApps = subscriptionFeatures.enabledB2BApps || []
         return currentEnabledApps.includes(appId)
-    }, [subscriptionFeatures, allEnabledB2BApps, hasSubscriptionByPass])
+    }, [subscriptionFeatures, allEnabledB2BApps, hasSubscriptionsFlag])
 
     return {
         hasSubscription: !!subscriptionFeatures,
