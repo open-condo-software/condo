@@ -65,7 +65,7 @@ interface FeatureItemProps {
 type PendingRequest = GetPendingSubscriptionRequestsQueryResult['data']['pendingRequests'][number]
 type TrialContextType = GetOrganizationTrialSubscriptionsQuery['trialSubscriptions'][number]
 
-interface SubscriptionPlanCardProps {
+interface SubscriptionPlanCardProps { 
     planInfo: PlanType
     activatedTrial?: TrialContextType
     pendingRequest?: PendingRequest
@@ -84,7 +84,7 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink, h
     const featureLabel = intl.formatMessage({ id: label as FormatjsIntl.Message['ids'] })
     const hintText = hint ? intl.formatMessage({ id: hint as FormatjsIntl.Message['ids'] }) : null
 
-    const icon = available ? <Lock color={colors.green[5]} size='small' /> : <Unlock color={colors.red[5]} size='small' />
+    const icon = available ? <Unlock color={colors.green[5]} size='small' /> : <Lock color={colors.red[5]} size='small' />
     const textType = available ? undefined : 'secondary'
 
     const textContent = helpLink ? (
