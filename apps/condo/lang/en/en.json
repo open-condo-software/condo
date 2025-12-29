@@ -3137,6 +3137,8 @@
   "subscription.promoBanner.description": "Login with Bank ID or open a business account to get a subscription discount",
   "subscription.promoBanner.activateButton": "Open business account and get discount",
   "subscription.promoBanner.requestPending": "Request pending",
+  "subscription.promoBanner.requestSent": "The request for banking services has been sent",
+  "subscription.promoBanner.requestSentDescription": "Our manager will contact you to advise on the conditions and help with the registration.",
   "tasks.BankReportTask.progress.description.completed": "Report creation completed",
   "tasks.BankReportTask.progress.description.processing": "Collecting data for your report",
   "tasks.BankReportTask.progress.title": "Creating a report",

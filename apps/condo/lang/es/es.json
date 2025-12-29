@@ -3137,6 +3137,8 @@
   "subscription.promoBanner.description": "Inicie sesión con ID bancario o abra una cuenta empresarial para obtener un descuento en la suscripción",
   "subscription.promoBanner.activateButton": "Abrir cuenta empresarial y obtener descuento",
   "subscription.promoBanner.requestPending": "Solicitud pendiente",
+  "subscription.promoBanner.requestSent": "Solicitud bancaria enviada",
+  "subscription.promoBanner.requestSentDescription": "Nuestro gerente se pondrá en contacto con usted para asesorarle sobre las condiciones y ayudar con la formalización.",
   "tasks.BankReportTask.progress.description.completed": "Informe creado",
   "tasks.BankReportTask.progress.description.processing": "Recopilación de datos para visualización",
   "tasks.BankReportTask.progress.title": "Creación de informe",
