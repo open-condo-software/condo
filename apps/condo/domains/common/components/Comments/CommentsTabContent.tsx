@@ -12,8 +12,9 @@ import { Tooltip, Tour, Typography } from '@open-condo/ui'
 
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
 import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
-import { useOrganizationSubscription, useNoSubscriptionToolTip } from '@condo/domains/subscription/hooks'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
 import { Comment } from './Comment'
@@ -81,7 +82,6 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
     const GenerateCommentTourStepDescription = intl.formatMessage({ id: 'ai.generateComment.tourStepDescription' })
 
     const { isFeatureAvailable } = useOrganizationSubscription()
-    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
     const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
 
     const lastComment = useMemo(() => comments?.[0], [comments])
@@ -127,15 +127,13 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                                         </div>
                                     </Tooltip>
                                 ) : (
-                                    wrapElementIntoNoSubscriptionToolTip({
-                                        element: (
-                                            <div className={styles.generateAnswerButtonWrapper}>
-                                                <AIFlowButton disabled>
-                                                    {GenerateResponseMessage}
-                                                </AIFlowButton>
-                                            </div>
-                                        ),
-                                    })
+                                    <NoSubscriptionTooltip>
+                                        <div className={styles.generateAnswerButtonWrapper}>
+                                            <AIFlowButton disabled>
+                                                {GenerateResponseMessage}
+                                            </AIFlowButton>
+                                        </div>
+                                    </NoSubscriptionTooltip>
                                 )
                             )
                         }
@@ -144,7 +142,7 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
             }), [
         GenerateResponseMessage, GenerateResponseTooltipMessage, comments, editableComment,
         generateCommentLoading, generateCommentOnClickHandler, lastComment?.id, setEditableComment,
-        showGenerateAnswerButton, updateAction, hasAiFeature, wrapElementIntoNoSubscriptionToolTip,
+        showGenerateAnswerButton, updateAction, hasAiFeature,
     ])
 
     const { currentStep, setCurrentStep } = Tour.useTourContext()
@@ -192,15 +190,13 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                                         </div>
                                     </Tour.TourStep>
                                 ) : (
-                                    wrapElementIntoNoSubscriptionToolTip({
-                                        element: (
-                                            <div className={styles.generateCommentInnerButtonWrapper}>
-                                                <AIFlowButton disabled>
-                                                    {GenerateCommentMessage}
-                                                </AIFlowButton>
-                                            </div>
-                                        ),
-                                    })
+                                    <NoSubscriptionTooltip>
+                                        <div className={styles.generateCommentInnerButtonWrapper}>
+                                            <AIFlowButton disabled>
+                                                {GenerateCommentMessage}
+                                            </AIFlowButton>
+                                        </div>
+                                    </NoSubscriptionTooltip>
                                 )
                             )}
                         </div> }

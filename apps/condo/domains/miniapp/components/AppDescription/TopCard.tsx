@@ -15,7 +15,8 @@ import { colors } from '@open-condo/ui/colors'
 
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
-import { useOrganizationSubscription, useNoSubscriptionToolTip } from '@condo/domains/subscription/hooks'
+import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import { AppLabelTag } from '../AppLabelTag'
 
@@ -126,7 +127,6 @@ const TopCard = React.memo<TopCardProps>(({
     const userOrganization = useOrganization()
     const canManageB2BApps = get(userOrganization, ['link', 'role', 'canManageB2BApps'], false)
     const { isB2BAppEnabled } = useOrganizationSubscription()
-    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
     const isAppAvailableForTariff = isB2BAppEnabled(id)
 
     const router = useRouter()
@@ -230,9 +230,9 @@ const TopCard = React.memo<TopCardProps>(({
                         )}
                     </Space>
                     {!isAppAvailableForTariff ? (
-                        wrapElementIntoNoSubscriptionToolTip({
-                            element: <span><Button {...buttonProps}/></span>,
-                        })
+                        <NoSubscriptionTooltip>
+                            <span><Button {...buttonProps}/></span>
+                        </NoSubscriptionTooltip>
                     ) : (
                         <Button {...buttonProps}/>
                     )}

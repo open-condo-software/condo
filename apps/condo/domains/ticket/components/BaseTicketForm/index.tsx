@@ -65,8 +65,9 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
+import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
 import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
-import { useOrganizationSubscription, useNoSubscriptionToolTip } from '@condo/domains/subscription/hooks'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import {
@@ -183,7 +184,6 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
 
     // Subscription check for marketplace feature
     const { isFeatureAvailable } = useOrganizationSubscription()
-    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
     const hasMarketplaceFeature = isFeatureAvailable(FEATURE_KEY.MARKETPLACE)
 
     const [createInvoiceModalOpen, setCreateInvoiceModalOpen] = useState<boolean>(false)
@@ -216,8 +216,8 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
     }
 
     if (!hasMarketplaceFeature) {
-        return wrapElementIntoNoSubscriptionToolTip({
-            element: (
+        return (
+            <NoSubscriptionTooltip>
                 <div>
                     <Col style={{ cursor: 'not-allowed' }}>
                         <Space size={4} direction='horizontal'>
@@ -226,8 +226,8 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
                         </Space>
                     </Col>
                 </div>
-            ),
-        })
+            </NoSubscriptionTooltip>
+        )
     }
 
     return (

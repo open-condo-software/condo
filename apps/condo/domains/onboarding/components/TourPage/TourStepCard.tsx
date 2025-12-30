@@ -16,8 +16,9 @@ import {
     COMPLETED_STEP_LINK,
     TOUR_STEP_ACTION_PERMISSION,
 } from '@condo/domains/onboarding/utils/clientSchema/constants'
+import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
 import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
-import { useOrganizationSubscription, useNoSubscriptionToolTip } from '@condo/domains/subscription/hooks'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { AvailableFeature } from '@condo/domains/subscription/hooks/useOrganizationSubscription'
 
 /**
@@ -106,8 +107,6 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
         return isFeatureAvailable(requiredFeature)
     }, [requiredFeature, isFeatureAvailable])
 
-    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
-
     const disabledMessage = useMemo(() => {
         if (!hasPermission) {
             return (
@@ -147,14 +146,13 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     )
 
     if (!hasRequiredFeature) {
-        return wrapElementIntoNoSubscriptionToolTip({
-            key: step.id,
-            element: (
+        return (
+            <NoSubscriptionTooltip key={step.id}>
                 <div style={{ width: '100%' }}>
                     {cardContent}
                 </div>
-            ),
-        })
+            </NoSubscriptionTooltip>
+        )
     }
 
     if (isDisabledStatus) {
