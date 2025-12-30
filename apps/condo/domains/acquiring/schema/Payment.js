@@ -3,7 +3,7 @@
  */
 
 const Big = require('big.js')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { split } = require('@open-condo/billing/utils/paymentSplitter')
 const conf = require('@open-condo/config')
@@ -41,6 +41,7 @@ const {
 } = require('@condo/domains/acquiring/constants/payment')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
+const { sendPaymentStatusChangeWebhook } = require('@condo/domains/acquiring/tasks')
 const { AcquiringIntegrationContext, Payment: PaymentGQL } = require('@condo/domains/acquiring/utils/serverSchema')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
@@ -494,11 +495,59 @@ const Payment = new GQLListSchema('Payment', {
             }
         },
         afterChange: async ({ context, operation, existingItem, updatedItem }) => {
+            // Trigger webhook task on status change FIRST - this must always happen
+            // regardless of any subsequent operations that might fail
+            const previousStatus = get(existingItem, 'status')
+            const newStatus = get(updatedItem, 'status')
+            const statusChanged = operation === 'update' && previousStatus !== newStatus
+
+            // Use a small closure to cache invoice loading within this hook execution.
+            // This avoids multiple getById('Invoice', ...) calls when both webhook enqueueing
+            // logic and invoice status update logic need the invoice.
+            let invoice = null
+            let invoiceFetched = false
+            const getInvoice = async () => {
+                if (invoiceFetched) return invoice
+                const fetchedInvoice = await getById('Invoice', updatedItem.invoice)
+                invoice = fetchedInvoice
+                invoiceFetched = true
+                return fetchedInvoice
+            }
+
+            if (statusChanged) {
+                // Avoid queueing background tasks for payments that have no webhook configured.
+                // We only enqueue the task if invoice/receipt has paymentStatusChangeWebhookUrl.
+                let shouldEnqueueWebhookTask = false
+
+                try {
+                    if (updatedItem.invoice) {
+                        invoice = await getInvoice()
+                        shouldEnqueueWebhookTask = !!get(invoice, 'paymentStatusChangeWebhookUrl')
+                    }
+
+                    if (!shouldEnqueueWebhookTask && updatedItem.receipt) {
+                        const receipt = await getById('BillingReceipt', updatedItem.receipt)
+                        shouldEnqueueWebhookTask = !!get(receipt, 'paymentStatusChangeWebhookUrl')
+                    }
+                } catch {
+                    // Fail-open: if we can't read invoice/receipt right now (transient DB error, etc.),
+                    // enqueue the task anyway to avoid missing a webhook that *is* configured.
+                    shouldEnqueueWebhookTask = true
+                }
+
+                if (shouldEnqueueWebhookTask) {
+                    // Queue background task to build and send webhook
+                    // This minimizes async operations in the hook itself
+                    await sendPaymentStatusChangeWebhook.delay(updatedItem.id)
+                }
+            }
+
+            // Update invoice status when payment is done
             if (
                 updatedItem.invoice
                 && [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS].includes(get(updatedItem, 'status'))
             ) {
-                const invoice = await getById('Invoice', updatedItem.invoice)
+                invoice = invoiceFetched ? invoice : await getInvoice()
                 if (get(invoice, 'status') === INVOICE_STATUS_PUBLISHED) {
                     await Invoice.update(context, invoice.id, {
                         dv: updatedItem.dv,
