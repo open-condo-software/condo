@@ -258,12 +258,6 @@ ALTER TABLE "CustomValueHistoryRecord" DROP COLUMN "objectId";
 DROP TABLE "ServiceSubscription" CASCADE;
 DROP TABLE "ServiceSubscriptionHistoryRecord" CASCADE;
 
---
--- 20251208153347-0498_auto_20251208_1033.js Drop passTickets field of Subscription Plan
---
-ALTER TABLE "SubscriptionPlan" DROP COLUMN "passTickets" CASCADE;
-ALTER TABLE "SubscriptionPlanHistoryRecord" DROP COLUMN "passTickets" CASCADE;
-
 COMMIT;
     `))
 }
