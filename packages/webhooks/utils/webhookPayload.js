@@ -53,7 +53,13 @@ async function trySendWebhookPayload (webhookPayload) {
     const reqId = crypto.randomUUID()
 
     if (!url || !payload || !secret) {
-        logger.error({ msg: 'Missing required payload fields', reqId, data: { payloadId: webhookPayload.id, hasUrl: !!url, hasPayload: !!payload, hasSecret: !!secret } })
+        logger.error({
+            msg: 'Missing required payload fields', 
+            reqId,
+            entity: 'WebhookPayload',
+            entityId: webhookPayload.id,
+            data: { hasUrl: !!url, hasPayload: !!payload, hasSecret: !!secret },
+        })
         return {
             success: false,
             error: 'Missing required payload fields (url, payload, or secret)',
@@ -65,6 +71,8 @@ async function trySendWebhookPayload (webhookPayload) {
     logger.info({
         msg: 'Sending webhook payload',
         reqId,
+        entity: 'WebhookPayload',
+        entityId: webhookPayload.id,
         data: {
             payloadId: webhookPayload.id,
             url,
@@ -135,14 +143,9 @@ async function trySendWebhookPayload (webhookPayload) {
 
     // Single consolidated result log
     const logData = {
-        payloadId: webhookPayload.id,
         success: result.success,
         algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
         error: result.error || null,
-    }
-
-    if (result.statusCode) {
-        logData.statusCode = result.statusCode
     }
 
     if (result.timeout) {
@@ -152,6 +155,9 @@ async function trySendWebhookPayload (webhookPayload) {
     const logEntry = {
         msg: 'Webhook payload send result',
         reqId,
+        entity: 'WebhookPayload',
+        entityId: webhookPayload.id,
+        status: result?.statusCode || undefined,
         data: logData,
     }
 

@@ -69,8 +69,9 @@ async function sendWebhookPayload (context, options) {
 
     logger.info({
         msg: 'WebhookPayload created and queued for sending',
+        entity: 'WebhookPayload',
+        entityId: webhookPayload.id,
         data: {
-            payloadId: webhookPayload.id,
             eventType,
             modelName,
             itemId,
