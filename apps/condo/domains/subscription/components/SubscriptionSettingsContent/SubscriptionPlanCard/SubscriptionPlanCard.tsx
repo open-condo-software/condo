@@ -222,89 +222,91 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
     return (
         <Card className={cardClassName}>
-            <div className={styles['main-content']}>
-                <Space size={60} direction='vertical'>
-                    <Space size={12} direction='vertical'>
-                        <Space size={4} direction='horizontal' className={styles.header} width='100%'>
-                            <Typography.Title level={3}>
-                                {plan.name}
-                            </Typography.Title>
-                            <SubscriptionPlanBadge 
-                                plan={plan}
-                                activatedTrial={activatedTrial}
-                            />
-                        </Space>
-                        <div className={styles.description}>
-                            <Typography.Paragraph type='secondary'>
-                                {plan.description}
-                            </Typography.Paragraph>
-                        </div>
-                    </Space>
-                    <Space size={24} direction='vertical'>
-                        <Space size={4} direction='vertical'>
-                            <Space size={4} direction='horizontal'>
+            <Space size={8} direction='vertical'>
+                <div className={styles.mainContent}>
+                    <Space size={60} direction='vertical'>
+                        <Space size={12} direction='vertical'>
+                            <Space size={4} direction='horizontal' className={styles.header} width='100%'>
                                 <Typography.Title level={3}>
-                                    {isFreeForPartner ? FreeForPartnerMessage : (isCustomPrice ? price.name : `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`)}
+                                    {plan.name}
                                 </Typography.Title>
-                                {!isCustomPrice && !isFreeForPartner && (
-                                    <Typography.Text type='secondary'>
-                                            / {PeriodMessage}
-                                    </Typography.Text>
-                                )}
-                            </Space>
-                        </Space>
-                        {!isFreeForPartner && (
-                            <div className={styles.buttons}>
-                                <Button
-                                    type='primary'
-                                    onClick={handleActivePlanClick}
-                                    loading={activateLoading}
-                                    disabled={hasPendingRequest || !price?.id || !canManageSubscriptions}
-                                >
-                                    {primaryButtonLabel}
-                                </Button>
-                                {canActivateTrial && (
-                                    <Button
-                                        type='accent'
-                                        onClick={handleTrialActivateClick} 
-                                        loading={trialActivateLoading}
-                                        disabled={!canManageSubscriptions}
-                                    >
-                                        {TryFreeMessage}
-                                    </Button>
-                                )}
-                            </div>
-                        )}
-                    </Space>
-                </Space>
-            </div>
-            <Collapse ghost className={styles.collapse}>
-                <Panel
-                    header={<Typography.Text strong>{FeaturesTitle}</Typography.Text>}
-                    key='features'
-                >
-                    <Space direction='vertical' size={8}>
-                        {BASE_FEATURES.map(renderFeature)}
-                        {allB2BAppIds.map((appId) => {
-                            const app = b2bAppsMap.get(appId)
-                            if (!app || !app.name) return null
-
-                            const enabledApps = plan.enabledB2BApps || []
-                            const isAvailable = enabledApps.includes(appId)
-
-                            return (
-                                <FeatureItem
-                                    key={appId}
-                                    label={app.name}
-                                    available={isAvailable}
-                                    helpLink={subscriptionFeatureHelpLinks[appId]}
+                                <SubscriptionPlanBadge 
+                                    plan={plan}
+                                    activatedTrial={activatedTrial}
                                 />
-                            )
-                        })}
-                        {PREMIUM_FEATURES.map(renderFeature)}
+                            </Space>
+                            <div className={styles.description}>
+                                <Typography.Paragraph type='secondary'>
+                                    {plan.description}
+                                </Typography.Paragraph>
+                            </div>
+                        </Space>
+                        <Space size={24} direction='vertical'>
+                            <Space size={4} direction='vertical'>
+                                <Space size={4} direction='horizontal'>
+                                    <Typography.Title level={3}>
+                                        {isFreeForPartner ? FreeForPartnerMessage : (isCustomPrice ? price.name : `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`)}
+                                    </Typography.Title>
+                                    {!isCustomPrice && !isFreeForPartner && (
+                                        <Typography.Text type='secondary'>
+                                            / {PeriodMessage}
+                                        </Typography.Text>
+                                    )}
+                                </Space>
+                            </Space>
+                            {!isFreeForPartner && (
+                                <div className={styles.buttons}>
+                                    <Button
+                                        type='primary'
+                                        onClick={handleActivePlanClick}
+                                        loading={activateLoading}
+                                        disabled={hasPendingRequest || !price?.id || !canManageSubscriptions}
+                                    >
+                                        {primaryButtonLabel}
+                                    </Button>
+                                    {canActivateTrial && (
+                                        <Button
+                                            type='accent'
+                                            onClick={handleTrialActivateClick} 
+                                            loading={trialActivateLoading}
+                                            disabled={!canManageSubscriptions}
+                                        >
+                                            {TryFreeMessage}
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
+                        </Space>
                     </Space>
-                </Panel>
-            </Collapse>
+                </div>
+                <Collapse ghost className={styles.collapse}>
+                    <Panel
+                        header={<Typography.Text strong>{FeaturesTitle}</Typography.Text>}
+                        key='features'
+                    >
+                        <Space direction='vertical' size={8}>
+                            {BASE_FEATURES.map(renderFeature)}
+                            {allB2BAppIds.map((appId) => {
+                                const app = b2bAppsMap.get(appId)
+                                if (!app || !app.name) return null
+
+                                const enabledApps = plan.enabledB2BApps || []
+                                const isAvailable = enabledApps.includes(appId)
+
+                                return (
+                                    <FeatureItem
+                                        key={appId}
+                                        label={app.name}
+                                        available={isAvailable}
+                                        helpLink={subscriptionFeatureHelpLinks[appId]}
+                                    />
+                                )
+                            })}
+                            {PREMIUM_FEATURES.map(renderFeature)}
+                        </Space>
+                    </Panel>
+                </Collapse>
+            </Space>
         </Card>
     )
 }

@@ -37,3 +37,9 @@
   display: inline-flex;
   align-items: center;
 }
+
+@media (max-width: 768px) {
+  .subscription-plan-card {
+    width: 100%;
+  }
+}
