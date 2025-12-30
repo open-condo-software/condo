@@ -19,11 +19,11 @@ import React, { ComponentProps, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { Tooltip } from '@open-condo/ui'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { SafeUserMention } from '@condo/domains/common/components/ChangeHistory/SafeUserMention'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { TICKET_TYPE_TAG_STYLE } from '@condo/domains/ticket/constants/style'
@@ -250,7 +250,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                 const formattedValue = value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (
                     <Tooltip title={value}
                         placement='top'
-                        overlayStyle={DETAILS_TOOLTIP_STYLE}
+                        overlayInnerStyle={DETAILS_TOOLTIP_STYLE}
                     >
                         {value.slice(0, MAX_DESCRIPTION_DISPLAY_LENGTH) + '…'}
                     </Tooltip>
