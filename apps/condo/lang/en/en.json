@@ -3096,7 +3096,7 @@
   "subscription.accessGuard.learnMore": "Learn more about this section",
   "subscription.accessGuard.defaultPageTitle": "Section",
   "subscription.warns.noActiveSubscription": "To access this section, upgrade your plan or use a trial period",
-  "subscription.warns.activateSubscriptionButton": "Try for free",
+  "subscription.warns.activateSubscriptionButton": "Go to plans",
   "subscription.period.monthly": "Monthly",
   "subscription.period.yearly": "Yearly",
   "subscription.features.title": "Plan features",

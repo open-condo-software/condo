@@ -3096,7 +3096,7 @@
   "subscription.accessGuard.learnMore": "Узнать больше о разделе",
   "subscription.accessGuard.defaultPageTitle": "Раздел",
   "subscription.warns.noActiveSubscription": "Чтобы получить доступ к разделу, прокачайте свой тариф или воспользуйтесь пробным доступом",
-  "subscription.warns.activateSubscriptionButton": "Попробовать бесплатно",
+  "subscription.warns.activateSubscriptionButton": "Перейти в тарифы",
   "subscription.period.monthly": "На месяц",
   "subscription.period.yearly": "На год",
   "subscription.features.title": "Возможности тарифа",
