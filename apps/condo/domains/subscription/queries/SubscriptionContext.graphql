@@ -1,3 +1,20 @@
+query getOrganizationActivatedSubscriptions($organizationId: ID!) {
+    activatedSubscriptions: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+        }
+        sortBy: [createdAt_DESC]
+        first: 100
+    ) {
+        id
+        subscriptionPlan {
+            id
+            name
+            priority
+        }
+    }
+}
+
 query getOrganizationTrialSubscriptions($organizationId: ID!) {
     trialSubscriptions: allSubscriptionContexts(
         where: {

@@ -4978,6 +4978,55 @@ export type GetAvailableSubscriptionPlansQueryHookResult = ReturnType<typeof use
 export type GetAvailableSubscriptionPlansLazyQueryHookResult = ReturnType<typeof useGetAvailableSubscriptionPlansLazyQuery>;
 export type GetAvailableSubscriptionPlansSuspenseQueryHookResult = ReturnType<typeof useGetAvailableSubscriptionPlansSuspenseQuery>;
 export type GetAvailableSubscriptionPlansQueryResult = Apollo.QueryResult<Types.GetAvailableSubscriptionPlansQuery, Types.GetAvailableSubscriptionPlansQueryVariables>;
+export const GetOrganizationActivatedSubscriptionsDocument = gql`
+    query getOrganizationActivatedSubscriptions($organizationId: ID!) {
+  activatedSubscriptions: allSubscriptionContexts(
+    where: {organization: {id: $organizationId}}
+    sortBy: [createdAt_DESC]
+    first: 100
+  ) {
+    id
+    subscriptionPlan {
+      id
+      name
+      priority
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationActivatedSubscriptionsQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationActivatedSubscriptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationActivatedSubscriptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationActivatedSubscriptionsQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetOrganizationActivatedSubscriptionsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationActivatedSubscriptionsQuery, Types.GetOrganizationActivatedSubscriptionsQueryVariables> & ({ variables: Types.GetOrganizationActivatedSubscriptionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetOrganizationActivatedSubscriptionsQuery, Types.GetOrganizationActivatedSubscriptionsQueryVariables>(GetOrganizationActivatedSubscriptionsDocument, options);
+      }
+export function useGetOrganizationActivatedSubscriptionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationActivatedSubscriptionsQuery, Types.GetOrganizationActivatedSubscriptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetOrganizationActivatedSubscriptionsQuery, Types.GetOrganizationActivatedSubscriptionsQueryVariables>(GetOrganizationActivatedSubscriptionsDocument, options);
+        }
+export function useGetOrganizationActivatedSubscriptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationActivatedSubscriptionsQuery, Types.GetOrganizationActivatedSubscriptionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetOrganizationActivatedSubscriptionsQuery, Types.GetOrganizationActivatedSubscriptionsQueryVariables>(GetOrganizationActivatedSubscriptionsDocument, options);
+        }
+export type GetOrganizationActivatedSubscriptionsQueryHookResult = ReturnType<typeof useGetOrganizationActivatedSubscriptionsQuery>;
+export type GetOrganizationActivatedSubscriptionsLazyQueryHookResult = ReturnType<typeof useGetOrganizationActivatedSubscriptionsLazyQuery>;
+export type GetOrganizationActivatedSubscriptionsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationActivatedSubscriptionsSuspenseQuery>;
+export type GetOrganizationActivatedSubscriptionsQueryResult = Apollo.QueryResult<Types.GetOrganizationActivatedSubscriptionsQuery, Types.GetOrganizationActivatedSubscriptionsQueryVariables>;
 export const GetOrganizationTrialSubscriptionsDocument = gql`
     query getOrganizationTrialSubscriptions($organizationId: ID!) {
   trialSubscriptions: allSubscriptionContexts(
