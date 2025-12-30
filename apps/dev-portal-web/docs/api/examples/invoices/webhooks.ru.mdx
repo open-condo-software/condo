@@ -1,0 +1,208 @@
+## Общая информация
+
+Вебхуки позволяют получать уведомления в реальном времени при изменении статуса оплаты счета.
+Это полезно для интеграции с внешними системами, которым необходимо реагировать на события оплаты.
+
+## Как это работает
+
+1. **Зарегистрируйте URL вебхука** в белом списке (обратитесь в поддержку)
+2. **Создайте счет** с указанием поля `paymentStatusChangeWebhookUrl` с вашим зарегистрированным URL
+3. **Сохраните секрет**, возвращенный в `paymentStatusChangeWebhookSecret` — он понадобится для проверки подписи вебхуков
+4. **Получайте вебхуки** при изменении статуса оплаты (например, с `processing` на `done`)
+
+## Поля счета для вебхуков
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| `paymentStatusChangeWebhookUrl` | String (URL) | URL вашего эндпоинта для вебхуков. Должен быть зарегистрирован в белом списке. |
+| `paymentStatusChangeWebhookSecret` | String | Автоматически сгенерированный секрет для проверки подписи. Только для чтения. |
+
+## Создание счета с вебхуком
+
+При создании счета укажите поле `paymentStatusChangeWebhookUrl`. Система автоматически сгенерирует секрет.
+
+<Tabs labels={['Пример GQL-запроса', 'Пример ответа']}>
+    ```graphql
+    mutation createInvoice {
+      obj: createInvoice(
+        data: {
+          dv: 1,
+          sender: {dv: 1, fingerprint: "my-service"},
+          organization: {connect: {id: "e40b5367-49a8-4340-9eed-802538331326"}},
+          property: {connect: {id: "809bff2d-b1ff-485e-b2e9-33b4c5974d3b"}},
+          unitName: "42",
+          unitType: flat,
+          clientPhone: "+79999999999",
+          clientName: "Иванов Иван",
+          toPay: "1500",
+          rows: [{name: "Оплата услуги", count: 1, toPay: "1500", isMin: false}],
+          paymentType: online,
+          status: published,
+          paymentStatusChangeWebhookUrl: "https://your-service.com/webhook/payment"
+        }
+      ) {
+        id
+        number
+        status
+        paymentStatusChangeWebhookUrl
+        paymentStatusChangeWebhookSecret
+      }
+    }
+    ```
+    ```json
+    {
+      "data": {
+        "obj": {
+          "id": "34b5c321-c086-4540-bca8-18f2f586be7d",
+          "number": 15,
+          "status": "published",
+          "paymentStatusChangeWebhookUrl": "https://your-service.com/webhook/payment",
+          "paymentStatusChangeWebhookSecret": "a1b2c3d4e5f6..."
+        }
+      }
+    }
+    ```
+</Tabs>
+
+<Alert type="warning">
+    Сохраните `paymentStatusChangeWebhookSecret` в безопасном месте! Он понадобится для проверки подписи вебхуков.
+    Секрет зашифрован и может быть прочитан только при создании или запросе счета.
+</Alert>
+
+## Тело вебхука
+
+При изменении статуса оплаты система отправляет HTTP POST запрос на ваш URL вебхука со следующим телом:
+
+```json
+{
+  "__typename": "Payment",
+  "id": "payment-uuid",
+  "v": 2,
+  "dv": 1,
+  "status": "done",
+  "amount": "1500.00000000",
+  "currencyCode": "RUB",
+  "organization": {
+    "__typename": "Organization",
+    "id": "org-uuid",
+    "name": "Название организации"
+  },
+  "invoice": {
+    "__typename": "Invoice",
+    "id": "invoice-uuid",
+    "number": 15,
+    "toPay": "1500.00000000"
+  },
+  "receipt": null,
+  "createdAt": "2024-12-16T10:00:00.000Z",
+  "updatedAt": "2024-12-16T10:05:00.000Z"
+}
+```
+
+### Статусы оплаты
+
+| Статус | Описание |
+|--------|----------|
+| `created` | Создан в базе данных condo |
+| `processing` | Создан во внешнем эквайринге |
+| `withdrawn` | Списан со счета плательщика |
+| `done` | Зачислено получателю |
+| `error` | Ошибка |
+
+## Заголовки вебхука
+
+Каждый запрос вебхука включает следующие заголовки:
+
+| Заголовок | Описание |
+|-----------|----------|
+| `Content-Type` | `application/json` |
+| `X-Webhook-Signature` | HMAC подпись тела запроса (см. `X-Webhook-Signature-Algorithm`) |
+| `X-Webhook-Signature-Algorithm` | Хеш-алгоритм для HMAC (возможные значения: `sha256`, `sha384`, `sha512`) |
+| `X-Webhook-Id` | Уникальный идентификатор вебхука |
+
+## Проверка подписи вебхука
+
+Чтобы убедиться в подлинности вебхука, проверьте заголовок `X-Webhook-Signature` с помощью секрета, полученного при создании счета.
+Используйте заголовок `X-Webhook-Signature-Algorithm` для выбора хеш-алгоритма для HMAC.
+
+### Пример на Node.js
+
+```javascript
+const crypto = require('node:crypto')
+
+function verifyWebhookSignature(rawBody, signature, secret, algorithm) {
+    const allowedAlgorithms = new Set(['sha256', 'sha384', 'sha512'])
+    if (!allowedAlgorithms.has(algorithm)) return false
+
+    const expectedSignature = crypto
+        .createHmac(algorithm, secret)
+        .update(rawBody)
+        .digest('hex')
+    
+    return signature === expectedSignature
+}
+
+// Пример middleware для Express.js
+app.post('/webhook/payment', express.text({ type: 'application/json' }), (req, res) => {
+    const signature = req.headers['x-webhook-signature']
+    const algorithm = req.headers['x-webhook-signature-algorithm'] || 'sha256'
+    const webhookId = req.headers['x-webhook-id']
+    const rawBody = req.body
+    
+    // Получаем сохраненный секрет для этого счета
+    const secret = getStoredSecretForInvoice(invoiceId)
+    
+    if (!verifyWebhookSignature(rawBody, signature, secret, algorithm)) {
+        return res.status(401).json({ error: 'Invalid signature' })
+    }
+    
+    const payload = JSON.parse(rawBody)
+    
+    // Обрабатываем вебхук
+    console.log(`Статус платежа ${payload.id} изменен на ${payload.status}`)
+    
+    res.status(200).json({ status: 'ok' })
+})
+```
+
+## Белый список URL
+
+В целях безопасности перед использованием URL вебхуков должны быть зарегистрированы в белом списке.
+
+<Alert type="info">
+    Обратитесь в поддержку для регистрации URL вебхука в белом списке.
+</Alert>
+
+## Лучшие практики
+
+1. **Всегда проверяйте подпись** — Никогда не доверяйте телу вебхука без проверки подписи
+2. **Отвечайте быстро** — Возвращайте ответ 2xx в течение нескольких секунд для подтверждения получения
+3. **Обрабатывайте дубликаты** — Используйте `X-Webhook-Id` для обнаружения и обработки повторных доставок
+4. **Храните секреты безопасно** — Держите секреты вебхуков зашифрованными и никогда не выводите их в логи
+5. **Используйте HTTPS** — Всегда используйте HTTPS эндпоинты в продакшене
+
+## Политика повторных попыток
+
+Если доставка вебхука не удалась, система автоматически повторит попытку с экспоненциальной задержкой. Повторные попытки продолжаются до **7 дней** с момента первой попытки.
+
+| Попытка | Задержка после предыдущей |
+|---------|---------------------------|
+| 1 | Немедленно |
+| 2 | 1 минута |
+| 3 | 5 минут |
+| 4 | 30 минут |
+| 5 | 2 часа |
+| 6 | 6 часов |
+| 7+ | 24 часа (ежедневно) |
+
+<Alert type="info">
+    После 7 дней неудачных попыток доставки вебхук помечается как окончательно неудавшийся, и дальнейшие попытки не предпринимаются.
+</Alert>
+
+## Обработка ошибок
+
+Если ваш эндпоинт вебхука возвращает код ответа, отличный от 2xx, система повторит доставку. Убедитесь, что:
+
+- Возвращаете `200 OK` при успешной обработке
+- Возвращаете `401 Unauthorized` при ошибке проверки подписи
+- Возвращаете `500 Internal Server Error` при временных сбоях (будет повторная попытка)
