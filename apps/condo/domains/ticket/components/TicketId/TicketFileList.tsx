@@ -40,12 +40,12 @@ const UploadListWrapperStyles = css`
 export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     const { downloadFile } = useDownloadFileFromServer()
 
-    const uploadFiles = useMemo(() => files.map(({ file }) => ({
-        uid: file.id,
-        name: file.originalFilename,
+    const uploadFiles = useMemo(() => (files ?? []).filter(Boolean).map(({ file }) => ({
+        uid: file?.id,
+        name: file?.originalFilename,
         status: 'done' as UploadFileStatus,
-        url: file.publicUrl,
-    })), [files])
+        url: file?.publicUrl,
+    })).filter(item => item.uid), [files])
 
     const handleFileDownload = useCallback(async (file: UploadFile) => {
         await downloadFile({ name: file.name, url: file.url })

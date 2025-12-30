@@ -200,7 +200,7 @@ const resolveManyToManyField = async (fieldName, ref, displayNameRef, displayNam
             // NOTE: We don't know the id of the created records, so we need to calculate them and delete them from the array of existing records.
             let newConnectedDisplayNameRefIds = new Set(map(originalInput[fieldName].create, `${displayNameRef}.connect.id`))
             if (newConnectedDisplayNameRefIds.size > 0) {
-                let createdRefIds = updatedResult.data.ticket[fieldName]
+                const createdRefIds = updatedResult.data.ticket[fieldName]
                     .filter(item => item[displayNameRef]?.id && newConnectedDisplayNameRefIds.has(item[displayNameRef].id))
                     .map(item => item.id)
                 existing.ids = difference(existing.ids, createdRefIds)
@@ -220,7 +220,7 @@ const resolveManyToManyField = async (fieldName, ref, displayNameRef, displayNam
         variables: { ids: existing.ids },
     })
     if (existingResult.error) {
-        console.error('Error while fetching users in relatedManyToManyResolvers of changeTrackable for a Ticket', updatedResult.errors)
+        console.error(`Error while fetching ${ref} items in relatedManyToManyResolvers of changeTrackable for a Ticket`, existingResult.errors)
         return {}
     }
     if (existingResult.data.items) {

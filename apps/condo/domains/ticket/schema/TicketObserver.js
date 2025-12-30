@@ -43,13 +43,16 @@ const TicketObserver = new GQLListSchema('TicketObserver', {
     hooks: {
         validateInput: async ({ existingItem, resolvedData, context }) => {
             if (existingItem) return
-        
+            
+            // We require `ticket` only for direct TicketObserver creation.
+            // When TicketObserver is created via nested mutation from Ticket.observers.create,
+            // Keystone doesn't pass `ticket` in resolvedData (it will be connected implicitly),
+            // so we must not block that case.
             const ticketRel = resolvedData.ticket
             if (!ticketRel) {
-                // We require `ticket` only for direct TicketObserver creation.
-                // When TicketObserver is created via nested mutation from Ticket.observers.create,
-                // Keystone doesn't pass `ticket` in resolvedData (it will be connected implicitly),
-                // so we must not block that case.
+                
+                // TODO: Replace this with a reliable way to detect nested create vs direct mutation.
+                // Current check relies on client-provided operationName and is not robust.
                 const operationName = context?.req?.body?.operationName || ''
                 const isDirectTicketObserverCreate = typeof operationName === 'string' && operationName.includes('TicketObserver')
 
