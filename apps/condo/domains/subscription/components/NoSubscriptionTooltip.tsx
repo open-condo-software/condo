@@ -3,19 +3,16 @@ import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Space, Tooltip, Typography } from '@open-condo/ui'
+import type { TooltipProps } from '@open-condo/ui'
 
 import { SETTINGS_TAB_SUBSCRIPTION } from '@condo/domains/common/constants/settingsTabs'
 
-export interface INoSubscriptionToolTipWrapper {
-    key?: string
-    element: JSX.Element
+export interface NoSubscriptionTooltipProps {
+    children: React.ReactElement
+    placement?: TooltipProps['placement']
 }
 
-interface INoSubscriptionToolTipHook {
-    wrapElementIntoNoSubscriptionToolTip: (params: INoSubscriptionToolTipWrapper) => JSX.Element
-}
-
-export const useNoSubscriptionToolTip = (): INoSubscriptionToolTipHook => {
+export const NoSubscriptionTooltip: React.FC<NoSubscriptionTooltipProps> = ({ children, placement = 'right' }) => {
     const intl = useIntl()
     const router = useRouter()
 
@@ -39,17 +36,12 @@ export const useNoSubscriptionToolTip = (): INoSubscriptionToolTipHook => {
         </Space>
     )
 
-    const wrapElementIntoNoSubscriptionToolTip = (params: INoSubscriptionToolTipWrapper): JSX.Element => {
-        return (
-            <Tooltip
-                key={params.key}
-                title={tooltipTitle}
-                placement='right'
-            >
-                {params.element}
-            </Tooltip>
-        )
-    }
-
-    return { wrapElementIntoNoSubscriptionToolTip }
+    return (
+        <Tooltip
+            title={tooltipTitle}
+            placement={placement}
+        >
+            {children}
+        </Tooltip>
+    )
 }

@@ -11,8 +11,9 @@ import { ActionBar, Button, Space, Switch, Typography } from '@open-condo/ui'
 import { useAIConfig } from '@condo/domains/ai/hooks/useAIFlow'
 import { LabeledField } from '@condo/domains/common/components/LabeledField'
 import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
+import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
 import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
-import { useOrganizationSubscription, useNoSubscriptionToolTip } from '@condo/domains/subscription/hooks'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
@@ -31,7 +32,6 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
     const { enabled: aiEnabled, features: { generateNewsByIncident: generateNewsByIncidentEnabled } } = useAIConfig()
 
     const { isFeatureAvailable } = useOrganizationSubscription()
-    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
     const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
     const hasNewsFeature = isFeatureAvailable(FEATURE_KEY.NEWS)
     const hasRequiredFeatures = hasAiFeature && hasNewsFeature
@@ -71,25 +71,22 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
                                 </Space>
                             </LabeledField>
                         ) : (
-                            wrapElementIntoNoSubscriptionToolTip({
-                                key: 'generateNews',
-                                element: (
-                                    <div>
-                                        <LabeledField hint={GenerateNewsHint}>
-                                            <Space size={8}>
-                                                <Switch
-                                                    id='generateNews'
-                                                    size='small'
-                                                    disabled
-                                                />
-                                                <Typography.Text type='secondary'>
-                                                    {GenerateNewsLabel}
-                                                </Typography.Text>
-                                            </Space>
-                                        </LabeledField>
-                                    </div>
-                                ),
-                            })
+                            <NoSubscriptionTooltip key='generateNews'>
+                                <div>
+                                    <LabeledField hint={GenerateNewsHint}>
+                                        <Space size={8}>
+                                            <Switch
+                                                id='generateNews'
+                                                size='small'
+                                                disabled
+                                            />
+                                            <Typography.Text type='secondary'>
+                                                {GenerateNewsLabel}
+                                            </Typography.Text>
+                                        </Space>
+                                    </LabeledField>
+                                </div>
+                            </NoSubscriptionTooltip>
                         ),
                     ] 
                     : []

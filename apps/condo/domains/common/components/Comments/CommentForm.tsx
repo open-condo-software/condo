@@ -12,8 +12,9 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
+import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
 import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
-import { useOrganizationSubscription, useNoSubscriptionToolTip } from '@condo/domains/subscription/hooks'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
 import styles from './Comments.module.css'
@@ -160,7 +161,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
 
     const { isFeatureAvailable } = useOrganizationSubscription()
-    const { wrapElementIntoNoSubscriptionToolTip } = useNoSubscriptionToolTip()
     const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
 
     const editableCommentFiles = editableComment?.files
@@ -416,24 +416,21 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                             onClick={handleUpdateComment}
                                         />
                                     ) : (
-                                        wrapElementIntoNoSubscriptionToolTip({
-                                            key: 'rewriteButton',
-                                            element: (
-                                                <div>
-                                                    <Button
-                                                        compact
-                                                        minimal
-                                                        type='secondary'
-                                                        size='medium'
-                                                        disabled
-                                                        icon={<Sparkles size='small' />}
-                                                        className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
-                                                    >
-                                                        {UpdateTextMessage}
-                                                    </Button>
-                                                </div>
-                                            ),
-                                        })
+                                        <NoSubscriptionTooltip key='rewriteButton'>
+                                            <div>
+                                                <Button
+                                                    compact
+                                                    minimal
+                                                    type='secondary'
+                                                    size='medium'
+                                                    disabled
+                                                    icon={<Sparkles size='small' />}
+                                                    className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
+                                                >
+                                                    {UpdateTextMessage}
+                                                </Button>
+                                            </div>
+                                        </NoSubscriptionTooltip>
                                     ),
                                 ] : []),
                             ]}
