@@ -2,6 +2,7 @@ import {
     GetAvailableSubscriptionPlansQueryResult,
     GetPendingSubscriptionRequestsQueryResult,
     GetOrganizationTrialSubscriptionsQuery,
+    GetOrganizationActivatedSubscriptionsQuery,
 } from '@app/condo/gql'
 import { OrganizationFeature } from '@app/condo/schema'
 import { Collapse } from 'antd'
@@ -64,11 +65,13 @@ interface FeatureItemProps {
 
 type PendingRequest = GetPendingSubscriptionRequestsQueryResult['data']['pendingRequests'][number]
 type TrialContextType = GetOrganizationTrialSubscriptionsQuery['trialSubscriptions'][number]
+type ActivatedSubscriptionType = GetOrganizationActivatedSubscriptionsQuery['activatedSubscriptions'][number]
 
 interface SubscriptionPlanCardProps { 
     planInfo: PlanType
     activatedTrial?: TrialContextType
     pendingRequest?: PendingRequest
+    activatedSubscriptions: ActivatedSubscriptionType[]
     handleActivatePlan: (priceId: string, isTrial: boolean) => void
     b2bAppsMap: Map<string, { id: string, name?: string }>
     allB2BAppIds: string[]
@@ -148,7 +151,7 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     )
 }
 
-export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, handleActivatePlan, b2bAppsMap, allB2BAppIds }) => {
+export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, handleActivatePlan, b2bAppsMap, allB2BAppIds }) => {
     const intl = useIntl()
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
@@ -172,7 +175,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const priceInteger = price?.price !== null && price?.price !== undefined ? Math.floor(Number(price.price)) : -1
     const formattedPrice = priceInteger >= 0 ? priceInteger.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
     const isFreeForPartner = hasActiveBanking && isActiveBankingPlan
-    const canActivateTrial = !activatedTrial && plan.trialDays > 0
+
+    const hasActivatedThisPlanOrHigher = activatedSubscriptions.some(
+        ctx => ctx.subscriptionPlan && (
+            ctx.subscriptionPlan.id === plan.id || 
+            ctx.subscriptionPlan.priority > (plan.priority || 0)
+        )
+    )
+    const canActivateTrial = !activatedTrial && plan.trialDays > 0 && !hasActivatedThisPlanOrHigher
 
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
     const [trialActivateLoading, setTrialActivateLoading] = useState<boolean>(false)

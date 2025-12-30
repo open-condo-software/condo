@@ -1,4 +1,4 @@
-import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetOrganizationTrialSubscriptionsQuery, useActivateSubscriptionPlanMutation, useGetPendingSubscriptionRequestsQuery, useGetB2BAppsByIdsQuery } from '@app/condo/gql'
+import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetOrganizationTrialSubscriptionsQuery, useActivateSubscriptionPlanMutation, useGetPendingSubscriptionRequestsQuery, useGetB2BAppsByIdsQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
 import { notification } from 'antd'
 import React, { useState, useMemo } from 'react'
 
@@ -88,8 +88,14 @@ export const SubscriptionSettingsContent: React.FC = () => {
         skip: !organization?.id,
     })
 
+    const { data: activatedSubscriptionsData, loading: activatedSubscriptionsLoading, refetch: refetchActivatedSubscriptions } = useGetOrganizationActivatedSubscriptionsQuery({
+        variables: { organizationId: organization?.id },
+        skip: !organization?.id,
+    })
+
     const trialSubscriptions = trialSubscriptionsData?.trialSubscriptions || []
     const pendingRequests = pendingRequestsData?.pendingRequests || []
+    const activatedSubscriptions = activatedSubscriptionsData?.activatedSubscriptions || []
 
     const [activateSubscriptionPlan] = useActivateSubscriptionPlanMutation()
 
@@ -112,6 +118,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
             if (isTrial) {
                 await refetchTrialSubscriptions()
                 await refetchPendingRequests()
+                await refetchActivatedSubscriptions()
                 if (employee?.id) {
                     await selectEmployee(employee.id)
                 }
@@ -138,7 +145,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
     }
     
 
-    const isLoading = plansLoading || trialSubscriptionsLoading || pendingRequestsLoading
+    const isLoading = plansLoading || trialSubscriptionsLoading || pendingRequestsLoading || activatedSubscriptionsLoading
     if (isLoading) return <Loader />
 
     return (
@@ -170,6 +177,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                             handleActivatePlan={handleActivatePlan}
                             activatedTrial={activatedTrial}
                             pendingRequest={pendingRequest}
+                            activatedSubscriptions={activatedSubscriptions}
                             b2bAppsMap={b2bAppsMap}
                             allB2BAppIds={allB2BAppIds}
                         />
