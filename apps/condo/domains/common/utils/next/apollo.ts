@@ -106,6 +106,11 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
+                    allTicketObservers: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
                     allInvoices: {
                         keyArgs: ['where'],
                         read: listHelper.getReadFunction('paginate'),

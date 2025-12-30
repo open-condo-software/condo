@@ -528,6 +528,7 @@
   "api.ticket.ticketDocumentGenerationTask.STATUS_IS_ALREADY_COMPLETED": "Tarea ya completada con éxito",
   "api.ticket.ticketDocumentGenerationTask.STATUS_IS_ALREADY_ERROR": "La tarea ya se ha completado con un error",
   "api.ticket.updateResidentTicket.TICKET_NOT_FOUND": "No se ha encontrado la incidencia con id \"{ticketId}\" para el usuario actual",
+  "api.ticket.ticketObserver.TICKET_REQUIRED": "La incidencia es obligatoria para crear un observador",
   "api.user.CAPTCHA_CHECK_FAILED": "No se pudo completar la operación. Actualiza la aplicación para continuar",
   "api.user.CREDENTIAL_VALIDATION_FAILED": "No se pudo autorizar al usuario",
   "api.user.DAILY_REQUEST_LIMIT_FOR_EMAIL_REACHED": "Has creado demasiadas incidencias con este correo electrónico. Por favor, inténtalo más tarde",

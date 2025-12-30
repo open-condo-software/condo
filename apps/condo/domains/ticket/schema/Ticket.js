@@ -364,19 +364,19 @@ const Ticket = new GQLListSchema('Ticket', {
         // who accept
 
         assignee: {
-            schemaDoc: 'Assignee/responsible employee/user who must ensure that the issue is fulfilled',
+            schemaDoc: 'Assignee/responsible is an employee user who must ensure that the issue is fulfilled',
             type: 'Relationship',
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         executor: {
-            schemaDoc: 'Executor employee/user who perform the issue',
+            schemaDoc: 'Executor is an employee user who perform the issue',
             type: 'Relationship',
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         observers: {
-            schemaDoc: 'Observers employees/users who will be notified about the ticket',
+            schemaDoc: 'Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket',
             type: 'Relationship',
             ref: 'TicketObserver.ticket',
             many: true, 

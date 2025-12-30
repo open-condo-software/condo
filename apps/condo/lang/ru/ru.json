@@ -528,6 +528,7 @@
   "api.ticket.ticketDocumentGenerationTask.STATUS_IS_ALREADY_COMPLETED": "Задача уже успешно выполнена",
   "api.ticket.ticketDocumentGenerationTask.STATUS_IS_ALREADY_ERROR": "Задача уже завершилась с ошибкой",
   "api.ticket.updateResidentTicket.TICKET_NOT_FOUND": "Не найдена заявка с id \"{ticketId}\" для текущего пользователя",
+  "api.ticket.ticketObserver.TICKET_REQUIRED": "Заявка обязательна для создания наблюдателя",
   "api.user.CAPTCHA_CHECK_FAILED": "Не удалось завершить операцию. Пожалуйста, обновите приложение",
   "api.user.CREDENTIAL_VALIDATION_FAILED": "Не удалось авторизовать пользователя",
   "api.user.DAILY_REQUEST_LIMIT_FOR_EMAIL_REACHED": "С использованием вашей почты поступает очень много запросов, попробуйте позже",

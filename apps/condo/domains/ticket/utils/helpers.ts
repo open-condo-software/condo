@@ -1,17 +1,22 @@
 import { ParsedUrlQuery } from 'querystring'
 
+import { GetTicketObserversByTicketIdQuery } from '@app/condo/gql'
 import {
     Ticket,
     TicketOrganizationSetting,
     TicketStatus,
     TicketStatusWhereInput,
     TicketWhereInput,
+    TicketObserverRelateToManyInput,
 } from '@app/condo/schema'
 import { SortOrder } from 'antd/es/table/interface'
 import dayjs  from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { get, isNull } from 'lodash'
+import get from 'lodash/get'
+import isNull from 'lodash/isNull'
+
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE, DEFERRED_STATUS_TYPE, COMPLETED_STATUS_TYPE } from '@condo/domains/ticket/constants'
@@ -479,3 +484,38 @@ export function isCompletedTicket (ticket: Ticket): boolean {
     const ticketStatusType = get(ticket, ['status', 'type'])
     return ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE || ticketStatusType === COMPLETED_STATUS_TYPE
 }
+
+export function buildTicketObserversPayload ({
+    existingObserversList,
+    updatedObserverUserIds,
+    isEnabled,
+}: {
+    existingObserversList: GetTicketObserversByTicketIdQuery['observers']
+    updatedObserverUserIds: unknown
+    isEnabled: boolean
+}): TicketObserverRelateToManyInput | undefined {
+    if (!isEnabled) return undefined
+
+    const updatedObserverUserIdsArray = Array.isArray(updatedObserverUserIds) ? updatedObserverUserIds.filter((userId): userId is string => typeof userId === 'string') : []
+
+    const existingUserIdSet = new Set(existingObserversList.map((o) => o?.user?.id).filter(Boolean))
+    const updatedUserIdSet = new Set(updatedObserverUserIdsArray)
+
+    const observerUserIdsToCreate = updatedObserverUserIdsArray.filter((userId) => !existingUserIdSet.has(userId))
+    const observerIdsToDisconnect = existingObserversList
+        .filter((o) => o?.user?.id && !updatedUserIdSet.has(o.user.id))
+        .map((o) => o.id)
+
+    if (observerUserIdsToCreate.length === 0 && observerIdsToDisconnect.length === 0) return undefined
+
+    return {
+        create: observerUserIdsToCreate.map((userId) => ({
+            user: { connect: { id: userId } },
+            dv: 1,
+            sender: getClientSideSenderInfo(),
+        })),
+        ...(observerIdsToDisconnect.length > 0 ? { disconnect: observerIdsToDisconnect.map((ticketObserverId) => ({ id: ticketObserverId })) } : {}),
+    }
+}
+
+

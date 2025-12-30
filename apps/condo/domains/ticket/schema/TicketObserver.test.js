@@ -9,15 +9,17 @@ const {
     makeClient,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowValidationFailureError,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
+    createTestOrganizationWithAccessToAnotherOrganization,
+    updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { TICKET_OBSERVER_TICKET_REQUIRED } = require('@condo/domains/ticket/constants/errors')
+const { ERRORS } = require('@condo/domains/ticket/schema/TicketObserver')
 const {
     TicketObserver,
     createTestTicket,
@@ -26,7 +28,6 @@ const {
     updateTestTicketObserver,
 } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-
 
 describe('TicketObserver', () => {
     describe('access: read/update by organization', () => {
@@ -46,6 +47,25 @@ describe('TicketObserver', () => {
             expect(observers[0].id).toEqual(observer.id)
 
             const [updated] = await updateTestTicketObserver(staff2, observer.id)
+            expect(updated.id).toEqual(observer.id)
+            expect(updated.v).toEqual(2)
+        })
+
+        test('staff from related organization can read and update', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+
+            const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, { canReadTickets: true, canManageTickets: true })
+            await updateTestOrganizationEmployee(admin, employeeFrom.id, { role: { connect: { id: role.id } } })
+
+            const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
+            const [observer] = await createTestTicketObserver(admin, ticket, admin.user)
+
+            const observers = await TicketObserver.getAll(clientFrom, { id: observer.id })
+            expect(observers).toHaveLength(1)
+            expect(observers[0].id).toEqual(observer.id)
+
+            const [updated] = await updateTestTicketObserver(clientFrom, observer.id)
             expect(updated.id).toEqual(observer.id)
             expect(updated.v).toEqual(2)
         })
@@ -76,9 +96,9 @@ describe('TicketObserver', () => {
                 user: { connect: { id: admin.user.id } },
             }
 
-            await expectToThrowValidationFailureError(async () => {
+            await expectToThrowGQLError(async () => {
                 await TicketObserver.create(admin, attrs)
-            }, TICKET_OBSERVER_TICKET_REQUIRED)
+            }, ERRORS.TICKET_REQUIRED)
         })
 
         test('nested create from Ticket.observers: should not require ticket field', async () => {

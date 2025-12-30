@@ -7,12 +7,14 @@ import Link from 'next/link'
 import { FC, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import {
     Typography,
 } from '@open-condo/ui'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
 
@@ -27,6 +29,8 @@ export const TicketObserversField: FC<TicketObserversFieldProps> = ({ ticket }) 
     const ticketOrganizationId = useMemo(() => ticket?.organization?.id || null, [ticket])
 
     const { persistor } = useCachePersistor()
+    const { useFlag } = useFeatureFlags()
+    const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
 
     const {
         data: ticketObserversData,
@@ -76,7 +80,7 @@ export const TicketObserversField: FC<TicketObserversFieldProps> = ({ ticket }) 
 
     const isLoading = ticketObserversLoading || observersLoading
 
-    if (isLoading) return null
+    if (isLoading ||  !isTicketObserversEnabled) return null
 
     return (
         <PageFieldRow title={ObserversMessage} ellipsis>
