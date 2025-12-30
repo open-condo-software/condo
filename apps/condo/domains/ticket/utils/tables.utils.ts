@@ -169,12 +169,18 @@ export const getPropertyScopeFilter = () => {
     }
 }
 
-export const getTicketTypeFilter = (userId) => {
+export const getTicketTypeFilter = (userId, { includeObservers = false } = {}) => {
     return function getWhereQuery (option) {
         if (isEmpty(option)) return
 
         if (option === 'own') {
-            return { OR: [{ executor: { id: userId }, assignee: { id: userId } }] }
+            const ownTicketFilter = {
+                executor: { id: userId },
+                assignee: { id: userId },
+                ...(includeObservers ? { observers_some: { user: { id: userId } } } : {}),
+            }
+
+            return { OR: [ownTicketFilter] }
         }
 
         if (option === 'favorite') {

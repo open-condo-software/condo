@@ -108,6 +108,10 @@ query getTicketChanges ($ticketId: ID!) {
         qualityControlCommentTo
         qualityControlAdditionalOptionsFrom
         qualityControlAdditionalOptionsTo
+        observersIdsFrom
+        observersIdsTo
+        observersDisplayNamesFrom
+        observersDisplayNamesTo
     }
 }
 

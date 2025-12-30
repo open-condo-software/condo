@@ -20,6 +20,7 @@ type TicketFieldsKeys = 'property'
 | 'details'
 | 'executor'
 | 'assignee'
+| 'observers'
 type ITicketFieldsRuleMap = {
     [Key in TicketFieldsKeys]: Rule[]
 }
@@ -60,5 +61,6 @@ export function useTicketValidations (): ITicketFieldsRuleMap {
         ],
         executor: [],
         assignee: [],
+        observers: [],
     }), [ClassifierIsRequiredMessage, DescriptionInvalidLengthMessage, EmailErrorMessage, FullNameInvalidCharMessage, FullNameRequiredMessage, PropertyIsRequired, SelectIsRequiredMessage, changeMessage, emailValidator, phoneValidator, requiredValidator, specCharValidator, trimValidator])
 }

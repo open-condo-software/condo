@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { MUTATION_RESULT_EVENT, MutationEmitter, useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
@@ -20,6 +21,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Space, Typography, Tour } from '@open-condo/ui'
 
+import { TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
@@ -32,7 +34,7 @@ import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { ClientCardTab, getClientCardTabKey } from '@condo/domains/ticket/utils/clientSchema/clientCard'
-import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+import { getTicketDefaultDeadline, buildTicketObserversPayload } from '@condo/domains/ticket/utils/helpers'
 
 dayjs.extend(isToday)
 
@@ -141,6 +143,9 @@ export const CreateTicketForm: React.FC = () => {
     const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
     const { requestFeature } = useGlobalAppsFeaturesContext()
 
+    const { useFlag } = useFeatureFlags()
+    const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
+
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
     const redirectToClientCard = useMemo(() => !!router?.query?.redirectToClientCard || null, [router])
 
@@ -208,7 +213,12 @@ export const CreateTicketForm: React.FC = () => {
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
-        const { newInvoices, ...ticketValues } = variables
+        const { newInvoices, observers, ...ticketValues } = variables
+        const observersPayload = buildTicketObserversPayload({
+            existingObserversList: [],
+            updatedObserverUserIds: observers,
+            isEnabled: isTicketObserversEnabled,
+        })
 
         const { data: ticketData } = await createTicketAction({
             variables: {
@@ -219,6 +229,7 @@ export const CreateTicketForm: React.FC = () => {
                         connect: { id: OPEN_STATUS },
                     },
                     organization: { connect: { id: organization.id } },
+                    ...(observersPayload ? { observers: observersPayload } : {}),
                     ...Ticket.formValuesProcessor({ ...ticketValues, deadline }),
                 },
             },
@@ -279,13 +290,14 @@ export const CreateTicketForm: React.FC = () => {
         }
 
         return ticket
-    }, [createTicketAction, organization.id, getCompletedNotification, client, getPaymentLink, intl, createInvoiceAction, getPublishTicketInvoices, requestFeature])
+    }, [createTicketAction, organization.id, getCompletedNotification, getPaymentLink, intl, createInvoiceAction, getPublishTicketInvoices, requestFeature, isTicketObserversEnabled])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,
         assignee: userId,
         executor: userId,
         invoices: [],
+        observers: [],
     }), [userId, initialValuesFromQuery])
 
     return useMemo(() => (

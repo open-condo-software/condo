@@ -99,6 +99,7 @@ const BASE_TICKET_CHANGE_FIELDS: Array<TicketChangeFieldDefinition> = [
     { field: 'qualityControlValue', messageId: 'pages.condo.ticket.TicketChanges.qualityControlValue' },
     { field: 'qualityControlAdditionalOptions', messageId: 'pages.condo.ticket.TicketChanges.qualityControlAdditionalOptions' },
     { field: 'qualityControlComment', messageId: 'pages.condo.ticket.TicketChanges.qualityControlComment', customMessages: { add: 'pages.condo.ticket.TicketChanges.qualityControlComment.add' } },
+    { field: 'observersDisplayNames', messageId: 'pages.condo.ticket.TicketChanges.observers', customMessages: { add: 'pages.condo.ticket.TicketChanges.observers.add', remove: 'pages.condo.ticket.TicketChanges.observers.remove' } },
 ]
 
 const PRIORITY_FIELDS = ['statusReopenedCounter']
@@ -333,6 +334,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                 )
             },
             qualityControlComment: (field, value) => <Typography.Text>«<Typography.Text type='secondary'>{value}</Typography.Text>»</Typography.Text>,
+            observersDisplayNames: (field, value: string[]) => <Typography.Text>{value.join(', ')}</Typography.Text>,
         }
 
         return has(formatterFor, field)
@@ -341,6 +343,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
     }
 
     const formatDiffMessage = (field, message, ticketChange, customMessages: ITicketChangeFieldMessages = {}) => {
+
         if (typeof ticketChange[`${field}To`] === 'boolean') {
             const valueTo = BooleanToString[field][ticketChange[`${field}To`]]
             const formattedValueTo = formatField(field, valueTo, TicketChangeFieldMessageType.To)
@@ -372,6 +375,42 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
 
         if (isAutoCloseTicketChanges(ticketChange)) {
             return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoCloseTicket' }, { status: formattedValueTo })
+        }
+
+        if (Array.isArray(valueFrom) && Array.isArray(valueTo)) {
+            const addedObservers = valueTo.filter(observer => !valueFrom.includes(observer))
+            const removedObservers = valueFrom.filter(observer => !valueTo.includes(observer))
+            const newValues = {
+                field: message,
+                addedObservers: addedObservers.join(', '),
+                removedObservers: removedObservers.join(', '),
+            }
+
+            if (addedObservers.length === 0 && removedObservers.length === 0) {
+                return null
+            }
+
+            return (
+                <>
+                    {addedObservers.length > 0 && (
+                        <>
+                            <SafeUserMention changeValue={ticketChange}/>
+                            &nbsp;
+                            {intl.formatMessage({ id: customMessages.add || 'pages.condo.ticket.TicketChanges.add' }, newValues)}
+                        </>
+                    )}
+                    {addedObservers.length > 0 && removedObservers.length > 0 && (
+                        <br />
+                    )}
+                    {removedObservers.length > 0 && (
+                        <>
+                            <SafeUserMention changeValue={ticketChange}/>
+                            &nbsp;
+                            {intl.formatMessage({ id: customMessages.remove || 'pages.condo.ticket.TicketChanges.remove' }, newValues)}
+                        </>
+                    )}
+                </>
+            )
         }
 
         if (isValueFromNotEmpty && isValueToNotEmpty) {

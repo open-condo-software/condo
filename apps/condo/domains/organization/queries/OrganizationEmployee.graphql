@@ -234,6 +234,23 @@ query getOrganizationEmployeeByUserAndOrganizationId ($userId: ID!, $organizatio
     }
 }
 
+query getEmployeesByOrganizationIdAndUserIds ($organizationId: ID!, $userIds: [ID!]!) {
+    employees: allOrganizationEmployees (
+        where: {
+            organization: { id: $organizationId }
+            user: { id_in: $userIds },
+        }
+        first: 100,
+    ) {
+        id 
+        name
+        user {
+            id
+            name
+        }
+    }
+}
+
 query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizationType: [OrganizationTypeType!]) {
     invitations: allOrganizationEmployees (
         where: {

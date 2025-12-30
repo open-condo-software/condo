@@ -1,4 +1,4 @@
-const { keys, transform, pick, pickBy, omit, difference, isEqual, get } = require('lodash')
+const { keys, transform, pick, pickBy, omit, isEqual, get, xor } = require('lodash')
 
 /**
  * Utilities to make a GQLListSchema item trackable for changes.
@@ -156,7 +156,11 @@ function generateChangeTrackableFieldsFrom (
         (acc, value, key) => mapRelationSingle(acc, value, key, keysOfLocalizedRelationSingleDisplayNameTextFields),
         {}
     )
-    const mappedFieldsOfManyRelationships = transform(fieldsOfManyRelations, mapRelationMany, {})
+    const mappedFieldsOfManyRelationships = transform(
+        fieldsOfManyRelations, 
+        mapRelationMany, 
+        {}
+    )
 
     return {
         ...scalars,
@@ -305,7 +309,7 @@ const buildDataToStoreChangeFrom = async (args) => {
                     existingItem,
                     originalInput,
                 })
-                if (difference(existing.ids, updated.ids).length > 0) {
+                if (xor(existing.ids, updated.ids).length > 0) {
                     data[`${ key }IdsFrom`] = existing.ids
                     data[`${ key }IdsTo`] = updated.ids
                     data[`${ key }DisplayNamesFrom`] = existing.displayNames

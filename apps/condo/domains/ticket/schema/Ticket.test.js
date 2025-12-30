@@ -3,7 +3,9 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { get, pick } = require('lodash')
+const { gql } = require('graphql-tag')
+const get = require('lodash/get')
+const pick = require('lodash/pick')
 
 const conf = require('@open-condo/config')
 const {
@@ -88,6 +90,7 @@ const {
     Ticket,
     TicketOrganizationSetting,
     TicketComment,
+    TicketObserver,
     createTestTicket,
     updateTestTicket,
     createTestTicketComment,
@@ -1578,6 +1581,76 @@ describe('Ticket', () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestTicket(client, ticket.id, pick(payload, field))
                 })
+            })
+        })
+
+        describe('staff: observers fields access', () => {
+            test('user cannot read observers from ticket', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(
+                    admin, 
+                    client.organization, 
+                    client.property, 
+                    { 
+                        observers: { 
+                            create: [{ 
+                                user: { connect: { id: client.user.id } }, 
+                                dv: 1, 
+                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) }, 
+                            }],
+                        },
+                    }
+                )
+                const GET_TICKET_WITH_OBSERVERS_BY_ID = gql`
+                    query getTicketsWithObserversById($ticketId: ID!) {
+                        tickets: allTickets(where: { id: $ticketId }) {
+                            id
+                            observers {
+                                id
+                            }
+                        }
+                    }
+                `
+                const { errors } = await client.query(GET_TICKET_WITH_OBSERVERS_BY_ID, { ticketId: ticket.id })
+                
+                expect(errors).toHaveLength(1)
+            })
+
+            test('user: can create and update observers from ticket', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(
+                    client, 
+                    client.organization, 
+                    client.property, 
+                    { 
+                        observers: { 
+                            create: [{ 
+                                user: { connect: { id: client.user.id } }, 
+                                dv: 1, 
+                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) }, 
+                            }],
+                        },
+                    }
+                )
+
+                const [ticketObserverBeforeUpdate] = await TicketObserver.getAll(client, { ticket: { id: ticket.id } })
+
+                expect(ticketObserverBeforeUpdate.id).toMatch(UUID_RE)
+                expect(ticketObserverBeforeUpdate.user.id).toEqual(client.user.id)
+                expect(ticketObserverBeforeUpdate.ticket.id).toEqual(ticket.id)
+                await updateTestTicket(
+                    client, 
+                    ticket.id, 
+                    { 
+                        observers: { disconnect: [{ id: ticketObserverBeforeUpdate.id }] },
+                    }
+                )
+                // NOTE: Read by admin, because we cannot read TicketObserver without ticket
+                const [ticketObserverAfterUpdate] = await TicketObserver.getAll(admin, { id: ticketObserverBeforeUpdate.id })
+
+                expect(ticketObserverAfterUpdate.id).toMatch(UUID_RE)
+                expect(ticketObserverAfterUpdate.user.id).toEqual(client.user.id)
+                expect(ticketObserverAfterUpdate.ticket).toBeNull()
             })
         })
     })

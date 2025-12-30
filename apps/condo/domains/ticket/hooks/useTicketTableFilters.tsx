@@ -7,6 +7,7 @@ import {
 import { useMemo, useState, useEffect } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { QuestionCircle } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -16,6 +17,7 @@ import { colors } from '@open-condo/ui/colors'
 
 
 import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
 import {
     ComponentType,
     convertToOptions,
@@ -70,6 +72,7 @@ const filterAddressForSearch = getFilterAddressForSearch('propertyAddress', null
 const filterClientName = getClientNameFilter()
 const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
+const filterObserver = getFilter(['observers_some', 'user', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
 const filterIsResidentContact = getIsResidentContactFilter()
@@ -159,6 +162,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const OnlyUnansweredComments = intl.formatMessage({ id: 'pages.condo.ticket.filters.OnlyUnansweredComments' })
     const OnlyUnansweredCommentsTooltipHelp = intl.formatMessage({ id: 'pages.condo.ticket.filters.OnlyUnansweredCommentsTooltipHelp' })
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
+    const ObserverMessage = intl.formatMessage({ id: 'field.Observer' })
     const SelectMessage = intl.formatMessage({ id: 'Select' })
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
@@ -192,6 +196,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const userOrganizationId = userOrganization?.organization?.id
 
     const { persistor } = useCachePersistor()
+
+    const { useFlag } = useFeatureFlags()
+    const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
 
     const { hasSupervisedTicketsInOrganization, supervisedTicketSourceId } = useSupervisedTickets()
     const [hasSupervisedTickets, setHasSupervisedTickets] = useState<boolean>(false)
@@ -266,8 +273,8 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
         [FavoriteTicketTypeMessage, OwnTicketTypeMessage]
     )
     const filterTicketType = useMemo(
-        () => getTicketTypeFilter(user.id),
-        [user.id]
+        () => getTicketTypeFilter(user.id, { includeObservers: isTicketObserversEnabled }),
+        [isTicketObserversEnabled, user.id]
     )
     const filterAttribute = useMemo(
         () => getTicketAttributesFilter(['isEmergency', 'isPayable', 'isWarranty', 'statusReopenedCounter', 'isRegular', hasSupervisedTickets && 'isSupervised'].filter(Boolean), supervisedTicketSourceId),
@@ -275,7 +282,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     )
 
     return useMemo(() => {
-        return [
+        const filterMetas: FiltersMeta<TicketWhereInput, Ticket>[] = [
             {
                 keyword: 'search',
                 filters: getSearchFilter,
@@ -719,6 +726,23 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     },
                 },
             },
+            isTicketObserversEnabled ? {
+                keyword: 'observer',
+                filters: [filterObserver],
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: searchEmployeeUser(userOrganizationId),
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: EnterFullNameMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: ObserverMessage,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            } : undefined,
             {
                 keyword: 'createdBy',
                 filters: [filterTicketAuthor],
@@ -784,5 +808,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                 filters: [filterTicketContact],
             },
         ]
-    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, ExpiredTickets, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, feedbackValueOptions, FeedbackValueMessage, qualityControlValueOptions, QualityControlValueMessage, commentsTypeOptions, HasComments, OnlyUnansweredComments, OnlyUnansweredCommentsTooltipHelp, StartDateMessage, EndDateMessage, LastCommentAtMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage, filterAttribute])
+        return filterMetas.filter(Boolean)
+    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, ExpiredTickets, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, feedbackValueOptions, FeedbackValueMessage, qualityControlValueOptions, QualityControlValueMessage, commentsTypeOptions, HasComments, OnlyUnansweredComments, OnlyUnansweredCommentsTooltipHelp, StartDateMessage, EndDateMessage, LastCommentAtMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage, ObserverMessage, filterAttribute, isTicketObserversEnabled])
 }
