@@ -93,6 +93,8 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
+import { SubscriptionAccessGuard } from '@condo/domains/subscription/components'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { ActiveCallContextProvider } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useIncidentExportTaskUIInterface } from '@condo/domains/ticket/hooks/useIncidentExportTaskUIInterface'
@@ -154,9 +156,11 @@ const MenuItems: React.FC = () => {
 
     const { isAuthenticated, isLoading } = useAuth()
     const { employee, organization } = useOrganization()
-    const disabled = !employee
+    const { hasSubscription } = useOrganizationSubscription()
+    const disabled = !employee || !hasSubscription
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
+
     const role = employee?.role || null
     const orgId = organization?.id || null
     const orgFeatures = organization?.features || []
@@ -354,25 +358,29 @@ const MenuItems: React.FC = () => {
                 },
             ].filter(checkItemAccess),
         },
-    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
+    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings, hasAccessToTour, isNoServiceProviderOrganization])
 
     return (
         <div>
             {menuCategoriesData.map((category) => (
                 <Fragment key={category.key}>
-                    {category.items.map((item) => (
-                        <MenuItem
-                            id={item.id}
-                            key={`menu-item-${item.path}`}
-                            path={`/${item.path}`}
-                            icon={item.icon}
-                            label={item.label}
-                            disabled={disabled}
-                            isCollapsed={isCollapsed}
-                            toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
-                            excludePaths={item.excludePaths}
-                        />
-                    ))}
+                    {category.items.map((item) => {
+                        const isSubscriptionPage = item.path === 'settings'
+                        const isDisabled = isSubscriptionPage ? !employee : disabled
+                        
+                        return (
+                            <MenuItem
+                                id={item.id}
+                                key={`menu-item-${item.path}`}
+                                path={`/${item.path}`}
+                                icon={item.icon}
+                                label={item.label}
+                                disabled={isDisabled}
+                                isCollapsed={isCollapsed}
+                                excludePaths={item.excludePaths}
+                            />
+                        )
+                    })}
                     {(appsByCategories?.[category.key] || []).map((app) => {
                         // not a ReDoS issue: running on end user browser
                         // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
@@ -534,9 +542,11 @@ const MyApp = ({ Component, pageProps }) => {
                                                             <CondoAppEventsHandler/>
                                                             <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                 <RequiredAccess>
-                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                        <Component {...pageProps} />
-                                                                    </FeaturesReady>
+                                                                    <SubscriptionAccessGuard>
+                                                                        <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                            <Component {...pageProps} />
+                                                                        </FeaturesReady>
+                                                                    </SubscriptionAccessGuard>
                                                                 </RequiredAccess>
                                                             </LayoutComponent>
                                                         </ConnectedAppsWithIconsContextProvider>

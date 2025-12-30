@@ -11,6 +11,8 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
+const { UserHelpRequest, createTestUserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
@@ -18,12 +20,13 @@ const {
     createTestSubscriptionContext,
     updateTestSubscriptionContext,
     createTestSubscriptionPlan,
+    createTestSubscriptionPlanPricingRule,
 } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('SubscriptionContext', () => {
     let admin, support, employee
-    let organization, subscriptionPlan
+    let organization, subscriptionPlan, pricingRule
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -35,6 +38,14 @@ describe('SubscriptionContext', () => {
             isHidden: false,
         })
         subscriptionPlan = plan
+
+        const [rule] = await createTestSubscriptionPlanPricingRule(admin, subscriptionPlan, {
+            name: 'Default pricing',
+            period: 'month',
+            price: '1000.00',
+            currencyCode: 'RUB',
+        })
+        pricingRule = rule
     })
 
     beforeEach(async () => {
@@ -45,9 +56,9 @@ describe('SubscriptionContext', () => {
 
     describe('CRUD tests', () => {
         describe('create', () => {
-            test('admin can create subscription without prices', async () => {
-                const startAt = dayjs().toISOString()
-                const endAt = dayjs().add(30, 'day').toISOString()
+            test('admin can create paid subscription', async () => {
+                const startAt = dayjs().format('YYYY-MM-DD')
+                const endAt = dayjs().add(30, 'day').format('YYYY-MM-DD')
 
                 const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                     startAt,
@@ -56,12 +67,30 @@ describe('SubscriptionContext', () => {
                 })
 
                 expect(obj.id).toMatch(UUID_RE)
+                expect(obj.organization.id).toBe(organization.id)
+                expect(obj.subscriptionPlan.id).toBe(subscriptionPlan.id)
+                expect(obj.startAt).toBe(startAt)
+                expect(obj.endAt).toBe(endAt)
                 expect(obj.isTrial).toBe(false)
             })
 
-            test('support can create subscription without prices', async () => {
-                const startAt = dayjs().toISOString()
-                const endAt = dayjs().add(30, 'day').toISOString()
+            test('admin can create trial subscription', async () => {
+                const startAt = dayjs().format('YYYY-MM-DD')
+                const endAt = dayjs().add(14, 'day').format('YYYY-MM-DD')
+
+                const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt,
+                    endAt,
+                    isTrial: true,
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.isTrial).toBe(true)
+            })
+
+            test('support can create subscription', async () => {
+                const startAt = dayjs().format('YYYY-MM-DD')
+                const endAt = dayjs().add(30, 'day').format('YYYY-MM-DD')
 
                 const [obj] = await createTestSubscriptionContext(support, organization, subscriptionPlan, {
                     startAt,
@@ -75,8 +104,8 @@ describe('SubscriptionContext', () => {
             test('employee cannot create', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestSubscriptionContext(employee, organization, subscriptionPlan, {
-                        startAt: dayjs().toISOString(),
-                        endAt: dayjs().add(14, 'day').toISOString(),
+                        startAt: dayjs().format('YYYY-MM-DD'),
+                        endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                         isTrial: true,
                     })
                 })
@@ -87,8 +116,8 @@ describe('SubscriptionContext', () => {
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestSubscriptionContext(client, organization, subscriptionPlan, {
-                        startAt: dayjs().toISOString(),
-                        endAt: dayjs().add(14, 'day').toISOString(),
+                        startAt: dayjs().format('YYYY-MM-DD'),
+                        endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                         isTrial: true,
                     })
                 })
@@ -98,8 +127,8 @@ describe('SubscriptionContext', () => {
         describe('update', () => {
             test('support can soft delete', async () => {
                 const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -111,8 +140,8 @@ describe('SubscriptionContext', () => {
 
             test('employee cannot update (soft delete)', async () => {
                 const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -125,8 +154,8 @@ describe('SubscriptionContext', () => {
 
             test('anonymous cannot update (soft delete)', async () => {
                 const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -140,11 +169,11 @@ describe('SubscriptionContext', () => {
         })
 
         describe('read', () => {
-            test('admin can read', async () => {
+            test('admin can read subscription context', async () => {
                 const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
-                    isTrial: true,
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                    isTrial: false,
                 })
 
                 const objs = await SubscriptionContext.getAll(admin, { id: obj.id })
@@ -155,8 +184,8 @@ describe('SubscriptionContext', () => {
 
             test('employee can read own organization subscription', async () => {
                 const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -171,8 +200,8 @@ describe('SubscriptionContext', () => {
                 const [otherOrg] = await registerNewOrganization(otherUser, { type: HOLDING_TYPE })
 
                 const [obj] = await createTestSubscriptionContext(admin, otherOrg, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -183,8 +212,8 @@ describe('SubscriptionContext', () => {
 
             test('anonymous cannot read', async () => {
                 await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                    startAt: dayjs().toISOString(),
-                    endAt: dayjs().add(14, 'day').toISOString(),
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                     isTrial: true,
                 })
 
@@ -198,8 +227,8 @@ describe('SubscriptionContext', () => {
 
     describe('Validation tests', () => {
         test('endAt must be after startAt', async () => {
-            const startAt = dayjs().toISOString()
-            const endAt = dayjs().subtract(1, 'day').toISOString()
+            const startAt = dayjs().format('YYYY-MM-DD')
+            const endAt = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
 
             await expectToThrowGQLError(async () => {
                 await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
@@ -213,9 +242,10 @@ describe('SubscriptionContext', () => {
             }, 'obj')
         })
 
+
         test('daysRemaining is calculated correctly', async () => {
-            const startAt = dayjs().toISOString()
-            const endAt = dayjs().add(10, 'day').toISOString()
+            const startAt = dayjs().format('YYYY-MM-DD')
+            const endAt = dayjs().add(10, 'day').format('YYYY-MM-DD')
 
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt,
@@ -228,8 +258,8 @@ describe('SubscriptionContext', () => {
         })
 
         test('daysRemaining returns 0 for expired subscription', async () => {
-            const startAt = dayjs().subtract(20, 'day').toISOString()
-            const endAt = dayjs().subtract(5, 'day').toISOString()
+            const startAt = dayjs().subtract(20, 'day').format('YYYY-MM-DD')
+            const endAt = dayjs().subtract(5, 'day').format('YYYY-MM-DD')
 
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt,
@@ -241,7 +271,7 @@ describe('SubscriptionContext', () => {
         })
 
         test('daysRemaining returns null for unlimited subscription', async () => {
-            const startAt = dayjs().toISOString()
+            const startAt = dayjs().format('YYYY-MM-DD')
 
             const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt,
@@ -256,8 +286,8 @@ describe('SubscriptionContext', () => {
     describe('Field access restrictions', () => {
         test('cannot update subscriptionPlan', async () => {
             const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(14, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
@@ -270,16 +300,17 @@ describe('SubscriptionContext', () => {
             })
         })
 
+
         test('cannot update startAt', async () => {
             const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(14, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
             await catchErrorFrom(async () => {
                 await updateTestSubscriptionContext(admin, objCreated.id, {
-                    startAt: dayjs().add(5, 'day').toISOString(),
+                    startAt: dayjs().add(5, 'day').format('YYYY-MM-DD'),
                 })
             }, ({ errors }) => {
                 expect(errors[0].message).toContain('Field "startAt" is not defined by type "SubscriptionContextUpdateInput"')
@@ -288,8 +319,8 @@ describe('SubscriptionContext', () => {
 
         test('cannot update isTrial', async () => {
             const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(14, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
@@ -304,18 +335,110 @@ describe('SubscriptionContext', () => {
 
         test('cannot update endAt', async () => {
             const [objCreated] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
-                startAt: dayjs().toISOString(),
-                endAt: dayjs().add(14, 'day').toISOString(),
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 
             await catchErrorFrom(async () => {
                 await updateTestSubscriptionContext(admin, objCreated.id, {
-                    endAt: dayjs().add(30, 'day').toISOString(),
+                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
                 })
             }, ({ errors }) => {
                 expect(errors[0].message).toContain('Field "endAt" is not defined by type "SubscriptionContextUpdateInput"')
             })
+        })
+    })
+
+    describe('UserHelpRequest cleanup', () => {
+        test('creating non-trial SubscriptionContext soft deletes pending UserHelpRequests for the organization', async () => {
+            // Create a pending UserHelpRequest
+            const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            expect(helpRequest.deletedAt).toBeNull()
+
+            // Create a non-trial SubscriptionContext
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+            })
+
+            // Check that the UserHelpRequest is now soft deleted
+            const [updatedHelpRequest] = await UserHelpRequest.getAll(admin, { id: helpRequest.id, deletedAt_not: null })
+            expect(updatedHelpRequest).toBeDefined()
+            expect(updatedHelpRequest.deletedAt).not.toBeNull()
+        })
+
+        test('creating trial SubscriptionContext does NOT delete pending UserHelpRequests', async () => {
+            // Create a pending UserHelpRequest
+            const [helpRequest] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            expect(helpRequest.deletedAt).toBeNull()
+
+            // Create a trial SubscriptionContext
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
+                isTrial: true,
+            })
+
+            // Check that the UserHelpRequest is NOT deleted
+            const updatedHelpRequest = await UserHelpRequest.getOne(admin, { id: helpRequest.id })
+            expect(updatedHelpRequest.deletedAt).toBeNull()
+        })
+
+        test('creating non-trial SubscriptionContext soft deletes multiple pending UserHelpRequests', async () => {
+            // Create multiple pending UserHelpRequests
+            const [helpRequest1] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+            const [helpRequest2] = await createTestUserHelpRequest(admin, organization, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+            })
+
+            // Create a non-trial SubscriptionContext
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+            })
+
+            // Check that both UserHelpRequests are soft deleted
+            const [updated1] = await UserHelpRequest.getAll(admin, { id: helpRequest1.id, deletedAt_not: null })
+            const [updated2] = await UserHelpRequest.getAll(admin, { id: helpRequest2.id, deletedAt_not: null })
+            expect(updated1).toBeDefined()
+            expect(updated1.deletedAt).not.toBeNull()
+            expect(updated2).toBeDefined()
+            expect(updated2.deletedAt).not.toBeNull()
+        })
+
+        test('creating non-trial SubscriptionContext does not affect UserHelpRequests from other organizations', async () => {
+            const otherUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [otherOrg] = await registerNewOrganization(otherUser, { type: HOLDING_TYPE })
+
+            // Create UserHelpRequest for other organization
+            const [otherHelpRequest] = await createTestUserHelpRequest(admin, otherOrg, {
+                type: ACTIVATE_SUBSCRIPTION_TYPE,
+            })
+
+            // Create non-trial SubscriptionContext for original organization
+            await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+            })
+
+            // Check that the other organization's UserHelpRequest is not affected
+            const otherUpdated = await UserHelpRequest.getOne(admin, { id: otherHelpRequest.id })
+            expect(otherUpdated.deletedAt).toBeNull()
         })
     })
 })

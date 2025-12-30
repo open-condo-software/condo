@@ -1,0 +1,33 @@
+query getAvailableSubscriptionPlans($organization: OrganizationWhereUniqueInput!) {
+    result: getAvailableSubscriptionPlans(organization: $organization) {
+        plans {
+            plan {
+                id
+                priority
+                name
+                description
+                organizationType
+                isHidden
+                trialDays
+                canBePromoted
+                tickets
+                meters
+                payments
+                news
+                marketplace
+                support
+                ai
+                enabledB2BApps
+                enabledB2CApps
+                customization
+            }
+            prices {
+                id
+                name
+                period
+                price
+                currencyCode
+            }
+        }
+    }
+}

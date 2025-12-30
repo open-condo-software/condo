@@ -6,6 +6,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/subscription/access/SubscriptionPlan')
 
@@ -14,6 +15,11 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'TRIAL_DAYS_MUST_BE_NON_NEGATIVE',
         message: 'trialDays must be >= 0',
+    },
+    ENABLED_APPS_MUST_BE_ARRAY_OF_IDS: {
+        code: BAD_USER_INPUT,
+        type: 'ENABLED_APPS_MUST_BE_ARRAY_OF_IDS',
+        message: 'enabledB2BApps and enabledB2CApps must be arrays of valid UUIDs',
     },
 }
 
@@ -28,7 +34,7 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
         },
 
         description: {
-            schemaDoc: 'Detailed description of the subscription plan. Displayed to end users in the subscription selection UI',
+            schemaDoc: 'Detailed description of the subscription plan. Shown to end users.',
             type: 'Text',
             isRequired: false,
         },
@@ -76,6 +82,34 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             isRequired: true,
         },
 
+        canBePromoted: {
+            schemaDoc: 'Whether this plan can be promoted to users',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
+
+        payments: {
+            schemaDoc: 'Whether payments feature is included in this plan',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
+
+        meters: {
+            schemaDoc: 'Whether meters feature is included in this plan',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
+
+        tickets: {
+            schemaDoc: 'Whether tickets feature is included in this plan',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
+
         news: {
             schemaDoc: 'Whether news feature is included in this plan',
             type: 'Checkbox',
@@ -104,19 +138,57 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             isRequired: true,
         },
 
-        // TODO(DOMA-12735): think about move feature checkboxes in separate schema
-        passTickets: {
-            schemaDoc: 'Whether pass tickets feature is included in this plan',
+        customization: {
+            schemaDoc: 'Whether customization feature is included in this plan',
             type: 'Checkbox',
             defaultValue: false,
             isRequired: true,
         },
 
-        canBePromoted: {
-            schemaDoc: 'Whether this plan can be promoted to users',
-            type: 'Checkbox',
-            defaultValue: false,
+        enabledB2BApps: {
+            schemaDoc: 'List of B2B miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type.',
+            type: 'Json',
+            defaultValue: [],
             isRequired: true,
+            hooks: {
+                validateInput: async ({ resolvedData, fieldPath, context }) => {
+                    const value = resolvedData[fieldPath]
+                    if (value === undefined) return
+
+                    if (!Array.isArray(value)) {
+                        throw new GQLError(ERRORS.ENABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                    }
+
+                    for (const id of value) {
+                        if (typeof id !== 'string' || !UUID_REGEXP.test(id)) {
+                            throw new GQLError(ERRORS.ENABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                        }
+                    }
+                },
+            },
+        },
+
+        enabledB2CApps: {
+            schemaDoc: 'List of B2C miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type.',
+            type: 'Json',
+            defaultValue: [],
+            isRequired: true,
+            hooks: {
+                validateInput: async ({ resolvedData, fieldPath, context }) => {
+                    const value = resolvedData[fieldPath]
+                    if (value === undefined) return
+
+                    if (!Array.isArray(value)) {
+                        throw new GQLError(ERRORS.ENABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                    }
+
+                    for (const id of value) {
+                        if (typeof id !== 'string' || !UUID_REGEXP.test(id)) {
+                            throw new GQLError(ERRORS.ENABLED_APPS_MUST_BE_ARRAY_OF_IDS, context)
+                        }
+                    }
+                },
+            },
         },
 
     },

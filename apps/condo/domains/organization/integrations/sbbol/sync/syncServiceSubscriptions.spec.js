@@ -98,8 +98,8 @@ describe('syncServiceSubscriptions', () => {
 
             // Create existing expired context
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
-                startAt: dayjs().subtract(60, 'days').toISOString(),
-                endAt: dayjs().subtract(30, 'days').toISOString(),
+                startAt: dayjs().subtract(60, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().subtract(30, 'days').format('YYYY-MM-DD'),
                 isTrial: true,
             })
 

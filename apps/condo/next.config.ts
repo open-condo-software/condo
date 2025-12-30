@@ -15,7 +15,7 @@ const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const addressServiceUrl = conf['ADDRESS_SERVICE_URL']
 const mapApiKey = conf['MAP_API_KEY']
-const canEnableSubscriptions = conf['CAN_ENABLE_SUBSCRIPTIONS'] === 'true'
+const enableSubscriptions = conf['ENABLE_SUBSCRIPTIONS'] === 'true'
 const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 // TODO(DOMA-8696): Update next.config in cc, eps, miniapp
 const hCaptcha = conf['HCAPTCHA_CONFIG'] && JSON.parse(conf['HCAPTCHA_CONFIG'])
@@ -67,6 +67,7 @@ const defaultStaffAuthMethods = conf['DEFAULT_STAFF_AUTH_METHODS'] ? JSON.parse(
 const verifyUserEmailWithMarketingConsentEnabled = conf['VERIFY_USER_EMAIL_WITH_MARKETING_CONSENT_ENABLED'] === 'true'
 const fileClientId = conf['FILE_CLIENT_ID']
 const RUNTIME_TRANSLATIONS = JSON.parse(conf['RUNTIME_TRANSLATIONS'] || '{}')
+const subscriptionFeatureHelpLinks = JSON.parse(conf['SUBSCRIPTION_FEATURE_HELP_LINKS'] || '{}')
 
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
 
@@ -96,7 +97,7 @@ const nextConfig: NextConfig = {
         apolloGraphQLUrl,
         addressServiceUrl,
         mapApiKey,
-        canEnableSubscriptions,
+        enableSubscriptions,
         hCaptcha: hCaptchaSiteKey,
         disableCaptcha,
         docsConfig,
@@ -144,6 +145,7 @@ const nextConfig: NextConfig = {
         verifyUserEmailWithMarketingConsentEnabled,
         fileClientId,
         runtimeTranslations: RUNTIME_TRANSLATIONS,
+        subscriptionFeatureHelpLinks,
     },
     serverRuntimeConfig: {
         proxyName,

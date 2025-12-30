@@ -134,15 +134,15 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     throw new GQLError(ERRORS.TRIAL_ALREADY_USED, context)
                 }
 
-                const startAt = dayjs().startOf('day')
+                const startAt = dayjs()
                 const endAt = startAt.add(plan.trialDays, 'day')
                 const createdSubscriptionContext = await SubscriptionContext.create(context, {
                     dv,
                     sender,
                     organization: { connect: { id: organization.id } },
                     subscriptionPlan: { connect: { id: plan.id } },
-                    startAt: startAt.toISOString(),
-                    endAt: endAt.toISOString(),
+                    startAt: startAt.format('YYYY-MM-DD'),
+                    endAt: endAt.format('YYYY-MM-DD'),
                     isTrial: true,
                 })
                 const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)

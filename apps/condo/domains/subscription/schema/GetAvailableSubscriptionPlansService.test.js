@@ -167,11 +167,11 @@ describe('GetAvailableSubscriptionPlansService', () => {
             expect(plan.prices).toHaveLength(2)
 
             const monthlyPrice = plan.prices.find(p => p.period === SUBSCRIPTION_PERIOD.MONTH)
-            expect(monthlyPrice.price).toBe('1000.00')
+            expect(parseFloat(monthlyPrice.price)).toBe(1000.00)
             expect(monthlyPrice.id).toBe(monthlyRule.id)
 
             const yearlyPrice = plan.prices.find(p => p.period === SUBSCRIPTION_PERIOD.YEAR)
-            expect(yearlyPrice.price).toBe('10000.00')
+            expect(parseFloat(yearlyPrice.price)).toBe(10000.00)
             expect(yearlyPrice.id).toBe(yearlyRule.id)
         })
 
@@ -206,7 +206,7 @@ describe('GetAvailableSubscriptionPlansService', () => {
 
             const plan = result.plans.find(p => p.plan.id === planWithCustomPrice.id)
             expect(plan.prices).toHaveLength(1)
-            expect(plan.prices[0].price).toBe('500.00')
+            expect(parseFloat(plan.prices[0].price)).toBe(500.00)
         })
 
         test('returns empty prices when no matching conditions', async () => {

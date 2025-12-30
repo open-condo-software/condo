@@ -12,9 +12,10 @@ import styles from './MessagesCounter.module.css'
 
 type MessagesCounterProps = {
     count: number
+    disabled?: boolean
 }
 
-export const MessagesCounter: React.FC<MessagesCounterProps> = ({ count }) => {
+export const MessagesCounter: React.FC<MessagesCounterProps> = ({ count, disabled }) => {
     const [currentCount, setCurrentCount] = useState(0)
     const [isAnimating, setIsAnimating] = useState(false)
 
@@ -48,6 +49,14 @@ export const MessagesCounter: React.FC<MessagesCounterProps> = ({ count }) => {
         }),
         color: colors.pink[5],
     }), [currentCount, isAnimating, isSmallScreen])
+
+    if (disabled) {
+        return (
+            <div style={{ display: 'flex' }}>
+                <Bell className={styles.disabled} />
+            </div>
+        )
+    }
 
     if (isSmallScreen) {
         return (

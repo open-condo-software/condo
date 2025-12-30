@@ -26,13 +26,15 @@ const MESSAGE_ICON: Record<UserMessageType['type'], string> = {
     TICKET_COMMENT_CREATED: '✏️',
     TICKET_CREATED: '📬',
     EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE: '🕵🏻‍♀️',
+    SUBSCRIPTION_EXPIRATION_CUSTOM_CLIENT_MESSAGE: '❗️',
 }
 
 export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => {
     const messageType = useMemo(() => message?.type, [message?.type])
 
     const intl = useIntl()
-    const MessageTitle = intl.formatMessage({ id: `notification.UserMessagesList.message.${messageType}.label` })
+    const customTitle = message?.customTitle
+    const MessageTitle = customTitle || intl.formatMessage({ id: `notification.UserMessagesList.message.${messageType}.label` })
 
     const { setIsDropdownOpen } = useUserMessagesList()
 

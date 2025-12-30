@@ -1,0 +1,75 @@
+.banner-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+  container-type: inline-size;
+}
+
+.banner-card {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  padding: 40px 32px;
+  overflow: hidden;
+  background: var(--condo-global-color-brand-gradient-1);
+  border-radius: 12px;
+}
+
+.banner-content {
+  position: relative;
+  z-index: 2;
+  max-width: 60%;
+}
+
+.image-wrapper {
+  position: absolute;
+  top: 50%;
+  right: 60px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+}
+
+.green-button {
+  background: var(--condo-global-color-green-5) !important;
+  border-color: var(--condo-global-color-green-5) !important;
+}
+
+.green-button span {
+  color: white !important;
+  opacity: 1 !important;
+  fill: white !important;
+}
+
+.green-button:hover {
+  background: var(--condo-global-color-green-7) !important;
+  border-color: var(--condo-global-color-green-7) !important;
+}
+
+.green-button:active {
+  background: var(--condo-global-color-green-5) !important;
+  border-color: var(--condo-global-color-green-5) !important;
+}
+
+@container (max-width: 1000px) { /* stylelint-disable-line at-rule-no-unknown */
+  .image-wrapper {
+    right: -100px;
+    transform: translateY(-50%) scale(0.5);
+  }
+
+  .banner-content {
+    max-width: 50%;
+  }
+}
+
+@container (max-width: 800px) { /* stylelint-disable-line at-rule-no-unknown */
+  .image-wrapper {
+    display: none;
+  }
+
+  .banner-content {
+    max-width: 100%;
+  }
+}

@@ -26,8 +26,10 @@ export type MessageTypeAllowedToFilterType = typeof USER_MESSAGE_TYPES_FILTER_ON
  * Custom messages are generated in the frontend and displayed in the UserMessagesList with specific logic
  */
 export const EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE_TYPE = 'EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE'
-export type CustomClientMessageTypes = typeof EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE_TYPE
+export const SUBSCRIPTION_EXPIRATION_CUSTOM_CLIENT_MESSAGE_TYPE = 'SUBSCRIPTION_EXPIRATION_CUSTOM_CLIENT_MESSAGE'
+export type CustomClientMessageTypes = typeof EMAIL_CONFIRMATION_CUSTOM_CLIENT_MESSAGE_TYPE | typeof SUBSCRIPTION_EXPIRATION_CUSTOM_CLIENT_MESSAGE_TYPE
 
 export type UserMessageType = Omit<GetUserMessagesQueryResult['data']['messages'][number], 'type'> & {
     type: MessageTypeAllowedToFilterType | CustomClientMessageTypes
+    customTitle?: string
 }
