@@ -7,11 +7,11 @@ exports.up = async (knex) => {
 --
 -- Remove field passTickets from subscriptionplan
 --
--- ALTER TABLE "SubscriptionPlan" DROP COLUMN "passTickets" CASCADE;
+ALTER TABLE "SubscriptionPlan" DROP COLUMN "passTickets" CASCADE;
 --
 -- Remove field passTickets from subscriptionplanhistoryrecord
 --
--- ALTER TABLE "SubscriptionPlanHistoryRecord" DROP COLUMN "passTickets" CASCADE;
+ALTER TABLE "SubscriptionPlanHistoryRecord" DROP COLUMN "passTickets" CASCADE;
 --
 -- Add field customization to subscriptionplan
 --
