@@ -13,18 +13,20 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
+import { TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
 import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
-import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+import { getTicketDefaultDeadline, buildTicketObserversPayload } from '@condo/domains/ticket/utils/helpers'
 
 
 export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
@@ -104,6 +106,8 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
 
     const { replace } = useRouter()
     const { persistor } = useCachePersistor()
+    const { useFlag } = useFeatureFlags()
+    const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
     const { obj, loading: ticketLoading, refetch, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
     const { objs: invoices, loading: invoicesLoading } = Invoice.useObjects({ where: { ticket: { id } } })
@@ -114,11 +118,11 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
         variables: {
             ticketId: id,
         },
-        skip: !id || !persistor,
+        skip: !isTicketObserversEnabled || !id || !persistor,
     })
-    const observers = useMemo(() => observersData?.observers?.filter(Boolean) || [], [observersData?.observers])
+    const observers = useMemo(() => observersData?.observers?.filter((o) => o?.user?.id) || [], [observersData?.observers])
 
-    const ticketOrganizationId = useMemo(() => get(obj, ['organization', 'id']) || null, [obj])
+    const ticketOrganizationId = useMemo(() => obj?.organization?.id || null, [obj])
 
     const { 
         data: employeesData,
@@ -126,9 +130,9 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     } = useGetEmployeesByOrganizationIdAndUserIdsQuery({
         variables: {
             organizationId: ticketOrganizationId,
-            userIds: observers.map(o => o?.user?.id).filter(Boolean),
+            userIds: observers.map(o => o?.user?.id),
         },
-        skip: !ticketOrganizationId || !persistor || observers.length === 0,
+        skip: !isTicketObserversEnabled || !ticketOrganizationId || !persistor || observers.length === 0,
     })
 
     const allowedObserverUserIds = useMemo(() => {
@@ -144,25 +148,11 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const updateAction = async (values) => {
         const { existedInvoices, newInvoices, observers: newObserverUserIds, ...ticketValues } = values
 
-        const newObserverUserIdsArray = Array.isArray(newObserverUserIds) ? newObserverUserIds.filter((userId) => typeof userId === 'string') : []
-
-        const existingAllowedUserIdSet = new Set(observers.map((o) => o?.user?.id).filter(Boolean))
-        const newObserverUserIdSet = new Set(newObserverUserIdsArray)
-
-        const observerUserIdsToCreate = newObserverUserIdsArray.filter((userId) => !existingAllowedUserIdSet.has(userId))
-        const observerIdsToDisconnect = observers
-            .filter((o) => o?.user?.id && !newObserverUserIdSet.has(o.user.id))
-            .map((o) => o.id)
-
-        const observersUpdatePayload = (observerUserIdsToCreate.length > 0 || observerIdsToDisconnect.length > 0) ? {
-            create: observerUserIdsToCreate.map((userId) => ({
-                user: { connect: { id: userId } },
-                dv: 1,
-                sender: getClientSideSenderInfo(),
-            })),
-            disconnect: observerIdsToDisconnect.map((ticketObserverId) => ({ id: ticketObserverId })),
-        } : undefined
-
+        const observersUpdatePayload = buildTicketObserversPayload({
+            existingObserversList: observers,
+            updatedObserverUserIds: newObserverUserIds,
+            isEnabled: isTicketObserversEnabled,
+        })
 
         const ticketData = await action({
             variables: {
@@ -249,7 +239,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             result['invoices'] = invoices.map(invoice => invoice.id)
         }
 
-        if (observers.length > 0) {
+        if (Array.isArray(observers) && observers.length > 0) {
             result['observers'] = observers
                 .map(o => o?.user?.id)
                 .filter((userId) => userId && allowedObserverUserIds.has(userId))

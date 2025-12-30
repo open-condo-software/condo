@@ -4,7 +4,8 @@ query getTicketObserversByTicketId ($ticketId: ID!) {
             ticket: {
                 id: $ticketId
             }
-        }
+        },
+        first: 100,
     ) {
         id
         user {

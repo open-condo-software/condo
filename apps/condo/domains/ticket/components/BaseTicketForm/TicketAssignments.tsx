@@ -1,15 +1,16 @@
 import { Col, FormInstance, Row, Select } from 'antd'
-import { every } from 'lodash'
-import { differenceBy } from 'lodash'
+import differenceBy from 'lodash/differenceBy'
+import every from 'lodash/every'
 import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { FormItemTooltipWrapper } from '@condo/domains/common/components/Form/FormItemTooltipWrapper'
 import { GraphQlSearchInput, renderDeletedOption } from '@condo/domains/common/components/GraphQlSearchInput'
+import { TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
 import {
     OrganizationEmployee,
     OrganizationEmployeeSpecialization,
@@ -68,7 +69,8 @@ const TicketAssignments = ({
     const OtherMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.other' })
     const DeletedEmployeeMessage = intl.formatMessage({ id: 'global.select.deletedEmployee' })
 
-    const { breakpoints } = useLayoutContext()
+    const { useFlag } = useFeatureFlags()
+    const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
 
     const { assignee: initialAssignee, executor: initialExecutor, observers: initialObservers } = form.getFieldsValue(['assignee', 'executor', 'observers'])
 
@@ -290,32 +292,34 @@ const TicketAssignments = ({
                                 }
                             </TicketFormItem>
                         </Col>
-                        <Col span={24}>
-                            <TicketFormItem
-                                data-cy='ticket__observers-item'
-                                name='observers'
-                                rules={validations.observers}
-                                label={ObserversLabel}
-                                tooltip={(
-                                    <FormItemTooltipWrapper>
-                                        <Typography.Text size='small'>{ObserversExtra}</Typography.Text>
-                                    </FormItemTooltipWrapper>
-                                )}
-                            >
-                                {
-                                    !loading && (
-                                        <GraphQlSearchInput
-                                            mode='tags'
-                                            showArrow={false}
-                                            disabled={disableUserInteraction}
-                                            renderOptions={renderOptionGroups}
-                                            search={search}
-                                            searchMoreFirst={300}
-                                        />
-                                    )
-                                }
-                            </TicketFormItem>
-                        </Col>
+                        {isTicketObserversEnabled && (
+                            <Col span={24}>
+                                <TicketFormItem
+                                    data-cy='ticket__observers-item'
+                                    name='observers'
+                                    rules={validations.observers}
+                                    label={ObserversLabel}
+                                    tooltip={(
+                                        <FormItemTooltipWrapper>
+                                            <Typography.Text size='small'>{ObserversExtra}</Typography.Text>
+                                        </FormItemTooltipWrapper>
+                                    )}
+                                >
+                                    {
+                                        !loading && (
+                                            <GraphQlSearchInput
+                                                mode='tags'
+                                                showArrow={false}
+                                                disabled={disableUserInteraction}
+                                                renderOptions={renderOptionGroups}
+                                                search={search}
+                                                searchMoreFirst={300}
+                                            />
+                                        )
+                                    }
+                                </TicketFormItem>
+                            </Col>
+                        )}
                     </Row>
                 </Col>
             </Row>

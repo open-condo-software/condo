@@ -7534,7 +7534,7 @@ export type GetTicketFilesSuspenseQueryHookResult = ReturnType<typeof useGetTick
 export type GetTicketFilesQueryResult = Apollo.QueryResult<Types.GetTicketFilesQuery, Types.GetTicketFilesQueryVariables>;
 export const GetTicketObserversByTicketIdDocument = gql`
     query getTicketObserversByTicketId($ticketId: ID!) {
-  observers: allTicketObservers(where: {ticket: {id: $ticketId}}) {
+  observers: allTicketObservers(where: {ticket: {id: $ticketId}}, first: 100) {
     id
     user {
       id

@@ -1,4 +1,4 @@
-const { keys, transform, pick, pickBy, omit, difference, isEqual, get } = require('lodash')
+const { keys, transform, pick, pickBy, omit, isEqual, get, xor } = require('lodash')
 
 /**
  * Utilities to make a GQLListSchema item trackable for changes.
@@ -309,7 +309,7 @@ const buildDataToStoreChangeFrom = async (args) => {
                     existingItem,
                     originalInput,
                 })
-                if (difference(existing.ids, updated.ids).length > 0 || difference(updated.ids, existing.ids).length > 0) {
+                if (xor(existing.ids, updated.ids).length > 0) {
                     data[`${ key }IdsFrom`] = existing.ids
                     data[`${ key }IdsTo`] = updated.ids
                     data[`${ key }DisplayNamesFrom`] = existing.displayNames
@@ -448,25 +448,21 @@ const mapRelationMany = (acc, value, key) => {
         schemaDoc: `Old list of ids of related entities. ${value.schemaDoc}`,
         type: 'Json',
         defaultValue: [],
-        kmigratorOptions: { null: true },
     }
     acc[`${key}IdsTo`] = {
         schemaDoc: `New list of ids of related entities. ${value.schemaDoc}`,
         type: 'Json',
         defaultValue: [],
-        kmigratorOptions: { null: true },
     }
     acc[`${key}DisplayNamesFrom`] = {
         schemaDoc: `Old version of display names of related entities. ${value.schemaDoc}`,
         type: 'Json',
         defaultValue: [],
-        kmigratorOptions: { null: true },
     }
     acc[`${key}DisplayNamesTo`] = {
         schemaDoc: `New version of display names of related entities. ${value.schemaDoc}`,
         type: 'Json',
         defaultValue: [],
-        kmigratorOptions: { null: true },
     }
 }
 
