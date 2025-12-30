@@ -381,6 +381,7 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'TicketObserver.ticket',
             many: true, 
             // NOTE: We need to allow create and update observers from ticket, because we need to create TicketChange
+            // NOTE: We don't need to read observers from ticket, because we can read them from allTicketObserver
             access: {
                 read: ({ authentication: { item: user } }) => (user.isSupport || user.isAdmin),
                 create: true,

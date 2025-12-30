@@ -39,7 +39,7 @@ export const TicketObserversField: FC<TicketObserversFieldProps> = ({ ticket }) 
         variables: {
             ticketId: ticket?.id,
         },
-        skip: !ticket?.id || !persistor,
+        skip: !isTicketObserversEnabled || !ticket?.id || !persistor,
     })
     const ticketObservers = useMemo(() => ticketObserversData?.observers?.filter(Boolean)?.filter(observer => observer?.user?.id) || [], [ticketObserversData?.observers])
 
@@ -51,7 +51,7 @@ export const TicketObserversField: FC<TicketObserversFieldProps> = ({ ticket }) 
             organizationId: ticketOrganizationId,
             userIds: ticketObservers.map(observer => observer?.user?.id),
         },
-        skip: !ticketOrganizationId || !persistor || !ticketObservers.length,
+        skip: !isTicketObserversEnabled || !ticketOrganizationId || !persistor || !ticketObservers.length,
     })
     const observers = useMemo(() => observersData?.employees?.filter(Boolean) || [], [observersData])
 
