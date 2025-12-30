@@ -26603,14 +26603,15 @@ type Ticket {
   """
   clientPhone: String
 
-  """ Assignee/responsible employee/user who must ensure that the issue is fulfilled 
+  """ Assignee/responsible is an employee user who must ensure that the issue is fulfilled 
   """
   assignee: User
 
-  """ Executor employee/user who perform the issue """
+  """ Executor is an employee user who perform the issue """
   executor: User
 
-  """ Observers employees/users who will be notified about the ticket """
+  """ Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
+  """
   observers(where: TicketObserverWhereInput, search: String, sortBy: [SortTicketObserversBy!], orderBy: String, first: Int, skip: Int): [TicketObserver!]!
   _observersMeta(where: TicketObserverWhereInput, search: String, sortBy: [SortTicketObserversBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
@@ -29315,35 +29316,35 @@ type TicketChange {
   """
   contactDisplayNameTo: String
 
-  """ Old id of related entity. Assignee/responsible employee/user who must ensure that the issue is fulfilled 
+  """ Old id of related entity. Assignee/responsible is an employee user who must ensure that the issue is fulfilled 
   """
   assigneeIdFrom: ID
 
-  """ New id of related entity. Assignee/responsible employee/user who must ensure that the issue is fulfilled 
+  """ New id of related entity. Assignee/responsible is an employee user who must ensure that the issue is fulfilled 
   """
   assigneeIdTo: ID
 
-  """ Old display name of related entity. Assignee/responsible employee/user who must ensure that the issue is fulfilled 
+  """ Old display name of related entity. Assignee/responsible is an employee user who must ensure that the issue is fulfilled 
   """
   assigneeDisplayNameFrom: String
 
-  """ New display name of related entity. Assignee/responsible employee/user who must ensure that the issue is fulfilled 
+  """ New display name of related entity. Assignee/responsible is an employee user who must ensure that the issue is fulfilled 
   """
   assigneeDisplayNameTo: String
 
-  """ Old id of related entity. Executor employee/user who perform the issue 
+  """ Old id of related entity. Executor is an employee user who perform the issue 
   """
   executorIdFrom: ID
 
-  """ New id of related entity. Executor employee/user who perform the issue 
+  """ New id of related entity. Executor is an employee user who perform the issue 
   """
   executorIdTo: ID
 
-  """ Old display name of related entity. Executor employee/user who perform the issue 
+  """ Old display name of related entity. Executor is an employee user who perform the issue 
   """
   executorDisplayNameFrom: String
 
-  """ New display name of related entity. Executor employee/user who perform the issue 
+  """ New display name of related entity. Executor is an employee user who perform the issue 
   """
   executorDisplayNameTo: String
 
@@ -29407,19 +29408,19 @@ type TicketChange {
   sourceDisplayNameTo: String
   sourceDisplayNameToNonLocalized: String
 
-  """ Old list of ids of related entities. Observers employees/users who will be notified about the ticket 
+  """ Old list of ids of related entities. Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
   """
   observersIdsFrom: JSON
 
-  """ New list of ids of related entities. Observers employees/users who will be notified about the ticket 
+  """ New list of ids of related entities. Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
   """
   observersIdsTo: JSON
 
-  """ Old version of display names of related entities. Observers employees/users who will be notified about the ticket 
+  """ Old version of display names of related entities. Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
   """
   observersDisplayNamesFrom: JSON
 
-  """ New version of display names of related entities. Observers employees/users who will be notified about the ticket 
+  """ New version of display names of related entities. Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
   """
   observersDisplayNamesTo: JSON
 

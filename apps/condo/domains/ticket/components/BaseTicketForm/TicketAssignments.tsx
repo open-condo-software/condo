@@ -308,7 +308,7 @@ const TicketAssignments = ({
                                     {
                                         !loading && (
                                             <GraphQlSearchInput
-                                                mode='tags'
+                                                mode='multiple'
                                                 showArrow={false}
                                                 disabled={disableUserInteraction}
                                                 renderOptions={renderOptionGroups}

@@ -58,7 +58,7 @@ export const TicketObserversField: FC<TicketObserversFieldProps> = ({ ticket }) 
     const renderObservers = useMemo(() => {
         return observers.map((observer, i) => (
             <div key={observer.id}>
-                <UserNameField user={{ name: observer?.name, id: observer?.user?.id }} key={observer?.id}>
+                <UserNameField user={{ name: observer?.name, id: observer?.user?.id }}>
                     {({ name: userName, postfix }) => (
                         <>
                             <Link href={`/employee/${observer?.id}`}>
