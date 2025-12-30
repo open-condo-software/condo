@@ -5,11 +5,11 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
--- Remove field passTickets from subscriptionplan (in fix-database-migtration-state)
+-- Remove field passTickets from subscriptionplan
 --
 -- ALTER TABLE "SubscriptionPlan" DROP COLUMN "passTickets" CASCADE;
 --
--- Remove field passTickets from subscriptionplanhistoryrecord (in fix-database-migtration-state)
+-- Remove field passTickets from subscriptionplanhistoryrecord
 --
 -- ALTER TABLE "SubscriptionPlanHistoryRecord" DROP COLUMN "passTickets" CASCADE;
 --
