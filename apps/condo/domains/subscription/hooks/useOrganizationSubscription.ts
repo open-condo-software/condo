@@ -59,12 +59,13 @@ export const useOrganizationSubscription = () => {
         return organization.subscription as SubscriptionFeatures
     }, [organization])
 
-    const { data: allPlansData } = useGetAvailableSubscriptionPlansQuery({
+    const { data: allPlansData, loading: plansLoading } = useGetAvailableSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id || '' },
         },
         skip: !organization?.id,
     })
+    const hasAvailablePlans = useMemo(() => (allPlansData?.result?.plans || []).length > 0, [allPlansData?.result?.plans])
 
     const { useFlag } = useFeatureFlags()
     const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
@@ -116,6 +117,7 @@ export const useOrganizationSubscription = () => {
         isFeatureAvailable,
         isB2BAppEnabled,
         subscriptionContext,
-        loading: orgLoading,
+        loading: orgLoading || plansLoading,
+        hasAvailablePlans,
     }
 }

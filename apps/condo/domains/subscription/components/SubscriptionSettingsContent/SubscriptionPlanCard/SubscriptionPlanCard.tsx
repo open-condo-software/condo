@@ -129,17 +129,17 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     if (isActivePlan) {
         bgColor = colors.green[5]
 
-        if (daysRemaining !== null && daysRemaining < 30) {
+        if (daysRemaining !== null && daysRemaining <= 30) {
             badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemaining })
 
-            if (daysRemaining < 7) bgColor = colors.orange[5]
-            if (daysRemaining < 2) bgColor = colors.red[5]
+            if (daysRemaining <= 7) bgColor = colors.orange[5]
+            if (daysRemaining <= 1) bgColor = colors.red[5]
         } else {
             badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.active' })
         }
     }
 
-    if (!badgeMessage) return null
+    if (!badgeMessage || !daysRemaining) return null
 
     return (
         <Tag bgColor={bgColor} textColor={colors.white}>
