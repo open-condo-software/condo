@@ -72,7 +72,13 @@ interface SubscriptionPlanCardProps {
     activatedTrial?: TrialContextType
     pendingRequest?: PendingRequest
     activatedSubscriptions: ActivatedSubscriptionType[]
-    handleActivatePlan: (priceId: string, isTrial: boolean) => void
+    handleActivatePlan: (params: {
+        priceId: string
+        isTrial?: boolean
+        planName?: string
+        trialDays?: number
+        isCustomPrice?: boolean
+    }) => void
     b2bAppsMap: Map<string, { id: string, name?: string }>
     allB2BAppIds: string[]
 }
@@ -192,22 +198,34 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
         setActivateLoading(true)
         try {
-            await handleActivatePlan(price.id, false)
+            await handleActivatePlan({
+                priceId: price.id,
+                isTrial: false,
+                planName: plan.name,
+                trialDays: plan.trialDays,
+                isCustomPrice,
+            })
         } finally {
             setActivateLoading(false)
         }
-    }, [handleActivatePlan, price?.id])
+    }, [handleActivatePlan, price?.id, plan.name, plan.trialDays, isCustomPrice])
 
     const handleTrialActivateClick = useCallback(async () => {
         if (!price?.id) return
 
         setTrialActivateLoading(true)
         try {
-            await handleActivatePlan(price.id, true)
+            await handleActivatePlan({
+                priceId: price.id,
+                isTrial: true,
+                planName: plan.name,
+                trialDays: plan.trialDays,
+                isCustomPrice,
+            })
         } finally {
             setTrialActivateLoading(false)
         }
-    }, [handleActivatePlan, price?.id])
+    }, [handleActivatePlan, price?.id, plan.name, plan.trialDays, isCustomPrice])
 
     const renderFeature = useCallback(({ featureKey, label, hint }) => (
         <FeatureItem 

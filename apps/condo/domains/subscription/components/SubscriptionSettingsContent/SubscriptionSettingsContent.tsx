@@ -23,11 +23,8 @@ export const SubscriptionSettingsContent: React.FC = () => {
 
     const YearlyLabel = intl.formatMessage({ id: 'subscription.period.yearly' })
     const MonthlyLabel = intl.formatMessage({ id: 'subscription.period.monthly' })
-    const ActivationSuccessMessage = intl.formatMessage({ id: 'subscription.activation.success' })
     const ActivationErrorTitle = intl.formatMessage({ id: 'subscription.activation.errorTitle' })
     const ActivationErrorMessage = intl.formatMessage({ id: 'subscription.activation.error' })
-    const RequestSentMessage = intl.formatMessage({ id: 'subscription.activation.requestSent' })
-    const RequestSentDescription = intl.formatMessage({ id: 'subscription.activation.requestSentDescription' })
 
     const [planPeriod, setPlanPeriod] = useState<PlanPeriod>('year')
 
@@ -99,7 +96,13 @@ export const SubscriptionSettingsContent: React.FC = () => {
 
     const [activateSubscriptionPlan] = useActivateSubscriptionPlanMutation()
 
-    const handleActivatePlan = async (priceId: string, isTrial: boolean = true) => {
+    const handleActivatePlan = async ({ priceId, isTrial = true, planName = '', trialDays = 0, isCustomPrice = false }: {
+        priceId: string
+        isTrial?: boolean
+        planName?: string
+        trialDays?: number
+        isCustomPrice?: boolean
+    }) => {
         if (!organization) return
 
         try {
@@ -123,16 +126,25 @@ export const SubscriptionSettingsContent: React.FC = () => {
                     await selectEmployee(employee.id)
                 }
                 notification.success({
-                    message: ActivationSuccessMessage,
+                    message: intl.formatMessage({ id: 'subscription.activation.trial.title' }, { planName }),
+                    description: intl.formatMessage({ id: 'subscription.activation.trial.description' }, { planName, days: trialDays }),
                     duration: 5,
                 })
             } else {
                 await refetchPendingRequests()
-                notification.success({
-                    message: RequestSentMessage,
-                    description: RequestSentDescription,
-                    duration: 5,
-                })
+                if (isCustomPrice) {
+                    notification.success({
+                        message: intl.formatMessage({ id: 'subscription.activation.paid.custom.title' }, { planName }),
+                        description: intl.formatMessage({ id: 'subscription.activation.paid.custom.description' }),
+                        duration: 5,
+                    })
+                } else {
+                    notification.success({
+                        message: intl.formatMessage({ id: 'subscription.activation.paid.standard.title' }),
+                        description: intl.formatMessage({ id: 'subscription.activation.paid.standard.description' }),
+                        duration: 5,
+                    })
+                }
             }
         } catch (error) {
             console.error('Failed to activate subscription:', error)
