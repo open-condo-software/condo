@@ -26610,7 +26610,7 @@ type Ticket {
   """ Executor is an employee user who perform the issue """
   executor: User
 
-  """ Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
+  """ Observer are employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
   """
   observers(where: TicketObserverWhereInput, search: String, sortBy: [SortTicketObserversBy!], orderBy: String, first: Int, skip: Int): [TicketObserver!]!
   _observersMeta(where: TicketObserverWhereInput, search: String, sortBy: [SortTicketObserversBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
@@ -29408,19 +29408,19 @@ type TicketChange {
   sourceDisplayNameTo: String
   sourceDisplayNameToNonLocalized: String
 
-  """ Old list of ids of related entities. Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
+  """ Old list of ids of related entities. Observer are employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
   """
   observersIdsFrom: JSON
 
-  """ New list of ids of related entities. Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
+  """ New list of ids of related entities. Observer are employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
   """
   observersIdsTo: JSON
 
-  """ Old version of display names of related entities. Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
+  """ Old version of display names of related entities. Observer are employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
   """
   observersDisplayNamesFrom: JSON
 
-  """ New version of display names of related entities. Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
+  """ New version of display names of related entities. Observer are employee users who does not perform or control the work, but remains aware of the process and the result of the ticket 
   """
   observersDisplayNamesTo: JSON
 

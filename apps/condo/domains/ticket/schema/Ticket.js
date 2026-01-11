@@ -376,7 +376,7 @@ const Ticket = new GQLListSchema('Ticket', {
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         observers: {
-            schemaDoc: 'Observer is employee users who does not perform or control the work, but remains aware of the process and the result of the ticket',
+            schemaDoc: 'Observer are employee users who does not perform or control the work, but remains aware of the process and the result of the ticket',
             type: 'Relationship',
             ref: 'TicketObserver.ticket',
             many: true, 

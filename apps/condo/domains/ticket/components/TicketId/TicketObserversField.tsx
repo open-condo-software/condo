@@ -65,7 +65,7 @@ export const TicketObserversField: FC<TicketObserversFieldProps> = ({ ticket }) 
                                 {userName}
                             </Link>
                             {postfix && (
-                                <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
+                                <Typography.Text type='secondary'>&nbsp;{ postfix }</Typography.Text>
                             )}
                             {i !== observers.length - 1 && (
                                 <>,<br /></>
