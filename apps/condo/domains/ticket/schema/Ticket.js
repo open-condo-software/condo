@@ -364,16 +364,29 @@ const Ticket = new GQLListSchema('Ticket', {
         // who accept
 
         assignee: {
-            schemaDoc: 'Assignee/responsible employee/user who must ensure that the issue is fulfilled',
+            schemaDoc: 'Assignee/responsible is an employee user who must ensure that the issue is fulfilled',
             type: 'Relationship',
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         executor: {
-            schemaDoc: 'Executor employee/user who perform the issue',
+            schemaDoc: 'Executor is an employee user who perform the issue',
             type: 'Relationship',
             ref: 'User',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+        observers: {
+            schemaDoc: 'Observer are employee users who does not perform or control the work, but remains aware of the process and the result of the ticket',
+            type: 'Relationship',
+            ref: 'TicketObserver.ticket',
+            many: true, 
+            // NOTE: We need to allow create and update observers from ticket, because we need to create TicketChange
+            // NOTE: We don't need to read observers from ticket, because we can read them from allTicketObserver
+            access: {
+                read: ({ authentication: { item: user } }) => (user.isSupport || user.isAdmin),
+                create: true,
+                update: true,
+            },
         },
         // TODO(zuch): make it required
         categoryClassifier: {

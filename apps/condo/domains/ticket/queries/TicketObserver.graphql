@@ -1,0 +1,17 @@
+query getTicketObserversByTicketId ($ticketId: ID!) {
+    observers: allTicketObservers (
+        where: {
+            ticket: {
+                id: $ticketId
+            }
+        },
+        first: 100,
+    ) {
+        id
+        user {
+            id
+        }
+    }
+}
+
+ 

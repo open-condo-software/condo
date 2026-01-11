@@ -146,6 +146,10 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'qualityControlCommentTo',
     'qualityControlAdditionalOptionsFrom',
     'qualityControlAdditionalOptionsTo',
+    'observersIdsFrom',
+    'observersIdsTo',
+    'observersDisplayNamesFrom',
+    'observersDisplayNamesTo',
 ]
 const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } organization { id country } } actualCreationDate ${COMMON_CHANGE_HISTORY_FIELDS} ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
@@ -266,6 +270,10 @@ const TicketAutoAssignment = generateGqlQueries('TicketAutoAssignment', TICKET_A
 const TICKET_DOCUMENT_GENERATION_TASK_FIELDS = `{ ticket { id } status format progress user { id } timeZone file { id originalFilename publicUrl mimetype } documentType meta ${COMMON_FIELDS} }`
 const TicketDocumentGenerationTask = generateGqlQueries('TicketDocumentGenerationTask', TICKET_DOCUMENT_GENERATION_TASK_FIELDS)
 
+const TICKET_OBSERVER_FIELDS = `{ ticket { id } user { id } ${COMMON_FIELDS} }`
+const TicketObserver = generateGqlQueries('TicketObserver', TICKET_OBSERVER_FIELDS)
+
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -306,5 +314,6 @@ module.exports = {
     TicketAutoAssignment,
     TicketDocumentGenerationTask,
     TICKET_EXPORT_TASK_OPTIONS_FIELDS,
+    TicketObserver,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

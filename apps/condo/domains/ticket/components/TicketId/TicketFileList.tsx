@@ -1,4 +1,4 @@
-import { TicketFile as TicketFileType } from '@app/condo/schema'
+import { GetTicketFilesQuery } from '@app/condo/gql'
 import { css } from '@emotion/react'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 import UploadList from 'antd/lib/upload/UploadList'
@@ -9,7 +9,7 @@ import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownlo
 
 
 interface ITicketFileListProps {
-    files?: TicketFileType[]
+    files?: GetTicketFilesQuery['ticketFiles']
 }
 
 const UploadListWrapperStyles = css`
@@ -40,12 +40,12 @@ const UploadListWrapperStyles = css`
 export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     const { downloadFile } = useDownloadFileFromServer()
 
-    const uploadFiles = useMemo(() => files.map(({ file }) => ({
-        uid: file.id,
-        name: file.originalFilename,
+    const uploadFiles = useMemo(() => (files ?? []).filter(Boolean).map(({ file }) => ({
+        uid: file?.id,
+        name: file?.originalFilename,
         status: 'done' as UploadFileStatus,
-        url: file.publicUrl,
-    })), [files])
+        url: file?.publicUrl,
+    })).filter(item => item.uid), [files])
 
     const handleFileDownload = useCallback(async (file: UploadFile) => {
         await downloadFile({ name: file.name, url: file.url })

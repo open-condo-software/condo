@@ -1,15 +1,16 @@
 import { Col, FormInstance, Row, Select } from 'antd'
-import { every } from 'lodash'
-import { differenceBy } from 'lodash'
+import differenceBy from 'lodash/differenceBy'
+import every from 'lodash/every'
 import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { FormItemTooltipWrapper } from '@condo/domains/common/components/Form/FormItemTooltipWrapper'
 import { GraphQlSearchInput, renderDeletedOption } from '@condo/domains/common/components/GraphQlSearchInput'
+import { TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
 import {
     OrganizationEmployee,
     OrganizationEmployeeSpecialization,
@@ -60,15 +61,18 @@ const TicketAssignments = ({
     const TicketAssignmentTitle = intl.formatMessage({ id: 'TicketAssignment' })
     const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
+    const ObserversLabel = intl.formatMessage({ id: 'field.Observers' })
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
+    const ObserversExtra = intl.formatMessage({ id: 'field.Observers.description' })
     const EmployeesOnPropertyMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.employeesOnProperty' })
     const OtherMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.other' })
     const DeletedEmployeeMessage = intl.formatMessage({ id: 'global.select.deletedEmployee' })
 
-    const { breakpoints } = useLayoutContext()
+    const { useFlag } = useFeatureFlags()
+    const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
 
-    const { assignee: initialAssignee, executor: initialExecutor } = form.getFieldsValue(['assignee', 'executor'])
+    const { assignee: initialAssignee, executor: initialExecutor, observers: initialObservers } = form.getFieldsValue(['assignee', 'executor', 'observers'])
 
     const { objs: employees, allDataLoaded: allEmployeesLoaded } = OrganizationEmployee.useAllObjects({
         where: {
@@ -116,7 +120,6 @@ const TicketAssignments = ({
 
     const renderOptionGroups = useCallback((employeeOptions, renderOption) => {
         const result = []
-
         const employees = employeeOptions
             .map(option => option.employee)
             .filter(employee => employee)
@@ -132,6 +135,16 @@ const TicketAssignments = ({
                 value: initialExecutor,
                 text: DeletedEmployeeMessage,
             }))
+        }
+        if (Array.isArray(initialObservers)) {
+            initialObservers.forEach((initialObserver) => {
+                if (isDeletedInitialEmployee(initialObserver, employees)) {
+                    result.push(renderDeletedOption(intl, {
+                        value: initialObserver,
+                        text: DeletedEmployeeMessage,
+                    }))
+                }
+            })
         }
 
         const employeesWithMatchesPropertyAndSpecializationScope = employees.filter(
@@ -197,10 +210,9 @@ const TicketAssignments = ({
                 )
             }
         }
-
         return result
     }, [
-        initialAssignee, initialExecutor, categoryClassifier, filteredEmployeeSpecializations, propertyScopes,
+        initialAssignee, initialExecutor, initialObservers, categoryClassifier, filteredEmployeeSpecializations, propertyScopes,
         filteredPropertyScopeEmployees, intl, DeletedEmployeeMessage, EmployeesOnPropertyMessage, OtherMessage,
     ])
 
@@ -280,6 +292,34 @@ const TicketAssignments = ({
                                 }
                             </TicketFormItem>
                         </Col>
+                        {isTicketObserversEnabled && (
+                            <Col span={24}>
+                                <TicketFormItem
+                                    data-cy='ticket__observers-item'
+                                    name='observers'
+                                    rules={validations.observers}
+                                    label={ObserversLabel}
+                                    tooltip={(
+                                        <FormItemTooltipWrapper>
+                                            <Typography.Text size='small'>{ObserversExtra}</Typography.Text>
+                                        </FormItemTooltipWrapper>
+                                    )}
+                                >
+                                    {
+                                        !loading && (
+                                            <GraphQlSearchInput
+                                                mode='multiple'
+                                                showArrow={false}
+                                                disabled={disableUserInteraction}
+                                                renderOptions={renderOptionGroups}
+                                                search={search}
+                                                searchMoreFirst={300}
+                                            />
+                                        )
+                                    }
+                                </TicketFormItem>
+                            </Col>
+                        )}
                     </Row>
                 </Col>
             </Row>

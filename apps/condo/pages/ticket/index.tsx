@@ -55,7 +55,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
-import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
+import { TICKET_IMPORT, TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useCheckboxSearch } from '@condo/domains/common/hooks/useCheckboxSearch'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
@@ -94,6 +94,7 @@ import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketE
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+import { getTicketTypeFilter } from '@condo/domains/ticket/utils/tables.utils'
 
 import styles from './index.module.css'
 
@@ -966,6 +967,8 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery, refetchTicketTypeCou
     const { persistor } = useCachePersistor()
     const { user } = useAuth()
     const { userFavoriteTicketsCount } = useFavoriteTickets()
+    const { useFlag } = useFeatureFlags()
+    const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
     const router = useRouter()
     const { filters } = useMemo(() => parseQuery(router.query), [router.query])
 
@@ -994,7 +997,9 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery, refetchTicketTypeCou
 
     // NOTE: we have index "ticket_org_assign_exec_deletedAt" for this filter
     // If you change filter condition, you need to change index
-    const ownTicketsQuery = { OR: [{ executor: { id: user.id }, assignee: { id: user.id } }] }
+    const ownTicketsQuery = useMemo(() => (
+        getTicketTypeFilter(user.id, { includeObservers: isTicketObserversEnabled })('own')
+    ), [isTicketObserversEnabled, user.id])
     const { data: ownTicketsCountData, refetch: refetchOwnTickets } = useGetTicketsCountQuery({
         variables: {
             where: {

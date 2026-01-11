@@ -3881,6 +3881,55 @@ export type GetOrganizationEmployeeByUserAndOrganizationIdQueryHookResult = Retu
 export type GetOrganizationEmployeeByUserAndOrganizationIdLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationIdLazyQuery>;
 export type GetOrganizationEmployeeByUserAndOrganizationIdSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationIdSuspenseQuery>;
 export type GetOrganizationEmployeeByUserAndOrganizationIdQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeByUserAndOrganizationIdQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables>;
+export const GetEmployeesByOrganizationIdAndUserIdsDocument = gql`
+    query getEmployeesByOrganizationIdAndUserIds($organizationId: ID!, $userIds: [ID!]!) {
+  employees: allOrganizationEmployees(
+    where: {organization: {id: $organizationId}, user: {id_in: $userIds}}
+    first: 100
+  ) {
+    id
+    name
+    user {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetEmployeesByOrganizationIdAndUserIdsQuery__
+ *
+ * To run a query within a React component, call `useGetEmployeesByOrganizationIdAndUserIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEmployeesByOrganizationIdAndUserIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEmployeesByOrganizationIdAndUserIdsQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *      userIds: // value for 'userIds'
+ *   },
+ * });
+ */
+export function useGetEmployeesByOrganizationIdAndUserIdsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetEmployeesByOrganizationIdAndUserIdsQuery, Types.GetEmployeesByOrganizationIdAndUserIdsQueryVariables> & ({ variables: Types.GetEmployeesByOrganizationIdAndUserIdsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetEmployeesByOrganizationIdAndUserIdsQuery, Types.GetEmployeesByOrganizationIdAndUserIdsQueryVariables>(GetEmployeesByOrganizationIdAndUserIdsDocument, options);
+      }
+export function useGetEmployeesByOrganizationIdAndUserIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetEmployeesByOrganizationIdAndUserIdsQuery, Types.GetEmployeesByOrganizationIdAndUserIdsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetEmployeesByOrganizationIdAndUserIdsQuery, Types.GetEmployeesByOrganizationIdAndUserIdsQueryVariables>(GetEmployeesByOrganizationIdAndUserIdsDocument, options);
+        }
+export function useGetEmployeesByOrganizationIdAndUserIdsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetEmployeesByOrganizationIdAndUserIdsQuery, Types.GetEmployeesByOrganizationIdAndUserIdsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetEmployeesByOrganizationIdAndUserIdsQuery, Types.GetEmployeesByOrganizationIdAndUserIdsQueryVariables>(GetEmployeesByOrganizationIdAndUserIdsDocument, options);
+        }
+export type GetEmployeesByOrganizationIdAndUserIdsQueryHookResult = ReturnType<typeof useGetEmployeesByOrganizationIdAndUserIdsQuery>;
+export type GetEmployeesByOrganizationIdAndUserIdsLazyQueryHookResult = ReturnType<typeof useGetEmployeesByOrganizationIdAndUserIdsLazyQuery>;
+export type GetEmployeesByOrganizationIdAndUserIdsSuspenseQueryHookResult = ReturnType<typeof useGetEmployeesByOrganizationIdAndUserIdsSuspenseQuery>;
+export type GetEmployeesByOrganizationIdAndUserIdsQueryResult = Apollo.QueryResult<Types.GetEmployeesByOrganizationIdAndUserIdsQuery, Types.GetEmployeesByOrganizationIdAndUserIdsQueryVariables>;
 export const GetEmployeesInvitesByUserIdAndOrganizationTypeDocument = gql`
     query getEmployeesInvitesByUserIdAndOrganizationType($userId: ID!, $organizationType: [OrganizationTypeType!]) {
   invitations: allOrganizationEmployees(
@@ -6782,6 +6831,10 @@ export const GetTicketChangesDocument = gql`
     qualityControlCommentTo
     qualityControlAdditionalOptionsFrom
     qualityControlAdditionalOptionsTo
+    observersIdsFrom
+    observersIdsTo
+    observersDisplayNamesFrom
+    observersDisplayNamesTo
   }
 }
     `;
@@ -7479,6 +7532,49 @@ export type GetTicketFilesQueryHookResult = ReturnType<typeof useGetTicketFilesQ
 export type GetTicketFilesLazyQueryHookResult = ReturnType<typeof useGetTicketFilesLazyQuery>;
 export type GetTicketFilesSuspenseQueryHookResult = ReturnType<typeof useGetTicketFilesSuspenseQuery>;
 export type GetTicketFilesQueryResult = Apollo.QueryResult<Types.GetTicketFilesQuery, Types.GetTicketFilesQueryVariables>;
+export const GetTicketObserversByTicketIdDocument = gql`
+    query getTicketObserversByTicketId($ticketId: ID!) {
+  observers: allTicketObservers(where: {ticket: {id: $ticketId}}, first: 100) {
+    id
+    user {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetTicketObserversByTicketIdQuery__
+ *
+ * To run a query within a React component, call `useGetTicketObserversByTicketIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketObserversByTicketIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketObserversByTicketIdQuery({
+ *   variables: {
+ *      ticketId: // value for 'ticketId'
+ *   },
+ * });
+ */
+export function useGetTicketObserversByTicketIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetTicketObserversByTicketIdQuery, Types.GetTicketObserversByTicketIdQueryVariables> & ({ variables: Types.GetTicketObserversByTicketIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetTicketObserversByTicketIdQuery, Types.GetTicketObserversByTicketIdQueryVariables>(GetTicketObserversByTicketIdDocument, options);
+      }
+export function useGetTicketObserversByTicketIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketObserversByTicketIdQuery, Types.GetTicketObserversByTicketIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetTicketObserversByTicketIdQuery, Types.GetTicketObserversByTicketIdQueryVariables>(GetTicketObserversByTicketIdDocument, options);
+        }
+export function useGetTicketObserversByTicketIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketObserversByTicketIdQuery, Types.GetTicketObserversByTicketIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetTicketObserversByTicketIdQuery, Types.GetTicketObserversByTicketIdQueryVariables>(GetTicketObserversByTicketIdDocument, options);
+        }
+export type GetTicketObserversByTicketIdQueryHookResult = ReturnType<typeof useGetTicketObserversByTicketIdQuery>;
+export type GetTicketObserversByTicketIdLazyQueryHookResult = ReturnType<typeof useGetTicketObserversByTicketIdLazyQuery>;
+export type GetTicketObserversByTicketIdSuspenseQueryHookResult = ReturnType<typeof useGetTicketObserversByTicketIdSuspenseQuery>;
+export type GetTicketObserversByTicketIdQueryResult = Apollo.QueryResult<Types.GetTicketObserversByTicketIdQuery, Types.GetTicketObserversByTicketIdQueryVariables>;
 export const GetTicketPropertyHintByIdDocument = gql`
     query getTicketPropertyHintById($id: ID!) {
   ticketPropertyHints: allTicketPropertyHints(where: {id: $id}, first: 1) {

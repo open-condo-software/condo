@@ -8,7 +8,7 @@ const { SberCloudFileAdapter } = require('@open-condo/keystone/fileAdapter/sberC
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
 const APPS = ['condo']
-const excludedManyRelationshipCheckLists = ['MultiPayment']
+const excludedManyRelationshipCheckLists = ['MultiPayment', 'Ticket']
 
 function verifySchema (keystone) {
     let errorCounter = 0

@@ -26,6 +26,7 @@ const { TicketExportTask } = require('./TicketExportTask')
 const { TicketFile } = require('./TicketFile')
 const { TicketFilterTemplate } = require('./TicketFilterTemplate')
 const { TicketMultipleUpdateService } = require('./TicketMultipleUpdateService')
+const { TicketObserver } = require('./TicketObserver')
 const { TicketOrganizationSetting } = require('./TicketOrganizationSetting')
 const { TicketPlaceClassifier } = require('./TicketPlaceClassifier')
 const { TicketProblemClassifier } = require('./TicketProblemClassifier')
@@ -35,6 +36,7 @@ const { TicketSource } = require('./TicketSource')
 const { TicketStatus } = require('./TicketStatus')
 const { UserFavoriteTicket } = require('./UserFavoriteTicket')
 const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
+
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -69,5 +71,6 @@ module.exports = {
     TicketMultipleUpdateService,
     TicketAutoAssignment,
     TicketDocumentGenerationTask,
+    TicketObserver,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
