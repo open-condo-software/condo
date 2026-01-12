@@ -62,7 +62,7 @@ export const useOrganizationSubscription = () => {
     const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
 
     const subscriptionContext = useMemo<SubscriptionContext | null>(() => {
-        if (!subscriptionFeatures) return null
+        if (!subscriptionFeatures || !enableSubscriptions || !hasSubscriptionsFlag) return null
         
         return {
             subscriptionPlan: subscriptionFeatures.planId ? {
@@ -76,7 +76,7 @@ export const useOrganizationSubscription = () => {
             endAt: subscriptionFeatures.endAt,
             daysRemaining: normalizedDaysRemaining,
         }
-    }, [subscriptionFeatures, normalizedDaysRemaining])
+    }, [subscriptionFeatures, hasSubscriptionsFlag, normalizedDaysRemaining])
 
     const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
         if (!enableSubscriptions || !hasSubscriptionsFlag) return true

@@ -1,10 +1,14 @@
 import { useGetLastExpiredSubscriptionContextQuery } from '@app/condo/gql'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Typography } from '@open-condo/ui'
+
+import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 
 import { useOrganizationSubscription } from '../hooks'
 
@@ -21,10 +25,14 @@ const SUBSCRIPTION_ENDED_STORAGE_KEY = 'subscription_ended_modal_shown'
 
 type ModalType = 'trialEnded' | 'subscriptionEnded'
 
+const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
+
 const useTrialEndedModalContent = (): { content: ModalContent | null, type: ModalType | null, loading: boolean } => {
     const intl = useIntl()
     const { organization } = useOrganization()
     const { subscriptionContext } = useOrganizationSubscription()
+    const { useFlag } = useFeatureFlags()
+    const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
 
     const organizationId = organization?.id
     const now = useMemo(() => new Date().toISOString(), [])
@@ -38,7 +46,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
     })
 
     return useMemo(() => {
-        if (!organization || loading) {
+        if (!organization || loading || !enableSubscriptions || !hasSubscriptionsFlag) {
             return { content: null, type: null, loading }
         }
 
