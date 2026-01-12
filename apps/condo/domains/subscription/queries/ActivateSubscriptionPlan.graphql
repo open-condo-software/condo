@@ -1,0 +1,7 @@
+mutation activateSubscriptionPlan($data: ActivateSubscriptionPlanInput!) {
+    result: activateSubscriptionPlan(data: $data) {
+        subscriptionContext {
+            id
+        }
+    }
+}

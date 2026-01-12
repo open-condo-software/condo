@@ -1,0 +1,58 @@
+query getOrganizationActivatedSubscriptions($organizationId: ID!) {
+    activatedSubscriptions: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+        }
+        sortBy: [createdAt_DESC]
+        first: 100
+    ) {
+        id
+        subscriptionPlan {
+            id
+            name
+            priority
+        }
+    }
+}
+
+query getOrganizationTrialSubscriptions($organizationId: ID!) {
+    trialSubscriptions: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            isTrial: true
+        }
+        sortBy: [createdAt_DESC]
+        first: 100
+    ) {
+        id
+        subscriptionPlan {
+            id
+            name
+        }
+        isTrial
+        startAt
+        daysRemaining
+        endAt
+        createdAt
+    }
+}
+
+query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
+    lastExpiredContext: allSubscriptionContexts(
+        where: {
+            organization: { id: $organizationId }
+            endAt_lt: $now
+        }
+        sortBy: [endAt_DESC]
+        first: 1
+    ) {
+        id
+        subscriptionPlan {
+            id
+            name
+        }
+        isTrial
+        startAt
+        endAt
+    }
+}

@@ -16,6 +16,17 @@ import {
     COMPLETED_STEP_LINK,
     TOUR_STEP_ACTION_PERMISSION,
 } from '@condo/domains/onboarding/utils/clientSchema/constants'
+import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+
+import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
+
+/**
+ * Mapping of step types to required subscription features
+ */
+const TOUR_STEP_REQUIRED_FEATURE: Partial<Record<TourStepTypeType, AvailableFeature>> = {
+    [TourStepTypeType.CreateNews]: 'news',
+}
 
 
 type TourStepCardProps = {
@@ -33,6 +44,7 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     const { step, steps, onClick, disabled } = props
     const { link } = useOrganization()
     const role = useMemo(() => get(link, 'role'), [link])
+    const { isFeatureAvailable } = useOrganizationSubscription()
 
     const { activeTourStep } = useTourContext()
 
@@ -88,6 +100,13 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
 
     const hasPermission = useMemo(() => stepStatus !== TourStepStatusType.Completed && TOUR_STEP_ACTION_PERMISSION[stepType] ?
         get(role, TOUR_STEP_ACTION_PERMISSION[stepType]) : true, [role, stepStatus, stepType])
+    
+    const requiredFeature = TOUR_STEP_REQUIRED_FEATURE[stepType]
+    const hasRequiredFeature = useMemo(() => {
+        if (!requiredFeature) return true
+        return isFeatureAvailable(requiredFeature)
+    }, [requiredFeature, isFeatureAvailable])
+
     const disabledMessage = useMemo(() => {
         if (!hasPermission) {
             return (
@@ -105,8 +124,8 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
         }
 
         return CompletePreviousStepMessage
-    }, [CompletePreviousStepMessage, NoPermissionsMessage, hasPermission, stepType, steps])
-    const isDisabledStatus = useMemo(() => stepStatus === TourStepStatusType.Disabled || !hasPermission || disabled, [disabled, hasPermission, stepStatus])
+    }, [CompletePreviousStepMessage, NoPermissionsMessage, SettingsMessage, hasPermission])
+    const isDisabledStatus = useMemo(() => stepStatus === TourStepStatusType.Disabled || !hasPermission || !hasRequiredFeature || disabled, [disabled, hasPermission, hasRequiredFeature, stepStatus])
 
     const cardContent = (
         <StyledCardButton
@@ -125,6 +144,16 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
             id={step.type}
         />
     )
+
+    if (!hasRequiredFeature) {
+        return (
+            <NoSubscriptionTooltip key={step.id}>
+                <div style={{ width: '100%' }}>
+                    {cardContent}
+                </div>
+            </NoSubscriptionTooltip>
+        )
+    }
 
     if (isDisabledStatus) {
         return (

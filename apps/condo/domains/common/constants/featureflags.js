@@ -23,7 +23,6 @@ const POLL_TICKET_COMMENTS = 'poll-ticket-comments'
 const SNOWFLAKES_SETTINGS = 'snowflakes-settings'
 const USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN = 'user-white-list-for-find-organizations-by-tin'
 const METER_REPORTING_PERIOD_STRICT_RULE = 'meter-reporting-period-strict-rule'
-const SUBSCRIPTION = 'subscription'
 const CHECK_TLS_CLIENT_CERT = 'check-tls-client-cert-config'
 const ADD_SECTION_FLOOR = 'add-section-floor'
 const ACQUIRING_PAYMENTS_FILES_TABLE = 'acquiring-payments-files-table'
@@ -40,8 +39,10 @@ const UI_AI_REWRITE_TICKET_COMMENT = 'ui-ai-ticket-rewrite-comment'
 const UI_AI_REWRITE_TEXT = 'ui-ai-rewrite-text'
 const UI_AI_REWRITE_NEWS_TEXT = 'ui-ai-news-rewrite-text'
 const UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT = 'ui-ai-rewrite-incident-text-for-resident'
+const SUBSCRIPTIONS = 'subscriptions'
 const ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID = 'active-banking-subscription-plan-id'
 const TICKET_OBSERVERS = 'ticket-observers'
+const DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID = 'default-trial-subscription-plan-id'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -69,7 +70,7 @@ module.exports = {
     SNOWFLAKES_SETTINGS,
     USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN,
     METER_REPORTING_PERIOD_STRICT_RULE,
-    SUBSCRIPTION,
+    SUBSCRIPTIONS,
     CHECK_TLS_CLIENT_CERT,
     ADD_SECTION_FLOOR,
     ACQUIRING_PAYMENTS_FILES_TABLE,
@@ -88,4 +89,5 @@ module.exports = {
     UI_AI_REWRITE_INCIDENT_TEXT_FOR_RESIDENT,
     ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID,
     TICKET_OBSERVERS,
+    DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID,
 }

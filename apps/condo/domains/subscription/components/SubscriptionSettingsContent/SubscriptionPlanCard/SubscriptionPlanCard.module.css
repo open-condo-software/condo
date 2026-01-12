@@ -1,0 +1,46 @@
+.subscription-plan-card {
+  width: 30%;
+  min-width: 260px;
+}
+
+.main-content {
+  min-height: 320px;
+}
+
+.description {
+  height: 72px;
+  overflow: hidden;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header {
+  justify-content: space-between;
+}
+
+.subscription-plan-card-promoted {
+  background: var(--condo-global-color-brand-gradient-1);
+}
+
+.collapse :global(.ant-collapse-content > .ant-collapse-content-box) {
+  padding: 0;
+}
+
+.collapse > :global(.ant-collapse-item > .ant-collapse-header) {
+  padding: 0 !important;
+}
+
+.hint-wrapper {
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .subscription-plan-card {
+    width: 100%;
+  }
+}
