@@ -28,10 +28,10 @@ jest.mock('@open-condo/webhooks/tasks', () => ({
 const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
-const { sendWebhookPayload } = require('./sendWebhookPayload')
+const { queueWebhookPayload } = require('./queueWebhookPayload')
 
 
-describe('sendWebhookPayload utility', () => {
+describe('queueWebhookPayload utility', () => {
     const mockContext = {}
 
     beforeEach(() => {
@@ -48,7 +48,7 @@ describe('sendWebhookPayload utility', () => {
                 sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
-            const result = await sendWebhookPayload(mockContext, options)
+            const result = await queueWebhookPayload(mockContext, options)
 
             expect(result).toEqual(mockWebhookPayload)
             expect(WebhookPayload.create).toHaveBeenCalledWith(
@@ -75,7 +75,7 @@ describe('sendWebhookPayload utility', () => {
                 sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
-            await sendWebhookPayload(mockContext, options)
+            await queueWebhookPayload(mockContext, options)
 
             expect(WebhookPayload.create).toHaveBeenCalledWith(
                 mockContext,
@@ -96,7 +96,7 @@ describe('sendWebhookPayload utility', () => {
                 sender: customSender,
             }
 
-            await sendWebhookPayload(mockContext, options)
+            await queueWebhookPayload(mockContext, options)
 
             expect(WebhookPayload.create).toHaveBeenCalledWith(
                 mockContext,
@@ -116,7 +116,7 @@ describe('sendWebhookPayload utility', () => {
                 sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
-            await sendWebhookPayload(mockContext, options)
+            await queueWebhookPayload(mockContext, options)
 
             expect(WebhookPayload.create).toHaveBeenCalledWith(
                 mockContext,
@@ -149,7 +149,7 @@ describe('sendWebhookPayload utility', () => {
                 sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
-            await sendWebhookPayload(mockContext, options)
+            await queueWebhookPayload(mockContext, options)
 
             const createCall = WebhookPayload.create.mock.calls[0][1]
             const expiresAt = new Date(createCall.expiresAt)
@@ -169,7 +169,7 @@ describe('sendWebhookPayload utility', () => {
                 eventType: 'test.event',
             }
 
-            await expect(sendWebhookPayload(mockContext, options))
+            await expect(queueWebhookPayload(mockContext, options))
                 .rejects.toThrow('Missing required parameters')
         })
 
@@ -180,7 +180,7 @@ describe('sendWebhookPayload utility', () => {
                 eventType: 'test.event',
             }
 
-            await expect(sendWebhookPayload(mockContext, options))
+            await expect(queueWebhookPayload(mockContext, options))
                 .rejects.toThrow('Missing required parameters')
         })
 
@@ -191,7 +191,7 @@ describe('sendWebhookPayload utility', () => {
                 eventType: 'test.event',
             }
 
-            await expect(sendWebhookPayload(mockContext, options))
+            await expect(queueWebhookPayload(mockContext, options))
                 .rejects.toThrow('Missing required parameters')
         })
 
@@ -202,7 +202,7 @@ describe('sendWebhookPayload utility', () => {
                 secret: 'test-secret',
             }
 
-            await expect(sendWebhookPayload(mockContext, options))
+            await expect(queueWebhookPayload(mockContext, options))
                 .rejects.toThrow('Missing required parameters')
         })
 
@@ -214,7 +214,7 @@ describe('sendWebhookPayload utility', () => {
                 eventType: 'test.event',
             }
 
-            await expect(sendWebhookPayload(mockContext, options))
+            await expect(queueWebhookPayload(mockContext, options))
                 .rejects.toThrow('Missing required parameters')
         })
     })
@@ -229,7 +229,7 @@ describe('sendWebhookPayload utility', () => {
                 sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
-            await sendWebhookPayload(mockContext, options)
+            await queueWebhookPayload(mockContext, options)
 
             expect(WebhookPayload.create).toHaveBeenCalledWith(
                 mockContext,
@@ -251,7 +251,7 @@ describe('sendWebhookPayload utility', () => {
                 sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
-            await sendWebhookPayload(mockContext, options)
+            await queueWebhookPayload(mockContext, options)
 
             expect(getWebhookTasks).toHaveBeenCalled()
         })
@@ -265,7 +265,7 @@ describe('sendWebhookPayload utility', () => {
                 sender: { dv: 1, fingerprint: 'test-sender' },
             }
 
-            await sendWebhookPayload(mockContext, options)
+            await queueWebhookPayload(mockContext, options)
 
             expect(mockSendWebhookPayloadTask.delay).toHaveBeenCalledWith(mockWebhookPayload.id)
         })

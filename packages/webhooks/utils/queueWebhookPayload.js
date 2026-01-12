@@ -25,7 +25,7 @@ const logger = getLogger('sendWebhookPayload')
  * @returns {Promise<Object>} Created WebhookPayload record
  *
  * @example
- * const webhookPayload = await sendWebhookPayload(context, {
+ * const webhookPayload = await queueWebhookPayload(context, {
  *     url: 'https://example.com/webhook',
  *     payload: { event: 'payment.status.changed', data: { ... } },
  *     secret: 'webhook-secret',
@@ -35,7 +35,7 @@ const logger = getLogger('sendWebhookPayload')
  *     sender: { dv: 1, fingerprint: 'your-service-name' },
  * })
  */
-async function sendWebhookPayload (context, options) {
+async function queueWebhookPayload (context, options) {
     const {
         url,
         payload,
@@ -87,5 +87,5 @@ async function sendWebhookPayload (context, options) {
 }
 
 module.exports = {
-    sendWebhookPayload,
+    queueWebhookPayload,
 }

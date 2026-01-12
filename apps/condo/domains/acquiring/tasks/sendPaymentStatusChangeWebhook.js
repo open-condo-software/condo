@@ -1,6 +1,6 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
-const { sendWebhookPayload } = require('@open-condo/webhooks/utils/sendWebhookPayload')
+const { queueWebhookPayload } = require('@open-condo/webhooks/utils/queueWebhookPayload')
 
 const {
     getWebhookConfig,
@@ -39,8 +39,8 @@ async function sendPaymentStatusChangeWebhook (paymentId) {
     // Build the webhook payload (snapshot of current Payment state)
     const payload = await buildPaymentWebhookPayload(payment)
 
-    // Send the webhook
-    await sendWebhookPayload(context, {
+    // Queue the webhook for sending
+    await queueWebhookPayload(context, {
         url,
         payload,
         secret,

@@ -1,4 +1,4 @@
-const { sendWebhookPayload } = require('./sendWebhookPayload')
+const { queueWebhookPayload } = require('./queueWebhookPayload')
 const {
     generateSignature,
     calculateNextRetryAt,
@@ -9,5 +9,5 @@ module.exports = {
     generateSignature,
     calculateNextRetryAt,
     trySendWebhookPayload,
-    sendWebhookPayload,
+    queueWebhookPayload,
 }

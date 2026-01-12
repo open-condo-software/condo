@@ -7,11 +7,11 @@ jest.mock('@open-condo/keystone/schema', () => ({
     getSchemaCtx: jest.fn().mockReturnValue({ keystone: {} }),
     getById: jest.fn(),
 }))
-jest.mock('@open-condo/webhooks/utils/sendWebhookPayload')
+jest.mock('@open-condo/webhooks/utils/queueWebhookPayload')
 jest.mock('@condo/domains/acquiring/utils/serverSchema/paymentWebhookHelpers')
 
 const { getById } = require('@open-condo/keystone/schema')
-const { sendWebhookPayload } = require('@open-condo/webhooks/utils/sendWebhookPayload')
+const { queueWebhookPayload } = require('@open-condo/webhooks/utils/queueWebhookPayload')
 
 const {
     getWebhookConfig,
@@ -33,7 +33,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
         getById.mockResolvedValue(mockPayment)
         getWebhookConfig.mockResolvedValue({ url: mockUrl, secret: mockSecret })
         buildPaymentWebhookPayload.mockResolvedValue(mockPayload)
-        sendWebhookPayload.mockResolvedValue(undefined)
+        queueWebhookPayload.mockResolvedValue(undefined)
     })
 
     test('should send webhook when payment has URL and secret', async () => {
@@ -42,7 +42,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
         expect(getById).toHaveBeenCalledWith('Payment', mockPaymentId)
         expect(getWebhookConfig).toHaveBeenCalledWith(mockPayment)
         expect(buildPaymentWebhookPayload).toHaveBeenCalledWith(mockPayment)
-        expect(sendWebhookPayload).toHaveBeenCalledWith(
+        expect(queueWebhookPayload).toHaveBeenCalledWith(
             expect.anything(),
             {
                 url: mockUrl,
@@ -61,7 +61,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
 
         await sendPaymentStatusChangeWebhook(mockPaymentId)
 
-        expect(sendWebhookPayload).not.toHaveBeenCalled()
+        expect(queueWebhookPayload).not.toHaveBeenCalled()
     })
 
     test('should not send webhook when URL is missing', async () => {
@@ -69,7 +69,7 @@ describe('sendPaymentStatusChangeWebhook', () => {
 
         await sendPaymentStatusChangeWebhook(mockPaymentId)
 
-        expect(sendWebhookPayload).not.toHaveBeenCalled()
+        expect(queueWebhookPayload).not.toHaveBeenCalled()
     })
 
     test('should not send webhook when secret is missing', async () => {
@@ -77,6 +77,6 @@ describe('sendPaymentStatusChangeWebhook', () => {
 
         await sendPaymentStatusChangeWebhook(mockPaymentId)
 
-        expect(sendWebhookPayload).not.toHaveBeenCalled()
+        expect(queueWebhookPayload).not.toHaveBeenCalled()
     })
 })
