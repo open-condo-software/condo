@@ -175,10 +175,10 @@ export const SubscriptionSettingsContent: React.FC = () => {
             </Space>
             <div className={styles['plan-list']}>
                 {availablePlans.map((planInfo: PlanType) => {
-                    const activatedTrial = trialSubscriptions.find(
-                        trial => trial.subscriptionPlan.id === planInfo?.plan?.id
+                    const activatedTrial = trialSubscriptions?.find(
+                        trial => trial.subscriptionPlan?.id === planInfo?.plan?.id
                     )
-                    const pendingRequest = pendingRequests.find(
+                    const pendingRequest = pendingRequests?.find(
                         request => request.subscriptionPlanPricingRule?.subscriptionPlan?.id === planInfo?.plan?.id
                     )
 

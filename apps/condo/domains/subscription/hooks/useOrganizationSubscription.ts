@@ -40,6 +40,16 @@ export const useOrganizationSubscription = () => {
         return organization.subscription as SubscriptionFeatures
     }, [organization])
 
+    const normalizedDaysRemaining = useMemo<SubscriptionFeatures['daysRemaining']>(() => {
+        const value = subscriptionFeatures?.daysRemaining
+        if (value === null || value === undefined) return value
+
+        const numberValue = typeof value === 'number' ? value : Number(value)
+        if (!Number.isFinite(numberValue)) return null
+
+        return Math.trunc(numberValue)
+    }, [subscriptionFeatures?.daysRemaining])
+
     const { data: allPlansData, loading: plansLoading } = useGetAvailableSubscriptionPlansQuery({
         variables: {
             organization: { id: organization?.id || '' },
@@ -64,9 +74,9 @@ export const useOrganizationSubscription = () => {
             isTrial: subscriptionFeatures.isTrial,
             startAt: subscriptionFeatures.startAt,
             endAt: subscriptionFeatures.endAt,
-            daysRemaining: subscriptionFeatures.daysRemaining,
+            daysRemaining: normalizedDaysRemaining,
         }
-    }, [subscriptionFeatures])
+    }, [subscriptionFeatures, normalizedDaysRemaining])
 
     const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
         if (!enableSubscriptions || !hasSubscriptionsFlag) return true
