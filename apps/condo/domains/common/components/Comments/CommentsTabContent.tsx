@@ -13,7 +13,6 @@ import { Tooltip, Tour, Typography } from '@open-condo/ui'
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
-import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
@@ -82,7 +81,7 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
     const GenerateCommentTourStepDescription = intl.formatMessage({ id: 'ai.generateComment.tourStepDescription' })
 
     const { isFeatureAvailable } = useOrganizationSubscription()
-    const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
+    const hasAiFeature = isFeatureAvailable('ai')
 
     const lastComment = useMemo(() => comments?.[0], [comments])
     const showGenerateAnswerButton = useMemo(() =>

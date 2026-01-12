@@ -17,15 +17,15 @@ import {
     TOUR_STEP_ACTION_PERMISSION,
 } from '@condo/domains/onboarding/utils/clientSchema/constants'
 import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
-import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
-import { AvailableFeature } from '@condo/domains/subscription/hooks/useOrganizationSubscription'
+
+import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
 
 /**
  * Mapping of step types to required subscription features
  */
 const TOUR_STEP_REQUIRED_FEATURE: Partial<Record<TourStepTypeType, AvailableFeature>> = {
-    [TourStepTypeType.CreateNews]: FEATURE_KEY.NEWS,
+    [TourStepTypeType.CreateNews]: 'news',
 }
 
 

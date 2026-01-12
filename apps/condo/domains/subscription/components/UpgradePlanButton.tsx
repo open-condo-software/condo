@@ -1,4 +1,3 @@
-import { CrownOutlined } from '@ant-design/icons'
 import { useGetAvailableSubscriptionPlansQuery } from '@app/condo/gql'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'

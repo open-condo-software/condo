@@ -12,7 +12,6 @@ import { useAIConfig } from '@condo/domains/ai/hooks/useAIFlow'
 import { LabeledField } from '@condo/domains/common/components/LabeledField'
 import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
 import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
-import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
@@ -32,8 +31,8 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
     const { enabled: aiEnabled, features: { generateNewsByIncident: generateNewsByIncidentEnabled } } = useAIConfig()
 
     const { isFeatureAvailable } = useOrganizationSubscription()
-    const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
-    const hasNewsFeature = isFeatureAvailable(FEATURE_KEY.NEWS)
+    const hasAiFeature = isFeatureAvailable('ai')
+    const hasNewsFeature = isFeatureAvailable('news')
     const hasRequiredFeatures = hasAiFeature && hasNewsFeature
 
     return (

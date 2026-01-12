@@ -832,6 +832,13 @@ export type GetPendingBankingRequestQueryVariables = Types.Exact<{
 
 export type GetPendingBankingRequestQuery = { __typename?: 'Query', pendingBankingRequest?: Array<{ __typename?: 'UserHelpRequest', id: string, createdAt?: string | null } | null> | null };
 
+export type CreateUserHelpRequestMutationVariables = Types.Exact<{
+  data: Types.UserHelpRequestCreateInput;
+}>;
+
+
+export type CreateUserHelpRequestMutation = { __typename?: 'Mutation', createUserHelpRequest?: { __typename?: 'UserHelpRequest', id: string } | null };
+
 export type GetCallRecordFragmentExistenceQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
 }>;

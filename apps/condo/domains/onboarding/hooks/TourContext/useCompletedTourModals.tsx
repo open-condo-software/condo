@@ -18,7 +18,6 @@ import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
-import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 
@@ -146,7 +145,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
     
     const { isFeatureAvailable } = useOrganizationSubscription()
-    const hasNewsFeature = useMemo(() => isFeatureAvailable(FEATURE_KEY.NEWS), [isFeatureAvailable])
+    const hasNewsFeature = useMemo(() => isFeatureAvailable('news'), [isFeatureAvailable])
 
     const [completedStepModalData, setCompletedStepModalData] = useState<CompletedStepModalDataValueType | null>()
     const [completedTourFlow, setCompletedTourFlow] = useState<TourStepTypeType | null>()

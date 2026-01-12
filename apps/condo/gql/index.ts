@@ -5136,6 +5136,7 @@ export const GetPendingSubscriptionRequestsDocument = gql`
     query getPendingSubscriptionRequests($organizationId: ID!) {
   pendingRequests: allUserHelpRequests(
     where: {organization: {id: $organizationId}, type: activateSubscription}
+    first: 1
   ) {
     id
     subscriptionPlanPricingRule {
@@ -5225,6 +5226,39 @@ export type GetPendingBankingRequestQueryHookResult = ReturnType<typeof useGetPe
 export type GetPendingBankingRequestLazyQueryHookResult = ReturnType<typeof useGetPendingBankingRequestLazyQuery>;
 export type GetPendingBankingRequestSuspenseQueryHookResult = ReturnType<typeof useGetPendingBankingRequestSuspenseQuery>;
 export type GetPendingBankingRequestQueryResult = Apollo.QueryResult<Types.GetPendingBankingRequestQuery, Types.GetPendingBankingRequestQueryVariables>;
+export const CreateUserHelpRequestDocument = gql`
+    mutation createUserHelpRequest($data: UserHelpRequestCreateInput!) {
+  createUserHelpRequest(data: $data) {
+    id
+  }
+}
+    `;
+export type CreateUserHelpRequestMutationFn = Apollo.MutationFunction<Types.CreateUserHelpRequestMutation, Types.CreateUserHelpRequestMutationVariables>;
+
+/**
+ * __useCreateUserHelpRequestMutation__
+ *
+ * To run a mutation, you first call `useCreateUserHelpRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateUserHelpRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createUserHelpRequestMutation, { data, loading, error }] = useCreateUserHelpRequestMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateUserHelpRequestMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateUserHelpRequestMutation, Types.CreateUserHelpRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateUserHelpRequestMutation, Types.CreateUserHelpRequestMutationVariables>(CreateUserHelpRequestDocument, options);
+      }
+export type CreateUserHelpRequestMutationHookResult = ReturnType<typeof useCreateUserHelpRequestMutation>;
+export type CreateUserHelpRequestMutationResult = Apollo.MutationResult<Types.CreateUserHelpRequestMutation>;
+export type CreateUserHelpRequestMutationOptions = Apollo.BaseMutationOptions<Types.CreateUserHelpRequestMutation, Types.CreateUserHelpRequestMutationVariables>;
 export const GetCallRecordFragmentExistenceDocument = gql`
     query getCallRecordFragmentExistence($organizationId: ID!) {
   callRecordFragments: allCallRecordFragments(

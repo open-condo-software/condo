@@ -67,7 +67,6 @@ import { PropertyAddressSearchInput } from '@condo/domains/property/components/P
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
 import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
-import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
@@ -185,7 +184,7 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
 
     // Subscription check for marketplace feature
     const { isFeatureAvailable } = useOrganizationSubscription()
-    const hasMarketplaceFeature = isFeatureAvailable(FEATURE_KEY.MARKETPLACE)
+    const hasMarketplaceFeature = isFeatureAvailable('marketplace')
 
     const [createInvoiceModalOpen, setCreateInvoiceModalOpen] = useState<boolean>(false)
 

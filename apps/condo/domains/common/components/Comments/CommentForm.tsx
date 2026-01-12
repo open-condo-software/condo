@@ -13,7 +13,6 @@ import { Module, useMultipleFileUploadHook } from '@condo/domains/common/compone
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
-import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
@@ -161,7 +160,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
 
     const { isFeatureAvailable } = useOrganizationSubscription()
-    const hasAiFeature = isFeatureAvailable(FEATURE_KEY.AI)
+    const hasAiFeature = isFeatureAvailable('ai')
 
     const editableCommentFiles = editableComment?.files
     const [commentValue, setCommentValue] = useState('')

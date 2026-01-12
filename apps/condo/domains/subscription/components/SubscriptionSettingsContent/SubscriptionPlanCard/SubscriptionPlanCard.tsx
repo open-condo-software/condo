@@ -19,15 +19,22 @@ import { colors } from '@open-condo/ui/colors'
 
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
-import { FEATURE_KEY } from '@condo/domains/subscription/constants/features'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import styles from './SubscriptionPlanCard.module.css'
+
+import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
 
 
 type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plans'][number]
 
 const { Panel } = Collapse
+
+type FeatureConfig = {
+    featureKey?: AvailableFeature
+    label: string
+    hint: string | null
+}
 
 const BASE_FEATURES = [
     { label: 'subscription.features.profile', hint: null },
@@ -36,23 +43,23 @@ const BASE_FEATURES = [
     { label: 'subscription.features.services', hint: null },
     { label: 'subscription.features.settings', hint: null },
     { label: 'subscription.features.analytics', hint: null },
-    { featureKey: FEATURE_KEY.TICKETS, label: 'subscription.features.tickets', hint: null },
+    { featureKey: 'tickets', label: 'subscription.features.tickets', hint: null },
     { label: 'subscription.features.properties', hint: 'subscription.features.properties.hint' },
     { label: 'subscription.features.employees', hint: null },
     { label: 'subscription.features.residents', hint: 'subscription.features.residents.hint' },
-    { featureKey: FEATURE_KEY.METERS, label: 'subscription.features.meters', hint: null },
-    { featureKey: FEATURE_KEY.PAYMENTS, label: 'subscription.features.payments', hint: null },
+    { featureKey: 'meters', label: 'subscription.features.meters', hint: null },
+    { featureKey: 'payments', label: 'subscription.features.payments', hint: null },
     { label: 'subscription.features.mobileApp', hint: null },
     { label: 'subscription.features.outages', hint: null },
-    { featureKey: FEATURE_KEY.NEWS, label: 'subscription.features.news', hint: null },
-    { featureKey: FEATURE_KEY.MARKETPLACE, label: 'subscription.features.marketplace', hint: null },
-    { featureKey: FEATURE_KEY.SUPPORT, label: 'subscription.features.personalManager', hint: 'subscription.features.personalManager.hint' },
-    { featureKey: FEATURE_KEY.AI, label: 'subscription.features.ai', hint: null },
-]
+    { featureKey: 'news', label: 'subscription.features.news', hint: null },
+    { featureKey: 'marketplace', label: 'subscription.features.marketplace', hint: null },
+    { featureKey: 'support', label: 'subscription.features.personalManager', hint: 'subscription.features.personalManager.hint' },
+    { featureKey: 'ai', label: 'subscription.features.ai', hint: null },
+] satisfies FeatureConfig[]
 
 const PREMIUM_FEATURES = [
-    { featureKey: FEATURE_KEY.CUSTOMIZATION, label: 'subscription.features.customization', hint: 'subscription.features.customization.hint' },
-]
+    { featureKey: 'customization', label: 'subscription.features.customization', hint: 'subscription.features.customization.hint' },
+] satisfies FeatureConfig[]
 
 const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {} } } = getConfig()
 
@@ -227,13 +234,13 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         }
     }, [handleActivatePlan, price?.id, plan.name, plan.trialDays, isCustomPrice])
 
-    const renderFeature = useCallback(({ featureKey, label, hint }) => (
+    const renderFeature = useCallback(({ featureKey, label, hint }: FeatureConfig) => (
         <FeatureItem 
             key={featureKey || label} 
             label={label} 
-            available={!featureKey ? true : plan[featureKey] === true} 
-            helpLink={featureKey && subscriptionFeatureHelpLinks[featureKey]}
-            hint={hint}
+            available={!featureKey ? true : (plan as Record<AvailableFeature, boolean>)[featureKey] === true} 
+            helpLink={featureKey ? subscriptionFeatureHelpLinks[featureKey] : undefined} 
+            hint={hint} 
         />
     ), [plan])
 

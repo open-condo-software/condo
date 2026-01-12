@@ -7,7 +7,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 
-export type AvailableFeature = 'payments' | 'meters' | 'tickets' | 'news' | 'marketplace' | 'support' | 'ai' | 'customization'
+import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
 
 
 const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()

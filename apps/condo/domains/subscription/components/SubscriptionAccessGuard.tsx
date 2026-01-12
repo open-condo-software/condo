@@ -29,8 +29,20 @@ interface SubscriptionAccessGuardProps {
  */
 const getPageTitle = (pathname: string, intl: any): string => {
     const routeTitleMap: Record<string, string> = {
-        '/news': intl.formatMessage({ id: 'global.section.news' }),
+        '/tour': intl.formatMessage({ id: 'global.section.tour' }),
+        '/reports': intl.formatMessage({ id: 'global.section.analytics' }),
+        '/ticket': intl.formatMessage({ id: 'global.section.controlRoom' }),
+        '/incident': intl.formatMessage({ id: 'global.section.incidents' }),
+        '/news': intl.formatMessage({ id: 'global.section.newsItems' }),
+        '/property': intl.formatMessage({ id: 'global.section.properties' }),
+        '/contact': intl.formatMessage({ id: 'global.section.contacts' }),
+        '/employee': intl.formatMessage({ id: 'global.section.employees' }),
         '/marketplace': intl.formatMessage({ id: 'global.section.marketplace' }),
+        '/billing': intl.formatMessage({ id: 'global.section.accrualsAndPayments' }),
+        '/service-provider-profile': intl.formatMessage({ id: 'global.section.SPP' }),
+        '/meter': intl.formatMessage({ id: 'global.section.meters' }),
+        '/miniapps': intl.formatMessage({ id: 'global.section.miniapps' }),
+        '/settings': intl.formatMessage({ id: 'global.section.settings' }),
     }
 
     if (routeTitleMap[pathname]) {

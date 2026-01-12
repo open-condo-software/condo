@@ -1,16 +1,16 @@
-import { useGetPendingBankingRequestQuery } from '@app/condo/gql'
+import { useCreateUserHelpRequestMutation, useGetPendingBankingRequestQuery } from '@app/condo/gql'
 import { OrganizationFeature, UserHelpRequestTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
 import getConfig from 'next/config'
 import React, { useCallback, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Space, Button } from '@open-condo/ui'
 
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
-import { UserHelpRequest } from '@condo/domains/onboarding/utils/clientSchema'
 
 import styles from './PromoBanner.module.css'
 
@@ -41,19 +41,24 @@ export const PromoBanner: React.FC = () => {
 
     const hasPendingRequest = (pendingRequestData?.pendingBankingRequest?.length ?? 0) > 0
 
-    const createHelpRequestAction = UserHelpRequest.useCreate({
-        organization: { connect: { id: organization?.id } },
-    })
+    const [createUserHelpRequest] = useCreateUserHelpRequestMutation()
 
     const handleActivateBankingRequest = useCallback(async () => {
         if (!organization?.id || !user?.phone) return
 
         setLoading(true)
         try {
-            await createHelpRequestAction({
-                type: UserHelpRequestTypeType.ActivateBanking,
-                phone: user.phone,
-                email: user.email ?? null,
+            await createUserHelpRequest({
+                variables: {
+                    data: {
+                        type: UserHelpRequestTypeType.ActivateBanking,
+                        organization: { connect: { id: organization.id } },
+                        phone: user.phone,
+                        email: user.email ?? null,
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                    },
+                },
             })
             await refetchPendingRequest()
             notification.success({
@@ -66,7 +71,7 @@ export const PromoBanner: React.FC = () => {
         } finally {
             setLoading(false)
         }
-    }, [organization?.id, user.phone, user.email, createHelpRequestAction, refetchPendingRequest, RequestSentMessage, RequestSentDescription])
+    }, [organization?.id, user.phone, user.email, createUserHelpRequest, refetchPendingRequest, RequestSentMessage, RequestSentDescription])
 
     const hasBankingFeature = organization?.features?.includes(OrganizationFeature.ActiveBanking)
     if (hasBankingFeature || !hasSbbolAuth) return null
