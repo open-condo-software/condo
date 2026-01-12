@@ -4,6 +4,7 @@ import {
     useGetPropertyScopeOrganizationEmployeesQuery,
     useGetPropertyScopesQuery,
     useGetPropertyScopePropertiesQuery,
+    GetTicketObserversByTicketIdQuery,
 } from '@app/condo/gql'
 import { TicketWhereInput } from '@app/condo/schema'
 import { createContext, useCallback, useContext, useMemo } from 'react'
@@ -24,7 +25,7 @@ import {
 interface ITicketVisibilityContext {
     ticketFilterQuery: TicketWhereInput
     ticketFilterQueryLoading: boolean
-    canEmployeeReadTicket: (ticket: GetTicketByIdQueryResult['data']['tickets'][0]) => boolean
+    canEmployeeReadTicket: (ticket: GetTicketByIdQueryResult['data']['tickets'][0], observers: GetTicketObserversByTicketIdQuery['observers']) => boolean
 }
 
 const TicketVisibilityContext = createContext<ITicketVisibilityContext>(null)
@@ -45,6 +46,7 @@ const getTicketsQueryByTicketVisibilityType = ({
             {
                 assignee: { id: userId },
                 executor: { id: userId },
+                observers_some: { user: { id: userId } },
             },
         ],
     }
@@ -144,8 +146,10 @@ const isEmployeeCanReadTicket = ({
     properties,
     propertyScopes,
     employee,
+    observers,
 }) => {
     const isUserIsTicketAssigneeOrExecutor = ticket?.assignee?.id === userId || ticket?.executor?.id === userId
+    const isUserIsTicketObserver = !!observers.find(observer => observer?.user?.id === userId)
     const isEmployeeOrganizationMatchToTicketOrganization = ticket?.organization?.id === organizationId
     const isTicketPropertyInPropertyScopes = !!properties.find(propertyId => propertyId === ticket?.property?.id)
     const isTicketClassifierInSpecializations = !!specializations.find(specId => specId === ticket?.classifier?.category?.id)
@@ -163,7 +167,7 @@ const isEmployeeCanReadTicket = ({
             }
 
             return isEmployeeOrganizationMatchToTicketOrganization && (
-                isTicketPropertyInPropertyScopes || isUserIsTicketAssigneeOrExecutor
+                isTicketPropertyInPropertyScopes || isUserIsTicketAssigneeOrExecutor || isUserIsTicketObserver
             )
         }
         case PROPERTY_AND_SPECIALIZATION_VISIBILITY: {
@@ -173,23 +177,23 @@ const isEmployeeCanReadTicket = ({
 
             if (isEmployeeInPropertyScopeWithAllProperties) {
                 return isEmployeeOrganizationMatchToTicketOrganization && (
-                    isUserIsTicketAssigneeOrExecutor || isTicketClassifierInSpecializations
+                    isUserIsTicketAssigneeOrExecutor || isTicketClassifierInSpecializations || isUserIsTicketObserver
                 )
             }
             if (isEmployeeHasAllSpecializations) {
                 return isEmployeeOrganizationMatchToTicketOrganization && ticket?.classifier && (
-                    isTicketPropertyInPropertyScopes || isUserIsTicketAssigneeOrExecutor
+                    isTicketPropertyInPropertyScopes || isUserIsTicketAssigneeOrExecutor || isUserIsTicketObserver
                 )
             }
 
             return isEmployeeOrganizationMatchToTicketOrganization && (
-                isUserIsTicketAssigneeOrExecutor || (
+                isUserIsTicketAssigneeOrExecutor || isUserIsTicketObserver ||  (
                     isTicketPropertyInPropertyScopes && isTicketClassifierInSpecializations
                 )
             )
         }
         case ASSIGNED_TICKET_VISIBILITY: {
-            return isEmployeeOrganizationMatchToTicketOrganization && isUserIsTicketAssigneeOrExecutor
+            return isEmployeeOrganizationMatchToTicketOrganization && (isUserIsTicketAssigneeOrExecutor || isUserIsTicketObserver)
         }
 
         default: {
@@ -274,7 +278,7 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
     const ticketFilterQueryLoading = userIsLoading || userOrganizationLoading || employeesLoading ||
         propertyScopeLoading || propertiesLoading || specializationsLoading
 
-    const canEmployeeReadTicket = useCallback((ticket) => isEmployeeCanReadTicket({
+    const canEmployeeReadTicket = useCallback((ticket, observers) => isEmployeeCanReadTicket({
         ticket,
         ticketVisibilityType,
         organizationId,
@@ -283,6 +287,7 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
         properties,
         propertyScopes,
         employee,
+        observers,
     }), [employee, organizationId, properties, propertyScopes, specializations, ticketVisibilityType, userId])
 
     return (
