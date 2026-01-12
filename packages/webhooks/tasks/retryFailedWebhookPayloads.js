@@ -17,7 +17,7 @@ const WEBHOOK_PAYLOADS_RETRY_BATCH_SIZE = 100
 async function retryFailedWebhookPayloads () {
     const { sendWebhookPayload: sendWebhookPayloadTask } = getWebhookRegularTasks()
 
-    const now = dayjs().toISOString()
+    const cutoffTime = dayjs().toISOString()
 
     let skip = 0
     let queuedCount = 0
@@ -26,8 +26,8 @@ async function retryFailedWebhookPayloads () {
     while (shouldContinue) {
         const where = {
             status: WEBHOOK_PAYLOAD_STATUS_PENDING,
-            nextRetryAt_lte: now,
-            expiresAt_gte: now,
+            nextRetryAt_lte: cutoffTime,
+            expiresAt_gte: cutoffTime,
             deletedAt: null,
         }
 
@@ -57,7 +57,7 @@ async function retryFailedWebhookPayloads () {
         }
     }
 
-    logger.info({ msg: 'Finished retrying webhook payloads', count: queuedCount, data: { now } })
+    logger.info({ msg: 'Finished retrying webhook payloads', count: queuedCount, data: { cutoffTime } })
 }
 
 module.exports = {
