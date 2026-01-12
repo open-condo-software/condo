@@ -7,46 +7,27 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 
+import type { OrganizationSubscriptionFeatures } from '@app/condo/schema'
 import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
 
 
 const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
-interface SubscriptionFeatures {
-    payments: boolean
-    meters: boolean
-    tickets: boolean
-    news: boolean
-    marketplace: boolean
-    support: boolean
-    ai: boolean
-    customization: boolean
-    enabledB2BApps: string[]
-    enabledB2CApps: string[]
-    daysRemaining: number | null
-    planName: string | null
-    planId: string | null
-    priority: number | null
-    isTrial: boolean | null
-    canBePromoted: boolean | null
-    startAt: string | null
-    endAt: string | null
-}
+type SubscriptionFeatures = OrganizationSubscriptionFeatures
 
-interface SubscriptionPlan {
+type SubscriptionPlan = {
     id: string
-    name: string
-    trialDays?: number
-    priority?: number
-    canBePromoted?: boolean
+    name: SubscriptionFeatures['planName']
+    priority: SubscriptionFeatures['priority']
+    canBePromoted: SubscriptionFeatures['canBePromoted']
 }
 
-export interface SubscriptionContext {
+export type SubscriptionContext = {
     subscriptionPlan: SubscriptionPlan | null
-    isTrial: boolean | null
-    startAt: string | null
-    endAt: string | null
-    daysRemaining: number | null
+    isTrial: SubscriptionFeatures['isTrial']
+    startAt: SubscriptionFeatures['startAt']
+    endAt: SubscriptionFeatures['endAt']
+    daysRemaining: SubscriptionFeatures['daysRemaining']
 }
 
 /**
