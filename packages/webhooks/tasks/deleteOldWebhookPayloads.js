@@ -53,12 +53,12 @@ async function deleteOldWebhookPayloads () {
                 failedCount = results.filter(r => r.status === 'rejected').length
                 totalDeleted += successCount
                 totalFailed += failedCount
-            } catch (err) {
+            } catch (error) {
                 // Stop processing if Promise.allSettled itself fails (catastrophic error, not individual deletion failures)
                 hasMore = false
                 failedCount = oldPayloads.length
                 totalFailed += failedCount
-                logger.error({ msg: 'Failed to delete webhook payloads', err, data: { successCount, failedCount } })
+                logger.error({ msg: 'Failed to delete webhook payloads', err: error, data: { successCount, failedCount } })
             }
         }
     }
