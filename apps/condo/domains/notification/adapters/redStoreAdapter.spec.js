@@ -54,11 +54,9 @@ jest.mock('@open-condo/keystone/fetch', () => {
 
             const response = {}
             if (body?.message?.token === 'PUSH_FAKE_TOKEN_SUCCESS') {
-                response.headers = { ':status': 200 }
                 response.json = () => ({})
             }
             if (body?.message?.token === 'PUSH_FAKE_TOKEN_FAIL') {
-                response.headers = { ':status': 400 }
                 response.json = () => errorState
             }
             return response
@@ -176,8 +174,12 @@ describe('redStore adapter utils', () => {
         expect(result.failureCount).toEqual(1)
         expect(result.responses).toBeDefined()
         expect(result.responses).toHaveLength(2)
-        expect(result.responses[0].error).toBeFalsy()
-        expect(result.responses[1].error).toBeDefined()
+
+        const [successResponse, failResponse] = result.responses
+        expect(successResponse.error).toBeFalsy()
+        expect(successResponse.success).toBe(true)
+        expect(failResponse.error).toBeDefined()
+        expect(failResponse.success).toBe(false)
     })
 
     it('sends push notification of proper structure on pushType = PUSH_TYPE_DEFAULT', async () => {

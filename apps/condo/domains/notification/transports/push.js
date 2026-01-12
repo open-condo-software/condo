@@ -134,7 +134,9 @@ async function prepareMessageToSend (message) {
  * @param result
  * @returns {*}
  */
-const mixResult = (container, result) => {
+const mixResult = (container, result, transport) => {
+    result.responses = result.responses.map(response => ({ ...response, transport }))
+    
     if (isEmpty(container)) return result
 
     container.successCount += result.successCount
@@ -208,7 +210,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
                 }
             }
 
-            container = mixResult(container, result)
+            container = mixResult(container, result, transport)
             _isOk = _isOk || isOk
         }
     }
