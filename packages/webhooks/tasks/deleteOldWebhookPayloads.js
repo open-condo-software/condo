@@ -8,23 +8,28 @@ const { WebhookPayload } = require('@open-condo/webhooks/schema/utils/serverSche
 const logger = getLogger()
 
 const BATCH_SIZE = 100
+const MAX_ITERATIONS = 1000 // Prevents infinite loops - max 100,000 records per run (100 * 1000)
 
 /**
  * Hard deletes old WebhookPayload records from the database.
  * Deletes records not updated for more than WEBHOOK_PAYLOAD_RETENTION_IN_SEC (default: 42 days).
  * This helps keep the database clean and prevents unbounded growth of stored data.
+ * 
+ * @returns {Promise<{totalDeleted: number, reachedLimit: boolean}>}
  */
 async function deleteOldWebhookPayloads () {
     const { keystone } = getSchemaCtx('WebhookPayload')
     const context = await keystone.createContext({ skipAccessControl: true })
     const cutoffDate = dayjs().subtract(WEBHOOK_PAYLOAD_RETENTION_IN_SEC, 'second').toISOString()
 
-    logger.info({ msg: 'Starting cleanup of old webhook payloads', data: { cutoffDate, retentionInSec: WEBHOOK_PAYLOAD_RETENTION_IN_SEC } })
+    logger.info({ msg: 'Starting cleanup of old webhook payloads', data: { cutoffDate, retentionInSec: WEBHOOK_PAYLOAD_RETENTION_IN_SEC, maxIterations: MAX_ITERATIONS } })
 
     let totalDeleted = 0
+    let iteration = 0
 
     let hasMore = true
-    while (hasMore) {
+    while (hasMore && iteration < MAX_ITERATIONS) {
+        iteration++
         const oldPayloads = await itemsQuery('WebhookPayload', {
             where: { updatedAt_lt: cutoffDate },
             sortBy: ['updatedAt_ASC'],
@@ -58,9 +63,14 @@ async function deleteOldWebhookPayloads () {
         }
     }
 
-    logger.info({ msg: 'Completed cleanup of old webhook payloads', data: { totalDeleted, cutoffDate } })
+    const reachedLimit = iteration >= MAX_ITERATIONS && hasMore
+    if (reachedLimit) {
+        logger.warn({ msg: 'Reached maximum iteration limit during cleanup', data: { totalDeleted, iterations: iteration, maxIterations: MAX_ITERATIONS } })
+    }
 
-    return { totalDeleted }
+    logger.info({ msg: 'Completed cleanup of old webhook payloads', data: { totalDeleted, iterations: iteration, reachedLimit, cutoffDate } })
+
+    return { totalDeleted, reachedLimit }
 }
 
 module.exports = {
