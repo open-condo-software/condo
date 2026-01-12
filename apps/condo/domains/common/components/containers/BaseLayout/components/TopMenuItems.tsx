@@ -7,6 +7,8 @@ import { Space } from '@open-condo/ui'
 import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
+import { SubscriptionDaysIndicator, UpgradePlanButton } from '@condo/domains/subscription/components'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 
@@ -17,6 +19,7 @@ export interface ITopMenuItemsProps {
 export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const auth = useAuth()
     const { organization } = useOrganization()
+    const { hasSubscription } = useOrganizationSubscription()
 
     if (auth.isLoading) return null
 
@@ -24,14 +27,16 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
         <>
             {props.headerAction ? props.headerAction : null}
             <Space direction='horizontal' size={40} className='top-menu-items'>
-                <div style={{ maxHeight: '24px' }}>
-                    <UserMessagesList />
-                </div>
+                <UpgradePlanButton />
+                <SubscriptionDaysIndicator />
                 <Space size={12}>
                     <SBBOLIndicator organization={organization} />
                     <InlineOrganizationSelect />
                 </Space>
                 <UserMenu />
+                <div style={{ maxHeight: '24px' }}>
+                    <UserMessagesList disabled={!hasSubscription} />
+                </div>
             </Space>
         </>
     )

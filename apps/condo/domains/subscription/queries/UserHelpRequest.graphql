@@ -1,0 +1,37 @@
+query getPendingSubscriptionRequests($organizationId: ID!) {
+    pendingRequests: allUserHelpRequests(
+        where: {
+            organization: { id: $organizationId }
+            type: activateSubscription
+        }
+        first: 1
+    ) {
+        id
+        subscriptionPlanPricingRule {
+            id
+            subscriptionPlan {
+                id
+            }
+        }
+        createdAt
+    }
+}
+
+query getPendingBankingRequest($organizationId: ID!) {
+    pendingBankingRequest: allUserHelpRequests(
+        where: {
+            organization: { id: $organizationId }
+            type: activateBanking
+        }
+        first: 1
+    ) {
+        id
+        createdAt
+    }
+}
+
+mutation createUserHelpRequest($data: UserHelpRequestCreateInput!) {
+    createUserHelpRequest(data: $data) {
+        id
+    }
+}

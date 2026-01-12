@@ -12,6 +12,8 @@ import { Tooltip, Tour, Typography } from '@open-condo/ui'
 
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
 import { Comment } from './Comment'
@@ -78,6 +80,9 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
     const GenerateCommentTourStepTitle = intl.formatMessage({ id: 'ai.generateComment.tourStepTitle' })
     const GenerateCommentTourStepDescription = intl.formatMessage({ id: 'ai.generateComment.tourStepDescription' })
 
+    const { isFeatureAvailable } = useOrganizationSubscription()
+    const hasAiFeature = isFeatureAvailable('ai')
+
     const lastComment = useMemo(() => comments?.[0], [comments])
     const showGenerateAnswerButton = useMemo(() =>
         generateCommentEnabled && lastComment?.user?.type === UserTypeType.Resident,
@@ -109,16 +114,26 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                         />
                         {
                             showGenerateAnswerButton && lastComment?.id === comment.id && (
-                                <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
-                                    <div className={styles.generateAnswerButtonWrapper}>
-                                        <AIFlowButton
-                                            loading={generateCommentLoading}
-                                            onClick={generateCommentOnClickHandler}
-                                        >
-                                            {GenerateResponseMessage}
-                                        </AIFlowButton>
-                                    </div>
-                                </Tooltip>
+                                hasAiFeature ? (
+                                    <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
+                                        <div className={styles.generateAnswerButtonWrapper}>
+                                            <AIFlowButton
+                                                loading={generateCommentLoading}
+                                                onClick={generateCommentOnClickHandler}
+                                            >
+                                                {GenerateResponseMessage}
+                                            </AIFlowButton>
+                                        </div>
+                                    </Tooltip>
+                                ) : (
+                                    <NoSubscriptionTooltip>
+                                        <div className={styles.generateAnswerButtonWrapper}>
+                                            <AIFlowButton disabled>
+                                                {GenerateResponseMessage}
+                                            </AIFlowButton>
+                                        </div>
+                                    </NoSubscriptionTooltip>
+                                )
                             )
                         }
                     </React.Fragment>
@@ -126,7 +141,7 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
             }), [
         GenerateResponseMessage, GenerateResponseTooltipMessage, comments, editableComment,
         generateCommentLoading, generateCommentOnClickHandler, lastComment?.id, setEditableComment,
-        showGenerateAnswerButton, updateAction,
+        showGenerateAnswerButton, updateAction, hasAiFeature,
     ])
 
     const { currentStep, setCurrentStep } = Tour.useTourContext()
@@ -157,21 +172,31 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                         PromptDescriptionMessage={PromptDescriptionMessage}
                         AiButton={<div className={styles.generateCommentButtonWrapper}>
                             {showGenerateCommentWithoutComments && (
-                                <Tour.TourStep
-                                    step={1}
-                                    title={GenerateCommentTourStepTitle}
-                                    message={GenerateCommentTourStepDescription}
-                                    onClose={closeTourStep}
-                                >
-                                    <div className={styles.generateCommentInnerButtonWrapper}>
-                                        <AIFlowButton
-                                            loading={generateCommentLoading}
-                                            onClick={handleClickGenerateCommentButton}
-                                        >
-                                            {GenerateCommentMessage}
-                                        </AIFlowButton>
-                                    </div>
-                                </Tour.TourStep>
+                                hasAiFeature ? (
+                                    <Tour.TourStep
+                                        step={1}
+                                        title={GenerateCommentTourStepTitle}
+                                        message={GenerateCommentTourStepDescription}
+                                        onClose={closeTourStep}
+                                    >
+                                        <div className={styles.generateCommentInnerButtonWrapper}>
+                                            <AIFlowButton
+                                                loading={generateCommentLoading}
+                                                onClick={handleClickGenerateCommentButton}
+                                            >
+                                                {GenerateCommentMessage}
+                                            </AIFlowButton>
+                                        </div>
+                                    </Tour.TourStep>
+                                ) : (
+                                    <NoSubscriptionTooltip>
+                                        <div className={styles.generateCommentInnerButtonWrapper}>
+                                            <AIFlowButton disabled>
+                                                {GenerateCommentMessage}
+                                            </AIFlowButton>
+                                        </div>
+                                    </NoSubscriptionTooltip>
+                                )
                             )}
                         </div> }
                     />

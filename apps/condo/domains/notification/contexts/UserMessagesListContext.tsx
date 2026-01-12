@@ -16,6 +16,7 @@ import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastCha
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hooks/useAllowedToFilterMessageTypes'
 import { useEmailConfirmationNotification } from '@condo/domains/notification/hooks/useEmailConfirmationNotification'
+import { useSubscriptionExpirationNotification } from '@condo/domains/notification/hooks/useSubscriptionExpirationNotification'
 import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessages'
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 import {
@@ -65,9 +66,10 @@ const READ_USER_MESSAGES_AT_BROADCAST_CHANNEL = 'read-user-messages-at'
 type UserMessagesListContextProviderProps = {
     children: ReactNode
     organizationIdsToFilter: Array<string>
+    disabled?: boolean
 }
 
-export const UserMessagesListContextProvider: React.FC<UserMessagesListContextProviderProps> = ({ children, organizationIdsToFilter }) => {
+export const UserMessagesListContextProvider: React.FC<UserMessagesListContextProviderProps> = ({ disabled, children, organizationIdsToFilter }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [readUserMessagesAt, setReadUserMessagesAt] = useState<string>()
     const [excludedMessageTypes, setExcludedMessageTypes] = useState<Array<MessageTypeAllowedToFilterType>>([])
@@ -98,7 +100,7 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         isDropdownOpen,
         messageTypesToFilter,
         organizationIdsToFilter,
-        skipQueryMessagesCondition: userIsLoading || organizationIsLoading || !isAuthenticated || 
+        skipQueryMessagesCondition: disabled || userIsLoading || organizationIsLoading || !isAuthenticated || 
         !organizationId || userMessagesSettingsLoading || allowedMessageTypesLoading || !readUserMessagesAt || 
         messageTypesToFilter.length === 0 || organizationIdsToFilter.length === 0,
     })
@@ -108,13 +110,19 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         markAsRead: markEmailConfirmationMessageAsRead,
     } = useEmailConfirmationNotification()
 
+    const {
+        message: subscriptionExpirationMessage,
+        markAsRead: markSubscriptionExpirationMessageAsRead,
+    } = useSubscriptionExpirationNotification()
+
     const userMessagesWithCustomMessages = useMemo(() => [
         emailConfirmationMessage,
+        subscriptionExpirationMessage,
         ...(userMessages || []),
     ]
         .filter(Boolean)
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    , [userMessages, emailConfirmationMessage])
+    , [userMessages, emailConfirmationMessage, subscriptionExpirationMessage])
 
     // Set initial settings to state
     useEffect(() => {
@@ -153,6 +161,9 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
             if (typeof markEmailConfirmationMessageAsRead === 'function') {
                 markEmailConfirmationMessageAsRead()
             }
+            if (typeof markSubscriptionExpirationMessageAsRead === 'function') {
+                markSubscriptionExpirationMessageAsRead()
+            }
         }
     }, [
         readUserMessagesAt,
@@ -160,6 +171,7 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         userMessagesWithCustomMessages,
         userMessagesSettingsStorage,
         markEmailConfirmationMessageAsRead,
+        markSubscriptionExpirationMessageAsRead,
     ])
 
     const handleDropdownOpenChange = useCallback((isOpen: boolean) => {

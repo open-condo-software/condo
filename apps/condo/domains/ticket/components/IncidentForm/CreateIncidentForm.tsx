@@ -11,6 +11,8 @@ import { ActionBar, Button, Space, Switch, Typography } from '@open-condo/ui'
 import { useAIConfig } from '@condo/domains/ai/hooks/useAIFlow'
 import { LabeledField } from '@condo/domains/common/components/LabeledField'
 import { AnalyticalNewsSources } from '@condo/domains/news/constants/sources'
+import { NoSubscriptionTooltip } from '@condo/domains/subscription/components'
+import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
@@ -28,6 +30,11 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
 
     const { enabled: aiEnabled, features: { generateNewsByIncident: generateNewsByIncidentEnabled } } = useAIConfig()
 
+    const { isFeatureAvailable } = useOrganizationSubscription()
+    const hasAiFeature = isFeatureAvailable('ai')
+    const hasNewsFeature = isFeatureAvailable('news')
+    const hasRequiredFeatures = hasAiFeature && hasNewsFeature
+
     return (
         <ActionBar
             actions={[
@@ -41,26 +48,45 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
                 />,
                 ...((withNewsGeneration && aiEnabled && generateNewsByIncidentEnabled && canManageNewsItems)
                     ? [
-                        <LabeledField
-                            key='generateNews'
-                            hint={GenerateNewsHint}
-                        >
-                            <Space size={8}>
-                                <Form.Item
-                                    name='generateNews'
-                                    valuePropName='checked'
-                                    initialValue={true}
-                                >
-                                    <Switch
-                                        id='generateNews'
-                                        size='small'
-                                    />
-                                </Form.Item>
-                                <Typography.Text>
-                                    {GenerateNewsLabel}
-                                </Typography.Text>
-                            </Space>
-                        </LabeledField>,
+                        hasRequiredFeatures ? (
+                            <LabeledField
+                                key='generateNews'
+                                hint={GenerateNewsHint}
+                            >
+                                <Space size={8}>
+                                    <Form.Item
+                                        name='generateNews'
+                                        valuePropName='checked'
+                                        initialValue={true}
+                                    >
+                                        <Switch
+                                            id='generateNews'
+                                            size='small'
+                                        />
+                                    </Form.Item>
+                                    <Typography.Text>
+                                        {GenerateNewsLabel}
+                                    </Typography.Text>
+                                </Space>
+                            </LabeledField>
+                        ) : (
+                            <NoSubscriptionTooltip key='generateNews'>
+                                <div>
+                                    <LabeledField hint={GenerateNewsHint}>
+                                        <Space size={8}>
+                                            <Switch
+                                                id='generateNews'
+                                                size='small'
+                                                disabled
+                                            />
+                                            <Typography.Text type='secondary'>
+                                                {GenerateNewsLabel}
+                                            </Typography.Text>
+                                        </Space>
+                                    </LabeledField>
+                                </div>
+                            </NoSubscriptionTooltip>
+                        ),
                     ] 
                     : []
                 ),

@@ -13,7 +13,7 @@ const { evaluateConditions } = require('./conditionsEvaluator')
  * @param {string} subscriptionPlanId - Subscription plan ID
  * @param {string} period - Subscription period (month/year)
  * @param {Object} organization - Organization (required)
- * @returns {Object|null} { ruleId, basePrice, finalPrice, currencyCode, appliedRules } or null if no matching rule found
+ * @returns {Object|null} { ruleId, price, currencyCode, appliedRules } or null if no matching rule found
  */
 async function findMatchingPricingRule (subscriptionPlanId, period, organization) {
     if (!organization) {
@@ -42,12 +42,10 @@ async function findMatchingPricingRule (subscriptionPlanId, period, organization
             continue
         }
 
-        const price = parseFloat(rule.price) || 0
-
         return {
             ruleId: rule.id,
-            basePrice: price.toFixed(2),
-            finalPrice: price.toFixed(2),
+            name: rule.name,
+            price: rule.price,
             currencyCode: rule.currencyCode,
             appliedRules: [{
                 ruleId: rule.id,

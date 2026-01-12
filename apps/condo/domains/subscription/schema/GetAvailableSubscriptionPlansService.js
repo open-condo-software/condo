@@ -27,7 +27,7 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
     types: [
         {
             access: true,
-            type: 'type SubscriptionPlanPrice { id: ID!, period: String!, price: String, currencyCode: String }',
+            type: 'type SubscriptionPlanPrice { id: ID!, name: String!, period: String!, price: String, currencyCode: String }',
         },
         {
             access: true,
@@ -73,8 +73,9 @@ const GetAvailableSubscriptionPlansService = new GQLCustomSchema('GetAvailableSu
                         if (priceData) {
                             prices.push({
                                 id: priceData.ruleId,
+                                name: priceData.name,
                                 period,
-                                price: priceData.finalPrice,
+                                price: priceData.price,
                                 currencyCode: priceData.currencyCode,
                             })
                         }

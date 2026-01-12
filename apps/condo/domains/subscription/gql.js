@@ -10,13 +10,13 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const SUBSCRIPTION_PLAN_FIELDS = `{ name description organizationType trialDays news marketplace support ai passTickets isHidden priority canBePromoted ${COMMON_FIELDS} }`
+const SUBSCRIPTION_PLAN_FIELDS = `{ name description organizationType trialDays news marketplace support ai enabledB2BApps enabledB2CApps customization isHidden priority canBePromoted ${COMMON_FIELDS} }`
 const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLAN_FIELDS)
 
 const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden ${COMMON_FIELDS} }`
 const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
 
-const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } startAt endAt basePrice calculatedPrice appliedRules isTrial daysRemaining ${COMMON_FIELDS} }`
+const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } startAt endAt isTrial daysRemaining ${COMMON_FIELDS} }`
 const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
 
 const ACTIVATE_SUBSCRIPTION_PLAN_MUTATION = gql`

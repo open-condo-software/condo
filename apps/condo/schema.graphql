@@ -6167,6 +6167,27 @@ enum OrganizationFeature {
   HIGH_REVENUE_CUSTOMER
 }
 
+type OrganizationSubscriptionFeatures {
+  payments: Boolean!
+  meters: Boolean!
+  tickets: Boolean!
+  news: Boolean!
+  marketplace: Boolean!
+  support: Boolean!
+  ai: Boolean!
+  customization: Boolean!
+  enabledB2BApps: [String!]!
+  enabledB2CApps: [String!]!
+  daysRemaining: Int
+  planName: String
+  planId: String
+  canBePromoted: Boolean
+  priority: Int
+  isTrial: Boolean
+  startAt: String
+  endAt: String
+}
+
 """ B2B customer of the service, a legal entity or an association of legal entities (holding/group) 
 """
 type Organization {
@@ -6243,9 +6264,9 @@ type Organization {
   """
   isApproved: Boolean
 
-  """ Active subscription context for this organization. Returns the best active subscription (by plan priority, then by latest startAt). Returns null if no active subscription 
+  """ Subscription feature flags for this organization. Returns feature availability based on active subscription. If no subscription plans exist for organization type, returns all features enabled. Returns null if plans exist but no active subscription. 
   """
-  subscription: SubscriptionContext
+  subscription: OrganizationSubscriptionFeatures
   id: ID!
   v: Int
   createdAt: String
@@ -57781,12 +57802,17 @@ type SubscriptionPlanHistoryRecord {
   isHidden: Boolean
   trialDays: Int
   priority: Int
+  canBePromoted: Boolean
+  payments: Boolean
+  meters: Boolean
+  tickets: Boolean
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
-  passTickets: Boolean
-  canBePromoted: Boolean
+  customization: Boolean
+  enabledB2BApps: JSON
+  enabledB2CApps: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -57877,6 +57903,14 @@ input SubscriptionPlanHistoryRecordWhereInput {
   priority_gte: Int
   priority_in: [Int]
   priority_not_in: [Int]
+  canBePromoted: Boolean
+  canBePromoted_not: Boolean
+  payments: Boolean
+  payments_not: Boolean
+  meters: Boolean
+  meters_not: Boolean
+  tickets: Boolean
+  tickets_not: Boolean
   news: Boolean
   news_not: Boolean
   marketplace: Boolean
@@ -57885,10 +57919,16 @@ input SubscriptionPlanHistoryRecordWhereInput {
   support_not: Boolean
   ai: Boolean
   ai_not: Boolean
-  passTickets: Boolean
-  passTickets_not: Boolean
-  canBePromoted: Boolean
-  canBePromoted_not: Boolean
+  customization: Boolean
+  customization_not: Boolean
+  enabledB2BApps: JSON
+  enabledB2BApps_not: JSON
+  enabledB2BApps_in: [JSON]
+  enabledB2BApps_not_in: [JSON]
+  enabledB2CApps: JSON
+  enabledB2CApps_not: JSON
+  enabledB2CApps_in: [JSON]
+  enabledB2CApps_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -57984,6 +58024,14 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   trialDays_DESC
   priority_ASC
   priority_DESC
+  canBePromoted_ASC
+  canBePromoted_DESC
+  payments_ASC
+  payments_DESC
+  meters_ASC
+  meters_DESC
+  tickets_ASC
+  tickets_DESC
   news_ASC
   news_DESC
   marketplace_ASC
@@ -57992,10 +58040,8 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   support_DESC
   ai_ASC
   ai_DESC
-  passTickets_ASC
-  passTickets_DESC
-  canBePromoted_ASC
-  canBePromoted_DESC
+  customization_ASC
+  customization_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -58021,12 +58067,17 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   isHidden: Boolean
   trialDays: Int
   priority: Int
+  canBePromoted: Boolean
+  payments: Boolean
+  meters: Boolean
+  tickets: Boolean
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
-  passTickets: Boolean
-  canBePromoted: Boolean
+  customization: Boolean
+  enabledB2BApps: JSON
+  enabledB2CApps: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -58053,12 +58104,17 @@ input SubscriptionPlanHistoryRecordCreateInput {
   isHidden: Boolean
   trialDays: Int
   priority: Int
+  canBePromoted: Boolean
+  payments: Boolean
+  meters: Boolean
+  tickets: Boolean
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
-  passTickets: Boolean
-  canBePromoted: Boolean
+  customization: Boolean
+  enabledB2BApps: JSON
+  enabledB2CApps: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -58098,8 +58154,7 @@ type SubscriptionPlan {
   """ Human-readable name of the subscription plan """
   name: String
 
-  """ Detailed description of the subscription plan. Displayed to end users in the subscription selection UI 
-  """
+  """ Detailed description of the subscription plan. Shown to end users. """
   description: String
 
   """ Type of organization this plan is available for """
@@ -58116,6 +58171,18 @@ type SubscriptionPlan {
   """
   priority: Int
 
+  """ Whether this plan can be promoted to users """
+  canBePromoted: Boolean
+
+  """ Whether payments feature is included in this plan """
+  payments: Boolean
+
+  """ Whether meters feature is included in this plan """
+  meters: Boolean
+
+  """ Whether tickets feature is included in this plan """
+  tickets: Boolean
+
   """ Whether news feature is included in this plan """
   news: Boolean
 
@@ -58128,11 +58195,16 @@ type SubscriptionPlan {
   """ Whether AI feature is included in this plan """
   ai: Boolean
 
-  """ Whether pass tickets feature is included in this plan """
-  passTickets: Boolean
+  """ Whether customization feature is included in this plan """
+  customization: Boolean
 
-  """ Whether this plan can be promoted to users """
-  canBePromoted: Boolean
+  """ List of B2B miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type. 
+  """
+  enabledB2BApps: JSON
+
+  """ List of B2C miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type. 
+  """
+  enabledB2CApps: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -58217,6 +58289,14 @@ input SubscriptionPlanWhereInput {
   priority_gte: Int
   priority_in: [Int]
   priority_not_in: [Int]
+  canBePromoted: Boolean
+  canBePromoted_not: Boolean
+  payments: Boolean
+  payments_not: Boolean
+  meters: Boolean
+  meters_not: Boolean
+  tickets: Boolean
+  tickets_not: Boolean
   news: Boolean
   news_not: Boolean
   marketplace: Boolean
@@ -58225,10 +58305,16 @@ input SubscriptionPlanWhereInput {
   support_not: Boolean
   ai: Boolean
   ai_not: Boolean
-  passTickets: Boolean
-  passTickets_not: Boolean
-  canBePromoted: Boolean
-  canBePromoted_not: Boolean
+  customization: Boolean
+  customization_not: Boolean
+  enabledB2BApps: JSON
+  enabledB2BApps_not: JSON
+  enabledB2BApps_in: [JSON]
+  enabledB2BApps_not_in: [JSON]
+  enabledB2CApps: JSON
+  enabledB2CApps_not: JSON
+  enabledB2CApps_in: [JSON]
+  enabledB2CApps_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -58304,6 +58390,14 @@ enum SortSubscriptionPlansBy {
   trialDays_DESC
   priority_ASC
   priority_DESC
+  canBePromoted_ASC
+  canBePromoted_DESC
+  payments_ASC
+  payments_DESC
+  meters_ASC
+  meters_DESC
+  tickets_ASC
+  tickets_DESC
   news_ASC
   news_DESC
   marketplace_ASC
@@ -58312,10 +58406,8 @@ enum SortSubscriptionPlansBy {
   support_DESC
   ai_ASC
   ai_DESC
-  passTickets_ASC
-  passTickets_DESC
-  canBePromoted_ASC
-  canBePromoted_DESC
+  customization_ASC
+  customization_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -58341,12 +58433,17 @@ input SubscriptionPlanUpdateInput {
   isHidden: Boolean
   trialDays: Int
   priority: Int
+  canBePromoted: Boolean
+  payments: Boolean
+  meters: Boolean
+  tickets: Boolean
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
-  passTickets: Boolean
-  canBePromoted: Boolean
+  customization: Boolean
+  enabledB2BApps: JSON
+  enabledB2CApps: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -58370,12 +58467,17 @@ input SubscriptionPlanCreateInput {
   isHidden: Boolean
   trialDays: Int
   priority: Int
+  canBePromoted: Boolean
+  payments: Boolean
+  meters: Boolean
+  tickets: Boolean
   news: Boolean
   marketplace: Boolean
   support: Boolean
   ai: Boolean
-  passTickets: Boolean
-  canBePromoted: Boolean
+  customization: Boolean
+  enabledB2BApps: JSON
+  enabledB2CApps: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -89583,6 +89685,7 @@ type RegisterPropertyMetersReadingsOutput {
 
 type SubscriptionPlanPrice {
   id: ID!
+  name: String!
   period: String!
   price: String
   currencyCode: String

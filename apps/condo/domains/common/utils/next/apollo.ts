@@ -156,6 +156,26 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
+                    allSubscriptionContexts: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allSubscriptionPlans: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allSubscriptionPlanPricingRules: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allUserHelpRequests: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
                 },
             },
 
