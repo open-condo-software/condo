@@ -64,11 +64,19 @@ async function deleteOldWebhookPayloads () {
     }
 
     const reachedLimit = iteration >= MAX_ITERATIONS && hasMore
-    if (reachedLimit) {
-        logger.warn({ msg: 'Reached maximum iteration limit during cleanup', data: { totalDeleted, iterations: iteration, maxIterations: MAX_ITERATIONS } })
-    }
 
-    logger.info({ msg: 'Completed cleanup of old webhook payloads', data: { totalDeleted, iterations: iteration, reachedLimit, cutoffDate } })
+    const loggerFn = reachedLimit ? logger.warn : logger.info
+    
+    loggerFn({
+        msg: 'Completed cleanup of old webhook payloads',
+        count: totalDeleted,
+        data: {
+            iterations: iteration,
+            reachedLimit,
+            cutoffDate,
+            maxIterations: MAX_ITERATIONS,
+        },
+    })
 
     return { totalDeleted, reachedLimit }
 }
