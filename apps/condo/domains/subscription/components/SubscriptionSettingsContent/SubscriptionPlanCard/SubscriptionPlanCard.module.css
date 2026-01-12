@@ -1,5 +1,6 @@
 .subscription-plan-card {
-  width: 380px;
+  width: 30%;
+  min-width: 260px;
 }
 
 .main-content {
