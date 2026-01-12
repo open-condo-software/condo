@@ -11,9 +11,11 @@ import { createContext, useCallback, useContext, useMemo } from 'react'
 import React from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { TICKET_OBSERVERS } from '@condo/domains/common/constants/featureflags'
 import {
     ORGANIZATION_TICKET_VISIBILITY,
     PROPERTY_AND_SPECIALIZATION_VISIBILITY,
@@ -40,13 +42,14 @@ const getTicketsQueryByTicketVisibilityType = ({
     properties,
     propertyScopes,
     employee,
+    isTicketObserversEnabled,
 }) => {
     const assignedTicketFiltersQuery = {
         OR: [
             {
                 assignee: { id: userId },
                 executor: { id: userId },
-                observers_some: { user: { id: userId } },
+                ...(isTicketObserversEnabled ? { observers_some: { user: { id: userId } } } : {}),
             },
         ],
     }
@@ -147,9 +150,10 @@ const isEmployeeCanReadTicket = ({
     propertyScopes,
     employee,
     observers,
+    isTicketObserversEnabled,
 }) => {
     const isUserIsTicketAssigneeOrExecutor = ticket?.assignee?.id === userId || ticket?.executor?.id === userId
-    const isUserIsTicketObserver = !!observers.find(observer => observer?.user?.id === userId)
+    const isUserIsTicketObserver = isTicketObserversEnabled && Array.isArray(observers) ? (observers.some(observer => observer?.user?.id === userId)) : false
     const isEmployeeOrganizationMatchToTicketOrganization = ticket?.organization?.id === organizationId
     const isTicketPropertyInPropertyScopes = !!properties.find(propertyId => propertyId === ticket?.property?.id)
     const isTicketClassifierInSpecializations = !!specializations.find(specId => specId === ticket?.classifier?.category?.id)
@@ -213,6 +217,9 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
 
     const { persistor } = useCachePersistor()
 
+    const { useFlag } = useFeatureFlags()
+    const isTicketObserversEnabled = useFlag(TICKET_OBSERVERS)
+
     const { data: propertyScopeEmployeesData, loading: employeesLoading } = useGetPropertyScopeOrganizationEmployeesQuery({
         variables: {
             employeeId,
@@ -273,6 +280,7 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
         properties,
         propertyScopes,
         employee,
+        isTicketObserversEnabled,
     })
 
     const ticketFilterQueryLoading = userIsLoading || userOrganizationLoading || employeesLoading ||
@@ -288,7 +296,8 @@ const TicketVisibilityContextProvider: React.FC<React.PropsWithChildren> = ({ ch
         propertyScopes,
         employee,
         observers,
-    }), [employee, organizationId, properties, propertyScopes, specializations, ticketVisibilityType, userId])
+        isTicketObserversEnabled,
+    }), [employee, organizationId, properties, propertyScopes, specializations, ticketVisibilityType, userId, isTicketObserversEnabled])
 
     return (
         <TicketVisibilityContext.Provider value={{
