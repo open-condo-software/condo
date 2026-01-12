@@ -8,6 +8,7 @@ const { getWebhookRegularTasks } = require('@open-condo/webhooks/tasks/regularTa
 
 const logger = getLogger()
 const WEBHOOK_PAYLOADS_RETRY_BATCH_SIZE = 100
+const MAX_ITERATIONS = 1000 // Prevents infinite loops - max 100,000 records per run (100 * 1000)
 
 /**
  * Finds pending webhook payloads that are due for retry
@@ -19,11 +20,15 @@ async function retryFailedWebhookPayloads () {
 
     const cutoffTime = dayjs().toISOString()
 
+    logger.info({ msg: 'Starting retry of failed webhook payloads', data: { cutoffTime, maxIterations: MAX_ITERATIONS } })
+
     let skip = 0
     let queuedCount = 0
+    let iteration = 0
     let shouldContinue = true
 
-    while (shouldContinue) {
+    while (shouldContinue && iteration < MAX_ITERATIONS) {
+        iteration++
         const where = {
             status: WEBHOOK_PAYLOAD_STATUS_PENDING,
             nextRetryAt_lte: cutoffTime,
@@ -57,7 +62,19 @@ async function retryFailedWebhookPayloads () {
         }
     }
 
-    logger.info({ msg: 'Finished retrying webhook payloads', count: queuedCount, data: { cutoffTime } })
+    const reachedLimit = iteration >= MAX_ITERATIONS && shouldContinue
+
+    const loggerFn = reachedLimit ? logger.warn : logger.info
+    
+    loggerFn({
+        msg: 'Finished retrying webhook payloads',
+        count: queuedCount,
+        data: {
+            iterations: iteration,
+            reachedLimit,
+            cutoffTime,
+        },
+    })
 }
 
 module.exports = {
