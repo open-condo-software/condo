@@ -10,6 +10,7 @@ import {
     useUpdateTicketMutation,
     useCreateUserTicketCommentReadTimeMutation,
     useUpdateUserTicketCommentReadTimeMutation, useGetTicketInvoicesQuery, GetIncidentsQuery,
+    useGetTicketObserversByTicketIdQuery,
 } from '@app/condo/gql'
 import { B2BAppGlobalFeature } from '@app/condo/schema'
 import { Affix, Col, ColProps, notification, Row, RowProps, Space } from 'antd'
@@ -948,6 +949,17 @@ const TicketIdPage: PageComponentType = () => {
     })
     const ticketOrganizationEmployee = useMemo(() => data?.employees?.filter(Boolean)[0], [data?.employees])
 
+    const {
+        data: observersData,
+        loading: observersLoading,
+    } = useGetTicketObserversByTicketIdQuery({
+        variables: {
+            ticketId: ticketId,
+        },
+        skip: !persistor || !ticketId,
+    })
+    const observers = useMemo(() => observersData?.observers?.filter(Boolean)?.filter(observer => observer?.user?.id) || [], [observersData?.observers])
+
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [intl, ticket])
 
     const currentEmployeeOrganizationId = organization?.id
@@ -969,13 +981,13 @@ const TicketIdPage: PageComponentType = () => {
     if (!ticket || ticketFilterQueryLoading) {
         return (
             <LoadingOrErrorPage
-                loading={ticketFilterQueryLoading || ticketLoading}
+                loading={ticketFilterQueryLoading || ticketLoading || observersLoading}
                 error={error && ServerErrorMessage}
             />
         )
     }
 
-    if (!canEmployeeReadTicket(ticket)) {
+    if (!canEmployeeReadTicket(ticket, observers)) {
         return (
             <AccessDeniedPage/>
         )
