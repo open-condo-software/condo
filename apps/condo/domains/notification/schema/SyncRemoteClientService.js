@@ -82,7 +82,7 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                     dv, sender, deviceId, appId,
                     pushToken, pushTransport, devicePlatform, pushType, meta,
                     pushTokenVoIP, pushTransportVoIP, pushTypeVoIP,
-                    owner: userId ? { connect: { id: userId } } : undefined,
+                    owner: userId ? { disconnectAll: true, connect: { id: userId } } : null,
                 }, value => value !== undefined)
 
                 let result
