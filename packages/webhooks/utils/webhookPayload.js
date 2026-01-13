@@ -145,11 +145,7 @@ async function trySendWebhookPayload (webhookPayload) {
     const logData = {
         success: result.success,
         algorithm: WEBHOOK_SIGNATURE_HASH_ALGORITHM,
-        error: result.error || null,
-    }
-
-    if (result.timeout) {
-        logData.timeout = result.timeout
+        timeoutMs: WEBHOOK_PAYLOAD_TIMEOUT_IN_MS,
     }
 
     const logEntry = {
