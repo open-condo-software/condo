@@ -64,9 +64,7 @@ async function retryFailedWebhookPayloads () {
 
     const reachedLimit = iteration >= MAX_ITERATIONS && shouldContinue
 
-    const loggerFn = reachedLimit ? logger.warn : logger.info
-    
-    loggerFn({
+    const logData = {
         msg: 'Finished retrying webhook payloads',
         count: queuedCount,
         data: {
@@ -74,7 +72,9 @@ async function retryFailedWebhookPayloads () {
             reachedLimit,
             cutoffTime,
         },
-    })
+    }
+    
+    if (reachedLimit) { logger.warn(logData) } else { logger.info(logData) }
 }
 
 module.exports = {
