@@ -1,4 +1,3 @@
-const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const { WebhookPayload, createTestWebhookPayload, softDeleteTestWebhookPayload } = require('@open-condo/webhooks/schema/utils/testSchema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
@@ -11,9 +10,6 @@ jest.mock('@open-condo/webhooks/constants', () => ({
 
 const DeleteOldWebhookPayloadsTests = (appName, actorsInitializer, entryPointPath) => {
     describe(`deleteOldWebhookPayloads cron task tests for ${appName} app`, () => {
-        const appEntryPoint = require(entryPointPath)
-        setFakeClientMode(appEntryPoint, { excludeApps: ['OIDCMiddleware'] })
-
         let deleteOldWebhookPayloads
         let actors
 
