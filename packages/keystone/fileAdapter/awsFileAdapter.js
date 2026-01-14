@@ -101,9 +101,8 @@ class AwsFileAdapter {
                 resolve(result)
             }
 
-            stream.on('error', fail)
-
-            stream.on('aborted', () => {
+            stream.once('error', fail)
+            stream.once('aborted', () => {
                 fail(Object.assign(new Error('Upload aborted by client'), { statusCode: 499 }))
             })
 
