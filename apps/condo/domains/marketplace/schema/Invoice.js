@@ -528,14 +528,17 @@ const Invoice = new GQLListSchema('Invoice', {
             }
 
             // Validate callback URL is in whitelist
-            // Normalize empty string to null
-            let callbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
-            if (!callbackUrl) {
-                callbackUrl = null
-                resolvedData['paymentStatusChangeWebhookUrl'] = null
-            }
-            if (callbackUrl && !await isWebhookUrlInWhitelist(callbackUrl)) {
-                throw new GQLError(ERRORS.WEBHOOK_URL_NOT_IN_WHITELIST, context)
+            // Only process if the field is being updated to avoid clearing existing values
+            if ('paymentStatusChangeWebhookUrl' in resolvedData) {
+                // Normalize empty string to null
+                let callbackUrl = get(resolvedData, 'paymentStatusChangeWebhookUrl')
+                if (!callbackUrl) {
+                    callbackUrl = null
+                    resolvedData['paymentStatusChangeWebhookUrl'] = null
+                }
+                if (callbackUrl && !await isWebhookUrlInWhitelist(callbackUrl)) {
+                    throw new GQLError(ERRORS.WEBHOOK_URL_NOT_IN_WHITELIST, context)
+                }
             }
         },
 

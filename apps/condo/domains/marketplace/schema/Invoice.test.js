@@ -3008,5 +3008,33 @@ describe('Invoice', () => {
                 'obj'
             )
         })
+
+        test('webhook URL and secret should not be cleared when updating unrelated fields', async () => {
+            const callbackUrl = `https://preserve-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Add URL to whitelist
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            // Create invoice with whitelisted callback URL
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                paymentStatusChangeWebhookUrl: callbackUrl,
+            })
+
+            expect(invoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(invoice.paymentStatusChangeWebhookSecret).toBeTruthy()
+            const originalSecret = invoice.paymentStatusChangeWebhookSecret
+
+            // Update invoice with unrelated field (not including paymentStatusChangeWebhookUrl)
+            const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                clientName: 'Updated Client Name',
+            })
+
+            // Webhook URL and secret should be preserved
+            expect(updatedInvoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(updatedInvoice.paymentStatusChangeWebhookSecret).toBe(originalSecret)
+        })
     })
 })
