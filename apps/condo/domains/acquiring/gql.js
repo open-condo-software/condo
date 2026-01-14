@@ -103,6 +103,9 @@ const SET_PAYMENT_POS_RECEIPT_URL_MUTATION = gql`
     }
 `
 
+const PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS = `{ name url isEnabled description organization { id name } ${COMMON_FIELDS} }`
+const PaymentStatusChangeWebhookUrl = generateGqlQueries('PaymentStatusChangeWebhookUrl', PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -133,5 +136,7 @@ module.exports = {
     CALCULATE_FEE_FOR_RECEIPT_QUERY,
     PaymentsFile,
     SET_PAYMENT_POS_RECEIPT_URL_MUTATION,
+    PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELDS,
+    PaymentStatusChangeWebhookUrl,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

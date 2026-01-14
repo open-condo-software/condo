@@ -17,7 +17,7 @@ const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIEL
 const MARKET_ITEM_FIELDS = `{ name marketCategory { id name order parentCategory { id name order mobileSettings { bgColor titleColor } image { publicUrl } } image { publicUrl } mobileSettings { bgColor titleColor } } sku description organization { id } ${COMMON_FIELDS} }`
 const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 
-const INVOICE_FIELDS = `{ organization { id } number property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } map { ${PROPERTY_MAP_JSON_FIELDS} } } unitType unitName accountNumber toPay rows { name toPay count vatPercent measure salesTaxPercent sku isMin currencyCode meta { imageUrl categoryBgColor } } ticket { id number property { id } unitName unitType clientName clientPhone } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType publishedAt paidAt canceledAt recipient { name bankName tin bic bankAccount } currencyCode canGroupReceipts acquiringHostUrl acquiringIntegrationId ${COMMON_FIELDS} }`
+const INVOICE_FIELDS = `{ organization { id } number property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } map { ${PROPERTY_MAP_JSON_FIELDS} } } unitType unitName accountNumber toPay rows { name toPay count vatPercent measure salesTaxPercent sku isMin currencyCode meta { imageUrl categoryBgColor } } ticket { id number property { id } unitName unitType clientName clientPhone } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType publishedAt paidAt canceledAt recipient { name bankName tin bic bankAccount } currencyCode canGroupReceipts acquiringHostUrl acquiringIntegrationId paymentStatusChangeWebhookUrl paymentStatusChangeWebhookSecret ${COMMON_FIELDS} }`
 const Invoice = generateGqlQueries('Invoice', INVOICE_FIELDS)
 
 const MARKET_ITEM_FILE_FIELDS = `{ marketItem { id organization { id } } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
@@ -32,6 +32,9 @@ const MarketPriceScope = generateGqlQueries('MarketPriceScope', MARKET_PRICE_SCO
 const MARKET_SETTING_FIELDS = `{ organization { id } residentAllowedPaymentTypes ${COMMON_FIELDS} }`
 const MarketSetting = generateGqlQueries('MarketSetting', MARKET_SETTING_FIELDS)
 
+const INVOICE_WEBHOOK_DELIVERY_FIELDS = `{ invoice { id number status organization { id name } } previousStatus newStatus callbackUrl status attempt httpStatusCode responseBody errorMessage expiresAt nextRetryAt sentAt ${COMMON_FIELDS} }`
+const InvoiceWebhookDelivery = generateGqlQueries('InvoiceWebhookDelivery', INVOICE_WEBHOOK_DELIVERY_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -43,5 +46,7 @@ module.exports = {
     MarketPriceScope,
     INVOICE_FIELDS,
     MarketSetting,
+    InvoiceWebhookDelivery,
+    INVOICE_WEBHOOK_DELIVERY_FIELDS,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

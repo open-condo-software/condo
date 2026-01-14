@@ -17,6 +17,7 @@ const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplac
 const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')
 const { MarketSetting: MarketSettingGQL } = require('@condo/domains/marketplace/gql')
+const { InvoiceWebhookDelivery: InvoiceWebhookDeliveryGQL } = require('@condo/domains/marketplace/gql')
 const { INVOICE_PAYMENT_TYPES } = require('@condo/domains/marketplace/constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -29,6 +30,7 @@ const MarketItemPrice = generateGQLTestUtils(MarketItemPriceGQL)
 const MarketPriceScope = generateGQLTestUtils(MarketPriceScopeGQL)
 
 const MarketSetting = generateGQLTestUtils(MarketSettingGQL)
+const InvoiceWebhookDelivery = generateGQLTestUtils(InvoiceWebhookDeliveryGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
@@ -355,6 +357,37 @@ async function updateTestMarketSetting (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestInvoiceWebhookDelivery (client, invoice, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!invoice || !invoice.id) throw new Error('no invoice.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        invoice: { connect: { id: invoice.id } },
+        newStatus: 'published',
+        callbackUrl: `https://example.com/webhook/${faker.random.alphaNumeric(8)}`,
+        ...extraAttrs,
+    }
+    const obj = await InvoiceWebhookDelivery.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestInvoiceWebhookDelivery (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await InvoiceWebhookDelivery.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -368,5 +401,6 @@ module.exports = {
     MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope,
     createTestMarketPriceScopes, softDeleteTestMarketPriceScopes,
     MarketSetting, createTestMarketSetting, updateTestMarketSetting,
+    InvoiceWebhookDelivery, createTestInvoiceWebhookDelivery, updateTestInvoiceWebhookDelivery,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

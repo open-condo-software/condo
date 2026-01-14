@@ -114,26 +114,34 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser, createOrganiz
             test('Only POST request is allowed', async () => {
                 const result = await fetch(serverUrl, {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
                 })
                 expect(result.status).toEqual(404)
+
+                await expectGQLErrorResponse(result, {
+                    code: 'NOT_FOUND',
+                })
             })
 
             test('Strict match url pattern for POST', async () => {
                 const result = await fetch(serverUrl + '/something/else', {
                     method: 'POST',
-                    body: JSON.stringify({}),
-                    headers: { 'Content-Type': 'application/json' },
                 })
                 expect(result.status).toEqual(404)
+
+                await expectGQLErrorResponse(result, {
+                    code: 'NOT_FOUND',
+                })
             })
 
             test('Strict match url pattern for GET', async () => {
                 const result = await fetch(serverUrl + '/something/else', {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
                 })
                 expect(result.status).toEqual(404)
+
+                await expectGQLErrorResponse(result, {
+                    code: 'NOT_FOUND',
+                })
             })
         })
 

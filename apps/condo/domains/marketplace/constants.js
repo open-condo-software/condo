@@ -67,7 +67,7 @@ const SERVICES_TAB_KEY = 'services'
 // The default value for invoice context
 const DEFAULT_IMPLICIT_FEE_PERCENT = '5'
 
-const COMMON_RESOLVED_FIELDS = ['dv', 'sender', 'v', 'updatedAt', 'updatedBy', 'publishedAt', 'paidAt', 'canceledAt']
+const COMMON_RESOLVED_FIELDS = ['dv', 'sender', 'v', 'updatedAt', 'updatedBy', 'publishedAt', 'paidAt', 'canceledAt', 'paymentStatusChangeWebhookUrl']
 const CLIENT_DATA_FIELDS = ['property', 'unitName', 'unitType', 'clientName', 'clientPhone', 'contact', 'client']
 const INITIAL_ROWS_VALUE = [{ name: '', count: 1, toPay: '0', measure: undefined, isMin: false }]
 

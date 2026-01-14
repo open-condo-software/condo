@@ -17,11 +17,17 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowGraphQLRequestError,
     catchErrorFrom, expectToThrowGQLError,
+    makeClient,
 } = require('@open-condo/keystone/test.utils')
-const { makeClient } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    createTestAcquiringIntegration,
+    createTestAcquiringIntegrationContext,
+    updateTestAcquiringIntegrationContext,
+    createTestPaymentStatusChangeWebhookUrl,
+    updateTestPaymentStatusChangeWebhookUrl,
+} = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/billing/constants/constants')
 const {
@@ -80,15 +86,17 @@ describe('BillingReceipt', () => {
     let anotherContext
     let anotherProperty
     let anotherAccount
+    let acquiringContext
 
     beforeAll(async () => {
         const { admin: adminClient, context: billingContext, integration, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         admin = adminClient
         context = billingContext
         const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
-        await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+        const [createdAcquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
             status: CONTEXT_FINISHED_STATUS,
         })
+        acquiringContext = createdAcquiringContext
         const [firstProperty] = await createTestBillingProperty(admin, context)
         const [firstAccount] = await createTestBillingAccount(admin, context, firstProperty)
         property = firstProperty
@@ -1572,6 +1580,187 @@ describe('BillingReceipt', () => {
                     expect(receipt.isPayable).toBe(true)
                 })
             })
+        })
+    })
+
+    describe('Webhook callback URL whitelist validation', () => {
+        let acquiringIntegration
+        let billingIntegration
+
+        beforeAll(async () => {
+            [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            billingIntegration = (await makeContextWithOrganizationAndIntegrationAsAdmin()).integration
+        })
+
+        test('can create billing receipt with whitelisted callback URL', async () => {
+            const callbackUrl = `https://billing-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Add URL to whitelist
+            await createTestPaymentStatusChangeWebhookUrl(admin, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            // Create billing receipt with whitelisted URL
+            const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
+                paymentStatusChangeWebhookUrl: callbackUrl,
+            })
+
+            expect(receipt.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(receipt.paymentStatusChangeWebhookSecret).toBeTruthy()
+        })
+
+        test('cannot create billing receipt with non-whitelisted callback URL', async () => {
+            const callbackUrl = `https://billing-not-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestBillingReceipt(admin, context, property, account, {
+                        paymentStatusChangeWebhookUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+                },
+                'obj'
+            )
+        })
+
+        test('cannot create billing receipt with disabled whitelist URL', async () => {
+            const callbackUrl = `https://billing-disabled-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Add URL to whitelist but disabled
+            await createTestPaymentStatusChangeWebhookUrl(admin, {
+                url: callbackUrl,
+                isEnabled: false,
+            })
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestBillingReceipt(admin, context, property, account, {
+                        paymentStatusChangeWebhookUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+                },
+                'obj'
+            )
+        })
+
+        test('cannot create billing receipt with soft-deleted whitelist URL', async () => {
+            const callbackUrl = `https://billing-deleted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            const [webhookUrl] = await createTestPaymentStatusChangeWebhookUrl(admin, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            await updateTestPaymentStatusChangeWebhookUrl(admin, webhookUrl.id, {
+                deletedAt: dayjs().toISOString(),
+            })
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestBillingReceipt(admin, context, property, account, {
+                        paymentStatusChangeWebhookUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+                },
+                'obj'
+            )
+        })
+
+        test('can create billing receipt without callback URL', async () => {
+            const [receipt] = await createTestBillingReceipt(admin, context, property, account)
+
+            expect(receipt.paymentStatusChangeWebhookUrl).toBeNull()
+            expect(receipt.paymentStatusChangeWebhookSecret).toBeNull()
+        })
+
+        test('integration user can create billing receipt with whitelisted callback URL', async () => {
+            const callbackUrl = `https://integration-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Add URL to whitelist
+            await createTestPaymentStatusChangeWebhookUrl(admin, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            const [receipt] = await createTestBillingReceipt(integrationUser, context, property, account, {
+                paymentStatusChangeWebhookUrl: callbackUrl,
+            })
+
+            expect(receipt.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+        })
+
+        test('integration user cannot create billing receipt with non-whitelisted callback URL', async () => {
+            const callbackUrl = `https://integration-not-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestBillingReceipt(integrationUser, context, property, account, {
+                        paymentStatusChangeWebhookUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+                },
+                'obj'
+            )
+        })
+
+        test('can update billing receipt to add whitelisted callback URL', async () => {
+            const callbackUrl = `https://billing-update-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Create billing receipt without callback URL
+            const [receipt] = await createTestBillingReceipt(admin, context, property, account)
+            expect(receipt.paymentStatusChangeWebhookUrl).toBeNull()
+
+            // Add URL to whitelist
+            await createTestPaymentStatusChangeWebhookUrl(admin, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            // Update billing receipt with whitelisted URL
+            const [updatedReceipt] = await updateTestBillingReceipt(admin, receipt.id, {
+                paymentStatusChangeWebhookUrl: callbackUrl,
+            })
+
+            expect(updatedReceipt.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(updatedReceipt.paymentStatusChangeWebhookSecret).toBeTruthy()
+        })
+
+        test('cannot update billing receipt to add non-whitelisted callback URL', async () => {
+            const callbackUrl = `https://billing-update-not-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Create billing receipt without callback URL
+            const [receipt] = await createTestBillingReceipt(admin, context, property, account)
+
+            await expectToThrowGQLError(
+                async () => {
+                    await updateTestBillingReceipt(admin, receipt.id, {
+                        paymentStatusChangeWebhookUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+                },
+                'obj'
+            )
         })
     })
 })

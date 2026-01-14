@@ -6,7 +6,9 @@ const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
-const { omit, pick, get } = require('lodash')
+const get = require('lodash/get')
+const omit = require('lodash/omit')
+const pick = require('lodash/pick')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
@@ -19,7 +21,8 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGQLError,
-    expectToThrowGraphQLRequestError, waitFor,
+    expectToThrowGraphQLRequestError,
+    waitFor,
     expectToThrowAccessDeniedToFieldError,
     expectToThrowAccessDeniedToManageFieldError,
     expectToThrowAccessDeniedErrorToObjects,
@@ -29,6 +32,8 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
+    createTestPaymentStatusChangeWebhookUrl,
+    updateTestPaymentStatusChangeWebhookUrl,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { AMOUNT_DISTRIBUTION_SUBFIELDS } = require('@condo/domains/billing/gql')
@@ -2817,6 +2822,219 @@ describe('Invoice', () => {
             // resident or organization can see invoice in mobile application
             const residentInvoices = await Invoice.getAll(residentClient, {})
             expect(residentInvoices).toEqual([expect.objectContaining({ id: invoice.id })])
+        })
+    })
+
+    describe('Webhook callback URL whitelist validation', () => {
+        test('can create invoice with whitelisted callback URL', async () => {
+            const callbackUrl = `https://whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Add URL to whitelist
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            // Create invoice with whitelisted URL
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                paymentStatusChangeWebhookUrl: callbackUrl,
+            })
+
+            expect(invoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(invoice.paymentStatusChangeWebhookSecret).toBeTruthy()
+        })
+
+        test('cannot create invoice with non-whitelisted callback URL', async () => {
+            const callbackUrl = `https://not-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestInvoice(adminClient, dummyOrganization, {
+                        paymentStatusChangeWebhookUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+                },
+                'obj'
+            )
+        })
+
+        test('cannot create invoice with disabled whitelist URL', async () => {
+            const callbackUrl = `https://disabled-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Add URL to whitelist but disabled
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                url: callbackUrl,
+                isEnabled: false,
+            })
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestInvoice(adminClient, dummyOrganization, {
+                        paymentStatusChangeWebhookUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+                },
+                'obj'
+            )
+        })
+
+        test('cannot create invoice with soft-deleted whitelist URL', async () => {
+            const callbackUrl = `https://deleted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            const [webhookUrl] = await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            await updateTestPaymentStatusChangeWebhookUrl(adminClient, webhookUrl.id, {
+                deletedAt: dayjs().toISOString(),
+            })
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestInvoice(adminClient, dummyOrganization, {
+                        paymentStatusChangeWebhookUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+                },
+                'obj'
+            )
+        })
+
+        test('can create invoice without callback URL', async () => {
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
+
+            expect(invoice.paymentStatusChangeWebhookUrl).toBeNull()
+            expect(invoice.paymentStatusChangeWebhookSecret).toBeNull()
+        })
+
+        test('staff with permission can create invoice with whitelisted callback URL', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const callbackUrl = `https://staff-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, {
+                canManageInvoices: true,
+            })
+            await createTestOrganizationEmployee(adminClient, dummyOrganization, client.user, role)
+
+            // Add URL to whitelist
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            const [invoice] = await createTestInvoice(client, dummyOrganization, {
+                paymentStatusChangeWebhookUrl: callbackUrl,
+            })
+
+            expect(invoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+        })
+
+        test('staff with permission cannot create invoice with non-whitelisted callback URL', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const callbackUrl = `https://staff-not-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, {
+                canManageInvoices: true,
+            })
+            await createTestOrganizationEmployee(adminClient, dummyOrganization, client.user, role)
+
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestInvoice(client, dummyOrganization, {
+                        paymentStatusChangeWebhookUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+                },
+                'obj'
+            )
+        })
+
+        test('can update invoice to add whitelisted callback URL', async () => {
+            const callbackUrl = `https://update-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Create invoice without callback URL
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
+            expect(invoice.paymentStatusChangeWebhookUrl).toBeNull()
+
+            // Add URL to whitelist
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            // Update invoice with whitelisted URL
+            const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                paymentStatusChangeWebhookUrl: callbackUrl,
+            })
+
+            expect(updatedInvoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(updatedInvoice.paymentStatusChangeWebhookSecret).toBeTruthy()
+        })
+
+        test('cannot update invoice to add non-whitelisted callback URL', async () => {
+            const callbackUrl = `https://update-not-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Create invoice without callback URL
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
+
+            await expectToThrowGQLError(
+                async () => {
+                    await updateTestInvoice(adminClient, invoice.id, {
+                        paymentStatusChangeWebhookUrl: callbackUrl,
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'WEBHOOK_URL_NOT_IN_WHITELIST',
+                    message: 'The webhook URL must be registered in PaymentStatusChangeWebhookUrl',
+                },
+                'obj'
+            )
+        })
+
+        test('webhook URL and secret should not be cleared when updating unrelated fields', async () => {
+            const callbackUrl = `https://preserve-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Add URL to whitelist
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            // Create invoice with whitelisted callback URL
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                paymentStatusChangeWebhookUrl: callbackUrl,
+            })
+
+            expect(invoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(invoice.paymentStatusChangeWebhookSecret).toBeTruthy()
+            const originalSecret = invoice.paymentStatusChangeWebhookSecret
+
+            // Update invoice with unrelated field (not including paymentStatusChangeWebhookUrl)
+            const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                clientName: 'Updated Client Name',
+            })
+
+            // Webhook URL and secret should be preserved
+            expect(updatedInvoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(updatedInvoice.paymentStatusChangeWebhookSecret).toBe(originalSecret)
         })
     })
 })
