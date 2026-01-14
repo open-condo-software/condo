@@ -395,6 +395,18 @@ describe('SyncRemoteClientService', () => {
             expect(device2.pushTokenVoIP).toBeFalsy()
         })
 
+        it('does not update record if values are unchanged', async () => {
+            const client = await makeClient()
+            const payload = getRandomTokenData({ meta: null, pushToken: null })
+
+            const [device] = await syncRemoteClientByTestClient(client, payload)
+
+            const beforeUpdatedAt = device.updatedAt
+            const [deviceAfter] = await syncRemoteClientByTestClient(client, payload)
+
+            expect(deviceAfter.id).toEqual(device.id)
+            expect(deviceAfter.updatedAt).toEqual(beforeUpdatedAt)
+        })
     })
 
     describe('Authorized', () => {
@@ -601,6 +613,19 @@ describe('SyncRemoteClientService', () => {
             expect(device1.meta).toEqual(payload1.meta)
             expect(device1.owner).not.toBeNull()
             expect(device1.owner.id).toEqual(user.user.id)
+        })
+
+        it('does not update record if values are unchanged', async () => {
+            const client = await makeLoggedInClient()
+            const payload = getRandomTokenData({ meta: null, pushToken: null })
+
+            const [device] = await syncRemoteClientByTestClient(client, payload)
+
+            const beforeUpdatedAt = device.updatedAt
+            const [deviceAfter] = await syncRemoteClientByTestClient(client, payload)
+
+            expect(deviceAfter.id).toEqual(device.id)
+            expect(deviceAfter.updatedAt).toEqual(beforeUpdatedAt)
         })
     })
 })
