@@ -264,6 +264,19 @@ const WebhookPayloadTests = (appName, actorsInitializer, customEvents = []) => {
         })
 
         describe('Field validation', () => {
+            test('no one cannot create WebhookPayload with empty string payload', async () => {
+                await catchErrorFrom(async () => {
+                    await createTestWebhookPayload(actors.admin, {
+                        payload: '',
+                    })
+                }, (error) => {
+                    expect(error.errors).toBeDefined()
+                    expect(error.errors[0]).toMatchObject({
+                        message: expect.stringContaining('Payload must be valid JSON'),
+                    })
+                })
+            })
+
             test('expiresAt defaults to 7 days from now if not provided', async () => {
                 const now = dayjs()
                 const [webhookPayload] = await createTestWebhookPayload(actors.admin, {

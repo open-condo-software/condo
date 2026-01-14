@@ -62,12 +62,15 @@ function getWebhookPayloadModel (appWebhooksEventsTypes = []) {
                 hooks: {
                     validateInput: ({ resolvedData, fieldPath, context }) => {
                         const value = resolvedData[fieldPath]
-                        if (value) {
-                            try {
-                                JSON.parse(value)
-                            } catch (e) {
-                                throw new GQLError(ERRORS.INVALID_JSON_PAYLOAD, context)
-                            }
+
+                        if (!value) {
+                            throw new GQLError(ERRORS.INVALID_JSON_PAYLOAD, context)
+                        }
+
+                        try {
+                            JSON.parse(value)
+                        } catch (e) {
+                            throw new GQLError(ERRORS.INVALID_JSON_PAYLOAD, context)
                         }
                     },
                 },
