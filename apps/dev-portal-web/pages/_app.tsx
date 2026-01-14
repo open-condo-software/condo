@@ -25,6 +25,7 @@ import type { ReactNode } from 'react'
 import 'antd/dist/reset.css'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/style-vars/css'
+import 'easymde/dist/easymde.min.css'
 import './global.css'
 
 const mainFont = localFont({
