@@ -218,6 +218,16 @@ function getWebhookPayloadModel (appWebhooksEventsTypes = []) {
             },
 
         },
+        kmigratorOptions: {
+            indexes: [
+                {
+                    type: 'BTreeIndex',
+                    fields: ['status', 'nextRetryAt'],
+                    condition: 'Q(deletedAt__isnull=True)',
+                    name: 'webhookPayload_status_nxtRetryAt',
+                },
+            ],
+        },
         plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender()],
         access: {
             read: access.canReadWebhookPayloads,
