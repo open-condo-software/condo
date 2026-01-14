@@ -91,7 +91,19 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 } else {
                     const diff = {}
                     for (const [key, value] of Object.entries(attrs)) {
-                        if (!isEqual(existing[key], value) && key !== 'sender') {
+                        if (key === 'sender') continue
+
+                        if (key === 'owner') {
+                            const existingOwnerId =  existing?.owner?.id || existing?.owner
+                            const newOwnerId = value?.connect?.id ?? null
+
+                            if (existingOwnerId !== newOwnerId) {
+                                diff.owner = value
+                            }
+
+                            continue
+                        }
+                        if (!isEqual(existing[key], value)) {
                             diff[key] = value
                         }
                     }
