@@ -37,6 +37,8 @@
   "global.miniapp.environments.development.label": "Test stand",
   "global.miniapp.environments.production.label": "Production stand",
 
+  "components.common.markdownEditor.controls.undo.title": "Undo",
+  "components.common.markdownEditor.controls.redo.title": "Redo",
   "components.common.markdownEditor.controls.bold.title": "Bold",
   "components.common.markdownEditor.controls.italic.title": "Italic",
   "components.common.markdownEditor.controls.heading2.title": "Heading",

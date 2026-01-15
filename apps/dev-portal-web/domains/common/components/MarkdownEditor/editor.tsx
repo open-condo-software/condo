@@ -1,17 +1,29 @@
 import EasyMDE from 'easymde'
 import getConfig from 'next/config'
-import React, { useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 import SimpleMDE from 'react-simplemde-editor'
+
+import styles from './editor.module.css'
 
 import type { SimpleMDEReactProps } from 'react-simplemde-editor'
 
 const { publicRuntimeConfig: { markdownGuideUrl } } = getConfig()
 
-// TODO: counter, initialProps, styles, bottomAction (AI)
+type MarkdownEditorProps = {
+    value?: string
+    onChange?: (value: string) => void
+    maxLength?: number
+}
 
-export const MarkdownEditor: React.FC = () => {
+export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
+    value,
+    onChange,
+    maxLength = 1000,
+}) => {
     const intl = useIntl()
+    const UndoLabel = intl.formatMessage({ id: 'components.common.markdownEditor.controls.undo.title' })
+    const RedoLabel = intl.formatMessage({ id: 'components.common.markdownEditor.controls.redo.title' })
     const BoldTextLabel = intl.formatMessage({ id: 'components.common.markdownEditor.controls.bold.title' })
     const ItalicTextLabel = intl.formatMessage({ id: 'components.common.markdownEditor.controls.italic.title' })
     const HeadingTextLabel = intl.formatMessage({ id: 'components.common.markdownEditor.controls.heading2.title' })
@@ -23,9 +35,36 @@ export const MarkdownEditor: React.FC = () => {
     const TableLabel = intl.formatMessage({ id: 'components.common.markdownEditor.controls.table.title' })
     const MDGuideLabel = intl.formatMessage({ id: 'components.common.markdownEditor.controls.guide.title' })
 
+    const [internalValue, setInternalValue] = useState(() => value || '')
+
+    const internalOnChange = useCallback((value: string) => {
+        const croppedValue = value.length > maxLength ? value.slice(0, maxLength) : value
+        setInternalValue(croppedValue)
+        onChange?.(croppedValue)
+    }, [maxLength, onChange])
+
+    useEffect(() => {
+        if (value !== undefined) {
+            setInternalValue(value || '')
+        }
+    }, [value])
+
 
     const options: SimpleMDEReactProps['options'] = useMemo(() => {
         const toolbar: Required<SimpleMDEReactProps>['options']['toolbar'] = [
+            {
+                name: 'undo',
+                title: UndoLabel,
+                action: EasyMDE.undo,
+                className: 'fa fa-undo',
+            },
+            {
+                name: 'redo',
+                title: RedoLabel,
+                action: EasyMDE.redo,
+                className: 'fa fa-repeat',
+            },
+            '|',
             {
                 name: 'bold',
                 title: BoldTextLabel,
@@ -98,9 +137,24 @@ export const MarkdownEditor: React.FC = () => {
             minHeight: '200px',
             maxHeight: '400px',
         }
-    }, [BoldTextLabel, HeadingTextLabel, ImageLabel, ItalicTextLabel, LinkLabel, MDGuideLabel, OListLabel, QuoteTextLabel, TableLabel, UListLabel])
+    }, [BoldTextLabel, HeadingTextLabel, ImageLabel, ItalicTextLabel, LinkLabel, MDGuideLabel, OListLabel, QuoteTextLabel, RedoLabel, TableLabel, UListLabel, UndoLabel])
 
     return (
-        <SimpleMDE options={options} />
+        <div className={styles.editorContainer}>
+            <SimpleMDE
+                value={internalValue}
+                onChange={internalOnChange}
+                options={options}
+            />
+            <div className={styles.bottomPanel}>
+                <span className='condo-input-bottom-panel'>
+                    <span className='condo-input-bottom-panel-right'>
+                        <span className='condo-input-count'>
+                            {internalValue.length}/{maxLength}
+                        </span>
+                    </span>
+                </span>
+            </div>
+        </div>
     )
 }
