@@ -15,6 +15,10 @@ const {
     DEVICE_PLATFORM_ANDROID,
     APP_RESIDENT_ID_ANDROID,
     MESSAGE_SENT_STATUS,
+    PUSH_TRANSPORT_TYPES,
+    DEVICE_PLATFORM_TYPES,
+    PUSH_TRANSPORT_WEBHOOK,
+    PUSH_TRANSPORT_FIREBASE,
 } = require('@condo/domains/notification/constants/constants')
 const { syncRemoteClientByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/utils')
@@ -37,7 +41,17 @@ describe('notifyResidentsAboutNewsItem', () => {
     })
 
     describe('Basic logic', () => {
-        test('the user receives a push notification on a news item created and does not receive notification for 2nd news item', async () => {
+        const TEST_CASES = []
+        // NOTE: Webhook adapter requires configuration and doesn't support fake tokens
+        const TRANSPORTS = PUSH_TRANSPORT_TYPES.filter(type => type !== PUSH_TRANSPORT_WEBHOOK)
+
+        for (const transport of TRANSPORTS) {
+            for (const platform of DEVICE_PLATFORM_TYPES) {
+                TEST_CASES.push([transport, platform])
+            }
+        }
+
+        test.each(TEST_CASES)('the user receives a push notification on a news item created and does not receive notification for 2nd news item (transport: %s, platform: %s)', async (pushTransport, devicePlatform) => {
             const residentClient1 = await makeClientWithResidentUser()
             const [o10n] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, o10n)
@@ -70,9 +84,10 @@ describe('notifyResidentsAboutNewsItem', () => {
             })
 
             const payload = getRandomTokenData({
-                devicePlatform: DEVICE_PLATFORM_ANDROID,
+                devicePlatform,
                 appId: APP_RESIDENT_ID_ANDROID,
                 pushToken: getRandomFakeSuccessToken(),
+                pushTransport,
             })
 
             await syncRemoteClientByTestClient(residentClient1, payload)
@@ -196,6 +211,7 @@ describe('notifyResidentsAboutNewsItem', () => {
                 devicePlatform: DEVICE_PLATFORM_ANDROID,
                 appId: APP_RESIDENT_ID_ANDROID,
                 pushToken: getRandomFakeSuccessToken(),
+                pushTransport: PUSH_TRANSPORT_FIREBASE,
             })
 
             await syncRemoteClientByTestClient(residentClient1, payload)
@@ -384,12 +400,14 @@ describe('notifyResidentsAboutNewsItem', () => {
                 devicePlatform: DEVICE_PLATFORM_ANDROID,
                 appId: APP_RESIDENT_ID_ANDROID,
                 pushToken: getRandomFakeSuccessToken(),
+                pushTransport: PUSH_TRANSPORT_FIREBASE,
             })
 
             const payload2 = getRandomTokenData({
                 devicePlatform: DEVICE_PLATFORM_ANDROID,
                 appId: APP_RESIDENT_ID_ANDROID,
                 pushToken: getRandomFakeSuccessToken(),
+                pushTransport: PUSH_TRANSPORT_FIREBASE,
             })
 
             await syncRemoteClientByTestClient(residentClient1, payload1)
