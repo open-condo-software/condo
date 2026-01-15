@@ -4991,6 +4991,8 @@ export const GetOrganizationActivatedSubscriptionsDocument = gql`
       name
       priority
     }
+    isTrial
+    endAt
   }
 }
     `;
