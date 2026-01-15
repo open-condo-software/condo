@@ -135,7 +135,9 @@ async function prepareMessageToSend (message) {
  * @returns {*}
  */
 const mixResult = (container, result, transport) => {
-    result.responses = result.responses.map(response => ({ ...response, transport }))
+    if (Array.isArray(result.responses)) {
+        result.responses = result.responses.map(response => ({ ...response, transport }))
+    }
     
     if (isEmpty(container)) return result
 

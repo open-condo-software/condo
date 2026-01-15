@@ -301,7 +301,6 @@ class HCMAdapter {
                         appType,
                         pushToken: notification.token,
                         pushType: pushTypes[notification.token],
-                        success: SUCCESS_CODES.includes(sendResult.code),
                         ...sendResult,
                     })
 

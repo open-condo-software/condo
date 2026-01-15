@@ -59,7 +59,7 @@ class RedStoreNotificationSender {
                     responses.push({ ...responseJSON, success: true })
                     successCount += 1
                 } else {
-                    responses.push(responseJSON)
+                    responses.push({ ...responseJSON, success: false })
                     failureCount += 1
                 }
             }

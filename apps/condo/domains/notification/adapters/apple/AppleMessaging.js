@@ -55,7 +55,7 @@ class AppleMessaging {
                 }
 
                 if (status === APS_RESPONSE_STATUS_SUCCESS) {
-                    resolve({ apnsId, data, json, args, status, success: true, headers, flags })
+                    resolve({ apnsId, data, json, args, status, headers, flags })
                 } else {
                     let error
                     let errorText = ERRORS[status] || `Remote server responded with error code ${status}`
