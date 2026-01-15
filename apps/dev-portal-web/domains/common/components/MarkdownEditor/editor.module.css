@@ -1,5 +1,5 @@
 .editor-container {
-  position: relative;
+  font-size: 16px;
 }
 
 .editor-container :global(.editor-toolbar) {
@@ -33,6 +33,12 @@
   border-bottom: none;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
+}
+
+/* stylelint-disable-next-line */
+.editor-container :global(.CodeMirror-placeholder) {
+  color: var(--condo-global-color-gray-7) !important;
+  opacity: 1;
 }
 
 .bottom-panel {

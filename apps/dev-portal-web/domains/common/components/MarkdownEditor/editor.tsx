@@ -14,12 +14,18 @@ type MarkdownEditorProps = {
     value?: string
     onChange?: (value: string) => void
     maxLength?: number
+    placeholder?: string
+    minHeight?: string
+    maxHeight?: string
 }
 
 export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     value,
+    placeholder,
     onChange,
     maxLength = 1000,
+    minHeight = '200px',
+    maxHeight = '400px',
 }) => {
     const intl = useIntl()
     const UndoLabel = intl.formatMessage({ id: 'components.common.markdownEditor.controls.undo.title' })
@@ -134,14 +140,30 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
             toolbar,
             status: false,
             spellChecker: false,
-            minHeight: '200px',
-            maxHeight: '400px',
+            minHeight,
+            maxHeight,
         }
-    }, [BoldTextLabel, HeadingTextLabel, ImageLabel, ItalicTextLabel, LinkLabel, MDGuideLabel, OListLabel, QuoteTextLabel, RedoLabel, TableLabel, UListLabel, UndoLabel])
+    }, [
+        BoldTextLabel,
+        HeadingTextLabel,
+        ImageLabel,
+        ItalicTextLabel,
+        LinkLabel,
+        MDGuideLabel,
+        OListLabel,
+        QuoteTextLabel,
+        RedoLabel,
+        TableLabel,
+        UListLabel,
+        UndoLabel,
+        maxHeight,
+        minHeight,
+    ])
 
     return (
         <div className={styles.editorContainer}>
             <SimpleMDE
+                placeholder={placeholder}
                 value={internalValue}
                 onChange={internalOnChange}
                 options={options}
