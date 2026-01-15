@@ -17,6 +17,8 @@ import styles from './SubscriptionSettingsContent.module.css'
 type PlanPeriod = 'month' | 'year'
 type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plans'][number]
 
+const PLAN_CARD_EMOJIS = ['🏠', '🚀', '👑']
+
 export const SubscriptionSettingsContent: React.FC = () => {
     const intl = useIntl()
     const { organization, employee, selectEmployee } = useOrganization()
@@ -174,7 +176,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 </Radio.Group>
             </Space>
             <div className={styles['plan-list']}>
-                {availablePlans.map((planInfo: PlanType) => {
+                {availablePlans.map((planInfo: PlanType, index) => {
                     const activatedTrial = trialSubscriptions?.find(
                         trial => trial.subscriptionPlan?.id === planInfo?.plan?.id
                     )
@@ -192,6 +194,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                             activatedSubscriptions={activatedSubscriptions}
                             b2bAppsMap={b2bAppsMap}
                             allB2BAppIds={allB2BAppIds}
+                            emoji={PLAN_CARD_EMOJIS?.[index]}
                         />
                     )
                 })}

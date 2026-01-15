@@ -5138,7 +5138,7 @@ export const GetPendingSubscriptionRequestsDocument = gql`
     query getPendingSubscriptionRequests($organizationId: ID!) {
   pendingRequests: allUserHelpRequests(
     where: {organization: {id: $organizationId}, type: activateSubscription}
-    first: 1
+    first: 100
   ) {
     id
     subscriptionPlanPricingRule {

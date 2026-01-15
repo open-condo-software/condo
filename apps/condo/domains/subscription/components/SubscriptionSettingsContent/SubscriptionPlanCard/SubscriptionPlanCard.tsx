@@ -88,6 +88,7 @@ interface SubscriptionPlanCardProps {
     }) => void
     b2bAppsMap: Map<string, { id: string, name?: string }>
     allB2BAppIds: string[]
+    emoji?: string
 }
 
 interface SubscriptionPlanBadgeProps {
@@ -164,7 +165,7 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     )
 }
 
-export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, handleActivatePlan, b2bAppsMap, allB2BAppIds }) => {
+export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, handleActivatePlan, b2bAppsMap, allB2BAppIds, emoji }) => {
     const intl = useIntl()
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
@@ -263,7 +264,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                         <Space size={12} direction='vertical'>
                             <Space size={4} direction='horizontal' className={styles.header} width='100%'>
                                 <Typography.Title level={3}>
-                                    {plan.name}
+                                    {plan.name} {emoji ? emoji : ''}
                                 </Typography.Title>
                                 <SubscriptionPlanBadge 
                                     plan={plan}
