@@ -13,7 +13,10 @@ const { updateTestNewsItem, createTestNewsItem, createTestNewsItemScope, publish
 const {
     NEWS_ITEM_COMMON_MESSAGE_TYPE,
     DEVICE_PLATFORM_ANDROID,
+    DEVICE_PLATFORM_IOS,
+    DEVICE_PLATFORM_WEB,
     APP_RESIDENT_ID_ANDROID,
+    APP_RESIDENT_ID_IOS,
     MESSAGE_SENT_STATUS,
     PUSH_TRANSPORT_TYPES,
     DEVICE_PLATFORM_TYPES,
@@ -30,6 +33,15 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 const MESSAGE_TITLE_MAX_LEN = 50
 const MESSAGE_BODY_MAX_LEN = 150
+
+const getAppIdByPlatform = (devicePlatform) => {
+    const platformToAppIdMap = {
+        [DEVICE_PLATFORM_IOS]: APP_RESIDENT_ID_IOS,
+        [DEVICE_PLATFORM_ANDROID]: APP_RESIDENT_ID_ANDROID,
+        [DEVICE_PLATFORM_WEB]: APP_RESIDENT_ID_ANDROID, // Default to Android's app ID for web if no specific one
+    }
+    return platformToAppIdMap[devicePlatform] || APP_RESIDENT_ID_ANDROID
+}
 
 describe('notifyResidentsAboutNewsItem', () => {
     setFakeClientMode(index)
@@ -83,9 +95,11 @@ describe('notifyResidentsAboutNewsItem', () => {
                 unitName: unitName1,
             })
 
+            const appId = getAppIdByPlatform(devicePlatform)
+
             const payload = getRandomTokenData({
                 devicePlatform,
-                appId: APP_RESIDENT_ID_ANDROID,
+                appId,
                 pushToken: getRandomFakeSuccessToken(),
                 pushTransport,
             })
