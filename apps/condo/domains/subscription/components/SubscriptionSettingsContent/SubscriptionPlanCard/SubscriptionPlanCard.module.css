@@ -22,7 +22,7 @@
   justify-content: space-between;
 }
 
-.subscription-plan-card-promoted {
+.subscription-plan-card-promoted:global(.condo-card) {
   background: var(--condo-global-color-brand-gradient-1);
 }
 

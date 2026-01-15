@@ -191,6 +191,10 @@
   cursor: pointer;
 }
 
+.user-dropdown .condo-typography {
+  white-space: nowrap;
+}
+
 .user-dropdown .expand-icon-wrapper {
   display: flex;
   align-items: center;

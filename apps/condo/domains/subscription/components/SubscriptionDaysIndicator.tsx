@@ -8,6 +8,11 @@ import { colors } from '@open-condo/ui/colors'
 
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
+const BRAND_GRADIENT = {
+    '0%': '#26c756',
+    '100%': '#4ba2e4',
+}
+
 export const SubscriptionDaysIndicator: React.FC = () => {
     const intl = useIntl()
     const { subscriptionContext } = useOrganizationSubscription()
@@ -41,7 +46,7 @@ export const SubscriptionDaysIndicator: React.FC = () => {
     const { strokeColor } = useMemo(() => {
         if (!daysRemaining) {
             return {
-                strokeColor: colors.green[5],
+                strokeColor: BRAND_GRADIENT,
             }
         }
         
@@ -56,7 +61,7 @@ export const SubscriptionDaysIndicator: React.FC = () => {
             }
         }
         return {
-            strokeColor: colors.green[5],
+            strokeColor: BRAND_GRADIENT,
         }
     }, [daysRemaining])
 
