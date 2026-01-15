@@ -104,57 +104,6 @@ class SberCloudFileAdapter {
         return null
     }
 
-    _uploadStream ({ stream, fileData, key, mimetype, meta }) {
-        return new Promise((resolve, reject) => {
-            let finished = false
-
-            const cleanup = () => {
-                if (!stream.destroyed) {
-                    stream.destroy()
-                }
-            }
-
-            const fail = (err) => {
-                if (finished) return
-                finished = true
-                cleanup()
-                reject(err)
-            }
-
-            const succeed = (result) => {
-                if (finished) return
-                finished = true
-                cleanup()
-                resolve(result)
-            }
-
-            stream.on('error', fail)
-
-            stream.on('aborted', () => {
-                fail(Object.assign(new Error('Upload aborted by client'), { statusCode: 499 }))
-            })
-
-            const uploadParams = this.uploadParams({ ...fileData, meta })
-            this.s3.putObject(
-                {
-                    Body: stream,
-                    ContentType: mimetype,
-                    Bucket: this.bucket,
-                    Key: key,
-                    ...uploadParams,
-                },
-                (error, data) => {
-                    if (error) return fail(error)
-
-                    const obsError = this.errorFromCommonMsg(data)
-                    if (obsError) return fail(obsError)
-
-                    succeed({ ...fileData, _meta: data })
-                }
-            )
-        })
-    }
-
     save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
         // TODO(dkovyazin): DOMA-7965 Look into redefining fileName inside fileadapter
         const fileData = {
@@ -165,6 +114,27 @@ class SberCloudFileAdapter {
             encoding,
         }
         const key = `${this.folder}/${fileData.filename}`
+        const saveFile = (resolve, reject) => {
+            const uploadParams = this.uploadParams({ ...fileData, meta })
+            this.s3.putObject(
+                {
+                    Body: stream,
+                    ContentType: mimetype,
+                    Bucket: this.bucket,
+                    Key: key,
+                    ...uploadParams,
+                },
+                (error, data) => {
+                    error = error || this.errorFromCommonMsg(data)
+                    if (error) {
+                        reject(error)
+                    } else {
+                        resolve({ ...fileData, _meta: data })
+                    }
+                    stream.destroy()
+                }
+            )
+        }
 
         if (this.saveFileName) {
             return this.acl.getMeta(key)
@@ -173,11 +143,11 @@ class SberCloudFileAdapter {
                         return { ...fileData, _meta: existedMeta }
                     }
 
-                    return this._uploadStream({ stream, fileData, key, mimetype, meta })
+                    return new Promise(saveFile)
                 })
         }
 
-        return this._uploadStream({ stream, fileData, key, mimetype, meta })
+        return new Promise(saveFile)
     }
 
     delete (file, options = {}) {
