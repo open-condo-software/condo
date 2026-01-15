@@ -37,6 +37,17 @@
   "global.miniapp.environments.development.label": "Тестовый стенд",
   "global.miniapp.environments.production.label": "Продуктовый стенд",
 
+  "components.common.markdownEditor.controls.bold.title": "Жирный текст",
+  "components.common.markdownEditor.controls.italic.title": "Курсив",
+  "components.common.markdownEditor.controls.heading2.title": "Заголовок",
+  "components.common.markdownEditor.controls.quote.title": "Цитата",
+  "components.common.markdownEditor.controls.unorderedList.title": "Маркированный список",
+  "components.common.markdownEditor.controls.orderedList.title": "Упорядоченный список",
+  "components.common.markdownEditor.controls.link.title": "Ссылка",
+  "components.common.markdownEditor.controls.image.title": "Картинка",
+  "components.common.markdownEditor.controls.table.title": "Таблица",
+  "components.common.markdownEditor.controls.guide.title": "Гайд по Markdown",
+
   "components.common.authForm.welcome.title": "Добро пожаловать!",
   "components.common.authForm.welcome.description": "Войдите в свою учетную запись, чтобы продолжить работу с платформой разработчика Condo",
   "components.common.authForm.Tabs.login": "Вход",

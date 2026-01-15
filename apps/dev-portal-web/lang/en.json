@@ -37,6 +37,17 @@
   "global.miniapp.environments.development.label": "Test stand",
   "global.miniapp.environments.production.label": "Production stand",
 
+  "components.common.markdownEditor.controls.bold.title": "Bold",
+  "components.common.markdownEditor.controls.italic.title": "Italic",
+  "components.common.markdownEditor.controls.heading2.title": "Heading",
+  "components.common.markdownEditor.controls.quote.title": "Quote",
+  "components.common.markdownEditor.controls.unorderedList.title": "Unordered list",
+  "components.common.markdownEditor.controls.orderedList.title": "Ordered list",
+  "components.common.markdownEditor.controls.link.title": "Link",
+  "components.common.markdownEditor.controls.image.title": "Image",
+  "components.common.markdownEditor.controls.table.title": "Table",
+  "components.common.markdownEditor.controls.guide.title": "Markdown guide",
+
   "components.common.authForm.welcome.title": "Welcome back!",
   "components.common.authForm.welcome.description": "Sign in to your account to continue working with the Condo developers platform",
   "components.common.authForm.Tabs.login": "Login",
