@@ -3084,6 +3084,8 @@
   "subscription.welcomeModal.activeBanking.description": "Как клиент банка вы получаете бессрочный доступ к тарифу «{planName}»",
   "subscription.welcomeModal.trialBasic.title": "Пользуйтесь преимуществами платформы бесплатно",
   "subscription.welcomeModal.trialBasic.description": "Открыли вам доступ к тарифу «{planName}» до {endDate}. После сможете выбрать подходящий и оформить подписку.",
+  "subscription.welcomeModal.highRevenueCustomer.title": "Открыли для вас полный доступ к платформе",
+  "subscription.welcomeModal.highRevenueCustomer.description": "Вам доступен тариф «{planName}». Пользуйтесь его преимуществами, чтобы понять, какие инструменты пригодятся вашему бизнесу.",
   "subscription.welcomeModal.learnMoreAboutPlans": "Подробнее о тарифах",
   "subscription.trialEndedModal.noSubscription.title": "Пробный доступ к платформе истек",
   "subscription.trialEndedModal.noSubscription.description": "Для продолжения работы подключитесь к одному из тарифов или войдите через банковский сервис, чтобы получить доступ к базовому функционалу. Также вы можете оформить расчётный счёт в банке-партнере и получить специальные условия.",

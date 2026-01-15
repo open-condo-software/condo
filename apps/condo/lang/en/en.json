@@ -3084,6 +3084,8 @@
   "subscription.welcomeModal.activeBanking.description": "As a bank client, you get unlimited access to the «{planName}» plan.",
   "subscription.welcomeModal.trialBasic.title": "Use the advantages of the platform for free",
   "subscription.welcomeModal.trialBasic.description": "We have opened access to the «{planName}» plan for you until {endDate}.",
+  "subscription.welcomeModal.highRevenueCustomer.title": "We have given you full access to the platform",
+  "subscription.welcomeModal.highRevenueCustomer.description": "You have access to the «{planName}» plan. Use its advantages to understand which tools will be useful for your business.",
   "subscription.welcomeModal.learnMoreAboutPlans": "Learn more about plans",
   "subscription.trialEndedModal.noSubscription.title": "Trial access to the platform has expired",
   "subscription.trialEndedModal.noSubscription.description": "To continue working, connect to one of the plans or log in through bank service to get access to basic functionality. You can also open a bank account and get special conditions from a partner.",

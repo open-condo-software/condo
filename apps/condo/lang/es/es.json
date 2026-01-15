@@ -3084,6 +3084,8 @@
   "subscription.welcomeModal.activeBanking.description": "Como cliente del banco, obtienes acceso ilimitado al plan «{planName}»",
   "subscription.welcomeModal.trialBasic.title": "Usa las ventajas de la plataforma Doma.ai gratis",
   "subscription.welcomeModal.trialBasic.description": "Hemos abierto acceso al plan «{planName}» para ti hasta {endDate}. Después puedes elegir uno adecuado y suscribirte.",
+  "subscription.welcomeModal.highRevenueCustomer.title": "Le hemos dado acceso completo a la plataforma",
+  "subscription.welcomeModal.highRevenueCustomer.description": "El plan «{planName}» está disponible para usted. Aproveche sus beneficios y descubra qué herramientas beneficiarán a su negocio.",
   "subscription.welcomeModal.learnMoreAboutPlans": "Más información sobre los planes",
   "subscription.trialEndedModal.noSubscription.title": "El acceso de prueba a la plataforma Doma.ai ha expirado",
   "subscription.trialEndedModal.noSubscription.description": "Para continuar trabajando, conéctate a uno de los planes o inicia sesión a través del servicio bancario para obtener acceso a la funcionalidad básica. También puedes abrir una cuenta bancaria y obtener condiciones especiales de un socio.",
