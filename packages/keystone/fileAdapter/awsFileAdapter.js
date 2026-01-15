@@ -77,6 +77,50 @@ class AwsFileAdapter {
         this.acl = new AwsS3Acl(config)
     }
 
+    _uploadStream ({ stream, fileData, key, mimetype, meta }) {
+        return new Promise((resolve, reject) => {
+            let finished = false
+
+            const cleanup = () => {
+                if (!stream.destroyed) {
+                    stream.destroy()
+                }
+            }
+
+            const fail = (err) => {
+                if (finished) return
+                finished = true
+                cleanup()
+                reject(err)
+            }
+
+            const succeed = (result) => {
+                if (finished) return
+                finished = true
+                cleanup()
+                resolve(result)
+            }
+
+            stream.once('error', fail)
+            stream.once('aborted', () => {
+                fail(Object.assign(new Error('Upload aborted by client'), { statusCode: 499 }))
+            })
+
+            const uploadParams = this.uploadParams({ ...fileData, meta })
+            const upload = this.s3.upload({
+                Body: stream,
+                ContentType: mimetype,
+                Bucket: this.bucket,
+                Key: key,
+                ...uploadParams,
+            })
+        
+            upload.promise()
+                .then(data => succeed({ ...fileData, _meta: data }))
+                .catch(fail)
+        })
+    }
+
     async save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
         const fileData = {
             id,
@@ -86,21 +130,7 @@ class AwsFileAdapter {
             encoding,
         }
         const key = `${this.folder}/${fileData.filename}`
-        const uploadParams = this.uploadParams({ ...fileData, meta })
-        try {
-            const data = await this.s3.upload({
-                Body: stream,
-                ContentType: mimetype,
-                Bucket: this.bucket,
-                Key: key,
-                ...uploadParams,
-            }).promise()
-            stream.destroy()
-            return { ...fileData, _meta: data }
-        } catch (error) {
-            stream.destroy()
-            throw error
-        }
+        return this._uploadStream({ stream, fileData, key, mimetype, meta })
     }
 
     delete (file, options = {}) {
