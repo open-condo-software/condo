@@ -134,7 +134,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
             '"""' +
             'voipIncomingCallId: String @deprecated(reason: "This field will be removed, you should use both this field and \\"callId\\" before that"), ' +
             '"""' +
-            'If "sip" was passed, mobile device will try to start native call. Info about othe values will be added later' +
+            'If "sip" was passed, mobile device will try to start native call. Info about other values will be added later' +
             '"""' +
             'voipType: String, ' + 
             '"""' +
