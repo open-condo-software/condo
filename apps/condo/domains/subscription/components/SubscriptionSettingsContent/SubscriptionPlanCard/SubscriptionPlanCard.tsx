@@ -155,7 +155,7 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
         }
     }
 
-    if (!badgeMessage || !daysRemaining) return null
+    if (!badgeMessage) return null
 
     return (
         <Tag bgColor={bgColor} textColor={colors.white}>

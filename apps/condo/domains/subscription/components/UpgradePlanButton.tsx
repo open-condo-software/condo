@@ -57,8 +57,11 @@ export const UpgradePlanButton: React.FC = () => {
             return intl.formatMessage({ id: 'subscription.upgradePlan.currentPlan' }, { planName: subscriptionContext.subscriptionPlan?.name })
         }
 
-        const lastExpiredSubscription = !subscriptionContext && activatedSubscriptions
-            .sort((a, b) => b.endAt.localeCompare(a.endAt))[0]
+        const lastExpiredSubscription = !subscriptionContext && activatedSubscriptions.reduce((latest, current) => {
+            return new Date(current.endAt) > new Date(latest.endAt)
+                ? current
+                : latest
+        })
 
         if (lastExpiredSubscription) {
             return intl.formatMessage({ id: 'subscription.upgradePlan.payForPlan' }, { planName: lastExpiredSubscription.subscriptionPlan?.name })
