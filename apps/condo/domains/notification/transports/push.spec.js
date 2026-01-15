@@ -773,6 +773,15 @@ describe('push transport', () => {
                 expect(data._body).toEqual(batch.message)
                 expect(data._title).toEqual(batch.title)
 
+                const responsesByTransportAdapterType = responses.reduce((byType, response) => {
+                    const adapterType = response.transport
+                    if (!byType[adapterType]) byType[adapterType] = []
+                    byType[adapterType].push(response)
+                    return byType
+                }, {})
+                expect(Object.keys(responsesByTransportAdapterType)).toHaveLength(2)
+                expect(responsesByTransportAdapterType[PUSH_TRANSPORT_FIREBASE]).toHaveLength(3)
+                expect(responsesByTransportAdapterType[PUSH_TRANSPORT_HUAWEI]).toHaveLength(3)
             })
         })
     })

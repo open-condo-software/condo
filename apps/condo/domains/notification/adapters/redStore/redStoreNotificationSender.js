@@ -47,12 +47,19 @@ class RedStoreNotificationSender {
             if (response instanceof Error) {
                 failureCount += 1
             } else {
-                responses.push(await response.json())
-                const status = get(response, ['headers', ':status'])
+                const responseJSON = await response.json()
 
-                if (status === APS_RESPONSE_STATUS_SUCCESS) {
+                const statusOk = response?.status === 200
+                const responseIsEmpty = 
+                    responseJSON === null 
+                    || responseJSON === undefined 
+                    || (typeof responseJSON === 'object' && Object.keys(responseJSON).length === 0) 
+
+                if (statusOk && responseIsEmpty) {
+                    responses.push({ ...responseJSON, success: true })
                     successCount += 1
                 } else {
+                    responses.push({ ...responseJSON, success: false })
                     failureCount += 1
                 }
             }
