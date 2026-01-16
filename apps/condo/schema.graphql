@@ -81636,6 +81636,7 @@ type B2BAppPosIntegrationConfigHistoryRecord {
   """
   _label_: String
   paymentsAlertPageUrl: String
+  fetchLastPosReceiptUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -81672,6 +81673,24 @@ input B2BAppPosIntegrationConfigHistoryRecordWhereInput {
   paymentsAlertPageUrl_not_ends_with_i: String
   paymentsAlertPageUrl_in: [String]
   paymentsAlertPageUrl_not_in: [String]
+  fetchLastPosReceiptUrl: String
+  fetchLastPosReceiptUrl_not: String
+  fetchLastPosReceiptUrl_contains: String
+  fetchLastPosReceiptUrl_not_contains: String
+  fetchLastPosReceiptUrl_starts_with: String
+  fetchLastPosReceiptUrl_not_starts_with: String
+  fetchLastPosReceiptUrl_ends_with: String
+  fetchLastPosReceiptUrl_not_ends_with: String
+  fetchLastPosReceiptUrl_i: String
+  fetchLastPosReceiptUrl_not_i: String
+  fetchLastPosReceiptUrl_contains_i: String
+  fetchLastPosReceiptUrl_not_contains_i: String
+  fetchLastPosReceiptUrl_starts_with_i: String
+  fetchLastPosReceiptUrl_not_starts_with_i: String
+  fetchLastPosReceiptUrl_ends_with_i: String
+  fetchLastPosReceiptUrl_not_ends_with_i: String
+  fetchLastPosReceiptUrl_in: [String]
+  fetchLastPosReceiptUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -81757,6 +81776,8 @@ input B2BAppPosIntegrationConfigHistoryRecordWhereUniqueInput {
 enum SortB2BAppPosIntegrationConfigHistoryRecordsBy {
   paymentsAlertPageUrl_ASC
   paymentsAlertPageUrl_DESC
+  fetchLastPosReceiptUrl_ASC
+  fetchLastPosReceiptUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -81777,6 +81798,7 @@ enum SortB2BAppPosIntegrationConfigHistoryRecordsBy {
 
 input B2BAppPosIntegrationConfigHistoryRecordUpdateInput {
   paymentsAlertPageUrl: String
+  fetchLastPosReceiptUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -81798,6 +81820,7 @@ input B2BAppPosIntegrationConfigHistoryRecordsUpdateInput {
 
 input B2BAppPosIntegrationConfigHistoryRecordCreateInput {
   paymentsAlertPageUrl: String
+  fetchLastPosReceiptUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -81830,6 +81853,10 @@ type B2BAppPosIntegrationConfig {
   """ The URL of the alert about testing status of the integration. The alert displayed at payments page (billing and marketplace) using iframe. 
   """
   paymentsAlertPageUrl: String
+
+  """ The URL to fetch last PosReceipt data from miniapp. Used to check if a payment has an associated receipt. 
+  """
+  fetchLastPosReceiptUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -81874,6 +81901,24 @@ input B2BAppPosIntegrationConfigWhereInput {
   paymentsAlertPageUrl_not_ends_with_i: String
   paymentsAlertPageUrl_in: [String]
   paymentsAlertPageUrl_not_in: [String]
+  fetchLastPosReceiptUrl: String
+  fetchLastPosReceiptUrl_not: String
+  fetchLastPosReceiptUrl_contains: String
+  fetchLastPosReceiptUrl_not_contains: String
+  fetchLastPosReceiptUrl_starts_with: String
+  fetchLastPosReceiptUrl_not_starts_with: String
+  fetchLastPosReceiptUrl_ends_with: String
+  fetchLastPosReceiptUrl_not_ends_with: String
+  fetchLastPosReceiptUrl_i: String
+  fetchLastPosReceiptUrl_not_i: String
+  fetchLastPosReceiptUrl_contains_i: String
+  fetchLastPosReceiptUrl_not_contains_i: String
+  fetchLastPosReceiptUrl_starts_with_i: String
+  fetchLastPosReceiptUrl_not_starts_with_i: String
+  fetchLastPosReceiptUrl_ends_with_i: String
+  fetchLastPosReceiptUrl_not_ends_with_i: String
+  fetchLastPosReceiptUrl_in: [String]
+  fetchLastPosReceiptUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -81939,6 +81984,8 @@ input B2BAppPosIntegrationConfigWhereUniqueInput {
 enum SortB2BAppPosIntegrationConfigsBy {
   paymentsAlertPageUrl_ASC
   paymentsAlertPageUrl_DESC
+  fetchLastPosReceiptUrl_ASC
+  fetchLastPosReceiptUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -81959,6 +82006,7 @@ enum SortB2BAppPosIntegrationConfigsBy {
 
 input B2BAppPosIntegrationConfigUpdateInput {
   paymentsAlertPageUrl: String
+  fetchLastPosReceiptUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -81977,6 +82025,7 @@ input B2BAppPosIntegrationConfigsUpdateInput {
 
 input B2BAppPosIntegrationConfigCreateInput {
   paymentsAlertPageUrl: String
+  fetchLastPosReceiptUrl: String
   v: Int
   createdAt: String
   updatedAt: String

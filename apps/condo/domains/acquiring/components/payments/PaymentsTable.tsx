@@ -20,6 +20,7 @@ import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
 import { usePosIntegrationAlert } from '@condo/domains/acquiring/hooks/usePosIntegrationAlert'
+import { usePosIntegrationLastPosReceipt } from '@condo/domains/acquiring/hooks/usePosIntegrationLastPosReceipt'
 import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
@@ -84,6 +85,7 @@ export const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
 
 const PaymentsTableContent: React.FC = (): JSX.Element => {
     const intl = useIntl()
+    const { lastReceipt, loading: arePaymentReceiptsLoading } = usePosIntegrationLastPosReceipt()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
@@ -262,10 +264,18 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 
                 <Col span={24}>
                     <Table
-                        loading={loading}
+                        loading={loading || arePaymentReceiptsLoading}
                         dataSource={objs}
                         totalRows={count}
                         columns={tableColumns}
+                        onRow={(record) => {
+                            const hasReceipt = lastReceipt?.condoPaymentId === record.id
+                            return {
+                                style: hasReceipt ? {
+                                    backgroundColor: colors.orange[1],
+                                } : undefined,
+                            }
+                        }}
                     />
                 </Col>
                 <Col span={24}>

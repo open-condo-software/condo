@@ -18,6 +18,12 @@ const B2BAppPosIntegrationConfig = new GQLListSchema('B2BAppPosIntegrationConfig
             isRequired: true,
         },
 
+        fetchLastPosReceiptUrl: {
+            schemaDoc: 'The URL to fetch last PosReceipt data from miniapp. Used to check if a payment has an associated receipt.',
+            type: 'Text',
+            isRequired: true,
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
