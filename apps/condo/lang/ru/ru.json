@@ -3138,7 +3138,7 @@
   "subscription.activation.errorTitle": "Ошибка активации",
   "subscription.upgradePlan": "Купить лучший тариф",
   "subscription.upgradePlan.payForPlan": "🚀 Оплатите тариф {planName}",
-  "subscription.upgradePlan.tryPlan": "🚀 Попробуйте тариф {planName}",
+  "subscription.upgradePlan.tryPlan": "Попробуйте тариф {planName}",
   "subscription.upgradePlan.currentPlan": "Тариф {planName}",
   "subscription.planCard.planPrice.month": "в месяц",
   "subscription.planCard.planPrice.year": "в год",

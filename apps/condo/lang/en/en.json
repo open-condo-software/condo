@@ -3138,7 +3138,7 @@
   "subscription.activation.errorTitle": "Activation error",
   "subscription.upgradePlan": "Upgrade to the best plan",
   "subscription.upgradePlan.payForPlan": "🚀 Pay for the {planName} plan",
-  "subscription.upgradePlan.tryPlan": "🚀 Try the {planName} plan",
+  "subscription.upgradePlan.tryPlan": "Try the {planName} plan",
   "subscription.upgradePlan.currentPlan": "Plan {planName}",
   "subscription.planCard.planPrice.month": "per month",
   "subscription.planCard.planPrice.year": "per year",
