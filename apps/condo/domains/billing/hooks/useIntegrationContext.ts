@@ -42,7 +42,8 @@ export const useIntegrationContext = ({ integrationType, integrationId }: UseInt
         variables: {
             organization: { id: orgId },
         },
-        skip: !orgId || !integrationId || !isBilling || !persistor,
+        skip: !orgId || !integrationId || !isBilling,
+        fetchPolicy: 'network-only',
     })
 
     const {
