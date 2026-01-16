@@ -91,7 +91,6 @@
     "jschardet": "^3.0.0",
     "json-rules-engine": "^7.3.1",
     "jsonwebtoken": "^9.0.0",
-    "jspdf": "^2.3.1",
     "jszip": "^3.10.1",
     "jwt-decode": "3.1.2",
     "less": "^4.4.0",
