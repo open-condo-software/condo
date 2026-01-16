@@ -8,6 +8,8 @@ import { Button } from '@open-condo/ui'
 
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
+import styles from './UpgradePlanButton.module.css'
+
 
 export const UpgradePlanButton: React.FC = () => {
     const intl = useIntl()
@@ -75,15 +77,18 @@ export const UpgradePlanButton: React.FC = () => {
     }
 
     if (!buttonText) return null
-
+    /*TODO move to ui kit*/
     return (
         <Button
             type='accent'
             minimal
             compact
             onClick={handleUpgradeClick}
-        >
-            {buttonText}
-        </Button>
+            children={[
+                '🚀 ',
+                // @ts-ignore
+                <span key='gradient-text' className={styles.buttonText}>{buttonText}</span>,
+            ]}
+        />
     )
 }

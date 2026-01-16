@@ -11,7 +11,7 @@ import getConfig from 'next/config'
 import React, { useState, useCallback } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Unlock, Lock, QuestionCircle } from '@open-condo/icons'
+import { Unlock, Lock, QuestionCircle, ChevronDown } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Card, Typography, Space, Button, Tooltip, Tag } from '@open-condo/ui'
@@ -104,7 +104,7 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink, h
     const icon = available ? <Unlock color={colors.green[5]} size='small' /> : <Lock color={colors.red[5]} size='small' />
     const textType = available ? undefined : 'secondary'
 
-    const textContent = helpLink ? (
+    const textContent = helpLink && !available ? (
         <Typography.Link href={helpLink} target='_blank' rel='noopener noreferrer'>
             <Typography.Text type={textType}>{featureLabel}</Typography.Text>
         </Typography.Link>
@@ -258,7 +258,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
     return (
         <Card className={cardClassName}>
-            <Space size={8} direction='vertical'>
+            <Space size={24} direction='vertical'>
                 <div className={styles.mainContent}>
                     <Space size={60} direction='vertical'>
                         <Space size={12} direction='vertical'>
@@ -315,7 +315,15 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                         </Space>
                     </Space>
                 </div>
-                <Collapse ghost className={styles.collapse}>
+                <Collapse
+                    ghost
+                    className={styles.collapse}
+                    expandIcon={({ isActive }) => (
+                        <span className={classnames(styles.collapseIcon, { [styles.collapseIconActive]: isActive })}>
+                            <ChevronDown size='small' />
+                        </span>
+                    )}
+                >
                     <Panel
                         header={<Typography.Text strong>{FeaturesTitle}</Typography.Text>}
                         key='features'

@@ -62,7 +62,11 @@ export const PromoBanner: React.FC = () => {
             })
             await refetchPendingRequest()
             notification.success({
-                message: RequestSentMessage,
+                message: (
+                    <Typography.Text strong size='large'>
+                        {RequestSentMessage}
+                    </Typography.Text>
+                ),
                 description: RequestSentDescription,
                 duration: 5,
             })
