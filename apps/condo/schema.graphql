@@ -91301,14 +91301,35 @@ enum SendB2CAppPushMessageType {
 }
 
 input SendB2CAppPushMessageData {
+  """Text that will appear in the body of notification"""
   body: String!
+
+  """Text that will appear in the title of notification"""
   title: String
   B2CAppContext: String
+
+  """
+  Unique value for each call session between panel and resident (means same for different devices also). Must be provided for correct work with multiple devices that use same voip call.F.e. to cancel calls with CANCELED_CALL_MESSAGE_PUSH messages
+  """
   callId: String
-  voipIncomingCallId: String
+
+  """
+  "id" field of "Message" with type VOIP_INCOMING_CALL_MESSAGE (message which was sent with this mutation for call start).Used to cancel calls with CANCELED_CALL_MESSAGE_PUSH messages
+  """
+  voipIncomingCallId: String @deprecated(reason: "This field will be removed, you should use both this field and \"callId\" before that")
+
+  """
+  If "sip" was passed, mobile device will try to start native call. Info about other values will be added later
+  """
   voipType: String
+
+  """Address of sip server, which device should connect to"""
   voipAddress: String
+
+  """Login for connection to sip server"""
   voipLogin: String
+
+  """Password for connection to sip server"""
   voipPassword: String
   voipDtfmCommand: String
   stun: String
@@ -91319,14 +91340,21 @@ input SendB2CAppPushMessageInput {
   dv: Int!
   sender: SenderFieldInput!
   app: B2CAppWhereUniqueInput!
+
+  """Should be same user, as the one who is calling mutation"""
   user: UserWhereUniqueInput!
+
+  """Resident should be for same user, which was passed in "user" field"""
   resident: ResidentWhereUniqueInput!
   type: SendB2CAppPushMessageType!
   data: SendB2CAppPushMessageData!
 }
 
 type SendB2CAppPushMessageOutput {
+  """Id of a created Message"""
   id: String!
+
+  """Status of a created Message"""
   status: String!
 }
 
