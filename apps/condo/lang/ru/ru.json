@@ -2424,6 +2424,8 @@
   "pages.condo.payments.noAcquiringMessage": "Чтобы такая возможность появилась — нужно подать заявку на подключение услуги «Расчётный банк»",
   "pages.condo.payments.noBillingLabel": "Сначала подключите биллинг",
   "pages.condo.payments.noBillingMessage": "Оплаты возможно подключить только после того, как у вас уже будет настроена интеграция с биллингом. Посмотрите, какие интеграции сейчас доступны у нас в платформе",
+  "pages.condo.payments.posReceiptColumn": "Чек",
+  "pages.condo.payments.posReceiptLink": "Посмотреть",
   "pages.condo.payments.type": "Тип",
   "pages.condo.phone.table.lastComment": "Последний комментарий",
   "pages.condo.profile.chooseInterfaceLanguage": "Выберите язык интерфейса",
