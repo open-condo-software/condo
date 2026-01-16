@@ -5,14 +5,18 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 
-interface PaymentReceiptData {
+export interface LastTestingPosReceiptData {
     id: string
     condoPaymentId: string
 }
-
-export function usePosIntegrationLastPosReceipt () {
+/**
+ * Hook to fetch the last testing POS receipt data.
+ * Returns the POS receipt only if the system is in testing mode (i.e., when a B2B app context
+ * with POS integration configuration is active and finished).
+ */
+export function usePosIntegrationLastTestingPosReceipt () {
     const { organization } = useOrganization()
-    const [lastReceipt, setLastReceipt] = useState<PaymentReceiptData | null>(null)
+    const [lastTestingPosReceipt, setLastTestingPosReceipt] = useState<LastTestingPosReceiptData | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
 
     const {
@@ -29,7 +33,7 @@ export function usePosIntegrationLastPosReceipt () {
 
     const baseUrl = b2bAppContexts?.[0]?.app?.posIntegrationConfig?.fetchLastPosReceiptUrl
 
-    const fetchLastReceipt = useCallback(async () => {
+    const fetchLastTestingPosReceipt = useCallback(async () => {
         if (!baseUrl) {
             setLoading(false)
             return
@@ -44,15 +48,15 @@ export function usePosIntegrationLastPosReceipt () {
 
             if (!response.ok) {
                 console.error('Failed to fetch last receipt:', response.statusText)
-                setLastReceipt(null)
+                setLastTestingPosReceipt(null)
                 return
             }
 
-            const data: PaymentReceiptData | null = await response.json()
-            setLastReceipt(data)
+            const data: LastTestingPosReceiptData | null = await response.json()
+            setLastTestingPosReceipt(data)
         } catch (error) {
             console.error('Error fetching last receipt:', error)
-            setLastReceipt(null)
+            setLastTestingPosReceipt(null)
         } finally {
             setLoading(false)
         }
@@ -60,13 +64,13 @@ export function usePosIntegrationLastPosReceipt () {
 
     useEffect(() => {
         if (!areB2bAppContextsLoading && organization?.id) {
-            fetchLastReceipt()
+            fetchLastTestingPosReceipt()
         }
-    }, [areB2bAppContextsLoading, organization?.id, fetchLastReceipt])
+    }, [areB2bAppContextsLoading, organization?.id, fetchLastTestingPosReceipt])
 
     return {
-        lastReceipt,
+        lastTestingPosReceipt,
         loading: areB2bAppContextsLoading || loading,
-        refetch: fetchLastReceipt,
+        refetch: fetchLastTestingPosReceipt,
     }
 }

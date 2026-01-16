@@ -2426,6 +2426,8 @@
   "pages.condo.payments.noBillingMessage": "Payments can be connected only after you have already set up integration with billing. See what integrations are currently available in our platform",
   "pages.condo.payments.posReceiptColumn": "Receipt",
   "pages.condo.payments.posReceiptLink": "View",
+  "pages.condo.payments.posReceiptVerifyTitle": "Check receipt correctness",
+  "pages.condo.payments.posReceiptVerifyDescription": "If all data is correct, you can activate fiscalization. If there are errors, contact technical support.",
   "pages.condo.payments.type": "Type",
   "pages.condo.phone.table.lastComment": "Last comment",
   "pages.condo.profile.chooseInterfaceLanguage": "Choose language",

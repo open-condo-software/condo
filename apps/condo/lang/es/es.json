@@ -2426,6 +2426,8 @@
   "pages.condo.payments.noBillingMessage": "Los pagos solo se pueden conectar después de que ya tengas configurada una integración de facturación. Consulta qué integraciones están disponibles actualmente en nuestra plataforma",
   "pages.condo.payments.posReceiptColumn": "Recibo",
   "pages.condo.payments.posReceiptLink": "Ver",
+  "pages.condo.payments.posReceiptVerifyTitle": "Verifique la exactitud del recibo",
+  "pages.condo.payments.posReceiptVerifyDescription": "Si todos los datos son correctos, puede activar la fiscalización. Si hay errores, contacte al soporte técnico.",
   "pages.condo.payments.type": "Tipo",
   "pages.condo.phone.table.lastComment": "Último comentario",
   "pages.condo.profile.chooseInterfaceLanguage": "Elegir idioma de interfaz",

@@ -20,7 +20,7 @@ import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
 import { usePosIntegrationAlert } from '@condo/domains/acquiring/hooks/usePosIntegrationAlert'
-import { usePosIntegrationLastPosReceipt } from '@condo/domains/acquiring/hooks/usePosIntegrationLastPosReceipt'
+import { usePosIntegrationLastTestingPosReceipt } from '@condo/domains/acquiring/hooks/usePosIntegrationLastTestingPosReceipt'
 import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
@@ -85,7 +85,7 @@ export const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
 
 const PaymentsTableContent: React.FC = (): JSX.Element => {
     const intl = useIntl()
-    const { lastReceipt, loading: arePaymentReceiptsLoading } = usePosIntegrationLastPosReceipt()
+    const { lastTestingPosReceipt, loading: areLastTestingPosReceiptLoading } = usePosIntegrationLastTestingPosReceipt()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
@@ -118,7 +118,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         setIsStatusDescModalVisible(true)
     }
 
-    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal)
+    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, { lastTestingPosReceipt })
 
     const organizationId = get(userOrganization, ['organization', 'id'], '')
     const queryMetas = usePaymentsTableFilters(organizationId)
@@ -264,16 +264,13 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 
                 <Col span={24}>
                     <Table
-                        loading={loading || arePaymentReceiptsLoading}
+                        loading={loading || areLastTestingPosReceiptLoading}
                         dataSource={objs}
                         totalRows={count}
                         columns={tableColumns}
                         onRow={(record) => {
-                            const hasReceipt = lastReceipt?.condoPaymentId === record.id
-                            return {
-                                style: hasReceipt ? {
-                                    backgroundColor: colors.orange[1],
-                                } : undefined,
+                            if (lastTestingPosReceipt && lastTestingPosReceipt?.condoPaymentId === record.id) {
+                                return { style: { backgroundColor: colors.orange[1] } }
                             }
                         }}
                     />
