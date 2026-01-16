@@ -34,11 +34,11 @@ body {
 }
 
 .main-layout-lg {
-  grid-template-columns: 300px 1fr 300px;
+  grid-template-columns: 300px minmax(0, 1fr) 300px;
 }
 
 .main-layout-md {
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 300px minmax(0, 1fr);
 }
 
 .main-layout-sm {
@@ -58,6 +58,11 @@ body {
   width: 100%;
   max-width: 900px;
   margin: auto;
+}
+
+.main-content .condo-markdown table {
+  display: block;
+  overflow-x: auto;
 }
 
 .main-layout-sm .main-content {

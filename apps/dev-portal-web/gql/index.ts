@@ -18,6 +18,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /** File, that could be loaded through new file server or by legacy way */
+  FileMeta: { input: any; output: any; }
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: { input: any; output: any; }
   /** The `Upload` scalar type represents a file upload. */
@@ -60,7 +62,7 @@ export type B2BAppCreateInput = {
   developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
-  logo?: InputMaybe<Scalars['Upload']['input']>;
+  logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionAppUrl?: InputMaybe<Scalars['String']['input']>;
@@ -384,7 +386,7 @@ export type B2BAppUpdateInput = {
   developmentAppUrl?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
-  logo?: InputMaybe<Scalars['Upload']['input']>;
+  logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionAppUrl?: InputMaybe<Scalars['String']['input']>;
@@ -996,7 +998,7 @@ export type B2CAppBuildCreateInput = {
   app?: InputMaybe<B2CAppRelateToOneInput>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<UserRelateToOneInput>;
-  data?: InputMaybe<Scalars['Upload']['input']>;
+  data?: InputMaybe<Scalars['FileMeta']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
@@ -1215,7 +1217,7 @@ export type B2CAppBuildUpdateInput = {
   app?: InputMaybe<B2CAppRelateToOneInput>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<UserRelateToOneInput>;
-  data?: InputMaybe<Scalars['Upload']['input']>;
+  data?: InputMaybe<Scalars['FileMeta']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
@@ -1369,7 +1371,7 @@ export type B2CAppCreateInput = {
   developer?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
-  logo?: InputMaybe<Scalars['Upload']['input']>;
+  logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
@@ -1907,7 +1909,7 @@ export type B2CAppUpdateInput = {
   developer?: InputMaybe<Scalars['String']['input']>;
   developmentExportId?: InputMaybe<Scalars['String']['input']>;
   dv?: InputMaybe<Scalars['Int']['input']>;
-  logo?: InputMaybe<Scalars['Upload']['input']>;
+  logo?: InputMaybe<Scalars['FileMeta']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   newId?: InputMaybe<Scalars['String']['input']>;
   productionExportId?: InputMaybe<Scalars['String']['input']>;
@@ -3377,6 +3379,55 @@ export enum SortWebhookHistoryRecordsBy {
   VDesc = 'v_DESC'
 }
 
+export enum SortWebhookPayloadsBy {
+  AttemptAsc = 'attempt_ASC',
+  AttemptDesc = 'attempt_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  EventTypeAsc = 'eventType_ASC',
+  EventTypeDesc = 'eventType_DESC',
+  ExpiresAtAsc = 'expiresAt_ASC',
+  ExpiresAtDesc = 'expiresAt_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  ItemIdAsc = 'itemId_ASC',
+  ItemIdDesc = 'itemId_DESC',
+  LastErrorMessageAsc = 'lastErrorMessage_ASC',
+  LastErrorMessageDesc = 'lastErrorMessage_DESC',
+  LastHttpStatusCodeAsc = 'lastHttpStatusCode_ASC',
+  LastHttpStatusCodeDesc = 'lastHttpStatusCode_DESC',
+  LastResponseBodyAsc = 'lastResponseBody_ASC',
+  LastResponseBodyDesc = 'lastResponseBody_DESC',
+  LastSentAtAsc = 'lastSentAt_ASC',
+  LastSentAtDesc = 'lastSentAt_DESC',
+  ModelNameAsc = 'modelName_ASC',
+  ModelNameDesc = 'modelName_DESC',
+  NextRetryAtAsc = 'nextRetryAt_ASC',
+  NextRetryAtDesc = 'nextRetryAt_DESC',
+  PayloadAsc = 'payload_ASC',
+  PayloadDesc = 'payload_DESC',
+  SecretAsc = 'secret_ASC',
+  SecretDesc = 'secret_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  UrlAsc = 'url_ASC',
+  UrlDesc = 'url_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  WebhookSubscriptionAsc = 'webhookSubscription_ASC',
+  WebhookSubscriptionDesc = 'webhookSubscription_DESC'
+}
+
 export enum SortWebhookSubscriptionHistoryRecordsBy {
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
@@ -4098,6 +4149,316 @@ export type WebhookHistoryRecordsUpdateInput = {
   id: Scalars['ID']['input'];
 };
 
+export type WebhookPayloadCreateInput = {
+  attempt?: InputMaybe<Scalars['Int']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  eventType?: InputMaybe<Scalars['String']['input']>;
+  expiresAt?: InputMaybe<Scalars['String']['input']>;
+  itemId?: InputMaybe<Scalars['ID']['input']>;
+  lastErrorMessage?: InputMaybe<Scalars['String']['input']>;
+  lastHttpStatusCode?: InputMaybe<Scalars['Int']['input']>;
+  lastResponseBody?: InputMaybe<Scalars['String']['input']>;
+  lastSentAt?: InputMaybe<Scalars['String']['input']>;
+  modelName?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  nextRetryAt?: InputMaybe<Scalars['String']['input']>;
+  payload?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  status?: InputMaybe<WebhookPayloadStatusType>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  url?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  webhookSubscription?: InputMaybe<WebhookSubscriptionRelateToOneInput>;
+};
+
+export enum WebhookPayloadStatusType {
+  Error = 'error',
+  Pending = 'pending',
+  Sent = 'sent'
+}
+
+export type WebhookPayloadUpdateInput = {
+  attempt?: InputMaybe<Scalars['Int']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  eventType?: InputMaybe<Scalars['String']['input']>;
+  expiresAt?: InputMaybe<Scalars['String']['input']>;
+  itemId?: InputMaybe<Scalars['ID']['input']>;
+  lastErrorMessage?: InputMaybe<Scalars['String']['input']>;
+  lastHttpStatusCode?: InputMaybe<Scalars['Int']['input']>;
+  lastResponseBody?: InputMaybe<Scalars['String']['input']>;
+  lastSentAt?: InputMaybe<Scalars['String']['input']>;
+  modelName?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  nextRetryAt?: InputMaybe<Scalars['String']['input']>;
+  payload?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  status?: InputMaybe<WebhookPayloadStatusType>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  url?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  webhookSubscription?: InputMaybe<WebhookSubscriptionRelateToOneInput>;
+};
+
+export type WebhookPayloadWhereInput = {
+  AND?: InputMaybe<Array<InputMaybe<WebhookPayloadWhereInput>>>;
+  OR?: InputMaybe<Array<InputMaybe<WebhookPayloadWhereInput>>>;
+  attempt?: InputMaybe<Scalars['Int']['input']>;
+  attempt_gt?: InputMaybe<Scalars['Int']['input']>;
+  attempt_gte?: InputMaybe<Scalars['Int']['input']>;
+  attempt_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  attempt_lt?: InputMaybe<Scalars['Int']['input']>;
+  attempt_lte?: InputMaybe<Scalars['Int']['input']>;
+  attempt_not?: InputMaybe<Scalars['Int']['input']>;
+  attempt_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy?: InputMaybe<UserWhereInput>;
+  createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  dv_gt?: InputMaybe<Scalars['Int']['input']>;
+  dv_gte?: InputMaybe<Scalars['Int']['input']>;
+  dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  dv_lt?: InputMaybe<Scalars['Int']['input']>;
+  dv_lte?: InputMaybe<Scalars['Int']['input']>;
+  dv_not?: InputMaybe<Scalars['Int']['input']>;
+  dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  eventType?: InputMaybe<Scalars['String']['input']>;
+  eventType_contains?: InputMaybe<Scalars['String']['input']>;
+  eventType_contains_i?: InputMaybe<Scalars['String']['input']>;
+  eventType_ends_with?: InputMaybe<Scalars['String']['input']>;
+  eventType_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  eventType_i?: InputMaybe<Scalars['String']['input']>;
+  eventType_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  eventType_not?: InputMaybe<Scalars['String']['input']>;
+  eventType_not_contains?: InputMaybe<Scalars['String']['input']>;
+  eventType_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  eventType_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  eventType_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  eventType_not_i?: InputMaybe<Scalars['String']['input']>;
+  eventType_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  eventType_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  eventType_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  eventType_starts_with?: InputMaybe<Scalars['String']['input']>;
+  eventType_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  expiresAt?: InputMaybe<Scalars['String']['input']>;
+  expiresAt_gt?: InputMaybe<Scalars['String']['input']>;
+  expiresAt_gte?: InputMaybe<Scalars['String']['input']>;
+  expiresAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  expiresAt_lt?: InputMaybe<Scalars['String']['input']>;
+  expiresAt_lte?: InputMaybe<Scalars['String']['input']>;
+  expiresAt_not?: InputMaybe<Scalars['String']['input']>;
+  expiresAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  itemId?: InputMaybe<Scalars['ID']['input']>;
+  itemId_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  itemId_not?: InputMaybe<Scalars['ID']['input']>;
+  itemId_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  lastErrorMessage?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_contains?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_contains_i?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_ends_with?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_i?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  lastErrorMessage_not?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_not_contains?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_not_i?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  lastErrorMessage_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_starts_with?: InputMaybe<Scalars['String']['input']>;
+  lastErrorMessage_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  lastHttpStatusCode?: InputMaybe<Scalars['Int']['input']>;
+  lastHttpStatusCode_gt?: InputMaybe<Scalars['Int']['input']>;
+  lastHttpStatusCode_gte?: InputMaybe<Scalars['Int']['input']>;
+  lastHttpStatusCode_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  lastHttpStatusCode_lt?: InputMaybe<Scalars['Int']['input']>;
+  lastHttpStatusCode_lte?: InputMaybe<Scalars['Int']['input']>;
+  lastHttpStatusCode_not?: InputMaybe<Scalars['Int']['input']>;
+  lastHttpStatusCode_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  lastResponseBody?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_contains?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_contains_i?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_ends_with?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_i?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  lastResponseBody_not?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_not_contains?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_not_i?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  lastResponseBody_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_starts_with?: InputMaybe<Scalars['String']['input']>;
+  lastResponseBody_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  lastSentAt?: InputMaybe<Scalars['String']['input']>;
+  lastSentAt_gt?: InputMaybe<Scalars['String']['input']>;
+  lastSentAt_gte?: InputMaybe<Scalars['String']['input']>;
+  lastSentAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  lastSentAt_lt?: InputMaybe<Scalars['String']['input']>;
+  lastSentAt_lte?: InputMaybe<Scalars['String']['input']>;
+  lastSentAt_not?: InputMaybe<Scalars['String']['input']>;
+  lastSentAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  modelName?: InputMaybe<Scalars['String']['input']>;
+  modelName_contains?: InputMaybe<Scalars['String']['input']>;
+  modelName_contains_i?: InputMaybe<Scalars['String']['input']>;
+  modelName_ends_with?: InputMaybe<Scalars['String']['input']>;
+  modelName_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  modelName_i?: InputMaybe<Scalars['String']['input']>;
+  modelName_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  modelName_not?: InputMaybe<Scalars['String']['input']>;
+  modelName_not_contains?: InputMaybe<Scalars['String']['input']>;
+  modelName_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  modelName_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  modelName_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  modelName_not_i?: InputMaybe<Scalars['String']['input']>;
+  modelName_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  modelName_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  modelName_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  modelName_starts_with?: InputMaybe<Scalars['String']['input']>;
+  modelName_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  newId_not?: InputMaybe<Scalars['String']['input']>;
+  newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  nextRetryAt?: InputMaybe<Scalars['String']['input']>;
+  nextRetryAt_gt?: InputMaybe<Scalars['String']['input']>;
+  nextRetryAt_gte?: InputMaybe<Scalars['String']['input']>;
+  nextRetryAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  nextRetryAt_lt?: InputMaybe<Scalars['String']['input']>;
+  nextRetryAt_lte?: InputMaybe<Scalars['String']['input']>;
+  nextRetryAt_not?: InputMaybe<Scalars['String']['input']>;
+  nextRetryAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  payload?: InputMaybe<Scalars['String']['input']>;
+  payload_contains?: InputMaybe<Scalars['String']['input']>;
+  payload_contains_i?: InputMaybe<Scalars['String']['input']>;
+  payload_ends_with?: InputMaybe<Scalars['String']['input']>;
+  payload_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  payload_i?: InputMaybe<Scalars['String']['input']>;
+  payload_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  payload_not?: InputMaybe<Scalars['String']['input']>;
+  payload_not_contains?: InputMaybe<Scalars['String']['input']>;
+  payload_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  payload_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  payload_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  payload_not_i?: InputMaybe<Scalars['String']['input']>;
+  payload_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  payload_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  payload_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  payload_starts_with?: InputMaybe<Scalars['String']['input']>;
+  payload_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
+  secret_contains?: InputMaybe<Scalars['String']['input']>;
+  secret_contains_i?: InputMaybe<Scalars['String']['input']>;
+  secret_ends_with?: InputMaybe<Scalars['String']['input']>;
+  secret_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  secret_i?: InputMaybe<Scalars['String']['input']>;
+  secret_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  secret_not?: InputMaybe<Scalars['String']['input']>;
+  secret_not_contains?: InputMaybe<Scalars['String']['input']>;
+  secret_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  secret_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  secret_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  secret_not_i?: InputMaybe<Scalars['String']['input']>;
+  secret_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  secret_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  secret_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  secret_starts_with?: InputMaybe<Scalars['String']['input']>;
+  secret_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  sender_not?: InputMaybe<SenderFieldInput>;
+  sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  status?: InputMaybe<WebhookPayloadStatusType>;
+  status_in?: InputMaybe<Array<InputMaybe<WebhookPayloadStatusType>>>;
+  status_not?: InputMaybe<WebhookPayloadStatusType>;
+  status_not_in?: InputMaybe<Array<InputMaybe<WebhookPayloadStatusType>>>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy?: InputMaybe<UserWhereInput>;
+  updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+  url_contains?: InputMaybe<Scalars['String']['input']>;
+  url_contains_i?: InputMaybe<Scalars['String']['input']>;
+  url_ends_with?: InputMaybe<Scalars['String']['input']>;
+  url_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  url_i?: InputMaybe<Scalars['String']['input']>;
+  url_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  url_not?: InputMaybe<Scalars['String']['input']>;
+  url_not_contains?: InputMaybe<Scalars['String']['input']>;
+  url_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  url_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  url_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  url_not_i?: InputMaybe<Scalars['String']['input']>;
+  url_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  url_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  url_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  url_starts_with?: InputMaybe<Scalars['String']['input']>;
+  url_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  v_gt?: InputMaybe<Scalars['Int']['input']>;
+  v_gte?: InputMaybe<Scalars['Int']['input']>;
+  v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  v_lt?: InputMaybe<Scalars['Int']['input']>;
+  v_lte?: InputMaybe<Scalars['Int']['input']>;
+  v_not?: InputMaybe<Scalars['Int']['input']>;
+  v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  webhookSubscription?: InputMaybe<WebhookSubscriptionWhereInput>;
+  webhookSubscription_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type WebhookPayloadWhereUniqueInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type WebhookPayloadsCreateInput = {
+  data?: InputMaybe<WebhookPayloadCreateInput>;
+};
+
+export type WebhookPayloadsUpdateInput = {
+  data?: InputMaybe<WebhookPayloadUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
 export type WebhookRelateToOneInput = {
   connect?: InputMaybe<WebhookWhereUniqueInput>;
   create?: InputMaybe<WebhookCreateInput>;
@@ -4371,6 +4732,13 @@ export type WebhookSubscriptionHistoryRecordsUpdateInput = {
 export enum WebhookSubscriptionModelType {
   B2CAppPublishRequest = 'B2CAppPublishRequest'
 }
+
+export type WebhookSubscriptionRelateToOneInput = {
+  connect?: InputMaybe<WebhookSubscriptionWhereUniqueInput>;
+  create?: InputMaybe<WebhookSubscriptionCreateInput>;
+  disconnect?: InputMaybe<WebhookSubscriptionWhereUniqueInput>;
+  disconnectAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
 
 export type WebhookSubscriptionUpdateInput = {
   createdAt?: InputMaybe<Scalars['String']['input']>;

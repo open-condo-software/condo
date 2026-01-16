@@ -1,0 +1,30 @@
+**Accruals Gateway** is an aggregating API service that provides a unified interface for accessing utility bill payment data from multiple providers.
+
+## API Endpoints
+
+Use the following base URLs depending on your environment:
+
+### Production
+```
+https://accruals-gateway.doma.ai
+```
+
+### Development
+```
+https://accruals-gateway.d.doma.ai
+```
+
+## Core Functions
+
+### [Find Providers →](/docs/accruals-gateway/search)
+- Search for organizations by TIN, name, or other credentials
+
+### [Retrieve Accruals →](/docs/accruals-gateway/check)
+- Access billing data by personal account number
+- Receive structured data in JSON format
+- Links to original PDF documents (receipts)
+
+### [Manage Payments →](/docs/accruals-gateway/pay)
+- Submit payment information
+- Confirm successful transactions
+- Synchronize payment statuses
