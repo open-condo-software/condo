@@ -38,15 +38,15 @@
 }
 
 .green-button span {
-  color: white !important;
+  color: var(--condo-global-color-white) !important;
   opacity: 1 !important;
-  fill: white !important;
+  fill: var(--condo-global-color-white) !important;
 }
 
 .green-button span path {
-  color: white !important;
+  color: var(--condo-global-color-white) !important;
   opacity: 1 !important;
-  fill: white !important;
+  fill: var(--condo-global-color-white) !important;
 }
 
 .green-button::after {

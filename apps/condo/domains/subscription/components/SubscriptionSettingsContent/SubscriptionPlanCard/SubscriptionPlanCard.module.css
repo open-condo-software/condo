@@ -1,7 +1,7 @@
 .subscription-plan-card {
   width: 30%;
   min-width: 260px;
-  transition: border-color 0.3s ease;
+  transition: border-color transform var(--condo-global-transition-duration-default) ease;
 }
 
 .subscription-plan-card:hover {
@@ -67,7 +67,7 @@
   align-items: center;
   height: 24px;
   margin-right: 4px !important;
-  transition: transform 0.3s ease;
+  transition: transform var(--condo-global-transition-duration-default) ease;
 }
 
 .collapse-icon-active {

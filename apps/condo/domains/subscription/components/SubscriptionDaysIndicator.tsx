@@ -9,8 +9,8 @@ import { colors } from '@open-condo/ui/colors'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
 
 const BRAND_GRADIENT = {
-    '0%': '#26c756',
-    '100%': '#4ba2e4',
+    '0%': colors.green[5],
+    '100%': colors.blue[5],
 }
 
 export const SubscriptionDaysIndicator: React.FC = () => {
@@ -43,26 +43,20 @@ export const SubscriptionDaysIndicator: React.FC = () => {
         }
     }, [daysRemaining, isTrial])
 
-    const { strokeColor } = useMemo(() => {
+    const  strokeColor  = useMemo(() => {
         if (!daysRemaining) {
-            return {
-                strokeColor: BRAND_GRADIENT,
-            }
+            return BRAND_GRADIENT
         }
         
         if (daysRemaining <= 1) {
-            return {
-                strokeColor: colors.red[5],
-            }
+            return colors.red[5]
+
         }
         if (daysRemaining <= 7) {
-            return {
-                strokeColor: colors.orange[5],
-            }
+            return colors.orange[5]
+
         }
-        return {
-            strokeColor: BRAND_GRADIENT,
-        }
+        return BRAND_GRADIENT
     }, [daysRemaining])
 
     const tooltipText = useMemo(() => {

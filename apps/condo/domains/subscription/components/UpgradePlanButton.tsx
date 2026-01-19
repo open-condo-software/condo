@@ -77,7 +77,7 @@ export const UpgradePlanButton: React.FC = () => {
     }
 
     if (!buttonText) return null
-    /*TODO move to ui kit*/
+    /*TODO DOMA-12785 move to ui kit*/
     return (
         <Button
             type='accent'
