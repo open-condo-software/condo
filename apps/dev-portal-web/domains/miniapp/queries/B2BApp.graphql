@@ -4,6 +4,8 @@ fragment B2BAppFragment on B2BApp {
     name
     developer
     developerUrl
+    shortDescription
+    detailedDescription
     logo {
         publicUrl
     }

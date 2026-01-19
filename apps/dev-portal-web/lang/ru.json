@@ -188,6 +188,11 @@
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.placeholder": "https://my-company.example.com",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.label": "Описание приложения",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.placeholder": "Сервис ... позволяет управляющим компаниям ...\n\n## Чем поможет сервис\n- Выгода 1\n- Выгода 2\n- Выгода 3\n\n## Как настроить сервис\n1. Нажмите кнопку \"Подключить\"\n2. С вами свяжется менеджер / перейдите в мини-приложение и выполните настройку\n3. ...\n\n## Стоимость\n Напишите, как тарифицируется ваш сервис",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.tooltip": "Подробно опишите сервис: укажите 1–3 предложения о его назначении, перечислите список его возможностей и функций, опишите как подключается сервис и укажите информацию о стоимости (если есть)",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.errors.tooLong.message": "Слишком длинное описание приложения. Попробуйте сократить текст, чтобы уложиться в указанные ограничения",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.label": "Короткое описание",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.placeholder": "Например: «Автоматизация обращений жителей» или «Контроль работы подрядчиков»",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.tooltip": "Коротко опишите, что делает сервис и какую пользу он приносит (5–10 слов)",
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC авторизация",
 

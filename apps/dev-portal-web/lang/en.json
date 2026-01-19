@@ -187,7 +187,12 @@
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.label": "Developer website",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.placeholder": "https://my-company.example.com",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.label": "App description",
-  "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.placeholder": "## Чем поможет сервис\n\n- Функция #1",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.placeholder": "Service ... allows property management companies to ...\n\n## How the service helps\n- Benefit 1\n- Benefit 2\n- Benefit 3\n\n## How to set up the service\n1. Click the \"Connect\" button\n2. A manager will contact you / go to the mini-app and complete the setup\n3. ...\n\n## Pricing\n Describe how your service is priced",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.tooltip": "Describe the service in detail: provide 1–3 sentences about its purpose, list its capabilities and features, describe how to connect the service, and include pricing information (if applicable)",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.errors.tooLong.message": "App description is too long. Try to shorten the text to fit within the specified limits",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.label": "Short description",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.placeholder": "For example: \"Resident appeals automation\" or \"Contractor work control\"",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.tooltip": "Briefly describe what the service does and what benefit it provides (5–10 words)",
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC authorization",
 
