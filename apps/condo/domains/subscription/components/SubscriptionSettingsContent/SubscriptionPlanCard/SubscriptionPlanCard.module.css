@@ -1,10 +1,15 @@
 .subscription-plan-card {
   width: 30%;
   min-width: 260px;
+  transition: border-color transform var(--condo-global-transition-duration-default) ease;
+}
+
+.subscription-plan-card:hover {
+  border-color: var(--condo-global-color-gray-5);
 }
 
 .main-content {
-  min-height: 320px;
+  min-height: 240px;
 }
 
 .description {
@@ -22,8 +27,30 @@
   justify-content: space-between;
 }
 
-.subscription-plan-card-promoted {
+.subscription-plan-card-promoted:global(.condo-card) {
+  position: relative;
   background: var(--condo-global-color-brand-gradient-1);
+  background-clip: padding-box;
+  background-origin: border-box;
+  border: 1px solid transparent;
+}
+
+.subscription-plan-card-promoted:global(.condo-card)::before {
+  position: absolute;
+  padding: 1px;
+  background: var(--condo-global-color-brand-gradient-3);
+  border-radius: inherit;
+  transition: background 0.3s ease;
+  content: "";
+  pointer-events: none;
+  inset: 0;
+  mask: linear-gradient(#fff 0 0, #fff) content-box, linear-gradient(#fff 0 0, #fff);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.subscription-plan-card-promoted:global(.condo-card):hover::before {
+  background: var(--condo-global-color-brand-gradient-7);
 }
 
 .collapse :global(.ant-collapse-content > .ant-collapse-content-box) {
@@ -31,7 +58,20 @@
 }
 
 .collapse > :global(.ant-collapse-item > .ant-collapse-header) {
+  align-items: center;
   padding: 0 !important;
+}
+
+.collapse-icon {
+  display: flex !important;
+  align-items: center;
+  height: 24px;
+  margin-right: 4px !important;
+  transition: transform var(--condo-global-transition-duration-default) ease;
+}
+
+.collapse-icon-active {
+  transform: rotate(180deg);
 }
 
 .hint-wrapper {

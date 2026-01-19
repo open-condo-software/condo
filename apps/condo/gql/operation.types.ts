@@ -801,7 +801,7 @@ export type GetOrganizationActivatedSubscriptionsQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetOrganizationActivatedSubscriptionsQuery = { __typename?: 'Query', activatedSubscriptions?: Array<{ __typename?: 'SubscriptionContext', id: string, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, priority?: number | null } | null } | null> | null };
+export type GetOrganizationActivatedSubscriptionsQuery = { __typename?: 'Query', activatedSubscriptions?: Array<{ __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, endAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, priority?: number | null } | null } | null> | null };
 
 export type GetOrganizationTrialSubscriptionsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];

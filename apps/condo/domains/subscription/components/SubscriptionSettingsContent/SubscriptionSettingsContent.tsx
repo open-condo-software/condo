@@ -5,7 +5,7 @@ import React, { useState, useMemo } from 'react'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Space, Radio } from '@open-condo/ui'
+import { Space, Radio, Typography } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
 
@@ -16,6 +16,8 @@ import styles from './SubscriptionSettingsContent.module.css'
 
 type PlanPeriod = 'month' | 'year'
 type PlanType = GetAvailableSubscriptionPlansQueryResult['data']['result']['plans'][number]
+
+const PLAN_CARD_EMOJIS = ['🏠', '🚀', '👑']
 
 export const SubscriptionSettingsContent: React.FC = () => {
     const intl = useIntl()
@@ -126,7 +128,11 @@ export const SubscriptionSettingsContent: React.FC = () => {
                     await selectEmployee(employee.id)
                 }
                 notification.success({
-                    message: intl.formatMessage({ id: 'subscription.activation.trial.title' }, { planName }),
+                    message: (
+                        <Typography.Text strong size='large'>
+                            {intl.formatMessage({ id: 'subscription.activation.trial.title' }, { planName })}
+                        </Typography.Text>
+                    ),
                     description: intl.formatMessage({ id: 'subscription.activation.trial.description' }, { planName, days: trialDays }),
                     duration: 5,
                 })
@@ -134,13 +140,21 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 await refetchPendingRequests()
                 if (isCustomPrice) {
                     notification.success({
-                        message: intl.formatMessage({ id: 'subscription.activation.paid.custom.title' }, { planName }),
+                        message: (
+                            <Typography.Text strong size='large'>
+                                {intl.formatMessage({ id: 'subscription.activation.paid.custom.title' }, { planName })}
+                            </Typography.Text>
+                        ),
                         description: intl.formatMessage({ id: 'subscription.activation.paid.custom.description' }),
                         duration: 5,
                     })
                 } else {
                     notification.success({
-                        message: intl.formatMessage({ id: 'subscription.activation.paid.standard.title' }),
+                        message: (
+                            <Typography.Text strong size='large'>
+                                {intl.formatMessage({ id: 'subscription.activation.paid.standard.title' })}
+                            </Typography.Text>
+                        ),
                         description: intl.formatMessage({ id: 'subscription.activation.paid.standard.description' }),
                         duration: 5,
                     })
@@ -174,7 +188,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                 </Radio.Group>
             </Space>
             <div className={styles['plan-list']}>
-                {availablePlans.map((planInfo: PlanType) => {
+                {availablePlans.map((planInfo: PlanType, index) => {
                     const activatedTrial = trialSubscriptions?.find(
                         trial => trial.subscriptionPlan?.id === planInfo?.plan?.id
                     )
@@ -192,6 +206,7 @@ export const SubscriptionSettingsContent: React.FC = () => {
                             activatedSubscriptions={activatedSubscriptions}
                             b2bAppsMap={b2bAppsMap}
                             allB2BAppIds={allB2BAppIds}
+                            emoji={PLAN_CARD_EMOJIS?.[index]}
                         />
                     )
                 })}
