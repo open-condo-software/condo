@@ -50,7 +50,18 @@ const useSubscriptionWelcomeModalContent = (): { content: ModalContent | null, l
         const isActiveBankingPlan = activeBankingPlanId && planId === activeBankingPlanId
         const isDefaultTrialPlan = defaultTrialPlanId && planId === defaultTrialPlanId
 
-        if (!subscriptionContext.isTrial && subscriptionContext.endAt) {
+        if (hasHighRevenueCustomerFeature) {
+            return {
+                title: intl.formatMessage({ id: 'subscription.welcomeModal.highRevenueCustomer.title' }),
+                description: intl.formatMessage(
+                    { id: 'subscription.welcomeModal.highRevenueCustomer.description' },
+                    { planName }
+                ),
+                buttonText: intl.formatMessage({ id: 'subscription.welcomeModal.learnMoreAboutPlans' }),
+            }
+        }
+
+        if (!subscriptionContext.isTrial && !(hasActiveBankingFeature && isActiveBankingPlan)) {
             return {
                 title: intl.formatMessage({ id: 'subscription.welcomeModal.paidPlan.title' }),
                 description: intl.formatMessage(
@@ -72,22 +83,11 @@ const useSubscriptionWelcomeModalContent = (): { content: ModalContent | null, l
             }
         }
 
-        if (!subscriptionContext.endAt && !subscriptionContext.isTrial && hasActiveBankingFeature && isActiveBankingPlan) {
+        if (!subscriptionContext.isTrial && hasActiveBankingFeature && isActiveBankingPlan) {
             return {
                 title: intl.formatMessage({ id: 'subscription.welcomeModal.activeBanking.title' }),
                 description: intl.formatMessage(
                     { id: 'subscription.welcomeModal.activeBanking.description' },
-                    { planName }
-                ),
-                buttonText: intl.formatMessage({ id: 'subscription.welcomeModal.learnMoreAboutPlans' }),
-            }
-        }
-
-        if (!subscriptionContext.endAt && !subscriptionContext.isTrial && hasHighRevenueCustomerFeature) {
-            return {
-                title: intl.formatMessage({ id: 'subscription.welcomeModal.highRevenueCustomer.title' }),
-                description: intl.formatMessage(
-                    { id: 'subscription.welcomeModal.highRevenueCustomer.description' },
                     { planName }
                 ),
                 buttonText: intl.formatMessage({ id: 'subscription.welcomeModal.learnMoreAboutPlans' }),
