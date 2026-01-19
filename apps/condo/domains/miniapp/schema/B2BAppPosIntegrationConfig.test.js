@@ -31,6 +31,7 @@ describe('B2BAppPosIntegrationConfig', () => {
         describe('create', () => {
             const createPayload = {
                 paymentsAlertPageUrl: faker.internet.url(),
+                fetchLastPosReceiptUrl: faker.internet.url(),
             }
 
             test('admin can', async () => {
@@ -64,6 +65,7 @@ describe('B2BAppPosIntegrationConfig', () => {
             let createdB2BAppPosIntegrationConfig
             const updatePayload = {
                 paymentsAlertPageUrl: faker.internet.url(),
+                fetchLastPosReceiptUrl: faker.internet.url(),
             }
 
             beforeEach(async () => {

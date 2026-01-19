@@ -755,6 +755,7 @@ async function createTestB2BAppPosIntegrationConfig (client, extraAttrs = {}) {
         dv: 1,
         sender,
         paymentsAlertPageUrl: faker.internet.url(),
+        fetchLastPosReceiptUrl: faker.internet.url(),
         ...extraAttrs,
     }
     const obj = await B2BAppPosIntegrationConfig.create(client, attrs)
