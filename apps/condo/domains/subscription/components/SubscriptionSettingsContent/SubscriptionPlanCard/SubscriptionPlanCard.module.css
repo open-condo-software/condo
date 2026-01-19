@@ -65,6 +65,8 @@
 .collapse-icon {
   display: flex !important;
   align-items: center;
+  height: 24px;
+  margin-right: 4px !important;
   transition: transform 0.3s ease;
 }
 
