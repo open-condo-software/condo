@@ -9,12 +9,20 @@ export interface LastTestingPosReceiptData {
     id: string
     condoPaymentId: string
 }
+
+export interface UsePosIntegrationLastTestingPosReceiptOptions {
+    skipUntilAuthenticated?: boolean
+}
+
 /**
  * Hook to fetch the last testing POS receipt data.
  * Returns the POS receipt only if the system is in testing mode (i.e., when a B2B app context
  * with POS integration configuration is active and finished).
+ * 
+ * @param options.skipUntilAuthenticated - If true, delays fetching until authentication is complete (IFrame loaded)
  */
-export function usePosIntegrationLastTestingPosReceipt () {
+export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrationLastTestingPosReceiptOptions) {
+    const { skipUntilAuthenticated = false } = options || {}
     const { organization } = useOrganization()
     const [lastTestingPosReceipt, setLastTestingPosReceipt] = useState<LastTestingPosReceiptData | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
@@ -63,10 +71,10 @@ export function usePosIntegrationLastTestingPosReceipt () {
     }, [baseUrl])
 
     useEffect(() => {
-        if (!areB2bAppContextsLoading && organization?.id) {
+        if (!areB2bAppContextsLoading && organization?.id && !skipUntilAuthenticated) {
             fetchLastTestingPosReceipt()
         }
-    }, [areB2bAppContextsLoading, organization?.id, fetchLastTestingPosReceipt])
+    }, [areB2bAppContextsLoading, organization?.id, skipUntilAuthenticated, fetchLastTestingPosReceipt])
 
     return {
         lastTestingPosReceipt,

@@ -5,7 +5,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -83,9 +83,15 @@ export const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
 }
 
 
-const PaymentsTableContent: React.FC = (): JSX.Element => {
+interface PaymentsTableContentProps {
+    areAlertLoading: boolean
+}
+
+const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoading }): JSX.Element => {
     const intl = useIntl()
-    const { lastTestingPosReceipt, loading: areLastTestingPosReceiptLoading } = usePosIntegrationLastTestingPosReceipt()
+    const { lastTestingPosReceipt, loading: areLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt } = usePosIntegrationLastTestingPosReceipt({
+        skipUntilAuthenticated: areAlertLoading,
+    })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
@@ -119,6 +125,12 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     }
 
     const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, { lastTestingPosReceipt })
+
+    useEffect(() => {
+        if (!areAlertLoading) {
+            refetchLastTestingPosReceipt()
+        }
+    }, [areAlertLoading, refetchLastTestingPosReceipt])
 
     const organizationId = get(userOrganization, ['organization', 'id'], '')
     const queryMetas = usePaymentsTableFilters(organizationId)
@@ -325,16 +337,16 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 }
 
 const PaymentsTable: React.FC = (props) => {
-    const { PosIntegrationAlert, loading } = usePosIntegrationAlert()
+    const { PosIntegrationAlert, loading: areAlertLoading } = usePosIntegrationAlert()
 
     return (
-        <Space size={loading ? 0 : 30} direction='vertical'>
+        <Space size={areAlertLoading ? 0 : 30} direction='vertical'>
             {PosIntegrationAlert}
-            {loading ? (
+            {areAlertLoading ? (
                 <Spin size='large' />
             ) : (
                 <MultipleFilterContextProvider>
-                    <PaymentsTableContent {...props} />
+                    <PaymentsTableContent areAlertLoading={areAlertLoading} {...props} />
                 </MultipleFilterContextProvider>
             )}
         </Space>
