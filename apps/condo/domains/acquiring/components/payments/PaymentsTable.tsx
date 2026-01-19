@@ -5,7 +5,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -183,6 +183,20 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         extraQueryParameters: { tab: 'payments', type: 'list' },
     })
 
+    const sortedDataSource = useMemo(() => {
+        if (!lastTestingPosReceipt || !objs) return objs
+        
+        const sortedObjs = [...objs]
+        const highlightedIndex = sortedObjs.findIndex(obj => obj.id === lastTestingPosReceipt.condoPaymentId)
+        
+        if (highlightedIndex > 0) {
+            const [highlightedRow] = sortedObjs.splice(highlightedIndex, 1)
+            sortedObjs.unshift(highlightedRow)
+        }
+        
+        return sortedObjs
+    }, [objs, lastTestingPosReceipt])
+
     return (
         <>
             <Row gutter={ROW_GUTTER} align='middle' justify='center'>
@@ -265,7 +279,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
                 <Col span={24}>
                     <Table
                         loading={loading || areLastTestingPosReceiptLoading}
-                        dataSource={objs}
+                        dataSource={sortedDataSource}
                         totalRows={count}
                         columns={tableColumns}
                         onRow={(record) => {
