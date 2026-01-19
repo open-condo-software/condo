@@ -42,6 +42,6 @@ export function usePosIntegrationAlert () {
 
     return {
         PosIntegrationAlert: Component,
-        loading: areB2bAppContextsLoading || isIFrameHidden,
+        loading: areB2bAppContextsLoading || (paymentsAlertPageUrl ? isIFrameHidden : false),
     }
 }
