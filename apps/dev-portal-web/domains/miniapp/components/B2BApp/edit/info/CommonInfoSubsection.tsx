@@ -6,6 +6,7 @@ import { useIntl } from 'react-intl'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Input, Button } from '@open-condo/ui'
 
+import { MarkdownEditor } from '@/domains/common/components/MarkdownEditor'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
@@ -16,6 +17,9 @@ import { useGetB2BAppQuery, useUpdateB2BAppMutation } from '@/gql'
 
 const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [32, 32]
 const FULL_COL_SPAN = 24
+const MAX_DESCRIPTION_LENGTH = 5000
+const MD_AREA_MAX_HEIGHT = '300px'
+const MD_AREA_MIN_HEIGHT = '200px'
 
 type CommonInfoFormValues = {
     name: string
@@ -29,6 +33,8 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const DeveloperNamePlaceholder = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.developer.placeholder' })
     const DeveloperUrlLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.label' })
     const DeveloperUrlPlaceholder = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.placeholder' })
+    const DetailedDescriptionLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.label' })
+    const DetailedDescriptionPlaceholder = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'global.actions.save' })
 
     const [form] = Form.useForm()
@@ -47,16 +53,17 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const { trimValidator, urlValidator } = useValidations()
 
     const handleSubmit = useCallback((values: CommonInfoFormValues) => {
-        updateB2BAppMutation({
-            variables: {
-                id,
-                data: {
-                    dv: 1,
-                    sender: getClientSideSenderInfo(),
-                    ...values,
-                },
-            },
-        })
+        console.log(values)
+        // updateB2BAppMutation({
+        //     variables: {
+        //         id,
+        //         data: {
+        //             dv: 1,
+        //             sender: getClientSideSenderInfo(),
+        //             ...values,
+        //         },
+        //     },
+        // })
     }, [id, updateB2BAppMutation])
 
     return (
@@ -77,6 +84,16 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
                     </Form.Item>
                     <Form.Item name='developerUrl' label={DeveloperUrlLabel} rules={[urlValidator]}>
                         <Input placeholder={DeveloperUrlPlaceholder}/>
+                    </Form.Item>
+                    <Form.Item name='detailedDescription' label={DetailedDescriptionLabel}>
+                        <MarkdownEditor
+                            // maxLength={MAX_DESCRIPTION_LENGTH}
+                            maxLength={100}
+                            maxHeight={MD_AREA_MAX_HEIGHT}
+                            minHeight={MD_AREA_MIN_HEIGHT}
+                            placeholder={DetailedDescriptionPlaceholder}
+                            overflowPolicy='show'
+                        />
                     </Form.Item>
                 </Col>
                 <Col span={FULL_COL_SPAN}>

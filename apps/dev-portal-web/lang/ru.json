@@ -186,6 +186,8 @@
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.developer.placeholder": "Название компании",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.label": "Веб-сайт разработчика",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.placeholder": "https://my-company.example.com",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.label": "Описание приложения",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.placeholder": "Сервис ... позволяет управляющим компаниям ...\n\n## Чем поможет сервис\n- Выгода 1\n- Выгода 2\n- Выгода 3\n\n## Как настроить сервис\n1. Нажмите кнопку \"Подключить\"\n2. С вами свяжется менеджер / перейдите в мини-приложение и выполните настройку\n3. ...\n\n## Стоимость\n Напишите, как тарифицируется ваш сервис",
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC авторизация",
 

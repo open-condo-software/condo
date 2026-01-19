@@ -186,6 +186,8 @@
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.developer.placeholder": "Company name",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.label": "Developer website",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.placeholder": "https://my-company.example.com",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.label": "App description",
+  "pages.apps.b2b.id.sections.info.commonInfo.form.items.detailedDescription.placeholder": "## Чем поможет сервис\n\n- Функция #1",
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC authorization",
 

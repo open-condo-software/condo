@@ -30,7 +30,7 @@ const RUNTIME_TRANSLATIONS = JSON.parse(conf['RUNTIME_TRANSLATIONS'] || '{}')
 
 const ENVIRONMENTS_URIS = JSON.parse(conf['ENVIRONMENTS_URIS'] || '{}')
 
-const MARKDOWN_GUIDE_URL = conf['MARKDOWN_GUIDE_URL'] || (conf['CONDO_DOMAIN'] ? `${conf['CONDO_DOMAIN']}/ui/index.html?path=/story/components-markdown` : null)
+const MARKDOWN_GUIDE_URL = conf['MARKDOWN_GUIDE_URL'] || (conf['CONDO_DOMAIN'] ? `${conf['CONDO_DOMAIN']}/ui/index.html?path=/story/components-markdown--default` : null)
 
 const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']

@@ -1,11 +1,14 @@
+import classNames from 'classnames'
 import EasyMDE from 'easymde'
 import getConfig from 'next/config'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from 'react-intl'
 import SimpleMDE from 'react-simplemde-editor'
 
 import styles from './editor.module.css'
 
+
+import type { CSSProperties } from 'react'
 import type { SimpleMDEReactProps } from 'react-simplemde-editor'
 
 const { publicRuntimeConfig: { markdownGuideUrl } } = getConfig()
@@ -17,6 +20,7 @@ type MarkdownEditorProps = {
     placeholder?: string
     minHeight?: string
     maxHeight?: string
+    overflowPolicy?: 'crop' | 'show'
 }
 
 export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
@@ -26,6 +30,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     maxLength = 1000,
     minHeight = '200px',
     maxHeight = '400px',
+    overflowPolicy = 'crop',
 }) => {
     const intl = useIntl()
     const UndoLabel = intl.formatMessage({ id: 'components.common.markdownEditor.controls.undo.title' })
@@ -42,18 +47,41 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     const MDGuideLabel = intl.formatMessage({ id: 'components.common.markdownEditor.controls.guide.title' })
 
     const [internalValue, setInternalValue] = useState(() => value || '')
+    const editorInstanceRef = useRef<EasyMDE | null>(null)
+
+    const getMdeInstance = useCallback((instance: EasyMDE) => {
+        editorInstanceRef.current = instance
+    }, [])
+
+    const handleValueChange = useCallback((value: string) => {
+        let cleanedValue = value
+        const cm = editorInstanceRef.current?.codemirror
+        if (overflowPolicy === 'crop' && cleanedValue.length > maxLength) {
+            cleanedValue = cleanedValue.slice(0, maxLength)
+            if (cm) {
+                const cursor = cm.getCursor()
+                const lines = cleanedValue.split('\n')
+                const line = Math.min(cursor.line, lines.length - 1)
+                const ch = Math.min(cursor.ch, lines[line].length)
+                cm.setValue(cleanedValue)
+                cm.setCursor({ line, ch })
+            }
+        }
+        setInternalValue(cleanedValue)
+
+        return cleanedValue
+    }, [maxLength, overflowPolicy])
 
     const internalOnChange = useCallback((value: string) => {
-        const croppedValue = value.length > maxLength ? value.slice(0, maxLength) : value
-        setInternalValue(croppedValue)
-        onChange?.(croppedValue)
-    }, [maxLength, onChange])
+        const cleanedValue = handleValueChange(value)
+        onChange?.(cleanedValue)
+    }, [handleValueChange, onChange])
 
     useEffect(() => {
         if (value !== undefined) {
-            setInternalValue(value || '')
+            handleValueChange(value || '')
         }
-    }, [value])
+    }, [handleValueChange, value])
 
 
     const options: SimpleMDEReactProps['options'] = useMemo(() => {
@@ -140,8 +168,10 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
             toolbar,
             status: false,
             spellChecker: false,
+            sideBySideFullscreen: false,
+            // NOTE: maxHeight should not be set as it sets fixed size instead of max-height:
+            // https://github.com/Ionaru/easy-markdown-editor/blob/2996b67ec95ec69000ee03ccaee4fcca26cfc701/README.md?plain=1#L147
             minHeight,
-            maxHeight,
         }
     }, [
         BoldTextLabel,
@@ -156,22 +186,29 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         TableLabel,
         UListLabel,
         UndoLabel,
-        maxHeight,
         minHeight,
     ])
 
+    const style = useMemo(() => ({ '--md-editor-max-height': maxHeight } as CSSProperties), [maxHeight])
+
+    const countClassName = classNames('condo-input-count', {
+        [styles.editorInputCountOverflow]: internalValue.length > maxLength,
+    })
+
     return (
-        <div className={styles.editorContainer}>
+        <div className={styles.editorContainer} data-max-height={maxHeight}>
             <SimpleMDE
                 placeholder={placeholder}
                 value={internalValue}
                 onChange={internalOnChange}
                 options={options}
+                style={style}
+                getMdeInstance={getMdeInstance}
             />
             <div className={styles.bottomPanel}>
                 <span className='condo-input-bottom-panel'>
                     <span className='condo-input-bottom-panel-right'>
-                        <span className='condo-input-count'>
+                        <span className={countClassName}>
                             {internalValue.length}/{maxLength}
                         </span>
                     </span>
