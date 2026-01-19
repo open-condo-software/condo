@@ -1560,6 +1560,7 @@ type B2BAppHistoryRecord {
   logo: JSON
   shortDescription: String
   detailedDescription: JSON
+  category: String
   developmentAppUrl: String
   productionAppUrl: String
   id: ID!
@@ -1662,6 +1663,24 @@ input B2BAppHistoryRecordWhereInput {
   detailedDescription_not: JSON
   detailedDescription_in: [JSON]
   detailedDescription_not_in: [JSON]
+  category: String
+  category_not: String
+  category_contains: String
+  category_not_contains: String
+  category_starts_with: String
+  category_not_starts_with: String
+  category_ends_with: String
+  category_not_ends_with: String
+  category_i: String
+  category_not_i: String
+  category_contains_i: String
+  category_not_contains_i: String
+  category_starts_with_i: String
+  category_not_starts_with_i: String
+  category_ends_with_i: String
+  category_not_ends_with_i: String
+  category_in: [String]
+  category_not_in: [String]
   developmentAppUrl: String
   developmentAppUrl_not: String
   developmentAppUrl_contains: String
@@ -1825,6 +1844,8 @@ enum SortB2BAppHistoryRecordsBy {
   developerUrl_DESC
   shortDescription_ASC
   shortDescription_DESC
+  category_ASC
+  category_DESC
   developmentAppUrl_ASC
   developmentAppUrl_DESC
   productionAppUrl_ASC
@@ -1858,6 +1879,7 @@ input B2BAppHistoryRecordUpdateInput {
   logo: JSON
   shortDescription: String
   detailedDescription: JSON
+  category: String
   developmentAppUrl: String
   productionAppUrl: String
   v: Int
@@ -1888,6 +1910,7 @@ input B2BAppHistoryRecordCreateInput {
   logo: JSON
   shortDescription: String
   detailedDescription: JSON
+  category: String
   developmentAppUrl: String
   productionAppUrl: String
   v: Int
@@ -1921,6 +1944,15 @@ type File {
   meta: JSON
 }
 
+enum B2BAppCategoryType {
+  DISPATCHING
+  GIS
+  SMART_HOME
+  BUSINESS_DEVELOPMENT
+  FINANCE
+  OTHER
+}
+
 """ B2B application """
 type B2BApp {
   """
@@ -1950,6 +1982,10 @@ type B2BApp {
   """ Detailed markdown description of application shown on its page. Used to describe apps functionality, pricing, etc 
   """
   detailedDescription: String
+
+  """ Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "FINANCE", "OTHER"] By default set to "OTHER" 
+  """
+  category: B2BAppCategoryType
 
   """ Web app entrypoint URL for development environment, which is used to open app in WebView or IFrame 
   """
@@ -2086,6 +2122,10 @@ input B2BAppWhereInput {
   detailedDescription_not_ends_with_i: String
   detailedDescription_in: [String]
   detailedDescription_not_in: [String]
+  category: B2BAppCategoryType
+  category_not: B2BAppCategoryType
+  category_in: [B2BAppCategoryType]
+  category_not_in: [B2BAppCategoryType]
   developmentAppUrl: String
   developmentAppUrl_not: String
   developmentAppUrl_contains: String
@@ -2231,6 +2271,8 @@ enum SortB2BAppsBy {
   shortDescription_DESC
   detailedDescription_ASC
   detailedDescription_DESC
+  category_ASC
+  category_DESC
   developmentAppUrl_ASC
   developmentAppUrl_DESC
   productionAppUrl_ASC
@@ -2264,6 +2306,7 @@ input B2BAppUpdateInput {
   logo: FileMeta
   shortDescription: String
   detailedDescription: String
+  category: B2BAppCategoryType
   developmentAppUrl: String
   productionAppUrl: String
   v: Int
@@ -2291,6 +2334,7 @@ input B2BAppCreateInput {
   logo: FileMeta
   shortDescription: String
   detailedDescription: String
+  category: B2BAppCategoryType
   developmentAppUrl: String
   productionAppUrl: String
   v: Int

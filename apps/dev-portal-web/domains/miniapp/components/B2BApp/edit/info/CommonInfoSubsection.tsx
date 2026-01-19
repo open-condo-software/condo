@@ -1,10 +1,10 @@
 import { Form, Row, Col } from 'antd'
 import pick from 'lodash/pick'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
-import { Input, Button } from '@open-condo/ui'
+import { Input, Button, Select } from '@open-condo/ui'
 
 import { MarkdownEditor } from '@/domains/common/components/MarkdownEditor'
 import { useMarkdownLengthValidation } from '@/domains/common/hooks/useMarkdownLengthValidation'
@@ -15,7 +15,7 @@ import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutation
 import type { GetB2BAppQuery } from '@/gql'
 import type { RowProps } from 'antd'
 
-import { useGetB2BAppQuery, useUpdateB2BAppMutation } from '@/gql'
+import { useGetB2BAppQuery, useUpdateB2BAppMutation, B2BAppCategoryType } from '@/gql'
 
 const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [32, 32]
 const FULL_COL_SPAN = 24
@@ -27,17 +27,22 @@ const MD_AREA_MIN_HEIGHT = '200px'
 type CommonInfoFormValues = {
     name: string
     developer?: string
+    developerUrl?: string
+    detailedDescription?: string
+    shortDescription?: string
+    category?: B2BAppCategoryType
 }
 
 function getInitialValues (app: GetB2BAppQuery['app']): Record<string, string | undefined> {
     return Object.fromEntries(
-        Object.entries(pick(app, ['name', 'developer', 'developerUrl', 'detailedDescription', 'shortDescription'])).map(([key, value]) => [key, value ?? undefined])
+        Object.entries(pick(app, ['name', 'developer', 'developerUrl', 'detailedDescription', 'shortDescription', 'category'])).map(([key, value]) => [key, value ?? undefined])
     ) as Record<string, string | undefined>
 }
 
 export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
     const AppNameLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.name.label' })
+    const CategoryLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.category.label' })
     const DeveloperNameLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.developer.label' })
     const DeveloperNamePlaceholder = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.developer.placeholder' })
     const DeveloperUrlLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.info.commonInfo.form.items.developerUrl.label' })
@@ -74,6 +79,13 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
         maxHeaderLevel: 3,
     })
 
+    const categoryOptions = useMemo(() =>
+        Object.values(B2BAppCategoryType)
+            .map((category) => ({
+                label: intl.formatMessage({ id:`pages.apps.b2b.id.sections.info.commonInfo.form.items.category.options.${category}.label` }),
+                value: category,
+            })), [intl])
+
     const handleSubmit = useCallback((values: CommonInfoFormValues) => {
         updateB2BAppMutation({
             variables: {
@@ -99,6 +111,9 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
                 <Col span={FULL_COL_SPAN}>
                     <Form.Item name='name' label={AppNameLabel} rules={[trimValidator]}>
                         <Input/>
+                    </Form.Item>
+                    <Form.Item name='category' label={CategoryLabel}>
+                        <Select options={categoryOptions}/>
                     </Form.Item>
                     <Form.Item name='developer' label={DeveloperNameLabel}>
                         <Input placeholder={DeveloperNamePlaceholder}/>

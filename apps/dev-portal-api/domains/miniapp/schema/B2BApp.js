@@ -5,6 +5,7 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { B2B_APP_CATEGORIES, OTHER_CATEGORY } = require('@condo/domains/miniapp/constants')
 const { getSharedConstraintsValidator } = require('@dev-portal-api/domains/common/serverSchema/constraints')
 const { FileAdapter, getFileMetaAfterChange, getMimeTypesValidator } = require('@dev-portal-api/domains/common/utils/files')
 const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
@@ -54,6 +55,14 @@ const B2BApp = new GQLListSchema('B2BApp', {
                 'Used to describe apps functionality, pricing, etc',
             type: 'Markdown',
             isRequired: false,
+        },
+        category: {
+            schemaDoc: `Category of app. Can be one of the following: [${B2B_APP_CATEGORIES.map(category => `"${category}"`).join(', ')}] By default set to "${OTHER_CATEGORY}"`,
+            type: 'Select',
+            dataType: 'string',
+            isRequired: true,
+            options: B2B_APP_CATEGORIES,
+            defaultValue: OTHER_CATEGORY,
         },
         ...Object.fromEntries(AVAILABLE_ENVIRONMENTS.map(environment => [
             `${environment}AppUrl`, {
