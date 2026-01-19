@@ -61,7 +61,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
         const lastExpiredContext = expiredData?.lastExpiredContext?.[0]
         const lastExpiredWasTrial = lastExpiredContext?.isTrial === true
 
-        if (lastExpiredWasTrial && !trialEndedShown) {
+        if (lastExpiredContext && lastExpiredWasTrial && !trialEndedShown) {
             if (subscriptionContext) {
                 const planName = subscriptionContext.subscriptionPlan?.name || ''
                 return {
@@ -69,7 +69,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
                         title: intl.formatMessage({ id: 'subscription.trialEndedModal.hasSubscription.title' }),
                         description: intl.formatMessage(
                             { id: 'subscription.trialEndedModal.hasSubscription.description' },
-                            { planName }
+                            { planName, expiredPlanName: lastExpiredContext.subscriptionPlan?.name || '' }
                         ),
                         buttonText: intl.formatMessage({ id: 'subscription.welcomeModal.learnMoreAboutPlans' }),
                     },
@@ -89,7 +89,23 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
             }
         }
 
-        if (!subscriptionContext && !subscriptionEndedShown && (!lastExpiredWasTrial || trialEndedShown)) {
+        if (lastExpiredContext && !lastExpiredWasTrial && !subscriptionEndedShown) {
+            if (subscriptionContext) {
+                const planName = subscriptionContext.subscriptionPlan?.name || ''
+                return {
+                    content: {
+                        title: intl.formatMessage({ id: 'subscription.subscriptionEndedModal.title' }),
+                        description: intl.formatMessage(
+                            { id: 'subscription.trialEndedModal.hasSubscription.description' },
+                            { planName, expiredPlanName: lastExpiredContext.subscriptionPlan?.name || '' }
+                        ),
+                        buttonText: intl.formatMessage({ id: 'subscription.welcomeModal.learnMoreAboutPlans' }),
+                    },
+                    type: 'trialEnded' as ModalType,
+                    loading,
+                }
+            }
+
             return {
                 content: {
                     title: intl.formatMessage({ id: 'subscription.subscriptionEndedModal.title' }),
@@ -102,7 +118,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
         }
 
         return { content: null, type: null, loading }
-    }, [organization, organizationId, subscriptionContext, expiredData, loading, intl])
+    }, [organization, loading, hasSubscriptionsFlag, organizationId, expiredData?.lastExpiredContext, subscriptionContext, intl])
 }
 
 /**
