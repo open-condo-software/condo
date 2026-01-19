@@ -55,7 +55,7 @@ export const UpgradePlanButton: React.FC = () => {
             return intl.formatMessage({ id: 'subscription.upgradePlan.tryPlan' }, { planName: betterPlan.plan.name })
         }
 
-        if (subscriptionContext) {
+        if (subscriptionContext?.subscriptionPlan?.name) {
             return intl.formatMessage({ id: 'subscription.upgradePlan.currentPlan' }, { planName: subscriptionContext.subscriptionPlan?.name })
         }
 

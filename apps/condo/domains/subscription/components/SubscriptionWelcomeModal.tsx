@@ -37,7 +37,7 @@ const useSubscriptionWelcomeModalContent = (): { content: ModalContent | null, l
     const loading = organizationLoading || subscriptionLoading
 
     const content = useMemo(() => {
-        if (!organization || !subscriptionContext) {
+        if (!organization || !subscriptionContext?.subscriptionPlan) {
             return null
         }
 
@@ -71,7 +71,7 @@ const useSubscriptionWelcomeModalContent = (): { content: ModalContent | null, l
             }
         }
 
-        if (!subscriptionContext.endAt && !subscriptionContext.isTrial && hasActiveBanking && isActiveBankingPlan) {
+        if (!subscriptionContext.isTrial && hasActiveBanking && isActiveBankingPlan) {
             return {
                 title: intl.formatMessage({ id: 'subscription.welcomeModal.activeBanking.title' }),
                 description: intl.formatMessage(
