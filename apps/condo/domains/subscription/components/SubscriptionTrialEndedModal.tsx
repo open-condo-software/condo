@@ -101,7 +101,7 @@ const useTrialEndedModalContent = (): { content: ModalContent | null, type: Moda
                         ),
                         buttonText: intl.formatMessage({ id: 'subscription.welcomeModal.learnMoreAboutPlans' }),
                     },
-                    type: 'trialEnded' as ModalType,
+                    type: 'subscriptionEnded' as ModalType,
                     loading,
                 }
             }
