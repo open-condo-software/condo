@@ -4,7 +4,7 @@ query getPendingSubscriptionRequests($organizationId: ID!) {
             organization: { id: $organizationId }
             type: activateSubscription
         }
-        first: 1
+        first: 100
     ) {
         id
         subscriptionPlanPricingRule {

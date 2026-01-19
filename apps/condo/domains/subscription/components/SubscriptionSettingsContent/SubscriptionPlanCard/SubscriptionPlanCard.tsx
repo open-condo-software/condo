@@ -11,7 +11,7 @@ import getConfig from 'next/config'
 import React, { useState, useCallback } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Unlock, Lock, QuestionCircle } from '@open-condo/icons'
+import { Unlock, Lock, QuestionCircle, ChevronDown } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Card, Typography, Space, Button, Tooltip, Tag } from '@open-condo/ui'
@@ -88,6 +88,7 @@ interface SubscriptionPlanCardProps {
     }) => void
     b2bAppsMap: Map<string, { id: string, name?: string }>
     allB2BAppIds: string[]
+    emoji?: string
 }
 
 interface SubscriptionPlanBadgeProps {
@@ -103,7 +104,7 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink, h
     const icon = available ? <Unlock color={colors.green[5]} size='small' /> : <Lock color={colors.red[5]} size='small' />
     const textType = available ? undefined : 'secondary'
 
-    const textContent = helpLink ? (
+    const textContent = helpLink && !available ? (
         <Typography.Link href={helpLink} target='_blank' rel='noopener noreferrer'>
             <Typography.Text type={textType}>{featureLabel}</Typography.Text>
         </Typography.Link>
@@ -155,7 +156,7 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
         }
     }
 
-    if (!badgeMessage || !daysRemaining) return null
+    if (!badgeMessage) return null
 
     return (
         <Tag bgColor={bgColor} textColor={colors.white}>
@@ -164,7 +165,7 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     )
 }
 
-export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, handleActivatePlan, b2bAppsMap, allB2BAppIds }) => {
+export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ planInfo, activatedTrial, pendingRequest, activatedSubscriptions, handleActivatePlan, b2bAppsMap, allB2BAppIds, emoji }) => {
     const intl = useIntl()
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
@@ -257,13 +258,13 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
     return (
         <Card className={cardClassName}>
-            <Space size={8} direction='vertical'>
+            <Space size={24} direction='vertical'>
                 <div className={styles.mainContent}>
                     <Space size={60} direction='vertical'>
                         <Space size={12} direction='vertical'>
                             <Space size={4} direction='horizontal' className={styles.header} width='100%'>
                                 <Typography.Title level={3}>
-                                    {plan.name}
+                                    {plan.name} {emoji ? emoji : ''}
                                 </Typography.Title>
                                 <SubscriptionPlanBadge 
                                     plan={plan}
@@ -314,7 +315,15 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                         </Space>
                     </Space>
                 </div>
-                <Collapse ghost className={styles.collapse}>
+                <Collapse
+                    ghost
+                    className={styles.collapse}
+                    expandIcon={({ isActive }) => (
+                        <span className={classnames(styles.collapseIcon, { [styles.collapseIconActive]: isActive })}>
+                            <ChevronDown size='small' />
+                        </span>
+                    )}
+                >
                     <Panel
                         header={<Typography.Text strong>{FeaturesTitle}</Typography.Text>}
                         key='features'
