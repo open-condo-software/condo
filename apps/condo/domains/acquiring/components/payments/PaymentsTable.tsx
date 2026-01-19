@@ -89,7 +89,7 @@ interface PaymentsTableContentProps {
 
 const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoading }): JSX.Element => {
     const intl = useIntl()
-    const { lastTestingPosReceipt, loading: areLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt } = usePosIntegrationLastTestingPosReceipt({
+    const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt } = usePosIntegrationLastTestingPosReceipt({
         skipUntilAuthenticated: areAlertLoading,
     })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -290,7 +290,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
 
                 <Col span={24}>
                     <Table
-                        loading={loading || areLastTestingPosReceiptLoading}
+                        loading={loading || isLastTestingPosReceiptLoading}
                         dataSource={sortedDataSource}
                         totalRows={count}
                         columns={tableColumns}

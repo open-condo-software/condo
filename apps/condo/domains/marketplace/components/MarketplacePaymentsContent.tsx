@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client'
 import { Payment as PaymentType, PaymentStatusType, PaymentWhereInput, SortPaymentsBy } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Row, RowProps } from 'antd'
+import { Col, Row, RowProps, Space, Spin } from 'antd'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -18,6 +18,8 @@ import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
+import { usePosIntegrationAlert } from '@condo/domains/acquiring/hooks/usePosIntegrationAlert'
+import { usePosIntegrationLastTestingPosReceipt } from '@condo/domains/acquiring/hooks/usePosIntegrationLastTestingPosReceipt'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -60,7 +62,7 @@ interface IPaymentsSumInfoProps {
     title: string
     message: string
     currencyCode?: string
-    type?:  'success' | 'warning'
+    type?: 'success' | 'warning'
     loading: boolean
 }
 
@@ -92,8 +94,30 @@ const MarketplacePaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     )
 }
 
-const MarketplacePaymentsTableContent = () => {
+const MarketplacePaymentsTable = () => {
+    const { PosIntegrationAlert, loading: areAlertLoading } = usePosIntegrationAlert()
+
+    return (
+        <Space size={areAlertLoading ? 0 : 30} direction='vertical'>
+            {PosIntegrationAlert}
+            {areAlertLoading ? (
+                <Spin size='large' />
+            ) : (
+                <MarketplacePaymentsTableContent areAlertLoading={areAlertLoading} />
+            )}
+        </Space>
+    )
+}
+
+interface MarketplacePaymentsTableContentProps {
+    areAlertLoading: boolean
+}
+
+const MarketplacePaymentsTableContent: React.FC<MarketplacePaymentsTableContentProps> = ({ areAlertLoading }) => {
     const intl = useIntl()
+    const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt } = usePosIntegrationLastTestingPosReceipt({
+        skipUntilAuthenticated: areAlertLoading,
+    })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const ClearListSelectedRowMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const AllPaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.allPayment' })
@@ -124,7 +148,13 @@ const MarketplacePaymentsTableContent = () => {
         setTextStatusDescModal(textModal)
         setIsStatusDescModalVisible(true)
     }
-    const tableColumns = useMarketplacePaymentTableColumns(queryMetas, openStatusDescModal)
+    const tableColumns = useMarketplacePaymentTableColumns(queryMetas, openStatusDescModal, { lastTestingPosReceipt })
+
+    useEffect(() => {
+        if (!areAlertLoading) {
+            refetchLastTestingPosReceipt()
+        }
+    }, [areAlertLoading, refetchLastTestingPosReceipt])
 
     const [showPaymentsOnlyInDoneStatus, setShowPaymentsOnlyInDoneStatus] = useState(false)
     const switchShowPaymentsOnlyInDoneStatus = useCallback(
@@ -182,7 +212,7 @@ const MarketplacePaymentsTableContent = () => {
     const [selectedRows, setSelectedRows] = useState([])
 
     const [search, handleSearchChange] = useSearch()
-    const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
+    const handleSearch = useCallback((e) => { handleSearchChange(e.target.value) }, [handleSearchChange])
 
     const [dateRange, setDateRange] = useDateRangeSearch('createdAt')
     const filtersFromQuery = useMemo(() => getFiltersFromQuery(router.query), [router.query])
@@ -198,7 +228,7 @@ const MarketplacePaymentsTableContent = () => {
             routerAction: 'replace', resetOldParameters: false, shallow: true,
         })
     }, [])
-    
+
     const disabledDate = useCallback((currentDate) => {
         const minDate = dayjs().startOf('year').subtract(1, 'year')
         const maxDate = dayjs().endOf('year')
@@ -232,6 +262,20 @@ const MarketplacePaymentsTableContent = () => {
     const handleClearListSelectedRow = useCallback(() => {
         setSelectedRows([])
     }, [])
+
+    const sortedPayments = useMemo(() => {
+        if (!lastTestingPosReceipt || !payments) return payments
+
+        const sortedObjs = [...payments]
+        const highlightedIndex = sortedObjs.findIndex(obj => obj.id === lastTestingPosReceipt.condoPaymentId)
+
+        if (highlightedIndex > 0) {
+            const [highlightedRow] = sortedObjs.splice(highlightedIndex, 1)
+            sortedObjs.unshift(highlightedRow)
+        }
+
+        return sortedObjs
+    }, [payments, lastTestingPosReceipt])
 
     return (
         <TablePageContent>
@@ -310,10 +354,15 @@ const MarketplacePaymentsTableContent = () => {
                         <Col span={24}>
                             <Table
                                 totalRows={total}
-                                loading={paymentsLoading}
-                                dataSource={payments}
+                                loading={paymentsLoading || isLastTestingPosReceiptLoading}
+                                dataSource={sortedPayments}
                                 columns={tableColumns}
                                 rowSelection={rowSelection}
+                                onRow={(record) => {
+                                    if (lastTestingPosReceipt && lastTestingPosReceipt?.condoPaymentId === record.id) {
+                                        return { style: { backgroundColor: colors.orange[1] } }
+                                    }
+                                }}
                             />
                         </Col>
                     </Row>
@@ -393,5 +442,5 @@ export const MarketplacePaymentsContent = () => {
         )
     }
 
-    return <MarketplacePaymentsTableContent />
+    return <MarketplacePaymentsTable />
 }
