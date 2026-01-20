@@ -87,7 +87,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'PHONE_AND_USER_ID_IS_MISSING',
         message: 'Phone or user id is missing',
-        // TODO(DOMA-12564): translate
         messageForUser: 'api.user.startConfirmPhoneAction.PHONE_AND_USER_ID_IS_MISSING',
     },
     SHOULD_BE_ONE_IDENTIFIER_ONLY: {
@@ -95,7 +94,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'SHOULD_BE_ONE_IDENTIFIER_ONLY',
         message: 'You need to pass either only the phone or only the userId',
-        // TODO(DOMA-12564): translate
         messageForUser: 'api.user.startConfirmPhoneAction.SHOULD_BE_ONE_IDENTIFIER_ONLY',
     },
     SMS_CODE_EXPIRED: {

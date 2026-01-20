@@ -88,7 +88,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'EMAIL_AND_USER_ID_IS_MISSING',
         message: 'Email or user id is missing',
-        // TODO(DOMA-12564): translate
         messageForUser: 'api.user.startConfirmEmailAction.EMAIL_AND_USER_ID_IS_MISSING',
     },
     SHOULD_BE_ONE_IDENTIFIER_ONLY: {
@@ -96,7 +95,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'SHOULD_BE_ONE_IDENTIFIER_ONLY',
         message: 'You need to pass either only the email or only the userId',
-        // TODO(DOMA-12564): translate
         messageForUser: 'api.user.startConfirmEmailAction.SHOULD_BE_ONE_IDENTIFIER_ONLY',
     },
     WRONG_EMAIL_FORMAT: {
