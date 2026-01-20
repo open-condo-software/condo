@@ -3,18 +3,12 @@
   flex-direction: column;
   width: 30%;
   min-width: 260px;
-  height: 100%;
+  min-height: 380px;
   transition: border-color transform var(--condo-global-transition-duration-default) ease;
 }
 
 .subscription-plan-card:hover {
   border-color: var(--condo-global-color-gray-5);
-}
-
-.subscription-plan-card :global(.condo-card-body) {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
 }
 
 .main-content {
