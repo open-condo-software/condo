@@ -35,9 +35,11 @@ const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const { generateGqlQueries } = require("@open-condo/codegen/generate.gql")
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-portal-api/domains/miniapp/constants/b2c")
+const { B2BAppPublishRequest: B2BAppPublishRequestGQL } = require('@dev-portal-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2BApp = generateGQLTestUtils(B2BAppGQL)
+const B2BAppPublishRequest = generateGQLTestUtils(B2BAppPublishRequestGQL)
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
 const B2CAppAccessRight = generateGQLTestUtils(B2CAppAccessRightGQL)
@@ -290,6 +292,36 @@ async function publishB2CAppByTestClient(client, app, options = undefined, envir
     return [data.result, attrs]
 }
 
+async function createTestB2BAppPublishRequest (client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        ...extraAttrs,
+    }
+    const obj = await B2BAppPublishRequest.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppPublishRequest (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppPublishRequest.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+
 async function createTestB2CAppPublishRequest (client, app, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app.id')
@@ -538,6 +570,7 @@ module.exports = {
     CondoOIDCClient,
 
     B2BApp, createTestB2BApp, updateTestB2BApp, updateTestB2BApps,
+    B2BAppPublishRequest, createTestB2BAppPublishRequest, updateTestB2BAppPublishRequest,
     publishB2BAppByTestClient,
 
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps, getB2CAppInfoByTestClient,

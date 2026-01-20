@@ -24,6 +24,7 @@ const {
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2BApp = generateServerUtils('B2BApp')
+const B2BAppPublishRequest = generateServerUtils('B2BAppPublishRequest')
 
 const B2CApp = generateServerUtils('B2CApp')
 const B2CAppAccessRight = generateServerUtils('B2CAppAccessRight')
@@ -184,6 +185,7 @@ async function registerAppUserService (context, data) {
 
 module.exports = {
     B2BApp,
+    B2BAppPublishRequest,
     publishB2BApp,
 
     B2CApp,
