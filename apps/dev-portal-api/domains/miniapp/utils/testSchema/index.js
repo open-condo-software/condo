@@ -12,6 +12,7 @@ const { registerNewServiceUserByTestClient } = require('@app/condo/domains/user/
 
 const {
     B2BApp: B2BAppGQL,
+    PUBLISH_B2B_APP_MUTATION,
 
     B2CApp: B2CAppGQL,
     B2CAppAccessRight: B2CAppAccessRightGQL,
@@ -253,6 +254,22 @@ async function updateTestB2CAppBuild (client, id, extraAttrs = {}) {
     }
     const obj = await B2CAppBuild.update(client, id, attrs)
     return [obj, attrs]
+}
+
+async function publishB2BAppByTestClient(client, app, options = undefined, environment = DEV_ENVIRONMENT) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { id: app.id },
+        environment,
+        options: options || { info: true },
+    }
+    const { data, errors } = await client.mutate(PUBLISH_B2B_APP_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
 }
 
 async function publishB2CAppByTestClient(client, app, options = undefined, environment = DEV_ENVIRONMENT) {
@@ -521,6 +538,7 @@ module.exports = {
     CondoOIDCClient,
 
     B2BApp, createTestB2BApp, updateTestB2BApp, updateTestB2BApps,
+    publishB2BAppByTestClient,
 
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps, getB2CAppInfoByTestClient,
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,

@@ -8,6 +8,7 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const {
+    PUBLISH_B2B_APP_MUTATION,
     PUBLISH_B2C_APP_MUTATION,
     IMPORT_B2C_APP_MUTATION,
     CREATE_B2C_APP_PROPERTY_MUTATION,
@@ -28,6 +29,18 @@ const B2CApp = generateServerUtils('B2CApp')
 const B2CAppAccessRight = generateServerUtils('B2CAppAccessRight')
 const B2CAppBuild = generateServerUtils('B2CAppBuild')
 const B2CAppPublishRequest = generateServerUtils('B2CAppPublishRequest')
+
+async function publishB2BApp (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+
+    return await execGqlWithoutAccess(context, {
+        query: PUBLISH_B2B_APP_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Unable to publishB2BApp',
+        dataPath: 'obj',
+    })
+}
 
 async function publishB2CApp (context, data) {
     if (!context) throw new Error('no context')
@@ -171,6 +184,7 @@ async function registerAppUserService (context, data) {
 
 module.exports = {
     B2BApp,
+    publishB2BApp,
 
     B2CApp,
     B2CAppAccessRight,

@@ -15,6 +15,13 @@ const EXPORT_FIELDS = AVAILABLE_ENVIRONMENTS.map(environment => `${environment}E
 const B2B_APP_FIELDS = `{ name ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
+const PUBLISH_B2B_APP_MUTATION = gql`
+    mutation publishB2BApp ($data: PublishB2BAppInput!) {
+        result: publishB2BApp(data: $data) { success }
+    }
+`
+
+
 
 const B2C_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
@@ -104,6 +111,7 @@ module.exports = {
     EXPORT_FIELDS,
 
     B2BApp,
+    PUBLISH_B2B_APP_MUTATION,
 
     B2CApp,
     B2CAppAccessRight,

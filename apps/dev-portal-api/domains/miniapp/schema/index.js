@@ -16,6 +16,7 @@ const { GenerateOIDCClientSecretService } = require('./GenerateOIDCClientSecretS
 const { GetB2CAppInfoService } = require('./GetB2CAppInfoService')
 const { GetOIDCClientService } = require('./GetOIDCClientService')
 const { ImportB2CAppService } = require('./ImportB2CAppService')
+const { PublishB2BAppService } = require('./PublishB2BAppService')
 const { PublishB2CAppService } = require('./PublishB2CAppService')
 const { RegisterAppServiceUserService } = require('./RegisterAppServiceUserService')
 const { UpdateOIDCClientUrlService } = require('./UpdateOIDCClientUrlService')
@@ -23,6 +24,7 @@ const { UpdateOIDCClientUrlService } = require('./UpdateOIDCClientUrlService')
 
 module.exports = {
     B2BApp,
+    PublishB2BAppService,
 
     B2CApp,
     B2CAppAccessRight,
