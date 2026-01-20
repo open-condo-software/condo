@@ -50,11 +50,12 @@ const B2CAppPublishRequest = generateGQLTestUtils(B2CAppPublishRequestGQL)
 const FAKE_BUILD_ASSET_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/build.zip')
 const FAKE_B2C_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/logo.png')
 
+const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', '{ id name developer developerUrl logo { publicUrl filename } importId importRemoteSystem deletedAt v oidcClient { id } }'))
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl filename } currentBuild { id } importId importRemoteSystem deletedAt v oidcClient { id } }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl } importId importRemoteSystem }'))
 const CondoB2CAppProperty = generateGQLTestUtils(generateGqlQueries('B2CAppProperty', '{ id address }'))
-const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id clientId payload isEnabled name importId importRemoteSystem }'))
 const CondoB2CAppAccessRight = generateGQLTestUtils(generateGqlQueries('B2CAppAccessRight', '{ id user { id } app { id } importId importRemoteSystem }'))
+const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id clientId payload isEnabled name importId importRemoteSystem }'))
 
 function generateBuildVersion () {
     return `${faker.datatype.number()}.${faker.datatype.number()}.${faker.datatype.number()}`
@@ -90,6 +91,16 @@ async function updateCondoB2CApp(client, app, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await CondoB2CApp.update(client, app.id, attrs)
+    return [obj, attrs]
+}
+
+async function updateCondoB2BApp(client, app, extraAttrs = {}) {
+    const attrs = {
+        dv: 1,
+        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        ...extraAttrs,
+    }
+    const obj = await CondoB2BApp.update(client, app.id, attrs)
     return [obj, attrs]
 }
 
@@ -563,8 +574,10 @@ async function registerAppUserServiceByTestClient(client, app, confirmEmailActio
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    CondoB2CApp, createCondoB2CApp,
-    CondoB2CAppBuild, createCondoB2CAppBuild, updateCondoB2CApp,
+    CondoB2BApp, updateCondoB2BApp,
+
+    CondoB2CApp, createCondoB2CApp, updateCondoB2CApp,
+    CondoB2CAppBuild, createCondoB2CAppBuild,
     CondoB2CAppProperty, createCondoB2CAppProperties,
     CondoB2CAppAccessRight, createCondoB2CAppAccessRight,
     CondoOIDCClient,

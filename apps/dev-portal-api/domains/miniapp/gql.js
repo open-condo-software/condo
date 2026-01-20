@@ -12,7 +12,7 @@ const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/cons
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const EXPORT_FIELDS = AVAILABLE_ENVIRONMENTS.map(environment => `${environment}ExportId`).join(' ')
 
-const B2B_APP_FIELDS = `{ name ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
+const B2B_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
 const B2B_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
