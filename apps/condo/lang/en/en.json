@@ -3152,7 +3152,7 @@
   "subscription.planCard.freeForPartner": "Free for bank clients",
   "subscription.promoBanner.title": "Connect Banking Service",
   "subscription.promoBanner.description": "Login with Bank ID or open a business account to get a subscription discount",
-  "subscription.promoBanner.activateButton": "Open business account and get discount",
+  "subscription.promoBanner.activateButton": "Open business account",
   "subscription.promoBanner.requestPending": "Request pending",
   "subscription.promoBanner.requestSent": "The request for banking services has been sent",
   "subscription.promoBanner.requestSentDescription": "Our manager will contact you to advise on the conditions and help with the registration.",
