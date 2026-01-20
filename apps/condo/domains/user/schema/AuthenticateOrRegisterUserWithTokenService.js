@@ -163,7 +163,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_ENOUGH_AUTH_FACTORS,
         message: 'Not enough auth factors',
-        // TODO(DOMA-12564): add translations
         messageForUser: 'api.user.NOT_ENOUGH_AUTH_FACTORS',
     },
     UNEXPECTED_SECOND_FACTOR: {
@@ -171,7 +170,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'UNEXPECTED_SECOND_FACTOR',
         message: 'Unexpected second factor',
-        // TODO(DOMA-12564): add translations
         messageForUser: 'api.user.authenticateOrRegisterUserWithToken.UNEXPECTED_SECOND_FACTOR',
     },
 }

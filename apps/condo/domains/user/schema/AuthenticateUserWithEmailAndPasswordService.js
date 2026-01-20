@@ -62,7 +62,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_ENOUGH_AUTH_FACTORS,
         message: 'Not enough auth factors',
-        // TODO(DOMA-12564): add translations
         messageForUser: 'api.user.NOT_ENOUGH_AUTH_FACTORS',
     },
 }
