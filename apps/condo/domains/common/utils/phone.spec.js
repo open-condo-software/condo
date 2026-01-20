@@ -89,7 +89,7 @@ describe('maskPhone()', () => {
         ['12345678', '12****78'],
         ['123456789', '12*****89'],
     ]
-    test.each(cases)('should correct work (%p)', (input, output) => {
+    test.each(cases)('should work correctly (%p)', (input, output) => {
         expect(maskPhone(input)).toBe(output)
     })
 })
