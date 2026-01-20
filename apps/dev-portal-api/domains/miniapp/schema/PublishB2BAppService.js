@@ -3,11 +3,19 @@
  */
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
+const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
+const { productionClient, developmentClient } = require('@dev-portal-api/domains/common/utils/serverClients')
+const { CondoB2BAppGql, CondoOIDCClientGql } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/PublishB2BAppService')
-const { APP_NOT_FOUND, FIRST_PUBLISH_WITHOUT_INFO } = require('@dev-portal-api/domains/miniapp/constants/errors')
-const { B2BApp } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
+const { APP_NOT_FOUND, FIRST_PUBLISH_WITHOUT_INFO, PUBLISH_NOT_ALLOWED, CONDO_APP_NOT_FOUND } = require('@dev-portal-api/domains/miniapp/constants/errors')
+const { PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
+const { B2BApp, B2BAppPublishRequest } = require('@dev-portal-api/domains/miniapp/utils/serverSchema')
+
+const { getOIDCClientWhere } = require('./GetOIDCClientService')
+
 
 const B2B_APP_EXPORTED_FIELDS = 'id name developer developerUrl createdBy { name } logo { publicUrl originalFilename } shortDescription detailedDescription category developmentAppUrl productionAppUrl developmentExportId productionExportId'
 
@@ -28,10 +36,194 @@ const ERRORS = {
         message: 'The first publication of the application should include information about the application',
         messageForUser: 'api.miniapp.publishB2BApp.FIRST_PUBLISH_WITHOUT_INFO',
     },
+    PUBLISH_NOT_ALLOWED: {
+        code: BAD_USER_INPUT,
+        type: PUBLISH_NOT_ALLOWED,
+        message: 'The application cannot be published to the specified stand, as this requires additional verification',
+        messageForUser: 'api.miniapp.publishB2BApp.PUBLISH_NOT_ALLOWED',
+    },
+    CONDO_APP_NOT_FOUND: {
+        code: INTERNAL_ERROR,
+        type: CONDO_APP_NOT_FOUND,
+        message: 'The application was probably deleted on remote server. Try to publish app info to recreate it',
+        messageForUser: 'api.miniapp.publishB2BApp.CONDO_APP_NOT_FOUND',
+    },
 }
+
+const logger = getLogger()
 
 function getExportIdField (environment) {
     return `${environment}ExportId`
+}
+
+function getAppUrlField (environment) {
+    return `${environment}AppUrl`
+}
+
+async function publishAppChanges ({ app, condoApp, serverClient, args, context }) {
+    const { data: { dv, sender, environment } } = args
+    logger.info({
+        msg: 'started app publishing',
+        entityId: app.id,
+        entity: 'B2BApp',
+        environment,
+    })
+    const exportIdField = getExportIdField(environment)
+    const exportId = app[exportIdField]
+    const appUrlField = getAppUrlField(environment)
+    const appUrl = app[appUrlField]
+
+    // Step 1. Prepare payload
+    const appPayload = {
+        dv,
+        sender,
+        name: app.name,
+        developer: app.developer || app.createdBy.name,
+        developerUrl: app.developerUrl,
+        shortDescription: app.shortDescription,
+        detailedDescription: app.detailedDescription,
+        category: app.category,
+        appUrl,
+        // TODO: add logo once migrated to new files API
+        // logo: app.logo
+        //     ? serverClient.createUploadFile({
+        //         stream: got.stream(app.logo.publicUrl),
+        //         filename: app.logo.originalFilename,
+        //     })
+        //     : serverClient.createUploadFile({
+        //         stream: fs.createReadStream(B2B_APP_DEFAULT_LOGO_PATH),
+        //     }),
+        importId: app.id,
+        importRemoteSystem: REMOTE_SYSTEM,
+    }
+
+    // Step 2. Update / create app in condo
+    let updatedCondoApp
+    if (condoApp) {
+        // App found -> update
+        logger.info({
+            msg: 'found existing condo app',
+            entityId: app.id,
+            entity: 'B2BApp',
+            environment,
+            data: { condoAppId: condoApp.id },
+        })
+        updatedCondoApp = await serverClient.updateModel({
+            modelGql: CondoB2BAppGql,
+            id: condoApp.id,
+            updateInput: appPayload,
+        })
+        logger.info({
+            msg: 'condo app successfully updated',
+            entityId: app.id,
+            entity: 'B2BApp',
+            data: { condoAppId: condoApp.id },
+            environment,
+        })
+    } else {
+        // App not found -> create new one
+        // NOTE: initial publish must be done with isHidden flag set to true,
+        // so it can be tested on production before showing to users
+        appPayload.isHidden = true
+
+        logger.info({
+            msg: 'condo app not found. Creating new one',
+            entityId: app.id,
+            entity: 'B2BApp',
+            environment,
+        })
+        updatedCondoApp = await serverClient.createModel({
+            modelGql: CondoB2BAppGql,
+            createInput: appPayload,
+        })
+        logger.info({
+            msg: 'condo app successfully created',
+            entityId: app.id,
+            entity: 'B2BApp',
+            environment,
+            data: { condoAppId: updatedCondoApp.id },
+        })
+    }
+
+    // Update exportIdField if needed
+    if (!exportId || exportId !== updatedCondoApp.id) {
+        await B2BApp.update(context, app.id, {
+            dv,
+            sender,
+            [exportIdField]: updatedCondoApp.id,
+        })
+        logger.info({
+            msg: 'dev-portal app exportId updated',
+            entityId: app.id,
+            entity: 'B2BApp',
+            environment,
+            data: { condoAppId: updatedCondoApp.id },
+        })
+    }
+
+    return updatedCondoApp
+}
+
+async function syncOIDCClient ({ args, serverClient, condoApp }) {
+    const { data: { dv, sender, app, environment } } = args
+
+    const oidcClients = await serverClient.getModels({
+        modelGql: CondoOIDCClientGql,
+        where: getOIDCClientWhere(app),
+        first: 1,
+    })
+
+    if (!oidcClients.length) {
+        logger.info({
+            msg: 'no OIDC clients found for app',
+            entityId: app.id,
+            entity: 'B2BApp',
+            environment,
+        })
+        return
+    }
+
+    const oidcClient = oidcClients[0]
+
+    if (!oidcClient.isEnabled) {
+        await serverClient.updateModel({
+            modelGql: CondoOIDCClientGql,
+            id: oidcClient.id,
+            updateInput: {
+                dv,
+                sender,
+                isEnabled: true,
+            },
+        })
+        logger.info({
+            msg: 'OIDC client is enabled now',
+            entityId: app.id,
+            entity: 'B2BApp',
+            environment,
+            data: { oidcClientId: oidcClient.id },
+        })
+    }
+
+
+
+    if (!condoApp.oidcClient || condoApp.oidcClient.deletedAt) {
+        await serverClient.updateModel({
+            modelGql: CondoB2BAppGql,
+            id: condoApp.id,
+            updateInput: {
+                dv,
+                sender,
+                oidcClient: { connect: { id: oidcClient.id } },
+            },
+        })
+        logger.info({
+            msg: 'B2BApp is connected to OIDC client',
+            entityId: app.id,
+            entity: 'B2BApp',
+            environment,
+            data: { oidcClientId: oidcClient.id },
+        })
+    }
 }
 
 const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
@@ -54,7 +246,7 @@ const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
         {
             access: access.canPublishB2BApp,
             schema: 'publishB2BApp(data: PublishB2BAppInput!): PublishB2BAppOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data: { app: { id }, options, environment } } = args
 
                 const app = await B2BApp.getOne(
@@ -74,8 +266,47 @@ const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
                     throw new GQLError(ERRORS.FIRST_PUBLISH_WITHOUT_INFO, context)
                 }
 
+                if (environment === PROD_ENVIRONMENT) {
+                    const publishRequest = await B2BAppPublishRequest.getOne(context, {
+                        app: { id: app.id },
+                        deletedAt: null,
+                        status: PUBLISH_REQUEST_APPROVED_STATUS,
+                    })
+                    if (!publishRequest) {
+                        throw new GQLError(ERRORS.PUBLISH_NOT_ALLOWED, context)
+                    }
+                }
+
+                const serverClient = environment === PROD_ENVIRONMENT
+                    ? productionClient
+                    : developmentClient
+
+                let condoApp = await serverClient.findExportedModel({
+                    modelGql: CondoB2BAppGql,
+                    exportId,
+                    id: app.id,
+                    context,
+                })
+
+                if (options.info) {
+                    condoApp = await publishAppChanges({
+                        app,
+                        condoApp,
+                        serverClient,
+                        args,
+                        context,
+                    })
+                }
+
+                if (!condoApp) {
+                    throw new GQLError(ERRORS.CONDO_APP_NOT_FOUND, context)
+                }
+
+                // Step 4. If OIDC client was created, publish must enable it for usage
+                await syncOIDCClient({ args, serverClient, condoApp })
+
                 return {
-                    success: false,
+                    success: true,
                 }
             },
         },

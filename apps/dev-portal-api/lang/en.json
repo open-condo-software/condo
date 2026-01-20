@@ -24,6 +24,8 @@
   "api.miniapp.B2CApp.APP_NOT_FOUND": "The application with the specified ID was not found",
   "api.miniapp.B2CAppBuild.INVALID_BUILD_VERSION": "The specified build version is not semantically correct",
   "api.miniapp.publishB2BApp.FIRST_PUBLISH_WITHOUT_INFO": "The first publication of the application should include information about the application",
+  "api.miniapp.publishB2BApp.PUBLISH_NOT_ALLOWED": "The application cannot be published to the specified stand, as this requires additional verification",
+  "api.miniapp.publishB2BApp.CONDO_APP_NOT_FOUND": "The application was not found on the selected stand. Enable the «Application Information» option and try again",
   "api.miniapp.publishB2CApp.FIRST_PUBLISH_WITHOUT_INFO": "The first publication of the application should include information about the application",
   "api.miniapp.publishB2CApp.CONDO_APP_NOT_FOUND": "The application was not found on the selected stand. Enable the «Application Information» option and try again",
   "api.miniapp.publishB2CApp.BUILD_NOT_FOUND": "The application build with the specified ID was not found",

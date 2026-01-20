@@ -24,6 +24,8 @@
   "api.miniapp.B2CApp.APP_NOT_FOUND": "Приложение с указанным ID не найдено",
   "api.miniapp.B2CAppBuild.INVALID_BUILD_VERSION": "Указанная версия сборки не является семантически корректной",
   "api.miniapp.publishB2BApp.FIRST_PUBLISH_WITHOUT_INFO": "Первая публикация приложения должна включать информацию о приложении",
+  "api.miniapp.publishB2BApp.PUBLISH_NOT_ALLOWED": "Приложение не может быть опубликовано на указанный стенд, так как для этого необходимо дополнительная верификация",
+  "api.miniapp.publishB2BApp.CONDO_APP_NOT_FOUND": "Приложение не найдено на выбранном стенде. Включите опцию «Информация о приложении» и повторите попытку",
   "api.miniapp.publishB2CApp.FIRST_PUBLISH_WITHOUT_INFO": "Первая публикация приложения должна включать информацию о приложении",
   "api.miniapp.publishB2CApp.CONDO_APP_NOT_FOUND": "Приложение не найдено на выбранном стенде. Включите опцию «Информация о приложении» и повторите попытку",
   "api.miniapp.publishB2CApp.BUILD_NOT_FOUND": "Сборка приложения с указанным ID не найдена",
