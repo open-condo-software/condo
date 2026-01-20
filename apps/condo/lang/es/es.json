@@ -3152,7 +3152,7 @@
   "subscription.planCard.freeForPartner": "Gratis para clientes del banco",
   "subscription.promoBanner.title": "Conectar servicio bancario",
   "subscription.promoBanner.description": "Inicie sesión con ID bancario o abra una cuenta empresarial para obtener un descuento en la suscripción",
-  "subscription.promoBanner.activateButton": "Abrir cuenta empresarial y obtener descuento",
+  "subscription.promoBanner.activateButton": "Abrir cuenta empresarial",
   "subscription.promoBanner.requestPending": "Solicitud pendiente",
   "subscription.promoBanner.requestSent": "Solicitud bancaria enviada",
   "subscription.promoBanner.requestSentDescription": "Nuestro gerente se pondrá en contacto con usted para asesorarle sobre las condiciones y ayudar con la formalización.",
