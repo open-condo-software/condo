@@ -10,15 +10,15 @@ const { knex } = require('knex')
 async function initKnexClient (options) {
     const client = knex(options)
 
-    const connectResult = await client.raw('select 1+1 as result').catch(result => ({
-        error: result.error || result,
-    }))
-
-    if (connectResult.error) {
-        throw connectResult.error
+    try {
+        await client.raw('select 1+1 as result')
+        return client
+    } catch (error) {
+        await client.destroy().catch(() => {
+            // Ignore cleanup errors, prioritize original error
+        })
+        throw error
     }
-
-    return client
 }
 
 module.exports = {
