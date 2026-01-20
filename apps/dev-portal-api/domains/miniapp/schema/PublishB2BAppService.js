@@ -42,7 +42,7 @@ const PublishB2BAppService = new GQLCustomSchema('PublishB2BAppService', {
         },
         {
             access: true,
-            type: 'input PublishB2CAppInput { dv: Int!, sender: SenderFieldInput!, app: B2BAppWhereUniqueInput!, environment: AppEnvironment!, options: B2BAppPublishOptions! }',
+            type: 'input PublishB2BAppInput { dv: Int!, sender: SenderFieldInput!, app: B2BAppWhereUniqueInput!, environment: AppEnvironment!, options: B2BAppPublishOptions! }',
         },
         {
             access: true,

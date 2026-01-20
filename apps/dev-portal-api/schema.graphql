@@ -2354,6 +2354,444 @@ input B2BAppsCreateInput {
   data: B2BAppCreateInput
 }
 
+enum B2BAppPublishRequestHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type B2BAppPublishRequestHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppPublishRequestHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppPublishRequestHistoryRecord List config, or
+   3. As an alias to a 'name' field on the B2BAppPublishRequestHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppPublishRequestHistoryRecord List.
+  """
+  _label_: String
+  app: String
+  status: String
+  isAppTested: Boolean
+  isContractSigned: Boolean
+  isInfoApproved: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppPublishRequestHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppPublishRequestHistoryRecordWhereInput {
+  AND: [B2BAppPublishRequestHistoryRecordWhereInput]
+  OR: [B2BAppPublishRequestHistoryRecordWhereInput]
+  app: String
+  app_not: String
+  app_in: [String]
+  app_not_in: [String]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  isAppTested: Boolean
+  isAppTested_not: Boolean
+  isContractSigned: Boolean
+  isContractSigned_not: Boolean
+  isInfoApproved: Boolean
+  isInfoApproved_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: B2BAppPublishRequestHistoryRecordHistoryActionType
+  history_action_not: B2BAppPublishRequestHistoryRecordHistoryActionType
+  history_action_in: [B2BAppPublishRequestHistoryRecordHistoryActionType]
+  history_action_not_in: [B2BAppPublishRequestHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input B2BAppPublishRequestHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppPublishRequestHistoryRecordsBy {
+  status_ASC
+  status_DESC
+  isAppTested_ASC
+  isAppTested_DESC
+  isContractSigned_ASC
+  isContractSigned_DESC
+  isInfoApproved_ASC
+  isInfoApproved_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input B2BAppPublishRequestHistoryRecordUpdateInput {
+  app: String
+  status: String
+  isAppTested: Boolean
+  isContractSigned: Boolean
+  isInfoApproved: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppPublishRequestHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppPublishRequestHistoryRecordsUpdateInput {
+  id: ID!
+  data: B2BAppPublishRequestHistoryRecordUpdateInput
+}
+
+input B2BAppPublishRequestHistoryRecordCreateInput {
+  app: String
+  status: String
+  isAppTested: Boolean
+  isContractSigned: Boolean
+  isInfoApproved: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppPublishRequestHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppPublishRequestHistoryRecordsCreateInput {
+  data: B2BAppPublishRequestHistoryRecordCreateInput
+}
+
+input B2BAppRelateToOneInput {
+  create: B2BAppCreateInput
+  connect: B2BAppWhereUniqueInput
+  disconnect: B2BAppWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+enum B2BAppPublishRequestStatusType {
+  pending
+  approved
+}
+
+""" A model that determines the ability to publish a mini-application to the production stand, as well as the status of passing the pre-release checkout 
+"""
+type B2BAppPublishRequest {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppPublishRequest List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppPublishRequest List config, or
+   3. As an alias to a 'name' field on the B2BAppPublishRequest List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppPublishRequest List.
+  """
+  _label_: String
+
+  """ Reference to the application to which this request applies """
+  app: B2BApp
+
+  """ Status of consideration of the current request """
+  status: B2BAppPublishRequestStatusType
+
+  """ Whether the application has been tested before release. Required prerequisite for obtaining permission to publish 
+  """
+  isAppTested: Boolean
+
+  """ A partnership agreement must be concluded before publication. This checkbox is responsible for the existence of such a contract. Required prerequisite for obtaining permission to publish 
+  """
+  isContractSigned: Boolean
+
+  """ Before publishing for the first time, it is necessary to ensure that all information about the application is valid and understandable for the user. Required prerequisite for obtaining permission to publish 
+  """
+  isInfoApproved: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input B2BAppPublishRequestWhereInput {
+  AND: [B2BAppPublishRequestWhereInput]
+  OR: [B2BAppPublishRequestWhereInput]
+  app: B2BAppWhereInput
+  app_is_null: Boolean
+  status: B2BAppPublishRequestStatusType
+  status_not: B2BAppPublishRequestStatusType
+  status_in: [B2BAppPublishRequestStatusType]
+  status_not_in: [B2BAppPublishRequestStatusType]
+  isAppTested: Boolean
+  isAppTested_not: Boolean
+  isContractSigned: Boolean
+  isContractSigned_not: Boolean
+  isInfoApproved: Boolean
+  isInfoApproved_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input B2BAppPublishRequestWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppPublishRequestsBy {
+  app_ASC
+  app_DESC
+  status_ASC
+  status_DESC
+  isAppTested_ASC
+  isAppTested_DESC
+  isContractSigned_ASC
+  isContractSigned_DESC
+  isInfoApproved_ASC
+  isInfoApproved_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input B2BAppPublishRequestUpdateInput {
+  app: B2BAppRelateToOneInput
+  status: B2BAppPublishRequestStatusType
+  isAppTested: Boolean
+  isContractSigned: Boolean
+  isInfoApproved: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2BAppPublishRequestsUpdateInput {
+  id: ID!
+  data: B2BAppPublishRequestUpdateInput
+}
+
+input B2BAppPublishRequestCreateInput {
+  app: B2BAppRelateToOneInput
+  status: B2BAppPublishRequestStatusType
+  isAppTested: Boolean
+  isContractSigned: Boolean
+  isInfoApproved: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2BAppPublishRequestsCreateInput {
+  data: B2BAppPublishRequestCreateInput
+}
+
 enum B2CAppHistoryRecordHistoryActionType {
   c
   u
@@ -6123,6 +6561,22 @@ input RegisterNewUserInput {
   password: String!
 }
 
+input B2BAppPublishOptions {
+  info: Boolean
+}
+
+input PublishB2BAppInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: B2BAppWhereUniqueInput!
+  environment: AppEnvironment!
+  options: B2BAppPublishOptions!
+}
+
+type PublishB2BAppOutput {
+  success: Boolean!
+}
+
 input B2CAppPublishOptions {
   info: Boolean
   build: B2CAppBuildWhereUniqueInput
@@ -6426,6 +6880,36 @@ type Query {
 
   """ Retrieve the meta-data for the B2BApp list. """
   _B2BAppsMeta: _ListMeta
+
+  """ Search for all B2BAppPublishRequestHistoryRecord items which match the where clause. 
+  """
+  allB2BAppPublishRequestHistoryRecords(where: B2BAppPublishRequestHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppPublishRequestHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppPublishRequestHistoryRecord]
+
+  """ Search for the B2BAppPublishRequestHistoryRecord item with the matching ID. 
+  """
+  B2BAppPublishRequestHistoryRecord(where: B2BAppPublishRequestHistoryRecordWhereUniqueInput!): B2BAppPublishRequestHistoryRecord
+
+  """ Perform a meta-query on all B2BAppPublishRequestHistoryRecord items which match the where clause. 
+  """
+  _allB2BAppPublishRequestHistoryRecordsMeta(where: B2BAppPublishRequestHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppPublishRequestHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppPublishRequestHistoryRecord list. 
+  """
+  _B2BAppPublishRequestHistoryRecordsMeta: _ListMeta
+
+  """ Search for all B2BAppPublishRequest items which match the where clause. 
+  """
+  allB2BAppPublishRequests(where: B2BAppPublishRequestWhereInput, search: String, sortBy: [SortB2BAppPublishRequestsBy!], orderBy: String, first: Int, skip: Int): [B2BAppPublishRequest]
+
+  """ Search for the B2BAppPublishRequest item with the matching ID. """
+  B2BAppPublishRequest(where: B2BAppPublishRequestWhereUniqueInput!): B2BAppPublishRequest
+
+  """ Perform a meta-query on all B2BAppPublishRequest items which match the where clause. 
+  """
+  _allB2BAppPublishRequestsMeta(where: B2BAppPublishRequestWhereInput, search: String, sortBy: [SortB2BAppPublishRequestsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppPublishRequest list. """
+  _B2BAppPublishRequestsMeta: _ListMeta
 
   """ Search for all B2CAppHistoryRecord items which match the where clause. 
   """
@@ -6765,6 +7249,42 @@ type Mutation {
   """ Delete multiple B2BApp items by ID. """
   deleteB2BApps(ids: [ID!]): [B2BApp]
 
+  """ Create a single B2BAppPublishRequestHistoryRecord item. """
+  createB2BAppPublishRequestHistoryRecord(data: B2BAppPublishRequestHistoryRecordCreateInput): B2BAppPublishRequestHistoryRecord
+
+  """ Create multiple B2BAppPublishRequestHistoryRecord items. """
+  createB2BAppPublishRequestHistoryRecords(data: [B2BAppPublishRequestHistoryRecordsCreateInput]): [B2BAppPublishRequestHistoryRecord]
+
+  """ Update a single B2BAppPublishRequestHistoryRecord item by ID. """
+  updateB2BAppPublishRequestHistoryRecord(id: ID!, data: B2BAppPublishRequestHistoryRecordUpdateInput): B2BAppPublishRequestHistoryRecord
+
+  """ Update multiple B2BAppPublishRequestHistoryRecord items by ID. """
+  updateB2BAppPublishRequestHistoryRecords(data: [B2BAppPublishRequestHistoryRecordsUpdateInput]): [B2BAppPublishRequestHistoryRecord]
+
+  """ Delete a single B2BAppPublishRequestHistoryRecord item by ID. """
+  deleteB2BAppPublishRequestHistoryRecord(id: ID!): B2BAppPublishRequestHistoryRecord
+
+  """ Delete multiple B2BAppPublishRequestHistoryRecord items by ID. """
+  deleteB2BAppPublishRequestHistoryRecords(ids: [ID!]): [B2BAppPublishRequestHistoryRecord]
+
+  """ Create a single B2BAppPublishRequest item. """
+  createB2BAppPublishRequest(data: B2BAppPublishRequestCreateInput): B2BAppPublishRequest
+
+  """ Create multiple B2BAppPublishRequest items. """
+  createB2BAppPublishRequests(data: [B2BAppPublishRequestsCreateInput]): [B2BAppPublishRequest]
+
+  """ Update a single B2BAppPublishRequest item by ID. """
+  updateB2BAppPublishRequest(id: ID!, data: B2BAppPublishRequestUpdateInput): B2BAppPublishRequest
+
+  """ Update multiple B2BAppPublishRequest items by ID. """
+  updateB2BAppPublishRequests(data: [B2BAppPublishRequestsUpdateInput]): [B2BAppPublishRequest]
+
+  """ Delete a single B2BAppPublishRequest item by ID. """
+  deleteB2BAppPublishRequest(id: ID!): B2BAppPublishRequest
+
+  """ Delete multiple B2BAppPublishRequest items by ID. """
+  deleteB2BAppPublishRequests(ids: [ID!]): [B2BAppPublishRequest]
+
   """ Create a single B2CAppHistoryRecord item. """
   createB2CAppHistoryRecord(data: B2CAppHistoryRecordCreateInput): B2CAppHistoryRecord
 
@@ -7004,6 +7524,7 @@ type Mutation {
   startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput
   registerNewUser(data: RegisterNewUserInput!): User
+  publishB2BApp(data: PublishB2BAppInput!): PublishB2BAppOutput
   publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
   createB2CAppProperty(data: CreateB2CAppPropertyInput!): CreateB2CAppPropertyOutput
