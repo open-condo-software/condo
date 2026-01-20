@@ -820,7 +820,7 @@ describe('function "validateUserCredentials"', () => {
                         phone: userAttrs.phone, isPhoneVerified: true,
                     })
                     const result = await validateUserCredentials(
-                        { phone: userAttrs.phone, userType: registeredUser.type },
+                        { userType: registeredUser.type },
                         { password: userAttrs.password, confirmPhoneToken: token }
                     )
                     expect(result.success).toBeTruthy()

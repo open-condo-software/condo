@@ -10,6 +10,11 @@ function normalizePhone (data, allowLandLine = false) {
     if (result.isValid) return result.phoneNumber
 }
 
+/**
+ * The function masks the normalized phone number
+ * @param {string} normalizedPhone
+ * @return {string}
+ */
 function maskPhone (normalizedPhone) {
     const hasPlus = normalizedPhone.startsWith('+')
     const digits = normalizedPhone.replace(/\D/g, '')

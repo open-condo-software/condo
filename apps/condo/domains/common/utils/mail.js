@@ -54,6 +54,11 @@ function dotReplacer (match) {
     return match.length > 1 ? match : ''
 }
 
+/**
+ * The function masks the normalized уьфшд
+ * @param {string} normalizedEmail
+ * @return {string}
+ */
 function maskEmail (normalizedEmail) {
     const [user, domain] = normalizedEmail.split('@')
     if (!domain) return normalizedEmail

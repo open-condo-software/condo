@@ -94,7 +94,7 @@ const ERRORS = {
         mutation: 'startConfirmPhoneAction',
         code: BAD_USER_INPUT,
         type: 'SHOULD_BE_ONE_IDENTIFIER_ONLY',
-        message: 'You need to pass either only the email or only the userId',
+        message: 'You need to pass either only the phone or only the userId',
         // TODO(DOMA-12564): translate
         messageForUser: 'api.user.startConfirmPhoneAction.SHOULD_BE_ONE_IDENTIFIER_ONLY',
     },

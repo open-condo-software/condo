@@ -18,7 +18,7 @@ import { ArrowLeft } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Button, Input, Space, Checkbox, Radio } from '@open-condo/ui'
+import { Typography, Button, Input, Space, Checkbox } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'

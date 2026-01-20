@@ -87,10 +87,10 @@ export const SudoTokenProvider: React.FC<React.PropsWithChildren> = ({
     const ConfirmEmailTokenLabel = intl.formatMessage({ id: 'component.SecondFactorForm.type.confirmEmailToken.label' })
     const ConfirmPhoneTokenDescription = intl.formatMessage({ id: 'component.SecondFactorForm.type.confirmPhoneToken.description' })
     const ConfirmEmailTokenDescription = intl.formatMessage({ id: 'component.SecondFactorForm.type.confirmEmailToken.description' })
-    const SendEmailCodeAgainMessage = intl.formatMessage({ id: 'component.SecondFactorForm.type.confirmPhoneToken.sendCodeAgain' })
-    const SendPhoneCodeAgainMessage = intl.formatMessage({ id: 'component.SecondFactorForm.type.confirmEmailToken.sendCodeAgain' })
-    const EmailProblemsMessage = intl.formatMessage({ id: 'component.SecondFactorForm.type.confirmPhoneToken.problems' })
-    const PhoneProblemsMessage = intl.formatMessage({ id: 'component.SecondFactorForm.type.confirmEmailToken.problems' })
+    const SendEmailCodeAgainMessage = intl.formatMessage({ id: 'component.SecondFactorForm.type.confirmEmailToken.sendCodeAgain' })
+    const SendPhoneCodeAgainMessage = intl.formatMessage({ id: 'component.SecondFactorForm.type.confirmPhoneToken.sendCodeAgain' })
+    const EmailProblemsMessage = intl.formatMessage({ id: 'component.SecondFactorForm.type.confirmEmailToken.problems' })
+    const PhoneProblemsMessage = intl.formatMessage({ id: 'component.SecondFactorForm.type.confirmPhoneToken.problems' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
     const hasSupportTelegramChat = !!HelpRequisites?.support_bot

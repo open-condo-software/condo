@@ -76,7 +76,7 @@ describe('maskEmail()', () => {
         ['abcdefg@example.com', 'ab***@example.com'],
         ['qwerty123@yandex.ru', 'qw***@yandex.ru'],
     ]
-    test.each(cases)('should correct work (%p)', (input, output) => {
+    test.each(cases)('should work correctly (%p)', (input, output) => {
         expect(maskEmail(input)).toBe(output)
     })
 })
