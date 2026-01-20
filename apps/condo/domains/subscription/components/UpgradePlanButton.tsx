@@ -55,11 +55,11 @@ export const UpgradePlanButton: React.FC = () => {
             return intl.formatMessage({ id: 'subscription.upgradePlan.tryPlan' }, { planName: betterPlan.plan.name })
         }
 
-        if (subscriptionContext) {
+        if (subscriptionContext?.subscriptionPlan?.name) {
             return intl.formatMessage({ id: 'subscription.upgradePlan.currentPlan' }, { planName: subscriptionContext.subscriptionPlan?.name })
         }
 
-        const lastExpiredSubscription = !subscriptionContext && activatedSubscriptions.reduce((latest, current) => {
+        const lastExpiredSubscription = !subscriptionContext && activatedSubscriptions.length > 0 && activatedSubscriptions.reduce((latest, current) => {
             return new Date(current.endAt) > new Date(latest.endAt)
                 ? current
                 : latest

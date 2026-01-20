@@ -37,11 +37,21 @@ export const SubscriptionDaysIndicator: React.FC = () => {
         if (daysRemaining === undefined || daysRemaining === null) return 0
         
         if (isTrial) {
-            return Math.round((daysRemaining / 30) * 100)
-        } else {
+            const startAt = subscriptionContext?.startAt
+            const endAt = subscriptionContext?.endAt
+            
+            if (startAt && endAt) {
+                const totalDays = dayjs(endAt).diff(dayjs(startAt), 'day')
+                if (totalDays > 0) {
+                    return Math.round((daysRemaining / totalDays) * 100)
+                }
+            }
+            
             return Math.round((daysRemaining / 7) * 100)
+        } else {
+            return Math.round((daysRemaining / 30) * 100)
         }
-    }, [daysRemaining, isTrial])
+    }, [daysRemaining, isTrial, subscriptionContext?.startAt, subscriptionContext?.endAt])
 
     const  strokeColor  = useMemo(() => {
         if (!daysRemaining) {

@@ -83,10 +83,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             organization: { id: organization.id },
             startAt_lte: now,
             deletedAt: null,
-            OR: [
-                { endAt: null },
-                { endAt_gt: now },
-            ],
+            endAt_gt: now,
         })
         if (activeContexts.length === 0) {
             return null
