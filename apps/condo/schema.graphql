@@ -102121,7 +102121,8 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_ENOUGH_AUTH_FACTORS",
-    "message": "Not enough auth factors"
+    "message": "Not enough auth factors",
+    "messageForUser": "Not enough auth factors"
   }`
   """
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
@@ -102545,7 +102546,8 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_ENOUGH_AUTH_FACTORS",
-    "message": "Not enough auth factors"
+    "message": "Not enough auth factors",
+    "messageForUser": "Not enough auth factors"
   }`
   """
   generateSudoToken(data: GenerateSudoTokenInput!): GenerateSudoTokenOutput
@@ -102704,13 +102706,15 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_ENOUGH_AUTH_FACTORS",
-    "message": "Not enough auth factors"
+    "message": "Not enough auth factors",
+    "messageForUser": "Not enough auth factors"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "UNEXPECTED_SECOND_FACTOR",
-    "message": "Unexpected second factor"
+    "message": "Unexpected second factor",
+    "messageForUser": "Unexpected second factor"
   }`
   """
   authenticateOrRegisterUserWithToken(data: AuthenticateOrRegisterUserWithTokenInput!): AuthenticateOrRegisterUserWithTokenOutput
@@ -102911,7 +102915,8 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_ENOUGH_AUTH_FACTORS",
-    "message": "Not enough auth factors"
+    "message": "Not enough auth factors",
+    "messageForUser": "Not enough auth factors"
   }`
   """
   authenticateUserWithEmailAndPassword(data: AuthenticateUserWithEmailAndPasswordInput!): AuthenticateUserWithEmailAndPasswordOutput
