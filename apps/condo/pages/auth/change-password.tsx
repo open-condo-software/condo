@@ -399,14 +399,19 @@ const ChangePasswordPage: PageComponentType = () => {
                     const authDetails = graphQLError?.extensions?.authDetails
 
                     if (authDetails?.is2FAEnabled && authDetails?.userId && authDetails?.availableSecondFactors?.length > 0) {
-                        userIdRef.current = authDetails.userId
-                        const availableSecondFactors = authDetails?.availableSecondFactors?.filter(factor => ['confirmPhoneToken', 'confirmEmailToken'].includes(factor)) || []
-                        const prioritySecondFactor = currentSecondFactor || availableSecondFactors?.[0] || null
+                        if (step === 'getSudoTokenBeforeChangePassword') {
+                            userIdRef.current = authDetails.userId
+                            const availableSecondFactors = authDetails?.availableSecondFactors?.filter(factor => ['confirmPhoneToken', 'confirmEmailToken'].includes(factor)) || []
+                            const prioritySecondFactor = currentSecondFactor || availableSecondFactors?.[0] || null
 
-                        if (availableSecondFactors.length > 0) {
-                            setUserMaskedData(authDetails?.maskedData || null)
-                            setAvailableSecondFactors(availableSecondFactors)
-                            setCurrentSecondFactor(prioritySecondFactor)
+                            if (availableSecondFactors.length > 0) {
+                                setUserMaskedData(authDetails?.maskedData || null)
+                                setAvailableSecondFactors(availableSecondFactors)
+                                setCurrentSecondFactor(prioritySecondFactor)
+                            }
+                        } else {
+                            await Router.push(`/auth/signin?next=${redirectUrl}`)
+                            return
                         }
                     }
 
