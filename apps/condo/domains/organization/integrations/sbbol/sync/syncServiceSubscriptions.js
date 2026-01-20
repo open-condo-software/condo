@@ -55,8 +55,9 @@ const syncServiceSubscriptions = async ({ context, organization }) => {
     const existingContexts = await find('SubscriptionContext', {
         organization: { id: organization.id },
         subscriptionPlan: { id: subscriptionPlanId },
+        isTrial: false,
+        endAt_gt: now.add(1, 'year').toISOString(),
         deletedAt: null,
-        endAt: null,
     })
     if (existingContexts.length > 0) {
         return
@@ -67,7 +68,7 @@ const syncServiceSubscriptions = async ({ context, organization }) => {
         organization: { connect: { id: organization.id } },
         subscriptionPlan: { connect: { id: subscriptionPlanId } },
         startAt: now.format('YYYY-MM-DD'),
-        endAt: null,
+        endAt: now.add(100, 'year').format('YYYY-MM-DD'),
         isTrial: false,
     })
 

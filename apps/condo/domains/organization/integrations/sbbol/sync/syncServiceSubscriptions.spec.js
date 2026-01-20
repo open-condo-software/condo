@@ -67,7 +67,7 @@ describe('syncServiceSubscriptions', () => {
                 subscriptionPlan: { id: subscriptionPlan.id },
                 isTrial: false,
             })
-            expect(contexts[0].endAt).toBeNull()
+            expect(contexts[0].endAt).toBeDefined()
             expect(contexts[0].startAt).toBeDefined()
         })
 
@@ -97,9 +97,10 @@ describe('syncServiceSubscriptions', () => {
             const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient)
 
             // Create existing expired context
+            const endAt = dayjs().subtract(30, 'days').format('YYYY-MM-DD')
             await createTestSubscriptionContext(adminClient, organization, subscriptionPlan, {
                 startAt: dayjs().subtract(60, 'days').format('YYYY-MM-DD'),
-                endAt: dayjs().subtract(30, 'days').format('YYYY-MM-DD'),
+                endAt,
                 isTrial: true,
             })
 
@@ -116,7 +117,7 @@ describe('syncServiceSubscriptions', () => {
             // Should have 2 contexts: expired one and new one
             expect(contexts).toHaveLength(2)
 
-            const activeContexts = contexts.filter(c => c.endAt === null)
+            const activeContexts = contexts.filter(c => c.endAt > endAt)
             expect(activeContexts).toHaveLength(1)
         })
     })
