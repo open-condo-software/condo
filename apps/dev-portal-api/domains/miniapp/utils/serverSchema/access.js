@@ -22,6 +22,10 @@ async function canCreateAppLinkedModelAsOwner ({ authentication: { item: user },
     return apps.every(app => app.createdBy === user.id)
 }
 
+async function canCreateB2BAppLinkedModelAsOwner (args) {
+    return await canCreateAppLinkedModelAsOwner(args, 'B2BApp')
+}
+
 async function canCreateB2CAppLinkedModelAsOwner (args) {
     return await canCreateAppLinkedModelAsOwner(args, 'B2CApp')
 }
@@ -82,6 +86,7 @@ async function canManageAppSchemas ({ authentication: { item: user }, operation,
 module.exports = {
     canReadAppSchemas,
     canManageAppSchemas,
+    canCreateB2BAppLinkedModelAsOwner,
     canCreateB2CAppLinkedModelAsOwner,
     canReadAppLinkedModelAsOwner,
     canExecuteB2CAppMutationAsOwner,

@@ -4,7 +4,7 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { canReadAppLinkedModelAsOwner, canCreateB2CAppLinkedModelAsOwner } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
+const { canReadAppLinkedModelAsOwner, canCreateB2BAppLinkedModelAsOwner } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/access')
 
 async function canReadB2BAppPublishRequests (args) {
     const { authentication: { item: user } } = args
@@ -23,7 +23,7 @@ async function canManageB2BAppPublishRequests (args) {
     if (user.isAdmin || user.isSupport) return true
 
     if (operation === 'create') {
-        return await canCreateB2CAppLinkedModelAsOwner(args)
+        return await canCreateB2BAppLinkedModelAsOwner(args)
     }
 
     return false
