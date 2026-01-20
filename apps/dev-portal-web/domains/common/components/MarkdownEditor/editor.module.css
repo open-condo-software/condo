@@ -1,0 +1,77 @@
+.editor-container {
+  font-size: 16px;
+
+  --md-editor-max-height: 400px;
+}
+
+.editor-container :global(.editor-toolbar) {
+  padding: 4px 8px;
+  color: var(--condo-global-color-black);
+  border-color: var(--condo-global-color-gray-5);
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.editor-container :global(.editor-toolbar button) {
+  min-width: 32px;
+  height: 32px;
+  border: 1px solid var(--condo-global-color-white);
+  border-radius: 8px;
+}
+
+.editor-container :global(.editor-toolbar i.separator) {
+  border-left: 1px solid var(--condo-global-color-gray-3);
+}
+
+.editor-container :global(.editor-toolbar button:hover),
+.editor-container :global(.editor-toolbar button.active) {
+  color: var(--condo-global-color-green-7);
+  background: var(--condo-global-color-brand-gradient-1);
+}
+
+/* stylelint-disable-next-line */
+.editor-container :global(.CodeMirror) {
+  border-color: var(--condo-global-color-gray-5);
+  border-bottom: none;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* stylelint-disable-next-line */
+.editor-container :global(.CodeMirror-scroll) {
+  max-height: var(--md-editor-max-height, 400px);
+}
+
+/* stylelint-disable-next-line */
+.editor-container :global(.CodeMirror-placeholder) {
+  color: var(--condo-global-color-gray-7) !important;
+  opacity: 1;
+}
+
+.bottom-panel {
+  border-right: 1px solid var(--condo-global-color-gray-5);
+  border-bottom: 1px solid var(--condo-global-color-gray-5);
+  border-left: 1px solid var(--condo-global-color-gray-5);
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.editor-container :global(.cm-s-easymde .cm-link) {
+  color: var(--condo-global-color-green-7);
+}
+
+.editor-container :global(.cm-s-easymde .cm-url) {
+  color: var(--condo-global-color-gray-7);
+}
+
+.editor-container :global(.cm-s-easymde .cm-comment) {
+  background-color: var(--condo-global-color-gray-1);
+}
+
+.editor-container :global(.cm-s-easymde .cm-quote) {
+  color: var(--condo-global-color-gray-7);
+}
+
+.editor-input-count-overflow {
+  color: var(--condo-global-color-red-5);
+}

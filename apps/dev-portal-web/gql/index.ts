@@ -52,7 +52,17 @@ export type AuthenticateUserWithPhoneAndPasswordInput = {
   phone: Scalars['String']['input'];
 };
 
+export enum B2BAppCategoryType {
+  BusinessDevelopment = 'BUSINESS_DEVELOPMENT',
+  Dispatching = 'DISPATCHING',
+  Finance = 'FINANCE',
+  Gis = 'GIS',
+  Other = 'OTHER',
+  SmartHome = 'SMART_HOME'
+}
+
 export type B2BAppCreateInput = {
+  category?: InputMaybe<B2BAppCategoryType>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
@@ -75,6 +85,7 @@ export type B2BAppCreateInput = {
 };
 
 export type B2BAppHistoryRecordCreateInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
@@ -106,6 +117,7 @@ export enum B2BAppHistoryRecordHistoryActionType {
 }
 
 export type B2BAppHistoryRecordUpdateInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<Scalars['String']['input']>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
@@ -133,6 +145,24 @@ export type B2BAppHistoryRecordUpdateInput = {
 export type B2BAppHistoryRecordWhereInput = {
   AND?: InputMaybe<Array<InputMaybe<B2BAppHistoryRecordWhereInput>>>;
   OR?: InputMaybe<Array<InputMaybe<B2BAppHistoryRecordWhereInput>>>;
+  category?: InputMaybe<Scalars['String']['input']>;
+  category_contains?: InputMaybe<Scalars['String']['input']>;
+  category_contains_i?: InputMaybe<Scalars['String']['input']>;
+  category_ends_with?: InputMaybe<Scalars['String']['input']>;
+  category_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  category_i?: InputMaybe<Scalars['String']['input']>;
+  category_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  category_not?: InputMaybe<Scalars['String']['input']>;
+  category_not_contains?: InputMaybe<Scalars['String']['input']>;
+  category_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  category_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  category_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  category_not_i?: InputMaybe<Scalars['String']['input']>;
+  category_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  category_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  category_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  category_starts_with?: InputMaybe<Scalars['String']['input']>;
+  category_starts_with_i?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdAt_gt?: InputMaybe<Scalars['String']['input']>;
   createdAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -377,6 +407,7 @@ export type B2BAppHistoryRecordsUpdateInput = {
 };
 
 export type B2BAppUpdateInput = {
+  category?: InputMaybe<B2BAppCategoryType>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdBy?: InputMaybe<UserRelateToOneInput>;
   deletedAt?: InputMaybe<Scalars['String']['input']>;
@@ -401,6 +432,10 @@ export type B2BAppUpdateInput = {
 export type B2BAppWhereInput = {
   AND?: InputMaybe<Array<InputMaybe<B2BAppWhereInput>>>;
   OR?: InputMaybe<Array<InputMaybe<B2BAppWhereInput>>>;
+  category?: InputMaybe<B2BAppCategoryType>;
+  category_in?: InputMaybe<Array<InputMaybe<B2BAppCategoryType>>>;
+  category_not?: InputMaybe<B2BAppCategoryType>;
+  category_not_in?: InputMaybe<Array<InputMaybe<B2BAppCategoryType>>>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
   createdAt_gt?: InputMaybe<Scalars['String']['input']>;
   createdAt_gte?: InputMaybe<Scalars['String']['input']>;
@@ -2889,6 +2924,8 @@ export type SenderFieldInput = {
 };
 
 export enum SortB2BAppHistoryRecordsBy {
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
@@ -2924,6 +2961,8 @@ export enum SortB2BAppHistoryRecordsBy {
 }
 
 export enum SortB2BAppsBy {
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   CreatedByAsc = 'createdBy_ASC',
@@ -5087,21 +5126,21 @@ export type AllB2CAppsQueryVariables = Exact<{
 
 export type AllB2CAppsQuery = { __typename?: 'Query', b2c?: Array<{ __typename?: 'B2CApp', id: string, name?: string | null, createdAt?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null> | null, b2cMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
-export type B2BAppFragmentFragment = { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null };
+export type B2BAppFragmentFragment = { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null };
 
 export type GetB2BAppQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetB2BAppQuery = { __typename?: 'Query', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type GetB2BAppQuery = { __typename?: 'Query', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type CreateB2BAppMutationVariables = Exact<{
   data: B2BAppCreateInput;
 }>;
 
 
-export type CreateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type CreateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type UpdateB2BAppMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -5109,7 +5148,7 @@ export type UpdateB2BAppMutationVariables = Exact<{
 }>;
 
 
-export type UpdateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+export type UpdateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
 export type GetB2CAppQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -5301,6 +5340,9 @@ export const B2BAppFragmentFragmentDoc = gql`
   name
   developer
   developerUrl
+  category
+  shortDescription
+  detailedDescription
   logo {
     publicUrl
   }

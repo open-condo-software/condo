@@ -920,6 +920,7 @@ __metadata:
     antd: 5.28.0
     classnames: ^2.5.1
     cookies-next: ^4.2.1
+    easymde: ^2.20.0
     glob: 8.1.0
     graphql: ^16.10.0
     gray-matter: 4.0.3
@@ -931,6 +932,7 @@ __metadata:
     react: ^18.3.1
     react-dom: ^18.3.1
     react-intl: ^7.1.11
+    react-simplemde-editor: ^5.2.0
     rehype-prism-plus: 1.5.1
     remark-custom-heading-id: 1.0.0
     remark-gfm: 3.0.1
@@ -15377,6 +15379,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/codemirror@npm:^5.60.10, @types/codemirror@npm:~5.60.5":
+  version: 5.60.17
+  resolution: "@types/codemirror@npm:5.60.17"
+  dependencies:
+    "@types/tern": "*"
+  checksum: b1bb5c209780f30714c533e96657a7fce35eef9bac928e036628a82fe8ad39a60281d0dfe731ab0171ff9ae9ccfcbfb2deab59318c75888e0429c6ab5cefc1e9
+  languageName: node
+  linkType: hard
+
 "@types/connect@npm:*":
   version: 3.4.35
   resolution: "@types/connect@npm:3.4.35"
@@ -15838,6 +15849,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/marked@npm:^4.0.7":
+  version: 4.3.2
+  resolution: "@types/marked@npm:4.3.2"
+  checksum: c1107079d6c368dd60a668a41aa2101d006cad404b6eb4af6723d419dc869b278928fb769825f11d0d311a8cf437428992729c8a47253b6a3894a6326b1ee4d9
+  languageName: node
+  linkType: hard
+
 "@types/mdast@npm:^3.0.0":
   version: 3.0.10
   resolution: "@types/mdast@npm:3.0.10"
@@ -16227,6 +16245,15 @@ __metadata:
   version: 0.0.30
   resolution: "@types/strip-json-comments@npm:0.0.30"
   checksum: 829ddd389645073f347c5b1924a8c34b8813af29756576e511c46f40e218193cf93ccbade62661d47fc70f707e98f410331729b8c20edfcb2e807d51df1ad4b7
+  languageName: node
+  linkType: hard
+
+"@types/tern@npm:*":
+  version: 0.23.9
+  resolution: "@types/tern@npm:0.23.9"
+  dependencies:
+    "@types/estree": "*"
+  checksum: 53f229c79edf9454011f5b37c8539e0e760a130beac953d4e2126823de1ac6b0e2a45612596679fb232ec861826584fcaa272e2254a890b410575683423d56a8
   languageName: node
   linkType: hard
 
@@ -20840,6 +20867,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"codemirror-spell-checker@npm:1.1.2":
+  version: 1.1.2
+  resolution: "codemirror-spell-checker@npm:1.1.2"
+  dependencies:
+    typo-js: "*"
+  checksum: e58de8f64453352f4a42c3752650fa7d65dc8e9fbdbdc4a2a80a748e5d794e84c5779409386d8d1f06d41cad41bacb3bbce91eb2cd5a5548a59bb71d932dec96
+  languageName: node
+  linkType: hard
+
 "codemirror@npm:^5.18.2, codemirror@npm:^5.47.0, codemirror@npm:^5.58.1":
   version: 5.65.8
   resolution: "codemirror@npm:5.65.8"
@@ -20851,6 +20887,13 @@ __metadata:
   version: 5.65.19
   resolution: "codemirror@npm:5.65.19"
   checksum: 3422332a62d301224e7061edded5fc7596e2a97cdb8186f725d479481bbc43bbe1e61150955579432455b3fd653822c39ec8d4e090c62fc5d36c753f6308374f
+  languageName: node
+  linkType: hard
+
+"codemirror@npm:^5.65.15":
+  version: 5.65.20
+  resolution: "codemirror@npm:5.65.20"
+  checksum: 8fa3871ff8147e5aa48ee3b0f3e3ce4e545bc14d669377c479dcfdf0705976f9a545d8198357b25ca3ae9f36fcd204ffcba9e6d073a4bbb31c6785f91a32fd16
   languageName: node
   linkType: hard
 
@@ -23260,6 +23303,19 @@ __metadata:
     wcwidth:
       optional: true
   checksum: 66961b19751a68d2d30ce9b74ef750c374cc3112bbcac3d1ed5a939e43c035ecf6b1954098df2d5b05f1e853ab2b67de893794390dcbf0abe1f157fddeb52174
+  languageName: node
+  linkType: hard
+
+"easymde@npm:^2.20.0":
+  version: 2.20.0
+  resolution: "easymde@npm:2.20.0"
+  dependencies:
+    "@types/codemirror": ^5.60.10
+    "@types/marked": ^4.0.7
+    codemirror: ^5.65.15
+    codemirror-spell-checker: 1.1.2
+    marked: ^4.1.0
+  checksum: c4280eef82815a8d8925dbd20da58f33ae8ea97f0b46ae8866a5bcd4bc57c996d1ba3b43f6eefac77350574212990d0aa613f1dd4701d520491ed2f7011674bd
   languageName: node
   linkType: hard
 
@@ -32266,6 +32322,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"marked@npm:^4.1.0":
+  version: 4.3.0
+  resolution: "marked@npm:4.3.0"
+  bin:
+    marked: bin/marked.js
+  checksum: 0db6817893952c3ec710eb9ceafb8468bf5ae38cb0f92b7b083baa13d70b19774674be04db5b817681fa7c5c6a088f61300815e4dd75a59696f4716ad69f6260
+  languageName: node
+  linkType: hard
+
 "math-intrinsics@npm:^1.1.0":
   version: 1.1.0
   resolution: "math-intrinsics@npm:1.1.0"
@@ -40604,6 +40669,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-simplemde-editor@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "react-simplemde-editor@npm:5.2.0"
+  dependencies:
+    "@types/codemirror": ~5.60.5
+  peerDependencies:
+    easymde: ">= 2.0.0 < 3.0.0"
+    react: ">=16.8.2"
+    react-dom: ">=16.8.2"
+  checksum: 3e47019f8ca47875fd750b7af975c0a485372d494434d8b251a0222aab810f94fda6807916d7aac3be82fbd8173d2c1a116ec91ac6fd2033f635f053297ed266
+  languageName: node
+  linkType: hard
+
 "react-sortable-hoc@npm:^0.8.3":
   version: 0.8.4
   resolution: "react-sortable-hoc@npm:0.8.4"
@@ -46633,6 +46711,13 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 1b503525a88ff0ff5952e95870971c4fb2118c17364d60302c21935dedcd6c37e6a0a692f350892bafcef6f4a16d09073fe461158547978d2f16fbe4cb18581c
+  languageName: node
+  linkType: hard
+
+"typo-js@npm:*":
+  version: 1.3.1
+  resolution: "typo-js@npm:1.3.1"
+  checksum: cb6d9d76ac1a497994432f5a2267e58e9aecbbd9c54e7246110a4584b0d141d3680695cffa956a3fb270322d33ef794a1848fed435f17af7da5bf4211b2b6f51
   languageName: node
   linkType: hard
 

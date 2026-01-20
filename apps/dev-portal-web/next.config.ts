@@ -30,6 +30,8 @@ const RUNTIME_TRANSLATIONS = JSON.parse(conf['RUNTIME_TRANSLATIONS'] || '{}')
 
 const ENVIRONMENTS_URIS = JSON.parse(conf['ENVIRONMENTS_URIS'] || '{}')
 
+const MARKDOWN_GUIDE_URL = conf['MARKDOWN_GUIDE_URL'] || (conf['CONDO_DOMAIN'] ? `${conf['CONDO_DOMAIN']}/ui/index.html?path=/story/components-markdown--default` : null)
+
 const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
@@ -51,6 +53,7 @@ const nextConfig: NextConfig = {
         privacyPolicyUrl,
         dataProcessingConsentUrl,
         runtimeTranslations: RUNTIME_TRANSLATIONS,
+        markdownGuideUrl: MARKDOWN_GUIDE_URL,
     },
     serverRuntimeConfig: {
         proxyName: GRAPHQL_PROXY_NAME,
