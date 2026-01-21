@@ -4,75 +4,43 @@ import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
-import { Select } from '@open-condo/ui'
-import type { SelectProps } from '@open-condo/ui'
+import { Select, type SelectProps } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
+import { PublishForm } from '@/domains/miniapp/components/B2BApp/edit/publishing/PublishForm'
 import {
     DEV_ENVIRONMENT,
     PROD_ENVIRONMENT,
     PUBLISH_REQUEST_APPROVED_STATUS,
 } from '@dev-portal-api/domains/miniapp/constants/publishing'
 
-import { PublishForm } from './PublishForm'
 import { RequestStatusInfo } from './RequestStatusInfo'
 
 import type { AppEnvironment } from '@/gql'
 
-import { usePublishB2CAppMutation, useAllB2CAppPublishRequestsLazyQuery, GetB2CAppDocument } from '@/gql'
-
-
-const DEFAULT_STAND = DEV_ENVIRONMENT
+import { useAllB2BAppPublishRequestsLazyQuery, usePublishB2BAppMutation, GetB2BAppDocument } from '@/gql'
 
 type PublishFormValues = {
     environment: AppEnvironment
     info?: boolean
-    buildId?: string
 }
+
+const DEFAULT_STAND = DEV_ENVIRONMENT
 
 export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const PublishingTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.title' })
-    const SelectStandLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.publishing.publishForm.items.stand.label' })
+    const PublishingTitle = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.publishing.title' })
+    const SelectStandLabel = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.publishing.publishForm.items.stand.label' })
     const DevStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.development.label' })
     const ProdStandLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
     const ChangesPublishedTitle = intl.formatMessage({ id: 'pages.apps.any.id.notifications.successPublish.title' })
 
     const [form] = Form.useForm()
-    const [isPublishing, setIsPublishing] = useState(false)
     const [environment, setEnvironment] = useState(DEFAULT_STAND)
+    const [isPublishing, setIsPublishing] = useState(false)
 
-    const onError = useMutationErrorHandler()
-    const onCompleted = useCallback(() => {
-        notification.success( { message: ChangesPublishedTitle })
-    }, [ChangesPublishedTitle])
-    const [publishMutation] = usePublishB2CAppMutation({
-        onError,
-        onCompleted,
-        refetchQueries: [{ query: GetB2CAppDocument, variables: { id } }],
-    })
-
-    const handlePublish = useCallback((values: PublishFormValues) => {
-        const data = {
-            dv: 1,
-            sender: getClientSideSenderInfo(),
-            app: { id },
-            environment: values.environment,
-            options: {
-                info: values.info,
-                build: values.buildId ? { id: values.buildId } : undefined,
-            },
-        }
-        setIsPublishing(true)
-        publishMutation({
-            variables: {
-                data,
-            },
-        }).finally(() => { setIsPublishing(false) })
-    }, [id, publishMutation])
-
-    const [fetchPublishRequests, { data: requestsData, loading: requestsLoading }] = useAllB2CAppPublishRequestsLazyQuery({
+    const [fetchPublishRequests, { data: requestsData, loading: requestsLoading }] = useAllB2BAppPublishRequestsLazyQuery({
         variables: { appId: id },
     })
 
@@ -86,11 +54,38 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
         }
     }, [fetchPublishRequests])
 
+    const onError = useMutationErrorHandler()
+    const onCompleted = useCallback(() => {
+        notification.success( { message: ChangesPublishedTitle })
+    }, [ChangesPublishedTitle])
+    const [publishMutation] = usePublishB2BAppMutation({
+        onError,
+        onCompleted,
+        refetchQueries: [{ query: GetB2BAppDocument, variables: { id } }],
+    })
+
+    const handlePublish = useCallback((values: PublishFormValues) => {
+        setIsPublishing(true)
+        publishMutation({
+            variables: {
+                data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    app: { id },
+                    environment: values.environment,
+                    options: {
+                        info: values.info,
+                    },
+                },
+            },
+        }).finally(() => setIsPublishing(false))
+    }, [id, publishMutation])
+
     return (
         <Section>
             <SubSection title={PublishingTitle}>
                 <Form
-                    name='publish-b2c-app-form'
+                    name='publish-b2b-app-form'
                     layout='vertical'
                     form={form}
                     onFinish={handlePublish}
@@ -106,11 +101,9 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
                         />
                     </Form.Item>
                     {(environment !== PROD_ENVIRONMENT || publishRequestStatus === PUBLISH_REQUEST_APPROVED_STATUS)
-                        ? (
-                            <PublishForm id={id} isPublishing={isPublishing}/>
-                        ) : (
-                            <RequestStatusInfo request={publishRequest} appId={id} loading={requestsLoading}/>
-                        )}
+                        ? <PublishForm isPublishing={isPublishing}/>
+                        : <RequestStatusInfo request={publishRequest} appId={id} loading={requestsLoading}/>
+                    }
                 </Form>
             </SubSection>
         </Section>

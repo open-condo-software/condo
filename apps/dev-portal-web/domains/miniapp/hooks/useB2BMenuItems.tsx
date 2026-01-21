@@ -11,6 +11,7 @@ type MenuItem = Required<MenuProps>['items'][number]
 const AVAILABLE_SECTIONS = [
     'info',
     'oidc',
+    'publishing',
 ] as const
 
 export type SectionType = typeof AVAILABLE_SECTIONS[number]

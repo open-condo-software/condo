@@ -406,6 +406,310 @@ export type B2BAppHistoryRecordsUpdateInput = {
   id: Scalars['ID']['input'];
 };
 
+export type B2BAppPublishOptions = {
+  info?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type B2BAppPublishRequestCreateInput = {
+  app?: InputMaybe<B2BAppRelateToOneInput>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+  isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+  isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  status?: InputMaybe<B2BAppPublishRequestStatusType>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type B2BAppPublishRequestHistoryRecordCreateInput = {
+  app?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  history_action?: InputMaybe<B2BAppPublishRequestHistoryRecordHistoryActionType>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+  isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+  isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export enum B2BAppPublishRequestHistoryRecordHistoryActionType {
+  C = 'c',
+  D = 'd',
+  U = 'u'
+}
+
+export type B2BAppPublishRequestHistoryRecordUpdateInput = {
+  app?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  history_action?: InputMaybe<B2BAppPublishRequestHistoryRecordHistoryActionType>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+  isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+  isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type B2BAppPublishRequestHistoryRecordWhereInput = {
+  AND?: InputMaybe<Array<InputMaybe<B2BAppPublishRequestHistoryRecordWhereInput>>>;
+  OR?: InputMaybe<Array<InputMaybe<B2BAppPublishRequestHistoryRecordWhereInput>>>;
+  app?: InputMaybe<Scalars['String']['input']>;
+  app_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  app_not?: InputMaybe<Scalars['String']['input']>;
+  app_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy?: InputMaybe<Scalars['String']['input']>;
+  createdBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy_not?: InputMaybe<Scalars['String']['input']>;
+  createdBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  dv_gt?: InputMaybe<Scalars['Int']['input']>;
+  dv_gte?: InputMaybe<Scalars['Int']['input']>;
+  dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  dv_lt?: InputMaybe<Scalars['Int']['input']>;
+  dv_lte?: InputMaybe<Scalars['Int']['input']>;
+  dv_not?: InputMaybe<Scalars['Int']['input']>;
+  dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  history_action?: InputMaybe<B2BAppPublishRequestHistoryRecordHistoryActionType>;
+  history_action_in?: InputMaybe<Array<InputMaybe<B2BAppPublishRequestHistoryRecordHistoryActionType>>>;
+  history_action_not?: InputMaybe<B2BAppPublishRequestHistoryRecordHistoryActionType>;
+  history_action_not_in?: InputMaybe<Array<InputMaybe<B2BAppPublishRequestHistoryRecordHistoryActionType>>>;
+  history_date?: InputMaybe<Scalars['String']['input']>;
+  history_date_gt?: InputMaybe<Scalars['String']['input']>;
+  history_date_gte?: InputMaybe<Scalars['String']['input']>;
+  history_date_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_date_lt?: InputMaybe<Scalars['String']['input']>;
+  history_date_lte?: InputMaybe<Scalars['String']['input']>;
+  history_date_not?: InputMaybe<Scalars['String']['input']>;
+  history_date_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_id?: InputMaybe<Scalars['String']['input']>;
+  history_id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  history_id_not?: InputMaybe<Scalars['String']['input']>;
+  history_id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+  isAppTested_not?: InputMaybe<Scalars['Boolean']['input']>;
+  isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+  isContractSigned_not?: InputMaybe<Scalars['Boolean']['input']>;
+  isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+  isInfoApproved_not?: InputMaybe<Scalars['Boolean']['input']>;
+  newId?: InputMaybe<Scalars['JSON']['input']>;
+  newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  newId_not?: InputMaybe<Scalars['JSON']['input']>;
+  newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  sender?: InputMaybe<Scalars['JSON']['input']>;
+  sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  sender_not?: InputMaybe<Scalars['JSON']['input']>;
+  sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  status_contains?: InputMaybe<Scalars['String']['input']>;
+  status_contains_i?: InputMaybe<Scalars['String']['input']>;
+  status_ends_with?: InputMaybe<Scalars['String']['input']>;
+  status_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  status_i?: InputMaybe<Scalars['String']['input']>;
+  status_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status_not?: InputMaybe<Scalars['String']['input']>;
+  status_not_contains?: InputMaybe<Scalars['String']['input']>;
+  status_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+  status_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  status_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+  status_not_i?: InputMaybe<Scalars['String']['input']>;
+  status_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  status_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  status_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  status_starts_with?: InputMaybe<Scalars['String']['input']>;
+  status_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy?: InputMaybe<Scalars['String']['input']>;
+  updatedBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy_not?: InputMaybe<Scalars['String']['input']>;
+  updatedBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  v_gt?: InputMaybe<Scalars['Int']['input']>;
+  v_gte?: InputMaybe<Scalars['Int']['input']>;
+  v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  v_lt?: InputMaybe<Scalars['Int']['input']>;
+  v_lte?: InputMaybe<Scalars['Int']['input']>;
+  v_not?: InputMaybe<Scalars['Int']['input']>;
+  v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+};
+
+export type B2BAppPublishRequestHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type B2BAppPublishRequestHistoryRecordsCreateInput = {
+  data?: InputMaybe<B2BAppPublishRequestHistoryRecordCreateInput>;
+};
+
+export type B2BAppPublishRequestHistoryRecordsUpdateInput = {
+  data?: InputMaybe<B2BAppPublishRequestHistoryRecordUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
+export enum B2BAppPublishRequestStatusType {
+  Approved = 'approved',
+  Pending = 'pending'
+}
+
+export type B2BAppPublishRequestUpdateInput = {
+  app?: InputMaybe<B2BAppRelateToOneInput>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdBy?: InputMaybe<UserRelateToOneInput>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+  isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+  isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  sender?: InputMaybe<SenderFieldInput>;
+  status?: InputMaybe<B2BAppPublishRequestStatusType>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedBy?: InputMaybe<UserRelateToOneInput>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type B2BAppPublishRequestWhereInput = {
+  AND?: InputMaybe<Array<InputMaybe<B2BAppPublishRequestWhereInput>>>;
+  OR?: InputMaybe<Array<InputMaybe<B2BAppPublishRequestWhereInput>>>;
+  app?: InputMaybe<B2BAppWhereInput>;
+  app_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  createdAt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not?: InputMaybe<Scalars['String']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  createdBy?: InputMaybe<UserWhereInput>;
+  createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  deletedAt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+  deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  dv?: InputMaybe<Scalars['Int']['input']>;
+  dv_gt?: InputMaybe<Scalars['Int']['input']>;
+  dv_gte?: InputMaybe<Scalars['Int']['input']>;
+  dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  dv_lt?: InputMaybe<Scalars['Int']['input']>;
+  dv_lte?: InputMaybe<Scalars['Int']['input']>;
+  dv_not?: InputMaybe<Scalars['Int']['input']>;
+  dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+  isAppTested_not?: InputMaybe<Scalars['Boolean']['input']>;
+  isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+  isContractSigned_not?: InputMaybe<Scalars['Boolean']['input']>;
+  isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+  isInfoApproved_not?: InputMaybe<Scalars['Boolean']['input']>;
+  newId?: InputMaybe<Scalars['String']['input']>;
+  newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  newId_not?: InputMaybe<Scalars['String']['input']>;
+  newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  sender?: InputMaybe<SenderFieldInput>;
+  sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  sender_not?: InputMaybe<SenderFieldInput>;
+  sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+  status?: InputMaybe<B2BAppPublishRequestStatusType>;
+  status_in?: InputMaybe<Array<InputMaybe<B2BAppPublishRequestStatusType>>>;
+  status_not?: InputMaybe<B2BAppPublishRequestStatusType>;
+  status_not_in?: InputMaybe<Array<InputMaybe<B2BAppPublishRequestStatusType>>>;
+  updatedAt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatedBy?: InputMaybe<UserWhereInput>;
+  updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  v?: InputMaybe<Scalars['Int']['input']>;
+  v_gt?: InputMaybe<Scalars['Int']['input']>;
+  v_gte?: InputMaybe<Scalars['Int']['input']>;
+  v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  v_lt?: InputMaybe<Scalars['Int']['input']>;
+  v_lte?: InputMaybe<Scalars['Int']['input']>;
+  v_not?: InputMaybe<Scalars['Int']['input']>;
+  v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+};
+
+export type B2BAppPublishRequestWhereUniqueInput = {
+  id: Scalars['ID']['input'];
+};
+
+export type B2BAppPublishRequestsCreateInput = {
+  data?: InputMaybe<B2BAppPublishRequestCreateInput>;
+};
+
+export type B2BAppPublishRequestsUpdateInput = {
+  data?: InputMaybe<B2BAppPublishRequestUpdateInput>;
+  id: Scalars['ID']['input'];
+};
+
+export type B2BAppRelateToOneInput = {
+  connect?: InputMaybe<B2BAppWhereUniqueInput>;
+  create?: InputMaybe<B2BAppCreateInput>;
+  disconnect?: InputMaybe<B2BAppWhereUniqueInput>;
+  disconnectAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type B2BAppUpdateInput = {
   category?: InputMaybe<B2BAppCategoryType>;
   createdAt?: InputMaybe<Scalars['String']['input']>;
@@ -2894,6 +3198,14 @@ export type ImportB2CAppToInput = {
   app: B2CAppWhereUniqueInput;
 };
 
+export type PublishB2BAppInput = {
+  app: B2BAppWhereUniqueInput;
+  dv: Scalars['Int']['input'];
+  environment: AppEnvironment;
+  options: B2BAppPublishOptions;
+  sender: SenderFieldInput;
+};
+
 export type PublishB2CAppInput = {
   app: B2CAppWhereUniqueInput;
   dv: Scalars['Int']['input'];
@@ -2956,6 +3268,62 @@ export enum SortB2BAppHistoryRecordsBy {
   ShortDescriptionDesc = 'shortDescription_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
   UpdatedAtDesc = 'updatedAt_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC'
+}
+
+export enum SortB2BAppPublishRequestHistoryRecordsBy {
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  IsAppTestedAsc = 'isAppTested_ASC',
+  IsAppTestedDesc = 'isAppTested_DESC',
+  IsContractSignedAsc = 'isContractSigned_ASC',
+  IsContractSignedDesc = 'isContractSigned_DESC',
+  IsInfoApprovedAsc = 'isInfoApproved_ASC',
+  IsInfoApprovedDesc = 'isInfoApproved_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC'
+}
+
+export enum SortB2BAppPublishRequestsBy {
+  AppAsc = 'app_ASC',
+  AppDesc = 'app_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  IsAppTestedAsc = 'isAppTested_ASC',
+  IsAppTestedDesc = 'isAppTested_DESC',
+  IsContractSignedAsc = 'isContractSigned_ASC',
+  IsContractSignedDesc = 'isContractSigned_DESC',
+  IsInfoApprovedAsc = 'isInfoApproved_ASC',
+  IsInfoApprovedDesc = 'isInfoApproved_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC'
 }
@@ -5150,6 +5518,20 @@ export type UpdateB2BAppMutationVariables = Exact<{
 
 export type UpdateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
+export type AllB2BAppPublishRequestsQueryVariables = Exact<{
+  appId: Scalars['ID']['input'];
+}>;
+
+
+export type AllB2BAppPublishRequestsQuery = { __typename?: 'Query', requests?: Array<{ __typename?: 'B2BAppPublishRequest', isAppTested?: boolean | null, isInfoApproved?: boolean | null, isContractSigned?: boolean | null, status?: B2BAppPublishRequestStatusType | null } | null> | null };
+
+export type CreateB2BAppPublishRequestMutationVariables = Exact<{
+  data: B2BAppPublishRequestCreateInput;
+}>;
+
+
+export type CreateB2BAppPublishRequestMutation = { __typename?: 'Mutation', request?: { __typename?: 'B2BAppPublishRequest', id: string } | null };
+
 export type GetB2CAppQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -5265,6 +5647,13 @@ export type GenerateOidcClientSecretMutationVariables = Exact<{
 
 
 export type GenerateOidcClientSecretMutation = { __typename?: 'Mutation', client?: { __typename?: 'OIDCClientWithSecret', clientSecret: string } | null };
+
+export type PublishB2BAppMutationVariables = Exact<{
+  data: PublishB2BAppInput;
+}>;
+
+
+export type PublishB2BAppMutation = { __typename?: 'Mutation', publishB2BApp?: { __typename?: 'PublishB2BAppOutput', success: boolean } | null };
 
 export type PublishB2CAppMutationVariables = Exact<{
   data: PublishB2CAppInput;
@@ -5567,6 +5956,86 @@ export function useUpdateB2BAppMutation(baseOptions?: Apollo.MutationHookOptions
 export type UpdateB2BAppMutationHookResult = ReturnType<typeof useUpdateB2BAppMutation>;
 export type UpdateB2BAppMutationResult = Apollo.MutationResult<UpdateB2BAppMutation>;
 export type UpdateB2BAppMutationOptions = Apollo.BaseMutationOptions<UpdateB2BAppMutation, UpdateB2BAppMutationVariables>;
+export const AllB2BAppPublishRequestsDocument = gql`
+    query allB2BAppPublishRequests($appId: ID!) {
+  requests: allB2BAppPublishRequests(
+    where: {app: {id: $appId}}
+    first: 1
+    skip: 0
+  ) {
+    isAppTested
+    isInfoApproved
+    isContractSigned
+    status
+  }
+}
+    `;
+
+/**
+ * __useAllB2BAppPublishRequestsQuery__
+ *
+ * To run a query within a React component, call `useAllB2BAppPublishRequestsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAllB2BAppPublishRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAllB2BAppPublishRequestsQuery({
+ *   variables: {
+ *      appId: // value for 'appId'
+ *   },
+ * });
+ */
+export function useAllB2BAppPublishRequestsQuery(baseOptions: Apollo.QueryHookOptions<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables> & ({ variables: AllB2BAppPublishRequestsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>(AllB2BAppPublishRequestsDocument, options);
+      }
+export function useAllB2BAppPublishRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>(AllB2BAppPublishRequestsDocument, options);
+        }
+export function useAllB2BAppPublishRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>(AllB2BAppPublishRequestsDocument, options);
+        }
+export type AllB2BAppPublishRequestsQueryHookResult = ReturnType<typeof useAllB2BAppPublishRequestsQuery>;
+export type AllB2BAppPublishRequestsLazyQueryHookResult = ReturnType<typeof useAllB2BAppPublishRequestsLazyQuery>;
+export type AllB2BAppPublishRequestsSuspenseQueryHookResult = ReturnType<typeof useAllB2BAppPublishRequestsSuspenseQuery>;
+export type AllB2BAppPublishRequestsQueryResult = Apollo.QueryResult<AllB2BAppPublishRequestsQuery, AllB2BAppPublishRequestsQueryVariables>;
+export const CreateB2BAppPublishRequestDocument = gql`
+    mutation createB2BAppPublishRequest($data: B2BAppPublishRequestCreateInput!) {
+  request: createB2BAppPublishRequest(data: $data) {
+    id
+  }
+}
+    `;
+export type CreateB2BAppPublishRequestMutationFn = Apollo.MutationFunction<CreateB2BAppPublishRequestMutation, CreateB2BAppPublishRequestMutationVariables>;
+
+/**
+ * __useCreateB2BAppPublishRequestMutation__
+ *
+ * To run a mutation, you first call `useCreateB2BAppPublishRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateB2BAppPublishRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createB2BAppPublishRequestMutation, { data, loading, error }] = useCreateB2BAppPublishRequestMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateB2BAppPublishRequestMutation(baseOptions?: Apollo.MutationHookOptions<CreateB2BAppPublishRequestMutation, CreateB2BAppPublishRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateB2BAppPublishRequestMutation, CreateB2BAppPublishRequestMutationVariables>(CreateB2BAppPublishRequestDocument, options);
+      }
+export type CreateB2BAppPublishRequestMutationHookResult = ReturnType<typeof useCreateB2BAppPublishRequestMutation>;
+export type CreateB2BAppPublishRequestMutationResult = Apollo.MutationResult<CreateB2BAppPublishRequestMutation>;
+export type CreateB2BAppPublishRequestMutationOptions = Apollo.BaseMutationOptions<CreateB2BAppPublishRequestMutation, CreateB2BAppPublishRequestMutationVariables>;
 export const GetB2CAppDocument = gql`
     query getB2CApp($id: ID!) {
   app: B2CApp(where: {id: $id}) {
@@ -6194,6 +6663,39 @@ export function useGenerateOidcClientSecretMutation(baseOptions?: Apollo.Mutatio
 export type GenerateOidcClientSecretMutationHookResult = ReturnType<typeof useGenerateOidcClientSecretMutation>;
 export type GenerateOidcClientSecretMutationResult = Apollo.MutationResult<GenerateOidcClientSecretMutation>;
 export type GenerateOidcClientSecretMutationOptions = Apollo.BaseMutationOptions<GenerateOidcClientSecretMutation, GenerateOidcClientSecretMutationVariables>;
+export const PublishB2BAppDocument = gql`
+    mutation publishB2BApp($data: PublishB2BAppInput!) {
+  publishB2BApp(data: $data) {
+    success
+  }
+}
+    `;
+export type PublishB2BAppMutationFn = Apollo.MutationFunction<PublishB2BAppMutation, PublishB2BAppMutationVariables>;
+
+/**
+ * __usePublishB2BAppMutation__
+ *
+ * To run a mutation, you first call `usePublishB2BAppMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishB2BAppMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishB2BAppMutation, { data, loading, error }] = usePublishB2BAppMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePublishB2BAppMutation(baseOptions?: Apollo.MutationHookOptions<PublishB2BAppMutation, PublishB2BAppMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PublishB2BAppMutation, PublishB2BAppMutationVariables>(PublishB2BAppDocument, options);
+      }
+export type PublishB2BAppMutationHookResult = ReturnType<typeof usePublishB2BAppMutation>;
+export type PublishB2BAppMutationResult = Apollo.MutationResult<PublishB2BAppMutation>;
+export type PublishB2BAppMutationOptions = Apollo.BaseMutationOptions<PublishB2BAppMutation, PublishB2BAppMutationVariables>;
 export const PublishB2CAppDocument = gql`
     mutation publishB2CApp($data: PublishB2CAppInput!) {
   publishB2CApp(data: $data) {
