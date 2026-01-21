@@ -1,5 +1,6 @@
 {
   "prepare": "Preparing",
   "work-with-invoices": "Working with invoices",
-  "amount-distribution": "Distribution"
+  "amount-distribution": "Distribution",
+  "webhooks": "Webhooks"
 }
