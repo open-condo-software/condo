@@ -4,7 +4,7 @@
   "messages.confirmEmailAction.body": "Для подтверждения электронной почты используйте следующий код: {code}",
 
   "api.common.INVALID_MIMETYPE": "Неверный тип файла. Файл должен иметь одно из следующих расширений: {types}",
-  "api.common.MULTIPLE_FOUND": "Невозможно определить объект для обновления, так как  найдено несколько объектов по указанным importID и exportId",
+  "api.common.MULTIPLE_FOUND": "Невозможно определить объект для обновления, так как найдено несколько объектов по указанным importID и exportId",
 
   "api.user.authenticateUserWithPhoneAndPassword.AUTH_ATTEMPTS_DAILY_LIMIT_REACHED": "С этого IP-адреса было предпринято слишком много попыток авторизации. Пожалуйста, повторите попытку позже",
   "api.user.authenticateUserWithPhoneAndPassword.INCORRECT_PHONE_OR_PASSWORD": "Неверный номер телефона или пароль",

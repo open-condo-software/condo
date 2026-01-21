@@ -39,7 +39,7 @@ async function publishB2BApp (context, data) {
         query: PUBLISH_B2B_APP_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to publishB2BApp',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -51,7 +51,7 @@ async function publishB2CApp (context, data) {
         query: PUBLISH_B2C_APP_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to publishB2CApp',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -64,7 +64,7 @@ async function importB2CApp (context, data) {
         query: IMPORT_B2C_APP_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to importB2CApp',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -77,7 +77,7 @@ async function allB2CAppProperties (context, data) {
         query: ALL_B2C_APP_PROPERTIES_QUERY,
         variables: { data },
         errorMessage: '[error] Unable to get allB2CAppProperties',
-        dataPath: 'obj',
+        dataPath: 'objs',
     })
 }
 
@@ -90,7 +90,7 @@ async function createB2CAppProperty (context, data) {
         query: CREATE_B2C_APP_PROPERTY_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to createB2CAppProperty',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -103,7 +103,7 @@ async function deleteB2CAppProperty (context, data) {
         query: DELETE_B2C_APP_PROPERTY_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to deleteB2CAppProperty',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -114,7 +114,7 @@ async function getB2CAppInfo (context, data) {
         query: GET_B2C_APP_INFO_QUERY,
         variables: { data },
         errorMessage: '[error] Unable to getB2CAppInfo',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -177,7 +177,7 @@ async function registerAppUserService (context, data) {
         query: REGISTER_APP_USER_SERVICE_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to registerAppUserService',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
