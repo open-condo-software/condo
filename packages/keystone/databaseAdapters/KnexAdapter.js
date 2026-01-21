@@ -1,6 +1,8 @@
 const { KnexAdapter: OriginalKnexAdapter } = require('@open-keystone/adapter-knex')
 const { knex } = require('knex')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
 class KnexAdapter extends OriginalKnexAdapter {
     /**
      * Override _connect to fix error handling and add proper resource cleanup.
@@ -37,11 +39,9 @@ class KnexAdapter extends OriginalKnexAdapter {
             } else {
                 dbName = knexConnection.database || knexConnection.host || 'unknown'
             }
-            console.error(`Could not connect to database: '${dbName}'`)
-            console.warn(
-                'If this is the first time you\'ve run Keystone, you can create your database with the following command:'
-            )
-            console.warn(`createdb ${dbName}`)
+
+            const logger = getLogger()
+            logger.error({ msg: 'Could not connect to database', data: { dbName } })
             throw connectionError
         }
     }
