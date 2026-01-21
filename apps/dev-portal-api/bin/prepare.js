@@ -14,6 +14,7 @@ const APP_NAME = path.basename(path.resolve(__dirname, '..'))
 const BOT_RIGHTS_SET = JSON.stringify({
     name: '[DEV-PORTAL] Service bot permissions',
     canReadB2BApps: true,
+    canReadB2BAppContexts: true,
     canReadB2BAppAccessRights: true,
     canReadB2BAppAccessRightSets: true,
     canReadB2BAppPermissions: true,
@@ -23,10 +24,12 @@ const BOT_RIGHTS_SET = JSON.stringify({
     canReadB2CAppBuilds: true,
     canReadB2CAppProperties: true,
     canReadOidcClients: true,
+    canReadOrganizations: true,
     canReadUsers: true,
     canReadUserEmailField: true,
 
     canManageB2BApps: true,
+    canManageB2BAppContexts: true,
     canManageB2BAppAccessRights: true,
     canManageB2BAppAccessRightSets: true,
     canManageB2BAppPermissions: true,

@@ -41,7 +41,7 @@ const B2C_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContra
 const B2CAppPublishRequest = generateGqlQueries('B2CAppPublishRequest', B2C_APP_PUBLISH_REQUEST_FIELDS)
 
 const ALL_B2B_APP_CONTEXTS_QUERY = gql`
-    mutation allB2BAppContexts ($data: AllB2BAppContextsInput!) {
+    query allB2BAppContexts ($data: AllB2BAppContextsInput!) {
         result: allB2BAppContexts(data: $data) { 
             objs { id organization { id name tin } status }
             meta { count }

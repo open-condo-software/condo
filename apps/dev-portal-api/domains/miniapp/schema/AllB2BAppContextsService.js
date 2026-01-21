@@ -6,7 +6,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { CondoB2BAppContextGql } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/AllB2BAppContextsService')
-const { findCondoApp } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/findCondoApp')
+const { findCondoB2BApp } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/findCondoApp')
 
 const AllB2BAppContextsService = new GQLCustomSchema('AllB2BAppContextsService', {
     types: [
@@ -40,11 +40,11 @@ const AllB2BAppContextsService = new GQLCustomSchema('AllB2BAppContextsService',
         {
             access: access.canExecuteAllB2BAppContexts,
             schema: 'allB2BAppContexts(data: AllB2BAppContextsInput!): AllB2BAppContextsOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data: { first, skip } } = args
-                const { condoApp, serverClient } = await findCondoApp({ args, context })
+                const { condoApp, serverClient } = await findCondoB2BApp({ args, context })
 
-                return await serverClient.getModelsWithCount({
+                const r =  await serverClient.getModelsWithCount({
                     modelGql: CondoB2BAppContextGql,
                     where: {
                         app: { id: condoApp.id },
@@ -52,6 +52,8 @@ const AllB2BAppContextsService = new GQLCustomSchema('AllB2BAppContextsService',
                     first,
                     skip,
                 })
+
+                return r
             },
         },
     ],

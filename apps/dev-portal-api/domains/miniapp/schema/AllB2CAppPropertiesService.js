@@ -6,7 +6,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { CondoB2CAppPropertyGql } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/AllB2CAppPropertiesService')
-const { findCondoApp } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/findCondoApp')
+const { findCondoB2CApp } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/findCondoApp')
 
 
 const AllB2CAppPropertiesService = new GQLCustomSchema('AllB2CAppPropertiesService', {
@@ -36,7 +36,7 @@ const AllB2CAppPropertiesService = new GQLCustomSchema('AllB2CAppPropertiesServi
             resolver: async (parent, args, context) => {
                 const { data: { first, skip } } = args
 
-                const { condoApp, serverClient } = await findCondoApp({ args, context })
+                const { condoApp, serverClient } = await findCondoB2CApp({ args, context })
 
                 return  await serverClient.getModelsWithCount({
                     modelGql: CondoB2CAppPropertyGql,

@@ -52,11 +52,13 @@ const FAKE_BUILD_ASSET_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-a
 const FAKE_B2C_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/logo.png')
 
 const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', '{ id name developer developerUrl logo { publicUrl filename } importId importRemoteSystem deletedAt v oidcClient { id } }'))
+const CondoB2BAppContext = generateGQLTestUtils(generateGqlQueries('B2BAppContext', '{ id app { id } organization { id tin name } status }'))
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl filename } currentBuild { id } importId importRemoteSystem deletedAt v oidcClient { id } }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl } importId importRemoteSystem }'))
 const CondoB2CAppProperty = generateGQLTestUtils(generateGqlQueries('B2CAppProperty', '{ id address }'))
 const CondoB2CAppAccessRight = generateGQLTestUtils(generateGqlQueries('B2CAppAccessRight', '{ id user { id } app { id } importId importRemoteSystem }'))
 const CondoOIDCClient = generateGQLTestUtils(generateGqlQueries('OidcClient', '{ id clientId payload isEnabled name importId importRemoteSystem }'))
+const CondoOrganization = generateGQLTestUtils(generateGqlQueries('Organization', '{ id name tin }'))
 
 function generateBuildVersion () {
     return `${faker.datatype.number()}.${faker.datatype.number()}.${faker.datatype.number()}`
@@ -69,6 +71,23 @@ function generateRedirectUri () {
     } else {
         return url
     }
+}
+
+function generateNiNumber() {
+    // https://ninoapplication.com/letters-in-my-ni-number/
+    // The prefix is simply two letters that are allocated to each new series of NI number.
+    const prefix = 'PL'
+
+    // number of NI
+    const number = faker.datatype.number({
+        min: 100000,
+        max: 999999,
+    })
+
+    // The single letter suffix can be A, B, C or D
+    const suffix = 'D'
+
+    return `${prefix}${number}${suffix}`
 }
 
 async function createCondoB2CApp (client) {
@@ -117,6 +136,43 @@ async function createCondoB2CAppBuild (client, app, extraAttrs = {}) {
 
     const obj = await CondoB2CAppBuild.create(client, attrs)
     return [obj, attrs]
+}
+
+async function createCondoB2BAppContexts(client, condoApp, amount, status) {
+    if (!client) throw new Error('No client')
+    if (!condoApp || !condoApp.id) throw new Error('No app')
+
+    const organizationAttrs = []
+    for (let i = 0; i < amount; i++) {
+        organizationAttrs.push({
+            data: {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                tin: generateNiNumber(),
+                country: 'en',
+                name: faker.company.name()
+            }
+        })
+    }
+
+    const organizations = await CondoOrganization.createMany(client, organizationAttrs)
+
+    const attrs = []
+    for (let i = 0; i < amount; i++) {
+        attrs.push({
+            data: {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                app: { connect: { id: condoApp.id } },
+                organization: { connect: { id: organizations[i].id } },
+                status,
+            }
+        })
+    }
+
+    const objs = await CondoB2BAppContext.createMany(client, attrs)
+
+    return [objs, attrs]
 }
 
 async function createCondoB2CAppProperties(client, condoApp, amount) {
@@ -593,7 +649,7 @@ async function registerAppUserServiceByTestClient(client, app, confirmEmailActio
 
 module.exports = {
     CondoB2BApp, updateCondoB2BApp,
-    allB2BAppContextsByTestClient,
+    CondoB2BAppContext, createCondoB2BAppContexts,
 
     CondoB2CApp, createCondoB2CApp, updateCondoB2CApp,
     CondoB2CAppBuild, createCondoB2CAppBuild,
@@ -604,6 +660,7 @@ module.exports = {
     B2BApp, createTestB2BApp, updateTestB2BApp, updateTestB2BApps,
     B2BAppPublishRequest, createTestB2BAppPublishRequest, updateTestB2BAppPublishRequest,
     publishB2BAppByTestClient,
+    allB2BAppContextsByTestClient,
 
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps, getB2CAppInfoByTestClient,
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
