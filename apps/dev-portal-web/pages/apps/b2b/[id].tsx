@@ -12,6 +12,7 @@ import { BaseLayout } from '@/domains/common/components/BaseLayout'
 import { CollapsibleMenu } from '@/domains/common/components/CollapsibleMenu'
 import { extractApolloState, initializeApollo, prepareSSRContext } from '@/domains/common/utils/apollo'
 import { InfoSection } from '@/domains/miniapp/components/B2BApp/edit/info/InfoSection'
+import { PublishingSection } from '@/domains/miniapp/components/B2BApp/edit/publishing/PublishingSection'
 import { OIDCClientSection } from '@/domains/miniapp/components/OIDC/edit/OIDCClientSection'
 import { useB2BMenuItems } from '@/domains/miniapp/hooks/useB2BMenuItems'
 import { prefetchAuth } from '@/domains/user/utils/auth'
@@ -32,6 +33,7 @@ const FULL_COL_SPAN = 24
 const SECTIONS: { [key in SectionType]: React.FC<{ id: string }> } = {
     'info': InfoSection,
     'oidc': OIDCClientSection,
+    'publishing': PublishingSection,
 }
 
 const AppSettingsPage: React.FC = () => {

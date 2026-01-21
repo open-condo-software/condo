@@ -18,7 +18,7 @@ import {
 import { PublishForm } from './PublishForm'
 import { RequestStatusInfo } from './RequestStatusInfo'
 
-import type { PublishB2CAppMutationVariables } from '@/gql'
+import type { AppEnvironment } from '@/gql'
 
 import { usePublishB2CAppMutation, useAllB2CAppPublishRequestsLazyQuery, GetB2CAppDocument } from '@/gql'
 
@@ -26,7 +26,7 @@ import { usePublishB2CAppMutation, useAllB2CAppPublishRequestsLazyQuery, GetB2CA
 const DEFAULT_STAND = DEV_ENVIRONMENT
 
 type PublishFormValues = {
-    environment: PublishB2CAppMutationVariables['data']['environment']
+    environment: AppEnvironment
     info?: boolean
     buildId?: string
 }
@@ -90,7 +90,7 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
         <Section>
             <SubSection title={PublishingTitle}>
                 <Form
-                    name='b2c-app-publishing'
+                    name='publish-b2c-app-form'
                     layout='vertical'
                     form={form}
                     onFinish={handlePublish}

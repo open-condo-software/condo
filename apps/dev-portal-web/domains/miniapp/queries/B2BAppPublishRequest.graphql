@@ -1,0 +1,14 @@
+query allB2BAppPublishRequests($appId: ID!) {
+    requests: allB2BAppPublishRequests(where: { app: { id: $appId } }, first: 1, skip: 0) {
+        isAppTested
+        isInfoApproved
+        isContractSigned
+        status
+    }
+}
+
+mutation createB2BAppPublishRequest($data: B2BAppPublishRequestCreateInput!) {
+    request: createB2BAppPublishRequest(data: $data) {
+        id
+    }
+}

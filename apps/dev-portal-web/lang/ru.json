@@ -203,6 +203,12 @@
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC авторизация",
 
+  "pages.apps.b2b.id.sections.publishing.title": "Публикация",
+  "pages.apps.b2b.id.sections.publishing.publishForm.items.stand.label": "Выберите окружение",
+  "pages.apps.b2b.id.sections.publishing.publishForm.items.components.label": "Выберите, какие изменения хотите опубликовать",
+  "pages.apps.b2b.id.sections.publishing.publishForm.items.info.label": "Информация о приложении",
+  "pages.apps.b2b.id.sections.publishing.publishForm.actions.publish": "Опубликовать",
+
   "pages.apps.b2c.id.sections.info.title": "Информация",
   "pages.apps.b2c.id.sections.info.commonInfo.subtitle": "Общая информация",
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.name.label": "Название приложения",

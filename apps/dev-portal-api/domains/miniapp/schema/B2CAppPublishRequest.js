@@ -111,8 +111,9 @@ const B2CAppPublishRequest = new GQLListSchema('B2CAppPublishRequest', {
     },
     hooks: {
         validateInput ({ resolvedData, existingItem, context }) {
-            if (resolvedData['status'] === PUBLISH_REQUEST_APPROVED_STATUS) {
-                const newItem = { ...existingItem, ...resolvedData }
+            const newItem = { ...existingItem, ...resolvedData }
+
+            if (newItem['status'] === PUBLISH_REQUEST_APPROVED_STATUS) {
                 if (!newItem['isAppTested'] || !newItem['isContractSigned'] || !newItem['isInfoApproved']) {
                     throw new GQLError(ERRORS.APPROVE_NOT_ALLOWED, context)
                 }

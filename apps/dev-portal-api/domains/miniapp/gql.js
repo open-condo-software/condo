@@ -12,8 +12,19 @@ const { AVAILABLE_ENVIRONMENTS } = require('@dev-portal-api/domains/miniapp/cons
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const EXPORT_FIELDS = AVAILABLE_ENVIRONMENTS.map(environment => `${environment}ExportId`).join(' ')
 
-const B2B_APP_FIELDS = `{ name ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
+const B2B_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
+
+const B2B_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
+const B2BAppPublishRequest = generateGqlQueries('B2BAppPublishRequest', B2B_APP_PUBLISH_REQUEST_FIELDS)
+
+
+const PUBLISH_B2B_APP_MUTATION = gql`
+    mutation publishB2BApp ($data: PublishB2BAppInput!) {
+        result: publishB2BApp(data: $data) { success }
+    }
+`
+
 
 
 const B2C_APP_FIELDS = `{ name developer logo { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
@@ -97,13 +108,14 @@ const REGISTER_APP_USER_SERVICE_MUTATION = gql`
         result: registerAppUserService(data: $data) { id }
     }
 `
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     EXPORT_FIELDS,
 
     B2BApp,
+    B2BAppPublishRequest,
+    PUBLISH_B2B_APP_MUTATION,
 
     B2CApp,
     B2CAppAccessRight,

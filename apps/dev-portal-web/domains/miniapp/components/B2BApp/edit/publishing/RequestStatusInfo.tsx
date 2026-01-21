@@ -1,0 +1,110 @@
+import React, { useCallback } from 'react'
+import { useIntl, FormattedMessage } from 'react-intl'
+
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+import { Alert, Space, Typography, Button, Checkbox } from '@open-condo/ui'
+
+import { Spin } from '@/domains/common/components/Spin'
+import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
+
+import styles from './RequestStatusInfo.module.css'
+
+import type { AllB2BAppPublishRequestsQuery } from '@/gql'
+
+import { useCreateB2BAppPublishRequestMutation, AllB2BAppPublishRequestsDocument } from '@/gql'
+
+
+type RequestStatusInfoProps = {
+    appId: string
+    request: NonNullable<AllB2BAppPublishRequestsQuery['requests']>[number]
+    loading: boolean
+}
+
+const fieldsToCheck = [
+    'isAppTested',
+    'isInfoApproved',
+    'isContractSigned',
+] as const
+
+export const RequestStatusInfo: React.FC<RequestStatusInfoProps> = ({ appId, request, loading }) => {
+    const intl = useIntl()
+    const VerificationRequiredTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.title' })
+    const VerificationRequiredDetailsAboutText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.aboutVerification' })
+    const RequestVerificationLabel = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.actions.requestVerification' })
+    const VerificationRequiredDetailsNextStepsText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.verificationRequiredAlert.details.nextSteps' }, {
+        action: RequestVerificationLabel,
+    })
+    const VerificationStatusTitle = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.title' })
+    const StandLabel = intl.formatMessage({ id: 'global.miniapp.environments.production.label' })
+    const VerificationDetailsText = intl.formatMessage({ id: 'pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.details.text' }, {
+        stand: StandLabel.toLowerCase(),
+    })
+
+    const onError = useMutationErrorHandler()
+    const [createRequestMutation] = useCreateB2BAppPublishRequestMutation({
+        onError,
+        refetchQueries: [
+            { query: AllB2BAppPublishRequestsDocument, variables: { appId } },
+        ],
+    })
+
+    const handleRequestVerification = useCallback(() => {
+        return createRequestMutation({
+            variables: {
+                data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    app: { connect: { id: appId } },
+                },
+            },
+        })
+    }, [appId, createRequestMutation])
+
+    if (loading) {
+        return (
+            <Spin size='large'/>
+        )
+    }
+
+    if (!request) {
+        return (
+            <Space direction='vertical' size={40}>
+                <Alert
+                    type='warning'
+                    message={VerificationRequiredTitle}
+                    description={(
+                        <Space direction='vertical' size={16}>
+                            <Typography.Paragraph size='medium'>
+                                {VerificationRequiredDetailsAboutText}
+                            </Typography.Paragraph>
+                            <Typography.Paragraph size='medium'>
+                                {VerificationRequiredDetailsNextStepsText}
+                            </Typography.Paragraph>
+                        </Space>
+                    )}
+                    showIcon
+                />
+                <Button type='primary' onClick={handleRequestVerification}>{RequestVerificationLabel}</Button>
+            </Space>
+        )
+    }
+
+    return (
+        <Alert
+            type='info'
+            message={VerificationStatusTitle}
+            description={(
+                <Space size={12} direction='vertical'>
+                    <Typography.Paragraph size='medium'>{VerificationDetailsText}</Typography.Paragraph>
+                    <Space size={8} direction='vertical' className={styles.checkboxList}>
+                        {fieldsToCheck.map((field) => (
+                            <Checkbox key={field} disabled checked={request[field] || false}>
+                                <Typography.Text size='medium' type='secondary'><FormattedMessage id={`pages.apps.any.id.sections.publishing.verification.activeVerificationAlert.checkboxes.${field}.label`}/></Typography.Text>
+                            </Checkbox>
+                        ))}
+                    </Space>
+                </Space>
+            )}
+        />
+    )
+}

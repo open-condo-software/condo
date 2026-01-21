@@ -5,6 +5,7 @@
 
 const { AllB2CAppPropertiesService } = require('./AllB2CAppPropertiesService')
 const { B2BApp } = require('./B2BApp')
+const { B2BAppPublishRequest } = require('./B2BAppPublishRequest')
 const { B2CApp } = require('./B2CApp')
 const { B2CAppAccessRight } = require('./B2CAppAccessRight')
 const { B2CAppBuild } = require('./B2CAppBuild')
@@ -16,6 +17,7 @@ const { GenerateOIDCClientSecretService } = require('./GenerateOIDCClientSecretS
 const { GetB2CAppInfoService } = require('./GetB2CAppInfoService')
 const { GetOIDCClientService } = require('./GetOIDCClientService')
 const { ImportB2CAppService } = require('./ImportB2CAppService')
+const { PublishB2BAppService } = require('./PublishB2BAppService')
 const { PublishB2CAppService } = require('./PublishB2CAppService')
 const { RegisterAppServiceUserService } = require('./RegisterAppServiceUserService')
 const { UpdateOIDCClientUrlService } = require('./UpdateOIDCClientUrlService')
@@ -23,6 +25,8 @@ const { UpdateOIDCClientUrlService } = require('./UpdateOIDCClientUrlService')
 
 module.exports = {
     B2BApp,
+    B2BAppPublishRequest,
+    PublishB2BAppService,
 
     B2CApp,
     B2CAppAccessRight,

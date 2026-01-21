@@ -12,7 +12,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowUniqueConstraintViolationError,
     expectToThrowGQLError,
-    catchErrorFrom,
+    expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
 const { B2C_APP_PUBLISH_REQUEST_UNIQUE_CONSTRAINT } = require('@dev-portal-api/domains/miniapp/constants/constraints')
@@ -181,15 +181,11 @@ describe('B2CAppPublishRequest', () => {
             [request] = await createTestB2CAppPublishRequest(admin, app)
             const [anotherApp] = await createTestB2CApp(anotherUser)
 
-            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
-            await catchErrorFrom(async () => {
+            await expectToThrowGraphQLRequestError(async () => {
                 await updateTestB2CAppPublishRequest(admin, request.id, {
                     app: { connect: { id: anotherApp.id } },
                 })
-            }, ({ errors }) => {
-                expect(errors).toHaveLength(1)
-                expect(errors[0].message).toContain('Field "app" is not defined by type "B2CAppPublishRequestUpdateInput"')
-            })
+            }, 'Field "app" is not defined by type "B2CAppPublishRequestUpdateInput"')
         })
         describe('Checkbox fields are not available for modifying by app creator', () => {
             test.each(prerequisitesFields)('%p field', async (field) => {

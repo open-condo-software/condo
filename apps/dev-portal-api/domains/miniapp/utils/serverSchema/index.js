@@ -8,6 +8,7 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const {
+    PUBLISH_B2B_APP_MUTATION,
     PUBLISH_B2C_APP_MUTATION,
     IMPORT_B2C_APP_MUTATION,
     CREATE_B2C_APP_PROPERTY_MUTATION,
@@ -23,11 +24,24 @@ const {
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2BApp = generateServerUtils('B2BApp')
+const B2BAppPublishRequest = generateServerUtils('B2BAppPublishRequest')
 
 const B2CApp = generateServerUtils('B2CApp')
 const B2CAppAccessRight = generateServerUtils('B2CAppAccessRight')
 const B2CAppBuild = generateServerUtils('B2CAppBuild')
 const B2CAppPublishRequest = generateServerUtils('B2CAppPublishRequest')
+
+async function publishB2BApp (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+
+    return await execGqlWithoutAccess(context, {
+        query: PUBLISH_B2B_APP_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Unable to publishB2BApp',
+        dataPath: 'result',
+    })
+}
 
 async function publishB2CApp (context, data) {
     if (!context) throw new Error('no context')
@@ -37,7 +51,7 @@ async function publishB2CApp (context, data) {
         query: PUBLISH_B2C_APP_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to publishB2CApp',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -50,7 +64,7 @@ async function importB2CApp (context, data) {
         query: IMPORT_B2C_APP_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to importB2CApp',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -63,7 +77,7 @@ async function allB2CAppProperties (context, data) {
         query: ALL_B2C_APP_PROPERTIES_QUERY,
         variables: { data },
         errorMessage: '[error] Unable to get allB2CAppProperties',
-        dataPath: 'obj',
+        dataPath: 'objs',
     })
 }
 
@@ -76,7 +90,7 @@ async function createB2CAppProperty (context, data) {
         query: CREATE_B2C_APP_PROPERTY_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to createB2CAppProperty',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -89,7 +103,7 @@ async function deleteB2CAppProperty (context, data) {
         query: DELETE_B2C_APP_PROPERTY_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to deleteB2CAppProperty',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -100,7 +114,7 @@ async function getB2CAppInfo (context, data) {
         query: GET_B2C_APP_INFO_QUERY,
         variables: { data },
         errorMessage: '[error] Unable to getB2CAppInfo',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -163,7 +177,7 @@ async function registerAppUserService (context, data) {
         query: REGISTER_APP_USER_SERVICE_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to registerAppUserService',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -171,6 +185,8 @@ async function registerAppUserService (context, data) {
 
 module.exports = {
     B2BApp,
+    B2BAppPublishRequest,
+    publishB2BApp,
 
     B2CApp,
     B2CAppAccessRight,

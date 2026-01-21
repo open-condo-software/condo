@@ -203,6 +203,12 @@
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC authorization",
 
+  "pages.apps.b2b.id.sections.publishing.title": "Publishing",
+  "pages.apps.b2b.id.sections.publishing.publishForm.items.stand.label": "Select the environment",
+  "pages.apps.b2b.id.sections.publishing.publishForm.items.components.label": "Select which changes you want to publish",
+  "pages.apps.b2b.id.sections.publishing.publishForm.items.info.label": "Information about the application",
+  "pages.apps.b2b.id.sections.publishing.publishForm.actions.publish": "Publish",
+
   "pages.apps.b2c.id.sections.info.title": "Info",
   "pages.apps.b2c.id.sections.info.commonInfo.subtitle": "Common info",
   "pages.apps.b2c.id.sections.info.commonInfo.form.items.name.label": "App name",
