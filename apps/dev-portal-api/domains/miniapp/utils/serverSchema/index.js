@@ -13,6 +13,7 @@ const {
     IMPORT_B2C_APP_MUTATION,
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
+    ALL_B2B_APP_CONTEXTS_QUERY,
     ALL_B2C_APP_PROPERTIES_QUERY,
     GET_B2C_APP_INFO_QUERY,
     GET_OIDC_CLIENT_QUERY,
@@ -65,6 +66,19 @@ async function importB2CApp (context, data) {
         variables: { data },
         errorMessage: '[error] Unable to importB2CApp',
         dataPath: 'result',
+    })
+}
+
+async function allB2BAppContexts (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: ALL_B2B_APP_CONTEXTS_QUERY,
+        variables: { data },
+        errorMessage: '[error] Unable to allB2BAppContexts',
+        dataPath: 'objs',
     })
 }
 
@@ -187,6 +201,7 @@ module.exports = {
     B2BApp,
     B2BAppPublishRequest,
     publishB2BApp,
+    allB2BAppContexts,
 
     B2CApp,
     B2CAppAccessRight,

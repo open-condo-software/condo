@@ -13,6 +13,7 @@ const { registerNewServiceUserByTestClient } = require('@app/condo/domains/user/
 const {
     B2BApp: B2BAppGQL,
     PUBLISH_B2B_APP_MUTATION,
+    ALL_B2B_APP_CONTEXTS_QUERY,
 
     B2CApp: B2CAppGQL,
     B2CAppAccessRight: B2CAppAccessRightGQL,
@@ -390,6 +391,23 @@ async function importB2CAppByTestClient(client, app, condoDevApp = null, condoPr
     return [data.result, attrs]
 }
 
+async function allB2BAppContextsByTestClient(client, app, environment, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    if (!environment) throw new Error('no environment')
+
+    const attrs = {
+        app: { id: app.id },
+        environment,
+        first: 100,
+        skip: 0,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.query(ALL_B2B_APP_CONTEXTS_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 async function allB2CAppPropertiesByTestClient(client, app, environment, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app')
@@ -575,6 +593,7 @@ async function registerAppUserServiceByTestClient(client, app, confirmEmailActio
 
 module.exports = {
     CondoB2BApp, updateCondoB2BApp,
+    allB2BAppContextsByTestClient,
 
     CondoB2CApp, createCondoB2CApp, updateCondoB2CApp,
     CondoB2CAppBuild, createCondoB2CAppBuild,
