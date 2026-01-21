@@ -4,7 +4,7 @@
   "messages.confirmEmailAction.body": "Use the following code to confirm your email: {code}",
 
   "api.common.INVALID_MIMETYPE": "Invalid file type. The file must have one of the following MIME types: {types}",
-  "api.common.MULTIPLE_FOUND": "Unable to determine the object to update because multiple objects were found for the specified importID and exportId",
+  "api.common.MULTIPLE_FOUND": "Unable to determine the object to update because multiple objects were found for the specified importId and exportId",
 
   "api.user.authenticateUserWithPhoneAndPassword.AUTH_ATTEMPTS_DAILY_LIMIT_REACHED": "Too many authorization attempts have been made from this IP address. Please try again later",
   "api.user.authenticateUserWithPhoneAndPassword.INCORRECT_PHONE_OR_PASSWORD": "Incorrect phone number or password",
