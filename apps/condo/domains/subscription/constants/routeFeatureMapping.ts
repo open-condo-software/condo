@@ -16,6 +16,7 @@ const ALLOWED_WITHOUT_SUBSCRIPTION: string[] = [
     '/share',
     '/tls',
     '/unsubscribed',
+    '/marketplace/invoice/payment',
 ]
 
 /**

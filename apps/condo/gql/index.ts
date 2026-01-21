@@ -5085,7 +5085,7 @@ export type GetOrganizationTrialSubscriptionsQueryResult = Apollo.QueryResult<Ty
 export const GetLastExpiredSubscriptionContextDocument = gql`
     query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
   lastExpiredContext: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}, endAt_lt: $now}
+    where: {organization: {id: $organizationId}, endAt_lte: $now}
     sortBy: [endAt_DESC]
     first: 1
   ) {
