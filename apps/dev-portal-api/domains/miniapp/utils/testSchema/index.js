@@ -52,7 +52,7 @@ const FAKE_BUILD_ASSET_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-a
 const FAKE_B2C_APP_LOGO_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-portal-api/domains/miniapp/utils/testSchema/assets/logo.png')
 
 const CondoB2BApp = generateGQLTestUtils(generateGqlQueries('B2BApp', '{ id name developer developerUrl logo { publicUrl filename } importId importRemoteSystem deletedAt v oidcClient { id } }'))
-const CondoB2BAppContext = generateGQLTestUtils(generateGqlQueries('B2BAppContext', '{ id app { id } organization { id tin name } status }'))
+const CondoB2BAppContext = generateGQLTestUtils(generateGqlQueries('B2BAppContext', '{ id app { id } organization { id tin name } status createdAt }'))
 const CondoB2CApp = generateGQLTestUtils(generateGqlQueries('B2CApp', '{ id name developer logo { publicUrl filename } currentBuild { id } importId importRemoteSystem deletedAt v oidcClient { id } }'))
 const CondoB2CAppBuild = generateGQLTestUtils(generateGqlQueries('B2CAppBuild', '{ id version data { publicUrl } importId importRemoteSystem }'))
 const CondoB2CAppProperty = generateGQLTestUtils(generateGqlQueries('B2CAppProperty', '{ id address }'))

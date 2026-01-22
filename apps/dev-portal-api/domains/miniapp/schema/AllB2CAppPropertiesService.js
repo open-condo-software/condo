@@ -45,7 +45,7 @@ const AllB2CAppPropertiesService = new GQLCustomSchema('AllB2CAppPropertiesServi
                     },
                     first,
                     skip,
-                    sortBy: ['createdAt_DESC'],
+                    sortBy: ['createdAt_DESC', 'id_ASC'],
                 })
             },
         },

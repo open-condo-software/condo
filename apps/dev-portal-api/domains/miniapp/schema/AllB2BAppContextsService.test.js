@@ -34,6 +34,24 @@ const {
     makeLoggedInCondoAdminClient,
 } = require('@dev-portal-api/domains/user/utils/testSchema')
 
+const STATUS_ORDER = [
+    CONTEXT_IN_PROGRESS_STATUS,
+    CONTEXT_FINISHED_STATUS,
+]
+
+function compareContexts (a, b) {
+    const statusDiff = STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status)
+    if (statusDiff !== 0) {
+        return statusDiff
+    }
+
+    const createdDiff = (new Date(a.createdAt)).getTime() - (new Date(b.createdAt)).getTime()
+    if (createdDiff !== 0) {
+        return -createdDiff
+    }
+
+    return a.id.localeCompare(b.id)
+}
 
 describe('AllB2BAppContextsService', () => {
     let condoAdmin
@@ -78,8 +96,8 @@ describe('AllB2BAppContextsService', () => {
         const [devInProgressContexts] = await createCondoB2BAppContexts(condoAdmin, { id: app.developmentExportId }, 15, CONTEXT_IN_PROGRESS_STATUS)
         const [prodConnectedContexts] = await createCondoB2BAppContexts(condoAdmin, { id: app.productionExportId }, 15, CONTEXT_FINISHED_STATUS)
         const [prodInProgressContexts] = await createCondoB2BAppContexts(condoAdmin, { id: app.productionExportId }, 15, CONTEXT_IN_PROGRESS_STATUS)
-        devContexts = [...devConnectedContexts, ...devInProgressContexts].map(ctx => omit(ctx, 'app'))
-        prodContexts = [...prodConnectedContexts, ...prodInProgressContexts].map(ctx => omit(ctx, 'app'))
+        devContexts = [...devConnectedContexts, ...devInProgressContexts].toSorted(compareContexts).map(ctx => omit(ctx, 'app', 'createdAt'))
+        prodContexts = [...prodConnectedContexts, ...prodInProgressContexts].toSorted(compareContexts).map(ctx => omit(ctx, 'app', 'createdAt'))
     })
     describe('Access tests', () => {
         test('Admin can see properties of all apps', async () => {
@@ -249,6 +267,12 @@ describe('AllB2BAppContextsService', () => {
             expect(secondProdResult.objs).toHaveLength(10)
             const totalProdResult = firstProdResult.objs.concat(secondProdResult.objs)
             expect(totalProdResult).toEqual(expect.arrayContaining(prodContexts))
+        })
+        test(`"${CONTEXT_IN_PROGRESS_STATUS}" context must be shown before "${CONTEXT_FINISHED_STATUS}" and newer contexts should also be shown first`, async () => {
+            const [devResult] = await allB2BAppContextsByTestClient(user, app, DEV_ENVIRONMENT)
+            expect(devResult.objs).toEqual(devContexts)
+            const [prodResult] = await allB2BAppContextsByTestClient(user, app, PROD_ENVIRONMENT)
+            expect(prodResult.objs).toEqual(prodContexts)
         })
     })
 })

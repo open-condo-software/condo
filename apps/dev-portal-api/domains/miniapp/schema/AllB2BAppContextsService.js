@@ -44,16 +44,15 @@ const AllB2BAppContextsService = new GQLCustomSchema('AllB2BAppContextsService',
                 const { data: { first, skip } } = args
                 const { condoApp, serverClient } = await findCondoB2BApp({ args, context })
 
-                const r =  await serverClient.getModelsWithCount({
+                return await serverClient.getModelsWithCount({
                     modelGql: CondoB2BAppContextGql,
                     where: {
                         app: { id: condoApp.id },
                     },
                     first,
                     skip,
+                    sortBy: ['status_DESC', 'createdAt_DESC', 'id_ASC'],
                 })
-
-                return r
             },
         },
     ],
