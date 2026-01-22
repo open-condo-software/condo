@@ -39,11 +39,18 @@ class RedStoreNotificationSender {
         const responses = []
         let successCount = 0, failureCount = 0
 
-        for (let idx = 0; idx < notifications.length; idx++) {
+        const promises = await Promise.allSettled(notifications.map(async (_, idx) => {
             const { token, data: pushData = {}, notification  = {}, type, appId } = notifications[idx]
-
-            const response = await this.sendPush(token, notification, pushData)
+            return await this.sendPush(token, notification, pushData)
+        }))
             
+        for (const p of promises) {
+            if (p.status !== 'fulfilled') {
+                responses.push({ error: p.reason })
+                failureCount += 1
+                continue
+            }
+            const response = p.value
             if (response instanceof Error) {
                 failureCount += 1
             } else {
@@ -64,7 +71,6 @@ class RedStoreNotificationSender {
                 }
             }
         }
-
 
         return { responses, successCount, failureCount }
     }

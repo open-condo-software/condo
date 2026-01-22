@@ -144,7 +144,7 @@ class AppleMessaging {
         const responses = []
         let successCount = 0, failureCount = 0
 
-        for (let idx = 0; idx < notifications.length; idx++) {
+        const promises = await Promise.allSettled(notifications.map(async (_, idx) => {
             const { token, data: pushData = {}, notification = {}, aps = {}, type, appId } = notifications[idx]
             const options = { appId }
             const payload = {
@@ -183,13 +183,23 @@ class AppleMessaging {
                 })
                 response = { error }
             }
+            return response
+        }))
 
-            responses.push(response)
+        for (const p of promises) {
+            if (p.status !== 'fulfilled') {
+                responses.push({ error: p.reason })
+                failureCount += 1
+                continue
+            }
+            
+            const responseValue = p.value
+            responses.push(responseValue)
 
-            if (response instanceof Error) {
+            if (responseValue instanceof Error) {
                 failureCount += 1
             } else {
-                const status = get(response, ['headers', ':status'])
+                const status = get(responseValue, ['headers', ':status'])
 
                 if (status === APS_RESPONSE_STATUS_SUCCESS) {
                     successCount += 1
