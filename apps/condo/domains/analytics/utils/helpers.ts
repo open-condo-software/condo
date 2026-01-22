@@ -6,7 +6,7 @@ import {
 import dayjs, { Dayjs } from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { isEmpty } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import groupBy from 'lodash/groupBy'
 

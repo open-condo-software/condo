@@ -7,7 +7,7 @@ import {
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { gql } from 'graphql-tag'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import { NextRouter } from 'next/router'
 import qs from 'qs'
 import { useCallback } from 'react'

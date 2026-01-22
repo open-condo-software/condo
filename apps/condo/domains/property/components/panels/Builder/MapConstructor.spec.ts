@@ -1,5 +1,5 @@
 import { BuildingMap, BuildingSectionType, BuildingUnitSubType } from '@app/condo/schema'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 
 import {
     autoFixBuildingMapJson,

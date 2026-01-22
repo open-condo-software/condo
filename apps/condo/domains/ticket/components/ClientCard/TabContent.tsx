@@ -11,7 +11,7 @@ import {
     TicketWhereInput,
 } from '@app/condo/schema'
 import { Col, ColProps, Form, Row, RowProps } from 'antd'
-import { isNil } from 'lodash'
+import isNil from 'lodash/isNil'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { useCallback, useMemo, useState } from 'react'

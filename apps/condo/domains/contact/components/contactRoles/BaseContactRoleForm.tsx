@@ -1,6 +1,6 @@
 import { Col, Form, Input, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 

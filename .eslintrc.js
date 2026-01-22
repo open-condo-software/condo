@@ -160,6 +160,10 @@ module.exports = {
                         name: 'jspdf',
                         message: 'Please use pdfmake to generate pdf files.',
                     },
+                    {
+                        name: 'lodash',
+                        message: 'Use specific lodash imports instead. Example: import get from "lodash/get"',
+                    },
                 ],
             },
         ],

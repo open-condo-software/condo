@@ -1,6 +1,6 @@
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'

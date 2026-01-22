@@ -1,7 +1,7 @@
 import { useGetTicketPropertyHintByIdQuery, useGetTicketPropertyHintPropertyByPropertyQuery } from '@app/condo/gql'
 import styled from '@emotion/styled'
 import { Col, ColProps, Typography } from 'antd'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import React, { CSSProperties, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'

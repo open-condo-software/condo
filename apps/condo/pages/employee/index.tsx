@@ -1,7 +1,7 @@
 import { SortOrganizationEmployeesBy } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row } from 'antd'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
