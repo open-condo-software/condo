@@ -1,6 +1,6 @@
-import { sortBy } from 'lodash'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import sortBy from 'lodash/sortBy'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
