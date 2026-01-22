@@ -1,0 +1,13 @@
+const CONNECT_ACTION = 'connect'
+const DISCONNECT_ACTION = 'disconnect'
+
+const CONTEXT_UPDATE_ACTIONS = [
+    CONNECT_ACTION,
+    DISCONNECT_ACTION,
+]
+
+module.exports = {
+    CONNECT_ACTION,
+    DISCONNECT_ACTION,
+    CONTEXT_UPDATE_ACTIONS,
+}

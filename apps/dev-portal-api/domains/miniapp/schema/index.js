@@ -21,6 +21,7 @@ const { ImportB2CAppService } = require('./ImportB2CAppService')
 const { PublishB2BAppService } = require('./PublishB2BAppService')
 const { PublishB2CAppService } = require('./PublishB2CAppService')
 const { RegisterAppServiceUserService } = require('./RegisterAppServiceUserService')
+const { UpdateB2BAppContextService } = require('./UpdateB2BAppContextService')
 const { UpdateOIDCClientUrlService } = require('./UpdateOIDCClientUrlService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -29,6 +30,7 @@ module.exports = {
     B2BAppPublishRequest,
     PublishB2BAppService,
     AllB2BAppContextsService,
+    UpdateB2BAppContextService,
 
     B2CApp,
     B2CAppAccessRight,

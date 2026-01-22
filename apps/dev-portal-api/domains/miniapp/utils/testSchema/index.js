@@ -13,6 +13,7 @@ const { registerNewServiceUserByTestClient } = require('@app/condo/domains/user/
 const {
     B2BApp: B2BAppGQL,
     PUBLISH_B2B_APP_MUTATION,
+    UPDATE_B2B_APP_CONTEXT_MUTATION,
     ALL_B2B_APP_CONTEXTS_QUERY,
 
     B2CApp: B2CAppGQL,
@@ -37,6 +38,7 @@ const { DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/p
 const { generateGqlQueries } = require("@open-condo/codegen/generate.gql")
 const { DEFAULT_COLOR_SCHEMA } = require("@dev-portal-api/domains/miniapp/constants/b2c")
 const { B2BAppPublishRequest: B2BAppPublishRequestGQL } = require('@dev-portal-api/domains/miniapp/gql')
+const { CONNECT_ACTION } = require('@dev-portal-api/domains/miniapp/constants/b2bAppContext')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2BApp = generateGQLTestUtils(B2BAppGQL)
@@ -464,6 +466,23 @@ async function allB2BAppContextsByTestClient(client, app, environment, extraAttr
     return [data.result, attrs]
 }
 
+async function updateB2BAppContextByTestClient(client, app, environment, organization, action = CONNECT_ACTION) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app,
+        environment,
+        organization,
+        action,
+    }
+    const { data, errors } = await client.mutate(UPDATE_B2B_APP_CONTEXT_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 async function allB2CAppPropertiesByTestClient(client, app, environment, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app')
@@ -660,7 +679,7 @@ module.exports = {
     B2BApp, createTestB2BApp, updateTestB2BApp, updateTestB2BApps,
     B2BAppPublishRequest, createTestB2BAppPublishRequest, updateTestB2BAppPublishRequest,
     publishB2BAppByTestClient,
-    allB2BAppContextsByTestClient,
+    allB2BAppContextsByTestClient, updateB2BAppContextByTestClient,
 
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps, getB2CAppInfoByTestClient,
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,

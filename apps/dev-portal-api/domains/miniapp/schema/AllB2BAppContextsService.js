@@ -24,7 +24,7 @@ const AllB2BAppContextsService = new GQLCustomSchema('AllB2BAppContextsService',
         },
         {
             access: true,
-            type: 'type B2CAppContext { id: ID!, status: B2BAppContextStatus!, organization: OrganizationInfo! }',
+            type: 'type B2BAppContext { id: ID!, status: B2BAppContextStatus!, organization: OrganizationInfo! }',
         },
         {
             access: true,
@@ -32,7 +32,7 @@ const AllB2BAppContextsService = new GQLCustomSchema('AllB2BAppContextsService',
         },
         {
             access: true,
-            type: 'type AllB2BAppContextsOutput { objs: [B2CAppContext!]!, meta: B2BAppContextMeta! }',
+            type: 'type AllB2BAppContextsOutput { objs: [B2BAppContext!]!, meta: B2BAppContextMeta! }',
         },
     ],
     

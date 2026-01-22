@@ -49,6 +49,13 @@ const ALL_B2B_APP_CONTEXTS_QUERY = gql`
     }
 `
 
+const UPDATE_B2B_APP_CONTEXT_MUTATION = gql`
+    mutation updateB2BAppContext ($data: UpdateB2BAppContextInput!) {
+        result: updateB2BAppContext(data: $data) { success }
+    }
+`
+
+
 
 const PUBLISH_B2C_APP_MUTATION = gql`
     mutation publishB2CApp ($data: PublishB2CAppInput!) {
@@ -127,6 +134,7 @@ module.exports = {
     B2BAppPublishRequest,
     PUBLISH_B2B_APP_MUTATION,
     ALL_B2B_APP_CONTEXTS_QUERY,
+    UPDATE_B2B_APP_CONTEXT_MUTATION,
 
     B2CApp,
     B2CAppAccessRight,
