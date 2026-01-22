@@ -26,6 +26,7 @@ class RuntimeStatsMiddleware {
         this.statsUrl = statsUrl
         this.requestTargetOptions = (conf[X_TARGET_OPTIONS_VAR_NAME] || '').split(',').filter(Boolean)
         this.requestTypeOptions = ['api', 'graphql', 'oidc', 'wellKnown', 'healthCheck', 'other']
+        this.metricsIntervalId = null
     }
 
     /**
@@ -97,7 +98,11 @@ class RuntimeStatsMiddleware {
         }
 
         if (!IS_BUILD_PHASE && !IS_WORKER_PROCESS) {
-            setInterval(function sendRuntimeMetrics () {
+            if (this.metricsIntervalId) {
+                clearInterval(this.metricsIntervalId)
+            }
+
+            this.metricsIntervalId = setInterval(function sendRuntimeMetrics () {
                 const { activeRequestsIds, ...otherStats } = runtimeStats
 
                 logger.info({
