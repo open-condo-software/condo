@@ -133,7 +133,8 @@ export const SubscriptionWelcomeModal: React.FC = () => {
     }, [organizationId])
 
     useEffect(() => {
-        if (!organizationId || loading) {
+        const isWebview = document.querySelector('body.webview')
+        if (isWebview || !organizationId || loading) {
             return
         }
 
