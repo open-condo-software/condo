@@ -19,6 +19,8 @@
   "global.units.kb": "Kb",
   "global.units.mb": "Mb",
 
+  "global.terms.tin": "TIN",
+
   "global.forms.validations.fieldRequired.message": "This field is required",
   "global.forms.validations.phoneFormat.message": "Invalid phone number",
   "global.forms.validations.passwordTooEasy.message": "The specified password is too short or contains many repeated characters",
@@ -200,6 +202,16 @@
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.label": "Short description",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.placeholder": "For example: \"Resident appeals automation\" or \"Contractor work control\"",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.tooltip": "Briefly describe what the service does and what benefit it provides (5–10 words)",
+
+  "pages.apps.b2b.id.sections.organizations.title": "Connected organizations",
+  "pages.apps.b2b.id.sections.organizations.waitingView.title": "Organizations management is not available yet",
+  "pages.apps.b2b.id.sections.organizations.waitingView.text": "Publish this application at the relevant stand to view and manage organizations",
+  "pages.apps.b2b.id.sections.organizations.table.empty.message": "App is not connected by any organizations yet",
+  "pages.apps.b2b.id.sections.organizations.table.columns.organization.title": "Organization",
+  "pages.apps.b2b.id.sections.organizations.table.columns.status.title": "Connection status",
+  "pages.apps.b2b.id.sections.organizations.table.columns.status.options.InProgress.title": "Awaiting connection",
+  "pages.apps.b2b.id.sections.organizations.table.columns.status.options.Finished.title": "Connected",
+  "pages.apps.b2b.id.sections.organizations.table.columns.status.options.Error.title": "Error",
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC authorization",
 

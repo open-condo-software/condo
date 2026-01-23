@@ -1,0 +1,4 @@
+.divider {
+  height: 16px;
+  border-left: 1px solid var(--condo-global-color-gray-5);
+}

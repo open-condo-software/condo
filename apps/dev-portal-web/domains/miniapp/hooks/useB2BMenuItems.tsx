@@ -10,6 +10,7 @@ type MenuItem = Required<MenuProps>['items'][number]
 
 const AVAILABLE_SECTIONS = [
     'info',
+    'organizations',
     'oidc',
     'publishing',
 ] as const

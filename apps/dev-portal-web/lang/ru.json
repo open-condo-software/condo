@@ -19,6 +19,8 @@
   "global.units.kb": "Кб",
   "global.units.mb": "Мб",
 
+  "global.terms.tin": "ИНН",
+
   "global.forms.validations.fieldRequired.message": "Необходимо заполнить",
   "global.forms.validations.phoneFormat.message": "Неверный номер телефона",
   "global.forms.validations.passwordTooEasy.message": "Указанный пароль слишком короткий или содержит много повторяющихся символов",
@@ -200,6 +202,16 @@
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.label": "Короткое описание",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.placeholder": "Например: «Автоматизация обращений жителей» или «Контроль работы подрядчиков»",
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.tooltip": "Коротко опишите, что делает сервис и какую пользу он приносит (5–10 слов)",
+
+  "pages.apps.b2b.id.sections.organizations.title": "Подключенные организации",
+  "pages.apps.b2b.id.sections.organizations.waitingView.title": "Управление организациями пока недоступно",
+  "pages.apps.b2b.id.sections.organizations.waitingView.text": "Для просмотра и управления организациями опубликуйте данное приложение на соответствующем стенде",
+  "pages.apps.b2b.id.sections.organizations.table.empty.message": "Приложение пока никто не подключил",
+  "pages.apps.b2b.id.sections.organizations.table.columns.organization.title": "Организация",
+  "pages.apps.b2b.id.sections.organizations.table.columns.status.title": "Статус подключения",
+  "pages.apps.b2b.id.sections.organizations.table.columns.status.options.InProgress.title": "Ожидает подключения",
+  "pages.apps.b2b.id.sections.organizations.table.columns.status.options.Finished.title": "Подключено",
+  "pages.apps.b2b.id.sections.organizations.table.columns.status.options.Error.title": "Ошибка",
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC авторизация",
 

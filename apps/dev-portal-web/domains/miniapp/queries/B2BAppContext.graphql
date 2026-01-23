@@ -1,0 +1,12 @@
+query allB2BAppContexts($data: AllB2BAppContextsInput!) {
+    contexts: allB2BAppContexts(data: $data) {
+        objs { id status organization { id tin name } }
+        meta { count }
+    }
+}
+
+mutation updateB2BAppContext($data: UpdateB2BAppContextInput!) {
+    result: updateB2BAppContext(data: $data) {
+        success
+    }
+}

@@ -6597,7 +6597,7 @@ type OrganizationInfo {
   tin: String
 }
 
-type B2CAppContext {
+type B2BAppContext {
   id: ID!
   status: B2BAppContextStatus!
   organization: OrganizationInfo!
@@ -6608,8 +6608,30 @@ type B2BAppContextMeta {
 }
 
 type AllB2BAppContextsOutput {
-  objs: [B2CAppContext!]!
+  objs: [B2BAppContext!]!
   meta: B2BAppContextMeta!
+}
+
+enum B2BAppContextAction {
+  connect
+  disconnect
+}
+
+input OrganizationWhereUniqueInput {
+  id: ID!
+}
+
+input UpdateB2BAppContextInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: B2BAppWhereUniqueInput!
+  environment: AppEnvironment!
+  organization: OrganizationWhereUniqueInput!
+  action: B2BAppContextAction!
+}
+
+type UpdateB2BAppContextOutput {
+  success: Boolean!
 }
 
 input B2CAppPublishOptions {
@@ -7561,6 +7583,7 @@ type Mutation {
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput
   registerNewUser(data: RegisterNewUserInput!): User
   publishB2BApp(data: PublishB2BAppInput!): PublishB2BAppOutput
+  updateB2BAppContext(data: UpdateB2BAppContextInput!): UpdateB2BAppContextOutput
   publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
   createB2CAppProperty(data: CreateB2CAppPropertyInput!): CreateB2CAppPropertyOutput
