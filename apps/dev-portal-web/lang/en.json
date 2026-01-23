@@ -212,6 +212,14 @@
   "pages.apps.b2b.id.sections.organizations.table.columns.status.options.InProgress.title": "Awaiting connection",
   "pages.apps.b2b.id.sections.organizations.table.columns.status.options.Finished.title": "Connected",
   "pages.apps.b2b.id.sections.organizations.table.columns.status.options.Error.title": "Error",
+  "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.reject.title": "Reject connection request?",
+  "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.reject.description": "Are you sure you want to reject the connection request for service \"{appName}\" from organization \"{organizationName}\"?",
+  "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.reject.actions.continue": "Reject",
+  "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.reject.actions.cancel": "Cancel",
+  "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.delete.title": "Disconnect app from organization?",
+  "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.delete.description": "Are you sure you want to disconnect service \"{appName}\" from organization \"{organizationName}\"?",
+  "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.delete.actions.continue": "Disconnect",
+  "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.delete.actions.cancel": "Cancel",
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC authorization",
 

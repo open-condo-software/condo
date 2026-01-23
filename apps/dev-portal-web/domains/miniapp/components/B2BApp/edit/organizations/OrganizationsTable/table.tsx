@@ -9,7 +9,7 @@ import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
 
-import { statusRender, organizationRender, actionsRender } from './renders'
+import { statusRender, organizationRender, getActionsRender } from './renders'
 
 import type { AppEnvironment } from '@/gql'
 
@@ -49,9 +49,9 @@ export const OrganizationsTable: React.FC<OrganizationsTableProps> = ({ id, envi
         {
             title: ' ',
             key: 'connection',
-            render: actionsRender,
+            render: getActionsRender(id, environment),
         },
-    ], [OrganizationColumnTitle, StatusColumnTitle])
+    ], [OrganizationColumnTitle, StatusColumnTitle, environment, id])
 
     const { data, loading } = useAllB2BAppContextsQuery({
         variables: {
