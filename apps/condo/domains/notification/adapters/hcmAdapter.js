@@ -304,7 +304,7 @@ class HCMAdapter {
                 } catch (error) {
                     const safeError = safeFormatError(error, false)
                     logger.error({ msg: 'sendNotification error', error: safeError })
-                    return { state: 'error', error: safeError }
+                    return { state: 'error', err: safeError }
                 }
             }))
 
@@ -325,10 +325,14 @@ class HCMAdapter {
                 if (response.code === PUSH_SUCCESS_CODE) hcmResult.successCount += 1
 
                 if (response.code === PUSH_PARTIAL_SUCCESS_CODE) {
-                    const json = JSON.parse(response.msg)
+                    try {
+                        const json = JSON.parse(response.msg)
 
-                    hcmResult.successCount += json.success
-                    hcmResult.failureCount += json.failure
+                        hcmResult.successCount += json.success
+                        hcmResult.failureCount += json.failure
+                    } catch (err) {
+                        hcmResult.failureCount++
+                    }
                 }
 
                 if (!SUCCESS_CODES.includes(response.code)) hcmResult.failureCount += 1
