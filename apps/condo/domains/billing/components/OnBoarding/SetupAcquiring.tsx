@@ -204,6 +204,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
             withPrefetch
             withLoader
             withResize
+            initialHeight={400}
         />
     )
 }

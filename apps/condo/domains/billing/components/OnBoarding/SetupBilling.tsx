@@ -87,6 +87,7 @@ const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setup
             withLoader
             withPrefetch
             withResize
+            initialHeight={400}
         />
     )
 }

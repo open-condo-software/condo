@@ -38,7 +38,6 @@ export type IFrameProps = {
     allowFullscreen?: boolean
     onLoad?: () => void
     initialHeight?: number
-    fill?: boolean
 }
 
 
@@ -53,7 +52,6 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         allowFullscreen = false,
         onLoad,
         initialHeight = DEFAULT_FRAME_HEIGHT,
-        fill = false,
     } = props
 
     const intl = useIntl()
@@ -169,15 +167,11 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         }
     }, [frameId, addEventHandler, requestAuth])
 
-    const containerStyle = useMemo<CSSProperties | undefined>(() => {
-        if (!fill) return undefined
-
-        return {
-            height: frameHeight ?? 'fit-content',
-            overflowY: 'hidden',
-            transition: 'height 200ms ease',
-        }
-    }, [fill, frameHeight])
+    const containerStyle = useMemo<CSSProperties>(() => ({
+        height: frameHeight,
+        overflowY: 'hidden',
+        transition: 'height 200ms ease',
+    }), [frameHeight])
 
     return (
         <div style={containerStyle}>

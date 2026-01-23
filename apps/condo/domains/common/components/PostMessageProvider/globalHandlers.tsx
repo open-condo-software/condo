@@ -23,7 +23,7 @@ import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { STAFF } from '@condo/domains/user/constants/common'
 
 import type { RequestHandler } from './types'
-
+export const DEFAULT_MODAL_HEIGHT = 400
 
 type OpenModalRecord = {
     destroy: () => void
@@ -47,7 +47,7 @@ export const useModalHandler: () => [
     const [show, ContextHandler] = Modal.useModal()
 
     const handleShowModal = useCallback<RequestHandler<'CondoWebAppShowModalWindow'>>((params, origin, source) => {
-        const { title, url, size = 'small', height, fill } = params
+        const { title, url, size = 'small', height = DEFAULT_MODAL_HEIGHT } = params
 
         // Throw error if:
         // 1. Origin does not match with event origin AND
@@ -90,7 +90,6 @@ export const useModalHandler: () => [
                     withResize
                     allowFullscreen
                     initialHeight={height}
-                    fill={fill}
                 />
             ),
             onCancel: handleClose,

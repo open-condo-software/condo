@@ -135,7 +135,7 @@ export const MainContent: React.FC<MainContentProps> = ({
                 result.push({
                     label: get(extensionAppTab, ['integration', 'billingPageTitle']) || get(extensionAppTab, ['integration', 'name'], ''),
                     key: EXTENSION_TAB_KEY,
-                    children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize />,
+                    children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={400}/>,
                     icon: customIconUrl ? CustomIconImage : null,
                 })
             }

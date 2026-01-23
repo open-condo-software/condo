@@ -44,7 +44,7 @@ export const EmptyContent: React.FC<EmptyContentProps> = ({
     const dinoImg = currentProblem ? ERROR_DINO_IMG : SEARCHING_DINO_IMG
 
     if (connectedUrl && !connectedMessage) {
-        return <IFrame src={connectedUrl} reloadScope='organization' withPrefetch withLoader withResize />
+        return <IFrame src={connectedUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={400}/>
     }
 
     return (
