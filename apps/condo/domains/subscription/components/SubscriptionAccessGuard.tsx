@@ -67,11 +67,6 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
     const intl = useIntl()
     const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading } = useOrganizationSubscription()
 
-    const isWebview = useMemo(() => {
-        if (typeof window === 'undefined') return false
-        return !!document.querySelector('body.webview')
-    }, [])
-
     const isMiniapp = isMiniappPage(router.pathname)
     const miniappId = isMiniapp ? getMiniappId(router.query) : null
     const { data: b2bAppData, loading: b2bAppLoading } = useGetB2BAppQuery({
@@ -176,24 +171,22 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
                                     </Paragraph>
                                 </Space>
 
-                                {!isWebview && (
-                                    <Space size={16} direction='vertical' align='center'>
-                                        <Button type='primary' onClick={handleGoToPlans}>
-                                            {intl.formatMessage({
-                                                id: 'subscription.accessGuard.goToPlans',
-                                            })}
-                                        </Button>
-                                        {
-                                            helpLink && (
-                                                <Button type='secondary' onClick={handleLearnMore}>
-                                                    {intl.formatMessage({
-                                                        id: 'subscription.accessGuard.learnMore',
-                                                    })}
-                                                </Button>
-                                            )
-                                        }
-                                    </Space>
-                                )}
+                                <Space size={16} direction='vertical' align='center'>
+                                    <Button type='primary' onClick={handleGoToPlans}>
+                                        {intl.formatMessage({
+                                            id: 'subscription.accessGuard.goToPlans',
+                                        })}
+                                    </Button>
+                                    {
+                                        helpLink && (
+                                            <Button type='secondary' onClick={handleLearnMore}>
+                                                {intl.formatMessage({
+                                                    id: 'subscription.accessGuard.learnMore',
+                                                })}
+                                            </Button>
+                                        )
+                                    }
+                                </Space>
                             </Space>
                         </div>
                     </div>
