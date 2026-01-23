@@ -1,5 +1,4 @@
 import { useGetB2BAppContextWithPosIntegrationConfigQuery } from '@app/condo/gql'
-import { B2BAppContextStatusType } from '@app/condo/schema'
 import { useCallback, useMemo, useState } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'

@@ -1,10 +1,8 @@
 import { useGetB2BAppContextWithPosIntegrationConfigQuery } from '@app/condo/gql'
-import { B2BAppContextStatusType } from '@app/condo/schema'
 import { useCallback, useEffect, useState } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
 
-import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 
 export interface LastTestingPosReceiptData {
     id: string
