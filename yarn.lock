@@ -1385,7 +1385,7 @@ __metadata:
     jest: ^29.7.0
     lodash: ^4.17.21
     mkdirp: ^3.0.1
-    next: ^15.5.9
+    next: ^15.5.7
     openid-client: 5.7.1
     pluralize: ^8.0.0
     react: ^18.3.1
