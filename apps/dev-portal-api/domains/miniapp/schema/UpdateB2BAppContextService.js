@@ -4,25 +4,14 @@
 
 const dayjs = require('dayjs')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { productionClient, developmentClient } = require('@dev-portal-api/domains/common/utils/serverClients')
 const { CondoB2BAppContextGql } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/UpdateB2BAppContextService')
 const { CONTEXT_UPDATE_ACTIONS, CONNECT_ACTION } = require('@dev-portal-api/domains/miniapp/constants/b2bAppContext')
-const { B2B_APP_CONTEXT_NOT_FOUND } = require('@dev-portal-api/domains/miniapp/constants/errors')
-const { findCondoB2BApp } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/findCondoApp')
-
-
-const ERRORS = {
-    B2B_APP_CONTEXT_NOT_FOUND: {
-        code: BAD_USER_INPUT,
-        type: B2B_APP_CONTEXT_NOT_FOUND,
-        message: 'B2BAppContext not found for specified organization',
-        messageForUser: 'api.miniapp.updateB2BAppContext.B2B_APP_CONTEXT_NOT_FOUND',
-    },
-}
+const { PROD_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 
 const UpdateB2BAppContextService = new GQLCustomSchema('UpdateB2BAppContextService', {
     types: [
@@ -32,11 +21,7 @@ const UpdateB2BAppContextService = new GQLCustomSchema('UpdateB2BAppContextServi
         },
         {
             access: true,
-            type: 'input OrganizationWhereUniqueInput { id: ID! }',
-        },
-        {
-            access: true,
-            type: 'input UpdateB2BAppContextInput { dv: Int!, sender: SenderFieldInput!, app: B2BAppWhereUniqueInput!, environment: AppEnvironment!, organization: OrganizationWhereUniqueInput!, action: B2BAppContextAction! }',
+            type: 'input UpdateB2BAppContextInput { dv: Int!, sender: SenderFieldInput!, id: ID!, environment: AppEnvironment!, action: B2BAppContextAction! }',
         },
         {
             access: true,
@@ -48,23 +33,12 @@ const UpdateB2BAppContextService = new GQLCustomSchema('UpdateB2BAppContextServi
         {
             access: access.canUpdateB2BAppContext,
             schema: 'updateB2BAppContext(data: UpdateB2BAppContextInput!): UpdateB2BAppContextOutput',
-            resolver: async (parent, args, context) => {
-                const { data: { dv, sender, action, organization: { id: organizationId } } } = args
+            resolver: async (parent, args) => {
+                const { data: { dv, sender, id, environment, action } } = args
 
-                const { condoApp, serverClient } = await findCondoB2BApp({ args, context })
-
-                const [condoAppContext] = await serverClient.getModels({
-                    modelGql: CondoB2BAppContextGql,
-                    where: {
-                        app: { id: condoApp.id },
-                        organization: { id: organizationId },
-                    },
-                    first: 1,
-                })
-
-                if (!condoAppContext) {
-                    throw new GQLError(ERRORS.B2B_APP_CONTEXT_NOT_FOUND, context)
-                }
+                const serverClient = environment === PROD_ENVIRONMENT
+                    ? productionClient
+                    : developmentClient
 
                 const updatePayload = {
                     dv,
@@ -79,7 +53,7 @@ const UpdateB2BAppContextService = new GQLCustomSchema('UpdateB2BAppContextServi
 
                 await serverClient.updateModel({
                     modelGql: CondoB2BAppContextGql,
-                    id: condoAppContext.id,
+                    id,
                     updateInput: updatePayload,
                 })
 

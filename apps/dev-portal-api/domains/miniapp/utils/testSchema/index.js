@@ -466,16 +466,17 @@ async function allB2BAppContextsByTestClient(client, app, environment, extraAttr
     return [data.result, attrs]
 }
 
-async function updateB2BAppContextByTestClient(client, app, environment, organization, action = CONNECT_ACTION) {
+async function updateB2BAppContextByTestClient(client, id, environment, action = CONNECT_ACTION) {
     if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    if (!environment) throw new Error('no environment')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
-        app,
+        id,
         environment,
-        organization,
         action,
     }
     const { data, errors } = await client.mutate(UPDATE_B2B_APP_CONTEXT_MUTATION, { data: attrs })

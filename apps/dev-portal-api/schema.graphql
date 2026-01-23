@@ -6617,16 +6617,11 @@ enum B2BAppContextAction {
   disconnect
 }
 
-input OrganizationWhereUniqueInput {
-  id: ID!
-}
-
 input UpdateB2BAppContextInput {
   dv: Int!
   sender: SenderFieldInput!
-  app: B2BAppWhereUniqueInput!
+  id: ID!
   environment: AppEnvironment!
-  organization: OrganizationWhereUniqueInput!
   action: B2BAppContextAction!
 }
 

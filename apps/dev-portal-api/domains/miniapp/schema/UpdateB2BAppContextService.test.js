@@ -5,12 +5,10 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { makeClient } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
-    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
@@ -19,7 +17,6 @@ const { PROD_ENVIRONMENT, DEV_ENVIRONMENT } = require('@dev-portal-api/domains/m
 const { PUBLISH_REQUEST_APPROVED_STATUS } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const {
     createTestB2BApp,
-    updateCondoB2BApp,
     publishB2BAppByTestClient,
     B2BApp,
     createCondoB2BAppContexts,
@@ -67,10 +64,8 @@ describe('UpdateB2BAppContextService', () => {
         // Publish to dev and prod environments
         await publishB2BAppByTestClient(user, app)
         app = await B2BApp.getOne(user, { id: app.id })
-        await updateCondoB2BApp(condoAdmin, { id: app.developmentExportId }, { importId: null, importRemoteSystem: null })
         await publishB2BAppByTestClient(user, app, { info: true }, PROD_ENVIRONMENT)
         app = await B2BApp.getOne(user, { id: app.id })
-        await updateCondoB2BApp(condoAdmin, { id: app.productionExportId }, { importId: null, importRemoteSystem: null })
     })
 
     beforeEach(async () => {
@@ -85,7 +80,7 @@ describe('UpdateB2BAppContextService', () => {
 
     describe('Access tests', () => {
         test('Admin can update context for any app', async () => {
-            const [result] = await updateB2BAppContextByTestClient(admin, { id: app.id }, DEV_ENVIRONMENT, { id: organization.id }, CONNECT_ACTION)
+            const [result] = await updateB2BAppContextByTestClient(admin, devContext.id, DEV_ENVIRONMENT, CONNECT_ACTION)
             expect(result).toHaveProperty('success', true)
 
             const updatedContext = await CondoB2BAppContext.getOne(condoAdmin, { id: devContext.id })
@@ -93,7 +88,7 @@ describe('UpdateB2BAppContextService', () => {
         })
 
         test('Support can update context for any app', async () => {
-            const [result] = await updateB2BAppContextByTestClient(support, { id: app.id }, DEV_ENVIRONMENT, { id: organization.id }, CONNECT_ACTION)
+            const [result] = await updateB2BAppContextByTestClient(support, devContext.id, DEV_ENVIRONMENT, CONNECT_ACTION)
             expect(result).toHaveProperty('success', true)
 
             const updatedContext = await CondoB2BAppContext.getOne(condoAdmin, { id: devContext.id })
@@ -102,7 +97,7 @@ describe('UpdateB2BAppContextService', () => {
 
         describe('User', () => {
             test('Can update context for his own app', async () => {
-                const [result] = await updateB2BAppContextByTestClient(user, { id: app.id }, DEV_ENVIRONMENT, { id: organization.id }, CONNECT_ACTION)
+                const [result] = await updateB2BAppContextByTestClient(user, devContext.id, DEV_ENVIRONMENT, CONNECT_ACTION)
                 expect(result).toHaveProperty('success', true)
 
                 const updatedContext = await CondoB2BAppContext.getOne(condoAdmin, { id: devContext.id })
@@ -111,49 +106,50 @@ describe('UpdateB2BAppContextService', () => {
 
             test('Cannot update context for another user app', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
-                    await updateB2BAppContextByTestClient(anotherUser, { id: app.id }, DEV_ENVIRONMENT, { id: organization.id }, CONNECT_ACTION)
+                    await updateB2BAppContextByTestClient(anotherUser, devContext.id, DEV_ENVIRONMENT, CONNECT_ACTION)
                 })
             })
         })
 
         test('Anonymous cannot update any context', async () => {
             await expectToThrowAuthenticationErrorToResult(async () => {
-                await updateB2BAppContextByTestClient(anonymous, { id: app.id }, DEV_ENVIRONMENT, { id: organization.id }, CONNECT_ACTION)
+                await updateB2BAppContextByTestClient(anonymous, devContext.id, DEV_ENVIRONMENT, CONNECT_ACTION)
             })
         })
     })
 
     describe('Logic tests', () => {
-        test('Must throw APP_NOT_FOUND error if invalid app id passed', async () => {
-            await expectToThrowGQLError(async () => {
-                await updateB2BAppContextByTestClient(support, { id: faker.datatype.uuid() }, DEV_ENVIRONMENT, { id: organization.id }, CONNECT_ACTION)
-            }, {
-                code: BAD_USER_INPUT,
-                type: 'APP_NOT_FOUND',
-            }, 'result')
+        test('Must throw access denied error if invalid context id passed', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await updateB2BAppContextByTestClient(user, faker.datatype.uuid(), DEV_ENVIRONMENT, CONNECT_ACTION)
+            })
         })
 
-        test('Must throw B2B_APP_CONTEXT_NOT_FOUND error if organization is wrong', async () => {
-            const wrongOrgId = faker.datatype.uuid()
-            await expectToThrowGQLError(async () => {
-                await updateB2BAppContextByTestClient(support, { id: app.id }, DEV_ENVIRONMENT, { id: wrongOrgId }, CONNECT_ACTION)
-            }, {
-                code: BAD_USER_INPUT,
-                type: 'B2B_APP_CONTEXT_NOT_FOUND',
-            }, 'result')
+        test('Must throw access denied error if context belongs to another app', async () => {
+            const [anotherApp] = await createTestB2BApp(anotherUser)
+            await createTestB2BAppPublishRequest(support, anotherApp, {
+                isAppTested: true,
+                isContractSigned: true,
+                isInfoApproved: true,
+                status: PUBLISH_REQUEST_APPROVED_STATUS,
+            })
+            await publishB2BAppByTestClient(anotherUser, anotherApp)
+            const updatedAnotherApp = await B2BApp.getOne(anotherUser, { id: anotherApp.id })
+            const [anotherContexts] = await createCondoB2BAppContexts(condoAdmin, { id: updatedAnotherApp.developmentExportId }, 1, CONTEXT_IN_PROGRESS_STATUS)
+
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await updateB2BAppContextByTestClient(user, anotherContexts[0].id, DEV_ENVIRONMENT, CONNECT_ACTION)
+            })
         })
 
-        test('Must throw B2B_APP_CONTEXT_NOT_FOUND error if context was deleted', async () => {
+        test('Must throw access denied error if context was deleted', async () => {
             await CondoB2BAppContext.update(condoAdmin, devContext.id, {
                 deletedAt: dayjs().toISOString(),
             })
 
-            await expectToThrowGQLError(async () => {
-                await updateB2BAppContextByTestClient(support, { id: app.id }, DEV_ENVIRONMENT, { id: organization.id }, CONNECT_ACTION)
-            }, {
-                code: BAD_USER_INPUT,
-                type: 'B2B_APP_CONTEXT_NOT_FOUND',
-            }, 'result')
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await updateB2BAppContextByTestClient(user, devContext.id, DEV_ENVIRONMENT, CONNECT_ACTION)
+            })
         })
 
         test('Connect action must translate context to finished status', async () => {
@@ -161,7 +157,7 @@ describe('UpdateB2BAppContextService', () => {
             expect(contextBefore).toBeDefined()
             expect(contextBefore).toHaveProperty('status', CONTEXT_IN_PROGRESS_STATUS)
 
-            const [result] = await updateB2BAppContextByTestClient(user, { id: app.id }, DEV_ENVIRONMENT, { id: organization.id }, CONNECT_ACTION)
+            const [result] = await updateB2BAppContextByTestClient(user, devContext.id, DEV_ENVIRONMENT, CONNECT_ACTION)
             expect(result).toHaveProperty('success', true)
 
             const contextAfter = await CondoB2BAppContext.getOne(condoAdmin, { id: devContext.id })
@@ -174,7 +170,7 @@ describe('UpdateB2BAppContextService', () => {
             expect(contextBefore).toBeDefined()
             expect(contextBefore).toHaveProperty('status', CONTEXT_IN_PROGRESS_STATUS)
 
-            const [result] = await updateB2BAppContextByTestClient(user, { id: app.id }, DEV_ENVIRONMENT, { id: organization.id }, DISCONNECT_ACTION)
+            const [result] = await updateB2BAppContextByTestClient(user, devContext.id, DEV_ENVIRONMENT, DISCONNECT_ACTION)
             expect(result).toHaveProperty('success', true)
 
             const contextAfter = await CondoB2BAppContext.getOne(condoAdmin, { id: devContext.id })
@@ -182,7 +178,7 @@ describe('UpdateB2BAppContextService', () => {
         })
 
         test('Can update context in prod environment', async () => {
-            const [result] = await updateB2BAppContextByTestClient(user, { id: app.id }, PROD_ENVIRONMENT, { id: prodContext.organization.id }, CONNECT_ACTION)
+            const [result] = await updateB2BAppContextByTestClient(user, prodContext.id, PROD_ENVIRONMENT, CONNECT_ACTION)
             expect(result).toHaveProperty('success', true)
 
             const updatedContext = await CondoB2BAppContext.getOne(condoAdmin, { id: prodContext.id })
@@ -194,7 +190,7 @@ describe('UpdateB2BAppContextService', () => {
                 status: CONTEXT_FINISHED_STATUS,
             })
 
-            const [result] = await updateB2BAppContextByTestClient(user, { id: app.id }, DEV_ENVIRONMENT, { id: organization.id }, DISCONNECT_ACTION)
+            const [result] = await updateB2BAppContextByTestClient(user, devContext.id, DEV_ENVIRONMENT, DISCONNECT_ACTION)
             expect(result).toHaveProperty('success', true)
 
             const contextAfter = await CondoB2BAppContext.getOne(condoAdmin, { id: devContext.id })

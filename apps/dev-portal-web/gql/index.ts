@@ -3216,10 +3216,6 @@ export type ImportB2CAppToInput = {
   app: B2CAppWhereUniqueInput;
 };
 
-export type OrganizationWhereUniqueInput = {
-  id: Scalars['ID']['input'];
-};
-
 export type PublishB2BAppInput = {
   app: B2BAppWhereUniqueInput;
   dv: Scalars['Int']['input'];
@@ -3966,10 +3962,9 @@ export type StartConfirmPhoneActionInput = {
 
 export type UpdateB2BAppContextInput = {
   action: B2BAppContextAction;
-  app: B2BAppWhereUniqueInput;
   dv: Scalars['Int']['input'];
   environment: AppEnvironment;
-  organization: OrganizationWhereUniqueInput;
+  id: Scalars['ID']['input'];
   sender: SenderFieldInput;
 };
 
