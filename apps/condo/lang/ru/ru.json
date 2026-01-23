@@ -2822,7 +2822,7 @@
   "pages.condo.ticket.alert.BlockedEditing.title": "Редактирование заявки недоступно",
   "pages.condo.ticket.alert.EscalatedTicket.description": "Вы не обработали её в течение {days, plural, one {# дня} few {# дней} many {# дней} other {# дней}}, поэтому заявка передана в {authorityName}. Возьмите заявку в работу, укажите статус и решение в комментарии, чтобы проинформировать жителя",
   "pages.condo.ticket.alert.EscalatedTicket.title": "Заявка отправлена в {authorityName}",
-  "pages.condo.ticket.alert.TicketEscalationWarning.description": "Измените статус или оставьте комментарий в течение {days, plural, one {# дня} few {# дней} many {# дней} other {# дней}}, иначе она автоматически уйдет в {authorityName}",
+  "pages.condo.ticket.alert.TicketEscalationWarning.description": "Измените статус или оставьте комментарий в течение {days, plural, one {# дня} few {# дней} many {# дней} other {# дней}}, иначе она автоматически будет передана в {authorityName}",
   "pages.condo.ticket.alert.TicketEscalationWarning.title": "Возьмите заявку в работу до {deadlineToEscalationTicket}",
   "pages.condo.ticket.autoAssignAlert.message": "Дом из этой заявки входит в область видимости «{name}». Поэтому алгоритм Домá автоматически назначил ответственного и исполнителя.",
   "pages.condo.ticket.autoAssignAlert.title": "Ответственный и исполнитель назначены автоматически",
