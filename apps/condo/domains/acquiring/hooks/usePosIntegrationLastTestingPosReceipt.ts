@@ -28,7 +28,7 @@ export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrat
 
     const {
         loading: areB2bAppContextsLoading,
-        data: { contexts: b2bAppContexts } = {},
+        data: b2bAppContextsResult,
     } = useGetB2BAppContextWithPosIntegrationConfigQuery(
         {
             variables: { organizationId: organization.id },
@@ -36,7 +36,7 @@ export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrat
         },
     )
 
-    const baseUrl = b2bAppContexts?.[0]?.app?.posIntegrationConfig?.fetchLastPosReceiptUrl
+    const baseUrl = b2bAppContextsResult?.contexts?.[0]?.app?.posIntegrationConfig?.fetchLastPosReceiptUrl
 
     const fetchLastTestingPosReceipt = useCallback(async () => {
         if (!baseUrl) {

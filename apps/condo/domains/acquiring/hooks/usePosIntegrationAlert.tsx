@@ -16,7 +16,7 @@ export function usePosIntegrationAlert () {
 
     const {
         loading: areB2bAppContextsLoading,
-        data: { contexts: b2bAppContexts } = {},
+        data: b2bAppContextsResult,
     } = useGetB2BAppContextWithPosIntegrationConfigQuery(
         {
             variables: { organizationId: organization.id },
@@ -24,7 +24,7 @@ export function usePosIntegrationAlert () {
         },
     )
 
-    const paymentsAlertPageUrl = b2bAppContexts?.[0]?.app?.posIntegrationConfig?.paymentsAlertPageUrl
+    const paymentsAlertPageUrl = b2bAppContextsResult?.contexts?.[0]?.app?.posIntegrationConfig?.paymentsAlertPageUrl
 
     const Component = useMemo(() => paymentsAlertPageUrl ? (
         <IFrame
