@@ -12,7 +12,7 @@ const AllB2BAppContextsService = new GQLCustomSchema('AllB2BAppContextsService',
     types: [
         {
             access: true,
-            type: 'input AllB2BAppContextsInput { app: B2BAppWhereUniqueInput!, first: Int!, skip: Int!, environment: AppEnvironment! }',
+            type: 'input AllB2BAppContextsInput { app: B2BAppWhereUniqueInput!, first: Int!, skip: Int!, environment: AppEnvironment!, search: String }',
         },
         {
             access: true,
@@ -41,14 +41,25 @@ const AllB2BAppContextsService = new GQLCustomSchema('AllB2BAppContextsService',
             access: access.canExecuteAllB2BAppContexts,
             schema: 'allB2BAppContexts(data: AllB2BAppContextsInput!): AllB2BAppContextsOutput',
             resolver: async (parent, args, context) => {
-                const { data: { first, skip } } = args
+                const { data: { first, skip, search } } = args
                 const { condoApp, serverClient } = await findCondoB2BApp({ args, context })
+
+                const where = {
+                    app: { id: condoApp.id },
+                }
+
+                if (search) {
+                    where.organization = {
+                        OR: [
+                            { name_contains_i: search },
+                            { tin_contains_i: search },
+                        ],
+                    }
+                }
 
                 return await serverClient.getModelsWithCount({
                     modelGql: CondoB2BAppContextGql,
-                    where: {
-                        app: { id: condoApp.id },
-                    },
+                    where,
                     first,
                     skip,
                     sortBy: ['status_DESC', 'createdAt_DESC', 'id_ASC'],

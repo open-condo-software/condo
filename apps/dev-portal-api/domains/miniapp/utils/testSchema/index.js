@@ -92,6 +92,14 @@ function generateNiNumber() {
     return `${prefix}${number}${suffix}`
 }
 
+function padWithRandomChars(str, minLength) {
+    if (str.length >= minLength) return str
+    
+    const charsNeeded = minLength - str.length
+    const randomChars = faker.random.alphaNumeric(charsNeeded)
+    return str + randomChars
+}
+
 async function createCondoB2CApp (client) {
     const attrs = {
         dv: 1,
@@ -152,7 +160,9 @@ async function createCondoB2BAppContexts(client, condoApp, amount, status) {
                 sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
                 tin: generateNiNumber(),
                 country: 'en',
-                name: faker.company.name()
+                // NOTE: padWithRandomChars ensures organization name is at least 10 characters long
+                // This makes search tests more reliable when extracting substrings for testing
+                name: padWithRandomChars(faker.company.name(), 10),
             }
         })
     }

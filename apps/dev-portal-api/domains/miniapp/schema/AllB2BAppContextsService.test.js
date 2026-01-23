@@ -53,6 +53,21 @@ function compareContexts (a, b) {
     return a.id.localeCompare(b.id)
 }
 
+function randomizeCase (str) {
+    return str.split('').map(char => {
+        return Math.random() > 0.5 ? char.toUpperCase() : char.toLowerCase()
+    }).join('')
+}
+
+function filterContextsBySearch (contexts, search) {
+    const searchLower = search.toLowerCase()
+    return contexts.filter(ctx => {
+        const nameLower = ctx.organization.name.toLowerCase()
+        const tinLower = (ctx.organization.tin || '').toLowerCase()
+        return nameLower.includes(searchLower) || tinLower.includes(searchLower)
+    })
+}
+
 describe('AllB2BAppContextsService', () => {
     let condoAdmin
     let admin
@@ -273,6 +288,107 @@ describe('AllB2BAppContextsService', () => {
             expect(devResult.objs).toEqual(devContexts)
             const [prodResult] = await allB2BAppContextsByTestClient(user, app, PROD_ENVIRONMENT)
             expect(prodResult.objs).toEqual(prodContexts)
+        })
+
+        describe('Search functionality', () => {
+            test('Without search parameter everything is returned', async () => {
+                const [devResult] = await allB2BAppContextsByTestClient(user, app, DEV_ENVIRONMENT)
+                expect(devResult).toHaveProperty(['meta', 'count'], 30)
+                expect(devResult.objs).toHaveLength(30)
+
+                const [prodResult] = await allB2BAppContextsByTestClient(user, app, PROD_ENVIRONMENT)
+                expect(prodResult).toHaveProperty(['meta', 'count'], 30)
+                expect(prodResult.objs).toHaveLength(30)
+            })
+
+            test('Full search by TIN case insensitive', async () => {
+                const randomIndex = Math.floor(Math.random() * devContexts.length)
+                const targetContext = devContexts[randomIndex]
+                const searchTin = targetContext.organization.tin
+                expect(searchTin).toBeDefined()
+                expect(searchTin.length).toBeGreaterThanOrEqual(4)
+
+                const randomCaseTin = randomizeCase(searchTin)
+                const expectedContexts = filterContextsBySearch(devContexts, searchTin)
+
+                const [result] = await allB2BAppContextsByTestClient(user, app, DEV_ENVIRONMENT, {
+                    search: randomCaseTin,
+                })
+
+                expect(result).toHaveProperty(['meta', 'count'], expectedContexts.length)
+                expect(result.objs).toHaveLength(expectedContexts.length)
+                expect(result.objs).toEqual(expect.arrayContaining(expectedContexts))
+            })
+
+            test('Full search by name case insensitive', async () => {
+                const randomIndex = Math.floor(Math.random() * devContexts.length)
+                const targetContext = devContexts[randomIndex]
+                const searchName = targetContext.organization.name
+                expect(searchName).toBeDefined()
+                expect(searchName.length).toBeGreaterThanOrEqual(4)
+
+                const randomCaseName = randomizeCase(searchName)
+                const expectedContexts = filterContextsBySearch(devContexts, searchName)
+
+                const [result] = await allB2BAppContextsByTestClient(user, app, DEV_ENVIRONMENT, {
+                    search: randomCaseName,
+                })
+
+                expect(result).toHaveProperty(['meta', 'count'], expectedContexts.length)
+                expect(result.objs).toHaveLength(expectedContexts.length)
+                expect(result.objs).toEqual(expect.arrayContaining(expectedContexts))
+            })
+
+            test('Search by substring of TIN case insensitive', async () => {
+                const randomIndex = Math.floor(Math.random() * devContexts.length)
+                const targetContext = devContexts[randomIndex]
+                const fullTin = targetContext.organization.tin
+                expect(fullTin).toBeDefined()
+                expect(fullTin.length).toBeGreaterThanOrEqual(4)
+
+                const substringTin = fullTin.substring(1, 5)
+                const randomCaseSubstring = randomizeCase(substringTin)
+                const expectedContexts = filterContextsBySearch(devContexts, substringTin)
+
+                const [result] = await allB2BAppContextsByTestClient(user, app, DEV_ENVIRONMENT, {
+                    search: randomCaseSubstring,
+                })
+
+                expect(result).toHaveProperty(['meta', 'count'], expectedContexts.length)
+                expect(result.objs).toHaveLength(expectedContexts.length)
+                expect(result.objs).toEqual(expect.arrayContaining(expectedContexts))
+            })
+
+            test('Search by substring of name case insensitive', async () => {
+                const randomIndex = Math.floor(Math.random() * devContexts.length)
+                const targetContext = devContexts[randomIndex]
+                const fullName = targetContext.organization.name
+                expect(fullName).toBeDefined()
+                expect(fullName.length).toBeGreaterThanOrEqual(4)
+
+                const substringName = fullName.substring(1, 5)
+                const randomCaseSubstring = randomizeCase(substringName)
+                const expectedContexts = filterContextsBySearch(devContexts, substringName)
+
+                const [result] = await allB2BAppContextsByTestClient(user, app, DEV_ENVIRONMENT, {
+                    search: randomCaseSubstring,
+                })
+
+                expect(result).toHaveProperty(['meta', 'count'], expectedContexts.length)
+                expect(result.objs).toHaveLength(expectedContexts.length)
+                expect(result.objs).toEqual(expect.arrayContaining(expectedContexts))
+            })
+
+            test('Search returns empty result when no matches found', async () => {
+                const nonExistentSearch = 'NONEXISTENT123456789'
+
+                const [result] = await allB2BAppContextsByTestClient(user, app, DEV_ENVIRONMENT, {
+                    search: nonExistentSearch,
+                })
+
+                expect(result).toHaveProperty(['meta', 'count'], 0)
+                expect(result.objs).toHaveLength(0)
+            })
         })
     })
 })
