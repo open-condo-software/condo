@@ -1,5 +1,4 @@
 import { Flex } from 'antd'
-import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
@@ -8,8 +7,6 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sende
 import { Button, Typography, Modal } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
-import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
-import { getCurrentPage } from '@/domains/miniapp/utils/query'
 
 import styles from './renders.module.css'
 
@@ -20,11 +17,12 @@ import {
     B2BAppContextStatus,
     useUpdateB2BAppContextMutation,
     useGetB2BAppQuery,
-    AllB2BAppContextsDocument,
 } from '@/gql'
 
 type ContextType = NonNullable<AllB2BAppContextsQuery['contexts']>['objs'][number]
 type OrganizationType = ContextType['organization']
+
+const ELLIPSIS_ROWS = { rows: 2 }
 
 const StatusCell: React.FC<{ status: B2BAppContextStatus }> = ({ status }) => {
     const intl = useIntl()
@@ -51,10 +49,18 @@ const OrganizationCell: React.FC<{ organization: OrganizationType }> = ({ organi
     const { name, tin } = organization
 
     return (
-        <Flex vertical>
-            <Typography.Text size='medium'>{name}</Typography.Text>
-            <Typography.Text type='secondary' size='small'>{TINLabel}: {tin}</Typography.Text>
-        </Flex>
+        <div className={styles.organizationCellContainer}>
+            {name && (
+                <Typography.Paragraph size='medium' ellipsis={ELLIPSIS_ROWS}>
+                    {name}
+                </Typography.Paragraph>
+            )}
+            {tin && (
+                <Typography.Paragraph type='secondary' size='small' ellipsis={ELLIPSIS_ROWS}>
+                    {TINLabel}: {tin}
+                </Typography.Paragraph>
+            )}
+        </div>
     )
 }
 

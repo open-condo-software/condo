@@ -23,6 +23,13 @@ type OrganizationsTableProps = {
     environment: AppEnvironment
 }
 
+const TABLE_COLUMN_MIN_WIDTHS = {
+    organization: 200,
+    status: 150,
+    // NOTE: horizontal padding + 2x icons + 1px separator
+    connection: 16 * 2 + 32 * 2 + 1,
+}
+
 export const OrganizationsTable: React.FC<OrganizationsTableProps> = ({ id, environment }) => {
     const intl = useIntl()
     const EmptyTableMessage = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.organizations.table.empty.message' })
@@ -55,15 +62,23 @@ export const OrganizationsTable: React.FC<OrganizationsTableProps> = ({ id, envi
         {
             title: StatusColumnTitle,
             key: 'status',
+            width: TABLE_COLUMN_MIN_WIDTHS['status'],
             dataIndex: 'status',
             render: statusRender,
         },
         {
             title: ' ',
             key: 'connection',
+            width: TABLE_COLUMN_MIN_WIDTHS['connection'],
             render: getActionsRender(id, environment, refetch),
         },
     ], [OrganizationColumnTitle, StatusColumnTitle, environment, id, refetch])
+
+    const scroll = useMemo(() => ({ x: Object.values(TABLE_COLUMN_MIN_WIDTHS).reduce((acc, val) => acc + val, 0) }), [])
+    const minWidthStyles = useMemo(() => Object.entries(TABLE_COLUMN_MIN_WIDTHS).reduce((acc, [key, value]) => {
+        acc[`--organizations-table-${key}-min-width`] = `${value}px`
+        return acc
+    }, {} as Record<string, string>), [])
 
     const contexts = (data?.contexts?.objs ?? []).filter(nonNull)
 
@@ -77,6 +92,8 @@ export const OrganizationsTable: React.FC<OrganizationsTableProps> = ({ id, envi
             dataSource={contexts}
             rowKey='id'
             bordered
+            style={minWidthStyles}
+            scroll={scroll}
             locale={{ emptyText: <EmptyTableFiller message={EmptyTableMessage} /> }}
             loading={loading}
             pagination={{
@@ -88,6 +105,7 @@ export const OrganizationsTable: React.FC<OrganizationsTableProps> = ({ id, envi
                 current: page,
                 onChange: handlePaginationChange,
             }}
+            // size='small'
         />
     )
 }
