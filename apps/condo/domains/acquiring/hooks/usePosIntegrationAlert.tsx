@@ -1,10 +1,10 @@
+import { useGetB2BAppContextWithPosIntegrationConfigQuery } from '@app/condo/gql'
 import { B2BAppContextStatusType } from '@app/condo/schema'
 import { useCallback, useMemo, useState } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
 
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 
 export function usePosIntegrationAlert () {
     const { organization } = useOrganization()
@@ -17,15 +17,13 @@ export function usePosIntegrationAlert () {
 
     const {
         loading: areB2bAppContextsLoading,
-        objs: b2bAppContexts,
-    } = B2BAppContext.useObjects({
-        where: {
-            status: B2BAppContextStatusType.Finished,
-            organization: { id: organization.id },
-            app: { posIntegrationConfig_is_null: false, deletedAt: null },
-            deletedAt: null,
+        data: { contexts: b2bAppContexts },
+    } = useGetB2BAppContextWithPosIntegrationConfigQuery(
+        {
+            variables: { organizationId: organization.id },
+            skip: !organization?.id,
         },
-    }, { skip: !organization?.id })
+    )
 
     const paymentsAlertPageUrl = b2bAppContexts?.[0]?.app?.posIntegrationConfig?.paymentsAlertPageUrl
 

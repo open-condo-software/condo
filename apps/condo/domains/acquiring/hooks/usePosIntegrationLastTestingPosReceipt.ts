@@ -1,3 +1,4 @@
+import { useGetB2BAppContextWithPosIntegrationConfigQuery } from '@app/condo/gql'
 import { B2BAppContextStatusType } from '@app/condo/schema'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -29,15 +30,13 @@ export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrat
 
     const {
         loading: areB2bAppContextsLoading,
-        objs: b2bAppContexts,
-    } = B2BAppContext.useObjects({
-        where: {
-            status: B2BAppContextStatusType.Finished,
-            organization: { id: organization.id },
-            app: { posIntegrationConfig_is_null: false, deletedAt: null },
-            deletedAt: null,
+        data: { contexts: b2bAppContexts },
+    } = useGetB2BAppContextWithPosIntegrationConfigQuery(
+        {
+            variables: { organizationId: organization.id },
+            skip: !organization?.id,
         },
-    }, { skip: !organization?.id })
+    )
 
     const baseUrl = b2bAppContexts?.[0]?.app?.posIntegrationConfig?.fetchLastPosReceiptUrl
 
@@ -77,7 +76,7 @@ export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrat
     }, [areB2bAppContextsLoading, organization?.id, skipUntilAuthenticated, fetchLastTestingPosReceipt])
 
     return {
-        lastTestingPosReceipt,
+        lastTestingPosReceipt: { id: 'test', condoPaymentId: '2' },
         loading: areB2bAppContextsLoading || loading,
         refetch: fetchLastTestingPosReceipt,
     }

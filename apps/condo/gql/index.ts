@@ -57,6 +57,56 @@ export const AddressMetaForTableAddressFragmentDoc = gql`
   }
 }
     `;
+export const GetB2BAppContextWithPosIntegrationConfigDocument = gql`
+    query getB2BAppContextWithPosIntegrationConfig($organizationId: ID!) {
+  contexts: allB2BAppContexts(
+    where: {status: Finished, organization: {id: $organizationId}, app: {posIntegrationConfig_is_null: false, deletedAt: null}, deletedAt: null}
+    first: 1
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    app {
+      posIntegrationConfig {
+        paymentsAlertPageUrl
+        fetchLastPosReceiptUrl
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetB2BAppContextWithPosIntegrationConfigQuery__
+ *
+ * To run a query within a React component, call `useGetB2BAppContextWithPosIntegrationConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2BAppContextWithPosIntegrationConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2BAppContextWithPosIntegrationConfigQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetB2BAppContextWithPosIntegrationConfigQuery(baseOptions: Apollo.QueryHookOptions<Types.GetB2BAppContextWithPosIntegrationConfigQuery, Types.GetB2BAppContextWithPosIntegrationConfigQueryVariables> & ({ variables: Types.GetB2BAppContextWithPosIntegrationConfigQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetB2BAppContextWithPosIntegrationConfigQuery, Types.GetB2BAppContextWithPosIntegrationConfigQueryVariables>(GetB2BAppContextWithPosIntegrationConfigDocument, options);
+      }
+export function useGetB2BAppContextWithPosIntegrationConfigLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetB2BAppContextWithPosIntegrationConfigQuery, Types.GetB2BAppContextWithPosIntegrationConfigQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetB2BAppContextWithPosIntegrationConfigQuery, Types.GetB2BAppContextWithPosIntegrationConfigQueryVariables>(GetB2BAppContextWithPosIntegrationConfigDocument, options);
+        }
+export function useGetB2BAppContextWithPosIntegrationConfigSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppContextWithPosIntegrationConfigQuery, Types.GetB2BAppContextWithPosIntegrationConfigQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetB2BAppContextWithPosIntegrationConfigQuery, Types.GetB2BAppContextWithPosIntegrationConfigQueryVariables>(GetB2BAppContextWithPosIntegrationConfigDocument, options);
+        }
+export type GetB2BAppContextWithPosIntegrationConfigQueryHookResult = ReturnType<typeof useGetB2BAppContextWithPosIntegrationConfigQuery>;
+export type GetB2BAppContextWithPosIntegrationConfigLazyQueryHookResult = ReturnType<typeof useGetB2BAppContextWithPosIntegrationConfigLazyQuery>;
+export type GetB2BAppContextWithPosIntegrationConfigSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppContextWithPosIntegrationConfigSuspenseQuery>;
+export type GetB2BAppContextWithPosIntegrationConfigQueryResult = Apollo.QueryResult<Types.GetB2BAppContextWithPosIntegrationConfigQuery, Types.GetB2BAppContextWithPosIntegrationConfigQueryVariables>;
 export const GetPaymentsFilesDocument = gql`
     query getPaymentsFiles($where: PaymentsFileWhereInput!, $sortBy: [SortPaymentsFilesBy!], $first: Int!, $skip: Int) {
   paymentsFiles: allPaymentsFiles(

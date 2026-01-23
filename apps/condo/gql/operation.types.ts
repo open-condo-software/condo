@@ -3,6 +3,13 @@
 
 import * as Types from '@app/condo/schema';
 
+export type GetB2BAppContextWithPosIntegrationConfigQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetB2BAppContextWithPosIntegrationConfigQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'B2BAppContext', id: string, app?: { __typename?: 'B2BApp', posIntegrationConfig?: { __typename?: 'B2BAppPosIntegrationConfig', paymentsAlertPageUrl?: string | null, fetchLastPosReceiptUrl?: string | null } | null } | null } | null> | null };
+
 export type GetPaymentsFilesQueryVariables = Types.Exact<{
   where: Types.PaymentsFileWhereInput;
   sortBy?: Types.InputMaybe<Array<Types.SortPaymentsFilesBy> | Types.SortPaymentsFilesBy>;
