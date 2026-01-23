@@ -17,7 +17,7 @@ export function usePosIntegrationAlert () {
 
     const {
         loading: areB2bAppContextsLoading,
-        data: { contexts: b2bAppContexts },
+        data: { contexts: b2bAppContexts } = {},
     } = useGetB2BAppContextWithPosIntegrationConfigQuery(
         {
             variables: { organizationId: organization.id },

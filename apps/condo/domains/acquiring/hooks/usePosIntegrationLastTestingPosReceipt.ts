@@ -30,7 +30,7 @@ export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrat
 
     const {
         loading: areB2bAppContextsLoading,
-        data: { contexts: b2bAppContexts },
+        data: { contexts: b2bAppContexts } = {},
     } = useGetB2BAppContextWithPosIntegrationConfigQuery(
         {
             variables: { organizationId: organization.id },
@@ -76,7 +76,7 @@ export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrat
     }, [areB2bAppContextsLoading, organization?.id, skipUntilAuthenticated, fetchLastTestingPosReceipt])
 
     return {
-        lastTestingPosReceipt: { id: 'test', condoPaymentId: '2' },
+        lastTestingPosReceipt,
         loading: areB2bAppContextsLoading || loading,
         refetch: fetchLastTestingPosReceipt,
     }
