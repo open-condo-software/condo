@@ -33,6 +33,18 @@ export const OrganizationsTable: React.FC<OrganizationsTableProps> = ({ id, envi
     const { p } = router.query
     const page = getCurrentPage(p)
 
+    const { data, loading, refetch } = useAllB2BAppContextsQuery({
+        variables: {
+            data: {
+                environment,
+                app: { id },
+                first: DEFAULT_PAGE_SIZE,
+                skip:  DEFAULT_PAGE_SIZE * (page - 1),
+            },
+        },
+        fetchPolicy: 'cache-and-network',
+    })
+
     const columns = useMemo(() => [
         {
             title: OrganizationColumnTitle,
@@ -49,21 +61,9 @@ export const OrganizationsTable: React.FC<OrganizationsTableProps> = ({ id, envi
         {
             title: ' ',
             key: 'connection',
-            render: getActionsRender(id, environment),
+            render: getActionsRender(id, environment, refetch),
         },
-    ], [OrganizationColumnTitle, StatusColumnTitle, environment, id])
-
-    const { data, loading } = useAllB2BAppContextsQuery({
-        variables: {
-            data: {
-                environment,
-                app: { id },
-                first: DEFAULT_PAGE_SIZE,
-                skip:  DEFAULT_PAGE_SIZE * (page - 1),
-            },
-        },
-        fetchPolicy: 'cache-and-network',
-    })
+    ], [OrganizationColumnTitle, StatusColumnTitle, environment, id, refetch])
 
     const contexts = (data?.contexts?.objs ?? []).filter(nonNull)
 

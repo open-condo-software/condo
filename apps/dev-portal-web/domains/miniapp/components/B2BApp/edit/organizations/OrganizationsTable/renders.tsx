@@ -58,7 +58,14 @@ const OrganizationCell: React.FC<{ organization: OrganizationType }> = ({ organi
     )
 }
 
-const ActionsCell: React.FC<{ context: ContextType, environment: AppEnvironment, appId: string }> = ({ context, environment, appId }) => {
+type ActionCellProps = {
+    context: ContextType
+    environment: AppEnvironment
+    appId: string
+    refetch: () => Promise<unknown>
+}
+
+const ActionsCell: React.FC<ActionCellProps> = ({ context, environment, appId, refetch }) => {
     const intl = useIntl()
 
     const isNotConnected = context.status === B2BAppContextStatus.InProgress
@@ -82,26 +89,13 @@ const ActionsCell: React.FC<{ context: ContextType, environment: AppEnvironment,
 
     const [isDeletionModalOpen, setIsDeletionModalOpen] = useState(false)
 
-    const router = useRouter()
-    const { p } = router.query
-    const page = getCurrentPage(p)
-
     const onError = useMutationErrorHandler()
+    const onCompleted = useCallback(() => {
+        void refetch()
+    }, [refetch])
     const [updateContextMutation] = useUpdateB2BAppContextMutation({
         onError,
-        refetchQueries: [
-            {
-                query: AllB2BAppContextsDocument,
-                variables: {
-                    data: {
-                        environment,
-                        app: { id: appId },
-                        first: DEFAULT_PAGE_SIZE,
-                        skip:  DEFAULT_PAGE_SIZE * (page - 1),
-                    },
-                },
-            },
-        ],
+        onCompleted,
     })
 
     const handleAccept = useCallback(() => {
@@ -194,9 +188,9 @@ export function organizationRender (organization: OrganizationType) {
     return <OrganizationCell organization={organization}/>
 }
 
-export function getActionsRender (appId: string, environment: AppEnvironment) {
+export function getActionsRender (appId: string, environment: AppEnvironment, refetch: () => Promise<unknown>) {
     return function actionsRender (context: ContextType) {
-        return <ActionsCell context={context} appId={appId} environment={environment}/>
+        return <ActionsCell context={context} appId={appId} environment={environment} refetch={refetch}/>
     }
 }
 
