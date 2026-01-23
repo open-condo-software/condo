@@ -175,7 +175,8 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
     const organizationId = organization?.id
 
     useEffect(() => {
-        if (!organizationId || !content || !type || loading) {
+        const isWebview = document.querySelector('body.webview')
+        if (isWebview || !organizationId || !content || !type || loading) {
             return
         }
 
