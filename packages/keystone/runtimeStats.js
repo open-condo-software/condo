@@ -25,7 +25,8 @@ class RuntimeStatsMiddleware {
     } = {}) {
         this.statsUrl = statsUrl
         this.requestTargetOptions = (conf[X_TARGET_OPTIONS_VAR_NAME] || '').split(',').filter(Boolean)
-        this.requestTypeOptions = ['api', 'graphql', 'oidc', 'wellKnown', 'healthCheck']
+        this.requestTypeOptions = ['api', 'graphql', 'oidc', 'wellKnown', 'healthCheck', 'other']
+        this.metricsIntervalId = null
     }
 
     /**
@@ -89,22 +90,28 @@ class RuntimeStatsMiddleware {
 
         const runtimeStats = {
             activeRequestsIds: new Set(),
+            activeRequestsDetails: new Map(),
             activeRequestsCountByType: {},
             activeRequestsCountByTarget: {},
             totalRequestsCount: 0,
             totalRequestsCountByType: Object.fromEntries(this.requestTypeOptions.map((k) => [k, 0])),
-            totalRequestsCountByTarget: Object.fromEntries(this.requestTargetOptions.map((k) => [k, 0])),
+            totalRequestsCountByTarget: Object.fromEntries([...this.requestTargetOptions, 'other'].map((k) => [k, 0])),
         }
 
         if (!IS_BUILD_PHASE && !IS_WORKER_PROCESS) {
-            setInterval(function sendRuntimeMetrics () {
-                const { activeRequestsIds, ...otherStats } = runtimeStats
+            if (this.metricsIntervalId) {
+                clearInterval(this.metricsIntervalId)
+            }
+
+            this.metricsIntervalId = setInterval(function sendRuntimeMetrics () {
+                const { activeRequestsIds, activeRequestsDetails, ...otherStats } = runtimeStats
 
                 logger.info({
                     msg: 'current values',
                     runtimeStats: { ...otherStats, activeRequestsCount: activeRequestsIds.size },
                     data: {
                         activeRequestsIds: Array.from(activeRequestsIds.keys()).slice(0, 200),
+                        activeRequestsDetails: Array.from(activeRequestsDetails.entries()).slice(0, 200).map(([id, details]) => ({ id, ...details })),
                     },
                 })
 
@@ -148,11 +155,40 @@ class RuntimeStatsMiddleware {
         const detectRequestTarget = this.detectRequestTarget.bind(this)
 
         app.use(function runtimeStatsMiddleware (req, res, next) {
+            let requestTarget
+            let requestType
+
+            let cleaned = false
+            const cleanup = () => {
+                if (cleaned) return
+                cleaned = true
+
+                runtimeStats.activeRequestsIds.delete(req.id)
+                runtimeStats.activeRequestsDetails.delete(req.id)
+                runtimeStats.activeRequestsCountByType[requestType] = Math.max(0, runtimeStats.activeRequestsCountByType[requestType] - 1)
+                runtimeStats.activeRequestsCountByTarget[requestTarget] = Math.max(0, runtimeStats.activeRequestsCountByTarget[requestTarget] - 1)
+            }
+
             try {
-                const requestTarget = detectRequestTarget(req)
-                const requestType = detectRequestType(req)
+                if (!req.id) {
+                    logger.warn({ msg: 'Request has no ID, skipping runtime stats tracking', data: { url: req.url, method: req.method } })
+                    return next()
+                }
+
+                requestTarget = detectRequestTarget(req)
+                requestType = detectRequestType(req)
+
+                res.on('close', cleanup)
+                res.on('finish', cleanup)
 
                 runtimeStats.activeRequestsIds.add(req.id)
+                runtimeStats.activeRequestsDetails.set(req.id, {
+                    type: requestType,
+                    target: requestTarget,
+                    url: req.url,
+                    method: req.method,
+                    timestamp: new Date().toISOString(),
+                })
 
                 runtimeStats.activeRequestsCountByType[requestType] = (runtimeStats.activeRequestsCountByType[requestType] || 0) + 1
                 runtimeStats.activeRequestsCountByTarget[requestTarget] = (runtimeStats.activeRequestsCountByTarget[requestTarget] || 0) + 1
@@ -160,14 +196,6 @@ class RuntimeStatsMiddleware {
                 runtimeStats.totalRequestsCount = (runtimeStats.totalRequestsCount || 0) + 1
                 runtimeStats.totalRequestsCountByType[requestType] = (runtimeStats.totalRequestsCountByType[requestType] || 0) + 1
                 runtimeStats.totalRequestsCountByTarget[requestTarget] = (runtimeStats.totalRequestsCountByTarget[requestTarget] || 0) + 1
-
-                res.on('close', () => {
-                    if (requestType) {
-                        runtimeStats.activeRequestsIds.delete(req.id)
-                        runtimeStats.activeRequestsCountByType[requestType] = Math.max(0, runtimeStats.activeRequestsCountByType[requestType] - 1)
-                        runtimeStats.activeRequestsCountByTarget[requestTarget] = Math.max(0, runtimeStats.activeRequestsCountByTarget[requestTarget] - 1)
-                    }
-                })
             } catch (err) {
                 logger.error({
                     msg: 'runtimeStatsMiddleware error',
@@ -197,7 +225,10 @@ class RuntimeStatsMiddleware {
                         totalRequestsCount: runtimeStats.totalRequestsCount,
                         totalRequestsCountByType: runtimeStats.totalRequestsCountByType,
                         totalRequestsCountByTarget: runtimeStats.totalRequestsCountByTarget,
-                        ...reqIds ? { reqIds: Array.from(runtimeStats.activeRequestsIds.keys()) } : {},
+                        ...reqIds ? {
+                            reqIds: Array.from(runtimeStats.activeRequestsIds.keys()),
+                            activeRequests: Array.from(runtimeStats.activeRequestsDetails.entries()).map(([id, details]) => ({ id, ...details })),
+                        } : {},
                     })
                 } else {
                     res.status(403).send()
