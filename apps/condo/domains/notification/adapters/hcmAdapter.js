@@ -304,7 +304,7 @@ class HCMAdapter {
                 } catch (error) {
                     const safeError = safeFormatError(error, false)
                     logger.error({ msg: 'sendNotification error', error: safeError })
-                    return { state: 'error', err: safeError }
+                    return { state: 'error', error: safeError }
                 }
             }))
 
@@ -317,7 +317,7 @@ class HCMAdapter {
                 const response = p.value
                 hcmResult.responses.push(response)
 
-                if (response.error) {
+                if (response.state === 'error') {
                     hcmResult.failureCount++
                     continue
                 }
