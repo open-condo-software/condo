@@ -82,7 +82,7 @@ const CondoWebAppShowModalWindowParamsSchema = {
         title: { type: 'string' },
         url: { type: 'string', format: 'uri', pattern: '^https?://'  },
         size: { type: 'string', enum: ['small', 'big'] },
-        height: { type: 'number' },
+        initialHeight: { type: 'number' },
     },
     required: ['title', 'url'],
     additionalProperties: false,

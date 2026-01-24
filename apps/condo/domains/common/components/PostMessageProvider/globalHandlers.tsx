@@ -47,7 +47,7 @@ export const useModalHandler: () => [
     const [show, ContextHandler] = Modal.useModal()
 
     const handleShowModal = useCallback<RequestHandler<'CondoWebAppShowModalWindow'>>((params, origin, source) => {
-        const { title, url, size = 'small', height = DEFAULT_MODAL_HEIGHT } = params
+        const { title, url, size = 'small', initialHeight = DEFAULT_MODAL_HEIGHT } = params
 
         // Throw error if:
         // 1. Origin does not match with event origin AND
@@ -89,7 +89,7 @@ export const useModalHandler: () => [
                     withLoader
                     withResize
                     allowFullscreen
-                    initialHeight={height}
+                    initialHeight={initialHeight}
                 />
             ),
             onCancel: handleClose,
