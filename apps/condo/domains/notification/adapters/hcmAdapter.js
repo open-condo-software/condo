@@ -194,7 +194,7 @@ class HCMAdapter {
      * @param data
      * @param tokens
      * @param pushTypes
-     * @returns {Promise<(*[]|{})[]>}
+     * @returns {Promise<[[], [], {}]>}
      */
     static async prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}) {
         const isSilentDataPushEnabled = IS_LOCAL_ENV || await featureToggleManager.isFeatureEnabled(null, HUAWEI_SILENT_DATA_PUSH_ENABLED)
@@ -281,7 +281,7 @@ class HCMAdapter {
         if (!isNull(this.apps[APP_MASTER_KEY]) && !isNull(this.apps[APP_RESIDENT_KEY]) && !isEmpty(notifications)) {
             const hcmResult = HCMAdapter.getEmptyResult()
 
-            for (let idx = 0; idx < notifications.length; idx++) {
+            const promises = await Promise.allSettled(notifications.map(async (_, idx) => {
                 const notification = cloneDeep(notifications[idx])
 
                 // TODO (@toplenboren) DOMA-10611 remove excessive logging
@@ -293,35 +293,49 @@ class HCMAdapter {
 
                 try {
                     if (!appType || !app) throw new Error(`${HCM_UNSUPPORTED_APP_ID_ERROR}: ${get(appIds, notification.token)}`)
-
                     const sendResult = await app.send(notification)
-
-                    hcmResult.responses.push({
+                    return {
                         idx,
                         appType,
                         pushToken: notification.token,
                         pushType: pushTypes[notification.token],
                         ...sendResult,
-                    })
+                    }
+                } catch (error) {
+                    const safeError = safeFormatError(error, false)
+                    logger.error({ msg: 'sendNotification error', error: safeError })
+                    return { state: 'error', error: safeError }
+                }
+            }))
 
-                    if (sendResult.code === PUSH_SUCCESS_CODE) hcmResult.successCount += 1
+            for (const p of promises) {
+                if (p.status !== 'fulfilled') {
+                    hcmResult.failureCount++
+                    hcmResult.responses.push({ error: p.reason })
+                    continue
+                }
+                const response = p.value
+                hcmResult.responses.push(response)
 
-                    if (sendResult.code === PUSH_PARTIAL_SUCCESS_CODE) {
-                        const json = JSON.parse(sendResult.msg)
+                if (response.state === 'error') {
+                    hcmResult.failureCount++
+                    continue
+                }
+
+                if (response.code === PUSH_SUCCESS_CODE) hcmResult.successCount += 1
+
+                if (response.code === PUSH_PARTIAL_SUCCESS_CODE) {
+                    try {
+                        const json = JSON.parse(response.msg)
 
                         hcmResult.successCount += json.success
                         hcmResult.failureCount += json.failure
+                    } catch (err) {
+                        hcmResult.failureCount++
                     }
-
-                    if (!SUCCESS_CODES.includes(sendResult.code)) hcmResult.failureCount += 1
-
-                } catch (error) {
-                    const safeError = safeFormatError(error, false)
-
-                    hcmResult.failureCount += 1
-                    hcmResult.responses.push({ state: 'error', error: safeError })
-                    logger.error({ msg: 'sendNotification error', error: safeError })
                 }
+
+                if (!SUCCESS_CODES.includes(response.code)) hcmResult.failureCount += 1
             }
 
             // TODO (@toplenboren) DOMA-10611 remove excessive logging
