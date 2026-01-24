@@ -2,7 +2,7 @@ export type ShowModalWindowParams = {
     title: string
     url: string
     size?: 'small' | 'big'
-    height?: number
+    initialHeight?: number
 }
 
 export type ShowModalWindowData = {
