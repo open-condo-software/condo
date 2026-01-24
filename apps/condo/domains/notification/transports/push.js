@@ -148,6 +148,34 @@ const mixResult = (container, result, transport) => {
     return container
 }
 
+async function deleteRemoteClientsIfTokenIsInvalid ({ adapter, result, isVoIP }) {
+    if (adapter === PUSH_TRANSPORT_FIREBASE) {
+        // handling expired token error. https://firebase.google.com/docs/cloud-messaging/manage-tokens?hl=ru#detect-invalid-token-responses-from-the-fcm-backend
+        if (get(result, 'responses')) {
+            for (const res of result.responses) {
+                const context = getSchemaCtx('RemoteClient')
+                if (get(res, 'error.code') === 'messaging/registration-token-not-registered') {
+                    const field = isVoIP ? 'pushTokenVoIP' : 'pushToken'
+                    const [remoteClient] = await find('RemoteClient', {
+                        [field]: res.pushToken,
+                        deletedAt: null,
+                    })
+
+                    if (get(remoteClient, 'id')) {
+                        await RemoteClient.update(context, get(remoteClient, 'id'), {
+                            [field]: null,
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: 'internal-update_token-not-registered' },
+                        })
+                        logger.info({ msg: 'remove expired FCM token', data: { remoteClientId: remoteClient.id, field } })
+                    }
+                }
+            }
+        }
+    }
+    // TODO: handle invalid / expired tokens for apple and others
+}
+
 /**
  * Send notification using corresponding transports (depending on FireBase/Huawei/Apple, appId, isVoIP)
  * @param notification
@@ -180,41 +208,30 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
     }
     if (!count) return [false, { error: 'No pushTokens available.' }]
 
-    for (const transport in tokensByTransport) {
+    const promises = await Promise.allSettled(Object.keys(tokensByTransport).map(async transport => {
         const tokens = tokensByTransport[transport]
+        if (isEmpty(tokens)) return null
 
-        if (!isEmpty(tokens)) {
-            const adapter = ADAPTERS[transport]
-            const payload = { tokens, pushTypes, appIds, notification, data }
-            const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
-            if (adapter === PUSH_TRANSPORT_FIREBASE) {
-                // handling expired token error. https://firebase.google.com/docs/cloud-messaging/manage-tokens?hl=ru#detect-invalid-token-responses-from-the-fcm-backend
-                if (get(result, 'responses')) {
-                    for (const res of result.responses) {
-                        const context = getSchemaCtx('RemoteClient')
-                        if (get(res, 'error.code') === 'messaging/registration-token-not-registered') {
-                            const field = isVoIP ? 'pushTokenVoIP' : 'pushToken'
-                            const [remoteClient] = await find('RemoteClient', {
-                                [field]: res.pushToken,
-                                deletedAt: null,
-                            })
+        const adapter = ADAPTERS[transport]
+        const payload = { tokens, pushTypes, appIds, notification, data }
+        const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
 
-                            if (get(remoteClient, 'id')) {
-                                await RemoteClient.update(context, get(remoteClient, 'id'), {
-                                    [field]: null,
-                                    dv: 1,
-                                    sender: { dv: 1, fingerprint: 'internal-update_token-not-registered' },
-                                })
-                                logger.info({ msg: 'remove expired FCM token', data: { remoteClientId: remoteClient.id, field } })
-                            }
-                        }
-                    }
-                }
-            }
+        await deleteRemoteClientsIfTokenIsInvalid({ adapter, result, isVoIP })
 
-            container = mixResult(container, result, transport)
-            _isOk = _isOk || isOk
-        }
+        /** @type {[boolean, object, string]} */
+        const sendNotificationResult = [isOk, result, transport]
+        return sendNotificationResult
+    }))
+
+    for (const p of promises) {
+        if (p.status !== 'fulfilled') continue
+
+        const value = p.value
+        if (value === null) continue
+
+        const [isOk, result, transport] = value
+        container = mixResult(container, result, transport)
+        _isOk = _isOk || isOk
     }
 
     return [_isOk, container]

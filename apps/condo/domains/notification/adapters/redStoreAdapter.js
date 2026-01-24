@@ -158,17 +158,26 @@ class RedStoreAdapter {
                 notificationsByAppId[appId] ||= []
                 notificationsByAppId[appId].push(notification)
             }
-            for (const [appId, notificationsBatchForApp] of Object.entries(notificationsByAppId)) {
+            const promises = await Promise.allSettled(Object.entries(notificationsByAppId).map(async ([appId, notificationsBatchForApp]) => {
                 const configForApp = this._config[appId]
                 if (!configForApp) {
                     logger.error({ msg: 'unknown appId. Config was not found', data: { appId } })
-                    continue
+                    return {
+                        state: 'error',
+                        error: 'unknown appId. Config was not found',
+                        appId,
+                        failureCount: notificationsBatchForApp.length,
+                        successCount: 0,
+                        responses: notificationsBatchForApp.map(notification => ({
+                            pushToken: notification.token,
+                            pushType: get(pushTypes, notification.token, null),
+                        })),
+                    }
                 }
 
                 const app = new RedStoreNotificationSender(configForApp)
                 try {
-                    result = await app.sendAll(notificationsBatchForApp)
-
+                    const result = await app.sendAll(notificationsBatchForApp)
                     if (!isEmpty(result.responses)) {
                         result.responses = result.responses.map(
                             (response, idx) =>
@@ -179,11 +188,36 @@ class RedStoreAdapter {
                                 })
                         )
                     }
-
+                    return result
                 } catch (err) {
                     logger.error({ msg: 'sendNotification error', err })
+                    return {
+                        state: 'error',
+                        error: err,
+                        appId,
+                        failureCount: notificationsBatchForApp.length,
+                        successCount: 0,
+                        responses: notificationsBatchForApp.map(notification => ({
+                            pushToken: notification.token,
+                            pushType: get(pushTypes, notification.token, null),
+                        })),
+                    }
                 }
+            }))
+
+            const combinedResult = RedStoreAdapter.getEmptyResult()
+            for (const p of promises) {
+                if (p.status !== 'fulfilled') {
+                    combinedResult.failureCount++
+                    combinedResult.responses.push({ error: p.reason })
+                    continue
+                }
+                const result = p.value
+                combinedResult.successCount += (result.successCount || 0)
+                combinedResult.failureCount += (result.failureCount || 0)
+                combinedResult.responses = (combinedResult.responses || []).concat(result.responses || [])
             }
+            result = combinedResult
         }
 
         const isOk = !isEmpty(result) && result.successCount > 0
