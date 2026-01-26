@@ -18,6 +18,8 @@ function splitTextByHighlight (text: string, highlight?: string): TextPart[] {
     }
 
     // Escape special regex characters in the search term
+    // NOTE: client code + regex is static
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
     const escapedHighlight = highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     
     // Split text by the search term (case-insensitive)

@@ -79,7 +79,7 @@ async function allB2BAppContexts (context, data) {
         query: ALL_B2B_APP_CONTEXTS_QUERY,
         variables: { data },
         errorMessage: '[error] Unable to allB2BAppContexts',
-        dataPath: 'objs',
+        dataPath: 'result',
     })
 }
 

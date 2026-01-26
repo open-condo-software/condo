@@ -1,5 +1,4 @@
 import { Row, Col } from 'antd'
-import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
@@ -44,7 +43,9 @@ export const OrganizationsSection: React.FC<{ id: string }> = ({ id }) => {
     ]), [DevStandLabel, ProdStandLabel])
 
     const handleEnvironmentChange = useCallback<Required<SelectProps>['onChange']>((newEnv) => {
-        router.replace({ query: { ...omit(router.query, ['p', 's']), env: newEnv as AppEnvironment } }, undefined, { locale: router.locale })
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { p, s, ...restQuery } = router.query
+        router.replace({ query: { ...restQuery, env: newEnv as AppEnvironment } }, undefined, { locale: router.locale })
         setSelectedEnvironment(newEnv as AppEnvironment)
     }, [router])
 

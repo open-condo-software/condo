@@ -145,7 +145,7 @@ const ActionsCell: React.FC<ActionCellProps> = ({ context, environment, appId, r
 
     const DeletionIcon = isNotConnected ? Close : Trash
 
-    const handelCancelDeletion = useCallback(() => {
+    const handleCancelDeletion = useCallback(() => {
         setIsDeletionModalOpen(false)
     }, [])
 
@@ -164,11 +164,11 @@ const ActionsCell: React.FC<ActionCellProps> = ({ context, environment, appId, r
                 <Modal
                     title={ModalTitle}
                     open={isDeletionModalOpen}
-                    onCancel={handelCancelDeletion}
+                    onCancel={handleCancelDeletion}
                     footer={[
                         <Button
                             key='cancel'
-                            onClick={handelCancelDeletion}
+                            onClick={handleCancelDeletion}
                             type='secondary'
                         >
 
@@ -184,7 +184,7 @@ const ActionsCell: React.FC<ActionCellProps> = ({ context, environment, appId, r
                         </Button>,
                     ]}
                 >
-                    <Typography.Paragraph>{ModalDescription}</Typography.Paragraph>.
+                    <Typography.Paragraph>{ModalDescription}</Typography.Paragraph>
                 </Modal>
             )}
         </>

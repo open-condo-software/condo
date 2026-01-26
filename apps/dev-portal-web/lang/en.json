@@ -204,9 +204,9 @@
   "pages.apps.b2b.id.sections.info.commonInfo.form.items.shortDescription.tooltip": "Briefly describe what the service does and what benefit it provides (5–10 words)",
 
   "pages.apps.b2b.id.sections.organizations.title": "Connected organizations",
-  "pages.apps.b2b.id.sections.organizations.waitingView.title": "Organizations management is not available yet",
+  "pages.apps.b2b.id.sections.organizations.waitingView.title": "Organization management is not available yet",
   "pages.apps.b2b.id.sections.organizations.waitingView.text": "Publish this application at the relevant stand to view and manage organizations",
-  "pages.apps.b2b.id.sections.organizations.table.empty.message": "App is not connected by any organizations yet",
+  "pages.apps.b2b.id.sections.organizations.table.empty.message": "The app isn’t connected to any organizations yet",
   "pages.apps.b2b.id.sections.organizations.table.empty.search.message": "No organizations found",
   "pages.apps.b2b.id.sections.organizations.table.columns.organization.title": "Organization",
   "pages.apps.b2b.id.sections.organizations.table.columns.status.title": "Connection status",
