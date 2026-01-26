@@ -1,11 +1,11 @@
 import { PaymentStatusType, SortPaymentsBy } from '@app/condo/schema'
-import { Col, Row, Space } from 'antd'
+import { Col, Row, Space, Spin } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -19,6 +19,8 @@ import { EXPORT_PAYMENTS_TO_EXCEL } from '@condo/domains/acquiring/gql'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
+import { usePosIntegrationAlert } from '@condo/domains/acquiring/hooks/usePosIntegrationAlert'
+import { usePosIntegrationLastTestingPosReceipt } from '@condo/domains/acquiring/hooks/usePosIntegrationLastTestingPosReceipt'
 import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
@@ -38,6 +40,7 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
+
 const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
@@ -53,7 +56,7 @@ interface IPaymentsSumInfoProps {
     title: string
     message: string
     currencyCode: string
-    type?:  'success' | 'warning'
+    type?: 'success' | 'warning'
     loading: boolean
 }
 
@@ -80,8 +83,15 @@ export const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
 }
 
 
-const PaymentsTableContent: React.FC = (): JSX.Element => {
+interface PaymentsTableContentProps {
+    areAlertLoading: boolean
+}
+
+const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoading }): JSX.Element => {
     const intl = useIntl()
+    const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt } = usePosIntegrationLastTestingPosReceipt({
+        skipUntilAuthenticated: areAlertLoading,
+    })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
@@ -114,7 +124,13 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         setIsStatusDescModalVisible(true)
     }
 
-    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal)
+    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, { lastTestingPosReceipt })
+
+    useEffect(() => {
+        if (!areAlertLoading) {
+            refetchLastTestingPosReceipt()
+        }
+    }, [areAlertLoading, refetchLastTestingPosReceipt])
 
     const organizationId = get(userOrganization, ['organization', 'id'], '')
     const queryMetas = usePaymentsTableFilters(organizationId)
@@ -178,6 +194,20 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         onReset: handleResetSearch,
         extraQueryParameters: { tab: 'payments', type: 'list' },
     })
+
+    const sortedDataSource = useMemo(() => {
+        if (!lastTestingPosReceipt || !objs) return objs
+        
+        const sortedObjs = [...objs]
+        const highlightedIndex = sortedObjs.findIndex(obj => obj.id === lastTestingPosReceipt.condoPaymentId)
+        
+        if (highlightedIndex > 0) {
+            const [highlightedRow] = sortedObjs.splice(highlightedIndex, 1)
+            sortedObjs.unshift(highlightedRow)
+        }
+        
+        return sortedObjs
+    }, [objs, lastTestingPosReceipt])
 
     return (
         <>
@@ -260,10 +290,15 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 
                 <Col span={24}>
                     <Table
-                        loading={loading}
-                        dataSource={objs}
+                        loading={loading || isLastTestingPosReceiptLoading}
+                        dataSource={sortedDataSource}
                         totalRows={count}
                         columns={tableColumns}
+                        onRow={(record) => {
+                            if (lastTestingPosReceipt && lastTestingPosReceipt?.condoPaymentId === record.id) {
+                                return { style: { backgroundColor: colors.orange[1] } }
+                            }
+                        }}
                     />
                 </Col>
                 <Col span={24}>
@@ -302,10 +337,19 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 }
 
 const PaymentsTable: React.FC = (props) => {
+    const { PosIntegrationAlert, loading: areAlertLoading } = usePosIntegrationAlert()
+
     return (
-        <MultipleFilterContextProvider>
-            <PaymentsTableContent {...props} />
-        </MultipleFilterContextProvider>
+        <Space size={areAlertLoading ? 0 : 30} direction='vertical'>
+            {PosIntegrationAlert}
+            {areAlertLoading ? (
+                <Spin size='large' />
+            ) : (
+                <MultipleFilterContextProvider>
+                    <PaymentsTableContent areAlertLoading={areAlertLoading} {...props} />
+                </MultipleFilterContextProvider>
+            )}
+        </Space>
     )
 }
 

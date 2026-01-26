@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { getPosReceiptUrlRender } from '@condo/domains/acquiring/components/payments/getPosReceiptUrlRender'
 import {
     getDateRender,
     getMoneyRender,
@@ -13,7 +14,14 @@ import {
 } from '@condo/domains/common/components/Table/Renders'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
-export function usePaymentsTableColumns (currencyCode: string, openStatusDescModal): Record<string, unknown>[] {
+import { LastTestingPosReceiptData } from './usePosIntegrationLastTestingPosReceipt'
+
+
+type PaymentsTableColumnsOptions = {
+    lastTestingPosReceipt?: LastTestingPosReceiptData
+}
+
+export function usePaymentsTableColumns (currencyCode: string, openStatusDescModal, options: PaymentsTableColumnsOptions = {}): Record<string, unknown>[] {
     const intl = useIntl()
     const router = useRouter()
 
@@ -25,6 +33,10 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const StatusTitle = intl.formatMessage({ id: 'Status' })
     const PaymentOrderColumnTitle = intl.formatMessage({ id: 'PaymentOrderShort' })
     const PaymentOrderTooltipTitle = intl.formatMessage({ id: 'PaymentOrder' })
+    const PosReceiptColumnTitle = intl.formatMessage({ id: 'pages.condo.payments.posReceiptColumn' })
+    const PosReceiptLinkTitle = intl.formatMessage({ id: 'pages.condo.payments.posReceiptLink' })
+    const PosReceiptVerifyTitle = intl.formatMessage({ id: 'pages.condo.payments.posReceiptVerifyTitle' })
+    const PosReceiptVerifyDescription = intl.formatMessage({ id: 'pages.condo.payments.posReceiptVerifyDescription' })
 
     const { filters } = parseQuery(router.query)
 
@@ -86,8 +98,20 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 width: '14em',
                 sorter: true,
             },
+            posReceiptUrl: {
+                title: PosReceiptColumnTitle,
+                key: 'posReceiptUrl',
+                dataIndex: 'posReceiptUrl',
+                render: getPosReceiptUrlRender({
+                    linkText: PosReceiptLinkTitle,
+                    verifyTitle: PosReceiptVerifyTitle,
+                    verifyDescription: PosReceiptVerifyDescription,
+                    lastTestingPosReceipt: options.lastTestingPosReceipt,
+                }),
+                width: '10em',
+            },
         }
 
         return Object.values(columns)
-    }, [filters, DepositedDateTitle, intl, TransferDateTitle, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentAmountTitle, currencyCode])
+    }, [filters, DepositedDateTitle, intl, TransferDateTitle, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription, options.lastTestingPosReceipt])
 }

@@ -1,0 +1,15 @@
+query getB2BAppContextWithPosIntegrationConfig ($organizationId: ID!) {
+    contexts: allB2BAppContexts (
+        where: {
+            status: Finished,
+            organization: { id: $organizationId },
+            app: { posIntegrationConfig_is_null: false, deletedAt: null },
+            deletedAt: null,
+        },
+        first: 1,
+        sortBy: [createdAt_DESC],
+    ) {
+        id
+        app { posIntegrationConfig { paymentsAlertPageUrl fetchLastPosReceiptUrl } }
+    }
+}

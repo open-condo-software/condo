@@ -69,6 +69,7 @@ async function sendB2BAppPushMessage (context, data) {
 const CustomField = generateServerUtils('CustomField')
 const CustomValue = generateServerUtils('CustomValue')
 
+const B2BAppPosIntegrationConfig = generateServerUtils('B2BAppPosIntegrationConfig')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -92,5 +93,6 @@ module.exports = {
     sendB2BAppPushMessage,
     CustomField,
     CustomValue,
+    B2BAppPosIntegrationConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
