@@ -1,6 +1,6 @@
 import { Row, Col, Table, notification } from 'antd'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -11,12 +11,14 @@ import { Button } from '@open-condo/ui'
 
 
 import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
+import { HighlightedText } from '@/domains/common/components/HighlightedText'
+import { SearchInput } from '@/domains/common/components/SearchInput'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
+import { useDebouncedSearch, useSearch } from '@/domains/common/hooks/useSearch'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
 
 import { CreatePropertyModal } from './CreatePropertyModal'
-import styles from './PropertiesTable.module.css'
 
 import type { AppEnvironment } from '@/gql'
 import type { RowProps } from 'antd'
@@ -35,14 +37,24 @@ type B2CAppProperty = {
 }
 
 const BUTTON_GUTTER: RowProps['gutter'] = [40, 40]
+const SEARCH_GUTTER: RowProps['gutter'] = [20, 20]
 const FULL_COL_SPAN = 24
 const PAGINATION_POSITION = ['bottomLeft' as const]
+
+const HighlightedAddress = ({ address }: { address: string }) => {
+    const [search] = useSearch()
+    return (
+        <HighlightedText text={address} highlight={search}/>
+    )
+}
 
 export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environment }) => {
     const intl = useIntl()
     const AddressColumnTitle = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.table.columns.address.title' })
     const EmptyTableMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.table.empty.message' })
     const AddAddressLabel = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.actions.addProperty' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.table.search.placeholder' })
+    const EmptySearchMessage = intl.formatMessage({ id: 'pages.apps.b2c.id.sections.properties.table.empty.search.message' })
 
     const [isCreatePropertyModalOpen, setIsCreatePropertyModalOpen] = useState(false)
     const showCreatePropertyModal = useCallback(() => {
@@ -58,6 +70,8 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
     const { p } = router.query
     const page = getCurrentPage(p)
 
+    const debouncedSearch = useDebouncedSearch()
+
     const onError = useMutationErrorHandler()
     const [deleteProperty] = useDeleteB2CAppPropertyMutation({
         onError,
@@ -72,21 +86,31 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
         refetchQueries: [AllB2CAppPropertiesDocument],
     })
 
-    const columns = [
+    const columns = useMemo(() => [
         {
             title: AddressColumnTitle,
             key: 'address',
             dataIndex: 'address',
+            render (address: string) {
+                return (
+                    <HighlightedAddress address={address}/>
+                )
+            },
         },
         {
             title: ' ',
             key: 'delete',
             // Right border + 2 x padding + width
-            width: `${16 * 2 + 22 + 1}px`,
+            width: `${16 * 2 + 32 + 1}px`,
             render (_: string, obj: B2CAppProperty) {
                 return (
-                    <div className={styles.deleteIconContainer}>
-                        <Trash size='small' className={styles.deleteIcon} onClick={() => {
+                    <Button
+                        type='primary'
+                        size='medium'
+                        minimal
+                        danger
+                        icon={<Trash size='small'/>}
+                        onClick={() => {
                             deleteProperty({
                                 variables: {
                                     data: {
@@ -97,12 +121,12 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
                                     },
                                 },
                             })
-                        }}/>
-                    </div>
+                        }}
+                    />
                 )
             },
         },
-    ]
+    ], [AddressColumnTitle, deleteProperty, environment])
 
     const { data, loading } = useAllB2CAppPropertiesQuery({
         variables: {
@@ -111,6 +135,7 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
                 app: { id },
                 first: DEFAULT_PAGE_SIZE,
                 skip:  DEFAULT_PAGE_SIZE * (page - 1),
+                search: debouncedSearch,
             },
         },
         skip: !persistor,
@@ -119,6 +144,8 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
 
     const properties = (data?.properties?.objs || []).filter(nonNull)
     const total = data?.properties?.meta.count || 0
+
+    const EmptyMessage = debouncedSearch ? EmptySearchMessage : EmptyTableMessage
 
     useEffect(() => {
         if (!loading) {
@@ -136,23 +163,30 @@ export const PropertiesTable: React.FC<PropertiesTableProps> = ({ id, environmen
     return (
         <Row gutter={BUTTON_GUTTER}>
             <Col span={FULL_COL_SPAN}>
-                <Table
-                    columns={columns}
-                    rowKey='id'
-                    dataSource={properties}
-                    bordered
-                    locale={{ emptyText: <EmptyTableFiller message={EmptyTableMessage} /> }}
-                    loading={loading}
-                    pagination={{
-                        pageSize: DEFAULT_PAGE_SIZE,
-                        position: PAGINATION_POSITION,
-                        showSizeChanger: false,
-                        total: data?.properties?.meta.count || 0,
-                        simple: true,
-                        current: page,
-                        onChange: handlePaginationChange,
-                    }}
-                />
+                <Row gutter={SEARCH_GUTTER}>
+                    <Col span={FULL_COL_SPAN}>
+                        <SearchInput placeholder={SearchPlaceholder}/>
+                    </Col>
+                    <Col span={FULL_COL_SPAN}>
+                        <Table
+                            columns={columns}
+                            rowKey='id'
+                            dataSource={properties}
+                            bordered
+                            locale={{ emptyText: <EmptyTableFiller message={EmptyMessage} /> }}
+                            loading={loading}
+                            pagination={{
+                                pageSize: DEFAULT_PAGE_SIZE,
+                                position: PAGINATION_POSITION,
+                                showSizeChanger: false,
+                                total: data?.properties?.meta.count || 0,
+                                simple: true,
+                                current: page,
+                                onChange: handlePaginationChange,
+                            }}
+                        />
+                    </Col>
+                </Row>
             </Col>
             <Col span={FULL_COL_SPAN}>
                 <Button type='primary' icon={<PlusCircle size='medium'/>} onClick={showCreatePropertyModal}>{AddAddressLabel}</Button>

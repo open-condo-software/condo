@@ -38,7 +38,7 @@ export const PropertiesSection: React.FC<{ id: string }> = ({ id }) => {
     const [selectedEnvironment, setSelectedEnvironment] = useState<AppEnvironment>(queryEnvironment)
 
     const handleEnvironmentChange = useCallback<Required<SelectProps>['onChange']>((newEnv) => {
-        router.replace({ query: { ...omit(router.query, ['p']), env: newEnv as AppEnvironment } }, undefined, { locale: router.locale })
+        router.replace({ query: { ...omit(router.query, ['p', 's']), env: newEnv as AppEnvironment } }, undefined, { locale: router.locale })
         setSelectedEnvironment(newEnv as AppEnvironment)
     }, [router])
 
