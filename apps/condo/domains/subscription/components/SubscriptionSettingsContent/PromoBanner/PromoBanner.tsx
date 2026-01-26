@@ -91,7 +91,7 @@ export const PromoBanner: React.FC = () => {
                         {BannerDescription}
                     </Typography.Text>
                     <Space size={12} direction='horizontal'>
-                        <LoginWithSBBOLButton checkTlsCert className={styles.greenButton} />
+                        <LoginWithSBBOLButton checkTlsCert />
                         <Button
                             type='primary'
                             onClick={handleActivateBankingRequest}

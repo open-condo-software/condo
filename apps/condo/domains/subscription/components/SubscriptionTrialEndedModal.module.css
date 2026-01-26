@@ -1,0 +1,11 @@
+.features-block {
+  padding: 24px;
+  background: var(--condo-global-color-brand-gradient-1);
+  border-radius: 12px;
+}
+
+.footer-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}

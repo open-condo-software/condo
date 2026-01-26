@@ -102,14 +102,13 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink, h
     const hintText = hint ? intl.formatMessage({ id: hint as FormatjsIntl.Message['ids'] }) : null
 
     const icon = available ? <Unlock color={colors.green[5]} size='small' /> : <Lock color={colors.red[5]} size='small' />
-    const textType = available ? undefined : 'secondary'
 
     const textContent = helpLink && !available ? (
         <Typography.Link href={helpLink} target='_blank' rel='noopener noreferrer'>
-            <Typography.Text type={textType}>{featureLabel}</Typography.Text>
+            <Typography.Text type='secondary'>{featureLabel}</Typography.Text>
         </Typography.Link>
     ) : (
-        <Typography.Text type={textType}>{featureLabel}</Typography.Text>
+        <Typography.Text type='secondary'>{featureLabel}</Typography.Text>
     )
 
     return (
