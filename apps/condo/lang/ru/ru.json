@@ -3089,7 +3089,7 @@
   "subscription.welcomeModal.learnMoreAboutPlans": "Подробнее о тарифах",
   "subscription.trialEndedModal.trial.title": "Бесплатный пробный период окончен",
   "subscription.trialEndedModal.paid.title": "Оплаченный период окончен",
-  "subscription.trialEndedModal.activeBanking.description": "В платформе появились платные тарифы и часть функций больше не доступна в базовой версии. Подключите подписку, чтобы сохранить все функции.",
+  "subscription.trialEndedModal.activeBanking.description": "В платформе появились платные тарифы и часть функций больше недоступна в базовой версии. Подключите подписку, чтобы сохранить все функции.",
   "subscription.trialEndedModal.activeBanking.featuresTitle": "Какие возможности теперь платные:",
   "subscription.trialEndedModal.activeBanking.button": "Оплатить подписку",
   "subscription.trialEndedModal.nonActiveBanking.description": "В платформе появились платные тарифы. Подключите подписку, чтобы сохранить все функции.",

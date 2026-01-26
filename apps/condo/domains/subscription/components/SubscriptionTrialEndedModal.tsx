@@ -214,6 +214,7 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
     const ActivateButtonLabel = intl.formatMessage({ id: 'subscription.promoBanner.activateButton' })
     const RequestSentMessage = intl.formatMessage({ id: 'subscription.promoBanner.requestSent' })
     const RequestSentDescription = intl.formatMessage({ id: 'subscription.promoBanner.requestSentDescription' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'global.errors.serverError.title' })
 
     useEffect(() => {
         const isWebview = document.querySelector('body.webview')
@@ -270,10 +271,14 @@ export const SubscriptionTrialEndedModal: React.FC = () => {
             })
         } catch (error) {
             console.error('Failed to create help request:', error)
+            notification.error({
+                message: ServerErrorMessage,
+                duration: 5,
+            })
         } finally {
             setBankingLoading(false)
         }
-    }, [organizationId, user?.phone, user?.email, createUserHelpRequest, refetchPendingRequest, RequestSentMessage, RequestSentDescription, handleClose])
+    }, [organizationId, user?.phone, user?.email, createUserHelpRequest, refetchPendingRequest, RequestSentMessage, RequestSentDescription, handleClose, ServerErrorMessage])
 
     if (!content || !isVisible) {
         return null
