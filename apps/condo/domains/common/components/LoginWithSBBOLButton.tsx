@@ -8,6 +8,8 @@ import { colors } from '@open-condo/ui/colors'
 
 import { useCheckTLSClientCert } from '@condo/domains/common/hooks/useCheckTLSClientCert'
 
+import styles from './LoginWithSBBOLButton.module.css'
+
 
 type LoginWithSBBOLButtonProps = {
     label?: string
@@ -45,7 +47,9 @@ export const LoginWithSBBOLButton: React.FC<LoginWithSBBOLButtonProps> = ({
         onFail: redirectToTlsPage,
     })
 
-    const buttonClassName = className ? `condo-btn-sbbol ${className}` : 'condo-btn-sbbol'
+    const buttonClassName = className 
+        ? `condo-btn-sbbol ${styles.greenButton} ${className}` 
+        : `condo-btn-sbbol ${styles.greenButton}`
 
     return (
         <Button
