@@ -18,13 +18,13 @@ function splitTextByHighlight (text: string, highlight?: string): TextPart[] {
     }
 
     // Escape special regex characters in the search term
-    // NOTE: client code + regex is static
-    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
     const escapedHighlight = highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     
     // Split text by the search term (case-insensitive)
     // Note: Using capturing group () in regex makes split() include the matched parts in the result array
     // Example: "Hello World".split(/(world)/gi) => ["Hello ", "World", ""]
+    // NOTE: client code + regex is static
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
     const regex = new RegExp(`(${escapedHighlight})`, 'gi')
     const splitParts = text.split(regex)
 
