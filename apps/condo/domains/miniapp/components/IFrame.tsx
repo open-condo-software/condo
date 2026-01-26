@@ -171,7 +171,8 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         height: frameHeight,
         overflowY: 'hidden',
         transition: 'height 200ms ease',
-    }), [frameHeight])
+        display: hidden ? 'none' : 'block',
+    }), [frameHeight, hidden])
 
     return (
         <div style={containerStyle}>
