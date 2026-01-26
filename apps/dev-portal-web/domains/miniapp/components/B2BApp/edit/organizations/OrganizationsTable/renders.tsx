@@ -1,4 +1,5 @@
 import { Flex } from 'antd'
+import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
@@ -6,7 +7,9 @@ import { Check, Trash, Close } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { Button, Typography, Modal } from '@open-condo/ui'
 
+import { HighlightedText } from '@/domains/common/components/HighlightedText'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
+import { useSearch } from '@/domains/common/hooks/useSearch'
 
 import styles from './renders.module.css'
 
@@ -46,18 +49,20 @@ const StatusCell: React.FC<{ status: B2BAppContextStatus }> = ({ status }) => {
 const OrganizationCell: React.FC<{ organization: OrganizationType }> = ({ organization }) => {
     const intl = useIntl()
     const TINLabel = intl.formatMessage({ id: 'global.terms.tin' })
+
     const { name, tin } = organization
+    const [search] = useSearch()
 
     return (
         <div className={styles.organizationCellContainer}>
             {name && (
                 <Typography.Paragraph size='medium' ellipsis={ELLIPSIS_ROWS}>
-                    {name}
+                    <HighlightedText text={name} highlight={search}/>
                 </Typography.Paragraph>
             )}
             {tin && (
                 <Typography.Paragraph type='secondary' size='small' ellipsis={ELLIPSIS_ROWS}>
-                    {TINLabel}: {tin}
+                    {TINLabel}: <HighlightedText text={tin} highlight={search}/>
                 </Typography.Paragraph>
             )}
         </div>

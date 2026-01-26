@@ -1,0 +1,9 @@
+.transparent-suffix-input:global(.condo-input-with-suffix.condo-input-affix-wrapper) {
+  padding-right: 11px;
+}
+
+.transparent-suffix-input:global(.condo-input-with-suffix.condo-input-affix-wrapper>.condo-input-suffix) {
+  padding: 0;
+  color: var(--condo-global-color-gray-7);
+  background-color: transparent;
+}

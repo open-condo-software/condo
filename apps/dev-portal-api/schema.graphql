@@ -6583,6 +6583,7 @@ input AllB2BAppContextsInput {
   first: Int!
   skip: Int!
   environment: AppEnvironment!
+  search: String
 }
 
 enum B2BAppContextStatus {
@@ -6684,6 +6685,7 @@ input AllB2CAppPropertiesInput {
   first: Int!
   skip: Int!
   environment: AppEnvironment!
+  search: String
 }
 
 type B2CAppProperty {

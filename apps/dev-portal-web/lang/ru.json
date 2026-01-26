@@ -207,6 +207,7 @@
   "pages.apps.b2b.id.sections.organizations.waitingView.title": "Управление организациями пока недоступно",
   "pages.apps.b2b.id.sections.organizations.waitingView.text": "Для просмотра и управления организациями опубликуйте данное приложение на соответствующем стенде",
   "pages.apps.b2b.id.sections.organizations.table.empty.message": "Приложение пока никто не подключил",
+  "pages.apps.b2b.id.sections.organizations.table.empty.search.message": "Организаций не найдено",
   "pages.apps.b2b.id.sections.organizations.table.columns.organization.title": "Организация",
   "pages.apps.b2b.id.sections.organizations.table.columns.status.title": "Статус подключения",
   "pages.apps.b2b.id.sections.organizations.table.columns.status.options.InProgress.title": "Ожидает подключения",
@@ -220,6 +221,7 @@
   "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.delete.description": "Вы действительно хотите отключить сервис «{appName}» у организации «{organizationName}»?",
   "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.delete.actions.continue": "Отключить",
   "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.delete.actions.cancel": "Отмена",
+  "pages.apps.b2b.id.sections.organizations.table.search.placeholder": "Поиск по названию или ИНН",
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC авторизация",
 

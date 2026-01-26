@@ -1,4 +1,4 @@
-import { Table } from 'antd'
+import { Table, Row, Col } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 import { useIntl } from 'react-intl'
@@ -6,16 +6,20 @@ import { useIntl } from 'react-intl'
 import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 
 import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
+import { SearchInput } from '@/domains/common/components/SearchInput'
+import { useDebouncedSearch } from '@/domains/common/hooks/useSearch'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
 
 import { statusRender, organizationRender, getActionsRender } from './renders'
 
 import type { AppEnvironment } from '@/gql'
+import type { RowProps } from 'antd'
 
 import { useAllB2BAppContextsQuery } from '@/gql'
 
-
+const SEARCH_GUTTER: RowProps['gutter'] = [20, 20]
+const FULL_COL_SPAN = 24
 const PAGINATION_POSITION = ['bottomLeft' as const]
 
 type OrganizationsTableProps = {
@@ -35,10 +39,13 @@ export const OrganizationsTable: React.FC<OrganizationsTableProps> = ({ id, envi
     const EmptyTableMessage = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.organizations.table.empty.message' })
     const OrganizationColumnTitle = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.organizations.table.columns.organization.title' })
     const StatusColumnTitle = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.organizations.table.columns.status.title' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.organizations.table.search.placeholder' })
+    const EmptySearchMessage = intl.formatMessage({ id: 'pages.apps.b2b.id.sections.organizations.table.empty.search.message' })
 
     const router = useRouter()
     const { p } = router.query
     const page = getCurrentPage(p)
+    const debouncedSearch = useDebouncedSearch()
 
     const { data, loading, refetch } = useAllB2BAppContextsQuery({
         variables: {
@@ -47,6 +54,7 @@ export const OrganizationsTable: React.FC<OrganizationsTableProps> = ({ id, envi
                 app: { id },
                 first: DEFAULT_PAGE_SIZE,
                 skip:  DEFAULT_PAGE_SIZE * (page - 1),
+                search: debouncedSearch,
             },
         },
         fetchPolicy: 'cache-and-network',
@@ -86,26 +94,34 @@ export const OrganizationsTable: React.FC<OrganizationsTableProps> = ({ id, envi
         router.replace({ query: { ...router.query, p: newPage } },  undefined, { locale: router.locale })
     }, [router])
 
+    const EmptyMessage = debouncedSearch ? EmptySearchMessage : EmptyTableMessage
+
     return (
-        <Table
-            columns={columns}
-            dataSource={contexts}
-            rowKey='id'
-            bordered
-            style={minWidthStyles}
-            scroll={scroll}
-            locale={{ emptyText: <EmptyTableFiller message={EmptyTableMessage} /> }}
-            loading={loading}
-            pagination={{
-                pageSize: DEFAULT_PAGE_SIZE,
-                position: PAGINATION_POSITION,
-                showSizeChanger: false,
-                total: data?.contexts?.meta.count || 0,
-                simple: true,
-                current: page,
-                onChange: handlePaginationChange,
-            }}
-            // size='small'
-        />
+        <Row gutter={SEARCH_GUTTER}>
+            <Col span={FULL_COL_SPAN}>
+                <SearchInput placeholder={SearchPlaceholder}/>
+            </Col>
+            <Col span={FULL_COL_SPAN}>
+                <Table
+                    columns={columns}
+                    dataSource={contexts}
+                    rowKey='id'
+                    bordered
+                    style={minWidthStyles}
+                    scroll={scroll}
+                    locale={{ emptyText: <EmptyTableFiller message={EmptyMessage} /> }}
+                    loading={loading}
+                    pagination={{
+                        pageSize: DEFAULT_PAGE_SIZE,
+                        position: PAGINATION_POSITION,
+                        showSizeChanger: false,
+                        total: data?.contexts?.meta.count || 0,
+                        simple: true,
+                        current: page,
+                        onChange: handlePaginationChange,
+                    }}
+                />
+            </Col>
+        </Row>
     )
 }

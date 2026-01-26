@@ -30,6 +30,7 @@ export type AllB2BAppContextsInput = {
   app: B2BAppWhereUniqueInput;
   environment: AppEnvironment;
   first: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
   skip: Scalars['Int']['input'];
 };
 
@@ -37,6 +38,7 @@ export type AllB2CAppPropertiesInput = {
   app: B2CAppWhereUniqueInput;
   environment: AppEnvironment;
   first: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
   skip: Scalars['Int']['input'];
 };
 

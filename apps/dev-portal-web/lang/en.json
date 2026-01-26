@@ -207,6 +207,7 @@
   "pages.apps.b2b.id.sections.organizations.waitingView.title": "Organizations management is not available yet",
   "pages.apps.b2b.id.sections.organizations.waitingView.text": "Publish this application at the relevant stand to view and manage organizations",
   "pages.apps.b2b.id.sections.organizations.table.empty.message": "App is not connected by any organizations yet",
+  "pages.apps.b2b.id.sections.organizations.table.empty.search.message": "No organizations found",
   "pages.apps.b2b.id.sections.organizations.table.columns.organization.title": "Organization",
   "pages.apps.b2b.id.sections.organizations.table.columns.status.title": "Connection status",
   "pages.apps.b2b.id.sections.organizations.table.columns.status.options.InProgress.title": "Awaiting connection",
@@ -220,6 +221,7 @@
   "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.delete.description": "Are you sure you want to disconnect service \"{appName}\" from organization \"{organizationName}\"?",
   "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.delete.actions.continue": "Disconnect",
   "pages.apps.b2b.id.sections.organizations.table.columns.actions.deletionModal.delete.actions.cancel": "Cancel",
+  "pages.apps.b2b.id.sections.organizations.table.search.placeholder": "Search by name or TIN",
 
   "pages.apps.b2b.id.sections.oidc.title": "OIDC authorization",
 
