@@ -26,10 +26,19 @@ export type Scalars = {
   Upload: { input: any; output: any; }
 };
 
+export type AllB2BAppContextsInput = {
+  app: B2BAppWhereUniqueInput;
+  environment: AppEnvironment;
+  first: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  skip: Scalars['Int']['input'];
+};
+
 export type AllB2CAppPropertiesInput = {
   app: B2CAppWhereUniqueInput;
   environment: AppEnvironment;
   first: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
   skip: Scalars['Int']['input'];
 };
 
@@ -59,6 +68,17 @@ export enum B2BAppCategoryType {
   Gis = 'GIS',
   Other = 'OTHER',
   SmartHome = 'SMART_HOME'
+}
+
+export enum B2BAppContextAction {
+  Connect = 'connect',
+  Disconnect = 'disconnect'
+}
+
+export enum B2BAppContextStatus {
+  Error = 'Error',
+  Finished = 'Finished',
+  InProgress = 'InProgress'
 }
 
 export type B2BAppCreateInput = {
@@ -3942,6 +3962,14 @@ export type StartConfirmPhoneActionInput = {
   sender: SenderFieldInput;
 };
 
+export type UpdateB2BAppContextInput = {
+  action: B2BAppContextAction;
+  dv: Scalars['Int']['input'];
+  environment: AppEnvironment;
+  id: Scalars['ID']['input'];
+  sender: SenderFieldInput;
+};
+
 export type UpdateOidcClientUrlInput = {
   app: AppWhereUniqueInput;
   dv: Scalars['Int']['input'];
@@ -5137,6 +5165,7 @@ export type WebhookSubscriptionHistoryRecordsUpdateInput = {
 };
 
 export enum WebhookSubscriptionModelType {
+  B2BAppPublishRequest = 'B2BAppPublishRequest',
   B2CAppPublishRequest = 'B2CAppPublishRequest'
 }
 
@@ -5517,6 +5546,20 @@ export type UpdateB2BAppMutationVariables = Exact<{
 
 
 export type UpdateB2BAppMutation = { __typename?: 'Mutation', app?: { __typename: 'B2BApp', id: string, name?: string | null, developer?: string | null, developerUrl?: string | null, category?: B2BAppCategoryType | null, shortDescription?: string | null, detailedDescription?: string | null, developmentExportId?: string | null, productionExportId?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+
+export type AllB2BAppContextsQueryVariables = Exact<{
+  data: AllB2BAppContextsInput;
+}>;
+
+
+export type AllB2BAppContextsQuery = { __typename?: 'Query', contexts?: { __typename?: 'AllB2BAppContextsOutput', objs: Array<{ __typename?: 'B2BAppContext', id: string, status: B2BAppContextStatus, organization: { __typename?: 'OrganizationInfo', id: string, tin?: string | null, name: string } }>, meta: { __typename?: 'B2BAppContextMeta', count: number } } | null };
+
+export type UpdateB2BAppContextMutationVariables = Exact<{
+  data: UpdateB2BAppContextInput;
+}>;
+
+
+export type UpdateB2BAppContextMutation = { __typename?: 'Mutation', result?: { __typename?: 'UpdateB2BAppContextOutput', success: boolean } | null };
 
 export type AllB2BAppPublishRequestsQueryVariables = Exact<{
   appId: Scalars['ID']['input'];
@@ -5956,6 +5999,90 @@ export function useUpdateB2BAppMutation(baseOptions?: Apollo.MutationHookOptions
 export type UpdateB2BAppMutationHookResult = ReturnType<typeof useUpdateB2BAppMutation>;
 export type UpdateB2BAppMutationResult = Apollo.MutationResult<UpdateB2BAppMutation>;
 export type UpdateB2BAppMutationOptions = Apollo.BaseMutationOptions<UpdateB2BAppMutation, UpdateB2BAppMutationVariables>;
+export const AllB2BAppContextsDocument = gql`
+    query allB2BAppContexts($data: AllB2BAppContextsInput!) {
+  contexts: allB2BAppContexts(data: $data) {
+    objs {
+      id
+      status
+      organization {
+        id
+        tin
+        name
+      }
+    }
+    meta {
+      count
+    }
+  }
+}
+    `;
+
+/**
+ * __useAllB2BAppContextsQuery__
+ *
+ * To run a query within a React component, call `useAllB2BAppContextsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAllB2BAppContextsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAllB2BAppContextsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useAllB2BAppContextsQuery(baseOptions: Apollo.QueryHookOptions<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables> & ({ variables: AllB2BAppContextsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>(AllB2BAppContextsDocument, options);
+      }
+export function useAllB2BAppContextsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>(AllB2BAppContextsDocument, options);
+        }
+export function useAllB2BAppContextsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>(AllB2BAppContextsDocument, options);
+        }
+export type AllB2BAppContextsQueryHookResult = ReturnType<typeof useAllB2BAppContextsQuery>;
+export type AllB2BAppContextsLazyQueryHookResult = ReturnType<typeof useAllB2BAppContextsLazyQuery>;
+export type AllB2BAppContextsSuspenseQueryHookResult = ReturnType<typeof useAllB2BAppContextsSuspenseQuery>;
+export type AllB2BAppContextsQueryResult = Apollo.QueryResult<AllB2BAppContextsQuery, AllB2BAppContextsQueryVariables>;
+export const UpdateB2BAppContextDocument = gql`
+    mutation updateB2BAppContext($data: UpdateB2BAppContextInput!) {
+  result: updateB2BAppContext(data: $data) {
+    success
+  }
+}
+    `;
+export type UpdateB2BAppContextMutationFn = Apollo.MutationFunction<UpdateB2BAppContextMutation, UpdateB2BAppContextMutationVariables>;
+
+/**
+ * __useUpdateB2BAppContextMutation__
+ *
+ * To run a mutation, you first call `useUpdateB2BAppContextMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateB2BAppContextMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateB2BAppContextMutation, { data, loading, error }] = useUpdateB2BAppContextMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateB2BAppContextMutation(baseOptions?: Apollo.MutationHookOptions<UpdateB2BAppContextMutation, UpdateB2BAppContextMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateB2BAppContextMutation, UpdateB2BAppContextMutationVariables>(UpdateB2BAppContextDocument, options);
+      }
+export type UpdateB2BAppContextMutationHookResult = ReturnType<typeof useUpdateB2BAppContextMutation>;
+export type UpdateB2BAppContextMutationResult = Apollo.MutationResult<UpdateB2BAppContextMutation>;
+export type UpdateB2BAppContextMutationOptions = Apollo.BaseMutationOptions<UpdateB2BAppContextMutation, UpdateB2BAppContextMutationVariables>;
 export const AllB2BAppPublishRequestsDocument = gql`
     query allB2BAppPublishRequests($appId: ID!) {
   requests: allB2BAppPublishRequests(

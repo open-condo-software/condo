@@ -13,11 +13,13 @@ const {
     IMPORT_B2C_APP_MUTATION,
     CREATE_B2C_APP_PROPERTY_MUTATION,
     DELETE_B2C_APP_PROPERTY_MUTATION,
+    ALL_B2B_APP_CONTEXTS_QUERY,
     ALL_B2C_APP_PROPERTIES_QUERY,
     GET_B2C_APP_INFO_QUERY,
     GET_OIDC_CLIENT_QUERY,
     CREATE_OIDC_CLIENT_MUTATION,
     GENERATE_OIDC_CLIENT_SECRET_MUTATION,
+    UPDATE_B2B_APP_CONTEXT_MUTATION,
     UPDATE_OIDC_CLIENT_URL_MUTATION,
     REGISTER_APP_USER_SERVICE_MUTATION,
 } = require('@dev-portal-api/domains/miniapp/gql')
@@ -64,6 +66,32 @@ async function importB2CApp (context, data) {
         query: IMPORT_B2C_APP_MUTATION,
         variables: { data },
         errorMessage: '[error] Unable to importB2CApp',
+        dataPath: 'result',
+    })
+}
+
+async function allB2BAppContexts (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: ALL_B2B_APP_CONTEXTS_QUERY,
+        variables: { data },
+        errorMessage: '[error] Unable to allB2BAppContexts',
+        dataPath: 'result',
+    })
+}
+
+async function updateB2BAppContext (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: UPDATE_B2B_APP_CONTEXT_MUTATION,
+        variables: { data },
+        errorMessage: '[error] Unable to updateB2BAppContext',
         dataPath: 'result',
     })
 }
@@ -187,6 +215,8 @@ module.exports = {
     B2BApp,
     B2BAppPublishRequest,
     publishB2BApp,
+    allB2BAppContexts,
+    updateB2BAppContext,
 
     B2CApp,
     B2CAppAccessRight,

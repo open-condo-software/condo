@@ -6,14 +6,14 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { CondoB2CAppPropertyGql } = require('@dev-portal-api/domains/condo/gql')
 const access = require('@dev-portal-api/domains/miniapp/access/AllB2CAppPropertiesService')
-const { findCondoApp } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/findCondoApp')
+const { findCondoB2CApp } = require('@dev-portal-api/domains/miniapp/utils/serverSchema/findCondoApp')
 
 
 const AllB2CAppPropertiesService = new GQLCustomSchema('AllB2CAppPropertiesService', {
     types: [
         {
             access: true,
-            type: 'input AllB2CAppPropertiesInput { app: B2CAppWhereUniqueInput!, first: Int!, skip: Int!, environment: AppEnvironment! }',
+            type: 'input AllB2CAppPropertiesInput { app: B2CAppWhereUniqueInput!, first: Int!, skip: Int!, environment: AppEnvironment!, search: String }',
         },
         {
             access: true,
@@ -34,18 +34,24 @@ const AllB2CAppPropertiesService = new GQLCustomSchema('AllB2CAppPropertiesServi
             access: access.canExecuteAllB2CAppProperties,
             schema: 'allB2CAppProperties (data: AllB2CAppPropertiesInput!): AllB2CAppPropertiesOutput',
             resolver: async (parent, args, context) => {
-                const { data: { first, skip } } = args
+                const { data: { first, skip, search } } = args
 
-                const { condoApp, serverClient } = await findCondoApp({ args, context })
+                const { condoApp, serverClient } = await findCondoB2CApp({ args, context })
+
+                const where = {
+                    app: { id: condoApp.id },
+                }
+
+                if (search) {
+                    where.address_contains_i = search
+                }
 
                 return  await serverClient.getModelsWithCount({
                     modelGql: CondoB2CAppPropertyGql,
-                    where: {
-                        app: { id: condoApp.id },
-                    },
+                    where,
                     first,
                     skip,
-                    sortBy: ['createdAt_DESC'],
+                    sortBy: ['createdAt_DESC', 'id_ASC'],
                 })
             },
         },

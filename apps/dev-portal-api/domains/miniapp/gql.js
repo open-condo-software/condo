@@ -40,6 +40,23 @@ const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 const B2C_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
 const B2CAppPublishRequest = generateGqlQueries('B2CAppPublishRequest', B2C_APP_PUBLISH_REQUEST_FIELDS)
 
+const ALL_B2B_APP_CONTEXTS_QUERY = gql`
+    query allB2BAppContexts ($data: AllB2BAppContextsInput!) {
+        result: allB2BAppContexts(data: $data) { 
+            objs { id organization { id name tin } status }
+            meta { count }
+        }
+    }
+`
+
+const UPDATE_B2B_APP_CONTEXT_MUTATION = gql`
+    mutation updateB2BAppContext ($data: UpdateB2BAppContextInput!) {
+        result: updateB2BAppContext(data: $data) { success }
+    }
+`
+
+
+
 const PUBLISH_B2C_APP_MUTATION = gql`
     mutation publishB2CApp ($data: PublishB2CAppInput!) {
         result: publishB2CApp(data: $data) { success }
@@ -116,6 +133,8 @@ module.exports = {
     B2BApp,
     B2BAppPublishRequest,
     PUBLISH_B2B_APP_MUTATION,
+    ALL_B2B_APP_CONTEXTS_QUERY,
+    UPDATE_B2B_APP_CONTEXT_MUTATION,
 
     B2CApp,
     B2CAppAccessRight,

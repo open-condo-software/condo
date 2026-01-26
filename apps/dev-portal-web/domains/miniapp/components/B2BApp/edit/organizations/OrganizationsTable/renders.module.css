@@ -1,0 +1,8 @@
+.divider {
+  height: 16px;
+  border-left: 1px solid var(--condo-global-color-gray-5);
+}
+
+.organization-cell-container {
+  min-width: var(--organizations-table-organization-min-width, 200px);
+}

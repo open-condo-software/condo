@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { AllB2BAppContextsService } = require('./AllB2BAppContextsService')
 const { AllB2CAppPropertiesService } = require('./AllB2CAppPropertiesService')
 const { B2BApp } = require('./B2BApp')
 const { B2BAppPublishRequest } = require('./B2BAppPublishRequest')
@@ -20,6 +21,7 @@ const { ImportB2CAppService } = require('./ImportB2CAppService')
 const { PublishB2BAppService } = require('./PublishB2BAppService')
 const { PublishB2CAppService } = require('./PublishB2CAppService')
 const { RegisterAppServiceUserService } = require('./RegisterAppServiceUserService')
+const { UpdateB2BAppContextService } = require('./UpdateB2BAppContextService')
 const { UpdateOIDCClientUrlService } = require('./UpdateOIDCClientUrlService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -27,6 +29,8 @@ module.exports = {
     B2BApp,
     B2BAppPublishRequest,
     PublishB2BAppService,
+    AllB2BAppContextsService,
+    UpdateB2BAppContextService,
 
     B2CApp,
     B2CAppAccessRight,

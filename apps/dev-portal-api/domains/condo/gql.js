@@ -1,6 +1,7 @@
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const CondoB2BAppGql = generateGqlQueries('B2BApp', '{ id oidcClient { id deletedAt } }')
+const CondoB2BAppContextGql = generateGqlQueries('B2BAppContext', '{ id status deletedAt organization { id name tin deletedAt } app { importId importRemoteSystem } }')
 
 const CondoB2CAppGql = generateGqlQueries('B2CApp', '{ id oidcClient { id deletedAt } }')
 const CondoB2CAppBuildGql = generateGqlQueries('B2CAppBuild', '{ id }')
@@ -11,6 +12,7 @@ const CondoB2CAppWithInfoGql = generateGqlQueries('B2CApp', '{ id currentBuild {
 
 module.exports = {
     CondoB2BAppGql,
+    CondoB2BAppContextGql,
 
     CondoB2CAppGql,
     CondoB2CAppWithInfoGql,

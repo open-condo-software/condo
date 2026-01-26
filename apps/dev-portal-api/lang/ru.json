@@ -33,6 +33,7 @@
   "api.miniapp.registerAppServiceUser.APP_NOT_FOUND": "С момента подтверждения электронной почты прошло слишком много времени",
   "api.miniapp.registerAppServiceUser.CONDO_USER_ALREADY_EXISTS": "Пользователь с такой электронной почтой уже был зарегистрирован на выбранном стенде",
   "api.miniapp.registerAppServiceUser.ACCESS_RIGHT_ALREADY_EXISTS": "К данному приложению уже привязан сервисный пользователь",
+  "api.miniapp.updateB2BAppContext.B2B_APP_CONTEXT_NOT_FOUND": "Запрос на подключение данной организации не найден, возможно он уже был обработан кем-то другим",
   "api.miniapp.updateOIDCClientUrl.INVALID_URL": "Указанный redirectUri не является валидной ссылкой",
   "api.miniapp.updateOIDCClientUrl.HTTPS_ONLY": "URL имеет невалидные протокол. Для выбранного стенда разрешен только https"
 }

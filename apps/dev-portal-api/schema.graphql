@@ -5568,6 +5568,7 @@ input WebhookRelateToOneInput {
 }
 
 enum WebhookSubscriptionModelType {
+  B2BAppPublishRequest
   B2CAppPublishRequest
 }
 
@@ -6577,6 +6578,58 @@ type PublishB2BAppOutput {
   success: Boolean!
 }
 
+input AllB2BAppContextsInput {
+  app: B2BAppWhereUniqueInput!
+  first: Int!
+  skip: Int!
+  environment: AppEnvironment!
+  search: String
+}
+
+enum B2BAppContextStatus {
+  InProgress
+  Error
+  Finished
+}
+
+type OrganizationInfo {
+  id: ID!
+  name: String!
+  tin: String
+}
+
+type B2BAppContext {
+  id: ID!
+  status: B2BAppContextStatus!
+  organization: OrganizationInfo!
+}
+
+type B2BAppContextMeta {
+  count: Int!
+}
+
+type AllB2BAppContextsOutput {
+  objs: [B2BAppContext!]!
+  meta: B2BAppContextMeta!
+}
+
+enum B2BAppContextAction {
+  connect
+  disconnect
+}
+
+input UpdateB2BAppContextInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  id: ID!
+  environment: AppEnvironment!
+  action: B2BAppContextAction!
+}
+
+type UpdateB2BAppContextOutput {
+  success: Boolean!
+}
+
 input B2CAppPublishOptions {
   info: Boolean
   build: B2CAppBuildWhereUniqueInput
@@ -6632,6 +6685,7 @@ input AllB2CAppPropertiesInput {
   first: Int!
   skip: Int!
   environment: AppEnvironment!
+  search: String
 }
 
 type B2CAppProperty {
@@ -7095,6 +7149,7 @@ type Query {
 
   """ Retrieve the meta-data for all lists. """
   _ksListsMeta(where: _ksListsMetaInput): [_ListMeta]
+  allB2BAppContexts(data: AllB2BAppContextsInput!): AllB2BAppContextsOutput
   allB2CAppProperties(data: AllB2CAppPropertiesInput!): AllB2CAppPropertiesOutput
   getB2CAppInfo(data: GetB2CAppInfoInput!): GetB2CAppInfoOutput
   OIDCClient(data: GetOIDCClientInput!): OIDCClient
@@ -7525,6 +7580,7 @@ type Mutation {
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput
   registerNewUser(data: RegisterNewUserInput!): User
   publishB2BApp(data: PublishB2BAppInput!): PublishB2BAppOutput
+  updateB2BAppContext(data: UpdateB2BAppContextInput!): UpdateB2BAppContextOutput
   publishB2CApp(data: PublishB2CAppInput!): PublishB2CAppOutput
   importB2CApp(data: ImportB2CAppInput!): ImportB2CAppOutput
   createB2CAppProperty(data: CreateB2CAppPropertyInput!): CreateB2CAppPropertyOutput
