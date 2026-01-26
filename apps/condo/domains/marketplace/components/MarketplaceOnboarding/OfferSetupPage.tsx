@@ -70,5 +70,5 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         return <LoadingOrErrorPage loading={acquiringContextLoading} error={acquiringContextError}/>
     }
 
-    return <IFrame src={setupUrl} reloadScope='organization' withPrefetch withLoader withResize/>
+    return <IFrame src={setupUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={400}/>
 }

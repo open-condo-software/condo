@@ -37,6 +37,7 @@ export type IFrameProps = {
     withResize?: boolean
     allowFullscreen?: boolean
     onLoad?: () => void
+    initialHeight?: number
 }
 
 
@@ -50,6 +51,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         withResize = false,
         allowFullscreen = false,
         onLoad,
+        initialHeight = DEFAULT_FRAME_HEIGHT,
     } = props
 
     const intl = useIntl()
@@ -69,7 +71,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
     const [frameId, setFrameId] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isError, setIsError] = useState(false)
-    const [frameHeight, setFrameHeight] = useState(DEFAULT_FRAME_HEIGHT)
+    const [frameHeight, setFrameHeight] = useState(initialHeight)
     const isClientSide = typeof window !== 'undefined'
 
     const { user } = useAuth()
@@ -165,8 +167,14 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         }
     }, [frameId, addEventHandler, requestAuth])
 
+    const containerStyle = useMemo<CSSProperties>(() => ({
+        height: frameHeight,
+        overflowY: 'hidden',
+        transition: 'height 200ms ease',
+    }), [frameHeight])
+
     return (
-        <>
+        <div style={containerStyle}>
             {withLoader && isLoading && (
                 <Loader fill size='large'/>
             )}
@@ -193,7 +201,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
                 // NOTE: Deprecated, but overflow: hidden still not works in Chrome :)
                 scrolling='no'
             />
-        </>
+        </div>
     )
 })
 

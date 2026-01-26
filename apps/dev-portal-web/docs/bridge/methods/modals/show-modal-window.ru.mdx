@@ -15,6 +15,7 @@
 | title         | string              | да           | Заголовок модального окна                                                                                                      |
 | url           | string              | да           | url страницы, которая будет открыта в модальном окне                                                                           |
 | size          | small \| big        | нет          | Размер модального окна. Примеры можно найти [здесь](https://condo.d.doma.ai/ui/index.html?path=/story/components-modal--modal) |
+| initialHeight | number              | нет          | Начальная высота модального окна                                                                                              |
 
 
 ## Возвращаемое значение
@@ -48,6 +49,7 @@ export default function MiniappPage (): React.ReactNode {
             url: 'http://localhost:3001/modal',
             size: 'small',
             title: 'My modal title',
+            initialHeight: 450,
         }).then((data) => {
             setOpenModalId(data.modalId)
         })
