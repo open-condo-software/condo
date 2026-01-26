@@ -22,8 +22,7 @@ import styles from './SubscriptionTrialEndedModal.module.css'
 import { useOrganizationSubscription } from '../hooks'
 
 
-const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
-const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {} } } = getConfig()
+const { publicRuntimeConfig: { hasSbbolAuth, subscriptionFeatureHelpLinks = {} } } = getConfig()
 
 type ModalVariant = 'activeBanking' | 'nonActiveBanking'
 
