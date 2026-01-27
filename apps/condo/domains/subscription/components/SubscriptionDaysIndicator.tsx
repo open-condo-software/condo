@@ -15,10 +15,9 @@ const BRAND_GRADIENT = {
 
 export const SubscriptionDaysIndicator: React.FC = () => {
     const intl = useIntl()
-    const { subscriptionContext } = useOrganizationSubscription()
+    const { subscriptionContext, daysRemaining } = useOrganizationSubscription()
 
     const isTrial = subscriptionContext?.isTrial
-    const daysRemaining = subscriptionContext?.daysRemaining
     const planName = subscriptionContext?.subscriptionPlan?.name || ''
     const endDate = subscriptionContext?.endAt ? dayjs(subscriptionContext.endAt).format('DD.MM.YY') : ''
 
@@ -53,7 +52,7 @@ export const SubscriptionDaysIndicator: React.FC = () => {
         }
     }, [daysRemaining, isTrial, subscriptionContext?.startAt, subscriptionContext?.endAt])
 
-    const  strokeColor  = useMemo(() => {
+    const strokeColor = useMemo(() => {
         if (!daysRemaining) {
             return BRAND_GRADIENT
         }

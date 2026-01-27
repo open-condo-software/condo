@@ -44,13 +44,7 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
                 enabledB2BApps
                 enabledB2CApps
                 daysRemaining
-                planName
-                planId
-                isTrial
-                startAt
-                endAt
-                canBePromoted
-                priority
+                activeSubscriptionContextId
             }
         }
         role {
