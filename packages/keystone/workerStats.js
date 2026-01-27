@@ -75,6 +75,10 @@ class WorkerStatsCollector {
             // Current task
             currentTask: null,
             
+            // Active tasks count (similar to activeRequestsIds in runtimeStats)
+            activeTasksCount: 0,
+            activeTasksCountByName: {},
+            
             // Counters
             totalTasksCount: 0,
             totalTasksCountByName: {},
@@ -103,6 +107,10 @@ class WorkerStatsCollector {
 
         const memoryAtStart = captureMemorySnapshot()
         
+        // Increment active tasks count
+        this.stats.activeTasksCount++
+        this.stats.activeTasksCountByName[job.name] = (this.stats.activeTasksCountByName[job.name] || 0) + 1
+        
         this.stats.currentTask = {
             id: job.id,
             name: job.name,
@@ -123,6 +131,10 @@ class WorkerStatsCollector {
         const memoryDelta = this.stats.currentTask 
             ? calculateMemoryDelta(this.stats.currentTask.memoryAtStart, memoryAtEnd)
             : { rss: 0, nativeMemory: 0 }
+
+        // Decrement active tasks count
+        this.stats.activeTasksCount = Math.max(0, this.stats.activeTasksCount - 1)
+        this.stats.activeTasksCountByName[job.name] = Math.max(0, (this.stats.activeTasksCountByName[job.name] || 0) - 1)
 
         // Update counters
         this.stats.totalTasksCount++
@@ -219,6 +231,7 @@ class WorkerStatsCollector {
             msg: 'current values',
             queue: this.queueName,
             workerStats: {
+                activeTasksCount: this.stats.activeTasksCount,
                 totalTasksCount: this.stats.totalTasksCount,
                 failedTasksCount: this.stats.failedTasksCount,
                 uptimeSeconds,
@@ -232,6 +245,7 @@ class WorkerStatsCollector {
                 } : null,
             },
             data: {
+                activeTasksCountByName: this.stats.activeTasksCountByName,
                 totalTasksCountByName: this.stats.totalTasksCountByName,
                 failedTasksCountByName: this.stats.failedTasksCountByName,
                 avgDurationMs,
@@ -244,6 +258,7 @@ class WorkerStatsCollector {
         // Send metrics to StatsD
         const queueTag = this.queueName
         
+        metrics.gauge({ name: 'workerStats.activeTasksCount', value: this.stats.activeTasksCount, tags: { queue: queueTag } })
         metrics.gauge({ name: 'workerStats.tasksCount.total', value: this.stats.totalTasksCount, tags: { queue: queueTag } })
         metrics.gauge({ name: 'workerStats.failedTasksCount.total', value: this.stats.failedTasksCount, tags: { queue: queueTag } })
         metrics.gauge({ name: 'workerStats.uptimeSeconds', value: uptimeSeconds, tags: { queue: queueTag } })
@@ -259,6 +274,14 @@ class WorkerStatsCollector {
         metrics.gauge({ name: 'workerStats.avgMemoryPerTask.nativeMemory', value: avgMemoryPerTask.nativeMemory, tags: { queue: queueTag } })
 
         // Per-task-name metrics
+        for (const [taskName, count] of Object.entries(this.stats.activeTasksCountByName)) {
+            metrics.gauge({ 
+                name: 'workerStats.activeTasksCount.byName', 
+                value: count, 
+                tags: { queue: queueTag, taskName },
+            })
+        }
+
         for (const [taskName, count] of Object.entries(this.stats.totalTasksCountByName)) {
             metrics.gauge({ 
                 name: 'workerStats.tasksCount.byName', 
