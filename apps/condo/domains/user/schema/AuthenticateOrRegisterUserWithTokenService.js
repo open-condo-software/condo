@@ -25,6 +25,10 @@ const { validateUserCredentials, authGuards } = require('@condo/domains/user/uti
 const { getIdentificationUserRequiredFields } = require('@condo/domains/user/utils/serverSchema/userHelpers')
 const { detectTokenTypeSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
+const { AUTH_FACTOR_TYPES } = require('../constants/authFactors')
+const { NOT_ENOUGH_AUTH_FACTORS } = require('../constants/errors')
+const { ERROR_TYPES } = require('../utils/serverSchema/auth')
+
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -154,6 +158,20 @@ const ERRORS = {
         ...USER_ERRORS.PASSWORD_CONTAINS_PHONE,
         mutation: 'authenticateOrRegisterUserWithToken',
     },
+    NOT_ENOUGH_AUTH_FACTORS: {
+        mutation: 'authenticateOrRegisterUserWithToken',
+        code: BAD_USER_INPUT,
+        type: NOT_ENOUGH_AUTH_FACTORS,
+        message: 'Not enough auth factors',
+        messageForUser: 'api.user.NOT_ENOUGH_AUTH_FACTORS',
+    },
+    UNEXPECTED_SECOND_FACTOR: {
+        mutation: 'authenticateOrRegisterUserWithToken',
+        code: BAD_USER_INPUT,
+        type: 'UNEXPECTED_SECOND_FACTOR',
+        message: 'Unexpected second factor',
+        messageForUser: 'api.user.authenticateOrRegisterUserWithToken.UNEXPECTED_SECOND_FACTOR',
+    },
 }
 
 const USER_ERROR_MAPPING = {
@@ -254,7 +272,15 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
         },
         {
             access: true,
-            type: 'input AuthenticateOrRegisterUserWithTokenInput { dv: Int!, sender: SenderFieldInput!, token: String!, userType: UserTypeType!, captcha: String!, userData: AuthenticateOrRegisterUserWithTokenUserDataInput }',
+            type: `enum AuthenticateOrRegisterUserWithTokenSecondFactorType { ${[AUTH_FACTOR_TYPES.CONFIRM_EMAIL_TOKEN, AUTH_FACTOR_TYPES.CONFIRM_PHONE_TOKEN, AUTH_FACTOR_TYPES.PASSWORD].join(' ')} }`,
+        },
+        {
+            access: true,
+            type: 'input AuthenticateOrRegisterUserWithTokenSecondFactorInput { value: String!, type: AuthenticateOrRegisterUserWithTokenSecondFactorType! }',
+        },
+        {
+            access: true,
+            type: 'input AuthenticateOrRegisterUserWithTokenInput { dv: Int!, sender: SenderFieldInput!, token: String!, secondFactor: AuthenticateOrRegisterUserWithTokenSecondFactorInput, userType: UserTypeType!, captcha: String!, userData: AuthenticateOrRegisterUserWithTokenUserDataInput }',
         },
         {
             access: true,
@@ -275,7 +301,7 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { token, userType, userData, captcha, dv, sender } = data
+                const { token, secondFactor, userType, userData, captcha, dv, sender } = data
 
                 await authGuards({ userType }, context)
 
@@ -399,12 +425,46 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                             authFactors.confirmEmailToken = token
                         }
 
+                        if (secondFactor) {
+                            const supportedSecondFactors = [AUTH_FACTOR_TYPES.PASSWORD]
+                            if (tokenType === TOKEN_TYPES.CONFIRM_PHONE) supportedSecondFactors.push(AUTH_FACTOR_TYPES.CONFIRM_EMAIL_TOKEN)
+                            if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL) supportedSecondFactors.push(AUTH_FACTOR_TYPES.CONFIRM_PHONE_TOKEN)
+
+                            if (!supportedSecondFactors.includes(secondFactor.type)) {
+                                throw new GQLError(ERRORS.UNEXPECTED_SECOND_FACTOR, context)
+                            }
+
+                            if (secondFactor.type === AUTH_FACTOR_TYPES.CONFIRM_EMAIL_TOKEN) {
+                                authFactors.confirmEmailToken = secondFactor?.value || ''
+                            }
+                            if (secondFactor.type === AUTH_FACTOR_TYPES.CONFIRM_PHONE_TOKEN) {
+                                authFactors.confirmPhoneToken = secondFactor?.value || ''
+                            }
+                            if (secondFactor.type === AUTH_FACTOR_TYPES.PASSWORD) {
+                                authFactors.password = secondFactor?.value || ''
+                            }
+                        }
+
                         const validation = await validateUserCredentials(
                             { userType: existingUser.type },
                             authFactors,
                         )
 
                         if (!validation.success) {
+                            if (validation._error?.errorType === ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS) {
+                                if (validation._error.is2FAEnabled) {
+                                    throw new GQLError({
+                                        ...ERRORS.NOT_ENOUGH_AUTH_FACTORS,
+                                        authDetails: {
+                                            is2FAEnabled: validation._error.is2FAEnabled,
+                                            userId: validation._error.userId,
+                                            availableSecondFactors: validation._error.availableSecondFactors,
+                                            maskedData: validation._error.maskedData,
+                                        },
+                                    }, context)
+                                }
+                            }
+
                             throw new GQLError(ERRORS.CREDENTIAL_VALIDATION_FAILED, context)
                         }
                     }

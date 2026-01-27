@@ -41,6 +41,7 @@ const {
 } = require('@condo/domains/user/constants/errors')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const {
+    User,
     ConfirmEmailAction,
     generateSecureCode,
 } = require('@condo/domains/user/utils/serverSchema')
@@ -81,6 +82,20 @@ const ERRORS = {
         type: UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION,
         message: 'Confirm email action was expired or it could not be found. Try to initiate email confirmation again',
         messageForUser: 'api.user.UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION',
+    },
+    EMAIL_AND_USER_ID_IS_MISSING: {
+        mutation: 'startConfirmEmailAction',
+        code: BAD_USER_INPUT,
+        type: 'EMAIL_AND_USER_ID_IS_MISSING',
+        message: 'Email or user id is missing',
+        messageForUser: 'api.user.startConfirmEmailAction.EMAIL_AND_USER_ID_IS_MISSING',
+    },
+    SHOULD_BE_ONE_IDENTIFIER_ONLY: {
+        mutation: 'startConfirmEmailAction',
+        code: BAD_USER_INPUT,
+        type: 'SHOULD_BE_ONE_IDENTIFIER_ONLY',
+        message: 'You need to pass either only the email or only the userId',
+        messageForUser: 'api.user.startConfirmEmailAction.SHOULD_BE_ONE_IDENTIFIER_ONLY',
     },
     WRONG_EMAIL_FORMAT: {
         mutation: 'startConfirmEmailAction',
@@ -177,7 +192,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
         },
         {
             access: true,
-            type: 'input StartConfirmEmailActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, email: String!, messageType: ConfirmEmailActionMessageType }',
+            type: 'input StartConfirmEmailActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, email: String, messageType: ConfirmEmailActionMessageType, user: UserWhereUniqueInput }',
         },
         {
             access: true,
@@ -269,7 +284,13 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { email, sender, captcha, messageType = EMAIL_VERIFY_CODE_MESSAGE_TYPE } = data
+                const {
+                    email: emailFromInput,
+                    user: userFromInput,
+                    sender,
+                    captcha,
+                    messageType = EMAIL_VERIFY_CODE_MESSAGE_TYPE,
+                } = data
 
                 const ip = context.req.ip
 
@@ -279,6 +300,13 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     ...ERRORS.WRONG_SENDER_FORMAT, mutation: 'startConfirmEmailAction',
                 }, context)
 
+                if (!emailFromInput && !userFromInput?.id) {
+                    throw new GQLError(ERRORS.EMAIL_AND_USER_ID_IS_MISSING, context)
+                }
+                if (emailFromInput && userFromInput?.id) {
+                    throw new GQLError(ERRORS.SHOULD_BE_ONE_IDENTIFIER_ONLY, context)
+                }
+
                 const { error } = await captchaCheck(context, captcha)
                 if (error) {
                     throw new GQLError({
@@ -286,6 +314,15 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                         mutation: 'startConfirmEmailAction',
                         error,
                     }, context)
+                }
+
+                let email
+
+                if (userFromInput?.id) {
+                    const user = await User.getOne(context, { id: userFromInput.id, deletedAt: null }, 'id email')
+                    email = user?.email || null
+                } else {
+                    email = emailFromInput
                 }
 
                 const normalizedEmail = normalizeEmail(email)

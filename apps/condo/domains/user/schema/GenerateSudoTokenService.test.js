@@ -13,6 +13,8 @@ const {
     expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
+const { maskNormalizedEmail } = require('@condo/domains/common/utils/mail')
+const { maskNormalizedPhone } = require('@condo/domains/common/utils/phone')
 const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const {
     registerNewUser,
@@ -120,7 +122,7 @@ describe('GenerateSudoTokenService', () => {
             })
         })
 
-        test('should throw error if phone and email empty', async () => {
+        test('should throw error if phone, email and confirm tokens empty', async () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(await makeClient(), {
                     captcha: getCaptcha(),
@@ -170,6 +172,34 @@ describe('GenerateSudoTokenService', () => {
                 type: 'CREDENTIAL_VALIDATION_FAILED',
                 message: 'User credentials validation failed',
                 messageForUser: 'api.user.CREDENTIAL_VALIDATION_FAILED',
+            })
+        })
+
+        // NOTE: Here we only test for error throwing.
+        // User credentials validation is tested separately for "validateUserCredentials" function
+        test('should throw error if user enabled 2FA and pass only one factor', async () => {
+            const staffClient = await makeClientWithStaffUser({
+                isEmailVerified: true,
+                isTwoFactorAuthenticationEnabled: true,
+            })
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await generateSudoTokenByTestClient(staffClient, {
+                    captcha: getCaptcha(),
+                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
+                    authFactors: { password: staffClient.userAttrs.password },
+                })
+            }, {
+                mutation: 'generateSudoToken',
+                code: 'BAD_USER_INPUT',
+                type: 'NOT_ENOUGH_AUTH_FACTORS',
+                message: 'Not enough auth factors',
+                authDetails: expect.objectContaining({
+                    is2FAEnabled: true,
+                    userId: staffClient.user.id,
+                    availableSecondFactors: ['confirmEmailToken', 'confirmPhoneToken'],
+                    maskedData: { email: maskNormalizedEmail(staffClient.userAttrs.email), phone: maskNormalizedPhone(staffClient.userAttrs.phone) },
+                }),
             })
         })
 

@@ -34,6 +34,7 @@ const {
 const { SMS_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const {
+    User,
     ConfirmPhoneAction,
     generateSmsCode,
 } = require('@condo/domains/user/utils/serverSchema')
@@ -80,6 +81,20 @@ const ERRORS = {
         message: 'Wrong format of provided phone number',
         correctExample: '+79991234567',
         messageForUser: 'api.common.WRONG_PHONE_FORMAT',
+    },
+    PHONE_AND_USER_ID_IS_MISSING: {
+        mutation: 'startConfirmPhoneAction',
+        code: BAD_USER_INPUT,
+        type: 'PHONE_AND_USER_ID_IS_MISSING',
+        message: 'Phone or user id is missing',
+        messageForUser: 'api.user.startConfirmPhoneAction.PHONE_AND_USER_ID_IS_MISSING',
+    },
+    SHOULD_BE_ONE_IDENTIFIER_ONLY: {
+        mutation: 'startConfirmPhoneAction',
+        code: BAD_USER_INPUT,
+        type: 'SHOULD_BE_ONE_IDENTIFIER_ONLY',
+        message: 'You need to pass either only the phone or only the userId',
+        messageForUser: 'api.user.startConfirmPhoneAction.SHOULD_BE_ONE_IDENTIFIER_ONLY',
     },
     SMS_CODE_EXPIRED: {
         mutation: 'completeConfirmPhoneAction',
@@ -143,7 +158,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            type: 'input StartConfirmPhoneActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, phone: String! }',
+            type: 'input StartConfirmPhoneActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, phone: String, user: UserWhereUniqueInput }',
         },
         {
             access: true,
@@ -216,19 +231,53 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const { phone: inputPhone, sender, captcha } = data
-                checkDvAndSender(data, { ...ERRORS.DV_VERSION_MISMATCH, mutation: 'startConfirmPhoneAction' }, { ...ERRORS.WRONG_SENDER_FORMAT, mutation: 'startConfirmPhoneAction' }, context)
+                const {
+                    phone: phoneFromInput,
+                    user: userFromInput,
+                    sender,
+                    captcha,
+                } = data
+
+                checkDvAndSender(
+                    data,
+                    { ...ERRORS.DV_VERSION_MISMATCH, mutation: 'startConfirmPhoneAction' },
+                    { ...ERRORS.WRONG_SENDER_FORMAT, mutation: 'startConfirmPhoneAction' },
+                    context
+                )
+
+                if (!phoneFromInput && !userFromInput?.id) {
+                    throw new GQLError(ERRORS.PHONE_AND_USER_ID_IS_MISSING, context)
+                }
+                if (phoneFromInput && userFromInput?.id) {
+                    throw new GQLError(ERRORS.SHOULD_BE_ONE_IDENTIFIER_ONLY, context)
+                }
+
                 const { error } = await captchaCheck(context, captcha)
                 if (error) {
-                    throw new GQLError({ ...ERRORS.CAPTCHA_CHECK_FAILED, mutation: 'startConfirmPhoneAction', data: { error } }, context)
+                    throw new GQLError({
+                        ...ERRORS.CAPTCHA_CHECK_FAILED,
+                        mutation: 'startConfirmPhoneAction',
+                        data: { error },
+                    }, context)
                 }
-                const phone = normalizePhone(inputPhone)
-                if (!phone) {
+
+                let phone
+
+                if (userFromInput?.id) {
+                    const user = await User.getOne(context, { id: userFromInput.id, deletedAt: null }, 'id phone')
+                    phone = user?.phone || null
+                } else {
+                    phone = phoneFromInput
+                }
+
+                const normalizedPhone = normalizePhone(phone)
+                if (!normalizedPhone) {
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
-                await checkSMSDayLimitCounters(phone, context.req.ip, context)
-                await redisGuard.checkLock(phone, 'sendsms', context)
-                await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
+
+                await checkSMSDayLimitCounters(normalizedPhone, context.req.ip, context)
+                await redisGuard.checkLock(normalizedPhone, 'sendsms', context)
+                await redisGuard.lock(normalizedPhone, 'sendsms', SMS_CODE_TTL)
                 const { error: tokenError, token } = generateTokenSafely(TOKEN_TYPES.CONFIRM_PHONE)
                 if (tokenError) {
                     throw new GQLError({ ...ERRORS.GENERATE_TOKEN_ERROR, data: { error: tokenError } }, context)
@@ -236,13 +285,13 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const now = extra.extraNow || Date.now()
                 const requestedAt = new Date(now).toISOString()
                 const expiresAt = new Date(now + CONFIRM_PHONE_ACTION_EXPIRY * 1000).toISOString()
-                const smsCode = generateSmsCode(phone)
+                const smsCode = generateSmsCode(normalizedPhone)
                 const smsCodeRequestedAt = new Date(now).toISOString()
                 const smsCodeExpiresAt = new Date(now + SMS_CODE_TTL * 1000).toISOString()
                 const variables = {
                     dv: 1,
                     sender,
-                    phone,
+                    phone: normalizedPhone,
                     smsCode,
                     token,
                     smsCodeRequestedAt,
@@ -259,7 +308,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const appId = get(context.req, ['headers', APP_ID_HEADER])
 
                 await sendMessage(context, {
-                    to: { phone },
+                    to: { phone: normalizedPhone },
                     type: SMS_VERIFY_CODE_MESSAGE_TYPE,
                     meta: {
                         dv: 1,
