@@ -13,6 +13,9 @@ const index = require('./index')
 
 const logger = getLogger('worker-memory')
 
+// NOTE: This is a simple, always-on memory monitoring system for production baseline tracking.
+// It logs memory stats every 10 minutes to track long-term trends without task correlation.
+// For detailed task-level memory analysis and leak debugging, use workerStats.js (opt-in via WORKER_STATS_ENABLE=true).
 const MiB = 1024 ** 2 // 1 MiB (mebibyte) = 1_048_576 B (byte)
 const MEMORY_LOG_INTERVAL = 10 * 60 * 1000 // 10 minutes
 

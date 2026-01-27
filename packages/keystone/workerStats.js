@@ -1,3 +1,26 @@
+/**
+ * Worker Statistics Collector
+ * 
+ * PURPOSE: Detailed task-level monitoring system for debugging memory leaks and performance issues.
+ * This is an opt-in diagnostic tool (enabled via WORKER_STATS_ENABLE=true) that provides:
+ * - Task execution history with memory deltas per task
+ * - Memory growth correlation with specific task types
+ * - Performance metrics by task name
+ * - Fine-grained logging every 1 second
+ * 
+ * USE CASES:
+ * - Investigating memory leaks (avgMemoryPerTask shows leak per task)
+ * - Identifying which task types cause memory growth
+ * - Performance profiling of worker tasks
+ * - Debugging production issues with detailed task history
+ * 
+ * COMPARISON WITH worker.js memory monitoring:
+ * - worker.js: Always-on, 10-minute intervals, no task correlation (production baseline)
+ * - workerStats.js: Opt-in, 1-second intervals, task-level analysis (debugging tool)
+ * 
+ * Enable with: WORKER_STATS_ENABLE=true
+ */
+
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const metrics = require('@open-condo/keystone/metrics')
