@@ -72,8 +72,8 @@ class WorkerStatsCollector {
             startupTime: new Date().toISOString(),
             memoryAtStartup: captureMemorySnapshot(),
             
-            // Current task
-            currentTask: null,
+            // Active tasks by ID (for concurrent task tracking)
+            activeTasksById: {},
             
             // Active tasks count (similar to activeRequestsIds in runtimeStats)
             activeTasksCount: 0,
@@ -106,15 +106,17 @@ class WorkerStatsCollector {
         if (!this.enabled) return
 
         const memoryAtStart = captureMemorySnapshot()
+        const startTime = new Date().toISOString()
         
         // Increment active tasks count
         this.stats.activeTasksCount++
         this.stats.activeTasksCountByName[job.name] = (this.stats.activeTasksCountByName[job.name] || 0) + 1
         
-        this.stats.currentTask = {
+        // Store per-task data by job ID for concurrent task tracking
+        this.stats.activeTasksById[job.id] = {
             id: job.id,
             name: job.name,
-            startTime: new Date().toISOString(),
+            startTime,
             memoryAtStart,
         }
     }
@@ -128,8 +130,12 @@ class WorkerStatsCollector {
         if (!this.enabled) return
 
         const memoryAtEnd = captureMemorySnapshot()
-        const memoryDelta = this.stats.currentTask 
-            ? calculateMemoryDelta(this.stats.currentTask.memoryAtStart, memoryAtEnd)
+        const endTime = new Date().toISOString()
+        
+        // Lookup per-task data by job ID
+        const taskData = this.stats.activeTasksById[job.id]
+        const memoryDelta = taskData
+            ? calculateMemoryDelta(taskData.memoryAtStart, memoryAtEnd)
             : { rss: 0, nativeMemory: 0 }
 
         // Decrement active tasks count
@@ -148,10 +154,10 @@ class WorkerStatsCollector {
         const taskRecord = {
             id: job.id,
             name: job.name,
-            startTime: this.stats.currentTask?.startTime || new Date().toISOString(),
-            endTime: new Date().toISOString(),
+            startTime: taskData?.startTime || endTime,
+            endTime,
             durationMs,
-            memoryBefore: this.stats.currentTask?.memoryAtStart || memoryAtEnd,
+            memoryBefore: taskData?.memoryAtStart || memoryAtEnd,
             memoryAfter: memoryAtEnd,
             memoryDelta,
         }
@@ -161,8 +167,8 @@ class WorkerStatsCollector {
             this.stats.lastCompletedTasks.pop()
         }
 
-        // Clear current task
-        this.stats.currentTask = null
+        // Remove task from active tasks map
+        delete this.stats.activeTasksById[job.id]
     }
 
     /**
@@ -238,11 +244,11 @@ class WorkerStatsCollector {
                 memoryAtStartup: this.stats.memoryAtStartup,
                 memoryNow,
                 memoryGrowth,
-                currentTask: this.stats.currentTask ? {
-                    id: this.stats.currentTask.id,
-                    name: this.stats.currentTask.name,
-                    durationMs: Date.now() - new Date(this.stats.currentTask.startTime).getTime(),
-                } : null,
+                currentTasks: Object.values(this.stats.activeTasksById).map(task => ({
+                    id: task.id,
+                    name: task.name,
+                    durationMs: Date.now() - new Date(task.startTime).getTime(),
+                })),
             },
             data: {
                 activeTasksCountByName: this.stats.activeTasksCountByName,
