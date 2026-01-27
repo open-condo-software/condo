@@ -45,6 +45,9 @@ function captureMemorySnapshot () {
         heapTotal: Number((mem.heapTotal / MiB).toFixed(2)),
         heapUsed: Number((mem.heapUsed / MiB).toFixed(2)),
         external: Number((mem.external / MiB).toFixed(2)),
+        // NOTE: nativeMemory = RSS - heapTotal. Can be negative during startup when V8 allocates
+        // virtual memory (heapTotal) that hasn't been committed to physical RAM (RSS) yet.
+        // Becomes positive as heap is used and native allocations (buffers, C++ objects) grow.
         nativeMemory: Number(((mem.rss - mem.heapTotal) / MiB).toFixed(2)),
     }
 }
