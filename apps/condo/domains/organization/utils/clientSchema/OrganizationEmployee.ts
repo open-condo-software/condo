@@ -8,7 +8,8 @@ import {
     OrganizationEmployeeUpdateInput,
     QueryAllOrganizationEmployeesArgs,
 } from '@app/condo/schema'
-import { get, omit } from 'lodash'
+import get from 'lodash/get'
+import omit from 'lodash/omit'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 

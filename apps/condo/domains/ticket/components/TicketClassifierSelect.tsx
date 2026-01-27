@@ -2,8 +2,11 @@ import { useGetTicketsWithSamePropertyAndClassifierExistenceQuery, usePredictTic
 import { TicketStatusTypeType } from '@app/condo/schema'
 import { Col, Form, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { uniqBy, isEmpty, find, pick } from 'lodash'
+import find from 'lodash/find'
+import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
+import pick from 'lodash/pick'
+import uniqBy from 'lodash/uniqBy'
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'

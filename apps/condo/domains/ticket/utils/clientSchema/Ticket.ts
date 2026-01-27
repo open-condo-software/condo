@@ -10,7 +10,9 @@ import {
     TicketStatusTypeType,
 } from '@app/condo/schema'
 import dayjs, { Dayjs } from 'dayjs'
-import { get, isUndefined, isNull } from 'lodash'
+import get from 'lodash/get'
+import isNull from 'lodash/isNull'
+import isUndefined from 'lodash/isUndefined'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 

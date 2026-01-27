@@ -12,7 +12,7 @@ import { Ticket, TicketComment, TicketCommentFile } from '@app/condo/schema'
 import { Form, FormInstance, notification } from 'antd'
 import classNames from 'classnames'
 import dayjs from 'dayjs'
-import { pickBy } from 'lodash'
+import pickBy from 'lodash/pickBy'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'

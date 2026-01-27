@@ -1,6 +1,6 @@
 import { useGetTicketFilesQuery } from '@app/condo/gql'
 import { Ticket } from '@app/condo/schema'
-import { isEmpty } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 import React, { useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'

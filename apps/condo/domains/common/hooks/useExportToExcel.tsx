@@ -1,6 +1,6 @@
 import { notification } from 'antd'
 import { DocumentNode } from 'graphql'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import React, { useCallback } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'

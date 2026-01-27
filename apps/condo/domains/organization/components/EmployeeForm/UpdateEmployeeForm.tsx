@@ -1,5 +1,7 @@
 import { Col, Form, Row, Typography } from 'antd'
-import { difference, find, get } from 'lodash'
+import difference from 'lodash/difference'
+import find from 'lodash/find'
+import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
