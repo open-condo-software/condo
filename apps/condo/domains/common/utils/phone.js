@@ -15,7 +15,7 @@ function normalizePhone (data, allowLandLine = false) {
  * @param {string} normalizedPhone
  * @return {string}
  */
-function maskPhone (normalizedPhone) {
+function maskNormalizedPhone (normalizedPhone) {
     const hasPlus = normalizedPhone.startsWith('+')
     const digits = normalizedPhone.replace(/\D/g, '')
 
@@ -47,5 +47,5 @@ function maskPhone (normalizedPhone) {
 
 module.exports = {
     normalizePhone,
-    maskPhone,
+    maskNormalizedPhone,
 }

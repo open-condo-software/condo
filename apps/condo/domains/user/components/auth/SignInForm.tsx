@@ -26,6 +26,7 @@ import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { useSudoToken } from '@condo/domains/user/components/SudoTokenProvider'
@@ -35,8 +36,6 @@ import { normalizeUserIdentifier } from '@condo/domains/user/utils/helpers'
 
 import { AgreementText } from './AgreementText'
 import { useSecondFactor } from './SecondFactorForm'
-
-import { updateQuery } from '../../../common/utils/helpers'
 
 import type { FetchResult } from '@apollo/client/link/core'
 import type { AuthenticateUserWithPhoneAndPasswordMutation, AuthenticateUserWithEmailAndPasswordMutation } from '@app/condo/gql'

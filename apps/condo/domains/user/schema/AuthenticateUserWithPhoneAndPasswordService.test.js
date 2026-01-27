@@ -7,8 +7,8 @@ const {
     expectToThrowGQLErrorToResult, expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
-const { maskEmail } = require('@condo/domains/common/utils/mail')
-const { maskPhone } = require('@condo/domains/common/utils/phone')
+const { maskNormalizedEmail } = require('@condo/domains/common/utils/mail')
+const { maskNormalizedPhone } = require('@condo/domains/common/utils/phone')
 const { STAFF, SERVICE, RESIDENT, USER_TYPES } = require('@condo/domains/user/constants/common')
 const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
@@ -168,7 +168,7 @@ describe('Auth by phone and password', () => {
                         is2FAEnabled: true,
                         userId: user.id,
                         availableSecondFactors: ['confirmEmailToken', 'confirmPhoneToken'],
-                        maskedData: { email: maskEmail(userAttrs.email), phone: maskPhone(userAttrs.phone) },
+                        maskedData: { email: maskNormalizedEmail(userAttrs.email), phone: maskNormalizedPhone(userAttrs.phone) },
                     }),
                 })
             })

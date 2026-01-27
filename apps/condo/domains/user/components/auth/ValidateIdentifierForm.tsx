@@ -16,6 +16,7 @@ import { Typography, Input, Space, Modal, Button } from '@open-condo/ui'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
+import { NOT_NUMBER_REGEX } from '@condo/domains/common/constants/regexps'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
@@ -45,8 +46,6 @@ type ValidateIdentifierFormProps = {
     onReset: () => void
     title: string
 }
-
-const NOT_NUMBER_REGEX = /\D/g
 
 const INITIAL_VALUES = { confirmCode: '' }
 

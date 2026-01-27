@@ -18,6 +18,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Input, Modal, Radio, Space, Typography, type TypographyLinkProps } from '@open-condo/ui'
 
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
+import { NOT_NUMBER_REGEX } from '@condo/domains/common/constants/regexps'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
@@ -50,8 +51,6 @@ const SudoTokenContext = createContext<SudoTokenContextType>({
 
 export const useSudoToken: UseSudoTokenContext = () => useContext(SudoTokenContext)
 
-
-const NOT_NUMBER_REGEX = /\D/g
 
 const {
     publicRuntimeConfig: { HelpRequisites },

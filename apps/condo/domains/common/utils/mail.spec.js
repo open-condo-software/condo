@@ -1,4 +1,4 @@
-const { normalizeEmail, maskEmail }  = require('./mail')
+const { normalizeEmail, maskNormalizedEmail }  = require('./mail')
 
 
 describe('normalizeMail()', () => {
@@ -65,7 +65,7 @@ describe('normalizeMail()', () => {
     })
 })
 
-describe('maskEmail()', () => {
+describe('maskNormalizedEmail()', () => {
     const cases = [
         ['a@example.com', 'a***@example.com'],
         ['ab@example.com', 'ab***@example.com'],
@@ -77,6 +77,6 @@ describe('maskEmail()', () => {
         ['qwerty123@yandex.ru', 'qw***@yandex.ru'],
     ]
     test.each(cases)('should work correctly (%p)', (input, output) => {
-        expect(maskEmail(input)).toBe(output)
+        expect(maskNormalizedEmail(input)).toBe(output)
     })
 })

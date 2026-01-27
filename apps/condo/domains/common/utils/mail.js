@@ -55,11 +55,11 @@ function dotReplacer (match) {
 }
 
 /**
- * The function masks the normalized уьфшд
+ * The function masks the normalized email
  * @param {string} normalizedEmail
  * @return {string}
  */
-function maskEmail (normalizedEmail) {
+function maskNormalizedEmail (normalizedEmail) {
     const [user, domain] = normalizedEmail.split('@')
     if (!domain) return normalizedEmail
 
@@ -77,5 +77,5 @@ function maskEmail (normalizedEmail) {
 
 module.exports = {
     normalizeEmail,
-    maskEmail,
+    maskNormalizedEmail,
 }

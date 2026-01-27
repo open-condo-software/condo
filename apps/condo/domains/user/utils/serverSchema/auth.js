@@ -1,8 +1,8 @@
 const conf = require('@open-condo/config')
 const { itemsQuery, getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { normalizeEmail, maskEmail } = require('@condo/domains/common/utils/mail')
-const { normalizePhone, maskPhone } = require('@condo/domains/common/utils/phone')
+const { normalizeEmail, maskNormalizedEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone, maskNormalizedPhone } = require('@condo/domains/common/utils/phone')
 const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { ConfirmPhoneAction, ConfirmEmailAction } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -320,8 +320,8 @@ async function _matchUser (user, authFactors) {
             const userId = user.id
             /** @type {{phone?: string, email?: string}} */
             const maskedData = {
-                ...(availableSecondFactorsMap.confirmEmailToken ? { email: maskEmail(user.email) } : null),
-                ...(availableSecondFactorsMap.confirmPhoneToken ? { phone: maskPhone(user.phone) } : null),
+                ...(availableSecondFactorsMap.confirmEmailToken ? { email: maskNormalizedEmail(user.email) } : null),
+                ...(availableSecondFactorsMap.confirmPhoneToken ? { phone: maskNormalizedPhone(user.phone) } : null),
             }
 
             return {

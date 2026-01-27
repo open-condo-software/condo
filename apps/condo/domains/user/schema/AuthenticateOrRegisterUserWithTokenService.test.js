@@ -12,7 +12,7 @@ const {
     expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const { normalizeEmail, maskEmail } = require('@condo/domains/common/utils/mail')
+const { normalizeEmail, maskNormalizedEmail } = require('@condo/domains/common/utils/mail')
 const { RESIDENT, SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 const {
     authenticateOrRegisterUserWithTokenByTestClient,
@@ -1299,7 +1299,7 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 is2FAEnabled: true,
                 userId: user.id,
                 availableSecondFactors: ['password', 'confirmEmailToken'],
-                maskedData: { email: maskEmail(userAttrs.email) },
+                maskedData: { email: maskNormalizedEmail(userAttrs.email) },
             }),
         })
     })

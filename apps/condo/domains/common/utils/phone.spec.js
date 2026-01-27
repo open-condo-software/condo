@@ -2,7 +2,7 @@ const { faker } = require('@faker-js/faker')
 const { max, repeat, get } = require('lodash')
 const { countryPhoneData } = require('phone')
 
-const { normalizePhone, maskPhone } = require('./phone')
+const { normalizePhone, maskNormalizedPhone } = require('./phone')
 
 
 describe('normalizePhone()', () => {
@@ -75,10 +75,11 @@ describe('normalizePhone()', () => {
     })
 })
 
-describe('maskPhone()', () => {
+describe('maskNormalizedPhone()', () => {
     const cases = [
         ['+79008007060', '+79*******60'],
         ['79008007060', '79*******60'],
+        ['', ''],
         ['1', '1'],
         ['12', '1*'],
         ['123', '1*3'],
@@ -90,6 +91,6 @@ describe('maskPhone()', () => {
         ['123456789', '12*****89'],
     ]
     test.each(cases)('should work correctly (%p)', (input, output) => {
-        expect(maskPhone(input)).toBe(output)
+        expect(maskNormalizedPhone(input)).toBe(output)
     })
 })
