@@ -16,6 +16,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography, Input, Space, Radio, Modal, Button } from '@open-condo/ui'
 
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
+import { NOT_NUMBER_REGEX } from '@condo/domains/common/constants/regexps'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
@@ -25,8 +26,6 @@ import { SecondaryLink } from './SecondaryLink'
 
 
 const { publicRuntimeConfig: { HelpRequisites } } = getConfig()
-
-const NOT_NUMBER_REGEX = /\D/g
 
 export const useSecondFactor = ({
     form,

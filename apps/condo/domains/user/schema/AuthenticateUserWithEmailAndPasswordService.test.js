@@ -11,8 +11,8 @@ const {
     makeClient,
 } = require('@open-condo/keystone/test.utils')
 
-const { maskEmail } = require('@condo/domains/common/utils/mail')
-const { maskPhone } = require('@condo/domains/common/utils/phone')
+const { maskNormalizedEmail } = require('@condo/domains/common/utils/mail')
+const { maskNormalizedPhone } = require('@condo/domains/common/utils/phone')
 const {
     STAFF,
     SERVICE,
@@ -203,7 +203,7 @@ describe('Auth by email and password', () => {
                         is2FAEnabled: true,
                         userId: user.id,
                         availableSecondFactors: ['confirmEmailToken', 'confirmPhoneToken'],
-                        maskedData: { email: maskEmail(userAttrs.email), phone: maskPhone(userAttrs.phone) },
+                        maskedData: { email: maskNormalizedEmail(userAttrs.email), phone: maskNormalizedPhone(userAttrs.phone) },
                     }),
                 })
             })

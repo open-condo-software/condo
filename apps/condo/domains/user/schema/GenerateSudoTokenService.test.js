@@ -13,8 +13,8 @@ const {
     expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const { maskEmail } = require('@condo/domains/common/utils/mail')
-const { maskPhone } = require('@condo/domains/common/utils/phone')
+const { maskNormalizedEmail } = require('@condo/domains/common/utils/mail')
+const { maskNormalizedPhone } = require('@condo/domains/common/utils/phone')
 const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const {
     registerNewUser,
@@ -198,7 +198,7 @@ describe('GenerateSudoTokenService', () => {
                     is2FAEnabled: true,
                     userId: staffClient.user.id,
                     availableSecondFactors: ['confirmEmailToken', 'confirmPhoneToken'],
-                    maskedData: { email: maskEmail(staffClient.userAttrs.email), phone: maskPhone(staffClient.userAttrs.phone) },
+                    maskedData: { email: maskNormalizedEmail(staffClient.userAttrs.email), phone: maskNormalizedPhone(staffClient.userAttrs.phone) },
                 }),
             })
         })
