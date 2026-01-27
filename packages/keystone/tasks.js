@@ -1,7 +1,7 @@
 const { getHeapStatistics } = require('node:v8')
 
 const Queue = require('bull')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 
