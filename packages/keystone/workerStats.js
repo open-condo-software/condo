@@ -45,7 +45,7 @@ function captureMemorySnapshot () {
         heapTotal: Number((mem.heapTotal / MiB).toFixed(2)),
         heapUsed: Number((mem.heapUsed / MiB).toFixed(2)),
         external: Number((mem.external / MiB).toFixed(2)),
-        nativeMemory: Number((mem.rss - mem.heapTotal) / MiB).toFixed(2),
+        nativeMemory: Number(((mem.rss - mem.heapTotal) / MiB).toFixed(2)),
     }
 }
 
