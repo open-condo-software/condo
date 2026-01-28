@@ -1,7 +1,7 @@
 const { getHeapStatistics } = require('node:v8')
 
 const Queue = require('bull')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 
@@ -11,6 +11,7 @@ const { getLogger } = require('./logging')
 const { gauge } = require('./metrics')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
 const { getRandomString } = require('./test.utils')
+const { WorkerStatsCollector } = require('./workerStats')
 
 const TASK_TYPE = 'TASK'
 /* TODO(INFRA-290): change this value to 'medium'
@@ -401,22 +402,44 @@ async function createWorker (keystoneModule, config, processWrapper = undefined)
 
     const executionWrapper = (processWrapper) ? processWrapper : function noWrapper (fn) { return fn }
 
+    // Create worker stats collectors for each queue
+    const workerStatsCollectors = new Map()
+    activeQueues.forEach(([queueName]) => {
+        const collector = new WorkerStatsCollector({ queueName })
+        workerStatsCollectors.set(queueName, collector)
+        collector.startMetricsCollection()
+    })
+
     // Apply callbacks to each created queue
     activeQueues.forEach(([queueName, queue]) => {
+        const statsCollector = workerStatsCollectors.get(queueName)
+
         queue.process('*', WORKER_CONCURRENCY, executionWrapper(async function doSomeTask (job) {
             const startTime = Date.now()
             const task = getTaskLoggingContext(job)
             logger.info({ msg: 'task start', taskId: job.id, queue: queueName, task, mem: getHeapFree() })
+            
+            // Worker stats: task start
+            statsCollector.onTaskStart(job)
+            
             try {
                 const result = await executeTask(job.name, job.data.args, job)
                 const endTime = Date.now()
                 const responseTime = endTime - startTime
                 logger.info({ msg: 'task successful', taskId: job.id, queue: queueName, task, responseTime })
+                
+                // Worker stats: task complete
+                statsCollector.onTaskComplete(job, responseTime)
+                
                 return result
             } catch (err) {
                 const endTime = Date.now()
                 const responseTime = endTime - startTime
                 logger.error({ msg: 'failed with error', taskId: job.id, queue: queueName, task, err, responseTime })
+                
+                // Worker stats: task fail
+                statsCollector.onTaskFail(job, responseTime)
+                
                 throw err
             }
         }))
