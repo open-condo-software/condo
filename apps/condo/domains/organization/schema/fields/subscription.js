@@ -77,47 +77,41 @@ const filterActiveContexts = (contexts, now) => {
     })
 }
 
-const calculateFeatureExpirationDates = (sortedContexts) => {
-    const featureExpirationDates = {
-        payments: null,
-        meters: null,
-        tickets: null,
-        news: null,
-        marketplace: null,
-        support: null,
-        ai: null,
-        customization: null,
-    }
+const findLatestEndAtForFeature = (feature, sortedContexts) => {
+    let latestEndAt = null
+    let lastEndDate = null
     
-    for (const feature of Object.keys(featureExpirationDates)) {
-        let latestEndAt = null
-        let lastEndDate = null
+    for (const ctx of sortedContexts) {
+        const contextPlan = ctx.subscriptionPlan
+        if (!contextPlan || !contextPlan[feature]) continue
         
-        for (const ctx of sortedContexts) {
-            const contextPlan = ctx.subscriptionPlan
-            if (!contextPlan || !contextPlan[feature]) continue
-            
-            const contextStartAt = ctx.startAt
-            const contextEndAt = ctx.endAt
-            
-            if (lastEndDate && contextStartAt) {
-                const startDate = dayjs(contextStartAt)
-                const endDate = dayjs(lastEndDate)
-                if (startDate.isAfter(endDate, 'day')) {
-                    break
-                }
-            }
-            
-            if (!latestEndAt || contextEndAt > latestEndAt) {
-                latestEndAt = contextEndAt
-                lastEndDate = contextEndAt
+        const contextStartAt = ctx.startAt
+        const contextEndAt = ctx.endAt
+        
+        if (lastEndDate && contextStartAt) {
+            const startDate = dayjs(contextStartAt)
+            const endDate = dayjs(lastEndDate)
+            if (startDate.isAfter(endDate, 'day')) {
+                break
             }
         }
         
-        featureExpirationDates[feature] = latestEndAt
+        if (!latestEndAt || contextEndAt > latestEndAt) {
+            latestEndAt = contextEndAt
+            lastEndDate = contextEndAt
+        }
     }
     
-    return featureExpirationDates
+    return latestEndAt
+}
+
+const calculateFeatureExpirationDates = (sortedContexts) => {
+    const features = ['payments', 'meters', 'tickets', 'news', 'marketplace', 'support', 'ai', 'customization']
+    
+    return features.reduce((acc, feature) => {
+        acc[feature] = findLatestEndAtForFeature(feature, sortedContexts)
+        return acc
+    }, {})
 }
 
 const calculateDaysRemaining = (featureExpirationDates, now) => {

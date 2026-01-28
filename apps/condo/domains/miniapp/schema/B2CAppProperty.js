@@ -33,6 +33,48 @@ const ERRORS = {
     },
 }
 
+const groupPlansByOrgType = (plans) => {
+    const plansByOrgType = {}
+    for (const plan of plans) {
+        if (!plansByOrgType[plan.organizationType]) {
+            plansByOrgType[plan.organizationType] = []
+        }
+        plansByOrgType[plan.organizationType].push(plan)
+    }
+    return plansByOrgType
+}
+
+const collectEnabledB2CAppsFromPlans = (plans) => {
+    const allEnabledB2CApps = new Set()
+    for (const plan of plans) {
+        const enabledApps = plan.enabledB2CApps || []
+        enabledApps.forEach(id => allEnabledB2CApps.add(id))
+    }
+    return allEnabledB2CApps
+}
+
+const isAppAvailableForOrganization = (org, appId, plansByOrgType) => {
+    const orgPlans = plansByOrgType[org.type] || []
+    
+    if (orgPlans.length === 0) {
+        return true
+    }
+    
+    const allEnabledB2CApps = collectEnabledB2CAppsFromPlans(orgPlans)
+
+    if (!allEnabledB2CApps.has(appId)) {
+        return true
+    }
+
+    const subscription = org.subscription
+    if (!subscription || !subscription.activeSubscriptionContextId) {
+        return false
+    }
+
+    const currentEnabledApps = subscription.enabledB2CApps || []
+    return currentEnabledApps.includes(appId)
+}
+
 const checkB2CAppAvailability = async (appId, addressKey, context) => {
     const properties = await find('Property', {
         addressKey,
@@ -63,38 +105,10 @@ const checkB2CAppAvailability = async (appId, addressKey, context) => {
         isHidden: false,
     }, { context })
 
-    const plansByOrgType = {}
-    for (const plan of allPlans) {
-        if (!plansByOrgType[plan.organizationType]) {
-            plansByOrgType[plan.organizationType] = []
-        }
-        plansByOrgType[plan.organizationType].push(plan)
-    }
+    const plansByOrgType = groupPlansByOrgType(allPlans)
     
     for (const org of organizations) {
-        const orgPlans = plansByOrgType[org.type] || []
-        
-        if (orgPlans.length === 0) {
-            return true
-        }
-        
-        const allEnabledB2CApps = new Set()
-        for (const plan of orgPlans) {
-            const enabledApps = plan.enabledB2CApps || []
-            enabledApps.forEach(id => allEnabledB2CApps.add(id))
-        }
-
-        if (!allEnabledB2CApps.has(appId)) {
-            return true
-        }
-
-        const subscription = org.subscription
-        if (!subscription || !subscription.activeSubscriptionContextId) {
-            continue
-        }
-
-        const currentEnabledApps = subscription.enabledB2CApps || []
-        if (currentEnabledApps.includes(appId)) {
+        if (isAppAvailableForOrganization(org, appId, plansByOrgType)) {
             return true
         }
     }
