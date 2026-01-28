@@ -77,39 +77,54 @@ const filterActiveContexts = (contexts, now) => {
     })
 }
 
-const findLatestEndAtForFeature = (feature, sortedContexts) => {
-    let latestEndAt = null
+const findLatestEndAtForFeature = (feature, sortedContexts, now) => {
+    const nowDate = dayjs(now).startOf('day')
+    const contextsWithFeature = sortedContexts.filter(ctx => {
+        const contextPlan = ctx.subscriptionPlan
+        return contextPlan && contextPlan[feature]
+    })
+    if (contextsWithFeature.length === 0) {
+        return null
+    }
+    
+    let maxEndAt = null
     let lastEndDate = null
     
-    for (const ctx of sortedContexts) {
-        const contextPlan = ctx.subscriptionPlan
-        if (!contextPlan || !contextPlan[feature]) continue
+    for (const ctx of contextsWithFeature) {
+        const startAt = dayjs(ctx.startAt).startOf('day')
+        const endAt = dayjs(ctx.endAt).startOf('day')
+        const isActiveOrFuture = endAt.isAfter(nowDate)
         
-        const contextStartAt = ctx.startAt
-        const contextEndAt = ctx.endAt
-        
-        if (lastEndDate && contextStartAt) {
-            const startDate = dayjs(contextStartAt)
-            const endDate = dayjs(lastEndDate)
-            if (startDate.isAfter(endDate, 'day')) {
-                break
+        if (isActiveOrFuture) {
+            if (lastEndDate) {
+                const prevEndDate = dayjs(lastEndDate).startOf('day')
+                // If there's a gap, stop extending
+                if (startAt.isAfter(prevEndDate, 'day')) {
+                    break
+                }
+            } else {
+                // First active/future context must cover or start from now
+                if (startAt.isAfter(nowDate, 'day')) {
+                    break
+                }
             }
+            
+            lastEndDate = ctx.endAt
         }
         
-        if (!latestEndAt || contextEndAt > latestEndAt) {
-            latestEndAt = contextEndAt
-            lastEndDate = contextEndAt
+        if (!maxEndAt || ctx.endAt > maxEndAt) {
+            maxEndAt = ctx.endAt
         }
     }
     
-    return latestEndAt
+    return maxEndAt
 }
 
-const calculateFeatureExpirationDates = (sortedContexts) => {
+const calculateFeatureExpirationDates = (sortedContexts, now) => {
     const features = ['payments', 'meters', 'tickets', 'news', 'marketplace', 'support', 'ai', 'customization']
     
     return features.reduce((acc, feature) => {
-        acc[feature] = findLatestEndAtForFeature(feature, sortedContexts)
+        acc[feature] = findLatestEndAtForFeature(feature, sortedContexts, now)
         return acc
     }, {})
 }
@@ -184,7 +199,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             return dayjs(a.startAt).diff(dayjs(b.startAt))
         })
 
-        const featureExpirationDates = calculateFeatureExpirationDates(sortedContexts)
+        const featureExpirationDates = calculateFeatureExpirationDates(sortedContexts, now)
         const daysRemaining = calculateDaysRemaining(featureExpirationDates, now)
         const { enabledB2BApps, enabledB2CApps } = collectEnabledApps(activeContexts)
 

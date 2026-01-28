@@ -791,5 +791,33 @@ describe('Organization', () => {
             expect(org.subscription.daysRemaining).toBe(0)
             expect(org.subscription.activeSubscriptionContextId).toBeNull()
         })
+
+        test('ignores historical gap and uses current active subscription', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                organizationType: MANAGING_COMPANY_TYPE,
+                payments: true,
+                tickets: true,
+            })
+
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(12, 'months').format('YYYY-MM-DD'),
+                endAt: dayjs().subtract(6, 'months').format('YYYY-MM-DD'),
+                isTrial: false,
+            })
+
+            const currentEndAt = dayjs().add(11, 'months').format('YYYY-MM-DD')
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+                endAt: currentEndAt,
+                isTrial: false,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.payments).toBe(currentEndAt)
+            expect(org.subscription.tickets).toBe(currentEndAt)
+        })
     })
 })
