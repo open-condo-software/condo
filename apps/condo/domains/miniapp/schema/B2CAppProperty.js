@@ -15,6 +15,7 @@ const {
     INCORRECT_ADDRESS_ERROR,
     INCORRECT_HOUSE_TYPE_ERROR,
 } = require('@condo/domains/miniapp/constants')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
 
 const ERRORS = {
@@ -48,10 +49,10 @@ const checkB2CAppAvailability = async (appId, addressKey, context) => {
         return true
     }
 
-    const organizations = await find('Organization', {
+    const organizations = await Organization.getAll(context, {
         id_in: organizationIds,
         deletedAt: null,
-    }, { context })
+    }, 'id type subscription { activeSubscriptionContextId enabledB2CApps }')
 
     if (organizations.length === 0) {
         return true
@@ -69,34 +70,8 @@ const checkB2CAppAvailability = async (appId, addressKey, context) => {
         }
         plansByOrgType[plan.organizationType].push(plan)
     }
-
-    const orgIds = organizations.map(org => org.id)
-    const gqlQuery = `
-        query GetOrganizationsWithSubscription($ids: [ID!]!) {
-            organizations: allOrganizations(where: { id_in: $ids, deletedAt: null }) {
-                id
-                type
-                subscription {
-                    activeSubscriptionContextId
-                    enabledB2CApps
-                }
-            }
-        }
-    `
     
-    const { data, errors } = await context.executeGraphQL({
-        query: gqlQuery,
-        variables: { ids: orgIds },
-    })
-    
-    if (errors) {
-        console.error('Error fetching organizations with subscription:', errors)
-        return false
-    }
-    
-    const orgsWithSubscription = data?.organizations || []
-    
-    for (const org of orgsWithSubscription) {
+    for (const org of organizations) {
         const orgPlans = plansByOrgType[org.type] || []
         
         if (orgPlans.length === 0) {
