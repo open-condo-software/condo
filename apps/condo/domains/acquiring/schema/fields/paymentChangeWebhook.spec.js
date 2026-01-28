@@ -127,6 +127,18 @@ describe('paymentChangeWebhook', () => {
 
                 expect(result.paymentStatusChangeWebhookSecret).toBeUndefined()
             })
+
+            test('should store plain text secret in context when provided', () => {
+                const testUrl = faker.internet.url()
+                const resolvedData = { paymentStatusChangeWebhookUrl: testUrl }
+                const existingItem = {}
+                const mockContext = { req: {} }
+
+                const result = applyWebhookSecretGeneration(resolvedData, existingItem, mockContext)
+
+                expect(result.paymentStatusChangeWebhookSecret).toBeDefined()
+                expect(mockContext.req._plainWebhookSecret).toBe(result.paymentStatusChangeWebhookSecret)
+            })
         })
 
         describe('clearing URL clears secret', () => {

@@ -2842,6 +2842,10 @@ describe('Invoice', () => {
 
             expect(invoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
             expect(invoice.paymentStatusChangeWebhookSecret).toBeTruthy()
+            // Secret should be plain text (64 hex characters = 32 bytes)
+            expect(invoice.paymentStatusChangeWebhookSecret).toMatch(/^[0-9a-f]{64}$/)
+            // Secret should NOT be encrypted (encrypted values start with special prefix)
+            expect(invoice.paymentStatusChangeWebhookSecret).not.toContain(':condo_')
         })
 
         test('cannot create invoice with non-whitelisted callback URL', async () => {
@@ -3009,6 +3013,38 @@ describe('Invoice', () => {
             )
         })
 
+        test('secret is returned encrypted when reading invoice after creation', async () => {
+            const callbackUrl = `https://read-${faker.random.alphaNumeric(10)}.com/webhook`
+
+            // Add URL to whitelist
+            await createTestPaymentStatusChangeWebhookUrl(adminClient, {
+                url: callbackUrl,
+                isEnabled: true,
+            })
+
+            // Create invoice with whitelisted callback URL
+            const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                paymentStatusChangeWebhookUrl: callbackUrl,
+            })
+
+            expect(invoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(invoice.paymentStatusChangeWebhookSecret).toBeTruthy()
+            // On creation, secret is returned as plain text
+            expect(invoice.paymentStatusChangeWebhookSecret).toMatch(/^[0-9a-f]{64}$/)
+            expect(invoice.paymentStatusChangeWebhookSecret).not.toContain(':condo_')
+            const plainTextSecret = invoice.paymentStatusChangeWebhookSecret
+
+            // Read the invoice back from database
+            const invoices = await Invoice.getAll(adminClient, { id: invoice.id })
+            const readInvoice = invoices[0]
+
+            expect(readInvoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
+            expect(readInvoice.paymentStatusChangeWebhookSecret).toBeTruthy()
+            // On subsequent read, secret is returned encrypted
+            expect(readInvoice.paymentStatusChangeWebhookSecret).not.toBe(plainTextSecret)
+            expect(readInvoice.paymentStatusChangeWebhookSecret).toContain(':condo_')
+        })
+
         test('webhook URL and secret should not be cleared when updating unrelated fields', async () => {
             const callbackUrl = `https://preserve-${faker.random.alphaNumeric(10)}.com/webhook`
 
@@ -3034,7 +3070,11 @@ describe('Invoice', () => {
 
             // Webhook URL and secret should be preserved
             expect(updatedInvoice.paymentStatusChangeWebhookUrl).toBe(callbackUrl)
-            expect(updatedInvoice.paymentStatusChangeWebhookSecret).toBe(originalSecret)
+            expect(updatedInvoice.paymentStatusChangeWebhookSecret).toBeTruthy()
+            // After update, the secret is stored encrypted and returned as-is (not decrypted)
+            // It should be different from the plain text secret returned on creation
+            expect(updatedInvoice.paymentStatusChangeWebhookSecret).not.toBe(originalSecret)
+            expect(updatedInvoice.paymentStatusChangeWebhookSecret).toContain(':condo_')
         })
     })
 })
