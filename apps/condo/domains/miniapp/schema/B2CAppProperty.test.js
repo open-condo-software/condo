@@ -7,8 +7,10 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
+    setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
 
+const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
 const {
     createTestB2CApp,
     createTestB2CAppAccessRight,
@@ -234,6 +236,14 @@ describe('B2CAppProperty test', () => {
     })
 
     describe('isAvailable field', () => {
+        beforeAll(() => {
+            setFeatureFlag(SUBSCRIPTIONS, true)
+        })
+
+        afterAll(() => {
+            setFeatureFlag(SUBSCRIPTIONS, false)
+        })
+
         test('returns true when no organizations at address', async () => {
             const [b2cApp] = await createTestB2CApp(admin)
             const [appProperty] = await createTestB2CAppProperty(admin, b2cApp)
