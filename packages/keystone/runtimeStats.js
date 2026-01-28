@@ -195,12 +195,16 @@ class RuntimeStatsMiddleware {
                     return next()
                 }
 
+                requestTarget = detectRequestTarget(req)
+                requestType = detectRequestType(req)
+
+                runtimeStats.totalRequestsCount = (runtimeStats.totalRequestsCount || 0) + 1
+                runtimeStats.totalRequestsCountByType[requestType] = (runtimeStats.totalRequestsCountByType[requestType] || 0) + 1
+                runtimeStats.totalRequestsCountByTarget[requestTarget] = (runtimeStats.totalRequestsCountByTarget[requestTarget] || 0) + 1
+
                 if (res.writableEnded) {
                     return next()
                 }
-
-                requestTarget = detectRequestTarget(req)
-                requestType = detectRequestType(req)
 
                 // SSR race condition: Check again if response finished during type/target detection
                 // For SSR requests (e.g., Next.js /property), the response may be sent while we're
@@ -230,10 +234,6 @@ class RuntimeStatsMiddleware {
 
                 runtimeStats.activeRequestsCountByType[requestType] = (runtimeStats.activeRequestsCountByType[requestType] || 0) + 1
                 runtimeStats.activeRequestsCountByTarget[requestTarget] = (runtimeStats.activeRequestsCountByTarget[requestTarget] || 0) + 1
-
-                runtimeStats.totalRequestsCount = (runtimeStats.totalRequestsCount || 0) + 1
-                runtimeStats.totalRequestsCountByType[requestType] = (runtimeStats.totalRequestsCountByType[requestType] || 0) + 1
-                runtimeStats.totalRequestsCountByTarget[requestTarget] = (runtimeStats.totalRequestsCountByTarget[requestTarget] || 0) + 1
             } catch (err) {
                 logger.error({
                     msg: 'runtimeStatsMiddleware error',
