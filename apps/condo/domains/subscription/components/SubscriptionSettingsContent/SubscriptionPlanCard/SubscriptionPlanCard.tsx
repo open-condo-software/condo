@@ -237,7 +237,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         <FeatureItem 
             key={featureKey || label} 
             label={label} 
-            available={!featureKey ? true : Boolean((plan as Record<AvailableFeature, boolean>)[featureKey])} 
+            available={!featureKey ? true : (plan as Record<AvailableFeature, boolean>)[featureKey] === true} 
             helpLink={featureKey ? subscriptionFeatureHelpLinks[featureKey] : undefined} 
             hint={hint} 
         />

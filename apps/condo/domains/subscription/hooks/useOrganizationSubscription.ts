@@ -50,7 +50,7 @@ export const useOrganizationSubscription = () => {
     }, [contextData])
 
     const daysRemaining = useMemo<number>(() => {
-        return Number(subscriptionFeatures?.daysRemaining) ?? 0
+        return Number(subscriptionFeatures?.daysRemaining) || 0
     }, [subscriptionFeatures])
 
     const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
