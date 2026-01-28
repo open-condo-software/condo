@@ -70,7 +70,7 @@ const enrichContextsWithPlans = async (contexts) => {
 const filterActiveContexts = (contexts, now) => {
     const nowDate = dayjs(now).startOf('day')
     return contexts.filter(ctx => {
-        if (!ctx.startAt) return false
+        if (!ctx.startAt || !ctx.endAt) return false
         const startAt = dayjs(ctx.startAt).startOf('day')
         const endAt = dayjs(ctx.endAt).startOf('day')
         return (startAt.isBefore(nowDate) || startAt.isSame(nowDate)) && endAt.isAfter(nowDate)

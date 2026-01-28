@@ -644,7 +644,9 @@ describe('Organization', () => {
         })
 
         test('returns latest date when multiple contexts active', async () => {
-            const [organization] = await createTestOrganization(admin)
+            const [organization] = await createTestOrganization(admin, {
+                type: SERVICE_PROVIDER_TYPE,
+            })
             const endAt1 = dayjs().add(30, 'days').format('YYYY-MM-DD')
             const endAt2 = dayjs().add(60, 'days').format('YYYY-MM-DD')
             const [lowPriorityPlan] = await createTestSubscriptionPlan(admin, {
