@@ -8,7 +8,6 @@ const { getAppName, getXRemoteApp, getXRemoteClient, getXRemoteVersion } = requi
 
 const index = require('./index')
 
-
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 
 if (IS_ENABLE_DD_TRACE) {
