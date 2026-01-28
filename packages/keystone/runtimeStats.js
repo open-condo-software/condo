@@ -165,8 +165,28 @@ class RuntimeStatsMiddleware {
 
                 runtimeStats.activeRequestsIds.delete(req.id)
                 runtimeStats.activeRequestsDetails.delete(req.id)
-                runtimeStats.activeRequestsCountByType[requestType] = Math.max(0, runtimeStats.activeRequestsCountByType[requestType] - 1)
-                runtimeStats.activeRequestsCountByTarget[requestTarget] = Math.max(0, runtimeStats.activeRequestsCountByTarget[requestTarget] - 1)
+
+                if (requestType && runtimeStats.activeRequestsCountByType[requestType] !== undefined) {
+                    runtimeStats.activeRequestsCountByType[requestType] = Math.max(0, runtimeStats.activeRequestsCountByType[requestType] - 1)
+                } else {
+                    logger.warn({
+                        msg: 'Cleanup called but requestType not set or counter undefined',
+                        reqId: req.id,
+                        url: req.url,
+                        data: { requestType, hasCounter: runtimeStats.activeRequestsCountByType[requestType] !== undefined },
+                    })
+                }
+
+                if (requestTarget && runtimeStats.activeRequestsCountByTarget[requestTarget] !== undefined) {
+                    runtimeStats.activeRequestsCountByTarget[requestTarget] = Math.max(0, runtimeStats.activeRequestsCountByTarget[requestTarget] - 1)
+                } else {
+                    logger.warn({
+                        msg: 'Cleanup called but requestTarget not set or counter undefined',
+                        reqId: req.id,
+                        url: req.url,
+                        data: { requestTarget, hasCounter: runtimeStats.activeRequestsCountByTarget[requestTarget] !== undefined },
+                    })
+                }
             }
 
             try {
@@ -177,6 +197,24 @@ class RuntimeStatsMiddleware {
 
                 requestTarget = detectRequestTarget(req)
                 requestType = detectRequestType(req)
+
+                runtimeStats.totalRequestsCount = (runtimeStats.totalRequestsCount || 0) + 1
+                runtimeStats.totalRequestsCountByType[requestType] = (runtimeStats.totalRequestsCountByType[requestType] || 0) + 1
+                runtimeStats.totalRequestsCountByTarget[requestTarget] = (runtimeStats.totalRequestsCountByTarget[requestTarget] || 0) + 1
+
+                // SSR race condition: Check if response finished during type/target detection
+                // For SSR requests (e.g., Next.js /property), the response may be sent while we're
+                // detecting request type/target. If we register cleanup handlers after 'finish' has
+                // already fired, the handlers will never execute, causing counters to never decrement.
+                if (res.writableEnded) {
+                    logger.warn({
+                        msg: 'Response already finished before cleanup handlers registered',
+                        reqId: req.id,
+                        url: req.url,
+                        data: { method: req.method, requestType, requestTarget },
+                    })
+                    return next()
+                }
 
                 res.on('close', cleanup)
                 res.on('finish', cleanup)
@@ -192,10 +230,6 @@ class RuntimeStatsMiddleware {
 
                 runtimeStats.activeRequestsCountByType[requestType] = (runtimeStats.activeRequestsCountByType[requestType] || 0) + 1
                 runtimeStats.activeRequestsCountByTarget[requestTarget] = (runtimeStats.activeRequestsCountByTarget[requestTarget] || 0) + 1
-
-                runtimeStats.totalRequestsCount = (runtimeStats.totalRequestsCount || 0) + 1
-                runtimeStats.totalRequestsCountByType[requestType] = (runtimeStats.totalRequestsCountByType[requestType] || 0) + 1
-                runtimeStats.totalRequestsCountByTarget[requestTarget] = (runtimeStats.totalRequestsCountByTarget[requestTarget] || 0) + 1
             } catch (err) {
                 logger.error({
                     msg: 'runtimeStatsMiddleware error',
