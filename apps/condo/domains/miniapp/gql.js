@@ -61,7 +61,7 @@ const B2CAppAccessRight = generateGqlQueries('B2CAppAccessRight', B2C_APP_ACCESS
 const B2C_APP_BUILD_FIELDS = `{ app { id } version ${COMMON_FIELDS} }`
 const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 
-const B2C_APP_PROPERTY_FIELDS = `{ app { id } address ${COMMON_FIELDS} }`
+const B2C_APP_PROPERTY_FIELDS = `{ app { id } isAvailable address ${COMMON_FIELDS} }`
 const B2CAppProperty = generateGqlQueries('B2CAppProperty', B2C_APP_PROPERTY_FIELDS)
 
 const B2B_APP_PERMISSION_FIELDS = `{ app { id } key name ${COMMON_FIELDS} }`

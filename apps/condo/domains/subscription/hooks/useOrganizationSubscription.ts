@@ -58,14 +58,11 @@ export const useOrganizationSubscription = () => {
         if (!subscriptionFeatures) return false
         
         const featureDate = subscriptionFeatures[feature]
-        console.log('featureDate', featureDate)
         if (featureDate === null) return false
         if (typeof featureDate !== 'string') return false
         
         const expirationDate = new Date(featureDate)
         const now = new Date()
-
-        console.log('expirationDate, now', expirationDate, now, expirationDate > now)
 
         return expirationDate > now
     }, [subscriptionFeatures, hasSubscriptionsFlag])
