@@ -688,9 +688,9 @@ describe('Invoice', () => {
             await createTestAcquiringIntegrationContext(adminClient, client2.organization, dummyAcquiringIntegration, {
                 invoiceStatus: CONTEXT_FINISHED_STATUS,
                 invoiceRecipient: createTestRecipient(),
-            })
+            });
 
-                ;[client2.property] = await createTestProperty(client2, client2.organization, { address: client1.property.address }, false, client1.property.addressMeta)
+            [client2.property] = await createTestProperty(client2, client2.organization, { address: client1.property.address }, false, client1.property.addressMeta)
 
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
