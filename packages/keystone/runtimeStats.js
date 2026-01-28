@@ -202,11 +202,7 @@ class RuntimeStatsMiddleware {
                 runtimeStats.totalRequestsCountByType[requestType] = (runtimeStats.totalRequestsCountByType[requestType] || 0) + 1
                 runtimeStats.totalRequestsCountByTarget[requestTarget] = (runtimeStats.totalRequestsCountByTarget[requestTarget] || 0) + 1
 
-                if (res.writableEnded) {
-                    return next()
-                }
-
-                // SSR race condition: Check again if response finished during type/target detection
+                // SSR race condition: Check if response finished during type/target detection
                 // For SSR requests (e.g., Next.js /property), the response may be sent while we're
                 // detecting request type/target. If we register cleanup handlers after 'finish' has
                 // already fired, the handlers will never execute, causing counters to never decrement.
