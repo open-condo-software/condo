@@ -228,8 +228,11 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
             const keyPath = path.join(sslPath, 'localhost.key')
             const certPath = path.join(sslPath, 'localhost.pem')
 
-            // For test purposes, we use self-signed certs from bin/.ssl
+            // For test purposes, we use self-signed certs from bin/.ssl with disabled TLS verification
+            // This is safe because it's only used in test environments with localhost servers
             // In production, proper certificates should be used
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.disallow-old-tls-versions2.disallow-old-tls-versions2
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
             const httpsOptions = {
                 key: fs.readFileSync(keyPath),
                 cert: fs.readFileSync(certPath),
