@@ -44,6 +44,7 @@ jest.mock('@open-condo/keystone/fetch', () => {
         fetch: jest.fn((url, options = {}) => {
             // For HTTPS URLs, add agent with rejectUnauthorized: false
             if (url.startsWith('https://')) {
+                //nosempgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
                 const agent = new https.Agent({ rejectUnauthorized: false })
                 return originalModule.fetch(url, { ...options, agent })
             }
