@@ -232,8 +232,7 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
             // This is safe because it's only used in test environments with localhost servers
             // In production, proper certificates should be used
             // nosemgrep: problem-based-packs.insecure-transport.js-node.disallow-old-tls-versions2.disallow-old-tls-versions2
-            // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
-            const httpsOptions = {
+            const httpsOptions = { // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
                 key: fs.readFileSync(keyPath),
                 cert: fs.readFileSync(certPath),
                 rejectUnauthorized: false,
