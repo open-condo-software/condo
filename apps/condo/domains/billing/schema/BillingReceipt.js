@@ -17,6 +17,7 @@ const {
     PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     applyWebhookSecretGeneration,
     isWebhookUrlInWhitelist,
+    returnPlainTextWebhookSecretOnCreation,
 } = require('@condo/domains/acquiring/schema/fields/paymentChangeWebhook')
 const access = require('@condo/domains/billing/access/BillingReceipt')
 const { DEFAULT_BILLING_CATEGORY_ID, CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
@@ -392,7 +393,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 throw new GQLError(ERRORS.WEBHOOK_URL_NOT_IN_WHITELIST, context)
             }
         },
-        resolveInput: ({ resolvedData, existingItem }) => {
+        resolveInput: ({ resolvedData, existingItem, context }) => {
             // TODO(DOMA-6519): remove hook after toPayDetails field removal
             // Update toPayDetails explicit fields directly from passed value
             if ('toPayDetails' in resolvedData) {
@@ -400,7 +401,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             }
 
             // Auto-generate webhook secret when callback URL is set
-            applyWebhookSecretGeneration(resolvedData, existingItem)
+            applyWebhookSecretGeneration(resolvedData, existingItem, context)
 
             return resolvedData
         },
@@ -447,6 +448,10 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 receiverId = createdRecipient.id
             }
             resolvedData.receiver = receiverId
+        },
+        afterChange: async (args) => {
+            // Return plain text webhook secret on creation
+            returnPlainTextWebhookSecretOnCreation(args)
         },
     },
 })

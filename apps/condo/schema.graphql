@@ -16137,7 +16137,7 @@ type BillingReceipt {
   """
   paymentStatusChangeWebhookUrl: String
 
-  """ Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Webhook-Signature header. 
+  """ Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Webhook-Signature header. Returns plain text on creation, encrypted on subsequent reads. 
   """
   paymentStatusChangeWebhookSecret: String
   id: ID!
@@ -84096,7 +84096,7 @@ type Invoice {
   """
   paymentStatusChangeWebhookUrl: String
 
-  """ Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Webhook-Signature header. 
+  """ Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Webhook-Signature header. Returns plain text on creation, encrypted on subsequent reads. 
   """
   paymentStatusChangeWebhookSecret: String
   id: ID!

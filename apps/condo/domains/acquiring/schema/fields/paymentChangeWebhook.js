@@ -16,7 +16,7 @@ const PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD = {
 }
 
 const PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD = {
-    schemaDoc: 'Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Webhook-Signature header.',
+    schemaDoc: 'Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Webhook-Signature header. Returns plain text on creation, encrypted on subsequent reads.',
     type: 'EncryptedText',
     isRequired: false,
     access: {
@@ -49,14 +49,33 @@ async function isWebhookUrlInWhitelist (url) {
 }
 
 /**
+ * Returns plain text webhook secret on creation by replacing encrypted value.
+ * Use this in afterChange hook of schemas that have webhook callback fields.
+ * 
+ * @param {Object} context - The Keystone context
+ * @param {string} operation - The operation type ('create' or 'update')
+ * @param {Object} updatedItem - The updated item
+ */
+function returnPlainTextWebhookSecretOnCreation ({ context, operation, updatedItem }) {
+    // Return plain text webhook secret on creation
+    if (operation === 'create' && context && context.req && context.req._plainWebhookSecret) {
+        // Replace the encrypted secret with plain text for the response
+        updatedItem.paymentStatusChangeWebhookSecret = context.req._plainWebhookSecret
+        // Clean up
+        delete context.req._plainWebhookSecret
+    }
+}
+
+/**
  * Hook to auto-generate webhook secret when callback URL is set.
  * Use this in resolveInput hook of schemas that have webhook callback fields.
  * 
  * @param {Object} resolvedData - The resolved data from the mutation
  * @param {Object} existingItem - The existing item (for updates)
+ * @param {Object} context - The Keystone context (optional, for storing plain text secret)
  * @returns {Object} Updated resolvedData with secret generation logic applied
  */
-function applyWebhookSecretGeneration (resolvedData, existingItem) {
+function applyWebhookSecretGeneration (resolvedData, existingItem, context = null) {
     const existingCallbackUrl = get(existingItem, 'paymentStatusChangeWebhookUrl')
     
     // Check if the webhook URL field is present in resolvedData
@@ -79,7 +98,15 @@ function applyWebhookSecretGeneration (resolvedData, existingItem) {
     // 1. URL is being set for the first time (no existing URL, new URL provided)
     // 2. URL is being changed to a different URL (existing URL differs from new URL)
     if (newCallbackUrl && newCallbackUrl !== existingCallbackUrl) {
-        resolvedData['paymentStatusChangeWebhookSecret'] = crypto.randomBytes(32).toString('hex')
+        const plainTextSecret = crypto.randomBytes(32).toString('hex')
+        resolvedData['paymentStatusChangeWebhookSecret'] = plainTextSecret
+        
+        // Store plain text secret in context so it can be returned unencrypted after creation
+        // The EncryptedText field will encrypt it before storing in DB, but we need to return
+        // the plain text version to the API consumer so they can verify webhook signatures
+        if (context && context.req) {
+            context.req._plainWebhookSecret = plainTextSecret
+        }
     } else if ((newCallbackUrl === null || newCallbackUrl === undefined) && existingCallbackUrl) {
         // Clear secret when callback URL is explicitly removed
         resolvedData['paymentStatusChangeWebhookSecret'] = null
@@ -93,4 +120,5 @@ module.exports = {
     PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     isWebhookUrlInWhitelist,
     applyWebhookSecretGeneration,
+    returnPlainTextWebhookSecretOnCreation,
 }
