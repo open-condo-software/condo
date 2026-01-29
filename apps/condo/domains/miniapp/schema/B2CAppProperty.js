@@ -7,7 +7,9 @@ const get = require('lodash/get')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { addressService } = require('@open-condo/keystone/plugins/addressService')
-const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/B2CAppProperty')
@@ -15,8 +17,8 @@ const {
     INCORRECT_ADDRESS_ERROR,
     INCORRECT_HOUSE_TYPE_ERROR,
 } = require('@condo/domains/miniapp/constants')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
+const { isB2CAppAvailableForAddress } = require('@condo/domains/subscription/utils/b2cAppAvailability')
 
 const ERRORS = {
     INCORRECT_ADDRESS: {
@@ -31,89 +33,6 @@ const ERRORS = {
         variable: ['data', 'address'],
         message: `${INCORRECT_HOUSE_TYPE_ERROR}. Valid values are: [${VALID_HOUSE_TYPES.join(', ')}]`,
     },
-}
-
-const groupPlansByOrgType = (plans) => {
-    const plansByOrgType = {}
-    for (const plan of plans) {
-        if (!plansByOrgType[plan.organizationType]) {
-            plansByOrgType[plan.organizationType] = []
-        }
-        plansByOrgType[plan.organizationType].push(plan)
-    }
-    return plansByOrgType
-}
-
-const collectEnabledB2CAppsFromPlans = (plans) => {
-    const allEnabledB2CApps = new Set()
-    for (const plan of plans) {
-        const enabledApps = plan.enabledB2CApps || []
-        enabledApps.forEach(id => allEnabledB2CApps.add(id))
-    }
-    return allEnabledB2CApps
-}
-
-const isAppAvailableForOrganization = (org, appId, plansByOrgType) => {
-    const orgPlans = plansByOrgType[org.type] || []
-    
-    if (orgPlans.length === 0) {
-        return true
-    }
-    
-    const allEnabledB2CApps = collectEnabledB2CAppsFromPlans(orgPlans)
-
-    if (!allEnabledB2CApps.has(appId)) {
-        return true
-    }
-
-    const subscription = org.subscription
-    if (!subscription || !subscription.activeSubscriptionContextId) {
-        return false
-    }
-
-    const currentEnabledApps = subscription.enabledB2CApps || []
-    return currentEnabledApps.includes(appId)
-}
-
-const checkB2CAppAvailability = async (appId, addressKey, context) => {
-    const properties = await find('Property', {
-        addressKey,
-        deletedAt: null,
-    }, { context })
-
-    if (properties.length === 0) {
-        return true
-    }
-
-    const organizationIds = [...new Set(properties.map(p => p.organization).filter(Boolean))]
-    
-    if (organizationIds.length === 0) {
-        return true
-    }
-
-    const organizations = await Organization.getAll(context, {
-        id_in: organizationIds,
-        deletedAt: null,
-    }, 'id type subscription { activeSubscriptionContextId enabledB2CApps }')
-
-    if (organizations.length === 0) {
-        return true
-    }
-
-    const allPlans = await find('SubscriptionPlan', {
-        deletedAt: null,
-        isHidden: false,
-    }, { context })
-
-    const plansByOrgType = groupPlansByOrgType(allPlans)
-    
-    for (const org of organizations) {
-        if (isAppAvailableForOrganization(org, appId, plansByOrgType)) {
-            return true
-        }
-    }
-
-    return false
 }
 
 const B2CAppProperty = new GQLListSchema('B2CAppProperty', {
@@ -139,12 +58,14 @@ const B2CAppProperty = new GQLListSchema('B2CAppProperty', {
 
         isAvailable: {
             schemaDoc: 'Whether the B2C app is available at this address based on organization subscriptions. ' +
-                'Returns true if: 1) no organizations at address, 2) at least one organization has active subscription with this app enabled, ' +
-                '3) app is not restricted by any subscription plan for organizations at this address',
+                'Returns true if one of the following is correct: \n' + 
+                '1) There is no organizations at address; \n' + 
+                '2) At least one organization has active subscription plan including this B2CApp and Property with matching addressKey; \n' +
+                '3) App is not restricted by any subscription plan for organizations at this address',
             type: 'Virtual',
             graphQLReturnType: 'Boolean!',
             resolver: async (item, args, context) => {
-                return await checkB2CAppAvailability(item.app, item.addressKey, context)
+                return await isB2CAppAvailableForAddress(item.app, item.addressKey, context)
             },
         },
     },

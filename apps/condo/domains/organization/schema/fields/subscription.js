@@ -29,7 +29,7 @@ const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
     }
 `
 
-const calculateDaysUntilDate = (date, now) => {
+function calculateDaysUntilDate (date, now) {
     if (!date) return 0
     const endDate = dayjs(date)
     const startDate = dayjs(now)
@@ -37,7 +37,7 @@ const calculateDaysUntilDate = (date, now) => {
     return Math.max(0, Math.ceil(diffInHours / 24))
 }
 
-const buildSubscriptionResponse = (date = null) => {
+function buildSubscriptionResponse (date = null) {
     const now = new Date().toISOString()
     const daysRemaining = calculateDaysUntilDate(date, now)
     
@@ -57,7 +57,7 @@ const buildSubscriptionResponse = (date = null) => {
     }
 }
 
-const enrichContextsWithPlans = async (contexts) => {
+async function enrichContextsWithPlans (contexts) {
     const planIds = [...new Set(contexts.map(c => c.subscriptionPlan).filter(Boolean))]
     const plans = await find('SubscriptionPlan', { id_in: planIds, deletedAt: null })
     const planMap = Object.fromEntries(plans.map(p => [p.id, p]))
@@ -67,7 +67,7 @@ const enrichContextsWithPlans = async (contexts) => {
     }))
 }
 
-const filterActiveContexts = (contexts, now) => {
+function filterActiveContexts (contexts, now) {
     const nowDate = dayjs(now).startOf('day')
     return contexts.filter(ctx => {
         if (!ctx.startAt || !ctx.endAt) return false
@@ -77,7 +77,7 @@ const filterActiveContexts = (contexts, now) => {
     })
 }
 
-const findLatestEndAtForFeature = (feature, sortedContexts, now) => {
+function findLatestEndAtForFeature (feature, sortedContexts, now) {
     const nowDate = dayjs(now).startOf('day')
     const contextsWithFeature = sortedContexts.filter(ctx => {
         const contextPlan = ctx.subscriptionPlan
@@ -120,7 +120,7 @@ const findLatestEndAtForFeature = (feature, sortedContexts, now) => {
     return maxEndAt
 }
 
-const calculateFeatureExpirationDates = (sortedContexts, now) => {
+function calculateFeatureExpirationDates (sortedContexts, now) {
     const features = ['payments', 'meters', 'tickets', 'news', 'marketplace', 'support', 'ai', 'customization']
     
     return features.reduce((acc, feature) => {
@@ -129,7 +129,7 @@ const calculateFeatureExpirationDates = (sortedContexts, now) => {
     }, {})
 }
 
-const calculateDaysRemaining = (featureExpirationDates, now) => {
+function calculateDaysRemaining (featureExpirationDates, now) {
     const featureDates = Object.values(featureExpirationDates)
     const validDates = featureDates.filter(date => date !== null)
     const latestEndAt = validDates.length > 0 ? validDates.sort().pop() : null
@@ -137,7 +137,7 @@ const calculateDaysRemaining = (featureExpirationDates, now) => {
     return calculateDaysUntilDate(latestEndAt, now)
 }
 
-const collectEnabledApps = (activeContexts) => {
+function collectEnabledApps (activeContexts) {
     const allEnabledB2BApps = new Set()
     const allEnabledB2CApps = new Set()
     
