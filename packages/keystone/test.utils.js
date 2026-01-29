@@ -237,6 +237,7 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
             try {
                 // Generate self-signed certificate using OpenSSL (available on most systems)
                 // Using spawnSync instead of execSync to avoid spawning a shell (more secure)
+                // nosemgrep: javascript.lang.security.audit.dangerous-spawn.dangerous-spawn
                 const result = spawnSync('openssl', [
                     'req',
                     '-x509',
