@@ -1,7 +1,9 @@
+const { execSync } = require('child_process')
 const crypto = require('crypto')
 const fs = require('fs')
 const http = require('http')
 const https = require('https')
+const os = require('os')
 const path = require('path')
 const urlLib = require('url')
 
@@ -223,23 +225,45 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
         // Create server with self-signed certificate for HTTPS in tests
         let server
         if (protocol === 'https') {
-            // Use existing self-signed certificates from bin/.ssl
-            const sslPath = path.join(__dirname, '..', '..', 'bin', '.ssl')
-            const keyPath = path.join(sslPath, 'localhost.key')
-            const certPath = path.join(sslPath, 'localhost.pem')
-
-            if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
-                throw new Error('HTTPS test server requires bin/.ssl/localhost.key and bin/.ssl/localhost.pem. Generate certs or use protocol = \'http\'')
+            // Generate self-signed certificates on the fly using OpenSSL
+            // This avoids external Node.js dependencies while creating proper X.509 certs
+            
+            // Create temporary files for key and cert
+            const tmpDir = os.tmpdir()
+            const keyPath = path.join(tmpDir, `test-ssl-${Date.now()}-${Math.random().toString(36).slice(2)}.key`)
+            const certPath = path.join(tmpDir, `test-ssl-${Date.now()}-${Math.random().toString(36)}.pem`)
+            
+            try {
+                // Generate self-signed certificate using OpenSSL (available on most systems)
+                execSync(
+                    `openssl req -x509 -newkey rsa:2048 -nodes ` +
+                    `-keyout "${keyPath}" -out "${certPath}" ` +
+                    `-days 1 -subj "/CN=localhost"`,
+                    { stdio: 'pipe' }
+                )
+            } catch (error) {
+                throw new Error(
+                    `Failed to generate SSL certificates. OpenSSL is required.\n` +
+                    `Error: ${error.message}\n\n` +
+                    `Install OpenSSL or use protocol='http' for tests that don't require HTTPS`
+                )
             }
 
-            // For test purposes, we use self-signed certs from bin/.ssl with disabled TLS verification
+            // For test purposes, we use self-signed certs generated on the fly
             // This is safe because it's only used in test environments with localhost servers
             // In production, proper certificates should be used
             // nosemgrep: problem-based-packs.insecure-transport.js-node.disallow-old-tls-versions2.disallow-old-tls-versions2
-            const httpsOptions = { // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
+            const httpsOptions = {
                 key: fs.readFileSync(keyPath),
                 cert: fs.readFileSync(certPath),
-                rejectUnauthorized: false,
+            }
+
+            // Clean up temporary certificate files after reading them
+            try {
+                fs.unlinkSync(keyPath)
+                fs.unlinkSync(certPath)
+            } catch (err) {
+                // Ignore cleanup errors
             }
 
             // Used only inside of jest files
