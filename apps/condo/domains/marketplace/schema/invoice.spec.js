@@ -138,12 +138,11 @@ describe('Invoice', () => {
                 // Wait for the webhook payload to be created by the afterChange hook
                 let webhookPayload
                 await waitFor(async () => {
-                    const payloads = await WebhookPayload.getAll(keystone, {
+                    webhookPayload = await WebhookPayload.getOne(keystone, {
                         modelName: 'Payment',
                         itemId: payment.id,
                     })
-                    expect(payloads.length).toBeGreaterThan(0)
-                    webhookPayload = payloads[0]
+                    expect(webhookPayload).toBeTruthy()
                 }, { timeout: 5000, interval: 100 })
 
                 const sendWebhookPayloadTask = getWebhookRegularTasks().sendWebhookPayload
