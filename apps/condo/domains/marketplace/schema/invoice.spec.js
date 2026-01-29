@@ -1,6 +1,5 @@
 const crypto = require('crypto')
 
-
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const express = require('express')
@@ -17,7 +16,6 @@ const { getWebhookRegularTasks } = require('@open-condo/webhooks/tasks')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { sendPaymentStatusChangeWebhook } = require('@condo/domains/acquiring/tasks')
 const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
@@ -131,16 +129,22 @@ describe('Invoice', () => {
                 })
 
                 // Mark payment as paid to trigger the webhook
+                // The Payment afterChange hook will automatically call sendPaymentStatusChangeWebhook
                 await updateTestPayment(adminClient, payment.id, {
                     status: PAYMENT_DONE_STATUS,
                     advancedAt: new Date().toISOString(),
                 })
 
-                await sendPaymentStatusChangeWebhook.delay.fn(payment.id)
-                const webhookPayload = await WebhookPayload.getOne(keystone, {
-                    modelName: 'Payment',
-                    itemId: payment.id,
-                })
+                // Wait for the webhook payload to be created by the afterChange hook
+                let webhookPayload
+                await waitFor(async () => {
+                    const payloads = await WebhookPayload.getAll(keystone, {
+                        modelName: 'Payment',
+                        itemId: payment.id,
+                    })
+                    expect(payloads.length).toBeGreaterThan(0)
+                    webhookPayload = payloads[0]
+                }, { timeout: 5000, interval: 100 })
 
                 const sendWebhookPayloadTask = getWebhookRegularTasks().sendWebhookPayload
                 await sendWebhookPayloadTask.delay.fn(webhookPayload.id)
