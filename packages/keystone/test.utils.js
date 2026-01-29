@@ -228,6 +228,10 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
             const keyPath = path.join(sslPath, 'localhost.key')
             const certPath = path.join(sslPath, 'localhost.pem')
 
+            if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+                throw new Error('HTTPS test server requires bin/.ssl/localhost.key and bin/.ssl/localhost.pem. Generate certs or use protocol = \'http\'')
+            }
+
             // For test purposes, we use self-signed certs from bin/.ssl with disabled TLS verification
             // This is safe because it's only used in test environments with localhost servers
             // In production, proper certificates should be used
@@ -629,8 +633,8 @@ class OIDCAuthClient {
  * @returns {Promise<Object>} Mini app client with all OIDC flow completed
  */
 const makeLoggedInMiniAppClient = async (
-    loggedInCondoClient, 
-    {condoOrganizationId = null, condoUserId = null, miniAppServerUrl = null} = {}, 
+    loggedInCondoClient,
+    { condoOrganizationId = null, condoUserId = null, miniAppServerUrl = null } = {},
 ) => {
     const authCookie = loggedInCondoClient.getCookie().split(';').find(cookie => cookie.startsWith('keystone.sid='))
     if (!authCookie) {
