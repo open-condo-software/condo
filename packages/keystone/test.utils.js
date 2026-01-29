@@ -230,8 +230,9 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
             
             // Create temporary files for key and cert
             const tmpDir = os.tmpdir()
-            const keyPath = path.join(tmpDir, `test-ssl-${Date.now()}-${Math.random().toString(36).slice(2)}.key`)
-            const certPath = path.join(tmpDir, `test-ssl-${Date.now()}-${Math.random().toString(36)}.pem`)
+            const randomSuffix = crypto.randomBytes(8).toString('hex')
+            const keyPath = path.join(tmpDir, `test-ssl-${Date.now()}-${randomSuffix}.key`)
+            const certPath = path.join(tmpDir, `test-ssl-${Date.now()}-${randomSuffix}.pem`)
             
             try {
                 // Generate self-signed certificate using OpenSSL (available on most systems)
