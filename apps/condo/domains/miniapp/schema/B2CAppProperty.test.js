@@ -236,12 +236,14 @@ describe('B2CAppProperty test', () => {
     })
 
     describe('isAvailable field', () => {
+        let prevSubscriptionsFlag
+          
         beforeAll(() => {
-            setFeatureFlag(SUBSCRIPTIONS, true)
+            prevSubscriptionsFlag = setFeatureFlag(SUBSCRIPTIONS, true)
         })
 
         afterAll(() => {
-            setFeatureFlag(SUBSCRIPTIONS, false)
+            setFeatureFlag(SUBSCRIPTIONS, prevSubscriptionsFlag)
         })
 
         test('returns true when no organizations at address', async () => {
