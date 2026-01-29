@@ -1584,14 +1584,6 @@ describe('BillingReceipt', () => {
     })
 
     describe('Webhook callback URL whitelist validation', () => {
-        let acquiringIntegration
-        let billingIntegration
-
-        beforeAll(async () => {
-            [acquiringIntegration] = await createTestAcquiringIntegration(admin)
-            billingIntegration = (await makeContextWithOrganizationAndIntegrationAsAdmin()).integration
-        })
-
         test('can create billing receipt with whitelisted callback URL', async () => {
             const callbackUrl = `https://billing-whitelisted-${faker.random.alphaNumeric(10)}.com/webhook`
 

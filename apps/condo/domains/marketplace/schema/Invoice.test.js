@@ -3087,18 +3087,19 @@ describe('Invoice', () => {
 
         describe('webhook signature', () => {
             // Setup webhook test server at module level
+            const webhookPath = `/webhook-${faker.random.alphaNumeric(16)}`
             const webhookRequests = []
             // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
             const webhookApp = express()
             webhookApp.use(express.json())
-            webhookApp.post('/webhook', (req, res) => {
+            webhookApp.post(webhookPath, (req, res) => {
                 webhookRequests.push({
                     headers: req.headers,
                     body: req.body,
                 })
                 res.status(200).json({ received: true })
             })
-            initTestExpressApp('InvoiceWebhookServer', webhookApp)
+            initTestExpressApp('InvoiceWebhookServer', webhookApp, 'https')
 
             test('webhook signature can be verified after invoice payment using real HTTP server', async () => {
                 // Clear previous webhook requests
@@ -3106,7 +3107,7 @@ describe('Invoice', () => {
 
                 // Get the test server URL
                 const testServer = getTestExpressApp('InvoiceWebhookServer')
-                const callbackUrl = `${testServer.baseUrl}/webhook`
+                const callbackUrl = `${testServer.baseUrl}${webhookPath}`
 
                 // Add URL to whitelist
                 await createTestPaymentStatusChangeWebhookUrl(adminClient, {
@@ -3129,7 +3130,6 @@ describe('Invoice', () => {
                 // Create a Payment for the invoice using the existing acquiring context
                 const [payment] = await createTestPayment(adminClient, dummyOrganization, null, dummyAcquiringIntegrationContext, {
                     invoice,
-                    // amount: invoice.toPay,
                 })
 
                 // Mark payment as paid to trigger the webhook
@@ -3140,7 +3140,8 @@ describe('Invoice', () => {
 
                 // Wait for webhook to be sent to our test server (with longer timeout for async task processing)
                 await waitFor(async () => {
-                    return webhookRequests.length > 0
+                    // return webhookRequests.length > 0
+                    expect(webhookRequests.length).toBeGreaterThan(0)
                 }, { timeout: 10000, interval: 500 }) // Wait up to 10 seconds, check every 500ms
 
                 // Verify webhook was received

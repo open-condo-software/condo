@@ -220,9 +220,30 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
             baseUrl: null,
         }
 
-        // Used only inside of jest files
-        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
-        const server = http.createServer(app)
+        // Create server with self-signed certificate for HTTPS in tests
+        let server
+        if (protocol === 'https') {
+            // Use existing self-signed certificates from bin/.ssl
+            const sslPath = path.join(__dirname, '..', '..', 'bin', '.ssl')
+            const keyPath = path.join(sslPath, 'localhost.key')
+            const certPath = path.join(sslPath, 'localhost.pem')
+
+            // For test purposes, we use self-signed certs from bin/.ssl
+            // In production, proper certificates should be used
+            const httpsOptions = {
+                key: fs.readFileSync(keyPath),
+                cert: fs.readFileSync(certPath),
+                rejectUnauthorized: false,
+            }
+
+            // Used only inside of jest files
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+            server = https.createServer(httpsOptions, app)
+        } else {
+            // Used only inside of jest files
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+            server = http.createServer(app)
+        }
 
         try {
             await new Promise((resolve, reject) => {
