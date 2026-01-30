@@ -1,3 +1,4 @@
+const { analytical } = require('./analytical')
 const { dvAndSender } = require('./dvAndSender')
 const { historical } = require('./historical')
 const { importable } = require('./importable')
@@ -8,6 +9,7 @@ const { uuided } = require('./uuided')
 const { versioned } = require('./versioned')
 
 module.exports = {
+    analytical,
     uuided,
     versioned,
     tracked,
