@@ -1,7 +1,6 @@
 const crypto = require('node:crypto')
 
-const get = require('lodash/get')
-
+const { EncryptionManager } = require('@open-condo/keystone/crypto/EncryptionManager')
 const { find } = require('@open-condo/keystone/schema')
 
 /**
@@ -16,10 +15,18 @@ const PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD = {
     isRequired: false,
 }
 
+// EncryptionManager configured to return plain text on creation
+// This allows webhook secrets to be returned in plain text when created,
+// while still being stored encrypted in the database
+const WEBHOOK_SECRET_ENCRYPTION_MANAGER = new EncryptionManager({
+    returnPlainTextOnCreate: true,
+})
+
 const PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD = {
     schemaDoc: 'Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Webhook-Signature header. Returns plain text on creation, encrypted on subsequent reads.',
     type: 'EncryptedText',
     sensitive: true,
+    encryptionManager: WEBHOOK_SECRET_ENCRYPTION_MANAGER,
     isRequired: false,
     access: {
         read: true,
@@ -51,78 +58,29 @@ async function isWebhookUrlInWhitelist (url) {
 }
 
 /**
- * Returns plain text webhook secret on creation by replacing encrypted value.
- * Use this in afterChange hook of schemas that have webhook callback fields.
- * 
- * SECURITY NOTE: This function modifies updatedItem in afterChange, which would normally
- * be captured by the historical() plugin and stored in history records. To prevent
- * plain text secrets from being stored in history tables, ensure the schema using this
- * function excludes 'EncryptedText' from history via:
- * 
- *   historical({ ignoreFieldTypes: ['Content', 'Virtual', 'EncryptedText'] })
- * 
- * This ensures webhook secrets (and other encrypted fields) are not stored in history
- * records, while still allowing the plain text secret to be returned to the API consumer
- * on creation.
- * 
- * @param {Object} context - The Keystone context
- * @param {string} operation - The operation type ('create' or 'update')
- * @param {Object} updatedItem - The updated item
- */
-function returnPlainTextWebhookSecretOnCreation ({ context, operation, updatedItem }) {
-    // Return plain text webhook secret on creation
-    if (operation === 'create' && context && context.req && context.req._plainWebhookSecret) {
-        // Replace the encrypted secret with plain text for the API response
-        updatedItem.paymentStatusChangeWebhookSecret = context.req._plainWebhookSecret
-        // Clean up
-        delete context.req._plainWebhookSecret
-    }
-}
-
-/**
  * Hook to auto-generate webhook secret when callback URL is set.
  * Use this in resolveInput hook of schemas that have webhook callback fields.
  * 
- * @param {Object} resolvedData - The resolved data from the mutation
- * @param {Object} existingItem - The existing item (for updates)
- * @param {Object} context - The Keystone context (optional, for storing plain text secret)
- * @returns {Object} Updated resolvedData with secret generation logic applied
+ * The generated secret will be returned in plain text on creation thanks to
+ * the EncryptedText field resolver with returnPlainTextOnCreate enabled.
+ * 
+ * @param {Object} resolvedData - The resolved input data
+ * @param {Object} context - The Keystone context
+ * @returns {Object} Modified resolvedData with generated secret if needed
  */
-function applyWebhookSecretGeneration (resolvedData, existingItem, context = null) {
-    const existingCallbackUrl = get(existingItem, 'paymentStatusChangeWebhookUrl')
-    
-    // Check if the webhook URL field is present in resolvedData
-    const hasWebhookUrlField = 'paymentStatusChangeWebhookUrl' in resolvedData
-    
-    if (!hasWebhookUrlField) {
-        // Field not being updated, do nothing
-        return resolvedData
-    }
-    
-    let newCallbackUrl = resolvedData.paymentStatusChangeWebhookUrl
+function applyWebhookSecretGeneration ({ resolvedData, context }) {
+    const { paymentStatusChangeWebhookUrl, paymentStatusChangeWebhookSecret } = resolvedData
 
-    // Normalize empty string to null
-    if (newCallbackUrl === '') {
-        newCallbackUrl = null
-        resolvedData['paymentStatusChangeWebhookUrl'] = null
+    // Generate secret if URL is being set and secret doesn't exist
+    if (paymentStatusChangeWebhookUrl && !paymentStatusChangeWebhookSecret) {
+        const secret = crypto.randomBytes(32).toString('hex')
+        resolvedData.paymentStatusChangeWebhookSecret = secret
+        // No need to store in context - the EncryptedText resolver handles plain text return
     }
 
-    // Generate new secret when:
-    // 1. URL is being set for the first time (no existing URL, new URL provided)
-    // 2. URL is being changed to a different URL (existing URL differs from new URL)
-    if (newCallbackUrl && newCallbackUrl !== existingCallbackUrl) {
-        const plainTextSecret = crypto.randomBytes(32).toString('hex')
-        resolvedData['paymentStatusChangeWebhookSecret'] = plainTextSecret
-        
-        // Store plain text secret in context so it can be returned unencrypted after creation
-        // The EncryptedText field will encrypt it before storing in DB, but we need to return
-        // the plain text version to the API consumer so they can verify webhook signatures
-        if (context && context.req) {
-            context.req._plainWebhookSecret = plainTextSecret
-        }
-    } else if ((newCallbackUrl === null || newCallbackUrl === undefined) && existingCallbackUrl) {
-        // Clear secret when callback URL is explicitly removed
-        resolvedData['paymentStatusChangeWebhookSecret'] = null
+    // Clear secret if URL is being removed
+    if (paymentStatusChangeWebhookUrl === null || paymentStatusChangeWebhookUrl === '') {
+        resolvedData.paymentStatusChangeWebhookSecret = null
     }
 
     return resolvedData
@@ -133,5 +91,4 @@ module.exports = {
     PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     isWebhookUrlInWhitelist,
     applyWebhookSecretGeneration,
-    returnPlainTextWebhookSecretOnCreation,
 }

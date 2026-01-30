@@ -29,7 +29,6 @@ const {
     PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     applyWebhookSecretGeneration,
     isWebhookUrlInWhitelist,
-    returnPlainTextWebhookSecretOnCreation,
 } = require('@condo/domains/acquiring/schema/fields/paymentChangeWebhook')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { AMOUNT_DISTRIBUTION_FIELD } = require('@condo/domains/billing/schema/fields/AmountDistribution')
@@ -668,7 +667,7 @@ const Invoice = new GQLListSchema('Invoice', {
             }
 
             // Auto-generate webhook secret when callback URL is set
-            applyWebhookSecretGeneration(resolvedData, existingItem, context)
+            applyWebhookSecretGeneration({ resolvedData, context })
 
             return resolvedData
         },
@@ -676,9 +675,6 @@ const Invoice = new GQLListSchema('Invoice', {
             const { context, originalInput, updatedItem } = args
             const { client: userId, property: propertyId, unitName, unitType } = updatedItem
             await sendPush({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context })
-            
-            // Return plain text webhook secret on creation
-            returnPlainTextWebhookSecretOnCreation(args)
         },
     },
     plugins: [
@@ -687,9 +683,7 @@ const Invoice = new GQLListSchema('Invoice', {
         tracked(),
         softDeleted(),
         dvAndSender(),
-        // Exclude EncryptedText from history to prevent storing plain text webhook secrets
-        // in history records (they are returned as plain text on creation via afterChange hook)
-        historical({ ignoreFieldTypes: ['Content', 'Virtual', 'EncryptedText'] }),
+        historical(),
         webHooked(),
         analytical(),
     ],
