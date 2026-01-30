@@ -337,7 +337,17 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         paymentStatusChangeWebhookSecret: PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        // Exclude EncryptedText from history to prevent storing plain text webhook secrets
+        // in history records (they are returned as plain text on creation via afterChange hook)
+        historical({ ignoreFieldTypes: ['Content', 'Virtual', 'EncryptedText'] }),
+        analytical(),
+    ],
     access: {
         read: access.canReadBillingReceipts,
         create: access.canManageBillingReceipts,

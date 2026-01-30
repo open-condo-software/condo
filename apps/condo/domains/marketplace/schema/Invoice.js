@@ -681,7 +681,18 @@ const Invoice = new GQLListSchema('Invoice', {
             returnPlainTextWebhookSecretOnCreation(args)
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        // Exclude EncryptedText from history to prevent storing plain text webhook secrets
+        // in history records (they are returned as plain text on creation via afterChange hook)
+        historical({ ignoreFieldTypes: ['Content', 'Virtual', 'EncryptedText'] }),
+        webHooked(),
+        analytical(),
+    ],
     access: {
         read: access.canReadInvoices,
         create: access.canManageInvoices,

@@ -54,6 +54,17 @@ async function isWebhookUrlInWhitelist (url) {
  * Returns plain text webhook secret on creation by replacing encrypted value.
  * Use this in afterChange hook of schemas that have webhook callback fields.
  * 
+ * SECURITY NOTE: This function modifies updatedItem in afterChange, which would normally
+ * be captured by the historical() plugin and stored in history records. To prevent
+ * plain text secrets from being stored in history tables, ensure the schema using this
+ * function excludes 'EncryptedText' from history via:
+ * 
+ *   historical({ ignoreFieldTypes: ['Content', 'Virtual', 'EncryptedText'] })
+ * 
+ * This ensures webhook secrets (and other encrypted fields) are not stored in history
+ * records, while still allowing the plain text secret to be returned to the API consumer
+ * on creation.
+ * 
  * @param {Object} context - The Keystone context
  * @param {string} operation - The operation type ('create' or 'update')
  * @param {Object} updatedItem - The updated item
@@ -61,7 +72,7 @@ async function isWebhookUrlInWhitelist (url) {
 function returnPlainTextWebhookSecretOnCreation ({ context, operation, updatedItem }) {
     // Return plain text webhook secret on creation
     if (operation === 'create' && context && context.req && context.req._plainWebhookSecret) {
-        // Replace the encrypted secret with plain text for the response
+        // Replace the encrypted secret with plain text for the API response
         updatedItem.paymentStatusChangeWebhookSecret = context.req._plainWebhookSecret
         // Clean up
         delete context.req._plainWebhookSecret
