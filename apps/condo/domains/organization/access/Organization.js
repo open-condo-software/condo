@@ -102,8 +102,11 @@ async function canManageOrganizations ({ authentication: { item: user }, operati
     const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
     if (hasDirectAccess) return true
 
-    // NOTE: The "isApproved" field can only be managed by the admin, support, users with special rights.
-    if ('isApproved' in originalInput) return false
+    // NOTE: The "isApproved" and "features" fields can only be managed by the admin, support, users with special rights.
+    const restrictedFields = ['isApproved', 'features']
+    if (restrictedFields.some(field => field in originalInput)) {
+        return false
+    }
 
     // user is inside employee list and is not blocked
     return {

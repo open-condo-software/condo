@@ -34,7 +34,6 @@ const ORGANIZATION_FEATURES_FIELD = {
     defaultValue: [],
     access: {
         create: access.userIsAdminOrIsSupport,
-        update: access.userIsAdminOrIsSupport,
         read: true,
     },
 }

@@ -76,6 +76,9 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         Organization: [
             { fieldName: 'isApproved', manage: true },
         ],
+        BillingIntegrationOrganizationContext: [
+            { fieldName: 'deletedAt', manage: true },
+        ],
         Ticket: [
             { fieldName: 'sentToAuthoritiesAt', manage: true },
         ],
