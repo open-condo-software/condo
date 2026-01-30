@@ -448,9 +448,6 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             }
             resolvedData.receiver = receiverId
         },
-        afterChange: async (args) => {
-            // Webhook secret is returned as plain text on creation via EncryptedText field resolver
-        },
     },
 })
 
