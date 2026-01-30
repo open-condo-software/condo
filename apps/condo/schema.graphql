@@ -3037,6 +3037,7 @@ type UserRightsSetHistoryRecord {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
@@ -3176,6 +3177,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
+  canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
+  canManageBillingIntegrationOrganizationContextDeletedAtField_not: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
   canManageTicketSentToAuthoritiesAtField_not: Boolean
   canReadUserEmailField: Boolean
@@ -3369,6 +3372,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecute_allBillingReceiptsSum_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
+  canManageBillingIntegrationOrganizationContextDeletedAtField_ASC
+  canManageBillingIntegrationOrganizationContextDeletedAtField_DESC
   canManageTicketSentToAuthoritiesAtField_ASC
   canManageTicketSentToAuthoritiesAtField_DESC
   canReadUserEmailField_ASC
@@ -3448,6 +3453,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
@@ -3523,6 +3529,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
@@ -3758,6 +3765,10 @@ type UserRightsSet {
   """
   canManageOrganizationIsApprovedField: Boolean
 
+  """ Enables a user with the given UserRightsSet to update "deletedAt" field of model "BillingIntegrationOrganizationContext" 
+  """
+  canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
+
   """ Enables a user with the given UserRightsSet to update "sentToAuthoritiesAt" field of model "Ticket" 
   """
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3919,6 +3930,8 @@ input UserRightsSetWhereInput {
   canExecute_allBillingReceiptsSum_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
+  canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
+  canManageBillingIntegrationOrganizationContextDeletedAtField_not: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
   canManageTicketSentToAuthoritiesAtField_not: Boolean
   canReadUserEmailField: Boolean
@@ -4092,6 +4105,8 @@ enum SortUserRightsSetsBy {
   canExecute_allBillingReceiptsSum_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
+  canManageBillingIntegrationOrganizationContextDeletedAtField_ASC
+  canManageBillingIntegrationOrganizationContextDeletedAtField_DESC
   canManageTicketSentToAuthoritiesAtField_ASC
   canManageTicketSentToAuthoritiesAtField_DESC
   canReadUserEmailField_ASC
@@ -4171,6 +4186,7 @@ input UserRightsSetUpdateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
@@ -4243,6 +4259,7 @@ input UserRightsSetCreateInput {
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
+  canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
   canReadUserEmailField: Boolean
   canReadUserPhoneField: Boolean
