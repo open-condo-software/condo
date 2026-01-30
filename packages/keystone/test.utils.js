@@ -1,7 +1,9 @@
+const { spawnSync } = require('child_process')
 const crypto = require('crypto')
 const fs = require('fs')
 const http = require('http')
 const https = require('https')
+const os = require('os')
 const path = require('path')
 const urlLib = require('url')
 
@@ -220,9 +222,70 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
             baseUrl: null,
         }
 
-        // Used only inside of jest files
-        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
-        const server = http.createServer(app)
+        // Create server with self-signed certificate for HTTPS in tests
+        let server
+        if (protocol === 'https') {
+            // Generate self-signed certificates on the fly using OpenSSL
+            // This avoids external Node.js dependencies while creating proper X.509 certs
+            
+            // Create temporary files for key and cert
+            const tmpDir = os.tmpdir()
+            const randomSuffix = crypto.randomBytes(8).toString('hex')
+            const keyPath = path.join(tmpDir, `test-ssl-${Date.now()}-${randomSuffix}.key`)
+            const certPath = path.join(tmpDir, `test-ssl-${Date.now()}-${randomSuffix}.pem`)
+            
+            try {
+                // Generate self-signed certificate using OpenSSL (available on most systems)
+                // Using spawnSync instead of execSync to avoid spawning a shell (more secure)
+                // OpenSSL is a system utility with a stable location across environments
+                // nosemgrep: javascript.lang.security.audit.dangerous-spawn.dangerous-spawn, javascript.lang.security.audit.child-process-shell.child-process-shell
+                const result = spawnSync('openssl', [ // NOSONAR this is a test utility
+                    'req',
+                    '-x509',
+                    '-newkey', 'rsa:2048',
+                    '-nodes',
+                    '-keyout', keyPath,
+                    '-out', certPath,
+                    '-days', '1',
+                    '-subj', '/CN=localhost',
+                ], { stdio: 'pipe' })
+
+                if (result.error || result.status !== 0) {
+                    throw new Error(result.error?.message || result.stderr?.toString() || 'OpenSSL command failed')
+                }
+            } catch (error) {
+                throw new Error(
+                    `Failed to generate SSL certificates. OpenSSL is required.\n` +
+                    `Error: ${error.message}\n\n` +
+                    `Install OpenSSL or use protocol='http' for tests that don't require HTTPS`
+                )
+            }
+
+            // For test purposes, we use self-signed certs generated on the fly
+            // This is safe because it's only used in test environments with localhost servers
+            // In production, proper certificates should be used
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.disallow-old-tls-versions2.disallow-old-tls-versions2
+            const httpsOptions = {
+                key: fs.readFileSync(keyPath),
+                cert: fs.readFileSync(certPath),
+            }
+
+            // Clean up temporary certificate files after reading them
+            try {
+                fs.unlinkSync(keyPath)
+                fs.unlinkSync(certPath)
+            } catch (err) {
+                // Ignore cleanup errors
+            }
+
+            // Used only inside of jest files
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+            server = https.createServer(httpsOptions, app)
+        } else {
+            // Used only inside of jest files
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
+            server = http.createServer(app)
+        }
 
         try {
             await new Promise((resolve, reject) => {
@@ -606,8 +669,8 @@ class OIDCAuthClient {
  * @returns {Promise<Object>} Mini app client with all OIDC flow completed
  */
 const makeLoggedInMiniAppClient = async (
-    loggedInCondoClient, 
-    {condoOrganizationId = null, condoUserId = null, miniAppServerUrl = null} = {}, 
+    loggedInCondoClient,
+    { condoOrganizationId = null, condoUserId = null, miniAppServerUrl = null } = {},
 ) => {
     const authCookie = loggedInCondoClient.getCookie().split(';').find(cookie => cookie.startsWith('keystone.sid='))
     if (!authCookie) {
