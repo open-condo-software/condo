@@ -17,8 +17,9 @@ const {
     activateSubscriptionPlanByTestClient,
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
+    SubscriptionContext,
 } = require('@condo/domains/subscription/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser, createTestUserRightsSet, updateTestUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./ActivateSubscriptionPlanService')
 
@@ -204,8 +205,45 @@ describe('ActivateSubscriptionPlanService', () => {
         })
     })
 
+    describe('Service User Access', () => {
+        test('service user with canExecuteActivateSubscriptionPlan right can activate subscription', async () => {
+            const serviceUser = await makeClientWithServiceUser()
+            const [rightsSet] = await createTestUserRightsSet(admin, {
+                canExecuteActivateSubscriptionPlan: true,
+            })
+            await updateTestUser(admin, serviceUser.user.id, {
+                rightsSet: { connect: { id: rightsSet.id } },
+            })
+
+            const [result] = await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, { isTrial: false })
+
+            expect(result.subscriptionContext).toBeDefined()
+            expect(result.subscriptionContext.id).toBeDefined()
+            expect(result.userHelpRequest).toBeNull()
+
+            const [subscriptionContext] = await SubscriptionContext.getAll(admin, { id: result.subscriptionContext.id })
+            expect(subscriptionContext).toBeDefined()
+            expect(subscriptionContext.isTrial).toBe(false)
+            expect(subscriptionContext.organization.id).toBe(organization.id)
+            expect(subscriptionContext.subscriptionPlan.id).toBe(subscriptionPlan.id)
+            expect(subscriptionContext.basePrice).toBe(pricingRule.price)
+
+            const startAt = dayjs(subscriptionContext.startAt)
+            const endAt = dayjs(subscriptionContext.endAt)
+            expect(endAt.diff(startAt, 'month')).toBe(1)
+        })
+
+        test('service user without canExecuteActivateSubscriptionPlan right cannot activate subscription', async () => {
+            const serviceUser = await makeClientWithServiceUser()
+
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, { isTrial: false })
+            })
+        })
+    })
+
     describe('Paid Subscription Logic', () => {
-        test('creates UserHelpRequest with pricingRule when isTrial is false', async () => {
+        test('creates UserHelpRequest with pricingRule when isTrial is false for regular users', async () => {
             const [result] = await activateSubscriptionPlanByTestClient(user, organization, pricingRule, { isTrial: false })
 
             expect(result.subscriptionContext).toBeNull()

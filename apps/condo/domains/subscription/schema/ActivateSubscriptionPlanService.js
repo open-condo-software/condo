@@ -10,7 +10,15 @@ const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema'
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionPlanService')
+const { SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
+const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directAccess')
+
+// Map period enum to number of months
+const PERIOD_TO_MONTHS = {
+    [SUBSCRIPTION_PERIOD.MONTH]: 1,
+    [SUBSCRIPTION_PERIOD.YEAR]: 12,
+}
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -107,7 +115,31 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                 }
 
                 const user = await getById('User', context.authedItem.id)
+                const hasDirectAccess = await canDirectlyExecuteService(user, 'activateSubscriptionPlan')
+                
                 if (!isTrial) {
+                    if (hasDirectAccess) {
+                        const months = PERIOD_TO_MONTHS[pricingRule.period]
+                        if (!months) {
+                            throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
+                        }
+                        
+                        const startAt = dayjs()
+                        const endAt = startAt.add(months, 'month')
+                        const createdSubscriptionContext = await SubscriptionContext.create(context, {
+                            dv,
+                            sender,
+                            organization: { connect: { id: organization.id } },
+                            subscriptionPlan: { connect: { id: plan.id } },
+                            startAt: startAt.format('YYYY-MM-DD'),
+                            endAt: endAt.format('YYYY-MM-DD'),
+                            basePrice: pricingRule.price,
+                            isTrial: false,
+                        })
+                        const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
+                        return { subscriptionContext, userHelpRequest: null }
+                    }
+                    
                     const createdHelpRequest = await UserHelpRequest.create(context, {
                         dv,
                         sender,

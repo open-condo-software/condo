@@ -122,6 +122,8 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         '_internalSendHashedResidentPhones',
         '_allPaymentsSum',
         '_allBillingReceiptsSum',
+        'getAvailableSubscriptionPlans',
+        'activateSubscriptionPlan',
     ],
 }
 
