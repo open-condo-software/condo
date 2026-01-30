@@ -223,6 +223,9 @@ const SERIALIZERS = {
     /** runtime statistics of current container */
     runtimeStats: raw,
 
+    /** worker statistics */
+    workerStats: raw,
+
     /** name of queue where task is executed */
     queue: toString,
 
