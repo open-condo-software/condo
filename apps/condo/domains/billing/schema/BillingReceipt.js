@@ -400,7 +400,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             }
 
             // Auto-generate webhook secret when callback URL is set
-            applyWebhookSecretGeneration({ resolvedData })
+            applyWebhookSecretGeneration({ resolvedData, existingItem })
 
             return resolvedData
         },
