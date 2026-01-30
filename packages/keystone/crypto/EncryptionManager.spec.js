@@ -1,7 +1,7 @@
 const crypto = require('crypto')
 
 const { faker } = require('@faker-js/faker')
-const { groupBy } = require('lodash')
+const groupBy = require('lodash/groupBy')
 
 const { EncryptionManager } = require('@open-condo/keystone/crypto/EncryptionManager')
 const { catchErrorFrom, getRandomString } = require('@open-condo/keystone/test.utils')
@@ -282,5 +282,77 @@ describe('EncryptionManager', () => {
             expect(manager.isEncrypted(anotherEncrypted)).toBe(false)
         })
 
+    })
+
+    describe('returnPlainTextOnCreate parameter', () => {
+        test('defaults to false when not provided', () => {
+            const manager = new EncryptionManager({
+                versions: {
+                    '1': { algorithm: 'aes-256-cbc', secret: getSecretKey(32) },
+                },
+                encryptionVersionId: '1',
+            })
+
+            expect(manager.returnPlainTextOnCreate).toBe(false)
+        })
+
+        test('can be set to true', () => {
+            const manager = new EncryptionManager({
+                versions: {
+                    '1': { algorithm: 'aes-256-cbc', secret: getSecretKey(32) },
+                },
+                encryptionVersionId: '1',
+                returnPlainTextOnCreate: true,
+            })
+
+            expect(manager.returnPlainTextOnCreate).toBe(true)
+        })
+
+        test('can be explicitly set to false', () => {
+            const manager = new EncryptionManager({
+                versions: {
+                    '1': { algorithm: 'aes-256-cbc', secret: getSecretKey(32) },
+                },
+                encryptionVersionId: '1',
+                returnPlainTextOnCreate: false,
+            })
+
+            expect(manager.returnPlainTextOnCreate).toBe(false)
+        })
+
+        test('does not affect encryption or decryption functionality', () => {
+            const sharedSecret = getSecretKey(32)
+            const managerWithFlag = new EncryptionManager({
+                versions: {
+                    '1': { algorithm: 'aes-256-cbc', secret: sharedSecret },
+                },
+                encryptionVersionId: '1',
+                returnPlainTextOnCreate: true,
+            })
+
+            const managerWithoutFlag = new EncryptionManager({
+                versions: {
+                    '1': { algorithm: 'aes-256-cbc', secret: sharedSecret },
+                },
+                encryptionVersionId: '1',
+                returnPlainTextOnCreate: false,
+            })
+
+            const exampleValue = getRandomString()
+            const encryptedWithFlag = managerWithFlag.encrypt(exampleValue)
+            const encryptedWithoutFlag = managerWithoutFlag.encrypt(exampleValue)
+
+            // Both should encrypt successfully
+            expect(managerWithFlag.isEncrypted(encryptedWithFlag)).toBe(true)
+            expect(managerWithoutFlag.isEncrypted(encryptedWithoutFlag)).toBe(true)
+
+            // Both should decrypt successfully
+            expect(managerWithFlag.decrypt(encryptedWithFlag)).toBe(exampleValue)
+            expect(managerWithoutFlag.decrypt(encryptedWithoutFlag)).toBe(exampleValue)
+
+            // Cross-decryption should work (same version and secret)
+            expect(managerWithFlag.decrypt(encryptedWithoutFlag)).toBe(exampleValue)
+            expect(managerWithoutFlag.decrypt(encryptedWithFlag)).toBe(exampleValue)
+        })
     })
 })
