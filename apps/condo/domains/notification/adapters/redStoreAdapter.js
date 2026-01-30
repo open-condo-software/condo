@@ -128,7 +128,7 @@ class RedStoreAdapter {
             }
 
             // TODO(pahaz): check why `pushData.appId` used. but `data.app` is everywhere?!
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(pushData.appId)) target.push(pushData)
+            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(appIds[pushToken]) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.appId)) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })

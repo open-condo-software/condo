@@ -69,9 +69,13 @@ describe('Apple adapter utils', () => {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
-            data: {
-                app : 'condo.app.clients',
-                type: 'notification',
+            // NOTE(YEgorLu): data.app only in tests looks like
+            // data: {
+            //     app : 'condo.app.clients',
+            //     type: 'notification',
+            // },
+            appIds: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: 'condo.app.clients',
             },
         })
 
