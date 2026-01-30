@@ -48,6 +48,7 @@ class EncryptedTextImplementation extends Text.implementation {
         super(...arguments)
 
         this.encryptionManager = encryptionManager
+        this.listKey = listKey
         
         // Only register afterChange hook if returnPlainTextOnCreate is enabled
         // to avoid unnecessary overhead for regular encrypted fields
@@ -83,9 +84,8 @@ class EncryptedTextImplementation extends Text.implementation {
                     // Check if this item was just created by looking up the operation in context
                     // Use per-field key to support multiple EncryptedText fields in the same model
                     const itemId = item.id
-                    const listKey = info.parentType.name
                     const fieldPath = this.path
-                    const operation = context._encryptedTextOperations[`${listKey}:${itemId}:${fieldPath}`]
+                    const operation = context._encryptedTextOperations[`${this.listKey}:${itemId}:${fieldPath}`]
                     
                     if (operation === 'create') {
                         return this.encryptionManager.decrypt(value)
