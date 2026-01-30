@@ -69,6 +69,7 @@ describe('Apple adapter utils', () => {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
+            // NOTE(YEgorLu): data.app only in tests looks like
             // data: {
             //     app : 'condo.app.clients',
             //     type: 'notification',

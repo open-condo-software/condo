@@ -219,7 +219,7 @@ class RedStoreAdapter {
             }
             result = combinedResult
         }
-        console.log(result, !isEmpty(result))
+
         const isOk = !isEmpty(result) && result.successCount > 0
 
         return [isOk, { ...result, pushContext }]
