@@ -4,6 +4,7 @@ const set = require('lodash/set')
 
 const { EncryptionManager } = require('@open-condo/keystone/crypto/EncryptionManager')
 
+
 /**
  * @param {string} errorStart
  * @param {{encryptionManager?:EncryptionManager}} options
@@ -47,6 +48,25 @@ class EncryptedTextImplementation extends Text.implementation {
         super(...arguments)
 
         this.encryptionManager = encryptionManager
+        
+        // Only register afterChange hook if returnPlainTextOnCreate is enabled
+        // to avoid unnecessary overhead for regular encrypted fields
+        if (this.encryptionManager.returnPlainTextOnCreate) {
+            this._needsOperationTracking = true
+        }
+    }
+
+    async afterChange ({ updatedItem, existingItem, operation, context, listKey }) {
+        // Only store operation if this field needs it for returnPlainTextOnCreate
+        if (!this._needsOperationTracking) return
+        
+        // Store operation type in context for use in gqlOutputFieldResolvers
+        // This allows the resolver to know if it's a create operation without parsing GraphQL AST
+        if (!context._encryptedTextOperations) {
+            context._encryptedTextOperations = {}
+        }
+        const key = `${listKey}:${updatedItem.id}`
+        context._encryptedTextOperations[key] = operation
     }
 
     gqlOutputFieldResolvers () {
@@ -55,37 +75,18 @@ class EncryptedTextImplementation extends Text.implementation {
                 const value = item[this.path]
                 
                 // If returnPlainTextOnCreate is enabled and this is a create mutation,
-                // return the decrypted value. Keystone reads from DB after write,
-                // so we detect create by checking if the parent operation is a create mutation
+                // return the decrypted value
                 if (this.encryptionManager.returnPlainTextOnCreate
-                    && info
-                    && info.operation
-                    && info.operation.operation === 'mutation'
-                    && info.operation.selectionSet
-                    && this.encryptionManager.isEncrypted(value)) {
+                    && this.encryptionManager.isEncrypted(value)
+                    && context._encryptedTextOperations) {
                     
-                    // Walk info.path back to the root field name
-                    let currentPath = info.path
-                    while (currentPath && currentPath.prev) {
-                        currentPath = currentPath.prev
-                    }
-                    const rootFieldKey = currentPath ? currentPath.key : null
+                    // Check if this item was just created by looking up the operation in context
+                    const itemId = item.id
+                    const listKey = info.parentType.name
+                    const operation = context._encryptedTextOperations[`${listKey}:${itemId}`]
                     
-                    if (rootFieldKey) {
-                        // Find the matching selection in the operation's selection set
-                        // Check both alias (if present) and name to handle aliased queries
-                        const matchingSelection = info.operation.selectionSet.selections.find(
-                            selection => {
-                                const aliasMatch = selection.alias && selection.alias.value === rootFieldKey
-                                const nameMatch = selection.name && selection.name.value === rootFieldKey
-                                return aliasMatch || nameMatch
-                            }
-                        )
-                        
-                        // Only decrypt if this specific field is a create mutation
-                        if (matchingSelection && matchingSelection.name.value.startsWith('create')) {
-                            return this.encryptionManager.decrypt(value)
-                        }
+                    if (operation === 'create') {
+                        return this.encryptionManager.decrypt(value)
                     }
                 }
                 
