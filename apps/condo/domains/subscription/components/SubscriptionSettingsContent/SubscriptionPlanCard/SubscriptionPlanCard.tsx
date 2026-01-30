@@ -128,10 +128,9 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink, h
 
 const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, activatedTrial }) => {
     const intl = useIntl()
-    const { subscriptionContext } = useOrganizationSubscription()
+    const { subscriptionContext, daysRemaining } = useOrganizationSubscription()
 
     const activePlanId = subscriptionContext?.subscriptionPlan?.id
-    const daysRemaining = subscriptionContext?.daysRemaining
     const isActivePlan = activePlanId === plan?.id
     const isTrialExpired = activatedTrial?.daysRemaining === 0
 
