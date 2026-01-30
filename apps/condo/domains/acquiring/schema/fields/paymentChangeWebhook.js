@@ -65,17 +65,15 @@ async function isWebhookUrlInWhitelist (url) {
  * the EncryptedText field resolver with returnPlainTextOnCreate enabled.
  * 
  * @param {Object} resolvedData - The resolved input data
- * @param {Object} context - The Keystone context
  * @returns {Object} Modified resolvedData with generated secret if needed
  */
-function applyWebhookSecretGeneration ({ resolvedData, context }) {
+function applyWebhookSecretGeneration ({ resolvedData }) {
     const { paymentStatusChangeWebhookUrl, paymentStatusChangeWebhookSecret } = resolvedData
 
     // Generate secret if URL is being set and secret doesn't exist
     if (paymentStatusChangeWebhookUrl && !paymentStatusChangeWebhookSecret) {
         const secret = crypto.randomBytes(32).toString('hex')
         resolvedData.paymentStatusChangeWebhookSecret = secret
-        // No need to store in context - the EncryptedText resolver handles plain text return
     }
 
     // Clear secret if URL is being removed
