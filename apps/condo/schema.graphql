@@ -75421,7 +75421,11 @@ type B2CAppProperty {
   """ Link to B2C App """
   app: B2CApp
 
-  """ Whether the B2C app is available at this address based on organization subscriptions. Returns true if: 1) no organizations at address, 2) at least one organization has active subscription with this app enabled, 3) app is not restricted by any subscription plan for organizations at this address 
+  """
+   Whether the B2C app is available at this address based on organization subscriptions. Returns true if one of the following is correct: 
+  1) There is no organizations at address; 
+  2) At least one organization has active subscription plan including this B2CApp and Property with matching addressKey; 
+  3) App is not restricted by any subscription plan for organizations at this address 
   """
   isAvailable: Boolean!
   id: ID!
