@@ -183,7 +183,7 @@ class AppleAdapter {
                     appId: get(appIds, pushToken),
                 }
 
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
+            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(get(appIds, pushToken)) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })

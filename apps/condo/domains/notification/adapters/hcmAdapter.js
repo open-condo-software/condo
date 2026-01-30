@@ -194,9 +194,10 @@ class HCMAdapter {
      * @param data
      * @param tokens
      * @param pushTypes
+     * @param appIds
      * @returns {Promise<[[], [], {}]>}
      */
-    static async prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}) {
+    static async prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds = {}) {
         const isSilentDataPushEnabled = IS_LOCAL_ENV || await featureToggleManager.isFeatureEnabled(null, HUAWEI_SILENT_DATA_PUSH_ENABLED)
         const notification = HCMAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = []
@@ -225,7 +226,7 @@ class HCMAdapter {
                     ...DEFAULT_PUSH_SETTINGS,
                 }
 
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
+            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(appIds[pushToken]) && !APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
@@ -250,7 +251,7 @@ class HCMAdapter {
 
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = await HCMAdapter.prepareBatchData(notification, data, tokens, pushTypes)
+        const [notifications, fakeNotifications, pushContext] = await HCMAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds)
         // TODO (@toplenboren) DOMA-10611 remove excessive logging
         logger.info({
             msg: 'sendNotification prepareBatchData done',
