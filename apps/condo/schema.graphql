@@ -15463,6 +15463,7 @@ type BillingReceiptHistoryRecord {
   file: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -15669,6 +15670,10 @@ input BillingReceiptHistoryRecordWhereInput {
   paymentStatusChangeWebhookUrl_not_ends_with_i: String
   paymentStatusChangeWebhookUrl_in: [String]
   paymentStatusChangeWebhookUrl_not_in: [String]
+  paymentStatusChangeWebhookSecret: JSON
+  paymentStatusChangeWebhookSecret_not: JSON
+  paymentStatusChangeWebhookSecret_in: [JSON]
+  paymentStatusChangeWebhookSecret_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -15821,6 +15826,7 @@ input BillingReceiptHistoryRecordUpdateInput {
   file: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -15865,6 +15871,7 @@ input BillingReceiptHistoryRecordCreateInput {
   file: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -83502,6 +83509,7 @@ type InvoiceHistoryRecord {
   canceledAt: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -83728,6 +83736,10 @@ input InvoiceHistoryRecordWhereInput {
   paymentStatusChangeWebhookUrl_not_ends_with_i: String
   paymentStatusChangeWebhookUrl_in: [String]
   paymentStatusChangeWebhookUrl_not_in: [String]
+  paymentStatusChangeWebhookSecret: JSON
+  paymentStatusChangeWebhookSecret_not: JSON
+  paymentStatusChangeWebhookSecret_in: [JSON]
+  paymentStatusChangeWebhookSecret_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -83874,6 +83886,7 @@ input InvoiceHistoryRecordUpdateInput {
   canceledAt: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -83914,6 +83927,7 @@ input InvoiceHistoryRecordCreateInput {
   canceledAt: String
   amountDistribution: JSON
   paymentStatusChangeWebhookUrl: String
+  paymentStatusChangeWebhookSecret: JSON
   v: Int
   createdAt: String
   updatedAt: String
