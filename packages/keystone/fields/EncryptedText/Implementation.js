@@ -49,6 +49,32 @@ class EncryptedTextImplementation extends Text.implementation {
         this.encryptionManager = encryptionManager
     }
 
+    gqlOutputFieldResolvers () {
+        return {
+            [this.path]: (item, args, context, info) => {
+                const value = item[this.path]
+                
+                // If returnPlainTextOnCreate is enabled and this is a create mutation,
+                // return the decrypted value. Keystone reads from DB after write,
+                // so we detect create by checking if the parent operation is a create mutation
+                if (this.encryptionManager.returnPlainTextOnCreate
+                    && info
+                    && info.operation
+                    && info.operation.operation === 'mutation'
+                    && info.operation.selectionSet
+                    && this.encryptionManager.isEncrypted(value)) {
+                    // Check if this is a create mutation (starts with 'create')
+                    const mutationName = info.operation.selectionSet.selections[0]?.name?.value || ''
+                    if (mutationName.startsWith('create')) {
+                        return this.encryptionManager.decrypt(value)
+                    }
+                }
+                
+                return value
+            },
+        }
+    }
+
 }
 
 module.exports = {
