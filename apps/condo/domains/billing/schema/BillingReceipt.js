@@ -336,14 +336,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         paymentStatusChangeWebhookSecret: PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     },
-    plugins: [
-        uuided(),
-        versioned(),
-        tracked(),
-        softDeleted(),
-        dvAndSender(),
-        historical(),
-    ],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadBillingReceipts,
         create: access.canManageBillingReceipts,

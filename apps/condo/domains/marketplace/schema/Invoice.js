@@ -677,15 +677,7 @@ const Invoice = new GQLListSchema('Invoice', {
             await sendPush({ originalInput, userId, propertyId, unitName, unitType, updatedItem, context })
         },
     },
-    plugins: [
-        uuided(),
-        versioned(),
-        tracked(),
-        softDeleted(),
-        dvAndSender(),
-        historical(),
-        webHooked(),
-    ],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
     access: {
         read: access.canReadInvoices,
         create: access.canManageInvoices,
