@@ -88,7 +88,7 @@ describe('paymentChangeWebhook', () => {
                 const resolvedData = { paymentStatusChangeWebhookUrl: testUrl }
                 const existingItem = {}
 
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem })
 
                 expect(result.paymentStatusChangeWebhookSecret).toBeDefined()
                 expect(result.paymentStatusChangeWebhookSecret).toHaveLength(64) // 32 bytes = 64 hex chars
@@ -106,7 +106,7 @@ describe('paymentChangeWebhook', () => {
                     paymentStatusChangeWebhookSecret: oldSecret,
                 }
 
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem })
 
                 expect(result.paymentStatusChangeWebhookSecret).toBeDefined()
                 expect(result.paymentStatusChangeWebhookSecret).not.toBe(oldSecret)
@@ -123,21 +123,9 @@ describe('paymentChangeWebhook', () => {
                     paymentStatusChangeWebhookSecret: existingSecret,
                 }
 
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem })
 
                 expect(result.paymentStatusChangeWebhookSecret).toBeUndefined()
-            })
-
-            test('should store plain text secret in context when provided', () => {
-                const testUrl = faker.internet.url()
-                const resolvedData = { paymentStatusChangeWebhookUrl: testUrl }
-                const existingItem = {}
-                const mockContext = { req: {} }
-
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem, mockContext)
-
-                expect(result.paymentStatusChangeWebhookSecret).toBeDefined()
-                expect(mockContext.req._plainWebhookSecret).toBe(result.paymentStatusChangeWebhookSecret)
             })
         })
 
@@ -152,7 +140,7 @@ describe('paymentChangeWebhook', () => {
                     paymentStatusChangeWebhookSecret: oldSecret,
                 }
 
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem })
 
                 expect(result.paymentStatusChangeWebhookSecret).toBeNull()
             })
@@ -167,7 +155,7 @@ describe('paymentChangeWebhook', () => {
                     paymentStatusChangeWebhookSecret: oldSecret,
                 }
 
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem })
 
                 expect(result.paymentStatusChangeWebhookSecret).toBeNull()
             })
@@ -182,7 +170,7 @@ describe('paymentChangeWebhook', () => {
                     paymentStatusChangeWebhookSecret: oldSecret,
                 }
 
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem })
 
                 expect(result.paymentStatusChangeWebhookUrl).toBeNull()
                 expect(result.paymentStatusChangeWebhookSecret).toBeNull()
@@ -198,9 +186,11 @@ describe('paymentChangeWebhook', () => {
                     paymentStatusChangeWebhookSecret: existingSecret,
                 }
 
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem })
 
+                // When URL field is not in resolvedData, the function doesn't modify the secret
                 expect(result.paymentStatusChangeWebhookSecret).toBeUndefined()
+                expect(result.someOtherField).toBe('value')
             })
         })
 
@@ -209,7 +199,7 @@ describe('paymentChangeWebhook', () => {
                 const resolvedData = { paymentStatusChangeWebhookUrl: '' }
                 const existingItem = {}
 
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem })
 
                 expect(result.paymentStatusChangeWebhookUrl).toBeNull()
             })
@@ -224,7 +214,7 @@ describe('paymentChangeWebhook', () => {
                     paymentStatusChangeWebhookSecret: oldSecret,
                 }
 
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem })
 
                 expect(result.paymentStatusChangeWebhookUrl).toBeNull()
                 expect(result.paymentStatusChangeWebhookSecret).toBeNull()
@@ -236,7 +226,7 @@ describe('paymentChangeWebhook', () => {
                 const testUrl = faker.internet.url()
                 const resolvedData = { paymentStatusChangeWebhookUrl: testUrl }
 
-                const result = applyWebhookSecretGeneration(resolvedData, undefined)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem: undefined })
 
                 expect(result.paymentStatusChangeWebhookSecret).toBeDefined()
                 expect(result.paymentStatusChangeWebhookSecret).toHaveLength(64)
@@ -252,9 +242,11 @@ describe('paymentChangeWebhook', () => {
                     paymentStatusChangeWebhookSecret: existingSecret,
                 }
 
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem })
 
+                // When resolvedData is empty, the function doesn't modify it
                 expect(result.paymentStatusChangeWebhookSecret).toBeUndefined()
+                expect(result.paymentStatusChangeWebhookUrl).toBeUndefined()
             })
 
             test('should generate secret when setting URL from null', () => {
@@ -265,7 +257,7 @@ describe('paymentChangeWebhook', () => {
                     paymentStatusChangeWebhookSecret: null,
                 }
 
-                const result = applyWebhookSecretGeneration(resolvedData, existingItem)
+                const result = applyWebhookSecretGeneration({ resolvedData, existingItem })
 
                 expect(result.paymentStatusChangeWebhookSecret).toBeDefined()
                 expect(result.paymentStatusChangeWebhookSecret).toHaveLength(64)

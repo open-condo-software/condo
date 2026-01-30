@@ -65,19 +65,35 @@ async function isWebhookUrlInWhitelist (url) {
  * the EncryptedText field resolver with returnPlainTextOnCreate enabled.
  * 
  * @param {Object} resolvedData - The resolved input data
+ * @param {Object} existingItem - The existing item (for updates)
  * @returns {Object} Modified resolvedData with generated secret if needed
  */
-function applyWebhookSecretGeneration ({ resolvedData }) {
+function applyWebhookSecretGeneration ({ resolvedData, existingItem }) {
+    // Only process if the webhook URL field is being updated
+    if (!('paymentStatusChangeWebhookUrl' in resolvedData)) {
+        return resolvedData
+    }
+
     const { paymentStatusChangeWebhookUrl, paymentStatusChangeWebhookSecret } = resolvedData
 
-    // Generate secret if URL is being set and secret doesn't exist
-    if (paymentStatusChangeWebhookUrl && !paymentStatusChangeWebhookSecret) {
+    // Normalize empty string to null
+    if (paymentStatusChangeWebhookUrl === '') {
+        resolvedData.paymentStatusChangeWebhookUrl = null
+    }
+
+    const newCallbackUrl = resolvedData.paymentStatusChangeWebhookUrl
+    const existingCallbackUrl = existingItem?.paymentStatusChangeWebhookUrl
+
+    // Generate new secret when:
+    // 1. URL is being set for the first time (no existing URL, new URL provided)
+    // 2. URL is being changed to a different URL (existing URL differs from new URL)
+    if (newCallbackUrl && newCallbackUrl !== existingCallbackUrl && !paymentStatusChangeWebhookSecret) {
         const secret = crypto.randomBytes(32).toString('hex')
         resolvedData.paymentStatusChangeWebhookSecret = secret
     }
 
     // Clear secret if URL is being removed
-    if (paymentStatusChangeWebhookUrl === null || paymentStatusChangeWebhookUrl === '') {
+    if ((newCallbackUrl === null || newCallbackUrl === undefined) && existingCallbackUrl) {
         resolvedData.paymentStatusChangeWebhookSecret = null
     }
 
