@@ -63,10 +63,29 @@ class EncryptedTextImplementation extends Text.implementation {
                     && info.operation.operation === 'mutation'
                     && info.operation.selectionSet
                     && this.encryptionManager.isEncrypted(value)) {
-                    // Check if this is a create mutation (starts with 'create')
-                    const mutationName = info.operation.selectionSet.selections[0]?.name?.value || ''
-                    if (mutationName.startsWith('create')) {
-                        return this.encryptionManager.decrypt(value)
+                    
+                    // Walk info.path back to the root field name
+                    let currentPath = info.path
+                    while (currentPath && currentPath.prev) {
+                        currentPath = currentPath.prev
+                    }
+                    const rootFieldKey = currentPath ? currentPath.key : null
+                    
+                    if (rootFieldKey) {
+                        // Find the matching selection in the operation's selection set
+                        // Check both alias (if present) and name to handle aliased queries
+                        const matchingSelection = info.operation.selectionSet.selections.find(
+                            selection => {
+                                const aliasMatch = selection.alias && selection.alias.value === rootFieldKey
+                                const nameMatch = selection.name && selection.name.value === rootFieldKey
+                                return aliasMatch || nameMatch
+                            }
+                        )
+                        
+                        // Only decrypt if this specific field is a create mutation
+                        if (matchingSelection && matchingSelection.name.value.startsWith('create')) {
+                            return this.encryptionManager.decrypt(value)
+                        }
                     }
                 }
                 
