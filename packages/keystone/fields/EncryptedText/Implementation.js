@@ -61,11 +61,11 @@ class EncryptedTextImplementation extends Text.implementation {
         if (!this._needsOperationTracking) return
         
         // Store operation type in context for use in gqlOutputFieldResolvers
-        // This allows the resolver to know if it's a create operation without parsing GraphQL AST
+        // Use per-field key to avoid collisions when a model has multiple EncryptedText fields
         if (!context._encryptedTextOperations) {
             context._encryptedTextOperations = {}
         }
-        const key = `${listKey}:${updatedItem.id}`
+        const key = `${listKey}:${updatedItem.id}:${this.path}`
         context._encryptedTextOperations[key] = operation
     }
 
@@ -81,9 +81,11 @@ class EncryptedTextImplementation extends Text.implementation {
                     && context._encryptedTextOperations) {
                     
                     // Check if this item was just created by looking up the operation in context
+                    // Use per-field key to support multiple EncryptedText fields in the same model
                     const itemId = item.id
                     const listKey = info.parentType.name
-                    const operation = context._encryptedTextOperations[`${listKey}:${itemId}`]
+                    const fieldPath = this.path
+                    const operation = context._encryptedTextOperations[`${listKey}:${itemId}:${fieldPath}`]
                     
                     if (operation === 'create') {
                         return this.encryptionManager.decrypt(value)
