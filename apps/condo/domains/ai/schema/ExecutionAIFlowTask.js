@@ -15,6 +15,7 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const access = require('@condo/domains/ai/access/ExecutionAIFlowTask')
 const {
     TASK_STATUSES,
+    LAST_ACTION_REQUESTED,
     FLOW_TYPES_LIST,
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
@@ -249,6 +250,40 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
                 create: true,
                 read: true,
                 update: false,
+            },
+        },
+
+        aiSessionId: {
+            schemaDoc: 'Session identifier for grouping related AI tasks in a conversation and using memory',
+            type: 'Text',
+            isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        lastActionRequested: {
+            schemaDoc: 'Type of the last action requested by AI for human-in-the-loop workflows',
+            type: 'Select',
+            options: Object.values(LAST_ACTION_REQUESTED),
+            isRequired: false,
+            access: {
+                create: canOnlyServerSideWithoutUserRequest,
+                read: true,
+                update: true,
+            },
+        },
+
+        lastActionRequestedMeta: {
+            schemaDoc: 'Additional metadata about the last action requested by AI',
+            type: 'Json',
+            isRequired: false,
+            access: {
+                create: canOnlyServerSideWithoutUserRequest,
+                read: true,
+                update: true,
             },
         },
     },

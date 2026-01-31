@@ -17,7 +17,10 @@ const {
     initTestExpressApp,
 } = require('@open-condo/keystone/test.utils')
 
-const { TASK_STATUSES } = require('@condo/domains/ai/constants')
+const {
+    TASK_STATUSES,
+    LAST_ACTION_REQUESTED,
+} = require('@condo/domains/ai/constants')
 const { removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const {
     ExecutionAIFlowTask,
@@ -59,6 +62,7 @@ describe.skip('ExecutionAIFlowTask', () => {
                 const [task, taskAttrs] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
                     flowType: 'success_flow',
                     context: { some_field: faker.lorem.words(3) },
+                    sessionId: faker.datatype.uuid(),
                 })
                 expect(task.id).toMatch(UUID_RE)
                 expect(task.v).toEqual(1)
@@ -71,6 +75,7 @@ describe.skip('ExecutionAIFlowTask', () => {
                 expect(task.status).toEqual(TASK_STATUSES.PROCESSING)
                 expect(task.flowType).toEqual(taskAttrs.flowType)
                 expect(task.context).toEqual(taskAttrs.context)
+                expect(task.sessionId).toEqual(taskAttrs.sessionId)
                 expect(task.result).toBeNull()
                 expect(task.errorMessage).toBeNull()
             })
@@ -419,6 +424,92 @@ describe.skip('ExecutionAIFlowTask', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'INVALID_FLOW_CONTEXT',
             })
+        })
+
+        test('can update status to ACTION_REQUESTED', async () => {
+            const [task] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                flowType: 'success_flow',
+                context: { some_field: faker.lorem.words(3) },
+                sessionId: faker.datatype.uuid(),
+            })
+            
+            const updatedTask = await updateTestExecutionAIFlowTask(adminClient, task.id, {
+                status: TASK_STATUSES.ACTION_REQUESTED,
+            })
+            
+            expect(updatedTask.status).toEqual(TASK_STATUSES.ACTION_REQUESTED)
+        })
+
+        test('sessionId should be optional and nullable', async () => {
+            // Test without sessionId
+            const [taskWithoutSession] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                flowType: 'success_flow',
+                context: { some_field: faker.lorem.words(3) },
+            })
+            expect(taskWithoutSession.sessionId).toBeNull()
+
+            // Test with sessionId
+            const sessionId = faker.datatype.uuid()
+            const [taskWithSession] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                flowType: 'success_flow',
+                context: { some_field: faker.lorem.words(3) },
+                sessionId,
+            })
+            expect(taskWithSession.sessionId).toEqual(sessionId)
+        })
+
+        test('can set and update lastActionRequested and lastActionRequestedMeta', async () => {
+            const [task] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                flowType: 'success_flow',
+                context: { some_field: faker.lorem.words(3) },
+                sessionId: faker.datatype.uuid(),
+            })
+            
+            // Test setting DATA_REQUESTED with metadata
+            const actionMeta = {
+                requestedData: ['user_email', 'property_address'],
+                reason: 'AI needs additional information to complete the task',
+                urgency: 'high',
+            }
+            
+            const updatedTask1 = await updateTestExecutionAIFlowTask(adminClient, task.id, {
+                status: TASK_STATUSES.ACTION_REQUESTED,
+                lastActionRequested: LAST_ACTION_REQUESTED.DATA_REQUESTED,
+                lastActionRequestedMeta: actionMeta,
+            })
+            
+            expect(updatedTask1.status).toEqual(TASK_STATUSES.ACTION_REQUESTED)
+            expect(updatedTask1.lastActionRequested).toEqual(LAST_ACTION_REQUESTED.DATA_REQUESTED)
+            expect(updatedTask1.lastActionRequestedMeta).toEqual(actionMeta)
+            
+            // Test updating to CONFIRMATION_REQUESTED with different metadata
+            const confirmationMeta = {
+                action: 'create_ticket',
+                details: {
+                    title: 'Leak in kitchen',
+                    priority: 'medium',
+                    propertyId: 'prop_123',
+                },
+                requiresApproval: true,
+            }
+            
+            const updatedTask2 = await updateTestExecutionAIFlowTask(adminClient, task.id, {
+                lastActionRequested: LAST_ACTION_REQUESTED.CONFIRMATION_REQUESTED,
+                lastActionRequestedMeta: confirmationMeta,
+            })
+            
+            expect(updatedTask2.lastActionRequested).toEqual(LAST_ACTION_REQUESTED.CONFIRMATION_REQUESTED)
+            expect(updatedTask2.lastActionRequestedMeta).toEqual(confirmationMeta)
+        })
+
+        test('lastActionRequested and lastActionRequestedMeta should be optional', async () => {
+            const [task] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                flowType: 'success_flow',
+                context: { some_field: faker.lorem.words(3) },
+            })
+            
+            expect(task.lastActionRequested).toBeNull()
+            expect(task.lastActionRequestedMeta).toBeNull()
         })
     })
 

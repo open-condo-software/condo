@@ -344,12 +344,12 @@ const Comments: React.FC<CommentsPropsType> = ({
     })
 
     useEffect(() => {
-        setGenerateCommentAnswer(generateCommentData?.answer)
-    }, [generateCommentData?.answer])
+        setGenerateCommentAnswer(generateCommentData?.result?.answer)
+    }, [generateCommentData?.result?.answer])
 
     useEffect(() => {
-        setRewriteTextAnswer(rewriteTextData?.answer)
-    }, [rewriteTextData?.answer])
+        setRewriteTextAnswer(rewriteTextData?.result?.answer)
+    }, [rewriteTextData?.result?.answer])
 
     const handleRewriteTextClick = async () => {
         const context = {

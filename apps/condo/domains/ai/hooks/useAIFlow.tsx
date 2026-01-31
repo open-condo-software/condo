@@ -19,11 +19,12 @@ import {
 } from '@condo/domains/common/constants/featureflags'
 
 import { FLOW_TYPES_LIST, TASK_STATUSES } from '../constants'
+import { ExecutionAiFlowTask } from '../../../schema'
 
 
 type FlowType = typeof FLOW_TYPES_LIST[number]
 
-type UseAIFlowPropsType<T> = {
+type UseAIFlowPropsType<T = object> = {
     flowType: FlowType
     itemId?: string
     modelName?: string
@@ -31,11 +32,20 @@ type UseAIFlowPropsType<T> = {
     timeout?: number
 }
 
+type UseAIFlowResult<T> = {
+    status: ExecutionAiFlowTask['status']
+    aiSessionId: ExecutionAiFlowTask['aiSessionId']
+    errorMessage?: ExecutionAiFlowTask['errorMessage']
+    lastActionRequested?: ExecutionAiFlowTask['lastActionRequested']
+    lastActionRequestedMeta?: ExecutionAiFlowTask['lastActionRequestedMeta']
+    result: T
+}
+
 type UseAIFlowResultType<T> = [
-    (params?: { context?: object }) => Promise<{ data: T, error: object, localizedErrorText: string } | null>,
+    (params?: { context?: object }) => Promise<{ data: UseAIFlowResult<T>, error: object, localizedErrorText: string } | null>,
     {
         loading: boolean
-        data: T | null
+        data: UseAIFlowResult<T> | null
         error: Error | null
     },
 ]
@@ -58,10 +68,10 @@ export function useAIFlow<T = object> ({
     const [getExecutionAiFlowTaskById] = useGetExecutionAiFlowTaskByIdLazyQuery()
 
     const [loading, setLoading] = useState(false)
-    const [data, setData] = useState<T | null>(null)
+    const [data, setData] = useState<UseAIFlowResult<T> | null>(null)
     const [error, setError] = useState<Error | null>(null)
 
-    const getAIFlowResult = useCallback(async ({ context = {} }): Promise<{ data: T, error: object, localizedErrorText: string }> => {
+    const getAIFlowResult = useCallback(async ({ context = {} }): Promise<{ data: UseAIFlowResult<T>, error: object, localizedErrorText: string }> => {
         if (!user?.id) {
             const err = new Error('User is not authenticated')
             setError(err)
@@ -106,10 +116,18 @@ export function useAIFlow<T = object> ({
                 const [task] = pollResult.data.task
                 if (!task) { return { data: null, error: new Error('Task not found'), localizedErrorText: null } }
 
-                if (task.status === TASK_STATUSES.COMPLETED) {
+                if (task.status === TASK_STATUSES.COMPLETED || task.status === TASK_STATUSES.ACTION_REQUESTED) {
                     const result = task.result as T
-                    setData(result)
-                    return { data: result, error: null, localizedErrorText: null }
+                    const combinedResult: UseAIFlowResult<T> = {
+                        status: task.status,
+                        aiSessionId: task.aiSessionId,
+                        errorMessage: task.errorMessage,
+                        lastActionRequested: task.lastActionRequested,
+                        lastActionRequestedMeta: task.lastActionRequestedMeta,
+                        result,
+                    }
+                    setData(combinedResult)
+                    return { data: combinedResult, error: null, localizedErrorText: null }
                 } else if (task.status === TASK_STATUSES.ERROR || task.status === TASK_STATUSES.CANCELLED) {
                     return { data: null, error: new Error(`Task in ${task.status} state`), localizedErrorText: task.errorMessage || null }
                 }
