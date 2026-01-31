@@ -208,6 +208,9 @@ export const GetExecutionAiFlowTaskByIdDocument = gql`
     result
     errorMessage
     status
+    aiSessionId
+    lastActionRequested
+    lastActionRequestedMeta
     __typename
   }
 }
@@ -252,6 +255,9 @@ export const CreateExecutionAiFlowTaskDocument = gql`
     result
     errorMessage
     status
+    aiSessionId
+    lastActionRequested
+    lastActionRequestedMeta
   }
 }
     `;

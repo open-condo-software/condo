@@ -1,0 +1,22 @@
+.aiOverlay :global(.ant-drawer-body) {
+    padding: 0;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 16px;
+}
+
+.chatContainer {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--color-grey-light);
+    border-radius: 8px;
+    margin-top: 16px;
+    padding: 32px;
+    min-height: 300px;
+}

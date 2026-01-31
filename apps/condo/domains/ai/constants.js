@@ -3,6 +3,12 @@ const TASK_STATUSES = {
     COMPLETED: 'completed',
     ERROR: 'error',
     CANCELLED: 'cancelled',
+    ACTION_REQUESTED: 'action_requested',
+}
+
+const LAST_ACTION_REQUESTED = {
+    DATA_REQUESTED: 'data_requested',
+    CONFIRMATION_REQUESTED: 'confirmation_requested',
 }
 
 const FLOW_ADAPTERS = {
@@ -16,6 +22,7 @@ const REWRITE_TEXT_FLOW_TYPE = 'rewrite_text_flow'
 const NEWS_REWRITE_TEXT_FLOW_TYPE = 'news_rewrite_text_flow'
 const INCIDENT_REWRITE_TEXT_FOR_RESIDENT_FLOW_TYPE = 'incident_rewrite_text_for_resident_flow'
 const GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE = 'generate_news_by_incident_flow'
+const CHAT_WITH_CONDO_FLOW_TYPE = 'chat-with-condo'
 
 /**
  * list of hardcoded flow types
@@ -29,6 +36,7 @@ const FLOW_TYPES = {
     NEWS_REWRITE_TEXT: NEWS_REWRITE_TEXT_FLOW_TYPE,
     INCIDENT_REWRITE_TEXT_FOR_RESIDENT: INCIDENT_REWRITE_TEXT_FOR_RESIDENT_FLOW_TYPE,
     GENERATE_NEWS_BY_INCIDENT: GENERATE_NEWS_BY_INCIDENT_FLOW_TYPE,
+    CHAT_WITH_CONDO: CHAT_WITH_CONDO_FLOW_TYPE,
 }
 const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
 
@@ -178,6 +186,25 @@ const FLOW_META_SCHEMAS = {
             },
         },
     },
+    [FLOW_TYPES.CHAT_WITH_CONDO]: {
+        input: {
+            type: 'object',
+            properties: {
+                userInput: { type: 'string' },
+                userData: { type: 'object', additionalProperties: true },
+            },
+            required: ['userInput'],
+            additionalProperties: true,
+        },
+        output: {
+            type: 'object',
+            properties: {
+                answer: { type: 'string' },
+            },
+            required: ['answer'],
+            additionalProperties: true,
+        },
+    },
     [CUSTOM_FLOW_TYPE]: {
         // Data for custom flows is only checked to ensure that it is an object
         input: {
@@ -200,6 +227,7 @@ for (const [flowName, schemaByOperation] of Object.entries(FLOW_META_SCHEMAS)) {
 
 module.exports = {
     TASK_STATUSES,
+    LAST_ACTION_REQUESTED,
     FLOW_TYPES,
     FLOW_TYPES_LIST,
     FLOW_META_SCHEMAS,
