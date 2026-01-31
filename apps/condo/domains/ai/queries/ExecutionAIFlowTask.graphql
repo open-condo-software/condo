@@ -7,6 +7,9 @@ query getExecutionAIFlowTaskById ($id: ID!) {
         result
         errorMessage
         status
+        aiSessionId
+        lastActionRequested
+        lastActionRequestedMeta
         __typename
     }
 }
@@ -19,5 +22,8 @@ mutation createExecutionAIFlowTask ($data: ExecutionAIFlowTaskCreateInput!) {
         result
         errorMessage
         status
+        aiSessionId
+        lastActionRequested
+        lastActionRequestedMeta
     }
 }

@@ -132,7 +132,7 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
         if (result.error) {
             notification.error({ message: result.localizedErrorText || GenericErrorMessage })
         }
-        setRewriteNewsText(result?.data?.answer)
+        setRewriteNewsText(result?.data?.result?.answer)
     }, [GenericErrorMessage, inputType, runRewriteNewsTextAIFlow, value, textForContext])
 
     const handleCloseAINotificationText = useCallback(() => {
@@ -158,9 +158,9 @@ const DefaultAiTextArea: React.FC<DefaultAiTextAreaProps> = ({
 
         handleCloseAINotificationText()
         if (!rewriteNewsTextError?.cause) {
-            handleFormTextChange(rewriteNewsTextData?.answer)
+            handleFormTextChange(rewriteNewsTextData?.result?.answer)
         }
-    }, [inputType, handleCloseAINotificationText, rewriteNewsTextError?.cause, handleFormTextChange, rewriteNewsTextData?.answer])
+    }, [inputType, handleCloseAINotificationText, rewriteNewsTextError?.cause, handleFormTextChange, rewriteNewsTextData?.result?.answer])
 
     const handleRegenerateMessage = useCallback(async () => {
         analytics.track('click', {

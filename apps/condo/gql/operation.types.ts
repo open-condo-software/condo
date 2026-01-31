@@ -40,14 +40,14 @@ export type GetExecutionAiFlowTaskByIdQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetExecutionAiFlowTaskByIdQuery = { __typename?: 'Query', task?: Array<{ __typename: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null } | null> | null };
+export type GetExecutionAiFlowTaskByIdQuery = { __typename?: 'Query', task?: Array<{ __typename: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null, aiSessionId?: string | null, lastActionRequested?: Types.ExecutionAiFlowTaskLastActionRequestedType | null, lastActionRequestedMeta?: any | null } | null> | null };
 
 export type CreateExecutionAiFlowTaskMutationVariables = Types.Exact<{
   data: Types.ExecutionAiFlowTaskCreateInput;
 }>;
 
 
-export type CreateExecutionAiFlowTaskMutation = { __typename?: 'Mutation', task?: { __typename?: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null } | null };
+export type CreateExecutionAiFlowTaskMutation = { __typename?: 'Mutation', task?: { __typename?: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null, aiSessionId?: string | null, lastActionRequested?: Types.ExecutionAiFlowTaskLastActionRequestedType | null, lastActionRequestedMeta?: any | null } | null };
 
 export type GetBankAccountReportTasksQueryVariables = Types.Exact<{
   where: Types.BankAccountReportTaskWhereInput;
