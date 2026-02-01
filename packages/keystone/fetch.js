@@ -1,3 +1,5 @@
+const https = require('https')
+
 const pickBy = require('lodash/pickBy')
 const nodeFetch = require('node-fetch')
 
@@ -38,6 +40,12 @@ const logger = getLogger('fetch')
 
 const FETCH_COUNT_METRIC_NAME = 'fetch.count'
 const FETCH_TIME_METRIC_NAME = 'fetch.time'
+
+/**
+ * Should be used only for development and testing purposes
+ * @type {any}
+ */
+const FETCH_SKIP_SSL_CHECK_DOMAINS = JSON.parse(conf['FETCH_SKIP_SSL_CHECK_DOMAINS'] || '[]')
 
 /**
  * Should be: { [hostname: str]:[x-target: str] }
@@ -101,6 +109,13 @@ async function fetchWithLogger (url, options, extraAttrs) {
 
     options.headers = { ...options.headers, ...originalHeaders }
 
+    // Skip SSL check for configured domains
+    if (urlObject.protocol === 'https:' && FETCH_SKIP_SSL_CHECK_DOMAINS.includes(hostname)) {
+        if (!options.agent) {
+            options.agent = new https.Agent({ rejectUnauthorized: false })
+        }
+    }
+    
     const startTime = Date.now()
     const requestLogCommonData = pickBy({
         reqId: parentReqId,
