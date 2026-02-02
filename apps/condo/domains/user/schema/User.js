@@ -419,6 +419,7 @@ const User = new GQLListSchema('User', {
         dvAndSender(),
         historical(),
         webHooked(),
+        analytical(),
     ],
     access: {
         read: access.canReadUsers,

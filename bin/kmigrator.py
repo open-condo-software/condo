@@ -37,6 +37,8 @@ DISABLE_MODEL_CHOICES = True
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
+GET_KNEX_VIEWS_SCRIPT = CACHE_DIR / 'get.knex.views.js'
+GET_KNEX_VIEWS_LOG = CACHE_DIR / 'get.knex.views.log'
 KNEX_MIGRATE_SCRIPT = CACHE_DIR / 'knex.run.js'
 GET_KNEX_SETTINGS_LOG = CACHE_DIR / 'get.knex.settings.log'
 DJANGO_DIR = CACHE_DIR / '_django_schema'
@@ -467,6 +469,50 @@ process.on('unhandledRejection', error => {
     process.exit(5)
 })
 """
+GET_KEYSTONE_VIEWS_SCRIPT = """
+const fs = require('fs')
+const path = require('path')
+
+const entryFile = '__KEYSTONE_ENTRY_PATH__'
+const knexViewsFile = '__KNEX_VIEWS_PATH__'
+
+
+
+const { keystone } = require(path.resolve(entryFile));
+
+(async () => {
+    const config = {
+        dv: 1,
+        lists: {},
+    }
+
+    for (const [listKey, list] of Object.entries(keystone.lists)) {
+        if (list?.createListConfig?.analytical) {
+            // Exclude virtual fields
+            const fields = Object.keys(list.fieldsByPath).filter(field => list.createListConfig.fields[field]?.type?.type !== 'Virtual')
+            const sensitiveFields = fields.filter(field => list.createListConfig.fields[field]?.sensitive)
+
+            config.lists[listKey] = {
+                fields,
+                sensitiveFields,
+            }
+        }
+    }
+
+    try {
+        fs.writeFileSync(knexViewsFile, JSON.stringify(config))
+    } catch (e) {
+        console.error(e)
+        process.exit(7)
+    }
+    process.exit(0)
+})()
+
+process.on('unhandledRejection', error => {
+    console.error('unhandledRejection', error)
+    process.exit(5)
+})
+"""
 RUN_KEYSTONE_KNEX_SCRIPT = """
 const entryFile = '__KEYSTONE_ENTRY_PATH__'
 const knexMigrationsDir = '__KNEX_MIGRATION_DIR__'
@@ -604,6 +650,9 @@ def _1_1_prepare_cache_dir(ctx):
 def _1_2_prepare_get_knex_schema_script(ctx):
     GET_KNEX_SETTINGS_SCRIPT.write_text(_inject_ctx(GET_KEYSTONE_SCHEMA_SCRIPT, ctx), encoding='utf-8')
 
+def _1_3_prepare_get_keystone_views_script(ctx):
+    GET_KNEX_VIEWS_SCRIPT.write_text(_inject_ctx(GET_KEYSTONE_VIEWS_SCRIPT, ctx), encoding='utf-8')
+
 
 def _2_1_generate_knex_jsons(ctx):
     try:
@@ -616,6 +665,17 @@ def _2_1_generate_knex_jsons(ctx):
         raise KProblem('ERROR: can\'t get knex schema')
     ctx['__KNEX_SCHEMA_DATA__'] = Path(ctx['__KNEX_SCHEMA_PATH__']).read_text(encoding='utf-8')
     ctx['__KNEX_CONNECTION_DATA__'] = Path(ctx['__KNEX_CONNECTION_PATH__']).read_text(encoding='utf-8')
+
+    try:
+        log = subprocess.check_output(['node', str(GET_KNEX_VIEWS_SCRIPT)], stderr=subprocess.STDOUT)
+        GET_KNEX_VIEWS_LOG.write_bytes(log)
+    except subprocess.CalledProcessError as e:
+        log = e.output
+        print('ERROR: logfile =', GET_KNEX_SETTINGS_LOG.resolve())
+        print(log.decode('utf-8'))
+        raise KProblem('ERROR: can\'t get knex schema')
+
+    ctx['__KNEX_VIEWS_DATA__'] = Path(ctx['__KNEX_VIEWS_PATH__']).read_text(encoding='utf-8')
 
 
 def _3_1_prepare_django_dir(ctx):
@@ -647,6 +707,21 @@ def _3_3_restore_django_migrations(ctx):
             repaired.add(name)
     ctx['__KNEX_DJANGO_MIGRATION__'] = repaired
 
+def _3_4_restore_views_state(ctx):
+    state = '{"lists":{}, "dv":1}'
+    latest_migration = 0
+
+    for item in KNEX_MIGRATIONS_DIR.iterdir():
+        if not item.is_file():
+            continue
+        d = item.read_text(encoding='utf-8')
+        for name, code in (re.findall(r'^// KMIGRATOR_VIEWS:(.*?):([A-Za-z0-9+/=]*?)$', d, re.MULTILINE)):
+            migration_number = name.split('_')[0]
+            if int(migration_number) > latest_migration:
+                latest_migration = int(migration_number)
+                state = base64.b64decode(code.encode('ascii')).decode('utf-8')
+
+    ctx['__KNEX_VIEWS_MIGRATION_STATE__'] = state
 
 def _hotfix_django_migration_bug(item):
     if item.name.startswith('__'):
@@ -672,6 +747,54 @@ def _hotfix_django_migration_bug(item):
     code = code_0[:op_ind].rstrip() + ''.join(reversed(delete_sections)) + '\n    ]\n'
     if source != code:
         item.write_text(code, encoding='utf-8')
+
+def _generate_views_migration(ctx, fwd=True):
+    old_state = json.loads(ctx['__KNEX_VIEWS_MIGRATION_STATE__'])
+    new_state = json.loads(ctx['__KNEX_VIEWS_DATA__'])
+    if old_state == new_state:
+        return None
+    if not fwd:
+        old_state, new_state = new_state, old_state
+
+    migration = ''
+
+    def add_line(line):
+        nonlocal migration
+        migration += line + '\n'
+
+    def add_comment(comment):
+        add_line('--')
+        add_line('-- ' + comment)
+        add_line('--')
+
+    def generate_view_sql(lst_key, lst):
+        fields = []
+        for field in lst['fields']:
+            if field in lst['sensitiveFields']:
+                fields.append(f'NULL as "{field}"')
+            else:
+                fields.append(f'"{field}"')
+        return f'CREATE OR REPLACE VIEW "analytics"."{lst_key}" AS SELECT {", ".join(fields)} FROM "public"."{lst_key}";'
+
+    # Step 1. create schema if necessary
+    if len(new_state['lists'].keys()) > 0 and len(old_state['lists'].keys()) == 0:
+        add_comment('Create analytics schema')
+        add_line('CREATE SCHEMA IF NOT EXISTS "analytics";')
+
+    # Step 2. create / recreate views if necessary (view created or changed)
+    for list_key, list_cfg in new_state['lists'].items():
+        if list_key not in old_state['lists'] or old_state['lists'][list_key] != list_cfg:
+            add_comment(f'Create view for "{list_key}" table')
+            add_line(generate_view_sql(list_key, list_cfg))
+
+    # Step 3. Remove views if necessary (view deleted)
+    for list_key in old_state['lists'].keys():
+        if list_key not in new_state['lists']:
+            add_comment(f'Remove view for "{list_key}" table')
+            add_line(f'DROP VIEW IF EXISTS "analytics"."{list_key}";')
+
+    return migration
+
 
 
 def _4_1_makemigrations(ctx, merge=False, check=False, empty=False):
@@ -732,6 +855,7 @@ def main(command, keystoneEntryFile='./index.js', merge=False, check=False, empt
     ctx = {
         '__KEYSTONE_ENTRY_PATH__': keystoneEntryFile,
         '__KNEX_SCHEMA_PATH__': CACHE_DIR / 'knex.schema.json',
+        '__KNEX_VIEWS_PATH__': CACHE_DIR / 'knex.views.json',
         '__KNEX_CONNECTION_PATH__': CACHE_DIR / 'knex.connection.json',
         '__KNEX_MIGRATION_DIR__': KNEX_MIGRATIONS_DIR,
         '__DISABLE_MODEL_CHOICES__': DISABLE_MODEL_CHOICES,
@@ -739,10 +863,12 @@ def main(command, keystoneEntryFile='./index.js', merge=False, check=False, empt
     try:
         _1_1_prepare_cache_dir(ctx)
         _1_2_prepare_get_knex_schema_script(ctx)
+        _1_3_prepare_get_keystone_views_script(ctx)
         _2_1_generate_knex_jsons(ctx)
         _3_1_prepare_django_dir(ctx)
         _3_2_generate_django_models(ctx)
         _3_3_restore_django_migrations(ctx)
+        _3_4_restore_views_state(ctx)
         if command == 'makemigrations':
             _4_1_makemigrations(ctx, merge=merge, check=check, empty=empty)
         elif command == 'migrate':
