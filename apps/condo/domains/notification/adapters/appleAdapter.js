@@ -203,7 +203,7 @@ class AppleAdapter {
      * @param pushTypes
      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
      */
-    async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}, isVoIP = false) {
+    async sendNotification ({ notification, data, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
         const [notifications, fakeNotifications, pushContext] = AppleAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds)
@@ -230,6 +230,8 @@ class AppleAdapter {
                         responses: notificationsBatchForApp.map(notification => ({
                             pushToken: notification.token,
                             pushType: get(pushTypes, notification.token, null),
+                            appId: appIds?.[notification.token] ?? null,
+                            remoteClientMeta: metaByToken?.[notification.token] ?? null,
                         })),
                     }
                 }
@@ -240,14 +242,17 @@ class AppleAdapter {
                     const appleResult = await app.sendAll(notificationsBatchForApp, isVoIP)
                     if (!isEmpty(appleResult.responses)) {
                         appleResult.responses = appleResult.responses.map(
-                            (response, idx) =>
-                                ({
+                            (response, idx) => {
+                                const pushToken = notificationsBatchForApp[idx]?.token
+                                return {
                                     ...response,
-                                    pushToken: notificationsBatchForApp[idx].token,
-                                    pushType: pushTypes[notificationsBatchForApp[idx].token],
+                                    pushToken,
+                                    pushType: pushTypes?.[pushToken] ?? null,
                                     appleServerUrl: configForApp.url,
-                                })
-                        )
+                                    appId: appIds?.[pushToken] ?? null,
+                                    remoteClientMeta: metaByToken?.[pushToken] ?? null,
+                                }
+                            })
                     }
                     return appleResult
                 } catch (err) {
@@ -260,6 +265,8 @@ class AppleAdapter {
                         responses: notificationsBatchForApp.map(notification => ({
                             pushToken: notification.token,
                             pushType: get(pushTypes, notification.token, null),
+                            appId: appIds?.[notification.token] ?? null,
+                            remoteClientMeta: metaByToken?.[notification.token] ?? null,
                         })),
                     }
                 }
