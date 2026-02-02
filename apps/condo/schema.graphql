@@ -91412,12 +91412,17 @@ type GetAvailableSubscriptionPlansOutput {
   plans: [AvailableSubscriptionPlan]!
 }
 
+input ActivateSubscriptionPlanMetaInput {
+  paymentMethodId: String
+}
+
 input ActivateSubscriptionPlanInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
   pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
   isTrial: Boolean
+  meta: ActivateSubscriptionPlanMetaInput
 }
 
 type ActivateSubscriptionPlanOutput {

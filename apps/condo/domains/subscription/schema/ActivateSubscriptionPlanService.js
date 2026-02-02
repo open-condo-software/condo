@@ -9,16 +9,11 @@ const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema'
 
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionPlanService')
-const { SUBSCRIPTION_PERIOD } = require('@condo/domains/subscription/constants')
+const { PERIOD_TO_MONTHS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
 const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directAccess')
-
-// Map period enum to number of months
-const PERIOD_TO_MONTHS = {
-    [SUBSCRIPTION_PERIOD.MONTH]: 1,
-    [SUBSCRIPTION_PERIOD.YEAR]: 12,
-}
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -66,7 +61,11 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
     types: [
         {
             access: true,
-            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean }',
+            type: 'input ActivateSubscriptionPlanMetaInput { paymentMethodId: String }',
+        },
+        {
+            access: true,
+            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean, meta: ActivateSubscriptionPlanMetaInput }',
         },
         {
             access: true,
@@ -84,7 +83,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, organization: organizationInput, pricingRule: pricingRuleInput, isTrial } = data
+                const { dv, sender, organization: organizationInput, pricingRule: pricingRuleInput, isTrial, meta } = data
 
                 const [organization] = await find('Organization', {
                     id: organizationInput.id,
@@ -136,6 +135,20 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                             basePrice: pricingRule.price,
                             isTrial: false,
                         })
+                        
+                        if (meta && meta.paymentMethodId) {
+                            const organizationMeta = organization.meta || {}
+                            await Organization.update(context, organization.id, {
+                                dv,
+                                sender,
+                                meta: {
+                                    ...organizationMeta,
+                                    paymentMethodId: meta.paymentMethodId,
+                                    pricingRule: pricingRule.id,
+                                },
+                            })
+                        }
+                        
                         const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
                         return { subscriptionContext, userHelpRequest: null }
                     }

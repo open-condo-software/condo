@@ -1,11 +1,16 @@
-// Subscription periods
 const SUBSCRIPTION_PERIOD = {
     MONTH: 'month',
     YEAR: 'year',
 }
 const SUBSCRIPTION_PERIODS = Object.values(SUBSCRIPTION_PERIOD)
 
+const PERIOD_TO_MONTHS = {
+    [SUBSCRIPTION_PERIOD.MONTH]: 1,
+    [SUBSCRIPTION_PERIOD.YEAR]: 12,
+}
+
 module.exports = {
     SUBSCRIPTION_PERIOD,
     SUBSCRIPTION_PERIODS,
+    PERIOD_TO_MONTHS,
 }
