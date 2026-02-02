@@ -1,5 +1,5 @@
 import { PaymentStatusType, SortPaymentsBy } from '@app/condo/schema'
-import { Col, Row, Space, Spin } from 'antd'
+import { Col, Row, Space } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
@@ -14,6 +14,7 @@ import { Modal, Typography, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
+import styles from '@condo/domains/acquiring/components/payments/PaymentsTable.module.css'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { EXPORT_PAYMENTS_TO_EXCEL } from '@condo/domains/acquiring/gql'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
@@ -27,6 +28,7 @@ import { useBillingAndAcquiringContexts } from '@condo/domains/billing/component
 import Input from '@condo/domains/common/components/antd/Input'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
@@ -341,14 +343,15 @@ const PaymentsTable: React.FC = (props) => {
 
     return (
         <Space size={areAlertLoading ? 0 : 30} direction='vertical'>
-            {PosIntegrationAlert}
-            {areAlertLoading ? (
-                <Spin size='large' />
-            ) : (
-                <MultipleFilterContextProvider>
-                    <PaymentsTableContent areAlertLoading={areAlertLoading} {...props} />
-                </MultipleFilterContextProvider>
+            {areAlertLoading && (
+                <div className={styles.loaderContainer}>
+                    <Loader size='large' fill/>
+                </div>
             )}
+            {PosIntegrationAlert}
+            <MultipleFilterContextProvider>
+                <PaymentsTableContent areAlertLoading={areAlertLoading} {...props} />
+            </MultipleFilterContextProvider>
         </Space>
     )
 }
