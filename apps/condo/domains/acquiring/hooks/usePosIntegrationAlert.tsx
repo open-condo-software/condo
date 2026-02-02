@@ -34,6 +34,7 @@ export function usePosIntegrationAlert () {
             withPrefetch
             withResize
             hidden={isIFrameHidden}
+            initialHeight={50}
         />
     ) : null, [isIFrameHidden, onLoadHandler, paymentsAlertPageUrl])
 
