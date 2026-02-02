@@ -489,7 +489,10 @@ const { keystone } = require(path.resolve(entryFile));
     for (const [listKey, list] of Object.entries(keystone.lists)) {
         if (list?.createListConfig?.analytical) {
             // Exclude virtual fields
-            const fields = Object.keys(list.fieldsByPath).filter(field => list.createListConfig.fields[field]?.type?.type !== 'Virtual')
+            const fields = Object.keys(list.fieldsByPath)
+                .filter(field => list.createListConfig.fields[field]?.type?.type !== 'Virtual')
+                // Important to check diffs in python
+                .toString()
             const sensitiveFields = fields.filter(field => list.createListConfig.fields[field]?.sensitive)
 
             config.lists[listKey] = {
