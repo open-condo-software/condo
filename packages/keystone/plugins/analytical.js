@@ -1,15 +1,14 @@
 const { plugin } = require('./utils/typing')
 
-const SENSITIVE_FIELDS = new Set([
-    'phone',
-    'email',
-    'password',
-    'secret',
-    'token',
-    'settings',
-    'state',
-
-])
+const SENSITIVE_FIELDS_REGEXPS = [
+    /phone/i,
+    /email/i,
+    /password/i,
+    /secret/i,
+    /token/i,
+    /settings/i,
+    /state/i,
+]
 
 function analytical () {
     return plugin(({ fields = {}, ...rest }) => {
@@ -20,7 +19,7 @@ function analytical () {
                 field.sensitive = true
             }
 
-            if (SENSITIVE_FIELDS.has(fieldName)) {
+            if (SENSITIVE_FIELDS_REGEXPS.some(regexp => regexp.test(fieldName))) {
                 field.sensitive = true
             }
         }

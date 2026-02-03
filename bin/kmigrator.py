@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 6, 0)
+VERSION = (1, 7, 0)
 DISABLE_MODEL_CHOICES = True
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
@@ -492,7 +492,7 @@ const { keystone } = require(path.resolve(entryFile));
             const fields = Object.keys(list.fieldsByPath)
                 .filter(field => list.createListConfig.fields[field]?.type?.type !== 'Virtual')
                 // Important to check diffs in python
-                .toString()
+                .toSorted()
             const sensitiveFields = fields.filter(field => list.createListConfig.fields[field]?.sensitive)
 
             config.lists[listKey] = {
@@ -676,7 +676,7 @@ def _2_1_generate_knex_jsons(ctx):
         GET_KNEX_VIEWS_LOG.write_bytes(log)
     except subprocess.CalledProcessError as e:
         log = e.output
-        print('ERROR: logfile =', GET_KNEX_SETTINGS_LOG.resolve())
+        print('ERROR: logfile =', GET_KNEX_VIEWS_LOG.resolve())
         print(log.decode('utf-8'))
         raise KProblem('ERROR: can\'t get knex schema')
 
@@ -875,7 +875,7 @@ def _4_1_makemigrations(ctx, merge=False, check=False, empty=False):
             if not views_inserted and bwd_views_sql:
                 bwd_sql = bwd_views_sql
                 template = KNEX_MIGRATION_TPL
-                views_bwd_inserted = True
+                views_inserted = True
             text = template.format(**locals())
 
         (KNEX_MIGRATIONS_DIR / filename).write_text(text, encoding='utf-8')
