@@ -91,12 +91,14 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
     }
     const pushTypes = {}
     const appIds = {}
+    const metaByToken = {}
 
     if (!isEmpty(remoteClients)) {
         remoteClients.forEach((remoteClient) => {
             const {
                 appId, pushToken, pushType, pushTransport,
                 pushTokenVoIP, pushTypeVoIP, pushTransportVoIP,
+                meta,
             } = remoteClient
             const transport = isVoIP ? pushTransportVoIP : pushTransport
             const token = isVoIP ? pushTokenVoIP : pushToken
@@ -105,10 +107,11 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
             tokensByTransport[transport].push(token)
             pushTypes[token] = type
             appIds[token] = appId
+            metaByToken[token] = meta
         })
     }
 
-    return { tokensByTransport, pushTypes, appIds, count: remoteClients.length }
+    return { tokensByTransport, pushTypes, appIds, metaByToken, count: remoteClients.length }
 }
 
 /**
@@ -188,7 +191,7 @@ async function deleteRemoteClientsIfTokenIsInvalid ({ adapter, result, isVoIP })
 async function send ({ notification, data, user, remoteClient } = {}, isVoIP = false) {
     const userId = get(user, 'id')
     const remoteClientId = get(remoteClient, 'id')
-    const { tokensByTransport, pushTypes: initialPushTypes, appIds, count } = await getTokens(userId, remoteClientId, isVoIP)
+    const { tokensByTransport, pushTypes: initialPushTypes, appIds, metaByToken, count } = await getTokens(userId, remoteClientId, isVoIP)
 
 
     // NOTE: For some message types with push transport, you need to override the push type for all push tokens.
@@ -213,7 +216,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
         if (isEmpty(tokens)) return null
 
         const adapter = ADAPTERS[transport]
-        const payload = { tokens, pushTypes, appIds, notification, data }
+        const payload = { tokens, pushTypes, appIds, notification, data, metaByToken }
         const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
 
         await deleteRemoteClientsIfTokenIsInvalid({ adapter, result, isVoIP })

@@ -227,9 +227,10 @@ class FirebaseAdapter {
       * @param data
       * @param pushTypes
 +     * @param appIds - Object mapping pushToken to appId for routing notifications to the correct Firebase app
+      * @param metaByToken
       * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
       */
-    async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}, isVoIP = false) {
+    async sendNotification ({ notification, data, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
         const [notifications, fakeNotifications, pushContext] = FirebaseAdapter.prepareBatchData(
@@ -273,13 +274,16 @@ class FirebaseAdapter {
 
                     if (!isEmpty(fbResult.responses)) {
                         fbResult.responses = fbResult.responses.map(
-                            (response, idx) =>
-                                ({
+                            (response, idx) => {
+                                const pushToken = notificationsBatchForApp[idx]?.token
+                                return {
                                     ...response,
-                                    pushToken: notificationsBatchForApp[idx].token,
-                                    pushType: get(pushTypes, notificationsBatchForApp[idx].token, null),
-                                })
-                        )
+                                    pushToken,
+                                    pushType: pushTypes?.[pushToken] ?? null,
+                                    appId: appIds?.[pushToken] ?? null,
+                                    remoteClientMeta: metaByToken?.[pushToken] ?? null,
+                                }
+                            })
                     }
 
                     if (combinedResult) {
@@ -305,7 +309,9 @@ class FirebaseAdapter {
                             state: 'error',
                             error,
                             pushToken: notification.token,
-                            pushType: get(pushTypes, notification.token, null),
+                            pushType: pushTypes?.[notification.token] ?? null,
+                            appId: appIds?.[notification.token] ?? null,
+                            remoteClientMeta: metaByToken?.[notification.token] ?? null,
                         })
                     }
                 }

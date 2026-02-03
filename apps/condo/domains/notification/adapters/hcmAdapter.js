@@ -247,7 +247,7 @@ class HCMAdapter {
      * @param appIds
      * @returns {Promise<[boolean, {error: string}]|[boolean, (*&{pushContext: (*[]|{})})]>}
      */
-    async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}) {
+    async sendNotification ({ notification, data, tokens, pushTypes, appIds, metaByToken } = {}) {
 
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
@@ -292,20 +292,30 @@ class HCMAdapter {
 
                 const app = this.apps[appType]
 
+                const remoteClientData = {
+                    idx,
+                    appType,
+                    pushToken: notification.token,
+                    pushType: pushTypes?.[notification.token] ?? null,
+                    appId: appIds?.[notification.token] ?? null,
+                    remoteClientMeta: metaByToken?.[notification.token] ?? null,
+                }
+
                 try {
                     if (!appType || !app) throw new Error(`${HCM_UNSUPPORTED_APP_ID_ERROR}: ${get(appIds, notification.token)}`)
                     const sendResult = await app.send(notification)
                     return {
-                        idx,
-                        appType,
-                        pushToken: notification.token,
-                        pushType: pushTypes[notification.token],
+                        ...remoteClientData,
                         ...sendResult,
                     }
                 } catch (error) {
                     const safeError = safeFormatError(error, false)
                     logger.error({ msg: 'sendNotification error', error: safeError })
-                    return { state: 'error', error: safeError }
+                    return { 
+                        ...remoteClientData,
+                        state: 'error',
+                        error: safeError,
+                    }
                 }
             }))
 

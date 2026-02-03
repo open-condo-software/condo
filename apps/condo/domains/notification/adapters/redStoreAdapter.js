@@ -139,7 +139,7 @@ class RedStoreAdapter {
     /**
      * Manages to send notification to all available pushTokens of the user.
      */
-    async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}, isVoIP = false) {
+    async sendNotification ({ notification, data, tokens, pushTypes, appIds, metaByToken } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
         const [notifications, fakeNotifications, pushContext] = RedStoreAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds, isVoIP)
@@ -170,7 +170,9 @@ class RedStoreAdapter {
                         successCount: 0,
                         responses: notificationsBatchForApp.map(notification => ({
                             pushToken: notification.token,
-                            pushType: get(pushTypes, notification.token, null),
+                            pushType: pushTypes?.[notification.token] ?? null,
+                            appId: appIds?.[notification.token] ?? null,
+                            remoteClientMeta: metaByToken?.[notification.token] ?? null,
                         })),
                     }
                 }
@@ -180,13 +182,16 @@ class RedStoreAdapter {
                     const result = await app.sendAll(notificationsBatchForApp)
                     if (!isEmpty(result.responses)) {
                         result.responses = result.responses.map(
-                            (response, idx) =>
-                                ({
+                            (response, idx) => {
+                                const pushToken = notificationsBatchForApp[idx].token
+                                return {
                                     ...response,
-                                    pushToken: notifications[idx].token,
-                                    pushType: get(pushTypes, notifications[idx].token, null),
-                                })
-                        )
+                                    pushToken,
+                                    pushType: pushTypes?.[pushToken] ?? null,
+                                    appId: appIds?.[pushToken] ?? null,
+                                    remoteClientMeta: metaByToken?.[pushToken] ?? null,
+                                }
+                            })
                     }
                     return result
                 } catch (err) {
@@ -199,7 +204,9 @@ class RedStoreAdapter {
                         successCount: 0,
                         responses: notificationsBatchForApp.map(notification => ({
                             pushToken: notification.token,
-                            pushType: get(pushTypes, notification.token, null),
+                            pushType: pushTypes?.[notification.token] ?? null,
+                            appId: appIds?.[notification.token] ?? null,
+                            remoteClientMeta: metaByToken?.[notification.token] ?? null,
                         })),
                     }
                 }
