@@ -91412,8 +91412,12 @@ type GetAvailableSubscriptionPlansOutput {
   plans: [AvailableSubscriptionPlan]!
 }
 
-input ActivateSubscriptionPlanMetaInput {
-  paymentMethodId: String
+input ActivateSubscriptionPlanPaymentMethodInput {
+  id: String!
+  type: String!
+  cardMask: String
+  cardType: String
+  title: String
 }
 
 input ActivateSubscriptionPlanInput {
@@ -91422,7 +91426,7 @@ input ActivateSubscriptionPlanInput {
   organization: OrganizationWhereUniqueInput!
   pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
   isTrial: Boolean
-  meta: ActivateSubscriptionPlanMetaInput
+  paymentMethod: ActivateSubscriptionPlanPaymentMethodInput
 }
 
 type ActivateSubscriptionPlanOutput {

@@ -61,11 +61,11 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
     types: [
         {
             access: true,
-            type: 'input ActivateSubscriptionPlanMetaInput { paymentMethodId: String }',
+            type: 'input ActivateSubscriptionPlanPaymentMethodInput { id: String!, type: String!, cardMask: String, cardType: String, title: String }',
         },
         {
             access: true,
-            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean, meta: ActivateSubscriptionPlanMetaInput }',
+            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean, paymentMethod: ActivateSubscriptionPlanPaymentMethodInput }',
         },
         {
             access: true,
@@ -83,7 +83,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, organization: organizationInput, pricingRule: pricingRuleInput, isTrial, meta } = data
+                const { dv, sender, organization: organizationInput, pricingRule: pricingRuleInput, isTrial, paymentMethod } = data
 
                 const [organization] = await find('Organization', {
                     id: organizationInput.id,
@@ -136,14 +136,20 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                             isTrial: false,
                         })
                         
-                        if (meta && meta.paymentMethodId) {
+                        if (paymentMethod) {
                             const organizationMeta = organization.meta || {}
                             await Organization.update(context, organization.id, {
                                 dv,
                                 sender,
                                 meta: {
                                     ...organizationMeta,
-                                    paymentMethodId: meta.paymentMethodId,
+                                    paymentMethod: {
+                                        id: paymentMethod.id,
+                                        type: paymentMethod.type,
+                                        cardMask: paymentMethod.cardMask,
+                                        cardType: paymentMethod.cardType,
+                                        title: paymentMethod.title,
+                                    },
                                     pricingRule: pricingRule.id,
                                 },
                             })
