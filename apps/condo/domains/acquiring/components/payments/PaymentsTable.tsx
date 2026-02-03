@@ -89,7 +89,7 @@ interface PaymentsTableContentProps {
 
 const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoading }): JSX.Element => {
     const intl = useIntl()
-    const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt } = usePosIntegrationLastTestingPosReceipt({
+    const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt, b2bAppContext: posIntegrationContext } = usePosIntegrationLastTestingPosReceipt({
         skipUntilAuthenticated: areAlertLoading,
     })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -124,7 +124,7 @@ const PaymentsTableContent: React.FC<PaymentsTableContentProps> = ({ areAlertLoa
         setIsStatusDescModalVisible(true)
     }
 
-    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, { lastTestingPosReceipt })
+    const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal, { lastTestingPosReceipt, posIntegrationContext })
 
     useEffect(() => {
         if (!areAlertLoading) {

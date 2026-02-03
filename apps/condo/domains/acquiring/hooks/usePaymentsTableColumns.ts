@@ -1,3 +1,4 @@
+import { GetB2BAppContextWithPosIntegrationConfigQuery } from '@app/condo/gql'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
@@ -19,6 +20,7 @@ import { LastTestingPosReceiptData } from './usePosIntegrationLastTestingPosRece
 
 type PaymentsTableColumnsOptions = {
     lastTestingPosReceipt?: LastTestingPosReceiptData
+    posIntegrationContext?: GetB2BAppContextWithPosIntegrationConfigQuery['contexts'][number]
 }
 
 export function usePaymentsTableColumns (currencyCode: string, openStatusDescModal, options: PaymentsTableColumnsOptions = {}): Record<string, unknown>[] {
@@ -98,7 +100,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 width: '14em',
                 sorter: true,
             },
-            posReceiptUrl: {
+            posReceiptUrl: options.posIntegrationContext ? {
                 title: PosReceiptColumnTitle,
                 key: 'posReceiptUrl',
                 dataIndex: 'posReceiptUrl',
@@ -109,9 +111,9 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                     lastTestingPosReceipt: options.lastTestingPosReceipt,
                 }),
                 width: '10em',
-            },
+            } : undefined,
         }
 
-        return Object.values(columns)
-    }, [filters, DepositedDateTitle, intl, TransferDateTitle, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription, options.lastTestingPosReceipt])
+        return Object.values(columns).filter(Boolean)
+    }, [filters, DepositedDateTitle, intl, TransferDateTitle, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode, options.posIntegrationContext, options.lastTestingPosReceipt, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription])
 }

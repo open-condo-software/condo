@@ -1,3 +1,4 @@
+import { GetB2BAppContextWithPosIntegrationConfigQuery } from '@app/condo/gql'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
@@ -19,6 +20,7 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 
 type MarketplacePaymentsTableColumnsOptions = {
     lastTestingPosReceipt?: LastTestingPosReceiptData
+    posIntegrationContext?: GetB2BAppContextWithPosIntegrationConfigQuery['contexts'][number]
 }
 
 export function useMarketplacePaymentTableColumns<T> (filterMetas: Array<FiltersMeta<T>>, openStatusDescModal: (statusType: string) => void, options: MarketplacePaymentsTableColumnsOptions = {}) {
@@ -122,7 +124,7 @@ export function useMarketplacePaymentTableColumns<T> (filterMetas: Array<Filters
                 width: '11%',
                 render: getMoneyRender(intl),
             },
-            {
+            options.posIntegrationContext ? {
                 title: PosReceiptColumnTitle,
                 key: 'posReceiptUrl',
                 dataIndex: 'posReceiptUrl',
@@ -133,7 +135,7 @@ export function useMarketplacePaymentTableColumns<T> (filterMetas: Array<Filters
                     lastTestingPosReceipt: options.lastTestingPosReceipt,
                 }),
                 width: '10em',
-            },
-        ]
-    }, [DateMessage, sorterMap, filters, intl, search, filterMetas, InvoiceNumberMessage, invoiceNumberRender, TicketNumberMessage, ticketNumberRender, StatusMessage, openStatusDescModal, SumMessage, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription, options.lastTestingPosReceipt])
+            } : undefined,
+        ].filter(Boolean)
+    }, [DateMessage, sorterMap, filters, intl, search, filterMetas, InvoiceNumberMessage, invoiceNumberRender, TicketNumberMessage, ticketNumberRender, StatusMessage, openStatusDescModal, SumMessage, options.posIntegrationContext, options.lastTestingPosReceipt, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription])
 }

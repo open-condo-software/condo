@@ -115,7 +115,7 @@ interface MarketplacePaymentsTableContentProps {
 
 const MarketplacePaymentsTableContent: React.FC<MarketplacePaymentsTableContentProps> = ({ areAlertLoading }) => {
     const intl = useIntl()
-    const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt } = usePosIntegrationLastTestingPosReceipt({
+    const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt, b2bAppContext: posIntegrationContext } = usePosIntegrationLastTestingPosReceipt({
         skipUntilAuthenticated: areAlertLoading,
     })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -148,7 +148,7 @@ const MarketplacePaymentsTableContent: React.FC<MarketplacePaymentsTableContentP
         setTextStatusDescModal(textModal)
         setIsStatusDescModalVisible(true)
     }
-    const tableColumns = useMarketplacePaymentTableColumns(queryMetas, openStatusDescModal, { lastTestingPosReceipt })
+    const tableColumns = useMarketplacePaymentTableColumns(queryMetas, openStatusDescModal, { lastTestingPosReceipt, posIntegrationContext })
 
     useEffect(() => {
         if (!areAlertLoading) {
