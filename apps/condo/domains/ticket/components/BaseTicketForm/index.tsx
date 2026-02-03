@@ -221,7 +221,7 @@ const AddInvoiceButton = ({ initialValues, form, organizationId, ticketCreatedBy
                 <div>
                     <Col style={{ cursor: 'not-allowed' }}>
                         <Space size={4} direction='horizontal'>
-                            <PlusCircle color={colors.gray[5]} />
+                            <PlusCircle />
                             <Typography.Text size='medium' strong type='secondary'>{AddInvoiceMessage}</Typography.Text>
                         </Space>
                     </Col>
