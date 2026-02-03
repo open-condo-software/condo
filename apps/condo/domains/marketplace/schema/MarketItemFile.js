@@ -50,6 +50,8 @@ const MarketItemFile = new GQLListSchema('MarketItemFile', {
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, context }) => {
                     const mimetype = get(resolvedData, [fieldPath, 'mimetype'])
+                    // New flow (signature): CustomFile does not pass mimetype to resolvedData; skip check
+                    if (mimetype == null) return
                     if (!ALLOWED_MIME_TYPES.includes(mimetype)) throw new GQLError(ERRORS.FORBIDDEN_FILE_TYPE(mimetype), context)
                 },
             },

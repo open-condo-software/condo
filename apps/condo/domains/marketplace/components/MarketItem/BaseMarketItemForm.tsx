@@ -6,6 +6,7 @@ import { FormProps } from 'antd/lib/form/Form'
 import difference from 'lodash/difference'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import getConfig from 'next/config'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { PlusCircle, Trash } from '@open-condo/icons'
@@ -388,6 +389,7 @@ const MarketItemFields = () => {
     const DescriptionTooltipMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.description.tooltip' })
 
     const { organization } = useOrganization()
+    const { publicRuntimeConfig: { fileClientId } = {} } = getConfig()
     const { refetch: fetchMarketItemsCount } = MarketItem.useCount({}, { skip: true })
     const createFileAction = MarketItemFile.useCreate({})
 
@@ -524,6 +526,8 @@ const MarketItemFields = () => {
                             })
                         }}
                         createAction={createFileAction}
+                        fileClientId={fileClientId}
+                        organizationId={get(organization, 'id')}
                     />
                 </Form.Item>
             </Col>

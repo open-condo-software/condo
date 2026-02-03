@@ -1,4 +1,4 @@
-import { File } from '@app/condo/schema'
+import { File as FileSchema } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Upload } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
@@ -6,13 +6,18 @@ import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { buildMeta, upload as uploadFiles } from '@open-condo/files'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { ChevronLeft, ChevronRight, Eye, PlusCircle, Trash } from '@open-condo/icons'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/colors'
 
 import { shadows, transitions } from '@condo/domains/common/constants/style'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
+
+import type { RcFile } from 'antd/es/upload/interface'
 
 
 const UploadWrapper = styled.div<{ imageSize: number }>`
@@ -110,7 +115,22 @@ export type UploadFileType = {
 
 export type DBFile = {
     id: string
-    file?: File
+    file?: FileSchema
+}
+
+const FILE_UPLOAD_MODEL = 'MarketItemFile'
+
+const ALLOWED_IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/heic']
+
+function getAllowedMimetype (type: string | undefined): string {
+    if (type && ALLOWED_IMAGE_MIME_TYPES.includes(type)) return type
+    return 'image/jpeg'
+}
+
+type NewFlowFileInput = {
+    signature: string
+    originalFilename: string
+    mimetype?: string
 }
 
 type ImagesUploadListProps = {
@@ -119,8 +139,10 @@ type ImagesUploadListProps = {
     hideArrows?: boolean
     defaultFileList?: UploadFileType[]
     fileList?: UploadFileType[]
-    createAction?: ({ file }: { file: UploadFile }) => Promise<DBFile>
+    createAction?: ({ file }: { file: UploadFile | NewFlowFileInput }) => Promise<DBFile>
     imageSize?: number
+    fileClientId?: string
+    organizationId?: string
 }
 
 export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
@@ -131,8 +153,11 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
     fileList,
     createAction,
     imageSize = 80,
+    fileClientId,
+    organizationId,
 }) => {
     const intl = useIntl()
+    const { user } = useAuth()
     const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' },
         { maxSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024) })
     const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })
@@ -237,7 +262,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                     }}
                     defaultFileList={defaultFileList}
                     fileList={fileList || files}
-                    customRequest={(options) => {
+                    customRequest={async (options) => {
                         const { onSuccess, onError } = options
                         const file = options.file as UploadFile
 
@@ -252,13 +277,60 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                             return
                         }
 
-                        return createAction({ file }).then(dbFile  => {
-                            onSuccess({ id: dbFile.id, url: get(dbFile, 'file.publicUrl') }, null)
-                        }).catch(err => {
+                        try {
+                            let fileInput: UploadFile | NewFlowFileInput
+                            // options.file может быть RcFile (нативный File) или UploadFile; у File нет originFileObj
+                            const NativeFile = typeof globalThis !== 'undefined' ? globalThis.File : undefined
+                            const fileToUpload: File | RcFile | undefined = (NativeFile && file instanceof NativeFile)
+                                ? file
+                                : (file?.originFileObj as RcFile | undefined)
+
+                            if (fileClientId && user?.id && fileToUpload) {
+                                try {
+                                    const senderInfo = getClientSideSenderInfo()
+                                    const uploadResult = await uploadFiles({
+                                        files: [fileToUpload as File],
+                                        meta: buildMeta({
+                                            userId: user.id,
+                                            fileClientId,
+                                            modelNames: [FILE_UPLOAD_MODEL],
+                                            fingerprint: senderInfo.fingerprint,
+                                            organizationId,
+                                        }),
+                                    })
+
+                                    const uploadedFile = uploadResult.files?.[0]
+                                    if (uploadedFile?.signature) {
+                                        fileInput = {
+                                            signature: uploadedFile.signature,
+                                            originalFilename: fileToUpload.name,
+                                            mimetype: getAllowedMimetype(fileToUpload.type),
+                                        }
+                                    } else {
+                                        fileInput = file
+                                    }
+                                } catch {
+                                    fileInput = file
+                                }
+                            } else if (fileClientId && user?.id && !fileToUpload) {
+                                return createAction({ file }).then(dbFile => {
+                                    onSuccess({ id: dbFile.id, url: get(dbFile, 'file.publicUrl') }, file)
+                                }).catch(err => {
+                                    const error = new Error(UploadFailedErrorMessage)
+                                    console.error('Upload failed', err)
+                                    onError(error)
+                                })
+                            } else {
+                                fileInput = file
+                            }
+
+                            const dbFile = await createAction({ file: fileInput })
+                            onSuccess({ id: dbFile.id, url: get(dbFile, 'file.publicUrl') }, file)
+                        } catch (err) {
                             const error = new Error(UploadFailedErrorMessage)
                             console.error('Upload failed', err)
                             onError(error)
-                        })
+                        }
                     }}
                     onPreview={handlePreview}
                 >
