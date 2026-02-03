@@ -57,6 +57,9 @@ export const UserSettingsContent: React.FC = () => {
     const SendDisableSPPRequestConfirmButtonText = intl.formatMessage({ id: 'pages.condo.profile.sendDisableSPPRequestConfirmButtonText' })
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'Email' })
+    const InternationalCompanyName = intl.formatMessage({ id: 'CompanyName.international' })
+    const NotVerifiedEmailTooltipMessage = intl.formatMessage({ id: 'pages.condo.profile.2FA.tooltip.notVerifiedEmail' }, { companyName: InternationalCompanyName })
+    const NotVerifiedPhoneTooltipMessage = intl.formatMessage({ id: 'pages.condo.profile.2FA.tooltip.notVerifiedPhone' })
 
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
@@ -64,15 +67,27 @@ export const UserSettingsContent: React.FC = () => {
 
     const { user, refetch } = useAuth()
 
-    const TwoFATooltipMessage = useMemo(() => {
-        const factors = [
-            (!user?.email || !user?.isEmailVerified) && EmailMessage.toLowerCase(),
-            (!user?.phone || !user?.isPhoneVerified) && PhoneMessage.toLowerCase(),
-        ].filter(Boolean).join(', ')
-        return intl.formatMessage({ id: 'pages.condo.profile.2FA.tooltip' }, {
-            factors,
-        })
-    }, [intl, user?.email, user?.isEmailVerified, user?.isPhoneVerified, user?.phone, EmailMessage, PhoneMessage])
+    const EmptyFactorsTooltipMessage = useMemo(() => {
+        if (!user?.email || !user?.phone) {
+            const factors = [
+                (!user?.email) && EmailMessage.toLowerCase(),
+                (!user?.phone) && PhoneMessage.toLowerCase(),
+            ].filter(Boolean).join(', ')
+            return intl.formatMessage({ id: 'pages.condo.profile.2FA.tooltip.emptyFactors' }, {
+                factors,
+            })
+        }
+
+        if (!user?.isEmailVerified) {
+            return NotVerifiedEmailTooltipMessage
+        }
+
+        if (!user?.isPhoneVerified) {
+            return NotVerifiedPhoneTooltipMessage
+        }
+
+        return null
+    }, [user?.email, user?.phone, user?.isEmailVerified, user?.isPhoneVerified, EmailMessage, PhoneMessage, intl, NotVerifiedEmailTooltipMessage, NotVerifiedPhoneTooltipMessage])
 
     const [showGlobalHints, setShowGlobalHints] = useState<boolean>(false)
     const [hasMarketingConsent, setMarketingConsent] = useState<boolean>(false)
@@ -394,7 +409,7 @@ export const UserSettingsContent: React.FC = () => {
                                         </Typography.Text>
                                     </Col>
                                     <Col lg={5} offset={1}>
-                                        <Tooltip title={is2FADisabled ? TwoFATooltipMessage : null}>
+                                        <Tooltip title={is2FADisabled ? EmptyFactorsTooltipMessage : null}>
                                             <Switch
                                                 checked={is2FAEnabled}
                                                 onChange={handle2FAEnabledChange}

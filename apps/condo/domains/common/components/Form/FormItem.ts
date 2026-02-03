@@ -8,7 +8,7 @@ export const FormItem = styled(Form.Item)`
 
     label {
       height: auto;
-      white-space: nowrap;
+      white-space: wrap;
     }
   }
   

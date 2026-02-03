@@ -15,6 +15,7 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sende
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Input, Space, Radio, Modal, Button } from '@open-condo/ui'
 
+import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { NOT_NUMBER_REGEX } from '@condo/domains/common/constants/regexps'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
@@ -306,46 +307,54 @@ export const useSecondFactor = ({
 
                             {
                                 availableSecondFactors?.includes('confirmPhoneToken') && currentSecondFactor === 'confirmPhoneToken' && (
-                                    <Row>
+                                    <Row gutter={[0, 24]}>
                                         <Col span={24}>
-                                            <Typography.Text>{ConfirmPhoneTokenDescription.replace('{phone}', formatPhone(userMaskedData?.phone || '', true))}</Typography.Text>
-                                            <Form.Item
+                                            <FormItem
                                                 required={false}
                                                 name='confirmPhoneCode'
+                                                label={ConfirmPhoneTokenDescription.replace('{phone}', formatPhone(userMaskedData?.phone || '', true))}
                                             >
                                                 <Input maxLength={4} onChange={handleChangeSecondFactorInput} />
-                                            </Form.Item>
+                                            </FormItem>
                                         </Col>
                                         <Col span={24}>
-                                            <Typography.Link onClick={startConfirmPhoneAction}>{SendPhoneCodeAgainMessage}</Typography.Link>
-                                        </Col>
-                                        <Col span={24}>
-                                            <Typography.Link onClick={() => {
-                                                setProblemsModalType('phone')
-                                            }}>{PhoneProblemsMessage}</Typography.Link>
+                                            <Row gutter={[0, 4]}>
+                                                <Col span={24}>
+                                                    <Typography.Link onClick={startConfirmPhoneAction}>{SendPhoneCodeAgainMessage}</Typography.Link>
+                                                </Col>
+                                                <Col span={24}>
+                                                    <Typography.Link onClick={() => {
+                                                        setProblemsModalType('phone')
+                                                    }}>{PhoneProblemsMessage}</Typography.Link>
+                                                </Col>
+                                            </Row>
                                         </Col>
                                     </Row>
                                 )
                             }
                             {
                                 availableSecondFactors?.includes('confirmEmailToken') && currentSecondFactor === 'confirmEmailToken' && (
-                                    <Row>
+                                    <Row gutter={[0, 24]}>
                                         <Col span={24}>
-                                            <Typography.Text>{ConfirmEmailTokenDescription.replace('{email}', userMaskedData?.email || '')}</Typography.Text>
-                                            <Form.Item
+                                            <FormItem
                                                 required={false}
                                                 name='confirmEmailCode'
+                                                label={ConfirmEmailTokenDescription.replace('{email}', userMaskedData?.email || '')}
                                             >
                                                 <Input maxLength={4} onChange={handleChangeSecondFactorInput} />
-                                            </Form.Item>
+                                            </FormItem>
                                         </Col>
                                         <Col span={24}>
-                                            <Typography.Link onClick={startConfirmEmailAction}>{SendEmailCodeAgainMessage}</Typography.Link>
-                                        </Col>
-                                        <Col span={24}>
-                                            <Typography.Link onClick={() => {
-                                                setProblemsModalType('email')
-                                            }}>{EmailProblemsMessage}</Typography.Link>
+                                            <Row gutter={[0, 4]}>
+                                                <Col span={24}>
+                                                    <Typography.Link onClick={startConfirmEmailAction}>{SendEmailCodeAgainMessage}</Typography.Link>
+                                                </Col>
+                                                <Col span={24}>
+                                                    <Typography.Link onClick={() => {
+                                                        setProblemsModalType('email')
+                                                    }}>{EmailProblemsMessage}</Typography.Link>
+                                                </Col>
+                                            </Row>
                                         </Col>
                                     </Row>
                                 )
@@ -357,12 +366,12 @@ export const useSecondFactor = ({
                                             <Row>
                                                 <Col span={24}>
                                                     <Typography.Text>{PasswordDescription}</Typography.Text>
-                                                    <Form.Item
+                                                    <FormItem
                                                         required={false}
                                                         name='password'
                                                     >
                                                         <Input.Password />
-                                                    </Form.Item>
+                                                    </FormItem>
                                                 </Col>
                                                 <Col span={24}>
                                                     <Typography.Link
