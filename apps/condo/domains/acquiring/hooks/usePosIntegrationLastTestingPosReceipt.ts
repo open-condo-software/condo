@@ -36,7 +36,8 @@ export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrat
         },
     )
 
-    const baseUrl = b2bAppContextsResult?.contexts?.[0]?.app?.posIntegrationConfig?.fetchLastPosReceiptUrl
+    const b2bAppContext = b2bAppContextsResult?.contexts?.[0]
+    const baseUrl = b2bAppContext?.app?.posIntegrationConfig?.fetchLastPosReceiptUrl
 
     const fetchLastTestingPosReceipt = useCallback(async () => {
         if (!baseUrl) {
@@ -74,6 +75,7 @@ export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrat
     }, [areB2bAppContextsLoading, organization?.id, skipUntilAuthenticated, fetchLastTestingPosReceipt])
 
     return {
+        b2bAppContext,
         lastTestingPosReceipt,
         loading: areB2bAppContextsLoading || loading,
         refetch: fetchLastTestingPosReceipt,
