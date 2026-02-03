@@ -183,7 +183,7 @@ class RedStoreAdapter {
                     if (!isEmpty(result.responses)) {
                         result.responses = result.responses.map(
                             (response, idx) => {
-                                const pushToken = notifications[idx].token
+                                const pushToken = notificationsBatchForApp[idx].token
                                 return {
                                     ...response,
                                     pushToken,
