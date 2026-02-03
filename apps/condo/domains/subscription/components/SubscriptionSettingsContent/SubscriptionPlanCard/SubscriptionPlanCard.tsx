@@ -18,8 +18,9 @@ import { Card, Typography, Space, Button, Tooltip, Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
-import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID } from '@condo/domains/common/constants/featureflags'
+import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, SUBSCRIPTION_PAYMENT_MODAL } from '@condo/domains/common/constants/featureflags'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+import { useSubscriptionPaymentModal } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
 
 import styles from './SubscriptionPlanCard.module.css'
 
@@ -168,11 +169,13 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const RequestPendingMessage = intl.formatMessage({ id: 'subscription.planCard.requestPending' })
     const SubmitRequestMessage = intl.formatMessage({ id: 'subscription.planCard.submitRequest' })
     const BuyMessage = intl.formatMessage({ id: 'subscription.planCard.buy' })
+    const PayMessage = intl.formatMessage({ id: 'subscription.planCard.pay' })
     const FeaturesTitle = intl.formatMessage({ id: 'subscription.features.title' })
     const FreeForPartnerMessage = intl.formatMessage({ id: 'subscription.planCard.freeForPartner' })
 
     const { organization, role } = useOrganization()
     const { useFlagValue } = useFeatureFlags()
+    const usePaymentModal = useFlagValue(SUBSCRIPTION_PAYMENT_MODAL)
 
     const { plan, prices } = planInfo
     const price = prices?.[0]
@@ -199,7 +202,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
     const [trialActivateLoading, setTrialActivateLoading] = useState<boolean>(false)
 
-    const handleActivePlanClick = useCallback(async () => {
+    const handleActivatePlanForModal = useCallback(async () => {
         if (!price?.id) return
 
         setActivateLoading(true)
@@ -215,6 +218,33 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             setActivateLoading(false)
         }
     }, [handleActivatePlan, price?.id, plan.name, plan.trialDays, isCustomPrice])
+
+    const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
+        handleActivatePlan: handleActivatePlanForModal,
+        activateLoading,
+    })
+
+    const handleActivePlanClick = useCallback(async () => {
+        if (!price?.id) return
+
+        if (usePaymentModal && !isCustomPrice) {
+            openPaymentModal()
+            return
+        }
+
+        setActivateLoading(true)
+        try {
+            await handleActivatePlan({
+                priceId: price.id,
+                isTrial: false,
+                planName: plan.name,
+                trialDays: plan.trialDays,
+                isCustomPrice,
+            })
+        } finally {
+            setActivateLoading(false)
+        }
+    }, [handleActivatePlan, price?.id, plan.name, plan.trialDays, isCustomPrice, usePaymentModal, openPaymentModal])
 
     const handleTrialActivateClick = useCallback(async () => {
         if (!price?.id) return
@@ -244,7 +274,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     ), [plan])
 
     const hasPendingRequest = !!pendingRequest
-    const primaryButtonLabel = hasPendingRequest ? RequestPendingMessage : (isCustomPrice ? SubmitRequestMessage : BuyMessage)
+    const primaryButtonLabel = hasPendingRequest ? RequestPendingMessage : (isCustomPrice ? SubmitRequestMessage : (usePaymentModal ? PayMessage : BuyMessage))
     const canManageSubscriptions = role?.canManageSubscriptions
 
     const cardClassName = classnames(
@@ -255,100 +285,105 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     )
 
     return (
-        <Card className={cardClassName}>
-            <Space size={24} direction='vertical'>
-                <div className={styles.mainContent}>
-                    <Space size={60} direction='vertical'>
-                        <Space size={12} direction='vertical'>
-                            <Space size={4} direction='horizontal' className={styles.header} width='100%'>
-                                <Typography.Title level={3}>
-                                    {plan.name} {emoji ? emoji : ''}
-                                </Typography.Title>
-                                <SubscriptionPlanBadge 
-                                    plan={plan}
-                                    activatedTrial={activatedTrial}
-                                />
-                            </Space>
-                            <div className={styles.description}>
-                                <Typography.Paragraph type='secondary'>
-                                    {plan.description}
-                                </Typography.Paragraph>
-                            </div>
-                        </Space>
-                        <Space size={24} direction='vertical'>
-                            <Space size={4} direction='vertical'>
-                                <Space size={4} direction='horizontal'>
+        <>
+            {usePaymentModal && PaymentModal}
+            <Card className={cardClassName}>
+                <Space size={24} direction='vertical'>
+                    <div className={styles.mainContent}>
+                        <Space size={60} direction='vertical'>
+                            <Space size={12} direction='vertical'>
+                                <Space size={4} direction='horizontal' className={styles.header} width='100%'>
                                     <Typography.Title level={3}>
-                                        {isFreeForPartner ? FreeForPartnerMessage : (isCustomPrice ? price.name : `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`)}
+                                        {plan.name} {emoji ? emoji : ''}
                                     </Typography.Title>
-                                    {!isCustomPrice && !isFreeForPartner && (
-                                        <Typography.Text type='secondary'>
-                                            / {PeriodMessage}
-                                        </Typography.Text>
-                                    )}
-                                </Space>
-                            </Space>
-                            {!isFreeForPartner && (
-                                <div className={styles.buttons}>
-                                    <Button
-                                        type='primary'
-                                        onClick={handleActivePlanClick}
-                                        loading={activateLoading}
-                                        disabled={hasPendingRequest || !price?.id || !canManageSubscriptions}
-                                    >
-                                        {primaryButtonLabel}
-                                    </Button>
-                                    {canActivateTrial && (
-                                        <Button
-                                            type='accent'
-                                            onClick={handleTrialActivateClick} 
-                                            loading={trialActivateLoading}
-                                            disabled={!canManageSubscriptions}
-                                        >
-                                            {TryFreeMessage}
-                                        </Button>
-                                    )}
-                                </div>
-                            )}
-                        </Space>
-                    </Space>
-                </div>
-                <Collapse
-                    ghost
-                    className={styles.collapse}
-                    expandIcon={({ isActive }) => (
-                        <span className={classnames(styles.collapseIcon, { [styles.collapseIconActive]: isActive })}>
-                            <ChevronDown size='small' />
-                        </span>
-                    )}
-                >
-                    <Panel
-                        header={<Typography.Text strong>{FeaturesTitle}</Typography.Text>}
-                        key='features'
-                    >
-                        <Space direction='vertical' size={8}>
-                            {BASE_FEATURES.map(renderFeature)}
-                            {allB2BAppIds.map((appId) => {
-                                const app = b2bAppsMap.get(appId)
-                                if (!app || !app.name) return null
-
-                                const enabledApps = plan.enabledB2BApps || []
-                                const isAvailable = enabledApps.includes(appId)
-
-                                return (
-                                    <FeatureItem
-                                        key={appId}
-                                        label={app.name}
-                                        available={isAvailable}
-                                        helpLink={subscriptionFeatureHelpLinks[appId]}
+                                    <SubscriptionPlanBadge 
+                                        plan={plan}
+                                        activatedTrial={activatedTrial}
                                     />
-                                )
-                            })}
-                            {PREMIUM_FEATURES.map(renderFeature)}
+                                </Space>
+                                <div className={styles.description}>
+                                    <Typography.Paragraph type='secondary'>
+                                        {plan.description}
+                                    </Typography.Paragraph>
+                                </div>
+                            </Space>
+                            <Space size={24} direction='vertical'>
+                                <Space size={4} direction='vertical'>
+                                    <Space size={4} direction='horizontal'>
+                                        <Typography.Title level={3}>
+                                            {isFreeForPartner ? FreeForPartnerMessage : (isCustomPrice ? price.name : `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`)}
+                                        </Typography.Title>
+                                        {!isCustomPrice && !isFreeForPartner && (
+                                            <Typography.Text type='secondary'>
+                                            / {PeriodMessage}
+                                            </Typography.Text>
+                                        )}
+                                    </Space>
+                                </Space>
+                                {!isFreeForPartner && (
+                                    <div className={styles.buttons}>
+                                        <Button
+                                            block
+                                            type='primary'
+                                            onClick={handleActivePlanClick}
+                                            loading={activateLoading}
+                                            disabled={hasPendingRequest || !price?.id || !canManageSubscriptions}
+                                        >
+                                            {primaryButtonLabel}
+                                        </Button>
+                                        {canActivateTrial && (
+                                            <Button
+                                                block
+                                                type='accent'
+                                                onClick={handleTrialActivateClick} 
+                                                loading={trialActivateLoading}
+                                                disabled={!canManageSubscriptions}
+                                            >
+                                                {TryFreeMessage}
+                                            </Button>
+                                        )}
+                                    </div>
+                                )}
+                            </Space>
                         </Space>
-                    </Panel>
-                </Collapse>
-            </Space>
-        </Card>
+                    </div>
+                    <Collapse
+                        ghost
+                        className={styles.collapse}
+                        expandIcon={({ isActive }) => (
+                            <span className={classnames(styles.collapseIcon, { [styles.collapseIconActive]: isActive })}>
+                                <ChevronDown size='small' />
+                            </span>
+                        )}
+                    >
+                        <Panel
+                            header={<Typography.Text strong>{FeaturesTitle}</Typography.Text>}
+                            key='features'
+                        >
+                            <Space direction='vertical' size={8}>
+                                {BASE_FEATURES.map(renderFeature)}
+                                {allB2BAppIds.map((appId) => {
+                                    const app = b2bAppsMap.get(appId)
+                                    if (!app || !app.name) return null
+
+                                    const enabledApps = plan.enabledB2BApps || []
+                                    const isAvailable = enabledApps.includes(appId)
+
+                                    return (
+                                        <FeatureItem
+                                            key={appId}
+                                            label={app.name}
+                                            available={isAvailable}
+                                            helpLink={subscriptionFeatureHelpLinks[appId]}
+                                        />
+                                    )
+                                })}
+                                {PREMIUM_FEATURES.map(renderFeature)}
+                            </Space>
+                        </Panel>
+                    </Collapse>
+                </Space>
+            </Card>
+        </>
     )
 }
