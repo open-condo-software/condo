@@ -3161,6 +3161,8 @@
   "subscription.paymentModal.cardSaveNotice": "Los datos de la tarjeta se guardarán para pagos posteriores. Puede eliminar la tarjeta en cualquier momento después del pago",
   "subscription.paymentModal.proceedToPayment": "Proceder al pago",
   "subscription.paymentModal.issueInvoice": "Emitir factura",
+  "subscription.payment.success.notification.title": "🎉 Felicitaciones por la compra del plan",
+  "subscription.payment.success.notification.description": "El plan se renovará automáticamente",
   "subscription.planCard.tryFree": "Probar por 0{currency}",
   "subscription.planCard.freeForPartner": "Gratis para clientes del banco",
   "subscription.promoBanner.title": "Conectar servicio bancario",

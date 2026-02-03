@@ -1,6 +1,8 @@
+import { notification } from 'antd'
 import getConfig from 'next/config'
 import Head from 'next/head'
-import React, { useMemo } from 'react'
+import { useRouter } from 'next/router'
+import React, { useMemo, useEffect } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
@@ -47,6 +49,7 @@ const ALWAYS_AVAILABLE_TABS = []
 
 const SettingsPage: PageComponentType = () => {
     const intl = useIntl()
+    const router = useRouter()
     const PageTitle = intl.formatMessage({ id: 'global.section.settings' })
     const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
     const DetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
@@ -55,6 +58,8 @@ const SettingsPage: PageComponentType = () => {
     const MobileFeatureConfigTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig' })
     const MarketSettingTitle = intl.formatMessage({ id: 'global.section.marketplace' })
     const SubscriptionsTitle = intl.formatMessage({ id: 'Subscriptions' })
+    const SuccessPaymentNotificationTitle = intl.formatMessage({ id: 'subscription.payment.success.notification.title' })
+    const SuccessPaymentNotificationDescription = intl.formatMessage({ id: 'subscription.payment.success.notification.description' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = useMemo(() => userOrganization?.organization?.id || null, [userOrganization])
@@ -141,6 +146,21 @@ const SettingsPage: PageComponentType = () => {
     const titleContent = useMemo(() => (
         <Typography.Title>{PageTitle}</Typography.Title>
     ), [PageTitle])
+
+    useEffect(() => {
+        if (router.query.successPayment === 'true') {
+            notification.success({
+                message: <Typography.Text strong size='large'>{SuccessPaymentNotificationTitle}</Typography.Text>,
+                description: SuccessPaymentNotificationDescription,
+            })
+
+            const { successPayment, ...restQuery } = router.query
+            router.replace({
+                pathname: router.pathname,
+                query: restQuery,
+            }, undefined, { shallow: true })
+        }
+    }, [router.query.successPayment, router, SuccessPaymentNotificationTitle, SuccessPaymentNotificationDescription])
 
     return (
         <>

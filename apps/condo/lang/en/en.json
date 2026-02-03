@@ -3161,6 +3161,8 @@
   "subscription.paymentModal.cardSaveNotice": "Card data will be saved for subsequent payment. You can delete the card at any time after payment",
   "subscription.paymentModal.proceedToPayment": "Proceed to payment",
   "subscription.paymentModal.issueInvoice": "Issue invoice",
+  "subscription.payment.success.notification.title": "🎉 Congratulations on purchasing the plan",
+  "subscription.payment.success.notification.description": "The plan will renew automatically",
   "subscription.planCard.tryFree": "Try for 0{currency}",
   "subscription.planCard.freeForPartner": "Free for bank clients",
   "subscription.promoBanner.title": "Connect Banking Service",
