@@ -114,6 +114,6 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
             } : undefined,
         }
 
-        return Object.values(columns)
+        return Object.values(columns).filter(Boolean)
     }, [filters, DepositedDateTitle, intl, TransferDateTitle, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode, options.posIntegrationContext, options.lastTestingPosReceipt, PosReceiptColumnTitle, PosReceiptLinkTitle, PosReceiptVerifyTitle, PosReceiptVerifyDescription])
 }
