@@ -125,7 +125,7 @@ export const useSubscriptionPaymentModal = ({
                                                     <Col span={24}>
                                                         <Row justify='center'>
                                                             <Col>
-                                                                <Typography.Title level={1} style={{ margin: 0 }}>
+                                                                <Typography.Title level={1}>
                                                                     {CARD_EMOJI}
                                                                 </Typography.Title>
                                                             </Col>
@@ -134,7 +134,7 @@ export const useSubscriptionPaymentModal = ({
                                                     <Col span={24}>
                                                         <Row justify='center'>
                                                             <Col>
-                                                                <Typography.Paragraph style={{ margin: 0, textAlign: 'center' }}>
+                                                                <Typography.Paragraph>
                                                                     {CardOnlineMessage}
                                                                 </Typography.Paragraph>
                                                             </Col>
@@ -145,7 +145,7 @@ export const useSubscriptionPaymentModal = ({
                                             : (
                                                 <Row justify='center' align='middle' gutter={[8, 0]}>
                                                     <Col>
-                                                        <Typography.Title level={3} style={{ margin: 0 }}>
+                                                        <Typography.Title level={3}>
                                                             {CARD_EMOJI}
                                                         </Typography.Title>
                                                     </Col>
@@ -173,7 +173,7 @@ export const useSubscriptionPaymentModal = ({
                                                     <Col span={24}>
                                                         <Row justify='center'>
                                                             <Col>
-                                                                <Typography.Title level={1} style={{ margin: 0 }}>
+                                                                <Typography.Title level={1}>
                                                                     {INVOICE_EMOJI}
                                                                 </Typography.Title>
                                                             </Col>
@@ -182,7 +182,7 @@ export const useSubscriptionPaymentModal = ({
                                                     <Col span={24}>
                                                         <Row justify='center'>
                                                             <Col>
-                                                                <Typography.Paragraph style={{ margin: 0, textAlign: 'center' }}>
+                                                                <Typography.Paragraph>
                                                                     {InvoiceMessage}
                                                                 </Typography.Paragraph>
                                                             </Col>
@@ -193,7 +193,7 @@ export const useSubscriptionPaymentModal = ({
                                             : (
                                                 <Row justify='center' align='middle' gutter={[8, 0]}>
                                                     <Col>
-                                                        <Typography.Title level={3} style={{ margin: 0 }}>
+                                                        <Typography.Title level={3}>
                                                             {INVOICE_EMOJI}
                                                         </Typography.Title>
                                                     </Col>
