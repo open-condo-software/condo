@@ -20,11 +20,27 @@ async function canReadSubscriptionContexts ({ authentication: { item: user }, co
     }
 }
 
-async function canManageSubscriptionContexts ({ authentication: { item: user } }) {
+async function canManageSubscriptionContexts ({ authentication: { item: user }, context, operation, originalInput, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return user.isAdmin || user.isSupport
+    if (user.isAdmin || user.isSupport) return true
+
+    // For update operations, allow employees with canManageSubscriptions to update paymentMethod field only
+    if (operation === 'update') {
+        const updatedFields = Object.keys(originalInput || {}).filter(key => !['dv', 'sender'].includes(key))
+        const isOnlyPaymentMethodUpdate = updatedFields.length === 1 && updatedFields[0] === 'paymentMethod'
+        
+        if (isOnlyPaymentMethodUpdate && itemId) {
+            const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canManageSubscriptions')
+            
+            return {
+                organization: { id_in: permittedOrganizations },
+            }
+        }
+    }
+
+    return false
 }
 
 module.exports = {

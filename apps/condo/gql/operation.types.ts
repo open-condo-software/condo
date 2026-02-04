@@ -832,6 +832,14 @@ export type GetSubscriptionContextByIdQueryVariables = Types.Exact<{
 
 export type GetSubscriptionContextByIdQuery = { __typename?: 'Query', subscriptionContext?: { __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, startAt?: string | null, endAt?: string | null, daysRemaining?: number | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, priority?: number | null, canBePromoted?: boolean | null } | null } | null };
 
+export type UpdateSubscriptionContextPaymentMethodMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.SubscriptionContextUpdateInput;
+}>;
+
+
+export type UpdateSubscriptionContextPaymentMethodMutation = { __typename?: 'Mutation', subscriptionContext?: { __typename?: 'SubscriptionContext', id: string, paymentMethod?: any | null } | null };
+
 export type GetPendingSubscriptionRequestsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
 }>;

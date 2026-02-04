@@ -5228,6 +5228,41 @@ export type GetSubscriptionContextByIdQueryHookResult = ReturnType<typeof useGet
 export type GetSubscriptionContextByIdLazyQueryHookResult = ReturnType<typeof useGetSubscriptionContextByIdLazyQuery>;
 export type GetSubscriptionContextByIdSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionContextByIdSuspenseQuery>;
 export type GetSubscriptionContextByIdQueryResult = Apollo.QueryResult<Types.GetSubscriptionContextByIdQuery, Types.GetSubscriptionContextByIdQueryVariables>;
+export const UpdateSubscriptionContextPaymentMethodDocument = gql`
+    mutation updateSubscriptionContextPaymentMethod($id: ID!, $data: SubscriptionContextUpdateInput!) {
+  subscriptionContext: updateSubscriptionContext(id: $id, data: $data) {
+    id
+    paymentMethod
+  }
+}
+    `;
+export type UpdateSubscriptionContextPaymentMethodMutationFn = Apollo.MutationFunction<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>;
+
+/**
+ * __useUpdateSubscriptionContextPaymentMethodMutation__
+ *
+ * To run a mutation, you first call `useUpdateSubscriptionContextPaymentMethodMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSubscriptionContextPaymentMethodMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSubscriptionContextPaymentMethodMutation, { data, loading, error }] = useUpdateSubscriptionContextPaymentMethodMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateSubscriptionContextPaymentMethodMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>(UpdateSubscriptionContextPaymentMethodDocument, options);
+      }
+export type UpdateSubscriptionContextPaymentMethodMutationHookResult = ReturnType<typeof useUpdateSubscriptionContextPaymentMethodMutation>;
+export type UpdateSubscriptionContextPaymentMethodMutationResult = Apollo.MutationResult<Types.UpdateSubscriptionContextPaymentMethodMutation>;
+export type UpdateSubscriptionContextPaymentMethodMutationOptions = Apollo.BaseMutationOptions<Types.UpdateSubscriptionContextPaymentMethodMutation, Types.UpdateSubscriptionContextPaymentMethodMutationVariables>;
 export const GetPendingSubscriptionRequestsDocument = gql`
     query getPendingSubscriptionRequests($organizationId: ID!) {
   pendingRequests: allUserHelpRequests(

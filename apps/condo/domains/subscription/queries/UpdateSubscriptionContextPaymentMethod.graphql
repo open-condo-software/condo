@@ -1,0 +1,6 @@
+mutation updateSubscriptionContextPaymentMethod($id: ID!, $data: SubscriptionContextUpdateInput!) {
+    subscriptionContext: updateSubscriptionContext(id: $id, data: $data) {
+        id
+        paymentMethod
+    }
+}

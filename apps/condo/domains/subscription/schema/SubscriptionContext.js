@@ -114,6 +114,31 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
+        paymentMethod: {
+            schemaDoc: 'Payment method used for this subscription. Contains id, type, cardMask, cardType, and title',
+            type: 'Json',
+            isRequired: false,
+            access: {
+                read: true,
+                create: true,
+                update: true,
+            },
+        },
+
+        pricingRule: {
+            schemaDoc: 'Reference to the pricing rule applied to this subscription',
+            type: 'Relationship',
+            ref: 'SubscriptionPlanPricingRule',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
+        },
+
         daysRemaining: {
             schemaDoc: 'Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired',
             type: 'Virtual',

@@ -9,7 +9,6 @@ const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema'
 
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionPlanService')
 const { PERIOD_TO_MONTHS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
@@ -134,26 +133,15 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                             endAt: endAt.format('YYYY-MM-DD'),
                             basePrice: pricingRule.price,
                             isTrial: false,
+                            pricingRule: { connect: { id: pricingRule.id } },
+                            paymentMethod: paymentMethod ? {
+                                id: paymentMethod.id,
+                                type: paymentMethod.type,
+                                cardMask: paymentMethod.cardMask,
+                                cardType: paymentMethod.cardType,
+                                title: paymentMethod.title,
+                            } : undefined,
                         })
-                        
-                        if (paymentMethod) {
-                            const organizationMeta = organization.meta || {}
-                            await Organization.update(context, organization.id, {
-                                dv,
-                                sender,
-                                meta: {
-                                    ...organizationMeta,
-                                    paymentMethod: {
-                                        id: paymentMethod.id,
-                                        type: paymentMethod.type,
-                                        cardMask: paymentMethod.cardMask,
-                                        cardType: paymentMethod.cardType,
-                                        title: paymentMethod.title,
-                                    },
-                                    pricingRule: pricingRule.id,
-                                },
-                            })
-                        }
                         
                         const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
                         return { subscriptionContext, userHelpRequest: null }

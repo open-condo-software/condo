@@ -59433,6 +59433,8 @@ type SubscriptionContextHistoryRecord {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
+  paymentMethod: JSON
+  pricingRule: String
   id: ID!
   v: Int
   createdAt: String
@@ -59497,6 +59499,14 @@ input SubscriptionContextHistoryRecordWhereInput {
   appliedRules_not_in: [JSON]
   isTrial: Boolean
   isTrial_not: Boolean
+  paymentMethod: JSON
+  paymentMethod_not: JSON
+  paymentMethod_in: [JSON]
+  paymentMethod_not_in: [JSON]
+  pricingRule: String
+  pricingRule_not: String
+  pricingRule_in: [String]
+  pricingRule_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59617,6 +59627,8 @@ input SubscriptionContextHistoryRecordUpdateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
+  paymentMethod: JSON
+  pricingRule: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -59645,6 +59657,8 @@ input SubscriptionContextHistoryRecordCreateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
+  paymentMethod: JSON
+  pricingRule: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -59701,6 +59715,13 @@ type SubscriptionContext {
   """ Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays) 
   """
   isTrial: Boolean
+
+  """ Payment method used for this subscription. Contains id, type, cardMask, cardType, and title 
+  """
+  paymentMethod: JSON
+
+  """ Reference to the pricing rule applied to this subscription """
+  pricingRule: SubscriptionPlanPricingRule
 
   """ Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired 
   """
@@ -59773,6 +59794,12 @@ input SubscriptionContextWhereInput {
   appliedRules_not_in: [JSON]
   isTrial: Boolean
   isTrial_not: Boolean
+  paymentMethod: JSON
+  paymentMethod_not: JSON
+  paymentMethod_in: [JSON]
+  paymentMethod_not_in: [JSON]
+  pricingRule: SubscriptionPlanPricingRuleWhereInput
+  pricingRule_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59850,6 +59877,8 @@ enum SortSubscriptionContextsBy {
   calculatedPrice_DESC
   isTrial_ASC
   isTrial_DESC
+  pricingRule_ASC
+  pricingRule_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59877,6 +59906,8 @@ input SubscriptionContextUpdateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
+  paymentMethod: JSON
+  pricingRule: SubscriptionPlanPricingRuleRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -59902,6 +59933,8 @@ input SubscriptionContextCreateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
+  paymentMethod: JSON
+  pricingRule: SubscriptionPlanPricingRuleRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String

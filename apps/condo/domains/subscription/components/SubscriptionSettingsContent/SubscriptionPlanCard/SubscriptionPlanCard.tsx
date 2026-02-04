@@ -7,11 +7,12 @@ import {
 import { OrganizationFeature } from '@app/condo/schema'
 import { Collapse } from 'antd'
 import classnames from 'classnames'
+import dayjs from 'dayjs'
 import getConfig from 'next/config'
 import React, { useState, useCallback } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Unlock, Lock, QuestionCircle, ChevronDown } from '@open-condo/icons'
+import { Unlock, Lock, QuestionCircle, ChevronDown, CreditCard } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Card, Typography, Space, Button, Tooltip, Tag } from '@open-condo/ui'
@@ -20,6 +21,7 @@ import { colors } from '@open-condo/ui/colors'
 import { CURRENCY_SYMBOLS } from '@condo/domains/common/constants/currencies'
 import { ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, SUBSCRIPTION_PAYMENT_MODAL } from '@condo/domains/common/constants/featureflags'
 import { useOrganizationSubscription } from '@condo/domains/subscription/hooks'
+import { useLinkedCardsModal } from '@condo/domains/subscription/hooks/useLinkedCardsModal'
 import { useSubscriptionPaymentModal } from '@condo/domains/subscription/hooks/useSubscriptionPaymentModal'
 
 import styles from './SubscriptionPlanCard.module.css'
@@ -224,6 +226,8 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         activateLoading,
     })
 
+    const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal()
+
     const handleActivePlanClick = useCallback(async () => {
         if (!price?.id) return
 
@@ -277,6 +281,23 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const primaryButtonLabel = hasPendingRequest ? RequestPendingMessage : (isCustomPrice ? SubmitRequestMessage : (usePaymentModal ? PayMessage : BuyMessage))
     const canManageSubscriptions = role?.canManageSubscriptions
 
+    const { subscriptionContext: activeSubscriptionContext } = useOrganizationSubscription()
+    const isActivePlan = activeSubscriptionContext?.subscriptionPlan?.id === plan?.id
+    const isActivePlanWithPaymentMethod = isActivePlan && hasPaymentMethod
+
+    const LinkedCardsLinkLabel = intl.formatMessage({ id: 'subscription.linkedCards.link' })
+    
+    const chargeDate = activeSubscriptionContext?.endAt ? dayjs(activeSubscriptionContext.endAt).format('D MMMM YYYY') : null
+    const ChargeDateMessage = chargeDate && !isCustomPrice && !isFreeForPartner
+        ? intl.formatMessage(
+            { id: 'subscription.planCard.chargeDate' },
+            { 
+                price: `${formattedPrice} ${CURRENCY_SYMBOLS[price?.currencyCode]}`,
+                date: chargeDate,
+            }
+        )
+        : null
+
     const cardClassName = classnames(
         styles.subscriptionPlanCard,
         {
@@ -287,6 +308,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     return (
         <>
             {usePaymentModal && PaymentModal}
+            {LinkedCardsModal}
             <Card className={cardClassName}>
                 <Space size={24} direction='vertical'>
                     <div className={styles.mainContent}>
@@ -319,6 +341,19 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                             </Typography.Text>
                                         )}
                                     </Space>
+                                    {isActivePlanWithPaymentMethod && ChargeDateMessage && (
+                                        <Space size={4} direction='vertical'>
+                                            <Typography.Text type='secondary'>
+                                                {ChargeDateMessage}
+                                            </Typography.Text>
+                                            <Typography.Link onClick={openLinkedCardsModal}>
+                                                <Space size={4} direction='horizontal' align='center'>
+                                                    <CreditCard size='small' />
+                                                    {LinkedCardsLinkLabel}
+                                                </Space>
+                                            </Typography.Link>
+                                        </Space>
+                                    )}
                                 </Space>
                                 {!isFreeForPartner && (
                                     <div className={styles.buttons}>
