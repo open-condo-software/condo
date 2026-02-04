@@ -1,4 +1,4 @@
-import { useGetAvailableSubscriptionPlansQuery } from '@app/condo/gql'
+import { useGetAvailableSubscriptionPlansQuery, useGetSubscriptionContextByIdQuery } from '@app/condo/gql'
 import getConfig from 'next/config'
 import { useMemo, useCallback } from 'react'
 
@@ -7,6 +7,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 
+import type { GetSubscriptionContextByIdQuery } from '@app/condo/gql/operation.types'
 import type { OrganizationSubscriptionFeatures } from '@app/condo/schema'
 import type { AvailableFeature } from '@condo/domains/subscription/constants/features'
 
@@ -15,40 +16,16 @@ const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
 type SubscriptionFeatures = OrganizationSubscriptionFeatures
 
-type SubscriptionPlan = {
-    id: string
-    name: SubscriptionFeatures['planName']
-    priority: SubscriptionFeatures['priority']
-    canBePromoted: SubscriptionFeatures['canBePromoted']
-}
-
-export type SubscriptionContext = {
-    subscriptionPlan: SubscriptionPlan | null
-    isTrial: SubscriptionFeatures['isTrial']
-    startAt: SubscriptionFeatures['startAt']
-    endAt: SubscriptionFeatures['endAt']
-    daysRemaining: SubscriptionFeatures['daysRemaining']
-}
+export type SubscriptionContext = GetSubscriptionContextByIdQuery['subscriptionContext']
 
 /**
  * Hook to get subscription features and context for the current organization.
  */
 export const useOrganizationSubscription = () => {
     const { organization, isLoading: orgLoading } = useOrganization()
-    const subscriptionFeatures = useMemo<SubscriptionFeatures | null>(() => {
-        if (!organization?.subscription) return null
-        return organization.subscription as SubscriptionFeatures
+    const subscriptionFeatures = useMemo<SubscriptionFeatures>(() => {
+        return organization?.subscription as SubscriptionFeatures
     }, [organization])
-
-    const normalizedDaysRemaining = useMemo<SubscriptionFeatures['daysRemaining']>(() => {
-        const value = subscriptionFeatures?.daysRemaining
-        if (value === null || value === undefined) return value
-
-        const numberValue = typeof value === 'number' ? value : Number(value)
-        if (!Number.isFinite(numberValue)) return null
-
-        return Math.trunc(numberValue)
-    }, [subscriptionFeatures?.daysRemaining])
 
     const { data: allPlansData, loading: plansLoading } = useGetAvailableSubscriptionPlansQuery({
         variables: {
@@ -61,27 +38,33 @@ export const useOrganizationSubscription = () => {
     const { useFlag } = useFeatureFlags()
     const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
 
+    const { data: contextData, loading: contextLoading } = useGetSubscriptionContextByIdQuery({
+        variables: {
+            id: subscriptionFeatures?.activeSubscriptionContextId || '',
+        },
+        skip: !subscriptionFeatures?.activeSubscriptionContextId || !enableSubscriptions || !hasSubscriptionsFlag,
+    })
+
     const subscriptionContext = useMemo<SubscriptionContext | null>(() => {
-        if (!subscriptionFeatures || !enableSubscriptions || !hasSubscriptionsFlag) return null
-        
-        return {
-            subscriptionPlan: subscriptionFeatures.planId ? {
-                id: subscriptionFeatures.planId,
-                name: subscriptionFeatures.planName,
-                priority: subscriptionFeatures.priority,
-                canBePromoted: subscriptionFeatures.canBePromoted,
-            } : null,
-            isTrial: subscriptionFeatures.isTrial,
-            startAt: subscriptionFeatures.startAt,
-            endAt: subscriptionFeatures.endAt,
-            daysRemaining: normalizedDaysRemaining,
-        }
-    }, [subscriptionFeatures, hasSubscriptionsFlag, normalizedDaysRemaining])
+        return contextData?.subscriptionContext || null
+    }, [contextData])
+
+    const daysRemaining = useMemo<number>(() => {
+        return Number(subscriptionFeatures?.daysRemaining) || 0
+    }, [subscriptionFeatures])
 
     const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
         if (!enableSubscriptions || !hasSubscriptionsFlag) return true
         if (!subscriptionFeatures) return false
-        return subscriptionFeatures[feature] === true
+        
+        const featureDate = subscriptionFeatures[feature]
+        if (featureDate === null) return false
+        if (typeof featureDate !== 'string') return false
+        
+        const expirationDate = new Date(featureDate)
+        const now = new Date()
+
+        return expirationDate > now
     }, [subscriptionFeatures, hasSubscriptionsFlag])
 
     const allEnabledB2BApps = useMemo(() => {
@@ -99,16 +82,17 @@ export const useOrganizationSubscription = () => {
         if (!subscriptionFeatures) return false
         if (!allEnabledB2BApps.has(appId)) return true
         
-        const currentEnabledApps = subscriptionFeatures.enabledB2BApps || []
+        const currentEnabledApps = subscriptionFeatures?.enabledB2BApps || []
         return currentEnabledApps.includes(appId)
     }, [subscriptionFeatures, allEnabledB2BApps, hasSubscriptionsFlag])
 
     return {
-        hasSubscription: !!subscriptionFeatures,
+        hasSubscription: daysRemaining > 0,
         isFeatureAvailable,
         isB2BAppEnabled,
         subscriptionContext,
-        loading: orgLoading || plansLoading,
+        daysRemaining,
+        loading: orgLoading || plansLoading || contextLoading,
         hasAvailablePlans,
     }
 }

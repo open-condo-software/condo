@@ -3544,13 +3544,7 @@ export const GetActiveOrganizationEmployeeDocument = gql`
         enabledB2BApps
         enabledB2CApps
         daysRemaining
-        planName
-        planId
-        isTrial
-        startAt
-        endAt
-        canBePromoted
-        priority
+        activeSubscriptionContextId
       }
     }
     role {
@@ -5184,6 +5178,56 @@ export type GetLastExpiredSubscriptionContextQueryHookResult = ReturnType<typeof
 export type GetLastExpiredSubscriptionContextLazyQueryHookResult = ReturnType<typeof useGetLastExpiredSubscriptionContextLazyQuery>;
 export type GetLastExpiredSubscriptionContextSuspenseQueryHookResult = ReturnType<typeof useGetLastExpiredSubscriptionContextSuspenseQuery>;
 export type GetLastExpiredSubscriptionContextQueryResult = Apollo.QueryResult<Types.GetLastExpiredSubscriptionContextQuery, Types.GetLastExpiredSubscriptionContextQueryVariables>;
+export const GetSubscriptionContextByIdDocument = gql`
+    query getSubscriptionContextById($id: ID!) {
+  subscriptionContext: SubscriptionContext(where: {id: $id}) {
+    id
+    subscriptionPlan {
+      id
+      name
+      priority
+      canBePromoted
+    }
+    isTrial
+    startAt
+    endAt
+    daysRemaining
+  }
+}
+    `;
+
+/**
+ * __useGetSubscriptionContextByIdQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionContextByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionContextByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionContextByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetSubscriptionContextByIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetSubscriptionContextByIdQuery, Types.GetSubscriptionContextByIdQueryVariables> & ({ variables: Types.GetSubscriptionContextByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetSubscriptionContextByIdQuery, Types.GetSubscriptionContextByIdQueryVariables>(GetSubscriptionContextByIdDocument, options);
+      }
+export function useGetSubscriptionContextByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetSubscriptionContextByIdQuery, Types.GetSubscriptionContextByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetSubscriptionContextByIdQuery, Types.GetSubscriptionContextByIdQueryVariables>(GetSubscriptionContextByIdDocument, options);
+        }
+export function useGetSubscriptionContextByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetSubscriptionContextByIdQuery, Types.GetSubscriptionContextByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetSubscriptionContextByIdQuery, Types.GetSubscriptionContextByIdQueryVariables>(GetSubscriptionContextByIdDocument, options);
+        }
+export type GetSubscriptionContextByIdQueryHookResult = ReturnType<typeof useGetSubscriptionContextByIdQuery>;
+export type GetSubscriptionContextByIdLazyQueryHookResult = ReturnType<typeof useGetSubscriptionContextByIdLazyQuery>;
+export type GetSubscriptionContextByIdSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionContextByIdSuspenseQuery>;
+export type GetSubscriptionContextByIdQueryResult = Apollo.QueryResult<Types.GetSubscriptionContextByIdQuery, Types.GetSubscriptionContextByIdQueryVariables>;
 export const GetPendingSubscriptionRequestsDocument = gql`
     query getPendingSubscriptionRequests($organizationId: ID!) {
   pendingRequests: allUserHelpRequests(

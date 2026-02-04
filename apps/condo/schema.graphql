@@ -6185,24 +6185,18 @@ enum OrganizationFeature {
 }
 
 type OrganizationSubscriptionFeatures {
-  payments: Boolean!
-  meters: Boolean!
-  tickets: Boolean!
-  news: Boolean!
-  marketplace: Boolean!
-  support: Boolean!
-  ai: Boolean!
-  customization: Boolean!
+  payments: String
+  meters: String
+  tickets: String
+  news: String
+  marketplace: String
+  support: String
+  ai: String
+  customization: String
   enabledB2BApps: [String!]!
   enabledB2CApps: [String!]!
   daysRemaining: Int
-  planName: String
-  planId: String
-  canBePromoted: Boolean
-  priority: Int
-  isTrial: Boolean
-  startAt: String
-  endAt: String
+  activeSubscriptionContextId: String
 }
 
 """ B2B customer of the service, a legal entity or an association of legal entities (holding/group) 
@@ -6281,7 +6275,7 @@ type Organization {
   """
   isApproved: Boolean
 
-  """ Subscription feature flags for this organization. Returns feature availability based on active subscription. If no subscription plans exist for organization type, returns all features enabled. Returns null if plans exist but no active subscription. 
+  """ Subscription information for this organization. Returns feature expiration dates (ISO strings or null), enabled apps from active contexts, days remaining, and active context ID. Features available until expiration date (exclusive). 
   """
   subscription: OrganizationSubscriptionFeatures
   id: ID!
@@ -75443,6 +75437,14 @@ type B2CAppProperty {
 
   """ Link to B2C App """
   app: B2CApp
+
+  """
+   Whether the B2C app is available at this address based on organization subscriptions. Returns true if one of the following is correct: 
+  1) There is no organizations at address; 
+  2) At least one organization has active subscription plan including this B2CApp and Property with matching addressKey; 
+  3) App is not restricted by any subscription plan for organizations at this address 
+  """
+  isAvailable: Boolean!
   id: ID!
 
   """ Normalized address """

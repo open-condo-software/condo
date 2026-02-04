@@ -7,7 +7,9 @@ const get = require('lodash/get')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { addressService } = require('@open-condo/keystone/plugins/addressService')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/B2CAppProperty')
@@ -16,6 +18,7 @@ const {
     INCORRECT_HOUSE_TYPE_ERROR,
 } = require('@condo/domains/miniapp/constants')
 const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
+const { isB2CAppAvailableForAddress } = require('@condo/domains/subscription/utils/b2cAppAvailability')
 
 const ERRORS = {
     INCORRECT_ADDRESS: {
@@ -50,6 +53,19 @@ const B2CAppProperty = new GQLListSchema('B2CAppProperty', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
             access: {
                 update: false,
+            },
+        },
+
+        isAvailable: {
+            schemaDoc: 'Whether the B2C app is available at this address based on organization subscriptions. ' +
+                'Returns true if one of the following is correct: \n' + 
+                '1) There is no organizations at address; \n' + 
+                '2) At least one organization has active subscription plan including this B2CApp and Property with matching addressKey; \n' +
+                '3) App is not restricted by any subscription plan for organizations at this address',
+            type: 'Virtual',
+            graphQLReturnType: 'Boolean!',
+            resolver: async (item, args, context) => {
+                return await isB2CAppAvailableForAddress(item.app, item.addressKey, context)
             },
         },
     },

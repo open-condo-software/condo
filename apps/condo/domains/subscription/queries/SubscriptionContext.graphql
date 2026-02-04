@@ -58,3 +58,19 @@ query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
         endAt
     }
 }
+
+query getSubscriptionContextById($id: ID!) {
+    subscriptionContext: SubscriptionContext(where: { id: $id }) {
+        id
+        subscriptionPlan {
+            id
+            name
+            priority
+            canBePromoted
+        }
+        isTrial
+        startAt
+        endAt
+        daysRemaining
+    }
+}

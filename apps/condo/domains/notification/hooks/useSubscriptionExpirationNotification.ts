@@ -36,9 +36,7 @@ interface SubscriptionExpirationNotification {
 export const useSubscriptionExpirationNotification = (): SubscriptionExpirationNotification => {
     const intl = useIntl()
     const { organization } = useOrganization()
-    const { subscriptionContext } = useOrganizationSubscription()
-
-    const daysRemaining = subscriptionContext?.daysRemaining ?? null
+    const { subscriptionContext, daysRemaining } = useOrganizationSubscription()
 
     const organizationId = organization?.id
 
