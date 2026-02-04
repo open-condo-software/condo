@@ -803,12 +803,28 @@ export type GetAvailableSubscriptionPlansQueryVariables = Types.Exact<{
 
 export type GetAvailableSubscriptionPlansQuery = { __typename?: 'Query', result?: { __typename?: 'GetAvailableSubscriptionPlansOutput', plans: Array<{ __typename?: 'AvailableSubscriptionPlan', plan: { __typename?: 'SubscriptionPlan', id: string, priority?: number | null, name?: string | null, description?: string | null, organizationType?: Types.SubscriptionPlanOrganizationTypeType | null, isHidden?: boolean | null, trialDays?: number | null, canBePromoted?: boolean | null, tickets?: boolean | null, meters?: boolean | null, payments?: boolean | null, news?: boolean | null, marketplace?: boolean | null, support?: boolean | null, ai?: boolean | null, enabledB2BApps?: any | null, enabledB2CApps?: any | null, customization?: boolean | null }, prices: Array<{ __typename?: 'SubscriptionPlanPrice', id: string, name: string, period: string, price?: string | null, currencyCode?: string | null }> } | null> } | null };
 
-export type GetOrganizationActivatedSubscriptionsQueryVariables = Types.Exact<{
-  organizationId: Types.Scalars['ID']['input'];
+export type GetOrganizationMetaQueryVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetOrganizationActivatedSubscriptionsQuery = { __typename?: 'Query', activatedSubscriptions?: Array<{ __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, endAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, priority?: number | null } | null } | null> | null };
+export type GetOrganizationMetaQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', id: string, meta?: any | null } | null };
+
+export type UpdateOrganizationPaymentMethodsMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.OrganizationUpdateInput;
+}>;
+
+
+export type UpdateOrganizationPaymentMethodsMutation = { __typename?: 'Mutation', organization?: { __typename?: 'Organization', id: string, meta?: any | null } | null };
+
+export type GetOrganizationActivatedSubscriptionsQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+  now: Types.Scalars['String']['input'];
+}>;
+
+
+export type GetOrganizationActivatedSubscriptionsQuery = { __typename?: 'Query', activatedSubscriptions?: Array<{ __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, endAt?: string | null, meta?: any | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, priority?: number | null } | null } | null> | null };
 
 export type GetOrganizationTrialSubscriptionsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
@@ -830,15 +846,15 @@ export type GetSubscriptionContextByIdQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetSubscriptionContextByIdQuery = { __typename?: 'Query', subscriptionContext?: { __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, startAt?: string | null, endAt?: string | null, daysRemaining?: number | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, priority?: number | null, canBePromoted?: boolean | null } | null } | null };
+export type GetSubscriptionContextByIdQuery = { __typename?: 'Query', subscriptionContext?: { __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, startAt?: string | null, endAt?: string | null, daysRemaining?: number | null, meta?: any | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, priority?: number | null, canBePromoted?: boolean | null } | null } | null };
 
-export type UpdateSubscriptionContextPaymentMethodMutationVariables = Types.Exact<{
+export type UpdateSubscriptionContextMetaMutationVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];
   data: Types.SubscriptionContextUpdateInput;
 }>;
 
 
-export type UpdateSubscriptionContextPaymentMethodMutation = { __typename?: 'Mutation', subscriptionContext?: { __typename?: 'SubscriptionContext', id: string, paymentMethod?: any | null } | null };
+export type UpdateSubscriptionContextMetaMutation = { __typename?: 'Mutation', context?: { __typename?: 'SubscriptionContext', id: string, meta?: any | null } | null };
 
 export type GetPendingSubscriptionRequestsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];

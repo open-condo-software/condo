@@ -26,12 +26,12 @@ async function canManageSubscriptionContexts ({ authentication: { item: user }, 
 
     if (user.isAdmin || user.isSupport) return true
 
-    // For update operations, allow employees with canManageSubscriptions to update paymentMethod field only
+    // For update operations, allow employees with canManageSubscriptions to update meta field only
     if (operation === 'update') {
         const updatedFields = Object.keys(originalInput || {}).filter(key => !['dv', 'sender'].includes(key))
-        const isOnlyPaymentMethodUpdate = updatedFields.length === 1 && updatedFields[0] === 'paymentMethod'
+        const isOnlyMetaUpdate = updatedFields.length === 1 && updatedFields[0] === 'meta'
         
-        if (isOnlyPaymentMethodUpdate && itemId) {
+        if (isOnlyMetaUpdate && itemId) {
             const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canManageSubscriptions')
             
             return {

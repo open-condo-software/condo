@@ -1,7 +1,8 @@
-query getOrganizationActivatedSubscriptions($organizationId: ID!) {
+query getOrganizationActivatedSubscriptions($organizationId: ID!, $now: String!) {
     activatedSubscriptions: allSubscriptionContexts(
         where: {
             organization: { id: $organizationId }
+            endAt_gte: $now
         }
         sortBy: [createdAt_DESC]
         first: 100
@@ -14,6 +15,7 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
         }
         isTrial
         endAt
+        meta
     }
 }
 
@@ -72,5 +74,13 @@ query getSubscriptionContextById($id: ID!) {
         startAt
         endAt
         daysRemaining
+        meta
+    }
+}
+
+mutation updateSubscriptionContextMeta($id: ID!, $data: SubscriptionContextUpdateInput!) {
+    context: updateSubscriptionContext(id: $id, data: $data) {
+        id
+        meta
     }
 }

@@ -13,17 +13,12 @@
 
 .main-content {
   min-height: 240px;
+  width: 100%;
 }
 
 .description {
   height: 72px;
   overflow: hidden;
-}
-
-.buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
 }
 
 .header {

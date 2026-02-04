@@ -283,20 +283,42 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
 
     const { subscriptionContext: activeSubscriptionContext } = useOrganizationSubscription()
     const isActivePlan = activeSubscriptionContext?.subscriptionPlan?.id === plan?.id
-    const isActivePlanWithPaymentMethod = isActivePlan && hasPaymentMethod
-
-    const LinkedCardsLinkLabel = intl.formatMessage({ id: 'subscription.linkedCards.link' })
     
-    const chargeDate = activeSubscriptionContext?.endAt ? dayjs(activeSubscriptionContext.endAt).format('D MMMM YYYY') : null
-    const ChargeDateMessage = chargeDate && !isCustomPrice && !isFreeForPartner
-        ? intl.formatMessage(
-            { id: 'subscription.planCard.chargeDate' },
-            { 
-                price: `${formattedPrice} ${CURRENCY_SYMBOLS[price?.currencyCode]}`,
-                date: chargeDate,
-            }
-        )
-        : null
+    const activatedContextForThisPlan = activatedSubscriptions.find(
+        ctx => ctx.subscriptionPlan?.id === plan?.id
+    )
+    
+    const contextPaymentMethodId = activatedContextForThisPlan?.meta?.paymentMethod?.id
+    const contextPricingRuleId = activatedContextForThisPlan?.meta?.pricingRuleId
+    const hasPaymentMethodForThisPlan = Boolean(
+        contextPaymentMethodId && 
+        hasPaymentMethod &&
+        organization?.meta?.paymentMethods?.some(pm => pm.id === contextPaymentMethodId && !pm.disabled) &&
+        activatedContextForThisPlan &&
+        contextPricingRuleId === price?.id
+    )
+    
+    const isActivePlanWithPaymentMethod = isActivePlan && hasPaymentMethodForThisPlan
+
+    const LinkedCardsLinkLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
+    
+    const endDate = activeSubscriptionContext?.endAt ? dayjs(activeSubscriptionContext.endAt) : null
+    const currentYear = dayjs().year()
+    const isCurrentYear = endDate?.year() === currentYear
+    const dateFormat = isCurrentYear ? 'D MMMM' : 'D MMMM YYYY'
+    const formattedDate = endDate ? endDate.format(dateFormat) : null
+    
+    const isNonTrialWithEndDate = !activeSubscriptionContext?.isTrial && endDate
+    const endsInLessThan10Years = endDate && endDate.diff(dayjs(), 'year') < 10
+    
+    let dateMessage = null
+    if (!isCustomPrice && !isFreeForPartner && formattedDate) {
+        if (hasPaymentMethodForThisPlan) {
+            dateMessage = intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: formattedDate })
+        } else if (isActivePlan && isNonTrialWithEndDate && endsInLessThan10Years) {
+            dateMessage = intl.formatMessage({ id: 'subscription.planCard.paidUntil' }, { date: formattedDate })
+        }
+    }
 
     const cardClassName = classnames(
         styles.subscriptionPlanCard,
@@ -310,9 +332,9 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             {usePaymentModal && PaymentModal}
             {LinkedCardsModal}
             <Card className={cardClassName}>
-                <Space size={24} direction='vertical'>
+                <Space size={40} direction='vertical' width='100%'>
                     <div className={styles.mainContent}>
-                        <Space size={60} direction='vertical'>
+                        <Space size={60} direction='vertical' width='100%'>
                             <Space size={12} direction='vertical'>
                                 <Space size={4} direction='horizontal' className={styles.header} width='100%'>
                                     <Typography.Title level={3}>
@@ -329,34 +351,29 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                     </Typography.Paragraph>
                                 </div>
                             </Space>
-                            <Space size={24} direction='vertical'>
-                                <Space size={4} direction='vertical'>
+                            <Space size={24} direction='vertical' width='100%'>
+                                <Space size={24} direction='vertical'>
                                     <Space size={4} direction='horizontal'>
                                         <Typography.Title level={3}>
                                             {isFreeForPartner ? FreeForPartnerMessage : (isCustomPrice ? price.name : `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`)}
                                         </Typography.Title>
                                         {!isCustomPrice && !isFreeForPartner && (
                                             <Typography.Text type='secondary'>
-                                            / {PeriodMessage}
+                                                {dateMessage ? dateMessage : `/ ${PeriodMessage}`}
                                             </Typography.Text>
                                         )}
                                     </Space>
-                                    {isActivePlanWithPaymentMethod && ChargeDateMessage && (
-                                        <Space size={4} direction='vertical'>
-                                            <Typography.Text type='secondary'>
-                                                {ChargeDateMessage}
-                                            </Typography.Text>
-                                            <Typography.Link onClick={openLinkedCardsModal}>
-                                                <Space size={4} direction='horizontal' align='center'>
-                                                    <CreditCard size='small' />
-                                                    {LinkedCardsLinkLabel}
-                                                </Space>
-                                            </Typography.Link>
-                                        </Space>
+                                    {isActivePlanWithPaymentMethod && hasPaymentMethod && (
+                                        <Typography.Link onClick={openLinkedCardsModal}>
+                                            <Space size={4} direction='horizontal' align='center'>
+                                                <CreditCard size='small' />
+                                                {LinkedCardsLinkLabel}
+                                            </Space>
+                                        </Typography.Link>
                                     )}
                                 </Space>
-                                {!isFreeForPartner && (
-                                    <div className={styles.buttons}>
+                                {!isFreeForPartner && !hasPaymentMethodForThisPlan && (
+                                    <Space size={16} direction='vertical' width='100%'>
                                         <Button
                                             block
                                             type='primary'
@@ -377,7 +394,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                                 {TryFreeMessage}
                                             </Button>
                                         )}
-                                    </div>
+                                    </Space>
                                 )}
                             </Space>
                         </Space>

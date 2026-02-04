@@ -7,8 +7,10 @@ const dayjs = require('dayjs')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
+
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/subscription/access/ActivateSubscriptionPlanService')
 const { PERIOD_TO_MONTHS } = require('@condo/domains/subscription/constants')
 const { SubscriptionContext } = require('@condo/domains/subscription/utils/serverSchema')
@@ -60,11 +62,11 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
     types: [
         {
             access: true,
-            type: 'input ActivateSubscriptionPlanPaymentMethodInput { id: String!, type: String!, cardMask: String, cardType: String, title: String }',
+            type: 'input PaymentMethodInput { id: String!, type: String!, cardMask: String, cardType: String, title: String, cardIssuerCountry: String, cardIssuerName: String }',
         },
         {
             access: true,
-            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean, paymentMethod: ActivateSubscriptionPlanPaymentMethodInput }',
+            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean, paymentMethod: PaymentMethodInput, paymentId: String }',
         },
         {
             access: true,
@@ -82,7 +84,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, organization: organizationInput, pricingRule: pricingRuleInput, isTrial, paymentMethod } = data
+                const { dv, sender, organization: organizationInput, pricingRule: pricingRuleInput, isTrial, paymentMethod, paymentId } = data
 
                 const [organization] = await find('Organization', {
                     id: organizationInput.id,
@@ -92,7 +94,6 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
 
-                // Get pricing rule with subscription plan
                 const [pricingRule] = await find('SubscriptionPlanPricingRule', {
                     id: pricingRuleInput.id,
                     isHidden: false,
@@ -102,7 +103,6 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                     throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
                 }
 
-                // Get the subscription plan from the pricing rule
                 const plan = await getById('SubscriptionPlan', pricingRule.subscriptionPlan)
                 if (!plan || plan.isHidden || plan.deletedAt) {
                     throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
@@ -133,15 +133,50 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                             endAt: endAt.format('YYYY-MM-DD'),
                             basePrice: pricingRule.price,
                             isTrial: false,
-                            pricingRule: { connect: { id: pricingRule.id } },
-                            paymentMethod: paymentMethod ? {
-                                id: paymentMethod.id,
-                                type: paymentMethod.type,
-                                cardMask: paymentMethod.cardMask,
-                                cardType: paymentMethod.cardType,
-                                title: paymentMethod.title,
-                            } : undefined,
+                            meta: {
+                                price: pricingRule.price,
+                                pricingRuleId: pricingRule.id,
+                                paymentMethod,
+                                paymentId,
+                            },
                         })
+
+                        // TODO(DOMA-12895): Move payment methods from Organization.meta to separate model
+                        if (paymentMethod) {
+                            const existingPaymentMethods = organization.meta?.paymentMethods || []
+                            const disabledPaymentMethodIndex = existingPaymentMethods.findIndex(
+                                pm => pm.id === paymentMethod.id && pm.disabled
+                            )
+                            const paymentMethodExists = existingPaymentMethods.some(
+                                pm => pm.id === paymentMethod.id && !pm.disabled
+                            )
+                            
+                            if (disabledPaymentMethodIndex !== -1) {
+                                const updatedPaymentMethods = [...existingPaymentMethods]
+                                updatedPaymentMethods[disabledPaymentMethodIndex] = paymentMethod
+                                
+                                await Organization.update(context, organization.id, {
+                                    dv,
+                                    sender,
+                                    meta: {
+                                        ...organization.meta,
+                                        paymentMethods: updatedPaymentMethods,
+                                    },
+                                })
+                            } else if (!paymentMethodExists) {
+                                await Organization.update(context, organization.id, {
+                                    dv,
+                                    sender,
+                                    meta: {
+                                        ...organization.meta,
+                                        paymentMethods: [
+                                            ...existingPaymentMethods,
+                                            paymentMethod,
+                                        ],
+                                    },
+                                })
+                            }
+                        }
                         
                         const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
                         return { subscriptionContext, userHelpRequest: null }

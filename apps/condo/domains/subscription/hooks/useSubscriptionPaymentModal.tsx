@@ -3,7 +3,7 @@ import getConfig from 'next/config'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Card, Checkbox, Modal, Typography, Space } from '@open-condo/ui'
+import { Button, Card, Checkbox, Modal, Typography } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 

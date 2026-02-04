@@ -1,4 +1,5 @@
 import { useGetAvailableSubscriptionPlansQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
+import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
@@ -25,7 +26,10 @@ export const UpgradePlanButton: React.FC = () => {
     })
 
     const { data: activatedSubscriptionsData, loading: activatedSubscriptionsLoading } = useGetOrganizationActivatedSubscriptionsQuery({
-        variables: { organizationId: organization?.id },
+        variables: { 
+            organizationId: organization?.id || '',
+            now: dayjs().format('YYYY-MM-DD'),
+        },
         skip: !organization?.id,
     })
     const activatedSubscriptions = useMemo(() => activatedSubscriptionsData?.activatedSubscriptions || [], [activatedSubscriptionsData?.activatedSubscriptions])

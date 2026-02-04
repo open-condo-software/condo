@@ -59433,8 +59433,7 @@ type SubscriptionContextHistoryRecord {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
-  paymentMethod: JSON
-  pricingRule: String
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -59499,14 +59498,10 @@ input SubscriptionContextHistoryRecordWhereInput {
   appliedRules_not_in: [JSON]
   isTrial: Boolean
   isTrial_not: Boolean
-  paymentMethod: JSON
-  paymentMethod_not: JSON
-  paymentMethod_in: [JSON]
-  paymentMethod_not_in: [JSON]
-  pricingRule: String
-  pricingRule_not: String
-  pricingRule_in: [String]
-  pricingRule_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59627,8 +59622,7 @@ input SubscriptionContextHistoryRecordUpdateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
-  paymentMethod: JSON
-  pricingRule: String
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59657,8 +59651,7 @@ input SubscriptionContextHistoryRecordCreateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
-  paymentMethod: JSON
-  pricingRule: String
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59716,12 +59709,9 @@ type SubscriptionContext {
   """
   isTrial: Boolean
 
-  """ Payment method used for this subscription. Contains id, type, cardMask, cardType, and title 
+  """ Subscription metadata containing paymentMethod, price, and pricingRuleId 
   """
-  paymentMethod: JSON
-
-  """ Reference to the pricing rule applied to this subscription """
-  pricingRule: SubscriptionPlanPricingRule
+  meta: JSON
 
   """ Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired 
   """
@@ -59794,12 +59784,10 @@ input SubscriptionContextWhereInput {
   appliedRules_not_in: [JSON]
   isTrial: Boolean
   isTrial_not: Boolean
-  paymentMethod: JSON
-  paymentMethod_not: JSON
-  paymentMethod_in: [JSON]
-  paymentMethod_not_in: [JSON]
-  pricingRule: SubscriptionPlanPricingRuleWhereInput
-  pricingRule_is_null: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59877,8 +59865,6 @@ enum SortSubscriptionContextsBy {
   calculatedPrice_DESC
   isTrial_ASC
   isTrial_DESC
-  pricingRule_ASC
-  pricingRule_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59906,8 +59892,7 @@ input SubscriptionContextUpdateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
-  paymentMethod: JSON
-  pricingRule: SubscriptionPlanPricingRuleRelateToOneInput
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59933,8 +59918,7 @@ input SubscriptionContextCreateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
-  paymentMethod: JSON
-  pricingRule: SubscriptionPlanPricingRuleRelateToOneInput
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -91445,12 +91429,14 @@ type GetAvailableSubscriptionPlansOutput {
   plans: [AvailableSubscriptionPlan]!
 }
 
-input ActivateSubscriptionPlanPaymentMethodInput {
+input PaymentMethodInput {
   id: String!
   type: String!
   cardMask: String
   cardType: String
   title: String
+  cardIssuerCountry: String
+  cardIssuerName: String
 }
 
 input ActivateSubscriptionPlanInput {
@@ -91459,7 +91445,8 @@ input ActivateSubscriptionPlanInput {
   organization: OrganizationWhereUniqueInput!
   pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
   isTrial: Boolean
-  paymentMethod: ActivateSubscriptionPlanPaymentMethodInput
+  paymentMethod: PaymentMethodInput
+  paymentId: String
 }
 
 type ActivateSubscriptionPlanOutput {
