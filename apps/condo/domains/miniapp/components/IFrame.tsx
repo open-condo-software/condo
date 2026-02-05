@@ -1,7 +1,6 @@
 import get from 'lodash/get'
 import React, { CSSProperties, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { Download, IconProps } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -11,6 +10,7 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { Loader } from '@condo/domains/common/components/Loader'
 import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
+import { renderIcon } from '@condo/domains/miniapp/utils/renderers'
 
 import type { IBasicEmptyListProps } from '@condo/domains/common/components/EmptyListView'
 import type { RequestHandler } from '@condo/domains/common/components/PostMessageProvider/types'
@@ -40,13 +40,6 @@ export type IFrameProps = {
     onLoad?: () => void
     initialHeight?: number
 }
-
-const ICON_MAP = {
-    download: Download,
-    // TODO(abshnko): add some more
-} as const
-
-
 
 const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props, ref) => {
     const {
@@ -84,7 +77,6 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
     const { user } = useAuth()
     const { organization } = useOrganization()
     const { addFrame, addEventHandler, removeFrame, actionBarContext: { actionBarConfig, actionBarSource, actionBarOrigin } } = usePostMessageContext()
-    // console.log('actionBarCOnfig: ', actionBarConfig)
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
     const srcWithMeta = useMemo(() => {
@@ -180,15 +172,6 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         transition: 'height 200ms ease',
         display: hidden ? 'none' : 'block',
     }), [frameHeight, hidden])
-
-    const renderIcon = (iconName?: keyof typeof ICON_MAP, size?: IconProps['size']) => {
-        if (!iconName) return undefined
-
-        const IconComponent = ICON_MAP[iconName]
-        if (!IconComponent) return undefined
-
-        return <IconComponent size={size || 'medium'} />
-    }
 
     const sendActionBarAction = useCallback((actionId: string) => {
         if (!actionBarSource || !actionBarOrigin) return
