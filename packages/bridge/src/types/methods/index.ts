@@ -6,6 +6,8 @@ import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchPara
 import type { RedirectData, RedirectParams } from './Redirect'
 import type { RequestAuthData, RequestAuthParams } from './RequestAuth'
 import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
+import type { SendActionBarActionIdParams, SendActionBarActionIdData } from './SendActionBarActionId'
+import type { SetActionBarConfigParams, SetActionBarConfigData } from './SetActionBarConfig'
 import type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
 import type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
@@ -24,6 +26,8 @@ export type { ShowNotificationParams, ShowNotificationData } from './ShowNotific
 export type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
 export type { UpdateModalWindowParams, UpdateModalWindowData } from './UpdateModalWindow'
 export type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
+export type { SetActionBarConfigParams, SetActionBarConfigData } from './SetActionBarConfig'
+export type { SendActionBarActionIdParams, SendActionBarActionIdData } from './SendActionBarActionId'
 
 /**
  * Mapping for event -> request payload
@@ -41,6 +45,8 @@ export type RequestMethodsParamsMap = {
     CondoWebAppShowProgressBar: ShowProgressBarParams
     CondoWebAppUpdateModalWindow: UpdateModalWindowParams
     CondoWebAppUpdateProgressBar: UpdateProgressBarParams
+    CondoWebAppSetActionBarConfig: SetActionBarConfigParams
+    CondoWebAppSendActionBarActionId: SendActionBarActionIdParams
 }
 
 /**
@@ -59,6 +65,8 @@ export type ResultResponseDataMap = {
     CondoWebAppShowProgressBar: ShowProgressBarData
     CondoWebAppUpdateModalWindow: UpdateModalWindowData
     CondoWebAppUpdateProgressBar: UpdateProgressBarData
+    CondoWebAppSetActionBarConfig: SetActionBarConfigData
+    CondoWebAppSendActionBarActionId: SendActionBarActionIdData
 }
 
 type ResponseEventNames<Method extends keyof RequestMethodsParamsMap> = {
