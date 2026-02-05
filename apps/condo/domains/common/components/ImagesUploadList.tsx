@@ -1,19 +1,25 @@
-import { File } from '@app/condo/schema'
+import { File as FileSchema } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Upload } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
+import getConfig from 'next/config'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { buildMeta, upload as uploadFiles } from '@open-condo/files'
 import { ChevronLeft, ChevronRight, Eye, PlusCircle, Trash } from '@open-condo/icons'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { colors } from '@open-condo/ui/colors'
 
 import { shadows, transitions } from '@condo/domains/common/constants/style'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
+const { publicRuntimeConfig: { fileClientId } = {} } = getConfig()
 
 const UploadWrapper = styled.div<{ imageSize: number }>`
   display: flex;
@@ -110,8 +116,10 @@ export type UploadFileType = {
 
 export type DBFile = {
     id: string
-    file?: File
+    file?: FileSchema
 }
+
+const FILE_UPLOAD_MODEL = 'MarketItemFile'
 
 type ImagesUploadListProps = {
     type: 'view' | 'upload'
@@ -133,6 +141,8 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
     imageSize = 80,
 }) => {
     const intl = useIntl()
+    const { user } = useAuth()
+    const { organization } = useOrganization()
     const FileTooBigErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.FileTooBig' },
         { maxSizeInMb: MAX_UPLOAD_FILE_SIZE / (1024 * 1024) })
     const UploadFailedErrorMessage = intl.formatMessage({ id: 'component.uploadlist.error.UploadFailedErrorMessage' })
@@ -237,9 +247,9 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                     }}
                     defaultFileList={defaultFileList}
                     fileList={fileList || files}
-                    customRequest={(options) => {
+                    customRequest={async (options) => {
                         const { onSuccess, onError } = options
-                        const file = options.file as UploadFile
+                        const file = options.file as File
 
                         if (!isFunction(createAction)) {
                             console.error('Specify createActionProp to upload files')
@@ -252,13 +262,37 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                             return
                         }
 
-                        return createAction({ file }).then(dbFile  => {
-                            onSuccess({ id: dbFile.id, url: get(dbFile, 'file.publicUrl') }, null)
-                        }).catch(err => {
+                        try {
+                            let createInput
+
+                            if (fileClientId && user?.id) {
+                                const senderInfo = getClientSideSenderInfo()
+                                const uploadResult = await uploadFiles({
+                                    files: [file],
+                                    meta: buildMeta({
+                                        userId: user.id,
+                                        fileClientId,
+                                        modelNames: [FILE_UPLOAD_MODEL],
+                                        fingerprint: senderInfo.fingerprint,
+                                        organizationId: organization?.id,
+                                    }),
+                                })
+                                createInput = {
+                                    signature: uploadResult.files?.[0]?.signature,
+                                    originalFilename: file.name,
+                                    mimetype: file.type,
+                                }
+                            } else {
+                                createInput = file
+                            }
+
+                            const dbFile = await createAction({ file: createInput })
+                            onSuccess({ id: dbFile.id, url: dbFile?.file?.publicUrl }, null)
+                        } catch (err) {
                             const error = new Error(UploadFailedErrorMessage)
                             console.error('Upload failed', err)
                             onError(error)
-                        })
+                        }
                     }}
                     onPreview={handlePreview}
                 >

@@ -153,6 +153,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
             return {
                 originalFilename: input.originalFilename || '',
+                mimetype: input.mimetype || '',
             }
         }
 

@@ -1,6 +1,5 @@
 import { Form, UploadFile, UploadProps } from 'antd'
 import chunk from 'lodash/chunk'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import set from 'lodash/set'
@@ -22,11 +21,26 @@ import { Document } from '@condo/domains/document/utils/clientSchema'
 
 import type { RcFile } from 'antd/es/upload/interface'
 
+type UploadDocumentsModalProps = {
+    openUploadModal: boolean
+    setOpenUploadModal: (open: boolean) => void
+    onComplete: () => void
+    initialCreateDocumentValue?: {
+        organization?: { connect: { id: string } }
+        property?: { connect: { id: string } }
+    }
+}
+
 const { publicRuntimeConfig: { fileClientId } } = getConfig()
 const FILE_UPLOAD_MODEL = 'Document'
 const MAX_FILE_SIZE_IN_MB = MAX_UPLOAD_FILE_SIZE / (1024 * 1024)
 
-const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete, initialCreateDocumentValue = {} }) => {
+const UploadDocumentsModal = ({ 
+    openUploadModal, 
+    setOpenUploadModal, 
+    onComplete, 
+    initialCreateDocumentValue = {}, 
+}: UploadDocumentsModalProps) => {
     const intl = useIntl()
     const { user } = useAuth()
     const SaveMessage = intl.formatMessage({ id: 'Save' })
@@ -65,7 +79,7 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
 
     const closeModal = useCallback(() => {
         closeCancelModal()
-        setOpenUploadModal(null)
+        setOpenUploadModal(false)
     }, [closeCancelModal, setOpenUploadModal])
 
     const uploadFormAction = useCallback(async values => {
@@ -74,10 +88,10 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
 
         setFormSubmitting(true)
 
-        const categoryId = get(values, 'category')
-        const canReadByResident = Boolean(get(values, 'canReadByResident'))
+        const categoryId = values?.category
+        const canReadByResident = Boolean(values?.canReadByResident)
         const senderInfo = getClientSideSenderInfo()
-        const organizationId = get(initialCreateDocumentValue, ['organization', 'connect', 'id'])
+        const organizationId = initialCreateDocumentValue?.organization?.connect?.id
 
         const baseCreateData = {
             dv: 1,
@@ -295,7 +309,7 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
 export const useUploadDocumentsModal = () => {
     const [openUploadModal, setOpenUploadModal] = useState<boolean>(false)
 
-    const UploadModal = (props) => (
+    const UploadModal = (props: Pick<UploadDocumentsModalProps, 'onComplete' | 'initialCreateDocumentValue'>) => (
         <UploadDocumentsModal
             {...props}
             openUploadModal={openUploadModal}
