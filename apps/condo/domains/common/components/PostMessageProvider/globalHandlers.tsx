@@ -6,7 +6,7 @@ import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
-import type { CondoBridgeResultResponseEvent } from '@open-condo/bridge'
+import type { CondoBridgeResultResponseEvent, SetActionBarConfigParams } from '@open-condo/bridge'
 import { generateUUIDv4 } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -286,4 +286,40 @@ export const useRedirectHandler: () => RequestHandler<'CondoWebAppRedirect'> = (
 
         return { success: true }
     }, [router])
+}
+
+
+export const useActionBarHandler: () => [
+    RequestHandler<'CondoWebAppSetActionBarConfig'>,
+    SetActionBarConfigParams | null,
+    Window | null,
+    string | null,
+    () => void,
+] = () => {
+    const [config, setConfig] = useState<SetActionBarConfigParams | null>(null)
+    const [source, setSource] = useState<Window | null>(null)
+    const [origin, setOrigin] = useState<string | null>(null)
+
+    const handleShowActionBar = useCallback((params, origin, source) => {
+        setConfig(prev => ({ ...prev, ...params }))
+        setSource(prev => (prev !== source ? source : prev))
+        setOrigin(prev => (prev !== origin ? origin : prev))
+
+        return { success: true }
+    }, [])
+
+
+    const clear = useCallback(() => {
+        setConfig(null)
+        setSource(null)
+        setOrigin(null)
+    }, [])
+
+    return [
+        handleShowActionBar,
+        config,
+        source,
+        origin,
+        clear,
+    ]
 }

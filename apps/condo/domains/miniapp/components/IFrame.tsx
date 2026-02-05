@@ -1,10 +1,11 @@
 import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { Download, IconProps } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from '@open-condo/ui'
+import { ActionBar, Typography, Button } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -39,6 +40,12 @@ export type IFrameProps = {
     onLoad?: () => void
     initialHeight?: number
 }
+
+const ICON_MAP = {
+    download: Download,
+    // TODO(abshnko): add some more
+} as const
+
 
 
 const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props, ref) => {
@@ -76,8 +83,8 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
 
     const { user } = useAuth()
     const { organization } = useOrganization()
-    const { addFrame, addEventHandler, removeFrame } = usePostMessageContext()
-
+    const { addFrame, addEventHandler, removeFrame, actionBarContext: { actionBarConfig, actionBarSource, actionBarOrigin } } = usePostMessageContext()
+    // console.log('actionBarCOnfig: ', actionBarConfig)
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
     const srcWithMeta = useMemo(() => {
@@ -174,35 +181,79 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         display: hidden ? 'none' : 'block',
     }), [frameHeight, hidden])
 
+    const renderIcon = (iconName?: keyof typeof ICON_MAP, size?: IconProps['size']) => {
+        if (!iconName) return undefined
+
+        const IconComponent = ICON_MAP[iconName]
+        if (!IconComponent) return undefined
+
+        return <IconComponent size={size || 'medium'} />
+    }
+
+    const sendActionBarAction = useCallback((actionId: string) => {
+        if (!actionBarSource || !actionBarOrigin) return
+
+        actionBarSource.postMessage({ type: 'CondoWebAppSendActionBarActionId', data: { actionId } }, actionBarOrigin)
+    }, [actionBarSource, actionBarOrigin])
+
+    const actions = useMemo(() => {
+        if (!actionBarConfig?.actions?.length) return null
+
+        return actionBarConfig.actions.map(action => (
+            <Button
+                key={action.id}
+                type={action.type}
+                loading={action.loading}
+                disabled={action.disabled}
+                onClick={() => sendActionBarAction(action.id)}
+                icon={renderIcon(action.icon, action.iconSize)}
+            >
+                {action.label}
+            </Button>
+        ))
+    }, [actionBarConfig?.actions, sendActionBarAction])
+
+    const shouldShowActionBar = actionBarConfig && actionBarSource && actionBarOrigin && actions && actionBarConfig.visible
+
     return (
-        <div style={containerStyle}>
-            {withLoader && isLoading && (
-                <Loader fill size='large'/>
+        <>
+            <div style={containerStyle}>
+                {withLoader && isLoading && (
+                    <Loader fill size='large'/>
+                )}
+                {withPrefetch && isError && (
+                    <BasicEmptyListView {...EMPTY_LIST_PROPS}>
+                        <Typography.Title level={4}>
+                            {LoadingErrorOccurredTitle}
+                        </Typography.Title>
+                        <Typography.Text type='secondary'>
+                            {LoadingErrorOccurredMessage}
+                        </Typography.Text>
+                    </BasicEmptyListView>
+                )}
+            
+                <iframe
+                    src={srcWithMeta}
+                    key={rerenderKey}
+                    style={IFRAME_STYLES}
+                    onLoad={handleLoad}
+                    hidden={isLoading || isError || hidden}
+                    ref={handleRefChange}
+                    height={frameHeight}
+                    allowFullScreen={allowFullscreen}
+                    allow='clipboard-write'
+                    // NOTE: Deprecated, but overflow: hidden still not works in Chrome :)
+                    scrolling='no'
+                />
+            
+            </div>
+            {shouldShowActionBar && (
+                <ActionBar
+                    message={actionBarConfig.message}
+                    actions={actions as [ReactElement, ...ReactElement[]]}
+                />
             )}
-            {withPrefetch && isError && (
-                <BasicEmptyListView {...EMPTY_LIST_PROPS}>
-                    <Typography.Title level={4}>
-                        {LoadingErrorOccurredTitle}
-                    </Typography.Title>
-                    <Typography.Text type='secondary'>
-                        {LoadingErrorOccurredMessage}
-                    </Typography.Text>
-                </BasicEmptyListView>
-            )}
-            <iframe
-                src={srcWithMeta}
-                key={rerenderKey}
-                style={IFRAME_STYLES}
-                onLoad={handleLoad}
-                hidden={isLoading || isError || hidden}
-                ref={handleRefChange}
-                height={frameHeight}
-                allowFullScreen={allowFullscreen}
-                allow='clipboard-write'
-                // NOTE: Deprecated, but overflow: hidden still not works in Chrome :)
-                scrolling='no'
-            />
-        </div>
+        </>
     )
 })
 

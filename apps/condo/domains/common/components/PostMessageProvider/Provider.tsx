@@ -3,7 +3,7 @@ import get from 'lodash/get'
 import omit from 'lodash/omit'
 import React, { useEffect, createContext, useState, useContext, useCallback } from 'react'
 
-import type { ErrorReason, ErrorCode } from '@open-condo/bridge'
+import type { ErrorReason, ErrorCode, SetActionBarConfigParams } from '@open-condo/bridge'
 import { generateUUIDv4 } from '@open-condo/miniapp-utils'
 
 import {
@@ -15,6 +15,7 @@ import {
     useModalHandler,
     useShowProgressBarHandler,
     useUpdateProgressBarHandler,
+    useActionBarHandler,
 } from './globalHandlers'
 import { validators } from './validators'
 
@@ -40,6 +41,13 @@ type RegisterHandler = <Method extends AllRequestMethods>(
 /**
  * Context definitions
  */
+
+type ActionBarContext = {
+    actionBarConfig: SetActionBarConfigParams | null
+    actionBarSource: Window | null
+    actionBarOrigin: string | null
+    clearActionBar: () => void
+}
 type IPostMessageContext = {
     registeredFrames: Readonly<Record<FrameId, React.Ref<HTMLIFrameElement>>>
     addFrame: (ref: React.Ref<HTMLIFrameElement>) => FrameId
@@ -47,6 +55,7 @@ type IPostMessageContext = {
     handlers: Readonly<Record<HandlerId, OriginHandlers>>
     addEventHandler: RegisterHandler
     validators: Readonly<ValidatorsType>
+    actionBarContext: ActionBarContext
 }
 
 /**
@@ -59,6 +68,12 @@ const PostMessageContext = createContext<IPostMessageContext>({
     handlers: {},
     addEventHandler: () => ({}),
     validators,
+    actionBarContext: {
+        actionBarConfig: null,
+        actionBarSource: null,
+        actionBarOrigin: null,
+        clearActionBar: () => {},
+    },
 })
 
 /**
@@ -144,6 +159,13 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     const updateProgressBarHandler = useUpdateProgressBarHandler()
     const redirectHandler = useRedirectHandler()
     const [showModalHandler, updateModalHandler, closeModalHandler, ModalContainer] = useModalHandler()
+    const [
+        handleShowActionBar,
+        actionBarConfig,
+        actionBarSource,
+        actionBarOrigin,
+        clearActionBar,
+    ] = useActionBarHandler()
 
     useEffect(() => {
         addEventHandler('CondoWebAppCloseModalWindow', '*', closeModalHandler)
@@ -181,6 +203,11 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
         addEventHandler('CondoWebAppUpdateProgressBar', '*', updateProgressBarHandler)
     }, [addEventHandler, updateProgressBarHandler])
 
+    useEffect(() => {
+        addEventHandler('CondoWebAppSetActionBarConfig', '*', handleShowActionBar)
+    }, [addEventHandler, handleShowActionBar])
+
+
     const addFrame = useCallback((ref: React.Ref<HTMLIFrameElement>) => {
         const frameId = generateUUIDv4()
         setRegisteredFrames((prev) => ({ ...prev, [frameId]: ref }))
@@ -191,7 +218,8 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     const removeFrame = useCallback((frameId: string) => {
         setRegisteredFrames((prev) => omit(prev, frameId))
         setRegisteredHandlers((prev) => omit(prev, frameId))
-    }, [])
+        clearActionBar()
+    }, [clearActionBar])
 
     const handleMessage = useCallback(async (event: MessageEvent) => {
         if (!event.isTrusted ||
@@ -286,6 +314,12 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
             handlers: registeredHandlers,
             addEventHandler,
             validators,
+            actionBarContext: {
+                actionBarConfig,
+                actionBarOrigin,
+                actionBarSource,
+                clearActionBar,
+            },
         }}>
             {children}
             {ModalContainer}
