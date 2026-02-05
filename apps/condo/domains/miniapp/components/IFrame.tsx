@@ -213,7 +213,8 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         ))
     }, [actionBarConfig?.actions, sendActionBarAction])
 
-    const shouldShowActionBar = actionBarConfig && actionBarSource && actionBarOrigin && actions && actionBarConfig.visible
+    const isActionBarOwner = !!actionBarSource && innerRef.current?.contentWindow === actionBarSource
+    const shouldShowActionBar = isActionBarOwner && actionBarOrigin && actions && actionBarConfig.visible
 
     return (
         <>
