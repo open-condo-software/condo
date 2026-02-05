@@ -79,7 +79,7 @@ const UploadDocumentsModal = ({
 
     const closeModal = useCallback(() => {
         closeCancelModal()
-        setOpenUploadModal(null)
+        setOpenUploadModal(false)
     }, [closeCancelModal, setOpenUploadModal])
 
     const uploadFormAction = useCallback(async values => {

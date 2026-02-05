@@ -279,7 +279,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                                 })
                                 createInput = {
                                     signature: uploadResult.files?.[0]?.signature,
-                                    originalFileName: file.name,
+                                    originalFilename: file.name,
                                     mimetype: file.type,
                                 }
                             } else {
