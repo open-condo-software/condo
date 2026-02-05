@@ -150,6 +150,41 @@ const CondoWebAppUpdateProgressBarParamsSchema = {
     required: ['barId', 'data'],
 }
 
+const CondoWebAppSetActionBarConfigSchema = {
+    type: 'object',
+    properties: {
+        visible: { type: 'boolean' },
+        actions: {
+            type: 'array',
+            minItems: 1,
+            items: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string' },
+                    label: { type: 'string' },
+                    type: { enum: ['primary', 'secondary', 'accent'] },
+                    loading: { type: 'boolean' },
+                    disabled: { type: 'boolean' },
+                    icon: { enum: ['download'] },
+                },
+                required: ['id', 'label'],
+                additionalProperties: false,
+            },
+        },
+    },
+    required: ['visible', 'actions'],
+    additionalProperties: false,
+}
+
+const CondoWebAppSendActionBarActionIdSchema = {
+    type: 'object',
+    properties: {
+        actionId: { type: 'string' },
+    },
+    required: ['actionId'],
+    additionalProperties: false,
+}
+
 export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValidator<Method> }
 
 export const validators: ValidatorsType = {
@@ -167,4 +202,6 @@ export const validators: ValidatorsType = {
     CondoWebAppShowProgressBar: ajv.compile(CondoWebAppShowProgressBarParamsSchema),
     CondoWebAppUpdateModalWindow: ajv.compile(CondoWebAppUpdateModalWindowParamsSchema),
     CondoWebAppUpdateProgressBar: ajv.compile(CondoWebAppUpdateProgressBarParamsSchema),
+    CondoWebAppSetActionBarConfig: ajv.compile(CondoWebAppSetActionBarConfigSchema),
+    CondoWebAppSendActionBarActionId: ajv.compile(CondoWebAppSendActionBarActionIdSchema),
 }
