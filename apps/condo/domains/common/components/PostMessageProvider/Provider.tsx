@@ -216,10 +216,16 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     }, [])
 
     const removeFrame = useCallback((frameId: string) => {
-        setRegisteredFrames((prev) => omit(prev, frameId))
+        setRegisteredFrames((prev) => {
+            const frameRef = prev[frameId]
+            const frameWindow = get(frameRef, ['current', 'contentWindow'])
+            if (frameWindow && frameWindow === actionBarSource) {
+                clearActionBar()
+            }
+            return omit(prev, frameId)
+        })
         setRegisteredHandlers((prev) => omit(prev, frameId))
-        clearActionBar()
-    }, [clearActionBar])
+    }, [actionBarSource, clearActionBar])
 
     const handleMessage = useCallback(async (event: MessageEvent) => {
         if (!event.isTrusted ||
