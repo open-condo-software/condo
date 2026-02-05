@@ -1,4 +1,4 @@
-import { useGetOrganizationMetaQuery, useUpdateOrganizationPaymentMethodsMutation, useGetOrganizationActivatedSubscriptionsQuery, useUpdateSubscriptionContextMetaMutation } from '@app/condo/gql'
+import { useGetOrganizationMetaQuery, useUpdateOrganizationPaymentMethodsMutation, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
 import { notification, Row, Col } from 'antd'
 import dayjs from 'dayjs'
 import getConfig from 'next/config'
@@ -22,7 +22,6 @@ type PaymentMethod = {
     title: string
     cardIssuerCountry?: string
     cardIssuerName?: string
-    disabled?: boolean
 }
 
 export const useLinkedCardsModal = () => {
@@ -80,7 +79,6 @@ export const useLinkedCardsModal = () => {
     }, [])
 
     const [updateOrganization] = useUpdateOrganizationPaymentMethodsMutation()
-    const [updateSubscriptionContextMeta] = useUpdateSubscriptionContextMetaMutation()
 
     const handleUnbindConfirm = useCallback(async () => {
         if (!organization || !canManageSubscriptions || !paymentMethod) return
@@ -89,9 +87,7 @@ export const useLinkedCardsModal = () => {
         try {
             const sender = getClientSideSenderInfo()
             
-            const updatedPaymentMethods = paymentMethods.map(pm => 
-                pm.id === paymentMethod.id ? { ...pm, disabled: true } : pm
-            )
+            const updatedPaymentMethods = paymentMethods.filter(pm => pm.id !== paymentMethod.id)
             
             await updateOrganization({
                 variables: {
@@ -106,30 +102,6 @@ export const useLinkedCardsModal = () => {
                     },
                 },
             })
-            
-            const activatedSubscriptions = activatedSubscriptionsData?.activatedSubscriptions || []
-            const contextsWithThisPaymentMethod = activatedSubscriptions.filter(
-                ctx => ctx.meta?.paymentMethod?.id === paymentMethod.id
-            )
-            
-            for (const context of contextsWithThisPaymentMethod) {
-                await updateSubscriptionContextMeta({
-                    variables: {
-                        id: context.id,
-                        data: {
-                            dv: 1,
-                            sender,
-                            meta: {
-                                ...context.meta,
-                                paymentMethod: {
-                                    ...context.meta.paymentMethod,
-                                    disabled: true,
-                                },
-                            },
-                        },
-                    },
-                })
-            }
 
             await refetchOrganizationMeta()
 
@@ -145,7 +117,7 @@ export const useLinkedCardsModal = () => {
         } finally {
             setIsUnbinding(false)
         }
-    }, [organization, canManageSubscriptions, paymentMethod, paymentMethods, updateOrganization, updateSubscriptionContextMeta, activatedSubscriptionsData, refetchOrganizationMeta, NotificationTitle, NotificationDescription])
+    }, [organization, canManageSubscriptions, paymentMethod, paymentMethods, updateOrganization, refetchOrganizationMeta, NotificationTitle, NotificationDescription])
 
     const LinkedCardsModal = useMemo(() => (
         <>
@@ -161,7 +133,7 @@ export const useLinkedCardsModal = () => {
                             <Col>
                                 <Space size={8} direction='horizontal'>
                                     <img 
-                                        src={CARD_ISSUER_IMAGES[paymentMethod.cardIssuerName] || '/sber.svg'} 
+                                        src={CARD_ISSUER_IMAGES[paymentMethod.cardIssuerName] || '/otherCard.svg'} 
                                         alt={paymentMethod.cardIssuerName || 'card'}
                                         width={60}
                                         height={40}

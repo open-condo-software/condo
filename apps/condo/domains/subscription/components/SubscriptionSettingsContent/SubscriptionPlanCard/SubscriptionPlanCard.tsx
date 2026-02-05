@@ -9,7 +9,7 @@ import { Collapse } from 'antd'
 import classnames from 'classnames'
 import dayjs from 'dayjs'
 import getConfig from 'next/config'
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Unlock, Lock, QuestionCircle, ChevronDown, CreditCard } from '@open-condo/icons'
@@ -97,6 +97,7 @@ interface SubscriptionPlanCardProps {
 interface SubscriptionPlanBadgeProps {
     plan: PlanType['plan']
     activatedTrial?: TrialContextType
+    hasPaymentMethod?: boolean
 }
 
 const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink, hint }) => {
@@ -129,8 +130,11 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ label, available, helpLink, h
     )
 }
 
-const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, activatedTrial }) => {
+const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, activatedTrial, hasPaymentMethod }) => {
     const intl = useIntl()
+    const ActiveMessage = intl.formatMessage({ id: 'subscription.planCard.badge.active' })
+    const ExpiredMessage = intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' })
+
     const { subscriptionContext, daysRemaining } = useOrganizationSubscription()
 
     const activePlanId = subscriptionContext?.subscriptionPlan?.id
@@ -141,19 +145,21 @@ const SubscriptionPlanBadge: React.FC<SubscriptionPlanBadgeProps> = ({ plan, act
     let bgColor = colors.gray[7]
 
     if (isTrialExpired) {
-        badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.trialExpired' })
+        badgeMessage = ExpiredMessage
     }
 
     if (isActivePlan) {
         bgColor = colors.green[5]
 
-        if (daysRemaining !== null && daysRemaining <= 30) {
+        if (hasPaymentMethod) {
+            badgeMessage = ActiveMessage
+        } else if (daysRemaining !== null && daysRemaining <= 30) {
             badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.activeDays' }, { days: daysRemaining })
 
             if (daysRemaining <= 7) bgColor = colors.orange[5]
             if (daysRemaining <= 1) bgColor = colors.red[5]
         } else {
-            badgeMessage = intl.formatMessage({ id: 'subscription.planCard.badge.active' })
+            badgeMessage = ActiveMessage
         }
     }
 
@@ -174,25 +180,28 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const PayMessage = intl.formatMessage({ id: 'subscription.planCard.pay' })
     const FeaturesTitle = intl.formatMessage({ id: 'subscription.features.title' })
     const FreeForPartnerMessage = intl.formatMessage({ id: 'subscription.planCard.freeForPartner' })
-
+    const LinkedCardsLinkLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
+    
     const { organization, role } = useOrganization()
     const { useFlagValue } = useFeatureFlags()
-    const usePaymentModal = useFlagValue(SUBSCRIPTION_PAYMENT_MODAL)
-
+    const { subscriptionContext: activeSubscriptionContext } = useOrganizationSubscription()
+    const [activateLoading, setActivateLoading] = useState<boolean>(false)
+    const [trialActivateLoading, setTrialActivateLoading] = useState<boolean>(false)
+    
     const { plan, prices } = planInfo
     const price = prices?.[0]
-
+    const usePaymentModal = useFlagValue(SUBSCRIPTION_PAYMENT_MODAL)
+    const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
+    
     const TryFreeMessage = intl.formatMessage({ id: 'subscription.planCard.tryFree' }, { currency: CURRENCY_SYMBOLS[price?.currencyCode] })
     const PeriodMessage = intl.formatMessage({ id: `subscription.planCard.planPrice.${price?.period}` as FormatjsIntl.Message['ids'] })
-
-    const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
+    
     const hasActiveBanking = organization?.features?.includes(OrganizationFeature.ActiveBanking)
     const isActiveBankingPlan = activeBankingPlanId && plan?.id === activeBankingPlanId
     const isCustomPrice = price?.price === null || price?.price === undefined
     const priceInteger = price?.price !== null && price?.price !== undefined ? Math.floor(Number(price.price)) : -1
     const formattedPrice = priceInteger >= 0 ? priceInteger.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
     const isFreeForPartner = hasActiveBanking && isActiveBankingPlan
-
     const hasActivatedThisPlanOrHigher = activatedSubscriptions.some(
         ctx => ctx.subscriptionPlan && (
             ctx.subscriptionPlan.id === plan.id || 
@@ -200,10 +209,21 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         )
     )
     const canActivateTrial = !activatedTrial && plan.trialDays > 0 && !hasActivatedThisPlanOrHigher
-
-    const [activateLoading, setActivateLoading] = useState<boolean>(false)
-    const [trialActivateLoading, setTrialActivateLoading] = useState<boolean>(false)
-
+    const hasPendingRequest = !!pendingRequest
+    
+    const primaryButtonLabel = useMemo(() => {
+        if (hasPendingRequest) return RequestPendingMessage
+        if (isCustomPrice) return SubmitRequestMessage
+        if (usePaymentModal) return PayMessage
+        return BuyMessage
+    }, [hasPendingRequest, isCustomPrice, usePaymentModal, RequestPendingMessage, SubmitRequestMessage, PayMessage, BuyMessage])
+    
+    const canManageSubscriptions = role?.canManageSubscriptions
+    const isActivePlan = activeSubscriptionContext?.subscriptionPlan?.id === plan?.id
+    const activePlanPriority = activeSubscriptionContext?.subscriptionPlan?.priority
+    const currentPlanPriority = plan?.priority
+    const isLowerPriorityThanActive = activePlanPriority !== undefined && currentPlanPriority !== undefined && currentPlanPriority < activePlanPriority
+    
     const handleActivatePlanForModal = useCallback(async () => {
         if (!price?.id) return
 
@@ -220,10 +240,12 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             setActivateLoading(false)
         }
     }, [handleActivatePlan, price?.id, plan.name, plan.trialDays, isCustomPrice])
-
+    
     const { PaymentModal, openModal: openPaymentModal } = useSubscriptionPaymentModal({
         handleActivatePlan: handleActivatePlanForModal,
         activateLoading,
+        organizationId: organization?.id || '',
+        pricingRuleId: price?.id || '',
     })
 
     const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal()
@@ -276,31 +298,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
             hint={hint} 
         />
     ), [plan])
-
-    const hasPendingRequest = !!pendingRequest
-    const primaryButtonLabel = hasPendingRequest ? RequestPendingMessage : (isCustomPrice ? SubmitRequestMessage : (usePaymentModal ? PayMessage : BuyMessage))
-    const canManageSubscriptions = role?.canManageSubscriptions
-
-    const { subscriptionContext: activeSubscriptionContext } = useOrganizationSubscription()
-    const isActivePlan = activeSubscriptionContext?.subscriptionPlan?.id === plan?.id
     
-    const activatedContextForThisPlan = activatedSubscriptions.find(
-        ctx => ctx.subscriptionPlan?.id === plan?.id
-    )
-    
-    const contextPaymentMethodId = activatedContextForThisPlan?.meta?.paymentMethod?.id
-    const contextPricingRuleId = activatedContextForThisPlan?.meta?.pricingRuleId
-    const hasPaymentMethodForThisPlan = Boolean(
+    const contextPaymentMethodId = activeSubscriptionContext?.meta?.paymentMethod?.id
+    const hasPaymentMethodForActivePlan = Boolean(
+        isActivePlan &&
         contextPaymentMethodId && 
         hasPaymentMethod &&
-        organization?.meta?.paymentMethods?.some(pm => pm.id === contextPaymentMethodId && !pm.disabled) &&
-        activatedContextForThisPlan &&
-        contextPricingRuleId === price?.id
+        organization?.meta?.paymentMethods?.some(pm => pm.id === contextPaymentMethodId)
     )
-    
-    const isActivePlanWithPaymentMethod = isActivePlan && hasPaymentMethodForThisPlan
-
-    const LinkedCardsLinkLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
     
     const endDate = activeSubscriptionContext?.endAt ? dayjs(activeSubscriptionContext.endAt) : null
     const currentYear = dayjs().year()
@@ -312,12 +317,25 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const endsInLessThan10Years = endDate && endDate.diff(dayjs(), 'year') < 10
     
     let dateMessage = null
-    if (!isCustomPrice && !isFreeForPartner && formattedDate) {
-        if (hasPaymentMethodForThisPlan) {
+    if (isActivePlan && !isCustomPrice && !isFreeForPartner && formattedDate) {
+        if (hasPaymentMethodForActivePlan) {
             dateMessage = intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: formattedDate })
-        } else if (isActivePlan && isNonTrialWithEndDate && endsInLessThan10Years) {
+        } else if (isNonTrialWithEndDate && endsInLessThan10Years) {
             dateMessage = intl.formatMessage({ id: 'subscription.planCard.paidUntil' }, { date: formattedDate })
         }
+    }
+
+    let displayPrice = null
+    if (isFreeForPartner) {
+        displayPrice = FreeForPartnerMessage
+    } else if (isCustomPrice) {
+        displayPrice = price.name
+    } else if (hasPaymentMethodForActivePlan && activeSubscriptionContext?.meta?.price !== undefined) {
+        const contextPrice = Math.floor(Number(activeSubscriptionContext.meta.price))
+        const formattedContextPrice = contextPrice >= 0 ? contextPrice.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
+        displayPrice = `${formattedContextPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
+    } else {
+        displayPrice = `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
     }
 
     const cardClassName = classnames(
@@ -343,6 +361,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                     <SubscriptionPlanBadge 
                                         plan={plan}
                                         activatedTrial={activatedTrial}
+                                        hasPaymentMethod={hasPaymentMethodForActivePlan}
                                     />
                                 </Space>
                                 <div className={styles.description}>
@@ -351,52 +370,54 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                     </Typography.Paragraph>
                                 </div>
                             </Space>
-                            <Space size={24} direction='vertical' width='100%'>
-                                <Space size={24} direction='vertical'>
-                                    <Space size={4} direction='horizontal'>
-                                        <Typography.Title level={3}>
-                                            {isFreeForPartner ? FreeForPartnerMessage : (isCustomPrice ? price.name : `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`)}
-                                        </Typography.Title>
-                                        {!isCustomPrice && !isFreeForPartner && (
-                                            <Typography.Text type='secondary'>
-                                                {dateMessage ? dateMessage : `/ ${PeriodMessage}`}
-                                            </Typography.Text>
+                            {!isLowerPriorityThanActive && (
+                                <Space size={24} direction='vertical' width='100%'>
+                                    <Space size={24} direction='vertical'>
+                                        <Space size={4} direction='horizontal'>
+                                            <Typography.Title level={3}>
+                                                {displayPrice}
+                                            </Typography.Title>
+                                            {!isCustomPrice && !isFreeForPartner && (
+                                                <Typography.Text type='secondary'>
+                                                    {dateMessage ? dateMessage : `/ ${PeriodMessage}`}
+                                                </Typography.Text>
+                                            )}
+                                        </Space>
+                                        {hasPaymentMethodForActivePlan && hasPaymentMethod && (
+                                            <Typography.Link onClick={openLinkedCardsModal}>
+                                                <Space size={4} direction='horizontal' align='center'>
+                                                    <CreditCard size='small' />
+                                                    {LinkedCardsLinkLabel}
+                                                </Space>
+                                            </Typography.Link>
                                         )}
                                     </Space>
-                                    {isActivePlanWithPaymentMethod && hasPaymentMethod && (
-                                        <Typography.Link onClick={openLinkedCardsModal}>
-                                            <Space size={4} direction='horizontal' align='center'>
-                                                <CreditCard size='small' />
-                                                {LinkedCardsLinkLabel}
-                                            </Space>
-                                        </Typography.Link>
-                                    )}
-                                </Space>
-                                {!isFreeForPartner && !hasPaymentMethodForThisPlan && (
-                                    <Space size={16} direction='vertical' width='100%'>
-                                        <Button
-                                            block
-                                            type='primary'
-                                            onClick={handleActivePlanClick}
-                                            loading={activateLoading}
-                                            disabled={hasPendingRequest || !price?.id || !canManageSubscriptions}
-                                        >
-                                            {primaryButtonLabel}
-                                        </Button>
-                                        {canActivateTrial && (
+                                    {!isLowerPriorityThanActive && !isFreeForPartner && !hasPaymentMethodForActivePlan && (
+                                        <Space size={16} direction='vertical' width='100%'>
                                             <Button
                                                 block
-                                                type='accent'
-                                                onClick={handleTrialActivateClick} 
-                                                loading={trialActivateLoading}
-                                                disabled={!canManageSubscriptions}
+                                                type='primary'
+                                                onClick={handleActivePlanClick}
+                                                loading={activateLoading}
+                                                disabled={hasPendingRequest || !price?.id || !canManageSubscriptions}
                                             >
-                                                {TryFreeMessage}
+                                                {primaryButtonLabel}
                                             </Button>
-                                        )}
-                                    </Space>
-                                )}
-                            </Space>
+                                            {canActivateTrial && (
+                                                <Button
+                                                    block
+                                                    type='accent'
+                                                    onClick={handleTrialActivateClick} 
+                                                    loading={trialActivateLoading}
+                                                    disabled={!canManageSubscriptions}
+                                                >
+                                                    {TryFreeMessage}
+                                                </Button>
+                                            )}
+                                        </Space>
+                                    )}
+                                </Space>
+                            )}
                         </Space>
                     </div>
                     <Collapse

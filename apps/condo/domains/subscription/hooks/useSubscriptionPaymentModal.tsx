@@ -15,6 +15,8 @@ type PaymentMethod = 'card' | 'invoice'
 interface UseSubscriptionPaymentModalProps {
     handleActivatePlan: () => Promise<void> | void
     activateLoading: boolean
+    organizationId: string
+    pricingRuleId: string
 }
 
 interface UseSubscriptionPaymentModalReturn {
@@ -34,6 +36,8 @@ const INVOICE_EMOJI = '📃'
 export const useSubscriptionPaymentModal = ({
     handleActivatePlan,
     activateLoading,
+    organizationId,
+    pricingRuleId,
 }: UseSubscriptionPaymentModalProps): UseSubscriptionPaymentModalReturn => {
     const intl = useIntl()
     const ModalTitleMessage = intl.formatMessage({ id: 'subscription.paymentModal.title' })
@@ -68,10 +72,13 @@ export const useSubscriptionPaymentModal = ({
 
     const handleProceedToPayment = useCallback(() => {
         if (subscriptionPayUrl) {
-            window.open(subscriptionPayUrl, '_self')
+            const url = new URL(subscriptionPayUrl)
+            url.searchParams.set('organizationId', organizationId)
+            url.searchParams.set('subscriptionPlanPricingRuleId', pricingRuleId)
+            window.open(url.toString(), '_self')
         }
         closeModal()
-    }, [closeModal])
+    }, [closeModal, organizationId, pricingRuleId])
 
     const handleIssueInvoice = useCallback(async () => {
         await handleActivatePlan()

@@ -3174,7 +3174,6 @@
   "subscription.promoBanner.requestSent": "Заявка на банковское обслуживание отправлена",
   "subscription.promoBanner.requestSentDescription": "Наш менеджер свяжется с вами, чтобы проконсультировать по условиям и помочь с оформлением.",
   "subscription.linkedCards.title": "Привязанные карты",
-  "subscription.linkedCards.forSubscriptionPayment": "(для оплаты подписки)",
   "subscription.linkedCards.unbind.title": "Отвязать карту",
   "subscription.linkedCards.unbind.message": "Вы уверены, что хотите отвязать эту карту? Автоматическое продление подписки будет отключено.",
   "subscription.linkedCards.unbind.action": "Отвязать",

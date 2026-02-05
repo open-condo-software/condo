@@ -38,6 +38,7 @@ query getOrganizationTrialSubscriptions($organizationId: ID!) {
         daysRemaining
         endAt
         createdAt
+        meta
     }
 }
 
@@ -58,6 +59,7 @@ query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
         isTrial
         startAt
         endAt
+        meta
     }
 }
 
@@ -74,13 +76,6 @@ query getSubscriptionContextById($id: ID!) {
         startAt
         endAt
         daysRemaining
-        meta
-    }
-}
-
-mutation updateSubscriptionContextMeta($id: ID!, $data: SubscriptionContextUpdateInput!) {
-    context: updateSubscriptionContext(id: $id, data: $data) {
-        id
         meta
     }
 }

@@ -831,7 +831,7 @@ export type GetOrganizationTrialSubscriptionsQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetOrganizationTrialSubscriptionsQuery = { __typename?: 'Query', trialSubscriptions?: Array<{ __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, startAt?: string | null, daysRemaining?: number | null, endAt?: string | null, createdAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null } | null } | null> | null };
+export type GetOrganizationTrialSubscriptionsQuery = { __typename?: 'Query', trialSubscriptions?: Array<{ __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, startAt?: string | null, daysRemaining?: number | null, endAt?: string | null, createdAt?: string | null, meta?: any | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null } | null } | null> | null };
 
 export type GetLastExpiredSubscriptionContextQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
@@ -839,7 +839,7 @@ export type GetLastExpiredSubscriptionContextQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetLastExpiredSubscriptionContextQuery = { __typename?: 'Query', lastExpiredContext?: Array<{ __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, startAt?: string | null, endAt?: string | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null } | null } | null> | null };
+export type GetLastExpiredSubscriptionContextQuery = { __typename?: 'Query', lastExpiredContext?: Array<{ __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, startAt?: string | null, endAt?: string | null, meta?: any | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null } | null } | null> | null };
 
 export type GetSubscriptionContextByIdQueryVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];
@@ -847,14 +847,6 @@ export type GetSubscriptionContextByIdQueryVariables = Types.Exact<{
 
 
 export type GetSubscriptionContextByIdQuery = { __typename?: 'Query', subscriptionContext?: { __typename?: 'SubscriptionContext', id: string, isTrial?: boolean | null, startAt?: string | null, endAt?: string | null, daysRemaining?: number | null, meta?: any | null, subscriptionPlan?: { __typename?: 'SubscriptionPlan', id: string, name?: string | null, priority?: number | null, canBePromoted?: boolean | null } | null } | null };
-
-export type UpdateSubscriptionContextMetaMutationVariables = Types.Exact<{
-  id: Types.Scalars['ID']['input'];
-  data: Types.SubscriptionContextUpdateInput;
-}>;
-
-
-export type UpdateSubscriptionContextMetaMutation = { __typename?: 'Mutation', context?: { __typename?: 'SubscriptionContext', id: string, meta?: any | null } | null };
 
 export type GetPendingSubscriptionRequestsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];

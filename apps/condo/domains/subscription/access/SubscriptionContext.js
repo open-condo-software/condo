@@ -24,23 +24,7 @@ async function canManageSubscriptionContexts ({ authentication: { item: user }, 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin || user.isSupport) return true
-
-    // For update operations, allow employees with canManageSubscriptions to update meta field only
-    if (operation === 'update') {
-        const updatedFields = Object.keys(originalInput || {}).filter(key => !['dv', 'sender'].includes(key))
-        const isOnlyMetaUpdate = updatedFields.length === 1 && updatedFields[0] === 'meta'
-        
-        if (isOnlyMetaUpdate && itemId) {
-            const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canManageSubscriptions')
-            
-            return {
-                organization: { id_in: permittedOrganizations },
-            }
-        }
-    }
-
-    return false
+    return user.isAdmin || user.isSupport
 }
 
 module.exports = {

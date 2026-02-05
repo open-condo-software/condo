@@ -21,8 +21,11 @@ export const SubscriptionDaysIndicator: React.FC = () => {
     const planName = subscriptionContext?.subscriptionPlan?.name || ''
     const endDate = subscriptionContext?.endAt ? dayjs(subscriptionContext.endAt).format('DD.MM.YY') : ''
 
+    const hasPaymentMethod = Boolean(subscriptionContext?.meta?.paymentMethod)
+    
     const shouldShow = useMemo(() => {
         if (!subscriptionContext || daysRemaining === undefined || daysRemaining === null) return false
+        if (hasPaymentMethod) return false
         if (isTrial && daysRemaining <= 30 && daysRemaining >= 0) {
             return true
         }
@@ -30,7 +33,7 @@ export const SubscriptionDaysIndicator: React.FC = () => {
             return true
         }
         return false
-    }, [subscriptionContext, isTrial, daysRemaining])
+    }, [subscriptionContext, isTrial, daysRemaining, hasPaymentMethod])
 
     const progressPercent = useMemo(() => {
         if (daysRemaining === undefined || daysRemaining === null) return 0

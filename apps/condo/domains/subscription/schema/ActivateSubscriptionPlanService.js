@@ -144,26 +144,11 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                         // TODO(DOMA-12895): Move payment methods from Organization.meta to separate model
                         if (paymentMethod) {
                             const existingPaymentMethods = organization.meta?.paymentMethods || []
-                            const disabledPaymentMethodIndex = existingPaymentMethods.findIndex(
-                                pm => pm.id === paymentMethod.id && pm.disabled
-                            )
                             const paymentMethodExists = existingPaymentMethods.some(
-                                pm => pm.id === paymentMethod.id && !pm.disabled
+                                pm => pm.id === paymentMethod.id
                             )
                             
-                            if (disabledPaymentMethodIndex !== -1) {
-                                const updatedPaymentMethods = [...existingPaymentMethods]
-                                updatedPaymentMethods[disabledPaymentMethodIndex] = paymentMethod
-                                
-                                await Organization.update(context, organization.id, {
-                                    dv,
-                                    sender,
-                                    meta: {
-                                        ...organization.meta,
-                                        paymentMethods: updatedPaymentMethods,
-                                    },
-                                })
-                            } else if (!paymentMethodExists) {
+                            if (!paymentMethodExists) {
                                 await Organization.update(context, organization.id, {
                                     dv,
                                     sender,

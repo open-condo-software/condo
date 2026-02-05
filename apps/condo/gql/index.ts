@@ -5168,6 +5168,7 @@ export const GetOrganizationTrialSubscriptionsDocument = gql`
     daysRemaining
     endAt
     createdAt
+    meta
   }
 }
     `;
@@ -5219,6 +5220,7 @@ export const GetLastExpiredSubscriptionContextDocument = gql`
     isTrial
     startAt
     endAt
+    meta
   }
 }
     `;
@@ -5307,41 +5309,6 @@ export type GetSubscriptionContextByIdQueryHookResult = ReturnType<typeof useGet
 export type GetSubscriptionContextByIdLazyQueryHookResult = ReturnType<typeof useGetSubscriptionContextByIdLazyQuery>;
 export type GetSubscriptionContextByIdSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionContextByIdSuspenseQuery>;
 export type GetSubscriptionContextByIdQueryResult = Apollo.QueryResult<Types.GetSubscriptionContextByIdQuery, Types.GetSubscriptionContextByIdQueryVariables>;
-export const UpdateSubscriptionContextMetaDocument = gql`
-    mutation updateSubscriptionContextMeta($id: ID!, $data: SubscriptionContextUpdateInput!) {
-  context: updateSubscriptionContext(id: $id, data: $data) {
-    id
-    meta
-  }
-}
-    `;
-export type UpdateSubscriptionContextMetaMutationFn = Apollo.MutationFunction<Types.UpdateSubscriptionContextMetaMutation, Types.UpdateSubscriptionContextMetaMutationVariables>;
-
-/**
- * __useUpdateSubscriptionContextMetaMutation__
- *
- * To run a mutation, you first call `useUpdateSubscriptionContextMetaMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateSubscriptionContextMetaMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateSubscriptionContextMetaMutation, { data, loading, error }] = useUpdateSubscriptionContextMetaMutation({
- *   variables: {
- *      id: // value for 'id'
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useUpdateSubscriptionContextMetaMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateSubscriptionContextMetaMutation, Types.UpdateSubscriptionContextMetaMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<Types.UpdateSubscriptionContextMetaMutation, Types.UpdateSubscriptionContextMetaMutationVariables>(UpdateSubscriptionContextMetaDocument, options);
-      }
-export type UpdateSubscriptionContextMetaMutationHookResult = ReturnType<typeof useUpdateSubscriptionContextMetaMutation>;
-export type UpdateSubscriptionContextMetaMutationResult = Apollo.MutationResult<Types.UpdateSubscriptionContextMetaMutation>;
-export type UpdateSubscriptionContextMetaMutationOptions = Apollo.BaseMutationOptions<Types.UpdateSubscriptionContextMetaMutation, Types.UpdateSubscriptionContextMetaMutationVariables>;
 export const GetPendingSubscriptionRequestsDocument = gql`
     query getPendingSubscriptionRequests($organizationId: ID!) {
   pendingRequests: allUserHelpRequests(

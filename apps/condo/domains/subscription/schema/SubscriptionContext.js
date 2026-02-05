@@ -121,7 +121,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             access: {
                 read: true,
                 create: true,
-                update: true,
+                update: false,
             },
         },
 

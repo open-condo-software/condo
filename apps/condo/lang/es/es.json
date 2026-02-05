@@ -3174,7 +3174,6 @@
   "subscription.promoBanner.requestSent": "Solicitud bancaria enviada",
   "subscription.promoBanner.requestSentDescription": "Nuestro gerente se pondrá en contacto con usted para asesorarle sobre las condiciones y ayudar con la formalización.",
   "subscription.linkedCards.title": "Tarjetas vinculadas",
-  "subscription.linkedCards.forSubscriptionPayment": "(para el pago de la suscripción)",
   "subscription.linkedCards.unbind.title": "Desvincular tarjeta",
   "subscription.linkedCards.unbind.message": "¿Está seguro de que desea desvincular esta tarjeta? La renovación automática de la suscripción se desactivará.",
   "subscription.linkedCards.unbind.action": "Desvincular",

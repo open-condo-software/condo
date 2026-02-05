@@ -3174,7 +3174,6 @@
   "subscription.promoBanner.requestSent": "The request for banking services has been sent",
   "subscription.promoBanner.requestSentDescription": "Our manager will contact you to advise on the conditions and help with the registration.",
   "subscription.linkedCards.title": "Linked cards",
-  "subscription.linkedCards.forSubscriptionPayment": "(for subscription payment)",
   "subscription.linkedCards.unbind.title": "Unbind card",
   "subscription.linkedCards.unbind.message": "Are you sure you want to unbind this card? Automatic subscription renewal will be disabled.",
   "subscription.linkedCards.unbind.action": "Unbind",
