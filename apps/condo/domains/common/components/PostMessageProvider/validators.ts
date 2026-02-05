@@ -154,6 +154,7 @@ const CondoWebAppSetActionBarConfigSchema = {
     type: 'object',
     properties: {
         visible: { type: 'boolean' },
+        message: { type: 'string' },
         actions: {
             type: 'array',
             minItems: 1,
@@ -166,6 +167,7 @@ const CondoWebAppSetActionBarConfigSchema = {
                     loading: { type: 'boolean' },
                     disabled: { type: 'boolean' },
                     icon: { enum: ['download'] },
+                    iconSize: { enum: ['auto', 'large', 'medium', 'small'] },
                 },
                 required: ['id', 'label'],
                 additionalProperties: false,
