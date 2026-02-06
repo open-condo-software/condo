@@ -3179,6 +3179,7 @@
   "subscription.linkedCards.unbind.action": "Desvincular",
   "subscription.linkedCards.unbind.notification.title": "Tarjeta desvinculada con éxito",
   "subscription.linkedCards.unbind.notification.description": "La tarjeta ya no se utiliza para el pago de la suscripción",
+  "subscription.linkedCards.forSubscriptionPayment": "(para el pago de la suscripción)",
   "tasks.BankReportTask.progress.description.completed": "Informe creado",
   "tasks.BankReportTask.progress.description.processing": "Recopilación de datos para visualización",
   "tasks.BankReportTask.progress.title": "Creación de informe",
