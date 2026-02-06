@@ -227,7 +227,7 @@ export async function createNewPricesAndPriceScopes ({
     }
 }
 
-export const INITIAL_PRICE_FORM_VALUE = { properties: [], priceType: PriceType.Exact }
+export const INITIAL_PRICE_FORM_VALUE = { properties: [], priceType: PriceType.Exact, measure: PriceMeasuresType.PerItem }
 
 const FORM_REQUIRED_FIELDS = ['prices', 'name', 'sku', 'parentCategory', 'marketCategory']
 
