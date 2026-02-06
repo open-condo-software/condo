@@ -33,6 +33,7 @@ const CONTENT_CONFIGURATION_FIELD_TYPE = `
 `
 
 const contentConfigurationValidator = CONTENT_CONFIGURATION_SCHEMA
+const CONTENT_CONFIGURATION_GRAPHQL_ADMIN_FRAGMENT = '{ marketplace { appId } }'
 
 const ERRORS = {
     TICKET_SUBMITTING_PHONES_NOT_CONFIGURED: {
@@ -93,6 +94,7 @@ const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
             type: 'Json',
             extendGraphQLTypes: [CONTENT_CONFIGURATION_FIELD_TYPE],
             graphQLReturnType: CONTENT_CONFIGURATION_FIELD_NAME,
+            graphQLAdminFragment: CONTENT_CONFIGURATION_GRAPHQL_ADMIN_FRAGMENT,
             isRequired: false,
             hooks: {
                 validateInput: getGQLErrorValidator(contentConfigurationValidator, 'CONTENT_CONFIGURATION_INVALID'),
