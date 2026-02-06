@@ -72,10 +72,14 @@ export const useSubscriptionPaymentModal = ({
 
     const handleProceedToPayment = useCallback(() => {
         if (subscriptionPayUrl) {
-            const url = new URL(subscriptionPayUrl)
-            url.searchParams.set('organizationId', organizationId)
-            url.searchParams.set('subscriptionPlanPricingRuleId', pricingRuleId)
-            window.open(url.toString(), '_self')
+            try {
+                const url = new URL(subscriptionPayUrl)
+                url.searchParams.set('organizationId', organizationId)
+                url.searchParams.set('subscriptionPlanPricingRuleId', pricingRuleId)
+                window.open(url.toString(), '_self')
+            } catch (error) {
+                console.error('Link opening error:', error)
+            }
         }
         closeModal()
     }, [closeModal, organizationId, pricingRuleId])

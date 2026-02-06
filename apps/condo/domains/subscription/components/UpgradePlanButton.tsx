@@ -1,5 +1,4 @@
 import { useGetAvailableSubscriptionPlansQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
-import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
