@@ -23,13 +23,25 @@ type PaymentMethod = {
     cardIssuerName?: string
 }
 
+const getCardIssuerImageUrl = (cardIssuerName?: string): string => {
+    if (!cardIssuerName) return '/otherCard.svg'
+    
+    const lowerIssuerName = cardIssuerName.toLowerCase()
+    const matchingKey = Object.keys(CARD_ISSUER_IMAGES).find(key => 
+        lowerIssuerName.includes(key.toLowerCase())
+    )
+    
+    return matchingKey ? CARD_ISSUER_IMAGES[matchingKey] : '/otherCard.svg'
+}
+
 export const useLinkedCardsModal = () => {
     const intl = useIntl()
     const { organization, role } = useOrganization()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
     const [isUnbinding, setIsUnbinding] = useState(false)
-    
+    const [imageError, setImageError] = useState(false)
+
     const { data: organizationMetaData, refetch: refetchOrganizationMeta } = useGetOrganizationMetaQuery({
         variables: { id: organization?.id || '' },
         skip: !organization?.id,
@@ -44,6 +56,19 @@ export const useLinkedCardsModal = () => {
     const ErrorNotificationTitle = intl.formatMessage({ id: 'subscription.linkedCards.unbind.error.title' })
     const ErrorNotificationDescription = intl.formatMessage({ id: 'subscription.linkedCards.unbind.error.description' })
     const ForSubscriptionPaymentMessage = intl.formatMessage({ id: 'subscription.linkedCards.forSubscriptionPayment' })
+
+    const getCardTypeTranslation = useCallback((cardType?: string): string => {
+        if (!cardType) return ''
+        
+        const upperCardType = cardType.toUpperCase()
+        const translationKey = `subscription.linkedCards.cardType.${upperCardType}`
+        
+        try {
+            return intl.formatMessage({ id: translationKey as FormatjsIntl.Message['ids'] })
+        } catch {
+            return upperCardType
+        }
+    }, [intl])
 
     const paymentMethods: PaymentMethod[] = useMemo(() => {
         return organizationMetaData?.organization?.meta?.paymentMethods || organization?.meta?.paymentMethods || []
@@ -130,15 +155,16 @@ export const useLinkedCardsModal = () => {
                             <Col>
                                 <Space size={8} direction='horizontal'>
                                     <img 
-                                        src={CARD_ISSUER_IMAGES[paymentMethod.cardIssuerName] || '/otherCard.svg'} 
+                                        src={imageError ? '/otherCard.svg' : getCardIssuerImageUrl(paymentMethod.cardIssuerName)} 
                                         alt={paymentMethod.cardIssuerName || 'card'}
                                         width={60}
                                         height={40}
                                         style={{ display: 'block' }}
+                                        onError={() => setImageError(true)}
                                     />
                                     <Space size={4} direction='horizontal'>
                                         <Typography.Text>
-                                            {paymentMethod.cardType} ∙ {paymentMethod.cardMask?.slice(-4)}
+                                            {getCardTypeTranslation(paymentMethod.cardType)} ∙ {paymentMethod.cardMask?.slice(-4)}
                                         </Typography.Text>
                                         <Typography.Text type='secondary'>
                                             {ForSubscriptionPaymentMessage}
@@ -183,7 +209,7 @@ export const useLinkedCardsModal = () => {
                 </Typography.Paragraph>
             </Modal>
         </>
-    ), [isModalOpen, closeModal, LinkedCardsTitle, paymentMethod, ForSubscriptionPaymentMessage, handleUnbindClick, canManageSubscriptions, isConfirmModalOpen, closeConfirmModal, UnbindCardTitle, isUnbinding, handleUnbindConfirm, UnbindButtonLabel, UnbindCardMessage])
+    ), [isModalOpen, closeModal, LinkedCardsTitle, paymentMethod, imageError, getCardTypeTranslation, ForSubscriptionPaymentMessage, handleUnbindClick, canManageSubscriptions, isConfirmModalOpen, closeConfirmModal, UnbindCardTitle, isUnbinding, handleUnbindConfirm, UnbindButtonLabel, UnbindCardMessage])
 
     return {
         LinkedCardsModal,
