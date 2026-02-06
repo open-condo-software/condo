@@ -3036,6 +3036,8 @@ type UserRightsSetHistoryRecord {
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
+  canExecuteGetAvailableSubscriptionPlans: Boolean
+  canExecuteActivateSubscriptionPlan: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3175,6 +3177,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecute_allPaymentsSum_not: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecute_allBillingReceiptsSum_not: Boolean
+  canExecuteGetAvailableSubscriptionPlans: Boolean
+  canExecuteGetAvailableSubscriptionPlans_not: Boolean
+  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteActivateSubscriptionPlan_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -3370,6 +3376,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecute_allPaymentsSum_DESC
   canExecute_allBillingReceiptsSum_ASC
   canExecute_allBillingReceiptsSum_DESC
+  canExecuteGetAvailableSubscriptionPlans_ASC
+  canExecuteGetAvailableSubscriptionPlans_DESC
+  canExecuteActivateSubscriptionPlan_ASC
+  canExecuteActivateSubscriptionPlan_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canManageBillingIntegrationOrganizationContextDeletedAtField_ASC
@@ -3452,6 +3462,8 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
+  canExecuteGetAvailableSubscriptionPlans: Boolean
+  canExecuteActivateSubscriptionPlan: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3528,6 +3540,8 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
+  canExecuteGetAvailableSubscriptionPlans: Boolean
+  canExecuteActivateSubscriptionPlan: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -3761,6 +3775,14 @@ type UserRightsSet {
   """
   canExecute_allBillingReceiptsSum: Boolean
 
+  """ Enables a user with the given UserRightsSet to execute "getAvailableSubscriptionPlans" query/mutation 
+  """
+  canExecuteGetAvailableSubscriptionPlans: Boolean
+
+  """ Enables a user with the given UserRightsSet to execute "activateSubscriptionPlan" query/mutation 
+  """
+  canExecuteActivateSubscriptionPlan: Boolean
+
   """ Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization" 
   """
   canManageOrganizationIsApprovedField: Boolean
@@ -3928,6 +3950,10 @@ input UserRightsSetWhereInput {
   canExecute_allPaymentsSum_not: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecute_allBillingReceiptsSum_not: Boolean
+  canExecuteGetAvailableSubscriptionPlans: Boolean
+  canExecuteGetAvailableSubscriptionPlans_not: Boolean
+  canExecuteActivateSubscriptionPlan: Boolean
+  canExecuteActivateSubscriptionPlan_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
@@ -4103,6 +4129,10 @@ enum SortUserRightsSetsBy {
   canExecute_allPaymentsSum_DESC
   canExecute_allBillingReceiptsSum_ASC
   canExecute_allBillingReceiptsSum_DESC
+  canExecuteGetAvailableSubscriptionPlans_ASC
+  canExecuteGetAvailableSubscriptionPlans_DESC
+  canExecuteActivateSubscriptionPlan_ASC
+  canExecuteActivateSubscriptionPlan_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canManageBillingIntegrationOrganizationContextDeletedAtField_ASC
@@ -4185,6 +4215,8 @@ input UserRightsSetUpdateInput {
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
+  canExecuteGetAvailableSubscriptionPlans: Boolean
+  canExecuteActivateSubscriptionPlan: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -4258,6 +4290,8 @@ input UserRightsSetCreateInput {
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
+  canExecuteGetAvailableSubscriptionPlans: Boolean
+  canExecuteActivateSubscriptionPlan: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageBillingIntegrationOrganizationContextDeletedAtField: Boolean
   canManageTicketSentToAuthoritiesAtField: Boolean
@@ -59399,6 +59433,7 @@ type SubscriptionContextHistoryRecord {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -59463,6 +59498,10 @@ input SubscriptionContextHistoryRecordWhereInput {
   appliedRules_not_in: [JSON]
   isTrial: Boolean
   isTrial_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59583,6 +59622,7 @@ input SubscriptionContextHistoryRecordUpdateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59611,6 +59651,7 @@ input SubscriptionContextHistoryRecordCreateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59667,6 +59708,10 @@ type SubscriptionContext {
   """ Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays) 
   """
   isTrial: Boolean
+
+  """ Subscription metadata containing paymentMethod, price, and pricingRuleId 
+  """
+  meta: JSON
 
   """ Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired 
   """
@@ -59739,6 +59784,10 @@ input SubscriptionContextWhereInput {
   appliedRules_not_in: [JSON]
   isTrial: Boolean
   isTrial_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59843,6 +59892,7 @@ input SubscriptionContextUpdateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59868,6 +59918,7 @@ input SubscriptionContextCreateInput {
   calculatedPrice: String
   appliedRules: JSON
   isTrial: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -91378,12 +91429,24 @@ type GetAvailableSubscriptionPlansOutput {
   plans: [AvailableSubscriptionPlan]!
 }
 
+input PaymentMethodInput {
+  id: String!
+  type: String!
+  cardMask: String
+  cardType: String
+  title: String
+  cardIssuerCountry: String
+  cardIssuerName: String
+}
+
 input ActivateSubscriptionPlanInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
   pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
   isTrial: Boolean
+  paymentMethod: PaymentMethodInput
+  paymentId: String
 }
 
 type ActivateSubscriptionPlanOutput {

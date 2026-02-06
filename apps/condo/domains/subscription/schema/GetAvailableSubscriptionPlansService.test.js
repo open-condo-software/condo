@@ -15,7 +15,7 @@ const {
     createTestSubscriptionPlan,
     createTestSubscriptionPlanPricingRule,
 } = require('@condo/domains/subscription/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser, createTestUserRightsSet, updateTestUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./GetAvailableSubscriptionPlansService')
 
@@ -89,6 +89,28 @@ describe('GetAvailableSubscriptionPlansService', () => {
             const [result] = await getAvailableSubscriptionPlansByTestClient(employee, employee.organization)
 
             expect(result.plans).toBeDefined()
+        })
+
+        test('service user with direct access can get available plans', async () => {
+            const serviceUser = await makeClientWithServiceUser()
+            const [rightsSet] = await createTestUserRightsSet(admin, {
+                canExecuteGetAvailableSubscriptionPlans: true,
+            })
+            await updateTestUser(admin, serviceUser.user.id, {
+                rightsSet: { connect: { id: rightsSet.id } },
+            })
+
+            const [result] = await getAvailableSubscriptionPlansByTestClient(serviceUser, organization)
+
+            expect(result.plans).toBeDefined()
+        })
+
+        test('service user without canExecuteGetAvailableSubscriptionPlans right cannot get available plans', async () => {
+            const serviceUser = await makeClientWithServiceUser()
+
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await getAvailableSubscriptionPlansByTestClient(serviceUser, organization)
+            })
         })
     })
 

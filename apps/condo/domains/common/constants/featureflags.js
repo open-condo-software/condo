@@ -43,6 +43,7 @@ const SUBSCRIPTIONS = 'subscriptions'
 const ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID = 'active-banking-subscription-plan-id'
 const TICKET_OBSERVERS = 'ticket-observers'
 const DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID = 'default-trial-subscription-plan-id'
+const SUBSCRIPTION_PAYMENT_MODAL = 'subscription-payment-modal'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -90,4 +91,5 @@ module.exports = {
     ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID,
     TICKET_OBSERVERS,
     DEFAULT_TRIAL_SUBSCRIPTION_PLAN_ID,
+    SUBSCRIPTION_PAYMENT_MODAL,
 }

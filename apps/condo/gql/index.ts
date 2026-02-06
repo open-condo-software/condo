@@ -5022,6 +5022,82 @@ export type GetAvailableSubscriptionPlansQueryHookResult = ReturnType<typeof use
 export type GetAvailableSubscriptionPlansLazyQueryHookResult = ReturnType<typeof useGetAvailableSubscriptionPlansLazyQuery>;
 export type GetAvailableSubscriptionPlansSuspenseQueryHookResult = ReturnType<typeof useGetAvailableSubscriptionPlansSuspenseQuery>;
 export type GetAvailableSubscriptionPlansQueryResult = Apollo.QueryResult<Types.GetAvailableSubscriptionPlansQuery, Types.GetAvailableSubscriptionPlansQueryVariables>;
+export const GetOrganizationMetaDocument = gql`
+    query getOrganizationMeta($id: ID!) {
+  organization: Organization(where: {id: $id}) {
+    id
+    meta
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationMetaQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationMetaQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationMetaQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationMetaQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetOrganizationMetaQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationMetaQuery, Types.GetOrganizationMetaQueryVariables> & ({ variables: Types.GetOrganizationMetaQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetOrganizationMetaQuery, Types.GetOrganizationMetaQueryVariables>(GetOrganizationMetaDocument, options);
+      }
+export function useGetOrganizationMetaLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationMetaQuery, Types.GetOrganizationMetaQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetOrganizationMetaQuery, Types.GetOrganizationMetaQueryVariables>(GetOrganizationMetaDocument, options);
+        }
+export function useGetOrganizationMetaSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationMetaQuery, Types.GetOrganizationMetaQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetOrganizationMetaQuery, Types.GetOrganizationMetaQueryVariables>(GetOrganizationMetaDocument, options);
+        }
+export type GetOrganizationMetaQueryHookResult = ReturnType<typeof useGetOrganizationMetaQuery>;
+export type GetOrganizationMetaLazyQueryHookResult = ReturnType<typeof useGetOrganizationMetaLazyQuery>;
+export type GetOrganizationMetaSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationMetaSuspenseQuery>;
+export type GetOrganizationMetaQueryResult = Apollo.QueryResult<Types.GetOrganizationMetaQuery, Types.GetOrganizationMetaQueryVariables>;
+export const UpdateOrganizationPaymentMethodsDocument = gql`
+    mutation updateOrganizationPaymentMethods($id: ID!, $data: OrganizationUpdateInput!) {
+  organization: updateOrganization(id: $id, data: $data) {
+    id
+    meta
+  }
+}
+    `;
+export type UpdateOrganizationPaymentMethodsMutationFn = Apollo.MutationFunction<Types.UpdateOrganizationPaymentMethodsMutation, Types.UpdateOrganizationPaymentMethodsMutationVariables>;
+
+/**
+ * __useUpdateOrganizationPaymentMethodsMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationPaymentMethodsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationPaymentMethodsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationPaymentMethodsMutation, { data, loading, error }] = useUpdateOrganizationPaymentMethodsMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationPaymentMethodsMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateOrganizationPaymentMethodsMutation, Types.UpdateOrganizationPaymentMethodsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateOrganizationPaymentMethodsMutation, Types.UpdateOrganizationPaymentMethodsMutationVariables>(UpdateOrganizationPaymentMethodsDocument, options);
+      }
+export type UpdateOrganizationPaymentMethodsMutationHookResult = ReturnType<typeof useUpdateOrganizationPaymentMethodsMutation>;
+export type UpdateOrganizationPaymentMethodsMutationResult = Apollo.MutationResult<Types.UpdateOrganizationPaymentMethodsMutation>;
+export type UpdateOrganizationPaymentMethodsMutationOptions = Apollo.BaseMutationOptions<Types.UpdateOrganizationPaymentMethodsMutation, Types.UpdateOrganizationPaymentMethodsMutationVariables>;
 export const GetOrganizationActivatedSubscriptionsDocument = gql`
     query getOrganizationActivatedSubscriptions($organizationId: ID!) {
   activatedSubscriptions: allSubscriptionContexts(
@@ -5037,6 +5113,7 @@ export const GetOrganizationActivatedSubscriptionsDocument = gql`
     }
     isTrial
     endAt
+    meta
   }
 }
     `;
@@ -5090,6 +5167,7 @@ export const GetOrganizationTrialSubscriptionsDocument = gql`
     daysRemaining
     endAt
     createdAt
+    meta
   }
 }
     `;
@@ -5141,6 +5219,7 @@ export const GetLastExpiredSubscriptionContextDocument = gql`
     isTrial
     startAt
     endAt
+    meta
   }
 }
     `;
@@ -5192,6 +5271,7 @@ export const GetSubscriptionContextByIdDocument = gql`
     startAt
     endAt
     daysRemaining
+    meta
   }
 }
     `;

@@ -114,6 +114,17 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
+        meta: {
+            schemaDoc: 'Subscription metadata containing paymentMethod, price, and pricingRuleId',
+            type: 'Json',
+            isRequired: false,
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
+        },
+
         daysRemaining: {
             schemaDoc: 'Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired',
             type: 'Virtual',

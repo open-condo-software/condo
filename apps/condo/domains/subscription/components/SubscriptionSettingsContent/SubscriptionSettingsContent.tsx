@@ -1,5 +1,6 @@
 import { useGetAvailableSubscriptionPlansQuery, GetAvailableSubscriptionPlansQueryResult, useGetOrganizationTrialSubscriptionsQuery, useActivateSubscriptionPlanMutation, useGetPendingSubscriptionRequestsQuery, useGetB2BAppsByIdsQuery, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
 import { notification } from 'antd'
+import dayjs from 'dayjs'
 import React, { useState, useMemo } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -88,7 +89,9 @@ export const SubscriptionSettingsContent: React.FC = () => {
     })
 
     const { data: activatedSubscriptionsData, loading: activatedSubscriptionsLoading, refetch: refetchActivatedSubscriptions } = useGetOrganizationActivatedSubscriptionsQuery({
-        variables: { organizationId: organization?.id },
+        variables: { 
+            organizationId: organization?.id || '',
+        },
         skip: !organization?.id,
     })
 

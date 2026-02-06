@@ -38,7 +38,7 @@ export const useOrganizationSubscription = () => {
     const { useFlag } = useFeatureFlags()
     const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
 
-    const { data: contextData, loading: contextLoading } = useGetSubscriptionContextByIdQuery({
+    const { data: contextData, loading: contextLoading, refetch: refetchContext } = useGetSubscriptionContextByIdQuery({
         variables: {
             id: subscriptionFeatures?.activeSubscriptionContextId || '',
         },
@@ -94,5 +94,6 @@ export const useOrganizationSubscription = () => {
         daysRemaining,
         loading: orgLoading || plansLoading || contextLoading,
         hasAvailablePlans,
+        refetch: refetchContext,
     }
 }

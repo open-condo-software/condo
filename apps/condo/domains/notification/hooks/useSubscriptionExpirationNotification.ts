@@ -62,8 +62,14 @@ export const useSubscriptionExpirationNotification = (): SubscriptionExpirationN
         }
     }, [createdAt, readSubscriptionExpirationMessageAt, storage, organizationId])
 
+    const hasPaymentMethod = Boolean(subscriptionContext?.meta?.paymentMethod)
+
     const messageContent = useMemo(() => {
         if (daysRemaining === null || daysRemaining > DAYS_BEFORE_EXPIRATION_TO_SHOW || daysRemaining < 0) {
+            return null
+        }
+
+        if (hasPaymentMethod) {
             return null
         }
 
@@ -102,7 +108,7 @@ export const useSubscriptionExpirationNotification = (): SubscriptionExpirationN
                 { planName }
             ),
         }
-    }, [daysRemaining, subscriptionContext?.isTrial, subscriptionContext?.subscriptionPlan?.name, intl])
+    }, [hasPaymentMethod, daysRemaining, subscriptionContext?.isTrial, subscriptionContext?.subscriptionPlan?.name, intl])
 
     if (!organizationId || !subscriptionContext || !messageContent) {
         return {}

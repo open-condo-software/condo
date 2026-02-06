@@ -25,7 +25,9 @@ export const UpgradePlanButton: React.FC = () => {
     })
 
     const { data: activatedSubscriptionsData, loading: activatedSubscriptionsLoading } = useGetOrganizationActivatedSubscriptionsQuery({
-        variables: { organizationId: organization?.id },
+        variables: { 
+            organizationId: organization?.id || '',
+        },
         skip: !organization?.id,
     })
     const activatedSubscriptions = useMemo(() => activatedSubscriptionsData?.activatedSubscriptions || [], [activatedSubscriptionsData?.activatedSubscriptions])

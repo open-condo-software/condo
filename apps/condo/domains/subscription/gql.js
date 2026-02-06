@@ -16,7 +16,7 @@ const SubscriptionPlan = generateGqlQueries('SubscriptionPlan', SUBSCRIPTION_PLA
 const SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS = `{ name description subscriptionPlan { id } period conditions price currencyCode priority isHidden ${COMMON_FIELDS} }`
 const SubscriptionPlanPricingRule = generateGqlQueries('SubscriptionPlanPricingRule', SUBSCRIPTION_PLAN_PRICING_RULE_FIELDS)
 
-const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } startAt endAt isTrial daysRemaining ${COMMON_FIELDS} }`
+const SUBSCRIPTION_CONTEXT_FIELDS = `{ organization { id } subscriptionPlan { id } basePrice startAt endAt isTrial daysRemaining ${COMMON_FIELDS} }`
 const SubscriptionContext = generateGqlQueries('SubscriptionContext', SUBSCRIPTION_CONTEXT_FIELDS)
 
 const ACTIVATE_SUBSCRIPTION_PLAN_MUTATION = gql`

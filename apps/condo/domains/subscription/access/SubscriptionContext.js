@@ -20,7 +20,7 @@ async function canReadSubscriptionContexts ({ authentication: { item: user }, co
     }
 }
 
-async function canManageSubscriptionContexts ({ authentication: { item: user } }) {
+async function canManageSubscriptionContexts ({ authentication: { item: user }, context, operation, originalInput, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 

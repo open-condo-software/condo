@@ -3,7 +3,7 @@
   flex-direction: column;
   width: 30%;
   min-width: 260px;
-  min-height: 380px;
+  max-width: 380px;
   transition: border-color transform var(--condo-global-transition-duration-default) ease;
 }
 
@@ -12,18 +12,11 @@
 }
 
 .main-content {
-  min-height: 240px;
+  width: 100%;
 }
 
 .description {
-  height: 72px;
   overflow: hidden;
-}
-
-.buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
 }
 
 .header {

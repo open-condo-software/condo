@@ -68,7 +68,8 @@ const verifyUserEmailWithMarketingConsentEnabled = conf['VERIFY_USER_EMAIL_WITH_
 const fileClientId = conf['FILE_CLIENT_ID']
 const RUNTIME_TRANSLATIONS = JSON.parse(conf['RUNTIME_TRANSLATIONS'] || '{}')
 const subscriptionFeatureHelpLinks = JSON.parse(conf['SUBSCRIPTION_FEATURE_HELP_LINKS'] || '{}')
-
+const subscriptionPayUrl = conf['SUBSCRIPTION_PAY_URL'] || ''
+const cardIssuerImages = JSON.parse(conf['CARD_ISSUER_IMAGES'] || '{}')
 const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY'] } : {}
 
 const nextConfig: NextConfig = {
@@ -146,6 +147,8 @@ const nextConfig: NextConfig = {
         fileClientId,
         runtimeTranslations: RUNTIME_TRANSLATIONS,
         subscriptionFeatureHelpLinks,
+        subscriptionPayUrl,
+        cardIssuerImages,
     },
     serverRuntimeConfig: {
         proxyName,

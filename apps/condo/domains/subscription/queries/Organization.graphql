@@ -1,0 +1,13 @@
+query getOrganizationMeta($id: ID!) {
+    organization: Organization(where: { id: $id }) {
+        id
+        meta
+    }
+}
+
+mutation updateOrganizationPaymentMethods($id: ID!, $data: OrganizationUpdateInput!) {
+    organization: updateOrganization(id: $id, data: $data) {
+        id
+        meta
+    }
+}

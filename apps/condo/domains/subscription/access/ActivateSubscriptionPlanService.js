@@ -4,12 +4,16 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directAccess')
 
-async function canActivateSubscriptionPlan ({ args, authentication: { item: user }, context }) {
+async function canActivateSubscriptionPlan ({ args, authentication: { item: user }, context, gqlName }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return true
+
+    const hasDirectAccess = await canDirectlyExecuteService(user, gqlName)
+    if (hasDirectAccess) return true
 
     const { data } = args
     const organizationId = data?.organization?.id
