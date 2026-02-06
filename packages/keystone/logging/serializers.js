@@ -30,18 +30,18 @@ function toString (data) {
 }
 
 const REDACTED_VALUE = '***'
-const SENSITIVE_HEADERS = new Set(['authorization', 'proxy-authorization'])
-const SENSITIVE_RESPONSE_HEADERS = new Set(['set-cookie'])
-const SENSITIVE_COOKIE_NAMES = new Set(['keystone.sid'])
+const SENSITIVE_HEADERS_REGEX = /^(authorization|proxy-authorization)$/i
+const SENSITIVE_RESPONSE_HEADERS_REGEX = /^set-cookie$/i
+const SENSITIVE_COOKIE_NAMES_REGEX = /^keystone\.sid$/i
 
-function redactCookieHeaderValue (cookieValue, sensitiveNames) {
+function redactCookieHeaderValue (cookieValue, sensitiveRegex) {
     if (!cookieValue) return cookieValue
     return cookieValue
         .split(';')
         .map((cookie) => {
             const [name, ...rest] = cookie.split('=')
             const normalizedName = name?.trim()
-            if (normalizedName && sensitiveNames.has(normalizedName)) {
+            if (normalizedName && sensitiveRegex.test(normalizedName)) {
                 return `${normalizedName}=${REDACTED_VALUE}`
             }
             return cookie
@@ -50,20 +50,19 @@ function redactCookieHeaderValue (cookieValue, sensitiveNames) {
 }
 
 function sanitizeHeaders (headers, {
-    sensitiveHeaders = SENSITIVE_HEADERS,
-    sensitiveCookieNames = SENSITIVE_COOKIE_NAMES,
+    sensitiveHeadersRegex = SENSITIVE_HEADERS_REGEX,
+    sensitiveCookieNamesRegex = SENSITIVE_COOKIE_NAMES_REGEX,
     redactedValue = REDACTED_VALUE,
 } = {}) {
     if (!headers) return headers
     const sanitizedHeaders = { ...headers }
     for (const headerName of Object.keys(sanitizedHeaders)) {
-        const normalizedName = headerName.toLowerCase()
-        if (sensitiveHeaders.has(normalizedName)) {
+        if (sensitiveHeadersRegex.test(headerName)) {
             sanitizedHeaders[headerName] = redactedValue
         }
     }
     if (Object.hasOwn(sanitizedHeaders, 'cookie')) {
-        sanitizedHeaders.cookie = redactCookieHeaderValue(sanitizedHeaders.cookie, sensitiveCookieNames)
+        sanitizedHeaders.cookie = redactCookieHeaderValue(sanitizedHeaders.cookie, sensitiveCookieNamesRegex)
     }
     return sanitizedHeaders
 }
@@ -78,7 +77,7 @@ function sanitizeReq (req) {
 function sanitizeRes (res) {
     const data = stdSerializers.res(res)
     if (!data || !data.headers) return data
-    const headers = sanitizeHeaders(data.headers, { sensitiveHeaders: SENSITIVE_RESPONSE_HEADERS })
+    const headers = sanitizeHeaders(data.headers, { sensitiveHeadersRegex: SENSITIVE_RESPONSE_HEADERS_REGEX })
     return { ...data, headers }
 }
 
