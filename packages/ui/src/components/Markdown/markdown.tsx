@@ -42,6 +42,7 @@ type TaskListItemType = {
     children: React.ReactNode
     onToggle?: (checked: { checked: boolean, position: PositionType }) => void
     disabled?: boolean
+    type?: 'default' | 'inline'
 }
 
 const TaskListItem: React.FC<TaskListItemType> = ({
@@ -50,6 +51,7 @@ const TaskListItem: React.FC<TaskListItemType> = ({
     onToggle,
     disabled = false,
     node,
+    type = 'default',
 }) => {
     const position = node.position
 
@@ -61,7 +63,7 @@ const TaskListItem: React.FC<TaskListItemType> = ({
                     onChange={(e) => onToggle?.({ checked: e.target.checked, position })}
                     disabled={disabled}
                 />
-                <Typography.Text type='secondary'>
+                <Typography.Text type={type === 'inline' ? undefined : 'secondary'}>
                     {children}
                 </Typography.Text>
             </div>
@@ -113,7 +115,7 @@ export const Markdown: React.FC<MarkdownProps> = ({ children, type = 'default', 
 
     return (
         <ReactMarkdown
-            className={MARKDOWN_CLASS_PREFIX}
+            className={`${MARKDOWN_CLASS_PREFIX} ${type === 'inline' ? `${MARKDOWN_CLASS_PREFIX}--inline` : ''}`}
             remarkPlugins={REMARK_PLUGINS}
             components={{
                 ...MARKDOWN_COMPONENTS_BY_TYPE[type],
@@ -147,15 +149,17 @@ export const Markdown: React.FC<MarkdownProps> = ({ children, type = 'default', 
                         )
 
                         return (
-                            <TaskListItem node={props.node as any} checked={checked} disabled={!hasInteractiveCheckboxes} onToggle={callOnCheckboxChange}>
+                            <TaskListItem node={props.node as any} checked={checked} disabled={!hasInteractiveCheckboxes} onToggle={callOnCheckboxChange} type={type}>
                                 {contentChildren}
                             </TaskListItem>
                         )
                     }
 
+                    const textColor = type === 'inline' ? undefined : 'secondary'
+
                     return (
                         <li {...restProps}>
-                            <Typography.Text type='secondary'>{children}</Typography.Text>
+                            <Typography.Text type={textColor}>{children}</Typography.Text>
                         </li>
                     )
                 },
