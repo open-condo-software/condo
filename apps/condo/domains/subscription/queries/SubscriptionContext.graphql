@@ -1,8 +1,7 @@
-query getOrganizationActivatedSubscriptions($organizationId: ID!, $now: String!) {
+query getOrganizationActivatedSubscriptions($organizationId: ID!) {
     activatedSubscriptions: allSubscriptionContexts(
         where: {
             organization: { id: $organizationId }
-            endAt_gte: $now
         }
         sortBy: [createdAt_DESC]
         first: 100

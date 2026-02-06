@@ -1,8 +1,7 @@
-import { useGetOrganizationMetaQuery, useUpdateOrganizationPaymentMethodsMutation, useGetOrganizationActivatedSubscriptionsQuery } from '@app/condo/gql'
+import { useGetOrganizationMetaQuery, useUpdateOrganizationPaymentMethodsMutation } from '@app/condo/gql'
 import { notification, Row, Col } from 'antd'
-import dayjs from 'dayjs'
 import getConfig from 'next/config'
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { Trash } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
@@ -33,14 +32,6 @@ export const useLinkedCardsModal = () => {
     
     const { data: organizationMetaData, refetch: refetchOrganizationMeta } = useGetOrganizationMetaQuery({
         variables: { id: organization?.id || '' },
-        skip: !organization?.id,
-    })
-    
-    const { data: activatedSubscriptionsData } = useGetOrganizationActivatedSubscriptionsQuery({
-        variables: { 
-            organizationId: organization?.id || '',
-            now: dayjs().format('YYYY-MM-DD'),
-        },
         skip: !organization?.id,
     })
 

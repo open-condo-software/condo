@@ -28,7 +28,6 @@ export const UpgradePlanButton: React.FC = () => {
     const { data: activatedSubscriptionsData, loading: activatedSubscriptionsLoading } = useGetOrganizationActivatedSubscriptionsQuery({
         variables: { 
             organizationId: organization?.id || '',
-            now: dayjs().format('YYYY-MM-DD'),
         },
         skip: !organization?.id,
     })

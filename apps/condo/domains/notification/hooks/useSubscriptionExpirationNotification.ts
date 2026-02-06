@@ -108,7 +108,7 @@ export const useSubscriptionExpirationNotification = (): SubscriptionExpirationN
                 { planName }
             ),
         }
-    }, [daysRemaining, subscriptionContext?.isTrial, subscriptionContext?.subscriptionPlan?.name, intl])
+    }, [hasPaymentMethod, daysRemaining, subscriptionContext?.isTrial, subscriptionContext?.subscriptionPlan?.name, intl])
 
     if (!organizationId || !subscriptionContext || !messageContent) {
         return {}

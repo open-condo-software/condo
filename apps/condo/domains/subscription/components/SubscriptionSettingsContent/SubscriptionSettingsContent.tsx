@@ -91,7 +91,6 @@ export const SubscriptionSettingsContent: React.FC = () => {
     const { data: activatedSubscriptionsData, loading: activatedSubscriptionsLoading, refetch: refetchActivatedSubscriptions } = useGetOrganizationActivatedSubscriptionsQuery({
         variables: { 
             organizationId: organization?.id || '',
-            now: dayjs().format('YYYY-MM-DD'),
         },
         skip: !organization?.id,
     })

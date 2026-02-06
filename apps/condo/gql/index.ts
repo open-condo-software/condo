@@ -5099,9 +5099,9 @@ export type UpdateOrganizationPaymentMethodsMutationHookResult = ReturnType<type
 export type UpdateOrganizationPaymentMethodsMutationResult = Apollo.MutationResult<Types.UpdateOrganizationPaymentMethodsMutation>;
 export type UpdateOrganizationPaymentMethodsMutationOptions = Apollo.BaseMutationOptions<Types.UpdateOrganizationPaymentMethodsMutation, Types.UpdateOrganizationPaymentMethodsMutationVariables>;
 export const GetOrganizationActivatedSubscriptionsDocument = gql`
-    query getOrganizationActivatedSubscriptions($organizationId: ID!, $now: String!) {
+    query getOrganizationActivatedSubscriptions($organizationId: ID!) {
   activatedSubscriptions: allSubscriptionContexts(
-    where: {organization: {id: $organizationId}, endAt_gte: $now}
+    where: {organization: {id: $organizationId}}
     sortBy: [createdAt_DESC]
     first: 100
   ) {
@@ -5131,7 +5131,6 @@ export const GetOrganizationActivatedSubscriptionsDocument = gql`
  * const { data, loading, error } = useGetOrganizationActivatedSubscriptionsQuery({
  *   variables: {
  *      organizationId: // value for 'organizationId'
- *      now: // value for 'now'
  *   },
  * });
  */

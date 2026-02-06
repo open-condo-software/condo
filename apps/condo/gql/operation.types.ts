@@ -820,7 +820,6 @@ export type UpdateOrganizationPaymentMethodsMutation = { __typename?: 'Mutation'
 
 export type GetOrganizationActivatedSubscriptionsQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
-  now: Types.Scalars['String']['input'];
 }>;
 
 
