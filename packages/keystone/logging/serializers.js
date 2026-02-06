@@ -29,6 +29,51 @@ function toString (data) {
     return _toString(data)
 }
 
+const REDACTED_VALUE = '***'
+const SENSITIVE_HEADERS = new Set(['authorization', 'proxy-authorization'])
+const SENSITIVE_COOKIE_NAMES = new Set(['keystone.sid'])
+
+function redactCookieHeaderValue (cookieValue, sensitiveNames) {
+    if (!cookieValue) return cookieValue
+    return cookieValue
+        .split(';')
+        .map((cookie) => {
+            const [name, ...rest] = cookie.split('=')
+            const normalizedName = name?.trim()
+            if (normalizedName && sensitiveNames.has(normalizedName)) {
+                return `${normalizedName}=${REDACTED_VALUE}`
+            }
+            return cookie
+        })
+        .join(';')
+}
+
+function sanitizeHeaders (headers, {
+    sensitiveHeaders = SENSITIVE_HEADERS,
+    sensitiveCookieNames = SENSITIVE_COOKIE_NAMES,
+    redactedValue = REDACTED_VALUE,
+} = {}) {
+    if (!headers) return headers
+    const sanitizedHeaders = { ...headers }
+    for (const headerName of Object.keys(sanitizedHeaders)) {
+        const normalizedName = headerName.toLowerCase()
+        if (sensitiveHeaders.has(normalizedName)) {
+            sanitizedHeaders[headerName] = redactedValue
+        }
+    }
+    if (Object.hasOwn(sanitizedHeaders, 'cookie')) {
+        sanitizedHeaders.cookie = redactCookieHeaderValue(sanitizedHeaders.cookie, sensitiveCookieNames)
+    }
+    return sanitizedHeaders
+}
+
+function sanitizeReq (req) {
+    const data = stdSerializers.req(req)
+    if (!data || !data.headers) return data
+    const headers = sanitizeHeaders(data.headers)
+    return { ...data, headers }
+}
+
 function propertyStringifySerializer (...fields) {
     return function (data) {
         if (typeof data !== 'object' || data === null) return data
@@ -134,7 +179,7 @@ const SERIALIZERS = {
     method: toString,
 
     /** http-request */
-    req: stdSerializers.req,
+    req: sanitizeReq,
 
     /** http-response */
     res: stdSerializers.res,
