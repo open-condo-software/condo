@@ -23,4 +23,22 @@ describe('serializers', () => {
         expect(result.headers.cookie).toContain('keystone.sid=***')
         expect(result.headers.cookie).toContain('other=ok')
     })
+
+    it('redacts set-cookie in response logs', () => {
+        const headers = {
+            'set-cookie': ['keystone.sid=abc123; Path=/; HttpOnly'],
+            'x-custom-header': 'keep',
+        }
+
+        const res = {
+            statusCode: 200,
+            getHeader: (name) => headers[name],
+            getHeaders: () => ({ ...headers }),
+        }
+
+        const result = SERIALIZERS.res(res)
+
+        expect(result.headers['set-cookie']).toBe('***')
+        expect(result.headers['x-custom-header']).toBe('keep')
+    })
 })

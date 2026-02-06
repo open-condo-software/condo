@@ -1,15 +1,4 @@
-const HIDE_GRAPHQL_VARIABLES_KEYS = [
-    'confirmPassword',
-    'newPassword',
-    'oldPassword',
-    'password',
-    'phone',
-    'phoneNumber',
-    'receipts',
-    'secret',
-]
-
-const SENSITIVE_KEY_REGEX = /(password|phone|secret)/i
+const SENSITIVE_KEY_REGEX = /(password|phone|secret|token|code)/i
 
 function normalizeQuery (string) {
     if (!string) return ''
@@ -19,7 +8,7 @@ function normalizeQuery (string) {
 }
 
 function isSensitiveKey (key) {
-    return HIDE_GRAPHQL_VARIABLES_KEYS.includes(key) || SENSITIVE_KEY_REGEX.test(key)
+    return SENSITIVE_KEY_REGEX.test(key)
 }
 
 function redactSensitiveValues (value) {

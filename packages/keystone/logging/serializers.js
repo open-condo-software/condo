@@ -31,6 +31,7 @@ function toString (data) {
 
 const REDACTED_VALUE = '***'
 const SENSITIVE_HEADERS = new Set(['authorization', 'proxy-authorization'])
+const SENSITIVE_RESPONSE_HEADERS = new Set(['set-cookie'])
 const SENSITIVE_COOKIE_NAMES = new Set(['keystone.sid'])
 
 function redactCookieHeaderValue (cookieValue, sensitiveNames) {
@@ -71,6 +72,13 @@ function sanitizeReq (req) {
     const data = stdSerializers.req(req)
     if (!data || !data.headers) return data
     const headers = sanitizeHeaders(data.headers)
+    return { ...data, headers }
+}
+
+function sanitizeRes (res) {
+    const data = stdSerializers.res(res)
+    if (!data || !data.headers) return data
+    const headers = sanitizeHeaders(data.headers, { sensitiveHeaders: SENSITIVE_RESPONSE_HEADERS })
     return { ...data, headers }
 }
 
@@ -182,7 +190,7 @@ const SERIALIZERS = {
     req: sanitizeReq,
 
     /** http-response */
-    res: stdSerializers.res,
+    res: sanitizeRes,
 
     /** Request path (/api/something) **/
     path: toString,

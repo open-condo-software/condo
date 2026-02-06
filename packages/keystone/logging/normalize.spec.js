@@ -15,6 +15,7 @@ describe('normalizeVariables', () => {
             },
             list: [
                 { phoneNumber: '100' },
+                { code: '1234' },
                 { value: 'ok' },
             ],
         }
@@ -23,9 +24,10 @@ describe('normalizeVariables', () => {
 
         expect(result.password).toBe('***')
         expect(result.profile.phone).toBe('***')
-        expect(result.profile.token).toBe('keep')
+        expect(result.profile.token).toBe('***')
         expect(result.nested.secrets).toBe('***')
         expect(result.list[0].phoneNumber).toBe('***')
-        expect(result.list[1].value).toBe('ok')
+        expect(result.list[1].code).toBe('***')
+        expect(result.list[2].value).toBe('ok')
     })
 })
