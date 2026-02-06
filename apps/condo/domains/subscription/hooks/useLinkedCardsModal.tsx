@@ -41,6 +41,8 @@ export const useLinkedCardsModal = () => {
     const UnbindButtonLabel = intl.formatMessage({ id: 'subscription.linkedCards.unbind.action' })
     const NotificationTitle = intl.formatMessage({ id: 'subscription.linkedCards.unbind.notification.title' })
     const NotificationDescription = intl.formatMessage({ id: 'subscription.linkedCards.unbind.notification.description' })
+    const ErrorNotificationTitle = intl.formatMessage({ id: 'subscription.linkedCards.unbind.error.title' })
+    const ErrorNotificationDescription = intl.formatMessage({ id: 'subscription.linkedCards.unbind.error.description' })
     const ForSubscriptionPaymentMessage = intl.formatMessage({ id: 'subscription.linkedCards.forSubscriptionPayment' })
 
     const paymentMethods: PaymentMethod[] = useMemo(() => {
@@ -105,10 +107,14 @@ export const useLinkedCardsModal = () => {
             })
         } catch (error) {
             console.error('Failed to unbind card:', error)
+            notification.error({
+                message: <Typography.Text size='large' strong>{ErrorNotificationTitle}</Typography.Text>,
+                description: ErrorNotificationDescription,
+            })
         } finally {
             setIsUnbinding(false)
         }
-    }, [organization, canManageSubscriptions, paymentMethod, paymentMethods, updateOrganization, refetchOrganizationMeta, NotificationTitle, NotificationDescription])
+    }, [organization, canManageSubscriptions, paymentMethod, paymentMethods, updateOrganization, refetchOrganizationMeta, NotificationTitle, NotificationDescription, ErrorNotificationTitle, ErrorNotificationDescription])
 
     const LinkedCardsModal = useMemo(() => (
         <>

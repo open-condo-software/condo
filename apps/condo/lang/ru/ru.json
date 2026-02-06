@@ -3179,6 +3179,8 @@
   "subscription.linkedCards.unbind.action": "Отвязать",
   "subscription.linkedCards.unbind.notification.title": "Карта успешно отвязана",
   "subscription.linkedCards.unbind.notification.description": "Карта больше не используется для оплаты подписки",
+  "subscription.linkedCards.unbind.error.title": "Не удалось отвязать карту",
+  "subscription.linkedCards.unbind.error.description": "Произошла ошибка при отвязке карты. Попробуйте еще раз или обратитесь в поддержку",
   "subscription.linkedCards.forSubscriptionPayment": "(для оплаты подписки)",
   "tasks.BankReportTask.progress.description.completed": "Отчет создан",
   "tasks.BankReportTask.progress.description.processing": "Собираем данные для отображения",

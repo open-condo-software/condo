@@ -3179,6 +3179,8 @@
   "subscription.linkedCards.unbind.action": "Unbind",
   "subscription.linkedCards.unbind.notification.title": "Card successfully unbound",
   "subscription.linkedCards.unbind.notification.description": "Card is no longer used for subscription payment",
+  "subscription.linkedCards.unbind.error.title": "Failed to unbind card",
+  "subscription.linkedCards.unbind.error.description": "An error occurred while unbinding the card. Please try again or contact support",
   "subscription.linkedCards.forSubscriptionPayment": "(for subscription payment)",
   "tasks.BankReportTask.progress.description.completed": "Report creation completed",
   "tasks.BankReportTask.progress.description.processing": "Collecting data for your report",
