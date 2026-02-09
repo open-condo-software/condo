@@ -6,7 +6,7 @@ const conf = require('@open-condo/config')
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
@@ -86,6 +86,7 @@ const MeterReadingsImportTask = new GQLListSchema('MeterReadingsImportTask', {
         file: {
             schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
             type: 'File',
+            sensitive: true,
             adapter: MeterReadingsImportTaskFileAdapter,
             access: {
                 read: true,
@@ -97,6 +98,7 @@ const MeterReadingsImportTask = new GQLListSchema('MeterReadingsImportTask', {
         errorFile: {
             schemaDoc: 'Meta information about error file. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
             type: 'File',
+            sensitive: true,
             adapter: MeterReadingsImportTaskFileAdapter,
             access: {
                 read: true,
@@ -181,6 +183,7 @@ const MeterReadingsImportTask = new GQLListSchema('MeterReadingsImportTask', {
         meta: {
             schemaDoc: 'Stores information about query and ids of exported and failed records',
             type: 'Json',
+            sensitive: true,
             access: {
                 read: true,
                 create: canOnlyServerSideWithoutUserRequest,
@@ -197,7 +200,7 @@ const MeterReadingsImportTask = new GQLListSchema('MeterReadingsImportTask', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadMeterReadingsImportTasks,
         create: access.canManageMeterReadingsImportTasks,

@@ -7,7 +7,7 @@ const get = require('lodash/get')
 const userAccess = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -233,7 +233,7 @@ const Organization = new GQLListSchema('Organization', {
         ],
     },
     plugins: [
-        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(),
+        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical(),
     ],
     access: {
         read: access.canReadOrganizations,

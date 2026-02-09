@@ -6,7 +6,7 @@ const { GQLError } = require('@open-condo/keystone/errors')
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/marketplace/access/MarketCategory')
@@ -80,7 +80,7 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
             await imageMetaAfterChange(args)
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadMarketCategories,
         create: access.canManageMarketCategories,

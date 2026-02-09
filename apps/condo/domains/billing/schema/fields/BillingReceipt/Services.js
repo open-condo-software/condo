@@ -83,6 +83,7 @@ const SERVICES_QUERY_LIST = `${Object.keys(ServiceFields).join(' ')} { ${SERVICE
 const SERVICES_FIELD = {
     schemaDoc: 'Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4',
     type: 'Json',
+    sensitive: true,
     isRequired: false,
     extendGraphQLTypes: [SERVICES_GRAPHQL_TYPES],
     graphQLInputType: BILLING_RECEIPT_SERVICES_INPUT,

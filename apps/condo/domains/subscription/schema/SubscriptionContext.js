@@ -5,7 +5,7 @@
 const dayjs = require('dayjs')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
@@ -175,7 +175,7 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadSubscriptionContexts,
         create: access.canManageSubscriptionContexts,

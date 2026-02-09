@@ -9,7 +9,7 @@ const isEmpty = require('lodash/isEmpty')
 
 const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
 const {
@@ -337,7 +337,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         paymentStatusChangeWebhookSecret: PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadBillingReceipts,
         create: access.canManageBillingReceipts,

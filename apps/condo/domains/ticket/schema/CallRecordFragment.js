@@ -3,7 +3,7 @@
  */
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
@@ -61,7 +61,7 @@ const CallRecordFragment = new GQLListSchema('CallRecordFragment', {
     },
     plugins: [
         addOrganizationFieldPlugin({ fromField: 'callRecord', isRequired: true }),
-        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(),
+        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical(),
     ],
     access: {
         read: access.canReadCallRecordFragments,

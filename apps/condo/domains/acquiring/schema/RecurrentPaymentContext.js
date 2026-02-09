@@ -3,10 +3,11 @@
  */
 
 const dayjs = require('dayjs')
-const { isNil, get } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RecurrentPaymentContext')
@@ -90,7 +91,7 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadRecurrentPaymentContexts,
         create: access.canManageRecurrentPaymentContexts,

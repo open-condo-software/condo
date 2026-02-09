@@ -3,7 +3,7 @@
  */
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -83,7 +83,7 @@ const TicketAutoAssignment = new GQLListSchema('TicketAutoAssignment', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     kmigratorOptions: {
         constraints: [
             {

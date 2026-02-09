@@ -6,7 +6,7 @@ const chunk = require('lodash/chunk')
 const get = require('lodash/get')
 
 const { getLogger } = require('@open-condo/keystone/logging')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -108,6 +108,7 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
         meta: {
             schemaDoc: 'Data that is required for specified app to work with specified organization. Filled by app\'s service account / support and can have any JSON structure',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
             access: {
                 create: access.canReadAndManageSensitiveContextData,
@@ -176,6 +177,7 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
         dvAndSender(),
         historical(),
         webHooked(),
+        analytical(),
     ],
     access: {
         read: access.canReadB2BAppContexts,

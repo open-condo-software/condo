@@ -4,7 +4,7 @@
 
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { HEX_CODE_REGEXP, LINEAR_GRADIENT_REGEXP } = require('@condo/domains/common/constants/regexps')
@@ -79,7 +79,7 @@ const B2BAppPromoBlock = new GQLListSchema('B2BAppPromoBlock', {
     hooks: {
         afterChange: fileMetaAfterChange,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadB2BAppPromoBlocks,
         create: access.canManageB2BAppPromoBlocks,

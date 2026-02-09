@@ -3,7 +3,7 @@
  */
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/organization/access/OrganizationLink')
@@ -50,7 +50,7 @@ const OrganizationLink = new GQLListSchema('OrganizationLink', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadOrganizationLinks,
         create: access.canManageOrganizationLinks,

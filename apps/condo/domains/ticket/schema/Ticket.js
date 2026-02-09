@@ -3,13 +3,19 @@
  */
 
 const dayjs = require('dayjs')
-const { isEmpty, get, isNull, compact, isArray, isString, uniq } = require('lodash')
+const compact = require('lodash/compact')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
+const isNull = require('lodash/isNull')
+const isString = require('lodash/isString')
+const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { readOnlyFieldAccess, writeOnlyServerSideFieldAccess } = require('@open-condo/keystone/access')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, getById, find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
@@ -435,11 +441,13 @@ const Ticket = new GQLListSchema('Ticket', {
         title: {
             schemaDoc: 'Very short description of the issue. Will be filled via LLM in the future',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
         },
         details: {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',
             type: 'Text',
+            sensitive: true,
             isRequired: true,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
@@ -504,6 +512,7 @@ const Ticket = new GQLListSchema('Ticket', {
         meta: {
             schemaDoc: 'Extra analytics not related to remote system',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
@@ -626,6 +635,7 @@ const Ticket = new GQLListSchema('Ticket', {
         sourceMeta: {
             schemaDoc: 'In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...',
             type: 'Json',
+            sensitive: true,
         },
         deferredUntil: {
             schemaDoc: 'Date until which the ticket is deferred',
@@ -667,7 +677,7 @@ const Ticket = new GQLListSchema('Ticket', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical()],
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem, originalInput }) => {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts

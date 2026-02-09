@@ -12,20 +12,20 @@ const SENSITIVE_FIELDS_REGEXPS = [
 
 function analytical () {
     return plugin(({ fields = {}, ...rest }) => {
-        for (const [fieldName, field] of Object.entries(fields)) {
-            if (typeof field !== 'object' || Object.hasOwn(field, 'sensitive')) continue
 
-            if (field?.type === 'EncryptedText') {
-                field.sensitive = true
+        const modifiedFields = Object.fromEntries(Object.entries(fields).map(([fieldName, field]) => {
+            if (typeof field !== 'object' || Object.hasOwn(field, 'sensitive')) return [fieldName, field]
+
+            if (field?.type === 'EncryptedText' || SENSITIVE_FIELDS_REGEXPS.some(regexp => regexp.test(fieldName))) {
+                // NOTE: need to copy object to avoid mutation
+                return [fieldName, { ...field, sensitive: true }]
             }
 
-            if (SENSITIVE_FIELDS_REGEXPS.some(regexp => regexp.test(fieldName))) {
-                field.sensitive = true
-            }
-        }
+            return [fieldName, field]
+        }))
 
         return {
-            fields,
+            fields: modifiedFields,
             ...rest,
             analytical: true,
         }

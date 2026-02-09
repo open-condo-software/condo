@@ -19,7 +19,7 @@ const set = require('lodash/set')
 const conf = require('@open-condo/config')
 const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, getByCondition, find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -681,7 +681,7 @@ const Invoice = new GQLListSchema('Invoice', {
             returnPlainTextWebhookSecretOnCreation(args)
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical()],
     access: {
         read: access.canReadInvoices,
         create: access.canManageInvoices,

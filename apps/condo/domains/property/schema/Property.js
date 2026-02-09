@@ -8,7 +8,7 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { addressService } = require('@open-condo/keystone/plugins/addressService')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
@@ -313,7 +313,7 @@ const Property = new GQLListSchema('Property', {
     },
     plugins: [
         uuided(), addressService({ fieldsHooks: { address: addressFieldHooks } }),
-        versioned(), tracked(), softDeleted(), dvAndSender(), historical(),
+        versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical(),
     ],
     access: {
         auth: true,

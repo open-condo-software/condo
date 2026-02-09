@@ -8,7 +8,7 @@ const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { getById, find, getByCondition } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -160,6 +160,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         payerEmail: {
             schemaDoc: 'Payer email address (optional). Can be used by support to find MultiPayment faster or to send digital receipt',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
         },
 
@@ -181,6 +182,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         meta: {
             schemaDoc: 'Additional acquiring-specific information',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
             access: { read: access.canReadMultiPaymentsSensitiveData },
         },
@@ -422,7 +424,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadMultiPayments,
         create: access.canManageMultiPayments,

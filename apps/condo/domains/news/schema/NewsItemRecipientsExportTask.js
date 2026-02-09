@@ -7,7 +7,7 @@ const addFormats = require('ajv-formats')
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
@@ -116,6 +116,7 @@ const NewsItemRecipientsExportTask = new GQLListSchema('NewsItemRecipientsExport
         file: {
             schemaDoc: 'Metadata about the exported file stored outside the database. The JSON structure depends on the storage adapter',
             type: 'File',
+            sensitive: true,
             adapter: NewsItemRecipientsExportTaskFileAdapter,
             access: {
                 read: true,
@@ -145,7 +146,7 @@ const NewsItemRecipientsExportTask = new GQLListSchema('NewsItemRecipientsExport
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadNewsItemRecipientsExportTasks,
         create: access.canManageNewsItemRecipientsExportTasks,

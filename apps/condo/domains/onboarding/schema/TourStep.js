@@ -5,7 +5,7 @@
 const isEmpty = require('lodash/isEmpty')
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/onboarding/access/TourStep')
@@ -88,7 +88,7 @@ const TourStep = new GQLListSchema('TourStep', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadTourSteps,
         create: access.canManageTourSteps,

@@ -3,9 +3,9 @@
  */
 
 const Ajv = require('ajv')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/CustomField')
@@ -157,7 +157,7 @@ const CustomField = new GQLListSchema('CustomField', {
             defaultValue: true,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadCustomFields,
         create: access.canManageCustomFields,

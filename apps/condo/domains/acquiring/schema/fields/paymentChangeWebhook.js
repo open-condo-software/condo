@@ -12,12 +12,14 @@ const { find } = require('@open-condo/keystone/schema')
 const PAYMENT_STATUS_CHANGE_WEBHOOK_URL_FIELD = {
     schemaDoc: 'URL to call when payment status changes. When set, the system will send HTTP POST requests to this URL with payment status change details. Must be registered in PaymentStatusChangeWebhookUrl.',
     type: 'Url',
+    sensitive: true,
     isRequired: false,
 }
 
 const PAYMENT_STATUS_CHANGE_WEBHOOK_SECRET_FIELD = {
     schemaDoc: 'Secret key used to sign webhook payloads. Auto-generated when paymentStatusChangeWebhookUrl is set. The receiver should use this secret to verify the X-Webhook-Signature header. Returns plain text on creation, encrypted on subsequent reads.',
     type: 'EncryptedText',
+    sensitive: true,
     isRequired: false,
     access: {
         read: true,

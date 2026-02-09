@@ -10,7 +10,7 @@ const isNil = require('lodash/isNil')
 const conf = require('@open-condo/config')
 const { userIsAdmin, isSoftDelete } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find, getByCondition } = require('@open-condo/keystone/schema')
 const { setSession, destroySession } = require('@open-condo/keystone/session')
 const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
@@ -112,6 +112,7 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
         sessionId: {
             schemaDoc: 'Encrypted sessionId of session',
             type: 'EncryptedText',
+            sensitive: true,
             encryptionManager: encryptionManager,
             isRequired: true,
             access: userIsAdmin,
@@ -274,7 +275,7 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadB2BAccessTokens,
         create: access.canManageB2BAccessTokens,

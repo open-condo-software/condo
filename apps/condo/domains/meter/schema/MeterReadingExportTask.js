@@ -10,7 +10,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
@@ -105,6 +105,7 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
         file: {
             schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
             type: 'File',
+            sensitive: true,
             adapter: MeterReadingExportTaskFileAdapter,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
@@ -116,6 +117,7 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
         meta: {
             schemaDoc: 'Stores information about query and ids of exported and failed records',
             type: 'Json',
+            sensitive: true,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
                 read: true,
@@ -126,6 +128,7 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
         where: {
             schemaDoc: 'Filtering conditions for records to export',
             type: 'Json',
+            sensitive: true,
             graphQLInputType: 'MeterReadingWhereInput',
             isRequired: true,
             access: {
@@ -242,7 +245,7 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadMeterReadingExportTasks,
         create: access.canManageMeterReadingExportTasks,

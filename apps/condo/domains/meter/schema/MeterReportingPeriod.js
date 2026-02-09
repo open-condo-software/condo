@@ -3,7 +3,7 @@
  */
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/meter/access/MeterReportingPeriod')
@@ -193,6 +193,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
         softDeleted(),
         dvAndSender(),
         historical(),
+        analytical(),
     ],
     access: {
         read: access.canReadMeterReportingPeriods,

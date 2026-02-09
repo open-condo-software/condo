@@ -7,7 +7,7 @@ const cloneDeep = require('lodash/cloneDeep')
 const conf = require('@open-condo/config')
 const { canOnlyServerSideWithoutUserRequest, userIsAdminOrIsSupport } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
@@ -106,6 +106,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
         context: {
             schemaDoc: 'Context for executing a request to AI.',
             type: 'Json',
+            sensitive: true,
             isRequired: true,
             access: {
                 create: true,
@@ -117,6 +118,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
         cleanContext: {
             schemaDoc: 'Cleaned context for executing a request to AI. This field is managed by the system',
             type: 'Json',
+            sensitive: true,
             isRequired: true,
             access: {
                 create: false,
@@ -141,6 +143,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
         result: {
             schemaDoc: 'Result of query execution to AI.',
             type: 'Json',
+            sensitive: true,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
                 read: true,
@@ -171,6 +174,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
         meta: {
             schemaDoc: 'Additional arbitrary data about the task.',
             type: 'Json',
+            sensitive: true,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
                 read: userIsAdminOrIsSupport,
@@ -248,7 +252,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadExecutionAIFlowTasks,
         create: access.canManageExecutionAIFlowTasks,

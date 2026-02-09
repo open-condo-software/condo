@@ -6,7 +6,7 @@ const get = require('lodash/get')
 
 const { userIsAdmin } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, tracked, softDeleted, uuided, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, tracked, softDeleted, uuided, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, find } = require('@open-condo/keystone/schema')
 const { generateUUIDv4 } = require('@open-condo/miniapp-utils')
 
@@ -70,6 +70,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         inviteCode: {
             schemaDoc: 'Secret invite code (used for accept invite verification)',
             type: 'Uuid',
+            sensitive: true,
             defaultValue: () => generateUUIDv4(),
             kmigratorOptions: { null: true, unique: true },
             access: {
@@ -81,10 +82,12 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         name: {
             factory: () => faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}'),
             type: 'Text',
+            sensitive: true,
         },
         email: {
             factory: () => faker.internet.exampleEmail().toLowerCase(),
             type: 'Text',
+            sensitive: true,
             isRequired: false,
             kmigratorOptions: { null: true },
             hooks: {
@@ -119,6 +122,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         },
         phone: {
             type: 'Text',
+            sensitive: true,
             isRequired: false,
             kmigratorOptions: { null: true },
             hooks: {
@@ -220,7 +224,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadOrganizationEmployees,
         create: access.canManageOrganizationEmployees,

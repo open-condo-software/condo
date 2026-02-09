@@ -6,7 +6,7 @@ const isEmpty = require('lodash/isEmpty')
 
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -50,6 +50,7 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
         phone: {
             schemaDoc: 'Specified phone in request for callback',
             type: 'Text',
+            sensitive: true,
             isRequired: true,
             hooks: {
                 resolveInput: ({ resolvedData, fieldPath }) => {
@@ -71,6 +72,7 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
         email: {
             schemaDoc: 'Specified email in request for assisted setup of integration',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
             hooks: {
                 resolveInput: ({ resolvedData, fieldPath }) => {
@@ -98,6 +100,7 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
         meta: {
             schemaDoc: 'Additional info about request. May contain information about file urls, page where user made request or import type',
             type: 'Json',
+            sensitive: true,
             hooks: {
                 resolveInput: async ({ resolvedData, fieldPath, existingItem, context }) => {
                     if (!existingItem) return resolvedData[fieldPath]
@@ -121,7 +124,7 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(), analytical()],
     access: {
         read: access.canReadUserHelpRequests,
         create: access.canManageUserHelpRequests,

@@ -7,7 +7,7 @@ const get = require('lodash/get')
 
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRequest')
@@ -115,6 +115,7 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
         userName: {
             schemaDoc: 'The name of the user who sent the request (For the organization employee because he does not have access to the user fields)',
             type: 'Text',
+            sensitive: true,
             access: {
                 read: true,
                 create: false,
@@ -125,6 +126,7 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
         userPhone: {
             schemaDoc: 'The phone of the user who sent the request (For the organization employee because he does not have access to the user fields)',
             type: 'Text',
+            sensitive: true,
             access: {
                 read: true,
                 create: false,
@@ -288,7 +290,7 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadOrganizationEmployeeRequests,
         create: access.canManageOrganizationEmployeeRequests,

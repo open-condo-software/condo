@@ -4,6 +4,7 @@ const pluralize = require('pluralize')
 
 const PERMISSION_FIELD = {
     type: 'Checkbox',
+    sensitive: false,
     defaultValue: false,
     kmigratorOptions: { default: false },
 }
