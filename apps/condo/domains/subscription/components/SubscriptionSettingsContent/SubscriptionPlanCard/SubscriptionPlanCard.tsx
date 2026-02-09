@@ -247,8 +247,11 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         organizationId: organization?.id || '',
         pricingRuleId: price?.id || '',
     })
-
-    const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal()
+    
+    const contextPaymentMethodId = activeSubscriptionContext?.meta?.paymentMethod?.id
+    const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal({
+        activePaymentMethodId: contextPaymentMethodId,
+    })
 
     const handleActivePlanClick = useCallback(async () => {
         if (!price?.id) return
@@ -299,7 +302,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         />
     ), [plan])
     
-    const contextPaymentMethodId = activeSubscriptionContext?.meta?.paymentMethod?.id
     const hasPaymentMethodForActivePlan = Boolean(
         isActivePlan &&
         contextPaymentMethodId && 
