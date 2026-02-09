@@ -5,7 +5,7 @@
 const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@dev-portal-api/domains/user/access/User')
@@ -36,12 +36,14 @@ const User = new GQLListSchema('User', {
         name: {
             schemaDoc: 'Name. If impersonal account should be a company name',
             type: 'Text',
+            sensitive: true,
             isRequired: true,
             access: access.canAccessToNameField,
         },
         password: {
             schemaDoc: 'User password used for authentication. Self-update only field',
             type: 'Password',
+            sensitive: true,
             isRequired: false,
             access: access.canAccessToPasswordField,
             hooks: {
@@ -57,6 +59,7 @@ const User = new GQLListSchema('User', {
         phone: {
             schemaDoc: 'User phone. Required for authentication, used as main contact info',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
             access: access.canAccessToPhoneField,
             hooks: {
@@ -77,6 +80,7 @@ const User = new GQLListSchema('User', {
         email: {
             schemaDoc: 'User email. Currently used only for internal Keystone mutations.',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
             access: {
                 read: false,
@@ -109,7 +113,7 @@ const User = new GQLListSchema('User', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadUsers,
         create: access.canManageUsers,
