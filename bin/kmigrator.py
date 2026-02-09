@@ -772,9 +772,11 @@ def _generate_views_migration(ctx, fwd=True):
         add_line('-- ' + comment)
         add_line('--')
 
-    def generate_view_sql(lst_key, lst):
+    def generate_view_sql(lst_key, lst, replace=False):
         sensitive_fields = []
         allowed_fields = []
+
+        operation = 'CREATE OR REPLACE' if replace else 'CREATE'
 
         # NOTE: Fields are ordered alphabetically in state by default,
         # but it's better to show them in "sensitive first" manner to improve readability of generated migrations
@@ -785,7 +787,7 @@ def _generate_views_migration(ctx, fwd=True):
                 allowed_fields.append(f'"{field}"')
 
         fields = sensitive_fields + allowed_fields
-        return f'CREATE OR REPLACE VIEW "analytics"."{lst_key}" AS (SELECT {", ".join(fields)} FROM "public"."{lst_key}");'
+        return f'{operation} VIEW "analytics"."{lst_key}" AS (SELECT {", ".join(fields)} FROM "public"."{lst_key}");'
 
     # Step 1. create schema if necessary
     if len(new_state['lists'].keys()) > 0 and len(old_state['lists'].keys()) == 0:
@@ -794,8 +796,13 @@ def _generate_views_migration(ctx, fwd=True):
 
     # Step 2. create / recreate views if necessary (view created or changed)
     for list_key, list_cfg in new_state['lists'].items():
-        if list_key not in old_state['lists'] or old_state['lists'][list_key] != list_cfg:
+        if list_key not in old_state['lists']:
             add_comment(f'Create view for "{list_key}" table')
+            add_line(generate_view_sql(list_key, list_cfg, replace=True))
+        # NOTE: Order of fields is important for views, so we will catch an error
+        elif old_state['lists'][list_key] != list_cfg:
+            add_comment(f'Recreate view for "{list_key}" table')
+            add_line(f'DROP VIEW IF EXISTS "analytics"."{list_key}";')
             add_line(generate_view_sql(list_key, list_cfg))
 
     # Step 3. Remove views if necessary (view deleted)
