@@ -1,4 +1,4 @@
-const SENSITIVE_KEY_REGEX = /(password|phone|secret|token|code)/i
+const SENSITIVE_KEY_REGEX = /(password|phone|secret|token|receipt)/i
 
 function normalizeQuery (string) {
     if (!string) return ''
