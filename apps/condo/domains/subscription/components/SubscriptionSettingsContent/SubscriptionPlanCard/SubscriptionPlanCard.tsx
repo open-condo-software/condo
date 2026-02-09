@@ -184,7 +184,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     
     const { organization, role } = useOrganization()
     const { useFlagValue } = useFeatureFlags()
-    const { subscriptionContext: activeSubscriptionContext } = useOrganizationSubscription()
+    const { subscriptionContext: activeSubscriptionContext, daysRemaining } = useOrganizationSubscription()
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
     const [trialActivateLoading, setTrialActivateLoading] = useState<boolean>(false)
     
@@ -307,7 +307,9 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         organization?.meta?.paymentMethods?.some(pm => pm.id === contextPaymentMethodId)
     )
     
-    const endDate = activeSubscriptionContext?.endAt ? dayjs(activeSubscriptionContext.endAt) : null
+    const endDate = isActivePlan && daysRemaining !== null && daysRemaining > 0 
+        ? dayjs().add(daysRemaining, 'day') 
+        : null
     const currentYear = dayjs().year()
     const isCurrentYear = endDate?.year() === currentYear
     const dateFormat = isCurrentYear ? 'D MMMM' : 'D MMMM YYYY'

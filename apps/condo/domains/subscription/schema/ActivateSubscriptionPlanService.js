@@ -116,67 +116,87 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                 const hasDirectAccess = await canDirectlyExecuteService(user, 'activateSubscriptionPlan')
                 
                 if (!isTrial) {
-                    if (hasDirectAccess) {
-                        const months = PERIOD_TO_MONTHS[pricingRule.period]
-                        if (!months) {
-                            throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
-                        }
+                    // if (hasDirectAccess) {
+                    const months = PERIOD_TO_MONTHS[pricingRule.period]
+                    if (!months) {
+                        throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
+                    }
                         
-                        const startAt = dayjs()
-                        const endAt = startAt.add(months, 'month')
-                        const createdSubscriptionContext = await SubscriptionContext.create(context, {
-                            dv,
-                            sender,
-                            organization: { connect: { id: organization.id } },
-                            subscriptionPlan: { connect: { id: plan.id } },
-                            startAt: startAt.format('YYYY-MM-DD'),
-                            endAt: endAt.format('YYYY-MM-DD'),
-                            basePrice: pricingRule.price,
-                            isTrial: false,
-                            meta: {
-                                price: pricingRule.price,
-                                pricingRuleId: pricingRule.id,
-                                paymentMethod,
-                                paymentId,
-                            },
-                        })
-
-                        // TODO(DOMA-12895): Move payment methods from Organization.meta to separate model
-                        if (paymentMethod) {
-                            const existingPaymentMethods = organization.meta?.paymentMethods || []
-                            const paymentMethodExists = existingPaymentMethods.some(
-                                pm => pm.id === paymentMethod.id
-                            )
+                    const existingContexts = await find('SubscriptionContext', {
+                        organization: { id: organization.id },
+                        subscriptionPlan: { id: plan.id },
+                        deletedAt: null,
+                    })
+                        
+                    let startAt = dayjs()
+                    if (existingContexts.length > 0) {
+                        const sortedContexts = existingContexts
+                            .filter(ctx => ctx.endAt)
+                            .sort((a, b) => dayjs(b.endAt).diff(dayjs(a.endAt)))
                             
-                            if (!paymentMethodExists) {
-                                await Organization.update(context, organization.id, {
-                                    dv,
-                                    sender,
-                                    meta: {
-                                        ...organization.meta,
-                                        paymentMethods: [
-                                            ...existingPaymentMethods,
-                                            paymentMethod,
-                                        ],
-                                    },
-                                })
+                        if (sortedContexts.length > 0) {
+                            const lastContext = sortedContexts[0]
+                            const lastEndAt = dayjs(lastContext.endAt)
+                            if (lastEndAt.isAfter(dayjs(), 'day')) {
+                                startAt = lastEndAt
                             }
                         }
-                        
-                        const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
-                        return { subscriptionContext, userHelpRequest: null }
                     }
-                    
-                    const createdHelpRequest = await UserHelpRequest.create(context, {
+                        
+                    const endAt = startAt.add(months, 'month')
+                    const createdSubscriptionContext = await SubscriptionContext.create(context, {
                         dv,
                         sender,
-                        type: ACTIVATE_SUBSCRIPTION_TYPE,
                         organization: { connect: { id: organization.id } },
-                        subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
-                        phone: user.phone,
+                        subscriptionPlan: { connect: { id: plan.id } },
+                        startAt: startAt.format('YYYY-MM-DD'),
+                        endAt: endAt.format('YYYY-MM-DD'),
+                        basePrice: pricingRule.price,
+                        isTrial: false,
+                        meta: {
+                            price: pricingRule.price,
+                            pricingRuleId: pricingRule.id,
+                            paymentMethod,
+                            paymentId,
+                        },
                     })
-                    const userHelpRequest = await getById('UserHelpRequest', createdHelpRequest.id)
-                    return { subscriptionContext: null, userHelpRequest }
+
+                    // TODO(DOMA-12895): Move payment methods from Organization.meta to separate model
+                    if (paymentMethod) {
+                        const existingPaymentMethods = organization.meta?.paymentMethods || []
+                        const paymentMethodExists = existingPaymentMethods.some(
+                            pm => pm.id === paymentMethod.id
+                        )
+                            
+                        if (!paymentMethodExists) {
+                            await Organization.update(context, organization.id, {
+                                dv,
+                                sender,
+                                meta: {
+                                    ...organization.meta,
+                                    paymentMethods: [
+                                        ...existingPaymentMethods,
+                                        paymentMethod,
+                                    ],
+                                },
+                            })
+                        }
+                    }
+                        
+                    const subscriptionContext = await getById('SubscriptionContext', createdSubscriptionContext.id)
+                    return { subscriptionContext, userHelpRequest: null }
+                    // }
+                    
+                    // const createdHelpRequest = await UserHelpRequest.create(context, {
+                    //     dv,
+                    //     sender,
+                    //     type: ACTIVATE_SUBSCRIPTION_TYPE,
+                    //     organization: { connect: { id: organization.id } },
+                    //     subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                    //     phone: user.phone,
+                    // })
+                    // const userHelpRequest = await getById('UserHelpRequest', createdHelpRequest.id)
+                    // return { subscriptionContext: null, userHelpRequest }
                 }
 
                 if (plan.trialDays <= 0) {
