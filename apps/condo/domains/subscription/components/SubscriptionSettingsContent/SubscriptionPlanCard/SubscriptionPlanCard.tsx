@@ -307,6 +307,11 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         organization?.meta?.paymentMethods?.some(pm => pm.id === contextPaymentMethodId)
     )
     
+    const shouldShowPayButtonForActivePlan = isActivePlan && (
+        !activeSubscriptionContext ||
+        (contextPaymentMethodId && !organization?.meta?.paymentMethods?.some(pm => pm.id === contextPaymentMethodId))
+    )
+    
     const endDate = isActivePlan && daysRemaining !== null && daysRemaining > 0 
         ? dayjs().add(daysRemaining, 'day') 
         : null
@@ -401,7 +406,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                             </Typography.Link>
                                         )}
                                     </Space>
-                                    {!isLowerPriorityThanActive && !isFreeForPartner && !hasPaymentMethodForActivePlan && (
+                                    {!isLowerPriorityThanActive && !isFreeForPartner && (!isActivePlan || shouldShowPayButtonForActivePlan) && (
                                         <Space size={16} direction='vertical' width='100%'>
                                             <Button
                                                 block
