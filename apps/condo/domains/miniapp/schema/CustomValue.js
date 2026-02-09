@@ -3,7 +3,7 @@
  */
 
 const Ajv = require('ajv')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
@@ -140,6 +140,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
         data: {
             schemaDoc: 'Data of this customValue',
             type: 'Json',
+            sensitive: true,
             isRequired: true,
         },
 
@@ -152,6 +153,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
         filterDataString: {
             schemaDoc: 'String representation of data. Actual logic is controlled by type field in customValue. Use it for filtering',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
             access: {
                 create: false,

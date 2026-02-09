@@ -8,7 +8,7 @@ const get = require('lodash/get')
 const { split } = require('@open-condo/billing/utils/paymentSplitter')
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
@@ -177,6 +177,7 @@ const Payment = new GQLListSchema('Payment', {
         frozenReceipt: {
             schemaDoc: 'Frozen billing receipt, used to resolving conflicts',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
             access: { read: access.canReadPaymentsSensitiveData },
             hooks: {
@@ -206,6 +207,7 @@ const Payment = new GQLListSchema('Payment', {
         frozenInvoice: {
             schemaDoc: 'Frozen invoice, used to resolving conflicts',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
             access: { read: access.canReadPaymentsSensitiveData },
             hooks: {
@@ -305,6 +307,7 @@ const Payment = new GQLListSchema('Payment', {
         frozenDistribution: {
             schemaDoc: 'Distribution obtained from a paid model (receipt or invoice)',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
             access: { read: access.canReadPaymentsSensitiveData },
             hooks: {
@@ -332,6 +335,7 @@ const Payment = new GQLListSchema('Payment', {
         frozenSplits: {
             schemaDoc: 'Splits created from distribution. Contains data applicable in external acquiring integration',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
             access: { read: access.canReadPaymentsSensitiveData },
         },
@@ -339,10 +343,11 @@ const Payment = new GQLListSchema('Payment', {
         posReceiptUrl: {
             schemaDoc: 'URL of the POS receipt',
             type: 'Text',
+            sensitive: true,
             isRequired: false,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadPayments,
         create: access.canManagePayments,

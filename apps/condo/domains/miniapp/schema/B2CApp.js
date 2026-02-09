@@ -3,7 +3,7 @@
  */
 
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -80,7 +80,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
     hooks: {
         afterChange: logoMetaAfterChange,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), importable(), historical(), webHooked()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), importable(), historical(), webHooked(), analytical()],
     access: {
         read: access.canReadB2CApps,
         create: access.canManageB2CApps,

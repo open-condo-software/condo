@@ -1,5 +1,5 @@
 const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -42,7 +42,7 @@ const TicketSource = new GQLListSchema('TicketSource', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     // TODO(Dimitreee):use access check from access.js
     access: READ_ONLY_ACCESS,
     escapeSearch: true,

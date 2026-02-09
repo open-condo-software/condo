@@ -6,7 +6,7 @@ const conf = require('@open-condo/config')
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
@@ -100,6 +100,7 @@ const IncidentExportTask = new GQLListSchema('IncidentExportTask', {
         file: {
             schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
             type: 'File',
+            sensitive: true,
             adapter: IncidentExportTaskFileAdapter,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
@@ -111,6 +112,7 @@ const IncidentExportTask = new GQLListSchema('IncidentExportTask', {
         meta: {
             schemaDoc: 'Stores information about query and ids of exported and failed records',
             type: 'Json',
+            sensitive: true,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
                 read: true,
@@ -121,6 +123,7 @@ const IncidentExportTask = new GQLListSchema('IncidentExportTask', {
         where: {
             schemaDoc: 'Filtering conditions for records to export',
             type: 'Json',
+            sensitive: true,
             isRequired: true,
             access: {
                 read: true,
@@ -215,7 +218,7 @@ const IncidentExportTask = new GQLListSchema('IncidentExportTask', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadIncidentExportTasks,
         create: access.canManageIncidentExportTasks,

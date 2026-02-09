@@ -7,7 +7,7 @@ const get = require('lodash/get')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/marketplace/access/MarketItemFile')
@@ -59,7 +59,7 @@ const MarketItemFile = new GQLListSchema('MarketItemFile', {
     hooks: {
         afterChange: fileMetaAfterChange,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadMarketItemFiles,
         create: access.canManageMarketItemFiles,

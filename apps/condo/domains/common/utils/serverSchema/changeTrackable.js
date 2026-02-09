@@ -398,7 +398,7 @@ const mapScalars = (acc, value, key) => {
 
 const mapScalar = (field) => (
     // Fields `options` and `dataType` needs for Keystone fields of type `Select`
-    pick(field, ['schemaDoc', 'type', 'options', 'dataType'])
+    pick(field, ['schemaDoc', 'type', 'options', 'dataType', 'sensitive'])
 )
 
 /**

@@ -5,7 +5,7 @@
 const dayjs = require('dayjs')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemSharing')
@@ -76,6 +76,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         sharingParams: {
             schemaDoc: 'Parameters passed to the mini-app when publishing the news item',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
             access: {
                 create: true,
@@ -101,6 +102,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         lastPostRequest: {
             schemaDoc: 'Payload and result of the most recent lastPostRequest call',
             type: 'Json',
+            sensitive: true,
             isRequired: false,
         },
     },
@@ -154,7 +156,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         },
     },
 
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadNewsItemSharings,
         create: access.canManageNewsItemSharings,

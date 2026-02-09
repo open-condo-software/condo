@@ -3,7 +3,7 @@
  */
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/user/access/UserExternalIdentity')
@@ -25,6 +25,7 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
         identityId: {
             schemaDoc: 'External identity id. The value of this field should be populated from an external identity provider',
             type: 'Text',
+            sensitive: true,
             isRequired: true,
         },
         identityType: {
@@ -49,6 +50,7 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
         meta: {
             schemaDoc: 'External identity provider user metadata',
             type: 'Json',
+            sensitive: true,
         },
     },
     hooks: {
@@ -83,6 +85,7 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
         softDeleted(),
         dvAndSender(),
         historical(),
+        analytical(),
     ],
     access: {
         read: access.canReadUserExternalIdentities,

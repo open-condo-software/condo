@@ -6,7 +6,7 @@ const get = require('lodash/get')
 
 const { writeOnlyServerSideFieldAccess } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, dvAndSender, softDeleted } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, dvAndSender, softDeleted, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, itemsQuery } = require('@open-condo/keystone/schema')
 const { getLocalized } = require('@open-condo/locales/loader')
 
@@ -335,7 +335,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canManageOrganizationEmployeeRequests: { type: 'Checkbox', defaultValue: false, kmigratorOptions: { default: false } },
         canManageSubscriptions: { type: 'Checkbox', defaultValue: false, kmigratorOptions: { default: false } },
     },
-    plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical(), softDeleted()],
+    plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical(), softDeleted(), analytical()],
     hooks: {
         validateInput: async ({ resolvedData, existingItem, context, operation }) => {
             const newItem = { ...existingItem, ...resolvedData }

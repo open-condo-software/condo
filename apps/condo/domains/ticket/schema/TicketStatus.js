@@ -5,7 +5,7 @@
 const Ajv = require('ajv')
 const get = require('lodash/get')
 
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constants/errors')
@@ -71,7 +71,7 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadTicketStatuses,
         create: access.canManageTicketStatuses,

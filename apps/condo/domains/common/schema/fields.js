@@ -90,11 +90,13 @@ const CONTACT_FIELD = {
 const CLIENT_NAME_FIELD = {
     schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
     type: 'Text',
+    sensitive: true,
 }
 
 const CLIENT_EMAIL_FIELD = {
     schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
     type: 'Text',
+    sensitive: true,
 }
 
 const getClientPhoneResolver = (allowLandLine = false) => async ({ resolvedData, fieldPath }) => {
@@ -113,6 +115,7 @@ const getClientPhoneValidator = (allowLandLine = false) => async ({ resolvedData
 const CLIENT_PHONE_FIELD = {
     schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
     type: 'Text',
+    sensitive: true,
     hooks: {
         resolveInput: getClientPhoneResolver(),
         validateInput: getClientPhoneValidator(),
@@ -205,6 +208,7 @@ const getPhoneFieldHooks = ({ allowLandline }) => ({
 const PHONE_FIELD = {
     schemaDoc: 'Normalized phone in E.164 format without spaces',
     type: 'Text',
+    sensitive: true,
     hooks: getPhoneFieldHooks({ allowLandline: true }),
 }
 

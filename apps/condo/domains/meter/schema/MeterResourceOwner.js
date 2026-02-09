@@ -5,7 +5,7 @@ const { omit } = require('lodash')
 
 const userAccess = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { addressService } = require('@open-condo/keystone/plugins/addressService')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -72,6 +72,7 @@ const MeterResourceOwner = new GQLListSchema('MeterResourceOwner', {
         softDeleted(),
         dvAndSender(),
         historical(),
+        analytical(),
     ],
     hooks: {
         validateInput: async ({ resolvedData, operation, context }) => {

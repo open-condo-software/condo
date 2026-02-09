@@ -4,7 +4,7 @@
 
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
@@ -21,6 +21,7 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
         file: {
             schemaDoc: 'File object with meta information and publicUrl',
             type: 'File',
+            sensitive: true,
             adapter: Adapter,
         },
 
@@ -56,6 +57,7 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
         dvAndSender(),
         historical(),
         webHooked(),
+        analytical(),
     ],
     access: {
         read: access.canReadTicketCommentFiles,

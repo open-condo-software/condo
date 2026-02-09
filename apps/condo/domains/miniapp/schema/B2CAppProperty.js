@@ -5,7 +5,7 @@
 const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { addressService } = require('@open-condo/keystone/plugins/addressService')
 const { getById } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -98,6 +98,7 @@ const B2CAppProperty = new GQLListSchema('B2CAppProperty', {
         softDeleted(),
         dvAndSender(),
         historical(),
+        analytical(),
     ],
     access: {
         read: access.canReadB2CAppProperties,

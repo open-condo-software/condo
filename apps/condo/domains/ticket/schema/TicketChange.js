@@ -5,7 +5,7 @@
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
-const { versioned, uuided, tracked, dvAndSender } = require('@open-condo/keystone/plugins')
+const { versioned, uuided, tracked, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { getTranslations } = require('@open-condo/locales/loader')
@@ -124,7 +124,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
             return resolvedData
         },
     },
-    plugins: [uuided(), versioned(), tracked(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), dvAndSender(), analytical()],
     access: {
         read: access.canReadTicketChanges,
         create: access.canManageTicketChanges,
