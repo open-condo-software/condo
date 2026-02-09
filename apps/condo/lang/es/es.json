@@ -3154,7 +3154,7 @@
   "subscription.planCard.requestPending": "Solicitud pendiente",
   "subscription.planCard.submitRequest": "Enviar solicitud",
   "subscription.planCard.buy": "Comprar",
-  "subscription.planCard.pay": "Pagar",
+  "subscription.planCard.pay": "Conectar",
   "subscription.paymentModal.title": "Elija el método de pago",
   "subscription.paymentModal.cardOnline": "Tarjeta en línea",
   "subscription.paymentModal.invoice": "Mediante factura",

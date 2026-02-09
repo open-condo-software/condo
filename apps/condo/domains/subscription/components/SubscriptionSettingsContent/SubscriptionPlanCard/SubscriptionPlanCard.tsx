@@ -191,7 +191,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const { plan, prices } = planInfo
     const price = prices?.[0]
     const usePaymentModal = useFlagValue(SUBSCRIPTION_PAYMENT_MODAL)
-    const activeBankingPlanId = '6e51ec15-6955-4d59-b1be-97e703151979' //useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
+    const activeBankingPlanId = useFlagValue(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID)
     
     const TryFreeMessage = intl.formatMessage({ id: 'subscription.planCard.tryFree' }, { currency: CURRENCY_SYMBOLS[price?.currencyCode] })
     const PeriodMessage = intl.formatMessage({ id: `subscription.planCard.planPrice.${price?.period}` as FormatjsIntl.Message['ids'] })
