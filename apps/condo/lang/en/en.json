@@ -3167,6 +3167,7 @@
   "subscription.planCard.freeForPartner": "Free for bank clients",
   "subscription.planCard.willBeCharged": "will be charged on {date}",
   "subscription.planCard.paidUntil": "paid until {date}",
+  "subscription.planCard.custom.paidUntil": "Paid until {date}",
   "subscription.promoBanner.title": "Connect Banking Service",
   "subscription.promoBanner.description": "Login with Bank ID or open a business account to get a subscription discount",
   "subscription.promoBanner.activateButton": "Open business account",

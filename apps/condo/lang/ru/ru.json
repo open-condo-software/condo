@@ -3167,6 +3167,7 @@
   "subscription.planCard.freeForPartner": "Бесплатно для клиентов банка",
   "subscription.planCard.willBeCharged": "спишется {date}",
   "subscription.planCard.paidUntil": "оплачено до {date}",
+  "subscription.planCard.custom.paidUntil": "Оплачен до {date}",
   "subscription.promoBanner.title": "Подключите банковский сервис",
   "subscription.promoBanner.description": "Войдите через банковский ID или оформите расчетно-кассовое обслуживание и получите скидку на подписку",
   "subscription.promoBanner.activateButton": "Оформить обслуживание",
