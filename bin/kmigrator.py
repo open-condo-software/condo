@@ -773,13 +773,19 @@ def _generate_views_migration(ctx, fwd=True):
         add_line('--')
 
     def generate_view_sql(lst_key, lst):
-        fields = []
+        sensitive_fields = []
+        allowed_fields = []
+
+        # NOTE: Fields are ordered alphabetically in state by default,
+        # but it's better to show them in "sensitive first" manner to improve readability of generated migrations
         for field in lst['fields']:
             if field in lst['sensitiveFields']:
-                fields.append(f'NULL as "{field}"')
+                sensitive_fields.append(f'NULL AS "{field}"')
             else:
-                fields.append(f'"{field}"')
-        return f'CREATE OR REPLACE VIEW "analytics"."{lst_key}" AS SELECT {", ".join(fields)} FROM "public"."{lst_key}";'
+                allowed_fields.append(f'"{field}"')
+
+        fields = sensitive_fields + allowed_fields
+        return f'CREATE OR REPLACE VIEW "analytics"."{lst_key}" AS (SELECT {", ".join(fields)} FROM "public"."{lst_key}");'
 
     # Step 1. create schema if necessary
     if len(new_state['lists'].keys()) > 0 and len(old_state['lists'].keys()) == 0:
