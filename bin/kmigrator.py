@@ -487,13 +487,22 @@ const { keystone } = require(path.resolve(entryFile));
     }
 
     for (const [listKey, list] of Object.entries(keystone.lists)) {
-        if (list?.createListConfig?.analytical) {
+        if (list?.processedCreateListConfig?.analytical) {
             // Exclude virtual fields
             const fields = Object.keys(list.fieldsByPath)
-                .filter(field => list.createListConfig.fields[field]?.type?.type !== 'Virtual')
+                .filter(field => {
+                    // Exclude virtual fields
+                    if (list.processedCreateListConfig.fields[field]?.type?.type === 'Virtual') return false
+                    // Exclude many relationships
+                    if (list.processedCreateListConfig.fields[field]?.type?.type === 'Relationship') {
+                        return !list.processedCreateListConfig.fields[field]?.many
+                    }
+
+                    return true
+                })
                 // Important to check diffs in python
                 .toSorted()
-            const sensitiveFields = fields.filter(field => list.createListConfig.fields[field]?.sensitive)
+            const sensitiveFields = fields.filter(field => list.processedCreateListConfig.fields[field]?.sensitive)
 
             config.lists[listKey] = {
                 fields,
