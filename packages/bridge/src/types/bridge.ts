@@ -13,6 +13,11 @@ export type BaseResponseEvent<ResponseType extends string, Data> = {
     data: Data
 }
 
+export type BaseRequestEvent<RequestType extends string, Data> = {
+    type: RequestType
+    data: Data
+}
+
 export type ResultResponseEventName<Method extends AnyRequestMethodName> = ResponseEventNamesMap[Method]['result']
 export type ResultResponseData<Method extends AnyResponseMethodName> = ResultResponseDataMap[Method]
 export type ErrorResponseEventName<Method extends AnyResponseMethodName> = ResponseEventNamesMap[Method]['error']
@@ -27,7 +32,11 @@ export type ErrorResponseData = ClientErrorResponseData<ErrorReason>
 export type CondoBridgeResultResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ResultResponseEventName<Method>, ResultResponseData<Method> & RequestId>
 export type CondoBridgeErrorResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ErrorResponseEventName<Method>, ErrorResponseData & RequestId>
 export type CondoBridgeResponseEvent<Method extends AnyResponseMethodName> = CondoBridgeResultResponseEvent<Method> | CondoBridgeErrorResponseEvent<Method>
-export type CondoBridgeSubscriptionListener = (event: CondoBridgeResponseEvent<AnyResponseMethodName>) => void
+export type RequestEventName<Method extends AnyRequestMethodName> = Method
+export type RequestEventData<Method extends AnyRequestMethodName> = RequestParams<Method>
+export type CondoBridgeRequestEvent<Method extends AnyRequestMethodName> = BaseRequestEvent<RequestEventName<Method>, RequestEventData<Method>>
+export type CondoBridgeSubscriptionEvent = CondoBridgeResponseEvent<AnyResponseMethodName> | CondoBridgeRequestEvent<AnyRequestMethodName>
+export type CondoBridgeSubscriptionListener = (event: CondoBridgeSubscriptionEvent) => void
 
 export type WebBridge = {
     postMessage?: (message: unknown, targetOrigin: string) => void
