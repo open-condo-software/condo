@@ -248,7 +248,19 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         pricingRuleId: price?.id || '',
     })
     
-    const contextPaymentMethodId = activeSubscriptionContext?.meta?.paymentMethod?.id
+    const contextPaymentMethodId = useMemo(() => {
+        const contextsWithSamePlan = activatedSubscriptions
+            .filter(ctx => ctx?.subscriptionPlan?.id === plan?.id)
+            .sort((a, b) => {
+                const aEndAt = a?.endAt ? dayjs(a.endAt) : dayjs(0)
+                const bEndAt = b?.endAt ? dayjs(b.endAt) : dayjs(0)
+                return bEndAt.diff(aEndAt)
+            })
+        
+        const lastContext = contextsWithSamePlan[0]
+        return lastContext?.meta?.paymentMethod?.id || null
+    }, [activatedSubscriptions, plan?.id])
+    
     const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal({
         activePaymentMethodId: contextPaymentMethodId,
     })
