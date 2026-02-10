@@ -3,10 +3,17 @@ import { Password } from './password'
 import { Phone } from './phone'
 import { TextArea } from './textArea'
 import './style.less'
+import './markdownEditor.less'
+import './richTextArea.less'
 
 export type { BaseInputProps, InputProps } from './input'
+export type { MarkdownEditorProps, ToolbarLabels } from './markdownEditor'
 export type { PasswordInputProps } from './password'
+export type { RichTextAreaProps, RichTextAreaToolbarLabels } from './reachTextAria'
 export type { PhoneInputProps } from './phone'
+
+export { MarkdownEditor, replaceHeaders } from './markdownEditor'
+export { RichTextArea } from './reachTextAria'
 
 export type InputType = typeof InputComponent & {
     Password: typeof Password
