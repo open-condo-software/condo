@@ -28,8 +28,9 @@ const WEB_SPECIFIC_METHODS: Array<AnyRequestMethodName> = [
     'CondoWebAppShowProgressBar',
     'CondoWebAppUpdateModalWindow',
     'CondoWebAppUpdateProgressBar',
-    'CondoWebAppSetActionBarConfig',
-    'CondoWebAppSendActionBarActionId',
+    'CondoWebAppSetActionsConfig',
+    'CondoWebAppUpdateActionConfig',
+    'CondoWebAppSendActionId',
 ]
 
 const ALL_METHODS = [
