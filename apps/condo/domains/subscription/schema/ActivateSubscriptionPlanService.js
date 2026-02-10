@@ -122,7 +122,27 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                             throw new GQLError(ERRORS.PRICING_RULE_NOT_FOUND, context)
                         }
                         
-                        const startAt = dayjs()
+                        const existingContexts = await find('SubscriptionContext', {
+                            organization: { id: organization.id },
+                            subscriptionPlan: { id: plan.id },
+                            deletedAt: null,
+                        })
+                        
+                        let startAt = dayjs()
+                        if (existingContexts.length > 0) {
+                            const sortedContexts = existingContexts
+                                .filter(ctx => ctx.endAt)
+                                .sort((a, b) => dayjs(b.endAt).diff(dayjs(a.endAt)))
+                            
+                            if (sortedContexts.length > 0) {
+                                const lastContext = sortedContexts[0]
+                                const lastEndAt = dayjs(lastContext.endAt)
+                                if (lastEndAt.isAfter(dayjs(), 'day')) {
+                                    startAt = lastEndAt
+                                }
+                            }
+                        }
+                        
                         const endAt = startAt.add(months, 'month')
                         const createdSubscriptionContext = await SubscriptionContext.create(context, {
                             dv,

@@ -1,4 +1,5 @@
 import { notification } from 'antd'
+import dayjs from 'dayjs'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -69,7 +70,7 @@ const SettingsPage: PageComponentType = () => {
     const canManageMobileFeatureConfigsRoles = useMemo(() => userOrganization?.role?.canManageMobileFeatureConfigs || false, [userOrganization])
     const canManageMarketSettingRoles = useMemo(() => userOrganization?.role?.canManageMarketSetting || false, [userOrganization])
 
-    const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading } = useOrganizationSubscription()
+    const { hasSubscription, hasAvailablePlans, loading: subscriptionsLoading, daysRemaining } = useOrganizationSubscription()
     const { useFlag } = useFeatureFlags()
     const isSubscriptionsFlagEnabled = useFlag(SUBSCRIPTIONS)
     const isSubscriptionsEnabled = !subscriptionsLoading && hasAvailablePlans && enableSubscriptions && isSubscriptionsFlagEnabled
@@ -148,11 +149,19 @@ const SettingsPage: PageComponentType = () => {
     ), [PageTitle])
 
     useEffect(() => {
-        if (router.query.successPayment === 'true') {
-            notification.success({
-                message: <Typography.Text strong size='large'>{SuccessPaymentNotificationTitle}</Typography.Text>,
-                description: SuccessPaymentNotificationDescription,
-            })
+        if (router.query.successPayment === 'true' && !subscriptionsLoading && daysRemaining > 0 && userOrganizationId) {
+            const storageKey = `subscription_end_date_${userOrganizationId}`
+            const previousEndDate = localStorage.getItem(storageKey)
+            const currentEndDate = dayjs().add(daysRemaining, 'day').format('YYYY-MM-DD')
+            
+            if (previousEndDate !== currentEndDate) {
+                localStorage.setItem(storageKey, currentEndDate)
+                
+                notification.success({
+                    message: <Typography.Text strong size='large'>{SuccessPaymentNotificationTitle}</Typography.Text>,
+                    description: SuccessPaymentNotificationDescription,
+                })
+            }
 
             const { successPayment, ...restQuery } = router.query
             router.replace({
@@ -160,7 +169,15 @@ const SettingsPage: PageComponentType = () => {
                 query: restQuery,
             }, undefined, { shallow: true })
         }
-    }, [router.query.successPayment, router, SuccessPaymentNotificationTitle, SuccessPaymentNotificationDescription])
+    }, [router.query.successPayment, router, SuccessPaymentNotificationTitle, SuccessPaymentNotificationDescription, daysRemaining, userOrganizationId, subscriptionsLoading])
+    
+    useEffect(() => {
+        if (!subscriptionsLoading && daysRemaining > 0 && userOrganizationId && !router.query.successPayment) {
+            const storageKey = `subscription_end_date_${userOrganizationId}`
+            const currentEndDate = dayjs().add(daysRemaining, 'day').format('YYYY-MM-DD')
+            localStorage.setItem(storageKey, currentEndDate)
+        }
+    }, [subscriptionsLoading, daysRemaining, userOrganizationId, router.query.successPayment])
 
     return (
         <>

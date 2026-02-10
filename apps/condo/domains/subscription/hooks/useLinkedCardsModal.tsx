@@ -34,13 +34,18 @@ const getCardIssuerImageUrl = (cardIssuerName?: string): string => {
     return matchingKey ? CARD_ISSUER_IMAGES[matchingKey] : '/otherCard.svg'
 }
 
-export const useLinkedCardsModal = () => {
+type UseLinkedCardsModalProps = {
+    activePaymentMethodId?: string | null
+}
+
+export const useLinkedCardsModal = ({ activePaymentMethodId }: UseLinkedCardsModalProps = {}) => {
     const intl = useIntl()
     const { organization, role } = useOrganization()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
     const [isUnbinding, setIsUnbinding] = useState(false)
-    const [imageError, setImageError] = useState(false)
+    const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
+    const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
 
     const { data: organizationMetaData, refetch: refetchOrganizationMeta } = useGetOrganizationMetaQuery({
         variables: { id: organization?.id || '' },
@@ -73,10 +78,6 @@ export const useLinkedCardsModal = () => {
     const paymentMethods: PaymentMethod[] = useMemo(() => {
         return organizationMetaData?.organization?.meta?.paymentMethods || organization?.meta?.paymentMethods || []
     }, [organizationMetaData, organization])
-    
-    const paymentMethod: PaymentMethod | null = useMemo(() => {
-        return paymentMethods.length > 0 ? paymentMethods[0] : null
-    }, [paymentMethods])
 
     const canManageSubscriptions = role?.canManageSubscriptions
 
@@ -88,24 +89,26 @@ export const useLinkedCardsModal = () => {
         setIsModalOpen(false)
     }, [])
 
-    const handleUnbindClick = useCallback(() => {
+    const handleUnbindClick = useCallback((cardId: string) => {
+        setSelectedCardId(cardId)
         setIsConfirmModalOpen(true)
     }, [])
 
     const closeConfirmModal = useCallback(() => {
         setIsConfirmModalOpen(false)
+        setSelectedCardId(null)
     }, [])
 
     const [updateOrganization] = useUpdateOrganizationPaymentMethodsMutation()
 
     const handleUnbindConfirm = useCallback(async () => {
-        if (!organization || !canManageSubscriptions || !paymentMethod) return
+        if (!organization || !canManageSubscriptions || !selectedCardId) return
 
         setIsUnbinding(true)
         try {
             const sender = getClientSideSenderInfo()
             
-            const updatedPaymentMethods = paymentMethods.filter(pm => pm.id !== paymentMethod.id)
+            const updatedPaymentMethods = paymentMethods.filter(pm => pm.id !== selectedCardId)
             
             await updateOrganization({
                 variables: {
@@ -125,6 +128,7 @@ export const useLinkedCardsModal = () => {
 
             setIsConfirmModalOpen(false)
             setIsModalOpen(false)
+            setSelectedCardId(null)
 
             notification.success({
                 message: <Typography.Text size='large' strong>{NotificationTitle}</Typography.Text>,
@@ -139,7 +143,7 @@ export const useLinkedCardsModal = () => {
         } finally {
             setIsUnbinding(false)
         }
-    }, [organization, canManageSubscriptions, paymentMethod, paymentMethods, updateOrganization, refetchOrganizationMeta, NotificationTitle, NotificationDescription, ErrorNotificationTitle, ErrorNotificationDescription])
+    }, [organization, canManageSubscriptions, selectedCardId, paymentMethods, updateOrganization, refetchOrganizationMeta, NotificationTitle, NotificationDescription, ErrorNotificationTitle, ErrorNotificationDescription])
 
     const LinkedCardsModal = useMemo(() => (
         <>
@@ -149,43 +153,50 @@ export const useLinkedCardsModal = () => {
                 title={LinkedCardsTitle}
                 footer={null}
             >
-                {paymentMethod && (
-                    <Card style={{ width: '100%' }}>
-                        <Row justify='space-between' align='middle'>
-                            <Col>
-                                <Space size={8} direction='horizontal'>
-                                    <img 
-                                        src={imageError ? '/otherCard.svg' : getCardIssuerImageUrl(paymentMethod.cardIssuerName)} 
-                                        alt={paymentMethod.cardIssuerName || 'card'}
-                                        width={60}
-                                        height={40}
-                                        style={{ display: 'block' }}
-                                        onError={() => setImageError(true)}
-                                    />
-                                    <Space size={4} direction='horizontal'>
-                                        <Typography.Text>
-                                            {getCardTypeTranslation(paymentMethod.cardType)} ∙ {paymentMethod.cardMask?.slice(-4)}
-                                        </Typography.Text>
-                                        <Typography.Text type='secondary'>
-                                            {ForSubscriptionPaymentMessage}
-                                        </Typography.Text>
-                                    </Space>
-                                </Space>
-                            </Col>
-                            <Col>
-                                <Button
-                                    minimal
-                                    compact
-                                    size='large'
-                                    type='primary'
-                                    icon={<Trash size='small' />}
-                                    onClick={handleUnbindClick}
-                                    disabled={!canManageSubscriptions}
-                                />
-                            </Col>
-                        </Row>
-                    </Card>
-                )}
+                <Space size={12} direction='vertical' width='100%'>
+                    {paymentMethods.map((paymentMethod) => {
+                        const isActiveCard = paymentMethod.id === activePaymentMethodId
+                        return (
+                            <Card key={paymentMethod.id} width='100%'>
+                                <Row justify='space-between' align='middle'>
+                                    <Col>
+                                        <Space size={8} direction='horizontal'>
+                                            <img 
+                                                src={imageErrors[paymentMethod.id] ? '/otherCard.svg' : getCardIssuerImageUrl(paymentMethod.cardIssuerName)} 
+                                                alt={paymentMethod.cardIssuerName || 'card'}
+                                                width={60}
+                                                height={40}
+                                                style={{ display: 'block' }}
+                                                onError={() => setImageErrors(prev => ({ ...prev, [paymentMethod.id]: true }))}
+                                            />
+                                            <Space size={4} direction='horizontal'>
+                                                <Typography.Text>
+                                                    {getCardTypeTranslation(paymentMethod.cardType)} ∙ {paymentMethod.cardMask?.slice(-4)}
+                                                </Typography.Text>
+                                                {isActiveCard && (
+                                                    <Typography.Text type='secondary'>
+                                                        {ForSubscriptionPaymentMessage}
+                                                    </Typography.Text>
+                                                )}
+                                            </Space>
+                                        </Space>
+                                    </Col>
+                                    <Col>
+                                        <Button
+                                            minimal
+                                            compact
+                                            size='large'
+                                            type='primary'
+                                            icon={<Trash size='small' />}
+                                            onClick={() => handleUnbindClick(paymentMethod.id)}
+                                            disabled={!canManageSubscriptions}
+                                        />
+                                    </Col>
+                                </Row>
+                            </Card>
+                        )
+                    })}
+                </Space>
             </Modal>
             <Modal
                 open={isConfirmModalOpen}
@@ -209,11 +220,11 @@ export const useLinkedCardsModal = () => {
                 </Typography.Paragraph>
             </Modal>
         </>
-    ), [isModalOpen, closeModal, LinkedCardsTitle, paymentMethod, imageError, getCardTypeTranslation, ForSubscriptionPaymentMessage, handleUnbindClick, canManageSubscriptions, isConfirmModalOpen, closeConfirmModal, UnbindCardTitle, isUnbinding, handleUnbindConfirm, UnbindButtonLabel, UnbindCardMessage])
+    ), [isModalOpen, closeModal, LinkedCardsTitle, paymentMethods, activePaymentMethodId, imageErrors, getCardTypeTranslation, ForSubscriptionPaymentMessage, handleUnbindClick, canManageSubscriptions, isConfirmModalOpen, closeConfirmModal, UnbindCardTitle, isUnbinding, handleUnbindConfirm, UnbindButtonLabel, UnbindCardMessage])
 
     return {
         LinkedCardsModal,
         openModal,
-        hasPaymentMethod: !!paymentMethod,
+        hasPaymentMethod: paymentMethods.length > 0,
     }
 }
