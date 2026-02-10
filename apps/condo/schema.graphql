@@ -3021,6 +3021,7 @@ type UserRightsSetHistoryRecord {
   canManageTicketAutoAssignments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadResidents: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadResetUserLimitActions: Boolean
@@ -3147,6 +3148,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadResidents: Boolean
+  canReadResidents_not: Boolean
   canReadOidcClients: Boolean
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
@@ -3346,6 +3349,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadResidents_ASC
+  canReadResidents_DESC
   canReadOidcClients_ASC
   canReadOidcClients_DESC
   canManageOidcClients_ASC
@@ -3447,6 +3452,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageTicketAutoAssignments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadResidents: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadResetUserLimitActions: Boolean
@@ -3525,6 +3531,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageTicketAutoAssignments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadResidents: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadResetUserLimitActions: Boolean
@@ -3714,6 +3721,10 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Property" similar to support users 
   """
   canManageProperties: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "Resident" as support / admin users do 
+  """
+  canReadResidents: Boolean
 
   """ Enables a user with the given UserRightsSet to view all entities of model "OidcClient" as support / admin users do 
   """
@@ -3920,6 +3931,8 @@ input UserRightsSetWhereInput {
   canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadResidents: Boolean
+  canReadResidents_not: Boolean
   canReadOidcClients: Boolean
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
@@ -4099,6 +4112,8 @@ enum SortUserRightsSetsBy {
   canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadResidents_ASC
+  canReadResidents_DESC
   canReadOidcClients_ASC
   canReadOidcClients_DESC
   canManageOidcClients_ASC
@@ -4200,6 +4215,7 @@ input UserRightsSetUpdateInput {
   canManageTicketAutoAssignments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadResidents: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadResetUserLimitActions: Boolean
@@ -4275,6 +4291,7 @@ input UserRightsSetCreateInput {
   canManageTicketAutoAssignments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadResidents: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
   canReadResetUserLimitActions: Boolean
