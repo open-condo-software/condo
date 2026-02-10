@@ -149,7 +149,7 @@ const SettingsPage: PageComponentType = () => {
     ), [PageTitle])
 
     useEffect(() => {
-        if (router.query.successPayment === 'true' && daysRemaining !== null && userOrganizationId) {
+        if (router.query.successPayment === 'true' && !subscriptionsLoading && daysRemaining > 0 && userOrganizationId) {
             const storageKey = `subscription_end_date_${userOrganizationId}`
             const previousEndDate = localStorage.getItem(storageKey)
             const currentEndDate = dayjs().add(daysRemaining, 'day').format('YYYY-MM-DD')
@@ -169,15 +169,15 @@ const SettingsPage: PageComponentType = () => {
                 query: restQuery,
             }, undefined, { shallow: true })
         }
-    }, [router.query.successPayment, router, SuccessPaymentNotificationTitle, SuccessPaymentNotificationDescription, daysRemaining, userOrganizationId])
+    }, [router.query.successPayment, router, SuccessPaymentNotificationTitle, SuccessPaymentNotificationDescription, daysRemaining, userOrganizationId, subscriptionsLoading])
     
     useEffect(() => {
-        if (daysRemaining !== null && userOrganizationId && !router.query.successPayment) {
+        if (!subscriptionsLoading && daysRemaining > 0 && userOrganizationId && !router.query.successPayment) {
             const storageKey = `subscription_end_date_${userOrganizationId}`
             const currentEndDate = dayjs().add(daysRemaining, 'day').format('YYYY-MM-DD')
             localStorage.setItem(storageKey, currentEndDate)
         }
-    }, [daysRemaining, userOrganizationId, router.query.successPayment])
+    }, [subscriptionsLoading, daysRemaining, userOrganizationId, router.query.successPayment])
 
     return (
         <>
