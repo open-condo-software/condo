@@ -129,12 +129,49 @@ function calculateFeatureExpirationDates (sortedContexts, now) {
     }, {})
 }
 
-function calculateDaysRemaining (featureExpirationDates, now) {
-    const featureDates = Object.values(featureExpirationDates)
-    const validDates = featureDates.filter(date => date !== null)
-    const latestEndAt = validDates.length > 0 ? validDates.sort().pop() : null
-    
-    return calculateDaysUntilDate(latestEndAt, now)
+function calculateDaysRemaining (sortedContexts, bestActiveContext, now) {
+    if (!bestActiveContext || !bestActiveContext.subscriptionPlan) {
+        return 0
+    }
+
+    const activePlanId = bestActiveContext.subscriptionPlan.id
+    const contextsWithActivePlan = sortedContexts.filter(ctx => 
+        ctx.subscriptionPlan && ctx.subscriptionPlan.id === activePlanId
+    )
+
+    if (contextsWithActivePlan.length === 0) {
+        return 0
+    }
+
+    const nowDate = dayjs(now).startOf('day')
+    let maxEndAt = null
+    let lastEndDate = null
+
+    for (const ctx of contextsWithActivePlan) {
+        const startAt = dayjs(ctx.startAt).startOf('day')
+        const endAt = dayjs(ctx.endAt).startOf('day')
+        const isActiveOrFuture = endAt.isAfter(nowDate)
+
+        if (isActiveOrFuture) {
+            if (lastEndDate) {
+                const prevEndDate = dayjs(lastEndDate).startOf('day')
+                if (startAt.isAfter(prevEndDate, 'day')) {
+                    break
+                }
+            } else {
+                if (startAt.isAfter(nowDate, 'day')) {
+                    break
+                }
+            }
+
+            lastEndDate = ctx.endAt
+            if (!maxEndAt || ctx.endAt > maxEndAt) {
+                maxEndAt = ctx.endAt
+            }
+        }
+    }
+
+    return calculateDaysUntilDate(maxEndAt, now)
 }
 
 function collectEnabledApps (activeContexts) {
@@ -200,7 +237,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
         })
 
         const featureExpirationDates = calculateFeatureExpirationDates(sortedContexts, now)
-        const daysRemaining = calculateDaysRemaining(featureExpirationDates, now)
+        const daysRemaining = calculateDaysRemaining(sortedContexts, bestActiveContext, now)
         const { enabledB2BApps, enabledB2CApps } = collectEnabledApps(activeContexts)
 
         return {

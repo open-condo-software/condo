@@ -181,10 +181,10 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const FeaturesTitle = intl.formatMessage({ id: 'subscription.features.title' })
     const FreeForPartnerMessage = intl.formatMessage({ id: 'subscription.planCard.freeForPartner' })
     const LinkedCardsLinkLabel = intl.formatMessage({ id: 'subscription.linkedCards.title' })
-    
+
     const { organization, role } = useOrganization()
     const { useFlagValue } = useFeatureFlags()
-    const { subscriptionContext: activeSubscriptionContext } = useOrganizationSubscription()
+    const { subscriptionContext: activeSubscriptionContext, daysRemaining } = useOrganizationSubscription()
     const [activateLoading, setActivateLoading] = useState<boolean>(false)
     const [trialActivateLoading, setTrialActivateLoading] = useState<boolean>(false)
     
@@ -247,8 +247,11 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         organizationId: organization?.id || '',
         pricingRuleId: price?.id || '',
     })
-
-    const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal()
+    
+    const contextPaymentMethodId = activeSubscriptionContext?.meta?.paymentMethod?.id
+    const { LinkedCardsModal, openModal: openLinkedCardsModal, hasPaymentMethod } = useLinkedCardsModal({
+        activePaymentMethodId: contextPaymentMethodId,
+    })
 
     const handleActivePlanClick = useCallback(async () => {
         if (!price?.id) return
@@ -299,7 +302,6 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         />
     ), [plan])
     
-    const contextPaymentMethodId = activeSubscriptionContext?.meta?.paymentMethod?.id
     const hasPaymentMethodForActivePlan = Boolean(
         isActivePlan &&
         contextPaymentMethodId && 
@@ -307,7 +309,14 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         organization?.meta?.paymentMethods?.some(pm => pm.id === contextPaymentMethodId)
     )
     
-    const endDate = activeSubscriptionContext?.endAt ? dayjs(activeSubscriptionContext.endAt) : null
+    const shouldShowPayButtonForActivePlan = isActivePlan && (
+        !activeSubscriptionContext ||
+        (contextPaymentMethodId && !organization?.meta?.paymentMethods?.some(pm => pm.id === contextPaymentMethodId))
+    )
+    
+    const endDate = isActivePlan && daysRemaining !== null && daysRemaining > 0 
+        ? dayjs().add(daysRemaining, 'day') 
+        : null
     const currentYear = dayjs().year()
     const isCurrentYear = endDate?.year() === currentYear
     const dateFormat = isCurrentYear ? 'D MMMM' : 'D MMMM YYYY'
@@ -316,27 +325,36 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
     const isNonTrialWithEndDate = !activeSubscriptionContext?.isTrial && endDate
     const endsInLessThan10Years = endDate && endDate.diff(dayjs(), 'year') < 10
     
-    let dateMessage = null
-    if (isActivePlan && !isCustomPrice && !isFreeForPartner && formattedDate) {
-        if (hasPaymentMethodForActivePlan) {
-            dateMessage = intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: formattedDate })
-        } else if (isNonTrialWithEndDate && endsInLessThan10Years) {
-            dateMessage = intl.formatMessage({ id: 'subscription.planCard.paidUntil' }, { date: formattedDate })
+    const dateMessage = useMemo(() => {
+        if (isActivePlan && formattedDate) {
+            if (isCustomPrice) {
+                return `✅ ${intl.formatMessage({ id: 'subscription.planCard.custom.paidUntil' }, { date: formattedDate })}`
+            } else if (isFreeForPartner) {
+                return `✅ ${FreeForPartnerMessage}`
+            } else if (hasPaymentMethodForActivePlan) {
+                return ` /${intl.formatMessage({ id: 'subscription.planCard.willBeCharged' }, { date: formattedDate })}`
+            } else if (isNonTrialWithEndDate && endsInLessThan10Years) {
+                return ` /${intl.formatMessage({ id: 'subscription.planCard.paidUntil' }, { date: formattedDate })}`
+            }
+        } else if (!isCustomPrice && !isFreeForPartner) {
+            return ` /${PeriodMessage}`
         }
-    }
+    }, [FreeForPartnerMessage, PeriodMessage, endsInLessThan10Years, formattedDate, hasPaymentMethodForActivePlan, intl, isActivePlan, isCustomPrice, isFreeForPartner, isNonTrialWithEndDate])
 
-    let displayPrice = null
-    if (isFreeForPartner) {
-        displayPrice = FreeForPartnerMessage
-    } else if (isCustomPrice) {
-        displayPrice = price.name
-    } else if (hasPaymentMethodForActivePlan && activeSubscriptionContext?.meta?.price !== undefined) {
-        const contextPrice = Math.floor(Number(activeSubscriptionContext.meta.price))
-        const formattedContextPrice = contextPrice >= 0 ? contextPrice.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
-        displayPrice = `${formattedContextPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
-    } else {
-        displayPrice = `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
-    }
+
+    const displayPrice = useMemo(() => {
+        if (isCustomPrice) {
+            return isActivePlan ? null : price.name
+        } else if (isFreeForPartner) {
+            return null
+        } else if (hasPaymentMethodForActivePlan && activeSubscriptionContext?.meta?.price !== undefined) {
+            const contextPrice = Math.floor(Number(activeSubscriptionContext.meta.price))
+            const formattedContextPrice = contextPrice >= 0 ? contextPrice.toLocaleString(intl.locale).replace(/,/g, ' ') : ''
+            return `${formattedContextPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
+        } else {
+            return `${formattedPrice} ${CURRENCY_SYMBOLS[price.currencyCode]}`
+        }
+    }, [activeSubscriptionContext?.meta?.price, formattedPrice, hasPaymentMethodForActivePlan, intl.locale, isActivePlan, isCustomPrice, isFreeForPartner, price.currencyCode, price.name]) 
 
     const cardClassName = classnames(
         styles.subscriptionPlanCard,
@@ -376,12 +394,10 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                         <Space size={4} direction='horizontal'>
                                             <Typography.Title level={3}>
                                                 {displayPrice}
-                                            </Typography.Title>
-                                            {!isCustomPrice && !isFreeForPartner && (
                                                 <Typography.Text type='secondary'>
-                                                    {dateMessage ? dateMessage : `/ ${PeriodMessage}`}
+                                                    {dateMessage}
                                                 </Typography.Text>
-                                            )}
+                                            </Typography.Title>
                                         </Space>
                                         {hasPaymentMethodForActivePlan && hasPaymentMethod && (
                                             <Typography.Link onClick={openLinkedCardsModal}>
@@ -392,7 +408,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
                                             </Typography.Link>
                                         )}
                                     </Space>
-                                    {!isLowerPriorityThanActive && !isFreeForPartner && !hasPaymentMethodForActivePlan && (
+                                    {!isLowerPriorityThanActive && !isFreeForPartner && (!isActivePlan || shouldShowPayButtonForActivePlan) && (
                                         <Space size={16} direction='vertical' width='100%'>
                                             <Button
                                                 block

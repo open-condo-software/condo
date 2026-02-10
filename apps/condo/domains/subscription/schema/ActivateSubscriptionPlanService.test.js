@@ -264,4 +264,142 @@ describe('ActivateSubscriptionPlanService', () => {
             expect(helpRequests[0].id).toBe(result.userHelpRequest.id)
         })
     })
+
+    describe('Subscription Renewal Without Gaps', () => {
+        let serviceUser
+
+        beforeEach(async () => {
+            serviceUser = await makeClientWithServiceUser()
+            const [rightsSet] = await createTestUserRightsSet(admin, {
+                canExecuteActivateSubscriptionPlan: true,
+            })
+            await updateTestUser(admin, serviceUser.user.id, {
+                rightsSet: { connect: { id: rightsSet.id } },
+            })
+        })
+
+        test('creates subscription starting from today when no existing contexts', async () => {
+            const [result] = await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, { isTrial: false })
+
+            expect(result.subscriptionContext).toBeDefined()
+            const context = result.subscriptionContext
+            
+            const today = dayjs().format('YYYY-MM-DD')
+            expect(context.startAt).toBe(today)
+            
+            const expectedEndAt = dayjs().add(1, 'month').format('YYYY-MM-DD')
+            expect(context.endAt).toBe(expectedEndAt)
+        })
+
+        test('extends subscription from last context endAt when it is in the future', async () => {
+            const firstEndAt = dayjs().add(15, 'days').format('YYYY-MM-DD')
+            await SubscriptionContext.create(admin, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'test-fingerprint' },
+                organization: { connect: { id: organization.id } },
+                subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: firstEndAt,
+                isTrial: false,
+            })
+
+            const [result] = await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, { isTrial: false })
+
+            expect(result.subscriptionContext).toBeDefined()
+            const context = result.subscriptionContext
+            
+            expect(context.startAt).toBe(firstEndAt)
+            
+            const expectedEndAt = dayjs(firstEndAt).add(1, 'month').format('YYYY-MM-DD')
+            expect(context.endAt).toBe(expectedEndAt)
+        })
+
+        test('starts from today when last context has already expired', async () => {
+            const expiredEndAt = dayjs().subtract(5, 'days').format('YYYY-MM-DD')
+            await SubscriptionContext.create(admin, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'test-fingerprint' },
+                organization: { connect: { id: organization.id } },
+                subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+                startAt: dayjs().subtract(35, 'days').format('YYYY-MM-DD'),
+                endAt: expiredEndAt,
+                isTrial: false,
+            })
+
+            const [result] = await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, { isTrial: false })
+
+            expect(result.subscriptionContext).toBeDefined()
+            const context = result.subscriptionContext
+            
+            const today = dayjs().format('YYYY-MM-DD')
+            expect(context.startAt).toBe(today)
+            
+            const expectedEndAt = dayjs().add(1, 'month').format('YYYY-MM-DD')
+            expect(context.endAt).toBe(expectedEndAt)
+        })
+
+        test('only considers contexts with the same plan for renewal', async () => {
+            const [anotherPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+            })
+
+            const anotherPlanEndAt = dayjs().add(60, 'days').format('YYYY-MM-DD')
+            await SubscriptionContext.create(admin, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'test-fingerprint' },
+                organization: { connect: { id: organization.id } },
+                subscriptionPlan: { connect: { id: anotherPlan.id } },
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: anotherPlanEndAt,
+                isTrial: false,
+            })
+
+            const currentPlanEndAt = dayjs().add(20, 'days').format('YYYY-MM-DD')
+            await SubscriptionContext.create(admin, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'test-fingerprint' },
+                organization: { connect: { id: organization.id } },
+                subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: currentPlanEndAt,
+                isTrial: false,
+            })
+
+            const [result] = await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, { isTrial: false })
+
+            expect(result.subscriptionContext).toBeDefined()
+            const context = result.subscriptionContext
+            
+            expect(context.startAt).toBe(currentPlanEndAt)
+            
+            const expectedEndAt = dayjs(currentPlanEndAt).add(1, 'month').format('YYYY-MM-DD')
+            expect(context.endAt).toBe(expectedEndAt)
+        })
+
+        test('creates continuous subscription chain without gaps', async () => {
+            const firstEndAt = dayjs().add(10, 'days').format('YYYY-MM-DD')
+            await SubscriptionContext.create(admin, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'test-fingerprint' },
+                organization: { connect: { id: organization.id } },
+                subscriptionPlan: { connect: { id: subscriptionPlan.id } },
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: firstEndAt,
+                isTrial: false,
+            })
+
+            const [result1] = await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, { isTrial: false })
+            expect(result1.subscriptionContext.startAt).toBe(firstEndAt)
+            const secondEndAt = result1.subscriptionContext.endAt
+
+            const [result2] = await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, { isTrial: false })
+            expect(result2.subscriptionContext.startAt).toBe(secondEndAt)
+            const thirdEndAt = result2.subscriptionContext.endAt
+
+            expect(dayjs(secondEndAt).diff(dayjs(firstEndAt), 'month')).toBe(1)
+            expect(dayjs(thirdEndAt).diff(dayjs(secondEndAt), 'month')).toBe(1)
+        })
+    })
 })

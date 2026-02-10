@@ -821,5 +821,151 @@ describe('Organization', () => {
             expect(org.subscription.payments).toBe(currentEndAt)
             expect(org.subscription.tickets).toBe(currentEndAt)
         })
+
+        test('calculates daysRemaining only for contexts with active plan', async () => {
+            const [organization] = await createTestOrganization(admin, {
+                type: SERVICE_PROVIDER_TYPE,
+            })
+            const endAt1 = dayjs().add(30, 'days').format('YYYY-MM-DD')
+            const endAt2 = dayjs().add(60, 'days').format('YYYY-MM-DD')
+            
+            const [lowPriorityPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                priority: 1,
+                payments: true,
+            })
+            const [highPriorityPlan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                priority: 100,
+                payments: true,
+            })
+
+            await createTestSubscriptionContext(admin, organization, lowPriorityPlan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: endAt2,
+                isTrial: false,
+            })
+            await createTestSubscriptionContext(admin, organization, highPriorityPlan, {
+                startAt: dayjs().subtract(2, 'days').format('YYYY-MM-DD'),
+                endAt: endAt1,
+                isTrial: false,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            const expectedDaysRemaining = Math.ceil(dayjs(endAt1).diff(dayjs(), 'hour', true) / 24)
+            expect(org.subscription.daysRemaining).toBe(expectedDaysRemaining)
+        })
+
+        test('daysRemaining uses only active plan contexts, ignoring longer contexts with different plans', async () => {
+            const [organization] = await createTestOrganization(admin, {
+                type: SERVICE_PROVIDER_TYPE,
+            })
+            const endAt1 = dayjs().add(15, 'days').format('YYYY-MM-DD')
+            const endAt2 = dayjs().add(45, 'days').format('YYYY-MM-DD')
+            const endAt3 = dayjs().add(90, 'days').format('YYYY-MM-DD')
+            
+            const [planA] = await createTestSubscriptionPlan(admin, {
+                name: 'Plan A',
+                organizationType: SERVICE_PROVIDER_TYPE,
+                priority: 50,
+                payments: true,
+            })
+            const [planB] = await createTestSubscriptionPlan(admin, {
+                name: 'Plan B',
+                organizationType: SERVICE_PROVIDER_TYPE,
+                priority: 100,
+                payments: true,
+            })
+
+            await createTestSubscriptionContext(admin, organization, planA, {
+                startAt: dayjs().subtract(5, 'days').format('YYYY-MM-DD'),
+                endAt: endAt3,
+                isTrial: false,
+            })
+            await createTestSubscriptionContext(admin, organization, planB, {
+                startAt: dayjs().subtract(3, 'days').format('YYYY-MM-DD'),
+                endAt: endAt1,
+                isTrial: false,
+            })
+            await createTestSubscriptionContext(admin, organization, planA, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt: endAt2,
+                isTrial: false,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.activeSubscriptionContextId).toBeDefined()
+            const expectedDaysRemaining = Math.ceil(dayjs(endAt1).diff(dayjs(), 'hour', true) / 24)
+            expect(org.subscription.daysRemaining).toBe(expectedDaysRemaining)
+        })
+
+        test('daysRemaining extends to future contexts with same plan as active', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const endAt1 = dayjs().add(20, 'days').format('YYYY-MM-DD')
+            const endAt2 = dayjs().add(50, 'days').format('YYYY-MM-DD')
+            const endAt3 = dayjs().add(80, 'days').format('YYYY-MM-DD')
+            
+            const [planA] = await createTestSubscriptionPlan(admin, {
+                name: 'Plan A',
+                organizationType: MANAGING_COMPANY_TYPE,
+                priority: 100,
+                payments: true,
+            })
+            const [planB] = await createTestSubscriptionPlan(admin, {
+                name: 'Plan B',
+                organizationType: MANAGING_COMPANY_TYPE,
+                priority: 50,
+                payments: true,
+            })
+
+            await createTestSubscriptionContext(admin, organization, planA, {
+                startAt: dayjs().subtract(5, 'days').format('YYYY-MM-DD'),
+                endAt: endAt1,
+                isTrial: false,
+            })
+            await createTestSubscriptionContext(admin, organization, planA, {
+                startAt: endAt1,
+                endAt: endAt2,
+                isTrial: false,
+            })
+            await createTestSubscriptionContext(admin, organization, planB, {
+                startAt: endAt2,
+                endAt: endAt3,
+                isTrial: false,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            const expectedDaysRemaining = Math.ceil(dayjs(endAt2).diff(dayjs(), 'hour', true) / 24)
+            expect(org.subscription.daysRemaining).toBe(expectedDaysRemaining)
+        })
+
+        test('daysRemaining is 0 when no active context exists', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                payments: true,
+            })
+
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(60, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().subtract(30, 'days').format('YYYY-MM-DD'),
+                isTrial: false,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription).not.toBeNull()
+            expect(org.subscription.daysRemaining).toBe(0)
+            expect(org.subscription.activeSubscriptionContextId).toBeNull()
+        })
     })
 })
