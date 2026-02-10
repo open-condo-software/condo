@@ -333,16 +333,8 @@ describe('NewsItemFile', () => {
             })
 
             it('admin can', async () => {
-                const fileMeta = {
-                    user: { id: admin.user.id },
-                    fileClientId: 'condo',
-                    modelNames: ['NewsItemFile'],
-                    dv: 1, sender: { dv: 1, fingerprint: 'test-utils' },
-                }
-                const file = await getUploadingFile(TEST_FILE, fileMeta, admin)
-
                 const [item] = await createTestNewsItemFile(admin, newsItem, organization)
-                const [updatedFile] = await updateTestNewsItemFile(admin, item.id, { file })
+                const [updatedFile] = await updateTestNewsItemFile(admin, item.id)
 
                 expect(updatedFile.v).toEqual(2)
             })
