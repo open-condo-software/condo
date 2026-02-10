@@ -102,7 +102,7 @@ const UploadDocumentsModal = ({
         }
 
         try {
-            const filesChunks = chunk(selectedFiles, 5)
+            const filesChunks = chunk(selectedFiles, 2)
             for (const filesChunk of filesChunks) {
                 setFileList(prevFiles => prevFiles.map(file => {
                     if (filesChunk.some(chunkFile => chunkFile.uid === file.uid)) {
