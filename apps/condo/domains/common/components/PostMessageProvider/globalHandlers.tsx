@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import omit from 'lodash/omit'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 
 import type { CondoBridgeResultResponseEvent, SetActionsConfigParams } from '@open-condo/bridge'
 import { generateUUIDv4 } from '@open-condo/miniapp-utils'
@@ -311,6 +311,7 @@ export const useActionsHandler: () => [
     const [config, setConfig] = useState<ActionsConfig | null>(null)
     const [source, setSource] = useState<Window | null>(null)
     const [origin, setOrigin] = useState<string | null>(null)
+    const configRef = useRef<ActionsConfig | null>(null)
 
     const handleSetActionsConfig = useCallback<RequestHandler<'CondoWebAppSetActionsConfig'>>((params, nextOrigin, nextSource) => {
         const { actions: actionsWithIds } = assignActionIds(params.actions)
@@ -319,34 +320,35 @@ export const useActionsHandler: () => [
         setConfig(updatedConfig)
         setSource(nextSource)
         setOrigin(nextOrigin)
+        configRef.current = updatedConfig
 
         return { actionsIds: actionsWithIds.map(a => a.id) }
     }, [])
 
+
     const handleUpdateActionConfig = useCallback<RequestHandler<'CondoWebAppUpdateActionConfig'>>(({ id, params }) => {
-        setConfig(prev => {
-            if (!prev) {
-                throw new Error('Actions config is not initialized')
-            }
+        const prev = configRef.current
+        if (!prev) {
+            throw new Error('Actions config is not initialized')
+        }
 
-            const actionIndex = prev.actions.findIndex(action => action.id === id)
-            if (actionIndex === -1) {
-                throw new Error('Action with provided id not found')
-            }
+        const actionIndex = prev.actions.findIndex(action => action.id === id)
+        if (actionIndex === -1) {
+            throw new Error('Action with provided id not found')
+        }
 
-            const updatedActions = [...prev.actions]
-            updatedActions[actionIndex] = { ...updatedActions[actionIndex], ...params, id }
+        const updatedActions = [...prev.actions]
+        updatedActions[actionIndex] = { ...updatedActions[actionIndex], ...params, id }
 
-            return {
-                ...prev,
-                actions: updatedActions,
-            }
-        })
+        const next = { ...prev, actions: updatedActions }
+        configRef.current = next
+        setConfig(next)
 
         return { success: true }
     }, [])
 
     const clear = useCallback(() => {
+        configRef.current = null
         setConfig(null)
         setSource(null)
         setOrigin(null)
