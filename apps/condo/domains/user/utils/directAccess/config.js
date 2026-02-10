@@ -59,6 +59,9 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         // Property domain
         'Property',
 
+        // Resident domain
+        { schemaName: 'Resident', readonly: true },
+
         // User domain
         'OidcClient',
         'ResetUserLimitAction',
