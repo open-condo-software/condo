@@ -17,7 +17,7 @@ export function useActionHandlers (bridge: CondoBridge, handlers: ActionHandlers
             if (event.type !== 'CondoWebAppSendActionId') return
 
             if ('actionId' in event.data && typeof event.data.actionId === 'string') {
-                const actionId = event.data.actionId
+                const { actionId } = event.data
                 const handler = handlersRef.current[actionId]
                 handler?.(actionId)
             }
