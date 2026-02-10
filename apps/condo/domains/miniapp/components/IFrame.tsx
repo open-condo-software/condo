@@ -192,7 +192,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
                     <Button
                         key={actionId}
                         id={actionId}
-                        type={action.type}
+                        type={action.type ?? 'primary'}
                         size={action.size}
                         loading={action.loading}
                         disabled={action.disabled}

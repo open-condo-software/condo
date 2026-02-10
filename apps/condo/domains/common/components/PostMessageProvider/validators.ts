@@ -191,9 +191,10 @@ export const CondoWebAppSetActionsConfigSchema = {
 }
 
 
+const { key, ...ActionButtonPatchBasePropsWithoutKey } = ActionButtonBaseProps
 const ActionButtonPatchSchema = {
     type: 'object',
-    properties: ActionButtonBaseProps,
+    properties: ActionButtonPatchBasePropsWithoutKey,
     additionalProperties: false,
 }
 
