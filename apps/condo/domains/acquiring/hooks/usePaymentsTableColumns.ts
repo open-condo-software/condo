@@ -84,12 +84,14 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 title: StatusTitle,
                 key: 'status',
                 dataIndex: 'status',
+                width: '10em',
                 render: getStatusRender(intl, openStatusDescModal, search),
             },
             order: {
                 title: getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
                 key: 'order',
                 dataIndex: 'order',
+                width: '10em',
                 render: stringSearch,
             },
             amount: {
