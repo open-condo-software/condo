@@ -6,7 +6,7 @@ import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
-import type { CondoBridgeResultResponseEvent, SetActionBarConfigParams } from '@open-condo/bridge'
+import type { CondoBridgeResultResponseEvent, SetActionsConfigParams } from '@open-condo/bridge'
 import { generateUUIDv4 } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -28,6 +28,18 @@ export const DEFAULT_MODAL_HEIGHT = 400
 type OpenModalRecord = {
     destroy: () => void
     update: (opts: ModalProps) => void
+}
+type ActionWithId = SetActionsConfigParams['actions'][number] & { id: string }
+export type ActionsConfig = Omit<SetActionsConfigParams, 'actions'> & { actions: ActionWithId[] }
+
+function assignActionIds (actions: SetActionsConfigParams['actions']): {
+    actions: ActionWithId[]
+} {
+    const actionsWithIds = actions.map(action => {
+        return { ...action, id: generateUUIDv4() }
+    })
+
+    return { actions: actionsWithIds }
 }
 
 export const handleNotification: RequestHandler<'CondoWebAppShowNotification'> = (params) => {
@@ -288,26 +300,51 @@ export const useRedirectHandler: () => RequestHandler<'CondoWebAppRedirect'> = (
     }, [router])
 }
 
-
-export const useActionBarHandler: () => [
-    RequestHandler<'CondoWebAppSetActionBarConfig'>,
-    SetActionBarConfigParams | null,
+export const useActionsHandler: () => [
+    RequestHandler<'CondoWebAppSetActionsConfig'>,
+    RequestHandler<'CondoWebAppUpdateActionConfig'>,
+    ActionsConfig | null,
     Window | null,
     string | null,
     () => void,
 ] = () => {
-    const [config, setConfig] = useState<SetActionBarConfigParams | null>(null)
+    const [config, setConfig] = useState<ActionsConfig | null>(null)
     const [source, setSource] = useState<Window | null>(null)
     const [origin, setOrigin] = useState<string | null>(null)
 
-    const handleShowActionBar = useCallback((params, origin, source) => {
-        setConfig(prev => ({ ...prev, ...params }))
-        setSource(prev => (prev !== source ? source : prev))
-        setOrigin(prev => (prev !== origin ? origin : prev))
+    const handleSetActionsConfig = useCallback<RequestHandler<'CondoWebAppSetActionsConfig'>>((params, nextOrigin, nextSource) => {
+        const { actions: actionsWithIds } = assignActionIds(params.actions)
+        const updatedConfig: ActionsConfig = { ...params, actions: actionsWithIds }
+
+        setConfig(updatedConfig)
+        setSource(nextSource)
+        setOrigin(nextOrigin)
+
+        return { actionsIds: actionsWithIds.map(a => a.id) }
+    }, [])
+
+    const handleUpdateActionConfig = useCallback<RequestHandler<'CondoWebAppUpdateActionConfig'>>(({ id, params }) => {
+        setConfig(prev => {
+            if (!prev) {
+                throw new Error('Actions config is not initialized')
+            }
+
+            const actionIndex = prev.actions.findIndex(action => action.id === id)
+            if (actionIndex === -1) {
+                throw new Error('Action with provided id not found')
+            }
+
+            const updatedActions = [...prev.actions]
+            updatedActions[actionIndex] = { ...updatedActions[actionIndex], ...params, id }
+
+            return {
+                ...prev,
+                actions: updatedActions,
+            }
+        })
 
         return { success: true }
     }, [])
-
 
     const clear = useCallback(() => {
         setConfig(null)
@@ -316,7 +353,8 @@ export const useActionBarHandler: () => [
     }, [])
 
     return [
-        handleShowActionBar,
+        handleSetActionsConfig,
+        handleUpdateActionConfig,
         config,
         source,
         origin,

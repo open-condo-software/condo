@@ -3,7 +3,7 @@ import get from 'lodash/get'
 import omit from 'lodash/omit'
 import React, { useEffect, createContext, useState, useContext, useCallback } from 'react'
 
-import type { ErrorReason, ErrorCode, SetActionBarConfigParams } from '@open-condo/bridge'
+import type { ErrorReason, ErrorCode } from '@open-condo/bridge'
 import { generateUUIDv4 } from '@open-condo/miniapp-utils'
 
 import {
@@ -15,10 +15,11 @@ import {
     useModalHandler,
     useShowProgressBarHandler,
     useUpdateProgressBarHandler,
-    useActionBarHandler,
+    useActionsHandler,
 } from './globalHandlers'
 import { validators } from './validators'
 
+import type { ActionsConfig } from './globalHandlers'
 import type {
     AllRequestMethods,
     RequestHandler,
@@ -42,11 +43,11 @@ type RegisterHandler = <Method extends AllRequestMethods>(
  * Context definitions
  */
 
-type ActionBarContext = {
-    actionBarConfig: SetActionBarConfigParams | null
-    actionBarSource: Window | null
-    actionBarOrigin: string | null
-    clearActionBar: () => void
+type ActionsContext = {
+    actionsConfig: ActionsConfig | null
+    actionsSource: Window | null
+    actionsOrigin: string | null
+    clearActions: () => void
 }
 type IPostMessageContext = {
     registeredFrames: Readonly<Record<FrameId, React.Ref<HTMLIFrameElement>>>
@@ -55,7 +56,7 @@ type IPostMessageContext = {
     handlers: Readonly<Record<HandlerId, OriginHandlers>>
     addEventHandler: RegisterHandler
     validators: Readonly<ValidatorsType>
-    actionBarContext: ActionBarContext
+    actionsContext: ActionsContext
 }
 
 /**
@@ -68,11 +69,11 @@ const PostMessageContext = createContext<IPostMessageContext>({
     handlers: {},
     addEventHandler: () => ({}),
     validators,
-    actionBarContext: {
-        actionBarConfig: null,
-        actionBarSource: null,
-        actionBarOrigin: null,
-        clearActionBar: () => {},
+    actionsContext: {
+        actionsConfig: null,
+        actionsSource: null,
+        actionsOrigin: null,
+        clearActions: () => {},
     },
 })
 
@@ -160,12 +161,13 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     const redirectHandler = useRedirectHandler()
     const [showModalHandler, updateModalHandler, closeModalHandler, ModalContainer] = useModalHandler()
     const [
-        handleShowActionBar,
-        actionBarConfig,
-        actionBarSource,
-        actionBarOrigin,
-        clearActionBar,
-    ] = useActionBarHandler()
+        handleShowActions,
+        handleUpdateAction,
+        actionsConfig,
+        actionsSource,
+        actionsOrigin,
+        clearActions,
+    ] = useActionsHandler()
 
     useEffect(() => {
         addEventHandler('CondoWebAppCloseModalWindow', '*', closeModalHandler)
@@ -204,9 +206,12 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     }, [addEventHandler, updateProgressBarHandler])
 
     useEffect(() => {
-        addEventHandler('CondoWebAppSetActionBarConfig', '*', handleShowActionBar)
-    }, [addEventHandler, handleShowActionBar])
+        addEventHandler('CondoWebAppSetActionsConfig', '*', handleShowActions)
+    }, [addEventHandler, handleShowActions])
 
+    useEffect(() => {
+        addEventHandler('CondoWebAppUpdateActionConfig', '*', handleUpdateAction)
+    }, [addEventHandler, handleUpdateAction])
 
     const addFrame = useCallback((ref: React.Ref<HTMLIFrameElement>) => {
         const frameId = generateUUIDv4()
@@ -219,13 +224,13 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
         setRegisteredFrames((prev) => {
             const frameRef = prev[frameId]
             const frameWindow = get(frameRef, ['current', 'contentWindow'])
-            if (frameWindow && frameWindow === actionBarSource) {
-                clearActionBar()
+            if (frameWindow && frameWindow === actionsSource) {
+                clearActions()
             }
             return omit(prev, frameId)
         })
         setRegisteredHandlers((prev) => omit(prev, frameId))
-    }, [actionBarSource, clearActionBar])
+    }, [actionsSource, clearActions])
 
     const handleMessage = useCallback(async (event: MessageEvent) => {
         if (!event.isTrusted ||
@@ -320,11 +325,11 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
             handlers: registeredHandlers,
             addEventHandler,
             validators,
-            actionBarContext: {
-                actionBarConfig,
-                actionBarOrigin,
-                actionBarSource,
-                clearActionBar,
+            actionsContext: {
+                actionsConfig,
+                actionsOrigin,
+                actionsSource,
+                clearActions,
             },
         }}>
             {children}

@@ -76,7 +76,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
 
     const { user } = useAuth()
     const { organization } = useOrganization()
-    const { addFrame, addEventHandler, removeFrame, actionBarContext: { actionBarConfig, actionBarSource, actionBarOrigin } } = usePostMessageContext()
+    const { addFrame, addEventHandler, removeFrame, actionsContext: { actionsConfig, actionsSource, actionsOrigin } } = usePostMessageContext()
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
     const srcWithMeta = useMemo(() => {
@@ -173,31 +173,45 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         display: hidden ? 'none' : 'block',
     }), [frameHeight, hidden])
 
-    const sendActionBarAction = useCallback((actionId: string) => {
-        if (!actionBarSource || !actionBarOrigin) return
+    const sendActionId = useCallback((actionId: string) => {
+        if (!actionsSource || !actionsOrigin) return
 
-        actionBarSource.postMessage({ type: 'CondoWebAppSendActionBarActionId', data: { actionId } }, actionBarOrigin)
-    }, [actionBarSource, actionBarOrigin])
+        actionsSource.postMessage({ type: 'CondoWebAppSendActionId', data: { actionId } }, actionsOrigin)
+    }, [actionsSource, actionsOrigin])
 
     const actions = useMemo(() => {
-        if (!actionBarConfig?.actions?.length) return null
+        if (!actionsConfig?.actions?.length) return null
 
-        return actionBarConfig.actions.map(action => (
-            <Button
-                key={action.id}
-                type={action.type}
-                loading={action.loading}
-                disabled={action.disabled}
-                onClick={() => sendActionBarAction(action.id)}
-                icon={renderIcon(action.icon, action.iconSize)}
-            >
-                {action.label}
-            </Button>
-        ))
-    }, [actionBarConfig?.actions, sendActionBarAction])
+        const actionElements = actionsConfig.actions
+            .filter(action => action.visible !== false)
+            .map(action => {
+                const actionId = action.id
+                if (!actionId) return null
 
-    const isActionBarOwner = !!actionBarSource && innerRef.current?.contentWindow === actionBarSource
-    const shouldShowActionBar = isActionBarOwner && actionBarOrigin && actions && actionBarConfig.visible
+                return (
+                    <Button
+                        key={actionId}
+                        id={actionId}
+                        type={action.type}
+                        size={action.size}
+                        loading={action.loading}
+                        disabled={action.disabled}
+                        danger={action.danger}
+                        compact={action.compact}
+                        minimal={action.minimal}
+                        onClick={() => sendActionId(actionId)}
+                        icon={renderIcon(action.icon, action.iconSize)}
+                    >
+                        {action.label}
+                    </Button>
+                )
+            }).filter(Boolean)
+
+        return actionElements.length ? actionElements : null
+    }, [actionsConfig?.actions, sendActionId])
+
+    const isActionOwner = !!actionsSource && innerRef.current?.contentWindow === actionsSource
+    const shouldShowActionBar = isActionOwner && actionsOrigin && actions && actionsConfig.visible
 
     return (
         <>
@@ -233,7 +247,6 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
             </div>
             {shouldShowActionBar && (
                 <ActionBar
-                    message={actionBarConfig.message}
                     actions={actions as [ReactElement, ...ReactElement[]]}
                 />
             )}
