@@ -1,0 +1,58 @@
+Это событие отправляется основным приложением, чтобы оповестить ваш мини-апп, что пользователь нажал на кнопку.
+
+## Платформы
+- B2B-Web
+- B2C-Mobile
+
+## Параметры метода
+
+| Название параметра | Тип параметра | Обязательный | Описание |
+|---|---|---|---|
+| actionId | string | да | Идентификатор нажатой кнопки (генерируется основным приложением) |
+
+## Примеры использования
+
+### Рекомендуемый вариант: ипользуйте вспомогательный хук
+
+```typescript jsx
+import React, { useMemo } from 'react'
+
+import bridge from '@open-condo/bridge'
+import { useActionHandlers } from '@open-condo/miniapp-utils'
+
+export function Example (): React.ReactNode {
+    const handlers = useMemo(() => ({
+        'action-id-1': () => {
+            // обработка сохранения
+        },
+        'action-id-2': () => {
+            // обработка скачивания
+        },
+    }), [])
+
+    useActionHandlers(bridge, handlers)
+
+    return null
+}
+```
+
+<Alert type='info'>
+    `actionId` приходит из массива `actionsIds`, который возвращает `CondoWebAppSetActionsConfig`.
+</Alert>
+
+### Низкоуровневая подписка на событие (без использования вспомогательного хука)
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+const listener = (event) => {
+    if (event.type !== 'CondoWebAppSendActionId') return
+
+    const { actionId } = event.data
+    if (actionId === 'id_вашей_кнопки') {
+        // обработка логики нажатия на вашу кнопку
+    }
+}
+
+bridge.subscribe(listener)
+```
