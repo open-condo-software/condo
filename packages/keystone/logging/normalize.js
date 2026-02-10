@@ -1,6 +1,4 @@
-const { get, set } = require('lodash')
-
-const HIDE_GRAPHQL_VARIABLES_KEYS = ['secret', 'password', 'receipts', 'data.password', 'data.secret', 'data.receipts']
+const SENSITIVE_KEY_REGEX = /(password|phone|secret|token|receipt)/i
 
 function normalizeQuery (string) {
     if (!string) return ''
@@ -9,15 +7,33 @@ function normalizeQuery (string) {
     return string.replace(/[\s,]+/g, ' ').trim()
 }
 
+function isSensitiveKey (key) {
+    return SENSITIVE_KEY_REGEX.test(key)
+}
+
+function redactSensitiveValues (value) {
+    if (Array.isArray(value)) {
+        return value.map(redactSensitiveValues)
+    }
+    if (value && typeof value === 'object') {
+        const entries = Object.entries(value)
+        return entries.reduce((acc, [key, entryValue]) => {
+            if (isSensitiveKey(key)) {
+                acc[key] = '***'
+            } else {
+                acc[key] = redactSensitiveValues(entryValue)
+            }
+            return acc
+        }, {})
+    }
+    return value
+}
+
 function normalizeVariables (object) {
     if (!object) return undefined
     const data = JSON.parse(JSON.stringify(object))
-    for (const key of HIDE_GRAPHQL_VARIABLES_KEYS) {
-        if (get(data, key)) {
-            set(data, key, '***')
-        }
-    }
-    return JSON.stringify(data)
+    const redacted = redactSensitiveValues(data)
+    return JSON.stringify(redacted)
 }
 
 module.exports = {
