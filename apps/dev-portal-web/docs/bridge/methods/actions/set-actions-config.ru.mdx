@@ -1,0 +1,89 @@
+Этот метод позволяет настроить список действий, которые будут отображаться в основном интерфейсе: в ActionBar в веб-приложении или в навигации в мобильном приложении. Поддерживаются только кнопки.
+
+## Платформы
+- B2B-Web
+- B2C-Mobile
+
+## Параметры метода
+
+| Название параметра | Тип параметра | Обязательный | Описание |
+|---|---|---|---|
+| visible | boolean | да | Нужно ли отображать блок действий |
+| actions | Action[] | да | Список действий для отображения |
+
+### Параметры Action (button)
+
+| Название параметра | Тип параметра | Обязательный | Описание |
+|---|---|---|---|
+| key | string | да | Ваш идентификатор действия (должен быть уникальным в списке) |
+| label | string | да | Текст кнопки |
+| type | 'primary' \| 'secondary' \| 'accent' | нет | Визуальный тип кнопки |
+| visible | boolean | нет | Видимость кнопки |
+| disabled | boolean | нет | Отключить кнопку |
+| danger | boolean | нет | Опасный стиль кнопки |
+| loading | boolean | нет | Состояние загрузки |
+| icon | 'download' | нет | Иконка |
+| iconSize | 'auto' \| 'large' \| 'medium' \| 'small' | нет | Размер иконки |
+| size | 'medium' \| 'large' | нет | Размер кнопки |
+| compact | boolean | нет | Компактный стиль |
+| minimal | boolean | нет | Минимальный стиль |
+
+## Возвращаемое значение
+
+При успехе метод вернет JSON объект со списком идентификаторов действий:
+```json
+{ "actionsIds": ["d21ec5e9-aafe-4552-b8ce-825f9c48c7ea", "80eed388-3c10-440a-8683-74e33f0cabed"] }
+```
+
+Хост генерирует внутренние id и возвращает их в том же порядке, что и входной список.
+Именно эти id возвращаются в событии `CondoWebAppSendActionId`.
+
+## Пример использования
+
+```typescript jsx
+import React, { useEffect, useMemo, useState } from 'react'
+
+import bridge from '@open-condo/bridge'
+import { useActionHandlers } from '@open-condo/miniapp-utils'
+
+export default function MiniappPage (): React.ReactNode {
+    const [actionsIds, setActionsIds] = useState<string[]>([])
+    const actions = useMemo(() => ([
+        { key: 'save', label: 'Save', type: 'primary' },
+        { key: 'download', label: 'Download', type: 'secondary', icon: 'download' },
+    ]), [])
+
+    useEffect(() => {
+        bridge.send('CondoWebAppSetActionsConfig', {
+            visible: true,
+            actions,
+        }).then((data) => {
+            setActionsIds(data.actionsIds)
+        })
+    }, [actions])
+
+    const handlers = useMemo(() => {
+        if (!actionsIds.length) return {}
+
+        const actionIdByKey = Object.fromEntries(
+            actions.map((action, index) => [action.key, actionsIds[index]])
+        )
+        return {
+            [actionIdByKey.save]: () => {
+                // обработка сохранения
+            },
+            [actionIdByKey.download]: () => {
+                // обработка скачивания
+            },
+        }
+    }, [actions, actionsIds])
+
+    useActionHandlers(bridge, handlers)
+
+    return null
+}
+```
+
+<Alert type='info'>
+    Значение `key` не возвращается в событиях клика. Используйте `actionsIds`, чтобы сопоставить ключи с сгенерированными id.
+</Alert>

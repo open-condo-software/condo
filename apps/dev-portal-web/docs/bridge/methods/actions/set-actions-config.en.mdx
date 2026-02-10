@@ -1,0 +1,88 @@
+This method allows you to set up a list of actions that will be displayed in the main interface: in the ActionBar in the web application or in the navigation in the mobile application. Only buttons are supported.
+## Platforms
+- B2B-Web
+- B2C-Mobile
+
+## Method params
+
+| Parameter name | Parameter type | Required | Parameter description |
+|---|---|---|---|
+| visible | boolean | yes | Whether the host should display the actions UI |
+| actions | Action[] | yes | List of actions to render |
+
+### Action (button) params
+
+| Parameter name | Parameter type | Required | Parameter description |
+|---|---|---|---|
+| key | string | yes | Your own identifier for the action (must be unique within the list) |
+| label | string | yes | Button text |
+| type | 'primary' \| 'secondary' \| 'accent' | no | Button visual type |
+| visible | boolean | no | Whether the button is visible |
+| disabled | boolean | no | Whether the button is disabled |
+| danger | boolean | no | Whether the button should use danger styles |
+| loading | boolean | no | Whether the button shows loading state |
+| icon | 'download' | no | Optional icon |
+| iconSize | 'auto' \| 'large' \| 'medium' \| 'small' | no | Icon size |
+| size | 'medium' \| 'large' | no | Button size |
+| compact | boolean | no | Compact button style |
+| minimal | boolean | no | Minimal button style |
+
+## Return value
+
+If successful, the method will return a JSON object containing a list of action IDs:
+```json
+{ "actionsIds": ["d21ec5e9-aafe-4552-b8ce-825f9c48c7ea", "80eed388-3c10-440a-8683-74e33f0cabed"] }
+```
+
+The host generates internal action ids and returns them in the same order as the input list.
+These ids are sent back in the `CondoWebAppSendActionId` event.
+
+## Usage example
+
+```typescript jsx
+import React, { useEffect, useMemo, useState } from 'react'
+
+import bridge from '@open-condo/bridge'
+import { useActionHandlers } from '@open-condo/miniapp-utils'
+
+export default function MiniappPage (): React.ReactNode {
+    const [actionsIds, setActionsIds] = useState<string[]>([])
+    const actions = useMemo(() => ([
+        { key: 'save', label: 'Save', type: 'primary' },
+        { key: 'download', label: 'Download', type: 'secondary', icon: 'download' },
+    ]), [])
+
+    useEffect(() => {
+        bridge.send('CondoWebAppSetActionsConfig', {
+            visible: true,
+            actions,
+        }).then((data) => {
+            setActionsIds(data.actionsIds)
+        })
+    }, [actions])
+
+    const handlers = useMemo(() => {
+        if (!actionsIds.length) return {}
+
+        const actionIdByKey = Object.fromEntries(
+            actions.map((action, index) => [action.key, actionsIds[index]])
+        )
+        return {
+            [actionIdByKey.save]: () => {
+                // handle save
+            },
+            [actionIdByKey.download]: () => {
+                // handle download
+            },
+        }
+    }, [actions, actionsIds])
+
+    useActionHandlers(bridge, handlers)
+
+    return null
+}
+```
+
+<Alert type='info'>
+    The `key` you pass is not sent back in click events. Use `actionsIds` to map keys to generated ids.
+</Alert>
