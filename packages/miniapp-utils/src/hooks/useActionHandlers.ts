@@ -27,5 +27,5 @@ export function useActionHandlers (bridge: CondoBridge, handlers: ActionHandlers
         return () => {
             bridge.unsubscribe(listener)
         }
-    }, [])
+    }, [bridge])
 }
