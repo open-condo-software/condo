@@ -22,7 +22,14 @@ export function useQueryParams (extensionTabKeys: Array<string> = []): [string, 
     const router = useRouter()
     const { tab, type } = parseQuery(router.query)
 
-    const activeTab = useMemo(() => availableTabs.includes(tab) ? tab : availableTabs[0],  [availableTabs, tab])
+    const normalizedTab = useMemo(() => {
+        if (tab === EXTENSION_TAB_KEY && extensionTabKeys.length > 0) {
+            return extensionTabKeys[0]
+        }
+        return tab
+    }, [extensionTabKeys, tab])
+
+    const activeTab = useMemo(() => availableTabs.includes(normalizedTab) ? normalizedTab : availableTabs[0],  [availableTabs, normalizedTab])
     const activeType = useMemo(() => PAYMENTS_TYPES.includes(type) ? type : PAYMENTS_TYPES[0], [type])
 
     const changeRouteToActiveParams = useCallback(async (newParameters) => {
