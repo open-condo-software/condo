@@ -8,8 +8,6 @@ out
 .kmigrator
 .DS_Store
 .docker-cache-warming
-.expo
-.expo-shared
 web-build
 coverage
 __generated__
