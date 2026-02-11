@@ -227,13 +227,13 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0, { useDangli
         if (protocol === 'https') {
             // Generate self-signed certificates on the fly using OpenSSL
             // This avoids external Node.js dependencies while creating proper X.509 certs
-            
+
             // Create temporary files for key and cert
             const tmpDir = os.tmpdir()
             const randomSuffix = crypto.randomBytes(8).toString('hex')
             const keyPath = path.join(tmpDir, `test-ssl-${Date.now()}-${randomSuffix}.key`)
             const certPath = path.join(tmpDir, `test-ssl-${Date.now()}-${randomSuffix}.pem`)
-            
+
             try {
                 // Generate self-signed certificate using OpenSSL (available on most systems)
                 // Using spawnSync instead of execSync to avoid spawning a shell (more secure)
@@ -763,17 +763,21 @@ const makeLoggedInMiniAppClient = async (
     //
     // Call miniapp init path to complete the flow
     //
-    const initUrl = new URL(miniappInitPath, miniAppUrlOrigin)
-    initUrl.searchParams.set('condoUserId', condoUserId)
-    initUrl.searchParams.set('condoOrganizationId', condoOrganizationId)
+    if (miniappInitPath) {
+        const initUrl = new URL(miniappInitPath, miniAppUrlOrigin)
+        initUrl.searchParams.set('condoUserId', condoUserId)
+        initUrl.searchParams.set('condoOrganizationId', condoOrganizationId)
 
-    await fetch(initUrl.toString(), {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-        },
-        redirect: 'follow',
-    })
+        const initResponse = await fetch(initUrl.toString(), {
+            headers: { 'Authorization': `Bearer ${token}` },
+            redirect: 'follow',
+        })
 
+        if (!initResponse.ok) {
+            const body = await initResponse.text().catch(() => '<unable to read body>')
+            throw new Error(`miniapp init request to ${miniappInitPath} failed with status ${initResponse.status}: ${body}`)
+        }
+    }
 
     return miniAppClient
 }
