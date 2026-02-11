@@ -302,6 +302,7 @@ export const useRedirectHandler: () => RequestHandler<'CondoWebAppRedirect'> = (
 
 export const useActionsHandler: () => [
     RequestHandler<'CondoWebAppSetActionsConfig'>,
+    RequestHandler<'CondoWebAppSetActionsVisibility'>,
     RequestHandler<'CondoWebAppUpdateActionConfig'>,
     ActionsConfig | null,
     Window | null,
@@ -325,6 +326,21 @@ export const useActionsHandler: () => [
         return { actionsIds: actionsWithIds.map(a => a.id) }
     }, [])
 
+    const handleSetActionsVisibility = useCallback<RequestHandler<'CondoWebAppSetActionsVisibility'>>(({ visible }) => {
+        const prev = configRef.current
+        if (!prev) {
+            if (visible === false) {
+                return { success: true }
+            }
+            throw new Error('Actions config is not initialized')
+        }
+
+        const next = { ...prev, visible }
+        configRef.current = next
+        setConfig(next)
+
+        return { success: true }
+    }, [])
 
     const handleUpdateActionConfig = useCallback<RequestHandler<'CondoWebAppUpdateActionConfig'>>(({ id, params }) => {
         const prev = configRef.current
@@ -356,6 +372,7 @@ export const useActionsHandler: () => [
 
     return [
         handleSetActionsConfig,
+        handleSetActionsVisibility,
         handleUpdateActionConfig,
         config,
         source,
