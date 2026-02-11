@@ -162,6 +162,7 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     const [showModalHandler, updateModalHandler, closeModalHandler, ModalContainer] = useModalHandler()
     const [
         handleShowActions,
+        handleSetActionsVisibility,
         handleUpdateAction,
         actionsConfig,
         actionsSource,
@@ -208,6 +209,10 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     useEffect(() => {
         addEventHandler('CondoWebAppSetActionsConfig', '*', handleShowActions)
     }, [addEventHandler, handleShowActions])
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppSetActionsVisibility', '*', handleSetActionsVisibility)
+    }, [addEventHandler, handleSetActionsVisibility])
 
     useEffect(() => {
         addEventHandler('CondoWebAppUpdateActionConfig', '*', handleUpdateAction)
