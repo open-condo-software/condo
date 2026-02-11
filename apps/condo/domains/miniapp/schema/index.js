@@ -17,6 +17,7 @@ const { B2BAppPromoBlock } = require('./B2BAppPromoBlock')
 const { B2BAppRole } = require('./B2BAppRole')
 const { B2CApp } = require('./B2CApp')
 const { B2CAppAccessRight } = require('./B2CAppAccessRight')
+const { B2CAppAccessRightSet } = require('./B2CAppAccessRightSet')
 const { B2CAppBuild } = require('./B2CAppBuild')
 const { B2CAppProperty } = require('./B2CAppProperty')
 const { CustomField } = require('./CustomField')
@@ -48,5 +49,6 @@ module.exports = {
     CustomField,
     CustomValue,
     B2BAppPosIntegrationConfig,
+    B2CAppAccessRightSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
