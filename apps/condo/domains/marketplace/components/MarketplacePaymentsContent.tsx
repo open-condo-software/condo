@@ -98,7 +98,7 @@ const MarketplacePaymentsTable = () => {
     const { PosIntegrationAlert, loading: areAlertLoading } = usePosIntegrationAlert()
 
     return (
-        <Space size={areAlertLoading ? 0 : 30} direction='vertical'>
+        <Space size={0} direction='vertical'>
             {PosIntegrationAlert}
             {areAlertLoading ? (
                 <Spin size='large' />
