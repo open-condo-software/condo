@@ -8,6 +8,7 @@ import type { RequestAuthData, RequestAuthParams } from './RequestAuth'
 import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 import type { SendActionIdParams, SendActionIdData } from './SendActionId'
 import type { SetActionsConfigParams, SetActionsConfigData } from './SetActionsConfig'
+import type { SetActionsVisibilityParams, SetActionsVisibilityData } from './SetActionsVisibility'
 import type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
 import type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
@@ -28,6 +29,7 @@ export type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressB
 export type { UpdateModalWindowParams, UpdateModalWindowData } from './UpdateModalWindow'
 export type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
 export type { SetActionsConfigParams, SetActionsConfigData } from './SetActionsConfig'
+export type { SetActionsVisibilityParams, SetActionsVisibilityData } from './SetActionsVisibility'
 export type { SendActionIdParams, SendActionIdData } from './SendActionId'
 export type { UpdateActionConfigParams, UpdateActionConfigData } from './UpdateActionConfig'
 
@@ -48,6 +50,7 @@ export type RequestMethodsParamsMap = {
     CondoWebAppUpdateModalWindow: UpdateModalWindowParams
     CondoWebAppUpdateProgressBar: UpdateProgressBarParams
     CondoWebAppSetActionsConfig: SetActionsConfigParams
+    CondoWebAppSetActionsVisibility: SetActionsVisibilityParams
     CondoWebAppUpdateActionConfig: UpdateActionConfigParams
     CondoWebAppSendActionId: SendActionIdParams
 }
@@ -69,6 +72,7 @@ export type ResultResponseDataMap = {
     CondoWebAppUpdateModalWindow: UpdateModalWindowData
     CondoWebAppUpdateProgressBar: UpdateProgressBarData
     CondoWebAppSetActionsConfig: SetActionsConfigData
+    CondoWebAppSetActionsVisibility: SetActionsVisibilityData
     CondoWebAppUpdateActionConfig: UpdateActionConfigData
     CondoWebAppSendActionId: SendActionIdData
 }
