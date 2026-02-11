@@ -150,6 +150,86 @@ const CondoWebAppUpdateProgressBarParamsSchema = {
     required: ['barId', 'data'],
 }
 
+const ActionButtonBaseProps = {
+    label: { type: 'string' },
+    key: { type: 'string' },
+    visible: { type: 'boolean' },
+    type: { enum: ['primary', 'secondary', 'accent'] },
+    loading: { type: 'boolean' },
+    disabled: { type: 'boolean' },
+    danger: { type: 'boolean' },
+    icon: { enum: ['download'] },
+    iconSize: { enum: ['auto', 'large', 'medium', 'small'] },
+    size: { enum: ['medium', 'large'] },
+    compact: { type: 'boolean' },
+    minimal: { type: 'boolean' },
+}
+
+const ActionButtonSchema = {
+    type: 'object',
+    properties: ActionButtonBaseProps,
+    required: ['label', 'key'],
+    additionalProperties: false,
+}
+
+export const CondoWebAppSetActionsConfigSchema = {
+    type: 'object',
+    properties: {
+        visible: { type: 'boolean' },
+        actions: {
+            type: 'array',
+            minItems: 1,
+            items: {
+                oneOf: [
+                    ActionButtonSchema,
+                ],
+            },
+        },
+    },
+    required: ['actions', 'visible'],
+    additionalProperties: false,
+}
+
+const CondoWebAppSetActionsVisibilitySchema = {
+    type: 'object',
+    properties: {
+        visible: { type: 'boolean' },
+    },
+    required: ['visible'],
+    additionalProperties: false,
+}
+
+
+const { key, ...ActionButtonPatchBasePropsWithoutKey } = ActionButtonBaseProps
+const ActionButtonPatchSchema = {
+    type: 'object',
+    properties: ActionButtonPatchBasePropsWithoutKey,
+    additionalProperties: false,
+}
+
+const CondoWebAppUpdateActionConfigSchema = {
+    type: 'object',
+    properties: {
+        id: { type: 'string' },
+        params: {
+            oneOf: [
+                ActionButtonPatchSchema,
+            ],
+        },
+    },
+    required: ['id', 'params'],
+    additionalProperties: false,
+}
+
+const CondoWebAppSendActionIdSchema = {
+    type: 'object',
+    properties: {
+        actionId: { type: 'string' },
+    },
+    required: ['actionId'],
+    additionalProperties: false,
+}
+
 export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValidator<Method> }
 
 export const validators: ValidatorsType = {
@@ -167,4 +247,8 @@ export const validators: ValidatorsType = {
     CondoWebAppShowProgressBar: ajv.compile(CondoWebAppShowProgressBarParamsSchema),
     CondoWebAppUpdateModalWindow: ajv.compile(CondoWebAppUpdateModalWindowParamsSchema),
     CondoWebAppUpdateProgressBar: ajv.compile(CondoWebAppUpdateProgressBarParamsSchema),
+    CondoWebAppSetActionsConfig: ajv.compile(CondoWebAppSetActionsConfigSchema),
+    CondoWebAppSetActionsVisibility: ajv.compile(CondoWebAppSetActionsVisibilitySchema),
+    CondoWebAppUpdateActionConfig: ajv.compile(CondoWebAppUpdateActionConfigSchema),
+    CondoWebAppSendActionId: ajv.compile(CondoWebAppSendActionIdSchema),
 }

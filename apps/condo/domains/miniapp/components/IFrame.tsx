@@ -1,15 +1,16 @@
 import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography } from '@open-condo/ui'
+import { ActionBar, Typography, Button } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
+import { renderIcon } from '@condo/domains/miniapp/utils/renderers'
 
 import type { IBasicEmptyListProps } from '@condo/domains/common/components/EmptyListView'
 import type { RequestHandler } from '@condo/domains/common/components/PostMessageProvider/types'
@@ -39,7 +40,6 @@ export type IFrameProps = {
     onLoad?: () => void
     initialHeight?: number
 }
-
 
 const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props, ref) => {
     const {
@@ -76,8 +76,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
 
     const { user } = useAuth()
     const { organization } = useOrganization()
-    const { addFrame, addEventHandler, removeFrame } = usePostMessageContext()
-
+    const { addFrame, addEventHandler, removeFrame, actionsContext: { actionsConfig, actionsSource, actionsOrigin } } = usePostMessageContext()
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
     const srcWithMeta = useMemo(() => {
@@ -174,35 +173,84 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         display: hidden ? 'none' : 'block',
     }), [frameHeight, hidden])
 
+    const sendActionId = useCallback((actionId: string) => {
+        if (!actionsSource || !actionsOrigin) return
+
+        actionsSource.postMessage({ type: 'CondoWebAppSendActionId', data: { actionId } }, actionsOrigin)
+    }, [actionsSource, actionsOrigin])
+
+    const actions = useMemo(() => {
+        if (!actionsConfig?.actions?.length) return null
+
+        const actionElements = actionsConfig.actions
+            .filter(action => action.visible !== false)
+            .map(action => {
+                const actionId = action.id
+                if (!actionId) return null
+
+                return (
+                    <Button
+                        key={actionId}
+                        id={actionId}
+                        type={action.type ?? 'primary'}
+                        size={action.size}
+                        loading={action.loading}
+                        disabled={action.disabled}
+                        danger={action.danger}
+                        compact={action.compact}
+                        minimal={action.minimal}
+                        onClick={() => sendActionId(actionId)}
+                        icon={renderIcon(action.icon, action.iconSize)}
+                    >
+                        {action.label}
+                    </Button>
+                )
+            }).filter(Boolean)
+
+        return actionElements.length ? actionElements : null
+    }, [actionsConfig?.actions, sendActionId])
+
+    const isActionOwner = !!actionsSource && innerRef.current?.contentWindow === actionsSource
+    const shouldShowActionBar = isActionOwner && actionsOrigin && actions && actionsConfig.visible
+
     return (
-        <div style={containerStyle}>
-            {withLoader && isLoading && (
-                <Loader fill size='large'/>
+        <>
+            <div style={containerStyle}>
+                {withLoader && isLoading && (
+                    <Loader fill size='large'/>
+                )}
+                {withPrefetch && isError && (
+                    <BasicEmptyListView {...EMPTY_LIST_PROPS}>
+                        <Typography.Title level={4}>
+                            {LoadingErrorOccurredTitle}
+                        </Typography.Title>
+                        <Typography.Text type='secondary'>
+                            {LoadingErrorOccurredMessage}
+                        </Typography.Text>
+                    </BasicEmptyListView>
+                )}
+            
+                <iframe
+                    src={srcWithMeta}
+                    key={rerenderKey}
+                    style={IFRAME_STYLES}
+                    onLoad={handleLoad}
+                    hidden={isLoading || isError || hidden}
+                    ref={handleRefChange}
+                    height={frameHeight}
+                    allowFullScreen={allowFullscreen}
+                    allow='clipboard-write'
+                    // NOTE: Deprecated, but overflow: hidden still not works in Chrome :)
+                    scrolling='no'
+                />
+            
+            </div>
+            {shouldShowActionBar && (
+                <ActionBar
+                    actions={actions as [ReactElement, ...ReactElement[]]}
+                />
             )}
-            {withPrefetch && isError && (
-                <BasicEmptyListView {...EMPTY_LIST_PROPS}>
-                    <Typography.Title level={4}>
-                        {LoadingErrorOccurredTitle}
-                    </Typography.Title>
-                    <Typography.Text type='secondary'>
-                        {LoadingErrorOccurredMessage}
-                    </Typography.Text>
-                </BasicEmptyListView>
-            )}
-            <iframe
-                src={srcWithMeta}
-                key={rerenderKey}
-                style={IFRAME_STYLES}
-                onLoad={handleLoad}
-                hidden={isLoading || isError || hidden}
-                ref={handleRefChange}
-                height={frameHeight}
-                allowFullScreen={allowFullscreen}
-                allow='clipboard-write'
-                // NOTE: Deprecated, but overflow: hidden still not works in Chrome :)
-                scrolling='no'
-            />
-        </div>
+        </>
     )
 })
 

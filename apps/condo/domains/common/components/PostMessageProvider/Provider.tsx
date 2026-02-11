@@ -15,9 +15,11 @@ import {
     useModalHandler,
     useShowProgressBarHandler,
     useUpdateProgressBarHandler,
+    useActionsHandler,
 } from './globalHandlers'
 import { validators } from './validators'
 
+import type { ActionsConfig } from './globalHandlers'
 import type {
     AllRequestMethods,
     RequestHandler,
@@ -40,6 +42,13 @@ type RegisterHandler = <Method extends AllRequestMethods>(
 /**
  * Context definitions
  */
+
+type ActionsContext = {
+    actionsConfig: ActionsConfig | null
+    actionsSource: Window | null
+    actionsOrigin: string | null
+    clearActions: () => void
+}
 type IPostMessageContext = {
     registeredFrames: Readonly<Record<FrameId, React.Ref<HTMLIFrameElement>>>
     addFrame: (ref: React.Ref<HTMLIFrameElement>) => FrameId
@@ -47,6 +56,7 @@ type IPostMessageContext = {
     handlers: Readonly<Record<HandlerId, OriginHandlers>>
     addEventHandler: RegisterHandler
     validators: Readonly<ValidatorsType>
+    actionsContext: ActionsContext
 }
 
 /**
@@ -59,6 +69,12 @@ const PostMessageContext = createContext<IPostMessageContext>({
     handlers: {},
     addEventHandler: () => ({}),
     validators,
+    actionsContext: {
+        actionsConfig: null,
+        actionsSource: null,
+        actionsOrigin: null,
+        clearActions: () => {},
+    },
 })
 
 /**
@@ -144,6 +160,15 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     const updateProgressBarHandler = useUpdateProgressBarHandler()
     const redirectHandler = useRedirectHandler()
     const [showModalHandler, updateModalHandler, closeModalHandler, ModalContainer] = useModalHandler()
+    const [
+        handleShowActions,
+        handleSetActionsVisibility,
+        handleUpdateAction,
+        actionsConfig,
+        actionsSource,
+        actionsOrigin,
+        clearActions,
+    ] = useActionsHandler()
 
     useEffect(() => {
         addEventHandler('CondoWebAppCloseModalWindow', '*', closeModalHandler)
@@ -181,6 +206,18 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
         addEventHandler('CondoWebAppUpdateProgressBar', '*', updateProgressBarHandler)
     }, [addEventHandler, updateProgressBarHandler])
 
+    useEffect(() => {
+        addEventHandler('CondoWebAppSetActionsConfig', '*', handleShowActions)
+    }, [addEventHandler, handleShowActions])
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppSetActionsVisibility', '*', handleSetActionsVisibility)
+    }, [addEventHandler, handleSetActionsVisibility])
+
+    useEffect(() => {
+        addEventHandler('CondoWebAppUpdateActionConfig', '*', handleUpdateAction)
+    }, [addEventHandler, handleUpdateAction])
+
     const addFrame = useCallback((ref: React.Ref<HTMLIFrameElement>) => {
         const frameId = generateUUIDv4()
         setRegisteredFrames((prev) => ({ ...prev, [frameId]: ref }))
@@ -189,9 +226,16 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     }, [])
 
     const removeFrame = useCallback((frameId: string) => {
-        setRegisteredFrames((prev) => omit(prev, frameId))
+        setRegisteredFrames((prev) => {
+            const frameRef = prev[frameId]
+            const frameWindow = get(frameRef, ['current', 'contentWindow'])
+            if (frameWindow && frameWindow === actionsSource) {
+                clearActions()
+            }
+            return omit(prev, frameId)
+        })
         setRegisteredHandlers((prev) => omit(prev, frameId))
-    }, [])
+    }, [actionsSource, clearActions])
 
     const handleMessage = useCallback(async (event: MessageEvent) => {
         if (!event.isTrusted ||
@@ -286,6 +330,12 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
             handlers: registeredHandlers,
             addEventHandler,
             validators,
+            actionsContext: {
+                actionsConfig,
+                actionsOrigin,
+                actionsSource,
+                clearActions,
+            },
         }}>
             {children}
             {ModalContainer}

@@ -1,0 +1,49 @@
+This method allows you to update a specific action (button) by its id.
+
+## Platforms
+- B2B-Web
+- B2C-Mobile
+
+## Method params
+
+| Parameter name | Parameter type | Required | Parameter description |
+|---|---|---|---|
+| id | string | yes | Identifier of the action to update (use the id returned by `CondoWebAppSetActionsConfig`) |
+| params | ActionPatch | yes | Partial action config to apply |
+
+### ActionPatch (button) params
+
+| Parameter name | Parameter type | Required | Parameter description |
+|---|---|---|---|
+| label | string | no | Button text |
+| type | 'primary' \| 'secondary' \| 'accent' | no | Button visual type |
+| visible | boolean | no | Whether the button is visible |
+| disabled | boolean | no | Whether the button is disabled |
+| danger | boolean | no | Whether the button should use danger styles |
+| loading | boolean | no | Whether the button shows loading state |
+| icon | 'download' | no | Optional icon |
+| iconSize | 'auto' \| 'large' \| 'medium' \| 'small' | no | Icon size |
+| size | 'medium' \| 'large' | no | Button size |
+| compact | boolean | no | Compact button style |
+| minimal | boolean | no | Minimal button style |
+
+## Return value
+
+If successful, the method will return a JSON object containing a single `success` field:
+```json
+{ "success": true }
+```
+
+## Usage example
+
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.send('CondoWebAppUpdateActionConfig', {
+    id: 'action-uuid',
+    params: {
+        loading: true,
+        disabled: true,
+    },
+})
+```
