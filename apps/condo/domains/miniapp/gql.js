@@ -61,7 +61,7 @@ const B2CAppAccessRight = generateGqlQueries('B2CAppAccessRight', B2C_APP_ACCESS
 const B2C_APP_BUILD_FIELDS = `{ app { id } version ${COMMON_FIELDS} }`
 const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 
-const B2C_APP_PROPERTY_FIELDS = `{ app { id } isAvailable address ${COMMON_FIELDS} }`
+const B2C_APP_PROPERTY_FIELDS = `{ app { id } addressKey isAvailable address ${COMMON_FIELDS} }`
 const B2CAppProperty = generateGqlQueries('B2CAppProperty', B2C_APP_PROPERTY_FIELDS)
 
 const B2B_APP_PERMISSION_FIELDS = `{ app { id } key name ${COMMON_FIELDS} }`
@@ -103,6 +103,9 @@ const CustomField = generateGqlQueries('CustomField', CUSTOM_FIELD_FIELDS)
 const CUSTOM_VALUE_FIELDS = `{ itemId data customField { id name priority modelName type validationRules isVisible } filterDataString sourceType sourceId organization { id } ${COMMON_FIELDS} }`
 const CustomValue = generateGqlQueries('CustomValue', CUSTOM_VALUE_FIELDS)
 
+const B2C_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${COMMON_FIELDS} }`
+const B2CAppAccessRightSet = generateGqlQueries('B2CAppAccessRightSet', B2C_APP_ACCESS_RIGHT_SET_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -131,5 +134,6 @@ module.exports = {
     SEND_B2B_APP_PUSH_MESSAGE_MUTATION,
     B2BAppRoleWithoutEmployeeRole,
     B2BAppPosIntegrationConfig,
+    B2CAppAccessRightSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
