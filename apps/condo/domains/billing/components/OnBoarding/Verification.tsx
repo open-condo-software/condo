@@ -31,7 +31,10 @@ export const Verification: React.FC = () => {
             status: BILLING_FINISHED_STATUS,
             organization: { id: orgId },
         },
-        sortBy: [SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc],
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
     })
 
     const { objs: acquiringContexts, loading: acquiringCtxLoading, error: acquiringCtxError } = AcquiringContext.useObjects({
@@ -39,7 +42,10 @@ export const Verification: React.FC = () => {
             status: CONTEXT_VERIFICATION_STATUS,
             organization: { id: orgId },
         },
-        sortBy: [SortAcquiringIntegrationContextsBy.UpdatedAtDesc],
+        sortBy: [
+            SortAcquiringIntegrationContextsBy.UpdatedAtDesc,
+            SortAcquiringIntegrationContextsBy.IdDesc,
+        ],
     })
 
     const billingCtx = billingContexts[0] || null

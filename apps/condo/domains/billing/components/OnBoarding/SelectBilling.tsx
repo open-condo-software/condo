@@ -43,7 +43,10 @@ export const SelectBilling: React.FC = () => {
             organization: { id: orgId },
             status: CONTEXT_FINISHED_STATUS,
         },
-        sortBy: [SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc],
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
     })
     const { objs: billings, loading: billingsLoading, error: billingsError } = BillingIntegration.useObjects({
         where: { isHidden: false },

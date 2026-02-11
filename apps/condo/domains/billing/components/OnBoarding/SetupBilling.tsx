@@ -103,13 +103,19 @@ export const SetupBilling: React.FC = ()=> {
             organization: { id: orgId },
             status: CONTEXT_FINISHED_STATUS,
         },
-        sortBy: [SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc],
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
     })
     const { objs: currentContexts, loading: currentCtxLoading, error: currentCtxError } = BillingContext.useObjects({
         where: {
             organization: { id: orgId },
         },
-        sortBy: [SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc],
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
     })
 
     const connectedCtx = connectedContexts[0] || null

@@ -63,7 +63,10 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         where: {
             organization: { id: orgId },
         },
-        sortBy: [SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc],
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
     })
 
     // NOTE: On practice there's only 1 acquiring and there's no plans to change it soon
@@ -81,16 +84,22 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
             integration: { id: acquiringId },
             organization: { id: orgId },
         },
-        sortBy: [SortAcquiringIntegrationContextsBy.UpdatedAtDesc],
+        sortBy: [
+            SortAcquiringIntegrationContextsBy.UpdatedAtDesc,
+            SortAcquiringIntegrationContextsBy.IdDesc,
+        ],
     })
 
     // Note: is active context is in FINISHED status - we'll ignore this step render at all, so we only interested in verification ones
-    const { objs: connectedContexts, loading:connectedCtxLoading, error: connectedCtxError } = AcquiringContext.useObjects({
+    const { objs: connectedContexts, loading: connectedCtxLoading, error: connectedCtxError } = AcquiringContext.useObjects({
         where: {
             organization: { id: orgId },
             status_in: [CONTEXT_VERIFICATION_STATUS],
         },
-        sortBy: [SortAcquiringIntegrationContextsBy.UpdatedAtDesc],
+        sortBy: [
+            SortAcquiringIntegrationContextsBy.UpdatedAtDesc,
+            SortAcquiringIntegrationContextsBy.IdDesc,
+        ],
     })
 
 
