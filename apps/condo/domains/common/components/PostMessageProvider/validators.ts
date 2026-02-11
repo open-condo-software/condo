@@ -160,7 +160,7 @@ const ActionButtonBaseProps = {
     danger: { type: 'boolean' },
     icon: { enum: ['download'] },
     iconSize: { enum: ['auto', 'large', 'medium', 'small'] },
-    size: { enum: ['small', 'medium', 'large'] },
+    size: { enum: ['medium', 'large'] },
     compact: { type: 'boolean' },
     minimal: { type: 'boolean' },
 }
@@ -187,6 +187,15 @@ export const CondoWebAppSetActionsConfigSchema = {
         },
     },
     required: ['actions', 'visible'],
+    additionalProperties: false,
+}
+
+const CondoWebAppSetActionsVisibilitySchema = {
+    type: 'object',
+    properties: {
+        visible: { type: 'boolean' },
+    },
+    required: ['visible'],
     additionalProperties: false,
 }
 
@@ -239,6 +248,7 @@ export const validators: ValidatorsType = {
     CondoWebAppUpdateModalWindow: ajv.compile(CondoWebAppUpdateModalWindowParamsSchema),
     CondoWebAppUpdateProgressBar: ajv.compile(CondoWebAppUpdateProgressBarParamsSchema),
     CondoWebAppSetActionsConfig: ajv.compile(CondoWebAppSetActionsConfigSchema),
+    CondoWebAppSetActionsVisibility: ajv.compile(CondoWebAppSetActionsVisibilitySchema),
     CondoWebAppUpdateActionConfig: ajv.compile(CondoWebAppUpdateActionConfigSchema),
     CondoWebAppSendActionId: ajv.compile(CondoWebAppSendActionIdSchema),
 }
