@@ -1,0 +1,39 @@
+{
+  "schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@open-condo/tsconfig/next-app.json",
+  "compilerOptions": {
+    "strict": true,
+    "maxNodeModuleJsDepth": 1,
+    "baseUrl": ".",
+    "preserveSymlinks": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "types": [
+      "@serwist/next/typings",
+      "@types/jest"
+    ],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext",
+    ],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "index.js",
+  ]
+}
