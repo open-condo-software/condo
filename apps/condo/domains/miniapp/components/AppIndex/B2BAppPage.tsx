@@ -92,9 +92,9 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
         return <LoadingOrErrorPage error={contextError || appRoleError} loading={contextLoading || appRoleLoading} title={LoadingMessage}/>
     }
 
-    /*    if (isSupport || isAdmin || hasRightsSet) {
+    if (isSupport || isAdmin || hasRightsSet) {
         return <LoadingOrErrorPage title={FallbackPageTitle} error={SupportNotAllowedMessage}/>
-    }*/
+    }
 
 
     return (
