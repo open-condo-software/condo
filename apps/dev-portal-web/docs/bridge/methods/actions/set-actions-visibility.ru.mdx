@@ -1,0 +1,38 @@
+Этот метод позволяет скрыть или показать блок действий без повторной передачи списка действий.
+
+## Платформы
+- B2B-Web
+- B2C-Mobile
+
+## Параметры метода
+
+| Название параметра | Тип параметра | Обязательный | Описание |
+|---|---|---|---|
+| visible | boolean | да | Нужно ли отображать блок действий |
+
+## Возвращаемое значение
+
+При успехе метод вернет JSON объект с единственным полем `success`:
+```json
+{ "success": true }
+```
+
+## Примеры использования
+
+Скрыть блок действий:
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.send('CondoWebAppSetActionsVisibility', { visible: false })
+```
+
+Показать блок действий снова (после того как вы хотя бы раз вызвали `CondoWebAppSetActionsConfig`):
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.send('CondoWebAppSetActionsVisibility', { visible: true })
+```
+
+<Alert type='info'>
+    Сначала нужно вызвать `CondoWebAppSetActionsConfig`, чтобы передать список действий.
+</Alert>
