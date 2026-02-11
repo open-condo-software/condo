@@ -1,4 +1,5 @@
-const { flatten, get } = require('lodash')
+const flatten = require('lodash/flatten')
+const get = require('lodash/get')
 
 /**
  * @param {Resident[]} residents

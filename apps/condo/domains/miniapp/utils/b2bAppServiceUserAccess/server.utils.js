@@ -1,4 +1,9 @@
-const { isObject, isEmpty, get, isArray, isString, upperFirst } = require('lodash')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
+const isObject = require('lodash/isObject')
+const isString = require('lodash/isString')
+const upperFirst = require('lodash/upperFirst')
 const pluralize = require('pluralize')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')

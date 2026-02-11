@@ -1,4 +1,6 @@
-const { isObject, get, isNil } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
+const isObject = require('lodash/isObject')
 
 const { isSafeUrl } = require('@condo/domains/common/utils/url.utils')
 const { RESIDENT, USER_TYPES, APPLE_ID_SESSION_KEY } = require('@condo/domains/user/constants/common')

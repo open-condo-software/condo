@@ -1,4 +1,6 @@
-const { get, isEmpty, isArray } = require('lodash')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
 const { errors: { CustomOIDCProviderError  } } = require('oidc-provider')
 
 const { getById, getByCondition } = require('@open-condo/keystone/schema')

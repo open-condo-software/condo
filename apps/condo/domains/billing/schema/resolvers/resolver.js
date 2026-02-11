@@ -1,4 +1,7 @@
-const { isEmpty, isNil, xorWith, isEqual } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
+const isEqual = require('lodash/isEqual')
+const isNil = require('lodash/isNil')
+const xorWith = require('lodash/xorWith')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')

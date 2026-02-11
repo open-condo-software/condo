@@ -1,6 +1,6 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { isString } = require('lodash')
+const isString = require('lodash/isString')
 
 const { md5 } = require('@condo/domains/common/utils/crypto')
 const {

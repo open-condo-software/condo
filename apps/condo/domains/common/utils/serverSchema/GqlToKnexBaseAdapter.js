@@ -1,4 +1,5 @@
-const { get, has } = require('lodash')
+const get = require('lodash/get')
+const has = require('lodash/has')
 
 class GqlToKnexBaseAdapter {
     domainName = null

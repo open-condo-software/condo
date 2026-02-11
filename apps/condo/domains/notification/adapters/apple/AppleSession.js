@@ -1,6 +1,7 @@
 const http2 = require('http2')
 
-const { isEmpty, get } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 

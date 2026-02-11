@@ -1,5 +1,7 @@
 const dayjs = require('dayjs')
-const { isUndefined, isEmpty, get } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isUndefined = require('lodash/isUndefined')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { find } = require('@open-condo/keystone/schema')

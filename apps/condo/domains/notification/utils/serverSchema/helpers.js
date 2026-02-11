@@ -1,4 +1,5 @@
-const { get, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const {
     MESSAGE_DELIVERY_OPTIONS,

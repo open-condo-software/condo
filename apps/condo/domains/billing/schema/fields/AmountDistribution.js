@@ -1,6 +1,8 @@
 const Ajv = require('ajv')
 const Big = require('big.js')
-const { omit, get, set } = require('lodash')
+const get = require('lodash/get')
+const omit = require('lodash/omit')
+const set = require('lodash/set')
 
 const {
     hasOverpaymentReceivers,

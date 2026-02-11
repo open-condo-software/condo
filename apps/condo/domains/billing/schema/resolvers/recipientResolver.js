@@ -1,4 +1,5 @@
-const { isEmpty, get } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { getOrganizationInfo, getBankInfo } = require('@open-condo/clients/finance-info-client')
 const { find } = require('@open-condo/keystone/schema')

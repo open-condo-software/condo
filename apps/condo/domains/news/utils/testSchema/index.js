@@ -4,7 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
-const { get, map } = require('lodash')
+const get = require('lodash/get')
+const map = require('lodash/map')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 

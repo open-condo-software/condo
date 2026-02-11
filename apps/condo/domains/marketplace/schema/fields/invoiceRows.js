@@ -1,5 +1,7 @@
 const Ajv = require('ajv')
-const { get, map, has } = require('lodash')
+const get = require('lodash/get')
+const has = require('lodash/has')
+const map = require('lodash/map')
 
 const { getByCondition } = require('@open-condo/keystone/schema')
 

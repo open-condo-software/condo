@@ -1,6 +1,7 @@
 const { getItems } = require('@open-keystone/server-side-graphql-client')
-const { isFunction, isNil } = require('lodash')
 const get = require('lodash/get')
+const isFunction = require('lodash/isFunction')
+const isNil = require('lodash/isNil')
 
 const conf = require('@open-condo/config')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')

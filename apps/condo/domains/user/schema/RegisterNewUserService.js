@@ -1,4 +1,4 @@
-const { isEmpty } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById, getByCondition } = require('@open-condo/keystone/schema')

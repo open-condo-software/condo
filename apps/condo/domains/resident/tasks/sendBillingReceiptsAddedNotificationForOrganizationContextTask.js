@@ -1,6 +1,8 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, groupBy, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const groupBy = require('lodash/groupBy')
+const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 const { getKVClient } = require('@open-condo/keystone/kv')

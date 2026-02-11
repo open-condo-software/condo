@@ -3,7 +3,8 @@
  */
 
 const dayjs = require('dayjs')
-const { get, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')

@@ -1,4 +1,4 @@
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 
 const { fetch } = require('@open-condo/keystone/fetch')

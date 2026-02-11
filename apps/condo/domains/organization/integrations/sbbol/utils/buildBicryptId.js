@@ -1,6 +1,6 @@
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
-const { padStart } = require('lodash')
+const padStart = require('lodash/padStart')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 

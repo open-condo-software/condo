@@ -5,7 +5,7 @@ const axios = require('axios').default
 const dayjs = require('dayjs')
 const jose = require('jose')
 const jwtDecode = require('jwt-decode')
-const { isNil } = require('lodash')
+const isNil = require('lodash/isNil')
 
 const conf = require('@open-condo/config')
 

@@ -1,5 +1,7 @@
 const dayjs = require('dayjs')
-const { get, flatten, uniq } = require('lodash')
+const flatten = require('lodash/flatten')
+const get = require('lodash/get')
+const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')

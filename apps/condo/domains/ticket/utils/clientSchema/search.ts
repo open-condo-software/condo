@@ -1,7 +1,7 @@
 import { TicketStatusTypeType } from '@app/condo/schema'
 
 const { gql } = require('graphql-tag')
-const { isEmpty } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
 
 const GET_PROPERTY_BY_ID_QUERY = gql`
     query GetPropertyByIdQuery ($propertyId: ID!, $organizationId: ID) {

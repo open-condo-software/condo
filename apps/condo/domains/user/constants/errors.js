@@ -1,4 +1,4 @@
-const { pick } = require('lodash')
+const pick = require('lodash/pick')
 
 const { NOT_UNIQUE, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 

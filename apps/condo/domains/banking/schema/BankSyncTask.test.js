@@ -5,7 +5,7 @@
 const path = require('path')
 
 const dayjs = require('dayjs')
-const { pick } = require('lodash')
+const pick = require('lodash/pick')
 
 const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, makeClient, UUID_RE,  expectToThrowGQLError, catchErrorFrom,

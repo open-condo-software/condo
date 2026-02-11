@@ -3,7 +3,8 @@
  */
 
 const Ajv = require('ajv')
-const { map, uniq } = require('lodash')
+const map = require('lodash/map')
+const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')

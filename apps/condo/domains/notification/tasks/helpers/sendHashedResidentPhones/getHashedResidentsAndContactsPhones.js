@@ -1,7 +1,7 @@
 const crypto = require('crypto')
 
 const dayjs = require('dayjs')
-const { map } = require('lodash')
+const map = require('lodash/map')
 
 const { allItemsQueryByChunks, itemsQuery } = require('@open-condo/keystone/schema')
 

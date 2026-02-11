@@ -2,7 +2,8 @@ const http = require('http')
 const https = require('https')
 
 const FormData = require('form-data')
-const { get, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')

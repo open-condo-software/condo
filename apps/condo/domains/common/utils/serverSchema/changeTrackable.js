@@ -1,4 +1,11 @@
-const { keys, transform, pick, pickBy, omit, isEqual, get, xor } = require('lodash')
+const get = require('lodash/get')
+const isEqual = require('lodash/isEqual')
+const keys = require('lodash/keys')
+const omit = require('lodash/omit')
+const pick = require('lodash/pick')
+const pickBy = require('lodash/pickBy')
+const transform = require('lodash/transform')
+const xor = require('lodash/xor')
 
 /**
  * Utilities to make a GQLListSchema item trackable for changes.

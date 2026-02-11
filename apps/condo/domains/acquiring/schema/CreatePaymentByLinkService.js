@@ -3,7 +3,7 @@
  */
 
 const Big = require('big.js')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 

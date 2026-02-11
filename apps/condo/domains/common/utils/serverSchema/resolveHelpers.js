@@ -1,4 +1,4 @@
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 
