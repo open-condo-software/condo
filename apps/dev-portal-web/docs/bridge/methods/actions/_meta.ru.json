@@ -1,5 +1,6 @@
 {
   "set-actions-config": "CondoWebAppSetActionsConfig",
+  "set-actions-visibility": "CondoWebAppSetActionsVisibility",
   "update-action-config": "CondoWebAppUpdateActionConfig",
   "send-action-id": "CondoWebAppSendActionId"
 }
