@@ -42,6 +42,7 @@ const { CustomField: CustomFieldGQL } = require('@condo/domains/miniapp/gql')
 const { CustomValue: CustomValueGQL } = require('@condo/domains/miniapp/gql')
 
 const { B2BAppPosIntegrationConfig: B2BAppPosIntegrationConfigGQL } = require('@condo/domains/miniapp/gql')
+const { B2CAppAccessRightSet: B2CAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice (options) {
@@ -82,6 +83,7 @@ const CustomField = generateGQLTestUtils(CustomFieldGQL)
 const CustomValue = generateGQLTestUtils(CustomValueGQL)
 
 const B2BAppPosIntegrationConfig = generateGQLTestUtils(B2BAppPosIntegrationConfigGQL)
+const B2CAppAccessRightSet = generateGQLTestUtils(B2CAppAccessRightSetGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function allMiniAppsByTestClient (client, organization, extraAttrs) {
@@ -776,6 +778,35 @@ async function updateTestB2BAppPosIntegrationConfig (client, id, extraAttrs = {}
     return [obj, attrs]
 }
 
+async function createTestB2CAppAccessRightSet (client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        ...extraAttrs,
+    }
+    const obj = await B2CAppAccessRightSet.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2CAppAccessRightSet (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppAccessRightSet.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -803,5 +834,6 @@ module.exports = {
     B2BAccessTokenReadonlyAdmin, createTestB2BAccessTokenReadonlyAdmin, updateTestB2BAccessTokenReadonlyAdmin,
     AppMessageSetting, createTestAppMessageSetting, updateTestAppMessageSetting,
     B2BAppPosIntegrationConfig, createTestB2BAppPosIntegrationConfig, updateTestB2BAppPosIntegrationConfig,
+    B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
