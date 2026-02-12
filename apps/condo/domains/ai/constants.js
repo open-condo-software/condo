@@ -6,9 +6,8 @@ const TASK_STATUSES = {
     ACTION_REQUESTED: 'action_requested',
 }
 
-const LAST_ACTION_REQUESTED = {
-    DATA_REQUESTED: 'data_requested',
-    CONFIRMATION_REQUESTED: 'confirmation_requested',
+const ACTION_REQUESTED = {
+    TOOL_CALL: 'tool_call',
 }
 
 const FLOW_ADAPTERS = {
@@ -227,7 +226,7 @@ for (const [flowName, schemaByOperation] of Object.entries(FLOW_META_SCHEMAS)) {
 
 module.exports = {
     TASK_STATUSES,
-    LAST_ACTION_REQUESTED,
+    ACTION_REQUESTED,
     FLOW_TYPES,
     FLOW_TYPES_LIST,
     FLOW_META_SCHEMAS,
