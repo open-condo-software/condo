@@ -188,3 +188,93 @@
     margin-left: auto;
   }
 }
+
+/* RichTextAreaV2: inline mark & element styles (not covered by NodeViews) */
+/* stylelint-disable-next-line selector-class-pattern */
+.condo-rich-text-area-editor-wrap .tiptap {
+  strong {
+    font-weight: 700;
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  a {
+    color: @condo-global-color-green-7;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  code {
+    padding: 2px 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+    background-color: @condo-global-color-gray-1;
+    border-radius: @condo-global-border-radius-small;
+  }
+
+  pre code {
+    padding: 0;
+    background: none;
+    border-radius: 0;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: @condo-global-border-radius-small;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+  }
+
+  th,
+  td {
+    border: 1px solid @condo-global-color-gray-5;
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  th {
+    font-weight: 600;
+    background: @condo-global-color-gray-1;
+  }
+
+  hr {
+    margin: 16px 0;
+    border: none;
+    border-top: 1px solid @condo-global-color-gray-3;
+  }
+
+  /* Lists */
+  ul,
+  ol {
+    margin: 8px 0;
+    padding-left: 24px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  /* Blockquote */
+  blockquote {
+    margin: 8px 0;
+    padding-left: 16px;
+    border-left: 3px solid @condo-global-color-gray-3;
+    color: @condo-global-color-gray-7;
+  }
+
+  /* Code block */
+  pre {
+    margin: 8px 0;
+    padding: 12px 16px;
+    background-color: @condo-global-color-gray-1;
+    border-radius: @condo-global-border-radius-medium;
+    overflow-x: auto;
+  }
+}
