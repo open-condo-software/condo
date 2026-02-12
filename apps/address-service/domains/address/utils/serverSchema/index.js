@@ -10,6 +10,7 @@ const { ACTUALIZE_ADDRESSES_MUTATION } = require('@address-service/domains/addre
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Address = generateServerUtils('Address')
+const AddressHeuristic = generateServerUtils('AddressHeuristic')
 const AddressInjection = generateServerUtils('AddressInjection')
 const AddressSource = generateServerUtils('AddressSource')
 
@@ -30,6 +31,7 @@ async function actualizeAddresses (context, data) {
 
 module.exports = {
     Address,
+    AddressHeuristic,
     AddressInjection,
     AddressSource,
     actualizeAddresses,

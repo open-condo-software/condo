@@ -5,10 +5,11 @@
 const get = require('lodash/get')
 
 const { getLogger } = require('@open-condo/keystone/logging')
-const { GQLCustomSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@address-service/domains/address/access/ActualizeAddressesService')
-const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+const { mergeAddresses } = require('@address-service/domains/address/utils/mergeAddresses')
+const { Address } = require('@address-service/domains/address/utils/serverSchema')
 const { DADATA_PROVIDER, GOOGLE_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 
@@ -85,25 +86,8 @@ const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService
 
                         const existingAddress = await getByCondition('Address', { key: addressKey })
                         if (existingAddress) {
-                            // There must be only one: the updating address
                             dataForLog.existingAddress = existingAddress
-                            const addressSources = await find('AddressSource', { address: { id: existingAddress.id } })
-                            const updatedAddressSources = []
-                            for (const addressSource of addressSources) {
-                                const updatedAddressSource = await AddressSource.update(context, addressSource.id, {
-                                    dv,
-                                    sender,
-                                    address: { connect: { id: addressId } },
-                                })
-                                updatedAddressSources.push(updatedAddressSource)
-                            }
-                            dataForLog.modifiedSources = updatedAddressSources
-                            dataForLog.softDeletedAddress = await Address.softDelete(
-                                context,
-                                existingAddress.id,
-                                'id',
-                                { dv, sender },
-                            )
+                            await mergeAddresses(context, addressId, existingAddress.id, { dv, sender })
                         }
 
                         const newAddressData = {

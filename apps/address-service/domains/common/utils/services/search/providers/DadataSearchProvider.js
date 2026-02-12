@@ -1,3 +1,10 @@
+const get = require('lodash/get')
+
+const {
+    HEURISTIC_TYPE_FIAS_ID,
+    HEURISTIC_TYPE_COORDINATES,
+    HEURISTIC_TYPE_FALLBACK,
+} = require('@address-service/domains/common/constants/heuristicTypes')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 
@@ -47,14 +54,49 @@ class DadataSearchProvider extends AbstractSearchProvider {
     }
 
     /**
-     * Generates a unique address key from normalized building data.
-     * Delegates to the suggestion provider's implementation.
+     * Extract all possible heuristic identifiers from normalized data.
+     * Dadata provides: fias_id, coordinates, and fallback key.
      * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
-     * @returns {string}
-     * @public
+     * @returns {Array<{type: string, value: string, reliability: number, meta?: object}>}
      */
-    generateAddressKey (normalizedBuilding) {
-        return this.suggestionProvider.generateAddressKey(normalizedBuilding)
+    extractHeuristics (normalizedBuilding) {
+        const heuristics = []
+
+        const houseFiasId = get(normalizedBuilding, ['data', 'house_fias_id'])
+        if (houseFiasId) {
+            heuristics.push({
+                type: HEURISTIC_TYPE_FIAS_ID,
+                value: houseFiasId,
+                reliability: 95,
+                meta: null,
+            })
+        }
+
+        const geoLat = get(normalizedBuilding, ['data', 'geo_lat'])
+        const geoLon = get(normalizedBuilding, ['data', 'geo_lon'])
+        if (geoLat && geoLon) {
+            const qcGeo = get(normalizedBuilding, ['data', 'qc_geo'])
+            // qc_geo: 0 = exact, 1 = nearest house, 2 = nearest street, 3 = nearest settlement, 4 = city
+            const reliabilityByQcGeo = { '0': 90, '1': 80, '2': 50, '3': 30, '4': 20 }
+            heuristics.push({
+                type: HEURISTIC_TYPE_COORDINATES,
+                value: `${geoLat},${geoLon}`,
+                reliability: reliabilityByQcGeo[String(qcGeo)] || 70,
+                meta: qcGeo != null ? { qc_geo: qcGeo } : null,
+            })
+        }
+
+        const fallbackKey = this.generateFallbackKey(normalizedBuilding)
+        if (fallbackKey) {
+            heuristics.push({
+                type: HEURISTIC_TYPE_FALLBACK,
+                value: fallbackKey,
+                reliability: 10,
+                meta: null,
+            })
+        }
+
+        return heuristics
     }
 }
 
