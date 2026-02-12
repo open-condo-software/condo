@@ -105,7 +105,7 @@ const TicketPropertyHintIdPage: PageComponentType = () => {
                                 <Col span={24}>
                                     <PageFieldRow title={TicketPropertyHintTitleMessage}>
                                         <TicketPropertyHintContent
-                                            html={ticketPropertyHintContent}
+                                            content={ticketPropertyHintContent}
                                         />
                                     </PageFieldRow>
                                 </Col>
