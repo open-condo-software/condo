@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Copy, Smile, Sparkles } from '@open-condo/icons'
-import { Button, RichTextArea, RichTextAreaV2 } from '@open-condo/ui/src'
+import { Button, Input as Component } from '@open-condo/ui/src'
 
 import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
@@ -24,36 +24,12 @@ const DEMO_BOTTOM_PANEL_UTILS = [
 
 export default {
     title: 'Components/Input',
-    component: RichTextArea,
+    component: Component.RichTextArea,
     args: {
-        placeholder: 'Start typing...',
+        placeholder: 'Placeholder',
         maxLength: 1000,
         showCount: true,
         autoSize: { minRows: 1, maxRows: 4 },
-        overflowPolicy: 'crop',
-        disabled: false,
-        isSubmitDisabled: false,
-        bottomPanelUtils: DEMO_BOTTOM_PANEL_UTILS,
-    },
-    argTypes: {
-        overflowPolicy: {
-            options: ['crop', 'show'],
-            control: { type: 'select' },
-        },
-        onSubmit: { action: 'submitted' },
-        onChange: { action: 'changed' },
-    },
-} as Meta<typeof RichTextArea>
-
-export const RichText: StoryObj<typeof RichTextArea> = {}
-
-export const RichTextV2: StoryObj<typeof RichTextAreaV2> = {
-    render: (args) => <RichTextAreaV2 {...args} />,
-    args: {
-        placeholder: 'Start typing (V2 with NodeViews)...',
-        maxLength: 1000,
-        showCount: true,
-        autoSize: { minRows: 1, maxRows: 10 },
         overflowPolicy: 'crop',
         disabled: false,
         isSubmitDisabled: false,
@@ -72,5 +48,6 @@ export const RichTextV2: StoryObj<typeof RichTextAreaV2> = {
         onSubmit: { action: 'submitted' },
         onChange: { action: 'changed' },
     },
-}
+} as Meta<typeof Component.RichTextArea>
 
+export const RichTextArea: StoryObj<typeof Component.RichTextArea> = {}

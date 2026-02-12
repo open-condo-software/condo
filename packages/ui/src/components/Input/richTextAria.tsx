@@ -547,7 +547,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, disa
 // Main Component
 // ────────────────────────────────────────────────────────────
 
-export type RichTextAreaV2Props = {
+export type RichTextAreaProps = {
     value?: string
     onChange?: (value: string) => void
     onSubmit?: (value: string) => void
@@ -567,7 +567,7 @@ export type RichTextAreaV2Props = {
 const EDITOR_VERTICAL_PADDING = 24 // 12px top + 12px bottom
 const DEFAULT_LINE_HEIGHT = 24
 
-export const RichTextAreaV2: React.FC<RichTextAreaV2Props> = ({
+export const RichTextArea: React.FC<RichTextAreaProps> = ({
     value,
     placeholder,
     onChange,
@@ -791,4 +791,4 @@ export const RichTextAreaV2: React.FC<RichTextAreaV2Props> = ({
     )
 }
 
-RichTextAreaV2.displayName = 'RichTextAreaV2'
+RichTextArea.displayName = 'RichTextArea'
