@@ -12,6 +12,5 @@ apps/sberhack
 # Ignore other files
 package.json
 README.md
-**/public/tinymce
 **/public/ui
 **/next-env.d.ts
