@@ -1,12 +1,10 @@
-import { Editor } from '@tinymce/tinymce-react'
 import { Alert, Col, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import qs from 'qs'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Input } from '@open-condo/ui'
@@ -93,12 +91,6 @@ const HINT_CONTENT_FIELD_LAYOUT_PROPS = {
     wrapperCol: { span: 0 },
 }
 
-const {
-    publicRuntimeConfig,
-} = getConfig()
-
-const { TinyMceApiKey } = publicRuntimeConfig
-
 type BaseTicketPropertyHintFormProps = {
     children
     action
@@ -114,23 +106,24 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
     const HintMessage = intl.formatMessage({ id: 'Hint' })
     const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
 
-    const router = useRouter()
+    const toolbarLabels = useMemo(() => ({
+        undo: intl.formatMessage({ id: 'richTextArea.toolbar.undo' }),
+        redo: intl.formatMessage({ id: 'richTextArea.toolbar.redo' }),
+        link: intl.formatMessage({ id: 'richTextArea.toolbar.link' }),
+        bold: intl.formatMessage({ id: 'richTextArea.toolbar.bold' }),
+        italic: intl.formatMessage({ id: 'richTextArea.toolbar.italic' }),
+        unorderedList: intl.formatMessage({ id: 'richTextArea.toolbar.unorderedList' }),
+        orderedList: intl.formatMessage({ id: 'richTextArea.toolbar.orderedList' }),
+        removeFormating: intl.formatMessage({ id: 'richTextArea.toolbar.removeFormating' }),
+    }), [intl])
 
-    const editorInitValues = useMemo(() => ({
-        link_title: false,
-        contextmenu: '',
-        menubar: false,
-        elementpath: false,
-        content_style: 'p {margin: 0}',
-        plugins: 'link autolink lists',
-        toolbar: 'undo redo | ' +
-            'link | bold italic backcolor | alignleft aligncenter ' +
-            'alignright alignjustify | bullist numlist outdent indent | ' +
-            'removeformat',
-        link_default_target: '_blank',
-        link_target_list: false,
-        language: intl.locale,
-    }), [intl.locale])
+    const linkModalLabels = useMemo(() => ({
+        urlLabel: intl.formatMessage({ id: 'richTextArea.linkModal.urlLabel' }),
+        textLabel: intl.formatMessage({ id: 'richTextArea.linkModal.textLabel' }),
+        submitLabel: intl.formatMessage({ id: 'richTextArea.linkModal.submitLabel' }),
+    }), [intl])
+
+    const router = useRouter()
 
     const { requiredValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
@@ -141,9 +134,6 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
     const initialContent = useMemo(() => get(initialValues, 'content'), [initialValues])
 
     const [editorValue, setEditorValue] = useState(initialContent)
-    const [editorLoading, setEditorLoading] = useState(true)
-    const [editorFailed, setEditorFailed] = useState(!TinyMceApiKey)
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     const { objs: organizationTicketPropertyHintProperties, loading: organizationTicketPropertyHintPropertiesLoading } =
         TicketPropertyHintProperty.useAllObjects({
@@ -182,41 +172,6 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
     const handleEditorChange = useCallback((newValue, form) => {
         setEditorValue(newValue)
         form.setFieldsValue({ content: newValue })
-    }, [])
-
-    const handleEditorLoad = useCallback(() => {
-        setEditorLoading(false)
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current)
-            timeoutRef.current = null
-        }
-    }, [])
-
-    const handleEditorError = useCallback(() => {
-        setEditorFailed(true)
-        setEditorLoading(false)
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current)
-            timeoutRef.current = null
-        }
-    }, [])
-
-    useEffect(() => {
-        if (!TinyMceApiKey) {
-            setEditorLoading(false)
-            return
-        }
-
-        timeoutRef.current = setTimeout(() => {
-            setEditorFailed(true)
-            setEditorLoading(false)
-        }, 10 * 1000)
-
-        return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current)
-            }
-        }
     }, [])
 
     const handleFormSubmit = useCallback(async (values) => {
@@ -331,38 +286,15 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                         />
                                     </Col>
                                     <Col span={14}>
-                                        {editorLoading && !editorFailed && <Loader />}
-                                        {editorFailed ? (
-                                            <Form.Item
-                                                name='content'
-                                                noStyle
-                                            >
-                                                <Input.TextArea
-                                                    disabled={!organizationId}
-                                                    value={editorValue}
-                                                    onChange={(e) => handleEditorChange(e.target.value, form)}
-                                                    placeholder={HintMessage}
-                                                    showCount={false}
-                                                />
-                                            </Form.Item>
-                                        ) : (
-                                            <Editor
-                                                onLoadContent={handleEditorLoad}
-                                                onInit={() => {
-                                                    try {
-                                                        handleEditorLoad()
-                                                    } catch (error) {
-                                                        handleEditorError()
-                                                    }
-                                                }}
-                                                apiKey={TinyMceApiKey}
-                                                disabled={!organizationId}
-                                                value={editorValue}
-                                                onEditorChange={(newValue) => handleEditorChange(newValue, form)}
-                                                initialValue={initialContent}
-                                                init={editorInitValues}
-                                            />
-                                        )}
+                                        <Input.RichTextArea
+                                            disabled={!organizationId}
+                                            value={editorValue}
+                                            onChange={(newValue) => handleEditorChange(newValue, form)}
+                                            placeholder={HintMessage}
+                                            maxLength={1000}
+                                            toolbarLabels={toolbarLabels}
+                                            linkModalLabels={linkModalLabels}
+                                        />
                                     </Col>
                                 </Row>
                             </Col>

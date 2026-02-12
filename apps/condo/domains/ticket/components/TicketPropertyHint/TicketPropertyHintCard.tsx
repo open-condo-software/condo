@@ -61,14 +61,14 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
     const ticketPropertyHint = useMemo(() => ticketPropertyHintData?.ticketPropertyHints?.filter(Boolean)[0],
         [ticketPropertyHintData?.ticketPropertyHints])
 
-    const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
+    const content = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
 
     const Hint = useMemo(() => (
         <StyledAlert
             message={<Typography.Text strong>{PropertyHintMessage}</Typography.Text>}
             description={
                 <TicketPropertyHintContent
-                    html={htmlContent}
+                    content={content}
                     style={hintContentStyle}
                     className={className}
                     linkToHint={`/property/${propertyId}/hint`}
@@ -77,7 +77,7 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
             showIcon
             type='info'
         />
-    ), [PropertyHintMessage, className, hintContentStyle, htmlContent, propertyId])
+    ), [PropertyHintMessage, className, content, hintContentStyle, propertyId])
 
     if (!ticketPropertyHintProperty || !ticketPropertyHint) {
         return null

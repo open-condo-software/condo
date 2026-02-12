@@ -1,16 +1,22 @@
 import { Col, Row, RowProps } from 'antd'
-import React from 'react'
+import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
+import { Markdown, Typography } from '@open-condo/ui'
 
-import { HtmlContent, HtmlContentProps } from '@condo/domains/common/components/HtmlContent'
-
-type TicketPropertyHintContentProps = HtmlContentProps & {
+type TicketPropertyHintContentProps = {
+    content: string
+    style?: CSSProperties
+    className?: string
     linkToHint?: string
 }
 
 const CONTENT_GUTTER: RowProps['gutter'] = [0, 14]
+const CONTENT_WRAPPER_STYLES: CSSProperties = {
+    overflow: 'hidden',
+    wordBreak: 'break-word',
+    position: 'relative',
+}
 
 export const TicketPropertyHintContent = (props: TicketPropertyHintContentProps) => {
     const intl = useIntl()
@@ -25,11 +31,18 @@ export const TicketPropertyHintContent = (props: TicketPropertyHintContentProps)
         }
     }, [ref])
 
+    const wrapperStyle = React.useMemo(
+        () => ({ ...CONTENT_WRAPPER_STYLES, ...props.style }),
+        [props.style]
+    )
+
     return (
         <>
             <Row gutter={CONTENT_GUTTER}>
                 <Col span={24}>
-                    <HtmlContent {...props} ref={ref}/>
+                    <div ref={ref} style={wrapperStyle} className={props.className}>
+                        <Markdown type='inline'>{props.content}</Markdown>
+                    </div>
                 </Col>
                 {
                     isContentOverflow && props.linkToHint && (

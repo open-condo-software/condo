@@ -5,7 +5,6 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
-const { sanitizeXss } = require('@condo/domains/common/utils/xss')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketPropertyHint')
 const { TicketPropertyHintProperty } = require('@condo/domains/ticket/utils/serverSchema')
@@ -23,14 +22,9 @@ const TicketPropertyHint = new GQLListSchema('TicketPropertyHint', {
         },
 
         content: {
-            schemaDoc: 'Textual content of help in HTML format',
+            schemaDoc: 'Textual content of help in Markdown format',
             type: 'Text',
             isRequired: true,
-            hooks: {
-                resolveInput: ({ resolvedData, fieldPath }) => {
-                    return sanitizeXss(resolvedData[fieldPath])
-                },
-            },
         },
     },
     hooks: {
