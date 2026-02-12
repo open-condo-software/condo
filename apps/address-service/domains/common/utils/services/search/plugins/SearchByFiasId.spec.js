@@ -107,6 +107,7 @@ describe('SearchByFiasId', () => {
                 getAddressByFiasId: jest.fn(),
                 normalize: jest.fn(),
                 generateAddressKey: mockGenerateAddressKey,
+                extractHeuristics: jest.fn().mockReturnValue([]),
             }
 
             // Mock utility functions
@@ -173,6 +174,7 @@ describe('SearchByFiasId', () => {
             expect(mockSearchProvider.getAddressByFiasId).toHaveBeenCalledWith(validFiasId)
             expect(mockSearchProvider.normalize).toHaveBeenCalledWith([mockRawData])
             expect(mockSearchProvider.generateAddressKey).toHaveBeenCalledWith(mockNormalizedResult)
+            expect(mockSearchProvider.extractHeuristics).toHaveBeenCalledWith(mockNormalizedResult)
             expect(mockCreateOrUpdateAddressWithSource).toHaveBeenCalledWith(
                 mockSudoContext,
                 expect.anything(), // Address
@@ -192,6 +194,7 @@ describe('SearchByFiasId', () => {
                 },
                 searchString,
                 mockDvSender,
+                [],
             )
             expect(result).toEqual(mockCreatedAddress)
         })
@@ -295,6 +298,7 @@ describe('SearchByFiasId', () => {
             expect(mockSearchProvider.getAddressByFiasId).toHaveBeenCalledWith(validFiasId)
             expect(mockSearchProvider.normalize).toHaveBeenCalledWith([mockRawData])
             expect(mockSearchProvider.generateAddressKey).toHaveBeenCalledWith(mockNormalizedResult)
+            expect(mockSearchProvider.extractHeuristics).toHaveBeenCalledWith(mockNormalizedResult)
             expect(mockCreateOrUpdateAddressWithSource).toHaveBeenCalledWith(
                 mockSudoContext,
                 expect.anything(),
@@ -314,6 +318,7 @@ describe('SearchByFiasId', () => {
                 },
                 searchString,
                 mockDvSender,
+                [],
             )
             expect(result).toEqual(mockCreatedAddress)
         })
@@ -352,6 +357,7 @@ describe('SearchByFiasId', () => {
             const result = await searchPlugin.search(searchString)
 
             // Verify that it handles missing unrestricted_value gracefully
+            expect(mockSearchProvider.extractHeuristics).toHaveBeenCalledWith(mockNormalizedResult)
             expect(mockCreateOrUpdateAddressWithSource).toHaveBeenCalledWith(
                 mockSudoContext,
                 expect.anything(),
@@ -371,6 +377,7 @@ describe('SearchByFiasId', () => {
                 },
                 searchString,
                 mockDvSender,
+                [],
             )
             expect(result).toEqual(mockCreatedAddress)
         })
