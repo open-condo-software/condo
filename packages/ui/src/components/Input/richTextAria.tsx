@@ -46,144 +46,62 @@ import type { RenderType } from '../Markdown/nodeConfig'
 import type { ReactNodeViewProps, Editor } from '@tiptap/react'
 import type { CSSProperties } from 'react'
 
-// ────────────────────────────────────────────────────────────
-// Constants & Context
-// ────────────────────────────────────────────────────────────
 
 const RICH_TEXT_AREA_CLASS_PREFIX = 'condo-rich-text-area'
 
 const RichTextTypeContext = React.createContext<RenderType>('default')
 
-// ────────────────────────────────────────────────────────────
-// NodeView Components
-// ────────────────────────────────────────────────────────────
+type NodeViewOptions<
+    F extends keyof JSX.IntrinsicElements = 'div',
+    C extends keyof JSX.IntrinsicElements = 'span',
+> = {
+    configKey?: string
+    fallbackTag: F
+    contentTag?: C
+}
 
-const HeadingNodeView: React.FC<ReactNodeViewProps> = ({ node }) => {
-    const type = useContext(RichTextTypeContext)
-    const config = NODE_CONFIG_BY_TYPE[type]?.heading
+function createNodeView<
+    F extends keyof JSX.IntrinsicElements,
+    C extends keyof JSX.IntrinsicElements = 'span',
+> ({ configKey, fallbackTag, contentTag }: NodeViewOptions<F, C>): React.FC<ReactNodeViewProps> {
+    const resolvedContentTag = (contentTag || 'span') as string as 'div'
+    const resolvedFallbackTag = fallbackTag as string as 'div'
 
-    if (config) {
-        const Component = config.component
-        const props = {
-            ...config.props,
-            ...(config.getProps ? config.getProps(node.attrs) : {}),
+    const View: React.FC<ReactNodeViewProps> = ({ node }) => {
+        const type = useContext(RichTextTypeContext)
+        const config = configKey ? NODE_CONFIG_BY_TYPE[type]?.[configKey] : null
+
+        if (config) {
+            const Component = config.component
+            const props = {
+                ...config.props,
+                ...(config.getProps ? config.getProps(node.attrs) : {}),
+            }
+            return (
+                <NodeViewWrapper>
+                    <Component {...props}>
+                        <NodeViewContent as={resolvedContentTag} />
+                    </Component>
+                </NodeViewWrapper>
+            )
         }
+
         return (
-            <NodeViewWrapper>
-                <Component {...props}>
-                    <NodeViewContent<'span'> as='span' />
-                </Component>
+            <NodeViewWrapper as={resolvedFallbackTag}>
+                <NodeViewContent as={resolvedContentTag} />
             </NodeViewWrapper>
         )
     }
-
-    const Tag = `h${node.attrs.level || 2}` as keyof JSX.IntrinsicElements
-    return (
-        <NodeViewWrapper as={Tag}>
-            <NodeViewContent<'span'> as='span' />
-        </NodeViewWrapper>
-    )
+    View.displayName = `NodeView(${configKey || fallbackTag})`
+    return View
 }
 
-const ParagraphNodeView: React.FC<ReactNodeViewProps> = () => {
-    const type = useContext(RichTextTypeContext)
-    const config = NODE_CONFIG_BY_TYPE[type]?.paragraph
+const HeadingNodeView = createNodeView({ configKey: 'heading', fallbackTag: 'h2' })
+const ParagraphNodeView = createNodeView({ configKey: 'paragraph', fallbackTag: 'p' })
+const ListItemNodeView = createNodeView({ configKey: 'listItem', fallbackTag: 'li' })
+const CodeBlockNodeView = createNodeView({ fallbackTag: 'pre', contentTag: 'code' })
+const BlockquoteNodeView = createNodeView({ fallbackTag: 'blockquote' })
 
-    if (config) {
-        const Component = config.component
-        const props = config.props || {}
-        return (
-            <NodeViewWrapper>
-                <Component {...props}>
-                    <NodeViewContent<'span'> as='span' />
-                </Component>
-            </NodeViewWrapper>
-        )
-    }
-
-    return (
-        <NodeViewWrapper as='p'>
-            <NodeViewContent<'span'> as='span' />
-        </NodeViewWrapper>
-    )
-}
-
-const CodeBlockNodeView: React.FC<ReactNodeViewProps> = () => {
-    return (
-        <NodeViewWrapper as='pre'>
-            <NodeViewContent<'code'> as='code' />
-        </NodeViewWrapper>
-    )
-}
-
-const BlockquoteNodeView: React.FC<ReactNodeViewProps> = () => {
-    return (
-        <NodeViewWrapper as='blockquote'>
-            <NodeViewContent />
-        </NodeViewWrapper>
-    )
-}
-
-const ListItemNodeView: React.FC<ReactNodeViewProps> = () => {
-    const type = useContext(RichTextTypeContext)
-    const config = NODE_CONFIG_BY_TYPE[type]?.listItem
-
-    if (config) {
-        const Component = config.component
-        const props = config.props || {}
-        return (
-            <NodeViewWrapper as='li'>
-                <Component {...props}>
-                    <NodeViewContent<'span'> as='span' />
-                </Component>
-            </NodeViewWrapper>
-        )
-    }
-
-    return (
-        <NodeViewWrapper as='li'>
-            <NodeViewContent />
-        </NodeViewWrapper>
-    )
-}
-
-// ────────────────────────────────────────────────────────────
-// Custom TipTap Extensions (with NodeView renderers)
-// ────────────────────────────────────────────────────────────
-
-const CustomHeading = Heading.extend({
-    addNodeView () {
-        return ReactNodeViewRenderer(HeadingNodeView)
-    },
-})
-
-const CustomParagraph = Paragraph.extend({
-    addNodeView () {
-        return ReactNodeViewRenderer(ParagraphNodeView)
-    },
-})
-
-const CustomCodeBlock = CodeBlock.extend({
-    addNodeView () {
-        return ReactNodeViewRenderer(CodeBlockNodeView)
-    },
-})
-
-const CustomBlockquote = Blockquote.extend({
-    addNodeView () {
-        return ReactNodeViewRenderer(BlockquoteNodeView)
-    },
-})
-
-const CustomListItem = ListItem.extend({
-    addNodeView () {
-        return ReactNodeViewRenderer(ListItemNodeView)
-    },
-})
-
-// ────────────────────────────────────────────────────────────
-// Toolbar
-// ────────────────────────────────────────────────────────────
 
 export type RichTextAreaToolbarLabels = {
     undo: string
@@ -225,37 +143,27 @@ const ToolbarButton: React.FC<{
     disabled?: boolean
     title: string
     icon: React.ReactNode
-}> = ({ onClick, isActive, disabled, title, icon }) => {
-    const handleClick = useCallback(() => {
-        if (!disabled) onClick()
-    }, [disabled, onClick])
-
-    return (
-        <Tooltip title={title} mouseEnterDelay={1} mouseLeaveDelay={0}>
-            <Button
-                type='secondary'
-                minimal
-                size='medium'
-                icon={icon}
-                onClick={handleClick}
-                className={classNames(`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-button`, {
-                    [`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-button-active`]: isActive,
-                    [`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-button-disabled`]: disabled,
-                })}
-            />
-        </Tooltip>
-    )
-}
+}> = ({ onClick, isActive, disabled, title, icon }) => (
+    <Tooltip title={title} mouseEnterDelay={1} mouseLeaveDelay={0}>
+        <Button
+            type='secondary'
+            minimal
+            size='medium'
+            icon={icon}
+            disabled={disabled}
+            onClick={onClick}
+            className={classNames(`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-button`, {
+                [`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-button-active`]: isActive,
+            })}
+        />
+    </Tooltip>
+)
 
 const ToolbarGroup: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <span className={`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-group`}>
         {children}
     </span>
 )
-
-// ────────────────────────────────────────────────────────────
-// Link Modal
-// ────────────────────────────────────────────────────────────
 
 type LinkModalProps = {
     open: boolean
@@ -264,27 +172,6 @@ type LinkModalProps = {
     initialUrl: string
     initialText: string
     labels: RichTextAreaLinkModalLabels
-}
-
-const LINK_MODAL_FOOTER_STYLE: CSSProperties = {
-    display: 'flex',
-    justifyContent: 'flex-end',
-}
-
-const LINK_MODAL_CONTENT_STYLE: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 20,
-    width: '100%',
-    minWidth: 0,
-}
-
-const LINK_MODAL_FIELD_STYLE: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    width: '100%',
-    minWidth: 0,
 }
 
 const LinkModal: React.FC<LinkModalProps> = ({
@@ -324,15 +211,15 @@ const LinkModal: React.FC<LinkModalProps> = ({
             scrollX={false}
             destroyOnClose
             footer={(
-                <div style={LINK_MODAL_FOOTER_STYLE}>
+                <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-footer`}>
                     <Button type='primary' onClick={handleSubmit}>
                         {labels.submitLabel}
                     </Button>
                 </div>
             )}
         >
-            <div style={LINK_MODAL_CONTENT_STYLE}>
-                <div style={LINK_MODAL_FIELD_STYLE}>
+            <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-content`}>
+                <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-field`}>
                     <Typography.Text type='secondary' size='medium'>
                         {labels.urlLabel}
                     </Typography.Text>
@@ -343,7 +230,7 @@ const LinkModal: React.FC<LinkModalProps> = ({
                         placeholder='https://'
                     />
                 </div>
-                <div style={LINK_MODAL_FIELD_STYLE}>
+                <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-field`}>
                     <Typography.Text type='secondary' size='medium'>
                         {labels.textLabel}
                     </Typography.Text>
@@ -357,10 +244,6 @@ const LinkModal: React.FC<LinkModalProps> = ({
         </Modal>
     )
 }
-
-// ────────────────────────────────────────────────────────────
-// Toolbar (with link modal)
-// ────────────────────────────────────────────────────────────
 
 type ToolbarProps = {
     editor: Editor | null
@@ -415,32 +298,23 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, disa
         const hasSelection = from !== to
         const hasUrl = Boolean(url.trim())
 
+        const trimmedUrl = hasUrl ? url.trim() : undefined
+
         if (hasSelection) {
             const selectedText = editor.state.doc.textBetween(from, to, '')
             if (text && text !== selectedText) {
-                // Replace selection with new text, apply link only if URL provided
-                const content = hasUrl
-                    ? { type: 'text', text, marks: [{ type: 'link', attrs: { href: url } }] }
-                    : { type: 'text', text }
-                editor.chain().focus().deleteSelection().insertContent(content).run()
+                editor.chain().focus().deleteSelection()
+                    .insertContent(makeTextContent(text, trimmedUrl)).run()
             } else if (hasUrl) {
-                // Same text, apply link
                 editor.chain().focus().setLink({ href: url }).run()
             } else {
-                // No URL — remove existing link formatting if any
                 editor.chain().focus().unsetLink().run()
             }
         } else if (!hasUrl && editor.isActive('link')) {
-            // No selection, no URL, but cursor is inside a link — remove the link
             editor.chain().focus().unsetLink().run()
         } else if (text) {
-            // No selection, insert text — with link only if URL provided
-            const content = hasUrl
-                ? { type: 'text', text, marks: [{ type: 'link', attrs: { href: url } }] }
-                : { type: 'text', text }
-            editor.chain().focus().insertContent(content).run()
+            editor.chain().focus().insertContent(makeTextContent(text, trimmedUrl)).run()
         } else {
-            // No text, no selection — just refocus
             editor.chain().focus().run()
         }
     }, [editor])
@@ -564,6 +438,15 @@ export type RichTextAreaProps = {
     type?: RenderType
 }
 
+const getTextLength = (e: Editor) => e.getText({ blockSeparator: '\n' }).length
+
+const makeTextContent = (text: string, url?: string) => {
+    if (url) {
+        return { type: 'text', text, marks: [{ type: 'link', attrs: { href: url } }] }
+    }
+    return { type: 'text', text }
+}
+
 const EDITOR_VERTICAL_PADDING = 24 // 12px top + 12px bottom
 const DEFAULT_LINE_HEIGHT = 24
 
@@ -624,13 +507,12 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                 blockquote: false,
                 listItem: false,
             }),
-            CustomHeading.configure({
-                levels: [2, 3, 4, 5, 6],
-            }),
-            CustomParagraph,
-            CustomCodeBlock,
-            CustomBlockquote,
-            CustomListItem,
+            Heading.extend({ addNodeView: () => ReactNodeViewRenderer(HeadingNodeView) })
+                .configure({ levels: [2, 3, 4, 5, 6] }),
+            Paragraph.extend({ addNodeView: () => ReactNodeViewRenderer(ParagraphNodeView) }),
+            CodeBlock.extend({ addNodeView: () => ReactNodeViewRenderer(CodeBlockNodeView) }),
+            Blockquote.extend({ addNodeView: () => ReactNodeViewRenderer(BlockquoteNodeView) }),
+            ListItem.extend({ addNodeView: () => ReactNodeViewRenderer(ListItemNodeView) }),
             Link.configure({
                 openOnClick: false,
                 HTMLAttributes: {
@@ -651,12 +533,12 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         onUpdate: ({ editor: updatedEditor }) => {
             const md = updatedEditor.getMarkdown()
 
-            const textLength = updatedEditor.getText({ blockSeparator: '\n' }).length
+            const textLength = getTextLength(updatedEditor)
 
             if (overflowPolicyRef.current === 'crop' && md.length > maxLengthRef.current) {
                 const croppedMd = md.slice(0, maxLengthRef.current)
                 updatedEditor.commands.setContent(croppedMd, { contentType: 'markdown' })
-                setMarkdownLength(updatedEditor.getText({ blockSeparator: '\n' }).length)
+                setMarkdownLength(getTextLength(updatedEditor))
                 onChangeRef.current?.(croppedMd)
                 return
             }
@@ -674,15 +556,12 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     }, [editor, disabled])
 
     // Sync external value changes
-    const isExternalUpdate = useRef(false)
     useEffect(() => {
         if (editor && value !== undefined) {
             const currentMd = editor.getMarkdown()
             if (currentMd !== value) {
-                isExternalUpdate.current = true
                 editor.commands.setContent(value || '', value ? { contentType: 'markdown' } : {})
-                setMarkdownLength(editor.getText({ blockSeparator: '\n' }).length)
-                isExternalUpdate.current = false
+                setMarkdownLength(getTextLength(editor))
             }
         }
     }, [editor, value])
@@ -690,7 +569,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     // Update text length on mount and measure line-height
     useEffect(() => {
         if (editor) {
-            setMarkdownLength(editor.getText({ blockSeparator: '\n' }).length)
+            setMarkdownLength(getTextLength(editor))
 
             // Measure actual line-height from rendered editor
             const el = editorWrapRef.current?.querySelector('.tiptap')
