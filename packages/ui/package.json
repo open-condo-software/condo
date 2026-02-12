@@ -144,10 +144,8 @@
     "@tiptap/starter-kit": "^3.19.0",
     "antd": "^4.24.12",
     "classnames": "^2.5.1",
-    "easymde": "^2.20.0",
     "react-markdown": "^6",
     "react-phone-input-2": "^2.15.1",
-    "react-simplemde-editor": "^5.2.0",
     "remark-gfm": "^1",
     "zod": "^4.0.8"
   }

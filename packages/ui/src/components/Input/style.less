@@ -247,11 +247,6 @@
     }
   }
 
-  &.condo-rich-text-area-toolbar-button-disabled {
-    opacity: @condo-global-opacity-disabled;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
 }
 
 /* Editor area */
@@ -407,4 +402,26 @@
 
 .condo-rich-text-area-count-overflow {
   color: @condo-global-color-red-5;
+}
+
+/* Link modal */
+.condo-rich-text-area-link-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.condo-rich-text-area-link-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  min-width: 0;
+}
+
+.condo-rich-text-area-link-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
