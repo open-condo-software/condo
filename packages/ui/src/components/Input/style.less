@@ -194,12 +194,12 @@
    ──────────────────────────────────────────────────────────── */
 
 .condo-rich-text-area {
+  overflow: hidden;
   font-size: @condo-global-typography-text-l-font-size;
   font-family: @condo-global-typography-text-l-font-family;
+  background: @condo-global-color-white;
   border: 1px solid @condo-global-color-gray-5;
   border-radius: 12px;
-  background: @condo-global-color-white;
-  overflow: hidden;
 
   --rta-min-height: auto;
   --rta-max-height: none;
@@ -209,16 +209,16 @@
 .condo-rich-text-area-toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: stretch;
   gap: 4px;
+  align-items: stretch;
   padding: 4px;
   border-bottom: 1px solid @condo-global-color-gray-3;
 }
 
 .condo-rich-text-area-toolbar-group {
   display: inline-flex;
-  align-items: center;
   gap: 4px;
+  align-items: center;
 
   &:not(:last-child) {
     padding-right: 4px;
@@ -246,7 +246,6 @@
       opacity: 1;
     }
   }
-
 }
 
 /* Editor area */
@@ -259,32 +258,29 @@
 .condo-rich-text-area-editor-wrap .tiptap {
   min-height: var(--rta-min-height, auto);
   max-height: var(--rta-max-height, none);
-  overflow-y: auto;
   padding: @condo-global-spacing-12;
-  outline: none;
+  overflow-y: auto;
+  color: @condo-global-color-black;
   font-size: @condo-global-typography-text-l-font-size;
   line-height: @condo-global-typography-text-l-line-height;
-  color: @condo-global-color-black;
-}
+  outline: none;
 
-/* Typography inside editor */
-/* stylelint-disable-next-line selector-class-pattern */
-.condo-rich-text-area-editor-wrap .tiptap {
+  /* Typography */
   h2 {
-    font-size: @condo-global-typography-h4-font-size;
-    font-weight: @condo-global-typography-h4-font-weight;
-    line-height: @condo-global-typography-h4-line-height;
     margin: 12px 0 8px;
+    font-weight: @condo-global-typography-h4-font-weight;
+    font-size: @condo-global-typography-h4-font-size;
+    line-height: @condo-global-typography-h4-line-height;
   }
 
   h3,
   h4,
   h5,
   h6 {
-    font-size: @condo-global-typography-h5-font-size;
-    font-weight: @condo-global-typography-h5-font-weight;
-    line-height: @condo-global-typography-h5-line-height;
     margin: 12px 0 8px;
+    font-weight: @condo-global-typography-h5-font-weight;
+    font-size: @condo-global-typography-h5-font-size;
+    line-height: @condo-global-typography-h5-line-height;
   }
 
   p {
@@ -308,8 +304,8 @@
   blockquote {
     margin: 8px 0;
     padding-left: 16px;
-    border-left: 3px solid @condo-global-color-gray-3;
     color: @condo-global-color-gray-7;
+    border-left: 3px solid @condo-global-color-gray-3;
   }
 
   ul,
@@ -330,15 +326,15 @@
 
   table {
     width: 100%;
-    border-collapse: collapse;
     margin: 12px 0;
+    border-collapse: collapse;
   }
 
   th,
   td {
-    border: 1px solid @condo-global-color-gray-5;
     padding: 8px 12px;
     text-align: left;
+    border: 1px solid @condo-global-color-gray-5;
   }
 
   th {
@@ -348,8 +344,8 @@
 
   code {
     padding: 2px 4px;
-    font-family: monospace;
     font-size: 0.9em;
+    font-family: monospace;
     background-color: @condo-global-color-gray-1;
     border-radius: @condo-global-border-radius-small;
   }
@@ -357,9 +353,9 @@
   pre {
     margin: 8px 0;
     padding: 12px 16px;
+    overflow-x: auto;
     background-color: @condo-global-color-gray-1;
     border-radius: @condo-global-border-radius-medium;
-    overflow-x: auto;
 
     code {
       padding: 0;
@@ -379,14 +375,14 @@
 .condo-rich-text-area-placeholder {
   position: absolute;
   top: @condo-global-spacing-12;
-  left: @condo-global-spacing-12;
   right: @condo-global-spacing-12;
+  left: @condo-global-spacing-12;
   color: @condo-global-color-gray-7;
   font-size: @condo-global-typography-text-l-font-size;
-  line-height: @condo-global-typography-text-l-line-height;
   font-family: @condo-global-typography-text-l-font-family;
-  pointer-events: none;
+  line-height: @condo-global-typography-text-l-line-height;
   user-select: none;
+  pointer-events: none;
 }
 
 /* Bottom panel — shared .condo-input-bottom-panel handles spacing */
