@@ -15,7 +15,7 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const access = require('@condo/domains/ai/access/ExecutionAIFlowTask')
 const {
     TASK_STATUSES,
-    LAST_ACTION_REQUESTED,
+    ACTION_REQUESTED,
     FLOW_TYPES_LIST,
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
@@ -76,6 +76,7 @@ const ERRORS = {
         messageForUser: 'api.ai.executionAIFlowTask.STATUS_IS_ALREADY_ERROR',
     },
 }
+
 
 const redisGuard = new RedisGuard()
 
@@ -260,10 +261,10 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
             },
         },
 
-        lastActionRequested: {
-            schemaDoc: 'Type of the last action requested by AI for human-in-the-loop workflows',
+        actionRequested: {
+            schemaDoc: 'Type of action requested by AI for human-in-the-loop workflows',
             type: 'Select',
-            options: Object.values(LAST_ACTION_REQUESTED),
+            options: Object.values(ACTION_REQUESTED),
             isRequired: false,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
@@ -272,8 +273,8 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
             },
         },
 
-        lastActionRequestedMeta: {
-            schemaDoc: 'Additional metadata about the last action requested by AI',
+        actionRequestedMeta: {
+            schemaDoc: 'Additional metadata about the action requested by AI',
             type: 'Json',
             isRequired: false,
             access: {
