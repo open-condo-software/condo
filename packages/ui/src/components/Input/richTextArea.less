@@ -1,89 +1,80 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 
 .condo-rich-text-area {
-  font-size: 16px;
-  font-family: @condo-global-typography-text-m-font-family;
+  font-size: @condo-global-typography-text-l-font-size;
+  font-family: @condo-global-typography-text-l-font-family;
+  border: 1px solid @condo-global-color-gray-5;
+  border-radius: 12px;
+  background: @condo-global-color-white;
+  overflow: hidden;
 
-  --rta-min-height: 200px;
-  --rta-max-height: 400px;
+  --rta-min-height: auto;
+  --rta-max-height: none;
 }
 
 /* Toolbar */
 .condo-rich-text-area-toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 2px;
-  padding: 4px 8px;
-  border: 1px solid @condo-global-color-gray-5;
-  border-top-left-radius: @condo-global-border-radius-medium;
-  border-top-right-radius: @condo-global-border-radius-medium;
-  background: @condo-global-color-white;
+  align-items: stretch;
+  gap: 4px;
+  padding: 4px;
+  border-bottom: 1px solid @condo-global-color-gray-3;
 }
 
-.condo-rich-text-area-toolbar-button {
+.condo-rich-text-area-toolbar-group {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 4px;
+
+  &:not(:last-child) {
+    padding-right: 4px;
+    border-right: 1px solid @condo-global-color-gray-3;
+  }
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+.condo-rich-text-area-toolbar-button.condo-btn.condo-btn-secondary.condo-btn-minimal {
   min-width: 32px;
   height: 32px;
-  padding: 0 6px;
-  font-size: 14px;
-  font-weight: @condo-global-typography-text-m-font-weight;
-  line-height: 1;
-  color: @condo-global-color-black;
-  background: transparent;
-  border: 1px solid @condo-global-color-white;
-  border-radius: @condo-global-border-radius-medium;
-  cursor: pointer;
-  transition: all @condo-global-transition-duration-default;
-  user-select: none;
 
-  &:hover {
-    color: @condo-global-color-green-7;
-    background: @condo-global-color-brand-gradient-1;
+  /* Override gray-7 icon color from minimal secondary to black (#222) */
+  & > span {
+    color: @condo-global-color-black;
   }
 
-  &:disabled {
-    opacity: @condo-global-opacity-disabled;
-    cursor: not-allowed;
+  &.condo-rich-text-area-toolbar-button-active {
+    /* Use same mechanism as hover: gradient bg via ::before + green icon */
+    & > span {
+      color: @condo-global-color-green-5;
+    }
 
-    &:hover {
-      color: @condo-global-color-black;
-      background: transparent;
+    &::before {
+      opacity: 1;
     }
   }
-}
 
-.condo-rich-text-area-toolbar-button-active {
-  color: @condo-global-color-green-7;
-  background: @condo-global-color-brand-gradient-1;
-}
-
-.condo-rich-text-area-toolbar-separator {
-  display: inline-block;
-  width: 1px;
-  height: 20px;
-  margin: 0 4px;
-  background: @condo-global-color-gray-3;
+  &.condo-rich-text-area-toolbar-button-disabled {
+    opacity: @condo-global-opacity-disabled;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 }
 
 /* Editor area */
 .condo-rich-text-area-editor-wrap {
-  border-right: 1px solid @condo-global-color-gray-5;
-  border-left: 1px solid @condo-global-color-gray-5;
   background: @condo-global-color-white;
 }
 
 /* stylelint-disable-next-line selector-class-pattern */
 .condo-rich-text-area-editor-wrap .tiptap {
-  min-height: var(--rta-min-height, 200px);
-  max-height: var(--rta-max-height, 400px);
+  min-height: var(--rta-min-height, auto);
+  max-height: var(--rta-max-height, none);
   overflow-y: auto;
-  padding: 12px 16px;
+  padding: @condo-global-spacing-12;
   outline: none;
-  font-size: @condo-global-typography-text-m-font-size;
-  line-height: @condo-global-typography-text-m-line-height;
+  font-size: @condo-global-typography-text-l-font-size;
+  line-height: @condo-global-typography-text-l-line-height;
   color: @condo-global-color-black;
 }
 
@@ -195,23 +186,27 @@
   }
 }
 
-/* Placeholder */
-/* stylelint-disable-next-line selector-class-pattern */
-.condo-rich-text-area-editor-wrap .tiptap p.is-editor-empty:first-child::before {
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
-  color: @condo-global-color-gray-7;
+/* Placeholder overlay */
+.condo-rich-text-area-editor-wrap {
+  position: relative;
 }
 
-/* Bottom panel */
+.condo-rich-text-area-placeholder {
+  position: absolute;
+  top: @condo-global-spacing-12;
+  left: @condo-global-spacing-12;
+  right: @condo-global-spacing-12;
+  color: @condo-global-color-gray-7;
+  font-size: @condo-global-typography-text-l-font-size;
+  line-height: @condo-global-typography-text-l-line-height;
+  font-family: @condo-global-typography-text-l-font-family;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Bottom panel — shared .condo-input-bottom-panel handles spacing */
 .condo-rich-text-area-bottom-panel {
-  border-right: 1px solid @condo-global-color-gray-5;
-  border-bottom: 1px solid @condo-global-color-gray-5;
-  border-left: 1px solid @condo-global-color-gray-5;
-  border-bottom-right-radius: @condo-global-border-radius-medium;
-  border-bottom-left-radius: @condo-global-border-radius-medium;
+  padding: 0;
 }
 
 /* Disabled state */

@@ -1,19 +1,29 @@
 import { Image } from '@tiptap/extension-image'
 import { Link } from '@tiptap/extension-link'
-import { Placeholder } from '@tiptap/extension-placeholder'
 import { Table } from '@tiptap/extension-table'
 import { TableCell } from '@tiptap/extension-table-cell'
 import { TableHeader } from '@tiptap/extension-table-header'
 import { TableRow } from '@tiptap/extension-table-row'
 import { Markdown } from '@tiptap/markdown'
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, useEditorState, EditorContent } from '@tiptap/react'
 import { StarterKit } from '@tiptap/starter-kit'
 import classNames from 'classnames'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { ArrowUp } from '@open-condo/icons'
+import {
+    ArrowUp,
+    Bold,
+    Italic,
+    Link as LinkIcon,
+    List,
+    NumberList,
+    Redo,
+    RemoveFormating,
+    Undo,
+} from '@open-condo/icons'
 
 import { Button } from '../Button'
+import { Tooltip } from '../Tooltip'
 
 import type { Editor } from '@tiptap/react'
 import type { CSSProperties } from 'react'
@@ -23,29 +33,23 @@ const RICH_TEXT_AREA_CLASS_PREFIX = 'condo-rich-text-area'
 export type RichTextAreaToolbarLabels = {
     undo: string
     redo: string
+    link: string
     bold: string
     italic: string
-    heading: string
-    quote: string
     unorderedList: string
     orderedList: string
-    link: string
-    image: string
-    table: string
+    removeFormating: string
 }
 
 const DEFAULT_TOOLBAR_LABELS: RichTextAreaToolbarLabels = {
     undo: 'Undo',
     redo: 'Redo',
+    link: 'Link',
     bold: 'Bold',
     italic: 'Italic',
-    heading: 'Heading',
-    quote: 'Quote',
     unorderedList: 'Unordered List',
     orderedList: 'Ordered List',
-    link: 'Create Link',
-    image: 'Insert Image',
-    table: 'Insert Table',
+    removeFormating: 'Remove Formatting',
 }
 
 export type RichTextAreaProps = {
@@ -57,8 +61,7 @@ export type RichTextAreaProps = {
     maxLength?: number
     showCount?: boolean
     placeholder?: string
-    minHeight?: string
-    maxHeight?: string
+    autoSize?: boolean | { minRows?: number, maxRows?: number }
     overflowPolicy?: 'crop' | 'show'
     toolbarLabels?: Partial<RichTextAreaToolbarLabels>
     bottomPanelUtils?: React.ReactElement[]
@@ -75,26 +78,52 @@ const ToolbarButton: React.FC<{
     isActive?: boolean
     disabled?: boolean
     title: string
-    children: React.ReactNode
-}> = ({ onClick, isActive, disabled, title, children }) => (
-    <button
-        type='button'
-        className={classNames(`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-button`, {
-            [`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-button-active`]: isActive,
-        })}
-        onClick={onClick}
-        disabled={disabled}
-        title={title}
-    >
-        {children}
-    </button>
-)
+    icon: React.ReactNode
+}> = ({ onClick, isActive, disabled, title, icon }) => {
+    const handleClick = useCallback(() => {
+        if (!disabled) onClick()
+    }, [disabled, onClick])
 
-const ToolbarSeparator: React.FC = () => (
-    <span className={`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-separator`} />
+    return (
+        <Tooltip title={title} mouseEnterDelay={1} mouseLeaveDelay={0}>
+            <Button
+                type='secondary'
+                minimal
+                size='medium'
+                icon={icon}
+                onClick={handleClick}
+                className={classNames(`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-button`, {
+                    [`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-button-active`]: isActive,
+                    [`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-button-disabled`]: disabled,
+                })}
+            />
+        </Tooltip>
+    )
+}
+
+const ToolbarGroup: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <span className={`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-group`}>
+        {children}
+    </span>
 )
 
 const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, disabled }) => {
+    const activeStates = useEditorState({
+        editor,
+        selector: ({ editor: e }) => {
+            if (!e) return null
+            return {
+                bold: e.isActive('bold'),
+                italic: e.isActive('italic'),
+                bulletList: e.isActive('bulletList'),
+                orderedList: e.isActive('orderedList'),
+                link: e.isActive('link'),
+                canUndo: e.can().undo(),
+                canRedo: e.can().redo(),
+            }
+        },
+    })
+
     const handleLink = useCallback(() => {
         if (!editor) return
         if (editor.isActive('link')) {
@@ -108,121 +137,88 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, disabled }) => {
         }
     }, [editor])
 
-    const handleImage = useCallback(() => {
+    const handleRemoveFormating = useCallback(() => {
         if (!editor) return
-        // eslint-disable-next-line no-alert
-        const url = window.prompt('Image URL')
-        if (url) {
-            editor.chain().focus().setImage({ src: url }).run()
-        }
+        editor.chain().focus().clearNodes().unsetAllMarks().run()
     }, [editor])
 
-    const handleTable = useCallback(() => {
-        if (!editor) return
-        editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-    }, [editor])
-
-    if (!editor) return null
+    if (!editor || !activeStates) return null
 
     return (
         <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar`}>
-            <ToolbarButton
-                onClick={() => editor.chain().focus().undo().run()}
-                disabled={disabled || !editor.can().undo()}
-                title={labels.undo}
-            >
-                ↩
-            </ToolbarButton>
-            <ToolbarButton
-                onClick={() => editor.chain().focus().redo().run()}
-                disabled={disabled || !editor.can().redo()}
-                title={labels.redo}
-            >
-                ↪
-            </ToolbarButton>
+            <ToolbarGroup>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().undo().run()}
+                    disabled={disabled || !activeStates.canUndo}
+                    title={labels.undo}
+                    icon={<Undo size='small' />}
+                />
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().redo().run()}
+                    disabled={disabled || !activeStates.canRedo}
+                    title={labels.redo}
+                    icon={<Redo size='small' />}
+                />
+            </ToolbarGroup>
 
-            <ToolbarSeparator />
+            <ToolbarGroup>
+                <ToolbarButton
+                    onClick={handleLink}
+                    isActive={activeStates.link}
+                    disabled={disabled}
+                    title={labels.link}
+                    icon={<LinkIcon size='small' />}
+                />
+            </ToolbarGroup>
 
-            <ToolbarButton
-                onClick={() => editor.chain().focus().toggleBold().run()}
-                isActive={editor.isActive('bold')}
-                disabled={disabled}
-                title={labels.bold}
-            >
-                B
-            </ToolbarButton>
-            <ToolbarButton
-                onClick={() => editor.chain().focus().toggleItalic().run()}
-                isActive={editor.isActive('italic')}
-                disabled={disabled}
-                title={labels.italic}
-            >
-                <em>I</em>
-            </ToolbarButton>
-            <ToolbarButton
-                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                isActive={editor.isActive('heading', { level: 2 })}
-                disabled={disabled}
-                title={labels.heading}
-            >
-                H2
-            </ToolbarButton>
+            <ToolbarGroup>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    isActive={activeStates.bold}
+                    disabled={disabled}
+                    title={labels.bold}
+                    icon={<Bold size='small' />}
+                />
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    isActive={activeStates.italic}
+                    disabled={disabled}
+                    title={labels.italic}
+                    icon={<Italic size='small' />}
+                />
+            </ToolbarGroup>
 
-            <ToolbarSeparator />
+            <ToolbarGroup>
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    isActive={activeStates.bulletList}
+                    disabled={disabled}
+                    title={labels.unorderedList}
+                    icon={<List size='small' />}
+                />
+                <ToolbarButton
+                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    isActive={activeStates.orderedList}
+                    disabled={disabled}
+                    title={labels.orderedList}
+                    icon={<NumberList size='small' />}
+                />
+            </ToolbarGroup>
 
-            <ToolbarButton
-                onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                isActive={editor.isActive('blockquote')}
-                disabled={disabled}
-                title={labels.quote}
-            >
-                &ldquo;
-            </ToolbarButton>
-            <ToolbarButton
-                onClick={() => editor.chain().focus().toggleBulletList().run()}
-                isActive={editor.isActive('bulletList')}
-                disabled={disabled}
-                title={labels.unorderedList}
-            >
-                &bull;
-            </ToolbarButton>
-            <ToolbarButton
-                onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                isActive={editor.isActive('orderedList')}
-                disabled={disabled}
-                title={labels.orderedList}
-            >
-                1.
-            </ToolbarButton>
-
-            <ToolbarSeparator />
-
-            <ToolbarButton
-                onClick={handleLink}
-                isActive={editor.isActive('link')}
-                disabled={disabled}
-                title={labels.link}
-            >
-                🔗
-            </ToolbarButton>
-            <ToolbarButton
-                onClick={handleImage}
-                disabled={disabled}
-                title={labels.image}
-            >
-                🖼
-            </ToolbarButton>
-            <ToolbarButton
-                onClick={handleTable}
-                isActive={editor.isActive('table')}
-                disabled={disabled}
-                title={labels.table}
-            >
-                ⊞
-            </ToolbarButton>
+            <ToolbarGroup>
+                <ToolbarButton
+                    onClick={handleRemoveFormating}
+                    disabled={disabled}
+                    title={labels.removeFormating}
+                    icon={<RemoveFormating size='small' />}
+                />
+            </ToolbarGroup>
         </div>
     )
 }
+
+const EDITOR_VERTICAL_PADDING = 24 // 12px top + 12px bottom
+const DEFAULT_LINE_HEIGHT = 24
 
 export const RichTextArea: React.FC<RichTextAreaProps> = ({
     value,
@@ -233,8 +229,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     disabled,
     maxLength = 1000,
     showCount = true,
-    minHeight = '200px',
-    maxHeight = '400px',
+    autoSize = { minRows: 1 },
     overflowPolicy = 'crop',
     toolbarLabels,
     bottomPanelUtils = [],
@@ -253,7 +248,18 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     const overflowPolicyRef = useRef(overflowPolicy)
     overflowPolicyRef.current = overflowPolicy
 
-    const markdownLengthRef = useRef(0)
+    // Parse autoSize config
+    const autoSizeConfig = useMemo(() => {
+        if (typeof autoSize === 'boolean' || !autoSize) return { minRows: 1 }
+        return autoSize
+    }, [autoSize])
+
+    // Measure actual line-height from editor DOM for accurate row calculation
+    const editorWrapRef = useRef<HTMLDivElement>(null)
+    const [measuredLineHeight, setMeasuredLineHeight] = useState<number | null>(null)
+    const lineHeight = measuredLineHeight || DEFAULT_LINE_HEIGHT
+
+    const [markdownLength, setMarkdownLength] = useState(0)
 
     const editor = useEditor({
         extensions: [
@@ -274,26 +280,25 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
             TableRow,
             TableCell,
             TableHeader,
-            Placeholder.configure({
-                placeholder: placeholder || '',
-            }),
             Markdown,
         ],
         editable: !disabled,
         content: value || '',
-        contentType: 'markdown',
+        ...(value ? { contentType: 'markdown' as const } : {}),
         onUpdate: ({ editor: updatedEditor }) => {
             const md = updatedEditor.getMarkdown()
+
+            const textLength = updatedEditor.getText({ blockSeparator: '\n' }).length
 
             if (overflowPolicyRef.current === 'crop' && md.length > maxLengthRef.current) {
                 const croppedMd = md.slice(0, maxLengthRef.current)
                 updatedEditor.commands.setContent(croppedMd, { contentType: 'markdown' })
-                markdownLengthRef.current = croppedMd.length
+                setMarkdownLength(updatedEditor.getText({ blockSeparator: '\n' }).length)
                 onChangeRef.current?.(croppedMd)
                 return
             }
 
-            markdownLengthRef.current = md.length
+            setMarkdownLength(textLength)
             onChangeRef.current?.(md)
         },
     })
@@ -312,17 +317,24 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
             const currentMd = editor.getMarkdown()
             if (currentMd !== value) {
                 isExternalUpdate.current = true
-                editor.commands.setContent(value || '', { contentType: 'markdown' })
-                markdownLengthRef.current = (value || '').length
+                editor.commands.setContent(value || '', value ? { contentType: 'markdown' } : {})
+                setMarkdownLength(editor.getText({ blockSeparator: '\n' }).length)
                 isExternalUpdate.current = false
             }
         }
     }, [editor, value])
 
-    // Update markdown length on mount
+    // Update text length on mount and measure line-height
     useEffect(() => {
         if (editor) {
-            markdownLengthRef.current = editor.getMarkdown().length
+            setMarkdownLength(editor.getText({ blockSeparator: '\n' }).length)
+
+            // Measure actual line-height from rendered editor
+            const el = editorWrapRef.current?.querySelector('.tiptap')
+            if (el) {
+                const lh = parseFloat(window.getComputedStyle(el).lineHeight)
+                if (!isNaN(lh) && lh > 0) setMeasuredLineHeight(lh)
+            }
         }
     }, [editor])
 
@@ -332,15 +344,28 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         onSubmit(md)
     }, [editor, onSubmit])
 
-    const currentLength = editor ? markdownLengthRef.current : (value || '').length
+    const currentLength = editor ? markdownLength : (value || '').length
 
-    const style = useMemo(() => ({
-        '--rta-min-height': minHeight,
-        '--rta-max-height': maxHeight,
-    } as CSSProperties), [minHeight, maxHeight])
+    // Calculate min/max height from rows and measured line-height
+    const style = useMemo(() => {
+        const minRows = autoSizeConfig.minRows || 1
+        const minH = minRows * lineHeight + EDITOR_VERTICAL_PADDING
+        const maxH = autoSizeConfig.maxRows
+            ? autoSizeConfig.maxRows * lineHeight + EDITOR_VERTICAL_PADDING
+            : undefined
+        return {
+            '--rta-min-height': `${minH}px`,
+            '--rta-max-height': maxH ? `${maxH}px` : 'none',
+        } as CSSProperties
+    }, [autoSizeConfig, lineHeight])
 
     const countClassName = classNames('condo-input-count', {
         [`${RICH_TEXT_AREA_CLASS_PREFIX}-count-overflow`]: currentLength > maxLength,
+    })
+
+    const editorIsEmpty = useEditorState({
+        editor,
+        selector: ({ editor: e }) => e?.isEmpty ?? true,
     })
 
     const containerClassName = classNames(RICH_TEXT_AREA_CLASS_PREFIX, {
@@ -354,8 +379,13 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     return (
         <div className={containerClassName} style={style}>
             <Toolbar editor={editor} labels={labels} disabled={disabled} />
-            <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-editor-wrap`}>
+            <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-editor-wrap`} ref={editorWrapRef}>
                 <EditorContent editor={editor} />
+                {editorIsEmpty && placeholder && (
+                    <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-placeholder`}>
+                        {placeholder}
+                    </div>
+                )}
             </div>
             {showBottomPanel && (
                 <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-bottom-panel`}>
