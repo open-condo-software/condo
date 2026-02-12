@@ -1,6 +1,10 @@
 const dayjs = require('dayjs')
 const isBetween = require('dayjs/plugin/isBetween')
-const { get, uniq, isNull, isEmpty, isNil } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNil = require('lodash/isNil')
+const isNull = require('lodash/isNull')
+const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')

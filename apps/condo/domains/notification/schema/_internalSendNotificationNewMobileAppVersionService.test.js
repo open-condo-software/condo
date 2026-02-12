@@ -3,7 +3,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
-const { cloneDeep } = require('lodash')
+const cloneDeep = require('lodash/cloneDeep')
 
 const { makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 

@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
-const { get, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 const { validate: uuidValidate } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')

@@ -3,7 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { map } = require('lodash')
+const map = require('lodash/map')
 
 const { getKVClient } = require('@open-condo/keystone/kv')
 const {

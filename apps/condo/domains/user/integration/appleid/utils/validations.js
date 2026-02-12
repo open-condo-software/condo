@@ -1,5 +1,6 @@
 const jwtDecode = require('jwt-decode')
-const { get, isNil } = require('lodash')
+const get = require('lodash/get')
+const isNil = require('lodash/isNil')
 
 const { getSessionParam, getState } = require('./params')
 

@@ -1,4 +1,6 @@
-const { get, isEmpty, escapeRegExp } = require('lodash')
+const escapeRegExp = require('lodash/escapeRegExp')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 const { checkSync } = require('recheck')
 
 const { MESSAGE_META } = require('@condo/domains/notification/constants/constants')

@@ -3,7 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { cloneDeep } = require('lodash')
+const cloneDeep = require('lodash/cloneDeep')
 
 const {
     catchErrorFrom,

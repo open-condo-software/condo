@@ -1,6 +1,6 @@
 // The RedisAdapter is based on: https://github.com/panva/node-oidc-provider/blob/main/example/adapters/redis.js
 
-const { isEmpty } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
 
 const { getKVClient } = require('@open-condo/keystone/kv')
 

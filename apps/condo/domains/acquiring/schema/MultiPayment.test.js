@@ -5,7 +5,8 @@
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, omit } = require('lodash')
+const get = require('lodash/get')
+const omit = require('lodash/omit')
 
 const {
     expectToThrowAccessDeniedErrorToObj,

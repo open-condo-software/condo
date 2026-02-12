@@ -1,4 +1,7 @@
-const { get, uniq, isArray, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
+const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById, find } = require('@open-condo/keystone/schema')

@@ -3,7 +3,8 @@
  */
 
 const dayjs = require('dayjs')
-const { isArray, map } = require('lodash')
+const isArray = require('lodash/isArray')
+const map = require('lodash/map')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')

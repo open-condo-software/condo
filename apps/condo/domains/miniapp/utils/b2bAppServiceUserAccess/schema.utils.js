@@ -1,4 +1,7 @@
-const { get, isObject, isString, upperFirst } = require('lodash')
+const get = require('lodash/get')
+const isObject = require('lodash/isObject')
+const isString = require('lodash/isString')
+const upperFirst = require('lodash/upperFirst')
 const pluralize = require('pluralize')
 
 

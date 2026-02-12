@@ -1,6 +1,6 @@
 const packageJson = require('@app/condo/package.json')
 const express = require('express')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const getCurrentVersion = () => get(process.env, 'WERF_COMMIT_HASH', packageJson.version)
 

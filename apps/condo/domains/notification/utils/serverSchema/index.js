@@ -3,7 +3,8 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const { isEmpty, get } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')

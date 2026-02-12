@@ -1,7 +1,8 @@
 const dayjs = require('dayjs')
 const customParseFormat = require('dayjs/plugin/customParseFormat')
 const utc = require('dayjs/plugin/utc')
-const { isEmpty, isString } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
+const isString = require('lodash/isString')
 
 const { DEFAULT_DATE_PARSING_FORMATS } = require('@condo/domains/common/constants/import')
 

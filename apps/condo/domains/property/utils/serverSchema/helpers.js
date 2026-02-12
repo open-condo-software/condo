@@ -1,4 +1,7 @@
-const { get, omitBy, isNull, isArray } = require('lodash')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isNull = require('lodash/isNull')
+const omitBy = require('lodash/omitBy')
 
 const FLAT_WITHOUT_FLAT_TYPE_MESSAGE = 'Flat is specified, but flat type is not!'
 

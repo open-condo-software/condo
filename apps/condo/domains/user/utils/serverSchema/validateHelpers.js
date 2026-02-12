@@ -1,5 +1,6 @@
-const { isString, isEmpty } = require('lodash')
 const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
+const isString = require('lodash/isString')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 
