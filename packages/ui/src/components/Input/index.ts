@@ -10,10 +10,12 @@ export type { BaseInputProps, InputProps } from './input'
 export type { MarkdownEditorProps, ToolbarLabels } from './markdownEditor'
 export type { PasswordInputProps } from './password'
 export type { RichTextAreaProps, RichTextAreaToolbarLabels } from './reachTextAria'
+export type { RichTextAreaV2Props, RichTextAreaLinkModalLabels } from './richTextAria'
 export type { PhoneInputProps } from './phone'
 
 export { MarkdownEditor, replaceHeaders } from './markdownEditor'
 export { RichTextArea } from './reachTextAria'
+export { RichTextAreaV2 } from './richTextAria'
 
 export type InputType = typeof InputComponent & {
     Password: typeof Password
