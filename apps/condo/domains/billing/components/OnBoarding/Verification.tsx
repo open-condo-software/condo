@@ -1,3 +1,4 @@
+import { SortAcquiringIntegrationContextsBy, SortBillingIntegrationOrganizationContextsBy } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useEffect } from 'react'
@@ -25,20 +26,30 @@ export const Verification: React.FC = () => {
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
 
-    const { obj: billingCtx, loading: billingCtxLoading, error: billingCtxError } = BillingContext.useObject({
+    const { objs: billingContexts, loading: billingCtxLoading, error: billingCtxError } = BillingContext.useObjects({
         where: {
             status: BILLING_FINISHED_STATUS,
             organization: { id: orgId },
         },
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
     })
 
-    const { obj: acquiringCtx, loading: acquiringCtxLoading, error: acquiringCtxError } = AcquiringContext.useObject({
+    const { objs: acquiringContexts, loading: acquiringCtxLoading, error: acquiringCtxError } = AcquiringContext.useObjects({
         where: {
             status: CONTEXT_VERIFICATION_STATUS,
             organization: { id: orgId },
         },
+        sortBy: [
+            SortAcquiringIntegrationContextsBy.UpdatedAtDesc,
+            SortAcquiringIntegrationContextsBy.IdDesc,
+        ],
     })
 
+    const billingCtx = billingContexts[0] || null
+    const acquiringCtx = acquiringContexts[0] || null
     const billingCtxId = get(billingCtx, 'id', null)
     const acquiringCtxId = get(acquiringCtx, 'id', null)
 

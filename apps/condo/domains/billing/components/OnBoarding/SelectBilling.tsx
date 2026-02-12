@@ -1,3 +1,4 @@
+import { SortBillingIntegrationOrganizationContextsBy, type BillingIntegration as BillingIntegrationType } from '@app/condo/schema'
 import { Row, Col } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -15,7 +16,6 @@ import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { MIN_CARD_WIDTH, AppCard } from '@condo/domains/miniapp/components/AppCard'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 
-import type { BillingIntegration as BillingIntegrationType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
 const CARD_GAP = 40
@@ -38,16 +38,21 @@ export const SelectBilling: React.FC = () => {
     const cardsPerRow = getCardsAmount(width)
     const { Banner, SetupPromoAppModal, shouldShowBanner } = useSelectBillingPromoBanner()
 
-    const { obj: connectedCtx, loading: ctxLoading, error: ctxError } = BillingContext.useObject({
+    const { objs: connectedContexts, loading: ctxLoading, error: ctxError } = BillingContext.useObjects({
         where: {
             organization: { id: orgId },
             status: CONTEXT_FINISHED_STATUS,
         },
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
     })
     const { objs: billings, loading: billingsLoading, error: billingsError } = BillingIntegration.useObjects({
         where: { isHidden: false },
     })
 
+    const connectedCtx = connectedContexts[0] || null
     const connectedContextId = get(connectedCtx, 'id', null)
 
     const handleCardClick = useCallback((billing: BillingIntegrationType) => {

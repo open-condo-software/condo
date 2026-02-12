@@ -1,3 +1,4 @@
+import { SortBillingIntegrationOrganizationContextsBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -97,18 +98,28 @@ export const SetupBilling: React.FC = ()=> {
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
 
-    const { obj: connectedCtx, loading: connectedCtxLoading, error: connectedCtxError } = BillingContext.useObject({
+    const { objs: connectedContexts, loading: connectedCtxLoading, error: connectedCtxError } = BillingContext.useObjects({
         where: {
             organization: { id: orgId },
             status: CONTEXT_FINISHED_STATUS,
         },
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
     })
-    const { obj: currentCtx, loading: currentCtxLoading, error: currentCtxError } = BillingContext.useObject({
+    const { objs: currentContexts, loading: currentCtxLoading, error: currentCtxError } = BillingContext.useObjects({
         where: {
             organization: { id: orgId },
         },
+        sortBy: [
+            SortBillingIntegrationOrganizationContextsBy.UpdatedAtDesc,
+            SortBillingIntegrationOrganizationContextsBy.IdDesc,
+        ],
     })
 
+    const connectedCtx = connectedContexts[0] || null
+    const currentCtx = currentContexts[0] || null
     const connectedContextId = get(connectedCtx, 'id', null)
     const currentContextId = get(currentCtx, 'id', null)
 

@@ -93,20 +93,20 @@ export const MainContent: React.FC<MainContentProps> = ({
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
 
     const { billingContexts } = useBillingAndAcquiringContexts()
-    const extensionAppTab = billingContexts.find(({ integration }) => !!integration.appUrl && !!integration.extendsBillingPage)
+    const extensionAppTabs = useMemo(() => billingContexts.filter(({ integration }) => !!integration.appUrl && !!integration.extendsBillingPage), [billingContexts])
+    const extensionTabKeys = useMemo(() => extensionAppTabs.map(({ id }) => `${EXTENSION_TAB_KEY}-${id}`), [extensionAppTabs])
     const hasLastReport = billingContexts.find(({ lastReport }) => !!lastReport)
-
 
     const { useFlag } = useFeatureFlags()
     const isPaymentsFilesTableEnabled = useFlag(ACQUIRING_PAYMENTS_FILES_TABLE)
 
-    const [currentTab, currentType, onTabChange] = useQueryParams(!!extensionAppTab)
-    const customIconUrl = get(extensionAppTab, ['integration', 'billingPageIcon', 'publicUrl'], null)
+    const [currentTab, currentType, onTabChange] = useQueryParams(extensionTabKeys)
+    const renderTabIcon = useCallback((iconUrl: string | null) => {
+        if (!iconUrl) return null
 
-    const CustomIconImage = useMemo(() => {
         return (
             <Image
-                src={customIconUrl || FALLBACK_IMAGE_URL}
+                src={iconUrl || FALLBACK_IMAGE_URL}
                 fallback={FALLBACK_IMAGE_URL}
                 preview={false}
                 style={IMAGE_STYLES}
@@ -114,7 +114,7 @@ export const MainContent: React.FC<MainContentProps> = ({
                 wrapperStyle={IMAGE_WRAPPER_STYLES}
             />
         )
-    }, [customIconUrl])
+    }, [])
 
     const items = useMemo(() => {
         const result: Array<TabItem> = [
@@ -129,20 +129,22 @@ export const MainContent: React.FC<MainContentProps> = ({
                 children: <PaymentsTab type={currentType} />,
             }]
 
-        if (extensionAppTab) {
+        extensionAppTabs.forEach((extensionAppTab) => {
             const appUrl = get(extensionAppTab, ['integration', 'appUrl'], '') || ''
-            if (appUrl) {
-                result.push({
-                    label: get(extensionAppTab, ['integration', 'billingPageTitle']) || get(extensionAppTab, ['integration', 'name'], ''),
-                    key: EXTENSION_TAB_KEY,
-                    children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={400}/>,
-                    icon: customIconUrl ? CustomIconImage : null,
-                })
-            }
-        }
+            if (!appUrl) return
+
+            const iconUrl = get(extensionAppTab, ['integration', 'billingPageIcon', 'publicUrl'], null)
+            const tabKey = `${EXTENSION_TAB_KEY}-${extensionAppTab.id}`
+            result.push({
+                label: get(extensionAppTab, ['integration', 'billingPageTitle']) || get(extensionAppTab, ['integration', 'name'], ''),
+                key: tabKey,
+                children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize initialHeight={400}/>,
+                icon: renderTabIcon(iconUrl),
+            })
+        })
 
         return result
-    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTab, customIconUrl, CustomIconImage])
+    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTabs, renderTabIcon])
 
     return (
         <Tabs
