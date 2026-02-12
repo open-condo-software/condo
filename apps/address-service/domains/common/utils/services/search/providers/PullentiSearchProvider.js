@@ -3,6 +3,7 @@ const get = require('lodash/get')
 const { createInstance } = require('@open-condo/clients/pullenti-client')
 const conf = require('@open-condo/config')
 
+const { HEURISTIC_TYPE_FIAS_ID, HEURISTIC_TYPE_FALLBACK } = require('@address-service/domains/common/constants/heuristicTypes')
 const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { getXmlParser, normalize } = require('@address-service/domains/common/utils/services/utils/pullenti/normalizer')
 const { maybeBoostQueryWithTin } = require('@address-service/domains/common/utils/services/utils/pullenti/queryBooster')
@@ -89,21 +90,35 @@ class PullentiSearchProvider extends AbstractSearchProvider {
     }
 
     /**
-     * Generates a unique address key from normalized building data.
-     * Pullenti provider uses house_fias_id as unique identifier when available.
-     * Falls back to parent implementation if house_fias_id is not present.
+     * Extract all possible heuristic identifiers from normalized data.
+     * Pullenti provides: fias_id and fallback key.
      * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
-     * @returns {string}
-     * @public
+     * @returns {Array<{type: string, value: string, reliability: number, meta?: object}>}
      */
-    generateAddressKey (normalizedBuilding) {
-        const houseFiasId = get(normalizedBuilding, ['data', 'house_fias_id'])
+    extractHeuristics (normalizedBuilding) {
+        const heuristics = []
 
+        const houseFiasId = get(normalizedBuilding, ['data', 'house_fias_id'])
         if (houseFiasId) {
-            return `fias:${houseFiasId}`
+            heuristics.push({
+                type: HEURISTIC_TYPE_FIAS_ID,
+                value: houseFiasId,
+                reliability: 95,
+                meta: null,
+            })
         }
 
-        return super.generateAddressKey(normalizedBuilding)
+        const fallbackKey = this.generateFallbackKey(normalizedBuilding)
+        if (fallbackKey) {
+            heuristics.push({
+                type: HEURISTIC_TYPE_FALLBACK,
+                value: fallbackKey,
+                reliability: 10,
+                meta: null,
+            })
+        }
+
+        return heuristics
     }
 }
 

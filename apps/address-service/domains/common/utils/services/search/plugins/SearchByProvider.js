@@ -40,6 +40,7 @@ class SearchByProvider extends AbstractSearchPlugin {
         // Use the first result for a while
         const searchResult = searchResults[0]
 
+        const heuristics = searchProvider.extractHeuristics(searchResult)
         const addressKey = searchProvider.generateAddressKey(searchResult)
 
         if (!addressKey) {
@@ -68,6 +69,7 @@ class SearchByProvider extends AbstractSearchPlugin {
             addressData,
             s,
             dvSender,
+            heuristics,
         )
     }
 }

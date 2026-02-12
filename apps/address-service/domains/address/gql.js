@@ -16,6 +16,9 @@ const Address = generateGqlQueries('Address', ADDRESS_FIELDS)
 const ADDRESS_INJECTION_FIELDS = `{ country region area city cityDistrict settlement street house block keywords meta ${COMMON_FIELDS} }`
 const AddressInjection = generateGqlQueries('AddressInjection', ADDRESS_INJECTION_FIELDS)
 
+const ADDRESS_HEURISTIC_FIELDS = `{ address { id } type value reliability provider meta enabled ${COMMON_FIELDS} }`
+const AddressHeuristic = generateGqlQueries('AddressHeuristic', ADDRESS_HEURISTIC_FIELDS)
+
 const ADDRESS_SOURCE_FIELDS = `{ source address { id key address } ${COMMON_FIELDS} }`
 const AddressSource = generateGqlQueries('AddressSource', ADDRESS_SOURCE_FIELDS)
 
@@ -29,6 +32,7 @@ const ACTUALIZE_ADDRESSES_MUTATION = gql`
 
 module.exports = {
     Address,
+    AddressHeuristic,
     AddressInjection,
     AddressSource,
     ACTUALIZE_ADDRESSES_MUTATION,

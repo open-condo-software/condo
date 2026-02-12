@@ -53,6 +53,7 @@ class SearchByFiasId extends AbstractSearchPlugin {
             return null
         }
 
+        const heuristics = searchProvider.extractHeuristics(searchResult)
         const addressKey = searchProvider.generateAddressKey(searchResult)
 
         const addressData = {
@@ -69,7 +70,7 @@ class SearchByFiasId extends AbstractSearchPlugin {
             },
         }
 
-        return await createOrUpdateAddressWithSource(godContext, Address, AddressSource, addressData, s, dvSender)
+        return await createOrUpdateAddressWithSource(godContext, Address, AddressSource, addressData, s, dvSender, heuristics)
     }
 }
 

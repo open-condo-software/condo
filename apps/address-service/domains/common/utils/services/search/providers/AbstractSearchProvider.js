@@ -20,6 +20,7 @@ const get = require('lodash/get')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { searchContexts } = require('@address-service/domains/common/constants/contexts')
+const { HEURISTIC_TYPE_FALLBACK } = require('@address-service/domains/common/constants/heuristicTypes')
 
 const JOINER = '~'
 const SPACE_REPLACER = '_'
@@ -93,14 +94,13 @@ class AbstractSearchProvider {
     }
 
     /**
-     * Generates a unique address key from normalized building data.
-     * This is the fallback implementation that builds key from address parts.
-     * If provider has some unique identifier (like house_fias_id), it should override this method.
+     * Generates a fallback key from address parts.
+     * Used as the lowest-reliability heuristic when no provider-specific ID is available.
      * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
      * @returns {string}
-     * @public
+     * @protected
      */
-    generateAddressKey (normalizedBuilding) {
+    generateFallbackKey (normalizedBuilding) {
         const data = normalizedBuilding.data
 
         /**
@@ -138,6 +138,39 @@ class AbstractSearchProvider {
             .filter(Boolean)
             .join(JOINER)
             .toLowerCase()
+    }
+
+    /**
+     * Extract all possible heuristic identifiers from normalized data.
+     * Each provider should override this to return provider-specific heuristics.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {Array<{type: string, value: string, reliability: number, meta?: object}>}
+     */
+    extractHeuristics (normalizedBuilding) {
+        const fallbackKey = this.generateFallbackKey(normalizedBuilding)
+        if (!fallbackKey) return []
+
+        return [{
+            type: HEURISTIC_TYPE_FALLBACK,
+            value: fallbackKey,
+            reliability: 10,
+            meta: null,
+        }]
+    }
+
+    /**
+     * Generates a unique address key from normalized building data.
+     * Uses the best (highest reliability) heuristic as the key.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {string}
+     * @public
+     */
+    generateAddressKey (normalizedBuilding) {
+        const heuristics = this.extractHeuristics(normalizedBuilding)
+        if (!heuristics.length) return null
+
+        const best = heuristics.sort((a, b) => b.reliability - a.reliability)[0]
+        return `${best.type}:${best.value}`
     }
 }
 

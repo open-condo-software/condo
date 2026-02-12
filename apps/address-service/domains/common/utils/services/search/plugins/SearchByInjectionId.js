@@ -47,6 +47,7 @@ class SearchByInjectionId extends AbstractSearchPlugin {
 
         const searchResult = injectionsSeeker.normalize([injection])
 
+        const heuristics = injectionsSeeker.extractHeuristics(searchResult[0])
         const addressKey = injectionsSeeker.generateAddressKey(searchResult[0])
 
         const addressData = {
@@ -70,6 +71,7 @@ class SearchByInjectionId extends AbstractSearchPlugin {
             addressData,
             s,
             dvSender,
+            heuristics,
         )
     }
 }
