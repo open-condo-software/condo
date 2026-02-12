@@ -63,7 +63,7 @@ const UpdateAddress = (props) => {
 
     return location.pathname.indexOf(`${TARGET_URL_PART}/`) !== -1 && (
         <span style={ICON_STYLE} onClick={onClick}>
-            <Download/>
+            <Download />
         </span>
     )
 }
@@ -128,8 +128,8 @@ const ResolveAddressDuplicate = () => {
     if (!possibleDuplicate) return null
 
     return (
-        <span style={ICON_STYLE} onClick={onClick} title='Resolve duplicate'>
-            <Link/>
+        <span style={ICON_STYLE} onClick={onClick} title='Resolve duplicate' onKeyDown={() => void 0}>
+            <Link />
         </span>
     )
 }
@@ -143,10 +143,10 @@ export default {
     itemHeaderActions: () => {
         return (
             <div>
-                <ItemId/>
-                <AddNewItem/>
-                <UpdateAddress/>
-                <ResolveAddressDuplicate/>
+                <ItemId />
+                <AddNewItem />
+                <UpdateAddress />
+                <ResolveAddressDuplicate />
             </div>
         )
     },
