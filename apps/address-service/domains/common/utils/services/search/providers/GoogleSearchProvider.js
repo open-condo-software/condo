@@ -4,6 +4,11 @@ const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 
 
+const {
+    HEURISTIC_TYPE_GOOGLE_PLACE_ID,
+    HEURISTIC_TYPE_COORDINATES,
+    HEURISTIC_TYPE_FALLBACK,
+} = require('@address-service/domains/common/constants/heuristicTypes')
 const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 const { AbstractSearchProvider } = require('./AbstractSearchProvider')
@@ -278,6 +283,48 @@ class GoogleSearchProvider extends AbstractSearchProvider {
                 },
             }
         })
+    }
+    /**
+     * Extract all possible heuristic identifiers from normalized data.
+     * Google provides: google_place_id, coordinates, and fallback key.
+     * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
+     * @returns {Array<{type: string, value: string, reliability: number, meta?: object}>}
+     */
+    extractHeuristics (normalizedBuilding) {
+        const heuristics = []
+
+        const placeId = get(normalizedBuilding, ['provider', 'rawData', 'place_id'])
+        if (placeId) {
+            heuristics.push({
+                type: HEURISTIC_TYPE_GOOGLE_PLACE_ID,
+                value: placeId,
+                reliability: 95,
+                meta: null,
+            })
+        }
+
+        const geoLat = get(normalizedBuilding, ['data', 'geo_lat'])
+        const geoLon = get(normalizedBuilding, ['data', 'geo_lon'])
+        if (geoLat && geoLon) {
+            heuristics.push({
+                type: HEURISTIC_TYPE_COORDINATES,
+                value: `${geoLat},${geoLon}`,
+                reliability: 80,
+                meta: null,
+            })
+        }
+
+        const fallbackKey = this.generateFallbackKey(normalizedBuilding)
+        if (fallbackKey) {
+            heuristics.push({
+                type: HEURISTIC_TYPE_FALLBACK,
+                value: fallbackKey,
+                reliability: 10,
+                meta: null,
+            })
+        }
+
+        return heuristics
     }
 }
 

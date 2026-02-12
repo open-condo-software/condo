@@ -41,6 +41,7 @@ class SearchByGooglePlaceId extends AbstractSearchPlugin {
             return null
         }
 
+        const heuristics = googleProvider.extractHeuristics(searchResult)
         const addressKey = googleProvider.generateAddressKey(searchResult)
 
         const addressData = {
@@ -64,6 +65,7 @@ class SearchByGooglePlaceId extends AbstractSearchPlugin {
             addressData,
             s,
             dvSender,
+            heuristics,
         )
     }
 }
