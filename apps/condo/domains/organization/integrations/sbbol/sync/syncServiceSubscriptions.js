@@ -50,6 +50,17 @@ const syncServiceSubscriptions = async ({ context, organization }) => {
         })
         return
     }
+    if (subscriptionPlan.organizationType !== organization.type) {
+        logger.info({
+            msg: 'Subscription Plan organization type does not match organization type',
+            entityId: organization.id,
+            entity: 'Organization',
+            data: {
+                subscriptionPlanId,
+            },
+        })
+        return
+    }
 
     const now = dayjs()
     const existingContexts = await find('SubscriptionContext', {

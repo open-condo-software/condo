@@ -120,5 +120,22 @@ describe('syncServiceSubscriptions', () => {
             const activeContexts = contexts.filter(c => c.endAt > endAt)
             expect(activeContexts).toHaveLength(1)
         })
+
+        it('does not create SubscriptionContext when organizationType does not match organization type', async () => {
+            const [organization] = await createTestOrganization(adminClient, { type: 'MANAGING_COMPANY' })
+            const [subscriptionPlan] = await createTestSubscriptionPlan(adminClient, { organizationType: 'HOLDING' })
+
+            setFeatureFlag(ACTIVE_BANKING_SUBSCRIPTION_PLAN_ID, subscriptionPlan.id)
+
+            await syncServiceSubscriptions({ context, organization })
+
+            const contexts = await SubscriptionContext.getAll(adminClient, {
+                organization: { id: organization.id },
+                subscriptionPlan: { id: subscriptionPlan.id },
+                deletedAt: null,
+            })
+
+            expect(contexts).toHaveLength(0)
+        })
     })
 })
