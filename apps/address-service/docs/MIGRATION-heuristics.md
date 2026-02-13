@@ -32,7 +32,6 @@ yarn workspace @app/condo build:deps
 This creates the `AddressHeuristic` table and adds `possibleDuplicateOf` to `Address`:
 
 ```bash
-yarn workspace @app/address-service run makemigrations
 yarn workspace @app/address-service run migrate
 ```
 
