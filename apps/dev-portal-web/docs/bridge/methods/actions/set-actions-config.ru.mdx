@@ -27,7 +27,7 @@
 
 При успехе метод вернет JSON объект со списком идентификаторов действий:
 ```json
-{ "actionsIds": ["d21ec5e9-aafe-4552-b8ce-825f9c48c7ea", "80eed388-3c10-440a-8683-74e33f0cabed"] }
+{ "actionIds": ["d21ec5e9-aafe-4552-b8ce-825f9c48c7ea", "80eed388-3c10-440a-8683-74e33f0cabed"] }
 ```
 
 Хост генерирует внутренние id и возвращает их в том же порядке, что и входной список.
@@ -42,7 +42,7 @@ import bridge from '@open-condo/bridge'
 import { useSetActionHandlers } from '@open-condo/miniapp-utils'
 
 export default function MiniappPage (): React.ReactNode {
-    const [actionsIds, setActionsIds] = useState<string[]>([])
+    const [actionIds, setActionIds] = useState<string[]>([])
     const actions = useMemo(() => ([
         { label: 'Save' },
         { label: 'Download', icon: 'download' },
@@ -50,14 +50,14 @@ export default function MiniappPage (): React.ReactNode {
 
     useEffect(() => {
         bridge.send('CondoWebAppSetActionsConfig', { actions }).then((data) => {
-            setActionsIds(data.actionsIds)
+            setActionIds(data.actionIds)
         })
     }, [actions])
 
     const handlers = useMemo(() => {
-        if (!actionsIds.length) return {}
+        if (!actionIds.length) return {}
 
-        const [saveId, downloadId] = actionsIds
+        const [saveId, downloadId] = actionIds
         return {
             [saveId]: () => {
                 // обработка сохранения
@@ -66,7 +66,7 @@ export default function MiniappPage (): React.ReactNode {
                 // обработка скачивания
             },
         }
-    }, [actions, actionsIds])
+    }, [actions, actionIds])
 
     useSetActionHandlers(bridge, handlers)
 

@@ -26,7 +26,7 @@ This method allows you to set up a list of actions that will be displayed in the
 
 If successful, the method will return a JSON object containing a list of action IDs:
 ```json
-{ "actionsIds": ["d21ec5e9-aafe-4552-b8ce-825f9c48c7ea", "80eed388-3c10-440a-8683-74e33f0cabed"] }
+{ "actionIds": ["d21ec5e9-aafe-4552-b8ce-825f9c48c7ea", "80eed388-3c10-440a-8683-74e33f0cabed"] }
 ```
 
 The host generates internal action ids and returns them in the same order as the input list.
@@ -41,7 +41,7 @@ import bridge from '@open-condo/bridge'
 import { useSetActionHandlers } from '@open-condo/miniapp-utils'
 
 export default function MiniappPage (): React.ReactNode {
-    const [actionsIds, setActionsIds] = useState<string[]>([])
+    const [actionIds, setActionIds] = useState<string[]>([])
     const actions = useMemo(() => ([
         { label: 'Save' },
         { label: 'Download', icon: 'download' },
@@ -49,14 +49,14 @@ export default function MiniappPage (): React.ReactNode {
 
     useEffect(() => {
         bridge.send('CondoWebAppSetActionsConfig', { actions }).then((data) => {
-            setActionsIds(data.actionsIds)
+            setActionIds(data.actionIds)
         })
     }, [actions])
 
     const handlers = useMemo(() => {
-        if (!actionsIds.length) return {}
+        if (!actionIds.length) return {}
 
-        const [saveId, downloadId] = actionsIds
+        const [saveId, downloadId] = actionIds
         return {
             [saveId]: () => {
                 // handle save
@@ -65,7 +65,7 @@ export default function MiniappPage (): React.ReactNode {
                 // handle download
             },
         }
-    }, [actions, actionsIds])
+    }, [actions, actionIds])
 
     useSetActionHandlers(bridge, handlers)
 
