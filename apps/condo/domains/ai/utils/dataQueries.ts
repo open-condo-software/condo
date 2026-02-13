@@ -1,7 +1,10 @@
 import { gql } from '@apollo/client'
+import { ExecutionAIFlowTask, ExecutionAIFlowTaskForUser } from '@condo/domains/ai/gql'
 
 // Pre-defined queries for different models that can be requested by AI
 export const MODEL_QUERIES = {
+    ExecutionAIFlowTask: ExecutionAIFlowTask.GET_ALL_OBJS_QUERY,
+    ExecutionAIFlowTaskForUser: ExecutionAIFlowTaskForUser.GET_ALL_OBJS_QUERY,
     Ticket: gql`
         query fetchTickets($where: TicketWhereInput!, $first: Int) {
             items: allTickets(
