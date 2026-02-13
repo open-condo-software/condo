@@ -13,5 +13,5 @@ export type SetActionsConfigParams = {
 }
 
 export type SetActionsConfigData = {
-    actionsIds: Array<string>
+    actionIds: Array<string>
 }
