@@ -120,7 +120,7 @@ class AbstractSearchProvider {
             get(data, 'block'),
         ]
 
-        return parts
+        const key = parts
             // Remove empty parts
             .filter(Boolean)
             // Keep single space between words
@@ -138,6 +138,8 @@ class AbstractSearchProvider {
             .filter(Boolean)
             .join(JOINER)
             .toLowerCase()
+
+        return key || null
     }
 
     /**
