@@ -146,10 +146,17 @@ async function main (args) {
             console.info(`    Winner: ${winner.id}, Loser: ${loser.id} (current=${currentReferenced ? 'ref' : '-'}, target=${targetReferenced ? 'ref' : '-'})`)
 
             if (!isDryRun) {
-                const status = await resolveDuplicate(addressClient, address.id, winner.id)
-                console.info(`    Result: ${status}`)
+                try {
+                    const status = await resolveDuplicate(addressClient, address.id, winner.id)
+                    console.info(`    Result: ${status}`)
+                    totalMerged++
+                } catch (err) {
+                    console.info(`    SKIP (server error): ${err.message}`)
+                    totalSkipped++
+                }
+            } else {
+                totalMerged++
             }
-            totalMerged++
         }
 
         // After merging, some addresses lose possibleDuplicateOf, so reset skip
