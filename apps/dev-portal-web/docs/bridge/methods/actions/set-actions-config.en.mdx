@@ -1,13 +1,11 @@
-This method allows you to set up a list of actions that will be displayed in the main interface: in the ActionBar in the web application or in the navigation in the mobile application. Only buttons are supported.
+This method allows you to set up a list of actions that will be displayed in the main interface. Only buttons are supported.
 ## Platforms
 - B2B-Web
-- B2C-Mobile
 
 ## Method params
 
 | Parameter name | Parameter type | Required | Parameter description |
 |---|---|---|---|
-| visible | boolean | yes | Whether the host should display the actions UI |
 | actions | Action[] | yes | List of actions to render |
 
 ### Action (button) params
@@ -15,17 +13,11 @@ This method allows you to set up a list of actions that will be displayed in the
 | Parameter name | Parameter type | Required | Parameter description |
 |---|---|---|---|
 | key | string | yes | Your own identifier for the action (must be unique within the list) |
-| label | string | yes | Button text |
+| label | string | no | Button text |
 | type | 'primary' \| 'secondary' \| 'accent' | no | Button visual type |
-| visible | boolean | no | Whether the button is visible |
 | disabled | boolean | no | Whether the button is disabled |
-| danger | boolean | no | Whether the button should use danger styles |
 | loading | boolean | no | Whether the button shows loading state |
 | icon | 'download' | no | Optional icon |
-| iconSize | 'auto' \| 'large' \| 'medium' \| 'small' | no | Icon size |
-| size | 'medium' \| 'large' | no | Button size |
-| compact | boolean | no | Compact button style |
-| minimal | boolean | no | Minimal button style |
 
 ## Return value
 
@@ -43,7 +35,7 @@ These ids are sent back in the `CondoWebAppSendActionId` event.
 import React, { useEffect, useMemo, useState } from 'react'
 
 import bridge from '@open-condo/bridge'
-import { useActionHandlers } from '@open-condo/miniapp-utils'
+import { useSetActionHandlers } from '@open-condo/miniapp-utils'
 
 export default function MiniappPage (): React.ReactNode {
     const [actionsIds, setActionsIds] = useState<string[]>([])
@@ -53,10 +45,7 @@ export default function MiniappPage (): React.ReactNode {
     ]), [])
 
     useEffect(() => {
-        bridge.send('CondoWebAppSetActionsConfig', {
-            visible: true,
-            actions,
-        }).then((data) => {
+        bridge.send('CondoWebAppSetActionsConfig', { actions }).then((data) => {
             setActionsIds(data.actionsIds)
         })
     }, [actions])
@@ -77,7 +66,7 @@ export default function MiniappPage (): React.ReactNode {
         }
     }, [actions, actionsIds])
 
-    useActionHandlers(bridge, handlers)
+    useSetActionHandlers(bridge, handlers)
 
     return null
 }
@@ -85,5 +74,27 @@ export default function MiniappPage (): React.ReactNode {
 
 <Alert type='info'>
     The `key` you pass is not sent back in click events. Use `actionsIds` to map keys to generated ids.
-    To toggle visibility of the whole actions block later, call `CondoWebAppSetActionsVisibility`.
 </Alert>
+
+## Updating actions
+
+To update a button, send a full updated `actions` array again:
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.send('CondoWebAppSetActionsConfig', {
+    actions: [
+        { key: 'save', label: 'Save', type: 'primary' },
+        { key: 'download', label: 'Download', type: 'secondary', loading: true },
+    ],
+})
+```
+
+## Hiding actions
+
+To hide all actions, pass an empty array:
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.send('CondoWebAppSetActionsConfig', { actions: [] })
+```

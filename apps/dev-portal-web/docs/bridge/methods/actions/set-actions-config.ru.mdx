@@ -1,14 +1,12 @@
-Этот метод позволяет настроить список действий, которые будут отображаться в основном интерфейсе: в ActionBar в веб-приложении или в навигации в мобильном приложении. Поддерживаются только кнопки.
+Этот метод позволяет настроить список действий, которые будут отображаться в основном интерфейсе. Поддерживаются только кнопки.
 
 ## Платформы
 - B2B-Web
-- B2C-Mobile
 
 ## Параметры метода
 
 | Название параметра | Тип параметра | Обязательный | Описание |
 |---|---|---|---|
-| visible | boolean | да | Нужно ли отображать блок действий |
 | actions | Action[] | да | Список действий для отображения |
 
 ### Параметры Action (button)
@@ -16,17 +14,11 @@
 | Название параметра | Тип параметра | Обязательный | Описание |
 |---|---|---|---|
 | key | string | да | Ваш идентификатор действия (должен быть уникальным в списке) |
-| label | string | да | Текст кнопки |
+| label | string | нет | Текст кнопки |
 | type | 'primary' \| 'secondary' \| 'accent' | нет | Визуальный тип кнопки |
-| visible | boolean | нет | Видимость кнопки |
 | disabled | boolean | нет | Отключить кнопку |
-| danger | boolean | нет | Опасный стиль кнопки |
 | loading | boolean | нет | Состояние загрузки |
 | icon | 'download' | нет | Иконка |
-| iconSize | 'auto' \| 'large' \| 'medium' \| 'small' | нет | Размер иконки |
-| size | 'medium' \| 'large' | нет | Размер кнопки |
-| compact | boolean | нет | Компактный стиль |
-| minimal | boolean | нет | Минимальный стиль |
 
 ## Возвращаемое значение
 
@@ -44,7 +36,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 import bridge from '@open-condo/bridge'
-import { useActionHandlers } from '@open-condo/miniapp-utils'
+import { useSetActionHandlers } from '@open-condo/miniapp-utils'
 
 export default function MiniappPage (): React.ReactNode {
     const [actionsIds, setActionsIds] = useState<string[]>([])
@@ -54,10 +46,7 @@ export default function MiniappPage (): React.ReactNode {
     ]), [])
 
     useEffect(() => {
-        bridge.send('CondoWebAppSetActionsConfig', {
-            visible: true,
-            actions,
-        }).then((data) => {
+        bridge.send('CondoWebAppSetActionsConfig', { actions }).then((data) => {
             setActionsIds(data.actionsIds)
         })
     }, [actions])
@@ -78,7 +67,7 @@ export default function MiniappPage (): React.ReactNode {
         }
     }, [actions, actionsIds])
 
-    useActionHandlers(bridge, handlers)
+    useSetActionHandlers(bridge, handlers)
 
     return null
 }
@@ -86,5 +75,27 @@ export default function MiniappPage (): React.ReactNode {
 
 <Alert type='info'>
     Значение `key` не возвращается в событиях клика. Используйте `actionsIds`, чтобы сопоставить ключи с сгенерированными id.
-    Чтобы управлять видимостью всего блока действий, используйте `CondoWebAppSetActionsVisibility`.
 </Alert>
+
+## Обновление действий
+
+Чтобы обновить кнопку, отправьте полный обновленный массив `actions`:
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.send('CondoWebAppSetActionsConfig', {
+    actions: [
+        { key: 'save', label: 'Save', type: 'primary' },
+        { key: 'download', label: 'Download', type: 'secondary', loading: true },
+    ],
+})
+```
+
+## Скрытие действий
+
+Чтобы скрыть все действия, передайте пустой массив:
+```typescript
+import bridge from '@open-condo/bridge'
+
+bridge.send('CondoWebAppSetActionsConfig', { actions: [] })
+```
