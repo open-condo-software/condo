@@ -1,7 +1,7 @@
 export type ButtonAction = {
     key: string
     label?: string
-    icon?: 'download'
+    icon?: string
     type?: 'primary' | 'secondary' | 'accent'
     disabled?: boolean
     loading?: boolean
