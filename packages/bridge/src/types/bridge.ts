@@ -1,10 +1,12 @@
 import type { ErrorCode, ErrorReason } from './errors'
-import type { RequestMethodsParamsMap, ResultResponseDataMap, ResponseEventNamesMap } from './methods'
+import type { RequestMethodsParamsMap, ResultResponseDataMap, ResponseEventNamesMap, IncomingEventsDataMap } from './methods'
 
 export type AnyRequestMethodName = keyof RequestMethodsParamsMap
 export type AnyResponseMethodName = keyof ResultResponseDataMap
+export type AnyIncomingEventName = keyof IncomingEventsDataMap
 
 export type RequestParams<Method extends AnyRequestMethodName> = RequestMethodsParamsMap[Method]
+export type IncomingEventData<Method extends AnyIncomingEventName> = IncomingEventsDataMap[Method]
 export type RequestIdType = string | number
 export type RequestId = { requestId?: RequestIdType }
 
@@ -32,10 +34,8 @@ export type ErrorResponseData = ClientErrorResponseData<ErrorReason>
 export type CondoBridgeResultResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ResultResponseEventName<Method>, ResultResponseData<Method> & RequestId>
 export type CondoBridgeErrorResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ErrorResponseEventName<Method>, ErrorResponseData & RequestId>
 export type CondoBridgeResponseEvent<Method extends AnyResponseMethodName> = CondoBridgeResultResponseEvent<Method> | CondoBridgeErrorResponseEvent<Method>
-export type RequestEventName<Method extends AnyRequestMethodName> = Method
-export type RequestEventData<Method extends AnyRequestMethodName> = RequestParams<Method>
-export type CondoBridgeRequestEvent<Method extends AnyRequestMethodName> = BaseRequestEvent<RequestEventName<Method>, RequestEventData<Method>>
-export type CondoBridgeSubscriptionEvent = CondoBridgeResponseEvent<AnyResponseMethodName> | CondoBridgeRequestEvent<AnyRequestMethodName>
+export type CondoBridgeIncomingEvent<Method extends AnyIncomingEventName> = BaseRequestEvent<Method, IncomingEventData<Method>>
+export type CondoBridgeSubscriptionEvent = CondoBridgeResponseEvent<AnyResponseMethodName> | CondoBridgeIncomingEvent<AnyIncomingEventName>
 export type CondoBridgeSubscriptionListener = (event: CondoBridgeSubscriptionEvent) => void
 
 export type WebBridge = {
