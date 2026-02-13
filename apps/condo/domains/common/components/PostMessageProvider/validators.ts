@@ -150,18 +150,16 @@ const CondoWebAppUpdateProgressBarParamsSchema = {
     required: ['barId', 'data'],
 }
 
-const ActionButtonBaseProps = {
-    key: { type: 'string' },
-    label: { type: 'string' },
-    type: { enum: ['primary', 'secondary', 'accent'] },
-    disabled: { type: 'boolean' },
-    loading: { type: 'boolean' },
-    icon: { enum: ['download'] },
-}
-
 const ActionButtonSchema = {
     type: 'object',
-    properties: ActionButtonBaseProps,
+    properties: {
+        key: { type: 'string' },
+        label: { type: 'string' },
+        type: { enum: ['primary', 'secondary', 'accent'] },
+        disabled: { type: 'boolean' },
+        loading: { type: 'boolean' },
+        icon: { type: 'string' },
+    },
     required: ['key'],
     additionalProperties: false,
 }

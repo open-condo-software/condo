@@ -1,12 +1,14 @@
 import { Download, IconProps } from '@open-condo/icons'
 
-const ICON_MAP = {
+import type { ComponentType } from 'react'
+
+
+const ICON_MAP: Record<string, ComponentType<IconProps>> = {
     download: Download,
-    // NOTE: you can add more if needed, don't forget to also add to PostMessageProvider/validators.ts
-} as const
+    // NOTE: add more icon mappings here as needed.
+}
 
-
-export const renderIcon = (iconName?: keyof typeof ICON_MAP, size?: IconProps['size']) => {
+export const renderIcon = (iconName?: string, size?: IconProps['size']) => {
     if (!iconName) return undefined
 
     const IconComponent = ICON_MAP[iconName]
