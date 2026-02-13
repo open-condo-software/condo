@@ -33,6 +33,14 @@ const UpdateAddress = (props) => {
     const location = useLocation()
     const [actualizeAddress] = useMutation(ACTUALIZE_ADDRESSES_MUTATION)
     const onClick = useCallback(() => {
+        // eslint-disable-next-line no-restricted-globals
+        const confirmed = confirm(
+            'Actualize this address?\n\n' +
+            'This will re-fetch the address data from the suggestion provider, ' +
+            'update the address key, meta, and heuristics, and reload the page.'
+        )
+        if (!confirmed) return
+
         const sender = getClientSideSenderInfo()
         const path = location.pathname.split('/').splice(2, 2)
         const addressId = (path[0] === TARGET_URL_PART && path[1]) ? path[1] : null
