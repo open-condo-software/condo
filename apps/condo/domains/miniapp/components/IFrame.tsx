@@ -183,7 +183,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         if (!actionsConfig?.actions?.length) return null
 
         const actionElements = actionsConfig.actions
-            .map(action => {
+            .map((action, index) => {
                 const actionId = action.id
                 if (!actionId) return null
 
@@ -191,7 +191,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
                     <Button
                         key={actionId}
                         id={actionId}
-                        type={action.type ?? 'primary'}
+                        type={index === 0 ? 'primary' : 'secondary'}
                         loading={action.loading}
                         disabled={action.disabled}
                         onClick={() => sendActionId(actionId)}

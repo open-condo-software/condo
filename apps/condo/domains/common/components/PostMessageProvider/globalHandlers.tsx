@@ -304,9 +304,8 @@ export const useActionsConfigHandler: () => [
 
     const handleSetActionsConfig = useCallback<RequestHandler<'CondoWebAppSetActionsConfig'>>((params, nextOrigin, nextSource) => {
         const prevActions = configRef.current?.actions || []
-        const prevActionsByKey = new Map(prevActions.map(action => [action.key, action.id]))
-        const actionsWithIds = params.actions.map(action => {
-            const prevId = prevActionsByKey.get(action.key)
+        const actionsWithIds = params.actions.map((action, index) => {
+            const prevId = prevActions[index]?.id
             return { ...action, id: prevId || generateUUIDv4() }
         })
         const updatedConfig: ActionsConfig = { actions: actionsWithIds }
