@@ -1,23 +1,16 @@
 export type ButtonAction = {
-    label: string
     key: string
-    type?: 'primary' | 'secondary' | 'accent'
-    visible?: boolean
-    disabled?: boolean
-    danger?: boolean
-    loading?: boolean
+    label?: string
     icon?: 'download'
-    iconSize?: 'auto' | 'large' | 'medium' | 'small'
-    size?: 'medium' | 'large'
-    compact?: boolean
-    minimal?: boolean
+    type?: 'primary' | 'secondary' | 'accent'
+    disabled?: boolean
+    loading?: boolean
 }
 
 export type Action = ButtonAction
 
 
 export type SetActionsConfigParams = {
-    visible: boolean
     actions: Array<Action>
 }
 
