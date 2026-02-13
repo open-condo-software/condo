@@ -16,6 +16,22 @@ const logger = getLogger('mergeAddresses')
  * @returns {Promise<void>}
  */
 async function mergeAddresses (context, winnerId, loserId, dvSender) {
+    // Safety check: refuse to merge if other addresses point to the loser.
+    // After soft-deleting the loser, those rows would keep a dangling possibleDuplicateOf
+    // reference to a deleted address, causing incorrect follow-up merges.
+    const dependents = await find('Address', {
+        possibleDuplicateOf: { id: loserId },
+        id_not: winnerId,
+        deletedAt: null,
+    })
+    if (dependents.length > 0) {
+        const ids = dependents.map((a) => a.id).join(', ')
+        throw new Error(
+            `Cannot merge: ${dependents.length} address(es) have possibleDuplicateOf → loser ${loserId}: [${ids}]. ` +
+            'Resolve or dismiss those duplicates first.'
+        )
+    }
+
     // Move AddressSource records from loser → winner
     const loserSources = await find('AddressSource', { address: { id: loserId }, deletedAt: null })
     for (const source of loserSources) {
