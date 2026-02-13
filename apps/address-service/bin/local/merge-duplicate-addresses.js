@@ -74,7 +74,7 @@ async function isAddressReferenced (condoClient, addressId) {
  * Call the resolveAddressDuplicate mutation on the address-service.
  */
 async function resolveDuplicate (addressClient, addressId, winnerId) {
-    const { data } = await addressClient.executeAuthorizedMutation({
+    const { data, errors } = await addressClient.executeAuthorizedMutation({
         mutation: RESOLVE_ADDRESS_DUPLICATE_MUTATION,
         variables: {
             data: {
@@ -86,6 +86,16 @@ async function resolveDuplicate (addressClient, addressId, winnerId) {
             },
         },
     })
+
+    if (errors && errors.length > 0) {
+        const messages = errors.map((e) => e.message).join('; ')
+        throw new Error(`resolveAddressDuplicate failed for addressId=${addressId} winnerId=${winnerId}: ${messages}`)
+    }
+
+    if (!data || !data.result) {
+        throw new Error(`resolveAddressDuplicate returned empty result for addressId=${addressId} winnerId=${winnerId}`)
+    }
+
     return data.result.status
 }
 
