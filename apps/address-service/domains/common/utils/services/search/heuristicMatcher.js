@@ -1,5 +1,5 @@
 const { getLogger } = require('@open-condo/keystone/logging')
-const { find, getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const {
     Address: AddressServerUtils,
@@ -107,19 +107,28 @@ async function findAddressByHeuristics (heuristics) {
  */
 async function findRootAddress (addressId, maxDepth = 10) {
     let currentId = addressId
+    let lastAliveId = addressId
     let depth = 0
 
     while (depth < maxDepth) {
-        const address = await getById('Address', currentId)
-        if (!address || !address.possibleDuplicateOf) {
-            return currentId
+        const [address] = await find('Address', { id: currentId, deletedAt: null })
+        if (!address) {
+            // Current node is deleted — stop traversal, use last known alive node
+            break
+        }
+        lastAliveId = address.id
+        if (!address.possibleDuplicateOf) {
+            return lastAliveId
         }
         currentId = address.possibleDuplicateOf
         depth++
     }
 
-    logger.warn({ msg: 'possibleDuplicateOf chain exceeded max depth', addressId, maxDepth })
-    return currentId
+    if (depth >= maxDepth) {
+        logger.warn({ msg: 'possibleDuplicateOf chain exceeded max depth', addressId, maxDepth })
+    }
+
+    return lastAliveId
 }
 
 /**

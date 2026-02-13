@@ -1,4 +1,23 @@
-const { parseCoordinates, coordinatesMatch, COORDINATE_TOLERANCE } = require('./heuristicMatcher')
+const { faker } = require('@faker-js/faker')
+
+const { find } = require('@open-condo/keystone/schema')
+
+const { parseCoordinates, coordinatesMatch, COORDINATE_TOLERANCE, findRootAddress } = require('./heuristicMatcher')
+
+jest.mock('@open-condo/keystone/schema', () => ({
+    find: jest.fn(),
+    getById: jest.fn(),
+}))
+jest.mock('@open-condo/keystone/logging', () => ({
+    getLogger: () => ({ warn: jest.fn(), info: jest.fn(), error: jest.fn() }),
+}))
+jest.mock('@address-service/domains/address/utils/serverSchema', () => ({
+    Address: {},
+    AddressHeuristic: {},
+}))
+jest.mock('@address-service/domains/common/constants/heuristicTypes', () => ({
+    HEURISTIC_TYPE_COORDINATES: 'coordinates',
+}))
 
 describe('heuristicMatcher', () => {
     describe('parseCoordinates', () => {
@@ -74,6 +93,75 @@ describe('heuristicMatcher', () => {
                 `${lat},${lon}`,
                 `${lat + beyondTolerance},${lon}`
             )).toBe(false)
+        })
+    })
+
+    describe('findRootAddress', () => {
+        afterEach(() => {
+            find.mockReset()
+        })
+
+        it('should follow possibleDuplicateOf chain to the root', async () => {
+            const idA = faker.datatype.uuid()
+            const idB = faker.datatype.uuid()
+            const idC = faker.datatype.uuid()
+
+            find
+                .mockResolvedValueOnce([{ id: idA, possibleDuplicateOf: idB }])
+                .mockResolvedValueOnce([{ id: idB, possibleDuplicateOf: idC }])
+                .mockResolvedValueOnce([{ id: idC, possibleDuplicateOf: null }])
+
+            const root = await findRootAddress(idA)
+            expect(root).toBe(idC)
+        })
+
+        it('should return addressId when address has no possibleDuplicateOf', async () => {
+            const idA = faker.datatype.uuid()
+
+            find.mockResolvedValueOnce([{ id: idA, possibleDuplicateOf: null }])
+
+            const root = await findRootAddress(idA)
+            expect(root).toBe(idA)
+        })
+
+        it('should not return a soft-deleted address as root', async () => {
+            const idA = faker.datatype.uuid()
+            const idB = faker.datatype.uuid()
+            const idDeleted = faker.datatype.uuid()
+
+            // A → B → deleted
+            find
+                .mockResolvedValueOnce([{ id: idA, possibleDuplicateOf: idB }])
+                .mockResolvedValueOnce([{ id: idB, possibleDuplicateOf: idDeleted }])
+                .mockResolvedValueOnce([]) // idDeleted is soft-deleted → find returns []
+
+            const root = await findRootAddress(idA)
+            // Must return last alive node (idB), not the deleted one
+            expect(root).toBe(idB)
+        })
+
+        it('should return original addressId when first node in chain is soft-deleted', async () => {
+            const idA = faker.datatype.uuid()
+
+            // idA itself is soft-deleted
+            find.mockResolvedValueOnce([])
+
+            const root = await findRootAddress(idA)
+            // lastAliveId was never updated, falls back to original addressId
+            expect(root).toBe(idA)
+        })
+
+        it('should respect maxDepth and return last alive node', async () => {
+            const ids = Array.from({ length: 5 }, () => faker.datatype.uuid())
+
+            // Build a chain longer than maxDepth=3
+            for (let i = 0; i < 4; i++) {
+                find.mockResolvedValueOnce([{ id: ids[i], possibleDuplicateOf: ids[i + 1] }])
+            }
+
+            const root = await findRootAddress(ids[0], 3)
+            // Should stop after 3 hops, returning the last alive node visited
+            expect(root).toBe(ids[2])
         })
     })
 })
