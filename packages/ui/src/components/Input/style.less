@@ -2,6 +2,7 @@
 @import "antd/lib/input/style/index.less";
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import (reference) "@open-condo/ui/src/components/style/mixins/link";
 
 .condo-input,
 .condo-input-phone,
@@ -205,23 +206,32 @@
   --rta-max-height: none;
 }
 
-/* Toolbar */
+/* Toolbar — full-width row separator via background gradient.
+   Each row is 40px tall (32px button + 4px padding top/bottom).
+   A repeating 1px gray line every 40px spans the full toolbar width,
+   covering empty space to the right of groups on wrapped rows. */
 .condo-rich-text-area-toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 0;
   align-items: stretch;
-  padding: 4px;
-  border-bottom: 1px solid @condo-global-color-gray-3;
+  padding: 0 4px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 39px,
+    @condo-global-color-gray-3 39px,
+    @condo-global-color-gray-3 40px
+  );
 }
 
 .condo-rich-text-area-toolbar-group {
   display: inline-flex;
   gap: 4px;
   align-items: center;
+  padding: 4px;
 
   &:not(:last-child) {
-    padding-right: 4px;
     border-right: 1px solid @condo-global-color-gray-3;
   }
 }
@@ -296,9 +306,7 @@
   }
 
   a {
-    color: @condo-global-color-green-7;
-    text-decoration: underline;
-    cursor: pointer;
+    .condo-link();
   }
 
   blockquote {
@@ -314,8 +322,18 @@
     padding-left: 24px;
   }
 
+  li {
+    margin-bottom: 4px;
+  }
+
+  /* stylelint-disable selector-class-pattern, no-descending-specificity */
+
   /* NodeView wraps list items in <div class="react-renderer node-listItem"> instead of <li>,
      so we need to restore list-item display for markers to show */
+  .node-listItem {
+    margin-bottom: 4px;
+  }
+
   ul > .node-listItem {
     display: list-item;
     list-style-type: disc;
@@ -325,11 +343,7 @@
     display: list-item;
     list-style-type: decimal;
   }
-
-  li,
-  .node-listItem {
-    margin-bottom: 4px;
-  }
+  /* stylelint-enable selector-class-pattern, no-descending-specificity */
 
   img {
     max-width: 100%;
@@ -384,17 +398,36 @@
   }
 }
 
+/* stylelint-disable selector-class-pattern */
+
+/* List marker colors based on type prop */
+.condo-rich-text-area-type-default .condo-rich-text-area-editor-wrap .tiptap {
+  ul > .node-listItem,
+  ol > .node-listItem {
+    color: @condo-global-color-gray-7;
+  }
+}
+
+.condo-rich-text-area-type-inline .condo-rich-text-area-editor-wrap .tiptap {
+  ul > .node-listItem,
+  ol > .node-listItem {
+    color: @condo-global-color-black;
+  }
+}
+
+/* stylelint-enable selector-class-pattern */
+
 /* Placeholder via @tiptap/extension-placeholder */
 .condo-rich-text-area-editor-wrap .tiptap > .is-editor-empty:first-child:last-child::before {
-  content: attr(data-placeholder);
+  float: left;
+  width: 100%;
+  height: 0;
   color: @condo-global-color-gray-7;
   font-size: @condo-global-typography-text-l-font-size;
   font-family: @condo-global-typography-text-l-font-family;
   line-height: @condo-global-typography-text-l-line-height;
+  content: attr(data-placeholder);
   pointer-events: none;
-  float: left;
-  height: 0;
-  width: 100%;
 }
 
 /* Bottom panel — shared .condo-input-bottom-panel handles spacing */
@@ -412,7 +445,11 @@
   color: @condo-global-color-red-5;
 }
 
-/* Link modal */
+/* Link modal — fix wrapper overflow caused by padding: 1px + content-box */
+.condo-rich-text-area-link-modal .condo-modal-wrapper {
+  box-sizing: border-box;
+}
+
 .condo-rich-text-area-link-modal-footer {
   display: flex;
   justify-content: flex-end;
