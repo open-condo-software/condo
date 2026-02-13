@@ -124,6 +124,8 @@ async function main (args) {
             sortBy: ['createdAt_ASC'],
         })
 
+        let pageSkipped = 0
+
         for (const address of addresses) {
             totalProcessed++
             const target = address.possibleDuplicateOf
@@ -132,6 +134,7 @@ async function main (args) {
                 console.info(`\n  Processing: ${address.id} (key: ${address.key})`)
                 console.info('    SKIP: possibleDuplicateOf target is null (possibly soft-deleted)')
                 totalSkipped++
+                pageSkipped++
                 continue
             }
 
@@ -147,6 +150,7 @@ async function main (args) {
             if (currentReferenced && targetReferenced) {
                 console.info('    SKIP: both addresses are referenced in condo Properties')
                 totalSkipped++
+                pageSkipped++
                 continue
             } else if (currentReferenced) {
                 winner = address
@@ -170,18 +174,18 @@ async function main (args) {
                 } catch (err) {
                     console.info(`    SKIP (server error): ${err.message}`)
                     totalSkipped++
+                    pageSkipped++
                 }
             } else {
                 totalMerged++
+                pageSkipped++
             }
         }
 
-        // After merging, some addresses lose possibleDuplicateOf, so reset skip
-        if (!isDryRun) {
-            skip = 0
-        } else {
-            skip += Math.min(pageSize, addresses.length)
-        }
+        // Advance skip past records that remain in query results (skipped/unmerged).
+        // In non-dry-run mode merged records disappear from the query, so only
+        // skipped ones need to be stepped over. In dry-run nothing is removed.
+        skip += pageSkipped
     } while (addresses.length > 0)
 
     console.info(`\nSummary: ${totalProcessed} processed, ${totalMerged} merged, ${totalSkipped} skipped`)
