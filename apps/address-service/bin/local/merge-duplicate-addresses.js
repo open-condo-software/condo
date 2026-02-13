@@ -128,6 +128,13 @@ async function main (args) {
             totalProcessed++
             const target = address.possibleDuplicateOf
 
+            if (!target) {
+                console.info(`\n  Processing: ${address.id} (key: ${address.key})`)
+                console.info('    SKIP: possibleDuplicateOf target is null (possibly soft-deleted)')
+                totalSkipped++
+                continue
+            }
+
             console.info(`\n  Processing: ${address.id} (key: ${address.key})`)
             console.info(`    Target:   ${target.id} (key: ${target.key})`)
 
