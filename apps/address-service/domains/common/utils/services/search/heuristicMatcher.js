@@ -146,6 +146,12 @@ async function findRootAddress (addressId, maxDepth = 10) {
  * @returns {Promise<void>}
  */
 async function upsertHeuristics (context, addressId, heuristics, providerName, dvSender) {
+    // First pass: detect conflicts and collect heuristics to create.
+    // We pick the single best conflict (highest reliability) so that
+    // possibleDuplicateOf is set at most once with a deterministic choice.
+    let bestConflict = null
+    const toCreate = []
+
     for (const heuristic of heuristics) {
         let existingRecords
 
@@ -181,19 +187,28 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
                 newAddressId: addressId,
             })
 
-            // Follow chain to root to prevent cycles
-            const rootAddressId = await findRootAddress(existingAddressId)
-
-            // Set possibleDuplicateOf on the new address (pointing to root)
-            await AddressServerUtils.update(context, addressId, {
-                ...dvSender,
-                possibleDuplicateOf: { connect: { id: rootAddressId } },
-            })
+            if (!bestConflict || heuristic.reliability > bestConflict.reliability) {
+                bestConflict = { existingAddressId, reliability: heuristic.reliability }
+            }
 
             continue
         }
 
-        // No existing record — create new heuristic
+        // No existing record — queue for creation
+        toCreate.push(heuristic)
+    }
+
+    // Resolve the single best conflict to set possibleDuplicateOf once
+    if (bestConflict) {
+        const rootAddressId = await findRootAddress(bestConflict.existingAddressId)
+        await AddressServerUtils.update(context, addressId, {
+            ...dvSender,
+            possibleDuplicateOf: { connect: { id: rootAddressId } },
+        })
+    }
+
+    // Second pass: create new heuristic records
+    for (const heuristic of toCreate) {
         const createData = {
             ...dvSender,
             address: { connect: { id: addressId } },
