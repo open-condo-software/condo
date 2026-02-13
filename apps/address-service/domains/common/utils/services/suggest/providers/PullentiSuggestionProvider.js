@@ -3,6 +3,7 @@ const uniqBy = require('lodash/uniqBy')
 
 const { createInstance } = require('@open-condo/clients/pullenti-client')
 
+const { HEURISTIC_TYPE_FIAS_ID, HEURISTIC_TYPE_FALLBACK } = require('@address-service/domains/common/constants/heuristicTypes')
 const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { getXmlParser, normalize } = require('@address-service/domains/common/utils/services/utils/pullenti/normalizer')
 const { maybeBoostQueryWithTin } = require('@address-service/domains/common/utils/services/utils/pullenti/queryBooster')
@@ -85,10 +86,15 @@ class PullentiSuggestionProvider extends AbstractSuggestionProvider {
         const houseFiasId = get(normalizedBuilding, ['data', 'house_fias_id'])
 
         if (houseFiasId) {
-            return `fias:${houseFiasId}`
+            return `${HEURISTIC_TYPE_FIAS_ID}:${houseFiasId}`
         }
 
-        return super.generateAddressKey(normalizedBuilding)
+        const fallbackKey = super.generateAddressKey(normalizedBuilding)
+        if (fallbackKey) {
+            return `${HEURISTIC_TYPE_FALLBACK}:${fallbackKey}`
+        }
+
+        return fallbackKey
     }
 }
 
