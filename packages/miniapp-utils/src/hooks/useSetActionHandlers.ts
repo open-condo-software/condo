@@ -5,7 +5,7 @@ import type { CondoBridge, CondoBridgeSubscriptionListener } from '@open-condo/b
 export type ActionHandler = (actionId: string) => void
 export type ActionHandlers = Partial<Record<string, ActionHandler>>
 
-export function useActionHandlers (bridge: CondoBridge, handlers: ActionHandlers): void {
+export function useSetActionHandlers (bridge: CondoBridge, handlers: ActionHandlers): void {
     const handlersRef = useRef<ActionHandlers>(handlers)
 
     useEffect(() => {
