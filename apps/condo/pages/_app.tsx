@@ -34,6 +34,8 @@ import { useOrganization, withOrganization } from '@open-condo/next/organization
 
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
+import { AIProvider, useAIContext } from '@condo/domains/ai/components/AIContext'
+import { AIOverlay } from '@condo/domains/ai/components/AIOverlay'
 import { CondoAppEventsHandler } from '@condo/domains/common/components/CondoAppEventsHandler'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
@@ -512,6 +514,12 @@ const MyApp = ({ Component, pageProps }) => {
 
     }, [isUserLoading, isAuthenticated, user])
 
+    const AIOverlayWrapper = () => {
+        const { isAIOverlayOpen, closeAIOverlay } = useAIContext()
+        
+        return <AIOverlay open={isAIOverlayOpen} onClose={closeAIOverlay} />
+    }
+
     return (
         <>
             <Head>
@@ -523,11 +531,12 @@ const MyApp = ({ Component, pageProps }) => {
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={emotionCache}>
                     <GlobalStyle/>
-                    <LayoutContextProvider
-                        serviceProblemsAlert={<ServiceProblemsAlert />}
-                        detectedMobileUserAgentInSSR={detectedMobileUserAgentInSSR}
-                        initialIsCollapsed={initialIsCollapsed}
-                    >
+                    <AIProvider>
+                        <LayoutContextProvider
+                            serviceProblemsAlert={<ServiceProblemsAlert />}
+                            detectedMobileUserAgentInSSR={detectedMobileUserAgentInSSR}
+                            initialIsCollapsed={initialIsCollapsed}
+                        >
                         {shouldDisplayCookieAgreement && <CookieAgreement/>}
                         <HCaptchaProvider>
                             <SudoTokenProvider>
@@ -559,7 +568,9 @@ const MyApp = ({ Component, pageProps }) => {
                             </SudoTokenProvider>
                         </HCaptchaProvider>
                         {!isSnowfallDisabled && <Snowfall />}
+                        <AIOverlayWrapper />
                     </LayoutContextProvider>
+                    </AIProvider>
                     {yandexMetrikaID && <YandexMetrika />}
                     {googleTagManagerId && <GoogleTagManager />}
                     {!isEmpty(popupSmartConfig) && <PopupSmart />}
