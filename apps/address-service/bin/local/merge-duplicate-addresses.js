@@ -20,6 +20,7 @@ const { gql } = require('graphql-tag')
 
 const { ApolloServerClient } = require('@open-condo/apollo-server-client')
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+const conf = require('@open-condo/config')
 
 const PropertyGQL = generateGqlQueries('Property', '{ id addressKey }')
 const AddressGQL = generateGqlQueries('Address', '{ id key possibleDuplicateOf { id key } }')
@@ -35,10 +36,10 @@ const RESOLVE_ADDRESS_DUPLICATE_MUTATION = gql`
  * Signs into condo first, then into address-service via OIDC (signInToMiniApp).
  */
 async function createClients () {
-    const condoApiUrl = process.env.CONDO_API_URL
-    const email = process.env.CONDO_USER
-    const password = process.env.CONDO_PASSWORD
-    const addressServiceApiUrl = process.env.ADDRESS_SERVICE_API_URL
+    const condoApiUrl = conf['CONDO_API_URL']
+    const email = conf['CONDO_USER']
+    const password = conf['CONDO_PASSWORD']
+    const addressServiceApiUrl = conf['ADDRESS_SERVICE_API_URL']
 
     if (!condoApiUrl || !email || !password || !addressServiceApiUrl) {
         throw new Error(
