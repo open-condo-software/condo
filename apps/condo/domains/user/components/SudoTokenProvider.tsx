@@ -510,7 +510,7 @@ export const SudoTokenProvider: React.FC<React.PropsWithChildren> = ({
                         <Col span={24}>
                             <Row gutter={[0, 24]}>
                                 <Col span={24}>
-                                    <Form.Item
+                                    <FormItem
                                         name='password'
                                         required={false}
                                         rules={[requiredValidator]}
@@ -518,7 +518,7 @@ export const SudoTokenProvider: React.FC<React.PropsWithChildren> = ({
                                         labelCol={{ span: 24 }}
                                     >
                                         <Input.Password />
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
 
                                 <Col span={24}>

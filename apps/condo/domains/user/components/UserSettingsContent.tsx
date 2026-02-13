@@ -16,7 +16,7 @@ import { LocaleContext, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Select, Tooltip, Typography } from '@open-condo/ui'
 
-import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, TWO_FACTOR_SETTING } from '@condo/domains/common/constants/featureflags'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { UserHelpRequest } from '@condo/domains/onboarding/utils/clientSchema'
 
@@ -101,6 +101,7 @@ export const UserSettingsContent: React.FC = () => {
 
     const { useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
+    const isFeature2FAEnabled = useFlag(TWO_FACTOR_SETTING)
     const { objs: userHelpRequests, refetch: userHelpRequestRefetch, loading: userHelpRequestsLoading } = UserHelpRequest.useObjects({
         where: {
             organization: { id: organization?.id },
@@ -401,24 +402,28 @@ export const UserSettingsContent: React.FC = () => {
                                 </Row>
                             </Col>
 
-                            <Col span={24}>
-                                <Row gutter={ROW_GUTTER_MID} align='middle'>
-                                    <Col lg={5} xs={10}>
-                                        <Typography.Text type='secondary'>
-                                            {TwoFATitle}
-                                        </Typography.Text>
+                            {
+                                isFeature2FAEnabled && (
+                                    <Col span={24}>
+                                        <Row gutter={ROW_GUTTER_MID} align='middle'>
+                                            <Col lg={5} xs={10}>
+                                                <Typography.Text type='secondary'>
+                                                    {TwoFATitle}
+                                                </Typography.Text>
+                                            </Col>
+                                            <Col lg={5} offset={1}>
+                                                <Tooltip title={is2FADisabled ? EmptyFactorsTooltipMessage : null}>
+                                                    <Switch
+                                                        checked={is2FAEnabled}
+                                                        onChange={handle2FAEnabledChange}
+                                                        disabled={is2FADisabled}
+                                                    />
+                                                </Tooltip>
+                                            </Col>
+                                        </Row>
                                     </Col>
-                                    <Col lg={5} offset={1}>
-                                        <Tooltip title={is2FADisabled ? EmptyFactorsTooltipMessage : null}>
-                                            <Switch
-                                                checked={is2FAEnabled}
-                                                onChange={handle2FAEnabledChange}
-                                                disabled={is2FADisabled}
-                                            />
-                                        </Tooltip>
-                                    </Col>
-                                </Row>
-                            </Col>
+                                )
+                            }
 
                             {
                                 telegramEmployeeBotName && (
