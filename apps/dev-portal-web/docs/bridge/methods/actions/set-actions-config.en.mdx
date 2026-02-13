@@ -12,9 +12,7 @@ This method allows you to set up a list of actions that will be displayed in the
 
 | Parameter name | Parameter type | Required | Parameter description |
 |---|---|---|---|
-| key | string | yes | Your own identifier for the action (must be unique within the list) |
 | label | string | no | Button text |
-| type | 'primary' \| 'secondary' \| 'accent' | no | Button visual type |
 | disabled | boolean | no | Whether the button is disabled |
 | loading | boolean | no | Whether the button shows loading state |
 | icon | string | no | Optional icon name (e.g., 'download') |
@@ -32,7 +30,7 @@ If successful, the method will return a JSON object containing a list of action 
 ```
 
 The host generates internal action ids and returns them in the same order as the input list.
-These ids are sent back in the `CondoWebAppSendActionId` event.
+When a user clicks a button, the host emits `CondoWebAppSendActionId` as a side effect.
 
 ## Usage example
 
@@ -45,8 +43,8 @@ import { useSetActionHandlers } from '@open-condo/miniapp-utils'
 export default function MiniappPage (): React.ReactNode {
     const [actionsIds, setActionsIds] = useState<string[]>([])
     const actions = useMemo(() => ([
-        { key: 'save', label: 'Save', type: 'primary' },
-        { key: 'download', label: 'Download', type: 'secondary', icon: 'download' },
+        { label: 'Save' },
+        { label: 'Download', icon: 'download' },
     ]), [])
 
     useEffect(() => {
@@ -58,14 +56,12 @@ export default function MiniappPage (): React.ReactNode {
     const handlers = useMemo(() => {
         if (!actionsIds.length) return {}
 
-        const actionIdByKey = Object.fromEntries(
-            actions.map((action, index) => [action.key, actionsIds[index]])
-        )
+        const [saveId, downloadId] = actionsIds
         return {
-            [actionIdByKey.save]: () => {
+            [saveId]: () => {
                 // handle save
             },
-            [actionIdByKey.download]: () => {
+            [downloadId]: () => {
                 // handle download
             },
         }
@@ -78,7 +74,7 @@ export default function MiniappPage (): React.ReactNode {
 ```
 
 <Alert type='info'>
-    The `key` you pass is not sent back in click events. Use `actionsIds` to map keys to generated ids.
+    Keep the order of `actions` stable if you rely on index-based ids.
 </Alert>
 
 ## Updating actions
@@ -89,8 +85,8 @@ import bridge from '@open-condo/bridge'
 
 bridge.send('CondoWebAppSetActionsConfig', {
     actions: [
-        { key: 'save', label: 'Save', type: 'primary' },
-        { key: 'download', label: 'Download', type: 'secondary', loading: true },
+        { label: 'Save' },
+        { label: 'Download', loading: true },
     ],
 })
 ```
