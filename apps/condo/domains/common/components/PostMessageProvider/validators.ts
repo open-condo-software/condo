@@ -172,9 +172,7 @@ export const CondoWebAppSetActionsConfigSchema = {
         actions: {
             type: 'array',
             items: {
-                oneOf: [
-                    ActionButtonSchema,
-                ],
+                ...ActionButtonSchema,
             },
         },
     },
