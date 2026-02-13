@@ -314,7 +314,20 @@
     padding-left: 24px;
   }
 
-  li {
+  /* NodeView wraps list items in <div class="react-renderer node-listItem"> instead of <li>,
+     so we need to restore list-item display for markers to show */
+  ul > .node-listItem {
+    display: list-item;
+    list-style-type: disc;
+  }
+
+  ol > .node-listItem {
+    display: list-item;
+    list-style-type: decimal;
+  }
+
+  li,
+  .node-listItem {
     margin-bottom: 4px;
   }
 
@@ -371,18 +384,17 @@
   }
 }
 
-/* Placeholder overlay */
-.condo-rich-text-area-placeholder {
-  position: absolute;
-  top: @condo-global-spacing-12;
-  right: @condo-global-spacing-12;
-  left: @condo-global-spacing-12;
+/* Placeholder via @tiptap/extension-placeholder */
+.condo-rich-text-area-editor-wrap .tiptap > .is-editor-empty:first-child:last-child::before {
+  content: attr(data-placeholder);
   color: @condo-global-color-gray-7;
   font-size: @condo-global-typography-text-l-font-size;
   font-family: @condo-global-typography-text-l-font-family;
   line-height: @condo-global-typography-text-l-line-height;
-  user-select: none;
   pointer-events: none;
+  float: left;
+  height: 0;
+  width: 100%;
 }
 
 /* Bottom panel — shared .condo-input-bottom-panel handles spacing */

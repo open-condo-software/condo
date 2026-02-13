@@ -5,6 +5,7 @@ import { Image } from '@tiptap/extension-image'
 import { Link } from '@tiptap/extension-link'
 import { ListItem } from '@tiptap/extension-list-item'
 import { Paragraph } from '@tiptap/extension-paragraph'
+import { Placeholder } from '@tiptap/extension-placeholder'
 import { Table } from '@tiptap/extension-table'
 import { TableCell } from '@tiptap/extension-table-cell'
 import { TableHeader } from '@tiptap/extension-table-header'
@@ -417,10 +418,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, disa
     )
 }
 
-// ────────────────────────────────────────────────────────────
-// Main Component
-// ────────────────────────────────────────────────────────────
-
 export type RichTextAreaProps = {
     value?: string
     onChange?: (value: string) => void
@@ -526,6 +523,10 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
             TableCell,
             TableHeader,
             Markdown,
+            Placeholder.configure({
+                placeholder: placeholder || 'Placeholder',
+                showOnlyCurrent: false,
+            }),
         ],
         editable: !disabled,
         content: value || '',
@@ -605,11 +606,6 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         [`${RICH_TEXT_AREA_CLASS_PREFIX}-count-overflow`]: currentLength > maxLength,
     })
 
-    const editorIsEmpty = useEditorState({
-        editor,
-        selector: ({ editor: e }) => e?.isEmpty ?? true,
-    })
-
     const containerClassName = classNames(RICH_TEXT_AREA_CLASS_PREFIX, {
         [`${RICH_TEXT_AREA_CLASS_PREFIX}-disabled`]: disabled,
     })
@@ -624,11 +620,6 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                 <Toolbar editor={editor} labels={labels} linkModalLabels={resolvedLinkModalLabels} disabled={disabled} />
                 <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-editor-wrap`} ref={editorWrapRef}>
                     <EditorContent editor={editor} />
-                    {editorIsEmpty && placeholder && (
-                        <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-placeholder`}>
-                            {placeholder}
-                        </div>
-                    )}
                 </div>
                 {showBottomPanel && (
                     <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-bottom-panel`}>
