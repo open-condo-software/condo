@@ -107,7 +107,7 @@ class AbstractSuggestionProvider {
             get(data, 'block'),
         ]
 
-        return parts
+        const key = parts
             // Remove empty parts
             .filter(Boolean)
             // Keep single space between words
@@ -125,6 +125,8 @@ class AbstractSuggestionProvider {
             .filter(Boolean)
             .join(JOINER)
             .toLowerCase()
+
+        return key || null
     }
 }
 
