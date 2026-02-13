@@ -6,6 +6,7 @@ const { getKVClient } = require('@open-condo/keystone/kv')
 
 const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
 const { VALID_DADATA_BUILDING_TYPES } = require('@address-service/domains/common/constants/common')
+const { HEURISTIC_TYPE_FIAS_ID, HEURISTIC_TYPE_FALLBACK } = require('@address-service/domains/common/constants/heuristicTypes')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
 
@@ -433,10 +434,15 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         const houseFiasId = get(normalizedBuilding, ['data', 'house_fias_id'])
 
         if (houseFiasId) {
-            return `fias:${houseFiasId}`
+            return `${HEURISTIC_TYPE_FIAS_ID}:${houseFiasId}`
         }
 
-        return super.generateAddressKey(normalizedBuilding)
+        const fallbackKey = super.generateAddressKey(normalizedBuilding)
+        if (fallbackKey) {
+            return `${HEURISTIC_TYPE_FALLBACK}:${fallbackKey}`
+        }
+
+        return fallbackKey
     }
 }
 
