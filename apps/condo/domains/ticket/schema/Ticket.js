@@ -19,6 +19,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { GQLListSchema, getByCondition, getById, find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
+const { publish } = require('@open-condo/nats')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const {
@@ -123,7 +124,7 @@ const ERRORS = {
  * User should not be able to create more than $DAILY_TICKET_LIMIT tickets to 1 organization.
  * User should not be able to create more than $DAILY_SAME_TICKET_LIMIT tickets to 1 organization.
  * Pushes for bulk operations are disabled in this scheme.
- * 
+ *
  * $USERS_WITHOUT_TICKET_LIMITS phones are excluded from this rule.
  *
  * @param {string} phone
@@ -385,7 +386,7 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Observer are employee users who does not perform or control the work, but remains aware of the process and the result of the ticket',
             type: 'Relationship',
             ref: 'TicketObserver.ticket',
-            many: true, 
+            many: true,
             // NOTE: We need to allow create and update observers from ticket, because we need to create TicketChange
             // NOTE: We don't need to read observers from ticket, because we can read them from allTicketObserver
             access: {
@@ -991,6 +992,24 @@ const Ticket = new GQLListSchema('Ticket', {
             const isBulkOperation = Array.isArray(get(context, ['req', 'body', 'variables', 'data'], null))
             if (!isBulkOperation) {
                 await sendTicketChangedNotifications.delay({ ticketId: updatedItem.id, existingItem, operation })
+
+                try {
+                    await publish({
+                        stream: 'ticket-changes',
+                        subject: `ticket-changes.${updatedItem.organization}.${updatedItem.id}`,
+                        data: {
+                            ticketId: updatedItem.id,
+                            organizationId: updatedItem.organization,
+                            operation,
+                            status: updatedItem.status,
+                            number: updatedItem.number,
+                            timestamp: new Date().toISOString(),
+                            userId: get(context, ['authedItem', 'id'], null),
+                        },
+                    })
+                } catch (error) {
+                    console.error('[NATS] Failed to publish ticket change:', error)
+                }
             }
         },
     },
@@ -1021,7 +1040,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 fields: ['organization', 'status'],
                 name: 'ticket_organization_status',
             },
-            // NOTE: default CRM sorting on /ticket page 
+            // NOTE: default CRM sorting on /ticket page
             {
                 type: 'BTreeIndex',
                 fields: ['order', '-createdAt'],

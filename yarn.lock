@@ -819,6 +819,7 @@ __metadata:
     mkdirp: ^3.0.1
     n2words: 1.15.0
     nanoid: ^3.3.4
+    nats.ws: ^1.30.3
     next: ^15.5.9
     next-with-less: ^3.0.1
     nock: ^14.0.5
@@ -1572,7 +1573,6 @@ __metadata:
     ajv: 8.11.0
     antd: ^4.24.12
     big.js: ^6.2.2
-    busboy: ^1.6.0
     carbone: 3.2.3
     classnames: ^2.5.1
     cross-env: ^7.0.3
@@ -1594,6 +1594,7 @@ __metadata:
     less-loader: ^12.3.0
     lodash: ^4.17.21
     mkdirp: ^3.0.1
+    multer: ^1.4.5-lts.1
     next: ^15.5.7
     next-with-less: ^3.0.1
     openid-client: 5.7.1
@@ -12045,6 +12046,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@open-condo/nats@workspace:packages/nats":
+  version: 0.0.0-use.local
+  resolution: "@open-condo/nats@workspace:packages/nats"
+  dependencies:
+    nats: ^2.28.2
+    nats.ws: ^1.29.0
+    zod: ^4.3.6
+  peerDependencies:
+    "@open-condo/keystone": "workspace:^"
+    react: ^17.0.0 || ^18.0.0
+  languageName: unknown
+  linkType: soft
+
 "@open-condo/next@workspace:^, @open-condo/next@workspace:packages/next":
   version: 0.0.0-use.local
   resolution: "@open-condo/next@workspace:packages/next"
@@ -18535,6 +18549,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"append-field@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "append-field@npm:1.0.0"
+  checksum: 482ba08acc0ecef00fe7da6bf2f8e48359a9905ee1af525f3120c9260c02e91eedf0579b59d898e8d8455b6c199e340bc0a2fd4b9e02adaa29a8a86c722b37f9
+  languageName: node
+  linkType: hard
+
 "apply-ref@npm:^1.0.0":
   version: 1.0.0
   resolution: "apply-ref@npm:1.0.0"
@@ -20382,7 +20403,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"busboy@npm:^1.6.0":
+"busboy@npm:^1.0.0, busboy@npm:^1.6.0":
   version: 1.6.0
   resolution: "busboy@npm:1.6.0"
   dependencies:
@@ -21859,6 +21880,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"concat-stream@npm:^1.5.2, concat-stream@npm:~1.6.0":
+  version: 1.6.2
+  resolution: "concat-stream@npm:1.6.2"
+  dependencies:
+    buffer-from: ^1.0.0
+    inherits: ^2.0.3
+    readable-stream: ^2.2.2
+    typedarray: ^0.0.6
+  checksum: 1ef77032cb4459dcd5187bd710d6fc962b067b64ec6a505810de3d2b8cc0605638551b42f8ec91edf6fcd26141b32ef19ad749239b58fae3aba99187adc32285
+  languageName: node
+  linkType: hard
+
 "concat-stream@npm:^2.0.0":
   version: 2.0.0
   resolution: "concat-stream@npm:2.0.0"
@@ -21868,18 +21901,6 @@ __metadata:
     readable-stream: ^3.0.2
     typedarray: ^0.0.6
   checksum: d7f75d48f0ecd356c1545d87e22f57b488172811b1181d96021c7c4b14ab8855f5313280263dca44bb06e5222f274d047da3e290a38841ef87b59719bde967c7
-  languageName: node
-  linkType: hard
-
-"concat-stream@npm:~1.6.0":
-  version: 1.6.2
-  resolution: "concat-stream@npm:1.6.2"
-  dependencies:
-    buffer-from: ^1.0.0
-    inherits: ^2.0.3
-    readable-stream: ^2.2.2
-    typedarray: ^0.0.6
-  checksum: 1ef77032cb4459dcd5187bd710d6fc962b067b64ec6a505810de3d2b8cc0605638551b42f8ec91edf6fcd26141b32ef19ad749239b58fae3aba99187adc32285
   languageName: node
   linkType: hard
 
@@ -35002,7 +35023,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:^0.5.1":
+"mkdirp@npm:^0.5.1, mkdirp@npm:^0.5.4":
   version: 0.5.6
   resolution: "mkdirp@npm:0.5.6"
   dependencies:
@@ -35238,6 +35259,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"multer@npm:^1.4.5-lts.1":
+  version: 1.4.5-lts.2
+  resolution: "multer@npm:1.4.5-lts.2"
+  dependencies:
+    append-field: ^1.0.0
+    busboy: ^1.0.0
+    concat-stream: ^1.5.2
+    mkdirp: ^0.5.4
+    object-assign: ^4.1.1
+    type-is: ^1.6.4
+    xtend: ^4.0.0
+  checksum: b6f76a24c8fbc4d3ed5696ff8c98e126e7831d26f85e0ce17ab8d77e33a9ec14e33e4d05ea5e4e748e63a1b695cf450c2b05d8eee58484a74a1c13f459429713
+  languageName: node
+  linkType: hard
+
 "multipipe@npm:^1.0.2":
   version: 1.0.2
   resolution: "multipipe@npm:1.0.2"
@@ -35341,6 +35377,27 @@ __metadata:
     snapdragon: ^0.8.1
     to-regex: ^3.0.1
   checksum: 54d4166d6ef08db41252eb4e96d4109ebcb8029f0374f9db873bd91a1f896c32ec780d2a2ea65c0b2d7caf1f28d5e1ea33746a470f32146ac8bba821d80d38d8
+  languageName: node
+  linkType: hard
+
+"nats.ws@npm:^1.29.0, nats.ws@npm:^1.30.3":
+  version: 1.30.3
+  resolution: "nats.ws@npm:1.30.3"
+  dependencies:
+    nkeys.js: 1.1.0
+  dependenciesMeta:
+    nkeys.js:
+      optional: true
+  checksum: 26dab996a796027fd0d04632c0ab7f8c52553103a38bf6c720b5f8a877b275035cc7c45d8811dfaa0ea64693132b5834d55bef315bb84a8fe0321a2205582d54
+  languageName: node
+  linkType: hard
+
+"nats@npm:^2.28.2":
+  version: 2.29.3
+  resolution: "nats@npm:2.29.3"
+  dependencies:
+    nkeys.js: 1.1.0
+  checksum: 3e530e1237ccc42f015731fedb1bbef8d2f61750d67570d28a1cafc6fb82f7c5256c5f3906a33a927d8264f1cec5d4b2ac351006006c930c005dd71314569fea
   languageName: node
   linkType: hard
 
@@ -35513,6 +35570,15 @@ __metadata:
   bin:
     next: dist/bin/next
   checksum: ad59f966a28cff60051740391cee8b2d7974283a4f85fb644c38c211f5a294c9bc90479adec25adaec8a89205c4d36cbc8cfc5362d90665da7905b017ab61d44
+  languageName: node
+  linkType: hard
+
+"nkeys.js@npm:1.1.0":
+  version: 1.1.0
+  resolution: "nkeys.js@npm:1.1.0"
+  dependencies:
+    tweetnacl: 1.0.3
+  checksum: 01de5355ae77973b70d0b96c8c5772bce32b20329229b11bfc2b3cfe8ecbd1b2f097ee77875efd987ff1ee0b559a8df2214821c7a39a297cb7c8f4dff4b5744e
   languageName: node
   linkType: hard
 
@@ -47417,6 +47483,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tweetnacl@npm:1.0.3":
+  version: 1.0.3
+  resolution: "tweetnacl@npm:1.0.3"
+  checksum: e4a57cac188f0c53f24c7a33279e223618a2bfb5fea426231991652a13247bea06b081fd745d71291fcae0f4428d29beba1b984b1f1ce6f66b06a6d1ab90645c
+  languageName: node
+  linkType: hard
+
 "tweetnacl@npm:^0.14.3, tweetnacl@npm:~0.14.0":
   version: 0.14.5
   resolution: "tweetnacl@npm:0.14.5"
@@ -47498,7 +47571,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"type-is@npm:^1.6.16, type-is@npm:~1.6.18":
+"type-is@npm:^1.6.16, type-is@npm:^1.6.4, type-is@npm:~1.6.18":
   version: 1.6.18
   resolution: "type-is@npm:1.6.18"
   dependencies:
@@ -50187,6 +50260,13 @@ __metadata:
   version: 4.0.15
   resolution: "zod@npm:4.0.15"
   checksum: d52dc9df5ed7a066ac7c3193862a2aa2c48ee45476403a88ab1dbab8f701cec1c50d9309cf550e4531722737d0b2fad853c8e9a52a928c13a3cbb9ee3498daba
+  languageName: node
+  linkType: hard
+
+"zod@npm:^4.3.6":
+  version: 4.3.6
+  resolution: "zod@npm:4.3.6"
+  checksum: 19cec761b46bae4b6e7e861ea740f3f248e50a6671825afc8a5758e27b35d6f20ccde9942422fd5cf6f8b697f18bd05ef8bb33f5f2db112ab25cc628de2fae47
   languageName: node
   linkType: hard
 

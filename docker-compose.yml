@@ -88,6 +88,26 @@ services:
       - app-network
     command: ["redis-server", "--databases", "64"]
 
+  nats:
+    image: ${REGISTRY}nats:2.10-alpine
+    ports:
+      - "127.0.0.1:4222:4222"
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8222:8222"
+    networks:
+      - app-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: ["-c", "/etc/nats/nats.conf"]
+    volumes:
+      - nats-data:/data
+      - ./nats.conf:/etc/nats/nats.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   valkey-cluster:
     image: ${REGISTRY}alpine
     profiles: ['dbs']
@@ -185,6 +205,7 @@ volumes:
   valkey-data-1: {}
   valkey-data-2: {}
   valkey-data-3: {}
+  nats-data: {}
 configs:
   valkey.conf:
     content: |
