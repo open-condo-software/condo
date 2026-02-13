@@ -32,12 +32,12 @@ For each `Address` with `possibleDuplicateOf` set:
 **Usage (from the repo root):**
 
 ```bash
-# Dry run — shows what would happen without making changes
 source apps/address-service/bin/local/.env
+
+# Dry run — shows what would happen without making changes
 node apps/address-service/bin/local/merge-duplicate-addresses.js --dry-run
 
 # Actual run
-source apps/address-service/bin/local/.env
 node apps/address-service/bin/local/merge-duplicate-addresses.js
 ```
 
