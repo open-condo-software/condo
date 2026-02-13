@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7
 ARG REGISTRY=docker.io
 
 FROM ${REGISTRY}/python:3.14-slim-bookworm AS python
@@ -8,6 +9,9 @@ FROM ${REGISTRY}/buildpack-deps:bookworm AS base
 COPY --from=python /usr/local/ /usr/local/
 COPY --from=node /usr/local/ /usr/local/
 COPY --from=node /opt/ /opt/
+
+ENV YARN_ENABLE_GLOBAL_CACHE=true \
+    YARN_CACHE_FOLDER=/usr/local/share/.cache/yarn
 
 # Add app user/group! Clean packages and fix links! Check version! And install some extra packages!
 RUN set -ex \
@@ -30,7 +34,8 @@ COPY --chown=app:app ./out /app
 # Copy yarn berry
 COPY --chown=app:app ./.yarn /app/.yarn
 COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
-RUN yarn install --immutable --inline-builds
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
+    yarn install --immutable --inline-builds
 
 # Builder
 FROM base as builder
@@ -61,7 +66,9 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 
 RUN chmod +x ./bin/run_condo_domain_tests.sh
 
-RUN set -ex \
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
+    --mount=type=cache,target=/app/.turbo \
+    set -ex \
     && yarn build \
     && rm -rf /app/out \
     && rm -rf /app/.env  \
