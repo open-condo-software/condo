@@ -6,7 +6,7 @@ import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchPara
 import type { RedirectData, RedirectParams } from './Redirect'
 import type { RequestAuthData, RequestAuthParams } from './RequestAuth'
 import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
-import type { SendActionIdParams, SendActionIdData } from './SendActionId'
+import type { SendActionIdParams } from './SendActionId'
 import type { SetActionsConfigParams, SetActionsConfigData } from './SetActionsConfig'
 import type { ShowModalWindowParams, ShowModalWindowData } from './ShowModalWindow'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
@@ -27,7 +27,7 @@ export type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressB
 export type { UpdateModalWindowParams, UpdateModalWindowData } from './UpdateModalWindow'
 export type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
 export type { SetActionsConfigParams, SetActionsConfigData } from './SetActionsConfig'
-export type { SendActionIdParams, SendActionIdData } from './SendActionId'
+export type { SendActionIdParams } from './SendActionId'
 
 /**
  * Mapping for event -> request payload
@@ -46,7 +46,6 @@ export type RequestMethodsParamsMap = {
     CondoWebAppUpdateModalWindow: UpdateModalWindowParams
     CondoWebAppUpdateProgressBar: UpdateProgressBarParams
     CondoWebAppSetActionsConfig: SetActionsConfigParams
-    CondoWebAppSendActionId: SendActionIdParams
 }
 
 /**
@@ -66,7 +65,10 @@ export type ResultResponseDataMap = {
     CondoWebAppUpdateModalWindow: UpdateModalWindowData
     CondoWebAppUpdateProgressBar: UpdateProgressBarData
     CondoWebAppSetActionsConfig: SetActionsConfigData
-    CondoWebAppSendActionId: SendActionIdData
+}
+
+export type IncomingEventsDataMap = {
+    CondoWebAppSendActionId: SendActionIdParams
 }
 
 type ResponseEventNames<Method extends keyof RequestMethodsParamsMap> = {
