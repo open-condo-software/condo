@@ -315,7 +315,7 @@ export const useActionsConfigHandler: () => [
         setOrigin(nextOrigin)
         configRef.current = updatedConfig
 
-        return { actionsIds: actionsWithIds.map(a => a.id) }
+        return { actionIds: actionsWithIds.map(a => a.id) }
     }, [])
 
     const clear = useCallback(() => {
