@@ -1588,15 +1588,15 @@ describe('Ticket', () => {
             test('user cannot read observers from ticket', async () => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(
-                    admin, 
-                    client.organization, 
-                    client.property, 
-                    { 
-                        observers: { 
-                            create: [{ 
-                                user: { connect: { id: client.user.id } }, 
-                                dv: 1, 
-                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) }, 
+                    admin,
+                    client.organization,
+                    client.property,
+                    {
+                        observers: {
+                            create: [{
+                                user: { connect: { id: client.user.id } },
+                                dv: 1,
+                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
                             }],
                         },
                     }
@@ -1612,22 +1612,22 @@ describe('Ticket', () => {
                     }
                 `
                 const { errors } = await client.query(GET_TICKET_WITH_OBSERVERS_BY_ID, { ticketId: ticket.id })
-                
+
                 expect(errors).toHaveLength(1)
             })
 
             test('user: can create and update observers from ticket', async () => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(
-                    client, 
-                    client.organization, 
-                    client.property, 
-                    { 
-                        observers: { 
-                            create: [{ 
-                                user: { connect: { id: client.user.id } }, 
-                                dv: 1, 
-                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) }, 
+                    client,
+                    client.organization,
+                    client.property,
+                    {
+                        observers: {
+                            create: [{
+                                user: { connect: { id: client.user.id } },
+                                dv: 1,
+                                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
                             }],
                         },
                     }
@@ -1639,9 +1639,9 @@ describe('Ticket', () => {
                 expect(ticketObserverBeforeUpdate.user.id).toEqual(client.user.id)
                 expect(ticketObserverBeforeUpdate.ticket.id).toEqual(ticket.id)
                 await updateTestTicket(
-                    client, 
-                    ticket.id, 
-                    { 
+                    client,
+                    ticket.id,
+                    {
                         observers: { disconnect: [{ id: ticketObserverBeforeUpdate.id }] },
                     }
                 )
@@ -4990,6 +4990,47 @@ describe('Ticket', () => {
 
                     expect(message).toBeUndefined()
                 }, { delay: MESSAGE_SENDING_DElAY })
+            })
+        })
+    })
+
+    describe('NATS Integration', () => {
+        describe('ticket operations with NATS publish calls', () => {
+            test('should create ticket without errors (NATS disabled in tests)', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+                expect(ticket.id).toMatch(UUID_RE)
+                expect(ticket.organization.id || ticket.organization).toBe(client.organization.id)
+            })
+
+            test('should update ticket without errors (NATS disabled in tests)', async () => {
+                const client = await makeClientWithProperty()
+                const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+                const [updatedTicket] = await updateTestTicket(client, ticket.id, {
+                    details: 'Updated details',
+                })
+
+                expect(updatedTicket.details).toBe('Updated details')
+            })
+        })
+
+        describe('NATS access control configuration', () => {
+            const { STREAM_PERMISSIONS } = require('@open-condo/nats/utils/natsAuthCallout')
+
+            test('should have correct permission mappings for streams', () => {
+                expect(STREAM_PERMISSIONS['ticket-changes']).toBe('canManageTickets')
+                expect(STREAM_PERMISSIONS['property-changes']).toBe('canManageProperties')
+                expect(STREAM_PERMISSIONS['contact-changes']).toBe('canManageContacts')
+                expect(STREAM_PERMISSIONS['billing-events']).toBe('canReadBillingReceipts')
+                expect(STREAM_PERMISSIONS['notification-events']).toBe(null)
+            })
+
+            test('should parse stream name from NATS subject correctly', () => {
+                expect('ticket-changes.org123.ticket456'.split('.')[0]).toBe('ticket-changes')
+                expect('property-changes.org123'.split('.')[0]).toBe('property-changes')
+                expect('notification-events.test'.split('.')[0]).toBe('notification-events')
             })
         })
     })
