@@ -3,7 +3,12 @@ import {
     useAuthenticateOrRegisterUserWithTokenMutation,
     useStartConfirmEmailActionMutation,
 } from '@app/condo/gql'
-import { ConfirmEmailActionMessageType, UserTypeType as UserType } from '@app/condo/schema'
+import {
+    ConfirmEmailActionMessageType,
+    UserTypeType as UserType,
+    AuthenticateOrRegisterUserWithTokenSecondFactorType,
+    AuthenticateOrRegisterUserWithTokenSecondFactorInput,
+} from '@app/condo/schema'
 import { Col, Form, Row, notification } from 'antd'
 import { ValidateStatus } from 'antd/lib/form/FormItem'
 import getConfig from 'next/config'
@@ -24,12 +29,14 @@ import { ResponsiveCol } from '@condo/domains/user/components/containers/Respons
 import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
 import { useSudoToken } from '@condo/domains/user/components/SudoTokenProvider'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
-import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
+import { EMAIL_ALREADY_REGISTERED_ERROR, NOT_ENOUGH_AUTH_FACTORS } from '@condo/domains/user/constants/errors'
 
 import { useRegisterFormValidators } from './hooks'
 import { useRegisterContext } from './RegisterContextProvider'
+import { useSecondFactor } from './SecondFactorForm'
 
 import type { FormRule as Rule } from 'antd'
+import type { GraphQLFormattedError } from 'graphql'
 
 
 type ValidatorsMap = {
@@ -63,6 +70,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' }, { min: MIN_PASSWORD_LENGTH })
     const ConsentToReceiveMarketingMaterialsMessage = intl.formatMessage({ id: 'common.consentToReceiveMarketingMaterials' })
     const OperationCompleted = intl.formatMessage({ id: 'OperationCompleted' })
+    const SecondFactorForAuthorizationTitle = intl.formatMessage({ id: 'component.SecondFactorForm.title.forAuthorization' })
 
     const { executeCaptcha } = useHCaptcha()
     const { identifier, identifierType, token } = useRegisterContext()
@@ -90,7 +98,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
      * 2.3) If the user is registered, but does not have all the required data,
      *      then we show a shortened registration form and finish a registration
      */
-    const [step, setStep] = useState<'checkUser' | 'authenticate' | 'register'>('checkUser')
+    const [step, setStep] = useState<'checkUser' | 'authenticate' | 'authenticate2FA' | 'register'>('checkUser')
     const [isLoading, setIsLoading] = useState(false)
 
     const errorHandler = useMutationErrorHandler()
@@ -109,7 +117,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         },
     })
     const [authOrRegisterUserWithTokenMutation, authOrRegisterUserWithTokenResult] = useAuthenticateOrRegisterUserWithTokenMutation({
-        onError: authOrRegisterErrorHandler,
+        onError: (error) => {
+            if (error?.graphQLErrors?.some(gqlError => gqlError.extensions?.type === NOT_ENOUGH_AUTH_FACTORS)) {
+                // show flow with 2FA
+                // handled outside the error handler
+            } else {
+                authOrRegisterErrorHandler(error)
+            }
+        },
     })
 
     const visibleFields = useMemo(() => ({
@@ -193,14 +208,47 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         }
     }, [])
 
-    const authenticateOrRegister = useCallback(async () => {
+    const SecondFactorHeader = useCallback(({ setCurrentSecondFactor, setAvailableSecondFactors }) => (
+        <Col span={24}>
+            <Row gutter={[0, 16]}>
+                <Col span={24}>
+                    <Space direction='vertical' size={24}>
+                        <Button.Icon
+                            onClick={() => {
+                                setCurrentSecondFactor(null)
+                                setAvailableSecondFactors([])
+                                onReset()
+                            }}
+                            size='small'
+                        >
+                            <ArrowLeft />
+                        </Button.Icon>
+                        <Typography.Title level={2}>{SecondFactorForAuthorizationTitle}</Typography.Title>
+                    </Space>
+                </Col>
+            </Row>
+        </Col>
+    ), [onReset])
+
+    const handleSubmit = useCallback(async ({
+        isLoading,
+        setIsLoading,
+        userIdRef,
+        setUserMaskedData,
+        setAvailableSecondFactors,
+        setCurrentSecondFactor,
+        currentSecondFactor,
+        confirmEmailToken,
+        confirmPhoneToken,
+        password: passwordAs2FA,
+    }) => {
         if (isLoading) return
 
         try {
             setIsLoading(true)
 
             const {
-                name, 
+                name,
                 email: inputEmail,
                 phone: inputPhone,
                 password,
@@ -220,6 +268,15 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
 
+            let secondFactor: AuthenticateOrRegisterUserWithTokenSecondFactorInput = undefined
+            if (currentSecondFactor === 'confirmEmailToken') {
+                secondFactor = { value: confirmEmailToken, type: AuthenticateOrRegisterUserWithTokenSecondFactorType.ConfirmEmailToken }
+            } else if (currentSecondFactor === 'confirmPhoneToken') {
+                secondFactor = { value: confirmPhoneToken, type: AuthenticateOrRegisterUserWithTokenSecondFactorType.ConfirmPhoneToken }
+            } else if (currentSecondFactor === 'password') {
+                secondFactor = { value: passwordAs2FA, type: AuthenticateOrRegisterUserWithTokenSecondFactorType.Password }
+            }
+
             const res = await authOrRegisterUserWithTokenMutation({
                 variables: {
                     data: {
@@ -228,10 +285,34 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                         captcha,
                         userType: UserType.Staff,
                         token,
+                        ...(secondFactor ? { secondFactor } : null),
                         ...(Object.keys(userData).length > 0 ? { userData } : null),
                     },
                 },
             })
+
+            const isNotEnoughAuthFactors = (error: GraphQLFormattedError) => error?.extensions?.type === NOT_ENOUGH_AUTH_FACTORS
+            // @ts-ignore
+            if (res?.errors?.graphQLErrors?.some(isNotEnoughAuthFactors)) {
+                // @ts-ignore
+                const graphQLError = res?.errors?.graphQLErrors.find(isNotEnoughAuthFactors)
+                const authDetails = graphQLError?.extensions?.authDetails
+
+                if (authDetails?.is2FAEnabled && authDetails?.userId && authDetails?.availableSecondFactors?.length > 0) {
+                    userIdRef.current = authDetails.userId
+                    const availableSecondFactors = authDetails?.availableSecondFactors?.filter(factor => ['confirmPhoneToken', 'confirmEmailToken', 'password'].includes(factor)) || []
+                    const prioritySecondFactor = currentSecondFactor || availableSecondFactors?.[0] || null
+
+                    if (availableSecondFactors.length > 0) {
+                        setUserMaskedData(authDetails?.maskedData || null)
+                        setAvailableSecondFactors(availableSecondFactors)
+                        setCurrentSecondFactor(prioritySecondFactor)
+                        setStep('authenticate2FA')
+                    }
+                }
+
+                return
+            }
 
             const userId = res?.data?.result?.user?.id
             if (!res.errors && userId) {
@@ -266,7 +347,20 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         } finally {
             setIsLoading(false)
         }
-    }, [authOrRegisterUserWithTokenMutation, form, executeCaptcha, isLoading, onFinish, refetch, token, visibleFields, userExistenceResult, identifierType, identifier, getSudoTokenForce])
+    }, [authOrRegisterUserWithTokenMutation, executeCaptcha, form, getSudoTokenForce, identifier, identifierType, onFinish, refetch, startConfirmEmailAction, step, token, userExistenceResult?.data?.result?.isUserExists, visibleFields.email, visibleFields.hasMarketingConsent, visibleFields.name, visibleFields.password, visibleFields.phone])
+
+    const [secondFactorForm] = Form.useForm()
+    const {
+        onSubmitWithSecondFactor: authenticateOrRegister,
+        ProblemsModal,
+        SecondFactorForm,
+    } = useSecondFactor({
+        form: secondFactorForm,
+        Header: SecondFactorHeader,
+        onSubmit: handleSubmit,
+        isLoading,
+        setIsLoading,
+    })
 
     useEffect(() => {
         if (step !== 'checkUser') return
@@ -321,6 +415,25 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
 
         return (
             <Loader />
+        )
+    }
+
+    if (step === 'authenticate2FA') {
+        return (
+            <>
+                <Form
+                    form={secondFactorForm}
+                    name='2FA'
+                    onFinish={authenticateOrRegister}
+                    initialValues={identifierType === 'email' ? { confirmEmailToken: token } : { confirmPhoneToken: token }}
+                    requiredMark={false}
+                    layout='vertical'
+                >
+                    {SecondFactorForm}
+                </Form>
+
+                {ProblemsModal}
+            </>
         )
     }
 

@@ -8689,6 +8689,39 @@ export function useAuthenticateUserWithPhoneAndPasswordMutation(baseOptions?: Ap
 export type AuthenticateUserWithPhoneAndPasswordMutationHookResult = ReturnType<typeof useAuthenticateUserWithPhoneAndPasswordMutation>;
 export type AuthenticateUserWithPhoneAndPasswordMutationResult = Apollo.MutationResult<Types.AuthenticateUserWithPhoneAndPasswordMutation>;
 export type AuthenticateUserWithPhoneAndPasswordMutationOptions = Apollo.BaseMutationOptions<Types.AuthenticateUserWithPhoneAndPasswordMutation, Types.AuthenticateUserWithPhoneAndPasswordMutationVariables>;
+export const ChangeTwoFactorAuthenticationDocument = gql`
+    mutation changeTwoFactorAuthentication($data: ChangeTwoFactorAuthenticationInput!) {
+  result: changeTwoFactorAuthentication(data: $data) {
+    status
+  }
+}
+    `;
+export type ChangeTwoFactorAuthenticationMutationFn = Apollo.MutationFunction<Types.ChangeTwoFactorAuthenticationMutation, Types.ChangeTwoFactorAuthenticationMutationVariables>;
+
+/**
+ * __useChangeTwoFactorAuthenticationMutation__
+ *
+ * To run a mutation, you first call `useChangeTwoFactorAuthenticationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChangeTwoFactorAuthenticationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [changeTwoFactorAuthenticationMutation, { data, loading, error }] = useChangeTwoFactorAuthenticationMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useChangeTwoFactorAuthenticationMutation(baseOptions?: Apollo.MutationHookOptions<Types.ChangeTwoFactorAuthenticationMutation, Types.ChangeTwoFactorAuthenticationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.ChangeTwoFactorAuthenticationMutation, Types.ChangeTwoFactorAuthenticationMutationVariables>(ChangeTwoFactorAuthenticationDocument, options);
+      }
+export type ChangeTwoFactorAuthenticationMutationHookResult = ReturnType<typeof useChangeTwoFactorAuthenticationMutation>;
+export type ChangeTwoFactorAuthenticationMutationResult = Apollo.MutationResult<Types.ChangeTwoFactorAuthenticationMutation>;
+export type ChangeTwoFactorAuthenticationMutationOptions = Apollo.BaseMutationOptions<Types.ChangeTwoFactorAuthenticationMutation, Types.ChangeTwoFactorAuthenticationMutationVariables>;
 export const ChangeUserEmailDocument = gql`
     mutation changeUserEmail($data: ChangeUserEmailInput!) {
   result: changeUserEmail(data: $data) {
@@ -9132,6 +9165,8 @@ export const AuthenticatedUserDocument = gql`
     showGlobalHints
     hasMarketingConsent
     isEmailVerified
+    isPhoneVerified
+    isTwoFactorAuthenticationEnabled
   }
 }
     `;

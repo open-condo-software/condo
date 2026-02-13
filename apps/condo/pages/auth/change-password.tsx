@@ -4,18 +4,26 @@ import {
     useGenerateSudoTokenMutation,
     useChangeUserPasswordMutation,
 } from '@app/condo/gql'
-import { UserTypeType as UserType } from '@app/condo/schema'
+import {
+    AuthenticateUserWithEmailAndPasswordSecondFactorInput,
+    AuthenticateUserWithEmailAndPasswordSecondFactorType,
+    AuthenticateUserWithPhoneAndPasswordSecondFactorInput,
+    AuthenticateUserWithPhoneAndPasswordSecondFactorType,
+    UserTypeType as UserType,
+} from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
 import Router, { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState, useRef } from 'react'
+import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react'
 
+import { ArrowLeft } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Input, Typography } from '@open-condo/ui'
+import { Button, Input, Space, Typography } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PageComponentType } from '@condo/domains/common/types'
@@ -24,10 +32,12 @@ import {
     RegisterContextProvider,
     useRegisterContext,
 } from '@condo/domains/user/components/auth/RegisterContextProvider'
+import { useSecondFactor } from '@condo/domains/user/components/auth/SecondFactorForm'
 import AuthLayout, { AuthLayoutProps } from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { useSudoToken } from '@condo/domains/user/components/SudoTokenProvider'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
+import { NOT_ENOUGH_AUTH_FACTORS } from '@condo/domains/user/constants/errors'
 import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 import { detectTokenTypeSafely, TOKEN_TYPES } from '@condo/domains/user/utils/tokens'
 
@@ -40,6 +50,7 @@ const INITIAL_VALUES = {
     password: '',
 }
 
+type ChangePasswordSteps = 'getSudoTokenBeforeChangePassword' | 'changePassword' | 'authentication'
 
 const ChangePasswordPage: PageComponentType = () => {
     const intl = useIntl()
@@ -54,6 +65,8 @@ const ChangePasswordPage: PageComponentType = () => {
     const ChangePasswordTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorLabel' })
     const ChangePasswordTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorMessage' })
     const ChangePasswordTokenErrorConfirmLabel = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorConfirmLabel' })
+    const SecondFactorTitle = intl.formatMessage({ id: 'component.SecondFactorForm.title' })
+    const SecondFactorForAuthorizationTitle = intl.formatMessage({ id: 'component.SecondFactorForm.title.forAuthorization' })
 
     const router = useRouter()
     const { query: { next } } = router
@@ -72,6 +85,7 @@ const ChangePasswordPage: PageComponentType = () => {
 
     const [form] = Form.useForm()
 
+    const [step, setStep] = useState<ChangePasswordSteps>('getSudoTokenBeforeChangePassword')
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const changePasswordErrorHandler = useMutationErrorHandler({
@@ -80,13 +94,34 @@ const ChangePasswordPage: PageComponentType = () => {
 
     const errorHandler = useMutationErrorHandler()
     const [authenticateUserWithPhoneAndPasswordMutation] = useAuthenticateUserWithPhoneAndPasswordMutation({
-        onError: errorHandler,
+        onError: (error) => {
+            if (error?.graphQLErrors?.some(gqlError => gqlError.extensions?.type === NOT_ENOUGH_AUTH_FACTORS)) {
+                // show flow with 2FA
+                // handled outside the error handler
+            } else {
+                errorHandler(error)
+            }
+        },
     })
     const [authenticateUserWithEmailAndPasswordMutation] = useAuthenticateUserWithEmailAndPasswordMutation({
-        onError: errorHandler,
+        onError: (error) => {
+            if (error?.graphQLErrors?.some(gqlError => gqlError.extensions?.type === NOT_ENOUGH_AUTH_FACTORS)) {
+                // show flow with 2FA
+                // handled outside the error handler
+            } else {
+                errorHandler(error)
+            }
+        },
     })
     const [generateSudoTokenMutation] = useGenerateSudoTokenMutation({
-        onError: errorHandler,
+        onError: (error) => {
+            if (error?.graphQLErrors?.some(gqlError => gqlError.extensions?.type === NOT_ENOUGH_AUTH_FACTORS)) {
+                // show flow with 2FA
+                // handled outside the error handler
+            } else {
+                errorHandler(error)
+            }
+        },
     })
     const [changeUserPasswordMutation] = useChangeUserPasswordMutation({
         onError: changePasswordErrorHandler,
@@ -109,7 +144,7 @@ const ChangePasswordPage: PageComponentType = () => {
         ],
     }), [PleaseConfirmYourPasswordMessage, PleaseInputYourPasswordMessage, TwoPasswordDontMatchMessage, changeMessage, minPasswordLengthValidator, requiredValidator])
 
-    const authWithIdentifierAndPassword = useCallback(async (identifierType: string, identifier: string, password: string): Promise<void> => {
+    const authWithIdentifierAndPassword = useCallback(async (identifierType: string, identifier: string, password: string, secondFactorData?: { currentSecondFactor?: 'confirmEmailToken' | 'confirmPhoneToken', confirmToken: string }): Promise<void> => {
         try {
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
@@ -121,6 +156,13 @@ const ChangePasswordPage: PageComponentType = () => {
 
             let res: FetchResult<AuthenticateUserWithEmailAndPasswordMutation> | FetchResult<AuthenticateUserWithPhoneAndPasswordMutation>
             if (identifierType === 'email') {
+                let secondFactor: AuthenticateUserWithEmailAndPasswordSecondFactorInput = undefined
+                if (secondFactorData?.currentSecondFactor === 'confirmEmailToken') {
+                    secondFactor = { value: secondFactorData?.confirmToken, type: AuthenticateUserWithEmailAndPasswordSecondFactorType.ConfirmEmailToken }
+                } else if (secondFactorData?.currentSecondFactor === 'confirmPhoneToken') {
+                    secondFactor = { value: secondFactorData?.confirmToken, type: AuthenticateUserWithEmailAndPasswordSecondFactorType.ConfirmPhoneToken }
+                }
+
                 res = await authenticateUserWithEmailAndPasswordMutation({
                     variables: {
                         data: {
@@ -128,10 +170,18 @@ const ChangePasswordPage: PageComponentType = () => {
                             password,
                             email: identifier,
                             userType: UserType.Staff,
+                            ...(secondFactor ? { secondFactor } : null),
                         },
                     },
                 })
             } else {
+                let secondFactor: AuthenticateUserWithPhoneAndPasswordSecondFactorInput = undefined
+                if (secondFactorData?.currentSecondFactor === 'confirmEmailToken') {
+                    secondFactor = { value: secondFactorData?.confirmToken, type: AuthenticateUserWithPhoneAndPasswordSecondFactorType.ConfirmEmailToken }
+                } else if (secondFactorData?.currentSecondFactor === 'confirmPhoneToken') {
+                    secondFactor = { value: secondFactorData?.confirmToken, type: AuthenticateUserWithPhoneAndPasswordSecondFactorType.ConfirmPhoneToken }
+                }
+
                 res = await authenticateUserWithPhoneAndPasswordMutation({
                     variables: {
                         data: {
@@ -139,6 +189,7 @@ const ChangePasswordPage: PageComponentType = () => {
                             password,
                             phone: identifier,
                             userType: UserType.Staff,
+                            ...(secondFactor ? { secondFactor } : null),
                         },
                     },
                 })
@@ -156,25 +207,14 @@ const ChangePasswordPage: PageComponentType = () => {
         }
     }, [authenticateUserWithEmailAndPasswordMutation, authenticateUserWithPhoneAndPasswordMutation, executeCaptcha])
 
+    const authFactorsRef = useRef<{ confirmEmailToken?: string, confirmPhoneToken?: string }>(null)
     const sudoTokenRef = useRef<string | null>(null)
-    const generateSudoToken = useCallback(async (confirmToken: string): Promise<string> => {
+    const generateSudoToken = useCallback(async (): Promise<string> => {
         if (sudoTokenRef.current) {
             return sudoTokenRef.current
         }
 
         try {
-            const tokenTypeInfo = detectTokenTypeSafely(confirmToken)
-
-            if (tokenTypeInfo.error) {
-                throw tokenTypeInfo.error
-            }
-            if (!tokenTypeInfo.tokenType) {
-                throw new Error('Unknown token type')
-            }
-            if (!allowedTokenTypes.includes(tokenTypeInfo.tokenType)) {
-                throw new Error('Unsupported token type')
-            }
-
             const sender = getClientSideSenderInfo()
             const captcha = await executeCaptcha()
             const res = await generateSudoTokenMutation({
@@ -183,19 +223,16 @@ const ChangePasswordPage: PageComponentType = () => {
                         dv: 1,
                         sender,
                         captcha,
-                        authFactors: {
-                            [tokenTypeInfo.tokenType === TOKEN_TYPES.CONFIRM_EMAIL ? 'confirmEmailToken' : 'confirmPhoneToken']: confirmToken,
-                        },
+                        authFactors: authFactorsRef.current,
                         user: {
                             userType: UserType.Staff,
-                            ...(identifier ? { [tokenTypeInfo.tokenType === TOKEN_TYPES.CONFIRM_EMAIL ? 'email' : 'phone']: identifier } : null),
                         },
                     },
                 },
             })
             const sudoToken = res?.data?.result?.token
 
-            if (res.errors || !sudoToken) {
+            if (res?.errors || !sudoToken) {
                 const error: Error & { originalErrors? } = new Error('Failed to get sudo token (request)')
                 error.originalErrors = res.errors
                 throw error
@@ -208,15 +245,15 @@ const ChangePasswordPage: PageComponentType = () => {
             console.error(error)
             throw error
         }
-    }, [allowedTokenTypes, executeCaptcha, generateSudoTokenMutation, identifier])
+    }, [executeCaptcha, generateSudoTokenMutation])
 
     const invalidateSudoToken = useCallback(() => {
         sudoTokenRef.current = null
     }, [])
 
-    const changeUserPassword = useCallback(async (confirmToken: string, password: string, withRetry: boolean = true) => {
+    const getSudoTokenAndChangeUserPassword = useCallback(async (password: string, withRetry: boolean = true) => {
         const sender = getClientSideSenderInfo()
-        const sudoToken = await generateSudoToken(confirmToken)
+        const sudoToken = await generateSudoToken()
 
         const res = await changeUserPasswordMutation({
             variables: {
@@ -232,54 +269,211 @@ const ChangePasswordPage: PageComponentType = () => {
         const isTokenNotFoundError = (error: GraphQLFormattedError) => error?.extensions?.type === 'TOKEN_NOT_FOUND'
         if (withRetry && res?.errors?.some(isTokenNotFoundError)) {
             invalidateSudoToken()
-            return changeUserPassword(confirmToken, password, false)
+            return getSudoTokenAndChangeUserPassword(password, false)
         }
 
         return res
     }, [changeUserPasswordMutation, generateSudoToken, invalidateSudoToken])
 
-    const onSubmit = useCallback(async (values: typeof INITIAL_VALUES) => {
+    const handleSubmit = useCallback(async ({
+        isLoading,
+        setIsLoading,
+        userIdRef,
+        setUserMaskedData,
+        setAvailableSecondFactors,
+        setCurrentSecondFactor,
+        currentSecondFactor,
+        confirmEmailToken,
+        confirmPhoneToken,
+    }) => {
         if (isLoading) return
 
         setIsLoading(true)
 
         try {
-            const { password } = values
-            const res = await changeUserPassword(token, password, true)
+            const { password } = form.getFieldsValue(['password'])
+            
+            if (step === 'getSudoTokenBeforeChangePassword') {
+                const tokenTypeInfo = detectTokenTypeSafely(token)
 
-            const status = res?.data?.result?.status
-            if (!res.errors && status === 'ok') {
-                invalidateSudoToken()
-
-                if (!identifier || !identifierType) {
-                    await Router.push(`/auth/signin?next=${redirectUrl}`)
-                    return
+                if (tokenTypeInfo.error) {
+                    throw tokenTypeInfo.error
+                }
+                if (!tokenTypeInfo.tokenType) {
+                    throw new Error('Unknown token type')
+                }
+                if (!allowedTokenTypes.includes(tokenTypeInfo.tokenType)) {
+                    throw new Error('Unsupported token type')
                 }
 
-                await authWithIdentifierAndPassword(identifierType, identifier, password)
+                const authFactors: { confirmEmailToken?: string, confirmPhoneToken?: string } = {}
+                if (tokenTypeInfo.tokenType === TOKEN_TYPES.CONFIRM_EMAIL) {
+                    authFactors.confirmEmailToken = token
+                }
+                if (tokenTypeInfo.tokenType === TOKEN_TYPES.CONFIRM_PHONE) {
+                    authFactors.confirmPhoneToken = token
+                }
+                if (currentSecondFactor === 'confirmPhoneToken' && tokenTypeInfo.tokenType !== TOKEN_TYPES.CONFIRM_PHONE) {
+                    authFactors.confirmPhoneToken = confirmPhoneToken
+                }
+                if (currentSecondFactor === 'confirmEmailToken' && tokenTypeInfo.tokenType !== TOKEN_TYPES.CONFIRM_EMAIL) {
+                    authFactors.confirmEmailToken = confirmEmailToken
+                }
+
+                authFactorsRef.current = authFactors
+
+                await generateSudoToken()
+
+                setCurrentSecondFactor(null)
+                setAvailableSecondFactors([])
+                setStep('changePassword')
+            }
+
+            if (step === 'changePassword') {
+                const res = await getSudoTokenAndChangeUserPassword(password, true)
+
+                const status = res?.data?.result?.status
+                if (!res.errors && status === 'ok') {
+                    invalidateSudoToken()
+
+                    if (!identifier || !identifierType) {
+                        await Router.push(`/auth/signin?next=${redirectUrl}`)
+                        return
+                    }
+
+                    setStep('authentication')
+                    await authWithIdentifierAndPassword(identifierType, identifier, password)
+                    await refetch()
+
+                    await getSudoTokenForce({
+                        user: {
+                            ...(identifierType === 'email' ? { email: identifier } : null),
+                            ...(identifierType === 'phone' ? { phone: identifier } : null),
+                        },
+                        authFactors: {
+                            password,
+                        },
+                    })
+
+                    await Router.push(redirectUrl)
+                    return
+                }
+            }
+
+            if (step === 'authentication') {
+                let secondFactor: { confirmToken: string, currentSecondFactor: 'confirmEmailToken' | 'confirmPhoneToken' } = null
+                if (currentSecondFactor === 'confirmEmailToken' && confirmEmailToken) {
+                    secondFactor = { confirmToken: confirmEmailToken, currentSecondFactor }
+                } else if (currentSecondFactor === 'confirmPhoneToken' && confirmPhoneToken) {
+                    secondFactor = { confirmToken: confirmPhoneToken, currentSecondFactor }
+                }
+                await authWithIdentifierAndPassword(identifierType, identifier, password, secondFactor)
                 await refetch()
 
-                await getSudoTokenForce({
-                    user: {
-                        ...(identifierType === 'email' ? { email: identifier } : null),
-                        ...(identifierType === 'phone' ? { phone: identifier } : null),
-                    },
-                    authFactors: {
-                        password,
-                    },
-                })
+                if (!secondFactor) {
+                    await getSudoTokenForce({
+                        user: {
+                            ...(identifierType === 'email' ? { email: identifier } : null),
+                            ...(identifierType === 'phone' ? { phone: identifier } : null),
+                        },
+                        authFactors: {
+                            password,
+                        },
+                    })
+                }
 
                 await Router.push(redirectUrl)
+
+                return
             }
         } catch (error) {
             console.error('Change password failed')
             console.error(error)
+
+            if (error?.originalErrors) {
+                const isNotEnoughAuthFactors = (error: GraphQLFormattedError) => error?.extensions?.type === NOT_ENOUGH_AUTH_FACTORS
+                // @ts-ignore
+                if (error?.originalErrors?.graphQLErrors?.some(isNotEnoughAuthFactors)) {
+                    // @ts-ignore
+                    const graphQLError = error?.originalErrors?.graphQLErrors.find(isNotEnoughAuthFactors)
+                    const authDetails = graphQLError?.extensions?.authDetails
+
+                    if (authDetails?.is2FAEnabled && authDetails?.userId && authDetails?.availableSecondFactors?.length > 0) {
+                        if (step === 'getSudoTokenBeforeChangePassword') {
+                            userIdRef.current = authDetails.userId
+                            const availableSecondFactors = authDetails?.availableSecondFactors?.filter(factor => ['confirmPhoneToken', 'confirmEmailToken'].includes(factor)) || []
+                            const prioritySecondFactor = currentSecondFactor || availableSecondFactors?.[0] || null
+
+                            if (availableSecondFactors.length > 0) {
+                                setUserMaskedData(authDetails?.maskedData || null)
+                                setAvailableSecondFactors(availableSecondFactors)
+                                setCurrentSecondFactor(prioritySecondFactor)
+                            }
+                        } else {
+                            await Router.push(`/auth/signin?next=${redirectUrl}`)
+                            return
+                        }
+                    }
+
+                    if (step === 'changePassword') {
+                        form.resetFields(['confirmPhoneCode', 'confirmEmailCode'])
+                    }
+
+                    return
+                }
+            }
         } finally {
             setIsLoading(false)
         }
-    }, [getSudoTokenForce, authWithIdentifierAndPassword, changeUserPassword, identifier, identifierType, invalidateSudoToken, isLoading, redirectUrl, token])
+    }, [form, step, identifierType, identifier, authWithIdentifierAndPassword, refetch, redirectUrl, getSudoTokenForce, token, allowedTokenTypes, generateSudoToken, getSudoTokenAndChangeUserPassword, invalidateSudoToken])
 
     const onResetPasswordClick = useCallback(() => Router.push(`/auth/forgot?${queryParams}`), [])
+
+    const SecondFactorHeader = useCallback(({ setCurrentSecondFactor, setAvailableSecondFactors }) => (
+        <Col span={24}>
+            <Row gutter={[0, 16]}>
+                <Col span={24}>
+                    <Space direction='vertical' size={24}>
+                        <Button.Icon
+                            onClick={async () => {
+                                setCurrentSecondFactor(null)
+                                setAvailableSecondFactors([])
+
+                                if (step === 'changePassword') {
+                                    await onResetPasswordClick()
+                                } else {
+                                    await Router.push(`/auth/signin?next=${redirectUrl}`)
+                                }
+                            }}
+                            size='small'
+                        >
+                            <ArrowLeft />
+                        </Button.Icon>
+                        <Typography.Title level={2}>{step === 'authentication' ? SecondFactorForAuthorizationTitle : SecondFactorTitle}</Typography.Title>
+                    </Space>
+                </Col>
+            </Row>
+        </Col>
+    ), [onResetPasswordClick, redirectUrl, step])
+
+    const {
+        currentSecondFactor,
+        SecondFactorForm,
+        ProblemsModal,
+        onSubmitWithSecondFactor,
+    } = useSecondFactor({
+        isLoading,
+        setIsLoading,
+        form,
+        onSubmit: handleSubmit,
+        Header: SecondFactorHeader,
+    })
+
+    useEffect(() => {
+        if (step !== 'getSudoTokenBeforeChangePassword') return
+
+        onSubmitWithSecondFactor()
+    }, [step])
 
     if (tokenError) {
         return (
@@ -317,48 +511,57 @@ const ChangePasswordPage: PageComponentType = () => {
     }
 
     return (
-        <Form
-            form={form}
-            name='change-password'
-            onFinish={onSubmit}
-            initialValues={INITIAL_VALUES}
-            requiredMark={false}
-            layout='vertical'
-        >
-            <Row justify='center'>
-                <ResponsiveCol span={24}>
-                    <Row gutter={[0, 40]} justify='center'>
-                        <Col span={24}>
-                            <Typography.Title level={2}>
-                                {ResetTitle}
-                            </Typography.Title>
-                        </Col>
+        <>
+            {ProblemsModal}
+            <Form
+                form={form}
+                name='change-password'
+                onFinish={onSubmitWithSecondFactor}
+                initialValues={INITIAL_VALUES}
+                requiredMark={false}
+                layout='vertical'
+            >
+                {SecondFactorForm}
+                {
+                    step === 'getSudoTokenBeforeChangePassword' && !currentSecondFactor && (
+                        <Loader fill size='large' />
+                    )
+                }
+                <Row justify='center' style={(currentSecondFactor || step !== 'changePassword') && { display: 'none' }}>
+                    <ResponsiveCol span={24}>
+                        <Row gutter={[0, 40]} justify='center'>
+                            <Col span={24}>
+                                <Typography.Title level={2}>
+                                    {ResetTitle}
+                                </Typography.Title>
+                            </Col>
 
-                        <Col span={24}>
-                            <FormItem
-                                name='password'
-                                label={CreateNewPasswordMessage}
-                                rules={validations.password}
-                                data-cy='change-password-item'
-                            >
-                                <Input.Password autoComplete='new-password'/>
-                            </FormItem>
-                        </Col>
+                            <Col span={24}>
+                                <FormItem
+                                    name='password'
+                                    label={CreateNewPasswordMessage}
+                                    rules={validations.password}
+                                    data-cy='change-password-item'
+                                >
+                                    <Input.Password autoComplete='new-password'/>
+                                </FormItem>
+                            </Col>
 
-                        <Col span={24}>
-                            <Button
-                                key='submit'
-                                type='primary'
-                                loading={isLoading}
-                                htmlType='submit'
-                                children={`${SaveMsg} ${AndSignInMessage}`}
-                                block
-                            />
-                        </Col>
-                    </Row>
-                </ResponsiveCol>
-            </Row>
-        </Form>
+                            <Col span={24}>
+                                <Button
+                                    key='submit'
+                                    type='primary'
+                                    loading={isLoading}
+                                    htmlType='submit'
+                                    children={`${SaveMsg} ${AndSignInMessage}`}
+                                    block
+                                />
+                            </Col>
+                        </Row>
+                    </ResponsiveCol>
+                </Row>
+            </Form>
+        </>
     )
 }
 

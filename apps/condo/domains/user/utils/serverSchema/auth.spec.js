@@ -8,6 +8,8 @@ const { faker } = require('@faker-js/faker')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
+const { maskNormalizedEmail } = require('@condo/domains/common/utils/mail')
+const { maskNormalizedPhone } = require('@condo/domains/common/utils/phone')
 const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const {
     registerNewUser,
@@ -65,6 +67,7 @@ describe('function "validateUserCredentials"', () => {
                 const [, userAttrs] = await registerNewUser(anonymous)
                 const result = await validateUserCredentials({ userType: STAFF }, { password: userAttrs.password })
                 expect(result.success).toBeFalsy()
+                expect(result._error).toBeUndefined()
             })
 
             test('if user deleted', async () => {
@@ -93,11 +96,13 @@ describe('function "validateUserCredentials"', () => {
             test('if phone is wrong', async () => {
                 const result = await validateUserCredentials({ phone: 'wrong-phone', userType: STAFF }, { password: 'password' })
                 expect(result.success).toBeFalsy()
+                expect(result._error).toBeUndefined()
             })
 
             test('if email is wrong', async () => {
                 const result = await validateUserCredentials({ email: 'wrong-email', userType: STAFF }, { password: 'password' })
                 expect(result.success).toBeFalsy()
+                expect(result._error).toBeUndefined()
             })
 
             test('if email is not verified', async () => {
@@ -105,6 +110,7 @@ describe('function "validateUserCredentials"', () => {
                 const [registeredUser, userAttrs] = await registerNewUser(anonymous)
                 const result = await validateUserCredentials({ email: registeredUser.email, userType: registeredUser.type }, { password: userAttrs.password })
                 expect(result.success).toBeFalsy()
+                expect(result._error).toBeUndefined()
             })
 
             test('if email or phone are wrong', async () => {
@@ -220,6 +226,7 @@ describe('function "validateUserCredentials"', () => {
 
                 const result = await validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, { confirmPhoneToken: null })
                 expect(result.success).toBeFalsy()
+                expect(result._error).toBeUndefined()
             })
 
             test('should return "success: false" if user found and pass empty confirmEmailToken', async () => {
@@ -229,6 +236,7 @@ describe('function "validateUserCredentials"', () => {
 
                 const result = await validateUserCredentials({ email: userAttrs.email, userType: registeredUser.type }, { confirmEmailToken: null })
                 expect(result.success).toBeFalsy()
+                expect(result._error).toBeUndefined()
             })
 
             describe('should return "success: false" if user found but user not match', () => {
@@ -239,11 +247,6 @@ describe('function "validateUserCredentials"', () => {
                     const result = await validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, {})
                     expect(result.success).toBeFalsy()
                     expect(result._error.errorType).toBe('NOT_ENOUGH_AUTH_FACTORS')
-                    expect(result._error.authChecks).toEqual({
-                        password: 'skip',
-                        confirmPhoneToken: 'skip',
-                        confirmEmailToken: 'skip',
-                    })
                     expect(result._error.is2FAEnabled).toBeFalsy()
                 })
 
@@ -256,6 +259,7 @@ describe('function "validateUserCredentials"', () => {
                         { password: faker.random.alphaNumeric(16) }
                     )
                     expect(result.success).toBeFalsy()
+                    expect(result._error).toBeUndefined()
                 })
 
                 describe('confirmPhoneToken cases', () => {
@@ -268,6 +272,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmPhoneToken: faker.datatype.uuid() }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if confirmPhoneToken is expired', async () => {
@@ -283,6 +288,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmPhoneToken: token }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if confirmPhoneToken is used', async () => {
@@ -298,6 +304,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmPhoneToken: token }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if confirmPhoneToken is not confirmed', async () => {
@@ -313,6 +320,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmPhoneToken: token }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if password invalid and confirmPhoneToken valid', async () => {
@@ -326,6 +334,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmPhoneToken: token, password: faker.random.alphaNumeric(16) }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if password valid and confirmPhoneToken invalid', async () => {
@@ -337,6 +346,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmPhoneToken: faker.datatype.uuid(), password: userAttrs.password }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if password invalid and confirmPhoneToken invalid', async () => {
@@ -348,6 +358,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmPhoneToken: faker.datatype.uuid(), password: faker.random.alphaNumeric(16) }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
                 })
 
@@ -362,6 +373,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmEmailToken: faker.datatype.uuid() }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if confirmEmailToken is expired', async () => {
@@ -378,6 +390,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmEmailToken: token }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if confirmEmailToken is used', async () => {
@@ -394,6 +407,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmEmailToken: token }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if confirmEmailToken is not confirmed', async () => {
@@ -410,6 +424,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmEmailToken: token }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if password invalid and confirmEmailToken valid', async () => {
@@ -424,6 +439,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmEmailToken: token, password: faker.random.alphaNumeric(16) }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if password valid and confirmEmailToken invalid', async () => {
@@ -436,6 +452,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmEmailToken: faker.datatype.uuid(), password: userAttrs.password }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
 
                     test('if password invalid and confirmEmailToken invalid', async () => {
@@ -448,6 +465,7 @@ describe('function "validateUserCredentials"', () => {
                             { confirmEmailToken: faker.datatype.uuid(), password: faker.random.alphaNumeric(16) }
                         )
                         expect(result.success).toBeFalsy()
+                        expect(result._error).toBeUndefined()
                     })
                 })
 
@@ -487,6 +505,7 @@ describe('function "validateUserCredentials"', () => {
                         { password: userAttrs.password }
                     )
                     expect(result.success).toBeFalsy()
+                    expect(result._error).toBeUndefined()
                 })
             })
 
@@ -653,11 +672,9 @@ describe('function "validateUserCredentials"', () => {
 
                     expect(result.success).toBeFalsy()
                     expect(result._error.errorType).toBe('NOT_ENOUGH_AUTH_FACTORS')
-                    expect(result._error.authChecks).toEqual({
-                        password: 'success',
-                        confirmPhoneToken: 'skip',
-                        confirmEmailToken: 'skip',
-                    })
+                    expect(result._error.availableSecondFactors).toEqual(['confirmEmailToken', 'confirmPhoneToken'])
+                    expect(result._error.maskedData).toEqual({ email: maskNormalizedEmail(userAttrs.email), phone: maskNormalizedPhone(userAttrs.phone) })
+                    expect(result._error.userId).toBe(registeredUser.id)
                     expect(result._error.is2FAEnabled).toBeTruthy()
                 })
 
@@ -680,11 +697,9 @@ describe('function "validateUserCredentials"', () => {
 
                     expect(result.success).toBeFalsy()
                     expect(result._error.errorType).toBe('NOT_ENOUGH_AUTH_FACTORS')
-                    expect(result._error.authChecks).toEqual({
-                        password: 'skip',
-                        confirmPhoneToken: 'success',
-                        confirmEmailToken: 'skip',
-                    })
+                    expect(result._error.availableSecondFactors).toEqual(['password', 'confirmEmailToken'])
+                    expect(result._error.maskedData).toEqual({ email: maskNormalizedEmail(userAttrs.email) })
+                    expect(result._error.userId).toBe(registeredUser.id)
                     expect(result._error.is2FAEnabled).toBeTruthy()
                 })
 
@@ -707,11 +722,9 @@ describe('function "validateUserCredentials"', () => {
 
                     expect(result.success).toBeFalsy()
                     expect(result._error.errorType).toBe('NOT_ENOUGH_AUTH_FACTORS')
-                    expect(result._error.authChecks).toEqual({
-                        password: 'skip',
-                        confirmPhoneToken: 'skip',
-                        confirmEmailToken: 'success',
-                    })
+                    expect(result._error.availableSecondFactors).toEqual(['password', 'confirmPhoneToken'])
+                    expect(result._error.maskedData).toEqual({ phone: maskNormalizedPhone(userAttrs.phone) })
+                    expect(result._error.userId).toBe(registeredUser.id)
                     expect(result._error.is2FAEnabled).toBeTruthy()
                 })
 
@@ -731,6 +744,7 @@ describe('function "validateUserCredentials"', () => {
                         { password: userAttrs.password, confirmPhoneToken: token, confirmEmailToken: faker.datatype.uuid() }
                     )
                     expect(result.success).toBeFalsy()
+                    expect(result._error).toBeUndefined()
                 })
 
                 test('if password and confirmEmailToken is valid, but confirmPhoneToken is not valid', async () => {
@@ -749,6 +763,7 @@ describe('function "validateUserCredentials"', () => {
                         { password: userAttrs.password, confirmPhoneToken: faker.datatype.uuid(), confirmEmailToken: token }
                     )
                     expect(result.success).toBeFalsy()
+                    expect(result._error).toBeUndefined()
                 })
 
                 test('if confirmPhoneToken and confirmEmailToken is valid, but password is not valid', async () => {
@@ -770,6 +785,7 @@ describe('function "validateUserCredentials"', () => {
                         { password: faker.random.alphaNumeric(16), confirmPhoneToken, confirmEmailToken }
                     )
                     expect(result.success).toBeFalsy()
+                    expect(result._error).toBeUndefined()
                 })
             })
 
@@ -792,6 +808,24 @@ describe('function "validateUserCredentials"', () => {
                     expect(result.success).toBeTruthy()
                 })
 
+                test('if password and confirmPhoneToken is valid, but phone not passed - should get phone from confirm token', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token }] = await createTestConfirmPhoneAction(adminClient, {
+                        phone: userAttrs.phone, isPhoneVerified: true,
+                    })
+                    const result = await validateUserCredentials(
+                        { userType: registeredUser.type },
+                        { password: userAttrs.password, confirmPhoneToken: token }
+                    )
+                    expect(result.success).toBeTruthy()
+                })
+
                 test('if password and confirmEmailToken is valid', async () => {
                     const anonymous = await makeClient()
                     const [registeredUser, userAttrs] = await registerNewUser(anonymous)
@@ -805,6 +839,24 @@ describe('function "validateUserCredentials"', () => {
                     })
                     const result = await validateUserCredentials(
                         { email: userAttrs.email, userType: registeredUser.type },
+                        { password: userAttrs.password, confirmEmailToken: token }
+                    )
+                    expect(result.success).toBeTruthy()
+                })
+
+                test('if password and confirmEmailToken is valid, but email not passed - should get email from confirm token', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token }] = await createTestConfirmEmailAction(adminClient, {
+                        email: userAttrs.email, isEmailVerified: true,
+                    })
+                    const result = await validateUserCredentials(
+                        { userType: registeredUser.type },
                         { password: userAttrs.password, confirmEmailToken: token }
                     )
                     expect(result.success).toBeTruthy()
@@ -847,6 +899,27 @@ describe('function "validateUserCredentials"', () => {
                     })
                     const result = await validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
+                        { password: userAttrs.password, confirmPhoneToken, confirmEmailToken }
+                    )
+                    expect(result.success).toBeTruthy()
+                })
+
+                test('if password and confirmPhoneToken and confirmEmailToken is valid, but phone and email not passed - should get phone and email from confirm tokens', async () => {
+                    const anonymous = await makeClient()
+                    const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                    await updateTestUser(adminClient, registeredUser.id, {
+                        isEmailVerified: true,
+                        isTwoFactorAuthenticationEnabled: true,
+                    })
+
+                    const [{ token: confirmPhoneToken }] = await createTestConfirmPhoneAction(adminClient, {
+                        phone: userAttrs.phone, isPhoneVerified: true,
+                    })
+                    const [{ token: confirmEmailToken }] = await createTestConfirmEmailAction(adminClient, {
+                        email: userAttrs.email, isEmailVerified: true,
+                    })
+                    const result = await validateUserCredentials(
+                        { userType: registeredUser.type },
                         { password: userAttrs.password, confirmPhoneToken, confirmEmailToken }
                     )
                     expect(result.success).toBeTruthy()

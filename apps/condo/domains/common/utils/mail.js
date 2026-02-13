@@ -54,6 +54,28 @@ function dotReplacer (match) {
     return match.length > 1 ? match : ''
 }
 
+/**
+ * The function masks the normalized email
+ * @param {string} normalizedEmail
+ * @return {string}
+ */
+function maskNormalizedEmail (normalizedEmail) {
+    const [user, domain] = normalizedEmail.split('@')
+    if (!domain) return normalizedEmail
+
+    let visible
+
+    if (user.length < 2) {
+        visible = user
+    } else {
+        visible = user.slice(0, 2)
+    }
+
+    return `${visible}***@${domain}`
+}
+
+
 module.exports = {
     normalizeEmail,
+    maskNormalizedEmail,
 }
