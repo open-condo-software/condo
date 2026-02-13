@@ -6,13 +6,10 @@ import { useLocation } from 'react-router-dom'
 
 import { Download, Link } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
+import { Button, Space } from '@open-condo/ui'
+import '@open-condo/ui/dist/styles.min.css'
 
 const TARGET_URL_PART = 'addresses'
-
-const ICON_STYLE = {
-    cursor: 'pointer',
-    marginLeft: '20px',
-}
 
 const GET_ADDRESS_QUERY = gql`
     query getAddress ($id: ID!) {
@@ -62,9 +59,9 @@ const UpdateAddress = (props) => {
     }, [location, actualizeAddress])
 
     return location.pathname.indexOf(`${TARGET_URL_PART}/`) !== -1 && (
-        <span style={ICON_STYLE} onClick={onClick}>
-            <Download />
-        </span>
+        <Button size='small' onClick={onClick} title='Actualize address'>
+            <Download size='small' />
+        </Button>
     )
 }
 
@@ -128,9 +125,9 @@ const ResolveAddressDuplicate = () => {
     if (!possibleDuplicate) return null
 
     return (
-        <span style={ICON_STYLE} onClick={onClick} title='Resolve duplicate' onKeyDown={() => void 0}>
-            <Link />
-        </span>
+        <Button size='small' onClick={onClick} title='Resolve duplicate'>
+            <Link size='small' />
+        </Button>
     )
 }
 
@@ -142,12 +139,16 @@ export default {
     },
     itemHeaderActions: () => {
         return (
-            <div>
-                <ItemId />
-                <AddNewItem />
-                <UpdateAddress />
-                <ResolveAddressDuplicate />
-            </div>
+            <Space direction='vertical' align='end'>
+                <Space>
+                    <ItemId />
+                    <AddNewItem />
+                </Space>
+                <Space>
+                    <UpdateAddress />
+                    <ResolveAddressDuplicate />
+                </Space>
+            </Space>
         )
     },
 }
