@@ -159,6 +159,7 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
                 type: heuristic.type,
                 value: heuristic.value,
                 deletedAt: null,
+                enabled: true,
             })
         }
 
