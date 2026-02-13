@@ -427,7 +427,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * Dadata provider uses house_fias_id as unique identifier when available.
      * Falls back to parent implementation if house_fias_id is not present.
      * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
-     * @returns {string}
+     * @returns {string|null}
      * @public
      */
     generateAddressKey (normalizedBuilding) {

@@ -84,7 +84,7 @@ class AbstractSuggestionProvider {
      * This is the fallback implementation that builds key from address parts.
      * FIAS-compatible providers should override this method to use house_fias_id.
      * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
-     * @returns {string}
+     * @returns {string|null}
      * @public
      */
     generateAddressKey (normalizedBuilding) {

@@ -97,7 +97,7 @@ class AbstractSearchProvider {
      * Generates a fallback key from address parts.
      * Used as the lowest-reliability heuristic when no provider-specific ID is available.
      * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
-     * @returns {string}
+     * @returns {string|null}
      * @protected
      */
     generateFallbackKey (normalizedBuilding) {
@@ -164,7 +164,7 @@ class AbstractSearchProvider {
      * Generates a unique address key from normalized building data.
      * Uses the best (highest reliability) heuristic as the key.
      * @param {import('@address-service/domains/common/utils/services/index.js').NormalizedBuilding} normalizedBuilding
-     * @returns {string}
+     * @returns {string|null}
      * @public
      */
     generateAddressKey (normalizedBuilding) {
