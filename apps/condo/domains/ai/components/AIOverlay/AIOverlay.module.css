@@ -1,22 +1,80 @@
-.aiOverlay :global(.ant-drawer-body) {
-    padding: 0;
-}
-
-.content {
+/* Custom AI Drawer */
+.aiDrawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    background: white;
+    border-left: 2px solid var(--color-grey-light);
+    z-index: 1000;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    padding: 16px;
 }
 
-.chatContainer {
-    flex: 1;
+/* Header */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--color-grey-light);
+    background: white;
+    flex-shrink: 0;
+}
+
+.title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-black);
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px dashed var(--color-grey-light);
-    border-radius: 8px;
-    margin-top: 16px;
-    padding: 32px;
-    min-height: 300px;
+    color: var(--color-grey);
+    transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+    background-color: var(--color-grey-light);
+    color: var(--color-black);
+}
+
+/* Resize handle - full height like VSCode/Windsurf */
+.resizeHandle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    cursor: col-resize;
+    background: transparent;
+    border-left: 1px solid var(--condo-global-color-gray-3);
+    z-index: 1001;
+}
+
+.resizeHandle:hover {
+    background: var(--color-primary);
+    border-left: 2px solid var(--condo-global-color-green-5);
+}
+
+.resizeHandle:active {
+    background: var(--color-primary);
+    border-left: 2px solid var(--condo-global-color-green-5);
+}
+
+/* Content area */
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
 }

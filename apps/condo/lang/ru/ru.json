@@ -373,7 +373,7 @@
   "ai.chat.placeholder": "Спросите что угодно",
   "ai.chat.send": "Отправить",
   "ai.chat.loading": "Думаю...",
-  "ai.chat.welcome": "Здравствуйте! Чем могу помочь сегодня?",
+  "ai.chat.welcome": "Чем могу помочь сегодня?",
   "ai.chat.error": "Извините, что-то пошло не так. Пожалуйста, попробуйте еще раз.",
   "ai.chat.requestTimeout": "Время ожидания истекло",
   "ai.chat.failedToGetResponse": "Не удалось получить ответ",

@@ -5,6 +5,7 @@ import Router from 'next/router'
 import React, { CSSProperties, FunctionComponent, ElementType } from 'react'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useAIContext } from '@condo/domains/ai/components/AIContext'
 
 import styles from './BaseLayout.module.css'
 import { SideNav } from './components/SideNav'
@@ -36,6 +37,12 @@ const BaseLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props) 
     } = props
 
     const { isCollapsed } = useLayoutContext()
+    const { isAIOverlayOpen, aiOverlayWidth } = useAIContext()
+
+    const subLayoutStyle: CSSProperties = {
+        ...style,
+        marginRight: isAIOverlayOpen ? `${aiOverlayWidth}px` : '0px',
+    }
 
     return (
         <Layout className={classnames(styles.layout, className)} style={style}>
@@ -45,6 +52,7 @@ const BaseLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props) 
                     styles.subLayout,
                     isCollapsed ? styles.subLayoutCollapsed : styles.subLayoutExpanded
                 )}
+                style={subLayoutStyle}
             >
                 <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />
                 {children}
