@@ -135,7 +135,7 @@ const DEFAULT_TOOLBAR_LABELS: RichTextAreaToolbarLabels = {
 const DEFAULT_LINK_MODAL_LABELS: RichTextAreaLinkModalLabels = {
     urlLabel: 'Link',
     textLabel: 'Text',
-    submitLabel: 'Ok',
+    submitLabel: 'Ок',
 }
 
 const ToolbarButton: React.FC<{
@@ -211,6 +211,7 @@ const LinkModal: React.FC<LinkModalProps> = ({
             width='small'
             scrollX={false}
             destroyOnClose
+            className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal`}
             footer={(
                 <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-footer`}>
                     <Button type='primary' onClick={handleSubmit}>
@@ -575,8 +576,8 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
             // Measure actual line-height from rendered editor
             const el = editorWrapRef.current?.querySelector('.tiptap')
             if (el) {
-                const lh = parseFloat(window.getComputedStyle(el).lineHeight)
-                if (!isNaN(lh) && lh > 0) setMeasuredLineHeight(lh)
+                const lh = Number.parseFloat(window.getComputedStyle(el).lineHeight)
+                if (!Number.isNaN(lh) && lh > 0) setMeasuredLineHeight(lh)
             }
         }
     }, [editor])
@@ -606,7 +607,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         [`${RICH_TEXT_AREA_CLASS_PREFIX}-count-overflow`]: currentLength > maxLength,
     })
 
-    const containerClassName = classNames(RICH_TEXT_AREA_CLASS_PREFIX, {
+    const containerClassName = classNames(RICH_TEXT_AREA_CLASS_PREFIX, `${RICH_TEXT_AREA_CLASS_PREFIX}-type-${type}`, {
         [`${RICH_TEXT_AREA_CLASS_PREFIX}-disabled`]: disabled,
     })
 
@@ -626,10 +627,11 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                         <span className='condo-input-bottom-panel'>
                             {hasBottomPanelUtils && (
                                 <span className='condo-input-utils'>
-                                    {bottomPanelUtils.map((util, index) => (
-                                        <React.Fragment key={index}>
-                                            {React.cloneElement(util, { disabled: util.props.disabled || disabled })}
-                                        </React.Fragment>
+                                    {bottomPanelUtils.map((util) => (
+                                        React.cloneElement(util, {
+                                            key: util.key ?? String(util.type),
+                                            disabled: util.props.disabled || disabled,
+                                        })
                                     ))}
                                 </span>
                             )}
