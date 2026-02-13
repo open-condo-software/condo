@@ -72,19 +72,24 @@ This creates `AddressHeuristic` records from existing `Address.key` and `Address
 
 ### 5. (Optional) Run Script C — Merge duplicate addresses
 
+This script runs **locally** and connects to condo + address-service as remote GraphQL clients.
+See `apps/address-service/bin/local/README.md` for setup.
+
 Preview merges:
 
 ```bash
-yarn workspace @app/address-service node bin/merge-duplicate-addresses.js --dry-run
+source apps/address-service/bin/local/.env
+node apps/address-service/bin/local/merge-duplicate-addresses.js --dry-run
 ```
 
 Apply merges:
 
 ```bash
-yarn workspace @app/address-service node bin/merge-duplicate-addresses.js
+source apps/address-service/bin/local/.env
+node apps/address-service/bin/local/merge-duplicate-addresses.js
 ```
 
-This auto-merges clear duplicate cases. Ambiguous cases (both addresses referenced by condo models) are left for admin manual resolution.
+This auto-merges clear duplicate cases. Ambiguous cases (both addresses referenced by condo Properties) are left for admin manual resolution via the admin UI.
 
 ## Verification
 
