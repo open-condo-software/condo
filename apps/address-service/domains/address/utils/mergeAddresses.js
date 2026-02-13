@@ -41,28 +41,15 @@ async function mergeAddresses (context, winnerId, loserId, dvSender) {
         })
     }
 
-    // Move AddressHeuristic records from loser → winner
+    // Move AddressHeuristic records from loser → winner.
+    // The unique constraint on (type, value) WHERE deletedAt IS NULL guarantees
+    // no other non-deleted row exists with the same pair, so reconnect is always safe.
     const loserHeuristics = await find('AddressHeuristic', { address: { id: loserId }, deletedAt: null })
     for (const heuristic of loserHeuristics) {
-        const existing = await find('AddressHeuristic', {
-            address: { id: winnerId },
-            type: heuristic.type,
-            value: heuristic.value,
-            deletedAt: null,
+        await AddressHeuristic.update(context, heuristic.id, {
+            ...dvSender,
+            address: { connect: { id: winnerId } },
         })
-
-        if (existing.length > 0) {
-            // Winner already has this heuristic — soft-delete the loser's copy
-            await AddressHeuristic.update(context, heuristic.id, {
-                ...dvSender,
-                deletedAt: new Date().toISOString(),
-            })
-        } else {
-            await AddressHeuristic.update(context, heuristic.id, {
-                ...dvSender,
-                address: { connect: { id: winnerId } },
-            })
-        }
     }
 
     // Soft-delete the loser
