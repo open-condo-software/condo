@@ -30,17 +30,7 @@ type OpenModalRecord = {
     update: (opts: ModalProps) => void
 }
 type ActionWithId = SetActionsConfigParams['actions'][number] & { id: string }
-export type ActionsConfig = Omit<SetActionsConfigParams, 'actions'> & { actions: ActionWithId[] }
-
-function assignActionIds (actions: SetActionsConfigParams['actions']): {
-    actions: ActionWithId[]
-} {
-    const actionsWithIds = actions.map(action => {
-        return { ...action, id: generateUUIDv4() }
-    })
-
-    return { actions: actionsWithIds }
-}
+export type ActionsConfig = { actions: ActionWithId[] }
 
 export const handleNotification: RequestHandler<'CondoWebAppShowNotification'> = (params) => {
     const { type, ...restParams } = params
@@ -300,10 +290,8 @@ export const useRedirectHandler: () => RequestHandler<'CondoWebAppRedirect'> = (
     }, [router])
 }
 
-export const useActionsHandler: () => [
+export const useActionsConfigHandler: () => [
     RequestHandler<'CondoWebAppSetActionsConfig'>,
-    RequestHandler<'CondoWebAppSetActionsVisibility'>,
-    RequestHandler<'CondoWebAppUpdateActionConfig'>,
     ActionsConfig | null,
     Window | null,
     string | null,
@@ -315,8 +303,13 @@ export const useActionsHandler: () => [
     const configRef = useRef<ActionsConfig | null>(null)
 
     const handleSetActionsConfig = useCallback<RequestHandler<'CondoWebAppSetActionsConfig'>>((params, nextOrigin, nextSource) => {
-        const { actions: actionsWithIds } = assignActionIds(params.actions)
-        const updatedConfig: ActionsConfig = { ...params, actions: actionsWithIds }
+        const prevActions = configRef.current?.actions || []
+        const prevActionsByKey = new Map(prevActions.map(action => [action.key, action.id]))
+        const actionsWithIds = params.actions.map(action => {
+            const prevId = prevActionsByKey.get(action.key)
+            return { ...action, id: prevId || generateUUIDv4() }
+        })
+        const updatedConfig: ActionsConfig = { actions: actionsWithIds }
 
         setConfig(updatedConfig)
         setSource(nextSource)
@@ -324,43 +317,6 @@ export const useActionsHandler: () => [
         configRef.current = updatedConfig
 
         return { actionsIds: actionsWithIds.map(a => a.id) }
-    }, [])
-
-    const handleSetActionsVisibility = useCallback<RequestHandler<'CondoWebAppSetActionsVisibility'>>(({ visible }) => {
-        const prev = configRef.current
-        if (!prev) {
-            if (visible === false) {
-                return { success: true }
-            }
-            throw new Error('Actions config is not initialized')
-        }
-
-        const next = { ...prev, visible }
-        configRef.current = next
-        setConfig(next)
-
-        return { success: true }
-    }, [])
-
-    const handleUpdateActionConfig = useCallback<RequestHandler<'CondoWebAppUpdateActionConfig'>>(({ id, params }) => {
-        const prev = configRef.current
-        if (!prev) {
-            throw new Error('Actions config is not initialized')
-        }
-
-        const actionIndex = prev.actions.findIndex(action => action.id === id)
-        if (actionIndex === -1) {
-            throw new Error('Action with provided id not found')
-        }
-
-        const updatedActions = [...prev.actions]
-        updatedActions[actionIndex] = { ...updatedActions[actionIndex], ...params, id }
-
-        const next = { ...prev, actions: updatedActions }
-        configRef.current = next
-        setConfig(next)
-
-        return { success: true }
     }, [])
 
     const clear = useCallback(() => {
@@ -372,8 +328,6 @@ export const useActionsHandler: () => [
 
     return [
         handleSetActionsConfig,
-        handleSetActionsVisibility,
-        handleUpdateActionConfig,
         config,
         source,
         origin,

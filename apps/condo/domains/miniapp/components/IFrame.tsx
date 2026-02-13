@@ -183,7 +183,6 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         if (!actionsConfig?.actions?.length) return null
 
         const actionElements = actionsConfig.actions
-            .filter(action => action.visible !== false)
             .map(action => {
                 const actionId = action.id
                 if (!actionId) return null
@@ -193,14 +192,10 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
                         key={actionId}
                         id={actionId}
                         type={action.type ?? 'primary'}
-                        size={action.size}
                         loading={action.loading}
                         disabled={action.disabled}
-                        danger={action.danger}
-                        compact={action.compact}
-                        minimal={action.minimal}
                         onClick={() => sendActionId(actionId)}
-                        icon={renderIcon(action.icon, action.iconSize)}
+                        icon={renderIcon(action.icon)}
                     >
                         {action.label}
                     </Button>
@@ -211,7 +206,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
     }, [actionsConfig?.actions, sendActionId])
 
     const isActionOwner = !!actionsSource && innerRef.current?.contentWindow === actionsSource
-    const shouldShowActionBar = isActionOwner && actionsOrigin && actions && actionsConfig.visible
+    const shouldShowActionBar = isActionOwner && actionsOrigin && actions
 
     return (
         <>

@@ -15,7 +15,7 @@ import {
     useModalHandler,
     useShowProgressBarHandler,
     useUpdateProgressBarHandler,
-    useActionsHandler,
+    useActionsConfigHandler,
 } from './globalHandlers'
 import { validators } from './validators'
 
@@ -161,14 +161,12 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     const redirectHandler = useRedirectHandler()
     const [showModalHandler, updateModalHandler, closeModalHandler, ModalContainer] = useModalHandler()
     const [
-        handleShowActions,
-        handleSetActionsVisibility,
-        handleUpdateAction,
+        handleSetActions,
         actionsConfig,
         actionsSource,
         actionsOrigin,
         clearActions,
-    ] = useActionsHandler()
+    ] = useActionsConfigHandler()
 
     useEffect(() => {
         addEventHandler('CondoWebAppCloseModalWindow', '*', closeModalHandler)
@@ -207,16 +205,8 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     }, [addEventHandler, updateProgressBarHandler])
 
     useEffect(() => {
-        addEventHandler('CondoWebAppSetActionsConfig', '*', handleShowActions)
-    }, [addEventHandler, handleShowActions])
-
-    useEffect(() => {
-        addEventHandler('CondoWebAppSetActionsVisibility', '*', handleSetActionsVisibility)
-    }, [addEventHandler, handleSetActionsVisibility])
-
-    useEffect(() => {
-        addEventHandler('CondoWebAppUpdateActionConfig', '*', handleUpdateAction)
-    }, [addEventHandler, handleUpdateAction])
+        addEventHandler('CondoWebAppSetActionsConfig', '*', handleSetActions)
+    }, [addEventHandler, handleSetActions])
 
     const addFrame = useCallback((ref: React.Ref<HTMLIFrameElement>) => {
         const frameId = generateUUIDv4()
