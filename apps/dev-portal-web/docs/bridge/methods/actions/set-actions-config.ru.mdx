@@ -13,9 +13,7 @@
 
 | Название параметра | Тип параметра | Обязательный | Описание |
 |---|---|---|---|
-| key | string | да | Ваш идентификатор действия (должен быть уникальным в списке) |
 | label | string | нет | Текст кнопки |
-| type | 'primary' \| 'secondary' \| 'accent' | нет | Визуальный тип кнопки |
 | disabled | boolean | нет | Отключить кнопку |
 | loading | boolean | нет | Состояние загрузки |
 | icon | string | нет | Название иконки (например, 'download') |
@@ -33,7 +31,7 @@
 ```
 
 Хост генерирует внутренние id и возвращает их в том же порядке, что и входной список.
-Именно эти id возвращаются в событии `CondoWebAppSendActionId`.
+При клике на кнопку хост отправляет событие `CondoWebAppSendActionId` как side-effect.
 
 ## Пример использования
 
@@ -46,8 +44,8 @@ import { useSetActionHandlers } from '@open-condo/miniapp-utils'
 export default function MiniappPage (): React.ReactNode {
     const [actionsIds, setActionsIds] = useState<string[]>([])
     const actions = useMemo(() => ([
-        { key: 'save', label: 'Save', type: 'primary' },
-        { key: 'download', label: 'Download', type: 'secondary', icon: 'download' },
+        { label: 'Save' },
+        { label: 'Download', icon: 'download' },
     ]), [])
 
     useEffect(() => {
@@ -59,14 +57,12 @@ export default function MiniappPage (): React.ReactNode {
     const handlers = useMemo(() => {
         if (!actionsIds.length) return {}
 
-        const actionIdByKey = Object.fromEntries(
-            actions.map((action, index) => [action.key, actionsIds[index]])
-        )
+        const [saveId, downloadId] = actionsIds
         return {
-            [actionIdByKey.save]: () => {
+            [saveId]: () => {
                 // обработка сохранения
             },
-            [actionIdByKey.download]: () => {
+            [downloadId]: () => {
                 // обработка скачивания
             },
         }
@@ -79,7 +75,7 @@ export default function MiniappPage (): React.ReactNode {
 ```
 
 <Alert type='info'>
-    Значение `key` не возвращается в событиях клика. Используйте `actionsIds`, чтобы сопоставить ключи с сгенерированными id.
+    Сохраняйте порядок `actions`, если опираетесь на id по индексу.
 </Alert>
 
 ## Обновление действий
@@ -90,8 +86,8 @@ import bridge from '@open-condo/bridge'
 
 bridge.send('CondoWebAppSetActionsConfig', {
     actions: [
-        { key: 'save', label: 'Save', type: 'primary' },
-        { key: 'download', label: 'Download', type: 'secondary', loading: true },
+        { label: 'Save' },
+        { label: 'Download', loading: true },
     ],
 })
 ```
