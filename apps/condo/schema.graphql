@@ -71987,6 +71987,7 @@ enum B2BAppIconType {
   BarChartVertical
   Bell
   Bill
+  Bold
   Briefcase
   Building
   CalendarDays
@@ -72031,6 +72032,7 @@ enum B2BAppIconType {
   Inbox
   Info
   Interfloor
+  Italic
   Key
   Layers
   LayoutList
@@ -72048,6 +72050,7 @@ enum B2BAppIconType {
   MoreVertical
   NewAppeal
   Newspaper
+  NumberList
   OnOff
   Paperclip
   Parking
@@ -72064,7 +72067,9 @@ enum B2BAppIconType {
   Print
   QuestionCircle
   Readings
+  Redo
   RefreshCw
+  RemoveFormating
   Rocket
   Ruble
   Sber
@@ -72085,6 +72090,7 @@ enum B2BAppIconType {
   StarFilled
   Subtitles
   Trash
+  Undo
   Unlock
   User
   UserSquare

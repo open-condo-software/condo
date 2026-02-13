@@ -17,6 +17,7 @@ export type TooltipProps = Pick<DefaultTooltipProps,
 | 'defaultOpen'
 | 'overlayInnerStyle'
 | 'mouseEnterDelay'
+| 'mouseLeaveDelay'
 | 'title'> & {
     children?: React.ReactNode
 }
