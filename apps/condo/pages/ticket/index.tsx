@@ -91,6 +91,7 @@ import { useSupervisedTickets } from '@condo/domains/ticket/hooks/useSupervisedT
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicketExportToExcelTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
+import { useTicketNatsSubscription } from '@condo/domains/ticket/hooks/useTicketNatsSubscription'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
@@ -459,13 +460,13 @@ const TicketsTableContainer = ({
         }
         setIsRefetching(false)
     }, [refetch, refetchUserTicketCommentReadTimes])
-    
+
     const shouldRefetchOnFocusRef = useRef(false)
     const timerRef = useRef<NodeJS.Timeout | null>(null)
-    
+
     useEffect(() => {
         if (!isRefetchTicketsFeatureEnabled) return
-    
+
         const scheduleNext = () => {
             timerRef.current = setTimeout(async () => {
                 if (document.hidden) {
@@ -482,7 +483,7 @@ const TicketsTableContainer = ({
                 scheduleNext()
             }, refetchInterval)
         }
-    
+
         const onVisibilityChange = async () => {
             if (!document.hidden && shouldRefetchOnFocusRef.current) {
                 await refetchTickets()
@@ -492,10 +493,10 @@ const TicketsTableContainer = ({
                 scheduleNext()
             }
         }
-    
+
         scheduleNext()
         document.addEventListener('visibilitychange', onVisibilityChange)
-    
+
         return () => {
             if (timerRef.current) clearTimeout(timerRef.current)
             document.removeEventListener('visibilitychange', onVisibilityChange)
@@ -871,7 +872,7 @@ export const TicketsPageContent = ({
         ...baseTicketsQuery,
         ...filtersToWhere(omit(filters, 'status')),
     }), [baseTicketsQuery, filters, filtersToWhere])
-    
+
     const { userFavoriteTickets } = useFavoriteTickets()
     if (filters.type === 'favorite') {
         const favoriteTicketsIds = userFavoriteTickets.map(favoriteTicket => favoriteTicket.ticket.id)
@@ -1097,6 +1098,30 @@ const TicketsPage: PageComponentType = () => {
     const { GlobalHints } = useGlobalHints()
     const { breakpoints } = useLayoutContext()
     usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
+
+    // NOTE: debug usage of subscriptions
+    const { isConnected, isSubscribed } = useTicketNatsSubscription({
+        enabled: true,
+        onMessage: (data) => {
+            console.log('🎯 [NATS] Ticket changed:', {
+                ticketId: data.ticketId,
+                operation: data.operation,
+                status: data.status,
+                number: data.number,
+                timestamp: data.timestamp,
+            })
+        },
+    })
+
+    // Log connection status changes
+    useEffect(() => {
+        if (isConnected) {
+            console.log('✅ [NATS] Connected to ticket-changes stream')
+        }
+        if (isSubscribed) {
+            console.log('📡 [NATS] Subscribed to organization ticket changes')
+        }
+    }, [isConnected, isSubscribed])
 
     const {
         error,
