@@ -10,12 +10,17 @@
     "./utils": "./utils/index.js"
   },
   "dependencies": {
+    "@open-condo/config": "workspace:^",
+    "@open-condo/keystone": "workspace:^",
+    "@open-condo/next": "workspace:^",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.0",
     "nats": "^2.28.2",
     "nats.ws": "^1.29.0",
+    "next-cookies": "^2.0.3",
     "zod": "^4.3.6"
   },
   "peerDependencies": {
-    "@open-condo/keystone": "workspace:^",
     "react": "^17.0.0 || ^18.0.0"
   }
 }
