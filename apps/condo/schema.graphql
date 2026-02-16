@@ -92021,6 +92021,92 @@ type SendB2BAppPushMessageOutput {
   id: String!
 }
 
+enum VoIPType {
+  """Makes mobile app use it's call app instead of B2CApp's"""
+  sip
+}
+
+input VoIPPanel {
+  """Dtfm command for panel"""
+  dtfmCommand: String!
+
+  """Name of a panel to be displayed"""
+  name: String!
+}
+
+input SendVoIPStartMessageData {
+  """
+  If you want your B2CApp to handle incoming VoIP call, provide this argument. Otherwise provide all others
+  """
+  B2CAppContext: String
+
+  """
+  Unique value for each call session between panel and resident (means same for different devices also). Must be provided for correct work with multiple devices that use same voip call.F.e. to cancel calls with CANCELED_CALL_MESSAGE_PUSH messages
+  """
+  callId: String!
+
+  """
+  If "sip" was passed, mobile device will try to start native call. Info about other values will be added later
+  """
+  voipType: VoIPType
+
+  """Address of sip server, which device should connect to"""
+  voipAddress: String
+
+  """Login for connection to sip server"""
+  voipLogin: String
+
+  """Password for connection to sip server"""
+  voipPassword: String
+
+  """
+  Panels and their commands to open. First one must be the main one. Multiple panels are in testing stage right now and may change
+  """
+  voipPanels: [VoIPPanel]
+
+  """Stun server url"""
+  stun: String
+
+  """Preferred codec (usually vp8)"""
+  codec: String
+}
+
+input SendVoIPStartMessageInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  app: B2CAppWhereUniqueInput!
+
+  """
+  Should be "addressKey" of B2CAppProperty / Property for which you want to send message
+  """
+  addressKey: String!
+
+  """Name of unit, same as in Property map"""
+  unitName: String!
+
+  """Type of unit, same as in Property map"""
+  unitType: AllowedVoIPMessageUnitType!
+  data: SendVoIPStartMessageData!
+}
+
+type SendVoIPStartMessageOutput {
+  """
+  Count of all Organization Contacts, which we possibly could've sent messages to
+  """
+  verifiedContactsCount: Int
+
+  """Count of Messages that will be sent, one for each verified Resident"""
+  createdMessagesCount: Int
+
+  """Count of Messages which was not created due to some internal error"""
+  erroredMessagesCount: Int
+}
+
+enum AllowedVoIPMessageUnitType {
+  flat
+  apartment
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -106042,6 +106128,29 @@ type Mutation {
   }`
   """
   sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput
+
+  """
+  Mutation sends VOIP_INCOMING_CALL Messages to each verified resident on address + unit. Also caches calls, so mobile app can properly react to cancel calls. You can either provide all data.* arguments so mobile app will use it's own app to answer call, or provide just B2CAppContext + callId to use your B2CApp's calling app
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PROPERTY_NOT_FOUND",
+    "message": "Unable to find Property or B2CAppProperty by provided addressKey"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "APP_NOT_FOUND",
+    "message": "Unable to find B2CApp."
+  }`
+  """
+  sendVoIPStartMessage(data: SendVoIPStartMessageInput!): SendVoIPStartMessageOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """
