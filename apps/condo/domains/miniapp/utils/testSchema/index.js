@@ -18,6 +18,7 @@ const {
 const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
+    SEND_VOIP_START_MESSAGE_MUTATION,
     B2BApp: B2BAppGQL,
     B2BAppContext: B2BAppContextGQL,
     B2BAppAccessRight: B2BAppAccessRightGQL,
@@ -385,6 +386,25 @@ async function sendB2CAppPushMessageByTestClient (client, extraAttrs = {}) {
     const { data, errors } = await client.mutate(SEND_B2C_APP_PUSH_MESSAGE_MUTATION, { data: attrs })
 
     throwIfError(data, errors, { query: SEND_B2C_APP_PUSH_MESSAGE_MUTATION, variables: { data: attrs } })
+
+    return [data.result, attrs]
+}
+
+async function sendVoIPStartMessageByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+        data: {
+            ...get(extraAttrs, 'data', {}),
+        },
+    }
+    const { data, errors } = await client.mutate(SEND_VOIP_START_MESSAGE_MUTATION, { data: attrs })
+
+    throwIfError(data, errors, { query: SEND_VOIP_START_MESSAGE_MUTATION, variables: { data: attrs } })
 
     return [data.result, attrs]
 }
@@ -835,5 +855,6 @@ module.exports = {
     AppMessageSetting, createTestAppMessageSetting, updateTestAppMessageSetting,
     B2BAppPosIntegrationConfig, createTestB2BAppPosIntegrationConfig, updateTestB2BAppPosIntegrationConfig,
     B2CAppAccessRightSet, createTestB2CAppAccessRightSet, updateTestB2CAppAccessRightSet,
+    sendVoIPStartMessageByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
