@@ -1,4 +1,5 @@
-Этот метод позволяет настроить список действий, которые будут отображаться в основном интерфейсе. Поддерживаются только кнопки.
+Иногда может понадобиться добавить действие мини-приложения в интерфейс основного приложения: кнопку в Action Bar в вебе или иконку в навигации мобильного приложения. Типичные примеры — кнопка для экспорта, значок камеры или удаления: действия, которые должны оставаться на виду при прокрутке страницы.
+Этот метод позволяет задать, обновить и спрятать действия, которые отрисовывает основное приложение. Использование выглядит так: отправляете список `actions`, получаете `actionIds` и используете эти id, чтобы обрабатывать клики в мини‑приложении.
 
 ## Платформы
 - B2B-Web
@@ -31,7 +32,7 @@
 ```
 
 Хост генерирует внутренние id и возвращает их в том же порядке, что и входной список.
-При клике на кнопку хост отправляет событие `CondoWebAppSendActionId` как side-effect.
+При клике на кнопку хост отправляет событие `CondoWebAppActionClick` как side-effect.
 
 ## Пример использования
 
@@ -49,7 +50,7 @@ export default function MiniappPage (): React.ReactNode {
     ]), [])
 
     useEffect(() => {
-        bridge.send('CondoWebAppSetActionsConfig', { actions }).then((data) => {
+        bridge.send('CondoWebAppSetPageActions', { actions }).then((data) => {
             setActionIds(data.actionIds)
         })
     }, [actions])
@@ -84,7 +85,7 @@ export default function MiniappPage (): React.ReactNode {
 ```typescript
 import bridge from '@open-condo/bridge'
 
-bridge.send('CondoWebAppSetActionsConfig', {
+bridge.send('CondoWebAppSetPageActions', {
     actions: [
         { label: 'Save' },
         { label: 'Download', loading: true },
@@ -98,5 +99,5 @@ bridge.send('CondoWebAppSetActionsConfig', {
 ```typescript
 import bridge from '@open-condo/bridge'
 
-bridge.send('CondoWebAppSetActionsConfig', { actions: [] })
+bridge.send('CondoWebAppSetPageActions', { actions: [] })
 ```
