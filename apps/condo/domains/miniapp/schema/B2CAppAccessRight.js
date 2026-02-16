@@ -21,6 +21,18 @@ const B2CAppAccessRight = new GQLListSchema('B2CAppAccessRight', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
+
+        accessRightSet: {
+            schemaDoc: 'Link to the set of access rights.' +
+                ' This set of access right will be used to check your service user access to schemas that are' +
+                ' linked to "B2CAppProperty" schema by addressKey (such as "Property", and others).' +
+                '\n These accesses will only apply to entities that exists for Property that connected your app',
+            type: 'Relationship',
+            ref: 'B2CAppAccessRightSet',
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Required relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
     },
     kmigratorOptions: {
         constraints: [
