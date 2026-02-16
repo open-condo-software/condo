@@ -58,14 +58,10 @@ export const getPosReceiptUrlRender = ({
     lastTestingPosReceipt = null,
     showDelayMs = 700,
 }: GetPosReceiptUrlRenderParams) => {
-    let hasShownTestingTooltip = false
-
-    return function render (url: string): React.ReactNode {
+    return function render (url: string, record: { id?: string }): React.ReactNode {
         if (!url) return '—'
 
-        // Testing mode means that pos integration miniapp is in testing mode and there is a receipt created
-        const isTestingMode = !!lastTestingPosReceipt
-        const shouldShowTestingTooltip = isTestingMode && !hasShownTestingTooltip
+        const shouldShowTestingTooltip = !!lastTestingPosReceipt && record?.id === lastTestingPosReceipt.condoPaymentId
 
         const content = (
             <Space size={8}>
@@ -81,8 +77,6 @@ export const getPosReceiptUrlRender = ({
         )
 
         if (!shouldShowTestingTooltip) return content
-
-        hasShownTestingTooltip = true
 
         return (
             <DelayedTestingTooltip
