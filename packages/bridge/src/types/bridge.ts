@@ -1,5 +1,6 @@
 import type { ErrorCode, ErrorReason } from './errors'
-import type { RequestMethodsParamsMap, ResultResponseDataMap, ResponseEventNamesMap, IncomingEventsDataMap } from './methods'
+import type { IncomingEventsDataMap } from './incoming-events'
+import type { RequestMethodsParamsMap, ResultResponseDataMap, ResponseEventNamesMap } from './methods'
 
 export type AnyRequestMethodName = keyof RequestMethodsParamsMap
 export type AnyResponseMethodName = keyof ResultResponseDataMap
@@ -15,8 +16,8 @@ export type BaseResponseEvent<ResponseType extends string, Data> = {
     data: Data
 }
 
-export type BaseRequestEvent<RequestType extends string, Data> = {
-    type: RequestType
+export type BaseIncomingEvent<EventType extends string, Data> = {
+    type: EventType
     data: Data
 }
 
@@ -34,7 +35,7 @@ export type ErrorResponseData = ClientErrorResponseData<ErrorReason>
 export type CondoBridgeResultResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ResultResponseEventName<Method>, ResultResponseData<Method> & RequestId>
 export type CondoBridgeErrorResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ErrorResponseEventName<Method>, ErrorResponseData & RequestId>
 export type CondoBridgeResponseEvent<Method extends AnyResponseMethodName> = CondoBridgeResultResponseEvent<Method> | CondoBridgeErrorResponseEvent<Method>
-export type CondoBridgeIncomingEvent<Method extends AnyIncomingEventName> = BaseRequestEvent<Method, IncomingEventData<Method>>
+export type CondoBridgeIncomingEvent<Event extends AnyIncomingEventName> = BaseIncomingEvent<Event, IncomingEventData<Event>>
 export type CondoBridgeSubscriptionEvent = CondoBridgeResponseEvent<AnyResponseMethodName> | CondoBridgeIncomingEvent<AnyIncomingEventName>
 export type CondoBridgeSubscriptionListener = (event: CondoBridgeSubscriptionEvent) => void
 
