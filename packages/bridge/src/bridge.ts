@@ -23,12 +23,12 @@ const WEB_SPECIFIC_METHODS: Array<AnyRequestMethodName> = [
     'CondoWebAppRedirect',
     'CondoWebAppRequestAuth',
     'CondoWebAppResizeWindow',
+    'CondoWebAppSetPageActions',
     'CondoWebAppShowModalWindow',
     'CondoWebAppShowNotification',
     'CondoWebAppShowProgressBar',
     'CondoWebAppUpdateModalWindow',
     'CondoWebAppUpdateProgressBar',
-    'CondoWebAppSetActionsConfig',
 ]
 
 const ALL_METHODS = [

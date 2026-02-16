@@ -1,17 +1,14 @@
-export type ButtonAction = {
+export type Action = {
     label?: string
     icon?: string
     disabled?: boolean
     loading?: boolean
 }
 
-export type Action = ButtonAction
-
-
-export type SetActionsConfigParams = {
+export type SetPageActionsParams = {
     actions: Array<Action>
 }
 
-export type SetActionsConfigData = {
+export type SetPageActionsData = {
     actionIds: Array<string>
 }
