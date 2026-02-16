@@ -84,7 +84,7 @@
       "helpers/webpack": [
         "dist/helpers/webpack.d.ts"
       ],
-      "hooks/useActionIdHandlers": [
+      "hooks/useSetActionHandlers": [
         "dist/hooks/useSetActionHandlers.d.ts"
       ],
       "hooks/useEffectOnce": [
