@@ -95,28 +95,28 @@ const MarketplacePaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
 }
 
 const MarketplacePaymentsTable = () => {
-    const { PosIntegrationAlert, loading: areAlertLoading } = usePosIntegrationAlert()
+    const { PosIntegrationAlert, loading: isAlertLoading } = usePosIntegrationAlert()
 
     return (
         <Space size={0} direction='vertical'>
             {PosIntegrationAlert}
-            {areAlertLoading ? (
+            {isAlertLoading ? (
                 <Spin size='large' />
             ) : (
-                <MarketplacePaymentsTableContent areAlertLoading={areAlertLoading} />
+                <MarketplacePaymentsTableContent isAlertLoading={isAlertLoading} />
             )}
         </Space>
     )
 }
 
 interface MarketplacePaymentsTableContentProps {
-    areAlertLoading: boolean
+    isAlertLoading: boolean
 }
 
-const MarketplacePaymentsTableContent: React.FC<MarketplacePaymentsTableContentProps> = ({ areAlertLoading }) => {
+const MarketplacePaymentsTableContent: React.FC<MarketplacePaymentsTableContentProps> = ({ isAlertLoading }) => {
     const intl = useIntl()
     const { lastTestingPosReceipt, loading: isLastTestingPosReceiptLoading, refetch: refetchLastTestingPosReceipt, b2bAppContext: posIntegrationContext } = usePosIntegrationLastTestingPosReceipt({
-        skipUntilAuthenticated: areAlertLoading,
+        skipUntilAuthenticated: isAlertLoading,
     })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const ClearListSelectedRowMessage = intl.formatMessage({ id: 'global.cancelSelection' })
@@ -151,10 +151,10 @@ const MarketplacePaymentsTableContent: React.FC<MarketplacePaymentsTableContentP
     const tableColumns = useMarketplacePaymentTableColumns(queryMetas, openStatusDescModal, { lastTestingPosReceipt, posIntegrationContext })
 
     useEffect(() => {
-        if (!areAlertLoading) {
+        if (!isAlertLoading) {
             refetchLastTestingPosReceipt()
         }
-    }, [areAlertLoading, refetchLastTestingPosReceipt])
+    }, [isAlertLoading, refetchLastTestingPosReceipt])
 
     const [showPaymentsOnlyInDoneStatus, setShowPaymentsOnlyInDoneStatus] = useState(false)
     const switchShowPaymentsOnlyInDoneStatus = useCallback(

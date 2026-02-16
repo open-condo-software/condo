@@ -69,14 +69,14 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 title: AccountTitle,
                 key: 'accountNumber',
                 dataIndex: 'accountNumber',
-                width: '10em',
+                width: '8em',
                 render: stringSearch,
             },
             address: {
                 title: AddressTitle,
                 key: 'rawAddress',
                 dataIndex: 'rawAddress',
-                width: '25em',
+                width: '20em',
                 sorter: true,
                 render: stringSearch,
             },
@@ -84,14 +84,14 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 title: StatusTitle,
                 key: 'status',
                 dataIndex: 'status',
-                width: '10em',
+                width: '8em',
                 render: getStatusRender(intl, openStatusDescModal, search),
             },
             order: {
                 title: getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
                 key: 'order',
                 dataIndex: 'order',
-                width: '10em',
+                width: '8em',
                 render: stringSearch,
             },
             amount: {
@@ -99,7 +99,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 key: 'amount',
                 dataIndex: 'amount',
                 render: getMoneyRender(intl, currencyCode),
-                width: '14em',
+                width: '10em',
                 sorter: true,
             },
             posReceiptUrl: options.posIntegrationContext ? {
@@ -112,7 +112,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                     verifyDescription: PosReceiptVerifyDescription,
                     lastTestingPosReceipt: options.lastTestingPosReceipt,
                 }),
-                width: '10em',
+                width: '5em',
             } : undefined,
         }
 

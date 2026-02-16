@@ -11,14 +11,57 @@ type GetPosReceiptUrlRenderParams = {
     verifyTitle: string
     verifyDescription: string
     lastTestingPosReceipt?: LastTestingPosReceiptData
+    showDelayMs?: number
 }
 
-export const getPosReceiptUrlRender = ({ linkText, verifyTitle, verifyDescription, lastTestingPosReceipt = null }: GetPosReceiptUrlRenderParams) => {
-    return function render (url: string): React.ReactNode {
+type DelayedTestingTooltipProps = {
+    delayMs: number
+    verifyTitle: string
+    verifyDescription: string
+    children: React.ReactNode
+}
+
+const DelayedTestingTooltip: React.FC<DelayedTestingTooltipProps> = ({ delayMs, verifyTitle, verifyDescription, children }) => {
+    const [isOpen, setIsOpen] = React.useState(false)
+
+    React.useEffect(() => {
+        const timer = setTimeout(() => setIsOpen(true), delayMs)
+
+        return () => clearTimeout(timer)
+    }, [delayMs])
+
+    return (
+        <Tooltip
+            title={(
+                <Space size={8} direction='vertical'>
+                    <Typography.Title level={4}>
+                        {verifyTitle}
+                    </Typography.Title>
+                    <Typography.Text size='small'>
+                        {verifyDescription}
+                    </Typography.Text>
+                </Space>
+            )}
+            placement='left'
+            open={isOpen}
+            onOpenChange={setIsOpen}
+        >
+            {children}
+        </Tooltip>
+    )
+}
+
+export const getPosReceiptUrlRender = ({
+    linkText,
+    verifyTitle,
+    verifyDescription,
+    lastTestingPosReceipt = null,
+    showDelayMs = 700,
+}: GetPosReceiptUrlRenderParams) => {
+    return function render (url: string, record: { id?: string }): React.ReactNode {
         if (!url) return '—'
 
-        // Testing mode means that pos integration miniapp is in testing mode and there is a receipt created
-        const isTestingMode = !!lastTestingPosReceipt
+        const shouldShowTestingTooltip = !!lastTestingPosReceipt && record?.id === lastTestingPosReceipt.condoPaymentId
 
         const content = (
             <Space size={8}>
@@ -33,23 +76,16 @@ export const getPosReceiptUrlRender = ({ linkText, verifyTitle, verifyDescriptio
             </Space>
         )
 
-        return isTestingMode ? (
-            <Tooltip
-                title={(
-                    <Space size={8} direction='vertical'>
-                        <Typography.Title level={4}>
-                            {verifyTitle}
-                        </Typography.Title>
-                        <Typography.Text size='small'>
-                            {verifyDescription}
-                        </Typography.Text>
-                    </Space>
-                )}
-                placement='left'
-                defaultOpen={true}
+        if (!shouldShowTestingTooltip) return content
+
+        return (
+            <DelayedTestingTooltip
+                delayMs={showDelayMs}
+                verifyTitle={verifyTitle}
+                verifyDescription={verifyDescription}
             >
                 {content}
-            </Tooltip>
-        ) : content
+            </DelayedTestingTooltip>
+        )
     }
 }
