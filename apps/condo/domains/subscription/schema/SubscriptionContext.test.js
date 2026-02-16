@@ -13,7 +13,7 @@ const {
 
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest, createTestUserHelpRequest } = require('@condo/domains/onboarding/utils/testSchema')
-const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
+const { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
     SubscriptionContext,
@@ -240,6 +240,37 @@ describe('SubscriptionContext', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'END_DATE_MUST_BE_AFTER_START_DATE',
             }, 'obj')
+        })
+
+        test('organization type must match subscriptionPlan organizationType', async () => {
+            const [managingCompanyOrg] = await registerNewOrganization(employee, { type: MANAGING_COMPANY_TYPE })
+            const [holdingPlan] = await createTestSubscriptionPlan(admin, { organizationType: HOLDING_TYPE })
+
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionContext(admin, managingCompanyOrg, holdingPlan, {
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                    isTrial: false,
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ORGANIZATION_TYPE_MISMATCH',
+            }, 'obj')
+        })
+
+        test('can create subscription when organization type matches subscriptionPlan organizationType', async () => {
+            const [serviceProviderOrg] = await registerNewOrganization(employee, { type: SERVICE_PROVIDER_TYPE })
+            const [serviceProviderPlan] = await createTestSubscriptionPlan(admin, { organizationType: SERVICE_PROVIDER_TYPE })
+
+            const [obj] = await createTestSubscriptionContext(admin, serviceProviderOrg, serviceProviderPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.organization.id).toBe(serviceProviderOrg.id)
+            expect(obj.subscriptionPlan.id).toBe(serviceProviderPlan.id)
         })
 
 

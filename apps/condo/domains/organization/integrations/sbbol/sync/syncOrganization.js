@@ -91,7 +91,7 @@ const syncOrganization = async ({ context, user, userData, authedUser, organizat
         tin: `${organizationInfo.meta.inn}`,
         deletedAt: null,
     },
-    'id features country tin name',
+    'id features country tin name type',
     { first: 1 })
 
     if (!importedOrganization) {
@@ -121,7 +121,7 @@ const syncOrganization = async ({ context, user, userData, authedUser, organizat
                     ...authedUserOrganization.meta,
                     ...organizationInfo.meta,
                 },
-            }, 'id features country tin name')
+            }, 'id features country tin name type')
 
             // Find or create employee for the imported user in this organization
             const existingEmployee = employees.find(employee => employee.organization.id === updatedOrganization.id)
@@ -180,7 +180,7 @@ const syncOrganization = async ({ context, user, userData, authedUser, organizat
                     ...existingOrganization.meta,
                     ...organizationInfo.meta,
                 },
-            }, 'id features country tin name')
+            }, 'id features country tin name type')
 
             return { organization: updatedOrganization, employee: employeeWithExistingOrganization }
         }

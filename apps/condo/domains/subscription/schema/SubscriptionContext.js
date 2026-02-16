@@ -20,6 +20,11 @@ const ERRORS = {
         type: 'END_DATE_MUST_BE_AFTER_START_DATE',
         message: 'endAt must be after startAt',
     },
+    ORGANIZATION_TYPE_MISMATCH: {
+        code: BAD_USER_INPUT,
+        type: 'ORGANIZATION_TYPE_MISMATCH',
+        message: 'Organization type must match SubscriptionPlan organizationType',
+    },
 }
 
 
@@ -145,12 +150,29 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
 
     },
     hooks: {
-        validateInput: async ({ resolvedData, existingItem, context }) => {
+        validateInput: async ({ resolvedData, existingItem, context, operation }) => {
             const startAt = resolvedData.startAt || existingItem?.startAt
             const endAt = resolvedData.endAt || existingItem?.endAt
 
             if (startAt && endAt && startAt >= endAt) {
                 throw new GQLError(ERRORS.END_DATE_MUST_BE_AFTER_START_DATE, context)
+            }
+
+            const organizationId = resolvedData.organization
+            const subscriptionPlanId = resolvedData.subscriptionPlan
+
+            if (organizationId && subscriptionPlanId) {
+                const orgIdToValidate = organizationId || existingItem?.organization
+                const planIdToValidate = subscriptionPlanId || existingItem?.subscriptionPlan
+
+                const [organization] = await find('Organization', { id: orgIdToValidate, deletedAt: null })
+                const [subscriptionPlan] = await find('SubscriptionPlan', { id: planIdToValidate, deletedAt: null })
+
+                if (organization && subscriptionPlan) {
+                    if (organization.type !== subscriptionPlan.organizationType) {
+                        throw new GQLError(ERRORS.ORGANIZATION_TYPE_MISMATCH, context)
+                    }
+                }
             }
         },
         afterChange: async ({ operation, updatedItem, context }) => {
