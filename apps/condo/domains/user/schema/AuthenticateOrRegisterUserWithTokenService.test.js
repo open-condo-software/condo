@@ -12,7 +12,7 @@ const {
     expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizeEmail, maskNormalizedEmail } = require('@condo/domains/common/utils/mail')
 const { RESIDENT, SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 const {
     authenticateOrRegisterUserWithTokenByTestClient,
@@ -27,6 +27,7 @@ const {
     User,
     createTestEmail,
 } = require('@condo/domains/user/utils/testSchema')
+const { generateToken, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
 
 // NOTE: We need custom utilities because the generic utilities don't have some fields that need to be checked in tests
@@ -586,6 +587,33 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 })
             })
         })
+    })
+
+    test.each([RESIDENT, STAFF, SERVICE])('should auth if user (%p) enabled 2FA and pass second factor', async (userType) => {
+        const [, userAttrs] = await createTestUser(adminClient, {
+            type: userType,
+            isEmailVerified: true,
+            isPhoneVerified: true,
+            isTwoFactorAuthenticationEnabled: true,
+        })
+
+        const anonymousClient = await makeClient()
+        const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+            isPhoneVerified: true, phone: userAttrs.phone,
+        })
+        const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+            isEmailVerified: true, email: userAttrs.email,
+        })
+        const [result] = await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+            token: confirmPhoneAction.token,
+            userType: userType,
+            secondFactor: {
+                value: confirmEmailAction.token,
+                type: 'confirmEmailToken',
+            },
+        })
+        expect(result.token).not.toHaveLength(0)
+        expect(result.user.id).toBeDefined()
     })
 
     test('should register a user with the specified user data', async () => {
@@ -1242,6 +1270,66 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
             type: 'SHOULD_AUTHORIZE_WITH_PHONE',
             message: 'You should log in to your account using a verified phone to be able to log in by email',
             messageForUser: 'api.user.authenticateOrRegisterUserWithToken.SHOULD_AUTHORIZE_WITH_PHONE',
+        })
+    })
+
+    test.each([RESIDENT, STAFF, SERVICE])('should throw error if user (%p) enabled 2FA and pass only one factor', async (type) => {
+        const [user, userAttrs] = await createTestUser(adminClient, {
+            type,
+            isEmailVerified: true,
+            isPhoneVerified: true,
+            isTwoFactorAuthenticationEnabled: true,
+        })
+
+        const anonymousClient = await makeClient()
+        const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+            isPhoneVerified: true, phone: userAttrs.phone,
+        })
+        await expectToThrowGQLErrorToResult(async () => {
+            await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                token: confirmPhoneAction.token,
+                userType: type,
+            })
+        }, {
+            mutation: 'authenticateOrRegisterUserWithToken',
+            code: 'BAD_USER_INPUT',
+            type: 'NOT_ENOUGH_AUTH_FACTORS',
+            message: 'Not enough auth factors',
+            authDetails: expect.objectContaining({
+                is2FAEnabled: true,
+                userId: user.id,
+                availableSecondFactors: ['password', 'confirmEmailToken'],
+                maskedData: { email: maskNormalizedEmail(userAttrs.email) },
+            }),
+        })
+    })
+
+    test.each([RESIDENT, STAFF, SERVICE])('should throw error if second factor with same type like first factor', async (type) => {
+        const [, userAttrs] = await createTestUser(adminClient, {
+            type,
+            isEmailVerified: true,
+            isPhoneVerified: true,
+            isTwoFactorAuthenticationEnabled: true,
+        })
+
+        const anonymousClient = await makeClient()
+        const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+            isPhoneVerified: true, phone: userAttrs.phone,
+        })
+        await expectToThrowGQLErrorToResult(async () => {
+            await authenticateOrRegisterUserWithTokenByTestClient(anonymousClient, {
+                token: confirmPhoneAction.token,
+                userType: type,
+                secondFactor: {
+                    value: generateToken(TOKEN_TYPES.CONFIRM_PHONE),
+                    type: 'confirmPhoneToken',
+                },
+            })
+        }, {
+            mutation: 'authenticateOrRegisterUserWithToken',
+            code: 'BAD_USER_INPUT',
+            type: 'UNEXPECTED_SECOND_FACTOR',
+            message: 'Unexpected second factor',
         })
     })
 })

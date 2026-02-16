@@ -1361,6 +1361,13 @@ export type AuthenticateUserWithPhoneAndPasswordMutationVariables = Types.Exact<
 
 export type AuthenticateUserWithPhoneAndPasswordMutation = { __typename?: 'Mutation', result?: { __typename?: 'AuthenticateUserWithPhoneAndPasswordOutput', item?: { __typename?: 'User', id: string } | null } | null };
 
+export type ChangeTwoFactorAuthenticationMutationVariables = Types.Exact<{
+  data: Types.ChangeTwoFactorAuthenticationInput;
+}>;
+
+
+export type ChangeTwoFactorAuthenticationMutation = { __typename?: 'Mutation', result?: { __typename?: 'ChangeTwoFactorAuthenticationOutput', status: string } | null };
+
 export type ChangeUserEmailMutationVariables = Types.Exact<{
   data: Types.ChangeUserEmailInput;
 }>;
@@ -1448,7 +1455,7 @@ export type StartConfirmPhoneActionMutation = { __typename?: 'Mutation', result?
 export type AuthenticatedUserQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type AuthenticatedUserQuery = { __typename?: 'Query', authenticatedUser?: { __typename?: 'User', id: string, name?: string | null, phone?: string | null, email?: string | null, isAdmin?: boolean | null, isSupport?: boolean | null, type?: Types.UserTypeType | null, locale?: Types.UserLocaleType | null, showGlobalHints?: boolean | null, hasMarketingConsent?: boolean | null, isEmailVerified?: boolean | null, avatar?: { __typename?: 'File', publicUrl?: string | null } | null, rightsSet?: { __typename?: 'UserRightsSet', id: string } | null } | null };
+export type AuthenticatedUserQuery = { __typename?: 'Query', authenticatedUser?: { __typename?: 'User', id: string, name?: string | null, phone?: string | null, email?: string | null, isAdmin?: boolean | null, isSupport?: boolean | null, type?: Types.UserTypeType | null, locale?: Types.UserLocaleType | null, showGlobalHints?: boolean | null, hasMarketingConsent?: boolean | null, isEmailVerified?: boolean | null, isPhoneVerified?: boolean | null, isTwoFactorAuthenticationEnabled?: boolean | null, avatar?: { __typename?: 'File', publicUrl?: string | null } | null, rightsSet?: { __typename?: 'UserRightsSet', id: string } | null } | null };
 
 export type SignOutMutationVariables = Types.Exact<{ [key: string]: never; }>;
 

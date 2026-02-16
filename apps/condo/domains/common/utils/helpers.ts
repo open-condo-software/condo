@@ -18,18 +18,20 @@ import { normalizePhone } from '@condo/domains/common/utils/phone'
 const DEFAULT_WIDTH_PRECISION = 2
 const RUSSIAN_PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
 const SPANISH_PHONE_FORMAT_REGEXP = /(\d{2})(\d{3})(\d{3})(\d{3})/
+const RUSSIAN_MASKED_PHONE_FORMAT_REGEXP = /([\d*])([\d*]{3})([\d*]{3})([\d*]{2})([\d*]{2})/
+const SPANISH_MASKED_PHONE_FORMAT_REGEXP = /([\d*]{2})([\d*]{3})([\d*]{3})([\d*]{3})/
 
 /**
  * Formats a phone, convert it from number string to string with dividers
  * for example: 01234567890 -> 0 (123) 456-78-90
  */
-export const formatPhone = (phone?: string): string =>{
-    const normalizedPhone = normalizePhone(phone, true)
+export const formatPhone = (phone?: string, isMaskedPhone: boolean = false): string => {
+    const normalizedPhone = isMaskedPhone ? phone : normalizePhone(phone, true)
     if (normalizedPhone?.startsWith('+7')){
-        return normalizedPhone.replace(RUSSIAN_PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5')
+        return normalizedPhone.replace(isMaskedPhone ? RUSSIAN_MASKED_PHONE_FORMAT_REGEXP : RUSSIAN_PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5')
     }
     if (normalizedPhone?.startsWith('+34')){
-        return normalizedPhone.replace(SPANISH_PHONE_FORMAT_REGEXP, '$1-$2-$3-$4')
+        return normalizedPhone.replace(isMaskedPhone ? SPANISH_MASKED_PHONE_FORMAT_REGEXP : SPANISH_PHONE_FORMAT_REGEXP, '$1-$2-$3-$4')
     }
     return phone
 }

@@ -8,7 +8,11 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 const { WRONG_CREDENTIALS, CAPTCHA_CHECK_FAILED } = require('@condo/domains/user/constants/errors')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
-const { authGuards, validateUserCredentials } = require('@condo/domains/user/utils/serverSchema/auth')
+const { authGuards, validateUserCredentials, ERROR_TYPES } = require('@condo/domains/user/utils/serverSchema/auth')
+
+const { AUTH_FACTOR_TYPES } = require('../constants/authFactors')
+const { NOT_ENOUGH_AUTH_FACTORS } = require('../constants/errors')
+const { ConfirmPhoneAction, ConfirmEmailAction } = require('../utils/serverSchema')
 
 
 /**
@@ -48,13 +52,28 @@ const ERRORS = {
         ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
         mutation: 'authenticateUserWithPhoneAndPassword',
     },
+    NOT_ENOUGH_AUTH_FACTORS: {
+        mutation: 'authenticateUserWithPhoneAndPassword',
+        code: BAD_USER_INPUT,
+        type: NOT_ENOUGH_AUTH_FACTORS,
+        message: 'Not enough auth factors',
+        messageForUser: 'api.user.NOT_ENOUGH_AUTH_FACTORS',
+    },
 }
 
 const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('AuthenticateUserWithPhoneAndPasswordService', {
     types: [
         {
             access: true,
-            type: 'input AuthenticateUserWithPhoneAndPasswordInput { dv: Int, sender: SenderFieldInput, captcha: String, userType: UserTypeType, phone: String! password: String! }',
+            type: `enum AuthenticateUserWithPhoneAndPasswordSecondFactorType { ${[AUTH_FACTOR_TYPES.CONFIRM_EMAIL_TOKEN, AUTH_FACTOR_TYPES.CONFIRM_PHONE_TOKEN].join(' ')} }`,
+        },
+        {
+            access: true,
+            type: 'input AuthenticateUserWithPhoneAndPasswordSecondFactorInput { value: String!, type: AuthenticateUserWithPhoneAndPasswordSecondFactorType! }',
+        },
+        {
+            access: true,
+            type: 'input AuthenticateUserWithPhoneAndPasswordInput { dv: Int, sender: SenderFieldInput, captcha: String, userType: UserTypeType, phone: String!, password: String!, secondFactor: AuthenticateUserWithPhoneAndPasswordSecondFactorInput }',
         },
         {
             access: true,
@@ -73,6 +92,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const { data } = args
                 const {
                     password,
+                    secondFactor,
                     captcha,
 
                     // NOTE: Previously we did not allow specifying the userType, dv and sender.
@@ -99,18 +119,50 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
 
-                const { success, user } = await validateUserCredentials(
+                const validation = await validateUserCredentials(
                     { phone, userType },
-                    { password }
+                    {
+                        password,
+                        ...(secondFactor?.type === AUTH_FACTOR_TYPES.CONFIRM_EMAIL_TOKEN ? { confirmEmailToken: secondFactor?.value || '' } : null),
+                        ...(secondFactor?.type === AUTH_FACTOR_TYPES.CONFIRM_PHONE_TOKEN ? { confirmPhoneToken: secondFactor?.value || '' } : null),
+                    }
                 )
 
-                if (!success) {
+                if (!validation.success) {
+                    if (validation._error?.errorType === ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS) {
+                        if (validation._error.is2FAEnabled) {
+                            throw new GQLError({
+                                ...ERRORS.NOT_ENOUGH_AUTH_FACTORS,
+                                authDetails: {
+                                    is2FAEnabled: validation._error.is2FAEnabled,
+                                    userId: validation._error.userId,
+                                    availableSecondFactors: validation._error.availableSecondFactors,
+                                    maskedData: validation._error.maskedData,
+                                },
+                            }, context)
+                        }
+                    }
+
                     throw new GQLError(ERRORS.WRONG_CREDENTIALS, context)
+                }
+
+                if (validation.confirmEmailAction) {
+                    await ConfirmEmailAction.update(context, validation.confirmEmailAction.id, {
+                        dv, sender,
+                        completedAt: new Date().toISOString(),
+                    })
+                }
+
+                if (validation.confirmPhoneAction) {
+                    await ConfirmPhoneAction.update(context, validation.confirmPhoneAction.id, {
+                        dv, sender,
+                        completedAt: new Date().toISOString(),
+                    })
                 }
 
                 const { keystone } = getSchemaCtx('User')
                 const token = await context.startAuthedSession({
-                    item: user,
+                    item: validation.user,
                     list: keystone.lists['User'],
                     meta: {
                         source: 'gql',
@@ -119,7 +171,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 })
 
                 return {
-                    item: user,
+                    item: validation.user,
                     token,
                 }
             },

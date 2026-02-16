@@ -19,11 +19,12 @@ const {
     CREDENTIAL_VALIDATION_FAILED,
     GENERATE_TOKEN_FAILED,
     USER_IDENTITY_INVALID,
+    NOT_ENOUGH_AUTH_FACTORS,
 } = require('@condo/domains/user/constants/errors')
 const { MAX_NUMBER_OF_TOKEN_USES, TOKEN_LIFETIME_IN_MIN } = require('@condo/domains/user/constants/sudoToken')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const { UserSudoToken, ConfirmPhoneAction, ConfirmEmailAction } = require('@condo/domains/user/utils/serverSchema')
-const { authGuards, validateUserCredentials } = require('@condo/domains/user/utils/serverSchema/auth')
+const { authGuards, validateUserCredentials, ERROR_TYPES } = require('@condo/domains/user/utils/serverSchema/auth')
 const { generateTokenSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
 
@@ -66,6 +67,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: USER_IDENTITY_INVALID,
         message: 'Email or phone cannot be empty',
+    },
+    NOT_ENOUGH_AUTH_FACTORS: {
+        mutation: 'generateSudoToken',
+        code: BAD_USER_INPUT,
+        type: NOT_ENOUGH_AUTH_FACTORS,
+        message: 'Not enough auth factors',
+        messageForUser: 'api.user.NOT_ENOUGH_AUTH_FACTORS',
     },
 }
 
@@ -124,6 +132,20 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
                 )
 
                 if (!validation.success) {
+                    if (validation._error?.errorType === ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS) {
+                        if (validation._error.is2FAEnabled) {
+                            throw new GQLError({
+                                ...ERRORS.NOT_ENOUGH_AUTH_FACTORS,
+                                authDetails: {
+                                    is2FAEnabled: validation._error.is2FAEnabled,
+                                    userId: validation._error.userId,
+                                    availableSecondFactors: validation._error.availableSecondFactors,
+                                    maskedData: validation._error.maskedData,
+                                },
+                            }, context)
+                        }
+                    }
+
                     throw new GQLError(ERRORS.CREDENTIAL_VALIDATION_FAILED, context)
                 }
 

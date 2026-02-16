@@ -1,8 +1,8 @@
 const conf = require('@open-condo/config')
 const { itemsQuery, getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { normalizeEmail, maskNormalizedEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone, maskNormalizedPhone } = require('@condo/domains/common/utils/phone')
 const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { ConfirmPhoneAction, ConfirmEmailAction } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -136,8 +136,7 @@ async function authGuards (userIdentity, context) {
  *
  * @param {{ phone?: string, email?: string, userType: 'staff' | 'resident' | 'service' }} userIdentity
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
- * @return {Promise<{success: boolean}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, confirmEmailAction: *, success: boolean, user: *}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}>}
- * @private
+ * @return {Promise<{success: boolean}|{success: boolean, _error: ({is2FAEnabled: boolean, maskedData: {phone?: string, email?: string}, errorType: string, availableSecondFactors: string[], userId: string}|{is2FAEnabled: boolean, errorType: string}|*)}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, confirmEmailAction: {id: string, email: string, isEmailVerified: boolean}, success: boolean, user: *}>}
  */
 async function validateUserCredentials (userIdentity, authFactors) {
     if (!userIdentity || typeof userIdentity !== 'object') throw new Error('You must provide userIdentity')
@@ -192,10 +191,10 @@ async function _getUser (userIdentity, authFactors) {
 
     // NOTE: If password and phone/email were not transferred, but confirm token was,
     // then we try to get phone/email from confirm token to understand who we are trying to verify
-    if (!authFactors?.password) {
+    if (phone === undefined && email === undefined) {
         const { keystone } = getSchemaCtx('User')
 
-        if (phone === undefined && authFactors?.confirmPhoneToken) {
+        if (authFactors?.confirmPhoneToken) {
             const action = await ConfirmPhoneAction.getOne(keystone,
                 {
                     token: authFactors.confirmPhoneToken,
@@ -208,7 +207,7 @@ async function _getUser (userIdentity, authFactors) {
             }
         }
 
-        if (email === undefined && authFactors?.confirmEmailToken) {
+        if (authFactors?.confirmEmailToken) {
             const action = await ConfirmEmailAction.getOne(keystone,
                 {
                     token: authFactors.confirmEmailToken,
@@ -262,7 +261,7 @@ const AUTH_CHECK_STATUSES = {
  *
  * @param {Object} user
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
- * @return {Promise<{success: boolean}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, confirmEmailAction, success: boolean}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}>}
+ * @return {Promise<{success: boolean}|{success: boolean, _error: {is2FAEnabled: boolean, maskedData: {phone?: string, email?: string}, errorType: string, availableSecondFactors: string[], userId: string}}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, confirmEmailAction: {id: string, email: string, isEmailVerified: boolean}, success: boolean}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string}}>}
  * @private
  */
 async function _matchUser (user, authFactors) {
@@ -277,6 +276,7 @@ async function _matchUser (user, authFactors) {
         confirmEmailToken: authFactors.confirmEmailToken === undefined ? AUTH_CHECK_STATUSES.SKIP : AUTH_CHECK_STATUSES.FAIL,
     }
 
+    /** @type boolean */
     const is2FAEnabled = user.isTwoFactorAuthenticationEnabled
 
     const numberOfChecksRequiredForAuth = is2FAEnabled ? 2 : 1
@@ -308,11 +308,37 @@ async function _matchUser (user, authFactors) {
     const nonSkippedChecks = Object.entries(authChecks).filter(([key, value]) => value !== AUTH_CHECK_STATUSES.SKIP).map(([key]) => key)
 
     if (nonSkippedChecks.length < numberOfChecksRequiredForAuth) {
-        return {
-            success: false,
-            // NOTE: In general we don't return any detailed errors
-            // But we should know that we don't have enough data for validation
-            _error: { errorType: ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS, authChecks, is2FAEnabled },
+        if (failedChecks.length === 0 && successfulChecks.length === 1) {
+            const availableSecondFactorsMap = {
+                password: !nonSkippedChecks.includes('password') && !!user.password,
+                confirmEmailToken: !nonSkippedChecks.includes('confirmEmailToken') && !!user.email && user.isEmailVerified,
+                confirmPhoneToken: !nonSkippedChecks.includes('confirmPhoneToken') && !!user.phone && user.isPhoneVerified,
+            }
+            /** @type {string[]} */
+            const availableSecondFactors = Object.entries(availableSecondFactorsMap).filter(([key, value]) => value).map(([key]) => key)
+            /** @type string */
+            const userId = user.id
+            /** @type {{phone?: string, email?: string}} */
+            const maskedData = {
+                ...(availableSecondFactorsMap.confirmEmailToken ? { email: maskNormalizedEmail(user.email) } : null),
+                ...(availableSecondFactorsMap.confirmPhoneToken ? { phone: maskNormalizedPhone(user.phone) } : null),
+            }
+
+            return {
+                success: false,
+                // NOTE: In general we don't return any detailed errors
+                // But we should know that we don't have enough data for validation
+                _error: { errorType: ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS, is2FAEnabled, userId, availableSecondFactors, maskedData },
+            }
+        }
+
+        if (failedChecks.length === 0) {
+            return {
+                success: false,
+                // NOTE: In general we don't return any detailed errors
+                // But we should know that we don't have enough data for validation
+                _error: { errorType: ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS, is2FAEnabled },
+            }
         }
     }
 
@@ -472,4 +498,5 @@ module.exports = {
     authGuards,
     buildQuotaKey,
     buildQuotaKeyByUserType,
+    ERROR_TYPES,
 }

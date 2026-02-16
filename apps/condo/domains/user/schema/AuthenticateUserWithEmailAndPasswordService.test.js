@@ -11,6 +11,8 @@ const {
     makeClient,
 } = require('@open-condo/keystone/test.utils')
 
+const { maskNormalizedEmail } = require('@condo/domains/common/utils/mail')
+const { maskNormalizedPhone } = require('@condo/domains/common/utils/phone')
 const {
     STAFF,
     SERVICE,
@@ -26,6 +28,10 @@ const {
     createTestResetUserLimitAction,
     resetUserByTestClient,
     authenticateUserWithEmailAndPasswordByTestClient,
+    createTestConfirmEmailAction,
+    ConfirmEmailAction,
+    createTestConfirmPhoneAction,
+    ConfirmPhoneAction,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -172,6 +178,88 @@ describe('Auth by email and password', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'WRONG_EMAIL_VALUE',
                 })
+            })
+
+            test('should throw error if user enabled 2FA and pass only one factor', async () => {
+                const [user, userAttrs] = await createTestUser(admin, {
+                    type: userType,
+                    isEmailVerified: true,
+                    isPhoneVerified: true,
+                    isTwoFactorAuthenticationEnabled: true,
+                })
+
+                await expectToThrowGQLErrorToResult(async () => {
+                    await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
+                        email: userAttrs.email,
+                        password: userAttrs.password,
+                        userType: userAttrs.type,
+                    })
+                }, {
+                    mutation: 'authenticateUserWithEmailAndPassword',
+                    code: 'BAD_USER_INPUT',
+                    type: 'NOT_ENOUGH_AUTH_FACTORS',
+                    message: 'Not enough auth factors',
+                    authDetails: expect.objectContaining({
+                        is2FAEnabled: true,
+                        userId: user.id,
+                        availableSecondFactors: ['confirmEmailToken', 'confirmPhoneToken'],
+                        maskedData: { email: maskNormalizedEmail(userAttrs.email), phone: maskNormalizedPhone(userAttrs.phone) },
+                    }),
+                })
+            })
+
+            test('should auth if user enabled 2FA and pass second factor (confirmPhoneToken) and should mark confirm token', async () => {
+                const [user, userAttrs] = await createTestUser(admin, {
+                    type: userType,
+                    isEmailVerified: true,
+                    isPhoneVerified: true,
+                    isTwoFactorAuthenticationEnabled: true,
+                })
+
+                const [confirmPhoneAction] = await createTestConfirmPhoneAction(admin, {
+                    isPhoneVerified: true, phone: userAttrs.phone,
+                })
+                const [result] = await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
+                    email: userAttrs.email,
+                    password: userAttrs.password,
+                    userType: userAttrs.type,
+                    secondFactor: {
+                        value: confirmPhoneAction.token,
+                        type: 'confirmPhoneToken',
+                    },
+                })
+                expect(result.item.id).toBe(user.id)
+                expect(result.token).not.toBeNull()
+
+                const usedConfirmPhoneAction = await ConfirmPhoneAction.getOne(admin, { token: confirmPhoneAction.token })
+                expect(usedConfirmPhoneAction.completedAt).not.toBeNull()
+            })
+
+            test('should auth if user enabled 2FA and pass second factor (confirmEmailToken) and should mark confirm token', async () => {
+                const [user, userAttrs] = await createTestUser(admin, {
+                    type: userType,
+                    isEmailVerified: true,
+                    isPhoneVerified: true,
+                    isTwoFactorAuthenticationEnabled: true,
+                })
+
+                const [confirmEmailAction] = await createTestConfirmEmailAction(admin, {
+                    isEmailVerified: true, email: userAttrs.email,
+                })
+                const [result] = await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
+                    email: userAttrs.email,
+                    password: userAttrs.password,
+                    userType: userAttrs.type,
+                    secondFactor: {
+                        value: confirmEmailAction.token,
+                        type: 'confirmEmailToken',
+                    },
+                })
+                expect(result.item.id).toBe(user.id)
+                expect(result.token).not.toBeNull()
+
+                const usedConfirmEmailAction = await ConfirmEmailAction.getOne(admin, { token: confirmEmailAction.token })
+                expect(usedConfirmEmailAction.completedAt).not.toBeNull()
             })
 
             test('should authorize user and return token if password and email number are correct', async () => {

@@ -19,6 +19,7 @@ const {
     resendConfirmEmailActionByTestClient,
     getEmailByConfirmEmailActionTokenByTestClient,
     updateTestConfirmEmailAction,
+    registerNewUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -47,7 +48,7 @@ describe('ConfirmEmailActionService', () => {
 
     describe('Mutation startConfirmEmailAction', () => {
         describe('Basic logic', () => {
-            test('Anonymous can start email confirmation', async () => {
+            test('Anonymous can start email confirmation by email', async () => {
                 const client = await makeClient()
                 const email = createTestEmail()
                 const [{ token }] = await startConfirmEmailActionByTestClient(client, {
@@ -56,7 +57,17 @@ describe('ConfirmEmailActionService', () => {
                 expect(token).not.toHaveLength(0)
             })
 
-            test.each(CONFIRM_EMAIL_ACTION_MESSAGE_TYPES)('User can start email confirm with messageType %p', async (messageType) => {
+            test('Anonymous can start email confirmation by user', async () => {
+                const client = await makeClient()
+                const anonymous = await makeClient()
+                const [registeredUser] = await registerNewUser(anonymous)
+                const [{ token }] = await startConfirmEmailActionByTestClient(client, {
+                    user: { id: registeredUser.id },
+                })
+                expect(token).not.toHaveLength(0)
+            })
+
+            test.each(CONFIRM_EMAIL_ACTION_MESSAGE_TYPES)('User can start email confirm with messageType %p by email', async (messageType) => {
                 const client = await makeClient()
                 const email = createTestEmail()
                 const [{ token }] = await startConfirmEmailActionByTestClient(client, {
@@ -64,6 +75,46 @@ describe('ConfirmEmailActionService', () => {
                     messageType,
                 })
                 expect(token).not.toHaveLength(0)
+            })
+
+            test.each(CONFIRM_EMAIL_ACTION_MESSAGE_TYPES)('User can start email confirm with messageType %p by user', async (messageType) => {
+                const client = await makeClient()
+
+                const anonymous = await makeClient()
+                const [registeredUser] = await registerNewUser(anonymous)
+
+                const [{ token }] = await startConfirmEmailActionByTestClient(client, {
+                    user: { id: registeredUser.id },
+                    messageType,
+                })
+                expect(token).not.toHaveLength(0)
+            })
+
+            test('Should throw error if no pass email and user both', async () => {
+                const client = await makeClient()
+
+                await expectToThrowGQLErrorToResult(async () => {
+                    await startConfirmEmailActionByTestClient(client, {})
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'EMAIL_AND_USER_ID_IS_MISSING',
+                })
+            })
+
+            test('Should throw error if pass email and user both', async () => {
+                const client = await makeClient()
+                const anonymous = await makeClient()
+                const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+
+                await expectToThrowGQLErrorToResult(async () => {
+                    await startConfirmEmailActionByTestClient(client, {
+                        user: { id: registeredUser.id },
+                        email: userAttrs.email,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'SHOULD_BE_ONE_IDENTIFIER_ONLY',
+                })
             })
         })
     })
