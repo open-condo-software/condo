@@ -1,4 +1,6 @@
-This method allows you to set up a list of actions that will be displayed in the main interface. Only buttons are supported.
+Sometimes you may need to add a mini-app action to the main application interface: a button in the Action Bar on the web or an icon in the navigation of the mobile application. Typical examples are the export button, camera icon, or delete icon: actions that should remain visible when scrolling the page.
+This method allows you to set, update, and hide actions that the main application renders. The usage looks like this: you send the list of `actions`, get the `actionIds` and use these ids to process clicks in the mini‑app.
+
 ## Platforms
 - B2B-Web
 
@@ -30,7 +32,7 @@ If successful, the method will return a JSON object containing a list of action 
 ```
 
 The host generates internal action ids and returns them in the same order as the input list.
-When a user clicks a button, the host emits `CondoWebAppSendActionId` as a side effect.
+When a user clicks a button, the host emits `CondoWebAppActionClick` as a side effect.
 
 ## Usage example
 
@@ -48,7 +50,7 @@ export default function MiniappPage (): React.ReactNode {
     ]), [])
 
     useEffect(() => {
-        bridge.send('CondoWebAppSetActionsConfig', { actions }).then((data) => {
+        bridge.send('CondoWebAppSetPageActions', { actions }).then((data) => {
             setActionIds(data.actionIds)
         })
     }, [actions])
@@ -83,7 +85,7 @@ To update a button, send a full updated `actions` array again:
 ```typescript
 import bridge from '@open-condo/bridge'
 
-bridge.send('CondoWebAppSetActionsConfig', {
+bridge.send('CondoWebAppSetPageActions', {
     actions: [
         { label: 'Save' },
         { label: 'Download', loading: true },
@@ -97,5 +99,5 @@ To hide all actions, pass an empty array:
 ```typescript
 import bridge from '@open-condo/bridge'
 
-bridge.send('CondoWebAppSetActionsConfig', { actions: [] })
+bridge.send('CondoWebAppSetPageActions', { actions: [] })
 ```

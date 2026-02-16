@@ -3,7 +3,7 @@
   "get-fragment": "CondoWebAppGetFragment",
   "resize-window": "CondoWebAppResizeWindow",
   "redirect": "CondoWebAppRedirect",
-  "actions": "Actions",
+  "set-page-actions": "CondoWebAppSetPageActions",
   "notifications": "Notifications",
   "modals": "Modals"
 }
