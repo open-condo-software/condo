@@ -6,7 +6,7 @@ import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useRef, useState } from 'react'
 
-import type { CondoBridgeResultResponseEvent, SetActionsConfigParams } from '@open-condo/bridge'
+import type { CondoBridgeResultResponseEvent, SetPageActionsParams } from '@open-condo/bridge'
 import { generateUUIDv4 } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -29,8 +29,8 @@ type OpenModalRecord = {
     destroy: () => void
     update: (opts: ModalProps) => void
 }
-type ActionWithId = SetActionsConfigParams['actions'][number] & { id: string }
-export type ActionsConfig = { actions: ActionWithId[] }
+type ActionWithId = SetPageActionsParams['actions'][number] & { id: string }
+export type Actions = Array<ActionWithId>
 
 export const handleNotification: RequestHandler<'CondoWebAppShowNotification'> = (params) => {
     const { type, ...restParams } = params
@@ -290,44 +290,43 @@ export const useRedirectHandler: () => RequestHandler<'CondoWebAppRedirect'> = (
     }, [router])
 }
 
-export const useActionsConfigHandler: () => [
-    RequestHandler<'CondoWebAppSetActionsConfig'>,
-    ActionsConfig | null,
+export const useSetActionsHandler: () => [
+    RequestHandler<'CondoWebAppSetPageActions'>,
+    Actions | null,
     Window | null,
     string | null,
     () => void,
 ] = () => {
-    const [config, setConfig] = useState<ActionsConfig | null>(null)
+    const [actions, setActions] = useState<Actions | null>(null)
     const [source, setSource] = useState<Window | null>(null)
     const [origin, setOrigin] = useState<string | null>(null)
-    const configRef = useRef<ActionsConfig | null>(null)
+    const actionsRef = useRef<Actions | null>(null)
 
-    const handleSetActionsConfig = useCallback<RequestHandler<'CondoWebAppSetActionsConfig'>>((params, nextOrigin, nextSource) => {
-        const prevActions = configRef.current?.actions || []
+    const handleSetActions = useCallback<RequestHandler<'CondoWebAppSetPageActions'>>((params, nextOrigin, nextSource) => {
+        const prevActions = actionsRef.current || []
         const actionsWithIds = params.actions.map((action, index) => {
             const prevId = prevActions[index]?.id
             return { ...action, id: prevId || generateUUIDv4() }
         })
-        const updatedConfig: ActionsConfig = { actions: actionsWithIds }
 
-        setConfig(updatedConfig)
+        setActions(actionsWithIds)
         setSource(nextSource)
         setOrigin(nextOrigin)
-        configRef.current = updatedConfig
+        actionsRef.current = actionsWithIds
 
         return { actionIds: actionsWithIds.map(a => a.id) }
     }, [])
 
     const clear = useCallback(() => {
-        configRef.current = null
-        setConfig(null)
+        actionsRef.current = null
+        setActions(null)
         setSource(null)
         setOrigin(null)
     }, [])
 
     return [
-        handleSetActionsConfig,
-        config,
+        handleSetActions,
+        actions,
         source,
         origin,
         clear,
