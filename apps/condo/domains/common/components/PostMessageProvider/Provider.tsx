@@ -15,11 +15,11 @@ import {
     useModalHandler,
     useShowProgressBarHandler,
     useUpdateProgressBarHandler,
-    useActionsConfigHandler,
+    useSetActionsHandler,
 } from './globalHandlers'
 import { validators } from './validators'
 
-import type { ActionsConfig } from './globalHandlers'
+import type { Actions } from './globalHandlers'
 import type {
     AllRequestMethods,
     RequestHandler,
@@ -44,7 +44,7 @@ type RegisterHandler = <Method extends AllRequestMethods>(
  */
 
 type ActionsContext = {
-    actionsConfig: ActionsConfig | null
+    actions: Actions | null
     actionsSource: Window | null
     actionsOrigin: string | null
     clearActions: () => void
@@ -70,7 +70,7 @@ const PostMessageContext = createContext<IPostMessageContext>({
     addEventHandler: () => ({}),
     validators,
     actionsContext: {
-        actionsConfig: null,
+        actions: null,
         actionsSource: null,
         actionsOrigin: null,
         clearActions: () => {},
@@ -162,11 +162,11 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     const [showModalHandler, updateModalHandler, closeModalHandler, ModalContainer] = useModalHandler()
     const [
         handleSetActions,
-        actionsConfig,
+        actions,
         actionsSource,
         actionsOrigin,
         clearActions,
-    ] = useActionsConfigHandler()
+    ] = useSetActionsHandler()
 
     useEffect(() => {
         addEventHandler('CondoWebAppCloseModalWindow', '*', closeModalHandler)
@@ -205,7 +205,7 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
     }, [addEventHandler, updateProgressBarHandler])
 
     useEffect(() => {
-        addEventHandler('CondoWebAppSetActionsConfig', '*', handleSetActions)
+        addEventHandler('CondoWebAppSetPageActions', '*', handleSetActions)
     }, [addEventHandler, handleSetActions])
 
     const addFrame = useCallback((ref: React.Ref<HTMLIFrameElement>) => {
@@ -321,7 +321,7 @@ export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ childre
             addEventHandler,
             validators,
             actionsContext: {
-                actionsConfig,
+                actions,
                 actionsOrigin,
                 actionsSource,
                 clearActions,

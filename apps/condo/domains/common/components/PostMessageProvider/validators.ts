@@ -150,7 +150,7 @@ const CondoWebAppUpdateProgressBarParamsSchema = {
     required: ['barId', 'data'],
 }
 
-const ActionButtonSchema = {
+const ActionSchema = {
     type: 'object',
     properties: {
         label: { type: 'string' },
@@ -162,13 +162,13 @@ const ActionButtonSchema = {
     additionalProperties: false,
 }
 
-export const CondoWebAppSetActionsConfigSchema = {
+export const CondoWebAppSetPageActionsSchema = {
     type: 'object',
     properties: {
         actions: {
             type: 'array',
             items: {
-                ...ActionButtonSchema,
+                ...ActionSchema,
             },
         },
     },
@@ -189,10 +189,10 @@ export const validators: ValidatorsType = {
     CondoWebAppRequestAuth: ajv.compile(CondoWebAppRequestAuthSchema),
     CondoWebAppRedirect: ajv.compile(CondoWebAppRedirectParamsSchema),
     CondoWebAppResizeWindow: ajv.compile(CondoWebAppResizeWindowParamsSchema),
+    CondoWebAppSetPageActions: ajv.compile(CondoWebAppSetPageActionsSchema),
     CondoWebAppShowModalWindow: ajv.compile(CondoWebAppShowModalWindowParamsSchema),
     CondoWebAppShowNotification: ajv.compile(CondoWebAppShowNotificationParamsSchema),
     CondoWebAppShowProgressBar: ajv.compile(CondoWebAppShowProgressBarParamsSchema),
     CondoWebAppUpdateModalWindow: ajv.compile(CondoWebAppUpdateModalWindowParamsSchema),
     CondoWebAppUpdateProgressBar: ajv.compile(CondoWebAppUpdateProgressBarParamsSchema),
-    CondoWebAppSetActionsConfig: ajv.compile(CondoWebAppSetActionsConfigSchema),
 }

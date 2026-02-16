@@ -76,7 +76,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
 
     const { user } = useAuth()
     const { organization } = useOrganization()
-    const { addFrame, addEventHandler, removeFrame, actionsContext: { actionsConfig, actionsSource, actionsOrigin } } = usePostMessageContext()
+    const { addFrame, addEventHandler, removeFrame, actionsContext: { actions, actionsSource, actionsOrigin } } = usePostMessageContext()
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
     const srcWithMeta = useMemo(() => {
@@ -173,16 +173,16 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         display: hidden ? 'none' : 'block',
     }), [frameHeight, hidden])
 
-    const sendActionId = useCallback((actionId: string) => {
+    const sendActionClickEvent = useCallback((actionId: string) => {
         if (!actionsSource || !actionsOrigin) return
 
-        actionsSource.postMessage({ type: 'CondoWebAppSendActionId', data: { actionId } }, actionsOrigin)
+        actionsSource.postMessage({ type: 'CondoWebAppActionClick', data: { actionId } }, actionsOrigin)
     }, [actionsSource, actionsOrigin])
 
-    const actions = useMemo(() => {
-        if (!actionsConfig?.actions?.length) return null
+    const actionButtons = useMemo(() => {
+        if (!actions?.length) return null
 
-        const actionElements = actionsConfig.actions
+        const actionElements = actions
             .map((action, index) => {
                 const actionId = action.id
                 if (!actionId) return null
@@ -194,7 +194,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
                         type={index === 0 ? 'primary' : 'secondary'}
                         loading={action.loading}
                         disabled={action.disabled}
-                        onClick={() => sendActionId(actionId)}
+                        onClick={() => sendActionClickEvent(actionId)}
                         icon={renderIcon(action.icon)}
                     >
                         {action.label}
@@ -203,10 +203,10 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
             }).filter(Boolean)
 
         return actionElements.length ? actionElements : null
-    }, [actionsConfig?.actions, sendActionId])
+    }, [actions, sendActionClickEvent])
 
     const isActionOwner = !!actionsSource && innerRef.current?.contentWindow === actionsSource
-    const shouldShowActionBar = isActionOwner && actionsOrigin && actions
+    const shouldShowActionBar = isActionOwner && actionsOrigin && Boolean(actions.length)
 
     return (
         <>
@@ -242,7 +242,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
             </div>
             {shouldShowActionBar && (
                 <ActionBar
-                    actions={actions as [ReactElement, ...ReactElement[]]}
+                    actions={actionButtons as [ReactElement, ...ReactElement[]]}
                 />
             )}
         </>
