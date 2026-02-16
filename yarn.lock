@@ -1350,12 +1350,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/pos-integration@workspace:^, @app/pos-integration@workspace:apps/pos-integration":
+"@app/pos-integration@workspace:apps/pos-integration":
   version: 0.0.0-use.local
   resolution: "@app/pos-integration@workspace:apps/pos-integration"
   dependencies:
     "@apollo/client": ^3.11.8
-    "@app/pos-integration": "workspace:^"
     "@faker-js/faker": ^7.6.0
     "@graphql-codegen/cli": ^5.0.2
     "@graphql-codegen/typescript": ^4.0.9
