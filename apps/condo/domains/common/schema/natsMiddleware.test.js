@@ -4,6 +4,7 @@ const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { streamRegistry, configure } = require('@open-condo/nats')
 
 const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
@@ -11,31 +12,30 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-const { streamRegistry, NatsMiddleware, configure } = require('@open-condo/nats')
 
 const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
 
 async function getCookieWithOrganization (client) {
     const baseCookie = client.getCookie()
     let employeeId = client.organization?.employeeId
-    
+
     if (!employeeId && client.organization?.id && client.user?.id) {
         const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
         const keystone = getSchemaCtx('User').keystone
         const context = await keystone.createContext({ skipAccessControl: true })
-        
+
         const employees = await OrganizationEmployee.getAll(context, {
             organization: { id: client.organization.id },
             user: { id: client.user.id },
             deletedAt: null,
         })
-        
+
         if (employees.length > 0) {
             employeeId = employees[0].id
             client.organization.employeeId = employeeId
         }
     }
-    
+
     if (!employeeId) {
         return baseCookie
     }
