@@ -3543,7 +3543,6 @@ export const GetActiveOrganizationEmployeeDocument = gql`
         customizationEndAt
         enabledB2BApps
         enabledB2CApps
-        daysRemaining
         activeSubscriptionEndAt
         activeSubscriptionContextId
       }

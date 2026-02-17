@@ -6248,7 +6248,6 @@ type OrganizationSubscriptionFeatures {
   analyticsEndAt: String
   enabledB2BApps: [String!]!
   enabledB2CApps: [String!]!
-  daysRemaining: Int
   activeSubscriptionContextId: String
   activeSubscriptionEndAt: String
 }

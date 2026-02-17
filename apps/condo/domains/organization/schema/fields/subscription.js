@@ -26,7 +26,6 @@ const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
         analyticsEndAt: String
         enabledB2BApps: [String!]!
         enabledB2CApps: [String!]!
-        daysRemaining: Int
         activeSubscriptionContextId: String
         activeSubscriptionEndAt: String
     }
@@ -41,9 +40,6 @@ function calculateDaysUntilDate (date, now) {
 }
 
 function buildSubscriptionResponse (date = null) {
-    const now = new Date().toISOString()
-    const daysRemaining = calculateDaysUntilDate(date, now)
-    
     return {
         paymentsEndAt: date,
         metersEndAt: date,
@@ -57,7 +53,6 @@ function buildSubscriptionResponse (date = null) {
         analyticsEndAt: date,
         enabledB2BApps: [],
         enabledB2CApps: [],
-        daysRemaining,
         activeSubscriptionContextId: null,
         activeSubscriptionEndAt: date,
     }
@@ -135,9 +130,9 @@ function calculateFeatureExpirationDates (sortedContexts, now) {
     }, {})
 }
 
-function calculateDaysRemaining (sortedContexts, bestActiveContext, now) {
+function calculateSubscriptionEndAt (sortedContexts, bestActiveContext, now) {
     if (!bestActiveContext || !bestActiveContext.subscriptionPlan) {
-        return { daysRemaining: 0, activeSubscriptionEndAt: null }
+        return { activeSubscriptionEndAt: null }
     }
 
     const activePlanId = bestActiveContext.subscriptionPlan.id
@@ -146,7 +141,7 @@ function calculateDaysRemaining (sortedContexts, bestActiveContext, now) {
     )
 
     if (contextsWithActivePlan.length === 0) {
-        return { daysRemaining: 0, activeSubscriptionEndAt: null }
+        return { activeSubscriptionEndAt: null }
     }
 
     const nowDate = dayjs(now).startOf('day')
@@ -178,7 +173,6 @@ function calculateDaysRemaining (sortedContexts, bestActiveContext, now) {
     }
 
     return {
-        daysRemaining: calculateDaysUntilDate(maxEndAt, now),
         activeSubscriptionEndAt: maxEndAt,
     }
 }
@@ -211,7 +205,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
     type: 'Virtual',
     extendGraphQLTypes: SUBSCRIPTION_FEATURES_GRAPHQL_TYPES,
     graphQLReturnType: SUBSCRIPTION_FEATURES_TYPE_NAME,
-    graphQLReturnFragment: '{ paymentsEndAt metersEndAt ticketsEndAt newsEndAt marketplaceEndAt supportEndAt aiEndAt customizationEndAt propertiesEndAt analyticsEndAt enabledB2BApps enabledB2CApps daysRemaining activeSubscriptionContextId activeSubscriptionEndAt }',
+    graphQLReturnFragment: '{ paymentsEndAt metersEndAt ticketsEndAt newsEndAt marketplaceEndAt supportEndAt aiEndAt customizationEndAt propertiesEndAt analyticsEndAt enabledB2BApps enabledB2CApps activeSubscriptionContextId activeSubscriptionEndAt }',
     resolver: async (organization, args, context) => {
         const hasSubscriptionFeature = await featureToggleManager.isFeatureEnabled(context, SUBSCRIPTIONS, { 
             userId: context.authedItem?.id || null,
@@ -247,7 +241,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
         })
 
         const featureExpirationDates = calculateFeatureExpirationDates(sortedContexts, now)
-        const { daysRemaining, activeSubscriptionEndAt } = calculateDaysRemaining(sortedContexts, bestActiveContext, now)
+        const { activeSubscriptionEndAt } = calculateSubscriptionEndAt(sortedContexts, bestActiveContext, now)
         const { enabledB2BApps, enabledB2CApps } = collectEnabledApps(activeContexts)
 
         return {
@@ -263,7 +257,6 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             analyticsEndAt: featureExpirationDates.analytics,
             enabledB2BApps,
             enabledB2CApps,
-            daysRemaining,
             activeSubscriptionContextId: bestActiveContext?.id || null,
             activeSubscriptionEndAt,
         }
