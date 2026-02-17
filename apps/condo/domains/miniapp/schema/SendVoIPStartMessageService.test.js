@@ -64,8 +64,9 @@ describe('SendVoIPStartMessageService', () => {
                 addressKey: property.addressKey,
                 unitName: faker.random.alphaNumeric(3),
                 unitType: FLAT_UNIT_TYPE,
-                data: {
+                callData: {
                     callId: faker.datatype.uuid(),
+                    b2cAppCallData: { B2CAppContext: '' },
                 },
             })
             if (expectError) {
@@ -89,8 +90,9 @@ describe('SendVoIPStartMessageService', () => {
                     addressKey: faker.datatype.uuid(),
                     unitName: faker.random.alphaNumeric(3),
                     unitType: FLAT_UNIT_TYPE,
-                    data: {
+                    callData: {
                         callId: faker.datatype.uuid(),
+                        b2cAppCallData: { B2CAppContext: '' },
                     },
                 })
             }, ERRORS.PROPERTY_NOT_FOUND)
@@ -105,11 +107,33 @@ describe('SendVoIPStartMessageService', () => {
                     addressKey: faker.datatype.uuid(),
                     unitName: faker.random.alphaNumeric(3),
                     unitType: FLAT_UNIT_TYPE,
-                    data: {
+                    callData: {
                         callId: faker.datatype.uuid(),
+                        b2cAppCallData: { B2CAppContext: '' },
                     },
                 })
             }, ERRORS.PROPERTY_NOT_FOUND)
+        })
+
+        test('should throw error if callData does not contain data for b2c or native call', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const { property } = await makeClientWithResidentAccessAndProperty()
+            await createTestB2CAppProperty(admin, b2cApp, { address: property.address, addressMeta: property.addressMeta })
+
+            const unitName = faker.random.alphaNumeric(3)
+            const unitType = FLAT_UNIT_TYPE
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await sendVoIPStartMessageByTestClient(admin, {
+                    app: { id: b2cApp.id },
+                    addressKey: property.addressKey,
+                    unitName: unitName,
+                    unitType: unitType,
+                    callData: {
+                        callId: faker.datatype.uuid(),
+                    },
+                })
+            }, ERRORS.CALL_DATA_NOT_PROVIDED)
         })
 
     })
@@ -164,8 +188,9 @@ describe('SendVoIPStartMessageService', () => {
                 addressKey: property.addressKey,
                 unitName: unitName,
                 unitType: unitType,
-                data: {
+                callData: {
                     callId: faker.datatype.uuid(),
+                    b2cAppCallData: { B2CAppContext: '' },
                 },
             })
 
@@ -209,18 +234,21 @@ describe('SendVoIPStartMessageService', () => {
             await Promise.all(prepareDataPromises)
 
             const dataAttrs = {
-                B2CAppContext: faker.random.alphaNumeric(10),
                 callId: faker.datatype.uuid(),
-                voipType: 'sip',
-                voipAddress: faker.internet.ip(),
-                voipLogin: faker.internet.userName(),
-                voipPassword: faker.internet.password(),
-                voipPanels: [
-                    { dtfmCommand: faker.random.alphaNumeric(2), name: faker.random.alphaNumeric(3) },
-                    { dtfmCommand: faker.random.alphaNumeric(2), name: faker.random.alphaNumeric(3) },
-                ],
-                stun: faker.internet.ip(),
-                codec: 'vp8',
+                b2cAppCallData: {
+                    B2CAppContext: faker.random.alphaNumeric(10),
+                },
+                nativeCallData: {
+                    voipAddress: faker.internet.ip(),
+                    voipLogin: faker.internet.userName(),
+                    voipPassword: faker.internet.password(),
+                    voipPanels: [
+                        { dtfmCommand: faker.random.alphaNumeric(2), name: faker.random.alphaNumeric(3) },
+                        { dtfmCommand: faker.random.alphaNumeric(2), name: faker.random.alphaNumeric(3) },
+                    ],
+                    stunServers: [faker.internet.ip(), faker.internet.ip()],
+                    codec: 'vp8',
+                },
             }
 
             const [result] = await sendVoIPStartMessageByTestClient(admin, {
@@ -228,7 +256,7 @@ describe('SendVoIPStartMessageService', () => {
                 addressKey: property.addressKey,
                 unitName: unitName,
                 unitType: unitType,
-                data: dataAttrs,
+                callData: dataAttrs,
             })
             expect(result.verifiedContactsCount).toBe(residentsCount)
             expect(result.createdMessagesCount).toBe(residentsCount)
@@ -247,18 +275,19 @@ describe('SendVoIPStartMessageService', () => {
                         meta: expect.objectContaining({
                             data: expect.objectContaining({
                                 B2CAppId: b2cApp.id,
-                                B2CAppContext: dataAttrs.B2CAppContext,
+                                B2CAppContext: dataAttrs.b2cAppCallData.B2CAppContext,
                                 B2CAppName: b2cApp.name,
                                 residentId: residentId,
                                 callId: dataAttrs.callId,
-                                voipType: dataAttrs.voipType,
-                                voipAddress: dataAttrs.voipAddress,
-                                voipLogin: dataAttrs.voipLogin,
-                                voipPassword: dataAttrs.voipPassword,
-                                voipDtfmCommand: dataAttrs.voipPanels[0].dtfmCommand,
+                                voipType: 'sip',
+                                voipAddress: dataAttrs.nativeCallData.voipAddress,
+                                voipLogin: dataAttrs.nativeCallData.voipLogin,
+                                voipPassword: dataAttrs.nativeCallData.voipPassword,
+                                voipDtfmCommand: dataAttrs.nativeCallData.voipPanels[0].dtfmCommand,
                                 //voipPanels: dataAttrs.voipPanels, needs to be added in notification constants
-                                stun: dataAttrs.stun,
-                                codec: dataAttrs.codec,
+                                stun: dataAttrs.nativeCallData.stunServers[0],
+                                //stunServers: dataAttrs.nativeCallData.stunServers,
+                                codec: dataAttrs.nativeCallData.codec,
                             }),
                         }),
                     })
@@ -290,8 +319,9 @@ describe('SendVoIPStartMessageService', () => {
                 addressKey: property.addressKey,
                 unitName: unitName,
                 unitType: unitType,
-                data: {
+                callData: {
                     callId: faker.datatype.uuid(),
+                    b2cAppCallData: { B2CAppContext: '' },
                 },
             })
 
@@ -324,8 +354,9 @@ describe('SendVoIPStartMessageService', () => {
                 addressKey: property.addressKey,
                 unitName: unitName,
                 unitType: unitType,
-                data: {
+                callData: {
                     callId: faker.datatype.uuid(),
+                    b2cAppCallData: { B2CAppContext: '' },
                 },
             })
 
@@ -356,8 +387,9 @@ describe('SendVoIPStartMessageService', () => {
                 addressKey: property.addressKey,
                 unitName: unitName,
                 unitType: unitType,
-                data: {
+                callData: {
                     callId: faker.datatype.uuid(),
+                    b2cAppCallData: { B2CAppContext: '' },
                 },
             })
 
@@ -416,7 +448,7 @@ describe('SendVoIPStartMessageService', () => {
                     addressKey: property.addressKey,
                     unitName: unitName,
                     unitType: unitType,
-                    data: { callId },
+                    callData: { callId, b2cAppCallData: { B2CAppContext: '' } },
                 })
                 expect(result.verifiedContactsCount).toBe(residentsCount)
                 expect(result.createdMessagesCount).toBe(residentsCount)
@@ -465,7 +497,7 @@ describe('SendVoIPStartMessageService', () => {
                     addressKey: property.addressKey,
                     unitName: unitName,
                     unitType: unitType,
-                    data: { callId },
+                    callData: { callId, b2cAppCallData: { B2CAppContext: '' } },
                 })
                 expect(result.verifiedContactsCount).toBe(residentsCount)
                 expect(result.createdMessagesCount).toBe(residentsCount)
@@ -499,8 +531,9 @@ describe('SendVoIPStartMessageService', () => {
                     addressKey: property.addressKey,
                     unitName: unitName,
                     unitType: FLAT_UNIT_TYPE,
-                    data: {
+                    callData: {
                         callId: callId,
+                        b2cAppCallData: { B2CAppContext: '' },
                     },
                 })
                 expect(result.verifiedContactsCount).toBe(1)
