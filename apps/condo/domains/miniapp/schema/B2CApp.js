@@ -42,6 +42,14 @@ const B2CApp = new GQLListSchema('B2CApp', {
         },
         developer: DEVELOPER_FIELD,
         isHidden: IS_HIDDEN_FIELD,
+        isSubscriptionRequired: {
+            schemaDoc: 'Indicates whether access to this miniapp requires an active subscription. ' +
+                'If true, the app is only accessible when included in organization\'s active subscription (enabledB2CApps). ' +
+                'If false, the app is always accessible regardless of subscription status.',
+            type: 'Checkbox',
+            defaultValue: true,
+            isRequired: true,
+        },
         colorSchema: COLOR_SCHEMA_FIELD,
         appUrl: IFRAME_URL_FIELD,
         additionalDomains: ADDITIONAL_DOMAINS_FIELD,

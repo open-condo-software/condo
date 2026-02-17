@@ -71454,6 +71454,7 @@ type B2BAppHistoryRecord {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
+  isSubscriptionRequired: Boolean
   icon: String
   menuCategory: String
   contextDefaultStatus: String
@@ -71599,6 +71600,8 @@ input B2BAppHistoryRecordWhereInput {
   isPublic_not: Boolean
   hasDynamicTitle: Boolean
   hasDynamicTitle_not: Boolean
+  isSubscriptionRequired: Boolean
+  isSubscriptionRequired_not: Boolean
   icon: String
   icon_not: String
   icon_contains: String
@@ -71868,6 +71871,8 @@ enum SortB2BAppHistoryRecordsBy {
   isPublic_DESC
   hasDynamicTitle_ASC
   hasDynamicTitle_DESC
+  isSubscriptionRequired_ASC
+  isSubscriptionRequired_DESC
   icon_ASC
   icon_DESC
   menuCategory_ASC
@@ -71918,6 +71923,7 @@ input B2BAppHistoryRecordUpdateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
+  isSubscriptionRequired: Boolean
   icon: String
   menuCategory: String
   contextDefaultStatus: String
@@ -71964,6 +71970,7 @@ input B2BAppHistoryRecordCreateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
+  isSubscriptionRequired: Boolean
   icon: String
   menuCategory: String
   contextDefaultStatus: String
@@ -72251,6 +72258,10 @@ type B2BApp {
   """
   hasDynamicTitle: Boolean
 
+  """ Indicates whether access to this miniapp requires an active subscription. If true, the app is only accessible when included in organization's active subscription (enabledB2BApps). If false, the app is always accessible regardless of subscription status. 
+  """
+  isSubscriptionRequired: Boolean
+
   """ App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection. 
   """
   icon: B2BAppIconType
@@ -72457,6 +72468,8 @@ input B2BAppWhereInput {
   isPublic_not: Boolean
   hasDynamicTitle: Boolean
   hasDynamicTitle_not: Boolean
+  isSubscriptionRequired: Boolean
+  isSubscriptionRequired_not: Boolean
   icon: B2BAppIconType
   icon_not: B2BAppIconType
   icon_in: [B2BAppIconType]
@@ -72645,6 +72658,8 @@ enum SortB2BAppsBy {
   isPublic_DESC
   hasDynamicTitle_ASC
   hasDynamicTitle_DESC
+  isSubscriptionRequired_ASC
+  isSubscriptionRequired_DESC
   icon_ASC
   icon_DESC
   menuCategory_ASC
@@ -72701,6 +72716,7 @@ input B2BAppUpdateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
+  isSubscriptionRequired: Boolean
   icon: B2BAppIconType
   menuCategory: B2BAppMenuCategoryType
   contextDefaultStatus: B2BAppContextDefaultStatusType
@@ -72745,6 +72761,7 @@ input B2BAppCreateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
+  isSubscriptionRequired: Boolean
   icon: B2BAppIconType
   menuCategory: B2BAppMenuCategoryType
   contextDefaultStatus: B2BAppContextDefaultStatusType
@@ -73593,6 +73610,7 @@ type B2CAppHistoryRecord {
   shortDescription: String
   developer: String
   isHidden: Boolean
+  isSubscriptionRequired: Boolean
   colorSchema: JSON
   appUrl: String
   additionalDomains: JSON
@@ -73678,6 +73696,8 @@ input B2CAppHistoryRecordWhereInput {
   developer_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
+  isSubscriptionRequired: Boolean
+  isSubscriptionRequired_not: Boolean
   colorSchema: JSON
   colorSchema_not: JSON
   colorSchema_in: [JSON]
@@ -73839,6 +73859,8 @@ enum SortB2CAppHistoryRecordsBy {
   developer_DESC
   isHidden_ASC
   isHidden_DESC
+  isSubscriptionRequired_ASC
+  isSubscriptionRequired_DESC
   appUrl_ASC
   appUrl_DESC
   id_ASC
@@ -73869,6 +73891,7 @@ input B2CAppHistoryRecordUpdateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
+  isSubscriptionRequired: Boolean
   colorSchema: JSON
   appUrl: String
   additionalDomains: JSON
@@ -73901,6 +73924,7 @@ input B2CAppHistoryRecordCreateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
+  isSubscriptionRequired: Boolean
   colorSchema: JSON
   appUrl: String
   additionalDomains: JSON
@@ -73977,6 +74001,10 @@ type B2CApp {
   """ Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM 
   """
   isHidden: Boolean
+
+  """ Indicates whether access to this miniapp requires an active subscription. If true, the app is only accessible when included in organization's active subscription (enabledB2CApps). If false, the app is always accessible regardless of subscription status. 
+  """
+  isSubscriptionRequired: Boolean
 
   """ The color schema of the B2C application used to display it correctly. The main color is used for texts, icons etc. The secondary color is used for the background 
   """
@@ -74096,6 +74124,8 @@ input B2CAppWhereInput {
   developer_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
+  isSubscriptionRequired: Boolean
+  isSubscriptionRequired_not: Boolean
   colorSchema: AppColorSchemaFieldInput
   colorSchema_not: AppColorSchemaFieldInput
   colorSchema_in: [AppColorSchemaFieldInput]
@@ -74242,6 +74272,8 @@ enum SortB2CAppsBy {
   developer_DESC
   isHidden_ASC
   isHidden_DESC
+  isSubscriptionRequired_ASC
+  isSubscriptionRequired_DESC
   appUrl_ASC
   appUrl_DESC
   oidcClient_ASC
@@ -74278,6 +74310,7 @@ input B2CAppUpdateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
+  isSubscriptionRequired: Boolean
   colorSchema: AppColorSchemaFieldInput
   appUrl: String
   additionalDomains: [String!]
@@ -74308,6 +74341,7 @@ input B2CAppCreateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
+  isSubscriptionRequired: Boolean
   colorSchema: AppColorSchemaFieldInput
   appUrl: String
   additionalDomains: [String!]
@@ -75541,15 +75575,14 @@ type B2CAppProperty {
   app: B2CApp
 
   """
-   Date when subscription access to this B2C app ends at this address (ISO string or null). Calculated based on organization subscriptions at the address. Returns +100 years (ISO string) when: 
-  1) No organizations exist at this address; 
-  2) No subscription plans exist for organization type; 
-  3) App is not restricted by any subscription plan; 
-  Returns activeSubscriptionEndAt when app is enabled in active subscription; 
-  Returns null when app is included in a plan but not enabled in active subscription; 
-  Returns latest endAt when multiple organizations at address have app enabled. 
+   Indicates whether this B2C app is available at this address. Returns true when: 
+  1) App has isSubscriptionRequired: false (always accessible); 
+  2) No organizations exist at this address; 
+  3) No subscription plans exist for organization type; 
+  4) At least one organization at address has active subscription with this app enabled; 
+  Returns false when all organizations have subscriptions but app is not enabled. 
   """
-  subscriptionEndAt: String
+  isAvailable: Boolean!
   id: ID!
 
   """ Normalized address """

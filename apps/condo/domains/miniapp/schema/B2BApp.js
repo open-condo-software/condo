@@ -83,6 +83,14 @@ const B2BApp = new GQLListSchema('B2BApp', {
             defaultValue: false,
             isRequired: true,
         },
+        isSubscriptionRequired: {
+            schemaDoc: 'Indicates whether access to this miniapp requires an active subscription. ' +
+                'If true, the app is only accessible when included in organization\'s active subscription (enabledB2BApps). ' +
+                'If false, the app is always accessible regardless of subscription status.',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
         icon: ICON_FIELD,
         menuCategory: MENU_CATEGORY_FIELD,
         contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,
