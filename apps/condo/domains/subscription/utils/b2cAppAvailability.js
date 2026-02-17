@@ -1,6 +1,4 @@
-const dayjs = require('dayjs')
-
-const { find } = require('@open-condo/keystone/schema')
+const { find, getById } = require('@open-condo/keystone/schema')
 
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
@@ -16,56 +14,57 @@ function groupPlansByOrgType (plans) {
     return plansByOrgType
 }
 
-function getAppSubscriptionEndDate (org, appId, appType, plansByOrgType) {
+function isAppAvailableForOrganization (org, appId, plansByOrgType) {
     const orgPlans = plansByOrgType[org.type] || []
     
     if (orgPlans.length === 0) {
-        return dayjs().add(100, 'years').toISOString()
+        return true
     }
     
-    const appField = appType === 'B2C' ? 'enabledB2CApps' : 'enabledB2BApps'
-    const allEnabledApps = new Set(orgPlans.map(plan => plan[appField] ?? []).flat())
+    const allEnabledB2CApps = new Set(orgPlans.map(plan => plan.enabledB2CApps ?? []).flat())
 
-    if (!allEnabledApps.has(appId)) {
-        return org.subscription?.activeSubscriptionEndAt || dayjs().add(100, 'years').toISOString()
+    if (!allEnabledB2CApps.has(appId)) {
+        return true
     }
 
     const subscription = org.subscription
-    if (!subscription) {
-        return null
+    if (!subscription || !subscription.activeSubscriptionContextId) {
+        return false
     }
 
-    const enabledApps = subscription[appField] || []
-    if (!enabledApps.includes(appId)) {
-        return null
-    }
-
-    return subscription.activeSubscriptionEndAt || null
+    const currentEnabledApps = subscription.enabledB2CApps || []
+    return currentEnabledApps.includes(appId)
 }
 
-async function getB2CAppSubscriptionEndDate (appId, addressKey, context) {
+async function isB2CAppAvailableForAddress (appId, addressKey, context) {
+    const app = await getById('B2CApp', appId)
+    
+    if (!app || !app.isSubscriptionRequired) {
+        return true
+    }
+    
     const properties = await find('Property', {
         addressKey,
         deletedAt: null,
     }, { context })
 
     if (properties.length === 0) {
-        return dayjs().add(100, 'years').toISOString()
+        return true
     }
 
     const organizationIds = [...new Set(properties.map(p => p.organization).filter(Boolean))]
     
     if (organizationIds.length === 0) {
-        return dayjs().add(100, 'years').toISOString()
+        return true
     }
 
     const organizations = await Organization.getAll(context, {
         id_in: organizationIds,
         deletedAt: null,
-    }, 'id type subscription { activeSubscriptionEndAt enabledB2CApps }')
+    }, 'id type subscription { activeSubscriptionContextId enabledB2CApps }')
 
     if (organizations.length === 0) {
-        return dayjs().add(100, 'years').toISOString()
+        return true
     }
 
     const allPlans = await find('SubscriptionPlan', {
@@ -75,23 +74,17 @@ async function getB2CAppSubscriptionEndDate (appId, addressKey, context) {
 
     const plansByOrgType = groupPlansByOrgType(allPlans)
     
-    let maxEndDate = null
-
     for (const org of organizations) {
-        const endDate = getAppSubscriptionEndDate(org, appId, 'B2C', plansByOrgType)
-        if (endDate) {
-            const endDateDayjs = dayjs(endDate)
-            if (!maxEndDate || endDateDayjs.isAfter(maxEndDate)) {
-                maxEndDate = endDateDayjs
-            }
+        if (isAppAvailableForOrganization(org, appId, plansByOrgType)) {
+            return true
         }
     }
 
-    return maxEndDate ? maxEndDate.toISOString() : null
+    return false
 }
 
 module.exports = {
     groupPlansByOrgType,
-    getAppSubscriptionEndDate,
-    getB2CAppSubscriptionEndDate,
+    isAppAvailableForOrganization,
+    isB2CAppAvailableForAddress,
 }

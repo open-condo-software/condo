@@ -423,7 +423,7 @@ describe('B2CAppProperty test', () => {
 
             await createTestSubscriptionContext(admin, org1, planWithoutApp, {
                 startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
-                endAt: dayjs().add(15, 'days').format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'days').format('YYYY-MM-DD'),
             })
 
             await createTestSubscriptionContext(admin, org2, plan, {
