@@ -25,7 +25,6 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
     const { link, organization } = useOrganization()
 
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
-
     const { toggleCollapsed, isCollapsed } = useLayoutContext()
 
     const isEmployeeBlocked = get(link, 'isBlocked', false)

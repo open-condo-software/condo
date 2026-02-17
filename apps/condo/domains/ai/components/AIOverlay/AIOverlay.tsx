@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { CloseOutlined } from '@ant-design/icons'
+import { Button } from '@open-condo/ui'
+import { Close, RefreshCw, Download } from '@open-condo/icons'
 
 import { AIChat } from '../AIChat/AIChat'
 import { useAIContext } from '../AIContext'
@@ -15,11 +16,14 @@ type AIOverlayProps = {
 export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const intl = useIntl()
     const title = intl.formatMessage({ id: 'ai.chat.title' })
+    const resetHistoryLabel = intl.formatMessage({ id: 'ai.chat.resetHistory' })
+    const saveConversationLabel = intl.formatMessage({ id: 'ai.chat.saveConversation' })
     const { aiOverlayWidth, setAIOverlayWidth } = useAIContext()
     const [isResizing, setIsResizing] = useState(false)
     const drawerRef = useRef<HTMLDivElement>(null)
     const startXRef = useRef<number>(0)
     const startWidthRef = useRef<number>(0)
+    const aiChatRef = useRef<{ handleResetHistory: () => void; handleSaveConversation: () => void }>(null)
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -64,18 +68,39 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
             style={{ width: `${aiOverlayWidth}px` }}
         >
             <div className={styles.header}>
-                <h3 className={styles.title}>{title}</h3>
-                <button 
-                    className={styles.closeButton}
-                    onClick={onClose}
-                    aria-label="Close"
-                >
-                    <CloseOutlined />
-                </button>
+                <div className={styles.leftSection}>
+                    <h3 className={styles.title}>{title}</h3>
+                </div>
+                <div className={styles.rightSection}>
+                    <Button 
+                        type="text" 
+                        size="small"
+                        onClick={() => aiChatRef.current?.handleResetHistory()}
+                        icon={<RefreshCw size='small' />}
+                        title={resetHistoryLabel}
+                    />
+                    <Button 
+                        type="text" 
+                        size="small"
+                        onClick={() => aiChatRef.current?.handleSaveConversation()}
+                        icon={<Download size='small' />}
+                        title={saveConversationLabel}
+                    />
+                    <Button 
+                        type="text" 
+                        size="small"
+                        onClick={onClose}
+                        icon={<Close size='small' />}
+                        title="Close"
+                    />
+                </div>
             </div>
             <div className={styles.resizeHandle} onMouseDown={handleResizeStart} />
             <div className={styles.content}>
-                <AIChat onClose={onClose} />
+                <AIChat 
+                    ref={aiChatRef}
+                    onClose={onClose} 
+                />
             </div>
         </div>
     )
