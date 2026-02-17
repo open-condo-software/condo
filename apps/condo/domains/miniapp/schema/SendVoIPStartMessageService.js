@@ -15,6 +15,7 @@ const {
     APP_NOT_FOUND_ERROR,
     DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
     DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
+    CALL_DATA_NOT_PROVIDED_ERROR,
 } = require('@condo/domains/miniapp/constants')
 const { B2CAppProperty } = require('@condo/domains/miniapp/utils/serverSchema')
 const { setCallStatus, CALL_STATUS_START_SENT } = require('@condo/domains/miniapp/utils/voip')
@@ -63,6 +64,13 @@ const ERRORS = {
         message: 'Unable to find B2CApp.',
         messageForUser: `api.miniapp.${SERVICE_NAME}.APP_NOT_FOUND`,
     },
+    CALL_DATA_NOT_PROVIDED: {
+        mutation: SERVICE_NAME,
+        variable: ['data, callData'],
+        type: CALL_DATA_NOT_PROVIDED_ERROR,
+        code: BAD_USER_INPUT,
+        message: '"b2cAppCallData" or "nativeCallData" or both should be provided',
+    },
     DV_VERSION_MISMATCH: {
         ...COMMON_ERRORS.DV_VERSION_MISMATCH,
         mutation: SERVICE_NAME,
@@ -73,6 +81,14 @@ const ERRORS = {
     },
 }
 
+/*
+    """
+    If "sip" was passed, mobile device will try to start native call. Info about other values will be added later
+    """
+    voipType: VoIPType,
+*/
+const MAGIC_VOIP_TYPE_CONSTANT_FOR_OLD_VERSIONS_COMPATIBILITY = 'sip' // without this constant mobile app will not try to make native call
+
 const logInfo = ({ b2cAppId, callId, stats, errors }) => {
     logger.info({ msg: `${SERVICE_NAME} stats`, entityName: 'B2CApp', entityId: b2cAppId, data: { callId, stats }, err: errors })
 }
@@ -81,106 +97,112 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
     types: [
         {
             access: true,
-            type: 'enum VoIPType {' +
-                    '"""' +
-                    'Makes mobile app use it\'s call app instead of B2CApp\'s' +
-                    '"""' +
-                    'sip' +
-                '}',
+            type: `input VoIPPanel {
+                """
+                Dtfm command for panel
+                """
+                dtfmCommand: String!
+                """
+                Name of a panel to be displayed
+                """
+                name: String!
+                }`,
         },
         {
             access: true,
-            type: 'input VoIPPanel {' +
-                '"""' +
-                'Dtfm command for panel' +
-                '"""' +
-                'dtfmCommand: String!' +
-                '"""' +
-                'Name of a panel to be displayed' +
-                '"""' +
-                'name: String!' +
-                '}',
+            type: `input SendVoIPStartMessageDataForCallHandlingByB2CApp {
+                """
+                Data that will be provided to B2CApp. May be stringified JSON
+                """
+                B2CAppContext: String!,
+            }`,
         },
         {
             access: true,
-            type: 'input SendVoIPStartMessageData { ' +
-                '"""' +
-                'If you want your B2CApp to handle incoming VoIP call, provide this argument. Otherwise provide all others' +
-                '"""' +
-                'B2CAppContext: String, ' +
-                '"""' +
-                'Unique value for each call session between panel and resident (means same for different devices also). ' +
-                'Must be provided for correct work with multiple devices that use same voip call.' +
-                'F.e. to cancel calls with CANCELED_CALL_MESSAGE_PUSH messages' +
-                '"""' +
-                'callId: String!, ' +
-                '"""' +
-                'If "sip" was passed, mobile device will try to start native call. Info about other values will be added later' +
-                '"""' +
-                'voipType: VoIPType, ' +
-                '"""' +
-                'Address of sip server, which device should connect to' +
-                '"""' +
-                'voipAddress: String, ' +
-                '"""' +
-                'Login for connection to sip server' +
-                '"""' +
-                'voipLogin: String, ' +
-                '"""' +
-                'Password for connection to sip server' +
-                '"""' +
-                'voipPassword: String, ' +
-                '"""' +
-                'Panels and their commands to open. First one must be the main one. Multiple panels are in testing stage right now and may change' +
-                '"""' +
-                'voipPanels: [VoIPPanel]' +
-                '"""' +
-                'Stun server url' +
-                '"""' +
-                'stun: String, ' +
-                '"""' +
-                'Preferred codec (usually vp8)' +
-                '"""' +
-                'codec: String ' +
-                '}',
+            type: `input SendVoIPStartMessageDataForCallHandlingByNative {
+                """
+                Address of sip server, which device should connect to
+                """
+                voipAddress: String!,
+                """
+                Login for connection to sip server
+                """
+                voipLogin: String!,
+                """
+                Password for connection to sip server
+                """
+                voipPassword: String!,
+                """
+                Panels and their commands to open. First one must be the main one. Multiple panels are in testing stage right now and may change
+                """
+                voipPanels: [VoIPPanel!]!
+                """
+                Stun server urls. Are used to determine device public ip for media streams
+                """
+                stunServers: [String!],
+                """
+                Preferred codec (usually vp8)
+                """
+                codec: String
+            }`,
         },
         {
             access: true,
-            type: 'input SendVoIPStartMessageInput { ' +
-                'dv: Int!, ' +
-                'sender: SenderFieldInput!, ' +
-                'app: B2CAppWhereUniqueInput!, ' +
-                '"""' +
-                'Should be "addressKey" of B2CAppProperty / Property for which you want to send message' +
-                '"""' +
-                'addressKey: String!, ' +
-                '"""' +
-                'Name of unit, same as in Property map' +
-                '"""' +
-                'unitName: String!, ' +
-                '"""' +
-                'Type of unit, same as in Property map' +
-                '"""' +
-                'unitType: AllowedVoIPMessageUnitType!, ' +
-                'data: SendVoIPStartMessageData! ' +
-                '}',
+            type: `input SendVoIPStartMessageData {
+                """
+                Unique value for each call session between panel and resident (means same for different devices also).
+                Must be provided for correct work with multiple devices that use same voip call.
+                F.e. to cancel calls with CANCELED_CALL_MESSAGE_PUSH messages
+                """
+                callId: String!,
+                """
+                If you want your B2CApp to handle incoming VoIP call, provide this argument.
+                """
+                b2cAppCallData: SendVoIPStartMessageDataForCallHandlingByB2CApp,
+                """
+                If you want mobile app to handle call (without your B2CApp), provide this argument. If "b2cAppCallData" and "nativeCallData" are provided together, native call is prioritized. 
+                If data is incorrect, mobile app will fallback to b2c app call handling with "b2cAppCallData" 
+                """
+                nativeCallData: SendVoIPStartMessageDataForCallHandlingByNative
+            }`,
         },
         {
             access: true,
-            type: 'type SendVoIPStartMessageOutput { ' +
-                '"""' +
-                'Count of all Organization Contacts, which we possibly could\'ve sent messages to' +
-                '"""' +
-                'verifiedContactsCount: Int, ' +
-                '"""' +
-                'Count of Messages that will be sent, one for each verified Resident' +
-                '"""' +
-                'createdMessagesCount: Int,' +
-                '"""' +
-                'Count of Messages which was not created due to some internal error' +
-                '"""' +
-                'erroredMessagesCount: Int' +
-                '}',
+            type: `input SendVoIPStartMessageInput {
+                dv: Int!,
+                sender: SenderFieldInput!,
+                app: B2CAppWhereUniqueInput!,
+                """
+                Should be "addressKey" of B2CAppProperty / Property for which you want to send message
+                """
+                addressKey: String!,
+                """
+                Name of unit, same as in Property map
+                """
+                unitName: String!,
+                """
+                Type of unit, same as in Property map
+                """
+                unitType: AllowedVoIPMessageUnitType!,
+                callData: SendVoIPStartMessageData!
+            }`,
+        },
+        {
+            access: true,
+            type: `type SendVoIPStartMessageOutput {
+                """
+                Count of all Organization Contacts, which we possibly could've sent messages to
+                """
+                verifiedContactsCount: Int,
+                """
+                Count of Messages that will be sent, one for each verified Resident
+                """
+                createdMessagesCount: Int,
+                """
+                Count of Messages which was not created due to some internal error
+                """
+                erroredMessagesCount: Int
+            }`,
         },
         {
             access: true,
@@ -199,7 +221,11 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
             },
             resolver: async (parent, args, context) => {
                 const { data: argsData } = args
-                const { dv, sender, app, addressKey, unitName, unitType, data } = argsData
+                const { dv, sender, app, addressKey, unitName, unitType, callData } = argsData
+
+                if (!callData.b2cAppCallData && !callData.nativeCallData) {
+                    throw new GQLError(ERRORS.CALL_DATA_NOT_PROVIDED, context)
+                }
                 
                 checkDvAndSender(argsData, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
@@ -229,13 +255,13 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                 }, 'id app { id name }', { first: 1 })
 
                 if (!b2cAppProperty) {
-                    logInfo({ b2cAppId, callId: data.callId, stats: logInfoStats })
+                    logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats })
                     throw new GQLError(ERRORS.PROPERTY_NOT_FOUND, context)
                 }
                 logInfoStats.isPropertyFound = true
                 
                 if (!b2cAppProperty.app) {
-                    logInfo({ b2cAppId, callId: data.callId, stats: logInfoStats })
+                    logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats })
                     throw new GQLError(ERRORS.APP_NOT_FOUND, context)
                 }
                 logInfoStats.isAppFound = true
@@ -254,7 +280,7 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                 logInfoStats.verifiedContactsCount = verifiedContactsOnUnit.length
 
                 if (!verifiedContactsOnUnit?.length) {
-                    logInfo({ b2cAppId, callId: data.callId, stats: logInfoStats })
+                    logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats })
                     return {
                         verifiedContactsCount: 0,
                         createdMessagesCount: 0,
@@ -285,7 +311,7 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                 logInfoStats.verifiedResidentsCount = residentsWithVerifiedContactOnAddress.length
 
                 if (!residentsWithVerifiedContactOnAddress?.length) {
-                    logInfo({ b2cAppId, callId: data.callId, stats: logInfoStats })
+                    logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats })
                     return {
                         verifiedContactsCount: verifiedContactsOnUnit.length,
                         createdMessagesCount: 0,
@@ -329,7 +355,7 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                     )
                 } catch (err) {
                     logInfoStats.step = 'check limits'
-                    logInfo({ b2cAppId, callId: data.callId, stats: logInfoStats, errors: err })
+                    logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats, errors: err })
                     throw err
                 }
 
@@ -340,20 +366,33 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                     // .filter(resident => !rateLimitsErrorsByUserIds[resident.user])
                     .map(async (resident) => {
                         // NOTE(YEgorLu): as in domains/notification/constants/config for VOIP_INCOMING_CALL_MESSAGE_TYPE
-                        const preparedDataArgs = {
+                        let preparedDataArgs = {
                             B2CAppId: b2cAppId,
-                            B2CAppContext: data.B2CAppContext,
                             B2CAppName: b2cAppName,
                             residentId: resident.id,
-                            callId: data.callId,
-                            voipType: data.voipType,
-                            voipAddress: data.voipAddress,
-                            voipLogin: data.voipLogin,
-                            voipPassword: data.voipPassword,
-                            voipDtfmCommand: data.voipPanels?.[0]?.dtfmCommand,
-                            voipPanels: data.voipPanels,
-                            stun: data.stun,
-                            codec: data.codec,
+                            callId: callData.callId,
+                        }
+
+                        if (callData.b2cAppCallData) {
+                            preparedDataArgs = {
+                                ...preparedDataArgs,
+                                B2CAppContext: callData.b2cAppCallData.B2CAppContext,
+                            }
+                        }
+
+                        if (callData.nativeCallData) {
+                            preparedDataArgs = {
+                                ...preparedDataArgs,
+                                voipType: MAGIC_VOIP_TYPE_CONSTANT_FOR_OLD_VERSIONS_COMPATIBILITY,
+                                voipAddress: callData.nativeCallData.voipAddress,
+                                voipLogin: callData.nativeCallData.voipLogin,
+                                voipPassword: callData.nativeCallData.voipPassword,
+                                voipDtfmCommand: callData.nativeCallData.voipPanels?.[0]?.dtfmCommand,
+                                voipPanels: callData.nativeCallData.voipPanels,
+                                stunServers: callData.nativeCallData.stunServers,
+                                stun: callData.nativeCallData.stunServers?.[0],
+                                codec: callData.nativeCallData.codec,
+                            }
                         }
 
                         const requiredMetaData = get(MESSAGE_META[VOIP_INCOMING_CALL_MESSAGE_TYPE], 'data', {})
@@ -417,7 +456,7 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                 if (sendMessageStats.some(stat => !stat.error)) {
                     logInfoStats.isStatusCached = await setCallStatus({
                         b2cAppId,
-                        callId: data.callId,
+                        callId: callData.callId,
                         status: CALL_STATUS_START_SENT,
                         // NOTE(YEgorLu): we can use uniqKey for that: [pushType, b2cAppId, callId, userId, YYYY-MM-DD].join()
                         //                but this would require to check current and previous day/period
@@ -427,7 +466,7 @@ const SendVoIPStartMessageService = new GQLCustomSchema('SendVoIPStartMessageSer
                 }
 
                 logInfoStats.step = 'result'
-                logInfo({ b2cAppId, callId: data.callId, stats: logInfoStats })
+                logInfo({ b2cAppId, callId: callData.callId, stats: logInfoStats })
 
                 return {
                     verifiedContactsCount: verifiedContactsOnUnit.length,

@@ -396,9 +396,6 @@ async function sendVoIPStartMessageByTestClient (client, extraAttrs = {}) {
         dv: 1,
         sender,
         ...extraAttrs,
-        data: {
-            ...get(extraAttrs, 'data', {}),
-        },
     }
     const { data, errors } = await client.mutate(SEND_VOIP_START_MESSAGE_MUTATION, { data: attrs })
 

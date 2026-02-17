@@ -92021,11 +92021,6 @@ type SendB2BAppPushMessageOutput {
   id: String!
 }
 
-enum VoIPType {
-  """Makes mobile app use it's call app instead of B2CApp's"""
-  sip
-}
-
 input VoIPPanel {
   """Dtfm command for panel"""
   dtfmCommand: String!
@@ -92034,41 +92029,53 @@ input VoIPPanel {
   name: String!
 }
 
-input SendVoIPStartMessageData {
-  """
-  If you want your B2CApp to handle incoming VoIP call, provide this argument. Otherwise provide all others
-  """
-  B2CAppContext: String
+input SendVoIPStartMessageDataForCallHandlingByB2CApp {
+  """Data that will be provided to B2CApp. May be stringified JSON"""
+  B2CAppContext: String!
+}
 
-  """
-  Unique value for each call session between panel and resident (means same for different devices also). Must be provided for correct work with multiple devices that use same voip call.F.e. to cancel calls with CANCELED_CALL_MESSAGE_PUSH messages
-  """
-  callId: String!
-
-  """
-  If "sip" was passed, mobile device will try to start native call. Info about other values will be added later
-  """
-  voipType: VoIPType
-
+input SendVoIPStartMessageDataForCallHandlingByNative {
   """Address of sip server, which device should connect to"""
-  voipAddress: String
+  voipAddress: String!
 
   """Login for connection to sip server"""
-  voipLogin: String
+  voipLogin: String!
 
   """Password for connection to sip server"""
-  voipPassword: String
+  voipPassword: String!
 
   """
   Panels and their commands to open. First one must be the main one. Multiple panels are in testing stage right now and may change
   """
-  voipPanels: [VoIPPanel]
+  voipPanels: [VoIPPanel!]!
 
-  """Stun server url"""
-  stun: String
+  """
+  Stun server urls. Are used to determine device public ip for media streams
+  """
+  stunServers: [String!]
 
   """Preferred codec (usually vp8)"""
   codec: String
+}
+
+input SendVoIPStartMessageData {
+  """
+  Unique value for each call session between panel and resident (means same for different devices also).
+  Must be provided for correct work with multiple devices that use same voip call.
+  F.e. to cancel calls with CANCELED_CALL_MESSAGE_PUSH messages
+  """
+  callId: String!
+
+  """
+  If you want your B2CApp to handle incoming VoIP call, provide this argument.
+  """
+  b2cAppCallData: SendVoIPStartMessageDataForCallHandlingByB2CApp
+
+  """
+  If you want mobile app to handle call (without your B2CApp), provide this argument. If "b2cAppCallData" and "nativeCallData" are provided together, native call is prioritized. 
+  If data is incorrect, mobile app will fallback to b2c app call handling with "b2cAppCallData" 
+  """
+  nativeCallData: SendVoIPStartMessageDataForCallHandlingByNative
 }
 
 input SendVoIPStartMessageInput {
@@ -92086,7 +92093,7 @@ input SendVoIPStartMessageInput {
 
   """Type of unit, same as in Property map"""
   unitType: AllowedVoIPMessageUnitType!
-  data: SendVoIPStartMessageData!
+  callData: SendVoIPStartMessageData!
 }
 
 type SendVoIPStartMessageOutput {
@@ -106141,13 +106148,21 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "PROPERTY_NOT_FOUND",
-    "message": "Unable to find Property or B2CAppProperty by provided addressKey"
+    "message": "Unable to find Property or B2CAppProperty by provided addressKey",
+    "messageForUser": "Building not found for the provided \"addressKey\""
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "APP_NOT_FOUND",
-    "message": "Unable to find B2CApp."
+    "message": "Unable to find B2CApp.",
+    "messageForUser": "Application not found for the provided \"id\""
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CALL_DATA_NOT_PROVIDED",
+    "message": "\"b2cAppCallData\" or \"nativeCallData\" or both should be provided"
   }`
   """
   sendVoIPStartMessage(data: SendVoIPStartMessageInput!): SendVoIPStartMessageOutput
