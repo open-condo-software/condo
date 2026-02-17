@@ -81,38 +81,42 @@ async function getAvailableStreams (context, userId, organizationId) {
         const availableStreams = []
 
         for (const streamConfig of allStreams) {
-            const accessConfig = streamConfig.access?.read
+            try {
+                const accessConfig = streamConfig.access?.read
 
-            if (!accessConfig) {
-                continue
-            }
-
-            let hasAccess = false
-            let permission = null
-
-            if (accessConfig === true) {
-                hasAccess = true
-            } else if (typeof accessConfig === 'string') {
-                permission = accessConfig
-                if (_getPermittedOrganizations) {
-                    const organizations = await _getPermittedOrganizations(context, user, [permission])
-                    hasAccess = organizations.includes(organizationId)
-                } else {
-                    console.error('[NATS] getPermittedOrganizations not configured')
-                    hasAccess = false
+                if (!accessConfig) {
+                    continue
                 }
-            } else if (typeof accessConfig === 'function') {
-                const authentication = { item: user }
-                const testSubject = `${streamConfig.name}.${organizationId}.test`
-                hasAccess = await accessConfig({ authentication, context, organizationId, subject: testSubject })
-            }
 
-            if (hasAccess) {
-                availableStreams.push({
-                    name: streamConfig.name,
-                    subjects: streamConfig.subjects,
-                    ...(permission && { permission }),
-                })
+                let hasAccess = false
+                let permission = null
+
+                if (accessConfig === true) {
+                    hasAccess = true
+                } else if (typeof accessConfig === 'string') {
+                    permission = accessConfig
+                    if (_getPermittedOrganizations) {
+                        const organizations = await _getPermittedOrganizations(context, user, [permission])
+                        hasAccess = organizations.includes(organizationId)
+                    } else {
+                        console.error('[NATS] getPermittedOrganizations not configured')
+                        hasAccess = false
+                    }
+                } else if (typeof accessConfig === 'function') {
+                    const authentication = { item: user }
+                    const testSubject = `${streamConfig.name}.${organizationId}.test`
+                    hasAccess = await accessConfig({ authentication, context, organizationId, subject: testSubject })
+                }
+
+                if (hasAccess) {
+                    availableStreams.push({
+                        name: streamConfig.name,
+                        subjects: streamConfig.subjects,
+                        ...(permission && { permission }),
+                    })
+                }
+            } catch (error) {
+                console.error(`[NATS] Error checking access for stream ${streamConfig.name}:`, error)
             }
         }
 

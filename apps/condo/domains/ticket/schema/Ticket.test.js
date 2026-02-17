@@ -5016,22 +5016,5 @@ describe('Ticket', () => {
             })
         })
 
-        describe('NATS access control configuration', () => {
-            const { STREAM_PERMISSIONS } = require('@open-condo/nats/utils/natsAuthCallout')
-
-            test('should have correct permission mappings for streams', () => {
-                expect(STREAM_PERMISSIONS['ticket-changes']).toBe('canManageTickets')
-                expect(STREAM_PERMISSIONS['property-changes']).toBe('canManageProperties')
-                expect(STREAM_PERMISSIONS['contact-changes']).toBe('canManageContacts')
-                expect(STREAM_PERMISSIONS['billing-events']).toBe('canReadBillingReceipts')
-                expect(STREAM_PERMISSIONS['notification-events']).toBe(null)
-            })
-
-            test('should parse stream name from NATS subject correctly', () => {
-                expect('ticket-changes.org123.ticket456'.split('.')[0]).toBe('ticket-changes')
-                expect('property-changes.org123'.split('.')[0]).toBe('property-changes')
-                expect('notification-events.test'.split('.')[0]).toBe('notification-events')
-            })
-        })
     })
 })
