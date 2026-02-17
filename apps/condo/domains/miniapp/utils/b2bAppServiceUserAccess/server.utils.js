@@ -1,4 +1,9 @@
-const { isObject, isEmpty, get, isArray, isString, upperFirst } = require('lodash')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
+const isObject = require('lodash/isObject')
+const isString = require('lodash/isString')
+const upperFirst = require('lodash/upperFirst')
 const pluralize = require('pluralize')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
@@ -7,9 +12,9 @@ const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { parseSession } = require('@condo/domains/common/utils/session')
 const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/config')
+const { generateGqlQueryToField, getFilterByFieldPathValues } = require('@condo/domains/miniapp/utils/serviceUserAccessUtils/helpers.utils')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
-const { generateGqlQueryToOrganizationId, getFilterByOrganizationIds } = require('./helpers.utils')
 
 /**
  * @return {Promise<Record<string, any>|false>}
@@ -41,7 +46,7 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
 
     if (!organizationIds || isEmpty(organizationIds)) return false
 
-    return getFilterByOrganizationIds(pathToOrganizationId, organizationIds)
+    return getFilterByFieldPathValues(pathToOrganizationId, organizationIds)
 }
 
 const canManageByServiceUser = async ({ authentication: { item: user }, listKey, originalInput, itemId, operation, context }, schemaConfig, parentSchemaName) => {
@@ -70,7 +75,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
             if (!parentObjectId) return false
 
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGqlQueryToOrganizationId(parentSchemaName, pathToOrganizationId.slice(1)),
+                query: generateGqlQueryToField(parentSchemaName, pathToOrganizationId.slice(1)),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,
@@ -95,7 +100,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
             if (!parentObjectId) return false
 
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGqlQueryToOrganizationId(parentSchemaName, pathToOrganizationId.slice(1)),
+                query: generateGqlQueryToField(parentSchemaName, pathToOrganizationId.slice(1)),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,

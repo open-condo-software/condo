@@ -11,9 +11,9 @@ const { B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domain
 
 
 const B2CAppAccessRightSet = new GQLListSchema('B2CAppAccessRightSet', {
-    schemaDoc: 'A set of access rights for a service user integrated with your B2CApp' +
-        ' (exist B2CAppAccessRight with links to your service user and your B2CApp).' +
-        '\nThis set of access right will be used to check your service user access to schemas and services that are linked to' +
+    schemaDoc: 'A set of access rights for a service user integrated with your B2CApp ' +
+        '(exist B2CAppAccessRight with links to your service user and your B2CApp).\n' +
+        'This set of access right will be used to check your service user access to schemas and services that are linked to ' +
         'your B2CApp\'s entities "B2CAppProperty" schema by "addressKey"',
     fields: {
 

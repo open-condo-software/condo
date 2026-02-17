@@ -4,7 +4,7 @@
 
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowUniqueConstraintViolationError, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -15,10 +15,13 @@ const {
 
 const { NON_SERVICE_USER_ERROR } = require('@condo/domains/miniapp/constants')
 const {
+    ERRORS,
+} = require('@condo/domains/miniapp/schema/B2CAppAccessRight')
+const {
     createTestB2CApp,
     B2CAppAccessRight,
     createTestB2CAppAccessRight,
-    updateTestB2CAppAccessRight,
+    updateTestB2CAppAccessRight, createTestB2CAppAccessRightSet,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     makeClientWithSupportUser,
@@ -187,6 +190,23 @@ describe('B2CAppAccessRight', () => {
 
             await createTestB2CAppAccessRight(admin, serviceUser, app)
             await createTestB2CAppAccessRight(admin, serviceUser, app2)
+        })
+
+        test('Can connect only to relative rights set', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [serviceUser] = await registerNewServiceUserByTestClient(admin)
+
+            const [app] = await createTestB2CApp(admin)
+            const [rightsSet] = await createTestB2CAppAccessRightSet(admin, app)
+
+            const [accessRight] = await createTestB2CAppAccessRight(admin, serviceUser, app, { accessRightSet: { connect: { id: rightsSet.id } } })
+            expect(accessRight.accessRightSet.id).toBe(rightsSet.id)
+
+            const [anotherApp] = await createTestB2CApp(admin)
+            const [anotherRightsSet] = await createTestB2CAppAccessRightSet(admin, anotherApp)
+            await expectToThrowGQLError(async () => {
+                await createTestB2CAppAccessRight(admin, serviceUser, app, { accessRightSet: { connect: { id: anotherRightsSet.id } } })
+            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP)
         })
     })
     describe('Constraints', () => {
