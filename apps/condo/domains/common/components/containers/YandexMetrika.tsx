@@ -1,4 +1,3 @@
-import get from 'lodash/get'
 import isNil from 'lodash/isNil'
 import omitBy from 'lodash/omitBy'
 import getConfig from 'next/config'
@@ -17,9 +16,9 @@ const YandexMetrika = () => {
 
     const { user } = useAuth()
     const { organization, link } = useOrganization()
-    const userId = get(user, 'id')
-    const organizationId = get(organization, 'id')
-    const role = get(link, 'role')
+    const userId = user?.id
+    const organizationId = organization?.id
+    const role = link?.role
 
     const router = useRouter()
 
@@ -29,25 +28,27 @@ const YandexMetrika = () => {
         const userParams = omitBy({
             UserID: userId,
             organizationId,
-            roleName: get(role, 'name'),
-            roleNameNonLocalized: get(role, 'nameNonLocalized'),
+            roleName: role?.name,
+            roleNameNonLocalized: role?.nameNonLocalized,
         }, isNil)
         ym('userParams', userParams)
     }, [organizationId, role, userId, yandexMetrikaID])
 
-    const routeChangeComplete = () => {
-        ym('hit', window.location.pathname)
-    }
-
     useEffect(() => {
-        if (yandexMetrikaID) {
-            router.events.on('routeChangeComplete', routeChangeComplete)
+        if (!yandexMetrikaID) return
+    
+        ym('hit', window.location.href)
+    
+        const routeChangeComplete = () => {
+            ym('hit', window.location.pathname)
         }
-
+    
+        router.events.on('routeChangeComplete', routeChangeComplete)
+    
         return () => {
             router.events.off('routeChangeComplete', routeChangeComplete)
         }
-    }, [yandexMetrikaID])
+    }, [router.events, yandexMetrikaID])
 
     return yandexMetrikaID ? (
         <YMInitializer
@@ -60,7 +61,6 @@ const YandexMetrika = () => {
                 webvisor: false,
             }}
         />
-
     ) : null
 }
 
