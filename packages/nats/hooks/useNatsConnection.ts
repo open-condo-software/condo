@@ -13,10 +13,12 @@ interface NatsConnectionState {
     isConnected: boolean
     isConnecting: boolean
     error: Error | null
+    allowedStreams: string[]
 }
 
 let globalConnection: NatsConnection | null = null
 let globalConnectionPromise: Promise<NatsConnection> | null = null
+let globalAllowedStreams: string[] = []
 let connectionRefCount = 0
 
 export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
@@ -27,6 +29,7 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
         isConnected: !!globalConnection,
         isConnecting: false,
         error: null,
+        allowedStreams: globalAllowedStreams,
     })
     const isMountedRef = useRef(true)
 
@@ -47,7 +50,8 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
                 if (!tokenResponse.ok) {
                     throw new Error(`Failed to fetch NATS token: ${tokenResponse.status}`)
                 }
-                const { token } = await tokenResponse.json()
+                const { token, allowedStreams: streams } = await tokenResponse.json()
+                globalAllowedStreams = streams || []
 
                 const natsUrl = process.env.NEXT_PUBLIC_NATS_WS_URL || 'ws://localhost:8080'
 
@@ -65,12 +69,14 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
                     console.log('[NATS] Connection closed', err || '')
                     globalConnection = null
                     globalConnectionPromise = null
+                    globalAllowedStreams = []
                     if (isMountedRef.current) {
                         setState({
                             connection: null,
                             isConnected: false,
                             isConnecting: false,
                             error: err ? new Error(String(err)) : null,
+                            allowedStreams: [],
                         })
                     }
                 })
@@ -81,6 +87,7 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
                         isConnected: true,
                         isConnecting: false,
                         error: null,
+                        allowedStreams: globalAllowedStreams,
                     })
                 }
 
@@ -96,6 +103,7 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
                         isConnected: false,
                         isConnecting: false,
                         error: err,
+                        allowedStreams: [],
                     })
                 }
                 throw err
@@ -140,6 +148,7 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
         isConnected: state.isConnected,
         isConnecting: state.isConnecting,
         error: state.error,
+        allowedStreams: state.allowedStreams,
         connect,
         disconnect,
     }

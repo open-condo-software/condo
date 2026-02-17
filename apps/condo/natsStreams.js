@@ -12,18 +12,18 @@ streamRegistry.register('ticket-changes', {
                 const { item: user } = authentication
                 if (!user || user.deletedAt) return false
 
+                const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, ['canReadTickets'])
+                if (!permittedOrganizations.includes(organizationId)) return false
+
                 const ticketId = subject.split('.')[2]
-                if (!ticketId) return false
+                if (!ticketId) return true
 
                 const ticket = await Ticket.getOne(context, {
                     id: ticketId,
                     organization: { id: organizationId },
                 })
 
-                if (!ticket) return false
-
-                const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, ['canReadTickets'])
-                return permittedOrganizations.includes(organizationId)
+                return !!ticket
             } catch (error) {
                 console.error('[NATS] Error in ticket-changes access check:', error)
                 return false

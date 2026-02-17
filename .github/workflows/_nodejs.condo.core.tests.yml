@@ -42,6 +42,10 @@ jobs:
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
+      - name: prepare env for dbs
+        run: |
+          cp .env.example .env
+
       - name: run dbs
         env:
           REGISTRY: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/

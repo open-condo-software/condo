@@ -15,12 +15,20 @@ class NatsClient {
         if (this.isConnected) return
 
         try {
-            this.connection = await connect({
+            const connectOpts = {
                 servers: config.url || process.env.NATS_URL || 'nats://localhost:4222',
-                token: config.token || process.env.NATS_TOKEN,
                 reconnect: true,
                 maxReconnectAttempts: -1,
-            })
+            }
+
+            if (config.user && config.pass) {
+                connectOpts.user = config.user
+                connectOpts.pass = config.pass
+            } else if (config.token || process.env.NATS_TOKEN) {
+                connectOpts.token = config.token || process.env.NATS_TOKEN
+            }
+
+            this.connection = await connect(connectOpts)
 
             this.jetstream = this.connection.jetstream()
             this.isConnected = true
