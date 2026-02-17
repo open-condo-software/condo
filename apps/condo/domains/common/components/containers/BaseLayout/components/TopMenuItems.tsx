@@ -44,7 +44,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
                 <div style={{ maxHeight: '24px' }}>
                     <UserMessagesList disabled={!hasSubscription} />
                 </div>
-                { isAIChatEnabled && <AIFlowButton onClick={openAIOverlay} /> }
+                { isAIChatEnabled && !isAIOverlayOpen && <AIFlowButton onClick={openAIOverlay} /> }
             </Space>
         </>
     )

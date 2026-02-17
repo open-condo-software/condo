@@ -1,20 +1,24 @@
-import { useLazyQuery } from '@apollo/client'
-import React, { useState, useRef, useEffect } from 'react'
+import { useApolloClient } from '@apollo/client'
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Input, Space, Typography } from '@open-condo/ui'
+import { Input, Typography, Space } from '@open-condo/ui'
 import { Markdown } from '@open-condo/ui'
+import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
-import { ACTION_REQUESTED, TASK_STATUSES } from '@condo/domains/ai/constants'
+import { TASK_STATUSES } from '@condo/domains/ai/constants'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
-import { MODEL_QUERIES } from '@condo/domains/ai/utils/dataQueries'
+import { runToolCall, ToolCallResult } from '@condo/domains/ai/utils/toolCalls'
 
 import styles from './AIChat.module.css'
 
-type Message = {
+const STORAGE_KEY = 'condo-ai-chat-history'
+const storageManager = new LocalStorageManager<Record<string, any[]>>()
+
+export type Message = {
     id: string
     content: string
     role: 'user' | 'assistant'
@@ -31,27 +35,21 @@ type AIChatProps = {
     onClose?: () => void
 }
 
-export const AIChat: React.FC<AIChatProps> = ({ onClose }) => {
+export const AIChat = forwardRef<any, AIChatProps>(({ onClose }, ref) => {
     const intl = useIntl()
     const { user } = useAuth()
     const { organization } = useOrganization()
+    const client = useApolloClient()
     
     const [inputValue, setInputValue] = useState('')
-    const [aiSessionId] = useState(uuidV4)
+    const [aiSessionId, setAiSessionId] = useState(uuidV4)
     const [messages, setMessages] = useState<Message[]>([])
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<any>(null)
 
-    // Query for existing chat history
-    const [fetchChatTasks] = useLazyQuery(MODEL_QUERIES.ExecutionAIFlowTask)
-    const [fetchTickets] = useLazyQuery(MODEL_QUERIES.Ticket)
-    const [fetchTicketComments] = useLazyQuery(MODEL_QUERIES.TicketComment)
-    const [fetchProperties] = useLazyQuery(MODEL_QUERIES.Property)
-    const [fetchUsers] = useLazyQuery(MODEL_QUERIES.User)
-
     const [executeAIFlow, { loading }] = useAIFlow<{ answer: string }>({
         flowType: 'chat-with-condo',
-        timeout: 45000,
+        timeout: 120000,
     })
 
     const placeholder = intl.formatMessage({ id: 'ai.chat.placeholder' })
@@ -59,95 +57,63 @@ export const AIChat: React.FC<AIChatProps> = ({ onClose }) => {
     const welcomeMessage = intl.formatMessage({ id: 'ai.chat.welcome' })
     const errorMessage = intl.formatMessage({ id: 'ai.chat.error' })
     const failedToGetResponseMessage = intl.formatMessage({ id: 'ai.chat.failedToGetResponse' })
-    const foundItemsMessage = intl.formatMessage({ id: 'ai.chat.foundItems' })
 
-    // Load existing chat history on component mount
+    // Load chat history from local storage on component mount
     useEffect(() => {
-        const loadChatHistory = async () => {
-            if (!user || !organization) return
-            
-            try {
-                const result = await fetchChatTasks({
-                    variables: {
-                        where: {
-                            aiSessionId: { equals: aiSessionId },
-                            user: { id: { equals: user.id } },
-                            organization: { id: { equals: organization.id } },
-                        },
-                        orderBy: [{ createdAt: 'asc' }],
-                        first: 100,
-                    },
-                })
-
-                if (result.data?.items) {
-                    const chatHistory: Message[] = []
-                    
-                    result.data.items.forEach((task: any) => {
-                        // Add user message from context
-                        if (task.context?.userInput) {
-                            chatHistory.push({
-                                id: `user-${task.id}`,
-                                content: task.context.userInput,
-                                role: 'user',
-                                timestamp: new Date(task.createdAt),
-                                status: 'sent',
-                            })
-                        }
-
-                        // Add assistant response from result
-                        if (task.result?.answer) {
-                            chatHistory.push({
-                                id: `assistant-${task.id}`,
-                                content: task.result.answer,
-                                role: 'assistant',
-                                timestamp: new Date(task.updatedAt),
-                                status: task.status === TASK_STATUSES.COMPLETED ? 'sent' : 
-                                       task.status === TASK_STATUSES.ERROR ? 'error' : 'sending',
-                            })
-                        }
-
-                        // Add tool call results if any
-                        if (task.status === TASK_STATUSES.ACTION_REQUESTED && 
-                            task.actionRequested === ACTION_REQUESTED.TOOL_CALL) {
-                            chatHistory.push({
-                                id: `tool-${task.id}`,
-                                content: intl.formatMessage({ id: 'ai.chat.toolExecuted' }),
-                                role: 'assistant',
-                                timestamp: new Date(task.updatedAt),
-                                status: 'sent',
-                            })
-                        }
-                    })
-
-                    // If we have chat history in context of the most recent task, use that
-                    const latestTask = result.data.items[result.data.items.length - 1]
-                    if (latestTask?.context?.chatHistory && Array.isArray(latestTask.context.chatHistory)) {
-                        const contextHistory = latestTask.context.chatHistory.map((msg: any) => ({
-                            id: msg.id,
-                            content: msg.content,
-                            role: msg.role,
-                            timestamp: new Date(msg.timestamp),
-                            status: msg.status || 'sent',
-                        }))
-                        setMessages(contextHistory)
-                    } else {
-                        setMessages(chatHistory)
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to load chat history:', error)
-            }
+        if (typeof window === 'undefined') return
+        
+        const history = storageManager.getItem(STORAGE_KEY)
+        const savedHistory = history?.[aiSessionId] || []
+        
+        if (savedHistory.length > 0) {
+            // Convert timestamp strings back to Date objects
+            const historyWithDates = savedHistory.map(msg => ({
+                ...msg,
+                timestamp: new Date(msg.timestamp),
+            }))
+            setMessages(historyWithDates)
         }
-
-        loadChatHistory()
-    }, [user, organization, aiSessionId, fetchChatTasks, intl])
+    }, [aiSessionId])
 
     const addMessage = (newMessage: Message) => {
-        setMessages(prev => [...prev, newMessage])
+        setMessages(prev => {
+            const updated = [...prev, newMessage]
+            // Save to local storage
+            if (typeof window !== 'undefined') {
+                const history = storageManager.getItem(STORAGE_KEY) || {}
+                history[aiSessionId] = updated
+                storageManager.setItem(STORAGE_KEY, history)
+            }
+            return updated
+        })
     }
 
     const changeMessage = (messageId: string, updatedMessage: Message) => {
-        setMessages(prev => prev.map(msg => msg.id === messageId ? updatedMessage : msg))
+        setMessages(prev => {
+            const updated = prev.map(msg => msg.id === messageId ? updatedMessage : msg)
+            // Save to local storage
+            if (typeof window !== 'undefined') {
+                const history = storageManager.getItem(STORAGE_KEY) || {}
+                history[aiSessionId] = updated
+                storageManager.setItem(STORAGE_KEY, history)
+            }
+            return updated
+        })
+    }
+
+    const removeMessage = (messageId: string) => {
+        setMessages(prev => {
+            const updated = prev.filter(msg => msg.id !== messageId)
+            // Save to local storage
+            if (typeof window !== 'undefined') {
+                const history = storageManager.getItem(STORAGE_KEY)
+                if (history) {
+                    delete history[aiSessionId]
+                    storageManager.setItem(STORAGE_KEY, history)
+                }
+            }
+            return updated
+        })
     }
 
     const scrollToBottom = () => {
@@ -163,6 +129,11 @@ export const AIChat: React.FC<AIChatProps> = ({ onClose }) => {
             inputRef.current?.focus()
         }, 100)
     }, [])
+
+    useImperativeHandle(ref, () => ({
+        handleResetHistory,
+        handleSaveConversation,
+    }))
 
     const executeAIMessage = async (userInput: string, additionalContext?: any) => {
         const assistantMessage: Message = {
@@ -185,17 +156,9 @@ export const AIChat: React.FC<AIChatProps> = ({ onClose }) => {
                         ...additionalContext,
                     },
                     aiSessionId,
-                    chatHistory: messages.map(msg => ({
-                        id: msg.id,
-                        content: msg.content,
-                        role: msg.role,
-                        timestamp: msg.timestamp.toISOString(),
-                        status: msg.status,
-                    })),
                 },
             })
             
-
             if (!result.data) {
                 changeMessage(assistantMessage.id, {
                     ...assistantMessage,
@@ -205,25 +168,88 @@ export const AIChat: React.FC<AIChatProps> = ({ onClose }) => {
                 return
             }
 
-            if (result.data?.status === TASK_STATUSES.ACTION_REQUESTED && result.data?.actionRequested === ACTION_REQUESTED.TOOL_CALL) {
+            // If we have any toolCalls -- we need to do this:
+            // 1. Execute any known tools that are requested
+            // 2. Create new ExecutionAIFlowTask with toolCalls result
+            if (result.data?.status === TASK_STATUSES.COMPLETED && result.data?.result?.toolCalls) {
+                // Thinking... -> result.data.answer 
                 changeMessage(assistantMessage.id, {
                     ...assistantMessage,
                     content: (result.data.result.answer),
                     status: 'sent',
                 })
 
-                const requestedData = await fetchRequestedData(result.data?.actionRequestedMeta)
+                const toolCalls = result.data.result.toolCalls
                 
-                addMessage({
-                    id: `assistant-${Date.now()}`,
+                // Show thinking message while tools are executing
+                const thinkingMessage: Message = {
+                    id: `thinking-${Date.now()}`,
+                    content: 'Executing tools...',
                     role: 'assistant',
-                    content: intl.formatMessage({ id: 'ai.chat.foundItems' }, { count: requestedData.length }),
-                    status: 'sent',
                     timestamp: new Date(),
-                })
+                    status: 'sending',
+                }
+                addMessage(thinkingMessage)
 
-                // Continue the conversation with the additional data
-                await executeAIMessage(userInput, { requestedData })
+                try {
+                    const userData = {
+                        organizationId: organization?.id,
+                        userId: user?.id,
+                    }
+                    
+                    const toolCallPromises = toolCalls.map((toolCall: any) => 
+                        runToolCall(
+                            toolCall.name,
+                            toolCall.args,
+                            userData,
+                            client,
+                            intl
+                        )
+                    )
+
+                    const toolCallResults: ToolCallResult[] = await Promise.all(toolCallPromises)
+                    
+                    // Remove thinking message
+                    removeMessage(thinkingMessage.id)
+                    
+                    // Compile results message
+                    const resultsMessage = toolCallResults
+                        .map(toolCall => toolCall.resultMessage || toolCall.errorMessage)
+                        .filter(Boolean)
+                        .join('\n')
+
+                    if (resultsMessage) {
+                        addMessage({
+                            id: `results-${Date.now()}`,
+                            role: 'assistant',
+                            content: resultsMessage,
+                            status: 'sent',
+                            timestamp: new Date(),
+                        })
+                    }
+
+                    // Continue the conversation with the additional data
+                    const allToolCallResults = toolCallResults.map(toolCall => (
+                        {
+                            name: toolCall.name,
+                            args: toolCall.args,
+                            result: toolCall.result,
+                        }))
+
+                    if (allToolCallResults.length > 0) {
+                        await executeAIMessage(userInput, { toolCalls: allToolCallResults })
+                    }
+                } catch (error) {
+                    // Remove thinking message and show error
+                    removeMessage(thinkingMessage.id)
+                    addMessage({
+                        id: `tool-error-${Date.now()}`,
+                        role: 'assistant',
+                        content: `Error executing tools: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                        status: 'sent',
+                        timestamp: new Date(),
+                    })
+                }
             } else if (result.data?.status === TASK_STATUSES.COMPLETED) {
                 changeMessage(assistantMessage.id, {
                     ...assistantMessage,
@@ -260,50 +286,54 @@ export const AIChat: React.FC<AIChatProps> = ({ onClose }) => {
         await executeAIMessage(currentInput)
     }
 
-    const fetchRequestedData = async (meta: any) => {
-        const modelKey = Object.keys(meta)[0]
-        if (!modelKey) {
-            throw new Error('Invalid data request: no model specified in meta')
-        }
-
-        const modelMeta = meta[modelKey]
-        const { first, where } = modelMeta
-
-        if (!where) {
-            throw new Error('Invalid data request: missing where clause')
-        }
-
-        let result
-        const variables = { where, first: first || 10 }
-
-        // Use the appropriate query based on model
-        const modelName = modelKey.charAt(0).toUpperCase() + modelKey.slice(1)
-        
-        switch (modelName) {
-            case 'Ticket':
-                result = await fetchTickets({ variables })
-                break
-            case 'TicketComment':
-                result = await fetchTicketComments({ variables })
-                break
-            case 'Property':
-                result = await fetchProperties({ variables })
-                break
-            case 'User':
-                result = await fetchUsers({ variables })
-                break
-            default:
-                throw new Error(`Model "${modelName}" is not supported`)
-        }
-
-        return result.data?.items || []
-    }
-
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
             handleSendMessage()
         }
+    }
+
+    const handleResetHistory = () => {
+        // Clear current session from local storage
+        if (typeof window !== 'undefined') {
+            const history = storageManager.getItem(STORAGE_KEY)
+            if (history) {
+                delete history[aiSessionId]
+                storageManager.setItem(STORAGE_KEY, history)
+            }
+        }
+        
+        // Generate new session ID and clear messages
+        const newSessionId = uuidV4()
+        setAiSessionId(newSessionId)
+        setMessages([])
+        
+        // Focus input after reset
+        setTimeout(() => {
+            inputRef.current?.focus()
+        }, 100)
+    }
+
+    const handleSaveConversation = () => {
+        if (messages.length === 0) return
+        
+        // Create conversation text
+        const conversationText = messages.map(msg => {
+            const timestamp = msg.timestamp.toLocaleString()
+            const role = msg.role === 'user' ? 'User' : 'Assistant'
+            return `[${timestamp}] ${role}:\n${msg.content}\n`
+        }).join('\n---\n\n')
+        
+        // Create blob and download
+        const blob = new Blob([conversationText], { type: 'text/plain;charset=utf-8' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `condo-ai-conversation-${new Date().toISOString().split('T')[0]}.txt`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
     }
 
     return (
@@ -351,4 +381,4 @@ export const AIChat: React.FC<AIChatProps> = ({ onClose }) => {
             </div>
         </div>  
     )
-}
+})

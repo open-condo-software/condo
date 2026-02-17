@@ -87049,8 +87049,6 @@ type ExecutionAIFlowTaskHistoryRecord {
   modelName: String
   itemId: String
   aiSessionId: String
-  lastActionRequested: String
-  lastActionRequestedMeta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -87223,28 +87221,6 @@ input ExecutionAIFlowTaskHistoryRecordWhereInput {
   aiSessionId_not_ends_with_i: String
   aiSessionId_in: [String]
   aiSessionId_not_in: [String]
-  lastActionRequested: String
-  lastActionRequested_not: String
-  lastActionRequested_contains: String
-  lastActionRequested_not_contains: String
-  lastActionRequested_starts_with: String
-  lastActionRequested_not_starts_with: String
-  lastActionRequested_ends_with: String
-  lastActionRequested_not_ends_with: String
-  lastActionRequested_i: String
-  lastActionRequested_not_i: String
-  lastActionRequested_contains_i: String
-  lastActionRequested_not_contains_i: String
-  lastActionRequested_starts_with_i: String
-  lastActionRequested_not_starts_with_i: String
-  lastActionRequested_ends_with_i: String
-  lastActionRequested_not_ends_with_i: String
-  lastActionRequested_in: [String]
-  lastActionRequested_not_in: [String]
-  lastActionRequestedMeta: JSON
-  lastActionRequestedMeta_not: JSON
-  lastActionRequestedMeta_in: [JSON]
-  lastActionRequestedMeta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -87342,8 +87318,6 @@ enum SortExecutionAIFlowTaskHistoryRecordsBy {
   itemId_DESC
   aiSessionId_ASC
   aiSessionId_DESC
-  lastActionRequested_ASC
-  lastActionRequested_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -87377,8 +87351,6 @@ input ExecutionAIFlowTaskHistoryRecordUpdateInput {
   modelName: String
   itemId: String
   aiSessionId: String
-  lastActionRequested: String
-  lastActionRequestedMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -87413,8 +87385,6 @@ input ExecutionAIFlowTaskHistoryRecordCreateInput {
   modelName: String
   itemId: String
   aiSessionId: String
-  lastActionRequested: String
-  lastActionRequestedMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -87438,18 +87408,12 @@ enum ExecutionAIFlowTaskStatusType {
   completed
   error
   cancelled
-  action_requested
 }
 
 enum ExecutionAIFlowTaskLocaleType {
   ru
   en
   es
-}
-
-enum ExecutionAIFlowTaskLastActionRequestedType {
-  data_requested
-  confirmation_requested
 }
 
 """ Allows you to run a deferred task to execute a request to AI. Saves information about the request, as well as about the process of executing the request itself. 
@@ -87512,13 +87476,6 @@ type ExecutionAIFlowTask {
   """ Session identifier for grouping related AI tasks in a conversation and using memory 
   """
   aiSessionId: String
-
-  """ Type of the last action requested by AI for human-in-the-loop workflows 
-  """
-  lastActionRequested: ExecutionAIFlowTaskLastActionRequestedType
-
-  """ Additional metadata about the last action requested by AI """
-  lastActionRequestedMeta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -87667,14 +87624,6 @@ input ExecutionAIFlowTaskWhereInput {
   aiSessionId_not_ends_with_i: String
   aiSessionId_in: [String]
   aiSessionId_not_in: [String]
-  lastActionRequested: ExecutionAIFlowTaskLastActionRequestedType
-  lastActionRequested_not: ExecutionAIFlowTaskLastActionRequestedType
-  lastActionRequested_in: [ExecutionAIFlowTaskLastActionRequestedType]
-  lastActionRequested_not_in: [ExecutionAIFlowTaskLastActionRequestedType]
-  lastActionRequestedMeta: JSON
-  lastActionRequestedMeta_not: JSON
-  lastActionRequestedMeta_in: [JSON]
-  lastActionRequestedMeta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -87756,8 +87705,6 @@ enum SortExecutionAIFlowTasksBy {
   itemId_DESC
   aiSessionId_ASC
   aiSessionId_DESC
-  lastActionRequested_ASC
-  lastActionRequested_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -87791,8 +87738,6 @@ input ExecutionAIFlowTaskUpdateInput {
   modelName: String
   itemId: String
   aiSessionId: String
-  lastActionRequested: ExecutionAIFlowTaskLastActionRequestedType
-  lastActionRequestedMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -87824,8 +87769,6 @@ input ExecutionAIFlowTaskCreateInput {
   modelName: String
   itemId: String
   aiSessionId: String
-  lastActionRequested: ExecutionAIFlowTaskLastActionRequestedType
-  lastActionRequestedMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String

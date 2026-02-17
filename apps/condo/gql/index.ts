@@ -259,8 +259,6 @@ export const GetExecutionAiFlowTaskByIdDocument = gql`
     errorMessage
     status
     aiSessionId
-    lastActionRequested
-    lastActionRequestedMeta
     __typename
   }
 }
@@ -306,8 +304,6 @@ export const CreateExecutionAiFlowTaskDocument = gql`
     errorMessage
     status
     aiSessionId
-    lastActionRequested
-    lastActionRequestedMeta
   }
 }
     `;
@@ -337,6 +333,44 @@ export function useCreateExecutionAiFlowTaskMutation(baseOptions?: Apollo.Mutati
 export type CreateExecutionAiFlowTaskMutationHookResult = ReturnType<typeof useCreateExecutionAiFlowTaskMutation>;
 export type CreateExecutionAiFlowTaskMutationResult = Apollo.MutationResult<Types.CreateExecutionAiFlowTaskMutation>;
 export type CreateExecutionAiFlowTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateExecutionAiFlowTaskMutation, Types.CreateExecutionAiFlowTaskMutationVariables>;
+export const UpdateExecutionAiFlowTaskDocument = gql`
+    mutation updateExecutionAIFlowTask($id: ID!, $data: ExecutionAIFlowTaskUpdateInput!) {
+  task: updateExecutionAIFlowTask(id: $id, data: $data) {
+    id
+    result
+    errorMessage
+    status
+    aiSessionId
+  }
+}
+    `;
+export type UpdateExecutionAiFlowTaskMutationFn = Apollo.MutationFunction<Types.UpdateExecutionAiFlowTaskMutation, Types.UpdateExecutionAiFlowTaskMutationVariables>;
+
+/**
+ * __useUpdateExecutionAiFlowTaskMutation__
+ *
+ * To run a mutation, you first call `useUpdateExecutionAiFlowTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateExecutionAiFlowTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateExecutionAiFlowTaskMutation, { data, loading, error }] = useUpdateExecutionAiFlowTaskMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateExecutionAiFlowTaskMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateExecutionAiFlowTaskMutation, Types.UpdateExecutionAiFlowTaskMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateExecutionAiFlowTaskMutation, Types.UpdateExecutionAiFlowTaskMutationVariables>(UpdateExecutionAiFlowTaskDocument, options);
+      }
+export type UpdateExecutionAiFlowTaskMutationHookResult = ReturnType<typeof useUpdateExecutionAiFlowTaskMutation>;
+export type UpdateExecutionAiFlowTaskMutationResult = Apollo.MutationResult<Types.UpdateExecutionAiFlowTaskMutation>;
+export type UpdateExecutionAiFlowTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateExecutionAiFlowTaskMutation, Types.UpdateExecutionAiFlowTaskMutationVariables>;
 export const GetBankAccountReportTasksDocument = gql`
     query getBankAccountReportTasks($where: BankAccountReportTaskWhereInput!) {
   tasks: allBankAccountReportTasks(where: $where) {
@@ -4788,6 +4822,59 @@ export type GetAllPropertyWithoutMapCountByOrganizationIdQueryHookResult = Retur
 export type GetAllPropertyWithoutMapCountByOrganizationIdLazyQueryHookResult = ReturnType<typeof useGetAllPropertyWithoutMapCountByOrganizationIdLazyQuery>;
 export type GetAllPropertyWithoutMapCountByOrganizationIdSuspenseQueryHookResult = ReturnType<typeof useGetAllPropertyWithoutMapCountByOrganizationIdSuspenseQuery>;
 export type GetAllPropertyWithoutMapCountByOrganizationIdQueryResult = Apollo.QueryResult<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>;
+export const GetPropertiesDocument = gql`
+    query getProperties($where: PropertyWhereInput!, $first: Int!) {
+  properties: allProperties(
+    where: $where
+    first: $first
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    createdAt
+    updatedAt
+    name
+    address
+    organization {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPropertiesQuery__
+ *
+ * To run a query within a React component, call `useGetPropertiesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPropertiesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPropertiesQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *   },
+ * });
+ */
+export function useGetPropertiesQuery(baseOptions: Apollo.QueryHookOptions<Types.GetPropertiesQuery, Types.GetPropertiesQueryVariables> & ({ variables: Types.GetPropertiesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetPropertiesQuery, Types.GetPropertiesQueryVariables>(GetPropertiesDocument, options);
+      }
+export function useGetPropertiesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetPropertiesQuery, Types.GetPropertiesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetPropertiesQuery, Types.GetPropertiesQueryVariables>(GetPropertiesDocument, options);
+        }
+export function useGetPropertiesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPropertiesQuery, Types.GetPropertiesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetPropertiesQuery, Types.GetPropertiesQueryVariables>(GetPropertiesDocument, options);
+        }
+export type GetPropertiesQueryHookResult = ReturnType<typeof useGetPropertiesQuery>;
+export type GetPropertiesLazyQueryHookResult = ReturnType<typeof useGetPropertiesLazyQuery>;
+export type GetPropertiesSuspenseQueryHookResult = ReturnType<typeof useGetPropertiesSuspenseQuery>;
+export type GetPropertiesQueryResult = Apollo.QueryResult<Types.GetPropertiesQuery, Types.GetPropertiesQueryVariables>;
 export const GetPropertyScopePropertiesDocument = gql`
     query getPropertyScopeProperties($propertyScopeIds: [ID!]) {
   propertyScopeProperty: allPropertyScopeProperties(

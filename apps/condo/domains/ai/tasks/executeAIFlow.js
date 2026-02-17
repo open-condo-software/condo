@@ -9,7 +9,6 @@ const { i18n } = require('@open-condo/locales/loader')
 const { FlowiseAdapter, N8NAdapter } = require('@condo/domains/ai/adapters')
 const {
     TASK_STATUSES,
-    LAST_ACTION_REQUESTED,
     FLOW_ADAPTERS: FLOW_ADAPTER_NAMES,
 } = require('@condo/domains/ai/constants')
 const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/utils/flowsConfig')
@@ -103,9 +102,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
 
         const { replacements } = removeSensitiveDataFromObj(task.context)
         const resultWithRestoredPII = restoreSensitiveData(prediction.result, replacements)
-
-        // Check if the AI result contains an action request
-        const actionRequest = prediction.result.actionRequest
+        
         let updateData = {
             ...BASE_ATTRIBUTES,
             result: resultWithRestoredPII,
@@ -114,28 +111,6 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
                 response: prediction._response,
             },
             status: TASK_STATUSES.COMPLETED,
-        }
-
-        if (actionRequest) {
-            // Handle action request from AI
-            const { type, meta } = actionRequest
-            
-            // Validate action request type
-            if (!Object.values(LAST_ACTION_REQUESTED).includes(type)) {
-                throw new Error(`Invalid action request type: ${type}`)
-            }
-
-            updateData = {
-                ...BASE_ATTRIBUTES,
-                result: resultWithRestoredPII,
-                meta: {
-                    ...prediction.result,
-                    response: prediction._response,
-                },
-                status: TASK_STATUSES.ACTION_REQUESTED,
-                lastActionRequested: type,
-                lastActionRequestedMeta: meta || {},
-            }
         }
 
         await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, updateData)

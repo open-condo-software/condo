@@ -3,11 +3,6 @@ const TASK_STATUSES = {
     COMPLETED: 'completed',
     ERROR: 'error',
     CANCELLED: 'cancelled',
-    ACTION_REQUESTED: 'action_requested',
-}
-
-const ACTION_REQUESTED = {
-    TOOL_CALL: 'tool_call',
 }
 
 const FLOW_ADAPTERS = {
@@ -190,15 +185,46 @@ const FLOW_META_SCHEMAS = {
             type: 'object',
             properties: {
                 userInput: { type: 'string' },
-                userData: { type: 'object', additionalProperties: true },
+                userData: {
+                    type: 'object',
+                    additionalProperties: true,
+                    properties: {
+                        userId: { type: 'string' },
+                        organizationId: { type: 'string' },
+                        toolCalls: {
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    name: { type: 'string' },
+                                    args: { type: 'object', additionalProperties: true },
+                                    result: { type: ['object', 'array'] },
+                                },
+                            },
+                            type: 'array',
+                            minItems: 0,
+                        },
+                    },
+                    required: ['userId', 'organizationId'],
+                },
             },
-            required: ['userInput'],
+            required: ['userInput', 'userData'],
             additionalProperties: true,
         },
         output: {
             type: 'object',
             properties: {
                 answer: { type: 'string' },
+                toolCalls: {
+                    items: {
+                        type: 'object',
+                        properties: {
+                            name: { type: 'string' },
+                            args: { type: 'object', additionalProperties: true },
+                        },
+                    },
+                    type: 'array',
+                    minItems: 0,
+                },
             },
             required: ['answer'],
             additionalProperties: true,
@@ -226,7 +252,6 @@ for (const [flowName, schemaByOperation] of Object.entries(FLOW_META_SCHEMAS)) {
 
 module.exports = {
     TASK_STATUSES,
-    ACTION_REQUESTED,
     FLOW_TYPES,
     FLOW_TYPES_LIST,
     FLOW_META_SCHEMAS,
