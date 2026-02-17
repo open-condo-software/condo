@@ -9,6 +9,7 @@ const CLASSIFIER_CATEGORY_TEMPLATE = 'INSERT INTO public."TicketCategoryClassifi
 const CLASSIFIER_PROBLEM_TEMPLATE = 'INSERT INTO public."TicketProblemClassifier" (dv, sender, "name", id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", organization,  "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{name}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, null, null, null);'
 const CLASSIFIER_RULE_TEMPLATE = 'INSERT INTO public."TicketClassifier" ("dv", "sender", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "category", "createdBy", "place", "problem", "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial_import"}\', \'{uuid}\', 1, \'2021-07-22 00:00:00.000000\', \'2021-07-22 00:00:00.000000\', null, null, \'{category}\', null, \'{place}\', {problem}, null);'
 
+console.log('TEST LOG')
 // Example:
 // Чердаки, подвалы;Доступ;Ограничение доступа
 

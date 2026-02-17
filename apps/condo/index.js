@@ -161,6 +161,8 @@ const authStrategyOpts = {
     },
 }
 
+console.log('TEST LOG')
+
 module.exports = prepareKeystone({
     extendExpressApp,
     schemas, tasks, queues: ['low', 'medium', 'high'],

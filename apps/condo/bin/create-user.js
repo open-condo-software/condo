@@ -13,6 +13,7 @@ function getJson (data) {
     }
 }
 
+
 async function main (args) {
     const [email, userOptions, rightsSet] = args
     if (!email || !email.includes('@')) throw new Error('use: create-user <email> [<options>] [<rightsSet>]')
@@ -31,6 +32,7 @@ async function main (args) {
     userPayload.sender ??= { 'dv': 1, 'fingerprint': 'create-user-script' }
     let rightSetId
     let userId
+    console.log('TEST LOG')
 
     if (!existingUser) {
         if (!userPayload.password) {
