@@ -18,7 +18,7 @@ const {
     INCORRECT_HOUSE_TYPE_ERROR,
 } = require('@condo/domains/miniapp/constants')
 const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
-const { isB2CAppAvailableForAddress } = require('@condo/domains/subscription/utils/b2cAppAvailability')
+const { getB2CAppSubscriptionEndDate } = require('@condo/domains/subscription/utils/b2cAppAvailability')
 
 const ERRORS = {
     INCORRECT_ADDRESS: {
@@ -56,16 +56,20 @@ const B2CAppProperty = new GQLListSchema('B2CAppProperty', {
             },
         },
 
-        isAvailable: {
-            schemaDoc: 'Whether the B2C app is available at this address based on organization subscriptions. ' +
-                'Returns true if one of the following is correct: \n' + 
-                '1) There is no organizations at address; \n' + 
-                '2) At least one organization has active subscription plan including this B2CApp and Property with matching addressKey; \n' +
-                '3) App is not restricted by any subscription plan for organizations at this address',
+        subscriptionEndAt: {
+            schemaDoc: 'Date when subscription access to this B2C app ends at this address (ISO string or null). ' +
+                'Calculated based on organization subscriptions at the address. ' +
+                'Returns +100 years (ISO string) when: \n' +
+                '1) No organizations exist at this address; \n' +
+                '2) No subscription plans exist for organization type; \n' +
+                '3) App is not restricted by any subscription plan; \n' +
+                'Returns activeSubscriptionEndAt when app is enabled in active subscription; \n' +
+                'Returns null when app is included in a plan but not enabled in active subscription; \n' +
+                'Returns latest endAt when multiple organizations at address have app enabled.',
             type: 'Virtual',
-            graphQLReturnType: 'Boolean!',
+            graphQLReturnType: 'String',
             resolver: async (item, args, context) => {
-                return await isB2CAppAvailableForAddress(item.app, item.addressKey, context)
+                return await getB2CAppSubscriptionEndDate(item.app, item.addressKey, context)
             },
         },
     },

@@ -561,14 +561,16 @@ describe('Organization', () => {
 
                 expect(org.subscription).not.toBeNull()
                 const farFutureYear = dayjs().add(100, 'years').year()
-                expect(org.subscription.payments).toContain(String(farFutureYear))
-                expect(org.subscription.meters).toContain(String(farFutureYear))
-                expect(org.subscription.tickets).toContain(String(farFutureYear))
-                expect(org.subscription.news).toContain(String(farFutureYear))
-                expect(org.subscription.marketplace).toContain(String(farFutureYear))
-                expect(org.subscription.support).toContain(String(farFutureYear))
-                expect(org.subscription.ai).toContain(String(farFutureYear))
-                expect(org.subscription.customization).toContain(String(farFutureYear))
+                expect(org.subscription.paymentsEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.metersEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.ticketsEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.newsEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.marketplaceEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.supportEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.aiEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.customizationEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.propertiesEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.analyticsEndAt).toContain(String(farFutureYear))
             })
 
             test('computes far-future dates dynamically on each call', async () => {
@@ -577,10 +579,10 @@ describe('Organization', () => {
                 })
 
                 const org1 = await Organization.getOne(admin, { id: organization.id })
-                const date1 = org1.subscription.payments
+                const date1 = org1.subscription.paymentsEndAt
 
                 const org2 = await Organization.getOne(admin, { id: organization.id })
-                const date2 = org2.subscription.payments
+                const date2 = org2.subscription.paymentsEndAt
 
                 expect(date1).toBe(date2)
                 const expectedDate = dayjs().add(100, 'years').format('YYYY-MM-DD')
@@ -599,7 +601,7 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBeNull()
+            expect(org.subscription.paymentsEndAt).toBeNull()
             expect(org.subscription.activeSubscriptionContextId).toBeNull()
         })
 
@@ -631,13 +633,13 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(endAt)
-            expect(org.subscription.meters).toBeNull()
-            expect(org.subscription.tickets).toBe(endAt)
-            expect(org.subscription.news).toBe(endAt)
-            expect(org.subscription.marketplace).toBe(endAt)
-            expect(org.subscription.support).toBeNull()
-            expect(org.subscription.ai).toBe(endAt)
+            expect(org.subscription.paymentsEndAt).toBe(endAt)
+            expect(org.subscription.metersEndAt).toBeNull()
+            expect(org.subscription.ticketsEndAt).toBe(endAt)
+            expect(org.subscription.newsEndAt).toBe(endAt)
+            expect(org.subscription.marketplaceEndAt).toBe(endAt)
+            expect(org.subscription.supportEndAt).toBeNull()
+            expect(org.subscription.aiEndAt).toBe(endAt)
             expect(org.subscription.enabledB2BApps).toEqual(enabledB2BApps)
             expect(org.subscription.enabledB2CApps).toEqual(enabledB2CApps)
             expect(org.subscription.activeSubscriptionContextId).toBeDefined()
@@ -678,8 +680,8 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.news).toBe(endAt2)
-            expect(org.subscription.marketplace).toBe(endAt1)
+            expect(org.subscription.newsEndAt).toBe(endAt2)
+            expect(org.subscription.marketplaceEndAt).toBe(endAt1)
         })
 
         test('includes future contexts without gaps', async () => {
@@ -706,7 +708,7 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(endAt2)
+            expect(org.subscription.paymentsEndAt).toBe(endAt2)
             const expectedDaysRemaining = Math.ceil(dayjs(endAt2).diff(dayjs(), 'hour', true) / 24)
             expect(org.subscription.daysRemaining).toBe(expectedDaysRemaining)
         })
@@ -736,7 +738,7 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(endAt1)
+            expect(org.subscription.paymentsEndAt).toBe(endAt1)
             const expectedDaysRemaining = Math.ceil(dayjs(endAt1).diff(dayjs(), 'hour', true) / 24)
             expect(org.subscription.daysRemaining).toBe(expectedDaysRemaining)
         })
@@ -768,8 +770,8 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(endAt1)
-            expect(org.subscription.tickets).toBe(endAt1)
+            expect(org.subscription.paymentsEndAt).toBe(endAt1)
+            expect(org.subscription.ticketsEndAt).toBe(endAt1)
         })
 
         test('returns expiration date for expired context', async () => {
@@ -789,7 +791,7 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(endAt)
+            expect(org.subscription.paymentsEndAt).toBe(endAt)
             expect(org.subscription.daysRemaining).toBe(0)
             expect(org.subscription.activeSubscriptionContextId).toBeNull()
         })
@@ -818,8 +820,8 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(currentEndAt)
-            expect(org.subscription.tickets).toBe(currentEndAt)
+            expect(org.subscription.paymentsEndAt).toBe(currentEndAt)
+            expect(org.subscription.ticketsEndAt).toBe(currentEndAt)
         })
 
         test('calculates daysRemaining only for contexts with active plan', async () => {

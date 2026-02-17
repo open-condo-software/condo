@@ -3533,17 +3533,18 @@ export const GetActiveOrganizationEmployeeDocument = gql`
       importRemoteSystem
       meta
       subscription {
-        payments
-        meters
-        tickets
-        news
-        marketplace
-        support
-        ai
-        customization
+        paymentsEndAt
+        metersEndAt
+        ticketsEndAt
+        newsEndAt
+        marketplaceEndAt
+        supportEndAt
+        aiEndAt
+        customizationEndAt
         enabledB2BApps
         enabledB2CApps
         daysRemaining
+        activeSubscriptionEndAt
         activeSubscriptionContextId
       }
     }

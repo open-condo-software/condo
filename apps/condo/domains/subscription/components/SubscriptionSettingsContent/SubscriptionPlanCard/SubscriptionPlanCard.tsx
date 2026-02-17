@@ -45,23 +45,23 @@ const BASE_FEATURES = [
     { label: 'subscription.features.guide', hint: null },
     { label: 'subscription.features.services', hint: null },
     { label: 'subscription.features.settings', hint: null },
-    { label: 'subscription.features.analytics', hint: null },
-    { featureKey: 'tickets', label: 'subscription.features.tickets', hint: null },
-    { label: 'subscription.features.properties', hint: 'subscription.features.properties.hint' },
+    { featureKey: 'analyticsEndAt', label: 'subscription.features.analytics', hint: null },
+    { featureKey: 'ticketsEndAt', label: 'subscription.features.tickets', hint: null },
+    { featureKey: 'propertiesEndAt', label: 'subscription.features.properties', hint: 'subscription.features.properties.hint' },
     { label: 'subscription.features.employees', hint: null },
     { label: 'subscription.features.residents', hint: 'subscription.features.residents.hint' },
-    { featureKey: 'meters', label: 'subscription.features.meters', hint: null },
-    { featureKey: 'payments', label: 'subscription.features.payments', hint: null },
+    { featureKey: 'metersEndAt', label: 'subscription.features.meters', hint: null },
+    { featureKey: 'paymentsEndAt', label: 'subscription.features.payments', hint: null },
     { label: 'subscription.features.mobileApp', hint: null },
     { label: 'subscription.features.outages', hint: null },
-    { featureKey: 'news', label: 'subscription.features.news', hint: null },
-    { featureKey: 'marketplace', label: 'subscription.features.marketplace', hint: null },
-    { featureKey: 'support', label: 'subscription.features.personalManager', hint: 'subscription.features.personalManager.hint' },
-    { featureKey: 'ai', label: 'subscription.features.ai', hint: null },
+    { featureKey: 'newsEndAt', label: 'subscription.features.news', hint: null },
+    { featureKey: 'marketplaceEndAt', label: 'subscription.features.marketplace', hint: null },
+    { featureKey: 'supportEndAt', label: 'subscription.features.personalManager', hint: 'subscription.features.personalManager.hint' },
+    { featureKey: 'aiEndAt', label: 'subscription.features.ai', hint: null },
 ] satisfies FeatureConfig[]
 
 const PREMIUM_FEATURES = [
-    { featureKey: 'customization', label: 'subscription.features.customization', hint: 'subscription.features.customization.hint' },
+    { featureKey: 'customizationEndAt', label: 'subscription.features.customization', hint: 'subscription.features.customization.hint' },
 ] satisfies FeatureConfig[]
 
 const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {} } } = getConfig()

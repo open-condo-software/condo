@@ -14,18 +14,21 @@ const SUBSCRIPTION_FEATURES_TYPE_NAME = 'OrganizationSubscriptionFeatures'
 
 const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
     type ${SUBSCRIPTION_FEATURES_TYPE_NAME} {
-        payments: String
-        meters: String
-        tickets: String
-        news: String
-        marketplace: String
-        support: String
-        ai: String
-        customization: String
+        paymentsEndAt: String
+        metersEndAt: String
+        ticketsEndAt: String
+        newsEndAt: String
+        marketplaceEndAt: String
+        supportEndAt: String
+        aiEndAt: String
+        customizationEndAt: String
+        propertiesEndAt: String
+        analyticsEndAt: String
         enabledB2BApps: [String!]!
         enabledB2CApps: [String!]!
         daysRemaining: Int
         activeSubscriptionContextId: String
+        activeSubscriptionEndAt: String
     }
 `
 
@@ -42,18 +45,21 @@ function buildSubscriptionResponse (date = null) {
     const daysRemaining = calculateDaysUntilDate(date, now)
     
     return {
-        payments: date,
-        meters: date,
-        tickets: date,
-        news: date,
-        marketplace: date,
-        support: date,
-        ai: date,
-        customization: date,
+        paymentsEndAt: date,
+        metersEndAt: date,
+        ticketsEndAt: date,
+        newsEndAt: date,
+        marketplaceEndAt: date,
+        supportEndAt: date,
+        aiEndAt: date,
+        customizationEndAt: date,
+        propertiesEndAt: date,
+        analyticsEndAt: date,
         enabledB2BApps: [],
         enabledB2CApps: [],
         daysRemaining,
         activeSubscriptionContextId: null,
+        activeSubscriptionEndAt: date,
     }
 }
 
@@ -121,7 +127,7 @@ function findLatestEndAtForFeature (feature, sortedContexts, now) {
 }
 
 function calculateFeatureExpirationDates (sortedContexts, now) {
-    const features = ['payments', 'meters', 'tickets', 'news', 'marketplace', 'support', 'ai', 'customization']
+    const features = ['payments', 'meters', 'tickets', 'news', 'marketplace', 'support', 'ai', 'customization', 'properties', 'analytics']
     
     return features.reduce((acc, feature) => {
         acc[feature] = findLatestEndAtForFeature(feature, sortedContexts, now)
@@ -131,7 +137,7 @@ function calculateFeatureExpirationDates (sortedContexts, now) {
 
 function calculateDaysRemaining (sortedContexts, bestActiveContext, now) {
     if (!bestActiveContext || !bestActiveContext.subscriptionPlan) {
-        return 0
+        return { daysRemaining: 0, activeSubscriptionEndAt: null }
     }
 
     const activePlanId = bestActiveContext.subscriptionPlan.id
@@ -140,7 +146,7 @@ function calculateDaysRemaining (sortedContexts, bestActiveContext, now) {
     )
 
     if (contextsWithActivePlan.length === 0) {
-        return 0
+        return { daysRemaining: 0, activeSubscriptionEndAt: null }
     }
 
     const nowDate = dayjs(now).startOf('day')
@@ -171,7 +177,10 @@ function calculateDaysRemaining (sortedContexts, bestActiveContext, now) {
         }
     }
 
-    return calculateDaysUntilDate(maxEndAt, now)
+    return {
+        daysRemaining: calculateDaysUntilDate(maxEndAt, now),
+        activeSubscriptionEndAt: maxEndAt,
+    }
 }
 
 function collectEnabledApps (activeContexts) {
@@ -194,6 +203,7 @@ function collectEnabledApps (activeContexts) {
     }
 }
 
+
 const ORGANIZATION_SUBSCRIPTION_FIELD = {
     schemaDoc: 'Subscription information for this organization. Returns feature expiration dates (ISO strings or null), ' +
         'enabled apps from active contexts, days remaining, and active context ID. ' +
@@ -201,7 +211,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
     type: 'Virtual',
     extendGraphQLTypes: SUBSCRIPTION_FEATURES_GRAPHQL_TYPES,
     graphQLReturnType: SUBSCRIPTION_FEATURES_TYPE_NAME,
-    graphQLReturnFragment: '{ payments meters tickets news marketplace support ai customization enabledB2BApps enabledB2CApps daysRemaining activeSubscriptionContextId }',
+    graphQLReturnFragment: '{ paymentsEndAt metersEndAt ticketsEndAt newsEndAt marketplaceEndAt supportEndAt aiEndAt customizationEndAt propertiesEndAt analyticsEndAt enabledB2BApps enabledB2CApps daysRemaining activeSubscriptionContextId activeSubscriptionEndAt }',
     resolver: async (organization, args, context) => {
         const hasSubscriptionFeature = await featureToggleManager.isFeatureEnabled(context, SUBSCRIPTIONS, { 
             userId: context.authedItem?.id || null,
@@ -237,22 +247,25 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
         })
 
         const featureExpirationDates = calculateFeatureExpirationDates(sortedContexts, now)
-        const daysRemaining = calculateDaysRemaining(sortedContexts, bestActiveContext, now)
+        const { daysRemaining, activeSubscriptionEndAt } = calculateDaysRemaining(sortedContexts, bestActiveContext, now)
         const { enabledB2BApps, enabledB2CApps } = collectEnabledApps(activeContexts)
 
         return {
-            payments: featureExpirationDates.payments,
-            meters: featureExpirationDates.meters,
-            tickets: featureExpirationDates.tickets,
-            news: featureExpirationDates.news,
-            marketplace: featureExpirationDates.marketplace,
-            support: featureExpirationDates.support,
-            ai: featureExpirationDates.ai,
-            customization: featureExpirationDates.customization,
+            paymentsEndAt: featureExpirationDates.payments,
+            metersEndAt: featureExpirationDates.meters,
+            ticketsEndAt: featureExpirationDates.tickets,
+            newsEndAt: featureExpirationDates.news,
+            marketplaceEndAt: featureExpirationDates.marketplace,
+            supportEndAt: featureExpirationDates.support,
+            aiEndAt: featureExpirationDates.ai,
+            customizationEndAt: featureExpirationDates.customization,
+            propertiesEndAt: featureExpirationDates.properties,
+            analyticsEndAt: featureExpirationDates.analytics,
             enabledB2BApps,
             enabledB2CApps,
             daysRemaining,
             activeSubscriptionContextId: bestActiveContext?.id || null,
+            activeSubscriptionEndAt,
         }
     },
 }

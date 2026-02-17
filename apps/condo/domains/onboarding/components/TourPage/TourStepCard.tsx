@@ -25,7 +25,7 @@ import type { AvailableFeature } from '@condo/domains/subscription/constants/fea
  * Mapping of step types to required subscription features
  */
 const TOUR_STEP_REQUIRED_FEATURE: Partial<Record<TourStepTypeType, AvailableFeature>> = {
-    [TourStepTypeType.CreateNews]: 'news',
+    [TourStepTypeType.CreateNews]: 'newsEndAt',
 }
 
 

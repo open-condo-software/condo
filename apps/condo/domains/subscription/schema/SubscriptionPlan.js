@@ -145,6 +145,20 @@ const SubscriptionPlan = new GQLListSchema('SubscriptionPlan', {
             isRequired: true,
         },
 
+        properties: {
+            schemaDoc: 'Whether properties feature is included in this plan',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
+
+        analytics: {
+            schemaDoc: 'Whether analytics feature is included in this plan',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
+
         enabledB2BApps: {
             schemaDoc: 'List of B2B miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type.',
             type: 'Json',

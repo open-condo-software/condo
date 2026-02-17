@@ -90,24 +90,24 @@ const markModalAsShownForOrganization = (storageKey: string, organizationId: str
 const { publicRuntimeConfig: { enableSubscriptions } } = getConfig()
 
 const ACTIVE_BANKING_PAID_FEATURES_FIRST_COLUMN = [
-    { featureKey: 'support', label: 'subscription.features.personalManager' },
-    { featureKey: 'news', label: 'subscription.features.news' },
-    { featureKey: 'marketplace', label: 'subscription.features.marketplace' },
+    { featureKey: 'supportEndAt', label: 'subscription.features.personalManager' },
+    { featureKey: 'newsEndAt', label: 'subscription.features.news' },
+    { featureKey: 'marketplaceEndAt', label: 'subscription.features.marketplace' },
 ]
 
 const ACTIVE_BANKING_PAID_FEATURES_SECOND_COLUMN = [
     { featureKey: 'passes', label: 'subscription.features.passes' },
-    { featureKey: 'ai', label: 'subscription.features.ai' },
+    { featureKey: 'aiEndAt', label: 'subscription.features.ai' },
 ]
 
 const NON_ACTIVE_BANKING_FREE_FEATURES_FIRST_COLUMN = [
-    { featureKey: 'payments', label: 'subscription.features.payments' },
+    { featureKey: 'paymentsEndAt', label: 'subscription.features.payments' },
     { label: 'subscription.features.residents' },
 ]
 
 const NON_ACTIVE_BANKING_FREE_FEATURES_SECOND_COLUMN = [
-    { featureKey: 'tickets', label: 'subscription.features.tickets' },
-    { featureKey: 'meters', label: 'subscription.features.meters' },
+    { featureKey: 'ticketsEndAt', label: 'subscription.features.tickets' },
+    { featureKey: 'metersEndAt', label: 'subscription.features.meters' },
 ]
 
 const useTrialEndedModalContent = (): { content: ModalContent | null, type: ModalType | null, loading: boolean } => {
