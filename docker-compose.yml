@@ -95,13 +95,18 @@ services:
       - "127.0.0.1:4222:4222"
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:8222:8222"
+    environment:
+      NATS_AUTH_ISSUER: ${NATS_AUTH_ISSUER}
+      NATS_AUTH_USER: ${NATS_AUTH_USER:-auth-service}
+      NATS_AUTH_PASSWORD: ${NATS_AUTH_PASSWORD:-auth-secret}
+      NATS_SERVER_USER: ${NATS_SERVER_USER:-condo-server}
+      NATS_SERVER_PASSWORD: ${NATS_SERVER_PASSWORD:-server-secret}
     networks:
       - app-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     command: ["-c", "/etc/nats/nats.conf"]
     volumes:
-      - nats-data:/data
       - ./nats.conf:/etc/nats/nats.conf:ro
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
