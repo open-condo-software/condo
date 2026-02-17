@@ -7,6 +7,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2CAppServiceUserWithoutSpecificRights } = require('@condo/domains/miniapp/utils/b2cAppServiceUserAccess/server.utils')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
@@ -19,7 +20,8 @@ const { checkB2CAppAccessRight } = require('../utils/accessSchema')
  * 4. Service users with AccessRights to specific app
  * 5. Any residents
  */
-async function canReadB2CAppProperties ({ authentication: { item: user }, listKey }) {
+async function canReadB2CAppProperties (args) {
+    const { authentication: { item: user }, listKey } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -29,7 +31,7 @@ async function canReadB2CAppProperties ({ authentication: { item: user }, listKe
 
     if (user.type === RESIDENT) return {}
     if (user.type === SERVICE) {
-        return { app: { accessRights_some: { deletedAt: null, user: { id: user.id } } } }
+        return canReadObjectsAsB2CAppServiceUserWithoutSpecificRights(args)
     }
 
     return false

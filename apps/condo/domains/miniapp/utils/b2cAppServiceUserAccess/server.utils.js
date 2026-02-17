@@ -6,25 +6,38 @@ const isString = require('lodash/isString')
 const upperFirst = require('lodash/upperFirst')
 const pluralize = require('pluralize')
 
+const {
+    createInstance: createAddressServiceClientInstance,
+} = require('@open-condo/clients/address-service-client')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { generateGqlQueryToOrganizationId, getFilterByOrganizationIds } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/helpers.utils')
 const { B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2cAppServiceUserAccess/config')
+const { generateGqlQueryToField, getFilterByFieldPathValues } = require('@condo/domains/miniapp/utils/serviceUserAccessUtils/helpers.utils')
 const { SERVICE } = require('@condo/domains/user/constants/common')
+
+async function fetchAddressKey (address) {
+    try {
+        const client = createAddressServiceClientInstance()
+        const result = await client.search(address)
+        return get(result, 'addressKey', null)
+    } catch (error) {
+        return null
+    }
+}
 
 /**
  * @return {Promise<Record<string, any>|false>}
  */
-const canReadByServiceUser = async ({ authentication: { item: user }, args, listKey, context }, schemaConfig) => {
+async function canReadByServiceUser ({ authentication: { item: user }, args, listKey, context }, schemaConfig) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (!listKey) return false
 
-    const pathToB2CAppPropertyAddressKey = get(schemaConfig, 'pathToB2CAppPropertyAddressKey')
-    if (!pathToB2CAppPropertyAddressKey) return false
+    const pathToAddressKey = get(schemaConfig, 'pathToAddressKey')
+    if (!pathToAddressKey) return false
 
     const permissionKey = `canRead${pluralize.plural(listKey)}`
 
@@ -50,11 +63,10 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
 
     if (!b2cAppPropertyAddressKeys || isEmpty(b2cAppPropertyAddressKeys)) return false
 
-    // NOTE(YEgorLu): "getFilterByOrganizationIds" in fact can be called "getFilterBy", finds any field by path
-    return getFilterByOrganizationIds(pathToB2CAppPropertyAddressKey, b2cAppPropertyAddressKeys)
+    return getFilterByFieldPathValues(pathToAddressKey, b2cAppPropertyAddressKeys)
 }
 
-const canManageByServiceUser = async ({ authentication: { item: user }, listKey, originalInput, itemId, operation, context }, schemaConfig, parentSchemaName) => {
+async function canManageByServiceUser ({ authentication: { item: user }, listKey, originalInput, itemId, operation, context }, schemaConfig, parentSchemaName) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -64,30 +76,36 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
     if (isBulkRequest) return false
 
-    const pathToB2CAppPropertyAddressKey = get(schemaConfig, 'pathToB2CAppPropertyAddressKey')
+    const pathToAddressKey = get(schemaConfig, 'pathToAddressKey')
+    const pathToAddress = get(schemaConfig, 'pathToAddress')
 
-    if (!pathToB2CAppPropertyAddressKey) return false
+    if (!pathToAddressKey) return false
 
     let addressKey
 
     if (operation === 'create') {
         // addressKey is present in schema we want to change
-        if (pathToB2CAppPropertyAddressKey.length === 1) {
+        if (pathToAddressKey.length === 1) {
             // NOTE(YEgorLu): We don't have "addressKey" until we pass access check and call address-service
             //                What we maybe can do is:
             //                1) Call address-service here anyway, maybe provide some value so inner addressService plugin will not make duplicate call
-            //                2) Somehow let addressService plugin know that we need to check "addressKey" and basically move this check in it
-            //                3) Just let to create anything, user just would not be able to see entity if made it wrong
-            //                4) Search B2CAppProperties by "address". This way "address" must be normalized just before call, but potentially we may be having 2 similar addresses (addressKey is same, address differs a little, so no access when it should be)
-            return false
+            //                X) Somehow let addressService plugin know that we need to check "addressKey" and basically move this check in it
+            //                X) Just let to create anything, user just would not be able to see entity if made it wrong
+            //                X) Search B2CAppProperties by "address". This way "address" must be normalized just before call, but potentially we may be having 2 similar addresses (addressKey is same, address differs a little, so no access when it should be)
+            //
+            //  Decided to go with option 1). But just call address-service. Later we can make optimizations like exclude duplicate calls, search only in database and not in provider (if no addressKey in database, then B2CAppProperty does not exist anyway and no access)
+            if (!pathToAddress) return false
+            const address = get(originalInput, pathToAddress, null)
+            if (!address) return false
+
+            addressKey = await fetchAddressKey()
         // addressKey is present in already created relationship
-        } else if (pathToB2CAppPropertyAddressKey.length > 1) {
-            const parentObjectId = get(originalInput, [pathToB2CAppPropertyAddressKey[0], 'connect', 'id'], null)
+        } else if (pathToAddressKey.length > 1) {
+            const parentObjectId = get(originalInput, [pathToAddressKey[0], 'connect', 'id'], null)
             if (!parentObjectId) return false
 
-            // NOTE(YEgorLu): "generateGqlQueryToOrganizationId" in fact makes query to any needed field
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGqlQueryToOrganizationId(parentSchemaName, pathToB2CAppPropertyAddressKey.slice(1)),
+                query: generateGqlQueryToField(parentSchemaName, pathToAddressKey.slice(1)),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,
@@ -97,23 +115,22 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
             if (!parentObject) return false
 
-            addressKey = get(parentObject, pathToB2CAppPropertyAddressKey.slice(1))
+            addressKey = get(parentObject, pathToAddressKey.slice(1))
         }
     } else if (operation === 'update') {
-        if (!itemId) return false
+        if (!itemId) return false // NOTE(YEgorLu): maybe add support for bulk requests later
 
         const item = await getById(listKey, itemId)
         if (!item) return false
 
-        if (pathToB2CAppPropertyAddressKey.length === 1) {
-            addressKey = get(item, [pathToB2CAppPropertyAddressKey[0]], null)
-        } else if (pathToB2CAppPropertyAddressKey.length > 1) {
-            const parentObjectId = get(item, [pathToB2CAppPropertyAddressKey[0]])
+        if (pathToAddressKey.length === 1) {
+            addressKey = get(item, [pathToAddressKey[0]], null)
+        } else if (pathToAddressKey.length > 1) {
+            const parentObjectId = get(item, [pathToAddressKey[0]])
             if (!parentObjectId) return false
 
-            // NOTE(YEgorLu): "generateGqlQueryToOrganizationId" in fact makes query to any needed field
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGqlQueryToOrganizationId(parentSchemaName, pathToB2CAppPropertyAddressKey.slice(1)),
+                query: generateGqlQueryToField(parentSchemaName, pathToAddressKey.slice(1)),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,
@@ -123,7 +140,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
             if (!parentObject) return false
 
-            addressKey = get(parentObject, pathToB2CAppPropertyAddressKey.slice(1))
+            addressKey = get(parentObject, pathToAddressKey.slice(1))
         }
     }
 
@@ -152,23 +169,23 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
     return !isEmpty(B2CAppProperties)
 }
 
-const canExecuteByServiceUser = async (params, serviceConfig) => {
+async function canExecuteByServiceUser (params, serviceConfig) {
     const { authentication: { item: user }, args, gqlName } = params
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (!gqlName) return false
 
-    const pathToB2CAppPropertyAddressKey = get(serviceConfig, 'pathToB2CAppPropertyAddressKey')
-    if (!pathToB2CAppPropertyAddressKey) return false
+    const pathToAddressKey = get(serviceConfig, 'pathToAddressKey')
+    if (!pathToAddressKey) return false
 
-    const b2cAppPropertyAddressKey = get(args, pathToB2CAppPropertyAddressKey, null)
-    if (!b2cAppPropertyAddressKey) return false
+    const addressKey = get(args, pathToAddressKey, null)
+    if (!addressKey) return false
 
     const permissionKey = `canExecute${upperFirst(gqlName)}`
 
     const B2CAppProperties = await find('B2CAppProperty', {
-        addressKey: b2cAppPropertyAddressKey,
+        addressKey: addressKey,
         app: {
             deletedAt: null,
             accessRights_some: {
@@ -188,11 +205,11 @@ const canExecuteByServiceUser = async (params, serviceConfig) => {
     return !isEmpty(B2CAppProperties)
 }
 
-const isServiceUser = ({ authentication: { item: user } }) => {
+function isServiceUser ({ authentication: { item: user } }) {
     return get(user, 'type') === SERVICE
 }
 
-const getRefSchemaName = (schemaConfig, listKey) => {
+function getRefSchemaName (schemaConfig, listKey) {
     const pathToAddressKey = get(schemaConfig, 'pathToB2CAppPropertyAddressKey', null)
 
     if (!isArray(pathToAddressKey) || isEmpty(pathToAddressKey)) {
@@ -210,13 +227,7 @@ const getRefSchemaName = (schemaConfig, listKey) => {
     return get(schemaFields, [pathToAddressKey[0], 'ref'], null)
 }
 
-/**
- * Checks that service user can read objects of organization that is connected to linked B2B app
- *
- * @param args
- * @return {Promise<Record<string, any>|false>}
- */
-const canReadObjectsAsB2CAppServiceUser = async (args) => {
+async function canReadObjectsAsB2CAppServiceUser (args) {
     const { listKey } = args
     if (!isServiceUser(args)) return false
     const schemaConfig = get(B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.lists, listKey)
@@ -226,13 +237,7 @@ const canReadObjectsAsB2CAppServiceUser = async (args) => {
     return await canReadByServiceUser(args, schemaConfig)
 }
 
-/**
- * Checks that service user can manage objects of organization that is connected to linked B2B app
- *
- * @param args
- * @return {Promise<boolean>}
- */
-const canManageObjectsAsB2CAppServiceUser = async (args) => {
+async function canManageObjectsAsB2CAppServiceUser (args) {
     const { listKey } = args
     if (!isServiceUser(args)) return false
     const schemaConfig = get(B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.lists, listKey)
@@ -243,7 +248,7 @@ const canManageObjectsAsB2CAppServiceUser = async (args) => {
     return await canManageByServiceUser(args, schemaConfig, refSchemaName) // todo: @toplenboren create a test with offline token for only one organization
 }
 
-const canExecuteServiceAsB2CAppServiceUser = async (args) => {
+async function canExecuteServiceAsB2CAppServiceUser (args) {
     const { info: { fieldName: serviceName } } = args
     if (!isServiceUser(args)) return false
     const serviceConfig = get(B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.services, serviceName)
@@ -251,8 +256,30 @@ const canExecuteServiceAsB2CAppServiceUser = async (args) => {
     return await canExecuteByServiceUser(args, serviceConfig)
 }
 
+function canReadObjectsAsB2CAppServiceUserWithoutSpecificRights (args) {
+    const { authentication: { item: user }, listKey } = args
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (!isServiceUser(args)) return false
+    const config = get(B2C_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.noRightSetRequired.lists, listKey)
+    if (!isObject(config)) return false
+
+    return {
+        app: {
+            accessRights_some: {
+                user: {
+                    id: user.id,
+                },
+                deletedAt: null,
+            },
+            deletedAt: null,
+        },
+    }
+}
+
 module.exports = {
     canManageObjectsAsB2CAppServiceUser,
     canReadObjectsAsB2CAppServiceUser,
     canExecuteServiceAsB2CAppServiceUser,
+    canReadObjectsAsB2CAppServiceUserWithoutSpecificRights,
 }

@@ -55,7 +55,7 @@ const B2BAppAccessRight = generateGqlQueries('B2BAppAccessRight', B2B_APP_ACCESS
 const B2C_APP_FIELDS = `{ name isHidden colorSchema { main secondary } currentBuild { id } additionalDomains domains { mapping { from to } } ${COMMON_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
-const B2C_APP_ACCESS_RIGHT_FIELDS = `{ user { id } app { id } ${COMMON_FIELDS} }`
+const B2C_APP_ACCESS_RIGHT_FIELDS = `{ user { id } app { id } accessRightSet { id } ${COMMON_FIELDS} }`
 const B2CAppAccessRight = generateGqlQueries('B2CAppAccessRight', B2C_APP_ACCESS_RIGHT_FIELDS)
 
 const B2C_APP_BUILD_FIELDS = `{ app { id } version ${COMMON_FIELDS} }`

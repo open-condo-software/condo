@@ -47,7 +47,7 @@ const B2BAppAccessRight = new GQLListSchema('B2BAppAccessRight', {
             type: 'Relationship',
             ref: 'B2BAppAccessRightSet',
             isRequired: false,
-            knexOptions: { isNotNullable: false }, // Required relationship only!
+            knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
     },

@@ -339,7 +339,7 @@ describe('B2CAppAccessRightSet', () => {
     })
 })
 
-describe.skip('B2BApp permissions for service user', () => {
+describe.skip('B2CApp permissions for service user', () => {
     // There will be permissions tests for lists and services in config
 })
 

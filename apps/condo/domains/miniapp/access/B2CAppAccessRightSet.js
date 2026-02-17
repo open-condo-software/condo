@@ -4,10 +4,12 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { SERVICE } = require('../../user/constants/common')
-const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('../../user/utils/directAccess')
+const { canReadObjectsAsB2CAppServiceUserWithoutSpecificRights } = require('@condo/domains/miniapp/utils/b2cAppServiceUserAccess/server.utils')
+const { SERVICE } = require('@condo/domains/user/constants/common')
+const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadB2CAppAccessRightSets ({ authentication: { item: user }, listKey }) {
+async function canReadB2CAppAccessRightSets (args) {
+    const { authentication: { item: user }, listKey } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -17,20 +19,8 @@ async function canReadB2CAppAccessRightSets ({ authentication: { item: user }, l
     if (hasDirectAccess) return true
 
     if (user.type === SERVICE) {
-        return {
-            app: {
-                accessRights_some: {
-                    user: {
-                        id: user.id,
-                        deletedAt: null,
-                    },
-                    deletedAt: null,
-                },
-                deletedAt: null,
-            },
-        }
+        return canReadObjectsAsB2CAppServiceUserWithoutSpecificRights(args)
     }
-    
     return false
 }
 

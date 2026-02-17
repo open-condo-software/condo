@@ -1,9 +1,9 @@
 const { faker } = require('@faker-js/faker')
 
 const {
-    generateGqlDataPartToOrganizationId,
-    generateGqlQueryToOrganizationIdAsString,
-    getFilterByOrganizationIds,
+    generateGqlDataPartToField,
+    generateGqlQueryToFieldAsString,
+    getFilterByFieldPathValues,
 } = require('./helpers.utils')
 
 
@@ -26,24 +26,24 @@ describe('Helper functions', () => {
         const invalidCases = [
             {
                 input: [],
-                error: '"pathToOrganizationId" should not be empty array',
+                error: '"pathToField" should not be empty array',
             },
             {
                 input: null,
-                error: '"pathToOrganizationId" should not be empty array',
+                error: '"pathToField" should not be empty array',
             },
             {
                 input: 'a b c d',
-                error: '"pathToOrganizationId" should not be empty array',
+                error: '"pathToField" should not be empty array',
             },
         ]
 
         test.each(validCases)('generateGqlDataPart($input) - returned "$output"', async ({ input, output }) => {
-            expect(generateGqlDataPartToOrganizationId(input)).toEqual(output)
+            expect(generateGqlDataPartToField(input)).toEqual(output)
         })
 
         test.each(invalidCases)('generateGqlDataPart($input) - throw error "$error"', async ({ input, error }) => {
-            expect(() => generateGqlDataPartToOrganizationId(input)).toThrow(error)
+            expect(() => generateGqlDataPartToField(input)).toThrow(error)
         })
     })
 
@@ -89,21 +89,21 @@ describe('Helper functions', () => {
                     listKey: 'Organization',
                     pathToOrganizationId: 'id',
                 },
-                error: '"pathToOrganizationId" should not be empty array',
+                error: '"pathToField" should not be empty array',
             },
             {
                 input: {
                     listKey: 'Organization',
                     pathToOrganizationId: [],
                 },
-                error: '"pathToOrganizationId" should not be empty array',
+                error: '"pathToField" should not be empty array',
             },
             {
                 input: {
                     listKey: 'Organization',
                     pathToOrganizationId: null,
                 },
-                error: '"pathToOrganizationId" should not be empty array',
+                error: '"pathToField" should not be empty array',
             },
             {
                 input: {
@@ -129,11 +129,11 @@ describe('Helper functions', () => {
         ]
 
         test.each(validCases)('generateGqlQueryAsString($input.listKey, $input.pathToOrganizationId) - returned valid value (%#)', async ({ input: { listKey, pathToOrganizationId }, output }) => {
-            expect(generateGqlQueryToOrganizationIdAsString(listKey, pathToOrganizationId)).toEqual(output)
+            expect(generateGqlQueryToFieldAsString(listKey, pathToOrganizationId)).toEqual(output)
         })
 
         test.each(invalidCases)('generateGqlQueryAsString($input.listKey, $input.pathToOrganizationId) - throw error "$error"', async ({ input: { listKey, pathToOrganizationId }, error }) => {
-            expect(() => generateGqlQueryToOrganizationIdAsString(listKey, pathToOrganizationId)).toThrow(error)
+            expect(() => generateGqlQueryToFieldAsString(listKey, pathToOrganizationId)).toThrow(error)
         })
     })
 
@@ -205,30 +205,30 @@ describe('Helper functions', () => {
                     pathToOrganizationId: [],
                     organizationIds,
                 },
-                error: '"pathToOrganizationId" must be not empty array!',
+                error: '"pathToField" must be not empty array!',
             },
             {
                 input: {
                     pathToOrganizationId: null,
                     organizationIds,
                 },
-                error: '"pathToOrganizationId" must be not empty array!',
+                error: '"pathToField" must be not empty array!',
             },
             {
                 input: {
                     pathToOrganizationId: ['a', 'b', 'c', 'd', 'e'],
                     organizationIds: null,
                 },
-                error: '"organizationId" must be array!',
+                error: '"fieldValues" must be array!',
             },
         ]
 
         test.each(validCases)('getFilter($input.pathToOrganizationId, $input.organizationIds) - returned valid value (%#)', async ({ input: { pathToOrganizationId, organizationIds }, output }) => {
-            expect(getFilterByOrganizationIds(pathToOrganizationId, organizationIds)).toEqual(output)
+            expect(getFilterByFieldPathValues(pathToOrganizationId, organizationIds)).toEqual(output)
         })
 
         test.each(invalidCases)('getFilter($input.pathToOrganizationId, $input.organizationIds) - throw error "$error"', async ({ input: { pathToOrganizationId, organizationIds }, error }) => {
-            expect(() => getFilterByOrganizationIds(pathToOrganizationId, organizationIds)).toThrow(error)
+            expect(() => getFilterByFieldPathValues(pathToOrganizationId, organizationIds)).toThrow(error)
         })
     })
 })
