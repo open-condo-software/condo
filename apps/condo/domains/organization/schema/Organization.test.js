@@ -18,6 +18,7 @@ const { createTestBillingIntegrationOrganizationContext, makeClientWithIntegrati
 const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
+const { createTestB2BApp, createTestB2CApp } = require('@condo/domains/miniapp/utils/testSchema')
 const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
 const { generateTin, registerNewOrganization, createTestOrganizationWithAccessToAnotherOrganization, OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -607,15 +608,18 @@ describe('Organization', () => {
 
         test('returns feature dates from active context', async () => {
             const [organization] = await createTestOrganization(admin)
-            const enabledB2BApps = [faker.datatype.uuid(), faker.datatype.uuid()]
-            const enabledB2CApps = [faker.datatype.uuid()]
+            const [b2bApp1] = await createTestB2BApp(admin, { isSubscriptionRequired: true })
+            const [b2bApp2] = await createTestB2BApp(admin, { isSubscriptionRequired: true })
+            const [b2cApp] = await createTestB2CApp(admin, { isSubscriptionRequired: true })
+            const enabledB2BApps = [b2bApp1.id, b2bApp2.id]
+            const enabledB2CApps = [b2cApp.id]
             const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
             const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
-                priority: 10,
+                isHidden: false,
                 payments: true,
-                meters: false,
+                meters: true,
                 tickets: true,
                 news: true,
                 marketplace: true,
@@ -627,21 +631,24 @@ describe('Organization', () => {
             await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
                 endAt,
-                isTrial: true,
             })
 
             const org = await Organization.getOne(admin, { id: organization.id })
 
-            expect(org.subscription).not.toBeNull()
             expect(org.subscription.paymentsEndAt).toBe(endAt)
-            expect(org.subscription.metersEndAt).toBeNull()
+            expect(org.subscription.metersEndAt).toBe(endAt)
             expect(org.subscription.ticketsEndAt).toBe(endAt)
             expect(org.subscription.newsEndAt).toBe(endAt)
             expect(org.subscription.marketplaceEndAt).toBe(endAt)
             expect(org.subscription.supportEndAt).toBeNull()
             expect(org.subscription.aiEndAt).toBe(endAt)
-            expect(org.subscription.enabledB2BApps).toEqual(enabledB2BApps)
-            expect(org.subscription.enabledB2CApps).toEqual(enabledB2CApps)
+            expect(org.subscription.b2bApps).toEqual(expect.arrayContaining([
+                { id: b2bApp1.id, endAt },
+                { id: b2bApp2.id, endAt },
+            ]))
+            expect(org.subscription.b2cApps).toEqual(expect.arrayContaining([
+                { id: b2cApp.id, endAt },
+            ]))
             expect(org.subscription.activeSubscriptionContextId).toBeDefined()
         })
 

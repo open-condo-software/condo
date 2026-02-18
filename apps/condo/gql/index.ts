@@ -3541,8 +3541,14 @@ export const GetActiveOrganizationEmployeeDocument = gql`
         supportEndAt
         aiEndAt
         customizationEndAt
-        enabledB2BApps
-        enabledB2CApps
+        b2bApps {
+          id
+          endAt
+        }
+        b2cApps {
+          id
+          endAt
+        }
         activeSubscriptionEndAt
         activeSubscriptionContextId
       }

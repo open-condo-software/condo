@@ -1,3 +1,5 @@
+const dayjs = require('dayjs')
+
 const { find, getById } = require('@open-condo/keystone/schema')
 
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
@@ -28,12 +30,24 @@ function isAppAvailableForOrganization (org, appId, plansByOrgType) {
     }
 
     const subscription = org.subscription
-    if (!subscription || !subscription.activeSubscriptionContextId) {
+    if (!subscription) {
         return false
     }
 
-    const currentEnabledApps = subscription.enabledB2CApps || []
-    return currentEnabledApps.includes(appId)
+    const b2cApps = subscription.b2cApps || []
+    const appInSubscription = b2cApps.find(app => app.id === appId)
+    
+    if (!appInSubscription) {
+        return false
+    }
+    
+    if (!appInSubscription.endAt) {
+        return false
+    }
+    
+    const now = dayjs()
+    const endDate = dayjs(appInSubscription.endAt)
+    return endDate.isAfter(now)
 }
 
 async function isB2CAppAvailableForAddress (appId, addressKey, context) {
@@ -61,7 +75,7 @@ async function isB2CAppAvailableForAddress (appId, addressKey, context) {
     const organizations = await Organization.getAll(context, {
         id_in: organizationIds,
         deletedAt: null,
-    }, 'id type subscription { activeSubscriptionContextId enabledB2CApps }')
+    }, 'id type subscription { b2cApps { id endAt } }')
 
     if (organizations.length === 0) {
         return true

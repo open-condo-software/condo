@@ -92,8 +92,13 @@ export const useOrganizationSubscription = () => {
         if (!subscriptionFeatures) return false
         if (!allEnabledB2BApps.has(appId)) return true
         
-        const currentEnabledApps = subscriptionFeatures?.enabledB2BApps || []
-        return currentEnabledApps.includes(appId)
+        const b2bApps = subscriptionFeatures?.b2bApps || []
+        const app = b2bApps.find(app => app.id === appId)
+        
+        if (!app) return false
+        if (!app.endAt) return false
+        
+        return new Date(app.endAt) > new Date()
     }, [subscriptionFeatures, allEnabledB2BApps, hasSubscriptionsFlag])
 
     return {

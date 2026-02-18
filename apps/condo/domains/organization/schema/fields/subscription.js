@@ -13,6 +13,10 @@ const enableSubscriptions = conf['ENABLE_SUBSCRIPTIONS'] === 'true'
 const SUBSCRIPTION_FEATURES_TYPE_NAME = 'OrganizationSubscriptionFeatures'
 
 const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
+    type SubscriptionApp {
+        id: String!
+        endAt: String
+    }
     type ${SUBSCRIPTION_FEATURES_TYPE_NAME} {
         paymentsEndAt: String
         metersEndAt: String
@@ -24,8 +28,8 @@ const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
         customizationEndAt: String
         propertiesEndAt: String
         analyticsEndAt: String
-        enabledB2BApps: [String!]!
-        enabledB2CApps: [String!]!
+        b2bApps: [SubscriptionApp!]!
+        b2cApps: [SubscriptionApp!]!
         activeSubscriptionContextId: String
         activeSubscriptionEndAt: String
     }
@@ -39,7 +43,18 @@ function calculateDaysUntilDate (date, now) {
     return Math.max(0, Math.ceil(diffInHours / 24))
 }
 
-function buildSubscriptionResponse (date = null) {
+async function buildSubscriptionResponse (date = null) {
+    let b2bApps = []
+    let b2cApps = []
+    
+    if (date) {
+        const allB2BApps = await find('B2BApp', { deletedAt: null, isSubscriptionRequired: true })
+        const allB2CApps = await find('B2CApp', { deletedAt: null, isSubscriptionRequired: true })
+        
+        b2bApps = allB2BApps.map(app => ({ id: app.id, endAt: date }))
+        b2cApps = allB2CApps.map(app => ({ id: app.id, endAt: date }))
+    }
+    
     return {
         paymentsEndAt: date,
         metersEndAt: date,
@@ -51,8 +66,8 @@ function buildSubscriptionResponse (date = null) {
         customizationEndAt: date,
         propertiesEndAt: date,
         analyticsEndAt: date,
-        enabledB2BApps: [],
-        enabledB2CApps: [],
+        b2bApps,
+        b2cApps,
         activeSubscriptionContextId: null,
         activeSubscriptionEndAt: date,
     }
@@ -177,24 +192,69 @@ function calculateSubscriptionEndAt (sortedContexts, bestActiveContext, now) {
     }
 }
 
-function collectEnabledApps (activeContexts) {
-    const allEnabledB2BApps = new Set()
-    const allEnabledB2CApps = new Set()
+async function calculateAppsExpiration (sortedContexts, now) {
+    const allB2BApps = await find('B2BApp', { deletedAt: null, isSubscriptionRequired: true })
+    const allB2CApps = await find('B2CApp', { deletedAt: null, isSubscriptionRequired: true })
     
-    for (const ctx of activeContexts) {
-        const contextPlan = ctx.subscriptionPlan
-        if (!contextPlan) continue
-        
-        const b2bApps = contextPlan.enabledB2BApps || []
-        const b2cApps = contextPlan.enabledB2CApps || []
-        b2bApps.forEach(appId => allEnabledB2BApps.add(appId))
-        b2cApps.forEach(appId => allEnabledB2CApps.add(appId))
-    }
+    const b2bAppsMap = new Map()
+    const b2cAppsMap = new Map()
+    
+    allB2BApps.forEach(app => {
+        const endAt = findLatestEndAtForApp(app.id, 'enabledB2BApps', sortedContexts, now)
+        b2bAppsMap.set(app.id, endAt)
+    })
+    
+    allB2CApps.forEach(app => {
+        const endAt = findLatestEndAtForApp(app.id, 'enabledB2CApps', sortedContexts, now)
+        b2cAppsMap.set(app.id, endAt)
+    })
     
     return {
-        enabledB2BApps: Array.from(allEnabledB2BApps),
-        enabledB2CApps: Array.from(allEnabledB2CApps),
+        b2bApps: Array.from(b2bAppsMap.entries()).map(([id, endAt]) => ({ id, endAt })),
+        b2cApps: Array.from(b2cAppsMap.entries()).map(([id, endAt]) => ({ id, endAt })),
     }
+}
+
+function findLatestEndAtForApp (appId, appField, sortedContexts, now) {
+    const nowDate = dayjs(now).startOf('day')
+    const contextsWithApp = sortedContexts.filter(ctx => {
+        const contextPlan = ctx.subscriptionPlan
+        return contextPlan && (contextPlan[appField] || []).includes(appId)
+    })
+    
+    if (contextsWithApp.length === 0) {
+        return null
+    }
+    
+    let maxEndAt = null
+    let lastEndDate = null
+    
+    for (const ctx of contextsWithApp) {
+        const startAt = dayjs(ctx.startAt).startOf('day')
+        const endAt = dayjs(ctx.endAt).startOf('day')
+        const isActiveOrFuture = endAt.isAfter(nowDate)
+        
+        if (isActiveOrFuture) {
+            if (lastEndDate) {
+                const prevEndDate = dayjs(lastEndDate).startOf('day')
+                if (startAt.isAfter(prevEndDate, 'day')) {
+                    break
+                }
+            } else {
+                if (startAt.isAfter(nowDate, 'day')) {
+                    break
+                }
+            }
+            
+            lastEndDate = ctx.endAt
+        }
+        
+        if (!maxEndAt || ctx.endAt > maxEndAt) {
+            maxEndAt = ctx.endAt
+        }
+    }
+    
+    return maxEndAt
 }
 
 
@@ -205,21 +265,21 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
     type: 'Virtual',
     extendGraphQLTypes: SUBSCRIPTION_FEATURES_GRAPHQL_TYPES,
     graphQLReturnType: SUBSCRIPTION_FEATURES_TYPE_NAME,
-    graphQLReturnFragment: '{ paymentsEndAt metersEndAt ticketsEndAt newsEndAt marketplaceEndAt supportEndAt aiEndAt customizationEndAt propertiesEndAt analyticsEndAt enabledB2BApps enabledB2CApps activeSubscriptionContextId activeSubscriptionEndAt }',
+    graphQLReturnFragment: '{ paymentsEndAt metersEndAt ticketsEndAt newsEndAt marketplaceEndAt supportEndAt aiEndAt customizationEndAt propertiesEndAt analyticsEndAt b2bApps { id endAt } b2cApps { id endAt } activeSubscriptionContextId activeSubscriptionEndAt }',
     resolver: async (organization, args, context) => {
         const hasSubscriptionFeature = await featureToggleManager.isFeatureEnabled(context, SUBSCRIPTIONS, { 
             userId: context.authedItem?.id || null,
         })
         const futureDate = dayjs().add(100, 'years').format('YYYY-MM-DD')
         if (!enableSubscriptions || !hasSubscriptionFeature) {
-            return buildSubscriptionResponse(futureDate)
+            return await buildSubscriptionResponse(futureDate)
         }
         const plansForType = await find('SubscriptionPlan', {
             organizationType: organization.type,
             deletedAt: null,
         })
         if (plansForType.length === 0) {
-            return buildSubscriptionResponse(futureDate)
+            return await buildSubscriptionResponse(futureDate)
         }
 
         const allContexts = await find('SubscriptionContext', {
@@ -227,7 +287,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             deletedAt: null,
         })
         if (allContexts.length === 0) {
-            return buildSubscriptionResponse(null)
+            return await buildSubscriptionResponse(null)
         }
 
         const now = new Date().toISOString()
@@ -242,7 +302,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
 
         const featureExpirationDates = calculateFeatureExpirationDates(sortedContexts, now)
         const { activeSubscriptionEndAt } = calculateSubscriptionEndAt(sortedContexts, bestActiveContext, now)
-        const { enabledB2BApps, enabledB2CApps } = collectEnabledApps(activeContexts)
+        const { b2bApps, b2cApps } = await calculateAppsExpiration(sortedContexts, now)
 
         return {
             paymentsEndAt: featureExpirationDates.payments,
@@ -255,8 +315,8 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
             customizationEndAt: featureExpirationDates.customization,
             propertiesEndAt: featureExpirationDates.properties,
             analyticsEndAt: featureExpirationDates.analytics,
-            enabledB2BApps,
-            enabledB2CApps,
+            b2bApps,
+            b2cApps,
             activeSubscriptionContextId: bestActiveContext?.id || null,
             activeSubscriptionEndAt,
         }

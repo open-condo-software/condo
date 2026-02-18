@@ -6235,6 +6235,11 @@ enum OrganizationFeature {
   HIGH_REVENUE_CUSTOMER
 }
 
+type SubscriptionApp {
+  id: String!
+  endAt: String
+}
+
 type OrganizationSubscriptionFeatures {
   paymentsEndAt: String
   metersEndAt: String
@@ -6246,8 +6251,8 @@ type OrganizationSubscriptionFeatures {
   customizationEndAt: String
   propertiesEndAt: String
   analyticsEndAt: String
-  enabledB2BApps: [String!]!
-  enabledB2CApps: [String!]!
+  b2bApps: [SubscriptionApp!]!
+  b2cApps: [SubscriptionApp!]!
   activeSubscriptionContextId: String
   activeSubscriptionEndAt: String
 }
