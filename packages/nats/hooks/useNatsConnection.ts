@@ -1,4 +1,4 @@
-import { connect as natsConnect, ConnectionOptions, NatsConnection } from 'nats'
+import { wsconnect, ConnectionOptions, NatsConnection } from '@nats-io/nats-core'
 import { useEffect, useRef, useState, useCallback } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
@@ -55,7 +55,7 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
 
                 const natsUrl = process.env.NEXT_PUBLIC_NATS_WS_URL || 'ws://localhost:8080'
 
-                const nc = await natsConnect({
+                const nc = await wsconnect({
                     servers: natsUrl,
                     token,
                     reconnect: true,

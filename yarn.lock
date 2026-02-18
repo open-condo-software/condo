@@ -10671,6 +10671,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nats-io/nats-core@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "@nats-io/nats-core@npm:3.3.1"
+  dependencies:
+    "@nats-io/nkeys": 2.0.3
+    "@nats-io/nuid": 2.0.3
+  checksum: 5e3904b16dbc7f094e4a9679b9faaf53b7796a5a4df235a82526621a7b4836cd8cb1cbd2d4e7826e4e3f531be82265ab939747108147ddb55efd656bda1b4c50
+  languageName: node
+  linkType: hard
+
+"@nats-io/nkeys@npm:2.0.3":
+  version: 2.0.3
+  resolution: "@nats-io/nkeys@npm:2.0.3"
+  dependencies:
+    tweetnacl: ^1.0.3
+  checksum: bc00502688aad5c3f1c01b24e4828dda145a1b102f81287f9ad71745343ebce61324a555e7303d08929330a546167eb2902d1c38628189fda78373bf8c5db15a
+  languageName: node
+  linkType: hard
+
+"@nats-io/nuid@npm:2.0.3":
+  version: 2.0.3
+  resolution: "@nats-io/nuid@npm:2.0.3"
+  checksum: 7f19f1e90a51a9f136fa2719cc577b349093514c13c7fcc48737228b64c7b1fc04a8650b358629ef23af04bb95994a20d8d0879deda8579bcb8546c9788c4692
+  languageName: node
+  linkType: hard
+
 "@neoconfetti/react@npm:^1.0.0":
   version: 1.0.0
   resolution: "@neoconfetti/react@npm:1.0.0"
@@ -12049,6 +12075,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/nats@workspace:packages/nats"
   dependencies:
+    "@nats-io/nats-core": ^3.3.1
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
@@ -47453,7 +47480,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tweetnacl@npm:1.0.3":
+"tweetnacl@npm:1.0.3, tweetnacl@npm:^1.0.3":
   version: 1.0.3
   resolution: "tweetnacl@npm:1.0.3"
   checksum: e4a57cac188f0c53f24c7a33279e223618a2bfb5fea426231991652a13247bea06b081fd745d71291fcae0f4428d29beba1b984b1f1ce6f66b06a6d1ab90645c

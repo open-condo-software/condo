@@ -1,4 +1,4 @@
-import { JSONCodec, Msg, Subscription, NatsConnection, createInbox } from 'nats'
+import { Msg, Subscription, NatsConnection, createInbox } from '@nats-io/nats-core'
 import { useEffect, useRef, useCallback, useState } from 'react'
 
 interface UseNatsSubscriptionOptions<T> {
@@ -96,8 +96,6 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
                     throw new Error(`[NATS] Stream "${streamName}" is not in allowedStreams. Access denied.`)
                 }
 
-                const jsonCodec = JSONCodec<T>()
-                const requestCodec = JSONCodec()
                 const deliverInbox = createInbox()
 
                 console.log(`[NATS] Setting up relay for ${streamName}.${organizationId}`)
@@ -108,11 +106,11 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
                 const relaySubject = `_NATS.subscribe.${streamName}.${organizationId}`
                 const response = await connection.request(
                     relaySubject,
-                    requestCodec.encode({ deliverInbox }),
+                    JSON.stringify({ deliverInbox }),
                     { timeout: 5000 }
                 )
 
-                const relayResponse = requestCodec.decode(response.data) as { relayId: string, status: string }
+                const relayResponse = response.json() as { relayId: string, status: string }
                 currentRelayId = relayResponse.relayId
                 relayIdRef.current = currentRelayId
 
@@ -135,7 +133,7 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
                         if (!isActiveRef.current) break
 
                         try {
-                            const data = jsonCodec.decode(msg.data)
+                            const data = msg.json<T>()
 
                             setState(prev => ({ ...prev, messageCount: prev.messageCount + 1 }))
 
