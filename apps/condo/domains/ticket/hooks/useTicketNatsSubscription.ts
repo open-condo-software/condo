@@ -1,7 +1,6 @@
-import { Msg } from 'nats'
 import { useCallback } from 'react'
 
-import { useNatsConnection, useNatsSubscription } from '@open-condo/nats/hooks'
+import { useNatsConnection, useNatsSubscription, Msg } from '@open-condo/nats/hooks'
 import { useOrganization } from '@open-condo/next/organization'
 
 export interface TicketChangeData {
