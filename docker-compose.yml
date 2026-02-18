@@ -90,7 +90,6 @@ services:
 
   nats:
     image: ${REGISTRY}nats:2.12-alpine
-    profiles: ['dbs']
     ports:
       - "127.0.0.1:4222:4222"
       - "127.0.0.1:8080:8080"
