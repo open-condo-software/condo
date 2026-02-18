@@ -4,11 +4,13 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo, useCallback } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Button, Space } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { SUBSCRIPTIONS } from '@condo/domains/common/constants/featureflags'
 
 import styles from './SubscriptionAccessGuard.module.css'
 import { SubscriptionTrialEndedModal } from './SubscriptionTrialEndedModal'
@@ -18,7 +20,7 @@ import { requiresSubscriptionAccess, getRequiredFeature, isMiniappPage, getMinia
 import { useOrganizationSubscription } from '../hooks'
 
 const { Title, Paragraph } = Typography
-const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {} } } = getConfig()
+const { publicRuntimeConfig: { subscriptionFeatureHelpLinks = {}, enableSubscriptions } } = getConfig()
 
 interface SubscriptionAccessGuardProps {
     children: React.ReactNode
@@ -65,13 +67,15 @@ const getPageTitle = (pathname: string, intl: any): string => {
 export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = ({ children }) => {
     const router = useRouter()
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const hasSubscriptionsFlag = useFlag(SUBSCRIPTIONS)
     const { isFeatureAvailable, isB2BAppEnabled, hasSubscription, loading } = useOrganizationSubscription()
 
     const isMiniapp = isMiniappPage(router.pathname)
     const miniappId = isMiniapp ? getMiniappId(router.query) : null
     const { data: b2bAppData, loading: b2bAppLoading } = useGetB2BAppQuery({
         variables: { id: miniappId || '' },
-        skip: !miniappId,
+        skip: !miniappId || !enableSubscriptions || !hasSubscriptionsFlag,
     })
     const b2bApp = b2bAppData?.b2bApp?.[0]
 
@@ -101,6 +105,10 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
             return false
         }
 
+        if (!enableSubscriptions || !hasSubscriptionsFlag) {
+            return false
+        }
+
         if (loading || !hasSubscription) {
             return true
         }
@@ -120,7 +128,7 @@ export const SubscriptionAccessGuard: React.FC<SubscriptionAccessGuardProps> = (
         }
 
         return false
-    }, [router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, isB2BAppEnabled])
+    }, [router.pathname, loading, hasSubscription, isFeatureAvailable, isMiniapp, miniappId, b2bAppLoading, isB2BAppEnabled, hasSubscriptionsFlag])
 
     const handleGoToPlans = useCallback(() => {
         router.push('/settings?tab=subscription')
