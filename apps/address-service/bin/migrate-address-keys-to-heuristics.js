@@ -11,77 +11,149 @@
 
 const path = require('path')
 
-const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
-
-const { Address } = require('@address-service/domains/address/utils/serverSchema')
 const { HEURISTIC_TYPES } = require('@address-service/domains/common/constants/heuristicTypes')
 
 const dv = 1
 const sender = { dv, fingerprint: 'migrate-address-keys-to-heuristics' }
+const MIGRATION_STATEMENT_TIMEOUT = '1500s'
 
 const KNOWN_PREFIXES = HEURISTIC_TYPES.map((type) => `${type}:`)
 
-function isAlreadyMigrated (key) {
-    return KNOWN_PREFIXES.some((prefix) => key.startsWith(prefix))
+function parseCount (value) {
+    return Number.parseInt(value, 10) || 0
 }
 
-function migrateKey (key) {
-    if (isAlreadyMigrated(key)) return key
+async function getCount (query) {
+    const [result] = await query.count({ count: 'id' })
+    return parseCount(result.count)
+}
 
-    // Old FIAS format: fias:<uuid>
-    if (key.startsWith('fias:')) {
-        return `fias_id:${key.slice('fias:'.length)}`
-    }
+function formatDuration (durationMs) {
+    const totalSeconds = Math.floor(durationMs / 1000)
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = totalSeconds % 60
 
-    // Everything else is a fallback key
-    return `fallback:${key}`
+    return [hours, minutes, seconds]
+        .map(value => String(value).padStart(2, '0'))
+        .join(':')
+}
+
+async function getStatementTimeout (knex) {
+    const result = await knex.raw('SHOW statement_timeout')
+    return result.rows?.[0]?.statement_timeout || null
+}
+
+async function setStatementTimeout (knex, timeout) {
+    await knex.raw('SELECT set_config(?, ?, false)', ['statement_timeout', timeout])
+}
+
+function whereNotMigratedKeys (query) {
+    return query.whereNot((builder) => {
+        KNOWN_PREFIXES.forEach((prefix) => {
+            builder.orWhere('key', 'like', `${prefix}%`)
+        })
+    })
+}
+
+async function loadKeystoneContext () {
+    const { keystone, cors, pinoOptions } = require(path.resolve('./index.js'))
+    const dev = process.env.NODE_ENV === 'development'
+
+    // DB-only migration script: keep bootstrap minimal and skip express app preparation
+    await keystone.prepare({ apps: [], dev, cors, pinoOptions })
+    await keystone.connect()
+
+    return keystone
 }
 
 async function main (args) {
+    const startedAt = Date.now()
     const isDryRun = args.includes('--dry-run')
     if (isDryRun) {
         console.info('🔍 DRY RUN mode — no changes will be written')
     }
 
-    const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
+    const context = await loadKeystoneContext()
+    const knex = context.adapter.knex
 
-    const pageSize = 100
-    let offset = 0
-    let totalProcessed = 0
-    let totalMigrated = 0
-    let totalSkipped = 0
-
-    let addresses
-    do {
-        addresses = await Address.getAll(context, { deletedAt: null }, {
-            first: pageSize,
-            skip: offset,
-            sortBy: ['createdAt_ASC'],
-        }, 'id key')
-
-        for (const address of addresses) {
-            totalProcessed++
-
-            if (isAlreadyMigrated(address.key)) {
-                totalSkipped++
-                continue
-            }
-
-            const newKey = migrateKey(address.key)
-
-            if (isDryRun) {
-                console.info(`  [DRY RUN] ${address.id}: ${address.key} → ${newKey}`)
-            } else {
-                await Address.update(context, address.id, { dv, sender, key: newKey })
-                console.info(`  ${address.id}: ${address.key} → ${newKey}`)
-            }
-            totalMigrated++
+    let previousStatementTimeout
+    try {
+        previousStatementTimeout = await getStatementTimeout(knex)
+        if (previousStatementTimeout) {
+            await setStatementTimeout(knex, MIGRATION_STATEMENT_TIMEOUT)
+            console.info(`Session statement_timeout: ${previousStatementTimeout} -> ${MIGRATION_STATEMENT_TIMEOUT}`)
         }
 
-        offset += Math.min(pageSize, addresses.length)
-    } while (addresses.length > 0)
+        const addressQuery = () => knex('Address')
+        const whereActiveWithKey = (query) => query.whereNull('deletedAt').whereNotNull('key')
 
-    console.info(`\nSummary: ${totalProcessed} processed, ${totalMigrated} migrated, ${totalSkipped} already migrated`)
+        const totalCount = await getCount(whereActiveWithKey(addressQuery()))
+        const fiasToMigrateCount = await getCount(whereActiveWithKey(addressQuery()).where('key', 'like', 'fias:%'))
+        const fallbackToMigrateCount = await getCount(
+            whereNotMigratedKeys(
+                whereActiveWithKey(addressQuery())
+                    .whereNot('key', 'like', 'fias:%')
+            )
+        )
+        const totalToMigrate = fiasToMigrateCount + fallbackToMigrateCount
+        const alreadyMigratedCount = totalCount - totalToMigrate
+
+        console.info(`Migration plan: total=${totalCount}, toMigrate=${totalToMigrate}, alreadyMigrated=${alreadyMigratedCount}`)
+        console.info(`To migrate by type: fias_id=${fiasToMigrateCount}, fallback=${fallbackToMigrateCount}`)
+
+        if (totalToMigrate === 0) {
+            console.info(`\nSummary: ${totalCount} processed, 0 migrated, ${totalCount} already migrated`)
+            console.info(`Execution time: ${formatDuration(Date.now() - startedAt)}`)
+            return
+        }
+
+        let migratedFiasCount = 0
+        let migratedFallbackCount = 0
+
+        if (isDryRun) {
+            migratedFiasCount = fiasToMigrateCount
+            migratedFallbackCount = fallbackToMigrateCount
+        } else {
+            const senderAsJsonb = knex.raw('?::jsonb', [JSON.stringify(sender)])
+
+            migratedFiasCount = await whereActiveWithKey(addressQuery())
+                .where('key', 'like', 'fias:%')
+                .update({
+                    dv,
+                    sender: senderAsJsonb,
+                    key: knex.raw('? || substring("key" from 6)', ['fias_id:']),
+                })
+
+            migratedFallbackCount = await whereNotMigratedKeys(
+                whereActiveWithKey(addressQuery())
+                    .whereNot('key', 'like', 'fias:%')
+            ).update({
+                dv,
+                sender: senderAsJsonb,
+                key: knex.raw('? || "key"', ['fallback:']),
+            })
+        }
+
+        const totalMigrated = migratedFiasCount + migratedFallbackCount
+        const remainingNotMigratedCount = await getCount(whereNotMigratedKeys(whereActiveWithKey(addressQuery())))
+        const totalSkipped = Math.max(totalCount - totalMigrated, 0)
+
+        console.info(`\nSummary: ${totalCount} processed, ${totalMigrated} migrated, ${totalSkipped} already migrated`)
+        console.info(`Migrated by type: fias_id=${migratedFiasCount}, fallback=${migratedFallbackCount}`)
+        console.info(`Remaining without heuristic prefix: ${remainingNotMigratedCount}`)
+        console.info(`Execution time: ${formatDuration(Date.now() - startedAt)}`)
+    } finally {
+        if (previousStatementTimeout) {
+            try {
+                await setStatementTimeout(knex, previousStatementTimeout)
+                console.info(`Session statement_timeout restored: ${previousStatementTimeout}`)
+            } catch (restoreError) {
+                console.error(`Failed to restore statement_timeout to ${previousStatementTimeout}`)
+                console.error(restoreError)
+            }
+        }
+    }
 }
 
 main(process.argv.slice(2)).then(
