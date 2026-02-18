@@ -116,6 +116,8 @@ async function getAvailableStreams (context, userId, organizationId) {
                     })
                 }
             } catch (error) {
+                // streamConfig.name is a controlled value from the internal stream registry, not user input
+                // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
                 console.error(`[NATS] Error checking access for stream ${streamConfig.name}:`, error)
             }
         }

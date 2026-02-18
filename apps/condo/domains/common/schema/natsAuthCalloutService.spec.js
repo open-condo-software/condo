@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken')
 const nkeys = require('nkeys.js')
 
 const conf = require('@open-condo/config')
-
 const {
     decodeNatsJwt,
     encodeNatsJwt,
@@ -76,6 +75,8 @@ describe('Auth Callout Service Logic', () => {
         it('rejects tokens signed with wrong secret', () => {
             const appToken = jwt.sign(
                 { userId: 'user-1', organizationId: 'org-1', allowedStreams: ['test-changes'] },
+                // intentionally wrong secret to test that forged tokens are rejected
+                // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                 'wrong-secret',
                 { expiresIn: '24h' }
             )

@@ -30,7 +30,7 @@ class SubscriptionRelayService {
     async start (config = {}) {
         try {
             this.connection = await connect({
-                servers: config.url || conf.NATS_URL || 'nats://localhost:4222',
+                servers: config.url || conf.NATS_URL || 'nats://127.0.0.1:4222',
                 user: config.user || conf.NATS_SERVER_USER || 'condo-server',
                 pass: config.pass || conf.NATS_SERVER_PASSWORD || 'server-secret',
                 name: 'subscription-relay',

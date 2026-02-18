@@ -15,7 +15,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 
 
 const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
-const NATS_URL = conf.NATS_URL || 'nats://localhost:4222'
+const NATS_URL = conf.NATS_URL || 'nats://127.0.0.1:4222'
 const NATS_CONFIGURED = conf.NATS_ENABLED !== 'false' && !!conf.NATS_AUTH_ACCOUNT_SEED
 
 async function getCookieWithOrganization (client) {
@@ -242,6 +242,8 @@ describe('NATS Middleware Integration Tests', () => {
         it('denies access with invalid token signature', async () => {
             const invalidToken = jwt.sign(
                 { userId: 'fake-user', organizationId: 'fake-org' },
+                // intentionally wrong secret to test that forged tokens are rejected
+                // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                 'wrong-secret',
                 { expiresIn: '24h' }
             )
@@ -663,7 +665,7 @@ describe('NATS Middleware Integration Tests', () => {
                 inboxSub.unsubscribe()
                 await done
 
-                expect(received.length).toBe(1)
+                expect(received).toHaveLength(1)
                 expect(received[0].org).toBe(clientA.organization.id)
                 expect(received.find(m => m.org === clientB.organization.id)).toBeUndefined()
             } finally {
@@ -675,6 +677,8 @@ describe('NATS Middleware Integration Tests', () => {
         it('forged token is rejected at NATS level', async () => {
             const forgedToken = jwt.sign(
                 { userId: 'fake-user', organizationId: 'fake-org', allowedStreams: ['test-integration-changes'] },
+                // intentionally wrong secret to test that forged tokens are rejected
+                // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                 'wrong-secret',
                 { expiresIn: '1h' }
             )

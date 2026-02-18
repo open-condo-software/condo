@@ -426,7 +426,7 @@ describe('NATS Access Control', () => {
             const context = await keystone.createContext({ skipAccessControl: true })
             const streams = await getAvailableStreams(context, user.id, organization.id)
 
-            expect(streams.length).toBe(0)
+            expect(streams).toHaveLength(0)
         })
 
         it('checkNatsAccess denies soft-deleted user', async () => {
@@ -456,7 +456,7 @@ describe('NATS Access Control', () => {
             const context = await keystone.createContext({ skipAccessControl: true })
             const streams = await getAvailableStreams(context, fakeUserId, organization.id)
 
-            expect(streams.length).toBe(0)
+            expect(streams).toHaveLength(0)
         })
 
         it('checkNatsAccess denies non-existent user', async () => {

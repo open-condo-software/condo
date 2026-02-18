@@ -123,7 +123,7 @@ function computePermissions (allowedStreams, organizationId) {
 
     for (const streamName of allowedStreams) {
         pubAllow.push(`_NATS.subscribe.${streamName}.${organizationId}`)
-        pubAllow.push(`_NATS.unsubscribe.>`)
+        pubAllow.push('_NATS.unsubscribe.>')
     }
 
     return {
