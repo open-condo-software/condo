@@ -40,11 +40,28 @@ async function buildSubscriptionResponse (date = null) {
     let b2cApps = []
     
     if (date) {
-        const allB2BApps = await find('B2BApp', { deletedAt: null, isSubscriptionRequired: true })
-        const allB2CApps = await find('B2CApp', { deletedAt: null, isSubscriptionRequired: true })
+        const allPlans = await find('SubscriptionPlan', { deletedAt: null, isHidden: false })
+        const b2bAppIds = new Set()
+        const b2cAppIds = new Set()
         
-        b2bApps = allB2BApps.map(app => ({ id: app.id, endAt: date }))
-        b2cApps = allB2CApps.map(app => ({ id: app.id, endAt: date }))
+        allPlans.forEach(plan => {
+            if (plan.enabledB2BApps && Array.isArray(plan.enabledB2BApps)) {
+                plan.enabledB2BApps.forEach(appId => b2bAppIds.add(appId))
+            }
+            if (plan.enabledB2CApps && Array.isArray(plan.enabledB2CApps)) {
+                plan.enabledB2CApps.forEach(appId => b2cAppIds.add(appId))
+            }
+        })
+        
+        if (b2bAppIds.size > 0) {
+            const allB2BApps = await find('B2BApp', { id_in: Array.from(b2bAppIds), deletedAt: null })
+            b2bApps = allB2BApps.map(app => ({ id: app.id, endAt: date }))
+        }
+        
+        if (b2cAppIds.size > 0) {
+            const allB2CApps = await find('B2CApp', { id_in: Array.from(b2cAppIds), deletedAt: null })
+            b2cApps = allB2CApps.map(app => ({ id: app.id, endAt: date }))
+        }
     }
     
     return {
@@ -184,21 +201,31 @@ function calculateSubscriptionEndAt (sortedContexts, bestActiveContext, now) {
     }
 }
 
-async function calculateAppsExpiration (sortedContexts, now) {
-    const allB2BApps = await find('B2BApp', { deletedAt: null, isSubscriptionRequired: true })
-    const allB2CApps = await find('B2CApp', { deletedAt: null, isSubscriptionRequired: true })
+async function calculateAppsExpiration (sortedContexts, now, organizationType) {
+    const allPlans = await find('SubscriptionPlan', { deletedAt: null, isHidden: false, organizationType })
+    const b2bAppIds = new Set()
+    const b2cAppIds = new Set()
+    
+    allPlans.forEach(plan => {
+        if (plan.enabledB2BApps && Array.isArray(plan.enabledB2BApps)) {
+            plan.enabledB2BApps.forEach(appId => b2bAppIds.add(appId))
+        }
+        if (plan.enabledB2CApps && Array.isArray(plan.enabledB2CApps)) {
+            plan.enabledB2CApps.forEach(appId => b2cAppIds.add(appId))
+        }
+    })
     
     const b2bAppsMap = new Map()
     const b2cAppsMap = new Map()
     
-    allB2BApps.forEach(app => {
-        const endAt = findLatestEndAtForApp(app.id, 'enabledB2BApps', sortedContexts, now)
-        b2bAppsMap.set(app.id, endAt)
+    b2bAppIds.forEach(appId => {
+        const endAt = findLatestEndAtForApp(appId, 'enabledB2BApps', sortedContexts, now)
+        b2bAppsMap.set(appId, endAt)
     })
     
-    allB2CApps.forEach(app => {
-        const endAt = findLatestEndAtForApp(app.id, 'enabledB2CApps', sortedContexts, now)
-        b2cAppsMap.set(app.id, endAt)
+    b2cAppIds.forEach(appId => {
+        const endAt = findLatestEndAtForApp(appId, 'enabledB2CApps', sortedContexts, now)
+        b2cAppsMap.set(appId, endAt)
     })
     
     return {
@@ -294,7 +321,7 @@ const ORGANIZATION_SUBSCRIPTION_FIELD = {
 
         const featureExpirationDates = calculateFeatureExpirationDates(sortedContexts, now)
         const { activeSubscriptionEndAt } = calculateSubscriptionEndAt(sortedContexts, bestActiveContext, now)
-        const { b2bApps, b2cApps } = await calculateAppsExpiration(sortedContexts, now)
+        const { b2bApps, b2cApps } = await calculateAppsExpiration(sortedContexts, now, organization.type)
 
         return {
             paymentsEndAt: featureExpirationDates.payments,

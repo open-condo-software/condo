@@ -608,9 +608,9 @@ describe('Organization', () => {
 
         test('returns feature dates from active context', async () => {
             const [organization] = await createTestOrganization(admin)
-            const [b2bApp1] = await createTestB2BApp(admin, { isSubscriptionRequired: true })
-            const [b2bApp2] = await createTestB2BApp(admin, { isSubscriptionRequired: true })
-            const [b2cApp] = await createTestB2CApp(admin, { isSubscriptionRequired: true })
+            const [b2bApp1] = await createTestB2BApp(admin)
+            const [b2bApp2] = await createTestB2BApp(admin)
+            const [b2cApp] = await createTestB2CApp(admin)
             const enabledB2BApps = [b2bApp1.id, b2bApp2.id]
             const enabledB2CApps = [b2cApp.id]
             const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')

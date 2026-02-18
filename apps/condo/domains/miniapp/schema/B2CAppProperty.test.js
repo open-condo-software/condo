@@ -370,8 +370,8 @@ describe('B2CAppProperty test', () => {
             expect(properties[0].isAvailable).toBe(true)
         })
 
-        test('returns true when app has isSubscriptionRequired: false', async () => {
-            const [b2cApp] = await createTestB2CApp(admin, { isSubscriptionRequired: false })
+        test('returns true when app is not in any plan (not subscription required)', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
             const [organization] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
             const [property] = await createTestProperty(admin, organization)
             

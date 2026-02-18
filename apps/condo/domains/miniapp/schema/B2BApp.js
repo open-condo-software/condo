@@ -5,6 +5,7 @@
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@condo/domains/miniapp/access/B2BApp')
@@ -84,12 +85,26 @@ const B2BApp = new GQLListSchema('B2BApp', {
             isRequired: true,
         },
         isSubscriptionRequired: {
-            schemaDoc: 'Indicates whether access to this miniapp requires an active subscription. ' +
-                'If true, the app is only accessible when included in organization\'s active subscription (enabledB2BApps). ' +
-                'If false, the app is always accessible regardless of subscription status.',
-            type: 'Checkbox',
-            defaultValue: false,
-            isRequired: true,
+            schemaDoc: 'Virtual field that indicates whether access to this miniapp requires an active subscription. ' +
+                'Returns true if the app appears in at least one SubscriptionPlan\'s enabledB2BApps list, ' +
+                'which means it\'s opt-in and requires subscription. ' +
+                'Returns false if the app is not in any plan, meaning it\'s available to all organizations.',
+            type: 'Virtual',
+            graphQLReturnType: 'Boolean',
+            resolver: async (item) => {
+                const plans = await find('SubscriptionPlan', {
+                    deletedAt: null,
+                    isHidden: false,
+                }, { context: item._context })
+
+                for (const plan of plans) {
+                    if (plan.enabledB2BApps && Array.isArray(plan.enabledB2BApps) && plan.enabledB2BApps.includes(item.id)) {
+                        return true
+                    }
+                }
+
+                return false
+            },
         },
         icon: ICON_FIELD,
         menuCategory: MENU_CATEGORY_FIELD,

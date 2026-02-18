@@ -71459,7 +71459,6 @@ type B2BAppHistoryRecord {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
-  isSubscriptionRequired: Boolean
   icon: String
   menuCategory: String
   contextDefaultStatus: String
@@ -71605,8 +71604,6 @@ input B2BAppHistoryRecordWhereInput {
   isPublic_not: Boolean
   hasDynamicTitle: Boolean
   hasDynamicTitle_not: Boolean
-  isSubscriptionRequired: Boolean
-  isSubscriptionRequired_not: Boolean
   icon: String
   icon_not: String
   icon_contains: String
@@ -71876,8 +71873,6 @@ enum SortB2BAppHistoryRecordsBy {
   isPublic_DESC
   hasDynamicTitle_ASC
   hasDynamicTitle_DESC
-  isSubscriptionRequired_ASC
-  isSubscriptionRequired_DESC
   icon_ASC
   icon_DESC
   menuCategory_ASC
@@ -71928,7 +71923,6 @@ input B2BAppHistoryRecordUpdateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
-  isSubscriptionRequired: Boolean
   icon: String
   menuCategory: String
   contextDefaultStatus: String
@@ -71975,7 +71969,6 @@ input B2BAppHistoryRecordCreateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
-  isSubscriptionRequired: Boolean
   icon: String
   menuCategory: String
   contextDefaultStatus: String
@@ -72263,7 +72256,7 @@ type B2BApp {
   """
   hasDynamicTitle: Boolean
 
-  """ Indicates whether access to this miniapp requires an active subscription. If true, the app is only accessible when included in organization's active subscription (enabledB2BApps). If false, the app is always accessible regardless of subscription status. 
+  """ Virtual field that indicates whether access to this miniapp requires an active subscription. Returns true if the app appears in at least one SubscriptionPlan's enabledB2BApps list, which means it's opt-in and requires subscription. Returns false if the app is not in any plan, meaning it's available to all organizations. 
   """
   isSubscriptionRequired: Boolean
 
@@ -72473,8 +72466,6 @@ input B2BAppWhereInput {
   isPublic_not: Boolean
   hasDynamicTitle: Boolean
   hasDynamicTitle_not: Boolean
-  isSubscriptionRequired: Boolean
-  isSubscriptionRequired_not: Boolean
   icon: B2BAppIconType
   icon_not: B2BAppIconType
   icon_in: [B2BAppIconType]
@@ -72663,8 +72654,6 @@ enum SortB2BAppsBy {
   isPublic_DESC
   hasDynamicTitle_ASC
   hasDynamicTitle_DESC
-  isSubscriptionRequired_ASC
-  isSubscriptionRequired_DESC
   icon_ASC
   icon_DESC
   menuCategory_ASC
@@ -72721,7 +72710,6 @@ input B2BAppUpdateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
-  isSubscriptionRequired: Boolean
   icon: B2BAppIconType
   menuCategory: B2BAppMenuCategoryType
   contextDefaultStatus: B2BAppContextDefaultStatusType
@@ -72766,7 +72754,6 @@ input B2BAppCreateInput {
   isGlobal: Boolean
   isPublic: Boolean
   hasDynamicTitle: Boolean
-  isSubscriptionRequired: Boolean
   icon: B2BAppIconType
   menuCategory: B2BAppMenuCategoryType
   contextDefaultStatus: B2BAppContextDefaultStatusType
@@ -73615,7 +73602,6 @@ type B2CAppHistoryRecord {
   shortDescription: String
   developer: String
   isHidden: Boolean
-  isSubscriptionRequired: Boolean
   colorSchema: JSON
   appUrl: String
   additionalDomains: JSON
@@ -73701,8 +73687,6 @@ input B2CAppHistoryRecordWhereInput {
   developer_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
-  isSubscriptionRequired: Boolean
-  isSubscriptionRequired_not: Boolean
   colorSchema: JSON
   colorSchema_not: JSON
   colorSchema_in: [JSON]
@@ -73864,8 +73848,6 @@ enum SortB2CAppHistoryRecordsBy {
   developer_DESC
   isHidden_ASC
   isHidden_DESC
-  isSubscriptionRequired_ASC
-  isSubscriptionRequired_DESC
   appUrl_ASC
   appUrl_DESC
   id_ASC
@@ -73896,7 +73878,6 @@ input B2CAppHistoryRecordUpdateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
-  isSubscriptionRequired: Boolean
   colorSchema: JSON
   appUrl: String
   additionalDomains: JSON
@@ -73929,7 +73910,6 @@ input B2CAppHistoryRecordCreateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
-  isSubscriptionRequired: Boolean
   colorSchema: JSON
   appUrl: String
   additionalDomains: JSON
@@ -74007,7 +73987,7 @@ type B2CApp {
   """
   isHidden: Boolean
 
-  """ Indicates whether access to this miniapp requires an active subscription. If true, the app is only accessible when included in organization's active subscription (enabledB2CApps). If false, the app is always accessible regardless of subscription status. 
+  """ Virtual field that indicates whether access to this miniapp requires an active subscription. Returns true if the app appears in at least one SubscriptionPlan's enabledB2CApps list, which means it's opt-in and requires subscription. Returns false if the app is not in any plan, meaning it's available to all organizations. 
   """
   isSubscriptionRequired: Boolean
 
@@ -74129,8 +74109,6 @@ input B2CAppWhereInput {
   developer_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
-  isSubscriptionRequired: Boolean
-  isSubscriptionRequired_not: Boolean
   colorSchema: AppColorSchemaFieldInput
   colorSchema_not: AppColorSchemaFieldInput
   colorSchema_in: [AppColorSchemaFieldInput]
@@ -74277,8 +74255,6 @@ enum SortB2CAppsBy {
   developer_DESC
   isHidden_ASC
   isHidden_DESC
-  isSubscriptionRequired_ASC
-  isSubscriptionRequired_DESC
   appUrl_ASC
   appUrl_DESC
   oidcClient_ASC
@@ -74315,7 +74291,6 @@ input B2CAppUpdateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
-  isSubscriptionRequired: Boolean
   colorSchema: AppColorSchemaFieldInput
   appUrl: String
   additionalDomains: [String!]
@@ -74346,7 +74321,6 @@ input B2CAppCreateInput {
   shortDescription: String
   developer: String
   isHidden: Boolean
-  isSubscriptionRequired: Boolean
   colorSchema: AppColorSchemaFieldInput
   appUrl: String
   additionalDomains: [String!]

@@ -388,5 +388,77 @@ describe('B2CApp', () => {
                 ]))
             })
         })
+
+        describe('isSubscriptionRequired field', () => {
+            const { createTestSubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
+            const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+
+            test('returns false when app is not in any plan', async () => {
+                const [app] = await createTestB2CApp(support)
+                const appData = await B2CApp.getOne(support, { id: app.id })
+                expect(appData.isSubscriptionRequired).toBe(false)
+            })
+
+            test('returns true when app is in active plan', async () => {
+                const [app] = await createTestB2CApp(support)
+                await createTestSubscriptionPlan(admin, {
+                    name: 'Test Plan',
+                    organizationType: MANAGING_COMPANY_TYPE,
+                    isHidden: false,
+                    enabledB2CApps: [app.id],
+                })
+
+                const appData = await B2CApp.getOne(support, { id: app.id })
+                expect(appData.isSubscriptionRequired).toBe(true)
+            })
+
+            test('returns false when app is only in hidden plan', async () => {
+                const [app] = await createTestB2CApp(support)
+                await createTestSubscriptionPlan(admin, {
+                    name: 'Hidden Plan',
+                    organizationType: MANAGING_COMPANY_TYPE,
+                    isHidden: true,
+                    enabledB2CApps: [app.id],
+                })
+
+                const appData = await B2CApp.getOne(support, { id: app.id })
+                expect(appData.isSubscriptionRequired).toBe(false)
+            })
+
+            test('returns true when app is in at least one active plan', async () => {
+                const [app] = await createTestB2CApp(support)
+                await createTestSubscriptionPlan(admin, {
+                    name: 'Hidden Plan',
+                    organizationType: MANAGING_COMPANY_TYPE,
+                    isHidden: true,
+                    enabledB2CApps: [app.id],
+                })
+                await createTestSubscriptionPlan(admin, {
+                    name: 'Active Plan',
+                    organizationType: MANAGING_COMPANY_TYPE,
+                    isHidden: false,
+                    enabledB2CApps: [app.id],
+                })
+
+                const appData = await B2CApp.getOne(support, { id: app.id })
+                expect(appData.isSubscriptionRequired).toBe(true)
+            })
+
+            test('returns false when app is in deleted plan', async () => {
+                const [app] = await createTestB2CApp(support)
+                const [plan] = await createTestSubscriptionPlan(admin, {
+                    name: 'Deleted Plan',
+                    organizationType: MANAGING_COMPANY_TYPE,
+                    isHidden: false,
+                    enabledB2CApps: [app.id],
+                })
+                
+                const { SubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
+                await SubscriptionPlan.softDelete(admin, plan.id)
+
+                const appData = await B2CApp.getOne(support, { id: app.id })
+                expect(appData.isSubscriptionRequired).toBe(false)
+            })
+        })
     })
 })

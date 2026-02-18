@@ -4,7 +4,7 @@
 
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable, analytical } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getByCondition, find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@condo/domains/miniapp/access/B2CApp')
@@ -43,12 +43,26 @@ const B2CApp = new GQLListSchema('B2CApp', {
         developer: DEVELOPER_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         isSubscriptionRequired: {
-            schemaDoc: 'Indicates whether access to this miniapp requires an active subscription. ' +
-                'If true, the app is only accessible when included in organization\'s active subscription (enabledB2CApps). ' +
-                'If false, the app is always accessible regardless of subscription status.',
-            type: 'Checkbox',
-            defaultValue: true,
-            isRequired: true,
+            schemaDoc: 'Virtual field that indicates whether access to this miniapp requires an active subscription. ' +
+                'Returns true if the app appears in at least one SubscriptionPlan\'s enabledB2CApps list, ' +
+                'which means it\'s opt-in and requires subscription. ' +
+                'Returns false if the app is not in any plan, meaning it\'s available to all organizations.',
+            type: 'Virtual',
+            graphQLReturnType: 'Boolean',
+            resolver: async (item) => {
+                const plans = await find('SubscriptionPlan', {
+                    deletedAt: null,
+                    isHidden: false,
+                }, { context: item._context })
+
+                for (const plan of plans) {
+                    if (plan.enabledB2CApps && Array.isArray(plan.enabledB2CApps) && plan.enabledB2CApps.includes(item.id)) {
+                        return true
+                    }
+                }
+
+                return false
+            },
         },
         colorSchema: COLOR_SCHEMA_FIELD,
         appUrl: IFRAME_URL_FIELD,
