@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker')
 
+const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { configure, checkNatsAccess, getAvailableStreams } = require('@open-condo/nats')
@@ -15,12 +16,26 @@ const { streamRegistry } = require('../../../natsStreams')
 describe('NATS Access Control', () => {
     let admin
 
+    let needsDisconnect = false
+
     beforeAll(async () => {
         configure({
             getPermittedOrganizations: getEmployedOrRelatedOrganizationsByPermissions,
         })
 
         admin = await makeLoggedInAdminClient()
+        if (!conf.TESTS_FAKE_CLIENT_MODE) {
+            const { keystone } = getSchemaCtx('User')
+            await keystone.connect()
+            needsDisconnect = true
+        }
+    })
+
+    afterAll(async () => {
+        if (needsDisconnect) {
+            const { keystone } = getSchemaCtx('User')
+            await keystone.disconnect()
+        }
     })
     describe('checkNatsAccess', () => {
         describe('Boolean true access (public)', () => {
