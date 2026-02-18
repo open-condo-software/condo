@@ -1,1 +1,1 @@
-export type AvailableFeature = 'paymentsEndAt' | 'metersEndAt' | 'ticketsEndAt' | 'newsEndAt' | 'marketplaceEndAt' | 'supportEndAt' | 'aiEndAt' | 'customizationEndAt' | 'propertiesEndAt' | 'analyticsEndAt'
+export type AvailableFeature = 'payments' | 'meters' | 'tickets' | 'news' | 'marketplace' | 'support' | 'ai' | 'customization' | 'properties' | 'analytics'

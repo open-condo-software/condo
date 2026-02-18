@@ -35,14 +35,6 @@ const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
     }
 `
 
-function calculateDaysUntilDate (date, now) {
-    if (!date) return 0
-    const endDate = dayjs(date)
-    const startDate = dayjs(now)
-    const diffInHours = endDate.diff(startDate, 'hour', true)
-    return Math.max(0, Math.ceil(diffInHours / 24))
-}
-
 async function buildSubscriptionResponse (date = null) {
     let b2bApps = []
     let b2cApps = []

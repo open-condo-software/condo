@@ -24,11 +24,11 @@ const ALLOWED_WITHOUT_SUBSCRIPTION: string[] = [
  * Routes not in this map require only active subscription (no specific feature)
  */
 export const ROUTE_FEATURE_MAPPING: Record<string, AvailableFeature> = {
-    '/payments': 'paymentsEndAt',
-    '/meter': 'metersEndAt',
-    '/ticket': 'ticketsEndAt',
-    '/news': 'newsEndAt',
-    '/marketplace': 'marketplaceEndAt',
+    '/payments': 'payments',
+    '/meter': 'meters',
+    '/ticket': 'tickets',
+    '/news': 'news',
+    '/marketplace': 'marketplace',
 }
 
 function isAllowedWithoutSubscription (pathname: string): boolean {

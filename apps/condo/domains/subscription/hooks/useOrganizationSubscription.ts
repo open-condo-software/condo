@@ -67,7 +67,8 @@ export const useOrganizationSubscription = () => {
         if (!enableSubscriptions || !hasSubscriptionsFlag) return true
         if (!subscriptionFeatures) return false
         
-        const featureDate = subscriptionFeatures[feature]
+        const featureKey = `${feature}EndAt` as keyof SubscriptionFeatures
+        const featureDate = subscriptionFeatures[featureKey]
         if (featureDate === null) return false
         if (typeof featureDate !== 'string') return false
         
