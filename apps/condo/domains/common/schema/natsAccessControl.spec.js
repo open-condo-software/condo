@@ -246,6 +246,8 @@ describe('NATS Access Control', () => {
         it('token organizationId cannot be forged without TOKEN_SECRET', () => {
             const forgedToken = jwt.sign(
                 { userId: 'user-1', organizationId: 'other-org', allowedStreams: ['ticket-changes'] },
+                // intentionally wrong secret to test that forged tokens are rejected
+                // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                 'wrong-secret',
                 { expiresIn: '24h' }
             )

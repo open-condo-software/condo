@@ -43,7 +43,7 @@ class AuthCalloutService {
             logger.info({ msg: 'Auth callout issuer public key', publicKey: this.accountPublicKey })
 
             this.connection = await connect({
-                servers: config.url || conf.NATS_URL || 'nats://localhost:4222',
+                servers: config.url || conf.NATS_URL || 'nats://127.0.0.1:4222',
                 user: config.authUser || conf.NATS_AUTH_USER || 'auth-service',
                 pass: config.authPass || conf.NATS_AUTH_PASSWORD || 'auth-secret',
                 reconnect: true,

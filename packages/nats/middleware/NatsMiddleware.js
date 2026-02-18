@@ -57,6 +57,8 @@ async function resolveEmployeeContext (req, keystone) {
 
 class NatsMiddleware {
     prepareMiddleware ({ keystone }) {
+        // internal Keystone middleware for NATS token/auth endpoints, not a standalone user-facing Express app
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.use(express.json())
 

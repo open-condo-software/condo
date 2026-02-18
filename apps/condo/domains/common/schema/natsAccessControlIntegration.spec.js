@@ -17,7 +17,7 @@ const {
 } = require('@open-condo/nats/utils')
 
 const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
-const NATS_URL = conf.NATS_URL || 'nats://localhost:4222'
+const NATS_URL = conf.NATS_URL || 'nats://127.0.0.1:4222'
 const RUN_INTEGRATION = process.env.NATS_INTEGRATION === 'true'
 
 const describeIf = (condition) => condition ? describe : describe.skip
@@ -230,7 +230,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
                 inboxSub.unsubscribe()
                 await done
 
-                expect(received.length).toBe(1)
+                expect(received).toHaveLength(1)
                 expect(received[0].org).toBe(ORG_A)
                 expect(received[0].id).toBe('ticket-aaa')
             } finally {
@@ -350,7 +350,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
                 inboxSub.unsubscribe()
                 await done
 
-                expect(received.length).toBe(1)
+                expect(received).toHaveLength(1)
                 expect(received[0].org).toBe(ORG_A)
                 expect(received.find(m => m.org === ORG_B)).toBeUndefined()
             } finally {
@@ -364,6 +364,8 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
         it('rejects connection with forged token (wrong secret)', async () => {
             const forgedToken = jwt.sign(
                 { userId: 'fake-user', organizationId: 'other-org', allowedStreams: ['ticket-changes'] },
+                // intentionally wrong secret to test that forged tokens are rejected
+                // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                 'wrong-secret',
                 { expiresIn: '1h' }
             )
