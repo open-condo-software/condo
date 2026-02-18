@@ -868,5 +868,50 @@ describe('Organization', () => {
             expect(org.subscription.activeSubscriptionEndAt).toBeNull()
             expect(org.subscription.activeSubscriptionContextId).toBeNull()
         })
+
+        test('returns far future end date for apps from plans of different organization type', async () => {
+            const [organization] = await createTestOrganization(admin, {
+                type: MANAGING_COMPANY_TYPE,
+            })
+            const [b2bAppForMC] = await createTestB2BApp(admin)
+            const [b2bAppForSP] = await createTestB2BApp(admin)
+            const [b2cAppForSP] = await createTestB2CApp(admin)
+            
+            const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
+            const futureDate = dayjs().add(100, 'years').format('YYYY-MM-DD')
+            
+            const [planForMC] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                enabledB2BApps: [b2bAppForMC.id],
+            })
+            
+            await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                isHidden: false,
+                enabledB2BApps: [b2bAppForSP.id],
+                enabledB2CApps: [b2cAppForSP.id],
+            })
+            
+            await createTestSubscriptionContext(admin, organization, planForMC, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription.b2bApps).toHaveLength(2)
+            expect(org.subscription.b2cApps).toHaveLength(1)
+            
+            const b2bAppForMCResult = org.subscription.b2bApps.find(app => app.id === b2bAppForMC.id)
+            const b2bAppForSPResult = org.subscription.b2bApps.find(app => app.id === b2bAppForSP.id)
+            const b2cAppForSPResult = org.subscription.b2cApps.find(app => app.id === b2cAppForSP.id)
+            
+            expect(b2bAppForMCResult.endAt).toBe(endAt)
+            expect(b2bAppForSPResult.endAt).toBe(futureDate)
+            expect(b2cAppForSPResult.endAt).toBe(futureDate)
+        })
     })
 })

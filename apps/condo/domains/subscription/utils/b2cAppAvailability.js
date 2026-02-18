@@ -1,7 +1,8 @@
 const dayjs = require('dayjs')
 
-const { find, getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
+const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 
@@ -51,7 +52,7 @@ function isAppAvailableForOrganization (org, appId, plansByOrgType) {
 }
 
 async function isB2CAppAvailableForAddress (appId, addressKey, context) {
-    const app = await getById('B2CApp', appId)
+    const app = await B2CApp.getOne(context, { id: appId }, 'id isSubscriptionRequired')
     
     if (!app || !app.isSubscriptionRequired) {
         return true

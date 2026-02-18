@@ -202,30 +202,53 @@ function calculateSubscriptionEndAt (sortedContexts, bestActiveContext, now) {
 }
 
 async function calculateAppsExpiration (sortedContexts, now, organizationType) {
-    const allPlans = await find('SubscriptionPlan', { deletedAt: null, isHidden: false, organizationType })
+    const allPlans = await find('SubscriptionPlan', { deletedAt: null, isHidden: false })
     const b2bAppIds = new Set()
     const b2cAppIds = new Set()
+    const b2bAppsInOrgTypePlans = new Set()
+    const b2cAppsInOrgTypePlans = new Set()
     
     allPlans.forEach(plan => {
+        const isOrgTypePlan = plan.organizationType === organizationType
+        
         if (plan.enabledB2BApps && Array.isArray(plan.enabledB2BApps)) {
-            plan.enabledB2BApps.forEach(appId => b2bAppIds.add(appId))
+            plan.enabledB2BApps.forEach(appId => {
+                b2bAppIds.add(appId)
+                if (isOrgTypePlan) {
+                    b2bAppsInOrgTypePlans.add(appId)
+                }
+            })
         }
         if (plan.enabledB2CApps && Array.isArray(plan.enabledB2CApps)) {
-            plan.enabledB2CApps.forEach(appId => b2cAppIds.add(appId))
+            plan.enabledB2CApps.forEach(appId => {
+                b2cAppIds.add(appId)
+                if (isOrgTypePlan) {
+                    b2cAppsInOrgTypePlans.add(appId)
+                }
+            })
         }
     })
     
+    const futureDate = dayjs().add(100, 'years').format('YYYY-MM-DD')
     const b2bAppsMap = new Map()
     const b2cAppsMap = new Map()
     
     b2bAppIds.forEach(appId => {
-        const endAt = findLatestEndAtForApp(appId, 'enabledB2BApps', sortedContexts, now)
-        b2bAppsMap.set(appId, endAt)
+        if (b2bAppsInOrgTypePlans.has(appId)) {
+            const endAt = findLatestEndAtForApp(appId, 'enabledB2BApps', sortedContexts, now)
+            b2bAppsMap.set(appId, endAt)
+        } else {
+            b2bAppsMap.set(appId, futureDate)
+        }
     })
     
     b2cAppIds.forEach(appId => {
-        const endAt = findLatestEndAtForApp(appId, 'enabledB2CApps', sortedContexts, now)
-        b2cAppsMap.set(appId, endAt)
+        if (b2cAppsInOrgTypePlans.has(appId)) {
+            const endAt = findLatestEndAtForApp(appId, 'enabledB2CApps', sortedContexts, now)
+            b2cAppsMap.set(appId, endAt)
+        } else {
+            b2cAppsMap.set(appId, futureDate)
+        }
     })
     
     return {
@@ -279,7 +302,7 @@ function findLatestEndAtForApp (appId, appField, sortedContexts, now) {
 
 const ORGANIZATION_SUBSCRIPTION_FIELD = {
     schemaDoc: 'Subscription information for this organization. Returns feature expiration dates (ISO strings or null), ' +
-        'enabled apps from active contexts, days remaining, and active context ID. ' +
+        'enabled apps from active contexts, active subscription end date and active context ID. ' +
         'Features available until expiration date (exclusive).',
     type: 'Virtual',
     extendGraphQLTypes: SUBSCRIPTION_FEATURES_GRAPHQL_TYPES,
