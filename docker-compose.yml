@@ -106,6 +106,7 @@ services:
       - "host.docker.internal:host-gateway"
     command: ["-c", "/etc/nats/nats.conf"]
     volumes:
+      - nats-data:/data
       - ./nats.conf:/etc/nats/nats.conf:ro
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]

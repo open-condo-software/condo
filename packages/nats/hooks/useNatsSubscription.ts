@@ -1,4 +1,4 @@
-import { JSONCodec, Msg, Subscription, NatsConnection, createInbox } from 'nats.ws'
+import { JSONCodec, Msg, Subscription, NatsConnection, createInbox } from 'nats'
 import { useEffect, useRef, useCallback, useState } from 'react'
 
 interface UseNatsSubscriptionOptions<T> {
