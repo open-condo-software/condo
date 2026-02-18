@@ -35,33 +35,27 @@ const SUBSCRIPTION_FEATURES_GRAPHQL_TYPES = `
     }
 `
 
+function getAppsFromPlans (plans, appFieldName, date) {
+    const appIds = new Set()
+    
+    plans.forEach(plan => {
+        const apps = plan[appFieldName]
+        if (apps && Array.isArray(apps)) {
+            apps.forEach(appId => appIds.add(appId))
+        }
+    })
+    
+    return Array.from(appIds).map(id => ({ id, endAt: date }))
+}
+
 async function buildSubscriptionResponse (date = null) {
     let b2bApps = []
     let b2cApps = []
     
     if (date) {
         const allPlans = await find('SubscriptionPlan', { deletedAt: null, isHidden: false })
-        const b2bAppIds = new Set()
-        const b2cAppIds = new Set()
-        
-        allPlans.forEach(plan => {
-            if (plan.enabledB2BApps && Array.isArray(plan.enabledB2BApps)) {
-                plan.enabledB2BApps.forEach(appId => b2bAppIds.add(appId))
-            }
-            if (plan.enabledB2CApps && Array.isArray(plan.enabledB2CApps)) {
-                plan.enabledB2CApps.forEach(appId => b2cAppIds.add(appId))
-            }
-        })
-        
-        if (b2bAppIds.size > 0) {
-            const allB2BApps = await find('B2BApp', { id_in: Array.from(b2bAppIds), deletedAt: null })
-            b2bApps = allB2BApps.map(app => ({ id: app.id, endAt: date }))
-        }
-        
-        if (b2cAppIds.size > 0) {
-            const allB2CApps = await find('B2CApp', { id_in: Array.from(b2cAppIds), deletedAt: null })
-            b2cApps = allB2CApps.map(app => ({ id: app.id, endAt: date }))
-        }
+        b2bApps = getAppsFromPlans(allPlans, 'enabledB2BApps', date)
+        b2cApps = getAppsFromPlans(allPlans, 'enabledB2CApps', date)
     }
     
     return {

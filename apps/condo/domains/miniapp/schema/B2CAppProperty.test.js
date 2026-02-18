@@ -370,7 +370,6 @@ describe('B2CAppProperty test', () => {
             expect(properties[0].isAvailable).toBe(true)
         })
 
-
         test('returns true when at least one organization has app enabled (multiple orgs)', async () => {
             const [b2cApp] = await createTestB2CApp(admin)
             const [org1] = await createTestOrganization(admin, { type: MANAGING_COMPANY_TYPE })
