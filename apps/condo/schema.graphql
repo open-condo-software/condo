@@ -6333,7 +6333,7 @@ type Organization {
   """
   isApproved: Boolean
 
-  """ Subscription information for this organization. Returns feature expiration dates (ISO strings or null), enabled apps from active contexts, days remaining, and active context ID. Features available until expiration date (exclusive). 
+  """ Subscription information for this organization. Returns feature expiration dates (ISO strings or null), enabled apps from active contexts, active subscription end date and active context ID. Features available until expiration date (exclusive). 
   """
   subscription: OrganizationSubscriptionFeatures
   id: ID!
@@ -72256,9 +72256,9 @@ type B2BApp {
   """
   hasDynamicTitle: Boolean
 
-  """ Virtual field that indicates whether access to this miniapp requires an active subscription. Returns true if the app appears in at least one SubscriptionPlan's enabledB2BApps list, which means it's opt-in and requires subscription. Returns false if the app is not in any plan, meaning it's available to all organizations. 
+  """ Virtual field that returns all active SubscriptionPlans that include this miniapp. Returns array of SubscriptionPlan objects where this app is in enabledB2BApps. Empty array means the app is available to all organizations without subscription. 
   """
-  isSubscriptionRequired: Boolean
+  subscriptionPlans: [SubscriptionPlan]
 
   """ App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection. 
   """
@@ -73987,9 +73987,9 @@ type B2CApp {
   """
   isHidden: Boolean
 
-  """ Virtual field that indicates whether access to this miniapp requires an active subscription. Returns true if the app appears in at least one SubscriptionPlan's enabledB2CApps list, which means it's opt-in and requires subscription. Returns false if the app is not in any plan, meaning it's available to all organizations. 
+  """ Virtual field that returns all active SubscriptionPlans that include this miniapp. Returns array of SubscriptionPlan objects where this app is in enabledB2CApps. Empty array means the app is available to all organizations without subscription. 
   """
-  isSubscriptionRequired: Boolean
+  subscriptionPlans: [SubscriptionPlan]
 
   """ The color schema of the B2C application used to display it correctly. The main color is used for texts, icons etc. The secondary color is used for the background 
   """

@@ -102,20 +102,18 @@ function filterActiveContexts (contexts, now) {
     })
 }
 
-function findLatestEndAtForFeature (feature, sortedContexts, now) {
+function findLatestEndAt (sortedContexts, now, filterFn) {
     const nowDate = dayjs(now).startOf('day')
-    const contextsWithFeature = sortedContexts.filter(ctx => {
-        const contextPlan = ctx.subscriptionPlan
-        return contextPlan && contextPlan[feature]
-    })
-    if (contextsWithFeature.length === 0) {
+    const filteredContexts = sortedContexts.filter(filterFn)
+    
+    if (filteredContexts.length === 0) {
         return null
     }
     
     let maxEndAt = null
     let lastEndDate = null
     
-    for (const ctx of contextsWithFeature) {
+    for (const ctx of filteredContexts) {
         const startAt = dayjs(ctx.startAt).startOf('day')
         const endAt = dayjs(ctx.endAt).startOf('day')
         const isActiveOrFuture = endAt.isAfter(nowDate)
@@ -143,6 +141,13 @@ function findLatestEndAtForFeature (feature, sortedContexts, now) {
     }
     
     return maxEndAt
+}
+
+function findLatestEndAtForFeature (feature, sortedContexts, now) {
+    return findLatestEndAt(sortedContexts, now, (ctx) => {
+        const contextPlan = ctx.subscriptionPlan
+        return contextPlan && contextPlan[feature]
+    })
 }
 
 function calculateFeatureExpirationDates (sortedContexts, now) {
@@ -201,102 +206,62 @@ function calculateSubscriptionEndAt (sortedContexts, bestActiveContext, now) {
     }
 }
 
+function collectAppsFromPlans (plans, organizationType, appField) {
+    const allAppIds = new Set()
+    const appsInOrgTypePlans = new Set()
+    
+    plans.forEach(plan => {
+        const apps = plan[appField]
+        if (apps && Array.isArray(apps)) {
+            apps.forEach(appId => {
+                allAppIds.add(appId)
+                if (plan.organizationType === organizationType) {
+                    appsInOrgTypePlans.add(appId)
+                }
+            })
+        }
+    })
+    
+    return { allAppIds, appsInOrgTypePlans }
+}
+
+function calculateAppExpirations (allAppIds, appsInOrgTypePlans, appField, sortedContexts, now, futureDate) {
+    const appsMap = new Map()
+    
+    allAppIds.forEach(appId => {
+        if (appsInOrgTypePlans.has(appId)) {
+            const endAt = findLatestEndAtForApp(appId, appField, sortedContexts, now)
+            appsMap.set(appId, endAt)
+        } else {
+            appsMap.set(appId, futureDate)
+        }
+    })
+    
+    return Array.from(appsMap.entries()).map(([id, endAt]) => ({ id, endAt }))
+}
+
 async function calculateAppsExpiration (sortedContexts, now, organizationType) {
     const allPlans = await find('SubscriptionPlan', { deletedAt: null, isHidden: false })
-    const b2bAppIds = new Set()
-    const b2cAppIds = new Set()
-    const b2bAppsInOrgTypePlans = new Set()
-    const b2cAppsInOrgTypePlans = new Set()
-    
-    allPlans.forEach(plan => {
-        const isOrgTypePlan = plan.organizationType === organizationType
-        
-        if (plan.enabledB2BApps && Array.isArray(plan.enabledB2BApps)) {
-            plan.enabledB2BApps.forEach(appId => {
-                b2bAppIds.add(appId)
-                if (isOrgTypePlan) {
-                    b2bAppsInOrgTypePlans.add(appId)
-                }
-            })
-        }
-        if (plan.enabledB2CApps && Array.isArray(plan.enabledB2CApps)) {
-            plan.enabledB2CApps.forEach(appId => {
-                b2cAppIds.add(appId)
-                if (isOrgTypePlan) {
-                    b2cAppsInOrgTypePlans.add(appId)
-                }
-            })
-        }
-    })
-    
     const futureDate = dayjs().add(100, 'years').format('YYYY-MM-DD')
-    const b2bAppsMap = new Map()
-    const b2cAppsMap = new Map()
     
-    b2bAppIds.forEach(appId => {
-        if (b2bAppsInOrgTypePlans.has(appId)) {
-            const endAt = findLatestEndAtForApp(appId, 'enabledB2BApps', sortedContexts, now)
-            b2bAppsMap.set(appId, endAt)
-        } else {
-            b2bAppsMap.set(appId, futureDate)
-        }
-    })
-    
-    b2cAppIds.forEach(appId => {
-        if (b2cAppsInOrgTypePlans.has(appId)) {
-            const endAt = findLatestEndAtForApp(appId, 'enabledB2CApps', sortedContexts, now)
-            b2cAppsMap.set(appId, endAt)
-        } else {
-            b2cAppsMap.set(appId, futureDate)
-        }
-    })
+    const { allAppIds: b2bAppIds, appsInOrgTypePlans: b2bAppsInOrgTypePlans } = collectAppsFromPlans(
+        allPlans, organizationType, 'enabledB2BApps'
+    )
+    const { allAppIds: b2cAppIds, appsInOrgTypePlans: b2cAppsInOrgTypePlans } = collectAppsFromPlans(
+        allPlans, organizationType, 'enabledB2CApps'
+    )
     
     return {
-        b2bApps: Array.from(b2bAppsMap.entries()).map(([id, endAt]) => ({ id, endAt })),
-        b2cApps: Array.from(b2cAppsMap.entries()).map(([id, endAt]) => ({ id, endAt })),
+        b2bApps: calculateAppExpirations(b2bAppIds, b2bAppsInOrgTypePlans, 'enabledB2BApps', sortedContexts, now, futureDate),
+        b2cApps: calculateAppExpirations(b2cAppIds, b2cAppsInOrgTypePlans, 'enabledB2CApps', sortedContexts, now, futureDate),
     }
 }
 
 function findLatestEndAtForApp (appId, appField, sortedContexts, now) {
-    const nowDate = dayjs(now).startOf('day')
-    const contextsWithApp = sortedContexts.filter(ctx => {
+    return findLatestEndAt(sortedContexts, now, (ctx) => {
         const contextPlan = ctx.subscriptionPlan
         return contextPlan && (contextPlan[appField] || []).includes(appId)
     })
-    
-    if (contextsWithApp.length === 0) {
-        return null
-    }
-    
-    let maxEndAt = null
-    let lastEndDate = null
-    
-    for (const ctx of contextsWithApp) {
-        const startAt = dayjs(ctx.startAt).startOf('day')
-        const endAt = dayjs(ctx.endAt).startOf('day')
-        const isActiveOrFuture = endAt.isAfter(nowDate)
-        
-        if (isActiveOrFuture) {
-            if (lastEndDate) {
-                const prevEndDate = dayjs(lastEndDate).startOf('day')
-                if (startAt.isAfter(prevEndDate, 'day')) {
-                    break
-                }
-            } else {
-                if (startAt.isAfter(nowDate, 'day')) {
-                    break
-                }
-            }
-            
-            lastEndDate = ctx.endAt
-        }
-        
-        if (!maxEndAt || ctx.endAt > maxEndAt) {
-            maxEndAt = ctx.endAt
-        }
-    }
-    
-    return maxEndAt
 }
 
 

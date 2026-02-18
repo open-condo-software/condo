@@ -351,16 +351,17 @@ describe('B2BApp', () => {
             })
         })
 
-        describe('isSubscriptionRequired field', () => {
-            test('returns false when app is not in any plan', async () => {
+        describe('subscriptionPlans field', () => {
+            test('returns empty array when app is not in any plan', async () => {
                 const [app] = await createTestB2BApp(support)
                 const appData = await B2BApp.getOne(support, { id: app.id })
-                expect(appData.isSubscriptionRequired).toBe(false)
+                expect(Array.isArray(appData.subscriptionPlans)).toBe(true)
+                expect(appData.subscriptionPlans).toHaveLength(0)
             })
 
-            test('returns true when app is in active plan', async () => {
+            test('returns plan object when app is in active plan', async () => {
                 const [app] = await createTestB2BApp(support)
-                await createTestSubscriptionPlan(admin, {
+                const [plan] = await createTestSubscriptionPlan(admin, {
                     name: 'Test Plan',
                     organizationType: MANAGING_COMPANY_TYPE,
                     isHidden: false,
@@ -368,10 +369,13 @@ describe('B2BApp', () => {
                 })
 
                 const appData = await B2BApp.getOne(support, { id: app.id })
-                expect(appData.isSubscriptionRequired).toBe(true)
+                expect(appData.subscriptionPlans).toHaveLength(1)
+                expect(appData.subscriptionPlans[0].id).toBe(plan.id)
+                expect(appData.subscriptionPlans[0].name).toBe('Test Plan')
+                expect(appData.subscriptionPlans[0].organizationType).toBe(MANAGING_COMPANY_TYPE)
             })
 
-            test('returns false when app is only in hidden plan', async () => {
+            test('returns empty array when app is only in hidden plan', async () => {
                 const [app] = await createTestB2BApp(support)
                 await createTestSubscriptionPlan(admin, {
                     name: 'Hidden Plan',
@@ -381,10 +385,10 @@ describe('B2BApp', () => {
                 })
 
                 const appData = await B2BApp.getOne(support, { id: app.id })
-                expect(appData.isSubscriptionRequired).toBe(false)
+                expect(appData.subscriptionPlans).toEqual([])
             })
 
-            test('returns true when app is in at least one active plan', async () => {
+            test('returns only active plans when app is in multiple plans', async () => {
                 const [app] = await createTestB2BApp(support)
                 await createTestSubscriptionPlan(admin, {
                     name: 'Hidden Plan',
@@ -392,7 +396,7 @@ describe('B2BApp', () => {
                     isHidden: true,
                     enabledB2BApps: [app.id],
                 })
-                await createTestSubscriptionPlan(admin, {
+                const [activePlan] = await createTestSubscriptionPlan(admin, {
                     name: 'Active Plan',
                     organizationType: MANAGING_COMPANY_TYPE,
                     isHidden: false,
@@ -400,10 +404,11 @@ describe('B2BApp', () => {
                 })
 
                 const appData = await B2BApp.getOne(support, { id: app.id })
-                expect(appData.isSubscriptionRequired).toBe(true)
+                expect(appData.subscriptionPlans).toHaveLength(1)
+                expect(appData.subscriptionPlans[0].id).toBe(activePlan.id)
             })
 
-            test('returns false when app is in deleted plan', async () => {
+            test('returns empty array when app is in deleted plan', async () => {
                 const [app] = await createTestB2BApp(support)
                 const [plan] = await createTestSubscriptionPlan(admin, {
                     name: 'Deleted Plan',
@@ -415,7 +420,7 @@ describe('B2BApp', () => {
                 await SubscriptionPlan.softDelete(admin, plan.id)
 
                 const appData = await B2BApp.getOne(support, { id: app.id })
-                expect(appData.isSubscriptionRequired).toBe(false)
+                expect(appData.subscriptionPlans).toEqual([])
             })
         })
     })

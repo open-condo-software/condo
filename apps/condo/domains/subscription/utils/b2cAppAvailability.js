@@ -52,9 +52,9 @@ function isAppAvailableForOrganization (org, appId, plansByOrgType) {
 }
 
 async function isB2CAppAvailableForAddress (appId, addressKey, context) {
-    const app = await B2CApp.getOne(context, { id: appId }, 'id isSubscriptionRequired')
+    const app = await B2CApp.getOne(context, { id: appId }, 'id subscriptionPlans { id }')
     
-    if (!app || !app.isSubscriptionRequired) {
+    if (!app || !app.subscriptionPlans || app.subscriptionPlans.length === 0) {
         return true
     }
     

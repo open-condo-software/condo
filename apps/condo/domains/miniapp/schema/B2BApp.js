@@ -5,7 +5,6 @@
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
-const { find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@condo/domains/miniapp/access/B2BApp')
@@ -32,6 +31,7 @@ const {
     PRICE_FIELD,
     ICON_FIELD,
     MENU_CATEGORY_FIELD,
+    SUBSCRIPTION_PLANS_FIELD_B2B,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
 const { ADDITIONAL_DOMAINS_FIELD, OIDC_CLIENT_FIELD, MINIAPP_DOMAINS_FIELD } = require('./fields/domains')
@@ -84,28 +84,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
             defaultValue: false,
             isRequired: true,
         },
-        isSubscriptionRequired: {
-            schemaDoc: 'Virtual field that indicates whether access to this miniapp requires an active subscription. ' +
-                'Returns true if the app appears in at least one SubscriptionPlan\'s enabledB2BApps list, ' +
-                'which means it\'s opt-in and requires subscription. ' +
-                'Returns false if the app is not in any plan, meaning it\'s available to all organizations.',
-            type: 'Virtual',
-            graphQLReturnType: 'Boolean',
-            resolver: async (item) => {
-                const plans = await find('SubscriptionPlan', {
-                    deletedAt: null,
-                    isHidden: false,
-                })
-
-                for (const plan of plans) {
-                    if (plan.enabledB2BApps && Array.isArray(plan.enabledB2BApps) && plan.enabledB2BApps.includes(item.id)) {
-                        return true
-                    }
-                }
-
-                return false
-            },
-        },
+        subscriptionPlans: SUBSCRIPTION_PLANS_FIELD_B2B,
         icon: ICON_FIELD,
         menuCategory: MENU_CATEGORY_FIELD,
         contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,
