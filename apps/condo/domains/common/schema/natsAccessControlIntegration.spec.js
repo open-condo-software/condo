@@ -8,13 +8,13 @@ const { connect, JSONCodec, createInbox } = require('nats')
 const nkeys = require('nkeys.js')
 
 const conf = require('@open-condo/config')
+const { SubscriptionRelayService } = require('@open-condo/nats')
 const {
     decodeNatsJwt,
     createUserJwt,
     createAuthResponseJwt,
     computePermissions,
 } = require('@open-condo/nats/utils')
-const { SubscriptionRelayService } = require('@open-condo/nats')
 
 const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
 const NATS_URL = conf.NATS_URL || 'nats://localhost:4222'
