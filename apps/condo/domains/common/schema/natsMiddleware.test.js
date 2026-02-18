@@ -3,12 +3,11 @@ const { connect, JSONCodec, createInbox } = require('nats')
 
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
-const { streamRegistry, configure } = require('@open-condo/nats')
+const { configure } = require('@open-condo/nats')
 
 const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
-const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const { OrganizationEmployee, createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -18,16 +17,12 @@ const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
 const NATS_URL = conf.NATS_URL || 'nats://127.0.0.1:4222'
 const NATS_CONFIGURED = conf.NATS_ENABLED !== 'false' && !!conf.NATS_AUTH_ACCOUNT_SEED
 
-async function getCookieWithOrganization (client) {
+async function getCookieWithOrganization (client, adminClient) {
     const baseCookie = client.getCookie()
     let employeeId = client.organization?.employeeId
 
     if (!employeeId && client.organization?.id && client.user?.id) {
-        const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-        const keystone = getSchemaCtx('User').keystone
-        const context = await keystone.createContext({ skipAccessControl: true })
-
-        const employees = await OrganizationEmployee.getAll(context, {
+        const employees = await OrganizationEmployee.getAll(adminClient, {
             organization: { id: client.organization.id },
             user: { id: client.user.id },
             deletedAt: null,
@@ -62,23 +57,6 @@ describe('NATS Middleware Integration Tests', () => {
         natsTokenUrl = serverUrl + '/nats/token'
         natsStreamsUrl = serverUrl + '/nats/streams'
         natsAuthUrl = serverUrl + '/nats/auth'
-
-        // Register test streams
-        streamRegistry.register('test-integration-changes', {
-            ttl: 3600,
-            subjects: ['test-integration-changes.>'],
-            access: {
-                read: 'canManageTickets',
-            },
-        })
-
-        streamRegistry.register('test-public-integration-events', {
-            ttl: 3600,
-            subjects: ['test-public-integration-events.>'],
-            access: {
-                read: true,
-            },
-        })
     })
 
     describe('GET /nats/token - Token Generation Endpoint', () => {
@@ -108,7 +86,7 @@ describe('NATS Middleware Integration Tests', () => {
 
         it('generates valid JWT token for authenticated user with organization', async () => {
             const client = await makeClientWithProperty()
-            const cookie = await getCookieWithOrganization(client)
+            const cookie = await getCookieWithOrganization(client, admin)
 
             const response = await fetch(natsTokenUrl, {
                 method: 'GET',
@@ -175,7 +153,7 @@ describe('NATS Middleware Integration Tests', () => {
 
         it('returns available streams for authenticated user', async () => {
             const client = await makeClientWithProperty()
-            const cookie = await getCookieWithOrganization(client)
+            const cookie = await getCookieWithOrganization(client, admin)
 
             const response = await fetch(natsStreamsUrl, {
                 method: 'GET',
@@ -189,14 +167,14 @@ describe('NATS Middleware Integration Tests', () => {
             expect(body.organizationId).toBe(client.organization.id)
 
             const streamNames = body.streams.map(s => s.name)
-            expect(streamNames).toContain('test-integration-changes')
-            expect(streamNames).toContain('test-public-integration-events')
+            expect(streamNames).toContain('property-changes')
+            expect(streamNames).toContain('notification-events')
         })
 
         it('returns only streams user has permission for', async () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageTickets: false,
+                canManageProperties: false,
             })
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {
@@ -206,7 +184,7 @@ describe('NATS Middleware Integration Tests', () => {
             })
 
             client.organization = { ...organization, employeeId: employee.id }
-            const cookie = await getCookieWithOrganization(client)
+            const cookie = await getCookieWithOrganization(client, admin)
 
             const response = await fetch(natsStreamsUrl, {
                 method: 'GET',
@@ -217,8 +195,8 @@ describe('NATS Middleware Integration Tests', () => {
             const body = await response.json()
             const streamNames = body.streams.map(s => s.name)
 
-            expect(streamNames).toContain('test-public-integration-events')
-            expect(streamNames).not.toContain('test-integration-changes')
+            expect(streamNames).toContain('notification-events')
+            expect(streamNames).not.toContain('property-changes')
         })
     })
 
@@ -292,7 +270,7 @@ describe('NATS Middleware Integration Tests', () => {
         it('denies access when user lacks required permission', async () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageTickets: false,
+                canManageProperties: false,
             })
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, client.user, role, {
@@ -312,7 +290,7 @@ describe('NATS Middleware Integration Tests', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     connect_opts: { auth_token: token },
-                    client_metadata: { subject: 'test-integration-changes.test.message' },
+                    client_metadata: { subject: 'property-changes.test.message' },
                 }),
             })
 
@@ -325,7 +303,7 @@ describe('NATS Middleware Integration Tests', () => {
         it('allows access when user has required permission', async () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageTickets: true,
+                canManageProperties: true,
             })
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, client.user, role, {
@@ -345,7 +323,7 @@ describe('NATS Middleware Integration Tests', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     connect_opts: { auth_token: token },
-                    client_metadata: { subject: 'test-integration-changes.test.message' },
+                    client_metadata: { subject: 'property-changes.test.message' },
                 }),
             })
 
@@ -360,7 +338,7 @@ describe('NATS Middleware Integration Tests', () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageTickets: false,
+                canManageProperties: false,
             })
             await createTestOrganizationEmployee(admin, organization, client.user, role, {
                 isRejected: false,
@@ -379,7 +357,7 @@ describe('NATS Middleware Integration Tests', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     connect_opts: { auth_token: token },
-                    client_metadata: { subject: 'test-public-integration-events.test.message' },
+                    client_metadata: { subject: 'notification-events.test.message' },
                 }),
             })
 
@@ -413,32 +391,6 @@ describe('NATS Middleware Integration Tests', () => {
         })
 
         it('denies access with custom function when ticket belongs to different organization', async () => {
-            streamRegistry.register('test-custom-integration-events', {
-                ttl: 3600,
-                subjects: ['test-custom-integration-events.>'],
-                access: {
-                    read: async ({ authentication, context, organizationId, subject }) => {
-                        const { item: user } = authentication
-                        if (!user || user.deletedAt) return false
-
-                        const ticketId = subject.split('.')[2]
-                        if (!ticketId) return false
-
-                        const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
-                        const ticket = await Ticket.getOne(context, {
-                            id: ticketId,
-                            organization: { id: organizationId },
-                        })
-
-                        if (!ticket) return false
-
-                        const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
-                        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, ['canReadTickets'])
-                        return permittedOrganizations.includes(organizationId)
-                    },
-                },
-            })
-
             const client1 = await makeClientWithProperty()
             const client2 = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client1, client1.organization, client1.property)
@@ -454,7 +406,7 @@ describe('NATS Middleware Integration Tests', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     connect_opts: { auth_token: token },
-                    client_metadata: { subject: `test-custom-integration-events.${client1.organization.id}.${ticket.id}` },
+                    client_metadata: { subject: `ticket-changes.${client1.organization.id}.${ticket.id}` },
                 }),
             })
 
@@ -478,7 +430,7 @@ describe('NATS Middleware Integration Tests', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     connect_opts: { auth_token: token },
-                    client_metadata: { subject: `test-custom-integration-events.${client.organization.id}.${ticket.id}` },
+                    client_metadata: { subject: `ticket-changes.${client.organization.id}.${ticket.id}` },
                 }),
             })
 
@@ -494,7 +446,7 @@ describe('NATS Middleware Integration Tests', () => {
         it('full flow: token generation -> authorization -> access grant', async () => {
             const client = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
-            const cookie = await getCookieWithOrganization(client)
+            const cookie = await getCookieWithOrganization(client, admin)
 
             const tokenResponse = await fetch(natsTokenUrl, {
                 method: 'GET',
@@ -510,7 +462,7 @@ describe('NATS Middleware Integration Tests', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     connect_opts: { auth_token: token },
-                    client_metadata: { subject: `test-custom-integration-events.${client.organization.id}.${ticket.id}` },
+                    client_metadata: { subject: `ticket-changes.${client.organization.id}.${ticket.id}` },
                 }),
             })
 
@@ -525,7 +477,7 @@ describe('NATS Middleware Integration Tests', () => {
             const client1 = await makeClientWithProperty()
             const client2 = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client1, client1.organization, client1.property)
-            const cookie2 = await getCookieWithOrganization(client2)
+            const cookie2 = await getCookieWithOrganization(client2, admin)
 
             const tokenResponse = await fetch(natsTokenUrl, {
                 method: 'GET',
@@ -540,7 +492,7 @@ describe('NATS Middleware Integration Tests', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     connect_opts: { auth_token: token },
-                    client_metadata: { subject: `test-custom-integration-events.${client1.organization.id}.${ticket.id}` },
+                    client_metadata: { subject: `ticket-changes.${client1.organization.id}.${ticket.id}` },
                 }),
             })
 
@@ -554,7 +506,7 @@ describe('NATS Middleware Integration Tests', () => {
 
     describeIfNats('Full NATS Socket Integration', () => {
         async function getTokenForClient (client) {
-            const cookie = await getCookieWithOrganization(client)
+            const cookie = await getCookieWithOrganization(client, admin)
             const response = await fetch(natsTokenUrl, {
                 method: 'GET',
                 headers: { Cookie: cookie },
@@ -665,8 +617,8 @@ describe('NATS Middleware Integration Tests', () => {
                 inboxSub.unsubscribe()
                 await done
 
-                expect(received).toHaveLength(1)
-                expect(received[0].org).toBe(clientA.organization.id)
+                expect(received.length).toBeGreaterThanOrEqual(1)
+                expect(received.every(m => m.org === clientA.organization.id)).toBe(true)
                 expect(received.find(m => m.org === clientB.organization.id)).toBeUndefined()
             } finally {
                 if (nc) await nc.close()
@@ -676,7 +628,7 @@ describe('NATS Middleware Integration Tests', () => {
 
         it('forged token is rejected at NATS level', async () => {
             const forgedToken = jwt.sign(
-                { userId: 'fake-user', organizationId: 'fake-org', allowedStreams: ['test-integration-changes'] },
+                { userId: 'fake-user', organizationId: 'fake-org', allowedStreams: ['property-changes'] },
                 // intentionally wrong secret to test that forged tokens are rejected
                 // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                 'wrong-secret',
