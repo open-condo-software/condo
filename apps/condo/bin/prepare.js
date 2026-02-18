@@ -39,7 +39,7 @@ async function main () {
     await prepareAppEnvLocalAdminUsers(appName)
     await updateAppEnvAddressSuggestionConfig(appName)
     await updateAppEnvFileClients(appName)
-    await prepareNatsKeys(appName)
+    // await prepareNatsKeys(appName)
     console.log('done')
 }
 
