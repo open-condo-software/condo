@@ -17,6 +17,8 @@ const {
 const { replaceDomainPrefix } = require('@open-condo/miniapp-utils/helpers/urls')
 
 const { B2CApp, createTestB2CApp, updateTestB2CApp } = require('@condo/domains/miniapp/utils/testSchema')
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const { SubscriptionPlan, createTestSubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
 
 function expectedAppDomain (appId, idx) {
@@ -390,9 +392,6 @@ describe('B2CApp', () => {
         })
 
         describe('isSubscriptionRequired field', () => {
-            const { createTestSubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
-            const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
-
             test('returns false when app is not in any plan', async () => {
                 const [app] = await createTestB2CApp(support)
                 const appData = await B2CApp.getOne(support, { id: app.id })
@@ -453,7 +452,6 @@ describe('B2CApp', () => {
                     enabledB2CApps: [app.id],
                 })
                 
-                const { SubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
                 await SubscriptionPlan.softDelete(admin, plan.id)
 
                 const appData = await B2CApp.getOne(support, { id: app.id })

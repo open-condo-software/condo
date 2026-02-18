@@ -20,8 +20,9 @@ const {
     NON_GLOBAL_APP_WITH_FEATURES_ERROR,
 } = require('@condo/domains/miniapp/constants')
 const { B2BApp, createTestB2BApp, updateTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
-const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const { SubscriptionPlan, createTestSubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
+const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
 
 function expectedAppDomain (appId, idx) {
     return new URL(replaceDomainPrefix(conf['SERVER_URL'], `${appId}-${idx}.miniapps`)).origin
@@ -351,9 +352,6 @@ describe('B2BApp', () => {
         })
 
         describe('isSubscriptionRequired field', () => {
-            const { createTestSubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
-            const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
-
             test('returns false when app is not in any plan', async () => {
                 const [app] = await createTestB2BApp(support)
                 const appData = await B2BApp.getOne(support, { id: app.id })
@@ -414,7 +412,6 @@ describe('B2BApp', () => {
                     enabledB2BApps: [app.id],
                 })
                 
-                const { SubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
                 await SubscriptionPlan.softDelete(admin, plan.id)
 
                 const appData = await B2BApp.getOne(support, { id: app.id })

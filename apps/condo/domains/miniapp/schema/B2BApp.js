@@ -95,7 +95,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
                 const plans = await find('SubscriptionPlan', {
                     deletedAt: null,
                     isHidden: false,
-                }, { context: item._context })
+                })
 
                 for (const plan of plans) {
                     if (plan.enabledB2BApps && Array.isArray(plan.enabledB2BApps) && plan.enabledB2BApps.includes(item.id)) {
