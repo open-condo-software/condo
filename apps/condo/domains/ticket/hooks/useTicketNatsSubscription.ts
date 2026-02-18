@@ -1,4 +1,4 @@
-import { Msg } from 'nats.ws'
+import { Msg } from 'nats'
 import { useCallback } from 'react'
 
 import { useNatsConnection, useNatsSubscription } from '@open-condo/nats/hooks'

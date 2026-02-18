@@ -819,7 +819,6 @@ __metadata:
     mkdirp: ^3.0.1
     n2words: 1.15.0
     nanoid: ^3.3.4
-    nats.ws: ^1.30.3
     next: ^15.5.9
     next-with-less: ^3.0.1
     nock: ^14.0.5
@@ -12056,7 +12055,6 @@ __metadata:
     express: ^4.21.2
     jsonwebtoken: ^9.0.0
     nats: ^2.28.2
-    nats.ws: ^1.29.0
     next-cookies: ^2.0.3
     nkeys.js: ^1.1.0
     zod: ^4.3.6
@@ -35361,18 +35359,6 @@ __metadata:
     snapdragon: ^0.8.1
     to-regex: ^3.0.1
   checksum: 54d4166d6ef08db41252eb4e96d4109ebcb8029f0374f9db873bd91a1f896c32ec780d2a2ea65c0b2d7caf1f28d5e1ea33746a470f32146ac8bba821d80d38d8
-  languageName: node
-  linkType: hard
-
-"nats.ws@npm:^1.29.0, nats.ws@npm:^1.30.3":
-  version: 1.30.3
-  resolution: "nats.ws@npm:1.30.3"
-  dependencies:
-    nkeys.js: 1.1.0
-  dependenciesMeta:
-    nkeys.js:
-      optional: true
-  checksum: 26dab996a796027fd0d04632c0ab7f8c52553103a38bf6c720b5f8a877b275035cc7c45d8811dfaa0ea64693132b5834d55bef315bb84a8fe0321a2205582d54
   languageName: node
   linkType: hard
 

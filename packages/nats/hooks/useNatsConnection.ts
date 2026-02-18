@@ -1,4 +1,4 @@
-import { connect as natsConnect, ConnectionOptions, NatsConnection } from 'nats.ws'
+import { connect as natsConnect, ConnectionOptions, NatsConnection } from 'nats'
 import { useEffect, useRef, useState, useCallback } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'

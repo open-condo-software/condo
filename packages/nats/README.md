@@ -276,7 +276,7 @@ NATS_INTEGRATION=true npx jest --config apps/condo/jest.config.js --testPathPatt
 │         ↑ receives messages      (PUB enforced by NATS)          │
 │         via unique _INBOX     4. Receive relay on _INBOX.{id}    │
 └───────────────────────────────────────────────────────────────────┘
-                    ↓ nats.ws (WebSocket, port 8080)
+                    ↓ nats (WebSocket, port 8080)
 ┌───────────────────────────────────────────────────────────────────┐
 │  NATS Server (JetStream + Auth Callout)                           │
 │                                                                   │

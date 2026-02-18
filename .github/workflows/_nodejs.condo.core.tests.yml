@@ -51,7 +51,7 @@ jobs:
           REGISTRY: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/
         run: |
           docker-compose --profile dbs up -d
-          docker-compose up -d nats
+          docker-compose up -d --wait nats
 
       - name: run tests
         run: |
