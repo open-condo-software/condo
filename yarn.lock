@@ -1542,11 +1542,17 @@ __metadata:
     "@app/condo": "workspace:^"
     "@condo/domains": "link:../condo/domains"
     "@emotion/cache": ^11.11.0
+    "@emotion/core": ^11.0.0
     "@emotion/react": ^11.11.0
     "@emotion/server": ^11.11.0
     "@emotion/styled": ^11.11.0
     "@graphql-tools/graphql-file-loader": ^7.5.17
     "@graphql-tools/load": ^8.1.0
+    "@open-arch-ui/color-utils": ^1.0.1
+    "@open-arch-ui/common": ^1.0.1
+    "@open-arch-ui/layout": ^1.0.1
+    "@open-arch-ui/theme": ^1.0.1
+    "@open-arch-ui/typography": ^1.0.1
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -6351,6 +6357,13 @@ __metadata:
   peerDependencies:
     react: ">=16.3.0"
   checksum: d2dad428e1b2cf0777badfb55e262d369273be9b2e6e9e7d61c953066c00811d544a6234db36b17ee07872ed092f4dd102bf6ffe2c76fc38d53eef3a60fddfd0
+  languageName: node
+  linkType: hard
+
+"@emotion/core@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "@emotion/core@npm:11.0.0"
+  checksum: d9beeff0c120ec4d3cd89aa74e1ee3ff658976f27d14820e4e8f8e9981b4461b4a78c9e9c0853397ba09dff36b4e19357858ac8773ee5eb72bfd4b185926b5f3
   languageName: node
   linkType: hard
 
