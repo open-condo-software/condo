@@ -17,11 +17,10 @@ This method allows you to set, update, and hide actions that the main applicatio
 | label | string | no | Button text |
 | disabled | boolean | no | Whether the button is disabled |
 | loading | boolean | no | Whether the button shows loading state |
-| icon | string | no | Optional icon name (e.g., 'download') |
+| icon | string | no | Optional icon name (e.g., 'Download') |
 
 <Alert type='info'>
     Icon names are listed in the [UI Icons catalog](https://condo.d.doma.ai/ui/index.html?path=/story/icons--icons).
-    For the Download icon, use `icon: 'download'`.
 </Alert>
 
 ## Return value
@@ -46,7 +45,7 @@ export default function MiniappPage (): React.ReactNode {
     const [actionIds, setActionIds] = useState<string[]>([])
     const actions = useMemo(() => ([
         { label: 'Save' },
-        { label: 'Download', icon: 'download' },
+        { label: 'Download', icon: 'Download' },
     ]), [])
 
     useEffect(() => {
@@ -79,6 +78,24 @@ export default function MiniappPage (): React.ReactNode {
     Keep the order of `actions` stable if you rely on index-based ids.
 </Alert>
 
+## Persistence and cleanup
+
+Actions stay visible while the mini‑app navigates between its internal pages. If you need to hide them, send an empty `actions` array based on your own conditions.
+
+If you want to clear actions when a specific component unmounts, do it in the `useEffect` cleanup:
+```typescript jsx
+import React, { useEffect } from 'react'
+import bridge from '@open-condo/bridge'
+
+useEffect(() => {
+    bridge.send('CondoWebAppSetPageActions', { actions: [/* ... */] })
+
+    return () => {
+        bridge.send('CondoWebAppSetPageActions', { actions: [] })
+    }
+}, [])
+```
+
 ## Updating actions
 
 To update a button, send a full updated `actions` array again:
@@ -91,13 +108,4 @@ bridge.send('CondoWebAppSetPageActions', {
         { label: 'Download', loading: true },
     ],
 })
-```
-
-## Hiding actions
-
-To hide all actions, pass an empty array:
-```typescript
-import bridge from '@open-condo/bridge'
-
-bridge.send('CondoWebAppSetPageActions', { actions: [] })
 ```

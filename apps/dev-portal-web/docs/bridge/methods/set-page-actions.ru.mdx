@@ -17,11 +17,10 @@
 | label | string | нет | Текст кнопки |
 | disabled | boolean | нет | Отключить кнопку |
 | loading | boolean | нет | Состояние загрузки |
-| icon | string | нет | Название иконки (например, 'download') |
+| icon | string | нет | Название иконки (например, 'Download') |
 
 <Alert type='info'>
     Список названий иконок смотрите в [UI Icons catalog](https://condo.d.doma.ai/ui/index.html?path=/story/icons--icons).
-    Для иконки Download используйте `icon: 'download'`.
 </Alert>
 
 ## Возвращаемое значение
@@ -46,7 +45,7 @@ export default function MiniappPage (): React.ReactNode {
     const [actionIds, setActionIds] = useState<string[]>([])
     const actions = useMemo(() => ([
         { label: 'Save' },
-        { label: 'Download', icon: 'download' },
+        { label: 'Download', icon: 'Download' },
     ]), [])
 
     useEffect(() => {
@@ -79,6 +78,24 @@ export default function MiniappPage (): React.ReactNode {
     Сохраняйте порядок `actions`, если опираетесь на id по индексу.
 </Alert>
 
+## Жизненный цикл и скрытие действий
+
+Действия остаются видимыми при переходах между страницами внутри мини‑приложения. Если нужно их скрыть, отправьте пустой массив `actions`.
+
+Если нужно скрыть действия при размонтировании компонента, делайте это в `useEffect` cleanup:
+```typescript jsx
+import React, { useEffect } from 'react'
+import bridge from '@open-condo/bridge'
+
+useEffect(() => {
+    bridge.send('CondoWebAppSetPageActions', { actions: [/* ... */] })
+
+    return () => {
+        bridge.send('CondoWebAppSetPageActions', { actions: [] })
+    }
+}, [])
+```
+
 ## Обновление действий
 
 Чтобы обновить кнопку, отправьте полный обновленный массив `actions`:
@@ -91,13 +108,4 @@ bridge.send('CondoWebAppSetPageActions', {
         { label: 'Download', loading: true },
     ],
 })
-```
-
-## Скрытие действий
-
-Чтобы скрыть все действия, передайте пустой массив:
-```typescript
-import bridge from '@open-condo/bridge'
-
-bridge.send('CondoWebAppSetPageActions', { actions: [] })
 ```
