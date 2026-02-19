@@ -19,6 +19,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const title = intl.formatMessage({ id: 'ai.chat.title' })
     const resetHistoryLabel = intl.formatMessage({ id: 'ai.chat.resetHistory' })
     const saveConversationLabel = intl.formatMessage({ id: 'ai.chat.saveConversation' })
+    const closeLabel = intl.formatMessage({ id: 'Close' })
     const { aiOverlayWidth, setAIOverlayWidth } = useAIContext()
     const [isResizing, setIsResizing] = useState(false)
     const drawerRef = useRef<HTMLDivElement>(null)
@@ -92,7 +93,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                         size='medium'
                         onClick={onClose}
                         icon={<Close size='small' />}
-                        title='Close'
+                        title={closeLabel}
                     />
                 </div>
             </div>

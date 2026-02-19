@@ -53,7 +53,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<any>(null)
 
-    const [executeAIFlow, { loading }] = useAIFlow<{ answer: string }>({
+    const [executeAIFlow, { loading }] = useAIFlow<{ answer: string, toolCalls?: Array<{ name: string, args: any }> }>({
         flowType: CHAT_WITH_CONDO_FLOW_TYPE,
         timeout: 120000,
     })
@@ -191,7 +191,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                 // Thinking... -> result.data.answer 
                 changeMessage(assistantMessage.id, {
                     ...assistantMessage,
-                    content: (result.data.result.answer),
+                    content: result.data.result.answer ?? '',
                     status: 'sent',
                 })
 
@@ -208,9 +208,13 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                 addMessage(thinkingMessage)
 
                 try {
+                    if (!organization?.id || !user?.id) {
+                        throw new Error('Organization or user not available')
+                    }
+                    
                     const userData = {
-                        organizationId: organization?.id,
-                        userId: user?.id,
+                        organizationId: organization.id,
+                        userId: user.id,
                     }
                     
                     const toolCallPromises = toolCalls.map((toolCall: any) => 
