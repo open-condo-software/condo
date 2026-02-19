@@ -72081,6 +72081,8 @@ enum B2BAppIconType {
   Market
   Menu
   Meters
+  Mic
+  MicOff
   MinusCircle
   Monitor
   MoreHorizontal
@@ -72127,6 +72129,8 @@ enum B2BAppIconType {
   Unlock
   User
   UserSquare
+  Volume
+  VolumeOff
   Wallet
   XCircle
 }
