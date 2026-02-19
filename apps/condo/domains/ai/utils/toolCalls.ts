@@ -86,9 +86,13 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         query: GetTicketCommentsDocument,
         resultKey: 'ticketComments',
         resultMessageKey: 'ai.chat.dataFetching',
-        getGraphQLVariables: (args) => ({
-            ticketId: args.where?.ticketId,
-        }),
+        getGraphQLVariables: (args) => {
+            const ticketId = args.where?.ticketId
+            if (!ticketId) {
+                throw new Error('ticketId is required for getTicketComments')
+            }
+            return { ticketId }
+        },
     },
     getContacts: {
         name: 'getContacts',
@@ -188,10 +192,9 @@ export const runToolCall = async (
     
     if (result.resultMessage && typeof result.resultMessage === 'object' && 'key' in result.resultMessage) {
         const { key } = result.resultMessage
+        const messageId = key ?? 'ai.chat.dataFetching'
         
-        const translatedMessage = intl 
-            ? intl.formatMessage({ id: 'ai.chat.dataFetching' })
-            : 'Collecting data...'
+        const translatedMessage = intl?.formatMessage({ id: messageId })
         
         return {
             ...result,

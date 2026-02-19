@@ -505,8 +505,8 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
         }
 
         const initialValue = {
-            title: result?.data?.title,
-            body: result?.data?.body,
+            title: result?.data?.result?.title,
+            body: result?.data?.result?.body,
             propertyIds: incidentProperties
                 .map(incidentProperty => incidentProperty.property.id)
                 .filter((id) => Boolean(id)),
