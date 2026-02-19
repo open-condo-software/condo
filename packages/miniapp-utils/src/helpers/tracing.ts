@@ -17,7 +17,7 @@ const SSR_DEFAULT_FINGERPRINT = 'webAppSSR'
 const COOKIE_HEADER_NAME = 'cookie'
 const REMOTE_APP_HEADER_NAME = 'x-remote-app'
 const REMOTE_VERSION_HEADER_NAME = 'x-remote-version'
-const REMOTE_CLIENT_HEADER_NANE = 'x-remote-client'
+const REMOTE_CLIENT_HEADER_NAME = 'x-remote-client'
 const REMOTE_ENV_HEADER_NAME = 'x-remote-env'
 const TARGET_HEADER_NAME = 'x-target'
 const START_REQUEST_ID_HEADER_NAME = 'x-start-request-id'
@@ -46,11 +46,11 @@ export function getAppTracingHeaders (options: TracingOptions) {
 
     // NOTE: CSR
     if (typeof document !== 'undefined' && document.cookie) {
-        headers[REMOTE_CLIENT_HEADER_NANE] = getClientSideFingerprint()
+        headers[REMOTE_CLIENT_HEADER_NAME] = getClientSideFingerprint()
     } else if (headers[COOKIE_HEADER_NAME]) {
         const ssrCookies = parseCookieString(headers[COOKIE_HEADER_NAME])
 
-        headers[REMOTE_CLIENT_HEADER_NANE] = ssrCookies[FINGERPRINT_ID_COOKIE_NAME] || SSR_DEFAULT_FINGERPRINT
+        headers[REMOTE_CLIENT_HEADER_NAME] = ssrCookies[FINGERPRINT_ID_COOKIE_NAME] || SSR_DEFAULT_FINGERPRINT
     }
 
     return headers
