@@ -29,7 +29,7 @@
     "express": "^4.17.1",
     "got": "^11.8.6",
     "graphql-tag": "^2.12.6",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "phone": "^3.1.41"
   },
   "devDependencies": {

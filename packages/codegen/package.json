@@ -16,7 +16,7 @@
         "dayjs": "^1.11.10",
         "graphql": "^16.10.0",
         "graphql-tag": "^2.12.6",
-        "lodash": "^4.17.21",
+        "lodash": "^4.17.23",
         "ncp": "^2.0.0",
         "nunjucks": "^3.2.4",
         "pluralize": "^8.0.0",
