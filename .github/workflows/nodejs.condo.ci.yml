@@ -21,6 +21,7 @@ concurrency:
 env:
   DOCKER_IMAGE: condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
   DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
+  CONDO_TEST_SHARD_TOTAL: 16
   PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:16.8
   REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
   REF: ${{ github.event.pull_request.head.sha || github.ref }}
@@ -419,18 +420,35 @@ jobs:
     needs:
       - authorize
       - build-image
+      - generate-condo-test-shards
     strategy:
       # TODO: remove this back
       fail-fast: false
       matrix:
-        shard_index: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+        shard_index: ${{ fromJSON(needs.generate-condo-test-shards.outputs.ids) }}
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
     with:
       shard_index: ${{ matrix.shard_index }}
-      shard_total: 16
+      shard_total: ${{ fromJSON(needs.generate-condo-test-shards.outputs.total) }}
       runs-on: test-runners
       image_name: ${{ needs.build-image.outputs.DOCKER_IMAGE }}
     secrets: inherit
+
+  generate-condo-test-shards:
+    name: Generate Condo test shards
+    needs: authorize
+    runs-on: ubuntu-22.04
+    outputs:
+      ids: ${{ steps.generate.outputs.ids }}
+      total: ${{ steps.generate.outputs.total }}
+    steps:
+      - name: Generate shard indexes
+        id: generate
+        env:
+          SHARD_TOTAL: ${{ env.CONDO_TEST_SHARD_TOTAL }}
+        run: |
+          echo "ids=$(jq -c -n --argjson total \"$SHARD_TOTAL\" '[range(1; $total + 1)]')" >> "$GITHUB_OUTPUT"
+          echo "total=$SHARD_TOTAL" >> "$GITHUB_OUTPUT"
 
   run-dev-portal-api-tests:
     name: Dev Portal API Tests
