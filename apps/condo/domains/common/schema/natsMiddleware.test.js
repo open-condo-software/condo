@@ -45,7 +45,6 @@ describe('NATS Middleware Integration Tests', () => {
     let serverUrl
     let natsTokenUrl
     let natsStreamsUrl
-    let natsAuthUrl
 
     beforeAll(async () => {
         configure({
@@ -56,7 +55,6 @@ describe('NATS Middleware Integration Tests', () => {
         serverUrl = client.serverUrl
         natsTokenUrl = serverUrl + '/nats/token'
         natsStreamsUrl = serverUrl + '/nats/streams'
-        natsAuthUrl = serverUrl + '/nats/auth'
     })
 
     describe('GET /nats/token - Token Generation Endpoint', () => {
@@ -200,252 +198,9 @@ describe('NATS Middleware Integration Tests', () => {
         })
     })
 
-    describe('POST /nats/auth - Authorization Callout Endpoint', () => {
-        it('denies access without token', async () => {
-            const response = await fetch(natsAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    connect_opts: {},
-                    client_metadata: { subject: 'test-integration-stream.test.message' },
-                }),
-            })
-
-            expect(response.status).toBe(200)
-            const body = await response.json()
-            expect(body.allowed).toBe(false)
-            expect(body.reason).toBe('No token provided')
-        })
-
-        it('denies access with invalid token signature', async () => {
-            const invalidToken = jwt.sign(
-                { userId: 'fake-user', organizationId: 'fake-org' },
-                // intentionally wrong secret to test that forged tokens are rejected
-                // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
-                'wrong-secret',
-                { expiresIn: '24h' }
-            )
-
-            const response = await fetch(natsAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    connect_opts: { auth_token: invalidToken },
-                    client_metadata: { subject: 'test-integration-stream.test.message' },
-                }),
-            })
-
-            expect(response.status).toBe(200)
-            const body = await response.json()
-            expect(body.allowed).toBe(false)
-            expect(body.reason).toBe('Invalid token')
-        })
-
-        it('denies access with expired token', async () => {
-            const client = await makeClientWithProperty()
-
-            const expiredToken = jwt.sign(
-                { userId: client.user.id, organizationId: client.organization.id },
-                TOKEN_SECRET,
-                { expiresIn: '1ms' }
-            )
-
-            await new Promise(resolve => setTimeout(resolve, 100))
-
-            const response = await fetch(natsAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    connect_opts: { auth_token: expiredToken },
-                    client_metadata: { subject: 'test-integration-stream.test.message' },
-                }),
-            })
-
-            expect(response.status).toBe(200)
-            const body = await response.json()
-            expect(body.allowed).toBe(false)
-            expect(body.reason).toBe('Invalid token')
-        })
-
-        it('denies access when user lacks required permission', async () => {
-            const [organization] = await createTestOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageProperties: false,
-            })
-            const client = await makeClientWithNewRegisteredAndLoggedInUser()
-            await createTestOrganizationEmployee(admin, organization, client.user, role, {
-                isRejected: false,
-                isAccepted: true,
-                isBlocked: false,
-            })
-
-            const token = jwt.sign(
-                { userId: client.user.id, organizationId: organization.id },
-                TOKEN_SECRET,
-                { expiresIn: '24h' }
-            )
-
-            const response = await fetch(natsAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    connect_opts: { auth_token: token },
-                    client_metadata: { subject: 'property-changes.test.message' },
-                }),
-            })
-
-            expect(response.status).toBe(200)
-            const body = await response.json()
-            expect(body.allowed).toBe(false)
-            expect(body.reason).toBe('Permission denied')
-        })
-
-        it('allows access when user has required permission', async () => {
-            const [organization] = await createTestOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageProperties: true,
-            })
-            const client = await makeClientWithNewRegisteredAndLoggedInUser()
-            await createTestOrganizationEmployee(admin, organization, client.user, role, {
-                isRejected: false,
-                isAccepted: true,
-                isBlocked: false,
-            })
-
-            const token = jwt.sign(
-                { userId: client.user.id, organizationId: organization.id },
-                TOKEN_SECRET,
-                { expiresIn: '24h' }
-            )
-
-            const response = await fetch(natsAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    connect_opts: { auth_token: token },
-                    client_metadata: { subject: 'property-changes.test.message' },
-                }),
-            })
-
-            expect(response.status).toBe(200)
-            const body = await response.json()
-            expect(body.allowed).toBe(true)
-            expect(body.user).toBe(client.user.id)
-            expect(body.organization).toBe(organization.id)
-        })
-
-        it('allows access to public streams without permissions', async () => {
-            const client = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [organization] = await createTestOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageProperties: false,
-            })
-            await createTestOrganizationEmployee(admin, organization, client.user, role, {
-                isRejected: false,
-                isAccepted: true,
-                isBlocked: false,
-            })
-
-            const token = jwt.sign(
-                { userId: client.user.id, organizationId: organization.id },
-                TOKEN_SECRET,
-                { expiresIn: '24h' }
-            )
-
-            const response = await fetch(natsAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    connect_opts: { auth_token: token },
-                    client_metadata: { subject: 'notification-events.test.message' },
-                }),
-            })
-
-            expect(response.status).toBe(200)
-            const body = await response.json()
-            expect(body.allowed).toBe(true)
-        })
-
-        it('denies access to non-existent streams', async () => {
-            const client = await makeClientWithProperty()
-
-            const token = jwt.sign(
-                { userId: client.user.id, organizationId: client.organization.id },
-                TOKEN_SECRET,
-                { expiresIn: '24h' }
-            )
-
-            const response = await fetch(natsAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    connect_opts: { auth_token: token },
-                    client_metadata: { subject: 'non-existent-stream.test.message' },
-                }),
-            })
-
-            expect(response.status).toBe(200)
-            const body = await response.json()
-            expect(body.allowed).toBe(false)
-            expect(body.reason).toBe('Stream not found')
-        })
-
-        it('denies access with custom function when ticket belongs to different organization', async () => {
-            const client1 = await makeClientWithProperty()
-            const client2 = await makeClientWithProperty()
-            const [ticket] = await createTestTicket(client1, client1.organization, client1.property)
-
-            const token = jwt.sign(
-                { userId: client2.user.id, organizationId: client2.organization.id },
-                TOKEN_SECRET,
-                { expiresIn: '24h' }
-            )
-
-            const response = await fetch(natsAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    connect_opts: { auth_token: token },
-                    client_metadata: { subject: `ticket-changes.${client1.organization.id}.${ticket.id}` },
-                }),
-            })
-
-            expect(response.status).toBe(200)
-            const body = await response.json()
-            expect(body.allowed).toBe(false)
-        })
-
-        it('allows access with custom function when user has permission for ticket', async () => {
-            const client = await makeClientWithProperty()
-            const [ticket] = await createTestTicket(client, client.organization, client.property)
-
-            const token = jwt.sign(
-                { userId: client.user.id, organizationId: client.organization.id },
-                TOKEN_SECRET,
-                { expiresIn: '24h' }
-            )
-
-            const response = await fetch(natsAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    connect_opts: { auth_token: token },
-                    client_metadata: { subject: `ticket-changes.${client.organization.id}.${ticket.id}` },
-                }),
-            })
-
-            expect(response.status).toBe(200)
-            const body = await response.json()
-            expect(body.allowed).toBe(true)
-            expect(body.user).toBe(client.user.id)
-            expect(body.organization).toBe(client.organization.id)
-        })
-    })
-
     describe('End-to-End Security Flow', () => {
-        it('full flow: token generation -> authorization -> access grant', async () => {
+        it('token includes correct claims for authenticated user', async () => {
             const client = await makeClientWithProperty()
-            const [ticket] = await createTestTicket(client, client.organization, client.property)
             const cookie = await getCookieWithOrganization(client, admin)
 
             const tokenResponse = await fetch(natsTokenUrl, {
@@ -454,51 +209,40 @@ describe('NATS Middleware Integration Tests', () => {
             })
 
             expect(tokenResponse.status).toBe(200)
-            const { token } = await tokenResponse.json()
+            const { token, allowedStreams } = await tokenResponse.json()
             expect(token).toBeDefined()
+            expect(allowedStreams.length).toBeGreaterThan(0)
 
-            const authResponse = await fetch(natsAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    connect_opts: { auth_token: token },
-                    client_metadata: { subject: `ticket-changes.${client.organization.id}.${ticket.id}` },
-                }),
-            })
-
-            expect(authResponse.status).toBe(200)
-            const authBody = await authResponse.json()
-            expect(authBody.allowed).toBe(true)
-            expect(authBody.user).toBe(client.user.id)
-            expect(authBody.organization).toBe(client.organization.id)
+            const decoded = jwt.verify(token, TOKEN_SECRET)
+            expect(decoded.userId).toBe(client.user.id)
+            expect(decoded.organizationId).toBe(client.organization.id)
+            expect(decoded.allowedStreams).toEqual(expect.arrayContaining(allowedStreams))
         })
 
-        it('full flow: denies when user tries to access another organizations resources', async () => {
-            const client1 = await makeClientWithProperty()
-            const client2 = await makeClientWithProperty()
-            const [ticket] = await createTestTicket(client1, client1.organization, client1.property)
-            const cookie2 = await getCookieWithOrganization(client2, admin)
+        it('token for user without permissions only includes public streams', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canManageProperties: false,
+            })
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {
+                isRejected: false,
+                isAccepted: true,
+                isBlocked: false,
+            })
+
+            client.organization = { ...organization, employeeId: employee.id }
+            const cookie = await getCookieWithOrganization(client, admin)
 
             const tokenResponse = await fetch(natsTokenUrl, {
                 method: 'GET',
-                headers: { Cookie: cookie2 },
+                headers: { Cookie: cookie },
             })
 
             expect(tokenResponse.status).toBe(200)
-            const { token } = await tokenResponse.json()
-
-            const authResponse = await fetch(natsAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    connect_opts: { auth_token: token },
-                    client_metadata: { subject: `ticket-changes.${client1.organization.id}.${ticket.id}` },
-                }),
-            })
-
-            expect(authResponse.status).toBe(200)
-            const authBody = await authResponse.json()
-            expect(authBody.allowed).toBe(false)
+            const { allowedStreams } = await tokenResponse.json()
+            expect(allowedStreams).toContain('notification-events')
+            expect(allowedStreams).not.toContain('property-changes')
         })
     })
 
@@ -625,6 +369,106 @@ describe('NATS Middleware Integration Tests', () => {
                 await serverConn.close()
             }
         }, 20000)
+
+        it('cross-user isolation: two users with separate tokens only see own org messages', async () => {
+            const clientA = await makeClientWithProperty()
+            const clientB = await makeClientWithProperty()
+            const tokenA = await getTokenForClient(clientA)
+            const tokenB = await getTokenForClient(clientB)
+
+            const serverConn = await connect({
+                servers: NATS_URL,
+                user: conf.NATS_SERVER_USER || 'condo-server',
+                pass: conf.NATS_SERVER_PASSWORD || 'server-secret',
+                name: 'cross-user-publisher',
+            })
+
+            let ncA, ncB
+            try {
+                ncA = await connect({ servers: NATS_URL, token: tokenA, name: 'user-a', timeout: 5000 })
+                ncB = await connect({ servers: NATS_URL, token: tokenB, name: 'user-b', timeout: 5000 })
+                const jc = JSONCodec()
+
+                const inboxA = createInbox()
+                const inboxB = createInbox()
+                const receivedA = []
+                const receivedB = []
+
+                const subA = ncA.subscribe(inboxA)
+                const doneA = (async () => {
+                    for await (const msg of subA) {
+                        receivedA.push(jc.decode(msg.data))
+                    }
+                })()
+
+                const subB = ncB.subscribe(inboxB)
+                const doneB = (async () => {
+                    for await (const msg of subB) {
+                        receivedB.push(jc.decode(msg.data))
+                    }
+                })()
+
+                const respA = await ncA.request(
+                    `_NATS.subscribe.notification-events.${clientA.organization.id}`,
+                    jc.encode({ deliverInbox: inboxA }),
+                    { timeout: 5000 }
+                )
+                expect(jc.decode(respA.data).status).toBe('ok')
+
+                const respB = await ncB.request(
+                    `_NATS.subscribe.notification-events.${clientB.organization.id}`,
+                    jc.encode({ deliverInbox: inboxB }),
+                    { timeout: 5000 }
+                )
+                expect(jc.decode(respB.data).status).toBe('ok')
+
+                // User A CANNOT subscribe to User B's org
+                await expect(ncA.request(
+                    `_NATS.subscribe.notification-events.${clientB.organization.id}`,
+                    jc.encode({ deliverInbox: inboxA }),
+                    { timeout: 2000 }
+                )).rejects.toThrow()
+
+                // User B CANNOT subscribe to User A's org
+                await expect(ncB.request(
+                    `_NATS.subscribe.notification-events.${clientA.organization.id}`,
+                    jc.encode({ deliverInbox: inboxB }),
+                    { timeout: 2000 }
+                )).rejects.toThrow()
+
+                await new Promise(resolve => setTimeout(resolve, 300))
+
+                const serverJs = serverConn.jetstream()
+                await serverJs.publish(
+                    `notification-events.${clientA.organization.id}.msg-a`,
+                    jc.encode({ org: clientA.organization.id, from: 'for-A' })
+                )
+                await serverJs.publish(
+                    `notification-events.${clientB.organization.id}.msg-b`,
+                    jc.encode({ org: clientB.organization.id, from: 'for-B' })
+                )
+
+                await new Promise(resolve => setTimeout(resolve, 1000))
+                subA.unsubscribe()
+                subB.unsubscribe()
+                await doneA
+                await doneB
+
+                // User A only received their own org's messages
+                expect(receivedA.length).toBeGreaterThanOrEqual(1)
+                expect(receivedA.every(m => m.org === clientA.organization.id)).toBe(true)
+                expect(receivedA.some(m => m.org === clientB.organization.id)).toBe(false)
+
+                // User B only received their own org's messages
+                expect(receivedB.length).toBeGreaterThanOrEqual(1)
+                expect(receivedB.every(m => m.org === clientB.organization.id)).toBe(true)
+                expect(receivedB.some(m => m.org === clientA.organization.id)).toBe(false)
+            } finally {
+                if (ncA) await ncA.close()
+                if (ncB) await ncB.close()
+                await serverConn.close()
+            }
+        }, 30000)
 
         it('forged token is rejected at NATS level', async () => {
             const forgedToken = jwt.sign(
