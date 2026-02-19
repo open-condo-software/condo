@@ -31,7 +31,7 @@ export { generateUUIDv4 } from './helpers/uuid'
  * Hooks
  */
 
-export { useSetActionHandlers } from './hooks/useSetActionHandlers'
+export { useSetPageActionsHandlers } from './hooks/useSetPageActionsHandlers'
 export { useEffectOnce } from './hooks/useEffectOnce'
 export { useIntersectionObserver } from './hooks/useIntersectionObserver'
 export { usePrevious } from './hooks/usePrevious'
