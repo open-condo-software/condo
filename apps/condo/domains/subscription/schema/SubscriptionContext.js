@@ -34,6 +34,11 @@ const ERRORS = {
         type: 'TRIAL_CANNOT_HAVE_INVOICE',
         message: 'Trial subscription cannot have invoice',
     },
+    RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION: {
+        code: BAD_USER_INPUT,
+        type: 'RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION',
+        message: 'Recurrent payment fields can only be set for paid subscriptions (isTrial=false) with subscriptionPlanPricingRule',
+    },
 }
 
 
@@ -107,6 +112,29 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                 read: true,
                 create: true,
                 update: false,
+            },
+        },
+
+        recurrentPaymentEnabled: {
+            schemaDoc: 'Whether automatic subscription renewal is enabled for this subscription. Can only be set for paid subscriptions with subscriptionPlanPricingRule',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: false,
+            access: {
+                read: true,
+                create: true,
+                update: true,
+            },
+        },
+
+        recurrentPaymentProcessedAt: {
+            schemaDoc: 'Date when this subscription was automatically renewed (when a new context was created via auto-payment from this context)',
+            type: 'DateTimeUtc',
+            isRequired: false,
+            access: {
+                read: true,
+                create: true,
+                update: true,
             },
         },
 
@@ -193,6 +221,14 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
 
             if (isTrial && invoice) {
                 throw new GQLError(ERRORS.TRIAL_CANNOT_HAVE_INVOICE, context)
+            }
+
+            const recurrentPaymentEnabled = resolvedData.recurrentPaymentEnabled
+            const recurrentPaymentProcessedAt = resolvedData.recurrentPaymentProcessedAt
+            const hasPricingRule = subscriptionPlanPricingRule || existingItem?.subscriptionPlanPricingRule
+
+            if ((recurrentPaymentEnabled || recurrentPaymentProcessedAt) && (isTrial || !hasPricingRule)) {
+                throw new GQLError(ERRORS.RECURRENT_PAYMENT_REQUIRES_PAID_SUBSCRIPTION, context)
             }
         },
         afterChange: async ({ operation, updatedItem, context }) => {
