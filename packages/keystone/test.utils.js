@@ -667,7 +667,9 @@ class OIDCAuthClient {
  * @param {string} options.condoUserId Required if you create this client not from the miniapp you testing
  * @param {string} options.miniAppServerUrl Required if you create this client not from the miniapp you testing
  * @param {string} options.miniappInitPath Optional initialization path to call after OIDC flow. Defaults to '/launch'.
- * @returns {Promise<Object>} Mini app client with all OIDC flow completed
+ * @returns {Promise<Object>} Mini app client with all OIDC flow completed.
+ * The returned client also contains oidcSessionCookie and oidcSessionCookieHeader fields
+ * to simplify session-dependent HTTP endpoint tests.
  */
 const makeLoggedInMiniAppClient = async (
     loggedInCondoClient,
@@ -745,13 +747,17 @@ const makeLoggedInMiniAppClient = async (
     if (!token) {
         throw new Error('Can not extract token from keystone.sid cookie - authentication failed (should be in format "s:<token>")')
     }
+    const oidcSessionCookieHeader = `keystone.sid=${oidcSessionCookie}`
 
     //
     // Set auth token to client
     //
     miniAppClient.setHeaders({
         'Authorization': `Bearer ${token}`,
+        'Cookie': oidcSessionCookieHeader,
     })
+    miniAppClient.oidcSessionCookie = oidcSessionCookie
+    miniAppClient.oidcSessionCookieHeader = oidcSessionCookieHeader
 
     //
     // Inject user data to client
@@ -769,7 +775,10 @@ const makeLoggedInMiniAppClient = async (
         initUrl.searchParams.set('condoOrganizationId', condoOrganizationId)
 
         const initResponse = await fetch(initUrl.toString(), {
-            headers: { 'Authorization': `Bearer ${token}` },
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Cookie': oidcSessionCookieHeader,
+            },
             redirect: 'follow',
         })
 
@@ -1387,6 +1396,7 @@ module.exports = {
     makeClient,
     makeLoggedInClient,
     makeLoggedInAdminClient,
+    OIDCAuthClient,
     makeLoggedInMiniAppClient,
     gql,
     DEFAULT_TEST_ADMIN_IDENTITY,
