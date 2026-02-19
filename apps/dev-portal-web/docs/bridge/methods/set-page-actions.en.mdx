@@ -10,7 +10,7 @@ This method allows you to set, update, and hide actions that the main applicatio
 |---|---|---|---|
 | actions | Action[] | yes | List of actions to render |
 
-### Action (button) params
+### Action params
 
 | Parameter name | Parameter type | Required | Parameter description |
 |---|---|---|---|
@@ -32,7 +32,7 @@ If successful, the method will return a JSON object containing a list of action 
 ```
 
 The host generates internal action ids and returns them in the same order as the input list.
-When a user clicks a button, the host emits `CondoWebAppActionClick` as a side effect.
+When a user clicks a button, the host emits `CondoWebAppActionClickEvent` as a side effect.
 
 ## Usage example
 
