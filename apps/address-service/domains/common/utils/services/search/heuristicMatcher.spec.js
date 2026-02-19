@@ -2,7 +2,18 @@ const { faker } = require('@faker-js/faker')
 
 const { find } = require('@open-condo/keystone/schema')
 
-const { parseCoordinates, coordinatesMatch, COORDINATE_TOLERANCE, findRootAddress } = require('./heuristicMatcher')
+const {
+    Address: AddressServerUtils,
+    AddressHeuristic: AddressHeuristicServerUtils,
+} = require('@address-service/domains/address/utils/serverSchema')
+
+const {
+    parseCoordinates,
+    coordinatesMatch,
+    COORDINATE_TOLERANCE,
+    findRootAddress,
+    upsertHeuristics,
+} = require('./heuristicMatcher')
 
 jest.mock('@open-condo/keystone/schema', () => ({
     find: jest.fn(),
@@ -20,6 +31,12 @@ jest.mock('@address-service/domains/common/constants/heuristicTypes', () => ({
 }))
 
 describe('heuristicMatcher', () => {
+    beforeEach(() => {
+        find.mockReset()
+        AddressServerUtils.update = jest.fn()
+        AddressHeuristicServerUtils.create = jest.fn()
+    })
+
     describe('parseCoordinates', () => {
         it('should parse valid coordinate string', () => {
             expect(parseCoordinates('55.751244,37.618423')).toEqual({ latitude: 55.751244, longitude: 37.618423 })
@@ -97,10 +114,6 @@ describe('heuristicMatcher', () => {
     })
 
     describe('findRootAddress', () => {
-        afterEach(() => {
-            find.mockReset()
-        })
-
         it('should follow possibleDuplicateOf chain to the root', async () => {
             const idA = faker.datatype.uuid()
             const idB = faker.datatype.uuid()
@@ -162,6 +175,63 @@ describe('heuristicMatcher', () => {
             const root = await findRootAddress(ids[0], 3)
             // Should stop after 3 hops, returning the last alive node visited
             expect(root).toBe(ids[2])
+        })
+    })
+
+    describe('upsertHeuristics', () => {
+        it('should set possibleDuplicateOf when create hits unique conflict race', async () => {
+            const context = {}
+            const dvSender = { dv: 1, sender: { dv: 1, fingerprint: 'test' } }
+            const addressId = faker.datatype.uuid()
+            const existingAddressId = faker.datatype.uuid()
+            const rootAddressId = faker.datatype.uuid()
+            const heuristic = { type: 'fias_id', value: faker.datatype.uuid(), reliability: 95 }
+            let addressHeuristicFindCalls = 0
+            let addressFindCalls = 0
+
+            AddressHeuristicServerUtils.create.mockRejectedValueOnce(
+                new Error('duplicate key value violates unique constraint "addressheuristic_type_value_unique"')
+            )
+
+            find.mockImplementation(async (modelName) => {
+                if (modelName === 'AddressHeuristic') {
+                    // 1st call: first-pass conflict detection, 2nd call: re-check after create race
+                    addressHeuristicFindCalls += 1
+                    return addressHeuristicFindCalls === 1 ? [] : [{ address: existingAddressId }]
+                }
+
+                if (modelName === 'Address') {
+                    addressFindCalls += 1
+                    if (addressFindCalls === 1) {
+                        return [{ id: existingAddressId, possibleDuplicateOf: rootAddressId }]
+                    }
+                    return [{ id: rootAddressId, possibleDuplicateOf: null }]
+                }
+
+                return []
+            })
+
+            await upsertHeuristics(context, addressId, [heuristic], 'dadata', dvSender)
+
+            expect(AddressServerUtils.update).toHaveBeenCalledWith(context, addressId, {
+                ...dvSender,
+                possibleDuplicateOf: { connect: { id: rootAddressId } },
+            })
+        })
+
+        it('should rethrow non-unique create errors', async () => {
+            const context = {}
+            const dvSender = { dv: 1, sender: { dv: 1, fingerprint: 'test' } }
+            const addressId = faker.datatype.uuid()
+            const heuristic = { type: 'fias_id', value: faker.datatype.uuid(), reliability: 95 }
+            const networkError = new Error('network failure')
+
+            AddressHeuristicServerUtils.create.mockRejectedValueOnce(networkError)
+            find.mockResolvedValue([])
+
+            await expect(upsertHeuristics(context, addressId, [heuristic], 'dadata', dvSender))
+                .rejects
+                .toThrow('network failure')
         })
     })
 })
