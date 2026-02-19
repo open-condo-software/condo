@@ -1,91 +1,91 @@
 /* Custom AI Drawer */
-.aiDrawer {
-    position: fixed;
-    top: 0;
-    right: 0;
-    height: 100vh;
-    background: white;
-    border-left: 2px solid var(--color-grey-light);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
+.ai-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: white;
+  border-left: 2px solid var(--condo-global-color-gray-3);
 }
 
 /* Header */
 .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 32px 24px 16px 24px;
-    border-bottom: 1px solid var(--color-grey-light);
-    background: white;
-    flex-shrink: 0;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 24px 16px;
+  background: white;
+  border-bottom: 1px solid var(--condo-global-color-gray-3);
 }
 
-.leftSection {
-    display: flex;
-    align-items: center;
+.left-section {
+  display: flex;
+  align-items: center;
 }
 
-.rightSection {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+.right-section {
+  display: flex;
+  gap: 4px;
+  align-items: center;
 }
 
 .title {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--color-black);
+  margin: 0;
+  color: var(--condo-global-color-black);
+  font-weight: 600;
+  font-size: 16px;
 }
 
-.closeButton {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-grey);
-    transition: all 0.2s ease;
+.close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  color: var(--condo-global-color-gray-3);
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.closeButton:hover {
-    background-color: var(--color-grey-light);
-    color: var(--color-black);
+.close-button:hover {
+  color: var(--condo-global-color-black);
+  background-color: var(--condo-global-color-gray-3);
 }
 
 /* Resize handle - full height like VSCode/Windsurf */
-.resizeHandle {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 4px;
-    height: 100%;
-    cursor: col-resize;
-    background: transparent;
-    border-left: 1px solid var(--condo-global-color-gray-3);
-    z-index: 1001;
+.resize-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1001;
+  width: 4px;
+  height: 100%;
+  background: transparent;
+  border-left: 1px solid var(--condo-global-color-gray-3);
+  cursor: col-resize;
 }
 
-.resizeHandle:hover {
-    background: var(--color-primary);
-    border-left: 2px solid var(--condo-global-color-green-5);
+.resize-handle:hover {
+  background: var(--condo-global-color-green-5);
+  border-left: 2px solid var(--condo-global-color-green-5);
 }
 
-.resizeHandle:active {
-    background: var(--color-primary);
-    border-left: 2px solid var(--condo-global-color-green-5);
+.resize-handle:active {
+  background: var(--condo-global-color-green-5);
+  border-left: 2px solid var(--condo-global-color-green-5);
 }
 
 /* Content area */
 .content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
