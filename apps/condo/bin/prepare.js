@@ -1,6 +1,4 @@
-const { execSync } = require('child_process')
-
-const { getAppServerUrl, updateAppEnvFile, getAppEnvValue, prepareAppEnvLocalAdminUsers } = require('@open-condo/cli')
+const { getAppServerUrl, updateAppEnvFile, prepareAppEnvLocalAdminUsers } = require('@open-condo/cli')
 
 async function updateAppEnvAddressSuggestionConfig (serviceName) {
     const addressServiceUrl = await getAppServerUrl('address-service')
