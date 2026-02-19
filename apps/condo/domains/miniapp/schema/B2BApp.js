@@ -31,6 +31,7 @@ const {
     PRICE_FIELD,
     ICON_FIELD,
     MENU_CATEGORY_FIELD,
+    SUBSCRIPTION_PLANS_FIELD_B2B,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 
 const { ADDITIONAL_DOMAINS_FIELD, OIDC_CLIENT_FIELD, MINIAPP_DOMAINS_FIELD } = require('./fields/domains')
@@ -83,6 +84,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
             defaultValue: false,
             isRequired: true,
         },
+        subscriptionPlans: SUBSCRIPTION_PLANS_FIELD_B2B,
         icon: ICON_FIELD,
         menuCategory: MENU_CATEGORY_FIELD,
         contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,

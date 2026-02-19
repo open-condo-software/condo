@@ -20,8 +20,9 @@ const {
     NON_GLOBAL_APP_WITH_FEATURES_ERROR,
 } = require('@condo/domains/miniapp/constants')
 const { B2BApp, createTestB2BApp, updateTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
-const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
+const { SubscriptionPlan, createTestSubscriptionPlan } = require('@condo/domains/subscription/utils/testSchema')
+const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
 
 function expectedAppDomain (appId, idx) {
     return new URL(replaceDomainPrefix(conf['SERVER_URL'], `${appId}-${idx}.miniapps`)).origin
@@ -347,6 +348,79 @@ describe('B2BApp', () => {
                     { from: 'https://same.example.com', to: expectedAppDomain(app.id, 2) },
                     { from: 'https://different.example.com', to: expectedAppDomain(app.id, 3) },
                 ]))
+            })
+        })
+
+        describe('subscriptionPlans field', () => {
+            test('returns empty array when app is not in any plan', async () => {
+                const [app] = await createTestB2BApp(support)
+                const appData = await B2BApp.getOne(support, { id: app.id })
+                expect(Array.isArray(appData.subscriptionPlans)).toBe(true)
+                expect(appData.subscriptionPlans).toHaveLength(0)
+            })
+
+            test('returns plan object when app is in active plan', async () => {
+                const [app] = await createTestB2BApp(support)
+                const [plan] = await createTestSubscriptionPlan(admin, {
+                    name: 'Test Plan',
+                    organizationType: MANAGING_COMPANY_TYPE,
+                    isHidden: false,
+                    enabledB2BApps: [app.id],
+                })
+
+                const appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.subscriptionPlans).toHaveLength(1)
+                expect(appData.subscriptionPlans[0].id).toBe(plan.id)
+                expect(appData.subscriptionPlans[0].name).toBe('Test Plan')
+                expect(appData.subscriptionPlans[0].organizationType).toBe(MANAGING_COMPANY_TYPE)
+            })
+
+            test('returns empty array when app is only in hidden plan', async () => {
+                const [app] = await createTestB2BApp(support)
+                await createTestSubscriptionPlan(admin, {
+                    name: 'Hidden Plan',
+                    organizationType: MANAGING_COMPANY_TYPE,
+                    isHidden: true,
+                    enabledB2BApps: [app.id],
+                })
+
+                const appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.subscriptionPlans).toEqual([])
+            })
+
+            test('returns only active plans when app is in multiple plans', async () => {
+                const [app] = await createTestB2BApp(support)
+                await createTestSubscriptionPlan(admin, {
+                    name: 'Hidden Plan',
+                    organizationType: MANAGING_COMPANY_TYPE,
+                    isHidden: true,
+                    enabledB2BApps: [app.id],
+                })
+                const [activePlan] = await createTestSubscriptionPlan(admin, {
+                    name: 'Active Plan',
+                    organizationType: MANAGING_COMPANY_TYPE,
+                    isHidden: false,
+                    enabledB2BApps: [app.id],
+                })
+
+                const appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.subscriptionPlans).toHaveLength(1)
+                expect(appData.subscriptionPlans[0].id).toBe(activePlan.id)
+            })
+
+            test('returns empty array when app is in deleted plan', async () => {
+                const [app] = await createTestB2BApp(support)
+                const [plan] = await createTestSubscriptionPlan(admin, {
+                    name: 'Deleted Plan',
+                    organizationType: MANAGING_COMPANY_TYPE,
+                    isHidden: false,
+                    enabledB2BApps: [app.id],
+                })
+                
+                await SubscriptionPlan.softDelete(admin, plan.id)
+
+                const appData = await B2BApp.getOne(support, { id: app.id })
+                expect(appData.subscriptionPlans).toEqual([])
             })
         })
     })

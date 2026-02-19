@@ -45,9 +45,9 @@ const BASE_FEATURES = [
     { label: 'subscription.features.guide', hint: null },
     { label: 'subscription.features.services', hint: null },
     { label: 'subscription.features.settings', hint: null },
-    { label: 'subscription.features.analytics', hint: null },
+    { featureKey: 'analytics', label: 'subscription.features.analytics', hint: null },
     { featureKey: 'tickets', label: 'subscription.features.tickets', hint: null },
-    { label: 'subscription.features.properties', hint: 'subscription.features.properties.hint' },
+    { featureKey: 'properties', label: 'subscription.features.properties', hint: 'subscription.features.properties.hint' },
     { label: 'subscription.features.employees', hint: null },
     { label: 'subscription.features.residents', hint: 'subscription.features.residents.hint' },
     { featureKey: 'meters', label: 'subscription.features.meters', hint: null },
@@ -308,7 +308,7 @@ export const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan
         <FeatureItem 
             key={featureKey || label} 
             label={label} 
-            available={!featureKey ? true : (plan as Record<AvailableFeature, boolean>)[featureKey] === true} 
+            available={!featureKey ? true : Boolean(plan?.[featureKey as keyof typeof plan])} 
             helpLink={featureKey ? subscriptionFeatureHelpLinks[featureKey] : undefined} 
             hint={hint} 
         />

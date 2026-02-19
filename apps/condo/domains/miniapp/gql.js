@@ -35,7 +35,7 @@ const B2BAppNewsSharingConfig = generateGqlQueries('B2BAppNewsSharingConfig', B2
 const B2B_APP_POS_INTEGRATION_CONFIG_FIELDS = `{ paymentsAlertPageUrl fetchLastPosReceiptUrl ${COMMON_FIELDS} }`
 const B2BAppPosIntegrationConfig = generateGqlQueries('B2BAppPosIntegrationConfig', B2B_APP_POS_INTEGRATION_CONFIG_FIELDS)
 
-const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} posIntegrationConfig ${B2B_APP_POS_INTEGRATION_CONFIG_FIELDS} developer developerUrl appUrl category label gallery price features additionalDomains domains { mapping { from to } } ${COMMON_FIELDS} }`
+const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} posIntegrationConfig ${B2B_APP_POS_INTEGRATION_CONFIG_FIELDS} developer developerUrl appUrl category label gallery price features additionalDomains domains { mapping { from to } } subscriptionPlans { id name organizationType } ${COMMON_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
 const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl icon menuCategory hasDynamicTitle newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} posIntegrationConfig ${B2B_APP_POS_INTEGRATION_CONFIG_FIELDS} } organization { id } status ${COMMON_FIELDS} }`
@@ -52,7 +52,7 @@ const B2B_ACCESSES_SERVICES_FIELDS = Object.keys(B2B_APP_SERVICE_USER_ACCESS_AVA
 const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } user { id } accessRightSet { id deletedAt ${B2B_ACCESSES_LISTS_FIELDS} ${B2B_ACCESSES_SERVICES_FIELDS} } ${COMMON_FIELDS} }`
 const B2BAppAccessRight = generateGqlQueries('B2BAppAccessRight', B2B_APP_ACCESS_RIGHT_FIELDS)
 
-const B2C_APP_FIELDS = `{ name isHidden colorSchema { main secondary } currentBuild { id } additionalDomains domains { mapping { from to } } ${COMMON_FIELDS} }`
+const B2C_APP_FIELDS = `{ name isHidden colorSchema { main secondary } currentBuild { id } additionalDomains domains { mapping { from to } } subscriptionPlans { id name organizationType } ${COMMON_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
 const B2C_APP_ACCESS_RIGHT_FIELDS = `{ user { id } app { id } ${COMMON_FIELDS} }`

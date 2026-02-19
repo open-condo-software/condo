@@ -18,6 +18,7 @@ const { createTestBillingIntegrationOrganizationContext, makeClientWithIntegrati
 const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { SUBSCRIPTIONS } = require('@condo/domains/common/constants/featureflags')
+const { createTestB2BApp, createTestB2CApp } = require('@condo/domains/miniapp/utils/testSchema')
 const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
 const { generateTin, registerNewOrganization, createTestOrganizationWithAccessToAnotherOrganization, OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -544,14 +545,14 @@ describe('Organization', () => {
             setFeatureFlag(SUBSCRIPTIONS, false)
         })
 
+        beforeEach(async () => {
+            const plans = await SubscriptionPlan.getAll(admin)
+            for (const plan of plans) {
+                await SubscriptionPlan.softDelete(admin, plan.id)
+            }
+        })
+
         describe('when no plans exist', () => {
-            beforeEach(async () => {
-                const plans = await SubscriptionPlan.getAll(admin, { organizationType: SERVICE_PROVIDER_TYPE })
-                for (const plan of plans) {
-                    await SubscriptionPlan.softDelete(admin, plan.id)
-                }
-            })
-            
             test('returns far-future dates for all features', async () => {
                 const [organization] = await createTestOrganization(admin, {
                     type: SERVICE_PROVIDER_TYPE,
@@ -561,14 +562,16 @@ describe('Organization', () => {
 
                 expect(org.subscription).not.toBeNull()
                 const farFutureYear = dayjs().add(100, 'years').year()
-                expect(org.subscription.payments).toContain(String(farFutureYear))
-                expect(org.subscription.meters).toContain(String(farFutureYear))
-                expect(org.subscription.tickets).toContain(String(farFutureYear))
-                expect(org.subscription.news).toContain(String(farFutureYear))
-                expect(org.subscription.marketplace).toContain(String(farFutureYear))
-                expect(org.subscription.support).toContain(String(farFutureYear))
-                expect(org.subscription.ai).toContain(String(farFutureYear))
-                expect(org.subscription.customization).toContain(String(farFutureYear))
+                expect(org.subscription.paymentsEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.metersEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.ticketsEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.newsEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.marketplaceEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.supportEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.aiEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.customizationEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.propertiesEndAt).toContain(String(farFutureYear))
+                expect(org.subscription.analyticsEndAt).toContain(String(farFutureYear))
             })
 
             test('computes far-future dates dynamically on each call', async () => {
@@ -577,10 +580,10 @@ describe('Organization', () => {
                 })
 
                 const org1 = await Organization.getOne(admin, { id: organization.id })
-                const date1 = org1.subscription.payments
+                const date1 = org1.subscription.paymentsEndAt
 
                 const org2 = await Organization.getOne(admin, { id: organization.id })
-                const date2 = org2.subscription.payments
+                const date2 = org2.subscription.paymentsEndAt
 
                 expect(date1).toBe(date2)
                 const expectedDate = dayjs().add(100, 'years').format('YYYY-MM-DD')
@@ -599,21 +602,24 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBeNull()
+            expect(org.subscription.paymentsEndAt).toBeNull()
             expect(org.subscription.activeSubscriptionContextId).toBeNull()
         })
 
         test('returns feature dates from active context', async () => {
             const [organization] = await createTestOrganization(admin)
-            const enabledB2BApps = [faker.datatype.uuid(), faker.datatype.uuid()]
-            const enabledB2CApps = [faker.datatype.uuid()]
+            const [b2bApp1] = await createTestB2BApp(admin)
+            const [b2bApp2] = await createTestB2BApp(admin)
+            const [b2cApp] = await createTestB2CApp(admin)
+            const enabledB2BApps = [b2bApp1.id, b2bApp2.id]
+            const enabledB2CApps = [b2cApp.id]
             const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
             const [subscriptionPlan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
-                priority: 10,
+                isHidden: false,
                 payments: true,
-                meters: false,
+                meters: true,
                 tickets: true,
                 news: true,
                 marketplace: true,
@@ -625,21 +631,24 @@ describe('Organization', () => {
             await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
                 startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
                 endAt,
-                isTrial: true,
             })
 
             const org = await Organization.getOne(admin, { id: organization.id })
 
-            expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(endAt)
-            expect(org.subscription.meters).toBeNull()
-            expect(org.subscription.tickets).toBe(endAt)
-            expect(org.subscription.news).toBe(endAt)
-            expect(org.subscription.marketplace).toBe(endAt)
-            expect(org.subscription.support).toBeNull()
-            expect(org.subscription.ai).toBe(endAt)
-            expect(org.subscription.enabledB2BApps).toEqual(enabledB2BApps)
-            expect(org.subscription.enabledB2CApps).toEqual(enabledB2CApps)
+            expect(org.subscription.paymentsEndAt).toBe(endAt)
+            expect(org.subscription.metersEndAt).toBe(endAt)
+            expect(org.subscription.ticketsEndAt).toBe(endAt)
+            expect(org.subscription.newsEndAt).toBe(endAt)
+            expect(org.subscription.marketplaceEndAt).toBe(endAt)
+            expect(org.subscription.supportEndAt).toBeNull()
+            expect(org.subscription.aiEndAt).toBe(endAt)
+            expect(org.subscription.b2bApps).toEqual(expect.arrayContaining([
+                { id: b2bApp1.id, endAt },
+                { id: b2bApp2.id, endAt },
+            ]))
+            expect(org.subscription.b2cApps).toEqual(expect.arrayContaining([
+                { id: b2cApp.id, endAt },
+            ]))
             expect(org.subscription.activeSubscriptionContextId).toBeDefined()
         })
 
@@ -678,8 +687,8 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.news).toBe(endAt2)
-            expect(org.subscription.marketplace).toBe(endAt1)
+            expect(org.subscription.newsEndAt).toBe(endAt2)
+            expect(org.subscription.marketplaceEndAt).toBe(endAt1)
         })
 
         test('includes future contexts without gaps', async () => {
@@ -706,9 +715,7 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(endAt2)
-            const expectedDaysRemaining = Math.ceil(dayjs(endAt2).diff(dayjs(), 'hour', true) / 24)
-            expect(org.subscription.daysRemaining).toBe(expectedDaysRemaining)
+            expect(org.subscription.paymentsEndAt).toBe(endAt2)
         })
 
         test('stops at gap between contexts', async () => {
@@ -736,9 +743,7 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(endAt1)
-            const expectedDaysRemaining = Math.ceil(dayjs(endAt1).diff(dayjs(), 'hour', true) / 24)
-            expect(org.subscription.daysRemaining).toBe(expectedDaysRemaining)
+            expect(org.subscription.paymentsEndAt).toBe(endAt1)
         })
 
         test('ignores future contexts after gap', async () => {
@@ -768,8 +773,8 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(endAt1)
-            expect(org.subscription.tickets).toBe(endAt1)
+            expect(org.subscription.paymentsEndAt).toBe(endAt1)
+            expect(org.subscription.ticketsEndAt).toBe(endAt1)
         })
 
         test('returns expiration date for expired context', async () => {
@@ -789,8 +794,7 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(endAt)
-            expect(org.subscription.daysRemaining).toBe(0)
+            expect(org.subscription.paymentsEndAt).toBe(endAt)
             expect(org.subscription.activeSubscriptionContextId).toBeNull()
         })
 
@@ -818,136 +822,33 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.payments).toBe(currentEndAt)
-            expect(org.subscription.tickets).toBe(currentEndAt)
+            expect(org.subscription.paymentsEndAt).toBe(currentEndAt)
+            expect(org.subscription.ticketsEndAt).toBe(currentEndAt)
         })
 
-        test('calculates daysRemaining only for contexts with active plan', async () => {
-            const [organization] = await createTestOrganization(admin, {
-                type: SERVICE_PROVIDER_TYPE,
-            })
-            const endAt1 = dayjs().add(30, 'days').format('YYYY-MM-DD')
-            const endAt2 = dayjs().add(60, 'days').format('YYYY-MM-DD')
-            
-            const [lowPriorityPlan] = await createTestSubscriptionPlan(admin, {
-                name: faker.commerce.productName(),
-                organizationType: SERVICE_PROVIDER_TYPE,
-                priority: 1,
-                payments: true,
-            })
-            const [highPriorityPlan] = await createTestSubscriptionPlan(admin, {
-                name: faker.commerce.productName(),
-                organizationType: SERVICE_PROVIDER_TYPE,
-                priority: 100,
-                payments: true,
-            })
-
-            await createTestSubscriptionContext(admin, organization, lowPriorityPlan, {
-                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
-                endAt: endAt2,
-                isTrial: false,
-            })
-            await createTestSubscriptionContext(admin, organization, highPriorityPlan, {
-                startAt: dayjs().subtract(2, 'days').format('YYYY-MM-DD'),
-                endAt: endAt1,
-                isTrial: false,
-            })
-
-            const org = await Organization.getOne(admin, { id: organization.id })
-
-            expect(org.subscription).not.toBeNull()
-            const expectedDaysRemaining = Math.ceil(dayjs(endAt1).diff(dayjs(), 'hour', true) / 24)
-            expect(org.subscription.daysRemaining).toBe(expectedDaysRemaining)
-        })
-
-        test('daysRemaining uses only active plan contexts, ignoring longer contexts with different plans', async () => {
-            const [organization] = await createTestOrganization(admin, {
-                type: SERVICE_PROVIDER_TYPE,
-            })
-            const endAt1 = dayjs().add(15, 'days').format('YYYY-MM-DD')
-            const endAt2 = dayjs().add(45, 'days').format('YYYY-MM-DD')
-            const endAt3 = dayjs().add(90, 'days').format('YYYY-MM-DD')
-            
-            const [planA] = await createTestSubscriptionPlan(admin, {
-                name: 'Plan A',
-                organizationType: SERVICE_PROVIDER_TYPE,
-                priority: 50,
-                payments: true,
-            })
-            const [planB] = await createTestSubscriptionPlan(admin, {
-                name: 'Plan B',
-                organizationType: SERVICE_PROVIDER_TYPE,
-                priority: 100,
-                payments: true,
-            })
-
-            await createTestSubscriptionContext(admin, organization, planA, {
-                startAt: dayjs().subtract(5, 'days').format('YYYY-MM-DD'),
-                endAt: endAt3,
-                isTrial: false,
-            })
-            await createTestSubscriptionContext(admin, organization, planB, {
-                startAt: dayjs().subtract(3, 'days').format('YYYY-MM-DD'),
-                endAt: endAt1,
-                isTrial: false,
-            })
-            await createTestSubscriptionContext(admin, organization, planA, {
-                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
-                endAt: endAt2,
-                isTrial: false,
-            })
-
-            const org = await Organization.getOne(admin, { id: organization.id })
-
-            expect(org.subscription).not.toBeNull()
-            expect(org.subscription.activeSubscriptionContextId).toBeDefined()
-            const expectedDaysRemaining = Math.ceil(dayjs(endAt1).diff(dayjs(), 'hour', true) / 24)
-            expect(org.subscription.daysRemaining).toBe(expectedDaysRemaining)
-        })
-
-        test('daysRemaining extends to future contexts with same plan as active', async () => {
+        test('returns activeSubscriptionEndAt for active subscription', async () => {
             const [organization] = await createTestOrganization(admin)
-            const endAt1 = dayjs().add(20, 'days').format('YYYY-MM-DD')
-            const endAt2 = dayjs().add(50, 'days').format('YYYY-MM-DD')
-            const endAt3 = dayjs().add(80, 'days').format('YYYY-MM-DD')
-            
-            const [planA] = await createTestSubscriptionPlan(admin, {
-                name: 'Plan A',
+            const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
+            const [plan] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
                 organizationType: MANAGING_COMPANY_TYPE,
-                priority: 100,
-                payments: true,
-            })
-            const [planB] = await createTestSubscriptionPlan(admin, {
-                name: 'Plan B',
-                organizationType: MANAGING_COMPANY_TYPE,
-                priority: 50,
                 payments: true,
             })
 
-            await createTestSubscriptionContext(admin, organization, planA, {
-                startAt: dayjs().subtract(5, 'days').format('YYYY-MM-DD'),
-                endAt: endAt1,
-                isTrial: false,
-            })
-            await createTestSubscriptionContext(admin, organization, planA, {
-                startAt: endAt1,
-                endAt: endAt2,
-                isTrial: false,
-            })
-            await createTestSubscriptionContext(admin, organization, planB, {
-                startAt: endAt2,
-                endAt: endAt3,
+            await createTestSubscriptionContext(admin, organization, plan, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt,
                 isTrial: false,
             })
 
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            const expectedDaysRemaining = Math.ceil(dayjs(endAt2).diff(dayjs(), 'hour', true) / 24)
-            expect(org.subscription.daysRemaining).toBe(expectedDaysRemaining)
+            expect(org.subscription.activeSubscriptionEndAt).toBe(endAt)
+            expect(org.subscription.activeSubscriptionContextId).toBeDefined()
         })
 
-        test('daysRemaining is 0 when no active context exists', async () => {
+        test('returns null activeSubscriptionEndAt when no active subscription', async () => {
             const [organization] = await createTestOrganization(admin)
             const [plan] = await createTestSubscriptionPlan(admin, {
                 name: faker.commerce.productName(),
@@ -964,8 +865,53 @@ describe('Organization', () => {
             const org = await Organization.getOne(admin, { id: organization.id })
 
             expect(org.subscription).not.toBeNull()
-            expect(org.subscription.daysRemaining).toBe(0)
+            expect(org.subscription.activeSubscriptionEndAt).toBeNull()
             expect(org.subscription.activeSubscriptionContextId).toBeNull()
+        })
+
+        test('returns far future end date for apps from plans of different organization type', async () => {
+            const [organization] = await createTestOrganization(admin, {
+                type: MANAGING_COMPANY_TYPE,
+            })
+            const [b2bAppForMC] = await createTestB2BApp(admin)
+            const [b2bAppForSP] = await createTestB2BApp(admin)
+            const [b2cAppForSP] = await createTestB2CApp(admin)
+            
+            const endAt = dayjs().add(30, 'days').format('YYYY-MM-DD')
+            const futureDate = dayjs().add(100, 'years').format('YYYY-MM-DD')
+            
+            const [planForMC] = await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: MANAGING_COMPANY_TYPE,
+                isHidden: false,
+                enabledB2BApps: [b2bAppForMC.id],
+            })
+            
+            await createTestSubscriptionPlan(admin, {
+                name: faker.commerce.productName(),
+                organizationType: SERVICE_PROVIDER_TYPE,
+                isHidden: false,
+                enabledB2BApps: [b2bAppForSP.id],
+                enabledB2CApps: [b2cAppForSP.id],
+            })
+            
+            await createTestSubscriptionContext(admin, organization, planForMC, {
+                startAt: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                endAt,
+            })
+
+            const org = await Organization.getOne(admin, { id: organization.id })
+
+            expect(org.subscription.b2bApps).toHaveLength(2)
+            expect(org.subscription.b2cApps).toHaveLength(1)
+            
+            const b2bAppForMCResult = org.subscription.b2bApps.find(app => app.id === b2bAppForMC.id)
+            const b2bAppForSPResult = org.subscription.b2bApps.find(app => app.id === b2bAppForSP.id)
+            const b2cAppForSPResult = org.subscription.b2cApps.find(app => app.id === b2cAppForSP.id)
+            
+            expect(b2bAppForMCResult.endAt).toBe(endAt)
+            expect(b2bAppForSPResult.endAt).toBe(futureDate)
+            expect(b2cAppForSPResult.endAt).toBe(futureDate)
         })
     })
 })

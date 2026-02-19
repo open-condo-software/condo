@@ -6235,19 +6235,26 @@ enum OrganizationFeature {
   HIGH_REVENUE_CUSTOMER
 }
 
+type SubscriptionApp {
+  id: String!
+  endAt: String
+}
+
 type OrganizationSubscriptionFeatures {
-  payments: String
-  meters: String
-  tickets: String
-  news: String
-  marketplace: String
-  support: String
-  ai: String
-  customization: String
-  enabledB2BApps: [String!]!
-  enabledB2CApps: [String!]!
-  daysRemaining: Int
+  paymentsEndAt: String
+  metersEndAt: String
+  ticketsEndAt: String
+  newsEndAt: String
+  marketplaceEndAt: String
+  supportEndAt: String
+  aiEndAt: String
+  customizationEndAt: String
+  propertiesEndAt: String
+  analyticsEndAt: String
+  b2bApps: [SubscriptionApp!]!
+  b2cApps: [SubscriptionApp!]!
   activeSubscriptionContextId: String
+  activeSubscriptionEndAt: String
 }
 
 """ B2B customer of the service, a legal entity or an association of legal entities (holding/group) 
@@ -6326,7 +6333,7 @@ type Organization {
   """
   isApproved: Boolean
 
-  """ Subscription information for this organization. Returns feature expiration dates (ISO strings or null), enabled apps from active contexts, days remaining, and active context ID. Features available until expiration date (exclusive). 
+  """ Subscription information for this organization. Returns feature expiration dates (ISO strings or null), enabled apps from active contexts, active subscription end date and active context ID. Features available until expiration date (exclusive). 
   """
   subscription: OrganizationSubscriptionFeatures
   id: ID!
@@ -57955,6 +57962,8 @@ type SubscriptionPlanHistoryRecord {
   support: Boolean
   ai: Boolean
   customization: Boolean
+  properties: Boolean
+  analytics: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   id: ID!
@@ -58065,6 +58074,10 @@ input SubscriptionPlanHistoryRecordWhereInput {
   ai_not: Boolean
   customization: Boolean
   customization_not: Boolean
+  properties: Boolean
+  properties_not: Boolean
+  analytics: Boolean
+  analytics_not: Boolean
   enabledB2BApps: JSON
   enabledB2BApps_not: JSON
   enabledB2BApps_in: [JSON]
@@ -58186,6 +58199,10 @@ enum SortSubscriptionPlanHistoryRecordsBy {
   ai_DESC
   customization_ASC
   customization_DESC
+  properties_ASC
+  properties_DESC
+  analytics_ASC
+  analytics_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -58220,6 +58237,8 @@ input SubscriptionPlanHistoryRecordUpdateInput {
   support: Boolean
   ai: Boolean
   customization: Boolean
+  properties: Boolean
+  analytics: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -58257,6 +58276,8 @@ input SubscriptionPlanHistoryRecordCreateInput {
   support: Boolean
   ai: Boolean
   customization: Boolean
+  properties: Boolean
+  analytics: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -58341,6 +58362,12 @@ type SubscriptionPlan {
 
   """ Whether customization feature is included in this plan """
   customization: Boolean
+
+  """ Whether properties feature is included in this plan """
+  properties: Boolean
+
+  """ Whether analytics feature is included in this plan """
+  analytics: Boolean
 
   """ List of B2B miniapp IDs enabled in this plan. Apps work as opt-in: if an app appears in at least one plan for this organizationType, it becomes restricted and must be explicitly listed here to be available. Apps not listed in any plan remain available to all organizations of this type. 
   """
@@ -58451,6 +58478,10 @@ input SubscriptionPlanWhereInput {
   ai_not: Boolean
   customization: Boolean
   customization_not: Boolean
+  properties: Boolean
+  properties_not: Boolean
+  analytics: Boolean
+  analytics_not: Boolean
   enabledB2BApps: JSON
   enabledB2BApps_not: JSON
   enabledB2BApps_in: [JSON]
@@ -58552,6 +58583,10 @@ enum SortSubscriptionPlansBy {
   ai_DESC
   customization_ASC
   customization_DESC
+  properties_ASC
+  properties_DESC
+  analytics_ASC
+  analytics_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -58586,6 +58621,8 @@ input SubscriptionPlanUpdateInput {
   support: Boolean
   ai: Boolean
   customization: Boolean
+  properties: Boolean
+  analytics: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -58620,6 +58657,8 @@ input SubscriptionPlanCreateInput {
   support: Boolean
   ai: Boolean
   customization: Boolean
+  properties: Boolean
+  analytics: Boolean
   enabledB2BApps: JSON
   enabledB2CApps: JSON
   v: Int
@@ -72217,6 +72256,10 @@ type B2BApp {
   """
   hasDynamicTitle: Boolean
 
+  """ Virtual field that returns all active SubscriptionPlans that include this miniapp. Returns array of SubscriptionPlan objects where this app is in enabledB2BApps. Empty array means the app is available to all organizations without subscription. 
+  """
+  subscriptionPlans: [SubscriptionPlan]
+
   """ App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection. 
   """
   icon: B2BAppIconType
@@ -73943,6 +73986,10 @@ type B2CApp {
   """ Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM 
   """
   isHidden: Boolean
+
+  """ Virtual field that returns all active SubscriptionPlans that include this miniapp. Returns array of SubscriptionPlan objects where this app is in enabledB2CApps. Empty array means the app is available to all organizations without subscription. 
+  """
+  subscriptionPlans: [SubscriptionPlan]
 
   """ The color schema of the B2C application used to display it correctly. The main color is used for texts, icons etc. The secondary color is used for the background 
   """

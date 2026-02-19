@@ -1,4 +1,5 @@
 import { useGetAvailableSubscriptionPlansQuery, useGetSubscriptionContextByIdQuery } from '@app/condo/gql'
+import dayjs from 'dayjs'
 import getConfig from 'next/config'
 import { useMemo, useCallback } from 'react'
 
@@ -49,15 +50,25 @@ export const useOrganizationSubscription = () => {
         return contextData?.subscriptionContext || null
     }, [contextData])
 
-    const daysRemaining = useMemo<number>(() => {
-        return Number(subscriptionFeatures?.daysRemaining) || 0
+    const hasSubscription = useMemo<boolean>(() => {
+        if (!subscriptionFeatures?.activeSubscriptionEndAt) return false
+        return new Date(subscriptionFeatures.activeSubscriptionEndAt) > new Date()
     }, [subscriptionFeatures])
+
+    const daysRemaining = useMemo<number>(() => {
+        if (!subscriptionFeatures?.activeSubscriptionEndAt) return 0
+        const endDateDayjs = dayjs(subscriptionFeatures.activeSubscriptionEndAt)
+        const now = dayjs()
+        const diff = endDateDayjs.diff(now, 'day', true)
+        return Math.max(0, Math.ceil(diff))
+    }, [subscriptionFeatures?.activeSubscriptionEndAt])
 
     const isFeatureAvailable = useCallback((feature: AvailableFeature): boolean => {
         if (!enableSubscriptions || !hasSubscriptionsFlag) return true
         if (!subscriptionFeatures) return false
         
-        const featureDate = subscriptionFeatures[feature]
+        const featureKey = `${feature}EndAt` as keyof SubscriptionFeatures
+        const featureDate = subscriptionFeatures[featureKey]
         if (featureDate === null) return false
         if (typeof featureDate !== 'string') return false
         
@@ -82,15 +93,21 @@ export const useOrganizationSubscription = () => {
         if (!subscriptionFeatures) return false
         if (!allEnabledB2BApps.has(appId)) return true
         
-        const currentEnabledApps = subscriptionFeatures?.enabledB2BApps || []
-        return currentEnabledApps.includes(appId)
+        const b2bApps = subscriptionFeatures?.b2bApps || []
+        const app = b2bApps.find(app => app.id === appId)
+        
+        if (!app) return false
+        if (!app.endAt) return false
+        
+        return new Date(app.endAt) > new Date()
     }, [subscriptionFeatures, allEnabledB2BApps, hasSubscriptionsFlag])
 
     return {
-        hasSubscription: daysRemaining > 0,
+        hasSubscription,
         isFeatureAvailable,
         isB2BAppEnabled,
         subscriptionContext,
+        activeSubscriptionEndAt: subscriptionFeatures?.activeSubscriptionEndAt || null,
         daysRemaining,
         loading: orgLoading || plansLoading || contextLoading,
         hasAvailablePlans,
