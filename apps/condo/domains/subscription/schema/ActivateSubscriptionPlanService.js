@@ -182,6 +182,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                             startAt: startAt.format('YYYY-MM-DD'),
                             endAt: endAt.format('YYYY-MM-DD'),
                             isTrial: false,
+                            recurrentPaymentEnabled: Boolean(paymentMethod),
                             settings: {
                                 price: pricingRule.price,
                                 pricingRuleId: pricingRule.id,
