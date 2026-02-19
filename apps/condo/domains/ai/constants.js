@@ -199,6 +199,7 @@ const FLOW_META_SCHEMAS = {
                                     args: { type: 'object', additionalProperties: true },
                                     result: { type: ['object', 'array'] },
                                 },
+                                required: ['name', 'args'],
                             },
                             type: 'array',
                             minItems: 0,
@@ -221,6 +222,7 @@ const FLOW_META_SCHEMAS = {
                             name: { type: 'string' },
                             args: { type: 'object', additionalProperties: true },
                         },
+                        required: ['name'],
                     },
                     type: 'array',
                     minItems: 0,
@@ -257,4 +259,5 @@ module.exports = {
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
     FLOW_ADAPTERS,
+    CHAT_WITH_CONDO_FLOW_TYPE,
 }

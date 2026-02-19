@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
 
+import { Close, RefreshCw, Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
-import { Close, RefreshCw, Download } from '@open-condo/icons'
+
+import styles from './AIOverlay.module.css'
 
 import { AIChat } from '../AIChat/AIChat'
 import { useAIContext } from '../AIContext'
-import styles from './AIOverlay.module.css'
 
 type AIOverlayProps = {
     open: boolean
@@ -23,7 +24,7 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
     const drawerRef = useRef<HTMLDivElement>(null)
     const startXRef = useRef<number>(0)
     const startWidthRef = useRef<number>(0)
-    const aiChatRef = useRef<{ handleResetHistory: () => void; handleSaveConversation: () => void }>(null)
+    const aiChatRef = useRef<{ handleResetHistory: () => void, handleSaveConversation: () => void }>(null)
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -73,25 +74,25 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
                 </div>
                 <div className={styles.rightSection}>
                     <Button 
-                        type="text" 
-                        size="small"
+                        type='text' 
+                        size='small'
                         onClick={() => aiChatRef.current?.handleResetHistory()}
                         icon={<RefreshCw size='small' />}
                         title={resetHistoryLabel}
                     />
                     <Button 
-                        type="text" 
-                        size="small"
+                        type='text' 
+                        size='small'
                         onClick={() => aiChatRef.current?.handleSaveConversation()}
                         icon={<Download size='small' />}
                         title={saveConversationLabel}
                     />
                     <Button 
-                        type="text" 
-                        size="small"
+                        type='text' 
+                        size='small'
                         onClick={onClose}
                         icon={<Close size='small' />}
-                        title="Close"
+                        title='Close'
                     />
                 </div>
             </div>

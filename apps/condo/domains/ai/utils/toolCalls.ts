@@ -78,7 +78,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         resultMessageKey: 'ai.chat.foundItems',
         modelNameKey: 'ai.modelName.property',
         getGraphQLVariables: (args, userData) => {
-            const where = userData.organizationId ? { organization: { id: { equals: userData.organizationId } } } : {}
+            const where = { organization: { id: userData.organizationId } }
             return {
                 where: { ...where, ...args.where },
                 first: args.first || 20,
@@ -114,7 +114,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
                 where,
                 first: args.first || 50,
                 skip: args.skip || 0,
-                sortBy: args.sortBy || [{ name: 'ASC' }],
+                sortBy: args.sortBy || ['name_ASC'],
             }
         },
     },
@@ -137,6 +137,10 @@ const runApolloQueryTool = async (
         
         if (result.error) {
             throw result.error
+        }
+        
+        if (result.errors && result.errors.length > 0) {
+            throw new Error(result.errors.map(e => e.message).join(', '))
         }
         
         const data = result.data?.[config.resultKey] || []
