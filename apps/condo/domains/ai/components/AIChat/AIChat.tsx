@@ -48,7 +48,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const client = useApolloClient()
     
     const [inputValue, setInputValue] = useState('')
-    const [aiSessionId, setAiSessionId] = useState(uuidV4)
+    const [aiSessionId, setAiSessionId] = useState(uuidV4())
     const [messages, setMessages] = useState<Message[]>([])
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<any>(null)
@@ -146,7 +146,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
             addMessage({
                 id: `depth-error-${Date.now()}`,
                 role: 'assistant',
-                content: 'Maximum tool call depth reached. Please try again with a simpler request.',
+                content: intl.formatMessage({ id: 'ai.chat.toolDepthExceeded' }),
                 status: 'sent',
                 timestamp: new Date(),
             })
@@ -200,7 +200,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                 // Show thinking message while tools are executing
                 const thinkingMessage: Message = {
                     id: `thinking-${Date.now()}`,
-                    content: 'Executing tools...',
+                    content: intl.formatMessage({ id: 'ai.chat.executingTools' }),
                     role: 'assistant',
                     timestamp: new Date(),
                     status: 'sending',
@@ -261,7 +261,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
                     addMessage({
                         id: `tool-error-${Date.now()}`,
                         role: 'assistant',
-                        content: `Error executing tools: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                        content: intl.formatMessage({ id: 'ai.chat.errorExecutingTools' }, { error: error instanceof Error ? error.message : 'Unknown error' }),
                         status: 'sent',
                         timestamp: new Date(),
                     })
@@ -269,7 +269,7 @@ export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
             } else if (result.data?.status === TASK_STATUSES.COMPLETED) {
                 changeMessage(assistantMessage.id, {
                     ...assistantMessage,
-                    content: result.data.result.answer || 'No response available',
+                    content: result.data.result.answer || intl.formatMessage({ id: 'ai.chat.noResponse' }),
                     status: 'sent',
                 })
             }
