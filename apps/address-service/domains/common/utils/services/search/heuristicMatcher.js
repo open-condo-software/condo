@@ -25,6 +25,40 @@ function parseCoordinates (coordString) {
 }
 
 /**
+ * @param {{ type: string, value: string }} heuristic
+ * @returns {Promise<Array>}
+ */
+async function findExistingHeuristicsForConflict (heuristic) {
+    if (heuristic.type === HEURISTIC_TYPE_COORDINATES) {
+        const coords = parseCoordinates(heuristic.value)
+        if (!coords) return []
+        return await findCoordinateHeuristicsInRange(coords.latitude, coords.longitude)
+    }
+
+    return await find('AddressHeuristic', {
+        type: heuristic.type,
+        value: heuristic.value,
+        deletedAt: null,
+        enabled: true,
+    })
+}
+
+/**
+ * @param {Error & { code?: string, originalError?: { code?: string }, nativeError?: { code?: string } }} err
+ * @returns {boolean}
+ */
+function isAddressHeuristicUniqueViolation (err) {
+    const errorCode = err?.code || err?.originalError?.code || err?.nativeError?.code
+    const message = String(err?.message || '')
+
+    // PostgreSQL SQLSTATE 23505 = unique_violation.
+    // We also match by our partial unique index name
+    // "addressheuristic_type_value_unique" on (type, value) where deletedAt is null
+    // in case the driver wraps/normalizes error codes.
+    return errorCode === '23505' || message.includes('addressheuristic_type_value_unique')
+}
+
+/**
  * Check if two coordinate strings are within tolerance
  * @param {string} coord1 - "lat,lon"
  * @param {string} coord2 - "lat,lon"
@@ -153,21 +187,7 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
     const toCreate = []
 
     for (const heuristic of heuristics) {
-        let existingRecords
-
-        if (heuristic.type === HEURISTIC_TYPE_COORDINATES) {
-            const coords = parseCoordinates(heuristic.value)
-            if (!coords) continue
-
-            existingRecords = await findCoordinateHeuristicsInRange(coords.latitude, coords.longitude)
-        } else {
-            existingRecords = await find('AddressHeuristic', {
-                type: heuristic.type,
-                value: heuristic.value,
-                deletedAt: null,
-                enabled: true,
-            })
-        }
+        const existingRecords = await findExistingHeuristicsForConflict(heuristic)
 
         if (existingRecords.length > 0) {
             const existingRecord = existingRecords[0]
@@ -208,6 +228,8 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
     }
 
     // Second pass: create new heuristic records
+    let bestCreatePhaseConflict = null
+
     for (const heuristic of toCreate) {
         const createData = {
             ...dvSender,
@@ -228,7 +250,43 @@ async function upsertHeuristics (context, addressId, heuristics, providerName, d
             }
         }
 
-        await AddressHeuristicServerUtils.create(context, createData)
+        try {
+            await AddressHeuristicServerUtils.create(context, createData)
+        } catch (err) {
+            // Concurrent request may insert the same (type, value) between our
+            // first-pass read and create. Re-check and convert to duplicate link.
+            if (!isAddressHeuristicUniqueViolation(err)) {
+                throw err
+            }
+
+            const existingRecords = await findExistingHeuristicsForConflict(heuristic)
+            if (existingRecords.length === 0) {
+                throw err
+            }
+
+            const existingAddressId = existingRecords[0].address
+            if (existingAddressId !== addressId) {
+                logger.warn({
+                    msg: 'Heuristic conflict detected during create (race)',
+                    type: heuristic.type,
+                    value: heuristic.value,
+                    existingAddressId,
+                    newAddressId: addressId,
+                })
+
+                if (!bestCreatePhaseConflict || heuristic.reliability > bestCreatePhaseConflict.reliability) {
+                    bestCreatePhaseConflict = { existingAddressId, reliability: heuristic.reliability }
+                }
+            }
+        }
+    }
+
+    if (bestCreatePhaseConflict) {
+        const rootAddressId = await findRootAddress(bestCreatePhaseConflict.existingAddressId)
+        await AddressServerUtils.update(context, addressId, {
+            ...dvSender,
+            possibleDuplicateOf: { connect: { id: rootAddressId } },
+        })
     }
 }
 
