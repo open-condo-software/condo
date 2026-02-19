@@ -61,6 +61,7 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
                     reconnect: true,
                     maxReconnectAttempts: -1,
                     reconnectTimeWait: 2000,
+                    pingInterval: 25_000,
                 } as ConnectionOptions)
 
                 globalConnection = nc
