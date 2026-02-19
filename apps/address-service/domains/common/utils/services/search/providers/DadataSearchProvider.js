@@ -10,6 +10,10 @@ const { DadataSuggestionProvider } = require('@address-service/domains/common/ut
 
 const { AbstractSearchProvider } = require('./AbstractSearchProvider')
 
+function hasExactGeoQuality (normalizedBuilding) {
+    return String(get(normalizedBuilding, ['data', 'qc_geo'])) === '0'
+}
+
 /**
  * The dadata search provider
  * Temporary use the suggestions API @link https://dadata.ru/api/suggest/address/
@@ -74,14 +78,12 @@ class DadataSearchProvider extends AbstractSearchProvider {
 
         const geoLat = get(normalizedBuilding, ['data', 'geo_lat'])
         const geoLon = get(normalizedBuilding, ['data', 'geo_lon'])
-        if (geoLat && geoLon) {
+        if (geoLat && geoLon && hasExactGeoQuality(normalizedBuilding)) {
             const qcGeo = get(normalizedBuilding, ['data', 'qc_geo'])
-            // qc_geo: 0 = exact, 1 = nearest house, 2 = nearest street, 3 = nearest settlement, 4 = city
-            const reliabilityByQcGeo = { '0': 90, '1': 80, '2': 50, '3': 30, '4': 20 }
             heuristics.push({
                 type: HEURISTIC_TYPE_COORDINATES,
                 value: `${geoLat},${geoLon}`,
-                reliability: reliabilityByQcGeo[String(qcGeo)] || 70,
+                reliability: 90,
                 meta: qcGeo != null ? { qc_geo: qcGeo } : null,
             })
         }
