@@ -104,7 +104,7 @@ async function getAvailableStreams (context, userId, organizationId) {
                     }
                 } else if (typeof accessConfig === 'function') {
                     const authentication = { item: user }
-                    const testSubject = `${streamConfig.name}.${organizationId}.test`
+                    const testSubject = `${streamConfig.name}.${organizationId}`
                     hasAccess = await accessConfig({ authentication, context, organizationId, subject: testSubject })
                 }
 

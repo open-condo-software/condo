@@ -4,7 +4,7 @@ const nextCookie = require('next-cookies')
 
 const conf = require('@open-condo/config')
 
-const { checkNatsAccess, getAvailableStreams } = require('../utils/natsAuthCallout')
+const { getAvailableStreams } = require('../utils/natsAuthCallout')
 
 const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
 
@@ -100,48 +100,6 @@ class NatsMiddleware {
             } catch (error) {
                 console.error('[NATS Token] Error:', error)
                 return res.status(500).json({ error: 'Failed to generate token' })
-            }
-        })
-
-        app.post('/nats/auth', async (req, res) => {
-            try {
-                const { connect_opts, client_metadata } = req.body
-                const token = connect_opts?.auth_token || connect_opts?.jwt
-                const subject = client_metadata?.subject
-
-                if (!token) {
-                    return res.status(200).json({
-                        allowed: false,
-                        reason: 'No token provided',
-                        account: 'APP',
-                    })
-                }
-
-                const decoded = jwt.verify(token, TOKEN_SECRET)
-                const { userId, organizationId } = decoded
-
-                if (!userId || !organizationId) {
-                    return res.status(200).json({
-                        allowed: false,
-                        reason: 'Invalid token payload',
-                        account: 'APP',
-                    })
-                }
-
-                const context = await keystone.createContext({ skipAccessControl: true })
-                const accessResult = await checkNatsAccess(context, userId, organizationId, subject)
-
-                return res.status(200).json({
-                    ...accessResult,
-                    account: 'APP',
-                })
-            } catch (error) {
-                console.error('[NATS Auth] Error:', error)
-                return res.status(200).json({
-                    allowed: false,
-                    reason: 'Invalid token',
-                    account: 'APP',
-                })
             }
         })
 
