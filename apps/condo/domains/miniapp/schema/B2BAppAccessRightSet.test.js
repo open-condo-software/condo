@@ -35,10 +35,12 @@ const {
 const {
     registerMetersReadingsByTestClient,
     createTestMeterReading,
+    createTestMeterReportingPeriod,
     MeterReadingSource,
     MeterResource,
     createTestMeter,
     updateTestMeterReading,
+    MeterReportingPeriod,
 } = require('@condo/domains/meter/utils/testSchema')
 const { ACCESS_RIGHT_SET_MAX_ITEMS_GLOBAL_TYPE, ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE } = require('@condo/domains/miniapp/constants')
 const {
@@ -1443,6 +1445,48 @@ describe('B2BApp permissions for service user', () => {
             const [result] = await updateTestMeterReading(serviceUser, meterReading.id, { billingStatus: 'approved' })
 
             expect(result.id).toMatch(UUID_RE)
+        })
+
+        test('read MeterReportingPeriod model', async () => {
+            const [organization] = await registerNewOrganization(user)
+            const [property] = await createTestProperty(user, organization)
+            const [period] = await createTestMeterReportingPeriod(user, organization, {
+                property: { connect: { id: property.id } },
+            })
+
+            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
+            const serviceUser = await makeLoggedInClient({
+                email: newServiceUser.email,
+                password: newServiceUser.password,
+            })
+
+            const [app] = await createTestB2BApp(support)
+            await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
+            const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app)
+
+            // B2BApp without permissions
+            await expectToThrowAccessDeniedErrorToObjects(
+                async () => await MeterReportingPeriod.getAll(serviceUser, { id: period.id })
+            )
+
+            // add read permissions for B2BApp
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
+                canReadMeterReportingPeriods: true,
+                canReadOrganizations: true,
+                canReadProperties: true,
+            })
+            await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
+
+            const periods = await MeterReportingPeriod.getAll(serviceUser, { id: period.id })
+            expect(periods).toHaveLength(1)
+            expect(periods[0].id).toEqual(period.id)
+
+            // read access only
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => await createTestMeterReportingPeriod(serviceUser, organization, {
+                    property: { connect: { id: property.id } },
+                })
+            )
         })
     })
 

@@ -12,13 +12,18 @@ const { getByCondition, find } = require('@open-condo/keystone/schema')
 
 const { getAvailableResidentMeterReportCondition } = require('@condo/domains/meter/utils/serverSchema')
 const {
+    canReadObjectsAsB2BAppServiceUser,
+    canManageObjectsAsB2BAppServiceUser,
+} = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const {
     getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
-async function canReadMeterReportingPeriods ({ authentication: { item: user }, context }) {
+async function canReadMeterReportingPeriods (args) {
+    const { authentication: { item: user }, context } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -26,6 +31,10 @@ async function canReadMeterReportingPeriods ({ authentication: { item: user }, c
 
     if (user.type === RESIDENT) {
         return await getAvailableResidentMeterReportCondition(user.id)
+    }
+
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
     }
 
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
@@ -42,10 +51,15 @@ async function canReadMeterReportingPeriods ({ authentication: { item: user }, c
     }
 }
 
-async function canManageMeterReportingPeriods ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
+async function canManageMeterReportingPeriods (args) {
+    const { authentication: { item: user }, originalInput, operation, itemId, itemIds, context } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
 
     const isBulkRequest = Array.isArray(originalInput)
 
