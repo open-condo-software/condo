@@ -52,9 +52,18 @@ async function canReadInvoices (args) {
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadInvoices')
 
     return {
-        organization: {
-            id_in: permittedOrganizations,
-        },
+        OR: [
+            {
+                organization: {
+                    id_in: permittedOrganizations,
+                },
+            },
+            {
+                payerOrganization: {
+                    id_in: permittedOrganizations,
+                },
+            },
+        ],
         deletedAt: null,
     }
 }
