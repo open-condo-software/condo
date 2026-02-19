@@ -116,6 +116,7 @@ function createSubscriptionPlansField (appFieldName) {
             'Empty array means the app is available to all organizations without subscription.',
         type: 'Virtual',
         graphQLReturnType: '[SubscriptionPlan]',
+        graphQLReturnFragment: '{ id name }',
         resolver: async (item) => {
             const plans = await find('SubscriptionPlan', {
                 deletedAt: null,
