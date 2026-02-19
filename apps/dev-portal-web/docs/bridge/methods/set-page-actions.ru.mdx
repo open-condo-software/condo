@@ -39,7 +39,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 import bridge from '@open-condo/bridge'
-import { useSetActionHandlers } from '@open-condo/miniapp-utils'
+import { useSetPageActionsHandlers } from '@open-condo/miniapp-utils'
 
 export default function MiniappPage (): React.ReactNode {
     const [actionIds, setActionIds] = useState<string[]>([])
@@ -68,7 +68,7 @@ export default function MiniappPage (): React.ReactNode {
         }
     }, [actions, actionIds])
 
-    useSetActionHandlers(bridge, handlers)
+    useSetPageActionsHandlers(bridge, handlers)
 
     return null
 }
