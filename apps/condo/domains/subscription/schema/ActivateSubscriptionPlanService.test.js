@@ -226,7 +226,7 @@ describe('ActivateSubscriptionPlanService', () => {
             expect(subscriptionContext.isTrial).toBe(false)
             expect(subscriptionContext.organization.id).toBe(organization.id)
             expect(subscriptionContext.subscriptionPlan.id).toBe(subscriptionPlan.id)
-            expect(subscriptionContext.basePrice).toBe(pricingRule.price)
+            expect(subscriptionContext.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
 
             const startAt = dayjs(subscriptionContext.startAt)
             const endAt = dayjs(subscriptionContext.endAt)
@@ -400,6 +400,146 @@ describe('ActivateSubscriptionPlanService', () => {
 
             expect(dayjs(secondEndAt).diff(dayjs(firstEndAt), 'month')).toBe(1)
             expect(dayjs(thirdEndAt).diff(dayjs(secondEndAt), 'month')).toBe(1)
+        })
+    })
+
+    describe('MultiPayment and Invoice Integration', () => {
+        let serviceUser
+
+        beforeEach(async () => {
+            serviceUser = await makeClientWithServiceUser()
+            const [rightsSet] = await createTestUserRightsSet(admin, {
+                canExecuteActivateSubscriptionPlan: true,
+            })
+            await updateTestUser(admin, serviceUser.user.id, {
+                rightsSet: { connect: { id: rightsSet.id } },
+            })
+        })
+
+        test('populates invoice from multiPayment with exactly one payment', async () => {
+            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+            const { createTestMultiPayment, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
+            
+            const [invoice] = await createTestInvoice(admin, organization)
+            const [multiPayment] = await createTestMultiPayment(admin, organization)
+            await createTestPayment(admin, organization, multiPayment, {
+                invoice: { connect: { id: invoice.id } },
+            })
+
+            const paymentMethod = {
+                id: faker.datatype.uuid(),
+                type: 'card',
+                cardMask: '4242',
+                cardType: 'visa',
+                title: 'Test Card',
+            }
+
+            const [result] = await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, {
+                isTrial: false,
+                paymentMethod,
+                multiPayment: { id: multiPayment.id },
+            })
+
+            expect(result.subscriptionContext).toBeDefined()
+            const [context] = await SubscriptionContext.getAll(admin, { id: result.subscriptionContext.id })
+            expect(context.invoice.id).toBe(invoice.id)
+            expect(context.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
+            expect(context.settings.paymentMethod).toEqual(paymentMethod)
+        })
+
+        test('throws error if multiPayment has more than one payment', async () => {
+            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+            const { createTestMultiPayment, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
+            
+            const [invoice1] = await createTestInvoice(admin, organization)
+            const [invoice2] = await createTestInvoice(admin, organization)
+            const [multiPayment] = await createTestMultiPayment(admin, organization)
+            await createTestPayment(admin, organization, multiPayment, {
+                invoice: { connect: { id: invoice1.id } },
+            })
+            await createTestPayment(admin, organization, multiPayment, {
+                invoice: { connect: { id: invoice2.id } },
+            })
+
+            await expectToThrowGQLError(
+                async () => {
+                    await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, {
+                        isTrial: false,
+                        multiPayment: { id: multiPayment.id },
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_MULTI_PAYMENT',
+                    message: 'MultiPayment must contain exactly one payment',
+                },
+                'result'
+            )
+        })
+
+        test('throws error if multiPayment has zero payments', async () => {
+            const { createTestMultiPayment } = require('@condo/domains/acquiring/utils/testSchema')
+            
+            const [multiPayment] = await createTestMultiPayment(admin, organization)
+
+            await expectToThrowGQLError(
+                async () => {
+                    await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, {
+                        isTrial: false,
+                        multiPayment: { id: multiPayment.id },
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_MULTI_PAYMENT',
+                    message: 'MultiPayment must contain exactly one payment',
+                },
+                'result'
+            )
+        })
+
+        test('creates subscription without invoice when multiPayment is not provided', async () => {
+            const paymentMethod = {
+                id: faker.datatype.uuid(),
+                type: 'card',
+                cardMask: '4242',
+                cardType: 'visa',
+                title: 'Test Card',
+            }
+
+            const [result] = await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, {
+                isTrial: false,
+                paymentMethod,
+            })
+
+            expect(result.subscriptionContext).toBeDefined()
+            const [context] = await SubscriptionContext.getAll(admin, { id: result.subscriptionContext.id })
+            expect(context.invoice).toBeNull()
+            expect(context.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
+            expect(context.settings.paymentMethod).toEqual(paymentMethod)
+        })
+
+        test('trial subscription does not accept multiPayment', async () => {
+            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+            const { createTestMultiPayment, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
+            
+            const [invoice] = await createTestInvoice(admin, organization)
+            const [multiPayment] = await createTestMultiPayment(admin, organization)
+            await createTestPayment(admin, organization, multiPayment, {
+                invoice: { connect: { id: invoice.id } },
+            })
+
+            const [result] = await activateSubscriptionPlanByTestClient(user, organization, pricingRule, {
+                isTrial: true,
+                multiPayment: { id: multiPayment.id },
+            })
+
+            // Trial subscriptions don't process multiPayment (invoice extraction only happens for non-trial)
+            expect(result.subscriptionContext).toBeDefined()
+            const [context] = await SubscriptionContext.getAll(admin, { id: result.subscriptionContext.id })
+            expect(context.invoice).toBeNull()
+            expect(context.subscriptionPlanPricingRule).toBeNull()
+            expect(context.isTrial).toBe(true)
         })
     })
 })
