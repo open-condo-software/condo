@@ -60034,6 +60034,8 @@ type SubscriptionContextHistoryRecord {
   endAt: String
   subscriptionPlanPricingRule: String
   invoice: String
+  recurrentPaymentEnabled: Boolean
+  recurrentPaymentProcessedAt: String
   isTrial: Boolean
   settings: JSON
   id: ID!
@@ -60086,6 +60088,16 @@ input SubscriptionContextHistoryRecordWhereInput {
   invoice_not: String
   invoice_in: [String]
   invoice_not_in: [String]
+  recurrentPaymentEnabled: Boolean
+  recurrentPaymentEnabled_not: Boolean
+  recurrentPaymentProcessedAt: String
+  recurrentPaymentProcessedAt_not: String
+  recurrentPaymentProcessedAt_lt: String
+  recurrentPaymentProcessedAt_lte: String
+  recurrentPaymentProcessedAt_gt: String
+  recurrentPaymentProcessedAt_gte: String
+  recurrentPaymentProcessedAt_in: [String]
+  recurrentPaymentProcessedAt_not_in: [String]
   isTrial: Boolean
   isTrial_not: Boolean
   settings: JSON
@@ -60179,6 +60191,10 @@ enum SortSubscriptionContextHistoryRecordsBy {
   startAt_DESC
   endAt_ASC
   endAt_DESC
+  recurrentPaymentEnabled_ASC
+  recurrentPaymentEnabled_DESC
+  recurrentPaymentProcessedAt_ASC
+  recurrentPaymentProcessedAt_DESC
   isTrial_ASC
   isTrial_DESC
   id_ASC
@@ -60206,6 +60222,8 @@ input SubscriptionContextHistoryRecordUpdateInput {
   endAt: String
   subscriptionPlanPricingRule: String
   invoice: String
+  recurrentPaymentEnabled: Boolean
+  recurrentPaymentProcessedAt: String
   isTrial: Boolean
   settings: JSON
   v: Int
@@ -60234,6 +60252,8 @@ input SubscriptionContextHistoryRecordCreateInput {
   endAt: String
   subscriptionPlanPricingRule: String
   invoice: String
+  recurrentPaymentEnabled: Boolean
+  recurrentPaymentProcessedAt: String
   isTrial: Boolean
   settings: JSON
   v: Int
@@ -60309,6 +60329,14 @@ type SubscriptionContext {
   """
   invoice: Invoice
 
+  """ Whether automatic subscription renewal is enabled for this subscription. Can only be set for paid subscriptions with subscriptionPlanPricingRule 
+  """
+  recurrentPaymentEnabled: Boolean
+
+  """ Date when this subscription was automatically renewed (when a new context was created via auto-payment from this context) 
+  """
+  recurrentPaymentProcessedAt: String
+
   """ Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays) 
   """
   isTrial: Boolean
@@ -60370,6 +60398,16 @@ input SubscriptionContextWhereInput {
   subscriptionPlanPricingRule_is_null: Boolean
   invoice: InvoiceWhereInput
   invoice_is_null: Boolean
+  recurrentPaymentEnabled: Boolean
+  recurrentPaymentEnabled_not: Boolean
+  recurrentPaymentProcessedAt: String
+  recurrentPaymentProcessedAt_not: String
+  recurrentPaymentProcessedAt_lt: String
+  recurrentPaymentProcessedAt_lte: String
+  recurrentPaymentProcessedAt_gt: String
+  recurrentPaymentProcessedAt_gte: String
+  recurrentPaymentProcessedAt_in: [String]
+  recurrentPaymentProcessedAt_not_in: [String]
   isTrial: Boolean
   isTrial_not: Boolean
   settings: JSON
@@ -60451,6 +60489,10 @@ enum SortSubscriptionContextsBy {
   subscriptionPlanPricingRule_DESC
   invoice_ASC
   invoice_DESC
+  recurrentPaymentEnabled_ASC
+  recurrentPaymentEnabled_DESC
+  recurrentPaymentProcessedAt_ASC
+  recurrentPaymentProcessedAt_DESC
   isTrial_ASC
   isTrial_DESC
   id_ASC
@@ -60478,6 +60520,8 @@ input SubscriptionContextUpdateInput {
   endAt: String
   subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
   invoice: InvoiceRelateToOneInput
+  recurrentPaymentEnabled: Boolean
+  recurrentPaymentProcessedAt: String
   isTrial: Boolean
   settings: JSON
   v: Int
@@ -60503,6 +60547,8 @@ input SubscriptionContextCreateInput {
   endAt: String
   subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
   invoice: InvoiceRelateToOneInput
+  recurrentPaymentEnabled: Boolean
+  recurrentPaymentProcessedAt: String
   isTrial: Boolean
   settings: JSON
   v: Int

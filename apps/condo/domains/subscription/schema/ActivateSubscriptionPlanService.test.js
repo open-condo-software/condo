@@ -227,6 +227,7 @@ describe('ActivateSubscriptionPlanService', () => {
             expect(subscriptionContext.organization.id).toBe(organization.id)
             expect(subscriptionContext.subscriptionPlan.id).toBe(subscriptionPlan.id)
             expect(subscriptionContext.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
+            expect(subscriptionContext.recurrentPaymentEnabled).toBe(false)
 
             const startAt = dayjs(subscriptionContext.startAt)
             const endAt = dayjs(subscriptionContext.endAt)
@@ -445,6 +446,7 @@ describe('ActivateSubscriptionPlanService', () => {
             expect(context.invoice.id).toBe(invoice.id)
             expect(context.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
             expect(context.settings.paymentMethod).toEqual(paymentMethod)
+            expect(context.recurrentPaymentEnabled).toBe(true)
         })
 
         test('throws error if multiPayment has more than one payment', async () => {
@@ -517,6 +519,18 @@ describe('ActivateSubscriptionPlanService', () => {
             expect(context.invoice).toBeNull()
             expect(context.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
             expect(context.settings.paymentMethod).toEqual(paymentMethod)
+            expect(context.recurrentPaymentEnabled).toBe(true)
+        })
+
+        test('recurrentPaymentEnabled is false when paymentMethod is not provided', async () => {
+            const [result] = await activateSubscriptionPlanByTestClient(serviceUser, organization, pricingRule, {
+                isTrial: false,
+            })
+
+            expect(result.subscriptionContext).toBeDefined()
+            const [context] = await SubscriptionContext.getAll(admin, { id: result.subscriptionContext.id })
+            expect(context.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
+            expect(context.recurrentPaymentEnabled).toBe(false)
         })
 
         test('trial subscription does not accept multiPayment', async () => {
