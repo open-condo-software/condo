@@ -206,7 +206,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
     }, [actions, sendActionClickEvent])
 
     const isActionOwner = !!actionsSource && innerRef.current?.contentWindow === actionsSource
-    const shouldShowActionBar = isActionOwner && actionsOrigin && Boolean(actions.length)
+    const shouldShowActionBar = isActionOwner && actionsOrigin && Boolean(actions?.length)
 
     return (
         <>
