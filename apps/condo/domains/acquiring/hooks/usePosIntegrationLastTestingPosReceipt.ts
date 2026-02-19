@@ -1,6 +1,7 @@
 import { useGetB2BAppContextWithPosIntegrationConfigQuery } from '@app/condo/gql'
 import { useCallback, useEffect, useState } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 
@@ -22,6 +23,7 @@ export interface UsePosIntegrationLastTestingPosReceiptOptions {
  */
 export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrationLastTestingPosReceiptOptions) {
     const { skipUntilAuthenticated = false } = options || {}
+    const { user } = useAuth()
     const { organization } = useOrganization()
     const [lastTestingPosReceipt, setLastTestingPosReceipt] = useState<LastTestingPosReceiptData | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
@@ -47,7 +49,17 @@ export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrat
 
         try {
             setLoading(true)
-            const response = await fetch(baseUrl, {
+            const requestUrl = new URL(baseUrl)
+
+            if (user?.id) {
+                requestUrl.searchParams.set('condoUserId', user.id)
+            }
+
+            if (organization?.id) {
+                requestUrl.searchParams.set('condoOrganizationId', organization.id)
+            }
+
+            const response = await fetch(requestUrl.toString(), {
                 method: 'GET',
                 credentials: 'include',
             })
@@ -66,7 +78,7 @@ export function usePosIntegrationLastTestingPosReceipt (options?: UsePosIntegrat
         } finally {
             setLoading(false)
         }
-    }, [baseUrl])
+    }, [baseUrl, organization?.id, user?.id])
 
     useEffect(() => {
         if (!areB2bAppContextsLoading && organization?.id && !skipUntilAuthenticated) {
