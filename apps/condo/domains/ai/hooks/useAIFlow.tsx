@@ -3,6 +3,7 @@ import {
     useGetExecutionAiFlowTaskByIdLazyQuery,
     useUpdateExecutionAiFlowTaskMutation,
 } from '@app/condo/gql'
+import { ExecutionAiFlowTask, ExecutionAiFlowTaskStatusType } from '@app/condo/schema'
 import getConfig from 'next/config'
 import { useState, useCallback } from 'react'
 
@@ -12,7 +13,6 @@ import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { FLOW_TYPES_LIST, TASK_STATUSES } from '@condo/domains/ai/constants'
-import { ExecutionAiFlowTask } from '@condo/domains/ai/schema'
 import {
     UI_AI_GENERATE_NEWS_BY_INCIDENT,
     UI_AI_REWRITE_NEWS_TEXT,
@@ -118,7 +118,11 @@ export function useAIFlow<T = object> ({
                     fetchPolicy: 'no-cache',
                 })
 
-                const [task] = pollResult.data.task
+                if (!pollResult?.data?.task) {
+                    return { data: null, error: new Error('Task not found'), localizedErrorText: null }
+                }
+
+                const task = Array.isArray(pollResult.data.task) ? pollResult.data.task[0] : pollResult.data.task
                 if (!task) { return { data: null, error: new Error('Task not found'), localizedErrorText: null } }
 
                 if (task.status === TASK_STATUSES.COMPLETED) {
@@ -159,6 +163,9 @@ export function useAIFlow<T = object> ({
         getExecutionAiFlowTaskById,
         updateExecutionAIFlowTaskMutation,
         user?.id,
+        organization?.id,
+        modelName,
+        itemId,
     ])
 
     const cancelCurrentTask = useCallback(async () => {
@@ -169,14 +176,16 @@ export function useAIFlow<T = object> ({
                 variables: {
                     id: currentTaskId,
                     data: {
-                        status: TASK_STATUSES.CANCELLED,
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        status: ExecutionAiFlowTaskStatusType.Cancelled,
                     },
                 },
             })
             setCurrentTaskId(null)
             setLoading(false)
-        } catch (error) {
-            console.error('Failed to cancel task:', error)
+        } catch (err) {
+            console.error('Failed to cancel task:', err)
         }
     }, [currentTaskId, updateExecutionAIFlowTaskMutation])
 

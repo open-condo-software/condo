@@ -7,11 +7,12 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Input, Typography, Space } from '@open-condo/ui'
 import { Markdown } from '@open-condo/ui'
-import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
-import { TASK_STATUSES } from '@condo/domains/ai/constants'
+
+import { CHAT_WITH_CONDO_FLOW_TYPE, TASK_STATUSES } from '@condo/domains/ai/constants'
 import { useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { runToolCall, ToolCallResult } from '@condo/domains/ai/utils/toolCalls'
+import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
 
 import styles from './AIChat.module.css'
 
@@ -35,7 +36,12 @@ type AIChatProps = {
     onClose?: () => void
 }
 
-export const AIChat = forwardRef<any, AIChatProps>(({ onClose }, ref) => {
+export type AIChatRef = {
+    handleResetHistory: () => void
+    handleSaveConversation: () => void
+}
+
+export const AIChat = forwardRef<AIChatRef, AIChatProps>(({ onClose }, ref) => {
     const intl = useIntl()
     const { user } = useAuth()
     const { organization } = useOrganization()
@@ -48,7 +54,7 @@ export const AIChat = forwardRef<any, AIChatProps>(({ onClose }, ref) => {
     const inputRef = useRef<any>(null)
 
     const [executeAIFlow, { loading }] = useAIFlow<{ answer: string }>({
-        flowType: 'chat-with-condo',
+        flowType: CHAT_WITH_CONDO_FLOW_TYPE,
         timeout: 120000,
     })
 
@@ -106,11 +112,9 @@ export const AIChat = forwardRef<any, AIChatProps>(({ onClose }, ref) => {
             const updated = prev.filter(msg => msg.id !== messageId)
             // Save to local storage
             if (typeof window !== 'undefined') {
-                const history = storageManager.getItem(STORAGE_KEY)
-                if (history) {
-                    delete history[aiSessionId]
-                    storageManager.setItem(STORAGE_KEY, history)
-                }
+                const history = storageManager.getItem(STORAGE_KEY) || {}
+                history[aiSessionId] = updated
+                storageManager.setItem(STORAGE_KEY, history)
             }
             return updated
         })
@@ -135,7 +139,19 @@ export const AIChat = forwardRef<any, AIChatProps>(({ onClose }, ref) => {
         handleSaveConversation,
     }))
 
-    const executeAIMessage = async (userInput: string, additionalContext?: any) => {
+    const MAX_TOOL_CALL_DEPTH = 5
+
+    const executeAIMessage = async (userInput: string, additionalContext?: any, toolCallDepth = 0) => {
+        if (toolCallDepth >= MAX_TOOL_CALL_DEPTH) {
+            addMessage({
+                id: `depth-error-${Date.now()}`,
+                role: 'assistant',
+                content: 'Maximum tool call depth reached. Please try again with a simpler request.',
+                status: 'sent',
+                timestamp: new Date(),
+            })
+            return
+        }
         const assistantMessage: Message = {
             id: uuidV4(),
             content: loadingLabel,
@@ -237,7 +253,7 @@ export const AIChat = forwardRef<any, AIChatProps>(({ onClose }, ref) => {
                         }))
 
                     if (allToolCallResults.length > 0) {
-                        await executeAIMessage(userInput, { toolCalls: allToolCallResults })
+                        await executeAIMessage(userInput, { toolCalls: allToolCallResults }, toolCallDepth + 1)
                     }
                 } catch (error) {
                     // Remove thinking message and show error

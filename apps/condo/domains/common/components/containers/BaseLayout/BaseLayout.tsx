@@ -4,8 +4,8 @@ import classnames from 'classnames'
 import Router from 'next/router'
 import React, { CSSProperties, FunctionComponent, ElementType } from 'react'
 
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useAIContext } from '@condo/domains/ai/components/AIContext'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 import styles from './BaseLayout.module.css'
 import { SideNav } from './components/SideNav'
