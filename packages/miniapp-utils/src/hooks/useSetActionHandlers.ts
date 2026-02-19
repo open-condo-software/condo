@@ -22,7 +22,7 @@ export function useSetActionHandlers (bridge: CondoBridge, handlers: ActionHandl
 
     useEffect(() => {
         const listener: CondoBridgeSubscriptionListener = (event) => {
-            if (event.type !== 'CondoWebAppActionClick') return
+            if (event.type !== 'CondoWebAppActionClickEvent') return
 
             if ('actionId' in event.data && typeof event.data.actionId === 'string') {
                 const { actionId } = event.data
