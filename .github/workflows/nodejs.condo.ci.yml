@@ -5,8 +5,7 @@ on:
     branches:
       - main
 
-  # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -424,25 +423,11 @@ jobs:
       # TODO: remove this back
       fail-fast: false
       matrix:
-        domain:
-          - organization
-          - user
-          - scope
-          - property
-          - acquiring
-          - billing
-          - miniapp
-          - banking
-          - ticket
-          - meter
-          - contact
-          - resident
-          - notification
-          - common
-          - others
+        shard_index: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
     with:
-      domain_name: ${{ matrix.domain }}
+      shard_index: ${{ matrix.shard_index }}
+      shard_total: 16
       runs-on: test-runners
       image_name: ${{ needs.build-image.outputs.DOCKER_IMAGE }}
     secrets: inherit
