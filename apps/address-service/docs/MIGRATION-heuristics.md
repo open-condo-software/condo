@@ -69,6 +69,11 @@ yarn workspace @app/address-service node bin/create-address-heuristics.js
 
 This creates `AddressHeuristic` records from existing `Address.key` and `Address.meta.data` fields. Duplicate addresses will be flagged with `possibleDuplicateOf`.
 
+Provider-specific coordinate behavior in Script B:
+
+- **Dadata**: coordinates heuristic is created only when `meta.data.qc_geo = 0` (exact geocoding quality).
+- **Google**: coordinates heuristic is extracted from `meta.provider.rawData.geometry.location.lat/lng` (Google Places geometry). Google does not provide a Dadata-like `qc_geo` field, so no equivalent exactness gate is applied here.
+
 ### 5. (Optional) Run Script C — Merge duplicate addresses
 
 This script runs **locally** and connects to condo + address-service as remote GraphQL clients.
