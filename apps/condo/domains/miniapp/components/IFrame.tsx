@@ -6,11 +6,11 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Typography, Button } from '@open-condo/ui'
 
+import { DynamicIcon, IconName } from '@condo/domains/common/components/DynamicIcon'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
-import { renderIcon } from '@condo/domains/miniapp/utils/renderers'
 
 import type { IBasicEmptyListProps } from '@condo/domains/common/components/EmptyListView'
 import type { RequestHandler } from '@condo/domains/common/components/PostMessageProvider/types'
@@ -176,7 +176,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
     const sendActionClickEvent = useCallback((actionId: string) => {
         if (!actionsSource || !actionsOrigin) return
 
-        actionsSource.postMessage({ type: 'CondoWebAppActionClick', data: { actionId } }, actionsOrigin)
+        actionsSource.postMessage({ type: 'CondoWebAppActionClickEvent', data: { actionId } }, actionsOrigin)
     }, [actionsSource, actionsOrigin])
 
     const actionButtons = useMemo(() => {
@@ -195,7 +195,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
                         loading={action.loading}
                         disabled={action.disabled}
                         onClick={() => sendActionClickEvent(actionId)}
-                        icon={renderIcon(action.icon)}
+                        icon={action.icon ? <DynamicIcon name={action.icon as IconName} /> : undefined}
                     >
                         {action.label}
                     </Button>
