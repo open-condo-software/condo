@@ -13,7 +13,7 @@ export type ActionHandlers = Partial<Record<string, ActionHandler>>
  * (e.g., bottom action bar on web or top-bar icons on mobile). Pass a map of
  * `{ [actionId]: handler }` so your miniapp can react to clicks on those actions.
  */
-export function useSetActionHandlers (bridge: CondoBridge, handlers: ActionHandlers): void {
+export function useSetPageActionsHandlers (bridge: CondoBridge, handlers: ActionHandlers): void {
     const handlersRef = useRef<ActionHandlers>(handlers)
 
     useEffect(() => {
