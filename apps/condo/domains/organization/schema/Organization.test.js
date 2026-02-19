@@ -545,14 +545,14 @@ describe('Organization', () => {
             setFeatureFlag(SUBSCRIPTIONS, false)
         })
 
+        beforeEach(async () => {
+            const plans = await SubscriptionPlan.getAll(admin)
+            for (const plan of plans) {
+                await SubscriptionPlan.softDelete(admin, plan.id)
+            }
+        })
+
         describe('when no plans exist', () => {
-            beforeEach(async () => {
-                const plans = await SubscriptionPlan.getAll(admin, { organizationType: SERVICE_PROVIDER_TYPE })
-                for (const plan of plans) {
-                    await SubscriptionPlan.softDelete(admin, plan.id)
-                }
-            })
-            
             test('returns far-future dates for all features', async () => {
                 const [organization] = await createTestOrganization(admin, {
                     type: SERVICE_PROVIDER_TYPE,
