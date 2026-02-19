@@ -14,7 +14,7 @@ export function AIFlowButton ({ children, loading, disabled, ...props }: AIFlowB
             type='secondary'
             icon={<Sparkles size='small'/>}
             loading={loading}
-            disabled={disabled ? disabled : loading}
+            disabled={disabled || loading}
             {...props}
         >
             {children}

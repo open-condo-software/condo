@@ -5,7 +5,7 @@ export type ToolCallResult = {
     name: string
     args: any
     result?: any
-    resultMessage?: string | { key: string, values: Record<string, any> }
+    resultMessage?: string | { key: string }
     error?: string
     errorMessage?: string
 }
@@ -20,7 +20,6 @@ type ToolConfig = {
     query: any
     resultKey: string
     resultMessageKey: string
-    modelNameKey: string
     getGraphQLVariables: (args: any, userData: UserData) => any
 }
 
@@ -29,8 +28,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getTickets',
         query: GetTicketsDocument,
         resultKey: 'tickets',
-        resultMessageKey: 'ai.chat.foundItems',
-        modelNameKey: 'ai.modelName.ticket',
+        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (args, userData) => {
             const where = { ...args.where }
             if (userData.organizationId) {
@@ -47,8 +45,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getIncidents',
         query: GetIncidentsDocument,
         resultKey: 'incidents',
-        resultMessageKey: 'ai.chat.foundItems',
-        modelNameKey: 'ai.modelName.incident',
+        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (args, userData) => {
             const where = { ...args.where }
             if (userData.organizationId) {
@@ -65,8 +62,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getOrganizationEmployees',
         query: GetContactEditorOrganizationEmployeesDocument,
         resultKey: 'employees',
-        resultMessageKey: 'ai.chat.foundItems',
-        modelNameKey: 'ai.modelName.organizationEmployee',
+        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (_, userData) => ({
             where: { organization: { id: userData.organizationId } },
         }),
@@ -75,8 +71,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getProperties',
         query: GetPropertiesDocument,
         resultKey: 'properties',
-        resultMessageKey: 'ai.chat.foundItems',
-        modelNameKey: 'ai.modelName.property',
+        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (args, userData) => {
             const where = { organization: { id: userData.organizationId } }
             return {
@@ -90,8 +85,7 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getTicketComments',
         query: GetTicketCommentsDocument,
         resultKey: 'ticketComments',
-        resultMessageKey: 'ai.chat.foundItems',
-        modelNameKey: 'ai.modelName.ticketComment',
+        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (args) => ({
             ticketId: args.where?.ticketId,
         }),
@@ -100,15 +94,14 @@ const TOOL_CONFIGS: Record<string, ToolConfig> = {
         name: 'getContacts',
         query: GetContactForClientCardDocument,
         resultKey: 'contacts',
-        resultMessageKey: 'ai.chat.foundItems',
-        modelNameKey: 'ai.modelName.contact',
+        resultMessageKey: 'ai.chat.dataFetching',
         getGraphQLVariables: (args, userData) => {
             const where: any = {}
             if (userData.organizationId) {
                 where.organization = { id: userData.organizationId }
             }
             if (args.where?.propertyId) {
-                where.property = { id: { equals: args.where.propertyId } }
+                where.property = { id: args.where.propertyId }
             }
             return {
                 where,
@@ -151,7 +144,6 @@ const runApolloQueryTool = async (
             result: data,
             resultMessage: {
                 key: config.resultMessageKey,
-                values: { count: data.length, modelNameKey: config.modelNameKey },
             },
         }
     } catch (error) {
@@ -195,18 +187,11 @@ export const runToolCall = async (
     const result = await runApolloQueryTool(config, args, userData, client)
     
     if (result.resultMessage && typeof result.resultMessage === 'object' && 'key' in result.resultMessage) {
-        const { key, values } = result.resultMessage
-        
-        let modelName = 'items'
-        if (values.modelNameKey && intl) {
-            const singularKey = `${values.modelNameKey}.one`
-            const pluralKey = `${values.modelNameKey}.other`
-            modelName = intl.formatMessage({ id: values.count === 1 ? singularKey : pluralKey })
-        }
+        const { key } = result.resultMessage
         
         const translatedMessage = intl 
-            ? intl.formatMessage({ id: key }, { ...values, modelName })
-            : `Found ${values.count || 0} ${modelName}`
+            ? intl.formatMessage({ id: 'ai.chat.dataFetching' })
+            : 'Collecting data...'
         
         return {
             ...result,

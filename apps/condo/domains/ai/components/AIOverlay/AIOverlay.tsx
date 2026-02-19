@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 
 import { Close, RefreshCw, Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button } from '@open-condo/ui'
+import { Button, Typography } from '@open-condo/ui'
 
 import styles from './AIOverlay.module.css'
 
@@ -70,26 +70,26 @@ export const AIOverlay: React.FC<AIOverlayProps> = ({ open, onClose }) => {
         >
             <div className={styles.header}>
                 <div className={styles.leftSection}>
-                    <h3 className={styles.title}>{title}</h3>
+                    <Typography.Title level={3}>{title}</Typography.Title>
                 </div>
                 <div className={styles.rightSection}>
                     <Button 
-                        type='text' 
-                        size='small'
+                        type='secondary'
+                        size='medium'
                         onClick={() => aiChatRef.current?.handleResetHistory()}
                         icon={<RefreshCw size='small' />}
                         title={resetHistoryLabel}
                     />
                     <Button 
-                        type='text' 
-                        size='small'
+                        type='secondary'
+                        size='medium'
                         onClick={() => aiChatRef.current?.handleSaveConversation()}
                         icon={<Download size='small' />}
                         title={saveConversationLabel}
                     />
                     <Button 
-                        type='text' 
-                        size='small'
+                        type='secondary' 
+                        size='medium'
                         onClick={onClose}
                         icon={<Close size='small' />}
                         title='Close'
