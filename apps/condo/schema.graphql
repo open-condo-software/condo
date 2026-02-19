@@ -84594,6 +84594,8 @@ type InvoiceHistoryRecord {
   """
   _label_: String
   organization: String
+  type: String
+  payerOrganization: String
   number: JSON
   property: String
   unitType: String
@@ -84636,6 +84638,28 @@ input InvoiceHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
+  payerOrganization: String
+  payerOrganization_not: String
+  payerOrganization_in: [String]
+  payerOrganization_not_in: [String]
   number: JSON
   number_not: JSON
   number_in: [JSON]
@@ -84927,6 +84951,8 @@ input InvoiceHistoryRecordWhereUniqueInput {
 }
 
 enum SortInvoiceHistoryRecordsBy {
+  type_ASC
+  type_DESC
   unitType_ASC
   unitType_DESC
   unitName_ASC
@@ -84971,6 +84997,8 @@ enum SortInvoiceHistoryRecordsBy {
 
 input InvoiceHistoryRecordUpdateInput {
   organization: String
+  type: String
+  payerOrganization: String
   number: JSON
   property: String
   unitType: String
@@ -85012,6 +85040,8 @@ input InvoiceHistoryRecordsUpdateInput {
 
 input InvoiceHistoryRecordCreateInput {
   organization: String
+  type: String
+  payerOrganization: String
   number: JSON
   property: String
   unitType: String
@@ -85048,6 +85078,11 @@ input InvoiceHistoryRecordCreateInput {
 
 input InvoiceHistoryRecordsCreateInput {
   data: InvoiceHistoryRecordCreateInput
+}
+
+enum InvoiceTypeType {
+  b2b
+  b2c
 }
 
 enum InvoiceUnitTypeType {
@@ -85120,6 +85155,13 @@ type Invoice {
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
   organization: Organization
+
+  """ Invoice type: b2b (business to business) or b2c (business to consumer) 
+  """
+  type: InvoiceTypeType
+
+  """ Organization that issued the invoice (only for b2b invoices) """
+  payerOrganization: Organization
 
   """ The invoice number within organization """
   number: Int
@@ -85231,6 +85273,12 @@ input InvoiceWhereInput {
   OR: [InvoiceWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  type: InvoiceTypeType
+  type_not: InvoiceTypeType
+  type_in: [InvoiceTypeType]
+  type_not_in: [InvoiceTypeType]
+  payerOrganization: OrganizationWhereInput
+  payerOrganization_is_null: Boolean
   number: Int
   number_not: Int
   number_lt: Int
@@ -85472,6 +85520,10 @@ input InvoiceWhereUniqueInput {
 enum SortInvoicesBy {
   organization_ASC
   organization_DESC
+  type_ASC
+  type_DESC
+  payerOrganization_ASC
+  payerOrganization_DESC
   number_ASC
   number_DESC
   property_ASC
@@ -85528,6 +85580,8 @@ enum SortInvoicesBy {
 
 input InvoiceUpdateInput {
   organization: OrganizationRelateToOneInput
+  type: InvoiceTypeType
+  payerOrganization: OrganizationRelateToOneInput
   number: Int
   property: PropertyRelateToOneInput
   unitType: InvoiceUnitTypeType
@@ -85566,6 +85620,8 @@ input InvoicesUpdateInput {
 
 input InvoiceCreateInput {
   organization: OrganizationRelateToOneInput
+  type: InvoiceTypeType
+  payerOrganization: OrganizationRelateToOneInput
   number: Int
   property: PropertyRelateToOneInput
   unitType: InvoiceUnitTypeType

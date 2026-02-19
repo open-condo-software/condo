@@ -3076,4 +3076,330 @@ describe('Invoice', () => {
             expect(updatedInvoice.paymentStatusChangeWebhookSecret).toContain(':condo_')
         })
     })
+
+    describe('B2B/B2C invoice types', () => {
+        const {
+            INVOICE_TYPE_B2B,
+            INVOICE_TYPE_B2C,
+            ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
+            ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+            ERROR_B2C_INVOICE_WITH_B2B_FIELDS,
+        } = require('@condo/domains/marketplace/constants')
+
+        describe('create', () => {
+            test('can create B2C invoice (default type) without payerOrganization', async () => {
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization)
+
+                expect(invoice.type).toBe(INVOICE_TYPE_B2C)
+                expect(invoice.payerOrganization).toBeNull()
+                expect(invoice.organization).toBe(dummyOrganization.id)
+            })
+
+            test('can create B2B invoice with payerOrganization', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                })
+
+                expect(invoice.type).toBe(INVOICE_TYPE_B2B)
+                expect(invoice.payerOrganization).toBe(payerOrg.id)
+                expect(invoice.organization).toBe(dummyOrganization.id)
+                expect(invoice.property).toBeNull()
+                expect(invoice.unitType).toBeNull()
+                expect(invoice.unitName).toBeNull()
+            })
+
+            test('cannot create B2B invoice without payerOrganization', async () => {
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2B,
+                            property: null,
+                            unitType: null,
+                            unitName: null,
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
+                        message: 'B2B invoice must have payerOrganization field',
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot create B2B invoice with B2C fields (property)', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, dummyOrganization)
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2B,
+                            payerOrganization: { connect: { id: payerOrg.id } },
+                            property: { connect: { id: property.id } },
+                            unitType: FLAT_UNIT_TYPE,
+                            unitName: faker.random.alphaNumeric(5),
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot create B2B invoice with B2C fields (contact)', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, dummyOrganization)
+                const [contact] = await createTestContact(adminClient, dummyOrganization, property)
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2B,
+                            payerOrganization: { connect: { id: payerOrg.id } },
+                            property: null,
+                            unitType: null,
+                            unitName: null,
+                            contact: { connect: { id: contact.id } },
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot create B2B invoice with B2C fields (clientName, clientPhone)', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2B,
+                            payerOrganization: { connect: { id: payerOrg.id } },
+                            property: null,
+                            unitType: null,
+                            unitName: null,
+                            clientName: faker.name.firstName(),
+                            clientPhone: createTestPhone(),
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot create B2C invoice with B2B fields (payerOrganization)', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await createTestInvoice(adminClient, dummyOrganization, {
+                            type: INVOICE_TYPE_B2C,
+                            payerOrganization: { connect: { id: payerOrg.id } },
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2C_INVOICE_WITH_B2B_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+        })
+
+        describe('update', () => {
+            test('can update B2B invoice fields', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [newPayerOrg] = await createTestOrganization(adminClient)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                })
+
+                const [updated] = await updateTestInvoice(adminClient, invoice.id, {
+                    payerOrganization: { connect: { id: newPayerOrg.id } },
+                })
+
+                expect(updated.payerOrganization).toBe(newPayerOrg.id)
+                expect(updated.type).toBe(INVOICE_TYPE_B2B)
+            })
+
+            test('cannot update B2B invoice to remove payerOrganization', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                })
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await updateTestInvoice(adminClient, invoice.id, {
+                            payerOrganization: { disconnectAll: true },
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITHOUT_PAYER_ORGANIZATION,
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot update B2B invoice to add B2C fields', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                })
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await updateTestInvoice(adminClient, invoice.id, {
+                            clientName: faker.name.firstName(),
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2B_INVOICE_WITH_B2C_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+
+            test('cannot update B2C invoice to add B2B fields', async () => {
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2C,
+                })
+                const [payerOrg] = await createTestOrganization(adminClient)
+
+                await expectToThrowGQLError(
+                    async () => {
+                        await updateTestInvoice(adminClient, invoice.id, {
+                            payerOrganization: { connect: { id: payerOrg.id } },
+                        })
+                    },
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: ERROR_B2C_INVOICE_WITH_B2B_FIELDS,
+                    },
+                    'obj'
+                )
+            })
+        })
+
+        describe('read permissions', () => {
+            test('employees of payerOrganization can read B2B invoice', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const staffClient = await makeClientWithStaffUser()
+                await createTestOrganizationEmployee(adminClient, payerOrg, staffClient.user)
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                })
+
+                const invoices = await Invoice.getAll(staffClient, { id: invoice.id })
+                expect(invoices).toHaveLength(1)
+                expect(invoices[0].id).toBe(invoice.id)
+                expect(invoices[0].payerOrganization).toBe(payerOrg.id)
+            })
+
+            test('employees of recipient organization can read B2B invoice', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const staffClient = await makeClientWithStaffUser()
+                await createTestOrganizationEmployee(adminClient, dummyOrganization, staffClient.user)
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                })
+
+                const invoices = await Invoice.getAll(staffClient, { id: invoice.id })
+                expect(invoices).toHaveLength(1)
+                expect(invoices[0].id).toBe(invoice.id)
+                expect(invoices[0].organization).toBe(dummyOrganization.id)
+            })
+
+            test('employees of unrelated organization cannot read B2B invoice', async () => {
+                const [payerOrg] = await createTestOrganization(adminClient)
+                const [unrelatedOrg] = await createTestOrganization(adminClient)
+                const staffClient = await makeClientWithStaffUser()
+                await createTestOrganizationEmployee(adminClient, unrelatedOrg, staffClient.user)
+
+                const [invoice] = await createTestInvoice(adminClient, dummyOrganization, {
+                    type: INVOICE_TYPE_B2B,
+                    payerOrganization: { connect: { id: payerOrg.id } },
+                    property: null,
+                    unitType: null,
+                    unitName: null,
+                    ticket: null,
+                    contact: null,
+                    client: null,
+                    clientName: null,
+                    clientPhone: null,
+                })
+
+                const invoices = await Invoice.getAll(staffClient, { id: invoice.id })
+                expect(invoices).toHaveLength(0)
+            })
+        })
+    })
 })
