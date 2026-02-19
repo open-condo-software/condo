@@ -4,16 +4,11 @@ const NATS_JWT_HEADER = { typ: 'JWT', alg: 'ed25519-nkey' }
 
 function base64url (data) {
     const buf = Buffer.isBuffer(data) ? data : Buffer.from(data)
-    return buf.toString('base64')
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=+$/, '')
+    return buf.toString('base64url')
 }
 
 function base64urlDecode (str) {
-    str = str.replace(/-/g, '+').replace(/_/g, '/')
-    while (str.length % 4) str += '='
-    return Buffer.from(str, 'base64')
+    return Buffer.from(str, 'base64url')
 }
 
 function randomJti () {
