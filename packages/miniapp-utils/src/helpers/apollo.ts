@@ -38,10 +38,10 @@ export function getTracingMiddleware (options: TracingMiddlewareOptions): Reques
 
             return {
                 ...previousContext,
-                headers: {
-                    ...previousHeaders,
-                    ...getAppTracingHeaders(options),
-                },
+                headers: getAppTracingHeaders({
+                    ...options,
+                    previousHeaders,
+                }),
             }
         })
 

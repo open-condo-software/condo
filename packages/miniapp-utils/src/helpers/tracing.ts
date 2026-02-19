@@ -10,6 +10,7 @@ export type TracingOptions = {
     serviceUrl: string
     codeVersion: string
     target?: string
+    previousHeaders?: Record<string, string>
 }
 
 const SSR_DEFAULT_FINGERPRINT = 'webAppSSR'
@@ -30,6 +31,7 @@ export function getAppTracingHeaders (options: TracingOptions) {
     const reqId = generateRequestId()
 
     const headers: Record<string, string> = {
+        ...options.previousHeaders,
         [REMOTE_APP_HEADER_NAME]: options.serviceUrl,
         [REMOTE_VERSION_HEADER_NAME]: options.codeVersion,
         [PARENT_REQUEST_ID_HEADER_NAME]: reqId,
