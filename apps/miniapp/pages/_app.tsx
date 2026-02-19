@@ -67,6 +67,7 @@ const MyApp = ({ Component, pageProps }) => {
 
     return (
         <>
+            {/* Build trigger marker: non-functional change for image rebuild */}
             <Head>
                 <link rel='shortcut icon' href='/favicon.ico' type='image/x-icon'/>
                 <meta
