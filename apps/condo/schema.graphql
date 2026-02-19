@@ -60032,11 +60032,10 @@ type SubscriptionContextHistoryRecord {
   subscriptionPlan: String
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  subscriptionPlanPricingRule: String
+  invoice: String
   isTrial: Boolean
-  meta: JSON
+  settings: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -60079,32 +60078,20 @@ input SubscriptionContextHistoryRecordWhereInput {
   endAt_gte: String
   endAt_in: [String]
   endAt_not_in: [String]
-  basePrice: String
-  basePrice_not: String
-  basePrice_lt: String
-  basePrice_lte: String
-  basePrice_gt: String
-  basePrice_gte: String
-  basePrice_in: [String]
-  basePrice_not_in: [String]
-  calculatedPrice: String
-  calculatedPrice_not: String
-  calculatedPrice_lt: String
-  calculatedPrice_lte: String
-  calculatedPrice_gt: String
-  calculatedPrice_gte: String
-  calculatedPrice_in: [String]
-  calculatedPrice_not_in: [String]
-  appliedRules: JSON
-  appliedRules_not: JSON
-  appliedRules_in: [JSON]
-  appliedRules_not_in: [JSON]
+  subscriptionPlanPricingRule: String
+  subscriptionPlanPricingRule_not: String
+  subscriptionPlanPricingRule_in: [String]
+  subscriptionPlanPricingRule_not_in: [String]
+  invoice: String
+  invoice_not: String
+  invoice_in: [String]
+  invoice_not_in: [String]
   isTrial: Boolean
   isTrial_not: Boolean
-  meta: JSON
-  meta_not: JSON
-  meta_in: [JSON]
-  meta_not_in: [JSON]
+  settings: JSON
+  settings_not: JSON
+  settings_in: [JSON]
+  settings_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -60192,10 +60179,6 @@ enum SortSubscriptionContextHistoryRecordsBy {
   startAt_DESC
   endAt_ASC
   endAt_DESC
-  basePrice_ASC
-  basePrice_DESC
-  calculatedPrice_ASC
-  calculatedPrice_DESC
   isTrial_ASC
   isTrial_DESC
   id_ASC
@@ -60221,11 +60204,10 @@ input SubscriptionContextHistoryRecordUpdateInput {
   subscriptionPlan: String
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  subscriptionPlanPricingRule: String
+  invoice: String
   isTrial: Boolean
-  meta: JSON
+  settings: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60250,11 +60232,10 @@ input SubscriptionContextHistoryRecordCreateInput {
   subscriptionPlan: String
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  subscriptionPlanPricingRule: String
+  invoice: String
   isTrial: Boolean
-  meta: JSON
+  settings: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60271,6 +60252,30 @@ input SubscriptionContextHistoryRecordCreateInput {
 
 input SubscriptionContextHistoryRecordsCreateInput {
   data: SubscriptionContextHistoryRecordCreateInput
+}
+
+input InvoiceRelateToOneInput {
+  create: InvoiceCreateInput
+  connect: InvoiceWhereUniqueInput
+  disconnect: InvoiceWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+type PaymentMethod {
+  id: String!
+  type: String!
+  cardMask: String
+  cardType: String
+  title: String
+  cardIssuerCountry: String
+  cardIssuerName: String
+}
+
+type SubscriptionContextSettings {
+  price: String
+  pricingRuleId: String
+  paymentMethod: PaymentMethod
+  paymentId: String
 }
 
 """ Subscription context linking organization to a subscription plan with calculated pricing. When changing subscription plan, a new context must be created 
@@ -60297,24 +60302,20 @@ type SubscriptionContext {
   """ Subscription end date """
   endAt: String
 
-  """ Base price from the subscription plan (before any rules applied). Not required for trial subscriptions 
-  """
-  basePrice: String
+  """ Pricing rule that was used for this subscription """
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRule
 
-  """ Final calculated price after applying all pricing rules. Not required for trial subscriptions 
+  """ Invoice for this subscription payment. Populated from payment invoice 
   """
-  calculatedPrice: String
-
-  """ JSON array of applied pricing rules with audit information """
-  appliedRules: JSON
+  invoice: Invoice
 
   """ Whether this is a trial subscription. Trial subscriptions provide temporary free access to the plan features for a limited period (defined by SubscriptionPlan.trialDays) 
   """
   isTrial: Boolean
 
-  """ Subscription metadata containing paymentMethod, price, and pricingRuleId 
+  """ Subscription settings containing payment method, price, and pricingRuleId 
   """
-  meta: JSON
+  settings: SubscriptionContextSettings
 
   """ Number of days remaining in the subscription. Calculated from server time. Returns 0 if subscription has expired 
   """
@@ -60365,32 +60366,16 @@ input SubscriptionContextWhereInput {
   endAt_gte: String
   endAt_in: [String]
   endAt_not_in: [String]
-  basePrice: String
-  basePrice_not: String
-  basePrice_lt: String
-  basePrice_lte: String
-  basePrice_gt: String
-  basePrice_gte: String
-  basePrice_in: [String]
-  basePrice_not_in: [String]
-  calculatedPrice: String
-  calculatedPrice_not: String
-  calculatedPrice_lt: String
-  calculatedPrice_lte: String
-  calculatedPrice_gt: String
-  calculatedPrice_gte: String
-  calculatedPrice_in: [String]
-  calculatedPrice_not_in: [String]
-  appliedRules: JSON
-  appliedRules_not: JSON
-  appliedRules_in: [JSON]
-  appliedRules_not_in: [JSON]
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleWhereInput
+  subscriptionPlanPricingRule_is_null: Boolean
+  invoice: InvoiceWhereInput
+  invoice_is_null: Boolean
   isTrial: Boolean
   isTrial_not: Boolean
-  meta: JSON
-  meta_not: JSON
-  meta_in: [JSON]
-  meta_not_in: [JSON]
+  settings: JSON
+  settings_not: JSON
+  settings_in: [JSON]
+  settings_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -60462,10 +60447,10 @@ enum SortSubscriptionContextsBy {
   startAt_DESC
   endAt_ASC
   endAt_DESC
-  basePrice_ASC
-  basePrice_DESC
-  calculatedPrice_ASC
-  calculatedPrice_DESC
+  subscriptionPlanPricingRule_ASC
+  subscriptionPlanPricingRule_DESC
+  invoice_ASC
+  invoice_DESC
   isTrial_ASC
   isTrial_DESC
   id_ASC
@@ -60491,11 +60476,10 @@ input SubscriptionContextUpdateInput {
   subscriptionPlan: SubscriptionPlanRelateToOneInput
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
+  invoice: InvoiceRelateToOneInput
   isTrial: Boolean
-  meta: JSON
+  settings: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60517,11 +60501,10 @@ input SubscriptionContextCreateInput {
   subscriptionPlan: SubscriptionPlanRelateToOneInput
   startAt: String
   endAt: String
-  basePrice: String
-  calculatedPrice: String
-  appliedRules: JSON
+  subscriptionPlanPricingRule: SubscriptionPlanPricingRuleRelateToOneInput
+  invoice: InvoiceRelateToOneInput
   isTrial: Boolean
-  meta: JSON
+  settings: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -64477,13 +64460,6 @@ enum PaymentCurrencyCodeType {
   ZAR
   ZMW
   ZWL
-}
-
-input InvoiceRelateToOneInput {
-  create: InvoiceCreateInput
-  connect: InvoiceWhereUniqueInput
-  disconnect: InvoiceWhereUniqueInput
-  disconnectAll: Boolean
 }
 
 input MultiPaymentRelateToOneInput {
@@ -92676,7 +92652,7 @@ input ActivateSubscriptionPlanInput {
   pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!
   isTrial: Boolean
   paymentMethod: PaymentMethodInput
-  paymentId: String
+  multiPayment: MultiPaymentWhereUniqueInput
 }
 
 type ActivateSubscriptionPlanOutput {
@@ -107286,6 +107262,12 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "TRIAL_NOT_AVAILABLE",
     "message": "Trial is not available for this subscription plan"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_MULTI_PAYMENT",
+    "message": "MultiPayment must contain exactly one payment"
   }`
   """
   activateSubscriptionPlan(data: ActivateSubscriptionPlanInput!): ActivateSubscriptionPlanOutput

@@ -15,7 +15,7 @@ query getOrganizationActivatedSubscriptions($organizationId: ID!) {
         isTrial
         startAt
         endAt
-        meta
+        settings { price paymentMethod { id } }
     }
 }
 
@@ -38,7 +38,7 @@ query getOrganizationTrialSubscriptions($organizationId: ID!) {
         daysRemaining
         endAt
         createdAt
-        meta
+        settings { price paymentMethod { id } }
     }
 }
 
@@ -59,7 +59,7 @@ query getLastExpiredSubscriptionContext($organizationId: ID!, $now: String!) {
         isTrial
         startAt
         endAt
-        meta
+        settings { price paymentMethod { id } }
     }
 }
 
@@ -76,6 +76,6 @@ query getSubscriptionContextById($id: ID!) {
         startAt
         endAt
         daysRemaining
-        meta
+        settings { price paymentMethod { id } }
     }
 }
