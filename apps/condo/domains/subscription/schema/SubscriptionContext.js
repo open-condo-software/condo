@@ -8,7 +8,6 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
-const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { ACTIVATE_SUBSCRIPTION_TYPE } = require('@condo/domains/onboarding/constants/userHelpRequest')
 const { UserHelpRequest } = require('@condo/domains/onboarding/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -24,6 +23,16 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'ORGANIZATION_TYPE_MISMATCH',
         message: 'Organization type must match SubscriptionPlan organizationType',
+    },
+    TRIAL_CANNOT_HAVE_PRICING_RULE: {
+        code: BAD_USER_INPUT,
+        type: 'TRIAL_CANNOT_HAVE_PRICING_RULE',
+        message: 'Trial subscription cannot have subscriptionPlanPricingRule',
+    },
+    TRIAL_CANNOT_HAVE_INVOICE: {
+        code: BAD_USER_INPUT,
+        type: 'TRIAL_CANNOT_HAVE_INVOICE',
+        message: 'Trial subscription cannot have invoice',
     },
 }
 
@@ -73,10 +82,13 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        basePrice: {
-            ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Base price from the subscription plan (before any rules applied). Not required for trial subscriptions',
+        subscriptionPlanPricingRule: {
+            schemaDoc: 'Pricing rule that was used for this subscription',
+            type: 'Relationship',
+            ref: 'SubscriptionPlanPricingRule',
             isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             access: {
                 read: true,
                 create: true,
@@ -84,25 +96,16 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        calculatedPrice: {
-            ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Final calculated price after applying all pricing rules. Not required for trial subscriptions',
+        invoice: {
+            schemaDoc: 'Invoice for this subscription payment. Populated from payment invoice',
+            type: 'Relationship',
+            ref: 'Invoice',
             isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             access: {
                 read: true,
-                create: false,
-                update: false,
-            },
-        },
-
-        appliedRules: {
-            schemaDoc: 'JSON array of applied pricing rules with audit information',
-            type: 'Json',
-            isRequired: false,
-            defaultValue: [],
-            access: {
-                read: true,
-                create: false,
+                create: true,
                 update: false,
             },
         },
@@ -119,10 +122,15 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
             },
         },
 
-        meta: {
-            schemaDoc: 'Subscription metadata containing paymentMethod, price, and pricingRuleId',
+        settings: {
+            schemaDoc: 'Subscription settings containing payment method, price, and pricingRuleId',
             type: 'Json',
             isRequired: false,
+            extendGraphQLTypes: [
+                'type PaymentMethod { id: String!, type: String!, cardMask: String, cardType: String, title: String, cardIssuerCountry: String, cardIssuerName: String }',
+                'type SubscriptionContextSettings { price: String, pricingRuleId: String, paymentMethod: PaymentMethod, paymentId: String }',
+            ],
+            graphQLReturnType: 'SubscriptionContextSettings',
             access: {
                 read: true,
                 create: true,
@@ -173,6 +181,18 @@ const SubscriptionContext = new GQLListSchema('SubscriptionContext', {
                         throw new GQLError(ERRORS.ORGANIZATION_TYPE_MISMATCH, context)
                     }
                 }
+            }
+
+            const isTrial = resolvedData.isTrial !== undefined ? resolvedData.isTrial : existingItem?.isTrial
+            const subscriptionPlanPricingRule = resolvedData.subscriptionPlanPricingRule
+            const invoice = resolvedData.invoice
+
+            if (isTrial && subscriptionPlanPricingRule) {
+                throw new GQLError(ERRORS.TRIAL_CANNOT_HAVE_PRICING_RULE, context)
+            }
+
+            if (isTrial && invoice) {
+                throw new GQLError(ERRORS.TRIAL_CANNOT_HAVE_INVOICE, context)
             }
         },
         afterChange: async ({ operation, updatedItem, context }) => {

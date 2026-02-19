@@ -5214,7 +5214,12 @@ export const GetOrganizationActivatedSubscriptionsDocument = gql`
     }
     isTrial
     endAt
-    meta
+    settings {
+      price
+      paymentMethod {
+        id
+      }
+    }
   }
 }
     `;
@@ -5268,7 +5273,12 @@ export const GetOrganizationTrialSubscriptionsDocument = gql`
     daysRemaining
     endAt
     createdAt
-    meta
+    settings {
+      price
+      paymentMethod {
+        id
+      }
+    }
   }
 }
     `;
@@ -5320,7 +5330,12 @@ export const GetLastExpiredSubscriptionContextDocument = gql`
     isTrial
     startAt
     endAt
-    meta
+    settings {
+      price
+      paymentMethod {
+        id
+      }
+    }
   }
 }
     `;
@@ -5372,7 +5387,12 @@ export const GetSubscriptionContextByIdDocument = gql`
     startAt
     endAt
     daysRemaining
-    meta
+    settings {
+      price
+      paymentMethod {
+        id
+      }
+    }
   }
 }
     `;

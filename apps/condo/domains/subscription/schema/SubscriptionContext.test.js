@@ -226,6 +226,50 @@ describe('SubscriptionContext', () => {
     })
 
     describe('Validation tests', () => {
+        test('trial subscription cannot have subscriptionPlanPricingRule', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
+                    isTrial: true,
+                    subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TRIAL_CANNOT_HAVE_PRICING_RULE',
+            }, 'obj')
+        })
+
+        test('paid subscription can have subscriptionPlanPricingRule', async () => {
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+            })
+
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.subscriptionPlanPricingRule.id).toBe(pricingRule.id)
+        })
+
+        test('trial subscription cannot have invoice', async () => {
+            const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+            const [testOrg] = await registerNewOrganization(employee, { type: HOLDING_TYPE })
+            const [invoice] = await createTestInvoice(admin, testOrg)
+
+            await expectToThrowGQLError(async () => {
+                await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                    startAt: dayjs().format('YYYY-MM-DD'),
+                    endAt: dayjs().add(14, 'day').format('YYYY-MM-DD'),
+                    isTrial: true,
+                    invoice: { connect: { id: invoice.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TRIAL_CANNOT_HAVE_INVOICE',
+            }, 'obj')
+        })
+
         test('endAt must be after startAt', async () => {
             const startAt = dayjs().format('YYYY-MM-DD')
             const endAt = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
@@ -311,6 +355,26 @@ describe('SubscriptionContext', () => {
             })
 
             expect(obj.daysRemaining).toBeNull()
+        })
+
+        test('settings field stores payment method correctly', async () => {
+            const paymentMethod = {
+                id: faker.datatype.uuid(),
+                type: 'card',
+                cardMask: '1234',
+                cardType: 'visa',
+                title: 'Test Card',
+            }
+
+            const [obj] = await createTestSubscriptionContext(admin, organization, subscriptionPlan, {
+                startAt: dayjs().format('YYYY-MM-DD'),
+                endAt: dayjs().add(30, 'day').format('YYYY-MM-DD'),
+                isTrial: false,
+                settings: { paymentMethod },
+            })
+
+            expect(obj.settings).toBeDefined()
+            expect(obj.settings.paymentMethod).toEqual(paymentMethod)
         })
     })
 

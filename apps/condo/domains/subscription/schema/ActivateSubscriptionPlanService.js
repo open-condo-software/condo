@@ -56,6 +56,13 @@ const ERRORS = {
         type: 'TRIAL_NOT_AVAILABLE',
         message: 'Trial is not available for this subscription plan',
     },
+    INVALID_MULTI_PAYMENT: {
+        mutation: 'activateSubscriptionPlan',
+        variable: ['data', 'multiPayment'],
+        code: BAD_USER_INPUT,
+        type: 'INVALID_MULTI_PAYMENT',
+        message: 'MultiPayment must contain exactly one payment',
+    },
 }
 
 const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptionPlanService', {
@@ -66,7 +73,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
         },
         {
             access: true,
-            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean, paymentMethod: PaymentMethodInput, paymentId: String }',
+            type: 'input ActivateSubscriptionPlanInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, pricingRule: SubscriptionPlanPricingRuleWhereUniqueInput!, isTrial: Boolean, paymentMethod: PaymentMethodInput, multiPayment: MultiPaymentWhereUniqueInput }',
         },
         {
             access: true,
@@ -84,7 +91,7 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, organization: organizationInput, pricingRule: pricingRuleInput, isTrial, paymentMethod, paymentId } = data
+                const { dv, sender, organization: organizationInput, pricingRule: pricingRuleInput, isTrial, paymentMethod, multiPayment: multiPaymentInput } = data
 
                 const [organization] = await find('Organization', {
                     id: organizationInput.id,
@@ -114,6 +121,27 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
 
                 const user = await getById('User', context.authedItem.id)
                 const hasDirectAccess = await canDirectlyExecuteService(user, 'activateSubscriptionPlan')
+                
+                let invoice = null
+                if (!isTrial && multiPaymentInput) {
+                    const [multiPayment] = await find('MultiPayment', {
+                        id: multiPaymentInput.id,
+                        deletedAt: null,
+                    })
+                    
+                    if (multiPayment) {
+                        const payments = await find('Payment', {
+                            multiPayment: { id: multiPayment.id },
+                            deletedAt: null,
+                        })
+                        
+                        if (payments.length !== 1) {
+                            throw new GQLError(ERRORS.INVALID_MULTI_PAYMENT, context)
+                        }
+                        
+                        invoice = payments[0].invoice
+                    }
+                }
                 
                 if (!isTrial) {
                     if (hasDirectAccess) {
@@ -149,15 +177,15 @@ const ActivateSubscriptionPlanService = new GQLCustomSchema('ActivateSubscriptio
                             sender,
                             organization: { connect: { id: organization.id } },
                             subscriptionPlan: { connect: { id: plan.id } },
+                            subscriptionPlanPricingRule: { connect: { id: pricingRule.id } },
+                            ...(invoice ? { invoice: { connect: { id: invoice } } } : {}),
                             startAt: startAt.format('YYYY-MM-DD'),
                             endAt: endAt.format('YYYY-MM-DD'),
-                            basePrice: pricingRule.price,
                             isTrial: false,
-                            meta: {
+                            settings: {
                                 price: pricingRule.price,
                                 pricingRuleId: pricingRule.id,
                                 paymentMethod,
-                                paymentId,
                             },
                         })
 
