@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { ANALYTICS_HANDLER_NAME } from './components/_utils/analytics'
+export { sendAnalyticsClickEvent, sendAnalyticsCheckEvent, sendAnalyticsChangeEvent, extractChildrenContent } from './components/_utils/analytics'
 
 import type { AnalyticsParams } from './components/_utils/analytics'
 
