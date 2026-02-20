@@ -1,6 +1,5 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
-@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
-@import (reference) "@open-condo/ui/src/components/style/mixins/table";
+@import (reference) "@open-condo/ui/src/components/style/mixins/rich-content";
 
 .condo-markdown-task-list-item {
   display: flex;
@@ -9,15 +8,10 @@
 }
 
 .condo-markdown {
-  color: @condo-global-color-gray-7;
+  .condo-rich-content();
 
   &--inline {
-    color: @condo-global-color-black;
-
-    ul,
-    ol {
-      color: @condo-global-color-black;
-    }
+    .condo-rich-content-inline();
   }
 
   & > * {
@@ -28,33 +22,8 @@
     margin-bottom: 0;
   }
 
-  // Headers margins
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin: 1.8em 0 0.8em;
-
-    &:first-child {
-      margin: 0 0 0.6em;
-    }
-  }
-
-  // Images fit
-  img {
-    max-width: 100%;
-  }
-
-  // Lists
   ul,
   ol {
-    margin-bottom: 1.8em;
-    padding-left: 0.75em;
-    color: @condo-global-color-gray-7;
-    list-style-position: inside;
-
     &.contains-task-list {
       padding-left: 0;
 
@@ -62,54 +31,6 @@
         list-style-type: none;
       }
     }
-
-    & ul,
-    & ol {
-      padding-left: @condo-global-spacing-20;
-    }
-
-    & > li:not(:last-child),
-    & > li ul:not(:last-child),
-    & > li ol:not(:last-child) {
-      margin-bottom: 0.5em;
-    }
-
-    & > li ul:first-child,
-    & > li ol:first-child {
-      margin-top: 0.5em;
-    }
-
-    & li::marker {
-      .condo-typography-text-large();
-    }
-  }
-
-  // Blockquotes
-  blockquote {
-    margin: 1em 0;
-    padding-left: 1em;
-    border-left: 0.25em solid @condo-global-color-gray-5;
-
-    & > .condo-typography {
-      padding: 0.5em 0;
-    }
-
-    & > blockquote:not(:first-child) {
-      margin-top: 0.5em;
-    }
-  }
-
-  table {
-    width: 100%;
-    .condo-table();
-
-    td {
-      color: @condo-global-color-black;
-    }
-  }
-
-  table:not(:last-child) {
-    margin-bottom: @condo-global-spacing-24;
   }
 
   .condo-alert:not(:last-child) {
@@ -120,37 +41,12 @@
     font-size: @condo-global-font-size-text-m;
   }
 
-  pre,
-  code {
-    color: @condo-global-color-black;
-    font-size: 14px;
-    font-family: "Noto Sans Mono", var(--condo-font-fallback-mono);
-    line-height: 1.5;
-    direction: ltr;
-    text-align: left;
-    text-shadow: none;
-    word-break: normal;
-    word-spacing: normal;
-    tab-size: 4;
-    hyphens: none;
-  }
-
-  pre::selection,
-  code::selection {
-    text-shadow: none;
-  }
-
+  // CodeWrapper-specific: grid layout with copy button and language tag
   pre {
     position: relative;
     display: grid;
     grid-column-gap: @condo-global-spacing-12;
     grid-template-columns: 1fr @condo-global-spacing-20;
-    margin: @condo-global-spacing-24 0 @condo-global-spacing-20;
-    padding: @condo-global-spacing-16;
-    overflow: visible;
-    white-space: pre;
-    background: @condo-global-color-gray-1;
-    border-radius: @condo-global-border-radius-large;
   }
 
   pre[class*="language-"] {
