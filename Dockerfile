@@ -1,4 +1,8 @@
 ARG REGISTRY=docker.io
+ARG TURBO_TEAM
+ARG TURBO_TOKEN
+ARG TURBO_API
+ARG TURBO_REMOTE_ONLY=false
 
 FROM ${REGISTRY}/python:3.14-slim-bookworm AS python
 FROM ${REGISTRY}/node:24-bookworm-slim AS node
@@ -21,30 +25,11 @@ RUN set -ex \
 	&& python3 -m pip install 'psycopg2-binary==2.9.10' && python3 -m pip install 'Django==5.2' \
     && echo "OK"
 
-# Installer
-FROM base AS installer
-
 WORKDIR /app
-# Copy pruned monorepo (only package.json + yarn.lock)
-COPY --chown=app:app ./out /app
-# Copy yarn berry
-COPY --chown=app:app ./.yarn /app/.yarn
-COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
+
+COPY . /app
+
 RUN yarn install --immutable --inline-builds
-
-# Builder
-FROM base as builder
-
-ARG TURBO_TEAM
-ARG TURBO_TOKEN
-ARG TURBO_API
-ARG TURBO_REMOTE_ONLY=false
-
-WORKDIR /app
-# Copy entire repo
-COPY --chown=app:app . /app
-# Copy previously installed packages
-COPY --from=installer --chown=app:app /app /app
 
 ENV TURBO_TEAM=$TURBO_TEAM
 ENV TURBO_TOKEN=$TURBO_TOKEN
@@ -68,8 +53,6 @@ RUN set -ex \
     && rm -rf /app/.config /app/.cache /app/.docker  \
     && ls -lah /app/
 
-# Runtime container
 FROM base
 USER app:app
 WORKDIR /app
-COPY --from=builder --chown=app:app /app /app
