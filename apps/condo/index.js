@@ -19,13 +19,13 @@ const {
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
-const { configure } = require('@open-condo/nats')
-const { NatsMiddleware } = require('@open-condo/nats/middleware')
+const { MessagingMiddleware } = require('@open-condo/messaging')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
 const { WEBHOOK_EVENTS } = require('@condo/domains/common/constants/webhooks')
+const { setupMessaging } = require('@condo/domains/common/utils/initMessaging')
 const { VersioningMiddleware } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { ACCESS_TOKEN_SESSION_ID_PREFIX } = require('@condo/domains/miniapp/constants')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
@@ -33,16 +33,11 @@ const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domai
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
-const { initNats } = require('./initNats')
 
 
-configure({
+setupMessaging({
     getPermittedOrganizations: getEmployedOrRelatedOrganizationsByPermissions,
 })
-
-require('./natsStreams')
-
-initNats()
 
 dayjs.extend(duration)
 dayjs.extend(utc)
@@ -135,7 +130,7 @@ const apps = () => {
         new VersioningMiddleware(),
         new OIDCMiddleware(),
         new FeaturesMiddleware(),
-        new NatsMiddleware(),
+        new MessagingMiddleware(),
         new PaymentLinkMiddleware(),
         new UnsubscribeMiddleware(),
         new FileMiddleware({ apiPrefix: '/api/files' }),

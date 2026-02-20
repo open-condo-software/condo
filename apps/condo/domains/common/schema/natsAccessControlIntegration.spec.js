@@ -1,44 +1,35 @@
-/**
- * NATS PUB-gated relay integration test.
- * Requires: NATS container running, no other auth callout subscriber active.
- * Run: NATS_INTEGRATION=true npx jest --config apps/condo/jest.config.js --testPathPattern=natsAccessControlIntegration --forceExit
- */
 const jwt = require('jsonwebtoken')
 const { connect, JSONCodec, createInbox } = require('nats')
 const nkeys = require('nkeys.js')
 
 const conf = require('@open-condo/config')
-const { SubscriptionRelayService } = require('@open-condo/nats')
+const { NatsSubscriptionRelay } = require('@open-condo/messaging/adapters/nats')
 const {
     decodeNatsJwt,
     createUserJwt,
     createAuthResponseJwt,
     computePermissions,
-} = require('@open-condo/nats/utils')
+} = require('@open-condo/messaging/adapters/nats')
 
-const TOKEN_SECRET = conf.NATS_TOKEN_SECRET
-const NATS_URL = conf.NATS_URL
-const RUN_INTEGRATION = process.env.NATS_INTEGRATION === 'true'
+const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
+const BROKER_URL = conf.MESSAGING_BROKER_URL
 
-const describeIf = (condition) => condition ? describe : describe.skip
-
-describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', () => {
+describe('NATS PUB-gated Relay Access Control Integration', () => {
     let authConnection
     let accountKeyPair
     let accountPublicKey
     let relayService
 
     beforeAll(async () => {
-        const seed = conf.NATS_AUTH_ACCOUNT_SEED
-        if (!seed) throw new Error('NATS_AUTH_ACCOUNT_SEED not configured')
+        const seed = conf.MESSAGING_AUTH_ACCOUNT_SEED
 
         accountKeyPair = nkeys.fromSeed(Buffer.from(seed))
         accountPublicKey = accountKeyPair.getPublicKey()
 
         authConnection = await connect({
-            servers: NATS_URL,
-            user: conf.NATS_AUTH_USER,
-            pass: conf.NATS_AUTH_PASSWORD,
+            servers: BROKER_URL,
+            user: conf.MESSAGING_AUTH_USER,
+            pass: conf.MESSAGING_AUTH_PASSWORD,
             name: 'test-auth-callout',
         })
 
@@ -55,7 +46,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
                     if (!token) {
                         msg.respond(new TextEncoder().encode(createAuthResponseJwt({
                             userNkey: user_nkey, serverId, accountPublicKey,
-                            error: 'No token', accountKeyPair,
+                            error: 'No token', signingConfig: { keyPair: accountKeyPair },
                         })))
                         continue
                     }
@@ -64,28 +55,28 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
                     try { decoded = jwt.verify(token, TOKEN_SECRET) } catch {
                         msg.respond(new TextEncoder().encode(createAuthResponseJwt({
                             userNkey: user_nkey, serverId, accountPublicKey,
-                            error: 'Invalid token', accountKeyPair,
+                            error: 'Invalid token', signingConfig: { keyPair: accountKeyPair },
                         })))
                         continue
                     }
 
-                    const { allowedStreams, organizationId } = decoded
-                    if (!allowedStreams || !organizationId || allowedStreams.length === 0) {
+                    const { allowedChannels, organizationId } = decoded
+                    if (!allowedChannels || !organizationId || allowedChannels.length === 0) {
                         msg.respond(new TextEncoder().encode(createAuthResponseJwt({
                             userNkey: user_nkey, serverId, accountPublicKey,
-                            error: 'Access denied', accountKeyPair,
+                            error: 'Access denied', signingConfig: { keyPair: accountKeyPair },
                         })))
                         continue
                     }
 
-                    const permissions = computePermissions(allowedStreams, organizationId)
+                    const permissions = computePermissions(allowedChannels, organizationId)
                     const userJwt = createUserJwt({
                         userNkey: user_nkey, accountPublicKey, permissions,
-                        accountKeyPair, accountName: 'APP',
+                        signingConfig: { keyPair: accountKeyPair }, accountName: 'APP',
                     })
                     msg.respond(new TextEncoder().encode(createAuthResponseJwt({
                         userNkey: user_nkey, serverId, accountPublicKey,
-                        userJwt, accountKeyPair,
+                        userJwt, signingConfig: { keyPair: accountKeyPair },
                     })))
                 } catch (err) {
                     console.error('[Test Auth Callout] Error:', err)
@@ -93,11 +84,11 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
             }
         })()
 
-        relayService = new SubscriptionRelayService()
+        relayService = new NatsSubscriptionRelay()
         await relayService.start({
-            url: NATS_URL,
-            user: conf.NATS_SERVER_USER,
-            pass: conf.NATS_SERVER_PASSWORD,
+            url: BROKER_URL,
+            user: conf.MESSAGING_SERVER_USER,
+            pass: conf.MESSAGING_SERVER_PASSWORD,
         })
     }, 15000)
 
@@ -109,16 +100,16 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
         }
     })
 
-    function createToken (organizationId, allowedStreams) {
+    function createToken (organizationId, allowedChannels) {
         return jwt.sign(
-            { userId: 'test-user', organizationId, allowedStreams },
+            { userId: 'test-user', organizationId, allowedChannels },
             TOKEN_SECRET,
             { expiresIn: '1h' }
         )
     }
 
     async function connectWithToken (token, name) {
-        return connect({ servers: NATS_URL, token, name, timeout: 5000 })
+        return connect({ servers: BROKER_URL, token, name, timeout: 5000 })
     }
 
     describe('CRITICAL: PUB-gated relay cross-org isolation', () => {
@@ -143,7 +134,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
                 const deliverInbox = createInbox()
                 const sub = nc.subscribe(deliverInbox)
                 const response = await nc.request(
-                    `_NATS.subscribe.ticket-changes.${ORG_A}`,
+                    `_MESSAGING.subscribe.ticket-changes.${ORG_A}`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -163,7 +154,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
             try {
                 const deliverInbox = createInbox()
                 await expect(nc.request(
-                    `_NATS.subscribe.ticket-changes.${ORG_B}`,
+                    `_MESSAGING.subscribe.ticket-changes.${ORG_B}`,
                     jc.encode({ deliverInbox }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
@@ -185,9 +176,9 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
 
         it('relay delivers ONLY own-org messages to client INBOX', async () => {
             const serverConn = await connect({
-                servers: NATS_URL,
-                user: conf.NATS_SERVER_USER,
-                pass: conf.NATS_SERVER_PASSWORD,
+                servers: BROKER_URL,
+                user: conf.MESSAGING_SERVER_USER,
+                pass: conf.MESSAGING_SERVER_PASSWORD,
                 name: 'test-publisher-relay',
             })
 
@@ -207,7 +198,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
                 })()
 
                 const response = await nc.request(
-                    `_NATS.subscribe.ticket-changes.${ORG_A}`,
+                    `_MESSAGING.subscribe.ticket-changes.${ORG_A}`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -244,7 +235,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
         const ORG_A = 'test-org-aaaa-1111'
         const ORG_B = 'test-org-bbbb-2222'
 
-        it('non-employee gets empty allowedStreams → connection rejected', async () => {
+        it('non-employee gets empty allowedChannels → connection rejected', async () => {
             const token = createToken(ORG_B, [])
             let connectionFailed = false
             try {
@@ -256,11 +247,11 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
             expect(connectionFailed).toBe(true)
         })
 
-        it('deleted user gets empty allowedStreams → connection rejected', async () => {
+        it('deleted user gets empty allowedChannels → connection rejected', async () => {
             const tokenPayload = {
                 userId: 'deleted-user',
                 organizationId: ORG_A,
-                allowedStreams: [],
+                allowedChannels: [],
                 deletedAt: '2024-01-01',
             }
             const token = jwt.sign(tokenPayload, TOKEN_SECRET, { expiresIn: '1h' })
@@ -280,7 +271,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
             const jc = JSONCodec()
             try {
                 await expect(nc.request(
-                    `_NATS.subscribe.ticket-changes.${ORG_B}`,
+                    `_MESSAGING.subscribe.ticket-changes.${ORG_B}`,
                     jc.encode({ deliverInbox: createInbox() }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
@@ -289,13 +280,13 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
             }
         })
 
-        it('user with org-A token cannot relay for stream not in allowedStreams', async () => {
+        it('user with org-A token cannot relay for stream not in allowedChannels', async () => {
             const token = createToken(ORG_A, ['ticket-changes'])
             const nc = await connectWithToken(token, 'wrong-stream-denied')
             const jc = JSONCodec()
             try {
                 await expect(nc.request(
-                    `_NATS.subscribe.contact-changes.${ORG_A}`,
+                    `_MESSAGING.subscribe.contact-changes.${ORG_A}`,
                     jc.encode({ deliverInbox: createInbox() }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
@@ -306,9 +297,9 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
 
         it('user cannot receive org-B messages via relay scoped to org-A', async () => {
             const serverConn = await connect({
-                servers: NATS_URL,
-                user: conf.NATS_SERVER_USER,
-                pass: conf.NATS_SERVER_PASSWORD,
+                servers: BROKER_URL,
+                user: conf.MESSAGING_SERVER_USER,
+                pass: conf.MESSAGING_SERVER_PASSWORD,
                 name: 'test-publisher-isolation',
             })
 
@@ -328,7 +319,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
                 })()
 
                 const response = await nc.request(
-                    `_NATS.subscribe.ticket-changes.${ORG_A}`,
+                    `_MESSAGING.subscribe.ticket-changes.${ORG_A}`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -363,7 +354,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
     describe('Token security edge cases', () => {
         it('rejects connection with forged token (wrong secret)', async () => {
             const forgedToken = jwt.sign(
-                { userId: 'fake-user', organizationId: 'other-org', allowedStreams: ['ticket-changes'] },
+                { userId: 'fake-user', organizationId: 'other-org', allowedChannels: ['ticket-changes'] },
                 // intentionally wrong secret to test that forged tokens are rejected
                 // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                 'wrong-secret',
@@ -374,7 +365,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
 
         it('rejects connection with expired token', async () => {
             const expiredToken = jwt.sign(
-                { userId: 'test-user', organizationId: 'org-1', allowedStreams: ['ticket-changes'] },
+                { userId: 'test-user', organizationId: 'org-1', allowedChannels: ['ticket-changes'] },
                 TOKEN_SECRET,
                 { expiresIn: '0s' }
             )
@@ -391,7 +382,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
 
         it('rejects connection without organizationId', async () => {
             const token = jwt.sign(
-                { userId: 'test-user', allowedStreams: ['ticket-changes'] },
+                { userId: 'test-user', allowedChannels: ['ticket-changes'] },
                 TOKEN_SECRET,
                 { expiresIn: '1h' }
             )
@@ -405,7 +396,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
             expect(connectionFailed).toBe(true)
         })
 
-        it('rejects connection without allowedStreams', async () => {
+        it('rejects connection without allowedChannels', async () => {
             const token = jwt.sign(
                 { userId: 'test-user', organizationId: 'org-1' },
                 TOKEN_SECRET,
@@ -425,7 +416,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
             let connectionFailed = false
             try {
                 const nc = await connect({
-                    servers: NATS_URL,
+                    servers: BROKER_URL,
                     name: 'no-token',
                     timeout: 5000,
                 })
@@ -436,7 +427,7 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
             expect(connectionFailed).toBe(true)
         })
 
-        it('rejects connection with empty allowedStreams', async () => {
+        it('rejects connection with empty allowedChannels', async () => {
             const token = createToken('some-org', [])
             let connectionFailed = false
             try {

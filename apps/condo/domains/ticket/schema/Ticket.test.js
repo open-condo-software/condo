@@ -4993,28 +4993,4 @@ describe('Ticket', () => {
             })
         })
     })
-
-    describe('NATS Integration', () => {
-        describe('ticket operations with NATS publish calls', () => {
-            test('should create ticket without errors (NATS disabled in tests)', async () => {
-                const client = await makeClientWithProperty()
-                const [ticket] = await createTestTicket(client, client.organization, client.property)
-
-                expect(ticket.id).toMatch(UUID_RE)
-                expect(ticket.organization.id || ticket.organization).toBe(client.organization.id)
-            })
-
-            test('should update ticket without errors (NATS disabled in tests)', async () => {
-                const client = await makeClientWithProperty()
-                const [ticket] = await createTestTicket(client, client.organization, client.property)
-
-                const [updatedTicket] = await updateTestTicket(client, ticket.id, {
-                    details: 'Updated details',
-                })
-
-                expect(updatedTicket.details).toBe('Updated details')
-            })
-        })
-
-    })
 })

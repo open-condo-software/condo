@@ -2,59 +2,59 @@ import { useEffect, useState } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
 
-interface NatsStream {
+interface MessagingChannel {
     name: string
-    subjects: string[]
+    topics: string[]
     description: string
     permission?: string
 }
 
-interface NatsStreamsResponse {
-    streams: NatsStream[]
+interface MessagingChannelsResponse {
+    channels: MessagingChannel[]
     organizationId: string
 }
 
-export const useNatsStreams = () => {
+export const useMessagingChannels = () => {
     const { organization } = useOrganization()
-    const [streams, setStreams] = useState<NatsStream[]>([])
+    const [channels, setChannels] = useState<MessagingChannel[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         if (!organization?.id) {
-            setStreams([])
+            setChannels([])
             setLoading(false)
             return
         }
 
-        const fetchStreams = async () => {
+        const fetchChannels = async () => {
             try {
                 setLoading(true)
                 setError(null)
 
-                const response = await fetch('/nats/streams')
+                const response = await fetch('/messaging/channels')
                 if (!response.ok) {
-                    throw new Error('Failed to fetch NATS streams')
+                    throw new Error('Failed to fetch messaging channels')
                 }
 
-                const data: NatsStreamsResponse = await response.json()
-                setStreams(data.streams)
+                const data: MessagingChannelsResponse = await response.json()
+                setChannels(data.channels)
             } catch (err) {
-                console.error('[NATS] Error fetching streams:', err)
+                console.error('[messaging] Error fetching channels:', err)
                 setError(err instanceof Error ? err.message : 'Unknown error')
-                setStreams([])
+                setChannels([])
             } finally {
                 setLoading(false)
             }
         }
 
-        fetchStreams()
+        fetchChannels()
     }, [organization?.id])
 
     return {
-        streams,
+        channels,
         loading,
         error,
-        hasStream: (streamName: string) => streams.some(s => s.name === streamName),
+        hasChannel: (channelName: string) => channels.some(c => c.name === channelName),
     }
 }

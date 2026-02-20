@@ -1,7 +1,10 @@
+import { Msg } from '@nats-io/nats-core'
 import { useCallback } from 'react'
 
-import { useNatsConnection, useNatsSubscription, Msg } from '@open-condo/nats/hooks'
-import { buildSubject } from '@open-condo/nats/subject'
+// @ts-ignore - JS module without type declarations
+import { useMessagingConnection, useMessagingSubscription } from '@open-condo/messaging/hooks'
+// @ts-ignore - JS module without type declarations
+import { buildTopic } from '@open-condo/messaging/topic'
 import { useOrganization } from '@open-condo/next/organization'
 
 export interface TicketChangeData {
@@ -14,23 +17,23 @@ export interface TicketChangeData {
     userId: string | null
 }
 
-interface UseTicketNatsSubscriptionOptions {
+interface UseTicketMessagingSubscriptionOptions {
     enabled?: boolean
     onMessage?: (data: TicketChangeData, msg: Msg) => void | Promise<void>
 }
 
-export const useTicketNatsSubscription = (options: UseTicketNatsSubscriptionOptions = {}) => {
+export const useTicketMessagingSubscription = (options: UseTicketMessagingSubscriptionOptions = {}) => {
     const { enabled = true, onMessage } = options
     const { organization } = useOrganization()
 
-    const { connection, isConnected, isConnecting, error: connectionError, allowedStreams } = useNatsConnection({
+    const { connection, isConnected, isConnecting, error: connectionError, allowedChannels } = useMessagingConnection({
         enabled: enabled && !!organization?.id,
     })
 
-    const subject = organization?.id ? buildSubject('ticket-changes', organization.id, '>') : ''
+    const topic = organization?.id ? buildTopic('ticket-changes', organization.id, '>') : ''
 
     const handleMessage = useCallback(async (data: TicketChangeData, msg: Msg) => {
-        console.log('[NATS] Received ticket change:', data)
+        console.log('[messaging] Received ticket change:', data)
         if (onMessage) {
             await onMessage(data, msg)
         }
@@ -41,14 +44,14 @@ export const useTicketNatsSubscription = (options: UseTicketNatsSubscriptionOpti
         isSubscribing,
         error: subscriptionError,
         messageCount,
-    } = useNatsSubscription<TicketChangeData>({
-        streamName: 'ticket-changes',
-        subject,
+    } = useMessagingSubscription<TicketChangeData>({
+        channelName: 'ticket-changes',
+        topic,
         connection,
         isConnected,
-        allowedStreams,
+        allowedChannels,
         organizationId: organization?.id,
-        enabled: enabled && !!subject && isConnected,
+        enabled: enabled && !!topic && isConnected,
         onMessage: handleMessage,
     })
 

@@ -20,10 +20,10 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analyt
 const { GQLListSchema, getByCondition, getById, find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
-const { publish, buildSubject } = require('@open-condo/nats')
+const { publish, buildTopic } = require('@open-condo/messaging')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
-const logger = getLogger('nats')
+const logger = getLogger()
 
 const {
     PROPERTY_REQUIRED_ERROR,
@@ -998,8 +998,8 @@ const Ticket = new GQLListSchema('Ticket', {
 
                 try {
                     await publish({
-                        stream: 'ticket-changes',
-                        subject: buildSubject('ticket-changes', updatedItem.organization, updatedItem.id),
+                        channel: 'ticket-changes',
+                        topic: buildTopic('ticket-changes', updatedItem.organization, updatedItem.id),
                         data: {
                             ticketId: updatedItem.id,
                             organizationId: updatedItem.organization,

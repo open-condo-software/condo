@@ -7,9 +7,9 @@ const {
     encodeNatsJwt,
     createUserJwt,
     computePermissions,
-} = require('@open-condo/nats/utils')
+} = require('@open-condo/messaging/adapters/nats')
 
-const TOKEN_SECRET = conf.NATS_TOKEN_SECRET
+const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
 
 /**
  * Unit tests for the auth callout request/response flow.
@@ -28,10 +28,10 @@ describe('Auth Callout Service Logic', () => {
         it('creates correct user JWT from a valid application token', () => {
             const userNkey = nkeys.createUser().getPublicKey()
             const organizationId = 'org-test-123'
-            const allowedStreams = ['ticket-changes', 'notification-events']
+            const allowedChannels = ['ticket-changes', 'notification-events']
 
             const appToken = jwt.sign(
-                { userId: 'user-1', organizationId, allowedStreams },
+                { userId: 'user-1', organizationId, allowedChannels },
                 TOKEN_SECRET,
                 { expiresIn: '24h' }
             )
@@ -39,15 +39,15 @@ describe('Auth Callout Service Logic', () => {
             const decoded = jwt.verify(appToken, TOKEN_SECRET)
             expect(decoded.userId).toBe('user-1')
             expect(decoded.organizationId).toBe(organizationId)
-            expect(decoded.allowedStreams).toEqual(allowedStreams)
+            expect(decoded.allowedChannels).toEqual(allowedChannels)
 
-            const permissions = computePermissions(decoded.allowedStreams, decoded.organizationId)
+            const permissions = computePermissions(decoded.allowedChannels, decoded.organizationId)
 
             const userJwt = createUserJwt({
                 userNkey,
                 accountPublicKey,
                 permissions,
-                accountKeyPair,
+                signingConfig: { keyPair: accountKeyPair },
             })
 
             const userClaims = decodeNatsJwt(userJwt)
@@ -58,13 +58,13 @@ describe('Auth Callout Service Logic', () => {
             expect(userClaims.nats.sub.allow).toEqual(['_INBOX.>'])
 
             expect(userClaims.nats.pub.allow).toContain('_INBOX.>')
-            expect(userClaims.nats.pub.allow).toContain('_NATS.subscribe.ticket-changes.org-test-123')
-            expect(userClaims.nats.pub.allow).toContain('_NATS.subscribe.notification-events.org-test-123')
+            expect(userClaims.nats.pub.allow).toContain('_MESSAGING.subscribe.ticket-changes.org-test-123')
+            expect(userClaims.nats.pub.allow).toContain('_MESSAGING.subscribe.notification-events.org-test-123')
         })
 
         it('rejects expired application tokens', () => {
             const appToken = jwt.sign(
-                { userId: 'user-1', organizationId: 'org-1', allowedStreams: ['test-changes'] },
+                { userId: 'user-1', organizationId: 'org-1', allowedChannels: ['test-changes'] },
                 TOKEN_SECRET,
                 { expiresIn: '0s' }
             )
@@ -74,7 +74,7 @@ describe('Auth Callout Service Logic', () => {
 
         it('rejects tokens signed with wrong secret', () => {
             const appToken = jwt.sign(
-                { userId: 'user-1', organizationId: 'org-1', allowedStreams: ['test-changes'] },
+                { userId: 'user-1', organizationId: 'org-1', allowedChannels: ['test-changes'] },
                 // intentionally wrong secret to test that forged tokens are rejected
                 // nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret
                 'wrong-secret',
@@ -84,7 +84,7 @@ describe('Auth Callout Service Logic', () => {
             expect(() => jwt.verify(appToken, TOKEN_SECRET)).toThrow()
         })
 
-        it('handles token without allowedStreams', () => {
+        it('handles token without allowedChannels', () => {
             const appToken = jwt.sign(
                 { userId: 'user-1', organizationId: 'org-1' },
                 TOKEN_SECRET,
@@ -92,7 +92,7 @@ describe('Auth Callout Service Logic', () => {
             )
 
             const decoded = jwt.verify(appToken, TOKEN_SECRET)
-            expect(decoded.allowedStreams).toBeUndefined()
+            expect(decoded.allowedChannels).toBeUndefined()
         })
     })
 
@@ -106,7 +106,7 @@ describe('Auth Callout Service Logic', () => {
                 nats: { type: 'test', version: 2 },
             }
 
-            const encoded = encodeNatsJwt(claims, accountKeyPair)
+            const encoded = encodeNatsJwt(claims, { keyPair: accountKeyPair })
             const parts = encoded.split('.')
             const header = JSON.parse(Buffer.from(parts[0].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString())
 
@@ -131,8 +131,8 @@ describe('Auth Callout Service Logic', () => {
                 nats: { type: 'user', version: 2 },
             }
 
-            const jwt1 = encodeNatsJwt(claims1, accountKeyPair)
-            const jwt2 = encodeNatsJwt(claims2, accountKeyPair)
+            const jwt1 = encodeNatsJwt(claims1, { keyPair: accountKeyPair })
+            const jwt2 = encodeNatsJwt(claims2, { keyPair: accountKeyPair })
 
             expect(jwt1).not.toBe(jwt2)
 
@@ -147,7 +147,7 @@ describe('Auth Callout Service Logic', () => {
                 userNkey,
                 accountPublicKey,
                 permissions: { pub: { allow: [] }, sub: { allow: [] } },
-                accountKeyPair,
+                signingConfig: { keyPair: accountKeyPair },
             })
 
             const decoded = decodeNatsJwt(userJwt)
@@ -160,8 +160,8 @@ describe('Auth Callout Service Logic', () => {
         it('scopes relay PUB permissions to organization', () => {
             const perms = computePermissions(['ticket-changes'], 'org-abc')
 
-            expect(perms.pub.allow).toContain('_NATS.subscribe.ticket-changes.org-abc')
-            expect(perms.pub.allow).not.toContain('_NATS.subscribe.ticket-changes.org-xyz')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.ticket-changes.org-abc')
+            expect(perms.pub.allow).not.toContain('_MESSAGING.subscribe.ticket-changes.org-xyz')
         })
 
         it('does not grant JetStream API or direct stream access', () => {

@@ -6,7 +6,7 @@ const {
     createUserJwt,
     createAuthResponseJwt,
     computePermissions,
-} = require('@open-condo/nats/utils')
+} = require('@open-condo/messaging/adapters/nats')
 
 describe('NATS JWT Utilities', () => {
     let accountKeyPair
@@ -27,7 +27,7 @@ describe('NATS JWT Utilities', () => {
                 nats: { type: 'test', version: 2 },
             }
 
-            const encoded = encodeNatsJwt(claims, accountKeyPair)
+            const encoded = encodeNatsJwt(claims, { keyPair: accountKeyPair })
             expect(typeof encoded).toBe('string')
             expect(encoded.split('.')).toHaveLength(3)
 
@@ -56,7 +56,7 @@ describe('NATS JWT Utilities', () => {
                 userNkey,
                 accountPublicKey,
                 permissions,
-                accountKeyPair,
+                signingConfig: { keyPair: accountKeyPair },
                 accountName: 'APP',
             })
 
@@ -80,7 +80,7 @@ describe('NATS JWT Utilities', () => {
                 userNkey,
                 accountPublicKey,
                 permissions: {},
-                accountKeyPair,
+                signingConfig: { keyPair: accountKeyPair },
             })
 
             const decoded = decodeNatsJwt(jwt)
@@ -100,7 +100,7 @@ describe('NATS JWT Utilities', () => {
                 serverId,
                 accountPublicKey,
                 userJwt,
-                accountKeyPair,
+                signingConfig: { keyPair: accountKeyPair },
             })
 
             const decoded = decodeNatsJwt(responseJwt)
@@ -123,7 +123,7 @@ describe('NATS JWT Utilities', () => {
                 serverId,
                 accountPublicKey,
                 error: 'Access denied',
-                accountKeyPair,
+                signingConfig: { keyPair: accountKeyPair },
             })
 
             const decoded = decodeNatsJwt(responseJwt)
@@ -138,8 +138,8 @@ describe('NATS JWT Utilities', () => {
             const perms = computePermissions(['ticket-changes'], 'org-123')
 
             expect(perms.pub.allow).toContain('_INBOX.>')
-            expect(perms.pub.allow).toContain('_NATS.subscribe.ticket-changes.org-123')
-            expect(perms.pub.allow).toContain('_NATS.unsubscribe.>')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.ticket-changes.org-123')
+            expect(perms.pub.allow).toContain('_MESSAGING.unsubscribe.>')
 
             expect(perms.sub.allow).toEqual(['_INBOX.>'])
         })
@@ -159,8 +159,8 @@ describe('NATS JWT Utilities', () => {
                 'org-456'
             )
 
-            expect(perms.pub.allow).toContain('_NATS.subscribe.ticket-changes.org-456')
-            expect(perms.pub.allow).toContain('_NATS.subscribe.notification-events.org-456')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.ticket-changes.org-456')
+            expect(perms.pub.allow).toContain('_MESSAGING.subscribe.notification-events.org-456')
         })
 
         it('returns minimal permissions for empty streams', () => {

@@ -1,17 +1,18 @@
 {
-  "name": "@open-condo/nats",
+  "name": "@open-condo/messaging",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "generate-nats-keys": "node ./bin/generate-nats-keys.js"
+    "generate-nats-keys": "node ./adapters/nats/bin/generate-nats-keys.js"
   },
   "exports": {
     ".": "./index.js",
     "./hooks": "./hooks/index.ts",
     "./middleware": "./middleware/index.js",
-    "./subject": "./subject.js",
-    "./utils": "./utils/index.js"
+    "./topic": "./core/topic.js",
+    "./utils": "./utils/index.js",
+    "./adapters/nats": "./adapters/nats/index.js"
   },
   "dependencies": {
     "@nats-io/nats-core": "^3.3.1",

@@ -5,13 +5,13 @@ const nkeys = require('nkeys.js')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./utils/natsJwt')
+const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./natsJwt')
 
-const logger = getLogger('nats')
+const logger = getLogger()
 
-const TOKEN_SECRET = conf.NATS_TOKEN_SECRET
+const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
 
-class AuthCalloutService {
+class NatsAuthCalloutService {
     constructor () {
         this.connection = null
         this.accountKeyPair = null
@@ -27,13 +27,18 @@ class AuthCalloutService {
      * @param {string} [config.accountSeed] - Account NKey seed for signing
      * @param {string} [config.authUser] - Auth service username
      * @param {string} [config.authPass] - Auth service password
+     * @param {string} [config.algorithm] - JWT signing algorithm (default: 'ed25519-nkey')
+     * @param {number} [config.userJwtTtl] - User JWT TTL in seconds (default: 1h)
      */
     async start (config = {}) {
-        const seed = config.accountSeed || conf.NATS_AUTH_ACCOUNT_SEED
+        const seed = config.accountSeed || conf.MESSAGING_AUTH_ACCOUNT_SEED
         if (!seed) {
-            logger.warn({ msg: 'NATS_AUTH_ACCOUNT_SEED not configured, auth callout service disabled' })
+            logger.warn({ msg: 'MESSAGING_AUTH_ACCOUNT_SEED not configured, auth callout service disabled' })
             return
         }
+
+        this.algorithm = config.algorithm || 'ed25519-nkey'
+        this.userJwtTtl = config.userJwtTtl || 3600
 
         try {
             this.accountKeyPair = nkeys.fromSeed(Buffer.from(seed))
@@ -43,9 +48,9 @@ class AuthCalloutService {
             logger.info({ msg: 'Auth callout issuer public key', publicKey: this.accountPublicKey })
 
             this.connection = await connect({
-                servers: config.url || conf.NATS_URL,
-                user: config.authUser || conf.NATS_AUTH_USER,
-                pass: config.authPass || conf.NATS_AUTH_PASSWORD,
+                servers: config.url || conf.MESSAGING_BROKER_URL,
+                user: config.authUser || conf.MESSAGING_AUTH_USER,
+                pass: config.authPass || conf.MESSAGING_AUTH_PASSWORD,
                 reconnect: true,
                 maxReconnectAttempts: -1,
             })
@@ -108,26 +113,28 @@ class AuthCalloutService {
             return
         }
 
-        const { userId, organizationId, allowedStreams } = decoded
+        const { userId, organizationId, allowedChannels } = decoded
 
         if (!userId || !organizationId) {
             this._respondError(msg, user_nkey, serverId, 'Token missing userId or organizationId')
             return
         }
 
-        if (!allowedStreams || !Array.isArray(allowedStreams) || allowedStreams.length === 0) {
-            this._respondError(msg, user_nkey, serverId, 'No allowed streams in token')
+        if (!allowedChannels || !Array.isArray(allowedChannels) || allowedChannels.length === 0) {
+            this._respondError(msg, user_nkey, serverId, 'No allowed channels in token')
             return
         }
 
-        const permissions = computePermissions(allowedStreams, organizationId)
+        const permissions = computePermissions(allowedChannels, organizationId)
+        const signingConfig = { algorithm: this.algorithm, keyPair: this.accountKeyPair }
 
         const userJwt = createUserJwt({
             userNkey: user_nkey,
             accountPublicKey: this.accountPublicKey,
             permissions,
-            accountKeyPair: this.accountKeyPair,
+            signingConfig,
             accountName: this.accountName,
+            ttl: this.userJwtTtl,
         })
 
         const responseJwt = createAuthResponseJwt({
@@ -135,14 +142,14 @@ class AuthCalloutService {
             serverId,
             accountPublicKey: this.accountPublicKey,
             userJwt,
-            accountKeyPair: this.accountKeyPair,
+            signingConfig,
         })
 
         logger.info({
             msg: 'Auth callout: access granted',
             userId,
             organizationId,
-            streams: allowedStreams,
+            channels: allowedChannels,
         })
 
         msg.respond(new TextEncoder().encode(responseJwt))
@@ -150,13 +157,14 @@ class AuthCalloutService {
 
     _respondError (msg, userNkey, serverId, errorMessage) {
         logger.warn({ msg: 'Auth callout: access denied', reason: errorMessage })
+        const signingConfig = { algorithm: this.algorithm, keyPair: this.accountKeyPair }
 
         const responseJwt = createAuthResponseJwt({
             userNkey,
             serverId,
             accountPublicKey: this.accountPublicKey,
             error: errorMessage,
-            accountKeyPair: this.accountKeyPair,
+            signingConfig,
         })
 
         msg.respond(new TextEncoder().encode(responseJwt))
@@ -173,4 +181,4 @@ class AuthCalloutService {
     }
 }
 
-module.exports = { AuthCalloutService }
+module.exports = { NatsAuthCalloutService }

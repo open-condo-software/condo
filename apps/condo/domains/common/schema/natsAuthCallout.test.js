@@ -3,15 +3,15 @@ const { faker } = require('@faker-js/faker')
 const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-const { configure, checkNatsAccess, getAvailableStreams } = require('@open-condo/nats')
+const { configure, checkAccess, getAvailableChannels } = require('@open-condo/messaging')
 
+const { channelRegistry } = require('@condo/domains/common/utils/messagingChannels')
 const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { Ticket, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { User, makeClientWithNewRegisteredAndLoggedInUser, createTestUser } = require('@condo/domains/user/utils/testSchema')
 
-const { streamRegistry } = require('../../../natsStreams')
 
 describe('NATS Access Control', () => {
     let admin
@@ -37,19 +37,19 @@ describe('NATS Access Control', () => {
             await keystone.disconnect()
         }
     })
-    describe('checkNatsAccess', () => {
+    describe('checkAccess', () => {
         describe('Boolean true access (public)', () => {
             beforeAll(() => {
-                streamRegistry.register('test-public-events', {
+                channelRegistry.register('test-public-events', {
                     ttl: 3600,
-                    subjects: ['test-public-events.>'],
+                    topics: ['test-public-events.>'],
                     access: {
                         read: true,
                     },
                 })
             })
 
-            it('allows authenticated user to access public stream', async () => {
+            it('allows authenticated user to access public channel', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const userId = client.user.id
                 const [organization] = await createTestOrganization(admin)
@@ -57,7 +57,7 @@ describe('NATS Access Control', () => {
 
                 const keystone = getSchemaCtx('User').keystone
                 const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkNatsAccess(
+                const result = await checkAccess(
                     context,
                     userId,
                     organizationId,
@@ -70,9 +70,9 @@ describe('NATS Access Control', () => {
 
         describe('Permission string access', () => {
             beforeAll(() => {
-                streamRegistry.register('test-permission-changes', {
+                channelRegistry.register('test-permission-changes', {
                     ttl: 3600,
-                    subjects: ['test-permission-changes.>'],
+                    topics: ['test-permission-changes.>'],
                     access: {
                         read: 'canManageTickets',
                     },
@@ -94,7 +94,7 @@ describe('NATS Access Control', () => {
 
                 const keystone = getSchemaCtx('User').keystone
                 const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkNatsAccess(
+                const result = await checkAccess(
                     context,
                     userId,
                     organizationId,
@@ -124,7 +124,7 @@ describe('NATS Access Control', () => {
 
                 const keystone = getSchemaCtx('User').keystone
                 const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkNatsAccess(
+                const result = await checkAccess(
                     context,
                     userId,
                     organizationId,
@@ -139,16 +139,16 @@ describe('NATS Access Control', () => {
 
         describe('Custom function access', () => {
             beforeAll(() => {
-                streamRegistry.register('test-custom-events', {
+                channelRegistry.register('test-custom-events', {
                     ttl: 3600,
-                    subjects: ['test-custom-events.>'],
+                    topics: ['test-custom-events.>'],
                     access: {
-                        read: async ({ authentication, context, organizationId, subject }) => {
+                        read: async ({ authentication, context, organizationId, topic }) => {
                             try {
                                 const { item: user } = authentication
                                 if (!user || user.deletedAt) return false
 
-                                const ticketId = subject.split('.')[2]
+                                const ticketId = topic.split('.')[2]
                                 if (!ticketId) return false
 
                                 const ticket = await Ticket.getOne(context, {
@@ -180,7 +180,7 @@ describe('NATS Access Control', () => {
 
                 const keystone = getSchemaCtx('User').keystone
                 const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkNatsAccess(
+                const result = await checkAccess(
                     context,
                     userId,
                     organizationId,
@@ -199,7 +199,7 @@ describe('NATS Access Control', () => {
 
                 const keystone = getSchemaCtx('User').keystone
                 const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkNatsAccess(
+                const result = await checkAccess(
                     context,
                     userId,
                     organizationId,
@@ -212,7 +212,7 @@ describe('NATS Access Control', () => {
         })
 
         describe('Error handling', () => {
-            it('denies access for non-existent stream', async () => {
+            it('denies access for non-existent channel', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const userId = client.user.id
                 const [organization] = await createTestOrganization(admin)
@@ -220,7 +220,7 @@ describe('NATS Access Control', () => {
 
                 const keystone = getSchemaCtx('User').keystone
                 const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkNatsAccess(
+                const result = await checkAccess(
                     context,
                     userId,
                     organizationId,
@@ -228,13 +228,13 @@ describe('NATS Access Control', () => {
                 )
 
                 expect(result.allowed).toBe(false)
-                expect(result.reason).toBe('Stream not found')
+                expect(result.reason).toBe('Channel not found')
             })
 
-            it('denies access when stream has no access config', async () => {
-                streamRegistry.register('test-no-access-events', {
+            it('denies access when channel has no access config', async () => {
+                channelRegistry.register('test-no-access-events', {
                     ttl: 3600,
-                    subjects: ['test-no-access-events.>'],
+                    topics: ['test-no-access-events.>'],
                 })
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -244,7 +244,7 @@ describe('NATS Access Control', () => {
 
                 const keystone = getSchemaCtx('User').keystone
                 const context = await keystone.createContext({ skipAccessControl: true })
-                const result = await checkNatsAccess(
+                const result = await checkAccess(
                     context,
                     userId,
                     organizationId,
@@ -252,32 +252,32 @@ describe('NATS Access Control', () => {
                 )
 
                 expect(result.allowed).toBe(false)
-                expect(result.reason).toBe('No access configuration for stream')
+                expect(result.reason).toBe('No access configuration for channel')
             })
         })
     })
 
-    describe('getAvailableStreams', () => {
+    describe('getAvailableChannels', () => {
         beforeAll(() => {
-            streamRegistry.register('test-available-public-events', {
+            channelRegistry.register('test-available-public-events', {
                 ttl: 3600,
-                subjects: ['test-available-public-events.>'],
+                topics: ['test-available-public-events.>'],
                 access: {
                     read: true,
                 },
             })
 
-            streamRegistry.register('test-available-permission-changes', {
+            channelRegistry.register('test-available-permission-changes', {
                 ttl: 3600,
-                subjects: ['test-available-permission-changes.>'],
+                topics: ['test-available-permission-changes.>'],
                 access: {
                     read: 'canManageTickets',
                 },
             })
 
-            streamRegistry.register('test-available-custom-events', {
+            channelRegistry.register('test-available-custom-events', {
                 ttl: 3600,
-                subjects: ['test-available-custom-events.>'],
+                topics: ['test-available-custom-events.>'],
                 access: {
                     read: async ({ authentication, context }) => {
                         const { item: user } = authentication
@@ -296,15 +296,15 @@ describe('NATS Access Control', () => {
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const streams = await getAvailableStreams(context, userId, organizationId)
+            const channels = await getAvailableChannels(context, userId, organizationId)
 
-            const streamNames = streams.map(s => s.name)
-            expect(streamNames).toContain('test-available-public-events')
-            expect(streamNames).toContain('test-available-permission-changes')
-            expect(streamNames).toContain('test-available-custom-events')
+            const channelNames = channels.map(s => s.name)
+            expect(channelNames).toContain('test-available-public-events')
+            expect(channelNames).toContain('test-available-permission-changes')
+            expect(channelNames).toContain('test-available-custom-events')
         })
 
-        it('returns only public streams for user without permissions', async () => {
+        it('returns only public channels for user without permissions', async () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const userId = client.user.id
 
@@ -322,78 +322,78 @@ describe('NATS Access Control', () => {
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const streams = await getAvailableStreams(context, userId, organizationId)
+            const channels = await getAvailableChannels(context, userId, organizationId)
 
-            const streamNames = streams.map(s => s.name)
-            expect(streamNames).toContain('test-available-public-events')
-            expect(streamNames).not.toContain('test-available-permission-changes')
-            expect(streamNames).not.toContain('test-available-custom-events')
+            const channelNames = channels.map(s => s.name)
+            expect(channelNames).toContain('test-available-public-events')
+            expect(channelNames).not.toContain('test-available-permission-changes')
+            expect(channelNames).not.toContain('test-available-custom-events')
         })
 
-        it('includes permission field for permission-based streams', async () => {
+        it('includes permission field for permission-based channels', async () => {
             const client = await makeClientWithProperty()
             const userId = client.user.id
             const organizationId = client.organization.id
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const streams = await getAvailableStreams(context, userId, organizationId)
+            const channels = await getAvailableChannels(context, userId, organizationId)
 
-            const permissionStream = streams.find(s => s.name === 'test-available-permission-changes')
-            expect(permissionStream).toBeDefined()
-            expect(permissionStream.permission).toBe('canManageTickets')
+            const permissionChannel = channels.find(s => s.name === 'test-available-permission-changes')
+            expect(permissionChannel).toBeDefined()
+            expect(permissionChannel.permission).toBe('canManageTickets')
         })
 
-        it('includes subjects for all streams', async () => {
+        it('includes topics for all channels', async () => {
             const client = await makeClientWithProperty()
             const userId = client.user.id
             const organizationId = client.organization.id
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const streams = await getAvailableStreams(context, userId, organizationId)
+            const channels = await getAvailableChannels(context, userId, organizationId)
 
-            streams.forEach(stream => {
-                expect(stream.subjects).toBeDefined()
-                expect(Array.isArray(stream.subjects)).toBe(true)
-                expect(stream.subjects.length).toBeGreaterThan(0)
+            channels.forEach(channel => {
+                expect(channel.topics).toBeDefined()
+                expect(Array.isArray(channel.topics)).toBe(true)
+                expect(channel.topics.length).toBeGreaterThan(0)
             })
         })
     })
 
     describe('Cross-organization access isolation', () => {
-        it('non-employee user cannot access permission-based streams of organization', async () => {
+        it('non-employee user cannot access permission-based channels of organization', async () => {
             const outsiderClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const targetOrgClient = await makeClientWithProperty()
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const streams = await getAvailableStreams(context, outsiderClient.user.id, targetOrgClient.organization.id)
+            const channels = await getAvailableChannels(context, outsiderClient.user.id, targetOrgClient.organization.id)
 
-            const streamNames = streams.map(s => s.name)
-            expect(streamNames).not.toContain('test-available-permission-changes')
-            expect(streamNames).not.toContain('test-available-custom-events')
+            const channelNames = channels.map(s => s.name)
+            expect(channelNames).not.toContain('test-available-permission-changes')
+            expect(channelNames).not.toContain('test-available-custom-events')
         })
 
-        it('employee of org-A gets NO permission-based streams for org-B', async () => {
+        it('employee of org-A gets NO permission-based channels for org-B', async () => {
             const clientA = await makeClientWithProperty()
             const clientB = await makeClientWithProperty()
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const streams = await getAvailableStreams(context, clientA.user.id, clientB.organization.id)
+            const channels = await getAvailableChannels(context, clientA.user.id, clientB.organization.id)
 
-            const streamNames = streams.map(s => s.name)
-            expect(streamNames).not.toContain('test-available-permission-changes')
+            const channelNames = channels.map(s => s.name)
+            expect(channelNames).not.toContain('test-available-permission-changes')
         })
 
-        it('denies non-employee user access to permission-based stream of another organization', async () => {
+        it('denies non-employee user access to permission-based channel of another organization', async () => {
             const outsiderClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const targetOrgClient = await makeClientWithProperty()
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const result = await checkNatsAccess(
+            const result = await checkAccess(
                 context,
                 outsiderClient.user.id,
                 targetOrgClient.organization.id,
@@ -404,14 +404,14 @@ describe('NATS Access Control', () => {
             expect(result.reason).toBe('Permission denied')
         })
 
-        it('employee of org-A cannot access custom stream of org-B', async () => {
+        it('employee of org-A cannot access custom channel of org-B', async () => {
             const clientA = await makeClientWithProperty()
             const clientB = await makeClientWithProperty()
             const [ticket] = await createTestTicket(clientB, clientB.organization, clientB.property)
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const result = await checkNatsAccess(
+            const result = await checkAccess(
                 context,
                 clientA.user.id,
                 clientB.organization.id,
@@ -423,7 +423,7 @@ describe('NATS Access Control', () => {
     })
 
     describe('Deleted and blocked users denied access', () => {
-        it('soft-deleted user gets NO streams', async () => {
+        it('soft-deleted user gets NO channels', async () => {
             const [user] = await createTestUser(admin)
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -439,12 +439,12 @@ describe('NATS Access Control', () => {
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const streams = await getAvailableStreams(context, user.id, organization.id)
+            const channels = await getAvailableChannels(context, user.id, organization.id)
 
-            expect(streams).toHaveLength(0)
+            expect(channels).toHaveLength(0)
         })
 
-        it('checkNatsAccess denies soft-deleted user', async () => {
+        it('checkAccess denies soft-deleted user', async () => {
             const [user] = await createTestUser(admin)
             const [organization] = await createTestOrganization(admin)
 
@@ -452,7 +452,7 @@ describe('NATS Access Control', () => {
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const result = await checkNatsAccess(
+            const result = await checkAccess(
                 context,
                 user.id,
                 organization.id,
@@ -463,24 +463,24 @@ describe('NATS Access Control', () => {
             expect(result.reason).toBe('User not found or deleted')
         })
 
-        it('non-existent user gets NO streams', async () => {
+        it('non-existent user gets NO channels', async () => {
             const fakeUserId = faker.datatype.uuid()
             const [organization] = await createTestOrganization(admin)
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const streams = await getAvailableStreams(context, fakeUserId, organization.id)
+            const channels = await getAvailableChannels(context, fakeUserId, organization.id)
 
-            expect(streams).toHaveLength(0)
+            expect(channels).toHaveLength(0)
         })
 
-        it('checkNatsAccess denies non-existent user', async () => {
+        it('checkAccess denies non-existent user', async () => {
             const fakeUserId = faker.datatype.uuid()
             const [organization] = await createTestOrganization(admin)
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const result = await checkNatsAccess(
+            const result = await checkAccess(
                 context,
                 fakeUserId,
                 organization.id,
@@ -491,7 +491,7 @@ describe('NATS Access Control', () => {
             expect(result.reason).toBe('User not found or deleted')
         })
 
-        it('blocked employee gets NO permission-based streams', async () => {
+        it('blocked employee gets NO permission-based channels', async () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                 canManageTickets: true,
@@ -507,14 +507,14 @@ describe('NATS Access Control', () => {
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const streams = await getAvailableStreams(context, client.user.id, organization.id)
+            const channels = await getAvailableChannels(context, client.user.id, organization.id)
 
-            const streamNames = streams.map(s => s.name)
-            expect(streamNames).not.toContain('test-available-permission-changes')
-            expect(streamNames).not.toContain('test-available-custom-events')
+            const channelNames = channels.map(s => s.name)
+            expect(channelNames).not.toContain('test-available-permission-changes')
+            expect(channelNames).not.toContain('test-available-custom-events')
         })
 
-        it('rejected employee gets NO permission-based streams', async () => {
+        it('rejected employee gets NO permission-based channels', async () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                 canManageTickets: true,
@@ -528,11 +528,11 @@ describe('NATS Access Control', () => {
 
             const keystone = getSchemaCtx('User').keystone
             const context = await keystone.createContext({ skipAccessControl: true })
-            const streams = await getAvailableStreams(context, client.user.id, organization.id)
+            const channels = await getAvailableChannels(context, client.user.id, organization.id)
 
-            const streamNames = streams.map(s => s.name)
-            expect(streamNames).not.toContain('test-available-permission-changes')
-            expect(streamNames).not.toContain('test-available-custom-events')
+            const channelNames = channels.map(s => s.name)
+            expect(channelNames).not.toContain('test-available-permission-changes')
+            expect(channelNames).not.toContain('test-available-custom-events')
         })
     })
 })
