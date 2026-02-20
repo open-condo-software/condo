@@ -10,7 +10,6 @@ export type { PasswordInputProps } from './password'
 export type {
     RichTextAreaProps,
     RichTextAreaCustomLabels,
-    BuiltinToolbarButton,
     ToolbarGroup,
 } from './richTextArea'
 export type { PhoneInputProps } from './phone'
