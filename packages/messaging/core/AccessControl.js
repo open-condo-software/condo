@@ -1,15 +1,14 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { streamRegistry } = require('../streams')
+const { channelRegistry } = require('./ChannelRegistry')
 
-const logger = getLogger('nats')
+const logger = getLogger()
 
-// Module-level storage for injected dependencies
 let _getPermittedOrganizations = null
 
 /**
- * Initialize NATS auth utilities with required dependencies
+ * Initialize messaging access control with required dependencies.
  * @param {Object} config
  * @param {Function} config.getPermittedOrganizations - Function to get organizations where user has permissions
  */
@@ -17,19 +16,27 @@ function configure (config = {}) {
     _getPermittedOrganizations = config.getPermittedOrganizations
 }
 
-async function checkNatsAccess (context, userId, organizationId, subject) {
+/**
+ * Check if a user has access to a specific topic.
+ * @param {Object} context - Keystone context
+ * @param {string} userId
+ * @param {string} organizationId
+ * @param {string} topic
+ * @returns {Promise<{ allowed: boolean, reason?: string, user?: string, organization?: string }>}
+ */
+async function checkAccess (context, userId, organizationId, topic) {
     try {
-        const streamName = subject.split('.')[0]
-        const streamConfig = streamRegistry.get(streamName)
+        const channelName = topic.split('.')[0]
+        const channelConfig = channelRegistry.get(channelName)
 
-        if (!streamConfig) {
-            return { allowed: false, reason: 'Stream not found' }
+        if (!channelConfig) {
+            return { allowed: false, reason: 'Channel not found' }
         }
 
-        const accessConfig = streamConfig.access?.read
+        const accessConfig = channelConfig.access?.read
 
         if (!accessConfig) {
-            return { allowed: false, reason: 'No access configuration for stream' }
+            return { allowed: false, reason: 'No access configuration for channel' }
         }
 
         const user = await getById('User', userId)
@@ -39,7 +46,7 @@ async function checkNatsAccess (context, userId, organizationId, subject) {
 
         if (typeof accessConfig === 'function') {
             const authentication = { item: user }
-            const allowed = await accessConfig({ authentication, context, organizationId, subject })
+            const allowed = await accessConfig({ authentication, context, organizationId, topic })
 
             if (allowed) {
                 return { allowed: true, user: userId, organization: organizationId }
@@ -73,19 +80,26 @@ async function checkNatsAccess (context, userId, organizationId, subject) {
     }
 }
 
-async function getAvailableStreams (context, userId, organizationId) {
+/**
+ * Get all channels available to a user in a given organization.
+ * @param {Object} context - Keystone context
+ * @param {string} userId
+ * @param {string} organizationId
+ * @returns {Promise<Array<{ name: string, topics: string[], permission?: string }>>}
+ */
+async function getAvailableChannels (context, userId, organizationId) {
     try {
         const user = await getById('User', userId)
         if (!user || user.deletedAt) {
             return []
         }
 
-        const allStreams = streamRegistry.getAll()
-        const availableStreams = []
+        const allChannels = channelRegistry.getAll()
+        const availableChannels = []
 
-        for (const streamConfig of allStreams) {
+        for (const channelConfig of allChannels) {
             try {
-                const accessConfig = streamConfig.access?.read
+                const accessConfig = channelConfig.access?.read
 
                 if (!accessConfig) {
                     continue
@@ -107,27 +121,27 @@ async function getAvailableStreams (context, userId, organizationId) {
                     }
                 } else if (typeof accessConfig === 'function') {
                     const authentication = { item: user }
-                    const testSubject = `${streamConfig.name}.${organizationId}`
-                    hasAccess = await accessConfig({ authentication, context, organizationId, subject: testSubject })
+                    const testTopic = `${channelConfig.name}.${organizationId}`
+                    hasAccess = await accessConfig({ authentication, context, organizationId, topic: testTopic })
                 }
 
                 if (hasAccess) {
-                    availableStreams.push({
-                        name: streamConfig.name,
-                        subjects: streamConfig.subjects,
+                    availableChannels.push({
+                        name: channelConfig.name,
+                        topics: channelConfig.topics,
                         ...(permission && { permission }),
                     })
                 }
             } catch (error) {
-                logger.error({ msg: 'Error checking access for stream', stream: streamConfig.name, err: error })
+                logger.error({ msg: 'Error checking access for channel', channel: channelConfig.name, err: error })
             }
         }
 
-        return availableStreams
+        return availableChannels
     } catch (error) {
-        logger.error({ msg: 'Error getting available streams', err: error })
+        logger.error({ msg: 'Error getting available channels', err: error })
         return []
     }
 }
 
-module.exports = { configure, checkNatsAccess, getAvailableStreams }
+module.exports = { configure, checkAccess, getAvailableChannels }

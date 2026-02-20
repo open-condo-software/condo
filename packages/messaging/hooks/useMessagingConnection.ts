@@ -3,33 +3,33 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
 
-interface UseNatsConnectionOptions {
+interface UseMessagingConnectionOptions {
     enabled?: boolean
     autoConnect?: boolean
 }
 
-interface NatsConnectionState {
+interface MessagingConnectionState {
     connection: NatsConnection | null
     isConnected: boolean
     isConnecting: boolean
     error: Error | null
-    allowedStreams: string[]
+    allowedChannels: string[]
 }
 
 let globalConnection: NatsConnection | null = null
 let globalConnectionPromise: Promise<NatsConnection> | null = null
-let globalAllowedStreams: string[] = []
+let globalAllowedChannels: string[] = []
 let connectionRefCount = 0
 
-export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
+export const useMessagingConnection = (options: UseMessagingConnectionOptions = {}) => {
     const { enabled = true, autoConnect = true } = options
     const { organization } = useOrganization()
-    const [state, setState] = useState<NatsConnectionState>({
+    const [state, setState] = useState<MessagingConnectionState>({
         connection: globalConnection,
         isConnected: !!globalConnection,
         isConnecting: false,
         error: null,
-        allowedStreams: globalAllowedStreams,
+        allowedChannels: globalAllowedChannels,
     })
     const isMountedRef = useRef(true)
 
@@ -46,17 +46,17 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
 
         globalConnectionPromise = (async () => {
             try {
-                const tokenResponse = await fetch('/nats/token')
+                const tokenResponse = await fetch('/messaging/token')
                 if (!tokenResponse.ok) {
-                    throw new Error(`Failed to fetch NATS token: ${tokenResponse.status}`)
+                    throw new Error(`Failed to fetch messaging token: ${tokenResponse.status}`)
                 }
-                const { token, allowedStreams: streams } = await tokenResponse.json()
-                globalAllowedStreams = streams || []
+                const { token, allowedChannels: channels } = await tokenResponse.json()
+                globalAllowedChannels = channels || []
 
-                const natsUrl = process.env.NEXT_PUBLIC_NATS_WS_URL || 'ws://localhost:8080'
+                const wsUrl = process.env.NEXT_PUBLIC_MESSAGING_WS_URL || 'ws://localhost:8080'
 
                 const nc = await wsconnect({
-                    servers: natsUrl,
+                    servers: wsUrl,
                     token,
                     reconnect: true,
                     maxReconnectAttempts: -1,
@@ -67,17 +67,17 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
                 globalConnection = nc
 
                 nc.closed().then((err) => {
-                    console.log('[NATS] Connection closed', err || '')
+                    console.log('[messaging] Connection closed', err || '')
                     globalConnection = null
                     globalConnectionPromise = null
-                    globalAllowedStreams = []
+                    globalAllowedChannels = []
                     if (isMountedRef.current) {
                         setState({
                             connection: null,
                             isConnected: false,
                             isConnecting: false,
                             error: err ? new Error(String(err)) : null,
-                            allowedStreams: [],
+                            allowedChannels: [],
                         })
                     }
                 })
@@ -88,23 +88,23 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
                         isConnected: true,
                         isConnecting: false,
                         error: null,
-                        allowedStreams: globalAllowedStreams,
+                        allowedChannels: globalAllowedChannels,
                     })
                 }
 
-                console.log('[NATS] Connected successfully')
+                console.log('[messaging] Connected successfully')
                 return nc
             } catch (error) {
                 globalConnectionPromise = null
                 const err = error instanceof Error ? error : new Error(String(error))
-                console.error('[NATS] Connection error:', err)
+                console.error('[messaging] Connection error:', err)
                 if (isMountedRef.current) {
                     setState({
                         connection: null,
                         isConnected: false,
                         isConnecting: false,
                         error: err,
-                        allowedStreams: [],
+                        allowedChannels: [],
                     })
                 }
                 throw err
@@ -149,7 +149,7 @@ export const useNatsConnection = (options: UseNatsConnectionOptions = {}) => {
         isConnected: state.isConnected,
         isConnecting: state.isConnecting,
         error: state.error,
-        allowedStreams: state.allowedStreams,
+        allowedChannels: state.allowedChannels,
         connect,
         disconnect,
     }

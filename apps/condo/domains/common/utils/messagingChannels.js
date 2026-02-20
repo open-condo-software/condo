@@ -1,16 +1,16 @@
 const { getLogger } = require('@open-condo/keystone/logging')
-const { streamRegistry, buildSubject } = require('@open-condo/nats')
+const { channelRegistry, buildTopic } = require('@open-condo/messaging')
 
 const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
-const logger = getLogger('nats')
+const logger = getLogger()
 
-streamRegistry.register('ticket-changes', {
+channelRegistry.register('ticket-changes', {
     ttl: 3600,
-    subjects: [buildSubject('ticket-changes', '>')],
+    topics: [buildTopic('ticket-changes', '>')],
     access: {
-        read: async ({ authentication, context, organizationId, subject }) => {
+        read: async ({ authentication, context, organizationId, topic }) => {
             try {
                 const { item: user } = authentication
                 if (!user || user.deletedAt) return false
@@ -18,7 +18,7 @@ streamRegistry.register('ticket-changes', {
                 const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, ['canReadTickets'])
                 if (!permittedOrganizations.includes(organizationId)) return false
 
-                const ticketId = subject.split('.')[2]
+                const ticketId = topic.split('.')[2]
                 if (!ticketId) return true
 
                 const ticket = await Ticket.getOne(context, {
@@ -35,4 +35,4 @@ streamRegistry.register('ticket-changes', {
     },
 })
 
-module.exports = { streamRegistry }
+module.exports = { channelRegistry }

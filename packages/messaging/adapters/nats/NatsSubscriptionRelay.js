@@ -3,9 +3,9 @@ const { connect, JSONCodec } = require('nats')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { buildSubject, buildRelaySubscribePattern, buildRelayUnsubscribePattern } = require('./subject')
+const { buildTopic, buildRelaySubscribePattern, buildRelayUnsubscribePattern } = require('../../core/topic')
 
-const logger = getLogger('nats')
+const logger = getLogger()
 
 /**
  * Server-side subscription relay service.
@@ -14,13 +14,13 @@ const logger = getLogger('nats')
  * this service uses PUB permissions (which ARE enforced) as the access control mechanism.
  *
  * Flow:
- * 1. Client publishes to `_NATS.subscribe.{stream}.{orgId}` with `{ deliverInbox }` in body
- *    - PUB permission for this subject is org-scoped → NATS enforces it
- * 2. This service receives the request, subscribes to `{stream}.{orgId}.>` on behalf of the client
+ * 1. Client publishes to `_MESSAGING.subscribe.{channel}.{orgId}` with `{ deliverInbox }` in body
+ *    - PUB permission for this topic is org-scoped → NATS enforces it
+ * 2. This service receives the request, subscribes to `{channel}.{orgId}.>` on behalf of the client
  * 3. Forwards matching messages to the client's `deliverInbox`
- * 4. Client publishes to `_NATS.unsubscribe.{relayId}` to stop
+ * 4. Client publishes to `_MESSAGING.unsubscribe.{relayId}` to stop
  */
-class SubscriptionRelayService {
+class NatsSubscriptionRelay {
     constructor () {
         this.connection = null
         this.isRunning = false
@@ -32,9 +32,9 @@ class SubscriptionRelayService {
     async start (config = {}) {
         try {
             this.connection = await connect({
-                servers: config.url || conf.NATS_URL,
-                user: config.user || conf.NATS_SERVER_USER,
-                pass: config.pass || conf.NATS_SERVER_PASSWORD,
+                servers: config.url || conf.MESSAGING_BROKER_URL,
+                user: config.user || conf.MESSAGING_SERVER_USER,
+                pass: config.pass || conf.MESSAGING_SERVER_PASSWORD,
                 name: 'subscription-relay',
                 reconnect: true,
                 maxReconnectAttempts: -1,
@@ -85,11 +85,11 @@ class SubscriptionRelayService {
     _handleSubscribeRequest (msg) {
         const parts = msg.subject.split('.')
         if (parts.length < 4) {
-            logger.warn({ msg: 'Invalid subscribe request subject', subject: msg.subject })
+            logger.warn({ msg: 'Invalid subscribe request topic', topic: msg.subject })
             return
         }
 
-        const streamName = parts[2]
+        const channelName = parts[2]
         const orgId = parts[3]
 
         let data
@@ -107,24 +107,24 @@ class SubscriptionRelayService {
         }
 
         const relayId = `relay-${++this.relayCounter}`
-        const streamSubject = buildSubject(streamName, orgId, '>')
+        const channelTopic = buildTopic(channelName, orgId, '>')
 
-        const streamSub = this.connection.subscribe(streamSubject)
+        const channelSub = this.connection.subscribe(channelTopic)
         const relay = {
             id: relayId,
-            streamName,
+            channelName,
             orgId,
             deliverInbox,
-            streamSubject,
-            subscription: streamSub,
+            channelTopic,
+            subscription: channelSub,
         }
 
         this.relays.set(relayId, relay)
 
         ;(async () => {
-            for await (const streamMsg of streamSub) {
+            for await (const channelMsg of channelSub) {
                 try {
-                    this.connection.publish(deliverInbox, streamMsg.data)
+                    this.connection.publish(deliverInbox, channelMsg.data)
                 } catch (error) {
                     logger.error({ msg: 'Error forwarding message', relayId, err: error })
                 }
@@ -139,7 +139,7 @@ class SubscriptionRelayService {
         logger.info({
             msg: 'Relay created',
             relayId,
-            streamSubject,
+            channelTopic,
             deliverInbox,
         })
     }
@@ -183,4 +183,4 @@ class SubscriptionRelayService {
     }
 }
 
-module.exports = { SubscriptionRelayService }
+module.exports = { NatsSubscriptionRelay }

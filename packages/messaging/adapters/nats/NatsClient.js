@@ -2,7 +2,7 @@ const { connect, StringCodec, JSONCodec } = require('nats')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const logger = getLogger('nats')
+const logger = getLogger()
 
 class NatsClient {
     connection = null
@@ -16,7 +16,7 @@ class NatsClient {
 
         try {
             const connectOpts = {
-                servers: config.url || process.env.NATS_URL,
+                servers: config.url || process.env.MESSAGING_BROKER_URL,
                 reconnect: true,
                 maxReconnectAttempts: -1,
             }
@@ -24,8 +24,8 @@ class NatsClient {
             if (config.user && config.pass) {
                 connectOpts.user = config.user
                 connectOpts.pass = config.pass
-            } else if (config.token || process.env.NATS_TOKEN) {
-                connectOpts.token = config.token || process.env.NATS_TOKEN
+            } else if (config.token || process.env.MESSAGING_BROKER_TOKEN) {
+                connectOpts.token = config.token || process.env.MESSAGING_BROKER_TOKEN
             }
 
             this.connection = await connect(connectOpts)
@@ -49,18 +49,18 @@ class NatsClient {
         }
     }
 
-    async publish (streamName, subject, data) {
+    async publish (topic, data) {
         if (!this.isConnected) {
-            logger.warn({ msg: 'NATS not connected, skipping publish', stream: streamName })
+            logger.warn({ msg: 'NATS not connected, skipping publish', topic })
             return
         }
 
         try {
             const encoded = this.jsonCodec.encode(data)
-            await this.jetstream.publish(subject, encoded)
-            logger.info({ msg: 'Published to NATS', stream: streamName, subject })
+            await this.jetstream.publish(topic, encoded)
         } catch (error) {
-            logger.error({ msg: 'NATS publish error', err: error, stream: streamName, subject })
+            logger.error({ msg: 'NATS publish error', err: error, topic })
+            throw error
         }
     }
 

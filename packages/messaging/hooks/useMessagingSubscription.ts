@@ -1,21 +1,21 @@
 import { Msg, Subscription, NatsConnection, createInbox } from '@nats-io/nats-core'
 import { useEffect, useRef, useCallback, useState } from 'react'
 
-// @ts-ignore - JS module without type declarations
-import { buildRelaySubscribeSubject, buildRelayUnsubscribeSubject } from '@open-condo/nats/subject'
+const RELAY_SUBSCRIBE_PREFIX = '_MESSAGING.subscribe'
+const RELAY_UNSUBSCRIBE_PREFIX = '_MESSAGING.unsubscribe'
 
-interface UseNatsSubscriptionOptions<T> {
-    streamName: string
-    subject: string
+interface UseMessagingSubscriptionOptions<T> {
+    channelName: string
+    topic: string
     connection: NatsConnection | null
     isConnected: boolean
-    allowedStreams?: string[]
+    allowedChannels?: string[]
     organizationId?: string
     enabled?: boolean
     onMessage?: (data: T, msg: Msg) => void | Promise<void>
 }
 
-interface NatsSubscriptionState {
+interface MessagingSubscriptionState {
     isSubscribed: boolean
     isSubscribing: boolean
     error: Error | null
@@ -25,28 +25,28 @@ interface NatsSubscriptionState {
 /**
  * Uses a PUB-gated subscription relay for secure cross-organization isolation.
  *
- * NATS does not enforce SUB permissions in auth_callout non-operator mode,
+ * The broker does not enforce SUB permissions in auth_callout non-operator mode,
  * but PUB permissions ARE enforced. This hook uses PUB to request a
  * server-side relay that forwards messages to the client's unique INBOX.
  *
  * Flow:
  * 1. Client subscribes to a unique delivery INBOX
- * 2. Client publishes to `_NATS.subscribe.{stream}.{orgId}` (PUB-gated by NATS)
- * 3. Server-side relay subscribes to stream subjects and forwards to client INBOX
- * 4. On cleanup, client publishes `_NATS.unsubscribe.{relayId}`
+ * 2. Client publishes to `_MESSAGING.subscribe.{channel}.{orgId}` (PUB-gated)
+ * 3. Server-side relay subscribes to channel topics and forwards to client INBOX
+ * 4. On cleanup, client publishes `_MESSAGING.unsubscribe.{relayId}`
  */
-export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOptions<T>) => {
+export const useMessagingSubscription = <T = unknown>(options: UseMessagingSubscriptionOptions<T>) => {
     const {
-        streamName,
-        subject,
+        channelName,
+        topic,
         connection,
         isConnected,
-        allowedStreams,
+        allowedChannels,
         organizationId,
         enabled = true,
         onMessage,
     } = options
-    const [state, setState] = useState<NatsSubscriptionState>({
+    const [state, setState] = useState<MessagingSubscriptionState>({
         isSubscribed: false,
         isSubscribing: false,
         error: null,
@@ -65,9 +65,9 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
     const unsubscribe = useCallback(() => {
         if (relayIdRef.current && connection && !connection.isClosed()) {
             try {
-                connection.publish(buildRelayUnsubscribeSubject(relayIdRef.current))
+                connection.publish(`${RELAY_UNSUBSCRIBE_PREFIX}.${relayIdRef.current}`)
             } catch (error) {
-                console.error('[NATS] Error sending unsubscribe:', error)
+                console.error('[messaging] Error sending unsubscribe:', error)
             }
             relayIdRef.current = null
         }
@@ -76,9 +76,9 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
                 subscriptionRef.current.unsubscribe()
                 subscriptionRef.current = null
                 setState(prev => ({ ...prev, isSubscribed: false }))
-                console.log('[NATS] Unsubscribed from relay')
+                console.log('[messaging] Unsubscribed from relay')
             } catch (error) {
-                console.error('[NATS] Error unsubscribing:', error)
+                console.error('[messaging] Error unsubscribing:', error)
             }
         }
     }, [connection])
@@ -95,20 +95,20 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
             try {
                 setState(prev => ({ ...prev, isSubscribing: true, error: null }))
 
-                if (allowedStreams && !allowedStreams.includes(streamName)) {
-                    throw new Error(`[NATS] Stream "${streamName}" is not in allowedStreams. Access denied.`)
+                if (allowedChannels && !allowedChannels.includes(channelName)) {
+                    throw new Error(`[messaging] Channel "${channelName}" is not in allowedChannels. Access denied.`)
                 }
 
                 const deliverInbox = createInbox()
 
-                console.log(`[NATS] Setting up relay for ${streamName}.${organizationId}`)
+                console.log(`[messaging] Setting up relay for ${channelName}.${organizationId}`)
 
                 inboxSub = connection.subscribe(deliverInbox)
                 subscriptionRef.current = inboxSub
 
-                const relaySubject = buildRelaySubscribeSubject(streamName, organizationId)
+                const relayTopic = `${RELAY_SUBSCRIBE_PREFIX}.${channelName}.${organizationId}`
                 const response = await connection.request(
-                    relaySubject,
+                    relayTopic,
                     JSON.stringify({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -118,7 +118,7 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
                 relayIdRef.current = currentRelayId
 
                 if (!isActiveRef.current) {
-                    connection.publish(buildRelayUnsubscribeSubject(currentRelayId))
+                    connection.publish(`${RELAY_UNSUBSCRIBE_PREFIX}.${currentRelayId}`)
                     inboxSub.unsubscribe()
                     return
                 }
@@ -129,7 +129,7 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
                     isSubscribing: false,
                 }))
 
-                console.log(`[NATS] Relay active: ${currentRelayId} → ${deliverInbox}`)
+                console.log(`[messaging] Relay active: ${currentRelayId} → ${deliverInbox}`)
 
                 ;(async () => {
                     for await (const msg of inboxSub) {
@@ -144,13 +144,13 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
                                 await onMessageRef.current(data, msg)
                             }
                         } catch (error) {
-                            console.error('[NATS] Error processing message:', error)
+                            console.error('[messaging] Error processing message:', error)
                         }
                     }
                 })()
             } catch (error) {
                 const err = error instanceof Error ? error : new Error(String(error))
-                console.error('[NATS] Subscription relay error:', err)
+                console.error('[messaging] Subscription relay error:', err)
                 setState(prev => ({
                     ...prev,
                     isSubscribing: false,
@@ -165,7 +165,7 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
             isActiveRef.current = false
             if (currentRelayId && connection && !connection.isClosed()) {
                 try {
-                    connection.publish(buildRelayUnsubscribeSubject(currentRelayId))
+                    connection.publish(`${RELAY_UNSUBSCRIBE_PREFIX}.${currentRelayId}`)
                 } catch {
                     // connection may be closed
                 }
@@ -174,7 +174,7 @@ export const useNatsSubscription = <T = unknown>(options: UseNatsSubscriptionOpt
                 inboxSub.unsubscribe()
             }
         }
-    }, [enabled, isConnected, connection, streamName, organizationId, allowedStreams])
+    }, [enabled, isConnected, connection, channelName, organizationId, allowedChannels])
 
     return {
         isSubscribed: state.isSubscribed,

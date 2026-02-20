@@ -5,11 +5,11 @@ const nextCookie = require('next-cookies')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const logger = getLogger('nats')
+const { getAvailableChannels } = require('../core/AccessControl')
 
-const { getAvailableStreams } = require('../utils/natsAuthCallout')
+const logger = getLogger()
 
-const TOKEN_SECRET = conf.NATS_TOKEN_SECRET
+const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
 
 const GET_EMPLOYEE_QUERY = `
     query getEmployee($id: ID!) {
@@ -58,14 +58,14 @@ async function resolveEmployeeContext (req, keystone) {
     return { userId, organizationId, context }
 }
 
-class NatsMiddleware {
+class MessagingMiddleware {
     prepareMiddleware ({ keystone }) {
-        // internal Keystone middleware for NATS token/auth endpoints, not a standalone user-facing Express app
+        // internal Keystone middleware for messaging token/auth endpoints, not a standalone user-facing Express app
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.use(express.json())
 
-        app.get('/nats/streams', async (req, res) => {
+        app.get('/messaging/channels', async (req, res) => {
             try {
                 const result = await resolveEmployeeContext(req, keystone)
                 if (result.error) {
@@ -73,20 +73,20 @@ class NatsMiddleware {
                 }
 
                 const { userId, organizationId, context } = result
-                const streams = await getAvailableStreams(context, userId, organizationId)
+                const channels = await getAvailableChannels(context, userId, organizationId)
 
-                return res.json({ streams, organizationId })
+                return res.json({ channels, organizationId })
             } catch (error) {
-                logger.error({ msg: 'Failed to get available streams', err: error })
-                return res.status(500).json({ error: 'Failed to get available streams' })
+                logger.error({ msg: 'Failed to get available channels', err: error })
+                return res.status(500).json({ error: 'Failed to get available channels' })
             }
         })
 
-        app.get('/nats/token', async (req, res) => {
+        app.get('/messaging/token', async (req, res) => {
             try {
                 if (!TOKEN_SECRET) {
-                    logger.error({ msg: 'NATS_TOKEN_SECRET is not configured' })
-                    return res.status(503).json({ error: 'NATS is not configured' })
+                    logger.error({ msg: 'MESSAGING_TOKEN_SECRET is not configured' })
+                    return res.status(503).json({ error: 'Messaging is not configured' })
                 }
 
                 const result = await resolveEmployeeContext(req, keystone)
@@ -95,16 +95,16 @@ class NatsMiddleware {
                 }
 
                 const { userId, organizationId, context } = result
-                const streams = await getAvailableStreams(context, userId, organizationId)
-                const allowedStreams = streams.map(s => s.name)
+                const channels = await getAvailableChannels(context, userId, organizationId)
+                const allowedChannels = channels.map(s => s.name)
 
                 const token = jwt.sign(
-                    { userId, organizationId, allowedStreams },
+                    { userId, organizationId, allowedChannels },
                     TOKEN_SECRET,
                     { expiresIn: '24h' }
                 )
 
-                return res.json({ token, allowedStreams })
+                return res.json({ token, allowedChannels })
             } catch (error) {
                 logger.error({ msg: 'Failed to generate token', err: error })
                 return res.status(500).json({ error: 'Failed to generate token' })
@@ -115,4 +115,4 @@ class NatsMiddleware {
     }
 }
 
-module.exports = { NatsMiddleware }
+module.exports = { MessagingMiddleware }
