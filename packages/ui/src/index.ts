@@ -33,7 +33,6 @@ export type {
     PhoneInputProps,
     RichTextAreaProps,
     RichTextAreaCustomLabels,
-    BuiltinToolbarButton,
     ToolbarGroup,
 } from './components/Input'
 
