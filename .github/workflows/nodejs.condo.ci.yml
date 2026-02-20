@@ -447,7 +447,7 @@ jobs:
         env:
           SHARD_TOTAL: ${{ env.CONDO_TEST_SHARD_TOTAL }}
         run: |
-          echo "ids=$(jq -c -n --argjson total \"$SHARD_TOTAL\" '[range(1; $total + 1)]')" >> "$GITHUB_OUTPUT"
+          echo "ids=$(jq -c -n --argjson total "$SHARD_TOTAL" '[range(1; $total + 1)]')" >> "$GITHUB_OUTPUT"
           echo "total=$SHARD_TOTAL" >> "$GITHUB_OUTPUT"
 
   run-dev-portal-api-tests:
