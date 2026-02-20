@@ -234,18 +234,15 @@
   }
 }
 
-/* stylelint-disable-next-line selector-class-pattern */
 .condo-rich-text-area-toolbar-button.condo-btn.condo-btn-secondary.condo-btn-minimal {
   min-width: 32px;
   height: 32px;
 
-  /* Override gray-7 icon color from minimal secondary to black (#222) */
   & > span {
     color: @condo-global-color-black;
   }
 
   &.condo-rich-text-area-toolbar-button-active {
-    /* Use same mechanism as hover: gradient bg via ::before + green icon */
     & > span {
       color: @condo-global-color-green-5;
     }
@@ -261,7 +258,6 @@
   background: @condo-global-color-white;
 }
 
-/* stylelint-disable-next-line selector-class-pattern */
 .condo-rich-text-area-editor-wrap .tiptap {
   min-height: var(--rta-min-height, auto);
   max-height: var(--rta-max-height, none);
@@ -278,15 +274,10 @@
   }
 }
 
-/* stylelint-disable selector-class-pattern */
-
 .condo-rich-text-area-type-inline .condo-rich-text-area-editor-wrap .tiptap {
   .condo-rich-content-inline();
 }
 
-/* stylelint-enable selector-class-pattern */
-
-/* Placeholder via @tiptap/extension-placeholder */
 .condo-rich-text-area-editor-wrap .tiptap > .is-editor-empty:first-child:last-child::before {
   float: left;
   width: 100%;
@@ -296,12 +287,10 @@
   pointer-events: none;
 }
 
-/* Bottom panel — shared .condo-input-bottom-panel handles spacing */
 .condo-rich-text-area-bottom-panel {
   padding: 0;
 }
 
-/* Disabled state */
 .condo-rich-text-area-disabled {
   opacity: @condo-global-opacity-disabled;
   pointer-events: none;
@@ -311,7 +300,6 @@
   color: @condo-global-color-red-5;
 }
 
-/* Link modal — fix wrapper overflow caused by padding: 1px + content-box */
 .condo-rich-text-area-link-modal .condo-modal-wrapper {
   box-sizing: border-box;
 }

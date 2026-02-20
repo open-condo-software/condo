@@ -82,8 +82,6 @@ const RICH_TEXT_AREA_CLASS_PREFIX = 'condo-rich-text-area'
 
 const RichTextTypeContext = React.createContext<RenderType>('default')
 
-// TipTap types NodeViewContent.as as NoInfer<'div'>, which is overly restrictive.
-// Re-type once so all usages stay cast-free.
 const TypedNodeViewContent = NodeViewContent as React.FC<{ as?: keyof JSX.IntrinsicElements }>
 
 type NodeViewOptions = {
@@ -161,7 +159,7 @@ type RichTextAreaToolbarLabels = {
     unorderedList: string
     orderedList: string
     taskList: string
-    removeFormating: string
+    removeFormatting: string
     table: string
     blockquote: string
     image: string
@@ -190,7 +188,7 @@ type ToolbarButtonKey =
     | 'bold' | 'italic' | 'strikethrough'
     | 'link'
     | 'unorderedList' | 'orderedList' | 'taskList'
-    | 'removeFormating'
+    | 'removeFormatting'
     | 'table' | 'blockquote' | 'image' | 'heading'
 
 export type ToolbarGroup = ToolbarButtonKey[]
@@ -205,7 +203,7 @@ const DEFAULT_TOOLBAR_LABELS: RichTextAreaToolbarLabels = {
     unorderedList: 'Unordered List',
     orderedList: 'Ordered List',
     taskList: 'Task List',
-    removeFormating: 'Remove Formatting',
+    removeFormatting: 'Remove Formatting',
     table: 'Table',
     blockquote: 'Blockquote',
     image: 'Image',
@@ -291,9 +289,9 @@ const BUILTIN_BUTTON_CONFIG: Record<ToolbarButtonKey, BuiltinButtonConfig> = {
         action: (editor) => editor.chain().focus().toggleTaskList().run(),
         isActive: (editor) => editor.isActive('taskList'),
     },
-    removeFormating: {
+    removeFormatting: {
         icon: <RemoveFormating size='small' />,
-        labelKey: 'removeFormating',
+        labelKey: 'removeFormatting',
         action: (editor) => editor.chain().focus().clearNodes().unsetAllMarks().run(),
     },
     table: {
@@ -325,7 +323,7 @@ const DEFAULT_TOOLBAR_GROUPS: ToolbarGroup[] = [
     ['link'],
     ['bold', 'italic'],
     ['unorderedList', 'orderedList'],
-    ['removeFormating'],
+    ['removeFormatting'],
 ]
 
 const ToolbarButton: React.FC<{
@@ -629,7 +627,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
         <>
             <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar`}>
                 {groups.map((group, groupIndex) => (
-                    // eslint-disable-next-line react/no-array-index-key
                     <ToolbarButtonGroup key={groupIndex}>
                         {group.map((item) => {
                             const config = BUILTIN_BUTTON_CONFIG[item]
@@ -648,7 +645,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
                     </ToolbarButtonGroup>
                 ))}
             </div>
-            {/* NOTE: conditional render required — condo Modal can't close visually via open prop */}
             {hasLink && linkModalOpen && (
                 <LinkModal
                     open={linkModalOpen}
@@ -725,13 +721,11 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     const onChangeRef = useRef(onChange)
     onChangeRef.current = onChange
 
-    // Parse autoSize config
     const autoSizeConfig = useMemo(() => {
         if (typeof autoSize === 'boolean' || !autoSize) return { minRows: 1 }
         return autoSize
     }, [autoSize])
 
-    // Measure actual line-height from editor DOM for accurate row calculation
     const editorWrapRef = useRef<HTMLDivElement>(null)
     const [measuredLineHeight, setMeasuredLineHeight] = useState<number | null>(null)
     const lineHeight = measuredLineHeight || DEFAULT_LINE_HEIGHT
@@ -779,16 +773,14 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
             const md = sanitizeMarkdown(updatedEditor.getMarkdown())
             onChangeRef.current?.(md)
         },
-    }, [placeholder])
+    }, [placeholder, disabled, maxLength, overflowPolicy, type])
 
-    // Sync editable state with disabled prop
     useEffect(() => {
         if (editor) {
             editor.setEditable(!disabled)
         }
     }, [editor, disabled])
 
-    // Sync external value changes
     useEffect(() => {
         if (editor && value !== undefined) {
             const currentMd = sanitizeMarkdown(editor.getMarkdown())
@@ -798,10 +790,8 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         }
     }, [editor, value])
 
-    // Measure line-height on mount
     useEffect(() => {
         if (editor) {
-            // Measure actual line-height from rendered editor
             const el = editorWrapRef.current?.querySelector('.tiptap')
             if (el) {
                 const lh = Number.parseFloat(window.getComputedStyle(el).lineHeight)
@@ -821,7 +811,6 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         selector: ({ editor: e }) => e?.storage.characterCount?.characters() ?? 0,
     })
 
-    // Calculate min/max height from rows and measured line-height
     const style = useMemo(() => {
         const minRows = autoSizeConfig.minRows || 1
         const minH = minRows * lineHeight + EDITOR_VERTICAL_PADDING
