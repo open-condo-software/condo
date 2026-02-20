@@ -15,12 +15,15 @@ const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { readOnlyFieldAccess, writeOnlyServerSideFieldAccess } = require('@open-condo/keystone/access')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition, getById, find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
-const { publish } = require('@open-condo/nats')
+const { publish, buildSubject } = require('@open-condo/nats')
 const { webHooked } = require('@open-condo/webhooks/plugins')
+
+const logger = getLogger('nats')
 
 const {
     PROPERTY_REQUIRED_ERROR,
@@ -996,7 +999,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 try {
                     await publish({
                         stream: 'ticket-changes',
-                        subject: `ticket-changes.${updatedItem.organization}.${updatedItem.id}`,
+                        subject: buildSubject('ticket-changes', updatedItem.organization, updatedItem.id),
                         data: {
                             ticketId: updatedItem.id,
                             organizationId: updatedItem.organization,
@@ -1008,7 +1011,7 @@ const Ticket = new GQLListSchema('Ticket', {
                         },
                     })
                 } catch (error) {
-                    console.error('[NATS] Failed to publish ticket change:', error)
+                    logger.error({ msg: 'Failed to publish ticket change', err: error })
                 }
             }
         },

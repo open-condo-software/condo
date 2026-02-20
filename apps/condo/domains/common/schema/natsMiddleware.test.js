@@ -9,13 +9,11 @@ const { configure } = require('@open-condo/nats')
 const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { OrganizationEmployee, createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
-
-const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
-const NATS_URL = conf.NATS_URL || 'nats://127.0.0.1:4222'
-const NATS_CONFIGURED = conf.NATS_ENABLED !== 'false' && !!conf.NATS_AUTH_ACCOUNT_SEED
+const TOKEN_SECRET = conf.NATS_TOKEN_SECRET
+const NATS_URL = conf.NATS_URL
+const NATS_CONFIGURED = conf.NATS_ENABLED === 'true' && !!conf.NATS_AUTH_ACCOUNT_SEED
 
 async function getCookieWithOrganization (client, adminClient) {
     const baseCookie = client.getCookie()
@@ -165,14 +163,13 @@ describe('NATS Middleware Integration Tests', () => {
             expect(body.organizationId).toBe(client.organization.id)
 
             const streamNames = body.streams.map(s => s.name)
-            expect(streamNames).toContain('property-changes')
-            expect(streamNames).toContain('notification-events')
+            expect(streamNames).toContain('ticket-changes')
         })
 
         it('returns only streams user has permission for', async () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageProperties: false,
+                canReadTickets: false,
             })
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {
@@ -193,8 +190,7 @@ describe('NATS Middleware Integration Tests', () => {
             const body = await response.json()
             const streamNames = body.streams.map(s => s.name)
 
-            expect(streamNames).toContain('notification-events')
-            expect(streamNames).not.toContain('property-changes')
+            expect(streamNames).not.toContain('ticket-changes')
         })
     })
 
@@ -219,10 +215,10 @@ describe('NATS Middleware Integration Tests', () => {
             expect(decoded.allowedStreams).toEqual(expect.arrayContaining(allowedStreams))
         })
 
-        it('token for user without permissions only includes public streams', async () => {
+        it('token for user without permissions excludes restricted streams', async () => {
             const [organization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canManageProperties: false,
+                canReadTickets: false,
             })
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {
@@ -241,8 +237,7 @@ describe('NATS Middleware Integration Tests', () => {
 
             expect(tokenResponse.status).toBe(200)
             const { allowedStreams } = await tokenResponse.json()
-            expect(allowedStreams).toContain('notification-events')
-            expect(allowedStreams).not.toContain('property-changes')
+            expect(allowedStreams).not.toContain('ticket-changes')
         })
     })
 
@@ -282,7 +277,7 @@ describe('NATS Middleware Integration Tests', () => {
                 const deliverInbox = createInbox()
                 nc.subscribe(deliverInbox)
                 const response = await nc.request(
-                    `_NATS.subscribe.notification-events.${client.organization.id}`,
+                    `_NATS.subscribe.ticket-changes.${client.organization.id}`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -303,7 +298,7 @@ describe('NATS Middleware Integration Tests', () => {
             const jc = JSONCodec()
             try {
                 await expect(nc.request(
-                    `_NATS.subscribe.notification-events.${clientB.organization.id}`,
+                    `_NATS.subscribe.ticket-changes.${clientB.organization.id}`,
                     jc.encode({ deliverInbox: createInbox() }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
@@ -319,8 +314,8 @@ describe('NATS Middleware Integration Tests', () => {
 
             const serverConn = await connect({
                 servers: NATS_URL,
-                user: conf.NATS_SERVER_USER || 'condo-server',
-                pass: conf.NATS_SERVER_PASSWORD || 'server-secret',
+                user: conf.NATS_SERVER_USER,
+                pass: conf.NATS_SERVER_PASSWORD,
                 name: 'test-publisher',
             })
 
@@ -339,7 +334,7 @@ describe('NATS Middleware Integration Tests', () => {
                 })()
 
                 const response = await nc.request(
-                    `_NATS.subscribe.notification-events.${clientA.organization.id}`,
+                    `_NATS.subscribe.ticket-changes.${clientA.organization.id}`,
                     jc.encode({ deliverInbox }),
                     { timeout: 5000 }
                 )
@@ -349,11 +344,11 @@ describe('NATS Middleware Integration Tests', () => {
 
                 const serverJs = serverConn.jetstream()
                 await serverJs.publish(
-                    `notification-events.${clientA.organization.id}.e1`,
+                    `ticket-changes.${clientA.organization.id}.e1`,
                     jc.encode({ org: clientA.organization.id, id: 'e1' })
                 )
                 await serverJs.publish(
-                    `notification-events.${clientB.organization.id}.e2`,
+                    `ticket-changes.${clientB.organization.id}.e2`,
                     jc.encode({ org: clientB.organization.id, id: 'e2' })
                 )
 
@@ -378,8 +373,8 @@ describe('NATS Middleware Integration Tests', () => {
 
             const serverConn = await connect({
                 servers: NATS_URL,
-                user: conf.NATS_SERVER_USER || 'condo-server',
-                pass: conf.NATS_SERVER_PASSWORD || 'server-secret',
+                user: conf.NATS_SERVER_USER,
+                pass: conf.NATS_SERVER_PASSWORD,
                 name: 'cross-user-publisher',
             })
 
@@ -409,14 +404,14 @@ describe('NATS Middleware Integration Tests', () => {
                 })()
 
                 const respA = await ncA.request(
-                    `_NATS.subscribe.notification-events.${clientA.organization.id}`,
+                    `_NATS.subscribe.ticket-changes.${clientA.organization.id}`,
                     jc.encode({ deliverInbox: inboxA }),
                     { timeout: 5000 }
                 )
                 expect(jc.decode(respA.data).status).toBe('ok')
 
                 const respB = await ncB.request(
-                    `_NATS.subscribe.notification-events.${clientB.organization.id}`,
+                    `_NATS.subscribe.ticket-changes.${clientB.organization.id}`,
                     jc.encode({ deliverInbox: inboxB }),
                     { timeout: 5000 }
                 )
@@ -424,14 +419,14 @@ describe('NATS Middleware Integration Tests', () => {
 
                 // User A CANNOT subscribe to User B's org
                 await expect(ncA.request(
-                    `_NATS.subscribe.notification-events.${clientB.organization.id}`,
+                    `_NATS.subscribe.ticket-changes.${clientB.organization.id}`,
                     jc.encode({ deliverInbox: inboxA }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
 
                 // User B CANNOT subscribe to User A's org
                 await expect(ncB.request(
-                    `_NATS.subscribe.notification-events.${clientA.organization.id}`,
+                    `_NATS.subscribe.ticket-changes.${clientA.organization.id}`,
                     jc.encode({ deliverInbox: inboxB }),
                     { timeout: 2000 }
                 )).rejects.toThrow()
@@ -440,11 +435,11 @@ describe('NATS Middleware Integration Tests', () => {
 
                 const serverJs = serverConn.jetstream()
                 await serverJs.publish(
-                    `notification-events.${clientA.organization.id}.msg-a`,
+                    `ticket-changes.${clientA.organization.id}.msg-a`,
                     jc.encode({ org: clientA.organization.id, from: 'for-A' })
                 )
                 await serverJs.publish(
-                    `notification-events.${clientB.organization.id}.msg-b`,
+                    `ticket-changes.${clientB.organization.id}.msg-b`,
                     jc.encode({ org: clientB.organization.id, from: 'for-B' })
                 )
 

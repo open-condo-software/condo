@@ -7,9 +7,9 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const { decodeNatsJwt, createUserJwt, createAuthResponseJwt, computePermissions } = require('./utils/natsJwt')
 
-const logger = getLogger('nats-auth-callout')
+const logger = getLogger('nats')
 
-const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
+const TOKEN_SECRET = conf.NATS_TOKEN_SECRET
 
 class AuthCalloutService {
     constructor () {
@@ -43,9 +43,9 @@ class AuthCalloutService {
             logger.info({ msg: 'Auth callout issuer public key', publicKey: this.accountPublicKey })
 
             this.connection = await connect({
-                servers: config.url || conf.NATS_URL || 'nats://127.0.0.1:4222',
-                user: config.authUser || conf.NATS_AUTH_USER || 'auth-service',
-                pass: config.authPass || conf.NATS_AUTH_PASSWORD || 'auth-secret',
+                servers: config.url || conf.NATS_URL,
+                user: config.authUser || conf.NATS_AUTH_USER,
+                pass: config.authPass || conf.NATS_AUTH_PASSWORD,
                 reconnect: true,
                 maxReconnectAttempts: -1,
             })

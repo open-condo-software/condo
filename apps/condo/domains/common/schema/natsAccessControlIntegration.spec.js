@@ -16,8 +16,8 @@ const {
     computePermissions,
 } = require('@open-condo/nats/utils')
 
-const TOKEN_SECRET = conf.NATS_TOKEN_SECRET || conf.TOKEN_SECRET || 'dev-secret'
-const NATS_URL = conf.NATS_URL || 'nats://127.0.0.1:4222'
+const TOKEN_SECRET = conf.NATS_TOKEN_SECRET
+const NATS_URL = conf.NATS_URL
 const RUN_INTEGRATION = process.env.NATS_INTEGRATION === 'true'
 
 const describeIf = (condition) => condition ? describe : describe.skip
@@ -37,8 +37,8 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
 
         authConnection = await connect({
             servers: NATS_URL,
-            user: conf.NATS_AUTH_USER || 'auth-service',
-            pass: conf.NATS_AUTH_PASSWORD || 'auth-secret',
+            user: conf.NATS_AUTH_USER,
+            pass: conf.NATS_AUTH_PASSWORD,
             name: 'test-auth-callout',
         })
 
@@ -96,8 +96,8 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
         relayService = new SubscriptionRelayService()
         await relayService.start({
             url: NATS_URL,
-            user: conf.NATS_SERVER_USER || 'condo-server',
-            pass: conf.NATS_SERVER_PASSWORD || 'server-secret',
+            user: conf.NATS_SERVER_USER,
+            pass: conf.NATS_SERVER_PASSWORD,
         })
     }, 15000)
 
@@ -186,8 +186,8 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
         it('relay delivers ONLY own-org messages to client INBOX', async () => {
             const serverConn = await connect({
                 servers: NATS_URL,
-                user: conf.NATS_SERVER_USER || 'condo-server',
-                pass: conf.NATS_SERVER_PASSWORD || 'server-secret',
+                user: conf.NATS_SERVER_USER,
+                pass: conf.NATS_SERVER_PASSWORD,
                 name: 'test-publisher-relay',
             })
 
@@ -307,8 +307,8 @@ describeIf(RUN_INTEGRATION)('NATS PUB-gated Relay Access Control Integration', (
         it('user cannot receive org-B messages via relay scoped to org-A', async () => {
             const serverConn = await connect({
                 servers: NATS_URL,
-                user: conf.NATS_SERVER_USER || 'condo-server',
-                pass: conf.NATS_SERVER_PASSWORD || 'server-secret',
+                user: conf.NATS_SERVER_USER,
+                pass: conf.NATS_SERVER_PASSWORD,
                 name: 'test-publisher-isolation',
             })
 

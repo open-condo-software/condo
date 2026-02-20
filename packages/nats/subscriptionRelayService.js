@@ -3,7 +3,9 @@ const { connect, JSONCodec } = require('nats')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const logger = getLogger('nats-subscription-relay')
+const { buildSubject, buildRelaySubscribePattern, buildRelayUnsubscribePattern } = require('./subject')
+
+const logger = getLogger('nats')
 
 /**
  * Server-side subscription relay service.
@@ -30,9 +32,9 @@ class SubscriptionRelayService {
     async start (config = {}) {
         try {
             this.connection = await connect({
-                servers: config.url || conf.NATS_URL || 'nats://127.0.0.1:4222',
-                user: config.user || conf.NATS_SERVER_USER || 'condo-server',
-                pass: config.pass || conf.NATS_SERVER_PASSWORD || 'server-secret',
+                servers: config.url || conf.NATS_URL,
+                user: config.user || conf.NATS_SERVER_USER,
+                pass: config.pass || conf.NATS_SERVER_PASSWORD,
                 name: 'subscription-relay',
                 reconnect: true,
                 maxReconnectAttempts: -1,
@@ -40,8 +42,8 @@ class SubscriptionRelayService {
 
             this.isRunning = true
 
-            const subscribeSub = this.connection.subscribe('_NATS.subscribe.>')
-            const unsubscribeSub = this.connection.subscribe('_NATS.unsubscribe.>')
+            const subscribeSub = this.connection.subscribe(buildRelaySubscribePattern())
+            const unsubscribeSub = this.connection.subscribe(buildRelayUnsubscribePattern())
 
             ;(async () => {
                 for await (const msg of subscribeSub) {
@@ -105,7 +107,7 @@ class SubscriptionRelayService {
         }
 
         const relayId = `relay-${++this.relayCounter}`
-        const streamSubject = `${streamName}.${orgId}.>`
+        const streamSubject = buildSubject(streamName, orgId, '>')
 
         const streamSub = this.connection.subscribe(streamSubject)
         const relay = {

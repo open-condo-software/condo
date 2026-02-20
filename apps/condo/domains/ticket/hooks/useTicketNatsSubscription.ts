@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 
 import { useNatsConnection, useNatsSubscription, Msg } from '@open-condo/nats/hooks'
+import { buildSubject } from '@open-condo/nats/subject'
 import { useOrganization } from '@open-condo/next/organization'
 
 export interface TicketChangeData {
@@ -26,7 +27,7 @@ export const useTicketNatsSubscription = (options: UseTicketNatsSubscriptionOpti
         enabled: enabled && !!organization?.id,
     })
 
-    const subject = organization?.id ? `ticket-changes.${organization.id}.>` : ''
+    const subject = organization?.id ? buildSubject('ticket-changes', organization.id, '>') : ''
 
     const handleMessage = useCallback(async (data: TicketChangeData, msg: Msg) => {
         console.log('[NATS] Received ticket change:', data)
