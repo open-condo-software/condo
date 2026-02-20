@@ -11,10 +11,7 @@ const {
 
 const TOKEN_SECRET = conf.MESSAGING_TOKEN_SECRET
 
-/**
- * Unit tests for the auth callout request/response flow.
- * These test the JWT creation logic without a real NATS connection.
- */
+
 describe('Auth Callout Service Logic', () => {
     let accountKeyPair
     let accountPublicKey
