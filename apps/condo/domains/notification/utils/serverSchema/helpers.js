@@ -168,6 +168,69 @@ function getMessageOptions (type) {
 }
 
 /**
+ * Splits remote clients by groups to ordered chunks of clients using appId according to appGroups
+ * @example
+ * const tokens = [
+ * { appId: 'appId1' }, { appId: 'appId1' },
+ * { appId: 'appId2' }, { appId: 'appId2' },
+ * { appId: 'appId3' }, { appId: 'appId3' },
+ * { appId: 'appId4' }, { appId: 'appId4' },
+ * { appId: 'appId5' }, { appId: 'appId5' },
+ * { appId: 'appId6' }, { appId: 'appId6' },
+ * ]
+ * const appGroups = { group1: ['appId1', 'appId2'], group2: ['appId3', 'appId4'] }
+ * const result = chunkRemoteClientsByAppGroups(tokens, appGroups)
+ * expect(result).toEqual({
+ *     group1: [
+ *         [{ appId: 'appId1' }, { appId: 'appId1' }],
+ *         [{ appId: 'appId2' }, { appId: 'appId2' }],
+ *     ],
+ *     group2: [
+ *         [{ appId: 'appId3' }, { appId: 'appId3' }],
+ *         [{ appId: 'appId4' }, { appId: 'appId4' }],
+ *     ],
+ *     ungrouped_appId5: [
+ *         [{ appId: 'appId5' }, { appId: 'appId5' }]
+ *     ],
+ *     ungrouped_appId6: [
+ *         [{ appId: 'appId6' }, { appId: 'appId6' }]
+ *     ],
+ * })
+ * @param remoteClients {{appId: string}[]}
+ * @param appsGroups {{[s: string]: string[]}} key - group name, value - order of preferred appIds
+ * @returns {{[s: string]: {appId: string}[][]}} key - group name, value - array of remote client chunks, you should send pushes only to clients in one chunk
+ */
+function chunkRemoteClientsByAppGroups (remoteClients, appsGroups = {}) {
+    const appIdToGroup = Object.fromEntries(
+        Object.entries(appsGroups)
+            .flatMap(([groupName, appIds]) =>
+                appIds.map(appId => [appId, groupName])
+            )
+    )
+    const tokensByGroup = remoteClients.reduce((grouped, remoteClient) => {
+        const groupName = appIdToGroup[remoteClient.appId] || `ungrouped_${remoteClient.appId}`
+        if (!grouped[groupName]) grouped[groupName] = []
+        grouped[groupName].push(remoteClient)
+        return grouped
+    }, {})
+
+    return Object.entries(tokensByGroup).reduce((entriesByGroup, [groupName, remoteClients]) => {
+        if (!appsGroups[groupName]) {
+            entriesByGroup[groupName] = [remoteClients]
+            return entriesByGroup
+        }
+
+        let entries = []
+        appsGroups[groupName].forEach((appId, i) => {
+            entries[i] = remoteClients.filter(remoteClient => remoteClient.appId === appId)
+        })
+        entries = entries.filter(entry => entry?.length)
+        entriesByGroup[groupName] = entries
+        return entriesByGroup
+    }, {})
+}
+
+/**
  * Gets value customPushType from MESSAGE_DELIVERY_OPTIONS[type] if it exists
  * @param messageType
  * @returns {customPushType: string | undefined}
@@ -182,4 +245,5 @@ module.exports = {
     getUserSettingsForMessage,
     getMessageOptions,
     getPreferredPushTypeByMessageType,
+    chunkRemoteClientsByAppGroups,
 }
