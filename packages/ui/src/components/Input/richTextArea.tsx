@@ -3,6 +3,7 @@ import { CodeBlock } from '@tiptap/extension-code-block'
 import { Heading } from '@tiptap/extension-heading'
 import { Image } from '@tiptap/extension-image'
 import { Link } from '@tiptap/extension-link'
+import { TaskItem, TaskList } from '@tiptap/extension-list'
 import { ListItem } from '@tiptap/extension-list-item'
 import { Paragraph } from '@tiptap/extension-paragraph'
 import { Placeholder } from '@tiptap/extension-placeholder'
@@ -26,51 +27,90 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import {
     ArrowUp,
     Bold,
+    CheckSquare,
     Italic,
     Link as LinkIcon,
     List,
+    Newspaper,
     NumberList,
+    Paperclip,
     Redo,
     RemoveFormating,
+    Sheet,
+    Slash,
+    Subtitles,
     Undo,
 } from '@open-condo/icons'
 
 import { Input as TextInput } from './input'
 
 import { Button } from '../Button'
-import { NODE_CONFIG_BY_TYPE } from '../Markdown/nodeConfig'
+import { Checkbox } from '../Checkbox'
 import { Modal } from '../Modal'
 import { Tooltip } from '../Tooltip'
 import { Typography } from '../Typography'
 
-import type { RenderType } from '../Markdown/nodeConfig'
 import type { ReactNodeViewProps, Editor } from '@tiptap/react'
 import type { CSSProperties } from 'react'
 
+
+type RenderType = 'default' | 'inline'
+
+type NodeConfig = {
+    component: React.ComponentType<any>
+    props?: Record<string, any>
+    getProps?: (attrs: Record<string, any>) => Record<string, any>
+}
+
+// NOTE: If you change this config, make sure to update MARKDOWN_COMPONENTS_BY_TYPE
+// in packages/ui/src/components/Markdown/markdown.tsx accordingly
+const RICH_TEXT_AREA_COMPONENTS_BY_TYPE: Record<RenderType, Record<string, NodeConfig>> = {
+    default: {
+        heading: {
+            component: Typography.Title,
+            getProps: (attrs) => ({ level: attrs.level }),
+        },
+        listItem: {
+            component: Typography.Text,
+            props: { type: 'secondary' },
+        },
+    },
+    inline: {
+        heading: {
+            component: Typography.Paragraph,
+            props: { strong: true, type: 'primary' },
+        },
+        paragraph: {
+            component: Typography.Paragraph,
+            props: { type: 'primary' },
+        },
+        listItem: {
+            component: Typography.Text,
+        },
+    },
+}
 
 const RICH_TEXT_AREA_CLASS_PREFIX = 'condo-rich-text-area'
 
 const RichTextTypeContext = React.createContext<RenderType>('default')
 
-type NodeViewOptions<
-    F extends keyof JSX.IntrinsicElements = 'div',
-    C extends keyof JSX.IntrinsicElements = 'span',
-> = {
+// TipTap types NodeViewContent.as as NoInfer<'div'>, which is overly restrictive.
+// Re-type once so all usages stay cast-free.
+const TypedNodeViewContent = NodeViewContent as React.FC<{ as?: keyof JSX.IntrinsicElements }>
+
+type NodeViewOptions = {
     configKey?: string
-    fallbackTag: F
-    contentTag?: C
+    fallbackTag: keyof JSX.IntrinsicElements
+    contentTag?: keyof JSX.IntrinsicElements
 }
 
-function createNodeView<
-    F extends keyof JSX.IntrinsicElements,
-    C extends keyof JSX.IntrinsicElements = 'span',
-> ({ configKey, fallbackTag, contentTag }: NodeViewOptions<F, C>): React.FC<ReactNodeViewProps> {
-    const resolvedContentTag = (contentTag || 'span') as string as 'div'
-    const resolvedFallbackTag = fallbackTag as string as 'div'
+function createNodeView ({ configKey, fallbackTag, contentTag }: NodeViewOptions): React.FC<ReactNodeViewProps> {
+    const resolvedContentTag = contentTag || 'span'
+    const resolvedFallbackTag = fallbackTag
 
     const View: React.FC<ReactNodeViewProps> = ({ node }) => {
         const type = useContext(RichTextTypeContext)
-        const config = configKey ? NODE_CONFIG_BY_TYPE[type]?.[configKey] : null
+        const config = configKey ? RICH_TEXT_AREA_COMPONENTS_BY_TYPE[type]?.[configKey] : null
 
         if (config) {
             const Component = config.component
@@ -81,7 +121,7 @@ function createNodeView<
             return (
                 <NodeViewWrapper>
                     <Component {...props}>
-                        <NodeViewContent as={resolvedContentTag} />
+                        <TypedNodeViewContent as={resolvedContentTag} />
                     </Component>
                 </NodeViewWrapper>
             )
@@ -89,7 +129,7 @@ function createNodeView<
 
         return (
             <NodeViewWrapper as={resolvedFallbackTag}>
-                <NodeViewContent as={resolvedContentTag} />
+                <TypedNodeViewContent as={resolvedContentTag} />
             </NodeViewWrapper>
         )
     }
@@ -103,23 +143,68 @@ const ListItemNodeView = createNodeView({ configKey: 'listItem', fallbackTag: 'l
 const CodeBlockNodeView = createNodeView({ fallbackTag: 'pre', contentTag: 'code' })
 const BlockquoteNodeView = createNodeView({ fallbackTag: 'blockquote' })
 
+const TaskItemNodeView: React.FC<ReactNodeViewProps> = ({ node, updateAttributes }) => {
+    const checked = node.attrs.checked || false
 
-export type RichTextAreaToolbarLabels = {
+    const handleChange = useCallback(() => {
+        updateAttributes({ checked: !checked })
+    }, [checked, updateAttributes])
+
+    return (
+        <NodeViewWrapper as='li' data-checked={String(checked)}>
+            <span contentEditable={false}>
+                <Checkbox checked={checked} onChange={handleChange} />
+            </span>
+            <TypedNodeViewContent as='div' />
+        </NodeViewWrapper>
+    )
+}
+TaskItemNodeView.displayName = 'TaskItemNodeView'
+
+
+type RichTextAreaToolbarLabels = {
     undo: string
     redo: string
     link: string
     bold: string
     italic: string
+    strikethrough: string
     unorderedList: string
     orderedList: string
+    taskList: string
     removeFormating: string
+    table: string
+    blockquote: string
+    image: string
+    heading: string
 }
 
-export type RichTextAreaLinkModalLabels = {
+type RichTextAreaLinkModalLabels = {
     urlLabel: string
     textLabel: string
     submitLabel: string
 }
+
+type RichTextAreaImageModalLabels = {
+    urlLabel: string
+    submitLabel: string
+}
+
+export type RichTextAreaCustomLabels = {
+    toolbar?: Partial<RichTextAreaToolbarLabels>
+    linkModal?: Partial<RichTextAreaLinkModalLabels>
+    imageModal?: Partial<RichTextAreaImageModalLabels>
+}
+
+export type BuiltinToolbarButton =
+    | 'undo' | 'redo'
+    | 'bold' | 'italic' | 'strikethrough'
+    | 'link'
+    | 'unorderedList' | 'orderedList' | 'taskList'
+    | 'removeFormating'
+    | 'table' | 'blockquote' | 'image' | 'heading'
+
+export type ToolbarGroup = BuiltinToolbarButton[]
 
 const DEFAULT_TOOLBAR_LABELS: RichTextAreaToolbarLabels = {
     undo: 'Undo',
@@ -127,9 +212,15 @@ const DEFAULT_TOOLBAR_LABELS: RichTextAreaToolbarLabels = {
     link: 'Link',
     bold: 'Bold',
     italic: 'Italic',
+    strikethrough: 'Strikethrough',
     unorderedList: 'Unordered List',
     orderedList: 'Ordered List',
+    taskList: 'Task List',
     removeFormating: 'Remove Formatting',
+    table: 'Table',
+    blockquote: 'Blockquote',
+    image: 'Image',
+    heading: 'Heading',
 }
 
 const DEFAULT_LINK_MODAL_LABELS: RichTextAreaLinkModalLabels = {
@@ -137,6 +228,116 @@ const DEFAULT_LINK_MODAL_LABELS: RichTextAreaLinkModalLabels = {
     textLabel: 'Text',
     submitLabel: 'Ок',
 }
+
+const DEFAULT_IMAGE_MODAL_LABELS: RichTextAreaImageModalLabels = {
+    urlLabel: 'Image URL',
+    submitLabel: 'Ok',
+}
+
+type ToolbarHelpers = {
+    openLinkModal: () => void
+    openImageModal: () => void
+}
+
+type BuiltinButtonConfig = {
+    icon: React.ReactNode
+    labelKey: keyof RichTextAreaToolbarLabels
+    action: (editor: Editor, helpers: ToolbarHelpers) => void
+    isActive?: (editor: Editor) => boolean
+    isDisabled?: (editor: Editor) => boolean
+}
+
+const BUILTIN_BUTTON_CONFIG: Record<BuiltinToolbarButton, BuiltinButtonConfig> = {
+    undo: {
+        icon: <Undo size='small' />,
+        labelKey: 'undo',
+        action: (editor) => editor.chain().focus().undo().run(),
+        isDisabled: (editor) => !editor.can().undo(),
+    },
+    redo: {
+        icon: <Redo size='small' />,
+        labelKey: 'redo',
+        action: (editor) => editor.chain().focus().redo().run(),
+        isDisabled: (editor) => !editor.can().redo(),
+    },
+    bold: {
+        icon: <Bold size='small' />,
+        labelKey: 'bold',
+        action: (editor) => editor.chain().focus().toggleBold().run(),
+        isActive: (editor) => editor.isActive('bold'),
+    },
+    italic: {
+        icon: <Italic size='small' />,
+        labelKey: 'italic',
+        action: (editor) => editor.chain().focus().toggleItalic().run(),
+        isActive: (editor) => editor.isActive('italic'),
+    },
+    strikethrough: {
+        icon: <Slash size='small' />,
+        labelKey: 'strikethrough',
+        action: (editor) => editor.chain().focus().toggleStrike().run(),
+        isActive: (editor) => editor.isActive('strike'),
+    },
+    link: {
+        icon: <LinkIcon size='small' />,
+        labelKey: 'link',
+        action: (_editor, helpers) => helpers.openLinkModal(),
+        isActive: (editor) => editor.isActive('link'),
+    },
+    unorderedList: {
+        icon: <List size='small' />,
+        labelKey: 'unorderedList',
+        action: (editor) => editor.chain().focus().toggleBulletList().run(),
+        isActive: (editor) => editor.isActive('bulletList'),
+    },
+    orderedList: {
+        icon: <NumberList size='small' />,
+        labelKey: 'orderedList',
+        action: (editor) => editor.chain().focus().toggleOrderedList().run(),
+        isActive: (editor) => editor.isActive('orderedList'),
+    },
+    taskList: {
+        icon: <CheckSquare size='small' />,
+        labelKey: 'taskList',
+        action: (editor) => editor.chain().focus().toggleTaskList().run(),
+        isActive: (editor) => editor.isActive('taskList'),
+    },
+    removeFormating: {
+        icon: <RemoveFormating size='small' />,
+        labelKey: 'removeFormating',
+        action: (editor) => editor.chain().focus().clearNodes().unsetAllMarks().run(),
+    },
+    table: {
+        icon: <Sheet size='small' />,
+        labelKey: 'table',
+        action: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
+    },
+    blockquote: {
+        icon: <Newspaper size='small' />,
+        labelKey: 'blockquote',
+        action: (editor) => editor.chain().focus().toggleBlockquote().run(),
+        isActive: (editor) => editor.isActive('blockquote'),
+    },
+    image: {
+        icon: <Paperclip size='small' />,
+        labelKey: 'image',
+        action: (_editor, helpers) => helpers.openImageModal(),
+    },
+    heading: {
+        icon: <Subtitles size='small' />,
+        labelKey: 'heading',
+        action: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+        isActive: (editor) => editor.isActive('heading', { level: 2 }),
+    },
+}
+
+const DEFAULT_TOOLBAR_GROUPS: ToolbarGroup[] = [
+    ['undo', 'redo'],
+    ['link'],
+    ['bold', 'italic'],
+    ['unorderedList', 'orderedList'],
+    ['removeFormating'],
+]
 
 const ToolbarButton: React.FC<{
     onClick: () => void
@@ -247,42 +448,127 @@ const LinkModal: React.FC<LinkModalProps> = ({
     )
 }
 
+type ImageModalProps = {
+    open: boolean
+    onCancel: () => void
+    onSubmit: (url: string) => void
+    labels: RichTextAreaImageModalLabels
+}
+
+const ImageModal: React.FC<ImageModalProps> = ({
+    open,
+    onCancel,
+    onSubmit,
+    labels,
+}) => {
+    const [url, setUrl] = useState('')
+
+    useEffect(() => {
+        if (open) {
+            setUrl('')
+        }
+    }, [open])
+
+    const handleSubmit = useCallback(() => {
+        onSubmit(url)
+    }, [url, onSubmit])
+
+    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            handleSubmit()
+        }
+    }, [handleSubmit])
+
+    return (
+        <Modal
+            open={open}
+            onCancel={onCancel}
+            width='small'
+            scrollX={false}
+            destroyOnClose
+            className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal`}
+            footer={(
+                <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-footer`}>
+                    <Button type='primary' onClick={handleSubmit}>
+                        {labels.submitLabel}
+                    </Button>
+                </div>
+            )}
+        >
+            <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-content`}>
+                <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-field`}>
+                    <Typography.Text type='secondary' size='medium'>
+                        {labels.urlLabel}
+                    </Typography.Text>
+                    <TextInput
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder='https://'
+                    />
+                </div>
+            </div>
+        </Modal>
+    )
+}
+
 type ToolbarProps = {
     editor: Editor | null
     labels: RichTextAreaToolbarLabels
     linkModalLabels: RichTextAreaLinkModalLabels
+    imageModalLabels: RichTextAreaImageModalLabels
+    groups: ToolbarGroup[]
     disabled?: boolean
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, disabled }) => {
+const makeTextContent = (text: string, url?: string) => {
+    if (url) {
+        return { type: 'text', text, marks: [{ type: 'link', attrs: { href: url } }] }
+    }
+    return { type: 'text', text }
+}
+
+const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imageModalLabels, groups, disabled }) => {
     const [linkModalOpen, setLinkModalOpen] = useState(false)
     const [linkModalInitialUrl, setLinkModalInitialUrl] = useState('')
     const [linkModalInitialText, setLinkModalInitialText] = useState('')
+    const [imageModalOpen, setImageModalOpen] = useState(false)
 
-    const activeStates = useEditorState({
+    const hasLink = useMemo(
+        () => groups.some(group => group.some(item => item === 'link')),
+        [groups],
+    )
+
+    const hasImage = useMemo(
+        () => groups.some(group => group.some(item => item === 'image')),
+        [groups],
+    )
+
+    const buttonStates = useEditorState({
         editor,
         selector: ({ editor: e }) => {
             if (!e) return null
-            return {
-                bold: e.isActive('bold'),
-                italic: e.isActive('italic'),
-                bulletList: e.isActive('bulletList'),
-                orderedList: e.isActive('orderedList'),
-                link: e.isActive('link'),
-                canUndo: e.can().undo(),
-                canRedo: e.can().redo(),
+            const states: Record<string, { isActive: boolean, isDisabled: boolean }> = {}
+            for (const group of groups) {
+                for (const item of group) {
+                    const config = BUILTIN_BUTTON_CONFIG[item]
+                    states[item] = {
+                        isActive: config.isActive?.(e) ?? false,
+                        isDisabled: config.isDisabled?.(e) ?? false,
+                    }
+                }
             }
+            return states
         },
     })
 
     const handleLink = useCallback(() => {
         if (!editor) return
 
-        // Get existing link URL (if cursor is on a link)
-        const attrs = editor.getAttributes('link')
-        const existingUrl = (attrs.href as string) || ''
+        const href = editor.getAttributes('link')?.href
+        const existingUrl = typeof href === 'string' ? href : ''
 
-        // Get selected text
         const { from, to } = editor.state.selection
         const selectedText = editor.state.doc.textBetween(from, to, '')
 
@@ -326,86 +612,57 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, disa
         editor?.chain().focus().run()
     }, [editor])
 
-    const handleRemoveFormating = useCallback(() => {
+    const handleImage = useCallback(() => {
+        setImageModalOpen(true)
+    }, [])
+
+    const handleImageModalSubmit = useCallback((url: string) => {
         if (!editor) return
-        editor.chain().focus().clearNodes().unsetAllMarks().run()
+        setImageModalOpen(false)
+        if (url.trim()) {
+            editor.chain().focus().setImage({ src: url.trim() }).run()
+        } else {
+            editor.chain().focus().run()
+        }
     }, [editor])
 
-    if (!editor || !activeStates) return null
+    const handleImageModalCancel = useCallback(() => {
+        setImageModalOpen(false)
+        editor?.chain().focus().run()
+    }, [editor])
+
+    const helpers: ToolbarHelpers = useMemo(() => ({
+        openLinkModal: handleLink,
+        openImageModal: handleImage,
+    }), [handleLink, handleImage])
+
+    if (!editor || !buttonStates) return null
 
     return (
         <>
             <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar`}>
-                <ToolbarGroup>
-                    <ToolbarButton
-                        onClick={() => editor.chain().focus().undo().run()}
-                        disabled={disabled || !activeStates.canUndo}
-                        title={labels.undo}
-                        icon={<Undo size='small' />}
-                    />
-                    <ToolbarButton
-                        onClick={() => editor.chain().focus().redo().run()}
-                        disabled={disabled || !activeStates.canRedo}
-                        title={labels.redo}
-                        icon={<Redo size='small' />}
-                    />
-                </ToolbarGroup>
-
-                <ToolbarGroup>
-                    <ToolbarButton
-                        onClick={handleLink}
-                        isActive={activeStates.link}
-                        disabled={disabled}
-                        title={labels.link}
-                        icon={<LinkIcon size='small' />}
-                    />
-                </ToolbarGroup>
-
-                <ToolbarGroup>
-                    <ToolbarButton
-                        onClick={() => editor.chain().focus().toggleBold().run()}
-                        isActive={activeStates.bold}
-                        disabled={disabled}
-                        title={labels.bold}
-                        icon={<Bold size='small' />}
-                    />
-                    <ToolbarButton
-                        onClick={() => editor.chain().focus().toggleItalic().run()}
-                        isActive={activeStates.italic}
-                        disabled={disabled}
-                        title={labels.italic}
-                        icon={<Italic size='small' />}
-                    />
-                </ToolbarGroup>
-
-                <ToolbarGroup>
-                    <ToolbarButton
-                        onClick={() => editor.chain().focus().toggleBulletList().run()}
-                        isActive={activeStates.bulletList}
-                        disabled={disabled}
-                        title={labels.unorderedList}
-                        icon={<List size='small' />}
-                    />
-                    <ToolbarButton
-                        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                        isActive={activeStates.orderedList}
-                        disabled={disabled}
-                        title={labels.orderedList}
-                        icon={<NumberList size='small' />}
-                    />
-                </ToolbarGroup>
-
-                <ToolbarGroup>
-                    <ToolbarButton
-                        onClick={handleRemoveFormating}
-                        disabled={disabled}
-                        title={labels.removeFormating}
-                        icon={<RemoveFormating size='small' />}
-                    />
-                </ToolbarGroup>
+                {groups.map((group, groupIndex) => (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <ToolbarGroup key={groupIndex}>
+                        {group.map((item) => {
+                            const config = BUILTIN_BUTTON_CONFIG[item]
+                            const state = buttonStates[item]
+                            return (
+                                <ToolbarButton
+                                    key={item}
+                                    onClick={() => config.action(editor, helpers)}
+                                    isActive={state?.isActive}
+                                    disabled={disabled || state?.isDisabled}
+                                    title={labels[config.labelKey]}
+                                    icon={config.icon}
+                                />
+                            )
+                        })}
+                    </ToolbarGroup>
+                ))}
             </div>
             {/* NOTE: conditional render required — condo Modal can't close visually via open prop */}
-            {linkModalOpen && (
+            {hasLink && linkModalOpen && (
                 <LinkModal
                     open={linkModalOpen}
                     onCancel={handleLinkModalCancel}
@@ -413,6 +670,14 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, disa
                     initialUrl={linkModalInitialUrl}
                     initialText={linkModalInitialText}
                     labels={linkModalLabels}
+                />
+            )}
+            {hasImage && imageModalOpen && (
+                <ImageModal
+                    open={imageModalOpen}
+                    onCancel={handleImageModalCancel}
+                    onSubmit={handleImageModalSubmit}
+                    labels={imageModalLabels}
                 />
             )}
         </>
@@ -430,20 +695,13 @@ export type RichTextAreaProps = {
     placeholder?: string
     autoSize?: boolean | { minRows?: number, maxRows?: number }
     overflowPolicy?: 'crop' | 'show'
-    toolbarLabels?: Partial<RichTextAreaToolbarLabels>
-    linkModalLabels?: Partial<RichTextAreaLinkModalLabels>
+    toolbarGroups?: ToolbarGroup[]
+    customLabels?: RichTextAreaCustomLabels
     bottomPanelUtils?: React.ReactElement[]
     type?: RenderType
 }
 
 const getTextLength = (e: Editor) => e.getText({ blockSeparator: '\n' }).length
-
-const makeTextContent = (text: string, url?: string) => {
-    if (url) {
-        return { type: 'text', text, marks: [{ type: 'link', attrs: { href: url } }] }
-    }
-    return { type: 'text', text }
-}
 
 const EDITOR_VERTICAL_PADDING = 24 // 12px top + 12px bottom
 const DEFAULT_LINE_HEIGHT = 24
@@ -459,20 +717,25 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     showCount = true,
     autoSize = { minRows: 1 },
     overflowPolicy = 'crop',
-    toolbarLabels,
-    linkModalLabels: linkModalLabelsProp,
+    toolbarGroups = DEFAULT_TOOLBAR_GROUPS,
+    customLabels,
     bottomPanelUtils = [],
     type = 'default',
 }) => {
-    const labels = useMemo(() => ({
+    const resolvedToolbarLabels = useMemo(() => ({
         ...DEFAULT_TOOLBAR_LABELS,
-        ...toolbarLabels,
-    }), [toolbarLabels])
+        ...customLabels?.toolbar,
+    }), [customLabels?.toolbar])
 
     const resolvedLinkModalLabels = useMemo(() => ({
         ...DEFAULT_LINK_MODAL_LABELS,
-        ...linkModalLabelsProp,
-    }), [linkModalLabelsProp])
+        ...customLabels?.linkModal,
+    }), [customLabels?.linkModal])
+
+    const resolvedImageModalLabels = useMemo(() => ({
+        ...DEFAULT_IMAGE_MODAL_LABELS,
+        ...customLabels?.imageModal,
+    }), [customLabels?.imageModal])
 
     const onChangeRef = useRef(onChange)
     onChangeRef.current = onChange
@@ -506,7 +769,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                 listItem: false,
             }),
             Heading.extend({ addNodeView: () => ReactNodeViewRenderer(HeadingNodeView) })
-                .configure({ levels: [2, 3, 4, 5, 6] }),
+                .configure({ levels: [1, 2, 3, 4, 5, 6] }),
             Paragraph.extend({ addNodeView: () => ReactNodeViewRenderer(ParagraphNodeView) }),
             CodeBlock.extend({ addNodeView: () => ReactNodeViewRenderer(CodeBlockNodeView) }),
             Blockquote.extend({ addNodeView: () => ReactNodeViewRenderer(BlockquoteNodeView) }),
@@ -519,6 +782,9 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                 },
             }),
             Image,
+            TaskList,
+            TaskItem.extend({ addNodeView: () => ReactNodeViewRenderer(TaskItemNodeView) })
+                .configure({ nested: true }),
             Table,
             TableRow,
             TableCell,
@@ -618,7 +884,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     return (
         <RichTextTypeContext.Provider value={type}>
             <div className={containerClassName} style={style}>
-                <Toolbar editor={editor} labels={labels} linkModalLabels={resolvedLinkModalLabels} disabled={disabled} />
+                <Toolbar editor={editor} labels={resolvedToolbarLabels} linkModalLabels={resolvedLinkModalLabels} imageModalLabels={resolvedImageModalLabels} groups={toolbarGroups} disabled={disabled} />
                 <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-editor-wrap`} ref={editorWrapRef}>
                     <EditorContent editor={editor} />
                 </div>
