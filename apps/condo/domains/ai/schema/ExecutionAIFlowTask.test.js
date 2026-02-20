@@ -17,7 +17,9 @@ const {
     initTestExpressApp,
 } = require('@open-condo/keystone/test.utils')
 
-const { TASK_STATUSES } = require('@condo/domains/ai/constants')
+const {
+    TASK_STATUSES,
+} = require('@condo/domains/ai/constants')
 const { removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const {
     ExecutionAIFlowTask,
@@ -59,6 +61,7 @@ describe.skip('ExecutionAIFlowTask', () => {
                 const [task, taskAttrs] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
                     flowType: 'success_flow',
                     context: { some_field: faker.lorem.words(3) },
+                    sessionId: faker.datatype.uuid(),
                 })
                 expect(task.id).toMatch(UUID_RE)
                 expect(task.v).toEqual(1)
@@ -71,6 +74,7 @@ describe.skip('ExecutionAIFlowTask', () => {
                 expect(task.status).toEqual(TASK_STATUSES.PROCESSING)
                 expect(task.flowType).toEqual(taskAttrs.flowType)
                 expect(task.context).toEqual(taskAttrs.context)
+                expect(task.sessionId).toEqual(taskAttrs.sessionId)
                 expect(task.result).toBeNull()
                 expect(task.errorMessage).toBeNull()
             })
@@ -420,6 +424,25 @@ describe.skip('ExecutionAIFlowTask', () => {
                 type: 'INVALID_FLOW_CONTEXT',
             })
         })
+
+        test('sessionId should be optional and nullable', async () => {
+            // Test without sessionId
+            const [taskWithoutSession] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                flowType: 'success_flow',
+                context: { some_field: faker.lorem.words(3) },
+            })
+            expect(taskWithoutSession.sessionId).toBeNull()
+
+            // Test with sessionId
+            const sessionId = faker.datatype.uuid()
+            const [taskWithSession] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                flowType: 'success_flow',
+                context: { some_field: faker.lorem.words(3) },
+                sessionId,
+            })
+            expect(taskWithSession.sessionId).toEqual(sessionId)
+        })
+
     })
 
     describe('Rate limiter', () => {

@@ -76,6 +76,7 @@ const ERRORS = {
     },
 }
 
+
 const redisGuard = new RedisGuard()
 
 const ajv = new Ajv()
@@ -243,6 +244,17 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
 
         itemId: {
             schemaDoc: 'ID of the item that was changed via this task. Used for analytics',
+            type: 'Text',
+            isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        aiSessionId: {
+            schemaDoc: 'Session identifier for grouping related AI tasks in a conversation and using memory',
             type: 'Text',
             isRequired: false,
             access: {

@@ -40,14 +40,22 @@ export type GetExecutionAiFlowTaskByIdQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetExecutionAiFlowTaskByIdQuery = { __typename?: 'Query', task?: Array<{ __typename: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null } | null> | null };
+export type GetExecutionAiFlowTaskByIdQuery = { __typename?: 'Query', task?: Array<{ __typename: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null, aiSessionId?: string | null } | null> | null };
 
 export type CreateExecutionAiFlowTaskMutationVariables = Types.Exact<{
   data: Types.ExecutionAiFlowTaskCreateInput;
 }>;
 
 
-export type CreateExecutionAiFlowTaskMutation = { __typename?: 'Mutation', task?: { __typename?: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null } | null };
+export type CreateExecutionAiFlowTaskMutation = { __typename?: 'Mutation', task?: { __typename?: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null, aiSessionId?: string | null } | null };
+
+export type UpdateExecutionAiFlowTaskMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.ExecutionAiFlowTaskUpdateInput;
+}>;
+
+
+export type UpdateExecutionAiFlowTaskMutation = { __typename?: 'Mutation', task?: { __typename?: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null, aiSessionId?: string | null } | null };
 
 export type GetBankAccountReportTasksQueryVariables = Types.Exact<{
   where: Types.BankAccountReportTaskWhereInput;
@@ -766,6 +774,14 @@ export type GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables = Types.
 
 
 export type GetAllPropertyWithoutMapCountByOrganizationIdQuery = { __typename?: 'Query', _allPropertiesMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
+export type GetPropertiesQueryVariables = Types.Exact<{
+  where: Types.PropertyWhereInput;
+  first: Types.Scalars['Int']['input'];
+}>;
+
+
+export type GetPropertiesQuery = { __typename?: 'Query', properties?: Array<{ __typename?: 'Property', id: string, createdAt?: string | null, updatedAt?: string | null, name?: string | null, address?: string | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null } | null> | null };
 
 export type GetPropertyScopePropertiesQueryVariables = Types.Exact<{
   propertyScopeIds?: Types.InputMaybe<Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input']>;

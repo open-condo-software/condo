@@ -32,6 +32,8 @@ import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
 
+import { AIProvider, useAIContext } from '@condo/domains/ai/components/AIContext'
+import { AIOverlay } from '@condo/domains/ai/components/AIOverlay'
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import { CondoAppEventsHandler } from '@condo/domains/common/components/CondoAppEventsHandler'
@@ -117,6 +119,12 @@ import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
 import '@open-condo/next/logging/patchConsoleLogMethods'
+
+const AIOverlayWrapper = () => {
+    const { isAIOverlayOpen, closeAIOverlay } = useAIContext()
+    
+    return <AIOverlay open={isAIOverlayOpen} onClose={closeAIOverlay} />
+}
 
 
 const { publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
@@ -523,43 +531,46 @@ const MyApp = ({ Component, pageProps }) => {
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={emotionCache}>
                     <GlobalStyle/>
-                    <LayoutContextProvider
-                        serviceProblemsAlert={<ServiceProblemsAlert />}
-                        detectedMobileUserAgentInSSR={detectedMobileUserAgentInSSR}
-                        initialIsCollapsed={initialIsCollapsed}
-                    >
-                        {shouldDisplayCookieAgreement && <CookieAgreement/>}
-                        <HCaptchaProvider>
-                            <SudoTokenProvider>
-                                <TasksProvider>
-                                    <PostMessageProvider>
-                                        <TourProvider>
-                                            <GlobalAppsFeaturesProvider>
-                                                <GlobalAppsContainer/>
-                                                <TicketVisibilityContextProvider>
-                                                    <ActiveCallContextProvider>
-                                                        <ConnectedAppsWithIconsContextProvider>
-                                                            <CondoAppEventsHandler/>
-                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                <RequiredAccess>
-                                                                    <SubscriptionAccessGuard>
-                                                                        <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                            <Component {...pageProps} />
-                                                                        </FeaturesReady>
-                                                                    </SubscriptionAccessGuard>
-                                                                </RequiredAccess>
-                                                            </LayoutComponent>
-                                                        </ConnectedAppsWithIconsContextProvider>
-                                                    </ActiveCallContextProvider>
-                                                </TicketVisibilityContextProvider>
-                                            </GlobalAppsFeaturesProvider>
-                                        </TourProvider>
-                                    </PostMessageProvider>
-                                </TasksProvider>
-                            </SudoTokenProvider>
-                        </HCaptchaProvider>
-                        {!isSnowfallDisabled && <Snowfall />}
-                    </LayoutContextProvider>
+                    <AIProvider>
+                        <LayoutContextProvider
+                            serviceProblemsAlert={<ServiceProblemsAlert />}
+                            detectedMobileUserAgentInSSR={detectedMobileUserAgentInSSR}
+                            initialIsCollapsed={initialIsCollapsed}
+                        >
+                            {shouldDisplayCookieAgreement && <CookieAgreement/>}
+                            <HCaptchaProvider>
+                                <SudoTokenProvider>
+                                    <TasksProvider>
+                                        <PostMessageProvider>
+                                            <TourProvider>
+                                                <GlobalAppsFeaturesProvider>
+                                                    <GlobalAppsContainer/>
+                                                    <TicketVisibilityContextProvider>
+                                                        <ActiveCallContextProvider>
+                                                            <ConnectedAppsWithIconsContextProvider>
+                                                                <CondoAppEventsHandler/>
+                                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                    <RequiredAccess>
+                                                                        <SubscriptionAccessGuard>
+                                                                            <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                                <Component {...pageProps} />
+                                                                            </FeaturesReady>
+                                                                        </SubscriptionAccessGuard>
+                                                                    </RequiredAccess>
+                                                                </LayoutComponent>
+                                                            </ConnectedAppsWithIconsContextProvider>
+                                                        </ActiveCallContextProvider>
+                                                    </TicketVisibilityContextProvider>
+                                                </GlobalAppsFeaturesProvider>
+                                            </TourProvider>
+                                        </PostMessageProvider>
+                                    </TasksProvider>
+                                </SudoTokenProvider>
+                            </HCaptchaProvider>
+                            {!isSnowfallDisabled && <Snowfall />}
+                            <AIOverlayWrapper />
+                        </LayoutContextProvider>
+                    </AIProvider>
                     {yandexMetrikaID && <YandexMetrika />}
                     {googleTagManagerId && <GoogleTagManager />}
                     {!isEmpty(popupSmartConfig) && <PopupSmart />}

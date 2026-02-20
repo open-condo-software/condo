@@ -341,8 +341,8 @@ export const TextForResidentInput: React.FC<TextForResidentInputProps> = ({ inci
     const hasAiFeature = isFeatureAvailable('ai')
 
     useEffect(() => {
-        setRewriteText(rewriteTextData?.answer)
-    }, [rewriteTextData?.answer])
+        setRewriteText(rewriteTextData?.result?.answer)
+    }, [rewriteTextData?.result?.answer])
 
     useEffect(() => {
         if (( errorMessage || rewriteText)) {
@@ -717,8 +717,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                     }
 
                     const initialValue = {
-                        title: result?.data?.title,
-                        body: result?.data?.body,
+                        title: result?.data?.result?.title,
+                        body: result?.data?.result?.body,
                         propertyIds: properties,
                         hasAllProperties: incidentValues.hasAllProperties,
                         type: incidentValues.workType === INCIDENT_WORK_TYPE_EMERGENCY ? NEWS_TYPE_EMERGENCY : NEWS_TYPE_COMMON,

@@ -1,0 +1,91 @@
+/* Custom AI Drawer */
+.ai-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: white;
+  border-left: 2px solid var(--condo-global-color-gray-3);
+}
+
+/* Header */
+.header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 24px 16px;
+  background: white;
+  border-bottom: 1px solid var(--condo-global-color-gray-3);
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+}
+
+.right-section {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.title {
+  margin: 0;
+  color: var(--condo-global-color-black);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  color: var(--condo-global-color-gray-3);
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  color: var(--condo-global-color-black);
+  background-color: var(--condo-global-color-gray-3);
+}
+
+/* Resize handle - full height like VSCode/Windsurf */
+.resize-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1001;
+  width: 4px;
+  height: 100%;
+  background: transparent;
+  border-left: 1px solid var(--condo-global-color-gray-3);
+  cursor: col-resize;
+}
+
+.resize-handle:hover {
+  background: var(--condo-global-color-green-5);
+  border-left: 2px solid var(--condo-global-color-green-5);
+}
+
+.resize-handle:active {
+  background: var(--condo-global-color-green-5);
+  border-left: 2px solid var(--condo-global-color-green-5);
+}
+
+/* Content area */
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
