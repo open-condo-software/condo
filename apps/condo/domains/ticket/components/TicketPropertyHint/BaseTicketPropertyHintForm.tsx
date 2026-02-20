@@ -287,13 +287,16 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                     </Col>
                                     <Col span={14}>
                                         <Input.RichTextArea
+                                            type='inline'
                                             disabled={!organizationId}
                                             value={editorValue}
                                             onChange={(newValue) => handleEditorChange(newValue, form)}
                                             placeholder={HintMessage}
                                             maxLength={1000}
-                                            toolbarLabels={toolbarLabels}
-                                            linkModalLabels={linkModalLabels}
+                                            customLabels={{
+                                                toolbar: toolbarLabels,
+                                                linkModal: linkModalLabels,
+                                            }}  
                                         />
                                     </Col>
                                 </Row>
