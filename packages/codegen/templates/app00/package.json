@@ -36,7 +36,7 @@
     "@open-condo/ui": "workspace:^",
     "@{{name}}/domains": "link:./domains",
     "@welldone-software/why-did-you-render": "^5.0.0-alpha.1",
-    "ajv": "8.11.0",
+    "ajv": "8.18.0",
     "antd": "^4.24.12",
     "classnames": "^2.5.1",
     "cross-env": "^7.0.3",
