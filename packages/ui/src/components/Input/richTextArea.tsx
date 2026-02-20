@@ -1,4 +1,5 @@
 import { Blockquote } from '@tiptap/extension-blockquote'
+import { CharacterCount } from '@tiptap/extension-character-count'
 import { CodeBlock } from '@tiptap/extension-code-block'
 import { Heading } from '@tiptap/extension-heading'
 import { Image } from '@tiptap/extension-image'
@@ -74,10 +75,6 @@ const RICH_TEXT_AREA_COMPONENTS_BY_TYPE: Record<RenderType, Record<string, NodeC
             component: Typography.Paragraph,
             props: { strong: true, type: 'primary' },
         },
-        paragraph: {
-            component: Typography.Paragraph,
-            props: { type: 'primary' },
-        },
     },
 }
 
@@ -151,7 +148,7 @@ const TaskItemNodeView: React.FC<ReactNodeViewProps> = ({ node, updateAttributes
 TaskItemNodeView.displayName = 'TaskItemNodeView'
 
 function sanitizeMarkdown (md: string): string {
-    return md.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ')
+    return md.replaceAll('&nbsp;', ' ').replaceAll('\u00A0', ' ')
 }
 
 type RichTextAreaToolbarLabels = {
@@ -218,7 +215,7 @@ const DEFAULT_TOOLBAR_LABELS: RichTextAreaToolbarLabels = {
 const DEFAULT_LINK_MODAL_LABELS: RichTextAreaLinkModalLabels = {
     urlLabel: 'Link',
     textLabel: 'Text',
-    submitLabel: 'Ок',
+    submitLabel: 'Ok',
 }
 
 const DEFAULT_IMAGE_MODAL_LABELS: RichTextAreaImageModalLabels = {
@@ -353,10 +350,67 @@ const ToolbarButton: React.FC<{
     </Tooltip>
 )
 
-const ToolbarGroup: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+const ToolbarButtonGroup: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <span className={`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar-group`}>
         {children}
     </span>
+)
+
+type ToolbarModalProps = {
+    open: boolean
+    onCancel: () => void
+    onSubmit: () => void
+    submitLabel: string
+    children: React.ReactNode
+}
+
+const ToolbarModal: React.FC<ToolbarModalProps> = ({
+    open,
+    onCancel,
+    onSubmit,
+    submitLabel,
+    children,
+}) => {
+    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            onSubmit()
+        }
+    }, [onSubmit])
+
+    return (
+        <Modal
+            open={open}
+            onCancel={onCancel}
+            width='small'
+            scrollX={false}
+            destroyOnClose
+            className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal`}
+            footer={(
+                <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-footer`}>
+                    <Button type='primary' onClick={onSubmit}>
+                        {submitLabel}
+                    </Button>
+                </div>
+            )}
+        >
+            <div
+                className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-content`}
+                onKeyDown={handleKeyDown}
+            >
+                {children}
+            </div>
+        </Modal>
+    )
+}
+
+const ModalField: React.FC<{ label: string, children: React.ReactNode }> = ({ label, children }) => (
+    <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-field`}>
+        <Typography.Text type='secondary' size='medium'>
+            {label}
+        </Typography.Text>
+        {children}
+    </div>
 )
 
 type LinkModalProps = {
@@ -390,53 +444,22 @@ const LinkModal: React.FC<LinkModalProps> = ({
         onSubmit(url, text)
     }, [url, text, onSubmit])
 
-    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            e.preventDefault()
-            handleSubmit()
-        }
-    }, [handleSubmit])
-
     return (
-        <Modal
-            open={open}
-            onCancel={onCancel}
-            width='small'
-            scrollX={false}
-            destroyOnClose
-            className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal`}
-            footer={(
-                <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-footer`}>
-                    <Button type='primary' onClick={handleSubmit}>
-                        {labels.submitLabel}
-                    </Button>
-                </div>
-            )}
-        >
-            <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-content`}>
-                <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-field`}>
-                    <Typography.Text type='secondary' size='medium'>
-                        {labels.urlLabel}
-                    </Typography.Text>
-                    <TextInput
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder='https://'
-                    />
-                </div>
-                <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-field`}>
-                    <Typography.Text type='secondary' size='medium'>
-                        {labels.textLabel}
-                    </Typography.Text>
-                    <TextInput
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                    />
-                </div>
-            </div>
-        </Modal>
+        <ToolbarModal open={open} onCancel={onCancel} onSubmit={handleSubmit} submitLabel={labels.submitLabel}>
+            <ModalField label={labels.urlLabel}>
+                <TextInput
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder='https://'
+                />
+            </ModalField>
+            <ModalField label={labels.textLabel}>
+                <TextInput
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                />
+            </ModalField>
+        </ToolbarModal>
     )
 }
 
@@ -465,43 +488,16 @@ const ImageModal: React.FC<ImageModalProps> = ({
         onSubmit(url)
     }, [url, onSubmit])
 
-    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            e.preventDefault()
-            handleSubmit()
-        }
-    }, [handleSubmit])
-
     return (
-        <Modal
-            open={open}
-            onCancel={onCancel}
-            width='small'
-            scrollX={false}
-            destroyOnClose
-            className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal`}
-            footer={(
-                <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-footer`}>
-                    <Button type='primary' onClick={handleSubmit}>
-                        {labels.submitLabel}
-                    </Button>
-                </div>
-            )}
-        >
-            <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-content`}>
-                <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-link-modal-field`}>
-                    <Typography.Text type='secondary' size='medium'>
-                        {labels.urlLabel}
-                    </Typography.Text>
-                    <TextInput
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder='https://'
-                    />
-                </div>
-            </div>
-        </Modal>
+        <ToolbarModal open={open} onCancel={onCancel} onSubmit={handleSubmit} submitLabel={labels.submitLabel}>
+            <ModalField label={labels.urlLabel}>
+                <TextInput
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder='https://'
+                />
+            </ModalField>
+        </ToolbarModal>
     )
 }
 
@@ -528,12 +524,12 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
     const [imageModalOpen, setImageModalOpen] = useState(false)
 
     const hasLink = useMemo(
-        () => groups.some(group => group.some(item => item === 'link')),
+        () => groups.some(group => group.includes('link')),
         [groups],
     )
 
     const hasImage = useMemo(
-        () => groups.some(group => group.some(item => item === 'image')),
+        () => groups.some(group => group.includes('image')),
         [groups],
     )
 
@@ -576,21 +572,20 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
 
         const { from, to } = editor.state.selection
         const hasSelection = from !== to
-        const hasUrl = Boolean(url.trim())
 
-        const trimmedUrl = hasUrl ? url.trim() : undefined
+        const trimmedUrl = url.trim() || undefined
 
         if (hasSelection) {
             const selectedText = editor.state.doc.textBetween(from, to, '')
             if (text && text !== selectedText) {
                 editor.chain().focus().deleteSelection()
                     .insertContent(makeTextContent(text, trimmedUrl)).run()
-            } else if (hasUrl) {
-                editor.chain().focus().setLink({ href: url }).run()
+            } else if (trimmedUrl) {
+                editor.chain().focus().setLink({ href: trimmedUrl }).run()
             } else {
                 editor.chain().focus().unsetLink().run()
             }
-        } else if (!hasUrl && editor.isActive('link')) {
+        } else if (!trimmedUrl && editor.isActive('link')) {
             editor.chain().focus().unsetLink().run()
         } else if (text) {
             editor.chain().focus().insertContent(makeTextContent(text, trimmedUrl)).run()
@@ -635,7 +630,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
             <div className={`${RICH_TEXT_AREA_CLASS_PREFIX}-toolbar`}>
                 {groups.map((group, groupIndex) => (
                     // eslint-disable-next-line react/no-array-index-key
-                    <ToolbarGroup key={groupIndex}>
+                    <ToolbarButtonGroup key={groupIndex}>
                         {group.map((item) => {
                             const config = BUILTIN_BUTTON_CONFIG[item]
                             const state = buttonStates?.[item]
@@ -650,7 +645,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
                                 />
                             )
                         })}
-                    </ToolbarGroup>
+                    </ToolbarButtonGroup>
                 ))}
             </div>
             {/* NOTE: conditional render required — condo Modal can't close visually via open prop */}
@@ -693,8 +688,6 @@ export type RichTextAreaProps = {
     type?: RenderType
 }
 
-const getTextLength = (e: Editor) => e.getText({ blockSeparator: '\n' }).length
-
 const EDITOR_VERTICAL_PADDING = 24 // 12px top + 12px bottom
 const DEFAULT_LINE_HEIGHT = 24
 
@@ -732,12 +725,6 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     const onChangeRef = useRef(onChange)
     onChangeRef.current = onChange
 
-    const maxLengthRef = useRef(maxLength)
-    maxLengthRef.current = maxLength
-
-    const overflowPolicyRef = useRef(overflowPolicy)
-    overflowPolicyRef.current = overflowPolicy
-
     // Parse autoSize config
     const autoSizeConfig = useMemo(() => {
         if (typeof autoSize === 'boolean' || !autoSize) return { minRows: 1 }
@@ -748,8 +735,6 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     const editorWrapRef = useRef<HTMLDivElement>(null)
     const [measuredLineHeight, setMeasuredLineHeight] = useState<number | null>(null)
     const lineHeight = measuredLineHeight || DEFAULT_LINE_HEIGHT
-
-    const [markdownLength, setMarkdownLength] = useState(0)
 
     const editor = useEditor({
         extensions: [
@@ -782,27 +767,19 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                 placeholder: placeholder || 'Placeholder',
                 showOnlyCurrent: false,
             }),
+            CharacterCount.configure({
+                limit: overflowPolicy === 'crop' ? maxLength : null,
+                mode: 'textSize',
+            }),
         ],
         editable: !disabled,
         content: value || '',
         ...(value ? { contentType: 'markdown' as const } : {}),
         onUpdate: ({ editor: updatedEditor }) => {
             const md = sanitizeMarkdown(updatedEditor.getMarkdown())
-
-            const textLength = getTextLength(updatedEditor)
-
-            if (overflowPolicyRef.current === 'crop' && md.length > maxLengthRef.current) {
-                const croppedMd = md.slice(0, maxLengthRef.current)
-                updatedEditor.commands.setContent(croppedMd, { contentType: 'markdown' })
-                setMarkdownLength(getTextLength(updatedEditor))
-                onChangeRef.current?.(croppedMd)
-                return
-            }
-
-            setMarkdownLength(textLength)
             onChangeRef.current?.(md)
         },
-    })
+    }, [placeholder])
 
     // Sync editable state with disabled prop
     useEffect(() => {
@@ -817,16 +794,13 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
             const currentMd = sanitizeMarkdown(editor.getMarkdown())
             if (currentMd !== value) {
                 editor.commands.setContent(value || '', value ? { contentType: 'markdown' } : {})
-                setMarkdownLength(getTextLength(editor))
             }
         }
     }, [editor, value])
 
-    // Update text length on mount and measure line-height
+    // Measure line-height on mount
     useEffect(() => {
         if (editor) {
-            setMarkdownLength(getTextLength(editor))
-
             // Measure actual line-height from rendered editor
             const el = editorWrapRef.current?.querySelector('.tiptap')
             if (el) {
@@ -842,7 +816,10 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         onSubmit(md)
     }, [editor, onSubmit])
 
-    const currentLength = editor ? markdownLength : (value || '').length
+    const currentLength = useEditorState({
+        editor,
+        selector: ({ editor: e }) => e?.storage.characterCount?.characters() ?? 0,
+    })
 
     // Calculate min/max height from rows and measured line-height
     const style = useMemo(() => {
@@ -881,9 +858,9 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
                         <span className='condo-input-bottom-panel'>
                             {hasBottomPanelUtils && (
                                 <span className='condo-input-utils'>
-                                    {bottomPanelUtils.map((util) => (
+                                    {bottomPanelUtils.map((util, index) => (
                                         React.cloneElement(util, {
-                                            key: util.key ?? String(util.type),
+                                            key: util.key ?? index,
                                             disabled: util.props.disabled || disabled,
                                         })
                                     ))}
