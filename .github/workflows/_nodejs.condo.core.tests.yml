@@ -1,9 +1,12 @@
 on:
   workflow_call:
     inputs:
-      domain_name:
+      shard_index:
         required: true
-        type: string
+        type: number
+      shard_total:
+        required: true
+        type: number
       image_name:
         required: true
         type: string
@@ -56,12 +59,12 @@ jobs:
           -e GH_REF_NAME=$GH_REF_NAME \
           -v ./test_logs:/app/test_logs --network="host" \
           ${{ secrets.DOCKER_REGISTRY }}/${{ inputs.image_name }} \
-          bash -c "./bin/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
+          bash -c "./bin/run_condo_domain_tests.sh -s ${{ inputs.shard_index }} -t ${{ inputs.shard_total }}"
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
-          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          GH_REF_NAME: ${{ github.head_ref || github.ref_name }}
 
       - name: Collect docker logs on failure
         if: failure()
@@ -73,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: logs-${{ inputs.domain_name }}-${{ env.GITHUB_RUN_ID }}-${{ env.GITHUB_RUN_NUMBER }}
+          name: logs-shard-${{ inputs.shard_index }}-of-${{ inputs.shard_total }}-${{ env.GITHUB_RUN_ID }}-${{ env.GITHUB_RUN_NUMBER }}
           path: |
             ./test_logs/*
             *.log
