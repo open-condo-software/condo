@@ -72,7 +72,7 @@ const TaskListItem: React.FC<TaskListItemType> = ({
 }
 
 // NOTE: If you change this config, make sure to update RICH_TEXT_AREA_COMPONENTS_BY_TYPE
-// in packages/ui/src/components/Input/richTextAria.tsx accordingly
+// in packages/ui/src/components/Input/richTextArea.tsx accordingly
 const MARKDOWN_COMPONENTS_BY_TYPE = {
     'default': {
         h1: (props: any) => <Typography.Title {...omit(props, 'ref')} level={1}/>,

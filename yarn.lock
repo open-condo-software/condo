@@ -12099,10 +12099,12 @@ __metadata:
     "@tanstack/react-table": ^8.1.6
     "@tiptap/core": ^3.19.0
     "@tiptap/extension-blockquote": ^3.19.0
+    "@tiptap/extension-character-count": ^3.19.0
     "@tiptap/extension-code-block": ^3.19.0
     "@tiptap/extension-heading": ^3.19.0
     "@tiptap/extension-image": ^3.19.0
     "@tiptap/extension-link": ^3.19.0
+    "@tiptap/extension-list": ^3.19.0
     "@tiptap/extension-list-item": ^3.19.0
     "@tiptap/extension-paragraph": ^3.19.0
     "@tiptap/extension-placeholder": ^3.19.0
@@ -12110,7 +12112,6 @@ __metadata:
     "@tiptap/extension-table-cell": ^3.19.0
     "@tiptap/extension-table-header": ^3.19.0
     "@tiptap/extension-table-row": ^3.19.0
-    "@tiptap/extensions": ^3.19.0
     "@tiptap/markdown": ^3.19.0
     "@tiptap/pm": ^3.19.0
     "@tiptap/react": ^3.19.0
@@ -15457,6 +15458,15 @@ __metadata:
   peerDependencies:
     "@tiptap/extension-list": ^3.19.0
   checksum: 0b74b064f2c69f4e9348558dc3bacc66bb56ef633ff100cbe8b91da5b60a94b72a488c228c1c1ec07316177afdd1f5f3a905ce5d48af1d34ceab97708bfe8cc5
+  languageName: node
+  linkType: hard
+
+"@tiptap/extension-character-count@npm:^3.19.0":
+  version: 3.20.0
+  resolution: "@tiptap/extension-character-count@npm:3.20.0"
+  peerDependencies:
+    "@tiptap/extensions": ^3.20.0
+  checksum: 233889b7f38736cac545bcc7f21e52313481c5da7a725d5cbe3c953ee739ae95e5c35323aa29c352ff12db9d3a6f3003d91709f22a968d54178045bf3b1a7c7e
   languageName: node
   linkType: hard
 
