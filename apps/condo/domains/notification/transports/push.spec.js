@@ -1,6 +1,31 @@
 /**
  * @jest-environment node
  */
+jest.mock('@open-condo/config', () => {
+    const original = jest.requireActual('@open-condo/config')
+    const mockedValues = {
+        TESTS_FAKE_WORKER_MODE: true,
+        PUSH_NOTIFICATION_APP_GROUPS_SETTINGS: JSON.stringify({
+            group_1: ['appId_1', 'appId_2', 'appId_3'],
+            group_2: ['appId_4', 'appId_5'],
+            group_3: ['appId_6'],
+        }),
+    }
+    return new Proxy(original, {
+        get (target, key) {
+            if (key in mockedValues) {
+                return mockedValues[key]
+            }
+            return original[key]
+        },
+        set: jest.fn(),
+    })
+})
+const PUSH_NOTIFICATION_APP_GROUPS_SETTINGS = {
+    group_1: ['appId_1', 'appId_2', 'appId_3'],
+    group_2: ['appId_4', 'appId_5'],
+    group_3: ['appId_6'],
+}
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
