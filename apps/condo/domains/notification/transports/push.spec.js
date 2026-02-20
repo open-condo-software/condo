@@ -3,16 +3,25 @@
  */
 jest.mock('@open-condo/config', () => {
     const actual = jest.requireActual('@open-condo/config')
+    const mockedValues = {
+        TESTS_FAKE_WORKER_MODE: true,
+        PUSH_NOTIFICATION_APP_GROUPS_SETTINGS: JSON.stringify({
+            group_1: ['appId_1', 'appId_2', 'appId_3'],
+            group_2: ['appId_4', 'appId_5'],
+            group_3: ['appId_6'],
+        }),
+        PUSH_ADAPTER_SETTINGS: JSON.stringify({
+            encryption: {
+                'test-encrypted-app-with-invalid-version': 'non-existent-encryption-version',
+                'test-encrypted-app': 'v1',
+            },
+        })
+    }
     return new Proxy(actual, {
         set () {},
         get (_, p) {
-            if (p === 'PUSH_ADAPTER_SETTINGS') {
-                return JSON.stringify({
-                    encryption: {
-                        'test-encrypted-app-with-invalid-version': 'non-existent-encryption-version',
-                        'test-encrypted-app': 'v1',
-                    },
-                })
+            if (p in mockedValues) {
+                return mockedValues[p]
             }
             return actual[p]
         },
@@ -22,6 +31,11 @@ const ENCRYPTED_APP_ID = 'test-encrypted-app'
 const ALWAYS_INVALID_ENCRYPTION_APP_ID = 'test-encrypted-app-with-invalid-version'
 const TEST_ENCRYPTION_VERSIONS = {
     [ENCRYPTED_APP_ID]: 'v1',
+}
+const PUSH_NOTIFICATION_APP_GROUPS_SETTINGS = {
+    group_1: ['appId_1', 'appId_2', 'appId_3'],
+    group_2: ['appId_4', 'appId_5'],
+    group_3: ['appId_6'],
 }
 
 const index = require('@app/condo/index')
