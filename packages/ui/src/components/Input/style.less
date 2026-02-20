@@ -3,6 +3,7 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 @import (reference) "@open-condo/ui/src/components/style/mixins/link";
+@import (reference) "@open-condo/ui/src/components/style/mixins/rich-content";
 
 .condo-input,
 .condo-input-phone,
@@ -271,68 +272,27 @@
   max-height: var(--rta-max-height, none);
   padding: @condo-global-spacing-12;
   overflow-y: auto;
-  color: @condo-global-color-black;
   font-size: @condo-global-typography-text-l-font-size;
   line-height: @condo-global-typography-text-l-line-height;
   outline: none;
 
-  /* Typography */
-  h2 {
-    margin: 12px 0 8px;
-    font-weight: @condo-global-typography-h4-font-weight;
-    font-size: @condo-global-typography-h4-font-size;
-    line-height: @condo-global-typography-h4-line-height;
-  }
+  .condo-rich-content();
 
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin: 12px 0 8px;
-    font-weight: @condo-global-typography-h5-font-weight;
-    font-size: @condo-global-typography-h5-font-size;
-    line-height: @condo-global-typography-h5-line-height;
-  }
-
-  p {
-    margin: 0 0 8px;
-  }
-
-  strong {
-    font-weight: 700;
-  }
-
-  em {
-    font-style: italic;
-  }
-
-  a {
-    .condo-link();
-  }
-
-  blockquote {
-    margin: 8px 0;
-    padding-left: 16px;
-    color: @condo-global-color-gray-7;
-    border-left: 3px solid @condo-global-color-gray-3;
-  }
-
+  /* TipTap NodeView wraps list items in block-level <div class="node-listItem">,
+     so list-style-position: inside (from mixin) puts the marker on a separate line.
+     Override to outside and restore padding for marker space. */
   ul,
   ol {
-    margin: 8px 0;
     padding-left: 24px;
-  }
-
-  li {
-    margin-bottom: 4px;
+    list-style-position: outside;
   }
 
   /* stylelint-disable selector-class-pattern, no-descending-specificity */
 
-  /* NodeView wraps list items in <div class="react-renderer node-listItem"> instead of <li>,
-     so we need to restore list-item display for markers to show */
   .node-listItem {
-    margin-bottom: 4px;
+    &:not(:last-child) {
+      margin-bottom: 0.5em;
+    }
   }
 
   ul > .node-listItem {
@@ -344,76 +304,22 @@
     display: list-item;
     list-style-type: decimal;
   }
+
+  .node-listItem::marker {
+    .condo-typography-text-large();
+  }
+
   /* stylelint-enable selector-class-pattern, no-descending-specificity */
 
-  img {
-    max-width: 100%;
-    height: auto;
-    border-radius: @condo-global-border-radius-small;
-  }
-
-  table {
-    width: 100%;
-    margin: 12px 0;
-    border-collapse: collapse;
-  }
-
-  th,
-  td {
-    padding: 8px 12px;
-    text-align: left;
-    border: 1px solid @condo-global-color-gray-5;
-  }
-
-  th {
-    font-weight: 600;
-    background: @condo-global-color-gray-1;
-  }
-
-  code {
-    padding: 2px 4px;
-    font-size: 0.9em;
-    font-family: monospace;
-    background-color: @condo-global-color-gray-1;
-    border-radius: @condo-global-border-radius-small;
-  }
-
   pre {
-    margin: 8px 0;
-    padding: 12px 16px;
     overflow-x: auto;
-    background-color: @condo-global-color-gray-1;
-    border-radius: @condo-global-border-radius-medium;
-
-    code {
-      padding: 0;
-      background: none;
-      border-radius: 0;
-    }
-  }
-
-  hr {
-    margin: 16px 0;
-    border: none;
-    border-top: 1px solid @condo-global-color-gray-3;
   }
 }
 
 /* stylelint-disable selector-class-pattern */
 
-/* List marker colors based on type prop */
-.condo-rich-text-area-type-default .condo-rich-text-area-editor-wrap .tiptap {
-  ul > .node-listItem,
-  ol > .node-listItem {
-    color: @condo-global-color-gray-7;
-  }
-}
-
 .condo-rich-text-area-type-inline .condo-rich-text-area-editor-wrap .tiptap {
-  ul > .node-listItem,
-  ol > .node-listItem {
-    color: @condo-global-color-black;
-  }
+  .condo-rich-content-inline();
 }
 
 /* stylelint-enable selector-class-pattern */
