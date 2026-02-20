@@ -31,7 +31,7 @@ const ALL_TOOLBAR_GROUPS: ToolbarGroup[] = [
     ['link', 'image'],
     ['unorderedList', 'orderedList', 'taskList', 'blockquote'],
     ['table'],
-    ['removeFormating'],
+    ['removeFormatting'],
 ]
 
 const ALL_FEATURES_MD = [
