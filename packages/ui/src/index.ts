@@ -32,8 +32,9 @@ export type {
     PasswordInputProps, 
     PhoneInputProps,
     RichTextAreaProps,
-    RichTextAreaToolbarLabels,
-    RichTextAreaLinkModalLabels,
+    RichTextAreaCustomLabels,
+    BuiltinToolbarButton,
+    ToolbarGroup,
 } from './components/Input'
 
 export { List } from './components/List'

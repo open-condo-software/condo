@@ -1,0 +1,184 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import (reference) "@open-condo/ui/src/components/style/mixins/table";
+@import (reference) "@open-condo/ui/src/components/style/mixins/link";
+
+.condo-rich-content() {
+  color: @condo-global-color-gray-7;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 1.8em 0 0.8em;
+
+    &:first-child {
+      margin: 0 0 0.6em;
+    }
+  }
+
+  p {
+    margin: 0 0 @condo-global-spacing-20;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  s,
+  del {
+    text-decoration: line-through;
+  }
+
+  a {
+    .condo-link();
+  }
+
+  ul,
+  ol {
+    margin-bottom: 1.8em;
+    padding-left: 0.75em;
+    color: @condo-global-color-gray-7;
+    list-style-position: inside;
+
+    & ul,
+    & ol {
+      padding-left: @condo-global-spacing-20;
+    }
+
+    & > li:not(:last-child),
+    & > li ul:not(:last-child),
+    & > li ol:not(:last-child) {
+      margin-bottom: 0.5em;
+    }
+
+    & > li ul:first-child,
+    & > li ol:first-child {
+      margin-top: 0.5em;
+    }
+
+    & li::marker {
+      .condo-typography-text-large();
+    }
+  }
+
+  blockquote {
+    margin: 1em 0;
+    padding-left: 1em;
+    border-left: 0.25em solid @condo-global-color-gray-5;
+
+    & > .condo-typography {
+      padding: 0.5em 0;
+    }
+
+    & > blockquote:not(:first-child) {
+      margin-top: 0.5em;
+    }
+  }
+
+  table {
+    width: 100%;
+    .condo-table();
+
+    td {
+      color: @condo-global-color-black;
+    }
+  }
+
+  table:not(:last-child) {
+    margin-bottom: @condo-global-spacing-24;
+  }
+
+  code {
+    padding: 2px 4px;
+    color: @condo-global-color-black;
+    font-size: 14px;
+    font-family: "Noto Sans Mono", var(--condo-font-fallback-mono);
+    line-height: 1.5;
+    background-color: @condo-global-color-gray-1;
+    border-radius: @condo-global-border-radius-small;
+  }
+
+  pre,
+  code {
+    direction: ltr;
+    text-align: left;
+    text-shadow: none;
+    word-break: normal;
+    word-spacing: normal;
+    tab-size: 4;
+    hyphens: none;
+  }
+
+  pre::selection,
+  code::selection {
+    text-shadow: none;
+  }
+
+  pre {
+    margin: @condo-global-spacing-24 0 @condo-global-spacing-20;
+    padding: @condo-global-spacing-16;
+    overflow: visible;
+    white-space: pre;
+    background: @condo-global-color-gray-1;
+    border-radius: @condo-global-border-radius-large;
+
+    code {
+      padding: 0;
+      font-size: inherit;
+      background: none;
+      border-radius: 0;
+    }
+  }
+
+  ul[data-type="taskList"] {
+    padding-left: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+
+      &::marker {
+        content: none;
+      }
+
+      > span[contenteditable="false"] {
+        flex-shrink: 0;
+        line-height: 0;
+      }
+
+      > div {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+  }
+
+  hr {
+    margin: 16px 0;
+    border: none;
+    border-top: 1px solid @condo-global-color-gray-3;
+  }
+}
+
+.condo-rich-content-inline() {
+  color: @condo-global-color-black;
+
+  ul,
+  ol {
+    color: @condo-global-color-black;
+  }
+}
