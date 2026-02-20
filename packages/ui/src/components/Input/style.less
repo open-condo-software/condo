@@ -267,44 +267,11 @@
   max-height: var(--rta-max-height, none);
   padding: @condo-global-spacing-12;
   overflow-y: auto;
-  font-size: @condo-global-typography-text-l-font-size;
-  line-height: @condo-global-typography-text-l-line-height;
   outline: none;
+  word-break: break-word;
+  .condo-typography-text-large();
 
   .condo-rich-content();
-
-  /* TipTap NodeView wraps list items in block-level <div class="node-listItem">,
-     so list-style-position: inside (from mixin) puts the marker on a separate line.
-     Override to outside and restore padding for marker space. */
-  ul,
-  ol {
-    padding-left: 24px;
-    list-style-position: outside;
-  }
-
-  /* stylelint-disable selector-class-pattern, no-descending-specificity */
-
-  .node-listItem {
-    &:not(:last-child) {
-      margin-bottom: 0.5em;
-    }
-  }
-
-  ul > .node-listItem {
-    display: list-item;
-    list-style-type: disc;
-  }
-
-  ol > .node-listItem {
-    display: list-item;
-    list-style-type: decimal;
-  }
-
-  .node-listItem::marker {
-    .condo-typography-text-large();
-  }
-
-  /* stylelint-enable selector-class-pattern, no-descending-specificity */
 
   pre {
     overflow-x: auto;
@@ -325,9 +292,6 @@
   width: 100%;
   height: 0;
   color: @condo-global-color-gray-7;
-  font-size: @condo-global-typography-text-l-font-size;
-  font-family: @condo-global-typography-text-l-font-family;
-  line-height: @condo-global-typography-text-l-line-height;
   content: attr(data-placeholder);
   pointer-events: none;
 }

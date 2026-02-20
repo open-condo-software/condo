@@ -4,8 +4,6 @@ import { Heading } from '@tiptap/extension-heading'
 import { Image } from '@tiptap/extension-image'
 import { Link } from '@tiptap/extension-link'
 import { TaskItem, TaskList } from '@tiptap/extension-list'
-import { ListItem } from '@tiptap/extension-list-item'
-import { Paragraph } from '@tiptap/extension-paragraph'
 import { Placeholder } from '@tiptap/extension-placeholder'
 import { Table } from '@tiptap/extension-table'
 import { TableCell } from '@tiptap/extension-table-cell'
@@ -70,10 +68,6 @@ const RICH_TEXT_AREA_COMPONENTS_BY_TYPE: Record<RenderType, Record<string, NodeC
             component: Typography.Title,
             getProps: (attrs) => ({ level: attrs.level }),
         },
-        listItem: {
-            component: Typography.Text,
-            props: { type: 'secondary' },
-        },
     },
     inline: {
         heading: {
@@ -83,9 +77,6 @@ const RICH_TEXT_AREA_COMPONENTS_BY_TYPE: Record<RenderType, Record<string, NodeC
         paragraph: {
             component: Typography.Paragraph,
             props: { type: 'primary' },
-        },
-        listItem: {
-            component: Typography.Text,
         },
     },
 }
@@ -138,8 +129,6 @@ function createNodeView ({ configKey, fallbackTag, contentTag }: NodeViewOptions
 }
 
 const HeadingNodeView = createNodeView({ configKey: 'heading', fallbackTag: 'h2' })
-const ParagraphNodeView = createNodeView({ configKey: 'paragraph', fallbackTag: 'p' })
-const ListItemNodeView = createNodeView({ configKey: 'listItem', fallbackTag: 'li' })
 const CodeBlockNodeView = createNodeView({ fallbackTag: 'pre', contentTag: 'code' })
 const BlockquoteNodeView = createNodeView({ fallbackTag: 'blockquote' })
 
@@ -161,6 +150,9 @@ const TaskItemNodeView: React.FC<ReactNodeViewProps> = ({ node, updateAttributes
 }
 TaskItemNodeView.displayName = 'TaskItemNodeView'
 
+function sanitizeMarkdown (md: string): string {
+    return md.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ')
+}
 
 type RichTextAreaToolbarLabels = {
     undo: string
@@ -636,7 +628,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
         openImageModal: handleImage,
     }), [handleLink, handleImage])
 
-    if (!editor || !buttonStates) return null
+    if (!editor) return null
 
     return (
         <>
@@ -646,7 +638,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, labels, linkModalLabels, imag
                     <ToolbarGroup key={groupIndex}>
                         {group.map((item) => {
                             const config = BUILTIN_BUTTON_CONFIG[item]
-                            const state = buttonStates[item]
+                            const state = buttonStates?.[item]
                             return (
                                 <ToolbarButton
                                     key={item}
@@ -763,17 +755,13 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         extensions: [
             StarterKit.configure({
                 heading: false,
-                paragraph: false,
                 codeBlock: false,
                 blockquote: false,
-                listItem: false,
             }),
             Heading.extend({ addNodeView: () => ReactNodeViewRenderer(HeadingNodeView) })
                 .configure({ levels: [1, 2, 3, 4, 5, 6] }),
-            Paragraph.extend({ addNodeView: () => ReactNodeViewRenderer(ParagraphNodeView) }),
             CodeBlock.extend({ addNodeView: () => ReactNodeViewRenderer(CodeBlockNodeView) }),
             Blockquote.extend({ addNodeView: () => ReactNodeViewRenderer(BlockquoteNodeView) }),
-            ListItem.extend({ addNodeView: () => ReactNodeViewRenderer(ListItemNodeView) }),
             Link.configure({
                 openOnClick: false,
                 HTMLAttributes: {
@@ -799,7 +787,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
         content: value || '',
         ...(value ? { contentType: 'markdown' as const } : {}),
         onUpdate: ({ editor: updatedEditor }) => {
-            const md = updatedEditor.getMarkdown()
+            const md = sanitizeMarkdown(updatedEditor.getMarkdown())
 
             const textLength = getTextLength(updatedEditor)
 
@@ -826,7 +814,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
     // Sync external value changes
     useEffect(() => {
         if (editor && value !== undefined) {
-            const currentMd = editor.getMarkdown()
+            const currentMd = sanitizeMarkdown(editor.getMarkdown())
             if (currentMd !== value) {
                 editor.commands.setContent(value || '', value ? { contentType: 'markdown' } : {})
                 setMarkdownLength(getTextLength(editor))
@@ -850,7 +838,7 @@ export const RichTextArea: React.FC<RichTextAreaProps> = ({
 
     const handleSubmit = useCallback(() => {
         if (!editor || !onSubmit) return
-        const md = editor.getMarkdown()
+        const md = sanitizeMarkdown(editor.getMarkdown())
         onSubmit(md)
     }, [editor, onSubmit])
 
