@@ -4,7 +4,7 @@
 
 const { get, has } = require('lodash')
 
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/banking/access/BankTransaction')
@@ -89,6 +89,7 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
             schemaDoc: 'Stores data, obtained from external source',
             type: 'Json',
             isRequired: true,
+            sensitive: true,
         },
 
         importId: {
@@ -108,7 +109,7 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadBankTransactions,
         create: access.canManageBankTransactions,

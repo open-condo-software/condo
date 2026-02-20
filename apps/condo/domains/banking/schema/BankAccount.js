@@ -5,7 +5,7 @@
 const { get } = require('lodash')
 
 const { GQLError,  GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, analytical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { getById, find } = require('@open-condo/keystone/schema')
 
@@ -97,6 +97,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
             schemaDoc: 'Structured metadata found by tin',
             type: 'Json',
             isRequired: false,
+            sensitive: true,
         },
 
         country: {
@@ -130,6 +131,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
             schemaDoc: 'Structured metadata found by routing number',
             type: 'Json',
             isRequired: false,
+            sensitive: true,
         },
 
         number: {
@@ -209,6 +211,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
             schemaDoc: 'Structured non-typed metadata, can be used by mini-apps or external services to store information',
             type: 'Json',
             isRequired: false,
+            sensitive: true,
         },
 
         classificationCode: {
@@ -238,7 +241,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), analytical()],
     access: {
         read: access.canReadBankAccounts,
         create: access.canManageBankAccounts,
